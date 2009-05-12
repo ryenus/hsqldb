@@ -1570,7 +1570,6 @@ public class Server implements HsqlSocketRequestHandler {
             }
             case ResultConstants.UPDATE_RESULT : {
                 sb.append("SQLCLI:RESULTUPDATE:");
-
                 sb.append(r.getStatementID());
 
                 break;
@@ -1750,9 +1749,9 @@ public class Server implements HsqlSocketRequestHandler {
 
             return i;
         } catch (HsqlException e) {
-            printError("Database [index=" + i + ", db=" + dbType[i] + dbPath[i]
-                       + ", alias=" + dbAlias[i] + "] did not open: "
-                       + e.toString());
+            printError("Database [index=" + i + ", db=" + dbType[i]
+                       + dbPath[i] + ", alias=" + dbAlias[i]
+                       + "] did not open: " + e.toString());
             setServerError(e);
 
             throw e;
@@ -1997,7 +1996,7 @@ public class Server implements HsqlSocketRequestHandler {
                         address, sb.toString()
                     };
                 } else {
-                    messageID         = ErrorCode.M_SERVER_OPEN_SERVER_SOCKET_2;
+                    messageID = ErrorCode.M_SERVER_OPEN_SERVER_SOCKET_2;
                     messageParameters = new Object[]{ address };
                 }
 
@@ -2024,7 +2023,9 @@ public class Server implements HsqlSocketRequestHandler {
     /** Prints a timestamped message indicating that this server is online */
     private void printServerOnlineMessage() {
 
-        String s = getProductName() + " " + getProductVersion() + " is online";
+        String s = getProductName() + " " + getProductVersion()
+                   + " is online on port " + this.getPort();
+        ;
 
         printWithTimestamp(s);
         printResource("online.help");

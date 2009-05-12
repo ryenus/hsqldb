@@ -176,8 +176,10 @@ class WebServerConnection implements Runnable {
     public void run() {
 
         DataInputStream inStream = null;
+
         try {
             inStream = new DataInputStream(socket.getInputStream());
+
             int    count;
             String request;
             String name   = null;
@@ -239,17 +241,19 @@ class WebServerConnection implements Runnable {
                     processPost(inStream, name);
                     break;
             }
-
         } catch (Exception e) {
             server.printStackTrace(e);
-        } finally { try {
-            if (inStream != null) {
-                inStream.close();
+        } finally {
+            try {
+                if (inStream != null) {
+                    inStream.close();
+                }
+
+                socket.close();
+            } catch (IOException ioe) {
+                server.printStackTrace(ioe);
             }
-            socket.close();
-        } catch (IOException ioe) {
-            server.printStackTrace(ioe);
-        } }
+        }
     }
 
     /**
@@ -307,7 +311,10 @@ class WebServerConnection implements Runnable {
             DataInputStream dataIn     = new DataInputStream(inStream);
             int             databaseID = dataIn.readInt();
             long            sessionID  = dataIn.readLong();
-            Result          resultIn   = Result.newResult(dataIn, rowIn);
+            int             mode       = dataIn.readByte();
+            Session session = DatabaseManager.getSession(databaseID,
+                sessionID);
+            Result resultIn = Result.newResult(session, mode, dataIn, rowIn);
 
             resultIn.setDatabaseId(databaseID);
             resultIn.setSessionId(sessionID);
@@ -320,9 +327,12 @@ class WebServerConnection implements Runnable {
                     String databaseName = resultIn.getDatabaseName();
                     int    dbIndex      = server.getDBIndex(databaseName);
                     int    dbID         = server.dbID[dbIndex];
-                    Session session = DatabaseManager.newSession(dbID,
-                        resultIn.getMainString(), resultIn.getSubString(),
-                        resultIn.getUpdateCount());
+
+                    session =
+                        DatabaseManager.newSession(dbID,
+                                                   resultIn.getMainString(),
+                                                   resultIn.getSubString(),
+                                                   resultIn.getUpdateCount());
 
                     resultIn.readAdditionalResults(session, dataIn, rowIn);
 
@@ -335,8 +345,6 @@ class WebServerConnection implements Runnable {
                 }
             } else {
                 int dbID = resultIn.getDatabaseId();
-                Session session = DatabaseManager.getSession(dbID,
-                    resultIn.getSessionId());
 
                 if (session == null) {
                     resultOut = Result.newErrorResult(

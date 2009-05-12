@@ -335,7 +335,7 @@ public class Result {
             result.statement = statement;
             result.metaData  = result.statement.getParametersMetaData();
 
-            result.navigator.read(in, result.metaData);
+            result.navigator.readSimple(in, result.metaData);
         } catch (IOException e) {
             throw Error.error(ErrorCode.X_08000);
         }
@@ -495,7 +495,7 @@ public class Result {
                 result.rsHoldability   = in.readShort();
                 result.metaData        = new ResultMetaData(in);
 
-                result.navigator.read(in, result.metaData);
+                result.navigator.readSimple(in, result.metaData);
                 break;
 
             case ResultConstants.EXECUTE :
@@ -513,7 +513,7 @@ public class Result {
                 result.statement = statement;
                 result.metaData  = result.statement.getParametersMetaData();
 
-                result.navigator.read(in, result.metaData);
+                result.navigator.readSimple(in, result.metaData);
                 break;
 
             case ResultConstants.UPDATE_RESULT : {
@@ -538,7 +538,7 @@ public class Result {
                 result.statementID = in.readLong();
                 result.metaData    = new ResultMetaData(in);
 
-                result.navigator.read(in, result.metaData);
+                result.navigator.readSimple(in, result.metaData);
 
                 break;
             }
@@ -1228,7 +1228,7 @@ public class Result {
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
                 metaData.write(rowOut);
-                navigator.write(rowOut, metaData);
+                navigator.writeSimple(rowOut, metaData);
                 break;
 
             case ResultConstants.EXECUTE :
@@ -1238,7 +1238,7 @@ public class Result {
                 rowOut.writeShort(rsScrollability);
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
-                navigator.write(rowOut, metaData);
+                navigator.writeSimple(rowOut, metaData);
                 break;
 
             case ResultConstants.UPDATE_RESULT :
@@ -1256,7 +1256,7 @@ public class Result {
                 rowOut.writeInt(fetchSize);
                 rowOut.writeLong(statementID);
                 metaData.write(rowOut);
-                navigator.write(rowOut, metaData);
+                navigator.writeSimple(rowOut, metaData);
 
                 break;
             }

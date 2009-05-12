@@ -4580,8 +4580,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         // outRegistrationMap = new IntKeyIntValueHashMap();
         parameterNameMap = new IntValueHashMap();
 
-        if (pmdDescriptor != null) {
-            names = pmdDescriptor.columnLabels;
+        if (parameterMetaData != null) {
+            names = parameterMetaData.columnLabels;
 
             for (int i = 0; i < names.length; i++) {
                 name = names[i];
