@@ -180,6 +180,34 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         }
     }
 
+    public void readSimple(RowInputInterface in,
+                     ResultMetaData meta) throws HsqlException, IOException {
+
+        size          = in.readInt();
+
+        if (table.length < size) {
+            table = new Object[size][];
+        }
+
+
+        for (int i = 0; i < size; i++) {
+            table[i] = in.readData(meta.columnTypes);
+        }
+    }
+
+    public void writeSimple(RowOutputInterface out,
+                      ResultMetaData meta) throws HsqlException, IOException {
+
+        out.writeInt(size);
+
+        for (int i = 0; i < size; i++) {
+            Object[] data = table[i];
+
+            out.writeData(meta.getColumnCount(), meta.columnTypes, data, null,
+                          null);
+        }
+    }
+
     public void read(RowInputInterface in,
                      ResultMetaData meta) throws HsqlException, IOException {
 

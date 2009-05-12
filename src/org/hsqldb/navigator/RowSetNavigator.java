@@ -39,6 +39,8 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 
 /**
  * Encapsulates navigation functionality for lists of objects. The base class
@@ -279,6 +281,18 @@ public abstract class RowSetNavigator implements RangeIterator {
     }
 
     public void close() {}
+
+    public void writeSimple(RowOutputInterface out,
+                            ResultMetaData meta)
+                            throws HsqlException, IOException {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
+    }
+
+    public void readSimple(RowInputInterface in,
+                           ResultMetaData meta)
+                           throws HsqlException, IOException {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
+    }
 
     public abstract void write(RowOutputInterface out,
                                ResultMetaData meta)

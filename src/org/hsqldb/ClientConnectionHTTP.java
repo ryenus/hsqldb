@@ -82,6 +82,7 @@ public class ClientConnectionHTTP extends ClientConnection {
         dataOutput.write("\r\n".getBytes(ENCODING));
         dataOutput.writeInt(r.getDatabaseId());
         dataOutput.writeLong(r.getSessionId());
+
         r.write(dataOutput, rowOut);
     }
 

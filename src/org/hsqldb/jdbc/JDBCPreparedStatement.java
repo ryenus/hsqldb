@@ -1445,24 +1445,24 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return null;
         }
 
-        if (rsmd == null) {
+        if (resultSetMetaData == null) {
             boolean isUpdatable  = rsConcurrency == ResultSet.CONCUR_UPDATABLE;
             boolean isInsertable = isUpdatable;
 
             if (isInsertable) {
-                for (int i = 0; i < rsmdDescriptor.colIndexes.length; i++) {
-                    if (rsmdDescriptor.colIndexes[i] < 0) {
+                for (int i = 0; i < resultMetaData.colIndexes.length; i++) {
+                    if (resultMetaData.colIndexes[i] < 0) {
                         isInsertable = false;
 
                         break;
                     }
                 }
             }
-            rsmd = new JDBCResultSetMetaData(rsmdDescriptor, isUpdatable,
-                    isInsertable, connection.connProperties);
+            resultSetMetaData = new JDBCResultSetMetaData(resultMetaData,
+                    isUpdatable, isInsertable, connection.connProperties);
         }
 
-        return rsmd;
+        return resultSetMetaData;
     }
 
     /**
@@ -1944,19 +1944,19 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         } catch (HsqlException e) {
             he = e;
         }
-        parameterValues = null;
-        parameterSet    = null;
-        parameterStream = null;
-        parameterTypes  = null;
-        parameterModes  = null;
-        rsmdDescriptor  = null;
-        pmdDescriptor   = null;
-        rsmd            = null;
-        pmd             = null;
-        connection      = null;
-        resultIn        = null;
-        resultOut       = null;
-        isClosed        = true;
+        parameterValues   = null;
+        parameterSet      = null;
+        parameterStream   = null;
+        parameterTypes    = null;
+        parameterModes    = null;
+        resultMetaData    = null;
+        parameterMetaData = null;
+        resultSetMetaData = null;
+        pmd               = null;
+        connection        = null;
+        resultIn          = null;
+        resultOut         = null;
+        isClosed          = true;
 
         if (he != null) {
             throw Util.sqlException(he);
@@ -2071,7 +2071,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkClosed();
 
         if (pmd == null) {
-            pmd = new JDBCParameterMetaData(pmdDescriptor);
+            pmd = new JDBCParameterMetaData(parameterMetaData);
         }
 
         // NOTE:  pmd is declared as Object to avoid yet another #ifdef.
@@ -3633,18 +3633,18 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (in.isError()) {
             throw Util.sqlException(in);
         }
-        statementID      = in.getStatementID();
-        statementRetType = in.getStatementType();
-        rsmdDescriptor   = in.metaData;
-        pmdDescriptor    = in.parameterMetaData;
-        parameterTypes   = pmdDescriptor.getParameterTypes();
-        parameterModes   = pmdDescriptor.paramModes;
-        rsScrollability  = in.rsScrollability;
-        rsConcurrency    = in.rsConcurrency;
-        rsHoldability    = in.rsHoldability;
+        statementID       = in.getStatementID();
+        statementRetType  = in.getStatementType();
+        resultMetaData    = in.metaData;
+        parameterMetaData = in.parameterMetaData;
+        parameterTypes    = parameterMetaData.getParameterTypes();
+        parameterModes    = parameterMetaData.paramModes;
+        rsScrollability   = in.rsScrollability;
+        rsConcurrency     = in.rsConcurrency;
+        rsHoldability     = in.rsHoldability;
 
         //
-        int paramCount = pmdDescriptor.getColumnCount();
+        int paramCount = parameterMetaData.getColumnCount();
 
         parameterValues = new Object[paramCount];
         parameterSet    = new boolean[paramCount];
@@ -3681,13 +3681,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         int paramCount = result.metaData.getExtendedColumnCount();
 
-        pmdDescriptor   = result.metaData;
-        parameterTypes  = result.metaData.columnTypes;
-        parameterModes  = new byte[paramCount];
-        parameterValues = new Object[paramCount];
-        parameterSet    = new boolean[paramCount];
-        parameterStream = new boolean[paramCount];
-        streamLengths   = new long[paramCount];
+        parameterMetaData = result.metaData;
+        parameterTypes    = result.metaData.columnTypes;
+        parameterModes    = new byte[paramCount];
+        parameterValues   = new Object[paramCount];
+        parameterSet      = new boolean[paramCount];
+        parameterStream   = new boolean[paramCount];
+        streamLengths     = new long[paramCount];
 
         //
         for (int i = 0; i < paramCount; i++) {
@@ -4282,13 +4282,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     protected boolean isBatch;
 
     /** Description of result set metadata. */
-    protected ResultMetaData rsmdDescriptor;
+    protected ResultMetaData resultMetaData;
 
     /** Description of parameter metadata. */
-    protected ResultMetaData pmdDescriptor;
+    protected ResultMetaData parameterMetaData;
 
     /** This object's one and one ResultSetMetaData object. */
-    protected JDBCResultSetMetaData rsmd;
+    protected JDBCResultSetMetaData resultSetMetaData;
 
     // NOTE:  pmd is declared as Object to avoid yet another #ifdef.
 
