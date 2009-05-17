@@ -39,6 +39,7 @@ import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.LongKeyHashMap;
+import org.hsqldb.lib.LongKeyIntValueHashMap;
 import org.hsqldb.lib.LongKeyLongValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.ReaderInputStream;
@@ -69,12 +70,6 @@ public class SessionData {
     // large results
     LongKeyHashMap       resultMap;
     DataFileCacheSession resultCache;
-
-    // lobs
-    LongKeyLongValueHashMap lobs = new LongKeyLongValueHashMap();
-
-    // deleted lobs
-    LongDeque deletedLobs = new LongDeque();
 
     // VALUE
     Object currentValue;
@@ -321,20 +316,108 @@ public class SessionData {
         }
     }
 
-    // LOBs
-    public void deleteLobs() {
+    // lobs in results
+    LongKeyLongValueHashMap resultLobs = new LongKeyLongValueHashMap();
 
-        for (; deletedLobs.size() > 0; ) {
-            long lobID = deletedLobs.removeLast();
+    // lobs in transaction
+    LongKeyIntValueHashMap lobUsageCount = new LongKeyIntValueHashMap();
+    LongDeque              createdLobs   = new LongDeque();
+    boolean                hasLobOps;
+
+    // LOBs
+    // if rolled back, delete created lobs and ignore all changes
+    // if committed,
+    // delete created lobs that have no usage count (due to constraint violation or savepoint rollback)
+    // update LobManager user counts, delete lobs that have no usage
+    public void updateLobUsage(boolean commit) {
+
+        if (!hasLobOps) {
+            return;
+        }
+
+        hasLobOps = false;
+
+        if (commit) {
+            for (int i = 0; i < createdLobs.size(); i++) {
+                long lobID = createdLobs.get(i);
+                int  delta = lobUsageCount.get(lobID, 0);
+
+                if (delta == 1) {
+                    lobUsageCount.remove(lobID);
+                    createdLobs.remove(i);
+
+                    i--;
+                } else if (!session.isBatch) {
+                    database.lobManager.adjustUsageCount(lobID, delta - 1);
+                    lobUsageCount.remove(lobID);
+                    createdLobs.remove(i);
+
+                    i--;
+                }
+            }
+
+            if (!lobUsageCount.isEmpty()) {
+                Iterator it = lobUsageCount.keySet().iterator();
+
+                while (it.hasNext()) {
+                    long lobID = it.nextLong();
+                    int  delta = lobUsageCount.get(lobID);
+
+                    database.lobManager.adjustUsageCount(lobID, delta - 1);
+                }
+
+                lobUsageCount.clear();
+            }
+
+            return;
+        } else {
+            for (int i = 0; i < createdLobs.size(); i++) {
+                long lobID = createdLobs.get(i);
+
+                database.lobManager.deleteLob(lobID);
+            }
+
+            createdLobs.clear();
+            lobUsageCount.clear();
+
+            return;
+        }
+    }
+
+    public void updateLobUsageForBatch() {
+
+        for (int i = 0; i < createdLobs.size(); i++) {
+            long lobID = createdLobs.get(i);
 
             database.lobManager.deleteLob(lobID);
         }
 
-        deletedLobs.clear();
+        createdLobs.clear();
     }
 
-    public void addToDeletedLobs(long lobID) {
-        deletedLobs.add(lobID);
+    public void addToCreatedLobs(long lobID) {
+
+        hasLobOps = true;
+
+        createdLobs.add(lobID);
+    }
+
+    public void addLobUsageCount(long lobID) {
+
+        int count = lobUsageCount.get(lobID, 0);
+
+        hasLobOps = true;
+
+        lobUsageCount.put(lobID, count + 1);
+    }
+
+    public void removeUsageCount(long lobID) {
+
+        int count = lobUsageCount.get(lobID, 0);
+
+        hasLobOps = true;
+
+        lobUsageCount.put(lobID, count - 1);
     }
 
     /**
@@ -357,9 +440,11 @@ public class SessionData {
                     blobId      = resultLobId;
                     inputStream = result.getInputStream();
                 } else {
-                    blobId = database.lobManager.createBlob(blobLength);
+                    BlobData blob = session.createBlob(blobLength);
 
-                    lobs.put(resultLobId, blobId);
+                    blobId = blob.getId();
+
+                    resultLobs.put(resultLobId, blobId);
                 }
 
                 countStream = new CountdownInputStream(inputStream);
@@ -384,9 +469,11 @@ public class SessionData {
                         inputStream = result.getInputStream();
                     }
                 } else {
-                    clobId = database.lobManager.createClob(clobLength);
+                    ClobData clob = session.createClob(clobLength);
 
-                    lobs.put(resultLobId, clobId);
+                    clobId = clob.getId();
+
+                    resultLobs.put(resultLobId, clobId);
                 }
 
                 countStream = new CountdownInputStream(inputStream);
@@ -410,19 +497,19 @@ public class SessionData {
             for (int i = 0; i < data.length; i++) {
                 if (data[i] instanceof BlobData) {
                     BlobData blob = (BlobData) data[i];
-                    long     id   = lobs.get(blob.getId());
+                    long     id   = resultLobs.get(blob.getId());
 
                     data[i] = database.lobManager.getBlob(session, id);
                 } else if (data[i] instanceof ClobData) {
                     ClobData clob = (ClobData) data[i];
-                    long     id   = lobs.get(clob.getId());
+                    long     id   = resultLobs.get(clob.getId());
 
                     data[i] = database.lobManager.getClob(session, id);
                 }
             }
         }
 
-        lobs.clear();
+        resultLobs.clear();
         navigator.reset();
     }
 

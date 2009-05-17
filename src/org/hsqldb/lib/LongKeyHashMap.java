@@ -45,17 +45,12 @@ public class LongKeyHashMap extends BaseHashMap {
     Collection values;
 
     public LongKeyHashMap() {
-        this(16, 0.75f);
+        this(16);
     }
 
     public LongKeyHashMap(int initialCapacity)
     throws IllegalArgumentException {
-        this(initialCapacity, 0.75f);
-    }
-
-    public LongKeyHashMap(int initialCapacity,
-                         float loadFactor) throws IllegalArgumentException {
-        super(initialCapacity, loadFactor, BaseHashMap.longKeyOrValue,
+        super(initialCapacity, BaseHashMap.longKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
     }
 

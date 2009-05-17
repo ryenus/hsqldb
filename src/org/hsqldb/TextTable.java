@@ -96,6 +96,9 @@ public class TextTable extends org.hsqldb.Table {
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
+
+        this.store = store;
+
         DataFileCache cache = null;
 
         try {
@@ -106,7 +109,7 @@ public class TextTable extends org.hsqldb.Table {
 
             // read and insert all the rows from the source file
             Row row     = null;
-            int       nextpos = 0;
+            int nextpos = 0;
 
             if (((TextCache) cache).ignoreFirst) {
                 nextpos += ((TextCache) cache).readHeaderLine();
@@ -159,6 +162,8 @@ public class TextTable extends org.hsqldb.Table {
      * disconnects from the data source
      */
     public void disconnect() {
+
+        this.store = null;
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);

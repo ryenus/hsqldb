@@ -112,6 +112,7 @@ public final class BlobType extends BinaryType {
         return true;
     }
 
+    /** @todo implement comparison */
     public int compare(Object a, Object b) {
 
         if (a == b) {

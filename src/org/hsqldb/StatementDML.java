@@ -57,6 +57,9 @@ import org.hsqldb.types.Type;
  * @version 1.9.0
  * @since 1.9.0
  */
+
+// support for ON UPDATE CASCADE etc. | ON DELETE SET NULL etc. by Sebastian Kloska (kloska@users dot ...)
+// support for MERGE statement by Justin Spadea (jzs9783@users dot sourceforge.net)
 public class StatementDML extends StatementDMQL {
 
     StatementDML(int type, int group, HsqlName schemaName) {
@@ -704,6 +707,17 @@ public class StatementDML extends StatementDMQL {
     int delete(Session session, Table table,
                RowSetNavigator oldRows) throws HsqlException {
 
+        if (table.fkMainConstraints.length == 0) {
+            deleteRows(session, table, oldRows);
+            oldRows.beforeFirst();
+
+            if (table.hasTrigger(Trigger.DELETE_AFTER)) {
+                table.fireAfterTriggers(session, Trigger.DELETE_AFTER,
+                                        oldRows);
+            }
+            return oldRows.getSize();
+        }
+
         HashSet path = session.sessionContext.getConstraintPath();
         HashMappedList tableUpdateList =
             session.sessionContext.getTableUpdateList();
@@ -743,7 +757,7 @@ public class StatementDML extends StatementDMQL {
 
             Row row = oldRows.getCurrentRow();
 
-            if (!row.isCascadeDeleted()) {
+            if (!row.isDeleted(session)) {
                 table.deleteNoRefCheck(session, row);
             }
         }
@@ -768,6 +782,20 @@ public class StatementDML extends StatementDMQL {
         path.clear();
 
         return oldRows.getSize();
+    }
+
+    void deleteRows(Session session, Table table,
+                    RowSetNavigator oldRows) throws HsqlException {
+
+        while (oldRows.hasNext()) {
+            oldRows.next();
+
+            Row row = oldRows.getCurrentRow();
+
+            if (!row.isDeleted(session)) {
+                table.deleteNoRefCheck(session, row);
+            }
+        }
     }
 
     // fredt@users 20020225 - patch 1.7.0 - CASCADING DELETES
@@ -836,8 +864,7 @@ public class StatementDML extends StatementDMQL {
                 Table reftable = c.getRef();
 
                 // shortcut when deltable has no imported constraint
-                boolean hasref =
-                    reftable.getNextConstraintIndex(0, Constraint.MAIN) != -1;
+                boolean hasref = reftable.fkMainConstraints.length > 0;
 
                 // if (reftable == this) we don't need to go further and can return ??
                 if (!delete && !hasref) {
@@ -870,7 +897,7 @@ public class StatementDML extends StatementDMQL {
                 for (;;) {
                     Row refrow = refiterator.getNextRow();
 
-                    if (refrow == null || refrow.isCascadeDeleted()
+                    if (refrow == null || refrow.isDeleted(session)
                             || refindex.compareRowNonUnique(
                                 mdata, m_columns, refrow.getData()) != 0) {
                         break;
@@ -937,7 +964,7 @@ public class StatementDML extends StatementDMQL {
                         }
                     }
 
-                    if (delete && !isUpdate && !refrow.isCascadeDeleted()) {
+                    if (delete && !isUpdate && !refrow.isDeleted(session)) {
                         reftable.deleteRowAsTriggeredAction(session, refrow);
                     }
                 }

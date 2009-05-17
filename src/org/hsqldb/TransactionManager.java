@@ -50,6 +50,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.BlobData;
+import org.hsqldb.types.LobData;
 
 /**
  * Manages rows involved in transactions
@@ -148,13 +149,15 @@ public class TransactionManager {
                     continue;
                 }
 
-                Row row = action.memoryRow;
+                Row row;
 
-                if (row == null) {
+                if (action.memoryRow == null) {
                     PersistentStore store =
                         session.sessionData.getRowStore(action.table);
 
                     row = (Row) store.get(action.getPos());
+                } else {
+                    row = action.memoryRow;
                 }
 
                 Object[] data = row.getData();
@@ -164,12 +167,15 @@ public class TransactionManager {
                         action.getActionType(session.actionTimestamp);
 
                     if (actionType == RowActionBase.ACTION_INSERT) {
-                        database.logger.writeInsertStatement(
-                            session, (Table) action.table, data);
+                        database.logger.writeInsertStatement(session,
+                                                             action.table,
+                                                             data);
                     } else if (actionType == RowActionBase.ACTION_DELETE) {
-                        database.logger.writeDeleteStatement(
-                            session, (Table) action.table, data);
+                        database.logger.writeDeleteStatement(session,
+                                                             action.table,
+                                                             data);
                     } else if (actionType == RowActionBase.ACTION_NONE) {
+
                         // no logging
                     } else {
                         throw Error.runtimeError(ErrorCode.U_S0500,
@@ -308,14 +314,37 @@ public class TransactionManager {
                 current.abortTransaction = true;
             }
 
-            // this is needed for text tables only
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) list[i];
 
+                if (action.table.hasLobColumn) {
+                    int type = action.getCommitType(session.actionTimestamp);
+
+                    switch (type) {
+
+                        case RowActionBase.ACTION_INSERT :
+
+                            Row row;
+                            if (action.memoryRow == null) {
+                                PersistentStore store =
+                                    session.sessionData.getRowStore(action.table);
+
+                                row = (Row) store.get(action.getPos());
+                            } else {
+                                row = action.memoryRow;
+                            }
+
+                            action.table.addLobUsageCount(session,
+                                                          row.getData());
+                            break;
+
+                        default :
+                    }
+                }
+
                 if (action.table.tableType == TableBase.TEXT_TABLE) {
                     PersistentStore store =
-                        database.persistentStoreCollection.getStore(
-                            action.table);
+                        session.sessionData.getRowStore(action.table);
                     int type = action.getCommitType(session.actionTimestamp);
 
                     switch (type) {
@@ -335,8 +364,7 @@ public class TransactionManager {
                 }
             }
 
-            // no new transactionTimestamp would have been issued since
-            // session.actionTimestamp due to locks - this test would use Long.MAX_VALUE
+            // session.actionTimestamp is the committed tx timestamp
             if (getFirstLiveTransactionTimestamp() > session.actionTimestamp) {
                 mergeTransaction(session, list, 0, limit,
                                  session.actionTimestamp);
@@ -713,19 +741,10 @@ public class TransactionManager {
 
             if (delete) {
                 try {
-                    int    pos   = rowact.getPos();
-                    Type[] types = rowact.table.getColumnTypes();
+                    if (rowact.table.hasLobColumn) {
+                        Object[] data = row.getData();
 
-                    for (int j = 0; j < types.length; j++) {
-                        if (types[j].typeCode == Types.SQL_CLOB) {
-                            ClobData lob = (ClobData) row.getData()[j];
-
-                            session.sessionData.addToDeletedLobs(lob.getId());
-                        } else if (types[j].typeCode == Types.SQL_BLOB) {
-                            BlobData lob = (BlobData) row.getData()[j];
-
-                            session.sessionData.addToDeletedLobs(lob.getId());
-                        }
+                        rowact.table.removeLobUsageCount(session, data);
                     }
 
                     store.delete(row);

@@ -135,16 +135,16 @@ public class BaseHashMap {
     protected static final int PURGE_HALF    = 2;
     protected static final int PURGE_QUARTER = 3;
 
-    protected BaseHashMap(int initialCapacity, float loadFactor, int keyType,
+    protected BaseHashMap(int initialCapacity, int keyType,
                           int valueType,
                           boolean hasAccessCount)
                           throws IllegalArgumentException {
 
-        if (initialCapacity <= 0 || loadFactor <= 0.0) {
+        if (initialCapacity <= 0) {
             throw new IllegalArgumentException();
         }
 
-        this.loadFactor      = loadFactor;
+        this.loadFactor      = 1; // can use any value if necessary
         this.initialCapacity = initialCapacity;
         threshold            = initialCapacity;
 

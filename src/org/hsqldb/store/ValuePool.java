@@ -32,7 +32,7 @@
 package org.hsqldb.store;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import org.hsqldb.types.TimestampData;
 
 /**
   * Supports pooling of Integer, Long, Double, BigDecimal, String and Date
@@ -57,7 +57,7 @@ public class ValuePool {
     static ValuePoolHashMap stringPool;
     static ValuePoolHashMap datePool;
     static final int        SPACE_STRING_SIZE       = 50;
-    static final int        DEFAULT_VALUE_POOL_SIZE = 10000;
+    static final int        DEFAULT_VALUE_POOL_SIZE = 8192;
     static final int[]      defaultPoolLookupSize   = new int[] {
         DEFAULT_VALUE_POOL_SIZE, DEFAULT_VALUE_POOL_SIZE,
         DEFAULT_VALUE_POOL_SIZE, DEFAULT_VALUE_POOL_SIZE,
@@ -77,11 +77,6 @@ public class ValuePool {
     static String[] spaceStrings;
 
     //
-    public final static String[] emptyStringArray = new String[]{};
-    public final static Object[] emptyObjectArray = new Object[]{};
-    public final static int[]    emptyIntArray    = new int[]{};
-
-    //
     static {
         initPool();
     }
@@ -93,6 +88,12 @@ public class ValuePool {
     public static final BigDecimal BIG_DECIMAL_1 =
         ValuePool.getBigDecimal(new BigDecimal(1.0));
 
+    //
+    public final static String[] emptyStringArray = new String[]{};
+    public final static Object[] emptyObjectArray = new Object[]{};
+    public final static int[]    emptyIntArray    = new int[]{};
+
+    //
     private static void initPool() {
 
         int[] sizeArray  = defaultPoolLookupSize;
@@ -220,7 +221,7 @@ public class ValuePool {
         }
     }
 
-    public static Date getDate(long val) {
+    public static TimestampData getDate(long val) {
 
         synchronized (datePool) {
             return datePool.getOrAddDate(val);

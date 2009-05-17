@@ -113,6 +113,7 @@ public final class ClobType extends CharacterType {
         return true;
     }
 
+    /** @todo implement comparison */
     public int compare(Object a, Object b) {
 
         if (a == b) {

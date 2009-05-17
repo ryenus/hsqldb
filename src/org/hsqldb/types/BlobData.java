@@ -46,7 +46,7 @@ import org.hsqldb.SessionInterface;
  * @version 1.9.0
  * @since 1.9.0
  */
-public interface BlobData {
+public interface BlobData extends LobData {
 
     byte[] getBytes();
 

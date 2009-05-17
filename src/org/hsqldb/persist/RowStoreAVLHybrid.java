@@ -47,6 +47,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.Table;
 
 /*
  * Implementation of PersistentStore for result set and temporary tables.
@@ -57,6 +58,7 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
+    TableBase                       table;
     final Session                   session;
     DataFileCacheSession            cache;
     private int                     maxMemoryRowCount;
@@ -177,8 +179,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             add(row);
 
             if (isTempTable) {
-                RowAction.addAction(session, RowAction.ACTION_INSERT, table,
-                                    row);
+                RowAction.addAction(session, RowAction.ACTION_INSERT,
+                                    (Table) table, row);
             }
 
             return row;
@@ -198,8 +200,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             rowIdMap.put(id, row);
 
             if (isTempTable) {
-                RowAction.addAction(session, RowAction.ACTION_INSERT, table,
-                                    row);
+                RowAction.addAction(session, RowAction.ACTION_INSERT,
+                                    (Table) table, row);
             }
 
             return row;

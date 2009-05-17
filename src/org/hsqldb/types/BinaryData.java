@@ -264,4 +264,8 @@ public class BinaryData implements BlobData {
     static boolean isInLimits(long fullLength, long pos, long len) {
         return pos >= 0 && len >= 0 && pos + len <= fullLength;
     }
+
+    public boolean isBinary() {
+        return true;
+    }
 }

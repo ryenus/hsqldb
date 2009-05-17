@@ -46,25 +46,19 @@ public class LongKeyLongValueHashMap extends BaseHashMap {
     private Collection values;
 
     public LongKeyLongValueHashMap() {
-        this(8, 0.75f);
+        this(8);
     }
 
     public LongKeyLongValueHashMap(boolean minimize) {
 
-        this(8, 0.75f);
+        this(8);
 
         minimizeOnEmpty = minimize;
     }
 
     public LongKeyLongValueHashMap(int initialCapacity)
     throws IllegalArgumentException {
-        this(initialCapacity, 0.75f);
-    }
-
-    public LongKeyLongValueHashMap(int initialCapacity,
-                                  float loadFactor)
-                                  throws IllegalArgumentException {
-        super(initialCapacity, loadFactor, BaseHashMap.longKeyOrValue,
+        super(initialCapacity, BaseHashMap.longKeyOrValue,
               BaseHashMap.longKeyOrValue, false);
     }
 

@@ -45,18 +45,12 @@ package org.hsqldb.lib;
 public class HashMappedList extends HashMap {
 
     public HashMappedList() {
-        this(8, 0.75f);
+        this(8);
     }
 
     public HashMappedList(int initialCapacity)
     throws IllegalArgumentException {
-        this(initialCapacity, 0.75f);
-    }
-
-    public HashMappedList(int initialCapacity,
-                          float loadFactor) throws IllegalArgumentException {
-
-        super(initialCapacity, loadFactor);
+        super(initialCapacity);
 
         isList = true;
     }

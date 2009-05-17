@@ -75,7 +75,7 @@ public class Row implements CachedObject {
         isDeleted = true;
     }
 
-    boolean isCascadeDeleted() {
+    boolean isDeleted(Session session) {
         return isDeleted;
     }
 

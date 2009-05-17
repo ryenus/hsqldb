@@ -32,7 +32,6 @@
 package org.hsqldb.types;
 
 import java.io.Reader;
-import java.io.Writer;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
@@ -40,7 +39,6 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
-import org.hsqldb.lib.ArrayUtil;
 
 /**
  * Implementation of CLOB for client and server.<p>
@@ -212,5 +210,12 @@ public class ClobDataID implements ClobData {
 
     static boolean isInLimits(long fullLength, long pos, long len) {
         return pos >= 0 && len >= 0 && pos + len <= fullLength;
+    }
+
+    public void setSession(SessionInterface session) {
+    }
+
+    public boolean isBinary() {
+        return false;
     }
 }

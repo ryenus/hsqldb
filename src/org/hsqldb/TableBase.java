@@ -105,6 +105,7 @@ public class TableBase {
     protected boolean isSchemaBased;
     protected boolean isLogged;
     private boolean   isTransactional = true;
+    boolean           hasLobColumn;
 
     //
     TableBase() {}

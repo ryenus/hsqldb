@@ -38,7 +38,7 @@ import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
-import org.hsqldb.TableBase;
+import org.hsqldb.Table;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
@@ -56,11 +56,12 @@ import org.hsqldb.rowio.RowInputInterface;
 public class RowStoreAVLMemory
     extends RowStoreAVL implements PersistentStore {
 
+    Table table;
     private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
     public RowStoreAVLMemory(PersistentStoreCollection manager,
-                             TableBase table) {
+                             Table table) {
 
         this.manager      = manager;
         this.table        = table;

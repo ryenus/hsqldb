@@ -66,17 +66,19 @@ import org.hsqldb.types.ClobDataID;
  */
 public class LobManager {
 
+    static final String resourceFileName =
+        "/org/hsqldb/resources/lob-schema.sql";
+    static final String[] starters = new String[]{ "/*" };
+
+    //
     Database database;
     LobStore lobStore;
     Session  sysLobSession;
 
     //
+    //
     int lobBlockSize         = 1024 * 32;
     int totalBlockLimitCount = 1024 * 1024 * 1024;
-
-    //
-    String   resourceFileName = "/org/hsqldb/resources/lob-schema.sql";
-    String[] starters         = new String[]{ "/*" };
 
     //
     Statement getLob;
@@ -87,6 +89,7 @@ public class LobManager {
     Statement createLob;
     Statement createLobPart;
     Statement setLobLength;
+    Statement setLobUsage;
     Statement getNextLobId;
 
     // LOBS columns
@@ -117,7 +120,7 @@ public class LobManager {
     private static String deleteLobPartSQL =
         "CALL SYSTEM_LOBS.DELETE_BLOCKS(?,?,?,?)";
     private static String createLobSQL =
-        "INSERT INTO SYSTEM_LOBS.LOB_IDS VALUES(?, ?, ?)";
+        "INSERT INTO SYSTEM_LOBS.LOB_IDS VALUES(?, ?, ?, ?)";
     private static String updateLobLengthSQL =
         "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_LENGTH = ? WHERE LOB_ID = ?";
     private static String createLobPartSQL =
@@ -126,6 +129,8 @@ public class LobManager {
         "CALL SYSTEM_LOBS.DIVIDE_BLOCK(?, ?)";
     private static String getSpanningBlockSQL =
         "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND ? > BLOCK_OFFSET AND ? < BLOCK_OFFSET + BLOCK_COUNT";
+    private static String updateLobUsageSQL =
+        "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_USAGE_COUNT = ? WHERE LOB_ID = ?";
     private static String getNextLobIdSQL =
         "VALUES NEXT VALUE FOR SYSTEM_LOBS.LOB_ID";
     private static String deleteLobSQL = "CALL SYSTEM_LOBS.DELETE_LOB(?, ?)";
@@ -165,6 +170,7 @@ public class LobManager {
         deleteLob     = session.compileStatement(deleteLobSQL);
         deleteLobPart = session.compileStatement(deleteLobPartSQL);
         setLobLength  = session.compileStatement(updateLobLengthSQL);
+        setLobUsage   = session.compileStatement(updateLobUsageSQL);
         getNextLobId  = session.compileStatement(getNextLobIdSQL);
     }
 
@@ -194,6 +200,7 @@ public class LobManager {
 
     public void close() {}
 
+    //
     private long getNewLobID(Session session) {
 
         Result result = getNextLobId.execute(session);
@@ -275,37 +282,39 @@ public class LobManager {
 
     public long createBlob(long length) {
 
-        Session        session  = sysLobSession;
-        long           lobID    = getNewLobID(session);
+        long           lobID    = getNewLobID(sysLobSession);
         ResultMetaData meta     = createLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[0] = Long.valueOf(lobID);
         params[1] = Long.valueOf(length);
-        params[2] = Integer.valueOf(Types.SQL_BLOB);
+        params[2] = Long.valueOf(1);
+        params[3] = Integer.valueOf(Types.SQL_BLOB);
 
-        Result result = session.executeCompiledStatement(createLob, params);
+        Result result = sysLobSession.executeCompiledStatement(createLob,
+            params);
 
         return lobID;
     }
 
     public long createClob(long length) {
 
-        Session        session  = sysLobSession;
-        long           lobID    = getNewLobID(session);
+        long           lobID    = getNewLobID(sysLobSession);
         ResultMetaData meta     = createLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[0] = Long.valueOf(lobID);
         params[1] = Long.valueOf(length);
-        params[2] = Integer.valueOf(Types.SQL_CLOB);
+        params[2] = Long.valueOf(1);
+        params[3] = Integer.valueOf(Types.SQL_CLOB);
 
-        Result result = session.executeCompiledStatement(createLob, params);
+        Result result = sysLobSession.executeCompiledStatement(createLob,
+            params);
 
         return lobID;
     }
 
-    public void deleteLob(long lobID) {
+    public Result deleteLob(long lobID) {
 
         Session        session  = this.sysLobSession;
         ResultMetaData meta     = deleteLob.getParametersMetaData();
@@ -315,6 +324,8 @@ public class LobManager {
         params[1] = Long.valueOf(0);
 
         Result result = session.executeCompiledStatement(deleteLob, params);
+
+        return result;
     }
 
     public Result getLength(Session session, long lobID) {
@@ -364,6 +375,7 @@ public class LobManager {
         params[0] = Long.valueOf(newLobID);
         params[1] = data[1];
         params[2] = data[2];
+        params[3] = data[3];
 
         Result result = session.executeCompiledStatement(createLob, params);
 
@@ -662,6 +674,7 @@ public class LobManager {
                         && j == blockAddresses[i][1] - 1) {
                     localLength = byteLimitOffset;
 
+// todo -- use block op
                     for (int k = localLength; k < lobBlockSize; k++) {
                         dataBytes[k] = 0;
                     }
@@ -837,6 +850,28 @@ public class LobManager {
         params[1] = Long.valueOf(lobID);
 
         Result result = session.executeCompiledStatement(setLobLength, params);
+
+        return result;
+    }
+
+    public Result adjustUsageCount(long lobID, int delta) {
+
+        Object[] data = getLobHeader(sysLobSession, lobID);
+
+        int count = ((Number) data[2]).intValue();
+
+        if (count + delta == 0) {
+            return deleteLob(lobID);
+        }
+
+        ResultMetaData meta     = setLobUsage.getParametersMetaData();
+        Object         params[] = new Object[meta.getColumnCount()];
+
+        params[0] = Long.valueOf(count + delta);
+        params[1] = Long.valueOf(lobID);
+
+        Result result = sysLobSession.executeCompiledStatement(setLobLength,
+            params);
 
         return result;
     }

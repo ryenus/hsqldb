@@ -31,7 +31,7 @@
 
 package org.hsqldb.store;
 
-import java.sql.Date;
+import org.hsqldb.types.TimestampData;
 
 /*
  * implementation notes:
@@ -60,8 +60,8 @@ public class ValuePoolHashMap extends BaseHashMap {
     public ValuePoolHashMap(int initialCapacity, int maxCapacity,
                             int purgePolicy) throws IllegalArgumentException {
 
-        super(initialCapacity, 1, BaseHashMap.objectKeyOrValue,
-              BaseHashMap.noKeyOrValue, true);
+        super(initialCapacity, BaseHashMap.objectKeyOrValue, BaseHashMap.noKeyOrValue,
+              true);
 
         this.maxCapacity = maxCapacity;
         this.purgePolicy = purgePolicy;
@@ -286,9 +286,9 @@ public class ValuePoolHashMap extends BaseHashMap {
         return testValue;
     }
 
-    protected Date getOrAddDate(long longKey) {
+    protected TimestampData getOrAddDate(long longKey) {
 
-        Date testValue;
+        TimestampData testValue;
         int  hash       = (int) longKey ^ (int) (longKey >>> 32);
         int  index      = hashIndex.getHashIndex(hash);
         int  lookup     = hashIndex.hashTable[index];
@@ -297,9 +297,9 @@ public class ValuePoolHashMap extends BaseHashMap {
         for (; lookup >= 0;
                 lastLookup = lookup,
                 lookup = hashIndex.getNextLookup(lookup)) {
-            testValue = (Date) objectKeyTable[lookup];
+            testValue = (TimestampData) objectKeyTable[lookup];
 
-            if (testValue.getTime() == longKey) {
+            if (testValue.getSeconds() == longKey) {
                 if (accessCount == Integer.MAX_VALUE) {
                     resetAccessCount();
                 }
@@ -317,7 +317,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         }
 
         lookup                 = hashIndex.linkNode(index, lastLookup);
-        testValue              = new Date(longKey);
+        testValue              = new TimestampData(longKey);
         objectKeyTable[lookup] = testValue;
 
         if (accessCount == Integer.MAX_VALUE) {

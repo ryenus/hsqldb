@@ -43,17 +43,12 @@ import org.hsqldb.store.BaseHashMap;
 public class HashSet extends BaseHashMap implements Set {
 
     public HashSet() {
-        this(8, 0.75f);
+        this(8);
     }
 
     public HashSet(int initialCapacity) throws IllegalArgumentException {
-        this(initialCapacity, 0.75f);
-    }
-
-    public HashSet(int initialCapacity,
-                   float loadFactor) throws IllegalArgumentException {
-        super(initialCapacity, loadFactor, BaseHashMap.objectKeyOrValue,
-              BaseHashMap.noKeyOrValue, false);
+        super(initialCapacity, BaseHashMap.objectKeyOrValue, BaseHashMap.noKeyOrValue,
+              false);
     }
 
     public boolean contains(Object key) {

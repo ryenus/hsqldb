@@ -2149,7 +2149,7 @@ public class Tokens {
 
         // minimal set of identifier not allowed as table / column / alias names
         // these are in effect interpreted as reserved words used by HSQLDB
-        coreReservedWords = new OrderedIntHashSet(67, 1);
+        coreReservedWords = new OrderedIntHashSet(128);
 
         short[] keyword = {
             ADMIN, AS, AND, ALL, ANY, AT, AVG, BY, BETWEEN, BOTH, CALL, CASE,
