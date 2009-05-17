@@ -47,17 +47,12 @@ public class IntValueHashMap extends BaseHashMap {
     Set keySet;
 
     public IntValueHashMap() {
-        this(8, 0.75f);
+        this(8);
     }
 
     public IntValueHashMap(int initialCapacity)
     throws IllegalArgumentException {
-        this(initialCapacity, 0.75f);
-    }
-
-    public IntValueHashMap(int initialCapacity,
-                           float loadFactor) throws IllegalArgumentException {
-        super(initialCapacity, loadFactor, BaseHashMap.objectKeyOrValue,
+        super(initialCapacity, BaseHashMap.objectKeyOrValue,
               BaseHashMap.intKeyOrValue, false);
     }
 

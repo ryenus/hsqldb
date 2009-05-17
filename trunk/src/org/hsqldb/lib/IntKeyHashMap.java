@@ -33,8 +33,6 @@ package org.hsqldb.lib;
 
 import org.hsqldb.store.BaseHashMap;
 
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -47,16 +45,11 @@ public class IntKeyHashMap extends BaseHashMap {
     Collection values;
 
     public IntKeyHashMap() {
-        this(8, 0.75f);
+        this(8);
     }
 
     public IntKeyHashMap(int initialCapacity) throws IllegalArgumentException {
-        this(initialCapacity, 0.75f);
-    }
-
-    public IntKeyHashMap(int initialCapacity,
-                         float loadFactor) throws IllegalArgumentException {
-        super(initialCapacity, loadFactor, BaseHashMap.intKeyOrValue,
+        super(initialCapacity, BaseHashMap.intKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
     }
 

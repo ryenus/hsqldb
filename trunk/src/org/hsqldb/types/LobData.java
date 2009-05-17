@@ -31,61 +31,27 @@
 
 package org.hsqldb.types;
 
-import java.io.Reader;
-
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 
 /**
- * Interface for Character Large Object implementations.<p>
+ * Interface for Large Object implementations.<p>
+ *
+ * All positions are 0 based
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public interface ClobData extends LobData {
-
-    char[] getChars(SessionInterface session, final long position,
-                    int length) throws HsqlException;
+public interface LobData {
 
     long length(SessionInterface session) throws HsqlException;
-
-    String getSubString(SessionInterface session, final long pos,
-                        final int length) throws HsqlException;
-
-    ClobData getClob(SessionInterface session, final long pos,
-                        final long length) throws HsqlException;
-
-    void truncate(SessionInterface session, long len) throws HsqlException;
-
-    Reader getCharacterStream(SessionInterface session) throws HsqlException;
-
-    int setString(SessionInterface session, long pos,
-                  String str) throws HsqlException;
-
-    int setString(SessionInterface session, long pos, String str, int offset,
-                  int len) throws HsqlException;
-
-    int setChars(SessionInterface session, long pos, char[] chars, int offset,
-                 int len) throws HsqlException;
-
-    public long setCharacterStream(SessionInterface session, long pos,
-                                   Reader in) throws HsqlException;
-
-    long position(SessionInterface session, String searchstr,
-                  long start) throws HsqlException;
-
-    long position(SessionInterface session, ClobData searchstr,
-                  long start) throws HsqlException;
-
-    long nonSpaceLength(SessionInterface session) throws HsqlException;
-
-    Reader getCharacterStream(SessionInterface session, long pos,
-                              long length) throws HsqlException;
 
     long getId();
 
     void setId(long id);
 
-    long getRightTrimSize(SessionInterface session) throws HsqlException;
+    void setSession(SessionInterface session);
+
+    boolean isBinary();
 }

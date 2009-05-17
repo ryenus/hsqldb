@@ -481,14 +481,14 @@ public class Logger {
                     break;
                 }
 
-                return new RowStoreAVLDisk(collection, cache, table);
+                return new RowStoreAVLDisk(collection, cache, (Table) table);
 
             case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_TABLE :
-                return new RowStoreAVLMemory(collection, table);
+                return new RowStoreAVLMemory(collection, (Table) table);
 
             case TableBase.TEXT_TABLE :
-                return new RowStoreAVLDiskData(collection, table);
+                return new RowStoreAVLDiskData(collection, (Table) table);
 
             case TableBase.RESULT_TABLE :
             case TableBase.SYSTEM_SUBQUERY :

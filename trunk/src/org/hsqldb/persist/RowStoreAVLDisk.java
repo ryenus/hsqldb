@@ -41,7 +41,7 @@ import org.hsqldb.RowAVL;
 import org.hsqldb.RowAVLDisk;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
-import org.hsqldb.TableBase;
+import org.hsqldb.Table;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
@@ -57,9 +57,10 @@ import org.hsqldb.rowio.RowInputInterface;
 public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
     DataFileCache                   cache;
+    Table                           table;
 
     public RowStoreAVLDisk(PersistentStoreCollection manager,
-                          DataFileCache cache, TableBase table) {
+                          DataFileCache cache, Table table) {
 
         this.manager      = manager;
         this.table        = table;

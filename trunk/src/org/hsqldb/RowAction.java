@@ -43,12 +43,12 @@ import org.hsqldb.lib.OrderedHashSet;
 public class RowAction extends RowActionBase {
 
     //
-    final TableBase table;
+    final Table     table;
     Row             memoryRow;
     int             rowId;
 
     public static RowAction addAction(Session session, byte type,
-                                      TableBase table, Row row) {
+                                      Table table, Row row) {
 
         if (!table.isTransactional()) {
 
@@ -95,7 +95,7 @@ public class RowAction extends RowActionBase {
      * @param session
      * @param type type of action
      */
-    RowAction(Session session, TableBase table, byte type) {
+    RowAction(Session session, Table table, byte type) {
 
         super(session, type);
 
@@ -104,9 +104,9 @@ public class RowAction extends RowActionBase {
 
     synchronized void setAsAction(Session session, byte type) {
 
-        this.session          = session;
-        this.type             = type;
-        tempCreationTimestamp = session.actionTimestamp;
+        this.session    = session;
+        this.type       = type;
+        changeTimestamp = session.actionTimestamp;
     }
 
     synchronized void setAsAction(RowActionBase action) {
@@ -337,7 +337,7 @@ public class RowAction extends RowActionBase {
         RowActionBase last   = null;
 
         do {
-            if (action.actionTimestamp == timestamp) {
+            if (action.changeTimestamp == timestamp) {
                 last = action;
             }
 
@@ -357,8 +357,8 @@ public class RowAction extends RowActionBase {
                 if (action.type == RowActionBase.ACTION_DELETE) {
                     if (actionType == RowActionBase.ACTION_INSERT) {
                         actionType = RowActionBase.ACTION_NONE;
+                        action     = action.next;
 
-                        action = action.next;
                         continue;
                     }
                 }
@@ -378,35 +378,6 @@ public class RowAction extends RowActionBase {
 
     synchronized void setPos(int pos) {
         rowId = pos;
-    }
-
-    public synchronized RowActionBase duplicate(long timestamp) {
-
-        RowActionBase action = this;
-        RowActionBase head   = null;
-        RowActionBase tail   = null;
-
-        do {
-            RowActionBase dup = new RowActionBase(action.session, action.type);
-
-            dup.commitTimestamp       = action.commitTimestamp;
-            dup.actionTimestamp       = action.actionTimestamp;
-            dup.tempCreationTimestamp = action.tempCreationTimestamp;
-            dup.rolledback            = action.rolledback;
-            dup.prepared              = action.prepared;
-            dup.tempMergeTimestamp    = timestamp;
-
-            if (head == null) {
-                head = tail = dup;
-            } else {
-                tail.next = dup;
-                tail      = dup;
-            }
-
-            action = action.next;
-        } while (action != null);
-
-        return head;
     }
 
     /**

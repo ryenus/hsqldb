@@ -52,18 +52,12 @@ public class IntKeyHashMapConcurrent extends BaseHashMap {
     ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
 
     public IntKeyHashMapConcurrent() {
-        this(8, 0.75f);
+        this(8);
     }
 
     public IntKeyHashMapConcurrent(int initialCapacity)
     throws IllegalArgumentException {
-        this(initialCapacity, 0.75f);
-    }
-
-    public IntKeyHashMapConcurrent(int initialCapacity,
-                                   float loadFactor)
-                                   throws IllegalArgumentException {
-        super(initialCapacity, loadFactor, BaseHashMap.intKeyOrValue,
+        super(initialCapacity, BaseHashMap.intKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
     }
 

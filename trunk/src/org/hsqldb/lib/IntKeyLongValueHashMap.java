@@ -43,18 +43,12 @@ import org.hsqldb.store.BaseHashMap;
 public class IntKeyLongValueHashMap extends BaseHashMap {
 
     public IntKeyLongValueHashMap() {
-        this(8, 0.75f);
+        this(8);
     }
 
     public IntKeyLongValueHashMap(int initialCapacity)
     throws IllegalArgumentException {
-        this(initialCapacity, 0.75f);
-    }
-
-    public IntKeyLongValueHashMap(int initialCapacity,
-                                  float loadFactor)
-                                  throws IllegalArgumentException {
-        super(initialCapacity, loadFactor, BaseHashMap.intKeyOrValue,
+        super(initialCapacity, BaseHashMap.intKeyOrValue,
               BaseHashMap.longKeyOrValue, false);
     }
 

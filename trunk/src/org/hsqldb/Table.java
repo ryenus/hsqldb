@@ -84,6 +84,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.LobData;
 
 // fredt@users 20020130 - patch 491987 by jimbag@users - made optional
 // fredt@users 20020405 - patch 1.7.0 by fredt - quoted identifiers
@@ -98,8 +99,6 @@ import org.hsqldb.types.Type;
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
 // tony_lai@users 20020820 - patch 595099 - user defined PK name
 // tony_lai@users 20020820 - patch 595172 - drop constraint fix
-// kloska@users 20021030 - patch 1.7.2 - ON UPDATE CASCADE | SET NULL | SET DEFAULT
-// kloska@users 20021112 - patch 1.7.2 - ON DELETE SET NULL | SET DEFAULT
 // fredt@users 20021210 - patch 1.7.2 - better ADD / DROP INDEX for non-CACHED tables
 // fredt@users 20030901 - patch 1.7.2 - allow multiple nulls for UNIQUE columns
 // fredt@users 20030901 - patch 1.7.2 - reworked IDENTITY support
@@ -914,14 +913,10 @@ public class Table extends TableBase implements SchemaObject {
         columnList.add(column.getName().name, column);
 
         columnCount++;
-    }
 
-    public void addColumnNoCheck(String name,
-                                 ColumnSchema column) throws HsqlException {
-
-        columnList.add(name, column);
-
-        columnCount++;
+        if (column.getDataType().isLobType()) {
+            hasLobColumn = true;
+        }
     }
 
     public boolean hasIdentityColumn() {
@@ -2245,12 +2240,13 @@ public class Table extends TableBase implements SchemaObject {
      *  add the row to the indexes.
      */
     private Row insertNoCheck(Session session, PersistentStore store,
-                               Object[] data) throws HsqlException {
+                              Object[] data) throws HsqlException {
 
         Row row = (Row) store.getNewCachedObject(session, data);
 
         store.indexRow(session, row);
         session.addInsertAction(this, row);
+
         return row;
     }
 
@@ -2425,7 +2421,7 @@ public class Table extends TableBase implements SchemaObject {
      */
     private void deleteNoCheck(Session session, Row row) throws HsqlException {
 
-        if (row.isCascadeDeleted()) {
+        if (row.isDeleted(session)) {
             return;
         }
 
@@ -2499,12 +2495,13 @@ public class Table extends TableBase implements SchemaObject {
     void updateRowSet(Session session, HashMappedList rowSet, int[] cols,
                       boolean isTriggeredSet) throws HsqlException {
 
-        PersistentStore store = session.sessionData.getRowStore(this);
+        boolean         hasLob = false;
+        PersistentStore store  = session.sessionData.getRowStore(this);
 
         for (int i = 0; i < rowSet.size(); i++) {
             Row row = (Row) rowSet.getKey(i);
 
-            if (row.isCascadeDeleted()) {
+            if (row.isDeleted(session)) {
                 if (isTriggeredSet) {
                     rowSet.remove(i);
 
@@ -2521,22 +2518,52 @@ public class Table extends TableBase implements SchemaObject {
             Row      row  = (Row) rowSet.getKey(i);
             Object[] data = (Object[]) rowSet.get(i);
 
-            checkRowData(session, data, cols); // ??
+            checkRowData(session, data, cols);    // todo - see if check is necessary ??
             deleteNoCheck(session, row);
         }
 
         for (int i = 0; i < rowSet.size(); i++) {
             Object[] data = (Object[]) rowSet.get(i);
 
-            Row oldRow  = (Row) rowSet.getKey(i);
-            Row newRow = insertNoCheck(session, store, data);
+            insertNoCheck(session, store, data);
+        }
+    }
 
-//            RowActionBase oldAction = oldRow.rowAction.getLastAction(session.actionTimestamp);
-//            RowAction newAction = newRow.rowAction;
-//            oldAction.memoryRowUpdate = newRow.rowAction.memoryRow;
-//           oldAction.rowIdUpdate = newRow.rowAction.rowId;
+    void addLobUsageCount(Session session, Object[] data) {
 
+        if (!hasLobColumn) {
+            return;
+        }
 
+        for (int j = 0; j < columnCount; j++) {
+            if (colTypes[j].isLobType()) {
+                Object value = data[j];
+
+                if (value == null) {
+                    continue;
+                }
+
+                session.sessionData.addLobUsageCount(((LobData) value).getId());
+            }
+        }
+    }
+
+    void removeLobUsageCount(Session session, Object[] data) {
+
+        if (!hasLobColumn) {
+            return;
+        }
+
+        for (int j = 0; j < columnCount; j++) {
+            if (colTypes[j].isLobType()) {
+                Object value = data[j];
+
+                if (value == null) {
+                    continue;
+                }
+
+                session.sessionData.removeUsageCount(((LobData) value).getId());
+            }
         }
     }
 

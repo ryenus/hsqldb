@@ -46,17 +46,12 @@ public class HashMap extends BaseHashMap {
     Collection values;
 
     public HashMap() {
-        this(8, 0.75f);
+        this(8);
     }
 
     public HashMap(int initialCapacity) throws IllegalArgumentException {
-        this(initialCapacity, 0.75f);
-    }
-
-    public HashMap(int initialCapacity,
-                   float loadFactor) throws IllegalArgumentException {
-        super(initialCapacity, loadFactor, BaseHashMap.objectKeyOrValue,
-              BaseHashMap.objectKeyOrValue, false);
+        super(initialCapacity, BaseHashMap.objectKeyOrValue, BaseHashMap.objectKeyOrValue,
+              false);
     }
 
     public Object get(Object key) {

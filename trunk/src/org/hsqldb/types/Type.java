@@ -939,7 +939,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         typeNames.put("OTHER", Types.OTHER);
 
         //
-        typeAliases = new IntValueHashMap(67, 1);
+        typeAliases = new IntValueHashMap(64);
 
         typeAliases.put("CHAR", Types.SQL_CHAR);
 /*

@@ -190,4 +190,8 @@ public class BlobDataID implements BlobData {
             throw resultIn.getException();
         }
     }
+
+    public boolean isBinary() {
+        return true;
+    }
 }

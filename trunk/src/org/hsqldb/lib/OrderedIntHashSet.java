@@ -41,14 +41,13 @@ import org.hsqldb.store.BaseHashMap;
 public class OrderedIntHashSet extends BaseHashMap {
 
     public OrderedIntHashSet() {
-        this(8, 0.75f);
+        this(8);
     }
 
-    public OrderedIntHashSet(int initialCapacity,
-                             float loadFactor)
-                             throws IllegalArgumentException {
+    public OrderedIntHashSet(int initialCapacity)
+    throws IllegalArgumentException {
 
-        super(initialCapacity, loadFactor, BaseHashMap.intKeyOrValue,
+        super(initialCapacity, BaseHashMap.intKeyOrValue,
               BaseHashMap.noKeyOrValue, false);
 
         isList = true;

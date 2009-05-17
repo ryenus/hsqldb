@@ -164,7 +164,7 @@ public class Scanner {
 
 //J+
     final static OrderedIntHashSet whiteSpaceSet =
-        new OrderedIntHashSet(whitespace.length, 1);
+        new OrderedIntHashSet(32);
 
     static {
         for (int i = 0; i < whitespace.length; i++) {

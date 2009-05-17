@@ -37,14 +37,12 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.Session;
-import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 
 public abstract class RowStoreAVL implements PersistentStore {
 
-    TableBase                 table;
     PersistentStoreCollection manager;
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;

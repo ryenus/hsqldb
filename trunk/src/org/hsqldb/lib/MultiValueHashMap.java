@@ -48,14 +48,13 @@ public class MultiValueHashMap extends BaseHashMap {
     Iterator   valueIterator;
 
     public MultiValueHashMap() {
-        this(8, 0.75f);
+        this(8);
     }
 
-    public MultiValueHashMap(int initialCapacity,
-                             float loadFactor)
-                             throws IllegalArgumentException {
+    public MultiValueHashMap(int initialCapacity)
+    throws IllegalArgumentException {
 
-        super(initialCapacity, loadFactor, BaseHashMap.objectKeyOrValue,
+        super(initialCapacity, BaseHashMap.objectKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
 
         super.multiValueTable = new boolean[super.objectValueTable.length];
@@ -77,7 +76,7 @@ public class MultiValueHashMap extends BaseHashMap {
     }
 
     public Object remove(Object key, Object value) {
-        return super.addOrRemoveMultiVal(0,0,key, value, false, true);
+        return super.addOrRemoveMultiVal(0, 0, key, value, false, true);
     }
 
     public boolean containsKey(Object key) {

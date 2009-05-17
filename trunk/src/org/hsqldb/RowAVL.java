@@ -192,10 +192,6 @@ public class RowAVL extends Row {
         }
     }
 
-    boolean isCascadeDeleted() {
-        return isDeleted;
-    }
-
     public void setStorageSize(int size) {
         ;
     }

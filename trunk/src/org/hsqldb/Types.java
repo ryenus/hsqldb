@@ -542,7 +542,7 @@ public class Types {
     private final static HashSet illegalParameterClasses;
 
     static {
-        javaTypeNumbers = new IntValueHashMap(67, 1);
+        javaTypeNumbers = new IntValueHashMap(32);
 
         javaTypeNumbers.put("int", Types.SQL_INTEGER);
         javaTypeNumbers.put("java.lang.Integer", Types.SQL_INTEGER);

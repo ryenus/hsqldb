@@ -63,12 +63,7 @@ class RowActionBase {
     boolean                  prepared;
 
     //
-    long tempCreationTimestamp;
     long tempMergeTimestamp;
-
-    //
-    Row             memoryRowUpdate;
-    int             rowIdUpdate;
 
     /**
      * constructor, used for delete actions only
@@ -77,7 +72,6 @@ class RowActionBase {
 
         this.session          = session;
         this.type             = type;
-        changeTimestamp       = session.database.txManager.nextChangeTimestamp();
-        tempCreationTimestamp = session.actionTimestamp;
+        changeTimestamp = session.actionTimestamp;
     }
 }

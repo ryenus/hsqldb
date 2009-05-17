@@ -39,7 +39,6 @@ import org.hsqldb.RowAVLDiskData;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.TableBase;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
 
@@ -53,8 +52,9 @@ import org.hsqldb.rowio.RowInputInterface;
 public class RowStoreAVLDiskData extends RowStoreAVLDisk
 implements PersistentStore {
 
+
     public RowStoreAVLDiskData(PersistentStoreCollection manager,
-                               TableBase table) {
+                               Table table) {
         super(manager, null, table);
     }
 

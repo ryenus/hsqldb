@@ -49,7 +49,7 @@ public final class ObjectCacheHashMap extends BaseHashMap {
 
     public ObjectCacheHashMap(int initialCapacity)
     throws IllegalArgumentException {
-        super(initialCapacity, 1, BaseHashMap.intKeyOrValue,
+        super(initialCapacity, BaseHashMap.intKeyOrValue,
               BaseHashMap.objectKeyOrValue, true);
     }
 

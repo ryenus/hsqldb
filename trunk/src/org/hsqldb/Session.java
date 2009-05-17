@@ -125,6 +125,7 @@ public class Session implements SessionInterface {
     long                     actionTimestamp;
     long                     transactionTimestamp;
     boolean                  isTransaction;
+    boolean                  isBatch;
     volatile boolean         abortTransaction;
     volatile boolean         redoAction;
     HsqlArrayList            rowActionList;
@@ -542,7 +543,7 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_40001);
         }
 
-        endTransaction();
+        endTransaction(true);
     }
 
     /**
@@ -569,12 +570,12 @@ public class Session implements SessionInterface {
         } catch (HsqlException e) {}
 
         database.txManager.rollback(this);
-        endTransaction();
+        endTransaction(false);
     }
 
-    private void endTransaction() {
+    private void endTransaction(boolean commit) {
 
-        sessionData.deleteLobs();
+        sessionData.updateLobUsage(commit);
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
         rowActionList.clear();
@@ -585,8 +586,8 @@ public class Session implements SessionInterface {
         isolationMode = isolationModeDefault;
         lockStatement = null;
 /* debug 190
-                tempActionHistory.add("commit ends " + actionTimestamp);
-                tempActionHistory.clear();
+        tempActionHistory.add("commit ends " + actionTimestamp);
+        tempActionHistory.clear();
 //*/
     }
 
@@ -1240,6 +1241,8 @@ public class Session implements SessionInterface {
 
         Result error = null;
 
+        isBatch = true;
+
         while (nav.hasNext()) {
             Object[] pvals = (Object[]) nav.getNext();
             Result   in    = executeCompiledStatement(cs, pvals);
@@ -1273,6 +1276,13 @@ public class Session implements SessionInterface {
             }
         }
 
+        isBatch = false;
+
+
+
+        sessionData.updateLobUsageForBatch();
+
+
         return Result.newBatchedExecuteResponse(updateCounts, generatedResult,
                 error);
     }
@@ -1289,6 +1299,8 @@ public class Session implements SessionInterface {
         updateCounts = new int[nav.getSize()];
 
         Result error = null;
+
+        isBatch = true;
 
         while (nav.hasNext()) {
             Result   in;
@@ -1327,6 +1339,10 @@ public class Session implements SessionInterface {
                 throw Error.runtimeError(ErrorCode.U_S0500, "Session");
             }
         }
+
+        isBatch = false;
+
+        sessionData.updateLobUsageForBatch();
 
         return Result.newBatchedExecuteResponse(updateCounts, null, error);
     }
@@ -1652,6 +1668,8 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_0F502);
         }
 
+        sessionData.addToCreatedLobs(lobID);
+
         return new BlobDataID(lobID);
     }
 
@@ -1662,6 +1680,8 @@ public class Session implements SessionInterface {
         if (lobID == 0) {
             throw Error.error(ErrorCode.X_0F502);
         }
+
+        sessionData.addToCreatedLobs(lobID);
 
         return new ClobDataID(lobID);
     }

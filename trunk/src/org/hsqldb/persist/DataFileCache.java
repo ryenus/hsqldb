@@ -33,6 +33,8 @@ package org.hsqldb.persist;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.Database;
@@ -103,8 +105,8 @@ public class DataFileCache {
     protected boolean hasRowInfo       = false;
 
     // reusable input / output streams
-    protected RowInputInterface  rowIn;
-    public    RowOutputInterface rowOut;
+    protected RowInputInterface rowIn;
+    public RowOutputInterface   rowOut;
 
     //
     public long maxDataFileSize;
@@ -124,9 +126,9 @@ public class DataFileCache {
     private RAShadowFile shadowFile;
 
     //
-    ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
-    ReentrantReadWriteLock.ReadLock  readLock  = lock.readLock();
-    ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+    ReadWriteLock lock      = new ReentrantReadWriteLock();
+    Lock          readLock  = lock.readLock();
+    Lock          writeLock = lock.writeLock();
 
     public DataFileCache(Database db, String baseFileName) {
 

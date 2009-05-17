@@ -33,14 +33,14 @@ package org.hsqldb.navigator;
 
 import java.io.IOException;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 
 /**
  * Encapsulates navigation functionality for lists of objects. The base class
