@@ -54,6 +54,7 @@ public abstract class Statement {
     //
     final int type;
     int       group;
+    boolean   isLogged = true;
     boolean   isValid = true;
 
     /** the default schema name used to resolve names in the sql */
@@ -102,7 +103,7 @@ public abstract class Statement {
         return isTransactionStatement;
     }
 
-    public boolean isSchemaStatement() {
+    public boolean isAutoCommitStatement() {
         return false;
     }
 
@@ -146,6 +147,10 @@ public abstract class Statement {
 
     public final boolean isValid() {
         return isValid;
+    }
+
+    public final boolean isLogged() {
+        return isLogged;
     }
 
     public void clearVariables() {}

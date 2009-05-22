@@ -31,7 +31,6 @@
 
 package org.hsqldb.lib.tar;
 
-import org.hsqldb.lib.StringUtil;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,8 +39,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hsqldb.lib.StringUtil;
 
 /**
  * Generates a tar archive from specified Files and InputStreams.
@@ -128,9 +130,9 @@ public class TarGenerator {
                 || archiveFile.getName().endsWith(".tar.gz")) {
             compression = TarFileOutputStream.Compression.GZIP_COMPRESSION;
         } else if (archiveFile.getName().endsWith(".tar")) {
+
             // purposefully do nothing
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(
                 RB.singleton.getString(
                     RB.UNSUPPORTED_EXT, getClass().getName(),
@@ -311,7 +313,13 @@ public class TarGenerator {
 
             int    start = TarHeaderFields.getStart(fieldId);
             int    stop  = TarHeaderFields.getStop(fieldId);
-            byte[] ba    = newValue.getBytes();
+            byte[] ba;
+
+            try {
+                ba = newValue.getBytes("ISO-8859-1");
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
 
             if (ba.length > stop - start) {
                 throw new TarMalformatException(
@@ -348,8 +356,8 @@ public class TarGenerator {
         }
 
         static public String prePaddedOctalString(long val, int width) {
-            return StringUtil.toPaddedString(
-                    Long.toOctalString(val), width, '0', false);
+            return StringUtil.toPaddedString(Long.toOctalString(val), width,
+                                             '0', false);
         }
 
         protected byte[] rawHeader = HEADER_TEMPLATE.clone();
@@ -652,12 +660,13 @@ public class TarGenerator {
         static protected String getLameMode(File file) {
 
             int umod = 0;
+
 //#ifdef JAVA6
             if (file.canExecute()) {
                 umod = 1;
             }
-//#endif
 
+//#endif
             if (file.canWrite()) {
                 umod += 2;
             }

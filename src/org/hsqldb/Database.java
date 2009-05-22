@@ -460,7 +460,7 @@ public class Database {
         Session session = sessionManager.newSession(this, user,
             databaseReadOnly, false, timeZoneSeconds);
 
-        logger.logConnectUser(session);
+//        logger.logConnectUser(session);
 
         return session;
     }
@@ -826,11 +826,11 @@ public class Database {
     private FileAccess fileaccess;
     private boolean    isStoredFileAccess;
 
-    public synchronized FileAccess getFileAccess() {
+    public FileAccess getFileAccess() {
         return fileaccess;
     }
 
-    public synchronized boolean isStoredFileAccess() {
+    public boolean isStoredFileAccess() {
         return isStoredFileAccess;
     }
 

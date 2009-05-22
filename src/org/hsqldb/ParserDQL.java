@@ -91,8 +91,10 @@ public class ParserDQL extends ParserBase {
      * @param sql a new SQL character sequence to replace the current one
      */
     void reset(String sql) {
+
         super.reset(sql);
         compileContext.reset();
+
         lastError = null;
     }
 
@@ -473,6 +475,7 @@ public class ParserDQL extends ParserBase {
 
         while (true) {
             if (session.isProcessingScript) {
+
                 // for old scripts
                 if (!isSimpleName()) {
                     token.isDelimitedIdentifier = true;
@@ -3977,7 +3980,7 @@ public class ParserDQL extends ParserBase {
 
         read();
 
-        int position = getPosition();
+        int     position  = getPosition();
         short[] parseList = function.parseList;
 
         if (parseList.length == 0) {
@@ -3994,11 +3997,13 @@ public class ParserDQL extends ParserBase {
             }
 
             rewind(position);
-            parseList = function.parseListAlt;
-            exprList = new HsqlArrayList();
-            readExpression(exprList, parseList, 0, parseList.length, false);
 
+            parseList = function.parseListAlt;
+            exprList  = new HsqlArrayList();
+
+            readExpression(exprList, parseList, 0, parseList.length, false);
         }
+
         Expression[] expr = new Expression[exprList.size()];
 
         exprList.toArray(expr);
@@ -4255,6 +4260,55 @@ public class ParserDQL extends ParserBase {
         read();
 
         return schema;
+    }
+
+    SchemaObject readSchemaObjectName(int type) throws HsqlException {
+
+        checkIsSchemaObjectName();
+
+        SchemaObject object =
+            database.schemaManager.getSchemaObject(token.tokenString,
+                token.namePrefix, type);
+
+        if (token.namePrePrefix != null) {
+            if (!token.namePrePrefix.equals(database.getCatalogName().name)) {
+                throw Error.error(ErrorCode.X_42505, token.namePrefix);
+            }
+        }
+
+        read();
+
+        return object;
+    }
+
+    SchemaObject readDependentSchemaObjectName(HsqlName parentName,
+            int type) throws HsqlException {
+
+        checkIsSchemaObjectName();
+
+        SchemaObject object =
+            database.schemaManager.getSchemaObject(token.tokenString,
+                parentName.schema.name, type);
+
+        if (token.namePrefix != null) {
+            if (!token.namePrefix.equals(parentName.name)) {
+
+                // todo - better error message
+                throw Error.error(ErrorCode.X_42505, token.namePrefix);
+            }
+
+            if (token.namePrePrefix != null) {
+                if (!token.namePrePrefix.equals(parentName.schema.name)) {
+
+                    // todo - better error message
+                    throw Error.error(ErrorCode.X_42505, token.namePrefix);
+                }
+            }
+        }
+
+        read();
+
+        return object;
     }
 
     Table readTableName() throws HsqlException {

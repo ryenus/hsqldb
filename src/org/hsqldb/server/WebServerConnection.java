@@ -58,6 +58,8 @@ import org.hsqldb.rowio.RowInputBinaryNet;
 import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputBinaryNet;
 
+import java.io.UnsupportedEncodingException;
+
 // fredt@users 20021002 - patch 1.7.1 - changed notification method
 // unsaved@users 20021113 - patch 1.7.2 - SSL support
 // boucherb@users 20030510 - patch 1.7.2 - SSL support moved to factory interface
@@ -80,12 +82,12 @@ import org.hsqldb.rowio.RowOutputBinaryNet;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
 class WebServerConnection implements Runnable {
 
-    static final String         ENCODING = "8859_1";
+    static final String         ENCODING = "ISO-8859-1";
     private Socket              socket;
     private WebServer           server;
     private static final int    REQUEST_TYPE_BAD  = 0;
@@ -103,10 +105,22 @@ class WebServerConnection implements Runnable {
     private RowInputBinary      rowIn = new RowInputBinaryNet(rowOut);
 
     //
-    static final byte[] BYTES_GET        = "GET".getBytes();
-    static final byte[] BYTES_HEAD       = "HEAD".getBytes();
-    static final byte[] BYTES_POST       = "POST".getBytes();
-    static final byte[] BYTES_CONTENT    = "Content-Length: ".getBytes();
+    static byte[] BYTES_GET;
+    static byte[] BYTES_HEAD;
+    static byte[] BYTES_POST;
+    static byte[] BYTES_CONTENT;
+
+    static {
+        try {
+            BYTES_GET     = "GET".getBytes("ISO-8859-1");
+            BYTES_HEAD    = "HEAD".getBytes("ISO-8859-1");
+            BYTES_POST    = "POST".getBytes("ISO-8859-1");
+            BYTES_CONTENT = "Content-Length: ".getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
+        }
+    }
+
     static final byte[] BYTES_WHITESPACE = new byte[] {
         (byte) ' ', (byte) '\t'
     };

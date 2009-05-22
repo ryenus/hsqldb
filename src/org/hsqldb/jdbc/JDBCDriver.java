@@ -39,11 +39,9 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
-import org.hsqldb.HsqlException;
 
 // fredt@users 20011220 - patch 1.7.0 by fredt
 // new version numbering scheme
