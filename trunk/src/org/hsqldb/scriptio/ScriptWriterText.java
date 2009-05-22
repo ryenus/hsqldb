@@ -32,8 +32,11 @@
 package org.hsqldb.scriptio;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import org.hsqldb.Database;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -68,25 +71,39 @@ public class ScriptWriterText extends ScriptWriterBase {
     RowOutputTextLog rowOut;
 
     /** @todo - perhaps move this global into a lib utility class */
-    public static final byte[] BYTES_LINE_SEP;
+    public static byte[] BYTES_LINE_SEP;
+    static byte[]        BYTES_COMMIT;
+    static byte[]        BYTES_INSERT_INTO;
+    static byte[]        BYTES_VALUES;
+    static byte[]        BYTES_TERM;
+    static byte[]        BYTES_DELETE_FROM;
+    static byte[]        BYTES_WHERE;
+    static byte[]        BYTES_SEQUENCE;
+    static byte[]        BYTES_SEQUENCE_MID;
+    static byte[]        BYTES_C_ID_INIT;
+    static byte[]        BYTES_C_ID_TERM;
+    static byte[]        BYTES_SCHEMA;
 
     static {
         String sLineSep = System.getProperty("line.separator", "\n");
 
-        BYTES_LINE_SEP = sLineSep.getBytes();
+        try {
+            BYTES_LINE_SEP     = sLineSep.getBytes();
+            BYTES_COMMIT       = "COMMIT".getBytes("ISO-8859-1");
+            BYTES_INSERT_INTO  = "INSERT INTO ".getBytes("ISO-8859-1");
+            BYTES_VALUES       = " VALUES(".getBytes("ISO-8859-1");
+            BYTES_TERM         = ")".getBytes("ISO-8859-1");
+            BYTES_DELETE_FROM  = "DELETE FROM ".getBytes("ISO-8859-1");
+            BYTES_WHERE        = " WHERE ".getBytes("ISO-8859-1");
+            BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes("ISO-8859-1");
+            BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes("ISO-8859-1");
+            BYTES_C_ID_INIT    = "/*C".getBytes("ISO-8859-1");
+            BYTES_C_ID_TERM    = "*/".getBytes("ISO-8859-1");
+            BYTES_SCHEMA       = "SET SCHEMA ".getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            Error.runtimeError(ErrorCode.U_S0500, "ScriptWriterText");
+        }
     }
-
-    static final byte[] BYTES_COMMIT       = "COMMIT".getBytes();
-    static final byte[] BYTES_INSERT_INTO  = "INSERT INTO ".getBytes();
-    static final byte[] BYTES_VALUES       = " VALUES(".getBytes();
-    static final byte[] BYTES_TERM         = ")".getBytes();
-    static final byte[] BYTES_DELETE_FROM  = "DELETE FROM ".getBytes();
-    static final byte[] BYTES_WHERE        = " WHERE ".getBytes();
-    static final byte[] BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes();
-    static final byte[] BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes();
-    static final byte[] BYTES_C_ID_INIT    = "/*C".getBytes();
-    static final byte[] BYTES_C_ID_TERM    = "*/".getBytes();
-    static final byte[] BYTES_SCHEMA       = "SET SCHEMA ".getBytes();
 
     ScriptWriterText() {}
 

@@ -73,18 +73,6 @@ public class StatementSchemaDefinition extends StatementSchema {
                     describe(session));
         }
 
-/*
-        Constraint[] constraints = new Constraint[constraintList.size()];
-
-        constraintList.toArray(constraints);
-
-        cs = new CompiledStatementSchemaDefinition(array, constraints);
-
-        startSchemaDefinition(schemaName);
-
-        endSchemaDefinition();
-
-*/
         StatementSchema cs;
         Result          result      = statements[0].execute(session);
         HsqlArrayList   constraints = new HsqlArrayList();
@@ -95,19 +83,12 @@ public class StatementSchemaDefinition extends StatementSchema {
 
         HsqlName oldSessionSchema = session.getCurrentSchemaHsqlName();
 
-        try {
-            session.database.logger.writeToLog(
-                session, getSetSchemaStatement(schemaName));
-        } catch (HsqlException e) {}
-
         for (int i = 1; i < statements.length; i++) {
             try {
                 session.setSchema(schemaName.name);
             } catch (HsqlException e) {}
 
             statements[i].setSchemaHsqlName(schemaName);
-
-//            statements[i].isSchemaDefinition = true;
             session.parser.reset(statements[i].getSQL());
 
             try {
@@ -169,7 +150,6 @@ public class StatementSchemaDefinition extends StatementSchema {
                     case StatementTypes.CREATE_CAST :
                     case StatementTypes.CREATE_ORDERING :
                         throw session.parser.unsupportedFeature();
-
                     default :
                         throw Error.runtimeError(ErrorCode.U_S0500, "");
                 }
@@ -208,8 +188,6 @@ public class StatementSchemaDefinition extends StatementSchema {
 
         try {
             session.setSchema(oldSessionSchema.name);
-            session.database.logger.writeToLog(
-                session, getSetSchemaStatement(oldSessionSchema));
         } catch (Exception e) {}
 
         return result;

@@ -184,17 +184,6 @@ public class RowAVLDisk extends RowAVL {
         hasNodesChanged = true;
     }
 
-    /**
-     *  This method is called only when the Row is deleted from the database
-     *  table. The links with all the other objects apart from the data
-     *  are removed.
-     *
-     * @throws HsqlException
-     */
-    public void delete() throws HsqlException {
-        super.delete();
-    }
-
     public int getStorageSize() {
         return storageSize;
     }

@@ -31,8 +31,11 @@
 
 package org.hsqldb.rowio;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.Row;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.types.BinaryData;
@@ -52,11 +55,24 @@ import org.hsqldb.types.Type;
  */
 public class RowOutputTextLog extends RowOutputBase {
 
-    static final byte[]     BYTES_NULL  = "NULL".getBytes();
-    static final byte[]     BYTES_TRUE  = "TRUE".getBytes();
-    static final byte[]     BYTES_FALSE = "FALSE".getBytes();
-    static final byte[]     BYTES_AND   = " AND ".getBytes();
-    static final byte[]     BYTES_IS    = " IS ".getBytes();
+    static byte[] BYTES_NULL;
+    static byte[] BYTES_TRUE;
+    static byte[] BYTES_FALSE;
+    static byte[] BYTES_AND;
+    static byte[] BYTES_IS;
+
+    static {
+        try {
+            BYTES_NULL  = "NULL".getBytes("ISO-8859-1");
+            BYTES_TRUE  = "TRUE".getBytes("ISO-8859-1");
+            BYTES_FALSE = "FALSE".getBytes("ISO-8859-1");
+            BYTES_AND   = " AND ".getBytes("ISO-8859-1");
+            BYTES_IS    = " IS ".getBytes("ISO-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
+        }
+    }
+
     public static final int MODE_DELETE = 1;
     public static final int MODE_INSERT = 0;
     private boolean         isWritten;

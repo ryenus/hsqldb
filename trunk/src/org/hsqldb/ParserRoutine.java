@@ -231,7 +231,7 @@ public class ParserRoutine extends ParserDML {
         }
     }
 
-    // SQL-invokded routine
+    // SQL-invoked routine
     StatementSchema compileCreateProcedureOrFunction() throws HsqlException {
 
         int routineType = token.tokenType == Tokens.PROCEDURE
@@ -336,7 +336,7 @@ public class ParserRoutine extends ParserDML {
         Object[] args = new Object[]{ routine };
         String   sql  = getLastPart();
         StatementSchema cs = new StatementSchema(sql,
-            StatementTypes.CREATE_ROUTINE, args);
+            StatementTypes.CREATE_ROUTINE, args, null, null);
 
         return cs;
     }

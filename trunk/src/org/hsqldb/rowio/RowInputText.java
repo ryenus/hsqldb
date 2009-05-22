@@ -39,8 +39,6 @@ import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Scanner;
 import org.hsqldb.Types;
-import org.hsqldb.lib.StringConverter;
-import org.hsqldb.store.BitMap;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;

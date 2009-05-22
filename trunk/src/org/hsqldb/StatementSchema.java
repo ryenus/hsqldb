@@ -60,20 +60,47 @@ public class StatementSchema extends Statement {
         super(StatementTypes.CREATE_SCHEMA,
               StatementTypes.X_SQL_SCHEMA_DEFINITION);
 
-        isTransactionStatement = false;
+        isTransactionStatement = true;
     }
 
-    StatementSchema(String sql, int type, Object[] args) {
+    StatementSchema(String sql, int type, HsqlName readName,
+                    HsqlName writeName) {
 
         super(type);
 
-        isTransactionStatement = false;
+        isTransactionStatement = true;
+        group                  = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
+        this.sql               = sql;
+
+        if (readName != null) {
+            readTableNames = new HsqlName[]{ readName };
+        }
+
+        if (writeName != null) {
+            writeTableNames = new HsqlName[]{ writeName };
+        }
+    }
+
+    StatementSchema(String sql, int type, Object[] args, HsqlName readName,
+                    HsqlName writeName) {
+
+        super(type);
+
+
+        isTransactionStatement = true;
         this.sql               = sql;
         arguments              = args;
 
+        if (readName != null) {
+            readTableNames = new HsqlName[]{ readName };
+        }
+
+        if (writeName != null) {
+            writeTableNames = new HsqlName[]{ writeName };
+        }
+
         switch (type) {
 
-            case StatementTypes.DDL :
             case StatementTypes.RENAME_OBJECT :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 break;
@@ -105,6 +132,8 @@ public class StatementSchema extends Statement {
             case StatementTypes.DROP_ORDERING :
             case StatementTypes.DROP_VIEW :
             case StatementTypes.DROP_INDEX :
+            case StatementTypes.DROP_CONSTRAINT :
+            case StatementTypes.DROP_COLUMN :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 break;
 
@@ -223,8 +252,7 @@ public class StatementSchema extends Statement {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "CompiledStateemntSchema");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatemntSchema");
         }
     }
 
@@ -234,6 +262,16 @@ public class StatementSchema extends Statement {
 
         if (result.isError()) {
             result.getException().setStatementType(group, type);
+
+            return result;
+        }
+
+        try {
+            if (isLogged) {
+                session.database.logger.writeToLog(session, sql);
+            }
+        } catch (HsqlException e) {
+            return Result.newErrorResult(e, sql);
         }
 
         return result;
@@ -340,7 +378,6 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.DDL :
             case StatementTypes.ALTER_DOMAIN :
             case StatementTypes.ALTER_ROUTINE :
             case StatementTypes.ALTER_TYPE :
@@ -350,6 +387,32 @@ public class StatementSchema extends Statement {
                     session.parser.reset(sql);
                     session.parser.read();
                     session.parser.processAlter();
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.DROP_COLUMN : {
+                try {
+                    HsqlName name       = (HsqlName) arguments[0];
+                    int      objectType = ((Integer) arguments[1]).intValue();
+                    boolean  cascade = ((Boolean) arguments[2]).booleanValue();
+                    boolean ifExists = ((Boolean) arguments[3]).booleanValue();
+                    Table table =
+                        session.database.schemaManager.getUserTable(session,
+                            name.parent);
+                    int colindex = table.getColumnIndex(name.name);
+
+                    if (table.getColumnCount() == 1) {
+                        throw Error.error(ErrorCode.X_42591);
+                    }
+
+                    session.commit(false);
+
+                    TableWorks tableWorks = new TableWorks(session, table);
+
+                    tableWorks.dropColumn(colindex, cascade);
 
                     break;
                 } catch (HsqlException e) {
@@ -373,7 +436,8 @@ public class StatementSchema extends Statement {
             case StatementTypes.DROP_CAST :
             case StatementTypes.DROP_ORDERING :
             case StatementTypes.DROP_VIEW :
-            case StatementTypes.DROP_INDEX : {
+            case StatementTypes.DROP_INDEX :
+            case StatementTypes.DROP_CONSTRAINT : {
                 try {
                     HsqlName name       = (HsqlName) arguments[0];
                     int      objectType = ((Integer) arguments[1]).intValue();
@@ -481,7 +545,17 @@ public class StatementSchema extends Statement {
                             break;
 
                         case StatementTypes.DROP_INDEX :
-                            dropIndex(session, name);
+                            checkSchemaUpdateAuthorisation(session,
+                                                           name.schema);
+                            session.database.schemaManager.dropIndex(session,
+                                    name);
+                            break;
+
+                        case StatementTypes.DROP_CONSTRAINT :
+                            checkSchemaUpdateAuthorisation(session,
+                                                           name.schema);
+                            session.database.schemaManager.dropConstraint(
+                                session, name, cascade);
                             break;
                     }
 
@@ -688,6 +762,27 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+            case StatementTypes.CREATE_ALIAS : {
+                HsqlName  name     = (HsqlName) arguments[0];
+                Routine[] routines = (Routine[]) arguments[1];
+
+                try {
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+
+                    if (name != null) {
+                        for (int i = 0; i < routines.length; i++) {
+                            routines[i].setName(name);
+                            session.database.schemaManager.addSchemaObject(
+                                routines[i]);
+                        }
+                    }
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.CREATE_SEQUENCE : {
                 NumberSequence sequence = (NumberSequence) arguments[0];
 
@@ -749,7 +844,6 @@ public class StatementSchema extends Statement {
                     }
 
                     session.database.schemaManager.addSchemaObject(table);
-                    session.database.logger.writeToLog(session, sql);
 
                     if (statement != null) {
                         Result result = statement.execute(session);
@@ -878,36 +972,9 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.CREATE_ALIAS : {
-                HsqlName  name     = (HsqlName) arguments[0];
-                Routine[] routines = (Routine[]) arguments[1];
-
-                try {
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-
-                    if (name != null) {
-                        for (int i = 0; i < routines.length; i++) {
-                            routines[i].setName(name);
-                            session.database.schemaManager.addSchemaObject(
-                                routines[i]);
-                        }
-                    }
-
-                    break;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
-            }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "CompiledStateemntSchema");
-        }
-
-        try {
-            session.database.logger.writeToLog(session, sql);
-        } catch (HsqlException e) {
-            return Result.newErrorResult(e, sql);
         }
 
         return Result.updateZeroResult;
@@ -952,12 +1019,6 @@ public class StatementSchema extends Statement {
                 cascade);
 
         domain.userTypeModifier = null;
-    }
-
-    private static void dropIndex(Session session,
-                                  HsqlName name) throws HsqlException {
-        session.database.schemaManager.dropIndex(session, name.name,
-                name.schema.name);
     }
 
     private static void dropRole(Session session, HsqlName name,
@@ -1104,7 +1165,7 @@ public class StatementSchema extends Statement {
         }
     }
 
-    public boolean isSchemaStatement() {
+    public boolean isAutoCommitStatement() {
         return true;
     }
 

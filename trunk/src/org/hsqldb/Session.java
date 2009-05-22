@@ -1111,20 +1111,15 @@ public class Session implements SessionInterface {
 
         currentStatement = cs;
 
-        if (cs.isSchemaStatement()) {
+        if (cs.isAutoCommitStatement()) {
             try {
                 if (isReadOnly()) {
-                    throw Error.error(ErrorCode.X_25006);
+//                    throw Error.error(ErrorCode.X_25006);
                 }
 
                 /** @todo - special autocommit for backward compatibility */
                 commit(false);
             } catch (HsqlException e) {}
-
-            r                = cs.execute(this);
-            currentStatement = null;
-
-            return r;
         }
 
         if (!cs.isTransactionStatement()) {
@@ -1195,7 +1190,8 @@ public class Session implements SessionInterface {
             }
         }
 
-        if (sessionContext.depth == 0 && isAutoCommit) {
+        if (sessionContext.depth == 0 && isAutoCommit
+                || cs.isAutoCommitStatement()) {
             try {
                 commit(false);
             } catch (Exception e) {
@@ -1278,10 +1274,7 @@ public class Session implements SessionInterface {
 
         isBatch = false;
 
-
-
         sessionData.updateLobUsageForBatch();
-
 
         return Result.newBatchedExecuteResponse(updateCounts, generatedResult,
                 error);

@@ -68,10 +68,7 @@ package org.hsqldb;
 
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLMemory;
-import org.hsqldb.lib.IntLookup;
 import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.store.ValuePool;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
 // fredt@users 20020920 - patch 1.7.1 - refactoring to cut mamory footprint
@@ -165,21 +162,6 @@ public class RowAVL extends Row {
         return newnode;
     }
 
-    /**
-     * Returns the array of fields in the database row.
-     */
-    public Object[] getData() {
-        return rowData;
-    }
-
-    /**
-     *  Is used only when the database row is deleted, not when it is freed
-     *  from the Cache.
-     */
-    public void delete() throws HsqlException {
-        isDeleted = true;
-    }
-
     public void clearNonPrimaryNodes() throws HsqlException {
 
         NodeAVL n = nPrimaryNode.nNext;
@@ -192,48 +174,6 @@ public class RowAVL extends Row {
         }
     }
 
-    public void setStorageSize(int size) {
-        ;
-    }
-
-    public int getStorageSize() {
-        return 0;
-    }
-
-    public long getId() {
-        return ((long) tableId << 32) + ((long) position);
-    }
-
-    public Object getRowidObject() {
-        return ValuePool.getLong(getId());
-    }
-
-    public boolean isMemory() {
-        return true;
-    }
-
-    public int getPos() {
-        return position;
-    }
-
-    public void setPos(int pos) {
-        position = pos;
-    }
-
-    public boolean hasChanged() {
-        return false;
-    }
-
-    public boolean isKeepInMemory() {
-        return true;
-    }
-
-    public void keepInMemory(boolean keep) {}
-
-    public boolean isInMemory() {
-        return true;
-    }
-
     public void restore() {
 
         NodeAVL n = nPrimaryNode;
@@ -242,8 +182,6 @@ public class RowAVL extends Row {
             n.iBalance = 0;
             n          = n.nNext;
         }
-
-        isDeleted = false;
     }
 
     public void destroy() {

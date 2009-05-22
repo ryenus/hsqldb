@@ -865,7 +865,7 @@ public class SchemaManager {
         }
 
         SchemaObjectSet set = null;
-        HsqlName        tableName;
+        HsqlName        objectName;
         Table           table;
 
         switch (type) {
@@ -911,37 +911,41 @@ public class SchemaManager {
 
             case SchemaObject.INDEX :
                 set       = schema.indexLookup;
-                tableName = set.getName(name);
+                objectName = set.getName(name);
 
-                if (tableName == null) {
+                if (objectName == null) {
                     return null;
                 }
 
-                table = (Table) schema.tableList.get(name);
+                table = (Table) schema.tableList.get(objectName.parent.name);
 
                 return table.getIndex(name);
 
             case SchemaObject.CONSTRAINT :
-                set       = schema.indexLookup;
-                tableName = set.getName(name);
+                set       = schema.constraintLookup;
+                objectName = set.getName(name);
 
-                if (tableName == null) {
+                if (objectName == null) {
                     return null;
                 }
 
-                table = (Table) schema.tableList.get(name);
+                table = (Table) schema.tableList.get(objectName.parent.name);
+
+                if (table == null) {
+                    return null;
+                }
 
                 return table.getConstraint(name);
 
             case SchemaObject.TRIGGER :
                 set       = schema.indexLookup;
-                tableName = set.getName(name);
+                objectName = set.getName(name);
 
-                if (tableName == null) {
+                if (objectName == null) {
                     return null;
                 }
 
-                table = (Table) schema.tableList.get(name);
+                table = (Table) schema.tableList.get(objectName.parent.name);
 
                 return table.getTrigger(name);
 
@@ -971,22 +975,26 @@ public class SchemaManager {
     /**
      * Drops the index with the specified name.
      */
-    void dropIndex(Session session, String name,
-                   String schema) throws HsqlException {
+    void dropIndex(Session session, HsqlName name) throws HsqlException {
 
-        Table t = findUserTableForIndex(session, name, schema);
-
-        if (t == null) {
-            throw Error.error(ErrorCode.X_42501, name);
-        }
-
-        session.commit(false);
+        Table t = getTable(session, name.parent.name, name.parent.schema.name);
 
         TableWorks tw = new TableWorks(session, t);
 
-        tw.dropIndex(name);
+        tw.dropIndex(name.name);
     }
 
+    /**
+     * Drops the index with the specified name.
+     */
+    void dropConstraint(Session session, HsqlName name, boolean cascade) throws HsqlException {
+
+        Table t = getTable(session, name.parent.name, name.parent.schema.name);
+
+        TableWorks tw = new TableWorks(session, t);
+
+        tw.dropConstraint(name.name, cascade);
+    }
     void removeDependentObjects(HsqlName name) {
 
         Schema schema = (Schema) schemaMap.get(name.schema.name);
@@ -1243,6 +1251,12 @@ public class SchemaManager {
                 return table.getTrigger(name.name);
             }
             case SchemaObject.CONSTRAINT : {
+                name = schema.constraintLookup.getName(name.name);
+
+                if (name == null) {
+                    return null;
+                }
+
                 HsqlName tableName = name.parent;
                 Table    table = (Table) schema.tableList.get(tableName.name);
 

@@ -151,46 +151,65 @@ public interface StatementTypes {
     int CREATE_MODULE                    = 51;
     int WHILE                            = 97;
 
-    // hsqldb
-    int BACKUP                              = 1002;
-    int CHECKPOINT                          = 1003;
-    int CREATE_ALIAS                        = 1004;
-    int CREATE_INDEX                        = 1005;
-    int DROP_INDEX                          = 1008;
-    int EXPLAIN_PLAN                        = 1010;
-    int LOCK_TABLE                          = 1011;
-    int RENAME_OBJECT                       = 1012;
-    int SCRIPT                              = 1013;
-    int SET_AUTOCOMMIT                      = 1014;
-    int SET_DATABASE_COLLATION              = 1016;
-    int SET_DATABASE_DEFRAG                 = 1018;
-    int SET_DATABASE_EVENT_LOG              = 1019;
-    int SET_DATABASE_IGNORECASE             = 1020;
-    int SET_DATABASE_BACKUP_INCREMENT       = 1021;
-    int SET_DATABASE_LOG_SIZE               = 1022;
-    int SET_DATABASE_REFERENTIAL_INTEGRITY  = 1023;
-    int SET_DATABASE_RESULT_MEMORY_ROWS     = 1024;
-    int SET_DATABASE_SCRIPT_FORMAT          = 1025;
-    int SET_DATABASE_TRANSACTION_CONTROL    = 1026;
-    int SET_DATABASE_WRITE_DELAY            = 1028;
-    int SET_DATABASE_DEFAULT_INITIAL_SCHEMA = 1030;
-    int SET_DATABASE_DEFAULT_TABLE_TYPE     = 1031;
-    int SET_INITIAL_SCHEMA                  = 1032;
-    int SET_PASSWORD                        = 1034;
-    int SET_PROPERTY                        = 1036;
-    int SET_SESSION_RESULT_MAX_ROWS         = 1038;
-    int SET_SESSION_RESULT_MEMORY_ROWS      = 1040;
-    int SET_TABLE_INDEX                     = 1042;
-    int SET_TABLE_READONLY                  = 1044;
-    int SET_TABLE_SOURCE                    = 1046;
-    int SET_TABLE_TYPE                      = 1048;
-    int SHUTDOWN                            = 1050;
-    int DECLARE_VARIABLE                    = 1052;
+    // hsqldb database
+    int DATABASE_BACKUP     = 1001;
+    int DATABASE_CHECKPOINT = 1002;
+    int DATABASE_SHUTDOWN   = 1003;
+    int DATABASE_SCRIPT     = 1004;
 
-    // hsqldb sql
-    int CREATE_USER        = 1071;
-    int DROP_USER          = 1072;
-    int ROLLBACK_SAVEPOINT = 1073;
+    // hsqldb database settings
+    int SET_DATABASE_DEFAULT_INITIAL_SCHEMA    = 1011;
+    int SET_DATABASE_DEFAULT_TABLE_TYPE        = 1012;
+    int SET_DATABASE_FILES_BACKUP_INCREMENT    = 1013;
+    int SET_DATABASE_FILES_CACHE_FILE_SCALE    = 1014;
+    int SET_DATABASE_FILES_CACHE_SIZE          = 1015;
+    int SET_DATABASE_FILES_DEFRAG              = 1016;
+    int SET_DATABASE_FILES_EVENT_LOG           = 1017;
+    int SET_DATABASE_FILES_LOCK                = 1018;
+    int SET_DATABASE_FILES_LOG_SIZE            = 1019;
+    int SET_DATABASE_FILES_NIO                 = 1021;
+    int SET_DATABASE_FILES_READ_ONLY           = 1022;
+    int SET_DATABASE_FILES_READ_ONLY_FILES     = 1023;
+    int SET_DATABASE_FILES_SCRIPT_FORMAT       = 1024;
+    int SET_DATABASE_FILES_WRITE_DELAY         = 1035;
+    int SET_DATABASE_PROPERTY                  = 1026;
+    int SET_DATABASE_RESULT_MEMORY_ROWS        = 1027;
+    int SET_DATABASE_SCRIPT_FORMAT             = 1028;
+    int SET_DATABASE_SQL_COLLATION             = 1029;
+    int SET_DATABASE_SQL_IGNORECASE            = 1030;
+    int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1031;
+    int SET_DATABASE_SQL_STRICT_KEYWORDS       = 1032;
+    int SET_DATABASE_SQL_STRICT_SIZE           = 1033;
+    int SET_DATABASE_READ_ONLY                 = 1034;
+    int SET_DATABASE_READ_ONLY_FILES           = 1035;
+    int SET_DATABASE_TRANSACTION_CONTROL       = 1036;
+
+    // hsqldb user settings
+    int SET_USER_INITIAL_SCHEMA = 1042;
+    int SET_USER_PASSWORD       = 1043;
+
+    // hsqldb session
+    int TRANSACTION_LOCK_TABLE         = 1044;
+    int SET_SESSION_AUTOCOMMIT         = 1045;
+    int SET_SESSION_RESULT_MAX_ROWS    = 1046;
+    int SET_SESSION_RESULT_MEMORY_ROWS = 1047;
+    int ROLLBACK_SAVEPOINT             = 1048;
+
+    // hsqldb schema
+    int CREATE_ALIAS       = 1051;
+    int CREATE_INDEX       = 1052;
+    int CREATE_USER        = 1053;
+    int DECLARE_VARIABLE   = 1056;
+    int DROP_COLUMN        = 1057;
+    int DROP_INDEX         = 1058;
+    int DROP_CONSTRAINT    = 1059;
+    int DROP_USER          = 1062;
+    int EXPLAIN_PLAN       = 1063;
+    int RENAME_OBJECT      = 1064;
+    int SET_TABLE_INDEX    = 1067;
+    int SET_TABLE_READONLY = 1068;
+    int SET_TABLE_SOURCE   = 1069;
+    int SET_TABLE_TYPE     = 1070;
 
     // hsqldb sql implementation
     int CONDITION = 1101;                         // element of IF
@@ -198,7 +217,7 @@ public interface StatementTypes {
     int DDL       = 1103;
     int CHECK     = 1104;
 
-    //
+    // hsqldb groups
     int X_SQL_SCHEMA_DEFINITION   = 2001;
     int X_SQL_SCHEMA_MANIPULATION = 2002;
     int X_SQL_DATA                = 2003;
@@ -215,7 +234,7 @@ public interface StatementTypes {
     int X_HSQLDB_TRANSACTION      = 2014;
     int X_DYNAMIC                 = 2015;
 
-    /** Expected types of Result returned for an SQL statement */
+    // Expected types of Result returned for an SQL statement
     int RETURN_ANY    = 0;
     int RETURN_COUNT  = 1;
     int RETURN_RESULT = 2;

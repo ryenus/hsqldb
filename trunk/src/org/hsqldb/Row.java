@@ -48,12 +48,7 @@ public class Row implements CachedObject {
     int                       tableId;
     int                       position;
     protected Object[]        rowData;
-    boolean                   isDeleted;
     public volatile RowAction rowAction;
-
-    //* debug 190
-    // protected RowActionBase rowActionB;
-    //* debug 190
 
     /**
      *  Default constructor used only in subclasses.
@@ -67,16 +62,20 @@ public class Row implements CachedObject {
         return rowData;
     }
 
-    /**
-     *  Is used only when the database row is deleted, not when it is freed
-     *  from the Cache.
-     */
-    public void delete() throws HsqlException {
-        isDeleted = true;
-    }
-
     boolean isDeleted(Session session) {
-        return isDeleted;
+
+        if (rowAction == null) {
+            return false;
+        }
+
+        RowActionBase action =
+            rowAction.getLastAction(session.actionTimestamp);
+
+        if (action == null) {
+            return false;
+        }
+
+        return action.type == RowActionBase.ACTION_DELETE;
     }
 
     public void setChanged() {}
@@ -121,9 +120,7 @@ public class Row implements CachedObject {
         return true;
     }
 
-    public void restore() {
-        isDeleted = false;
-    }
+    public void restore() {}
 
     public void destroy() {
 
