@@ -1133,6 +1133,10 @@ public class BaseHashMap {
         }
     }
 
+    public int capacity() {
+        return hashIndex.linkTable.length;
+    }
+
     public int size() {
         return hashIndex.elementCount;
     }

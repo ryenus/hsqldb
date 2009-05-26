@@ -96,6 +96,7 @@ public abstract class ScriptWriterBase implements Runnable {
     FileAccess.FileSync outDescriptor;
     int                 tableRowCount;
     HsqlName            schemaToLog;
+    boolean    isClosed;
 
     /**
      * this determines if the script is the normal script (false) used
@@ -180,7 +181,7 @@ public abstract class ScriptWriterBase implements Runnable {
      */
     public void sync() {
 
-        if (fileStreamOut == null) {
+        if (isClosed) {
             return;
         }
 
@@ -212,18 +213,19 @@ public abstract class ScriptWriterBase implements Runnable {
 
         stop();
 
-        if (fileStreamOut == null) {
+        if (isClosed) {
             return;
         }
 
         try {
             synchronized (fileStreamOut) {
+                needsSync = false;
+                isClosed = true;
                 fileStreamOut.flush();
                 outDescriptor.sync();
                 fileStreamOut.close();
-            }
 
-            fileStreamOut = null;
+            }
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR);
         }

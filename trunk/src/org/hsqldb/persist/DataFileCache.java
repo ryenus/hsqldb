@@ -574,6 +574,44 @@ public class DataFileCache {
         return readSize(i);
     }
 
+    public CachedObject get(CachedObject object, PersistentStore store,
+                            boolean keep) throws HsqlException {
+
+        readLock.lock();
+
+        int i;
+
+        try {
+            if (object.isInMemory()) {
+                if (keep) {
+                    object.keepInMemory(true);
+                }
+
+                return object;
+            }
+
+            i = object.getPos();
+
+            if (i < 0) {
+                return null;
+            }
+
+            object = cache.get(i);
+
+            if (object != null) {
+                if (keep) {
+                    object.keepInMemory(true);
+                }
+
+                return object;
+            }
+        } finally {
+            readLock.unlock();
+        }
+
+        return getFromFile(i, store, keep);
+    }
+
     public CachedObject get(int i, PersistentStore store,
                             boolean keep) throws HsqlException {
 
@@ -599,6 +637,12 @@ public class DataFileCache {
             readLock.unlock();
         }
 
+        return getFromFile(i, store, keep);
+    }
+
+    private CachedObject getFromFile(int i, PersistentStore store,
+                                     boolean keep) throws HsqlException {
+
         writeLock.lock();
 
         try {
@@ -608,7 +652,7 @@ public class DataFileCache {
                 return null;
             }
 
-            object = store.get(rowInput);
+            CachedObject object = store.get(rowInput);
 
             // for text tables with empty rows at the beginning,
             // pos may move forward in readObject
@@ -619,6 +663,8 @@ public class DataFileCache {
             if (keep) {
                 object.keepInMemory(true);
             }
+
+            store.set(object);
 
             return object;
         } catch (HsqlException e) {

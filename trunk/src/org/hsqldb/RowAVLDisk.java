@@ -103,6 +103,7 @@ public class RowAVLDisk extends RowAVL {
     protected TableBase tTable;
     int                 storageSize;
     int                 keepCount;
+    boolean             isInMemory;
 
     /**
      *  Flag indicating unwritten data.
@@ -134,7 +135,7 @@ public class RowAVLDisk extends RowAVL {
 
         setNewNodes();
 
-        rowData          = o;
+        rowData        = o;
         hasDataChanged = hasNodesChanged = true;
     }
 
@@ -150,7 +151,7 @@ public class RowAVLDisk extends RowAVL {
                       RowInputInterface in) throws IOException, HsqlException {
 
         tTable      = t;
-        position        = in.getPos();
+        position    = in.getPos();
         storageSize = in.getSize();
 
         int indexcount = t.getIndexCount();
@@ -180,7 +181,7 @@ public class RowAVLDisk extends RowAVL {
     /**
      * Sets flag for Node data change.
      */
-    public void setNodesChanged() {
+    public synchronized void setNodesChanged() {
         hasNodesChanged = true;
     }
 
@@ -212,7 +213,7 @@ public class RowAVLDisk extends RowAVL {
     /**
      * Sets flag for row data change.
      */
-    public void setChanged() {
+    public synchronized void setChanged() {
         hasDataChanged = true;
     }
 
@@ -221,7 +222,7 @@ public class RowAVLDisk extends RowAVL {
      *
      * @return boolean
      */
-    public boolean hasChanged() {
+    public synchronized boolean hasChanged() {
         return hasNodesChanged || hasDataChanged;
     }
 
@@ -245,7 +246,7 @@ public class RowAVLDisk extends RowAVL {
      * @return boolean
      * @throws HsqlException
      */
-    public boolean isKeepInMemory() {
+    public synchronized boolean isKeepInMemory() {
         return keepCount > 0;
     }
 
@@ -256,7 +257,7 @@ public class RowAVLDisk extends RowAVL {
         tTable = null;
     }
 
-    public void keepInMemory(boolean keep) {
+    public synchronized boolean keepInMemory(boolean keep) {
 
         if (keep) {
             keepCount++;
@@ -267,6 +268,37 @@ public class RowAVLDisk extends RowAVL {
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "CachedRow keep count");
             }
+        }
+
+        if (!isInMemory) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public synchronized boolean isInMemory() {
+        return isInMemory;
+    }
+
+    public synchronized void setInMemory(boolean in) {
+
+        isInMemory = in;
+
+        if (in) {
+            return;
+        }
+
+        NodeAVL n = nPrimaryNode;
+
+        while (n != null) {
+            n.setInMemory(in);
+
+            n = n.nNext;
+        }
+
+        if (rowAction != null) {
+            rowAction           = null;
         }
     }
 

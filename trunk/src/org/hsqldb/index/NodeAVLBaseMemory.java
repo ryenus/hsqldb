@@ -164,5 +164,7 @@ abstract class NodeAVLBaseMemory extends NodeAVL {
         return n == this;
     }
 
+    public void setInMemory(boolean in) {}
+
     public void write(RowOutputInterface out) {}
 }

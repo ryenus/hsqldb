@@ -100,5 +100,4 @@ public class NodeAVLMemory extends NodeAVLBaseMemory {
     Row getRow(PersistentStore store) {
         return rData;
     }
-
 }

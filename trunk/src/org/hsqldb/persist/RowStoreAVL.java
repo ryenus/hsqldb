@@ -51,9 +51,11 @@ public abstract class RowStoreAVL implements PersistentStore {
         return false;
     }
 
-    public abstract CachedObject get(int key);
+    public abstract void set(CachedObject object);
 
-    public abstract CachedObject getKeep(int key);
+    public abstract CachedObject get(int key, boolean keep);
+
+    public abstract CachedObject get(CachedObject object, boolean keep);
 
     public abstract int getStorageSize(int key);
 

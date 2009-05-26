@@ -103,11 +103,13 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         return !isCached;
     }
 
-    public CachedObject get(int i) {
+    public void set(CachedObject object) {}
+
+    public CachedObject get(int i, boolean keep) {
 
         try {
             if (isCached) {
-                return cache.get(i, this, false);
+                return cache.get(i, this, keep);
             } else {
                 return (CachedObject) rowIdMap.get(i);
             }
@@ -116,13 +118,13 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public CachedObject getKeep(int i) {
+    public CachedObject get(CachedObject object, boolean keep) {
 
         try {
             if (isCached) {
-                return cache.get(i, this, true);
+                return cache.get(object, this, keep);
             } else {
-                return (CachedObject) rowIdMap.get(i);
+                return (CachedObject) rowIdMap.get(object.getPos());
             }
         } catch (HsqlException e) {
             return null;

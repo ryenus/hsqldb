@@ -67,6 +67,8 @@
 package org.hsqldb.index;
 
 import java.util.NoSuchElementException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.Error;
@@ -136,9 +138,9 @@ public class IndexAVL implements Index {
     private int             position;
 
     //
-    ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
-    ReentrantReadWriteLock.ReadLock  readLock  = lock.readLock();
-    ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+    ReadWriteLock lock      = new ReentrantReadWriteLock();
+    Lock          readLock  = lock.readLock();
+    Lock          writeLock = lock.writeLock();
 
     //
     public static final Index[] emptyArray = new Index[]{};

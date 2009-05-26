@@ -117,6 +117,7 @@ public class Cache {
         }
 
         cacheMap.put(key, row);
+        row.setInMemory(true);
 
         cacheBytesLength += storageSize;
     }
@@ -133,6 +134,8 @@ public class Cache {
         }
 
         cacheBytesLength -= r.getStorageSize();
+
+        r.setInMemory(false);
 
         return r;
     }
@@ -159,7 +162,33 @@ public class Cache {
             CachedObject r = (CachedObject) it.next();
 
             if (it.getAccessCount() <= accessTarget) {
+                synchronized (r) {
+                    if (!r.isKeepInMemory()) {
+                        r.setInMemory(false);
+
+                        if (r.hasChanged()) {
+                            rowTable[savecount++] = r;
+                        }
+
+                        it.remove();
+
+                        cacheBytesLength -= r.getStorageSize();
+
+                        removeCount--;
+                    }
+                }
+            }
+        }
+
+        if (removeCount > 50) {
+            it = cacheMap.iterator();
+
+            for (; removeCount >= 0 && it.hasNext(); ) {
+                CachedObject r = (CachedObject) it.next();
+
                 if (!r.isKeepInMemory()) {
+                    r.setInMemory(false);
+
                     if (r.hasChanged()) {
                         rowTable[savecount++] = r;
                     }
@@ -167,6 +196,8 @@ public class Cache {
                     it.remove();
 
                     cacheBytesLength -= r.getStorageSize();
+
+                    removeCount--;
                 }
             }
         }
