@@ -45,6 +45,7 @@ import org.hsqldb.Table;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.rowio.RowInputInterface;
 
 /*
@@ -56,11 +57,12 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
-    DataFileCache                   cache;
-    Table                           table;
+    DataFileCache           cache;
+    Table                   table;
+    IntKeyHashMapConcurrent rowActionMap;
 
     public RowStoreAVLDisk(PersistentStoreCollection manager,
-                          DataFileCache cache, Table table) {
+                           DataFileCache cache, Table table) {
 
         this.manager      = manager;
         this.table        = table;
@@ -69,20 +71,25 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         this.cache        = cache;
 
         manager.setStore(table, this);
+
+        rowActionMap = table.database.txManager.rowActionMap;
     }
 
     public boolean isMemory() {
         return false;
     }
 
-    public CachedObject get(int i) {
+    public void set(CachedObject object) {
+
+        Row row = ((Row) object);
+
+        row.rowAction = (RowAction) rowActionMap.get(row.getPos());
+    }
+
+    public CachedObject get(int i, boolean keep) {
 
         try {
-            CachedObject object = cache.get(i, this, false);
-
-            if (object != null && ((Row) object).rowAction == null) {
-                table.database.txManager.setTransactionInfo((Row) object);
-            }
+            CachedObject object = cache.get(i, this, keep);
 
             return object;
         } catch (HsqlException e) {
@@ -90,14 +97,10 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public CachedObject getKeep(int i) {
+    public CachedObject get(CachedObject object, boolean keep) {
 
         try {
-            CachedObject object = cache.get(i, this, true);
-
-            if (object != null && ((Row) object).rowAction == null) {
-                table.database.txManager.setTransactionInfo((Row) object);
-            }
+            object = cache.get(object, this, keep);
 
             return object;
         } catch (HsqlException e) {
@@ -145,6 +148,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         if (session != null) {
             RowAction.addAction(session, RowAction.ACTION_INSERT, table, row);
+            rowActionMap.put(row.getPos(), row.rowAction);
         }
 
         return row;
@@ -190,7 +194,7 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
     public void setAccessor(Index key, int accessor) throws HsqlException {
 
-        CachedObject object = get(accessor);
+        CachedObject object = get(accessor, false);
 
         if (object != null) {
             NodeAVL node = ((RowAVL) object).getNode(key.getPosition());

@@ -46,11 +46,6 @@ import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.types.Type;
-import org.hsqldb.types.ClobData;
-import org.hsqldb.types.BlobData;
-import org.hsqldb.types.LobData;
 
 /**
  * Manages rows involved in transactions
@@ -81,7 +76,8 @@ public class TransactionManager {
     // functional unit - cached table transactions
 
     /** Map : rowID -> RowAction */
-    IntKeyHashMapConcurrent rowActionMap = new IntKeyHashMapConcurrent(10000);
+    public IntKeyHashMapConcurrent rowActionMap =
+        new IntKeyHashMapConcurrent(10000);
 
     //
     //
@@ -138,14 +134,10 @@ public class TransactionManager {
                 }
             }
 
-            for (int i = session.actionIndex; i < limit; i++) {
+            for (int i = session.actionIndex; canComplete && i < limit; i++) {
                 RowAction action = (RowAction) list[i];
 
                 if (!action.table.isLogged) {
-                    continue;
-                }
-
-                if (!canComplete && action.table.isTransactional()) {
                     continue;
                 }
 
@@ -155,7 +147,7 @@ public class TransactionManager {
                     PersistentStore store =
                         session.sessionData.getRowStore(action.table);
 
-                    row = (Row) store.get(action.getPos());
+                    row = (Row) store.get(action.getPos(), false);
                 } else {
                     row = action.memoryRow;
                 }
@@ -323,13 +315,14 @@ public class TransactionManager {
                     switch (type) {
 
                         case RowActionBase.ACTION_INSERT :
-
                             Row row;
+
                             if (action.memoryRow == null) {
                                 PersistentStore store =
-                                    session.sessionData.getRowStore(action.table);
+                                    session.sessionData.getRowStore(
+                                        action.table);
 
-                                row = (Row) store.get(action.getPos());
+                                row = (Row) store.get(action.getPos(), false);
                             } else {
                                 row = action.memoryRow;
                             }
@@ -354,7 +347,7 @@ public class TransactionManager {
                             break;
 
                         case RowActionBase.ACTION_INSERT :
-                            Row row = (Row) store.get(action.getPos());
+                            Row row = (Row) store.get(action.getPos(), false);
 
                             store.commitPersistence(row);
                             break;
@@ -368,7 +361,7 @@ public class TransactionManager {
             if (getFirstLiveTransactionTimestamp() > session.actionTimestamp) {
                 mergeTransaction(session, list, 0, limit,
                                  session.actionTimestamp);
-                rowActionMapRemoveTransaction(list, 0, limit);
+                rowActionMapRemoveTransaction(list, 0, limit, true);
             } else {
                 list = session.rowActionList.toArray();
 
@@ -468,7 +461,7 @@ public class TransactionManager {
         mergeRolledBackTransaction(session.rowActionList.getArray(), start,
                                    limit);
         rowActionMapRemoveTransaction(session.rowActionList.getArray(), start,
-                                      limit);
+                                      limit, false);
         session.rowActionList.setSize(start);
     }
 
@@ -483,7 +476,7 @@ public class TransactionManager {
 
         session.rowActionList.add(action);
 
-        if (action.memoryRow == null) {
+        if (!row.isMemory()) {
             rowActionMap.put(action.getPos(), action);
         }
 
@@ -501,7 +494,7 @@ public class TransactionManager {
 
         session.rowActionList.add(action);
 
-        if (action.memoryRow == null) {
+        if (!row.isMemory()) {
             rowActionMap.put(action.getPos(), action);
         }
     }
@@ -559,24 +552,53 @@ public class TransactionManager {
                               : action.canRead(session);
     }
 
-    void rowActionMapRemoveTransaction(Object[] list, int start, int limit) {
+    void rowActionMapRemoveTransaction(Object[] list, int start, int limit,
+                                       boolean commit) {
 
         for (int i = start; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];
 
-            if (rowact.memoryRow == null) {
+            if (!rowact.isMemory) {
                 synchronized (rowact) {
                     if (rowact.type == RowActionBase.ACTION_NONE
                             || rowact.type
                                == RowActionBase.ACTION_DELETE_FINAL) {
                         int pos = rowact.getPos();
 
-                        // can move the logic                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       into the map class
-                        //                    if (rowact == rowActionMap.get(pos)) {
                         rowActionMap.remove(pos);
-
-                        //                    }
                     }
+                }
+            }
+        }
+
+        for (int i = start; i < limit; i++) {
+            RowAction rowact = (RowAction) list[i];
+
+            if (rowact.type == RowActionBase.ACTION_DELETE_FINAL) {
+                try {
+                    rowact.type = RowActionBase.ACTION_DELETE_COMMITTED;
+
+                    PersistentStore store =
+                        rowact.session.sessionData.getRowStore(rowact.table);
+                    Row row;
+
+                    if (rowact.memoryRow == null) {
+                        row = (Row) store.get(rowact.getPos(), false);
+                    } else {
+                        row = rowact.memoryRow;
+                    }
+
+                    if (rowact.table.hasLobColumn) {
+                        Object[] data = row.getData();
+
+                        rowact.table.removeLobUsageCount(rowact.session, data);
+                    }
+
+                    store.delete(row);
+
+                } catch (HsqlException e) {
+
+//                    throw unexpectedException(e.getMessage());
                 }
             }
         }
@@ -617,7 +639,7 @@ public class TransactionManager {
             store = rowact.session.sessionData.getRowStore(rowact.table);
 
             if (rowact.memoryRow == null) {
-                row = (Row) store.get(rowact.getPos());
+                row = (Row) store.get(rowact.getPos(), false);
             } else {
                 row = rowact.memoryRow;
             }
@@ -630,17 +652,6 @@ public class TransactionManager {
 
             synchronized (row) {
                 rowact.mergeRollback(row);
-
-                delete = rowact.type == RowActionBase.ACTION_DELETE_FINAL;
-            }
-
-            if (delete) {
-                try {
-                    store.delete(row);
-                } catch (HsqlException e) {
-
-                    //                    throw unexpectedException(e.getMessage());
-                }
             }
         }
 
@@ -699,7 +710,7 @@ public class TransactionManager {
 
             mergeTransaction(session, actions, 0, actions.length,
                              commitTimestamp);
-            rowActionMapRemoveTransaction(actions, 0, actions.length);
+            rowActionMapRemoveTransaction(actions, 0, actions.length, true);
         }
     }
 
@@ -722,7 +733,7 @@ public class TransactionManager {
                 rowact.session.sessionData.getRowStore(rowact.table);
 
             if (rowact.memoryRow == null) {
-                row = (Row) store.get(rowact.getPos());
+                row = (Row) store.get(rowact.getPos(), false);
             } else {
                 row = rowact.memoryRow;
             }
@@ -735,23 +746,6 @@ public class TransactionManager {
 
             synchronized (row) {
                 rowact.mergeToTimestamp(row, timestamp);
-
-                delete = rowact.type == RowActionBase.ACTION_DELETE_FINAL;
-            }
-
-            if (delete) {
-                try {
-                    if (rowact.table.hasLobColumn) {
-                        Object[] data = row.getData();
-
-                        rowact.table.removeLobUsageCount(session, data);
-                    }
-
-                    store.delete(row);
-                } catch (HsqlException e) {
-
-//                    throw unexpectedException(e.getMessage());
-                }
             }
         }
     }
@@ -1202,8 +1196,7 @@ public class TransactionManager {
                 for (int j = 0, size = tlist.size(); j < size; j++) {
                     RowAction rowact = (RowAction) tlist.get(j);
 
-                    if (rowact.table.getTableType()
-                            == TableBase.CACHED_TABLE) {
+                    if (!rowact.isMemory) {
                         lookup.addUnique(rowact.getPos(), 0);
                     }
                 }
@@ -1231,7 +1224,7 @@ public class TransactionManager {
                 for (int j = 0, size = tlist.size(); j < size; j++) {
                     RowAction rowact = (RowAction) tlist.get(j);
 
-                    if (rowact.memoryRow == null) {
+                    if (!rowact.isMemory) {
                         int pos = lookup.lookupFirstEqual(rowact.getPos());
 
                         rowact.setPos(pos);

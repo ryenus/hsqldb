@@ -116,7 +116,7 @@ public class TextTable extends org.hsqldb.Table {
             }
 
             while (true) {
-                row = (Row) store.get(nextpos);
+                row = (Row) store.get(nextpos, false);
 
                 if (row == null) {
                     break;

@@ -59,7 +59,7 @@ public interface CachedObject {
 
     boolean isKeepInMemory();
 
-    void keepInMemory(boolean keep);
+    boolean keepInMemory(boolean keep);
 
     boolean isInMemory();
 

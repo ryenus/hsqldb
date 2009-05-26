@@ -78,7 +78,7 @@ public class StatementResultUpdate extends StatementDML {
                 Long id = (Long) args[args.length - 1];
                 PersistentStore store =
                     session.sessionData.getRowStore(baseTable);
-                Row            row  = (Row) store.get((int) id.longValue());
+                Row row = (Row) store.get((int) id.longValue(), false);
                 HashMappedList list = new HashMappedList();
                 Object[] data =
                     (Object[]) ArrayUtil.duplicateArray(row.getData());
@@ -100,7 +100,7 @@ public class StatementResultUpdate extends StatementDML {
                 Long id = (Long) args[args.length - 1];
                 PersistentStore store =
                     session.sessionData.getRowStore(baseTable);
-                Row             row = (Row) store.get((int) id.longValue());
+                Row row = (Row) store.get((int) id.longValue(), false);
                 RowSetNavigator navigator = new RowSetNavigatorLinkedList();
 
                 navigator.add(row);

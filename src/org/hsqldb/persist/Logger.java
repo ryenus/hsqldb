@@ -490,9 +490,12 @@ public class Logger {
             case TableBase.TEXT_TABLE :
                 return new RowStoreAVLDiskData(collection, (Table) table);
 
+            case TableBase.TEMP_TABLE :
+                diskBased = false;
+
+                // fall through
             case TableBase.RESULT_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.TEMP_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TRANSITION_TABLE :
                 if (session == null) {

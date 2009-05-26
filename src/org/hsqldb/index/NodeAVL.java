@@ -167,13 +167,15 @@ public abstract class NodeAVL implements CachedObject {
     }
     ;
 
-    public void keepInMemory(boolean keep) {}
+    public boolean keepInMemory(boolean keep) {
+        return true;
+    }
 
     public boolean isInMemory() {
         return false;
     }
 
-    public void setInMemory(boolean in) {}
+    abstract public void setInMemory(boolean in);
 
     public void restore() {}
 

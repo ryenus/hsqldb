@@ -80,7 +80,7 @@ public class NodeAVLMemoryPointer extends NodeAVLBaseMemory {
             return null;
         }
 
-        RowAVLDiskData row = (RowAVLDiskData) store.get(iData);
+        RowAVLDiskData row = (RowAVLDiskData) store.get(iData, false);
 
         row.nPrimaryNode = nPrimary;
 

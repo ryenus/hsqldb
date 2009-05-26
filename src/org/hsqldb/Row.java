@@ -49,6 +49,11 @@ public class Row implements CachedObject {
     int                       position;
     protected Object[]        rowData;
     public volatile RowAction rowAction;
+    public volatile boolean   hasAction;
+
+    public RowAction getAction(){
+        return rowAction;
+    }
 
     /**
      *  Default constructor used only in subclasses.
@@ -114,11 +119,14 @@ public class Row implements CachedObject {
         return true;
     }
 
-    public void keepInMemory(boolean keep) {}
+    public boolean keepInMemory(boolean keep) {
+        return true;
+    }
 
     public boolean isInMemory() {
         return true;
     }
+    public void setInMemory(boolean in) {}
 
     public void restore() {}
 
@@ -128,8 +136,6 @@ public class Row implements CachedObject {
 
         rowData = null;
     }
-
-    public void setInMemory(boolean in) {}
 
     public int getRealSize(RowOutputInterface out) {
         return 0;

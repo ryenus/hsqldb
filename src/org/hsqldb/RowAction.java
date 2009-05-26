@@ -46,6 +46,7 @@ public class RowAction extends RowActionBase {
     final Table     table;
     Row             memoryRow;
     int             rowId;
+    boolean         isMemory;
 
     public static RowAction addAction(Session session, byte type,
                                       Table table, Row row) {
@@ -61,6 +62,7 @@ public class RowAction extends RowActionBase {
             action = new RowAction(session, table, type);
 
             if (row.isMemory()) {
+                action.isMemory = true;
                 action.memoryRow = row;
             }
 
@@ -121,6 +123,7 @@ public class RowAction extends RowActionBase {
 
     synchronized void setAsNoOp(Row row) {
 
+        row.hasAction = false;
         row.rowAction   = null;
         session         = null;
         actionTimestamp = 0;

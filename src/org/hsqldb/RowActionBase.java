@@ -48,11 +48,12 @@ package org.hsqldb;
  */
 class RowActionBase {
 
-    public static final byte ACTION_NONE         = 0;
-    public static final byte ACTION_INSERT       = 1;
-    public static final byte ACTION_DELETE       = 2;
-    public static final byte ACTION_DELETE_FINAL = 3;
-    public static final byte ACTION_DEBUG        = 4;
+    public static final byte ACTION_NONE             = 0;
+    public static final byte ACTION_INSERT           = 1;
+    public static final byte ACTION_DELETE           = 2;
+    public static final byte ACTION_DELETE_FINAL     = 3;
+    public static final byte ACTION_DELETE_COMMITTED = 4;
+    public static final byte ACTION_DEBUG            = 5;
     RowActionBase            next;
     Session                  session;
     long                     changeTimestamp;
@@ -70,8 +71,8 @@ class RowActionBase {
      */
     RowActionBase(Session session, byte type) {
 
-        this.session          = session;
-        this.type             = type;
+        this.session    = session;
+        this.type       = type;
         changeTimestamp = session.actionTimestamp;
     }
 }

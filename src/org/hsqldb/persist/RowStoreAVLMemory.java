@@ -53,15 +53,13 @@ import org.hsqldb.rowio.RowInputInterface;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowStoreAVLMemory
-    extends RowStoreAVL implements PersistentStore {
+public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
-    Table table;
+    Table                           table;
     private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
-    public RowStoreAVLMemory(PersistentStoreCollection manager,
-                             Table table) {
+    public RowStoreAVLMemory(PersistentStoreCollection manager, Table table) {
 
         this.manager      = manager;
         this.table        = table;
@@ -76,12 +74,14 @@ public class RowStoreAVLMemory
         return true;
     }
 
-    public CachedObject get(int i) {
+    public void set(CachedObject object) {}
+
+    public CachedObject get(int i, boolean keep) {
         return (CachedObject) rowIdMap.get(i);
     }
 
-    public CachedObject getKeep(int i) {
-        return (CachedObject) rowIdMap.get(i);
+    public CachedObject get(CachedObject object, boolean keep) {
+        return (CachedObject) rowIdMap.get(object.getPos());
     }
 
     public int getStorageSize(int i) {

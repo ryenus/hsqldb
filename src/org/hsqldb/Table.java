@@ -255,7 +255,9 @@ public class Table extends TableBase implements SchemaObject {
             this.isReadOnly = true;
         }
 
-        createDefaultStore();
+        if (!isTemp) {
+            createDefaultStore();
+        }
     }
 
     public Table(Table table, HsqlName name) {
