@@ -206,18 +206,10 @@ public class BaseHashMap {
         return lookup;
     }
 
-    static int counter;
-
     protected int getLookup(int key) {
 
         int lookup = hashIndex.getLookup(key);
         int tempKey;
-
-        counter++;
-
-        if (counter % 5000000 == 0) {
-            System.out.println("ct " + counter);
-        }
 
         for (; lookup >= 0; lookup = hashIndex.linkTable[lookup]) {
             tempKey = intKeyTable[lookup];

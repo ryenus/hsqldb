@@ -1493,7 +1493,13 @@ public class QuerySpecification extends QueryExpression {
                       + havingColumnCount;
 
         for (int i = 0; i < columns; i++) {
-            sb.append(exprColumns[i].describe(session));
+            int index = i;
+
+            if (exprColumns[i].getType() == OpTypes.SIMPLE_COLUMN) {
+                index = exprColumns[i].columnIndex;
+            }
+
+            sb.append(exprColumns[index].describe(session));
         }
 
         sb.append("\n]\n");
