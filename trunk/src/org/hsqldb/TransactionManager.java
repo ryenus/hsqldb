@@ -141,15 +141,13 @@ public class TransactionManager {
                     continue;
                 }
 
-                Row row;
+                Row row = action.memoryRow;
 
-                if (action.memoryRow == null) {
+                if (row == null) {
                     PersistentStore store =
                         session.sessionData.getRowStore(action.table);
 
                     row = (Row) store.get(action.getPos(), false);
-                } else {
-                    row = action.memoryRow;
                 }
 
                 Object[] data = row.getData();
@@ -315,16 +313,14 @@ public class TransactionManager {
                     switch (type) {
 
                         case RowActionBase.ACTION_INSERT :
-                            Row row;
+                            Row row = action.memoryRow;
 
-                            if (action.memoryRow == null) {
+                            if (row == null) {
                                 PersistentStore store =
                                     session.sessionData.getRowStore(
                                         action.table);
 
                                 row = (Row) store.get(action.getPos(), false);
-                            } else {
-                                row = action.memoryRow;
                             }
 
                             action.table.addLobUsageCount(session,
@@ -580,22 +576,19 @@ public class TransactionManager {
 
                     PersistentStore store =
                         rowact.session.sessionData.getRowStore(rowact.table);
-                    Row row;
+                    Row row = rowact.memoryRow;
 
-                    if (rowact.memoryRow == null) {
+                    if (row == null) {
                         row = (Row) store.get(rowact.getPos(), false);
-                    } else {
-                        row = rowact.memoryRow;
                     }
 
-                    if (rowact.table.hasLobColumn) {
+                    if (commit && rowact.table.hasLobColumn) {
                         Object[] data = row.getData();
 
                         rowact.table.removeLobUsageCount(rowact.session, data);
                     }
 
                     store.delete(row);
-
                 } catch (HsqlException e) {
 
 //                    throw unexpectedException(e.getMessage());
@@ -627,28 +620,25 @@ public class TransactionManager {
     void mergeRolledBackTransaction(Object[] list, int start, int limit) {
 
         for (int i = start; i < limit; i++) {
-            RowAction       rowact = (RowAction) list[i];
-            Row             row;
-            PersistentStore store;
+            RowAction rowact = (RowAction) list[i];
 
             if (rowact == null || rowact.type == RowActionBase.ACTION_NONE
                     || rowact.type == RowActionBase.ACTION_DELETE_FINAL) {
                 continue;
             }
 
-            store = rowact.session.sessionData.getRowStore(rowact.table);
+            Row row = rowact.memoryRow;
 
-            if (rowact.memoryRow == null) {
+            if (row == null) {
+                PersistentStore store =
+                    rowact.session.sessionData.getRowStore(rowact.table);
+
                 row = (Row) store.get(rowact.getPos(), false);
-            } else {
-                row = rowact.memoryRow;
             }
 
             if (row == null) {
                 continue;
             }
-
-            boolean delete;
 
             synchronized (row) {
                 rowact.mergeRollback(row);
@@ -722,27 +712,24 @@ public class TransactionManager {
 
         for (int i = start; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];
-            Row       row;
 
             if (rowact == null || rowact.type == RowActionBase.ACTION_NONE
                     || rowact.type == RowActionBase.ACTION_DELETE_FINAL) {
                 continue;
             }
 
-            PersistentStore store =
-                rowact.session.sessionData.getRowStore(rowact.table);
+            Row row = rowact.memoryRow;
 
-            if (rowact.memoryRow == null) {
+            if (row == null) {
+                PersistentStore store =
+                    rowact.session.sessionData.getRowStore(rowact.table);
+
                 row = (Row) store.get(rowact.getPos(), false);
-            } else {
-                row = rowact.memoryRow;
             }
 
             if (row == null) {
                 continue;
             }
-
-            boolean delete = false;
 
             synchronized (row) {
                 rowact.mergeToTimestamp(row, timestamp);

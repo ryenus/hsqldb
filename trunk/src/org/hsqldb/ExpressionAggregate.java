@@ -200,12 +200,6 @@ public class ExpressionAggregate extends Expression {
             sb.append(']');
         }
 
-        if (nodes[RIGHT] != null) {
-            sb.append(" arg2=[");
-            sb.append(nodes[RIGHT].describe(session, blanks + 1));
-            sb.append(']');
-        }
-
         return sb.toString();
     }
 

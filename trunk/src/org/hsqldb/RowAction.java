@@ -43,18 +43,13 @@ import org.hsqldb.lib.OrderedHashSet;
 public class RowAction extends RowActionBase {
 
     //
-    final Table     table;
-    Row             memoryRow;
-    int             rowId;
-    boolean         isMemory;
+    final Table table;
+    Row         memoryRow;
+    int         rowId;
+    boolean     isMemory;
 
-    public static RowAction addAction(Session session, byte type,
-                                      Table table, Row row) {
-
-        if (!table.isTransactional()) {
-
-            //
-        }
+    public static RowAction addAction(Session session, byte type, Table table,
+                                      Row row) {
 
         RowAction action = row.rowAction;
 
@@ -66,8 +61,8 @@ public class RowAction extends RowActionBase {
                 action.memoryRow = row;
             }
 
-            action.rowId  = row.getPos();
-            row.rowAction = action;
+            action.rowId     = row.getPos();
+            row.rowAction    = action;
         } else {
             if (action.type == ACTION_DELETE_FINAL) {
                 throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
@@ -121,10 +116,14 @@ public class RowAction extends RowActionBase {
         next            = action.next;
     }
 
-    synchronized void setAsNoOp(Row row) {
+    private void setAsNoOp(Row row) {
 
-        row.hasAction = false;
-        row.rowAction   = null;
+        memoryRow = null;
+
+        synchronized (row) {
+            row.rowAction = null;
+        }
+
         session         = null;
         actionTimestamp = 0;
         commitTimestamp = 0;
@@ -134,7 +133,7 @@ public class RowAction extends RowActionBase {
         next            = null;
     }
 
-    synchronized void setAsDeleteFinal() {
+    private void setAsDeleteFinal() {
 
         rolledback = false;
         prepared   = false;

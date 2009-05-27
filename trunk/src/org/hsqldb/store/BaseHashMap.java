@@ -107,8 +107,8 @@ public class BaseHashMap {
 
     //
     int                 accessMin;
-    int                 accessCount;
-    int[]               accessTable;
+    protected int       accessCount;
+    protected int[]     accessTable;
     protected boolean[] multiValueTable;
 
     //
@@ -135,8 +135,7 @@ public class BaseHashMap {
     protected static final int PURGE_HALF    = 2;
     protected static final int PURGE_QUARTER = 3;
 
-    protected BaseHashMap(int initialCapacity, int keyType,
-                          int valueType,
+    protected BaseHashMap(int initialCapacity, int keyType, int valueType,
                           boolean hasAccessCount)
                           throws IllegalArgumentException {
 
@@ -144,7 +143,7 @@ public class BaseHashMap {
             throw new IllegalArgumentException();
         }
 
-        this.loadFactor      = 1; // can use any value if necessary
+        this.loadFactor      = 1;    // can use any value if necessary
         this.initialCapacity = initialCapacity;
         threshold            = initialCapacity;
 
@@ -207,10 +206,18 @@ public class BaseHashMap {
         return lookup;
     }
 
+    static int counter;
+
     protected int getLookup(int key) {
 
         int lookup = hashIndex.getLookup(key);
         int tempKey;
+
+        counter++;
+
+        if (counter % 5000000 == 0) {
+            System.out.println("ct " + counter);
+        }
 
         for (; lookup >= 0; lookup = hashIndex.linkTable[lookup]) {
             tempKey = intKeyTable[lookup];
@@ -1086,9 +1093,21 @@ public class BaseHashMap {
      * Return the max accessCount value for count elements with the lowest
      * access count. Always return at least accessMin + 1
      */
-    protected int getAccessCountCeiling(int count, int margin) {
+    public int getAccessCountCeiling(int count, int margin) {
         return ArrayCounter.rank(accessTable, hashIndex.newNodePointer, count,
                                  accessMin + 1, accessCount, margin);
+    }
+
+    /**
+     * This is called after all elements below count accessCount have been
+     * removed
+     */
+    public void setAccessCountFloor(int count) {
+        accessMin = count;
+    }
+
+    public int incrementAccessCount() {
+        return ++accessCount;
     }
 
     /**
@@ -1117,7 +1136,7 @@ public class BaseHashMap {
         accessMin = accessBase;
     }
 
-    void resetAccessCount() {
+    protected void resetAccessCount() {
 
         if (accessCount < Integer.MAX_VALUE) {
             return;

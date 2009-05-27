@@ -573,10 +573,32 @@ final class RangeVariable {
                                                           .name);
         sb.append(hidden ? "[HIDDEN]]\n"
                          : "]\n");
-        sb.append("isOuterJoin=[").append(isLeftJoin).append("]\n");
+
+        temp = "INNER";
+
+        if (isLeftJoin) {
+            temp = "LEFT OUTER";
+
+            if (isRightJoin) {
+                temp = "FULL";
+            }
+        } else if (isRightJoin) {
+            temp = "RIGHT OUTER";
+        }
+
+        sb.append("joinType=[").append(temp).append("]\n");
 
         temp = indexCondition == null ? "null"
                                       : indexCondition.describe(session);
+
+        if (findFirstExpressions != null) {
+            StringBuffer sbt = new StringBuffer();
+            for (int i=0; i < multiColumnCount; i++) {
+                sbt.append(findFirstExpressions[i].describe(session));
+            }
+
+            temp = sbt.toString();
+        }
 
         sb.append("eStart=[").append(temp).append("]\n");
 
