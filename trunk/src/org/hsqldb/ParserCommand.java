@@ -342,7 +342,8 @@ public class ParserCommand extends ParserDDL {
                 Object[] args = new Object[]{ schema };
 
                 return new StatementCommand(
-                    StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA, args, null, null);
+                    StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA, args,
+                    null, null);
             }
             case Tokens.RESULT : {
                 read();
@@ -353,13 +354,14 @@ public class ParserCommand extends ParserDDL {
                 Object[] args = new Object[]{ new Integer(size) };
 
                 return new StatementCommand(
-                    StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS, args, null, null);
+                    StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS, args,
+                    null, null);
             }
             case Tokens.TABLE : {
                 read();
                 readThis(Tokens.TYPE);
 
-                String type = Tokens.T_MEMORY;
+                int type = TableBase.MEMORY_TABLE;
 
                 switch (token.tokenType) {
 
@@ -367,7 +369,7 @@ public class ParserCommand extends ParserDDL {
                         break;
 
                     case Tokens.CACHED :
-                        type = Tokens.T_CACHED;
+                        type = TableBase.CACHED_TABLE;
                         break;
 
                     default :
@@ -376,10 +378,11 @@ public class ParserCommand extends ParserDDL {
 
                 read();
 
-                Object[] args = new Object[]{ type };
+                Object[] args = new Object[]{ Integer.valueOf(type) };
 
                 return new StatementCommand(
-                    StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args, null, null);
+                    StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args,
+                    null, null);
             }
             default :
                 throw unexpectedToken();
@@ -529,7 +532,8 @@ public class ParserCommand extends ParserDDL {
                 Object[] args = new Object[]{ new Integer(size) };
 
                 return new StatementCommand(
-                    StatementTypes.SET_DATABASE_FILES_LOG_SIZE, args, null, null);
+                    StatementTypes.SET_DATABASE_FILES_LOG_SIZE, args, null,
+                    null);
             }
             case Tokens.SCRIPTFORMAT : {
                 read();
@@ -569,7 +573,8 @@ public class ParserCommand extends ParserDDL {
                 Object[] args = new Object[]{ Boolean.valueOf(mode) };
 
                 return new StatementCommand(
-                    StatementTypes.SET_DATABASE_SQL_IGNORECASE, args, null, null);
+                    StatementTypes.SET_DATABASE_SQL_IGNORECASE, args, null,
+                    null);
             }
             case Tokens.MAXROWS : {
                 read();
@@ -587,7 +592,7 @@ public class ParserCommand extends ParserDDL {
                 readThis(Tokens.TABLE);
                 readThis(Tokens.TYPE);
 
-                String type = Tokens.T_MEMORY;
+                int type = TableBase.MEMORY_TABLE;
 
                 switch (token.tokenType) {
 
@@ -595,7 +600,7 @@ public class ParserCommand extends ParserDDL {
                         break;
 
                     case Tokens.CACHED :
-                        type = Tokens.T_CACHED;
+                        type = TableBase.CACHED_TABLE;
                         break;
 
                     default :
@@ -604,10 +609,11 @@ public class ParserCommand extends ParserDDL {
 
                 read();
 
-                Object[] args = new Object[]{ type };
+                Object[] args = new Object[]{ Integer.valueOf(type) };
 
                 return new StatementCommand(
-                    StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args, null, null);
+                    StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args,
+                    null, null);
             }
             case Tokens.RESULT : {
                 read();
@@ -715,7 +721,8 @@ public class ParserCommand extends ParserDDL {
                 Object[] args = new Object[]{ new Integer(size) };
 
                 return new StatementCommand(
-                    StatementTypes.SET_DATABASE_FILES_DEFRAG, args, null, null);
+                    StatementTypes.SET_DATABASE_FILES_DEFRAG, args, null,
+                    null);
             }
             case Tokens.WRITE_DELAY : {
                 read();
@@ -786,7 +793,6 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(
                     StatementTypes.SET_USER_INITIAL_SCHEMA, args, null, null);
             }
-
             case Tokens.DATABASE : {
                 read();
 
@@ -832,7 +838,8 @@ public class ParserCommand extends ParserDDL {
                         Object[] args = new Object[]{ Integer.valueOf(value) };
 
                         return new StatementCommand(
-                            StatementTypes.SET_DATABASE_FILES_EVENT_LOG, args, null, null);
+                            StatementTypes.SET_DATABASE_FILES_EVENT_LOG, args,
+                            null, null);
                     }
                     case Tokens.FILES : {
                         read();
@@ -876,6 +883,7 @@ public class ParserCommand extends ParserDDL {
                             }
                             case Tokens.CACHE : {
                                 read();
+
                                 if (readIfThis(Tokens.SIZE)) {
                                     value = readInteger();
                                     type = StatementTypes
@@ -896,6 +904,7 @@ public class ParserCommand extends ParserDDL {
                             }
                             case Tokens.DEFRAG : {
                                 read();
+
                                 type = StatementTypes
                                     .SET_DATABASE_FILES_DEFRAG;
                                 value = readInteger();
@@ -904,8 +913,8 @@ public class ParserCommand extends ParserDDL {
                             }
                             case Tokens.NIO : {
                                 read();
-                                type = StatementTypes.SET_DATABASE_FILES_NIO;
 
+                                type = StatementTypes.SET_DATABASE_FILES_NIO;
                                 flag = processTrueOrFalse();
 
                                 break;
@@ -926,8 +935,10 @@ public class ParserCommand extends ParserDDL {
                         boolean  mode = processTrueOrFalse();
                         Object[] args = new Object[]{ Boolean.valueOf(mode) };
 
-                        return new StatementCommand(StatementTypes
-                            .SET_DATABASE_SQL_REFERENTIAL_INTEGRITY, args, null, null);
+                        return new StatementCommand(
+                            StatementTypes
+                                .SET_DATABASE_SQL_REFERENTIAL_INTEGRITY, args,
+                                    null, null);
                     }
                     case Tokens.TRANSACTION : {
                         read();
@@ -1171,7 +1182,7 @@ public class ParserCommand extends ParserDDL {
 
         Statement cs =
             new StatementSession(StatementTypes.TRANSACTION_LOCK_TABLE,
-            readTableNames, writeTableNames);
+                                 readTableNames, writeTableNames);
 
         return cs;
     }
@@ -1560,10 +1571,10 @@ public class ParserCommand extends ParserDDL {
         readThis(Tokens.PLAN);
         readThis(Tokens.FOR);
 
-        cs = compilePart();
-
+        cs                 = compilePart();
         cs.writeTableNames = HsqlName.emptyArray;
-        cs.readTableNames = HsqlName.emptyArray;
+        cs.readTableNames  = HsqlName.emptyArray;
+
         cs.setDescribe();
 
         return cs;

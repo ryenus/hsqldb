@@ -395,10 +395,11 @@ public class StatementCommand extends Statement {
                 return Result.updateZeroResult;
             }
             case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE : {
-                String type = (String) parameters[0];
+                Integer type = (Integer) parameters[0];
 
                 //
-                session.database.schemaManager.setDefaultTableType(type);
+                session.database.schemaManager.setDefaultTableType(
+                    type.intValue());
 
                 //
                 return Result.updateZeroResult;

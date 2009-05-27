@@ -327,10 +327,11 @@ public class Database {
 
             if (isNew) {
                 String tableType = urlProperties.getProperty(
-                    HsqlDatabaseProperties.hsqldb_default_table_type, "MEMORY");
+                    HsqlDatabaseProperties.hsqldb_default_table_type,
+                    "MEMORY");
 
                 if ("CACHED".equalsIgnoreCase(tableType)) {
-                    schemaManager.setDefaultTableType("CACHED");
+                    schemaManager.setDefaultTableType(TableBase.CACHED_TABLE);
                 }
 
                 HsqlName name = nameManager.newHsqlName("SA", false,
@@ -350,6 +351,13 @@ public class Database {
                                   "CREATE SCHEMA PUBLIC AUTHORIZATION DBA");
                 logger.writeToLog(
                     session, "SET DATABASE DEFAULT INITIAL SCHEMA PUBLIC");
+
+                if (schemaManager.getDefaultTableType()
+                        == Table.CACHED_TABLE) {
+                    logger.writeToLog(
+                        session, "SET DATABASE DEFAULT TABLE TYPE CACHED");
+                }
+
                 lobManager.initialiseLobSpace();
                 logger.synchLogForce();
             }
@@ -461,7 +469,6 @@ public class Database {
             databaseReadOnly, false, timeZoneSeconds);
 
 //        logger.logConnectUser(session);
-
         return session;
     }
 

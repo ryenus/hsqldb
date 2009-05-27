@@ -1624,11 +1624,9 @@ public class SchemaManager {
         return array;
     }
 
-    public void setDefaultTableType(String type) {
+    public void setDefaultTableType(int type) {
 
-        defaultTableType = Tokens.T_CACHED.equalsIgnoreCase(type)
-                           ? Table.CACHED_TABLE
-                           : Table.MEMORY_TABLE;
+        defaultTableType = type;
     }
 
     int getDefaultTableType() {
