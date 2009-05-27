@@ -60,8 +60,7 @@ public class ExpressionColumn extends Expression {
 
     //
     NumberSequence sequence;
-
-    boolean isWritable;    // = false; true if column of writable table
+    boolean        isWritable;    // = false; true if column of writable table
 
     /**
      * Creates a OpCodes.COLUMN expression
@@ -122,7 +121,7 @@ public class ExpressionColumn extends Expression {
         super(type);
 
         if (type == OpTypes.DYNAMIC_PARAM) {
-            isParam   = true;
+            isParam = true;
         }
     }
 
@@ -185,7 +184,7 @@ public class ExpressionColumn extends Expression {
 
     void setAttributesAsColumn(ColumnSchema column, boolean isWritable) {
 
-        this.column = column;
+        this.column     = column;
         dataType        = column.getDataType();
         this.isWritable = isWritable;
     }
@@ -544,21 +543,21 @@ public class ExpressionColumn extends Expression {
                 break;
 
             case OpTypes.ASTERISK :
-                sb.append("* ");
+                sb.append("OpTypes.ASTERISK ");
                 break;
 
             case OpTypes.VARIABLE :
-                sb.append("OpCodes.VARIABLE ");
+                sb.append("VARIABLE: ");
                 sb.append(column.getName().name);
                 break;
 
             case OpTypes.PARAMETER :
-                sb.append("PARAEMETER ");
+                sb.append(Tokens.T_PARAMETER).append(": ");
                 sb.append(column.getName().name);
                 break;
 
             case OpTypes.COALESCE :
-                sb.append("OpCodes.COLUMN ");
+                sb.append(Tokens.T_COLUMN).append(": ");
                 sb.append(columnName);
 
                 if (alias != null) {
@@ -567,21 +566,24 @@ public class ExpressionColumn extends Expression {
                 break;
 
             case OpTypes.COLUMN :
-                sb.append("OpCodes.COLUMN ");
+                sb.append(Tokens.T_COLUMN).append(": ");
                 sb.append(column.getName().name);
 
                 if (alias != null) {
                     sb.append(" AS ").append(alias.name);
                 }
+
+                sb.append(' ').append(Tokens.T_TABLE).append(": ").append(
+                    tableName);
                 break;
 
             case OpTypes.DYNAMIC_PARAM :
-                sb.append("OpCodes.PARAM ");
+                sb.append("DYNAMIC PARAM: ");
                 sb.append(", TYPE = ").append(dataType.getNameString());
                 break;
 
             case OpTypes.SEQUENCE :
-                sb.append("OpCodes.SEQUENCE ");
+                sb.append(Tokens.T_SEQUENCE).append(": ");
                 sb.append(sequence.getName().name);
                 break;
 

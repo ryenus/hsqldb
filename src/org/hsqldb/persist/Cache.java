@@ -37,7 +37,7 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.Sort;
 import org.hsqldb.lib.StopWatch;
-import org.hsqldb.store.ObjectCacheHashMap;
+import org.hsqldb.store.BaseHashMap;
 
 /**
  * New implementation of row caching for CACHED tables.<p>
@@ -51,7 +51,7 @@ import org.hsqldb.store.ObjectCacheHashMap;
  * @version 1.9.0
  * @since 1.8.0
  */
-public class Cache {
+public class Cache extends BaseHashMap {
 
     final DataFileCache                  dataFileCache;
     private int                          capacity;         // number of Rows
@@ -61,9 +61,7 @@ public class Cache {
 //
     private CachedObject[] rowTable;
 
-//
-    private final ObjectCacheHashMap cacheMap;
-    volatile long                    cacheBytesLength;
+    long cacheBytesLength;
 
     // for testing
     StopWatch saveAllTimer = new StopWatch(false);
@@ -74,12 +72,14 @@ public class Cache {
 
     Cache(DataFileCache dfc) {
 
+        super(dfc.capacity(), BaseHashMap.intKeyOrValue,
+              BaseHashMap.objectKeyOrValue, true);
+
         dataFileCache    = dfc;
         capacity         = dfc.capacity();
         bytesCapacity    = dfc.bytesCapacity();
         rowComparator    = new CachedObjectComparator();
         rowTable         = new CachedObject[capacity];
-        cacheMap         = new ObjectCacheHashMap(capacity);
         cacheBytesLength = 0;
     }
 
@@ -89,10 +89,6 @@ public class Cache {
      */
     void init(int capacity, long bytesCapacity) {}
 
-    int size() {
-        return cacheMap.size();
-    }
-
     long getTotalCachedBlockSize() {
         return cacheBytesLength;
     }
@@ -100,8 +96,21 @@ public class Cache {
     /**
      * Returns a row if in memory cache.
      */
-    synchronized CachedObject get(int pos) {
-        return (CachedObject) cacheMap.get(pos);
+    public synchronized CachedObject get(int pos) {
+
+        if (accessCount == Integer.MAX_VALUE) {
+            resetAccessCount();
+        }
+
+        int lookup = getLookup(pos);
+
+        if (lookup == -1) {
+            return null;
+        }
+
+        accessTable[lookup] = accessCount++;
+
+        return (CachedObject) objectValueTable[lookup];
     }
 
     /**
@@ -111,12 +120,16 @@ public class Cache {
 
         int storageSize = row.getStorageSize();
 
-        if (cacheMap.size() >= capacity
+        if (size() >= capacity
                 || storageSize + cacheBytesLength > bytesCapacity) {
             cleanUp();
         }
 
-        cacheMap.put(key, row);
+        if (accessCount == Integer.MAX_VALUE) {
+            super.resetAccessCount();
+        }
+
+        super.addOrRemove(key, row, false);
         row.setInMemory(true);
 
         cacheBytesLength += storageSize;
@@ -127,7 +140,7 @@ public class Cache {
      */
     synchronized CachedObject release(int i) {
 
-        CachedObject r = (CachedObject) cacheMap.remove(i);
+        CachedObject r = (CachedObject) super.addOrRemove(i, null, true);
 
         if (r == null) {
             return null;
@@ -152,11 +165,10 @@ public class Cache {
      */
     private synchronized void cleanUp() throws HsqlException {
 
-        int removeCount = cacheMap.size() / 2;
-        int accessTarget = cacheMap.getAccessCountCeiling(removeCount,
-            removeCount / 8);
-        ObjectCacheHashMap.ObjectCacheIterator it        = cacheMap.iterator();
-        int                                    savecount = 0;
+        int                          removeCount = size() / 2;
+        int accessTarget = getAccessCountCeiling(removeCount, removeCount / 8);
+        BaseHashMap.BaseHashIterator it          = new BaseHashIterator();
+        int                          savecount   = 0;
 
         for (; it.hasNext(); ) {
             CachedObject r = (CachedObject) it.next();
@@ -181,7 +193,7 @@ public class Cache {
         }
 
         if (removeCount > 50) {
-            it = cacheMap.iterator();
+            it = new BaseHashIterator();
 
             for (; removeCount >= 0 && it.hasNext(); ) {
                 CachedObject r = (CachedObject) it.next();
@@ -202,7 +214,7 @@ public class Cache {
             }
         }
 
-        cacheMap.setAccessCountFloor(accessTarget);
+        super.setAccessCountFloor(accessTarget);
         saveRows(savecount);
     }
 
@@ -235,7 +247,7 @@ public class Cache {
      */
     synchronized void saveAll() throws HsqlException {
 
-        Iterator it        = cacheMap.iterator();
+        Iterator it        = new BaseHashIterator();
         int      savecount = 0;
 
         for (; it.hasNext(); ) {
@@ -264,9 +276,9 @@ public class Cache {
     /**
      * clears out the memory cache
      */
-    synchronized void clear() {
+    synchronized public void clear() {
 
-        cacheMap.clear();
+        super.clear();
 
         cacheBytesLength = 0;
     }

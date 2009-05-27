@@ -298,7 +298,7 @@ public class RowAVLDisk extends RowAVL {
         }
 
         if (rowAction != null) {
-            rowAction           = null;
+            rowAction.memoryRow = null;
         }
     }
 
