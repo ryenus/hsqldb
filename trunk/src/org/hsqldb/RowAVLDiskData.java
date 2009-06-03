@@ -67,14 +67,14 @@ public class RowAVLDiskData extends RowAVLDisk {
      *  the Nodes is made separetly.
      */
     public RowAVLDiskData(TableBase t,
-                         RowInputInterface in)
-                         throws IOException, HsqlException {
+                          RowInputInterface in)
+                          throws IOException, HsqlException {
 
         tTable         = t;
         tableId        = t.getId();
-        position           = in.getPos();
+        position       = in.getPos();
         storageSize    = in.getSize();
-        rowData          = in.readData(tTable.getColumnTypes());
+        rowData        = in.readData(tTable.getColumnTypes());
         hasDataChanged = false;
     }
 
@@ -152,7 +152,7 @@ public class RowAVLDiskData extends RowAVLDisk {
 
         while (n != null) {
             ((NodeAVLMemoryPointer) n).iData = position;
-            n                       = n.nNext;
+            n                                = n.nNext;
         }
     }
 

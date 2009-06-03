@@ -597,19 +597,14 @@ public class SchemaManager {
 
         if (!cascade) {
             for (int i = 0; i < externalConstraints.size(); i++) {
-                Constraint c       = (Constraint) externalConstraints.get(i);
-                HsqlName   name    = c.getName();
-                HsqlName   refname = c.getRef().getName();
+                Constraint c         = (Constraint) externalConstraints.get(i);
+                HsqlName   tablename = c.getRef().getName();
+                HsqlName   refname   = c.getRefName();
 
                 if (c.getConstraintType() == Constraint.MAIN) {
-                    throw Error.error(ErrorCode.X_42502);
-/*
-                    throw Trace.error(Trace.TABLE_REFERENCED_CONSTRAINT,
-                                      Trace.Database_dropTable, new Object[] {
-                        name.schema.name + '.' + name.name,
-                        refname.schema.name + '.' + refname.name
-                    });
-*/
+                    throw Error.error(ErrorCode.X_42533,
+                                      refname.schema.name + '.'
+                                      + tablename.name + '.' + refname.name);
                 }
             }
 
@@ -623,11 +618,8 @@ public class SchemaManager {
                         continue;
                     }
 
-                    throw Error.error(ErrorCode.X_42502);
-/*
-                    throw Trace.error(Trace.TABLE_REFERENCED_VIEW,
-                                      name.schema.name + '.' + name.name);
-*/
+                    throw Error.error(ErrorCode.X_42502,
+                                      name.getSchemaQualifiedStatementName());
                 }
             }
         }
@@ -910,7 +902,7 @@ public class SchemaManager {
                 return schema.typeLookup.getObject(name);
 
             case SchemaObject.INDEX :
-                set       = schema.indexLookup;
+                set        = schema.indexLookup;
                 objectName = set.getName(name);
 
                 if (objectName == null) {
@@ -922,7 +914,7 @@ public class SchemaManager {
                 return table.getIndex(name);
 
             case SchemaObject.CONSTRAINT :
-                set       = schema.constraintLookup;
+                set        = schema.constraintLookup;
                 objectName = set.getName(name);
 
                 if (objectName == null) {
@@ -938,7 +930,7 @@ public class SchemaManager {
                 return table.getConstraint(name);
 
             case SchemaObject.TRIGGER :
-                set       = schema.indexLookup;
+                set        = schema.indexLookup;
                 objectName = set.getName(name);
 
                 if (objectName == null) {
@@ -978,7 +970,6 @@ public class SchemaManager {
     void dropIndex(Session session, HsqlName name) throws HsqlException {
 
         Table t = getTable(session, name.parent.name, name.parent.schema.name);
-
         TableWorks tw = new TableWorks(session, t);
 
         tw.dropIndex(name.name);
@@ -987,14 +978,15 @@ public class SchemaManager {
     /**
      * Drops the index with the specified name.
      */
-    void dropConstraint(Session session, HsqlName name, boolean cascade) throws HsqlException {
+    void dropConstraint(Session session, HsqlName name,
+                        boolean cascade) throws HsqlException {
 
         Table t = getTable(session, name.parent.name, name.parent.schema.name);
-
         TableWorks tw = new TableWorks(session, t);
 
         tw.dropConstraint(name.name, cascade);
     }
+
     void removeDependentObjects(HsqlName name) {
 
         Schema schema = (Schema) schemaMap.get(name.schema.name);
@@ -1287,9 +1279,10 @@ public class SchemaManager {
         OrderedHashSet set = getReferencingObjects(tableName, name);
 
         if (!set.isEmpty()) {
-            name = (HsqlName) set.get(0);
+            HsqlName objectName = (HsqlName) set.get(0);
 
-            throw Error.error(ErrorCode.X_42502);
+            throw Error.error(ErrorCode.X_42502,
+                              objectName.getSchemaQualifiedStatementName());
         }
     }
 
@@ -1312,7 +1305,8 @@ public class SchemaManager {
             return;
         }
 
-        throw Error.error(ErrorCode.X_42502);
+        throw Error.error(ErrorCode.X_42502,
+                          refName.getSchemaQualifiedStatementName());
     }
 
     void addSchemaObject(SchemaObject object) throws HsqlException {
@@ -1376,7 +1370,10 @@ public class SchemaManager {
         }
 
         if (!cascade) {
-            throw Error.error(ErrorCode.X_42502);
+            HsqlName objectName = (HsqlName) objectSet.get(0);
+
+            throw Error.error(ErrorCode.X_42502,
+                              objectName.getSchemaQualifiedStatementName());
         }
 
         objectSet.add(name);
@@ -1625,7 +1622,6 @@ public class SchemaManager {
     }
 
     public void setDefaultTableType(int type) {
-
         defaultTableType = type;
     }
 

@@ -86,7 +86,6 @@ public class StatementSchema extends Statement {
 
         super(type);
 
-
         isTransactionStatement = true;
         this.sql               = sql;
         arguments              = args;
@@ -408,6 +407,8 @@ public class StatementSchema extends Statement {
                         throw Error.error(ErrorCode.X_42591);
                     }
 
+                    checkSchemaUpdateAuthorisation(session,
+                                                   table.getSchemaName());
                     session.commit(false);
 
                     TableWorks tableWorks = new TableWorks(session, table);
@@ -1003,7 +1004,10 @@ public class StatementSchema extends Statement {
                 domain.getName());
 
         if (!cascade && set.size() > 0) {
-            throw Error.error(ErrorCode.X_42502);
+            HsqlName objectName = (HsqlName) set.get(0);
+
+            throw Error.error(ErrorCode.X_42502,
+                              objectName.getSchemaQualifiedStatementName());
         }
 
         Constraint[] constraints = domain.userTypeModifier.getConstraints();
@@ -1027,7 +1031,12 @@ public class StatementSchema extends Statement {
         Grantee role = session.database.getGranteeManager().getRole(name.name);
 
         if (!cascade && session.database.schemaManager.hasSchemas(role)) {
-            throw Error.error(ErrorCode.X_42502);
+            HsqlArrayList list =
+                session.database.schemaManager.getSchemas(role);
+            Schema schema = (Schema) list.get(0);
+
+            throw Error.error(ErrorCode.X_42502,
+                              schema.getName().statementName);
         }
 
         session.database.schemaManager.dropSchemas(role, cascade);
@@ -1044,7 +1053,12 @@ public class StatementSchema extends Statement {
         }
 
         if (!cascade && session.database.schemaManager.hasSchemas(grantee)) {
-            throw Error.error(ErrorCode.X_42502);
+            HsqlArrayList list =
+                session.database.schemaManager.getSchemas(grantee);
+            Schema schema = (Schema) list.get(0);
+
+            throw Error.error(ErrorCode.X_42502,
+                              schema.getName().statementName);
         }
 
         session.database.schemaManager.dropSchemas(grantee, cascade);
@@ -1136,7 +1150,7 @@ public class StatementSchema extends Statement {
 
         name.parent = parent;
 
-        if (schemaName == null) {
+        if (!isSchemaDefinition) {
             checkSchemaUpdateAuthorisation(session, name.schema);
         }
 

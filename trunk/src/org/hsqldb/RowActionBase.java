@@ -75,4 +75,17 @@ class RowActionBase {
         this.type       = type;
         changeTimestamp = session.actionTimestamp;
     }
+
+    void setAsAction(RowActionBase action) {
+
+        next            = action.next;
+        session         = action.session;
+        changeTimestamp = action.changeTimestamp;
+        actionTimestamp = action.actionTimestamp;
+        commitTimestamp = action.commitTimestamp;
+        type            = action.type;
+        rolledback      = action.rolledback;
+        prepared        = action.prepared;
+    }
+
 }

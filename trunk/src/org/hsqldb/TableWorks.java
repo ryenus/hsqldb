@@ -85,7 +85,7 @@ public class TableWorks {
                 Expression   defExpr = col.getDefaultExpression();
 
                 if (defExpr == null) {
-                    String columnName = col.getName().name;
+                    String columnName = col.getName().statementName;
 
                     throw Error.error(ErrorCode.X_42521, columnName);
                 }
@@ -100,9 +100,9 @@ public class TableWorks {
                 ColumnSchema col = table.getColumn(c.core.refCols[i]);
 
                 if (!col.isNullable()) {
-                    String columnName = col.getName().name;
+                    String columnName = col.getName().statementName;
 
-                    throw Error.error(ErrorCode.X_42521, columnName);
+                    throw Error.error(ErrorCode.X_42520, columnName);
                 }
             }
         }
@@ -111,23 +111,23 @@ public class TableWorks {
 
         // duplicate name check for a new table
         if (table.getConstraint(c.getName().name) != null) {
-            throw Error.error(ErrorCode.X_42504, c.getName().name);
+            throw Error.error(ErrorCode.X_42504, c.getName().statementName);
         }
 
         // existing FK check
         if (table.getFKConstraintForColumns(
                 c.core.mainTable, c.core.mainCols, c.core.refCols) != null) {
-            throw Error.error(ErrorCode.X_42528, c.getName().name);
+            throw Error.error(ErrorCode.X_42528, c.getName().statementName);
         }
 
         if (c.core.mainTable.isTemp() != table.isTemp()) {
-            throw Error.error(ErrorCode.X_42524, c.getName().name);
+            throw Error.error(ErrorCode.X_42524, c.getName().statementName);
         }
 
         if (c.core.mainTable.getUniqueConstraintForColumns(
                 c.core.mainCols, c.core.refCols) == null) {
             throw Error.error(ErrorCode.X_42529,
-                              c.core.mainTable.getName().name);
+                              c.getMain().getName().statementName);
         }
 
         // check after UNIQUE check
@@ -672,7 +672,7 @@ public class TableWorks {
                 HsqlName   name = c.getName();
 
                 throw Error.error(ErrorCode.X_42536,
-                                  name.schema.name + '.' + name.name);
+                                  name.getSchemaQualifiedStatementName());
             }
 
             if (!referencingObjects.isEmpty()) {
@@ -680,7 +680,7 @@ public class TableWorks {
                     HsqlName name = (HsqlName) referencingObjects.get(i);
 
                     throw Error.error(ErrorCode.X_42536,
-                                      name.schema.name + '.' + name.name);
+                                      name.getSchemaQualifiedStatementName());
                 }
             }
         }
@@ -769,7 +769,9 @@ public class TableWorks {
                 if (!cascade && !dependentConstraints.isEmpty()) {
                     Constraint c = (Constraint) dependentConstraints.get(0);
 
-                    throw Error.error(ErrorCode.X_42533, c.getName().name);
+                    throw Error.error(
+                        ErrorCode.X_42533,
+                        c.getName().getSchemaQualifiedStatementName());
                 }
 
                 OrderedHashSet tableSet          = new OrderedHashSet();

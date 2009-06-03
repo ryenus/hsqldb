@@ -60,8 +60,7 @@ public class Cache extends BaseHashMap {
 
 //
     private CachedObject[] rowTable;
-
-    long cacheBytesLength;
+    long                   cacheBytesLength;
 
     // for testing
     StopWatch saveAllTimer = new StopWatch(false);
@@ -153,6 +152,24 @@ public class Cache extends BaseHashMap {
         return r;
     }
 
+    private void updateAccessCounts() {
+
+        CachedObject r;
+        int          count;
+
+        for (int i = 0; i < objectValueTable.length; i++) {
+            r = (CachedObject) objectValueTable[i];
+
+            if (r != null) {
+                count = r.getAccessCount();
+
+                if (count > accessTable[i]) {
+                    accessTable[i] = count;
+                }
+            }
+        }
+    }
+
     /**
      * Reduces the number of rows held in this Cache object. <p>
      *
@@ -164,6 +181,8 @@ public class Cache extends BaseHashMap {
      *
      */
     private synchronized void cleanUp() throws HsqlException {
+
+        updateAccessCounts();
 
         int                          removeCount = size() / 2;
         int accessTarget = getAccessCountCeiling(removeCount, removeCount / 8);

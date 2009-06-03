@@ -50,6 +50,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     public boolean isMemory() {
         return false;
     }
+    public abstract int getAccessCount();
 
     public abstract void set(CachedObject object);
 
@@ -89,10 +90,9 @@ public abstract class RowStoreAVL implements PersistentStore {
         return null;
     }
 
-    public final CachedObject getAccessor(Index key) {
+    public CachedObject getAccessor(Index key) {
 
-        Index index    = (Index) key;
-        int   position = index.getPosition();
+        int   position = key.getPosition();
 
         if (position >= accessorList.length) {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAV");
@@ -118,7 +118,6 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
 
         remove(row.getPos());
-//        row.destroy();
     }
 
     public final void indexRow(Session session, Row row) throws HsqlException {
@@ -137,7 +136,6 @@ public abstract class RowStoreAVL implements PersistentStore {
             }
 
             remove(row.getPos());
-//            row.destroy();
 
             throw e;
         }

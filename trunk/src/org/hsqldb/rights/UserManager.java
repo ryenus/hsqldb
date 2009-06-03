@@ -107,7 +107,7 @@ public final class UserManager {
         boolean success = userList.add(name.name, user);
 
         if (!success) {
-            throw Error.error(ErrorCode.X_28503, name.name);
+            throw Error.error(ErrorCode.X_28503, name.statementName);
         }
 
         return user;
@@ -290,12 +290,16 @@ public final class UserManager {
     }
 
     public String[] getInitialSchemaSQL() {
+
         HsqlArrayList list = new HsqlArrayList(userList.size());
-        for (int i = 0; i < userList.size() ; i++) {
+
+        for (int i = 0; i < userList.size(); i++) {
             User user = (User) userList.get(i);
+
             if (user.isSystem) {
                 continue;
             }
+
             HsqlName name = user.getInitialSchema();
 
             if (name == null) {
@@ -305,7 +309,8 @@ public final class UserManager {
             list.add(user.getInitialSchemaSQL());
         }
 
-        String[] array = new String[ list.size() ];
+        String[] array = new String[list.size()];
+
         list.toArray(array);
 
         return array;

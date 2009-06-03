@@ -58,9 +58,9 @@ public class RowAction extends RowActionBase {
 
             if (row.isMemory()) {
                 action.isMemory = true;
-                action.memoryRow = row;
             }
 
+            action.memoryRow = row;
             action.rowId     = row.getPos();
             row.rowAction    = action;
         } else {
@@ -99,6 +99,28 @@ public class RowAction extends RowActionBase {
         this.table = table;
     }
 
+    public synchronized RowAction duplicate(int newRowId) {
+
+        RowAction action = duplicate();
+
+        action.rowId = newRowId;
+
+        return action;
+    }
+
+    synchronized RowAction duplicate() {
+
+        RowAction action = new RowAction(session, table, type);
+
+        action.setAsAction(this);
+
+        action.memoryRow = memoryRow;
+        action.rowId     = rowId;
+        action.isMemory  = isMemory;
+
+        return action;
+    }
+
     synchronized void setAsAction(Session session, byte type) {
 
         this.session    = session;
@@ -107,13 +129,7 @@ public class RowAction extends RowActionBase {
     }
 
     synchronized void setAsAction(RowActionBase action) {
-
-        session         = action.session;
-        actionTimestamp = action.actionTimestamp;
-        commitTimestamp = action.commitTimestamp;
-        type            = action.type;
-        rolledback      = action.rolledback;
-        next            = action.next;
+        super.setAsAction(action);
     }
 
     private void setAsNoOp(Row row) {
@@ -121,16 +137,19 @@ public class RowAction extends RowActionBase {
         memoryRow = null;
 
         synchronized (row) {
+            row.hasAction = false;
             row.rowAction = null;
         }
 
-        session         = null;
-        actionTimestamp = 0;
+        session = null;
+
+//        actionTimestamp = 0;
         commitTimestamp = 0;
-        rolledback      = false;
-        prepared        = false;
-        type            = RowActionBase.ACTION_NONE;
-        next            = null;
+
+//        rolledback      = false;
+//        prepared        = false;
+        type = RowActionBase.ACTION_NONE;
+        next = null;
     }
 
     private void setAsDeleteFinal() {
@@ -210,7 +229,7 @@ public class RowAction extends RowActionBase {
     }
 
     /**
-     * returns true if another committed session has altered the same row
+     * returns false if another committed session has altered the same row
      */
     synchronized boolean canCommit(Session session, OrderedHashSet set) {
 
@@ -315,38 +334,20 @@ public class RowAction extends RowActionBase {
         return result;
     }
 
-    synchronized RowActionBase getFirstAction(long timestamp) {
+    synchronized int getLastChangeActionType(long timestamp) {
 
-        RowActionBase action = this;
-        RowActionBase last   = null;
-
-        do {
-            if (action.actionTimestamp == timestamp) {
-                last = action;
-
-                break;
-            }
-
-            action = action.next;
-        } while (action != null);
-
-        return last;
-    }
-
-    synchronized RowActionBase getLastAction(long timestamp) {
-
-        RowActionBase action = this;
-        RowActionBase last   = null;
+        RowActionBase action     = this;
+        int           actionType = ACTION_NONE;
 
         do {
             if (action.changeTimestamp == timestamp) {
-                last = action;
+                actionType = action.type;
             }
 
             action = action.next;
         } while (action != null);
 
-        return last;
+        return actionType;
     }
 
     synchronized int getActionType(long timestamp) {

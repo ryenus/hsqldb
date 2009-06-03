@@ -76,7 +76,8 @@ public class Logger {
     /**
      *  The Log object this Logger object wraps
      */
-    private Log log;
+    private Log      log;
+    private Database database;
 
     /**
      *  The LockFile object this Logger uses to cooperatively lock
@@ -110,6 +111,8 @@ public class Logger {
         String path = db.getPath();
         int loglevel = db.getProperties().getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_applog, 0);
+
+        this.database = db;
 
         if (loglevel != SimpleLog.LOG_NONE) {
             appLog = new SimpleLog(path + ".app.log", loglevel,
@@ -243,7 +246,7 @@ public class Logger {
      * @throws  HsqlException if there is a problem recording the Log
      *      entry
      */
-    public synchronized void logConnectUser(Session session)
+    public synchronized void logStartSession(Session session)
     throws HsqlException {
 
         if (logStatements) {
@@ -341,6 +344,7 @@ public class Logger {
             needsCheckpoint = false;
 
             log.checkpoint(mode);
+            database.sessionManager.resetLoggedSchemas();
             appLog.logContext(SimpleLog.LOG_NORMAL, "end");
         }
     }
@@ -493,7 +497,7 @@ public class Logger {
             case TableBase.TEMP_TABLE :
                 diskBased = false;
 
-                // fall through
+            // fall through
             case TableBase.RESULT_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.VIEW_TABLE :

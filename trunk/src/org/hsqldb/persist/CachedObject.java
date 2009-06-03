@@ -47,6 +47,10 @@ public interface CachedObject {
 
     boolean isMemory();
 
+    void updateAccessCount(int count);
+
+    int getAccessCount();
+
     void setStorageSize(int size);
 
     int getStorageSize();

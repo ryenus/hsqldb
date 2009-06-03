@@ -567,6 +567,11 @@ public class TransactionManager {
             }
         }
 
+        deleteRows(list, start, limit, commit);
+    }
+
+    void deleteRows(Object[] list, int start, int limit, boolean commit) {
+
         for (int i = start; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];
 
@@ -1166,27 +1171,22 @@ public class TransactionManager {
 
     /**
      * Return a lookup of all row ids for cached tables in transactions.
+     * For auto-defrag, as currently there will be no RowAction entries
+     * at the time of defrag.
      */
     public DoubleIntIndex getTransactionIDList() {
 
         writeLock.lock();
 
         try {
-            Session[]      sessions = database.sessionManager.getAllSessions();
-            DoubleIntIndex lookup   = new DoubleIntIndex(10, false);
+            DoubleIntIndex lookup = new DoubleIntIndex(10, false);
 
             lookup.setKeysSearchTarget();
 
-            for (int i = 0; i < sessions.length; i++) {
-                HsqlArrayList tlist = sessions[i].rowActionList;
+            Iterator it = this.rowActionMap.keySet().iterator();
 
-                for (int j = 0, size = tlist.size(); j < size; j++) {
-                    RowAction rowact = (RowAction) tlist.get(j);
-
-                    if (!rowact.isMemory) {
-                        lookup.addUnique(rowact.getPos(), 0);
-                    }
-                }
+            for (; it.hasNext(); ) {
+                lookup.addUnique(it.nextInt(), 0);
             }
 
             return lookup;
@@ -1203,20 +1203,20 @@ public class TransactionManager {
         writeLock.lock();
 
         try {
-            Session[] sessions = database.sessionManager.getAllSessions();
+            RowAction[] list = new RowAction[rowActionMap.size()];
+            Iterator    it   = this.rowActionMap.values().iterator();
 
-            for (int i = 0; i < sessions.length; i++) {
-                HsqlArrayList tlist = sessions[i].rowActionList;
+            for (int i = 0; it.hasNext(); i++) {
+                list[i] = (RowAction) it.next();
+            }
 
-                for (int j = 0, size = tlist.size(); j < size; j++) {
-                    RowAction rowact = (RowAction) tlist.get(j);
+            rowActionMap.clear();
 
-                    if (!rowact.isMemory) {
-                        int pos = lookup.lookupFirstEqual(rowact.getPos());
+            for (int i = 0; i < list.length; i++) {
+                int pos = lookup.lookupFirstEqual(list[i].getPos());
 
-                        rowact.setPos(pos);
-                    }
-                }
+                list[i].setPos(pos);
+                rowActionMap.put(pos, list[i]);
             }
         } finally {
             writeLock.unlock();

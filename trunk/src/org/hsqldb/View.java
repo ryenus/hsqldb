@@ -127,7 +127,7 @@ public class View extends TableDerived {
 
             if (columnNames.length
                     != viewSubQuery.queryExpression.getColumnCount()) {
-                throw Error.error(ErrorCode.X_42593, tableName.name);
+                throw Error.error(ErrorCode.X_42593, tableName.statementName);
             }
 
             TableUtil.setColumnsInSchemaTable(

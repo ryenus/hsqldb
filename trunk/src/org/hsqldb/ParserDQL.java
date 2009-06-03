@@ -611,7 +611,7 @@ public class ParserDQL extends ParserBase {
         } else {
             if (queryExpression.sortAndSlice.hasLimit()) {
                 if (sortAndSlice.hasLimit()) {
-                    throw Error.error(ErrorCode.INVALID_LIMIT);
+                    throw Error.error(ErrorCode.X_42549);
                 }
 
                 for (int i = 0; i < sortAndSlice.exprList.size(); i++) {
@@ -701,7 +701,7 @@ public class ParserDQL extends ParserBase {
                 } else {
                     if (queryExpression.sortAndSlice.hasLimit()) {
                         if (sortAndSlice.hasLimit()) {
-                            throw Error.error(ErrorCode.INVALID_LIMIT);
+                            throw Error.error(ErrorCode.X_42549);
                         }
 
                         for (int i = 0; i < sortAndSlice.exprList.size();

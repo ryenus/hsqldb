@@ -53,7 +53,15 @@ public interface PersistentStore {
 
     boolean isMemory();
 
+    int getAccessCount();
+
     void set(CachedObject object);
+
+    /** get object */
+    CachedObject get(int key);
+
+    /** get object, ensuring future gets will return the same instance of the object */
+    CachedObject getKeep(int key);
 
     /** get object with keep, ensuring future gets will return the same instance of the object */
     CachedObject get(int key, boolean keep);

@@ -49,8 +49,9 @@ public class Row implements CachedObject {
     int                       position;
     protected Object[]        rowData;
     public volatile RowAction rowAction;
+    public volatile boolean   hasAction;
 
-    public RowAction getAction(){
+    public RowAction getAction() {
         return rowAction;
     }
 
@@ -68,18 +69,14 @@ public class Row implements CachedObject {
 
     boolean isDeleted(Session session) {
 
-        if (rowAction == null) {
-            return false;
-        }
-
-        RowActionBase action =
-            rowAction.getLastAction(session.actionTimestamp);
+        RowAction action = rowAction;
 
         if (action == null) {
             return false;
         }
 
-        return action.type == RowActionBase.ACTION_DELETE;
+        return RowActionBase.ACTION_DELETE
+               == action.getLastChangeActionType(session.actionTimestamp);
     }
 
     public void setChanged() {}
@@ -100,6 +97,12 @@ public class Row implements CachedObject {
 
     public boolean isMemory() {
         return true;
+    }
+
+    public void updateAccessCount(int count) {}
+
+    public int getAccessCount() {
+        return 0;
     }
 
     public int getPos() {
@@ -125,6 +128,7 @@ public class Row implements CachedObject {
     public boolean isInMemory() {
         return true;
     }
+
     public void setInMemory(boolean in) {}
 
     public void restore() {}

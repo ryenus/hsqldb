@@ -150,6 +150,13 @@ public abstract class NodeAVL implements CachedObject {
 
     abstract boolean equals(NodeAVL n);
 
+
+    public void updateAccessCount(int count) {}
+
+    public int getAccessCount() {
+        return 0;
+    }
+
     public void setStorageSize(int size) {}
 
     public int getStorageSize() {
