@@ -211,8 +211,4 @@ public class StatementSchemaDefinition extends StatementSchema {
     String getDropSchemaStatement(HsqlName schema) {
         return "DROP SCHEMA " + schema.statementName + " " + Tokens.T_CASCADE;
     }
-
-    String getSetSchemaStatement(HsqlName schema) {
-        return "SET SCHEMA " + schema.statementName;
-    }
 }

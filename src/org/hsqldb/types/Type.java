@@ -228,7 +228,7 @@ public abstract class Type implements SchemaObject, Cloneable {
             return getDefinition();
         }
 
-        return getSchemaName().statementName + '.' + getName().statementName;
+        return getName().getSchemaQualifiedStatementName() ;
     }
 
     public abstract int compare(Object a, Object b);

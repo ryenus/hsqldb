@@ -171,6 +171,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     protected void writeRow(Session session, Table table,
                             Object[] data) throws HsqlException, IOException {
 
+        schemaToLog = table.getName().schema;
         busyWriting = true;
 
         rowOut.reset();

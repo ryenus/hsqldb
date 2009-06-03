@@ -987,6 +987,10 @@ public class DataFileCache {
         return cache.size();
     }
 
+    public int getAccessCount() {
+        return cache.incrementAccessCount();
+    }
+
     public String getFileName() {
         return fileName;
     }

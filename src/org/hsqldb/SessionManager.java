@@ -66,10 +66,10 @@ public class SessionManager {
 
         User sysUser = db.getUserManager().getSysUser();
 
-        sysSession = new Session(db, sysUser, false, false, sessionIdCount++,
-                                 0);
-        sysLobSession = new Session(db, sysUser, true, false, sessionIdCount++,
-                                 0);
+        sysSession = new Session(db, sysUser, false, false, false,
+                                 sessionIdCount++, 0);
+        sysLobSession = new Session(db, sysUser, true, true, false,
+                                    sessionIdCount++, 0);
     }
 
     /**
@@ -102,8 +102,8 @@ public class SessionManager {
                                            boolean readonly, boolean forLog,
                                            int timeZoneSeconds) {
 
-        Session s = new Session(db, user, !forLog, readonly, sessionIdCount,
-                                timeZoneSeconds);
+        Session s = new Session(db, user, !forLog, !forLog, readonly,
+                                sessionIdCount, timeZoneSeconds);
 
         s.isProcessingLog = forLog;
 
@@ -120,7 +120,7 @@ public class SessionManager {
     public Session getSysSessionForScript(Database db) throws HsqlException {
 
         Session session = new Session(db, db.getUserManager().getSysUser(),
-                                      false, false, 0, 0);
+                                      false, false, false, 0, 0);
 
         session.isProcessingScript = true;
 
@@ -147,7 +147,7 @@ public class SessionManager {
     }
 
     /**
-     * Retrieves the special SYS Session.
+     * Retrieves the common SYS Session.
      */
     public Session getSysSession(String schema,
                                  User user) throws HsqlException {
@@ -166,7 +166,7 @@ public class SessionManager {
                                  User user) throws HsqlException {
 
         Session session = new Session(sysSession.database, user, false, false,
-                                      0, 0);
+                                      false, 0, 0);
 
         session.currentSchema = schema;
 
@@ -263,5 +263,18 @@ public class SessionManager {
                 session.resetSchema();
             }
         }
+    }
+
+    public synchronized void resetLoggedSchemas() {
+        Iterator it = sessionMap.values().iterator();
+
+        for (int i = 0; it.hasNext(); i++) {
+            Session session = (Session) it.next();
+
+            session.resetSchema();
+        }
+
+        sysLobSession.resetSchema();
+
     }
 }

@@ -55,7 +55,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
+public class RowStoreAVLDisk extends RowStoreAVL {
 
     DataFileCache           cache;
     Table                   table;
@@ -79,6 +79,10 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         return false;
     }
 
+    public int getAccessCount() {
+        return cache.getAccessCount();
+    }
+
     public void set(CachedObject object) {
 
         Row row = ((Row) object);
@@ -86,10 +90,32 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         row.rowAction = (RowAction) rowActionMap.get(row.getPos());
     }
 
-    public CachedObject get(int i, boolean keep) {
+    public CachedObject get(int key) {
 
         try {
-            CachedObject object = cache.get(i, this, keep);
+            CachedObject object = cache.get(key, this, false);
+
+            return object;
+        } catch (HsqlException e) {
+            return null;
+        }
+    }
+
+    public CachedObject getKeep(int key) {
+
+        try {
+            CachedObject object = cache.get(key, this, true);
+
+            return object;
+        } catch (HsqlException e) {
+            return null;
+        }
+    }
+
+    public CachedObject get(int key, boolean keep) {
+
+        try {
+            CachedObject object = cache.get(key, this, keep);
 
             return object;
         } catch (HsqlException e) {
@@ -148,7 +174,6 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
 
         if (session != null) {
             RowAction.addAction(session, RowAction.ACTION_INSERT, table, row);
-            rowActionMap.put(row.getPos(), row.rowAction);
         }
 
         return row;
@@ -190,6 +215,24 @@ public class RowStoreAVLDisk extends RowStoreAVL implements PersistentStore {
         Index index = (Index) key;
 
         accessorList[index.getPosition()] = accessor;
+    }
+
+    public CachedObject getAccessor(Index key) {
+
+        NodeAVL node = (NodeAVL) accessorList[key.getPosition()];
+
+        if (node == null) {
+            return null;
+        }
+
+        if (!node.isInMemory()) {
+            RowAVL row = (RowAVL) get(node.getPos(), false);
+
+            node                            = row.getNode(key.getPosition());
+            accessorList[key.getPosition()] = node;
+        }
+
+        return node;
     }
 
     public void setAccessor(Index key, int accessor) throws HsqlException {

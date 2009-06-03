@@ -74,7 +74,19 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         return true;
     }
 
+    public int getAccessCount() {
+        return 0;
+    }
+
     public void set(CachedObject object) {}
+
+    public CachedObject get(int i) {
+        return (CachedObject) rowIdMap.get(i);
+    }
+
+    public CachedObject getKeep(int i) {
+        return (CachedObject) rowIdMap.get(i);
+    }
 
     public CachedObject get(int i, boolean keep) {
         return (CachedObject) rowIdMap.get(i);

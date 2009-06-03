@@ -49,7 +49,7 @@ public class TestStressInsert {
     private PreparedStatement insertStmtA;
     private PreparedStatement insertStmtB;
     private static final int  LOB_SIZE = 800000;
-    private static final int  MAX_SIZE = 24000;
+    private static final int  MAX_SIZE = 4000;
     private final Random      random   = new Random(0);
     byte[]                    data     = getRandomBytes(LOB_SIZE);
 
@@ -76,7 +76,7 @@ public class TestStressInsert {
             stmt.execute("set write_delay 10000 millis");
             stmt.execute("set logsize " + 20);
 //            stmt.execute("set property \"hsqldb.cache_file_scale\" 8");
-            stmt.execute("set property \"hsqldb.incremental_backup\" true");
+            stmt.execute("set database backup increment true");
 
             DatabaseMetaData metaData = con.getMetaData();
             ResultSet        rs = metaData.getTables(null, null, "B", null);
@@ -155,7 +155,7 @@ public class TestStressInsert {
             if (i % 100 == 0) {
                 long t3 = System.currentTimeMillis();
 
-                System.out.println("inserted " + i + " in " + (t3 - t2));
+                System.out.println("inserted " + i + ", 100 in " + (t3 - t2));
 
                 t2 = t3;
             }
@@ -179,7 +179,7 @@ public class TestStressInsert {
             if (i % 100 == 0) {
                 long t3 = System.currentTimeMillis();
 
-                System.out.println("inserted " + i + " in " + (t3 - t2));
+                System.out.println("inserted " + i + ", 100 in " + (t3 - t2));
 
                 t2 = t3;
             }
@@ -198,7 +198,7 @@ public class TestStressInsert {
             TestStressInsert test = new TestStressInsert();
 
             test.init();
-            test.stressInsertB();
+            test.stressInsertA();
         } catch (Exception e) {
             e.printStackTrace();
         }

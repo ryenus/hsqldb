@@ -177,8 +177,9 @@ public class Session implements SessionInterface {
      * @param  readonly the initial readonly value
      * @param  id the session identifier, as known to the database
      */
-    Session(Database db, User user, boolean autocommit, boolean readonly,
-            long id, int timeZoneSeconds) {
+    Session(Database db, User user, boolean isInitiallyLogged,
+            boolean autocommit, boolean readonly, long id,
+            int timeZoneSeconds) {
 
         sessionId                   = id;
         database                    = db;
@@ -194,13 +195,20 @@ public class Session implements SessionInterface {
         sessionContext              = new SessionContext(this);
         parser                      = new ParserCommand(this, new Scanner());
 
-        this.setResultMemoryRowCount(database.getResultMaxMemoryRows());
+        setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();
 
         sessionData = new SessionData(database, this);
+
+        try {
+            if (isInitiallyLogged) {
+                database.logger.writeToLog(this, getSetSchemaStatement());
+            }
+        } catch (HsqlException e) {}
     }
 
     void resetSchema() {
+        loggedSchema  = null;
         currentSchema = user.getInitialOrDefaultSchema();
     }
 
@@ -288,6 +296,10 @@ public class Session implements SessionInterface {
         }
 
         isolationMode = level;
+
+        if (isolationMode != isolationModeDefault) {
+            database.logger.writeToLog(this, getTransactionIsolationSQL());
+        }
     }
 
     public synchronized int getIsolation() throws HsqlException {
@@ -585,10 +597,19 @@ public class Session implements SessionInterface {
         isReadOnly    = isReadOnlyDefault;
         isolationMode = isolationModeDefault;
         lockStatement = null;
+
 /* debug 190
         tempActionHistory.add("commit ends " + actionTimestamp);
         tempActionHistory.clear();
 //*/
+        if (database != null && database.logger.needsCheckpoint()) {
+            try {
+                database.logger.checkpoint(false);
+            } catch (HsqlException e) {
+                database.logger.appLog.logContext(
+                    SimpleLog.LOG_ERROR, "checkpoint did not complete");
+            }
+        }
     }
 
     /**
@@ -1032,15 +1053,6 @@ public class Session implements SessionInterface {
             result = sessionData.getDataResultHead(command, result, isNetwork);
         }
 
-        if (database != null && database.logger.needsCheckpoint()) {
-            try {
-                database.logger.checkpoint(false);
-            } catch (HsqlException e) {
-                database.logger.appLog.logContext(
-                    SimpleLog.LOG_ERROR, "checkpoint did not complete");
-            }
-        }
-
         return result;
     }
 
@@ -1114,7 +1126,8 @@ public class Session implements SessionInterface {
         if (cs.isAutoCommitStatement()) {
             try {
                 if (isReadOnly()) {
-//                    throw Error.error(ErrorCode.X_25006);
+
+                    throw Error.error(ErrorCode.X_25006);
                 }
 
                 /** @todo - special autocommit for backward compatibility */
@@ -1190,10 +1203,14 @@ public class Session implements SessionInterface {
             }
         }
 
-        if (sessionContext.depth == 0 && isAutoCommit
-                || cs.isAutoCommitStatement()) {
+        if (sessionContext.depth == 0
+                && (isAutoCommit || cs.isAutoCommitStatement())) {
             try {
-                commit(false);
+                if (r.isError()) {
+                    rollback(false);
+                } else {
+                    commit(false);
+                }
             } catch (Exception e) {
                 currentStatement = null;
 
@@ -1973,7 +1990,7 @@ public class Session implements SessionInterface {
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TRANSACTION);
         sb.append(' ');
-        appendIsolationSQL(sb, isolationModeDefault);
+        appendIsolationSQL(sb, isolationMode);
 
         return sb.toString();
     }
@@ -2008,5 +2025,9 @@ public class Session implements SessionInterface {
                 sb.append(Tokens.T_SERIALIZABLE);
                 break;
         }
+    }
+
+    String getSetSchemaStatement() {
+        return "SET SCHEMA " + currentSchema.statementName;
     }
 }

@@ -49,8 +49,7 @@ import org.hsqldb.rowio.RowInputInterface;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowStoreAVLDiskData extends RowStoreAVLDisk
-implements PersistentStore {
+public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
 
     public RowStoreAVLDiskData(PersistentStoreCollection manager,

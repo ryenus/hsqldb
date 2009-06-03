@@ -372,8 +372,7 @@ public final class Constraint implements SchemaObject {
 
         getColumnList(getRef(), col, col.length, a);
         a.append(' ').append(Tokens.T_REFERENCES).append(' ');
-        a.append(getMain().getSchemaName().statementName).append('.');
-        a.append(getMain().getName().statementName);
+        a.append(getMain().getName().getSchemaQualifiedStatementName());
 
         col = getMainColumns();
 

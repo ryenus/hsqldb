@@ -567,6 +567,10 @@ public class IndexAVL implements Index {
 
     public void delete(PersistentStore store, Row row) throws HsqlException {
 
+        if (!row.isInMemory() ) {
+            row = (Row) store.get(row, false);
+        }
+
         NodeAVL node = ((RowAVL) row).getNode(position);
 
         delete(store, node);
@@ -1531,12 +1535,6 @@ public class IndexAVL implements Index {
     private NodeAVL getAccessor(PersistentStore store) {
 
         NodeAVL node = (NodeAVL) store.getAccessor(this);
-
-        if (node != null && node instanceof NodeAVLDisk) {
-            Row row = node.getRow(store);
-
-            node = ((RowAVL) row).getNode(position);
-        }
 
         return node;
     }

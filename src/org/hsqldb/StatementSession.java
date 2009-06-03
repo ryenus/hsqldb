@@ -87,6 +87,17 @@ public class StatementSession extends Statement {
 
         switch (type) {
 
+            // logged by statement
+            case StatementTypes.SET_SCHEMA :
+                group = StatementTypes.X_SQL_SESSION;
+                isLogged = true;
+                break;
+
+            case StatementTypes.DECLARE_VARIABLE :
+                group = StatementTypes.X_HSQLDB_SESSION;
+                isLogged = true;
+                break;
+
             // cursor
             case StatementTypes.ALLOCATE_CURSOR :
                 group = StatementTypes.X_SQL_DATA;
@@ -125,7 +136,8 @@ public class StatementSession extends Statement {
                 group = StatementTypes.X_DYNAMIC;
                 break;
 
-            //
+
+            // logged by session
             case StatementTypes.DISCONNECT :
                 group = StatementTypes.X_SQL_CONNECTION;
                 break;
@@ -137,20 +149,13 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_CATALOG :
             case StatementTypes.SET_SESSION_CHARACTERISTICS :
             case StatementTypes.SET_TRANSFORM_GROUP :
-            case StatementTypes.SET_SCHEMA :
-                group = StatementTypes.X_SQL_SESSION;
-                break;
-
             case StatementTypes.SET_SESSION_RESULT_MAX_ROWS :
             case StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_SESSION_AUTOCOMMIT :
                 group = StatementTypes.X_HSQLDB_SESSION;
                 break;
 
-            case StatementTypes.DECLARE_VARIABLE :
-                group = StatementTypes.X_HSQLDB_SESSION;
-                break;
-
+            // logged by session if necessary
             case StatementTypes.COMMIT_WORK :
             case StatementTypes.RELEASE_SAVEPOINT :
             case StatementTypes.ROLLBACK_SAVEPOINT :

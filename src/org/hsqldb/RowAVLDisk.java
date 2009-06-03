@@ -104,6 +104,7 @@ public class RowAVLDisk extends RowAVL {
     int                 storageSize;
     int                 keepCount;
     boolean             isInMemory;
+    int                 usageCount;
 
     /**
      *  Flag indicating unwritten data.
@@ -185,6 +186,14 @@ public class RowAVLDisk extends RowAVL {
         hasNodesChanged = true;
     }
 
+    public void updateAccessCount(int count) {
+        usageCount = count;
+    }
+
+    public int getAccessCount() {
+        return usageCount;
+    }
+
     public int getStorageSize() {
         return storageSize;
     }
@@ -259,6 +268,10 @@ public class RowAVLDisk extends RowAVL {
 
     public synchronized boolean keepInMemory(boolean keep) {
 
+        if (!isInMemory) {
+            return false;
+        }
+
         if (keep) {
             keepCount++;
         } else {
@@ -268,10 +281,6 @@ public class RowAVLDisk extends RowAVL {
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "CachedRow keep count");
             }
-        }
-
-        if (!isInMemory) {
-            return false;
         }
 
         return true;
@@ -297,8 +306,10 @@ public class RowAVLDisk extends RowAVL {
             n = n.nNext;
         }
 
-        if (rowAction != null) {
-            rowAction.memoryRow = null;
+        RowAction action = rowAction;
+
+        if (action != null) {
+            action.memoryRow = null;
         }
     }
 

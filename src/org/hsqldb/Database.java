@@ -468,7 +468,6 @@ public class Database {
         Session session = sessionManager.newSession(this, user,
             databaseReadOnly, false, timeZoneSeconds);
 
-//        logger.logConnectUser(session);
         return session;
     }
 

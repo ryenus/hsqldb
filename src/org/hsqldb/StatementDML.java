@@ -342,22 +342,17 @@ public class StatementDML extends StatementDMQL {
         }
 
 /* debug 190
-
-        if (rowset.size() != 1) {
-            System.out.println("multiple or zero update: session "
+        if (rowset.size() == 0) {
+            System.out.println(targetTable.getName().name + " zero update: session "
                                + session.getId());
-        }
+        } else if (rowset.size() >1) {
+           System.out.println("multiple update: session "
+                              + session.getId() + ", " + rowset.size());
+       }
 
-// debug 190 */
+//* debug 190 */
         count = update(session, baseTable, rowset);
 
-/* debug 190
-        if (count != 1) {
-
-            System.out.println("multiple or zero update");
-        }
-
-// debug 190 */
         return Result.getUpdateCountResult(count);
     }
 
@@ -715,6 +710,7 @@ public class StatementDML extends StatementDMQL {
                 table.fireAfterTriggers(session, Trigger.DELETE_AFTER,
                                         oldRows);
             }
+
             return oldRows.getSize();
         }
 

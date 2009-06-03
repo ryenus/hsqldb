@@ -1093,7 +1093,7 @@ public class Table extends TableBase implements SchemaObject {
                 HsqlName name = c.getName();
 
                 throw Error.error(ErrorCode.X_42502,
-                                  name.schema.name + '.' + name.name);
+                                  name.getSchemaQualifiedStatementName());
             }
         }
     }
@@ -1113,8 +1113,8 @@ public class Table extends TableBase implements SchemaObject {
                         || c.getConstraintType() == Constraint.FOREIGN_KEY)) {
                 HsqlName name = c.getName();
 
-                throw Error.error(ErrorCode.X_42502,
-                                  name.schema.name + '.' + name.name);
+                throw Error.error(ErrorCode.X_42533,
+                                  name.getSchemaQualifiedStatementName());
             }
         }
     }
@@ -1230,8 +1230,8 @@ public class Table extends TableBase implements SchemaObject {
                         || actionType == c.getDeleteAction())) {
                 HsqlName name = c.getName();
 
-                throw Error.error(ErrorCode.X_42502,
-                                  name.schema.name + '.' + name.name);
+                throw Error.error(ErrorCode.X_42533,
+                                  name.getSchemaQualifiedStatementName());
             }
         }
     }
@@ -2176,10 +2176,13 @@ public class Table extends TableBase implements SchemaObject {
                 systemSetIdentityColumn(session, data);
                 enforceRowConstraints(session, data);
 
-                Row newrow = (Row) store.getNewCachedObject(session, data);
+                // get object without RowAction
+                Row newrow = (Row) store.getNewCachedObject(null, data);
 
-                /** @todo 1.9.0 - change transaction row id to new row only when finished whole operation successfully */
-                newrow.rowAction = row.rowAction;
+                if (row.rowAction != null) {
+                    newrow.rowAction =
+                        row.rowAction.duplicate(newrow.getPos());
+                }
 
                 store.indexRow(null, newrow);
             }
@@ -2545,7 +2548,8 @@ public class Table extends TableBase implements SchemaObject {
                     continue;
                 }
 
-                session.sessionData.addLobUsageCount(((LobData) value).getId());
+                session.sessionData.addLobUsageCount(
+                    ((LobData) value).getId());
             }
         }
     }
@@ -2564,7 +2568,8 @@ public class Table extends TableBase implements SchemaObject {
                     continue;
                 }
 
-                session.sessionData.removeUsageCount(((LobData) value).getId());
+                session.sessionData.removeUsageCount(
+                    ((LobData) value).getId());
             }
         }
     }

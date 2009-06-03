@@ -71,6 +71,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.DATABASE_CHECKPOINT :
             case StatementTypes.DATABASE_SCRIPT :
                 group = StatementTypes.X_HSQLDB_OPERATION;
+                isLogged = false;
                 break;
 
             case StatementTypes.SET_DATABASE_FILES_WRITE_DELAY :

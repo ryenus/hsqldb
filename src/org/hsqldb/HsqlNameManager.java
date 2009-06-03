@@ -81,8 +81,8 @@ public final class HsqlNameManager {
         }
     }
 
-    private int      serialNumber = 1;    // 0 is reserved in lookups
-    private int      sysNumber    = 10000; // avoid name clash in older scripts
+    private int      serialNumber = 1;        // 0 is reserved in lookups
+    private int      sysNumber    = 10000;    // avoid name clash in older scripts
     private HsqlName catalogName;
 
     public HsqlNameManager(Database database) {
@@ -244,8 +244,11 @@ public final class HsqlNameManager {
     }
 
     static public String getAutoSavepointNameString(long i, int j) {
+
         StringBuffer sb = new StringBuffer("S");
+
         sb.append(i).append('_').append(j);
+
         return sb.toString();
     }
 
@@ -400,8 +403,11 @@ public final class HsqlNameManager {
 
             StringBuffer sb = new StringBuffer();
 
-            sb.append(schema.getStatementName());
-            sb.append('.');
+            if (schema != null) {
+                sb.append(schema.getStatementName());
+                sb.append('.');
+            }
+
             sb.append(statementName);
 
             return sb.toString();

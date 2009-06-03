@@ -44,81 +44,82 @@ public interface ErrorCode {
     int LAST_ERROR_HANDLE = 300;                          // temporary, used in JDBC tests only
 
     // neutral placeholder strings
-    int TOKEN_REQUIRED = 1;                               //
-    int CONSTRAINT     = 2;                               //
+    int TOKEN_REQUIRED = 1;                               // $$ required: $$
+    int CONSTRAINT     = 2;                               // $$ table: $$
 
     /** @todo - all SQL-state for legacy messages to be reviewed */
-    int LOCK_FILE_ACQUISITION_FAILURE = 11;
+    int LOCK_FILE_ACQUISITION_FAILURE = 11;               //Database lock acquisition failure
 
     //
-    int JDBC_COLUMN_NOT_FOUND      = 28;
-    int JDBC_INPUTSTREAM_ERROR     = 34;
-    int JDBC_INVALID_ARGUMENT      = 62;
-    int JDBC_PARAMETER_NOT_SET     = 152;
-    int JDBC_CONNECTION_NATIVE_SQL = 138;
+    int JDBC_COLUMN_NOT_FOUND      = 28;                  // S1000 Column not found
+    int JDBC_INPUTSTREAM_ERROR     = 34;                  // S1000 InputStream error
+    int JDBC_INVALID_ARGUMENT      = 62;                  // S1OO0 Invalid argument in JDBC call
+    int JDBC_PARAMETER_NOT_SET     = 152;                 // S1000 Parameter not set
+    int JDBC_CONNECTION_NATIVE_SQL = 138;                 // S1000 Unknown JDBC escape sequence: {
 
     //
-    int FILE_IO_ERROR               = 29;
-    int WRONG_DATABASE_FILE_VERSION = 30;
-    int DATABASE_IS_READONLY        = 31;
-    int DATA_IS_READONLY            = 32;
-    int ACCESS_IS_DENIED            = 33;
-    int NO_DATA_IS_AVAILABLE        = 35;
-    int GENERAL_ERROR               = 40;
-    int DATABASE_IS_MEMORY_ONLY     = 63;
-    int OUT_OF_MEMORY               = 72;
-    int ERROR_IN_SCRIPT_FILE        = 78;
-    int UNSUPPORTED_FILENAME_SUFFIX = 79;
-    int COMPRESSION_SUFFIX_MISMATCH = 80;
-    int DATABASE_IS_NON_FILE        = 82;
-    int DATABASE_NOT_EXISTS         = 94;
-    int DATA_FILE_ERROR             = 129;
-    int GENERAL_IO_ERROR            = 98;
+    int FILE_IO_ERROR               = 29;                 // S1000 File input/output error
+    int WRONG_DATABASE_FILE_VERSION = 30;                 // S1000 Wrong database file version
+    int DATABASE_IS_READONLY        = 31;                 // S1000 The database is in read only mode
+    int DATA_IS_READONLY            = 32;                 // S1000 The table data is read only
+    int ACCESS_IS_DENIED            = 33;                 // S1000 Access is denied
+    int NO_DATA_IS_AVAILABLE        = 35;                 // S1000 No data is available
+    int GENERAL_ERROR               = 40;                 // S1000 General error
+    int DATABASE_IS_MEMORY_ONLY     = 63;                 // S1000 Database is memory only
+    int OUT_OF_MEMORY               = 72;                 // S1000 Out of Memory
+    int ERROR_IN_SCRIPT_FILE        = 78;                 // S1000 error in script file
+    int UNSUPPORTED_FILENAME_SUFFIX = 79;                 // S1000 Unsupported suffix in file name '$$'.  (Supported suffixes:  $$)
+    int COMPRESSION_SUFFIX_MISMATCH = 80;                 // S1000 Mismatch between specified compression mode '$$' and file name '$$'
+    int DATABASE_IS_NON_FILE        = 82;                 // S1000 Database is non-file type
+    int DATABASE_NOT_EXISTS         = 94;                 // S1000 Database does not exists
+    int DATA_FILE_ERROR             = 129;                // S1000 Data File input/output error
+    int GENERAL_IO_ERROR            = 98;                 // S1000 IO error
 
     //
-    int M_ERROR_IN_BINARY_SCRIPT_1              = 96;     //
-    int M_ERROR_IN_BINARY_SCRIPT_2              = 97;     //
-    int M_DatabaseManager_getDatabase           = 107;    //
-    int M_DatabaseScriptReader_readDDL          = 113;    //
-    int M_DatabaseScriptReader_readExistingData = 114;    //
-    int M_Message_Pair                          = 115;    //
-    int M_LOAD_SAVE_PROPERTIES                  = 116;    //
-    int M_HsqlProperties_load                   = 135;    //
+    int M_ERROR_IN_BINARY_SCRIPT_1              = 96;     // \u0020table $$ row count error : $$ read, needed $$
+    int M_ERROR_IN_BINARY_SCRIPT_2              = 97;     // \u0020 wrong data for insert operation
+    int M_DatabaseManager_getDatabase           = 107;    // attempt to connect while db opening /closing
+    int M_DatabaseScriptReader_readDDL          = 113;    // \u0020line: $$ $$
+    int M_DatabaseScriptReader_readExistingData = 114;    // \u0020line: $$ $$
+    int M_Message_Pair                          = 115;    // \u0020$$ $$
+    int M_LOAD_SAVE_PROPERTIES                  = 116;    // \u0020$$.properties $$
+    int M_HsqlProperties_load                   = 135;    // properties name is null or empty
 
     //
-    int TEXT_TABLE_UNKNOWN_DATA_SOURCE  = 48;
-    int TEXT_TABLE_SOURCE               = 75;
-    int TEXT_FILE                       = 76;
-    int TEXT_STRING_HAS_NEWLINE         = 145;
-    int TEXT_TABLE_HEADER               = 150;
-    int TEXT_SOURCE_EXISTS              = 196;
-    int TEXT_SOURCE_NO_END_SEPARATOR    = 183;
-    int M_TEXT_SOURCE_FIELD_ERROR       = 184;            //
-    int M_TextCache_openning_file_error = 188;            //
-    int M_TextCache_closing_file_error  = 189;            //
-    int M_TextCache_purging_file_error  = 190;            //
+    int TEXT_TABLE_UNKNOWN_DATA_SOURCE  = 48;             // S1000 The table's data source for has not been defined
+    int TEXT_TABLE_SOURCE               = 75;             // S1000 Invalid TEXT table source string
+    int TEXT_FILE                       = 76;             // S1000 bad TEXT table source file - line number: $$ $$
+    int TEXT_STRING_HAS_NEWLINE         = 145;            // S1000 end-of-line characters not allowed
+    int TEXT_TABLE_HEADER               = 150;            // S1000 Header not allowed or too long
+    int TEXT_SOURCE_EXISTS              = 196;            // S1000 Text source file already exists
+    int TEXT_SOURCE_NO_END_SEPARATOR    = 183;            // S1000 No end sep.
+    int M_TEXT_SOURCE_FIELD_ERROR       = 184;            // Error in text source field
+    int M_TextCache_openning_file_error = 188;            // openning file: $$ error: $$
+    int M_TextCache_closing_file_error  = 189;            // closing file: $$ error: $$
+    int M_TextCache_purging_file_error  = 190;            // purging file: $$ error: $$
 
     //
-    int M_DataFileCache_makeRow = 209;                    //
-    int M_DataFileCache_open    = 210;                    //
-    int M_DataFileCache_close   = 211;                    //
-    int DATA_FILE_IS_FULL       = 225;
+    int M_DataFileCache_makeRow = 209;                    // error $$ reading row - file $$
+    int M_DataFileCache_open    = 210;                    // error $$ opening file - file $$
+    int M_DataFileCache_close   = 211;                    // error $$ closing file - file $$
+    int DATA_FILE_IS_FULL       = 225;                    // S1000 Data file size limit is reached
 
     //
-    int SERVER_TRANSFER_CORRUPTED        = 19;
-    int SERVER_DATABASE_DISCONNECTED     = 259;
-    int SERVER_VERSIONS_INCOMPATIBLE     = 260;
-    int SERVER_UNKNOWN_CLIENT            = 261;
-    int SERVER_HTTP_NOT_HSQL_PROTOCOL    = 262;
-    int SERVER_INCOMPLETE_HANDSHAKE_READ = 263;
-    int M_SERVER_NO_DATABASE             = 147;           //
-    int M_SERVER_OPEN_SERVER_SOCKET_1    = 148;           //
-    int M_SERVER_OPEN_SERVER_SOCKET_2    = 149;           //
-    int M_SERVER_SECURE_VERIFY_1         = 136;           //
-    int M_SERVER_SECURE_VERIFY_2         = 137;           //
-    int M_SERVER_SECURE_VERIFY_3         = 139;           //
+    int SERVER_TRANSFER_CORRUPTED        = 19;            // S1000 Transfer corrupted
+    int SERVER_DATABASE_DISCONNECTED     = 259;           // S0504 database disconnected
+    int SERVER_VERSIONS_INCOMPATIBLE     = 260;           // S0504 Client version '$$' incompatible.  \
+                                                          //    HSQLDB Network-Compatibility-Version '$$' required.
+    int SERVER_UNKNOWN_CLIENT            = 261;           // S0504 Network client is not a HSQLDB JDBC driver
+    int SERVER_HTTP_NOT_HSQL_PROTOCOL    = 262;           // S0504 Client using HSQLDB http protocol instead of hsql
+    int SERVER_INCOMPLETE_HANDSHAKE_READ = 263;           // S0504 Incomplete read of handshaking bytes
+    int M_SERVER_NO_DATABASE             = 147;           // S1000 no valid database paths
+    int M_SERVER_OPEN_SERVER_SOCKET_1    = 148;           // Invalid address : $$\nTry one of: $$
+    int M_SERVER_OPEN_SERVER_SOCKET_2    = 149;           // Invalid address : $$
+    int M_SERVER_SECURE_VERIFY_1         = 136;           // Server certificate has no Common Name
+    int M_SERVER_SECURE_VERIFY_2         = 137;           // Server certificate has empty Common Name
+    int M_SERVER_SECURE_VERIFY_3         = 139;           // Certificate Common Name[$$] does not match host name[$$]
 
-    //
+    //                                                       ; in LIMIT, OFFSET or FETCH
     int INVALID_LIMIT = 153;                              //
 
     //
@@ -508,7 +509,7 @@ public interface ErrorCode {
     int X_42530 = 5530;                                   // primary key definition not allowed
     int X_42531 = 5531;                                   // default expression needed
     int X_42532 = 5532;                                   // primary key already exist
-    int X_42533 = 5533;                                   // constraint is linked to a FOREIGN KEY constraint
+    int X_42533 = 5533;                                   // is referenced by FOREIGN KEY constraint
 
     // other definition issues
     int X_42535 = 5535;                                   // not an identity column
@@ -526,6 +527,7 @@ public interface ErrorCode {
     int X_42546 = 5546;                                   // number of target columns does not match that of query expression
     int X_42547 = 5547;                                   // merge when matched already used
     int X_42548 = 5548;                                   // merge when not matched altready used
+    int X_42549 = 5549;                                   // LIMIT, OFFSET or FETCH altready used
 
     //
     int X_42551 = 5551;                                   // too many identifier parts
@@ -541,6 +543,7 @@ public interface ErrorCode {
     int X_42568 = 5568;                                   // data type of expression is not boolean
     int X_42569 = 5569;                                   // quoted identifier required
     int X_42570 = 5570;                                   // concatenation exceeds maximum type length
+
     //
     int X_42571 = 5571;                                   // NULL literal not allowed
     int X_42572 = 5572;                                   // invalid GROUP BY expression
