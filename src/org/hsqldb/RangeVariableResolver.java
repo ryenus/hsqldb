@@ -113,7 +113,7 @@ public class RangeVariableResolver {
         }
     }
 
-    void processConditions() throws HsqlException {
+    void processConditions() {
 
         decomposeCondition(conditions, queryExpressions);
 
@@ -140,8 +140,7 @@ public class RangeVariableResolver {
      * Divides AND conditions and assigns
      */
     static Expression decomposeCondition(Expression e,
-                                         HsqlArrayList conditions)
-                                         throws HsqlException {
+                                         HsqlArrayList conditions) {
 
         if (e == null) {
             return Expression.EXPR_TRUE;
@@ -192,7 +191,7 @@ public class RangeVariableResolver {
     /**
      * Assigns the conditions to separate lists
      */
-    void assignToLists() throws HsqlException {
+    void assignToLists() {
 
         int lastOuterIndex = -1;
 
@@ -225,7 +224,7 @@ public class RangeVariableResolver {
      * can be assigned
      */
     void assignToLists(Expression e, HsqlArrayList[] expressionLists,
-                       int first) throws HsqlException {
+                       int first) {
 
         set.clear();
         e.collectRangeVariables(rangeVariables, set);
@@ -326,7 +325,7 @@ public class RangeVariableResolver {
      * Assigns conditions to range variables and converts suitable IN conditions
      * to table lookup.
      */
-    void assignToRangeVariables() throws HsqlException {
+    void assignToRangeVariables() {
 
         for (int i = 0; i < rangeVariables.length; i++) {
             boolean isOuter = rangeVariables[i].isLeftJoin
@@ -366,8 +365,7 @@ public class RangeVariableResolver {
      * Assigns a set of conditions to a range variable.
      */
     void assignToRangeVariable(RangeVariable rangeVar, int rangeVarIndex,
-                               HsqlArrayList exprList,
-                               boolean isJoin) throws HsqlException {
+                               HsqlArrayList exprList, boolean isJoin) {
 
         if (exprList.isEmpty()) {
             return;

@@ -68,7 +68,7 @@ class SubQuery implements ObjectComparator {
     public final static SubQuery[] emptySubqueryArray = new SubQuery[]{};
 
     SubQuery(Database database, int level, QueryExpression queryExpression,
-             int mode) throws HsqlException {
+             int mode) {
 
         this.level           = level;
         this.queryExpression = queryExpression;
@@ -98,7 +98,7 @@ class SubQuery implements ObjectComparator {
     }
 
     SubQuery(Database database, int level, QueryExpression queryExpression,
-             View view) throws HsqlException {
+             View view) {
 
         this.level           = level;
         this.queryExpression = queryExpression;
@@ -107,7 +107,7 @@ class SubQuery implements ObjectComparator {
     }
 
     SubQuery(Database database, int level, Expression dataExpression,
-             int mode) throws HsqlException {
+             int mode) {
 
         this.level              = level;
         this.database           = database;
@@ -135,7 +135,7 @@ class SubQuery implements ObjectComparator {
         return table;
     }
 
-    public void prepareTable(Session session) throws HsqlException {
+    public void prepareTable(Session session) {
 
         if (table != null) {
             return;
@@ -163,7 +163,7 @@ class SubQuery implements ObjectComparator {
         }
     }
 
-    public void materialiseCorrelated(Session session) throws HsqlException {
+    public void materialiseCorrelated(Session session) {
 
         if (isCorrelated) {
             materialise(session);
@@ -173,7 +173,7 @@ class SubQuery implements ObjectComparator {
     /**
      * Fills the table with a result set
      */
-    public void materialise(Session session) throws HsqlException {
+    public void materialise(Session session) {
 
         PersistentStore store;
 
@@ -202,7 +202,7 @@ class SubQuery implements ObjectComparator {
         result.getNavigator().close();
     }
 
-    public boolean hasUniqueNotNullRows(Session session) throws HsqlException {
+    public boolean hasUniqueNotNullRows(Session session) {
 
         RowSetNavigatorData navigator = new RowSetNavigatorData(session,
             table);
@@ -211,7 +211,7 @@ class SubQuery implements ObjectComparator {
         return result;
     }
 
-    public Object[] getValues(Session session) throws HsqlException {
+    public Object[] getValues(Session session) {
 
         RowIterator it = table.rowIterator(session);
 
@@ -228,7 +228,7 @@ class SubQuery implements ObjectComparator {
         }
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         Object[] data = getValues(session);
 

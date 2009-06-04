@@ -199,7 +199,7 @@ public class StatementSimple extends Statement {
         }
     }
 
-    void performAssignment(Session session) throws HsqlException {
+    void performAssignment(Session session) {
 
         Object[] values;
 
@@ -240,7 +240,7 @@ public class StatementSimple extends Statement {
         }
     }
 
-    public void resolve() throws HsqlException {
+    public void resolve() {
 
         boolean resolved = false;
 

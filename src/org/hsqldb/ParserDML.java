@@ -53,8 +53,7 @@ public class ParserDML extends ParserDQL {
     /**
      * Retrieves an INSERT Statement from this parse context.
      */
-    StatementDMQL compileInsertStatement(RangeVariable[] outerRanges)
-    throws HsqlException {
+    StatementDMQL compileInsertStatement(RangeVariable[] outerRanges) {
 
         read();
         readThis(Tokens.INTO);
@@ -329,8 +328,7 @@ public class ParserDML extends ParserDQL {
     /**
      * Creates a DELETE-type Statement from this parse context.
      */
-    StatementDMQL compileDeleteStatement(RangeVariable[] outerRanges)
-    throws HsqlException {
+    StatementDMQL compileDeleteStatement(RangeVariable[] outerRanges) {
 
         Expression condition       = null;
         boolean    truncate        = false;
@@ -451,8 +449,7 @@ public class ParserDML extends ParserDQL {
     /**
      * Creates an UPDATE-type Statement from this parse context.
      */
-    StatementDMQL compileUpdateStatement(RangeVariable[] outerRanges)
-    throws HsqlException {
+    StatementDMQL compileUpdateStatement(RangeVariable[] outerRanges) {
 
         read();
 
@@ -546,8 +543,7 @@ public class ParserDML extends ParserDQL {
                                   RangeVariable[] rangeVariables,
                                   int[] columnMap,
                                   Expression[] colExpressions,
-                                  RangeVariable[] outerRanges)
-                                  throws HsqlException {
+                                  RangeVariable[] outerRanges) {
 
         HsqlList unresolved           = null;
         int      enforcedDefaultIndex = -1;
@@ -657,7 +653,7 @@ public class ParserDML extends ParserDQL {
     }
 
     void readSetClauseList(RangeVariable[] rangeVars, OrderedHashSet colNames,
-                           HsqlArrayList expressions) throws HsqlException {
+                           HsqlArrayList expressions) {
 
         while (true) {
             int degree;
@@ -748,8 +744,7 @@ public class ParserDML extends ParserDQL {
     /**
      * Retrieves a MERGE Statement from this parse context.
      */
-    StatementDMQL compileMergeStatement(RangeVariable[] outerRanges)
-    throws HsqlException {
+    StatementDMQL compileMergeStatement(RangeVariable[] outerRanges) {
 
         boolean[]     insertColumnCheckList;
         int[]         insertColumnMap = null;
@@ -893,8 +888,7 @@ public class ParserDML extends ParserDQL {
                                HsqlArrayList insertExpressions,
                                HsqlArrayList updateExpressions,
                                RangeVariable[] targetRangeVars,
-                               RangeVariable sourceRangeVar)
-                               throws HsqlException {
+                               RangeVariable sourceRangeVar) {
 
         Table table       = targetRangeVars[0].rangeTable;
         int   columnCount = table.getColumnCount();
@@ -959,8 +953,7 @@ public class ParserDML extends ParserDQL {
 
     // to do call argument name and type resolution
     StatementDMQL compileCallStatement(RangeVariable[] outerRanges,
-                                       boolean isStrictlyProcedure)
-                                       throws HsqlException {
+                                       boolean isStrictlyProcedure) {
 
         read();
 
@@ -1044,8 +1037,7 @@ public class ParserDML extends ParserDQL {
         }
 
         if (isStrictlyProcedure) {
-            throw Error.error(ErrorCode.X_42501,
-                              token.tokenString);
+            throw Error.error(ErrorCode.X_42501, token.tokenString);
         }
 
         Expression expression = this.XreadValueExpression();

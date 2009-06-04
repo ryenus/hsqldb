@@ -79,8 +79,7 @@ public final class ExpressionLike extends ExpressionLogical {
     }
 
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet,
-            boolean acceptsSequences) throws HsqlException {
+            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -92,7 +91,7 @@ public final class ExpressionLike extends ExpressionLogical {
         return unresolvedSet;
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         if (opType != OpTypes.LIKE) {
             return super.getValue(session);
@@ -116,8 +115,7 @@ public final class ExpressionLike extends ExpressionLogical {
         return likeObject.compare(session, leftValue);
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -157,8 +155,8 @@ public final class ExpressionLike extends ExpressionLogical {
                         case Types.SQL_BINARY :
                         case Types.SQL_VARBINARY :
                             length =
-                                ((BinaryData) nodes[ESCAPE].valueData)
-                                    .length(session);
+                                ((BinaryData) nodes[ESCAPE].valueData).length(
+                                    session);
                             break;
 
                         default :

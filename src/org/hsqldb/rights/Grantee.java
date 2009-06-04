@@ -33,7 +33,6 @@ package org.hsqldb.rights;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.SchemaObject;
@@ -166,7 +165,7 @@ public class Grantee implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     public String getSQL() {
 
@@ -215,14 +214,14 @@ public class Grantee implements SchemaObject {
     /**
      * Grant a role
      */
-    public void grant(Grantee role) throws HsqlException {
+    public void grant(Grantee role) {
         roles.add(role);
     }
 
     /**
      * Revoke a direct role only
      */
-    public void revoke(Grantee role) throws HsqlException {
+    public void revoke(Grantee role) {
 
         if (!hasRoleDirect(role)) {
             throw Error.error(ErrorCode.X_0P503, role.getNameString());
@@ -344,7 +343,7 @@ public class Grantee implements SchemaObject {
      * attribute. This allows rights to persist when a table is renamed. <p>
      */
     void grant(SchemaObject object, Right right, Grantee grantor,
-               boolean withGrant) throws HsqlException {
+               boolean withGrant) {
 
         final HsqlName name            = object.getName();
         final Right    grantableRights = grantor.getAllGrantableRights(object);
@@ -542,8 +541,7 @@ public class Grantee implements SchemaObject {
      * This is done by checking that a mapping exists in the rights map
      * from the dbobject argument. Otherwise, it throws.
      */
-    public void checkSelect(Table table,
-                            boolean[] checkList) throws HsqlException {
+    public void checkSelect(Table table, boolean[] checkList) {
 
         if (isFullyAccessibleByRole(table)) {
             return;
@@ -558,8 +556,7 @@ public class Grantee implements SchemaObject {
         throw Error.error(ErrorCode.X_42501, table.getName().name);
     }
 
-    public void checkInsert(Table table,
-                            boolean[] checkList) throws HsqlException {
+    public void checkInsert(Table table, boolean[] checkList) {
 
         if (isFullyAccessibleByRole(table)) {
             return;
@@ -574,8 +571,7 @@ public class Grantee implements SchemaObject {
         throw Error.error(ErrorCode.X_42501, table.getName().name);
     }
 
-    public void checkUpdate(Table table,
-                            boolean[] checkList) throws HsqlException {
+    public void checkUpdate(Table table, boolean[] checkList) {
 
         if (isFullyAccessibleByRole(table)) {
             return;
@@ -590,8 +586,7 @@ public class Grantee implements SchemaObject {
         throw Error.error(ErrorCode.X_42501, table.getName().name);
     }
 
-    public void checkReferences(Table table,
-                                boolean[] checkList) throws HsqlException {
+    public void checkReferences(Table table, boolean[] checkList) {
 
         if (isFullyAccessibleByRole(table)) {
             return;
@@ -606,8 +601,7 @@ public class Grantee implements SchemaObject {
         throw Error.error(ErrorCode.X_42501, table.getName().name);
     }
 
-    public void checkTrigger(Table table,
-                             boolean[] checkList) throws HsqlException {
+    public void checkTrigger(Table table, boolean[] checkList) {
 
         if (isFullyAccessibleByRole(table)) {
             return;
@@ -622,7 +616,7 @@ public class Grantee implements SchemaObject {
         throw Error.error(ErrorCode.X_42501, table.getName().name);
     }
 
-    public void checkDelete(Table table) throws HsqlException {
+    public void checkDelete(Table table) {
 
         if (isFullyAccessibleByRole(table)) {
             return;
@@ -637,7 +631,7 @@ public class Grantee implements SchemaObject {
         throw Error.error(ErrorCode.X_42501, table.getName().name);
     }
 
-    public void checkAccess(SchemaObject object) throws HsqlException {
+    public void checkAccess(SchemaObject object) {
 
         if (isFullyAccessibleByRole(object)) {
             return;
@@ -656,8 +650,7 @@ public class Grantee implements SchemaObject {
      * Checks if this object can modify schema objects or grant access rights
      * to them.
      */
-    public void checkSchemaUpdateOrGrantRights(String schemaName)
-    throws HsqlException {
+    public void checkSchemaUpdateOrGrantRights(String schemaName) {
 
         if (!hasSchemaUpdateOrGrantRights(schemaName)) {
             throw Error.error(ErrorCode.X_42501, schemaName);
@@ -729,7 +722,7 @@ public class Grantee implements SchemaObject {
      * Checks whether this Grantee has administrative privs either directly
      * or indirectly. Otherwise it throws.
      */
-    public void checkAdmin() throws HsqlException {
+    public void checkAdmin() {
 
         if (!isAdmin()) {
             throw Error.error(ErrorCode.X_42507);
@@ -926,7 +919,7 @@ public class Grantee implements SchemaObject {
      * For regular grantees, this is self plus all roles granted directly
      * or indirectly
      */
-    public Set visibleGrantees() throws HsqlException {
+    public Set visibleGrantees() {
 
         HashSet        grantees = new HashSet();
         GranteeManager gm       = granteeManager;
@@ -955,8 +948,7 @@ public class Grantee implements SchemaObject {
      *
      * @param andPublic when <tt>true</tt> retains the reserved PUBLIC grantee
      */
-    public Set nonReservedVisibleGrantees(boolean andPublic)
-    throws HsqlException {
+    public Set nonReservedVisibleGrantees(boolean andPublic) {
 
         Set            grantees = visibleGrantees();
         GranteeManager gm       = granteeManager;

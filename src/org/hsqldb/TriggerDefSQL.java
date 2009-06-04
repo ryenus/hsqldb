@@ -50,8 +50,7 @@ public class TriggerDefSQL extends TriggerDef {
                          Expression condition, String conditionSQL,
                          OrderedHashSet columns,
                          StatementDMQL[] compiledStatements,
-                         String procedureSQL,
-                         OrderedHashSet references) throws HsqlException {
+                         String procedureSQL, OrderedHashSet references) {
 
         this.name               = name;
         this.actionTimingString = when;
@@ -84,7 +83,7 @@ public class TriggerDefSQL extends TriggerDef {
         return null;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     public String getClassName() {
         return null;
@@ -99,7 +98,7 @@ public class TriggerDefSQL extends TriggerDef {
     }
 
     synchronized void pushPair(Session session, Object[] oldData,
-                               Object[] newData) throws HsqlException {
+                               Object[] newData) {
 
         if (transitions[OLD_ROW] != null) {
             rangeVars[OLD_ROW].getIterator(session).currentData = oldData;

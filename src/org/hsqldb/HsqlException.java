@@ -42,7 +42,7 @@ import org.hsqldb.result.Result;
  * @version 1.9.0
  * @since 1.7.2
  */
-public class HsqlException extends Exception {
+public class HsqlException extends RuntimeException {
 
     private String message;
     private String state;
@@ -78,7 +78,9 @@ public class HsqlException extends Exception {
     }
 
     public HsqlException(Throwable t, String errorState, int errorCode) {
+
         super(t);
+
         this.message = t.toString();
         this.state   = errorState;
         this.code    = errorCode;
@@ -124,5 +126,9 @@ public class HsqlException extends Exception {
     public void setStatementType(int group, int code) {
         statementGroup = group;
         statementCode  = code;
+    }
+
+    public static class HsqlRuntimeMemoryError extends OutOfMemoryError {
+        HsqlRuntimeMemoryError() {}
     }
 }

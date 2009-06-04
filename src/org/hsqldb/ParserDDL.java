@@ -74,7 +74,7 @@ public class ParserDDL extends ParserRoutine {
         super.reset(sql);
     }
 
-    StatementSchema compileCreate() throws HsqlException {
+    StatementSchema compileCreate() {
 
         int     tableType = TableBase.MEMORY_TABLE;
         boolean isTable   = false;
@@ -199,7 +199,7 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
-    void processAlter() throws HsqlException {
+    void processAlter() {
 
         session.setScripting(true);
         readThis(Tokens.ALTER);
@@ -224,7 +224,7 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
-    Statement compileAlter() throws HsqlException {
+    Statement compileAlter() {
 
         read();
 
@@ -292,7 +292,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
 /*
-    CompiledStatementInterface compileAlter() throws HsqlException {
+    CompiledStatementInterface compileAlter() {
 
         CompiledStatementInterface cs = null;
         read();
@@ -303,7 +303,7 @@ public class ParserDDL extends ParserRoutine {
         return cs;
     }
 */
-    Statement compileDrop() throws HsqlException {
+    Statement compileDrop() {
 
         int      objectTokenType;
         int      objectType;
@@ -543,7 +543,7 @@ public class ParserDDL extends ParserRoutine {
                                    writeName);
     }
 
-    private void processAlterTable() throws HsqlException {
+    private void processAlterTable() {
 
         String   tableName = token.tokenString;
         HsqlName schema    = session.getSchemaHsqlName(token.namePrefix);
@@ -728,7 +728,7 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
-    Statement compileAlterTable() throws HsqlException {
+    Statement compileAlterTable() {
 
         String   tableName = token.tokenString;
         HsqlName schema    = session.getSchemaHsqlName(token.namePrefix);
@@ -868,8 +868,7 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
-    private Statement compileAlterTableDropConstraint(Table t)
-    throws HsqlException {
+    private Statement compileAlterTableDropConstraint(Table t) {
 
         HsqlName readName  = null;
         HsqlName writeName = null;
@@ -901,8 +900,7 @@ public class ParserDDL extends ParserRoutine {
                                    readName, writeName);
     }
 
-    private Statement compileAlterTableDropPrimaryKey(Table t)
-    throws HsqlException {
+    private Statement compileAlterTableDropPrimaryKey(Table t) {
 
         HsqlName readName  = null;
         HsqlName writeName = null;
@@ -937,7 +935,7 @@ public class ParserDDL extends ParserRoutine {
                                    readName, writeName);
     }
 
-    StatementSchema compileCreateTable(int type) throws HsqlException {
+    StatementSchema compileCreateTable(int type) {
 
         HsqlName name = readNewSchemaObjectNameNoCheck(SchemaObject.TABLE);
         HsqlArrayList tempConstraints = new HsqlArrayList();
@@ -1069,7 +1067,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    private ColumnSchema[] readLikeTable(Table table) throws HsqlException {
+    private ColumnSchema[] readLikeTable(Table table) {
 
         read();
 
@@ -1155,8 +1153,7 @@ public class ParserDDL extends ParserRoutine {
         return columnList;
     }
 
-    StatementSchema readTableAsSubqueryDefinition(Table table)
-    throws HsqlException {
+    StatementSchema readTableAsSubqueryDefinition(Table table) {
 
         HsqlName   readName    = null;
         boolean    withData    = true;
@@ -1241,8 +1238,7 @@ public class ParserDDL extends ParserRoutine {
      * Adds a list of temp constraints to a new table
      */
     static Table addTableConstraintDefinitions(Session session, Table table,
-            HsqlArrayList tempConstraints,
-            HsqlArrayList constraintList) throws HsqlException {
+            HsqlArrayList tempConstraints, HsqlArrayList constraintList) {
 
         Constraint c        = (Constraint) tempConstraints.get(0);
         String     namePart = c.getName() == null ? null
@@ -1322,8 +1318,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     static void addForeignKey(Session session, Table table, Constraint c,
-                              HsqlArrayList constraintList)
-                              throws HsqlException {
+                              HsqlArrayList constraintList) {
 
         HsqlName mainTableName = c.getMainTableName();
 
@@ -1391,8 +1386,7 @@ public class ParserDDL extends ParserRoutine {
 
     private Constraint readFKReferences(Table refTable,
                                         HsqlName constraintName,
-                                        OrderedHashSet refColSet)
-                                        throws HsqlException {
+                                        OrderedHashSet refColSet) {
 
         HsqlName       mainTableName;
         OrderedHashSet mainColSet = null;
@@ -1561,7 +1555,7 @@ public class ParserDDL extends ParserRoutine {
                               updateAction, matchType);
     }
 
-    private HsqlName readFKTableName(HsqlName schema) throws HsqlException {
+    private HsqlName readFKTableName(HsqlName schema) {
 
         HsqlName name;
 
@@ -1582,7 +1576,7 @@ public class ParserDDL extends ParserRoutine {
         return name;
     }
 
-    void processCreateView() throws HsqlException {
+    void processCreateView() {
 
         StatementSchema cs   = compileCreateView();
         View            view = (View) cs.arguments[0];
@@ -1592,7 +1586,7 @@ public class ParserDDL extends ParserRoutine {
         database.schemaManager.addSchemaObject(view);
     }
 
-    StatementSchema compileCreateView() throws HsqlException {
+    StatementSchema compileCreateView() {
 
         read();
 
@@ -1657,7 +1651,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    StatementSchema compileCreateSequence() throws HsqlException {
+    StatementSchema compileCreateSequence() {
 
         read();
 
@@ -1679,7 +1673,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    StatementSchema compileCreateDomain() throws HsqlException {
+    StatementSchema compileCreateDomain() {
 
         UserTypeModifier userTypeModifier = null;
         HsqlName         name;
@@ -1744,7 +1738,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    StatementSchema compileCreateType() throws HsqlException {
+    StatementSchema compileCreateType() {
 
         read();
 
@@ -1768,7 +1762,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    StatementSchema compileCreateCharacterSet() throws HsqlException {
+    StatementSchema compileCreateCharacterSet() {
 
         read();
         readThis(Tokens.SET);
@@ -1802,7 +1796,7 @@ public class ParserDDL extends ParserRoutine {
                                    args, null, null);
     }
 
-    StatementSchema compileCreateAlias() throws HsqlException {
+    StatementSchema compileCreateAlias() {
 
         HsqlName  name     = null;
         Routine[] routines = null;
@@ -1849,7 +1843,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    StatementSchema compileCreateTrigger() throws HsqlException {
+    StatementSchema compileCreateTrigger() {
 
         Table          table;
         boolean        isForEachRow = false;
@@ -2358,7 +2352,7 @@ public class ParserDDL extends ParserRoutine {
      * Creates SET Statement for a trigger row from this parse context.
      */
     StatementDMQL compileTriggerSetStatement(Table table,
-            RangeVariable[] rangeVars) throws HsqlException {
+            RangeVariable[] rangeVars) {
 
         read();
 
@@ -2393,10 +2387,9 @@ public class ParserDDL extends ParserRoutine {
      * @param hsqlName column name
      * @param constraintList list of constraints
      * @return a Column object with indicated attributes
-     * @throws HsqlException
      */
     ColumnSchema readColumnDefinitionOrNull(Table table, HsqlName hsqlName,
-            HsqlArrayList constraintList) throws HsqlException {
+            HsqlArrayList constraintList) {
 
         boolean        isIdentity     = false;
         boolean        isPKIdentity   = false;
@@ -2499,8 +2492,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private void readSequenceOptions(NumberSequence sequence,
-                                     boolean withType,
-                                     boolean isAlter) throws HsqlException {
+                                     boolean withType, boolean isAlter) {
 
         OrderedIntHashSet set = new OrderedIntHashSet();
 
@@ -2629,11 +2621,9 @@ public class ParserDDL extends ParserRoutine {
      *
      * @param schemaObject table or domain
      * @param constraintList list of constraints
-     * @throws HsqlException
      */
     private void readConstraint(SchemaObject schemaObject,
-                                HsqlArrayList constraintList)
-                                throws HsqlException {
+                                HsqlArrayList constraintList) {
 
         HsqlName constName = null;
 
@@ -2744,8 +2734,7 @@ public class ParserDDL extends ParserRoutine {
      * Reads column constraints
      */
     void readColumnConstraints(Table table, ColumnSchema column,
-                               HsqlArrayList constraintList)
-                               throws HsqlException {
+                               HsqlArrayList constraintList) {
 
         boolean end = false;
 
@@ -2895,9 +2884,8 @@ public class ParserDDL extends ParserRoutine {
      * Responsible for handling check constraints section of CREATE TABLE ...
      *
      * @param c check constraint
-     * @throws HsqlException
      */
-    void readCheckConstraintCondition(Constraint c) throws HsqlException {
+    void readCheckConstraintCondition(Constraint c) {
 
         readThis(Tokens.OPENBRACKET);
         startRecording();
@@ -2924,17 +2912,15 @@ public class ParserDDL extends ParserRoutine {
      * @param table table that contains the columns
      * @param ascOrDesc boolean
      * @return array of column indexes
-     * @throws HsqlException if a column is not found or is duplicate
      */
-    private int[] readColumnList(Table table,
-                                 boolean ascOrDesc) throws HsqlException {
+    private int[] readColumnList(Table table, boolean ascOrDesc) {
 
         OrderedHashSet set = readColumnNames(ascOrDesc);
 
         return table.getColumnIndexes(set);
     }
 
-    StatementSchema compileCreateIndex(boolean unique) throws HsqlException {
+    StatementSchema compileCreateIndex(boolean unique) {
 
         Table    table;
         HsqlName indexHsqlName;
@@ -2969,7 +2955,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, table.getName());
     }
 
-    StatementSchema compileCreateSchema() throws HsqlException {
+    StatementSchema compileCreateSchema() {
 
         HsqlName schemaName    = null;
         String   authorisation = null;
@@ -3061,7 +3047,7 @@ public class ParserDDL extends ParserRoutine {
         return new StatementSchemaDefinition(array);
     }
 
-    void getCompiledStatementBody(HsqlList list) throws HsqlException {
+    void getCompiledStatementBody(HsqlList list) {
 
         int    position;
         String sql;
@@ -3201,7 +3187,7 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
-    StatementSchema compileCreateRole() throws HsqlException {
+    StatementSchema compileCreateRole() {
 
         read();
 
@@ -3213,7 +3199,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    StatementSchema compileCreateUser() throws HsqlException {
+    StatementSchema compileCreateUser() {
 
         HsqlName name;
         String   password;
@@ -3245,7 +3231,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    HsqlName readNewUserIdentifier() throws HsqlException {
+    HsqlName readNewUserIdentifier() {
 
         checkIsSimpleName();
 
@@ -3265,7 +3251,7 @@ public class ParserDDL extends ParserRoutine {
         return name;
     }
 
-    String readPassword() throws HsqlException {
+    String readPassword() {
 
         String tokenS = token.tokenString;
 
@@ -3274,8 +3260,7 @@ public class ParserDDL extends ParserRoutine {
         return tokenS;
     }
 
-    Statement compileRenameObject(HsqlName name,
-                                  int objectType) throws HsqlException {
+    Statement compileRenameObject(HsqlName name, int objectType) {
 
         HsqlName newName = readNewSchemaObjectName(objectType);
         String   sql     = getLastPart();
@@ -3290,9 +3275,8 @@ public class ParserDDL extends ParserRoutine {
     /**
      * Responsible for handling tail of ALTER TABLE ... RENAME ...
      * @param table table
-     * @throws HsqlException
      */
-    void processAlterTableRename(Table table) throws HsqlException {
+    void processAlterTableRename(Table table) {
 
         HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE);
 
@@ -3305,8 +3289,7 @@ public class ParserDDL extends ParserRoutine {
         database.schemaManager.renameSchemaObject(table.getName(), name);
     }
 
-    void processAlterTableAddUniqueConstraint(Table table,
-            HsqlName name) throws HsqlException {
+    void processAlterTableAddUniqueConstraint(Table table, HsqlName name) {
 
         if (name == null) {
             name = database.nameManager.newAutoName("CT",
@@ -3324,7 +3307,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     Statement compileAlterTableAddUniqueConstraint(Table table,
-            HsqlName name) throws HsqlException {
+            HsqlName name) {
 
         if (name == null) {
             name = database.nameManager.newAutoName("CT",
@@ -3342,8 +3325,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, table.getName());
     }
 
-    void processAlterTableAddForeignKeyConstraint(Table table,
-            HsqlName name) throws HsqlException {
+    void processAlterTableAddForeignKeyConstraint(Table table, HsqlName name) {
 
         if (name == null) {
             name = database.nameManager.newAutoName("FK",
@@ -3367,7 +3349,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     Statement compileAlterTableAddForeignKeyConstraint(Table table,
-            HsqlName name) throws HsqlException {
+            HsqlName name) {
 
         if (name == null) {
             name = database.nameManager.newAutoName("FK",
@@ -3391,8 +3373,7 @@ public class ParserDDL extends ParserRoutine {
                                    c.core.mainTableName, table.getName());
     }
 
-    void processAlterTableAddCheckConstraint(Table table,
-            HsqlName name) throws HsqlException {
+    void processAlterTableAddCheckConstraint(Table table, HsqlName name) {
 
         Constraint check;
 
@@ -3412,8 +3393,7 @@ public class ParserDDL extends ParserRoutine {
         tableWorks.addCheckConstraint(check);
     }
 
-    Statement compileAlterTableAddCheckConstraint(Table table,
-            HsqlName name) throws HsqlException {
+    Statement compileAlterTableAddCheckConstraint(Table table, HsqlName name) {
 
         Constraint check;
 
@@ -3434,7 +3414,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, table.getName());
     }
 
-    void processAlterTableAddColumn(Table table) throws HsqlException {
+    void processAlterTableAddColumn(Table table) {
 
         int           colIndex   = table.getColumnCount();
         HsqlArrayList list       = new HsqlArrayList();
@@ -3472,7 +3452,7 @@ public class ParserDDL extends ParserRoutine {
         return;
     }
 
-    Statement compileAlterTableAddColumn(Table table) throws HsqlException {
+    Statement compileAlterTableAddColumn(Table table) {
 
         int           colIndex   = table.getColumnCount();
         HsqlArrayList list       = new HsqlArrayList();
@@ -3511,8 +3491,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, table.getName());
     }
 
-    void processAlterTableAddPrimaryKey(Table table,
-                                        HsqlName name) throws HsqlException {
+    void processAlterTableAddPrimaryKey(Table table, HsqlName name) {
 
         if (name == null) {
             name = session.database.nameManager.newAutoName("PK",
@@ -3533,8 +3512,7 @@ public class ParserDDL extends ParserRoutine {
         tableWorks.addPrimaryKey(constraint, name);
     }
 
-    Statement compileAlterTableAddPrimaryKey(Table table,
-            HsqlName name) throws HsqlException {
+    Statement compileAlterTableAddPrimaryKey(Table table, HsqlName name) {
 
         if (name == null) {
             name = session.database.nameManager.newAutoName("PK",
@@ -3559,7 +3537,7 @@ public class ParserDDL extends ParserRoutine {
      * Responsible for handling tail of ALTER TABLE ... DROP COLUMN ...
      */
     void processAlterTableDropColumn(Table table, String colName,
-                                     boolean cascade) throws HsqlException {
+                                     boolean cascade) {
 
         int colindex = table.getColumnIndex(colName);
 
@@ -3575,8 +3553,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     Statement compileAlterTableDropColumn(Table table, String colName,
-                                          boolean cascade)
-                                          throws HsqlException {
+                                          boolean cascade) {
 
         HsqlName writeName = null;
         int      colindex  = table.getColumnIndex(colName);
@@ -3603,8 +3580,7 @@ public class ParserDDL extends ParserRoutine {
      * Responsible for handling tail of ALTER TABLE ... DROP CONSTRAINT ...
      */
     void processAlterTableDropConstraint(Table table, String name,
-                                         boolean cascade)
-                                         throws HsqlException {
+                                         boolean cascade) {
 
         session.commit(false);
 
@@ -3616,7 +3592,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     void processAlterColumn(Table table, ColumnSchema column,
-                            int columnIndex) throws HsqlException {
+                            int columnIndex) {
 
         int position = getPosition();
 
@@ -3725,7 +3701,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     Statement compileAlterColumn(Table table, ColumnSchema column,
-                                 int columnIndex) throws HsqlException {
+                                 int columnIndex) {
 
         int position = getPosition();
 
@@ -3814,7 +3790,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterColumnDataType(Table table,
-            ColumnSchema column) throws HsqlException {
+            ColumnSchema column) {
 
         HsqlName writeName  = null;
         Type     typeObject = readTypeDefinition(false);
@@ -3832,7 +3808,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterColumnType(Table table,
-            ColumnSchema column) throws HsqlException {
+            ColumnSchema column) {
 
         HsqlName writeName = null;
         String sql = super.getStatement(getParsePosition(),
@@ -3846,8 +3822,7 @@ public class ParserDDL extends ParserRoutine {
                                    writeName);
     }
 
-    private Statement compileAlterColumnSequenceOptions(ColumnSchema column)
-    throws HsqlException {
+    private Statement compileAlterColumnSequenceOptions(ColumnSchema column) {
 
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
@@ -3857,7 +3832,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterColumnSetNullability(Table table,
-            ColumnSchema column, boolean b) throws HsqlException {
+            ColumnSchema column, boolean b) {
 
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
@@ -3867,7 +3842,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterColumnSetDefault(Table table,
-            ColumnSchema column, Expression expr) throws HsqlException {
+            ColumnSchema column, Expression expr) {
 
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
@@ -3877,7 +3852,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterColumnDropGenerated(Table table,
-            ColumnSchema column, int columnIndex) throws HsqlException {
+            ColumnSchema column, int columnIndex) {
 
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
@@ -3887,7 +3862,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterColumnDropDefault(Table table,
-            ColumnSchema column, int columnIndex) throws HsqlException {
+            ColumnSchema column, int columnIndex) {
 
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
@@ -3896,7 +3871,7 @@ public class ParserDDL extends ParserRoutine {
                                    table.getName(), null);
     }
 
-    Statement compileAlterSequence() throws HsqlException {
+    Statement compileAlterSequence() {
 
         HsqlName schema = session.getSchemaHsqlName(token.namePrefix);
         NumberSequence sequence =
@@ -3926,8 +3901,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    void processAlterColumnSequenceOptions(ColumnSchema column)
-    throws HsqlException {
+    void processAlterColumnSequenceOptions(ColumnSchema column) {
 
         OrderedIntHashSet set      = new OrderedIntHashSet();
         NumberSequence    sequence = column.getIdentitySequence().duplicate();
@@ -4048,8 +4022,7 @@ public class ParserDDL extends ParserRoutine {
     /**
      * Should allow only limited changes to column type
      */
-    private void processAlterColumnDataType(Table table,
-            ColumnSchema oldCol) throws HsqlException {
+    private void processAlterColumnDataType(Table table, ColumnSchema oldCol) {
         processAlterColumnType(table, oldCol, false);
     }
 
@@ -4059,8 +4032,7 @@ public class ParserDDL extends ParserRoutine {
      * Constraint definitions are not allowed
      */
     private void processAlterColumnType(Table table, ColumnSchema oldCol,
-                                        boolean fullDefinition)
-                                        throws HsqlException {
+                                        boolean fullDefinition) {
 
         ColumnSchema newCol;
 
@@ -4113,9 +4085,7 @@ public class ParserDDL extends ParserRoutine {
     /**
      * Responsible for handling tail of ALTER COLUMN ... RENAME ...
      */
-    private void processAlterColumnRename(Table table,
-                                          ColumnSchema column)
-                                          throws HsqlException {
+    private void processAlterColumnRename(Table table, ColumnSchema column) {
 
         checkIsSimpleName();
 
@@ -4131,7 +4101,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterColumnRename(Table table,
-            ColumnSchema column) throws HsqlException {
+            ColumnSchema column) {
 
         checkIsSimpleName();
 
@@ -4153,7 +4123,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    Statement compileAlterSchemaRename() throws HsqlException {
+    Statement compileAlterSchemaRename() {
 
         HsqlName name = readSchemaName();
 
@@ -4171,7 +4141,7 @@ public class ParserDDL extends ParserRoutine {
                                    null, null);
     }
 
-    Statement compileAlterUser() throws HsqlException {
+    Statement compileAlterUser() {
 
         String   password;
         User     userObject;
@@ -4222,7 +4192,7 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
-    void processAlterDomain() throws HsqlException {
+    void processAlterDomain() {
 
         HsqlName schema = session.getSchemaHsqlName(token.namePrefix);
 
@@ -4312,7 +4282,7 @@ public class ParserDDL extends ParserRoutine {
         throw unexpectedToken();
     }
 
-    Statement compileAlterDomain() throws HsqlException {
+    Statement compileAlterDomain() {
 
         HsqlName schema = session.getSchemaHsqlName(token.namePrefix);
         Type domain = database.schemaManager.getDomain(token.tokenString,
@@ -4379,7 +4349,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterDomainAddConstraint(Type domain,
-            Constraint c) throws HsqlException {
+            Constraint c) {
 
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
@@ -4388,8 +4358,7 @@ public class ParserDDL extends ParserRoutine {
                                    null);
     }
 
-    private Statement compileAlterDomainSetDefault(Type domain,
-            Expression e) throws HsqlException {
+    private Statement compileAlterDomainSetDefault(Type domain, Expression e) {
 
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
@@ -4399,7 +4368,7 @@ public class ParserDDL extends ParserRoutine {
     }
 
     private Statement compileAlterDomainDropConstraint(Type domain,
-            HsqlName name) throws HsqlException {
+            HsqlName name) {
 
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
@@ -4408,8 +4377,7 @@ public class ParserDDL extends ParserRoutine {
                                    null);
     }
 
-    private Statement compileAlterDomainDropDefault(Type domain)
-    throws HsqlException {
+    private Statement compileAlterDomainDropDefault(Type domain) {
 
         String sql = getStatement(getParsePosition(), endStatementTokens);
 
@@ -4436,7 +4404,7 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
-    StatementSchema compileGrantOrRevoke() throws HsqlException {
+    StatementSchema compileGrantOrRevoke() {
 
         boolean grant = token.tokenType == Tokens.GRANT;
 
@@ -4452,8 +4420,7 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
-    private StatementSchema compileRightGrantOrRevoke(boolean grant)
-    throws HsqlException {
+    private StatementSchema compileRightGrantOrRevoke(boolean grant) {
 
         OrderedHashSet granteeList = new OrderedHashSet();
         Grantee        grantor     = null;
@@ -4691,8 +4658,7 @@ public class ParserDDL extends ParserRoutine {
         return cs;
     }
 
-    private StatementSchema compileRoleGrantOrRevoke(boolean grant)
-    throws HsqlException {
+    private StatementSchema compileRoleGrantOrRevoke(boolean grant) {
 
         Grantee        grantor     = session.getGrantee();
         OrderedHashSet roleList    = new OrderedHashSet();
@@ -4783,7 +4749,7 @@ public class ParserDDL extends ParserRoutine {
         return cs;
     }
 
-    void checkSchemaUpdateAuthorisation(HsqlName schema) throws HsqlException {
+    void checkSchemaUpdateAuthorisation(HsqlName schema) {
 
         if (session.isProcessingLog) {
             return;
@@ -4802,7 +4768,7 @@ public class ParserDDL extends ParserRoutine {
         session.checkDDLWrite();
     }
 
-    void checkDatabaseUpdateAuthorisation() throws HsqlException {
+    void checkDatabaseUpdateAuthorisation() {
         session.checkAdmin();
         session.checkDDLWrite();
     }

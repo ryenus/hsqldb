@@ -55,7 +55,7 @@ public class RowAVLDiskData extends RowAVLDisk {
     /**
      *  Constructor for new rows.
      */
-    public RowAVLDiskData(TableBase t, Object[] o) throws HsqlException {
+    public RowAVLDiskData(TableBase t, Object[] o) {
 
         super(t, o);
 
@@ -68,7 +68,7 @@ public class RowAVLDiskData extends RowAVLDisk {
      */
     public RowAVLDiskData(TableBase t,
                           RowInputInterface in)
-                          throws IOException, HsqlException {
+                          throws IOException {
 
         tTable         = t;
         tableId        = t.getId();

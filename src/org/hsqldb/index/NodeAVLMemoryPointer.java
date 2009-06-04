@@ -56,7 +56,7 @@ import org.hsqldb.persist.PersistentStore;
  */
 public class NodeAVLMemoryPointer extends NodeAVLBaseMemory {
 
-    public int   iData = NO_POS;
+    public int      iData = NO_POS;
     private NodeAVL nPrimary;    // node of key / primary index for this row
 
     public NodeAVLMemoryPointer(RowAVLDisk r) {

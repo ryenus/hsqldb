@@ -56,7 +56,7 @@ public class ClobDataID implements ClobData {
     }
 
     public char[] getChars(SessionInterface session, long position,
-                           int length) throws HsqlException {
+                           int length) {
 
         ResultLob resultOut = ResultLob.newLobGetCharsRequest(id, position,
             length);
@@ -69,7 +69,7 @@ public class ClobDataID implements ClobData {
         return ((ResultLob) resultIn).getCharArray();
     }
 
-    public long length(SessionInterface session) throws HsqlException {
+    public long length(SessionInterface session) {
 
         ResultLob resultOut = ResultLob.newLobGetLengthRequest(id);
         Result    resultIn  = session.execute(resultOut);
@@ -82,7 +82,7 @@ public class ClobDataID implements ClobData {
     }
 
     public String getSubString(SessionInterface session, long pos,
-                               int length) throws HsqlException {
+                               int length) {
 
         char[] chars = getChars(session, pos, length);
 
@@ -90,7 +90,7 @@ public class ClobDataID implements ClobData {
     }
 
     public ClobData getClob(SessionInterface session, long position,
-                                 long length) throws HsqlException {
+                            long length) {
 
         ResultLob resultOut = ResultLob.newLobGetRequest(id, position, length);
         Result    resultIn  = session.execute(resultOut);
@@ -102,21 +102,18 @@ public class ClobDataID implements ClobData {
         return new ClobDataID(((ResultLob) resultIn).getLobID());
     }
 
-    public void truncate(SessionInterface session,
-                         long len) throws HsqlException {}
+    public void truncate(SessionInterface session, long len) {}
 
-    public Reader getCharacterStream(SessionInterface session)
-    throws HsqlException {
+    public Reader getCharacterStream(SessionInterface session) {
         return null;
     }
 
     public long setCharacterStream(SessionInterface session, long pos,
-                                   Reader in) throws HsqlException {
+                                   Reader in) {
         return 0;
     }
 
-    public int setString(SessionInterface session, long pos,
-                         String str) throws HsqlException {
+    public int setString(SessionInterface session, long pos, String str) {
 
         ResultLob resultOut = ResultLob.newLobSetCharsRequest(id, pos,
             str.toCharArray());
@@ -130,7 +127,7 @@ public class ClobDataID implements ClobData {
     }
 
     public int setString(SessionInterface session, long pos, String str,
-                         int offset, int len) throws HsqlException {
+                         int offset, int len) {
 
         if (!isInLimits(str.length(), offset, len)) {
             throw Error.error(ErrorCode.X_22001);
@@ -148,7 +145,7 @@ public class ClobDataID implements ClobData {
     }
 
     public int setChars(SessionInterface session, long pos, char[] chars,
-                        int offset, int len) throws HsqlException {
+                        int offset, int len) {
 
         if (!isInLimits(chars.length, offset, len)) {
             throw Error.error(ErrorCode.X_22001);
@@ -169,7 +166,7 @@ public class ClobDataID implements ClobData {
     }
 
     public long position(SessionInterface session, String searchstr,
-                         long start) throws HsqlException {
+                         long start) {
 
         ResultLob resultOut = ResultLob.newLobGetCharPatternPositionRequest(id,
             searchstr.toCharArray(), start);
@@ -183,16 +180,16 @@ public class ClobDataID implements ClobData {
     }
 
     public long position(SessionInterface session, ClobData searchstr,
-                         long start) throws HsqlException {
+                         long start) {
         return 0L;
     }
 
-    public long nonSpaceLength(SessionInterface session) throws HsqlException {
+    public long nonSpaceLength(SessionInterface session) {
         return 0;
     }
 
     public Reader getCharacterStream(SessionInterface session, long pos,
-                                     long length) throws HsqlException {
+                                     long length) {
         return null;
     }
 
@@ -212,8 +209,7 @@ public class ClobDataID implements ClobData {
         return pos >= 0 && len >= 0 && pos + len <= fullLength;
     }
 
-    public void setSession(SessionInterface session) {
-    }
+    public void setSession(SessionInterface session) {}
 
     public boolean isBinary() {
         return false;

@@ -138,7 +138,7 @@ public class Routine implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     public String getSQL() {
 
@@ -365,7 +365,7 @@ public class Routine implements SchemaObject {
         return returnsTable;
     }
 
-    public void resolve() throws HsqlException {
+    public void resolve() {
 
         if (this.routineType == SchemaObject.PROCEDURE && isNewSavepointLevel
                 && dataImpact != MODIFIES_SQL) {
@@ -462,8 +462,7 @@ public class Routine implements SchemaObject {
     }
 
     static Method getMethod(String name, Type[] types, Type returnType,
-                            boolean[] nullability,
-                            boolean[] hasConnection) throws HsqlException {
+                            boolean[] nullability, boolean[] hasConnection) {
 
         int i = name.indexOf(':');
 
@@ -531,7 +530,7 @@ public class Routine implements SchemaObject {
         return method;
     }
 
-    static Method[] getMethods(String name) throws HsqlException {
+    static Method[] getMethods(String name) {
 
         int i = name.lastIndexOf('.');
 
@@ -604,8 +603,7 @@ public class Routine implements SchemaObject {
         return methods;
     }
 
-    public static Routine[] newRoutines(Method[] methods)
-    throws HsqlException {
+    public static Routine[] newRoutines(Method[] methods) {
 
         Routine[] routines = new Routine[methods.length];
 
@@ -621,7 +619,7 @@ public class Routine implements SchemaObject {
     /**
      * Returns a new function Routine object based solely on a Java Method object.
      */
-    public static Routine newRoutine(Method method) throws HsqlException {
+    public static Routine newRoutine(Method method) {
 
         Routine      routine   = new Routine(SchemaObject.FUNCTION);
         int          offset    = 0;

@@ -35,10 +35,8 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import org.hsqldb.StatementDMQL;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Types;
 import org.hsqldb.lib.HashMap;
-import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
@@ -93,7 +91,7 @@ final class DIProcedureInfo {
     private DINameSpace   nameSpace;
     private final HashMap typeMap = new HashMap();
 
-    public DIProcedureInfo(DINameSpace ns) throws HsqlException {
+    public DIProcedureInfo(DINameSpace ns) {
         setNameSpace(ns);
     }
 
@@ -366,7 +364,7 @@ final class DIProcedureInfo {
         return nameSpace;
     }
 
-    void setNameSpace(DINameSpace ns) throws HsqlException {
+    void setNameSpace(DINameSpace ns) {
 
         nameSpace = ns;
 

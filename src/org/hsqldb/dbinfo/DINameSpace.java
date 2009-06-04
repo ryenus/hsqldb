@@ -34,7 +34,6 @@ package org.hsqldb.dbinfo;
 import java.lang.reflect.Method;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
@@ -98,9 +97,8 @@ final class DINameSpace {
      *
      * @param database The Database object for which to provide name space
      *   support
-     * @throws HsqlException
      */
-    public DINameSpace(Database database) throws HsqlException {
+    public DINameSpace(Database database) {
         this.database    = database;
         this.catalogName = database.getCatalogName().name;
     }
@@ -160,9 +158,8 @@ final class DINameSpace {
      *
      * @return An Iterator whose elements are <code>String</code> objects
      *      naming all visible catalogs, relative to this object's database.
-     * @throws HsqlException never (reserved for future use)
      */
-    Iterator iterateCatalogNames() throws HsqlException {
+    Iterator iterateCatalogNames() {
         return catalogName == null ? new WrapperIterator()
                                    : new WrapperIterator(catalogName);
     }
@@ -267,11 +264,8 @@ final class DINameSpace {
      * @param session The context in which to produce the iterator
      * @param andAliases true if the alias lists for the "ROUTINE" type method
      *      elements are to be generated.
-     * @throws HsqlException if a database access error occurs
      */
-    Iterator iterateAllAccessibleMethods(Session session,
-                                         boolean andAliases)
-                                         throws HsqlException {
+    Iterator iterateAllAccessibleMethods(Session session, boolean andAliases) {
 
         Iterator out;
         HashSet  classNameSet;
@@ -279,13 +273,11 @@ final class DINameSpace {
         Iterator methods;
         String   className;
 
-        out          = new WrapperIterator();
+        out = new WrapperIterator();
+
 //        classNameSet = session.getGrantee().getGrantedClassNames(true);
-
 //        addBuiltinToSet(classNameSet);
-
 //        classNames = classNameSet.iterator();
-
 /*
         while (classNames.hasNext()) {
             className = (String) classNames.next();

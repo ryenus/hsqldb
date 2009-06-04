@@ -58,9 +58,10 @@ public final class ClobInputStream extends Reader {
     SessionInterface session;
 
     public ClobInputStream(SessionInterface session, ClobData clob,
-                           long offset, long length) throws HsqlException {
+                           long offset, long length) {
 
         long clobLength = clob.length(session);
+
         if (!isInLimits(clobLength, offset, length)) {
             throw new IndexOutOfBoundsException();
         }
@@ -135,12 +136,11 @@ public final class ClobInputStream extends Reader {
     private void checkClosed() throws IOException {
 
         if (isClosed) {
-            throw new IOException(
-                Error.getMessage(ErrorCode.X_0F503));
+            throw new IOException(Error.getMessage(ErrorCode.X_0F503));
         }
     }
 
-    private void readIntoBuffer() throws HsqlException {
+    private void readIntoBuffer() {
 
         long readLength = availableLength - currentPosition;
 

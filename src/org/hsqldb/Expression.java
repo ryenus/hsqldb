@@ -399,7 +399,7 @@ public class Expression {
     /**
      * Set the data type
      */
-    void setDataType(Session session, Type type) throws HsqlException {
+    void setDataType(Session session, Type type) {
 
         if (opType == OpTypes.VALUE) {
             valueData = type.convertToType(session, valueData, dataType);
@@ -852,14 +852,13 @@ public class Expression {
      * resolve tables and collect unresolved column expressions
      */
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            HsqlList unresolvedSet) throws HsqlException {
+            HsqlList unresolvedSet) {
         return resolveColumnReferences(rangeVarArray, rangeVarArray.length,
                                        unresolvedSet, true);
     }
 
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet,
-            boolean acceptsSequences) throws HsqlException {
+            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -974,8 +973,7 @@ public class Expression {
         return unresolvedSet;
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -1021,7 +1019,7 @@ public class Expression {
         }
     }
 
-    void setAsConstantValue(Session session) throws HsqlException {
+    void setAsConstantValue(Session session) {
 
         valueData = getConstantValue(session);
         opType    = OpTypes.VALUE;
@@ -1035,8 +1033,7 @@ public class Expression {
         nodes     = emptyExpressionArray;
     }
 
-    void prepareTable(Session session, Expression row,
-                      int degree) throws HsqlException {
+    void prepareTable(Session session, Expression row, int degree) {
 
         if (nodeDataTypes != null) {
             return;
@@ -1123,8 +1120,7 @@ public class Expression {
      *
      */
     void insertValuesIntoSubqueryTable(Session session,
-                                       PersistentStore store)
-                                       throws HsqlException {
+                                       PersistentStore store) {
 
         TableDerived table = subQuery.getTable();
 
@@ -1176,7 +1172,7 @@ public class Expression {
                                      : 1;
     }
 
-    public Object[] getRowValue(Session session) throws HsqlException {
+    public Object[] getRowValue(Session session) {
 
         switch (opType) {
 
@@ -1198,7 +1194,7 @@ public class Expression {
         }
     }
 
-    Object getValue(Session session, Type type) throws HsqlException {
+    Object getValue(Session session, Type type) {
 
         Object o = getValue(session);
 
@@ -1209,7 +1205,7 @@ public class Expression {
         return type.convertToType(session, o, dataType);
     }
 
-    public Object getConstantValue(Session session) throws HsqlException {
+    public Object getConstantValue(Session session) {
         return getValue(session);
     }
 
@@ -1222,7 +1218,7 @@ public class Expression {
         }
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         switch (opType) {
 
@@ -1262,7 +1258,7 @@ public class Expression {
         }
     }
 
-    boolean testCondition(Session session) throws HsqlException {
+    boolean testCondition(Session session) {
         return Boolean.TRUE.equals(getValue(session));
     }
 
@@ -1280,7 +1276,7 @@ public class Expression {
     }
 
     static void convertToType(Session session, Object[] data, Type[] dataType,
-                              Type[] newType) throws HsqlException {
+                              Type[] newType) {
 
         for (int i = 0; i < data.length; i++) {
             data[i] = newType[i].convertToType(session, data[i], dataType[i]);
@@ -1292,7 +1288,7 @@ public class Expression {
      * of an existing table against the given CHECK search condition.
      */
     static QuerySpecification getCheckSelect(Session session, Table t,
-            Expression e) throws HsqlException {
+            Expression e) {
 
         CompileContext     compileContext = new CompileContext(session);
         QuerySpecification s = new QuerySpecification(compileContext);
@@ -1395,7 +1391,7 @@ public class Expression {
     /**
      * checkValidCheckConstraint
      */
-    public void checkValidCheckConstraint() throws HsqlException {
+    public void checkValidCheckConstraint() {
 
         HsqlArrayList set = new HsqlArrayList();
 
@@ -1409,8 +1405,7 @@ public class Expression {
     }
 
     static HsqlList resolveColumnSet(RangeVariable[] rangeVars,
-                                     HsqlList sourceSet,
-                                     HsqlList targetSet) throws HsqlException {
+                                     HsqlList sourceSet, HsqlList targetSet) {
 
         if (sourceSet == null) {
             return targetSet;
@@ -1425,8 +1420,7 @@ public class Expression {
         return targetSet;
     }
 
-    Expression getIndexableExpression(RangeVariable rangeVar)
-    throws HsqlException {
+    Expression getIndexableExpression(RangeVariable rangeVar) {
         return null;
     }
 }

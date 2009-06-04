@@ -70,7 +70,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.DATABASE_BACKUP :
             case StatementTypes.DATABASE_CHECKPOINT :
             case StatementTypes.DATABASE_SCRIPT :
-                group = StatementTypes.X_HSQLDB_OPERATION;
+                group    = StatementTypes.X_HSQLDB_OPERATION;
                 isLogged = false;
                 break;
 

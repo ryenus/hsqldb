@@ -200,8 +200,7 @@ public class StatementCompound extends Statement {
         return sb.toString();
     }
 
-    public void setLocalDeclarations(Object[] declarations)
-    throws HsqlException {
+    public void setLocalDeclarations(Object[] declarations) {
 
         int varCount     = 0;
         int handlerCount = 0;
@@ -370,8 +369,7 @@ public class StatementCompound extends Statement {
                             break;
                     }
 
-                    Result actionResult = handler.statement.execute(session
-                        );
+                    Result actionResult = handler.statement.execute(session);
 
                     if (actionResult.isError()) {
                         result = actionResult;
@@ -522,7 +520,7 @@ public class StatementCompound extends Statement {
         return result;
     }
 
-    public void resolve() throws HsqlException {
+    public void resolve() {
 
         for (int i = 0; i < statements.length; i++) {
             if (statements[i].getType() == StatementTypes.LEAVE
@@ -571,7 +569,7 @@ public class StatementCompound extends Statement {
     }
 
     //
-    private void setVariables() throws HsqlException {
+    private void setVariables() {
 
         if (variables.length == 0) {
             if (parent == null) {
@@ -613,7 +611,7 @@ public class StatementCompound extends Statement {
         root.variableCount = list.size();
     }
 
-    private void setHandlers() throws HsqlException {
+    private void setHandlers() {
 
         if (handlers.length == 0) {
             return;

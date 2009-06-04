@@ -36,7 +36,6 @@ import java.io.IOException;
 import org.hsqldb.ColumnBase;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -249,7 +248,7 @@ public final class ResultMetaData {
         return out;
     }
 
-    ResultMetaData(RowInputBinary in) throws HsqlException, IOException {
+    ResultMetaData(RowInputBinary in) throws IOException {
 
         type        = in.readInt();
         columnCount = in.readInt();
@@ -347,7 +346,7 @@ public final class ResultMetaData {
         }
     }
 
-    Type readDataType(RowInputBinary in) throws HsqlException, IOException {
+    Type readDataType(RowInputBinary in) throws IOException {
 
         int  typeCode = in.readType();
         long size     = in.readLong();
@@ -363,7 +362,7 @@ public final class ResultMetaData {
         out.writeInt(type.scale);
     }
 
-    void write(RowOutputInterface out) throws HsqlException, IOException {
+    void write(RowOutputInterface out) throws IOException {
 
         out.writeInt(type);
         out.writeInt(columnCount);

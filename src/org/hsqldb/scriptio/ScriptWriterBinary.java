@@ -34,7 +34,6 @@ package org.hsqldb.scriptio;
 import java.io.IOException;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
@@ -53,7 +52,7 @@ class ScriptWriterBinary extends ScriptWriterBase {
     RowOutputInterface rowOut;
 
     ScriptWriterBinary(Database db, String file, boolean includeCached,
-                       boolean newFile) throws HsqlException {
+                       boolean newFile) {
         super(db, file, includeCached, newFile, false);
     }
 
@@ -61,10 +60,10 @@ class ScriptWriterBinary extends ScriptWriterBase {
         rowOut = new RowOutputBinary();
     }
 
-    protected void writeSingleColumnResult(Result r)
-    throws IOException, HsqlException {
+    protected void writeSingleColumnResult(Result r) throws IOException {
 
         DataOutputStream dataOutput = new DataOutputStream(fileStreamOut);
+
         rowOut.reset();
         r.write(dataOutput, rowOut);
         dataOutput.flush();
@@ -73,7 +72,7 @@ class ScriptWriterBinary extends ScriptWriterBase {
     // int : row size (0 if no more rows) ,
     // RowInput/OutputBinary : row (column values)
     protected void writeRow(Session session, Table t,
-                            Object[] data) throws IOException, HsqlException {
+                            Object[] data) throws IOException {
 
         rowOut.reset();
         rowOut.writeRow(data, t.getColumnTypes());
@@ -84,7 +83,7 @@ class ScriptWriterBinary extends ScriptWriterBase {
     }
 
     // int : headersize (0 if no more tables), String : tablename, int : operation,
-    protected void writeTableInit(Table t) throws HsqlException, IOException {
+    protected void writeTableInit(Table t) throws IOException {
 
         tableRowCount = 0;
 
@@ -116,23 +115,19 @@ class ScriptWriterBinary extends ScriptWriterBase {
     }
 
     public void writeLogStatement(Session session,
-                                  String s)
-                                  throws IOException, HsqlException {}
+                                  String s) throws IOException {}
 
     protected void addSessionId(Session session) throws IOException {}
 
     public void writeDeleteStatement(Session session, Table table,
-                                     Object[] ddata)
-                                     throws HsqlException, IOException {}
+                                     Object[] ddata) throws IOException {}
 
     public void writeSequenceStatement(Session session,
                                        NumberSequence seq)
-                                       throws HsqlException, IOException {}
+                                       throws IOException {}
 
     public void writeInsertStatement(Session session, Table table,
-                                     Object[] data)
-                                     throws HsqlException, IOException {}
+                                     Object[] data) throws IOException {}
 
-    public void writeCommitStatement(Session session)
-    throws HsqlException, IOException {}
+    public void writeCommitStatement(Session session) throws IOException {}
 }

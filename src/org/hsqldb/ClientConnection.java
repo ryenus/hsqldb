@@ -111,8 +111,7 @@ public class ClientConnection implements SessionInterface {
      */
     public ClientConnection(String host, int port, String path,
                             String database, boolean isTLS, String user,
-                            String password,
-                            int timeZoneSeconds) throws HsqlException {
+                            String password, int timeZoneSeconds) {
 
         this.host        = host;
         this.port        = port;
@@ -151,19 +150,18 @@ public class ClientConnection implements SessionInterface {
         resultOut = Result.newSessionAttributesResult();
     }
 
-    protected void initConnection(String host, int port,
-                                  boolean isTLS) throws HsqlException {
+    protected void initConnection(String host, int port, boolean isTLS) {
         openConnection(host, port, isTLS);
     }
 
-    protected void openConnection(String host, int port,
-                                  boolean isTLS) throws HsqlException {
+    protected void openConnection(String host, int port, boolean isTLS) {
 
         try {
             socket = HsqlSocketFactory.getInstance(isTLS).createSocket(host,
                                                    port);
 
             socket.setTcpNoDelay(true);
+
             dataOutput = new DataOutputStream(socket.getOutputStream());
             dataInput = new DataInputStream(
                 new BufferedInputStream(socket.getInputStream()));
@@ -189,7 +187,7 @@ public class ClientConnection implements SessionInterface {
         socket = null;
     }
 
-    public synchronized Result execute(Result r) throws HsqlException {
+    public synchronized Result execute(Result r) {
 
         try {
             r.setSessionId(sessionID);
@@ -203,7 +201,7 @@ public class ClientConnection implements SessionInterface {
     }
 
     public synchronized RowSetNavigatorClient getRows(long navigatorId,
-            int offset, int size) throws HsqlException {
+            int offset, int size) {
 
         try {
             resultOut.setResultType(ResultConstants.REQUESTDATA);
@@ -246,7 +244,7 @@ public class ClientConnection implements SessionInterface {
         } catch (Exception e) {}
     }
 
-    public synchronized Object getAttribute(int id) throws HsqlException {
+    public synchronized Object getAttribute(int id) {
 
         resultOut.setResultType(ResultConstants.GETSESSIONATTR);
         resultOut.setStatementType(id);
@@ -277,8 +275,7 @@ public class ClientConnection implements SessionInterface {
         return null;
     }
 
-    public synchronized void setAttribute(int id,
-                                          Object value) throws HsqlException {
+    public synchronized void setAttribute(int id, Object value) {
 
         resultOut.setResultType(ResultConstants.SETSESSIONATTR);
 
@@ -309,7 +306,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized boolean isReadOnlyDefault() throws HsqlException {
+    public synchronized boolean isReadOnlyDefault() {
 
         Object info = getAttribute(SessionInterface.INFO_CONNECTION_READONLY);
 
@@ -318,8 +315,7 @@ public class ClientConnection implements SessionInterface {
         return isReadOnlyDefault;
     }
 
-    public synchronized void setReadOnlyDefault(boolean mode)
-    throws HsqlException {
+    public synchronized void setReadOnlyDefault(boolean mode) {
 
         if (mode != isReadOnlyDefault) {
             setAttribute(SessionInterface.INFO_CONNECTION_READONLY,
@@ -330,7 +326,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized boolean isAutoCommit() throws HsqlException {
+    public synchronized boolean isAutoCommit() {
 
         Object info = getAttribute(SessionInterface.INFO_AUTOCOMMIT);
 
@@ -339,7 +335,7 @@ public class ClientConnection implements SessionInterface {
         return isAutoCommit;
     }
 
-    public synchronized void setAutoCommit(boolean mode) throws HsqlException {
+    public synchronized void setAutoCommit(boolean mode) {
 
         if (mode != isAutoCommit) {
             setAttribute(SessionInterface.INFO_AUTOCOMMIT, mode ? Boolean.TRUE
@@ -350,12 +346,11 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized void setIsolationDefault(int level)
-    throws HsqlException {
+    public synchronized void setIsolationDefault(int level) {
         setAttribute(SessionInterface.INFO_ISOLATION, ValuePool.getInt(level));
     }
 
-    public synchronized int getIsolation() throws HsqlException {
+    public synchronized int getIsolation() {
 
         Object info = getAttribute(SessionInterface.INFO_ISOLATION);
 
@@ -370,9 +365,9 @@ public class ClientConnection implements SessionInterface {
         return null;
     }
 
-    public synchronized void startPhasedTransaction() throws HsqlException {}
+    public synchronized void startPhasedTransaction() {}
 
-    public synchronized void prepareCommit() throws HsqlException {
+    public synchronized void prepareCommit() {
 
         resultOut.setAsTransactionEndRequest(ResultConstants.PREPARECOMMIT,
                                              null);
@@ -384,7 +379,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized void commit(boolean chain) throws HsqlException {
+    public synchronized void commit(boolean chain) {
 
         resultOut.setAsTransactionEndRequest(ResultConstants.TX_COMMIT, null);
 
@@ -395,7 +390,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized void rollback(boolean chain) throws HsqlException {
+    public synchronized void rollback(boolean chain) {
 
         resultOut.setAsTransactionEndRequest(ResultConstants.TX_ROLLBACK,
                                              null);
@@ -407,8 +402,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized void rollbackToSavepoint(String name)
-    throws HsqlException {
+    public synchronized void rollbackToSavepoint(String name) {
 
         resultOut.setAsTransactionEndRequest(
             ResultConstants.TX_SAVEPOINT_NAME_ROLLBACK, name);
@@ -420,7 +414,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized void savepoint(String name) throws HsqlException {
+    public synchronized void savepoint(String name) {
 
         Result result = Result.newSetSavepointRequest(name);
         Result in     = execute(result);
@@ -430,8 +424,7 @@ public class ClientConnection implements SessionInterface {
         }
     }
 
-    public synchronized void releaseSavepoint(String name)
-    throws HsqlException {
+    public synchronized void releaseSavepoint(String name) {
 
         resultOut.setAsTransactionEndRequest(
             ResultConstants.TX_SAVEPOINT_NAME_RELEASE, name);
@@ -458,7 +451,7 @@ public class ClientConnection implements SessionInterface {
      * reuse the HSQLClientConnection object with no further initialisation.
      *
      */
-    public synchronized void resetSession() throws HsqlException {
+    public synchronized void resetSession() {
 
         Result login    = Result.newResetSessionRequest();
         Result resultIn = execute(login);

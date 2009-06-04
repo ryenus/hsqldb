@@ -35,7 +35,6 @@ import java.io.Serializable;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.Types;
@@ -89,7 +88,7 @@ public final class OtherType extends Type {
         return Tokens.T_OTHER;
     }
 
-    public Type getAggregateType(Type other) throws HsqlException {
+    public Type getAggregateType(Type other) {
 
         if (typeCode == other.typeCode) {
             return this;
@@ -102,8 +101,7 @@ public final class OtherType extends Type {
         throw Error.error(ErrorCode.X_42562);
     }
 
-    public Type getCombinedType(Type other,
-                                int operation) throws HsqlException {
+    public Type getCombinedType(Type other, int operation) {
         return this;
     }
 
@@ -120,19 +118,17 @@ public final class OtherType extends Type {
         return 0;
     }
 
-    public Object convertToTypeLimits(SessionInterface session,
-                                      Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session, Object a) {
         return a;
     }
 
     // to review - if conversion is supported, then must be serializable and wappred
     public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) throws HsqlException {
+                                Type otherType) {
         return a;
     }
 
-    public Object convertToDefaultType(SessionInterface session,
-                                       Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a instanceof Serializable) {
             return a;
@@ -161,8 +157,7 @@ public final class OtherType extends Type {
             ((JavaObjectData) a).getBytes());
     }
 
-    public Object convertSQLToJava(SessionInterface session,
-                                   Object a) throws HsqlException {
+    public Object convertSQLToJava(SessionInterface session, Object a) {
         return ((JavaObjectData) a).getObject();
     }
 

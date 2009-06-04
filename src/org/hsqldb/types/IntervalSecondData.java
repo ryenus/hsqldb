@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 
 /**
  * Implementation of data item for INTERVAL SECOND.<p>
@@ -48,27 +47,26 @@ public class IntervalSecondData {
     public final int  nanos;
 
     public static IntervalSecondData newIntervalDay(long days,
-            IntervalType type) throws HsqlException {
+            IntervalType type) {
         return new IntervalSecondData(days * 24 * 60 * 60, 0, type);
     }
 
     public static IntervalSecondData newIntervalHour(long hours,
-            IntervalType type) throws HsqlException {
+            IntervalType type) {
         return new IntervalSecondData(hours * 60 * 60, 0, type);
     }
 
     public static IntervalSecondData newIntervalMinute(long minutes,
-            IntervalType type) throws HsqlException {
+            IntervalType type) {
         return new IntervalSecondData(minutes * 60, 0, type);
     }
 
     public static IntervalSecondData newIntervalSeconds(long seconds,
-            IntervalType type) throws HsqlException {
+            IntervalType type) {
         return new IntervalSecondData(seconds, 0, type);
     }
 
-    public IntervalSecondData(long seconds, int nanos,
-                              IntervalType type) throws HsqlException {
+    public IntervalSecondData(long seconds, int nanos, IntervalType type) {
 
         if (seconds >= type.getIntervalValueLimit()) {
             throw Error.error(ErrorCode.X_22015);
@@ -78,7 +76,7 @@ public class IntervalSecondData {
         this.nanos = nanos;
     }
 
-    public IntervalSecondData(long seconds, int nanos) throws HsqlException {
+    public IntervalSecondData(long seconds, int nanos) {
         this.units = seconds;
         this.nanos = nanos;
     }
@@ -87,7 +85,7 @@ public class IntervalSecondData {
      * normalise is a marker, values are always normalised
      */
     public IntervalSecondData(long seconds, long nanos, IntervalType type,
-                              boolean normalise) throws HsqlException {
+                              boolean normalise) {
 
         if (nanos >= DTIType.limitNanoseconds) {
             long carry = nanos / DTIType.limitNanoseconds;
@@ -116,10 +114,9 @@ public class IntervalSecondData {
             seconds++;
         }
 
-        scaleFactor =
-            DTIType.yearToSecondFactors[type.endPartIndex];
-        seconds /= scaleFactor;
-        seconds *= scaleFactor;
+        scaleFactor = DTIType.yearToSecondFactors[type.endPartIndex];
+        seconds     /= scaleFactor;
+        seconds     *= scaleFactor;
 
         if (seconds >= type.getIntervalValueLimit()) {
             throw Error.error(ErrorCode.X_22015);
@@ -168,7 +165,6 @@ public class IntervalSecondData {
     }
 
     public String toString() {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "IntervalSecondData");
+        throw Error.runtimeError(ErrorCode.U_S0500, "IntervalSecondData");
     }
 }

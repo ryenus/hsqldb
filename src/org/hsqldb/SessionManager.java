@@ -117,7 +117,7 @@ public class SessionManager {
     /**
      * Retrieves a new SYS Session.
      */
-    public Session getSysSessionForScript(Database db) throws HsqlException {
+    public Session getSysSessionForScript(Database db) {
 
         Session session = new Session(db, db.getUserManager().getSysUser(),
                                       false, false, false, 0, 0);
@@ -149,8 +149,7 @@ public class SessionManager {
     /**
      * Retrieves the common SYS Session.
      */
-    public Session getSysSession(String schema,
-                                 User user) throws HsqlException {
+    public Session getSysSession(String schema, User user) {
 
         sysSession.currentSchema =
             sysSession.database.schemaManager.getSchemaHsqlName(schema);
@@ -162,8 +161,7 @@ public class SessionManager {
         return sysSession;
     }
 
-    public Session newSysSession(HsqlName schema,
-                                 User user) throws HsqlException {
+    public Session newSysSession(HsqlName schema, User user) {
 
         Session session = new Session(sysSession.database, user, false, false,
                                       false, 0, 0);
@@ -266,6 +264,7 @@ public class SessionManager {
     }
 
     public synchronized void resetLoggedSchemas() {
+
         Iterator it = sessionMap.values().iterator();
 
         for (int i = 0; it.hasNext(); i++) {
@@ -275,6 +274,5 @@ public class SessionManager {
         }
 
         sysLobSession.resetSchema();
-
     }
 }

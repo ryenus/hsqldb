@@ -60,8 +60,7 @@ public class FunctionSQLInvoked extends Expression {
         this.nodes = newNodes;
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         Type[] types = new Type[nodes.length];
 
@@ -84,7 +83,7 @@ public class FunctionSQLInvoked extends Expression {
         dataType = routine.getReturnType();
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         int      variableCount = routine.getVariableCount();
         Result   result;

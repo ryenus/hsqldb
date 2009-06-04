@@ -634,7 +634,7 @@ public class Types {
      * @return java.sql.Types int value
      * @throws  HsqlException
      */
-    static int getParameterSQLTypeNumber(Class c) throws HsqlException {
+    static int getParameterSQLTypeNumber(Class c) {
 
         String name;
         int    type;

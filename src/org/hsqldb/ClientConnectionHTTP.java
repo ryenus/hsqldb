@@ -52,14 +52,14 @@ public class ClientConnectionHTTP extends ClientConnection {
 
     public ClientConnectionHTTP(String host, int port, String path,
                                 String database, boolean isTLS, String user,
-                                String password, int timeZoneSeconds) throws HsqlException {
-        super(host, port, path, database, isTLS, user, password, timeZoneSeconds);
+                                String password, int timeZoneSeconds) {
+        super(host, port, path, database, isTLS, user, password,
+              timeZoneSeconds);
     }
 
-    protected void initConnection(String host, int port,
-                                  boolean isTLS) throws HsqlException {}
+    protected void initConnection(String host, int port, boolean isTLS) {}
 
-    public synchronized Result execute(Result r) throws HsqlException {
+    public synchronized Result execute(Result r) {
 
         super.openConnection(host, port, isTLS);
 
@@ -82,7 +82,6 @@ public class ClientConnectionHTTP extends ClientConnection {
         dataOutput.write("\r\n".getBytes(ENCODING));
         dataOutput.writeInt(r.getDatabaseId());
         dataOutput.writeLong(r.getSessionId());
-
         r.write(dataOutput, rowOut);
     }
 
@@ -110,6 +109,7 @@ public class ClientConnectionHTTP extends ClientConnection {
     }
 
     protected void handshake() throws IOException {
+
         // We depend on the HTTP wrappings to assure end-to-end handshaking
     }
 }

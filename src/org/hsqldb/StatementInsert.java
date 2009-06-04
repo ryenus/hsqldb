@@ -53,7 +53,7 @@ public class StatementInsert extends StatementDML {
      */
     StatementInsert(Session session, Table targetTable, int[] columnMap,
                     Expression insertExpression, boolean[] checkColumns,
-                    CompileContext compileContext) throws HsqlException {
+                    CompileContext compileContext) {
 
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
               session.currentSchema);
@@ -74,7 +74,7 @@ public class StatementInsert extends StatementDML {
      */
     StatementInsert(Session session, Table targetTable, int[] columnMap,
                     boolean[] checkColumns, QueryExpression queryExpression,
-                    CompileContext compileContext) throws HsqlException {
+                    CompileContext compileContext) {
 
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
               session.currentSchema);
@@ -94,10 +94,9 @@ public class StatementInsert extends StatementDML {
      * Executes an INSERT_SELECT statement.  It is assumed that the argument
      * is of the correct type.
      *
-     * @throws HsqlException if a database access error occurs
      * @return the result of executing the statement
      */
-    Result getResult(Session session) throws HsqlException {
+    Result getResult(Session session) {
 
         Table           table              = baseTable;
         Result          resultOut          = null;
@@ -164,8 +163,7 @@ public class StatementInsert extends StatementDML {
         return resultOut;
     }
 
-    RowSetNavigator getInsertSelectNavigator(Session session)
-    throws HsqlException {
+    RowSetNavigator getInsertSelectNavigator(Session session) {
 
         Type[] colTypes  = baseTable.getColumnTypes();
         int[]  columnMap = insertColumnMap;
@@ -194,8 +192,7 @@ public class StatementInsert extends StatementDML {
         return newData;
     }
 
-    RowSetNavigator getInsertValuesNavigator(Session session)
-    throws HsqlException {
+    RowSetNavigator getInsertValuesNavigator(Session session) {
 
         Type[] colTypes  = baseTable.getColumnTypes();
         int[]  columnMap = insertColumnMap;

@@ -37,7 +37,7 @@ import org.hsqldb.lib.LongKeyHashMap;
 public class PersistentStoreCollectionDatabase
 implements PersistentStoreCollection {
 
-    private long                persistentStoreIdSequence;
+    private long                 persistentStoreIdSequence;
     private final LongKeyHashMap rowStoreMap = new LongKeyHashMap();
 
     public void setStore(Object key, PersistentStore store) {
@@ -61,6 +61,7 @@ implements PersistentStoreCollection {
     }
 
     public void releaseStore(TableBase table) {
+
         PersistentStore store =
             (PersistentStore) rowStoreMap.get(table.getPersistenceId());
 

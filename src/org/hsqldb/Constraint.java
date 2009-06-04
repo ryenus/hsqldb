@@ -188,7 +188,7 @@ public final class Constraint implements SchemaObject {
      * @param type constraint type
      * @param deleteAction triggered action on delete
      * @param updateAction triggered action on update
-     * @throws HsqlException
+     *
      */
     public Constraint(HsqlName name, HsqlName refTableName,
                       OrderedHashSet refCols, HsqlName mainTableName,
@@ -215,7 +215,7 @@ public final class Constraint implements SchemaObject {
         mainColSet = mainCols;
     }
 
-    void setColumnsIndexes(Table table) throws HsqlException {
+    void setColumnsIndexes(Table table) {
 
         if (constType == Constraint.FOREIGN_KEY) {
             if (mainColSet == null) {
@@ -283,7 +283,7 @@ public final class Constraint implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     public String getSQL() {
 
@@ -681,10 +681,10 @@ public final class Constraint implements SchemaObject {
      * @param newTable referenct to the new version of the table
      * @param colIndex index at which table column is added or removed
      * @param adjust -1, 0, +1 to indicate if column is added or removed
-     * @throws HsqlException
+     * @
      */
     void updateTable(Session session, Table oldTable, Table newTable,
-                     int colIndex, int adjust) throws HsqlException {
+                     int colIndex, int adjust) {
 
         if (oldTable == core.mainTable) {
             core.mainTable = newTable;
@@ -718,8 +718,7 @@ public final class Constraint implements SchemaObject {
      * Checks for foreign key or check constraint violation when
      * inserting a row into the child table.
      */
-    void checkInsert(Session session, Table table,
-                     Object[] row) throws HsqlException {
+    void checkInsert(Session session, Table table, Object[] row) {
 
         switch (constType) {
 
@@ -774,8 +773,7 @@ public final class Constraint implements SchemaObject {
     /*
      * Tests a row against this CHECK constraint.
      */
-    void checkCheckConstraint(Session session, Table table,
-                              Object[] data) throws HsqlException {
+    void checkCheckConstraint(Session session, Table table, Object[] data) {
 
 /*
         if (session.compiledStatementExecutor.rangeIterators[1] == null) {
@@ -807,8 +805,7 @@ public final class Constraint implements SchemaObject {
         }
     }
 
-    void checkCheckConstraint(Session session, Table table,
-                              Object data) throws HsqlException {
+    void checkCheckConstraint(Session session, Table table, Object data) {
 
         session.sessionData.currentValue = data;
 
@@ -844,10 +841,9 @@ public final class Constraint implements SchemaObject {
      * @param row array of objects for a database row
      * @param delete should we allow 'ON DELETE CASCADE' or 'ON UPDATE CASCADE'
      * @return iterator
-     * @throws HsqlException
+     * @
      */
-    RowIterator findFkRef(Session session, Object[] row,
-                          boolean delete) throws HsqlException {
+    RowIterator findFkRef(Session session, Object[] row, boolean delete) {
 
         if (row == null || ArrayUtil.hasNull(row, core.mainCols)) {
             return core.refIndex.emptyIterator();
@@ -855,8 +851,7 @@ public final class Constraint implements SchemaObject {
 
         PersistentStore store = session.sessionData.getRowStore(core.refTable);
 
-        return  core.refIndex.findFirstRow(session, store, row,
-                core.mainCols);
+        return core.refIndex.findFirstRow(session, store, row, core.mainCols);
     }
 
     /**
@@ -866,8 +861,7 @@ public final class Constraint implements SchemaObject {
      * returns true If a valid row is found, false if there are null in the data
      * Otherwise a 'INTEGRITY VIOLATION' Exception gets thrown.
      */
-    boolean checkHasMainRef(Session session,
-                            Object[] row) throws HsqlException {
+    boolean checkHasMainRef(Session session, Object[] row) {
 
         if (ArrayUtil.hasNull(row, core.refCols)) {
             return false;
@@ -894,8 +888,7 @@ public final class Constraint implements SchemaObject {
      * checks all rows of a table to ensure they all have a corresponding
      * row in the main table.
      */
-    void checkReferencedRows(Session session, Table table,
-                             int[] rowColArray) throws HsqlException {
+    void checkReferencedRows(Session session, Table table, int[] rowColArray) {
 
         Index           mainIndex = getMainIndex();
         PersistentStore store     = session.sessionData.getRowStore(table);
@@ -955,7 +948,7 @@ public final class Constraint implements SchemaObject {
         return set;
     }
 
-    void recompile(Session session, Table newTable) throws HsqlException {
+    void recompile(Session session, Table newTable) {
 
         String    ddl     = check.getSQL();
         Scanner   scanner = new Scanner(ddl);
@@ -980,7 +973,7 @@ public final class Constraint implements SchemaObject {
     }
 
     void prepareCheckConstraint(Session session, Table table,
-                                boolean checkValues) throws HsqlException {
+                                boolean checkValues) {
 
         // to ensure no subselects etc. are in condition
         check.checkValidCheckConstraint();

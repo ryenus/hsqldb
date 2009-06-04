@@ -33,7 +33,6 @@ package org.hsqldb.rowio;
 
 import java.io.IOException;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
@@ -49,14 +48,14 @@ public class RowInputBinaryNet extends RowInputBinary {
         super(out);
     }
 
-    protected BlobData readBlob() throws IOException, HsqlException {
+    protected BlobData readBlob() throws IOException {
 
         long id = super.readLong();
 
         return new BlobDataID(id);
     }
 
-    protected ClobData readClob() throws IOException, HsqlException {
+    protected ClobData readClob() throws IOException {
 
         long id = super.readLong();
 

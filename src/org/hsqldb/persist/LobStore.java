@@ -31,8 +31,6 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.HsqlException;
-
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
@@ -41,10 +39,10 @@ import org.hsqldb.HsqlException;
 public interface LobStore {
 
     byte[] getBlockBytes(int blockAddress,
-                         int blockCount) throws HsqlException;
+                         int blockCount);
 
     void setBlockBytes(byte[] dataBytes, int blockAddress,
-                       int blockCount) throws HsqlException;
+                       int blockCount);
 
-    void close() throws HsqlException;
+    void close();
 }

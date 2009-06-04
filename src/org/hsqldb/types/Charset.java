@@ -31,7 +31,6 @@
 
 package org.hsqldb.types;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
@@ -76,8 +75,11 @@ public class Charset implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
+
         OrderedHashSet set = new OrderedHashSet();
+
         set.add(base);
+
         return set;
     }
 
@@ -85,7 +87,7 @@ public class Charset implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     public String getSQL() {
 

@@ -64,15 +64,15 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract int getStorageSize(int key);
 
-    public abstract void add(CachedObject object) throws HsqlException;
+    public abstract void add(CachedObject object);
 
     public abstract CachedObject get(RowInputInterface in)
-    throws HsqlException;
+    ;
 
-    public abstract CachedObject getNewInstance(int size) throws HsqlException;
+    public abstract CachedObject getNewInstance(int size);
 
     public abstract CachedObject getNewCachedObject(Session session,
-            Object object) throws HsqlException;
+            Object object);
 
     public abstract void removePersistence(int i);
 
@@ -107,15 +107,14 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract void setAccessor(Index key, CachedObject accessor);
 
-    public abstract void setAccessor(Index key,
-                                     int accessor) throws HsqlException;
+    public abstract void setAccessor(Index key, int accessor);
 
-    public abstract void resetAccessorKeys(Index[] keys) throws HsqlException;
+    public abstract void resetAccessorKeys(Index[] keys);
 
     /**
      * Basic delete with no logging or referential checks.
      */
-    public final void delete(Row row) throws HsqlException {
+    public final void delete(Row row) {
 
         for (int i = indexList.length - 1; i >= 0; i--) {
             indexList[i].delete(this, row);
@@ -124,7 +123,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         remove(row.getPos());
     }
 
-    public final void indexRow(Session session, Row row) throws HsqlException {
+    public final void indexRow(Session session, Row row) {
 
         int i = 0;
 
@@ -145,7 +144,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
     }
 
-    public final void indexRows() throws HsqlException {
+    public final void indexRows() {
 
         RowIterator it = rowIterator();
 

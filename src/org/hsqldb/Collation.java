@@ -191,7 +191,7 @@ public class Collation {
         } catch (HsqlException e) {}
     }
 
-    void setCollation(String newName) throws HsqlException {
+    void setCollation(String newName) {
 
         String jname = (String) Collation.nameToJavaName.get(newName);
 

@@ -204,8 +204,7 @@ public class ExpressionAggregate extends Expression {
     }
 
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet,
-            boolean acceptsSequences) throws HsqlException {
+            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (unresolvedSet == null) {
             unresolvedSet = new ArrayListIdentity();
@@ -216,8 +215,7 @@ public class ExpressionAggregate extends Expression {
         return unresolvedSet;
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -248,9 +246,7 @@ public class ExpressionAggregate extends Expression {
                       .isDistinctAggregate && equals(nodes, other.nodes);
     }
 
-    public Object updateAggregatingValue(Session session,
-                                         Object currValue)
-                                         throws HsqlException {
+    public Object updateAggregatingValue(Session session, Object currValue) {
 
         if (currValue == null) {
             currValue = new SetFunction(opType, nodes[LEFT].dataType,
@@ -272,11 +268,8 @@ public class ExpressionAggregate extends Expression {
      * @param currValue instance of set function or value
      * @param session context
      * @return object
-     *
-     * @throws HsqlException
      */
-    public Object getAggregatedValue(Session session,
-                                     Object currValue) throws HsqlException {
+    public Object getAggregatedValue(Session session, Object currValue) {
 
         if (currValue == null) {
             return opType == OpTypes.COUNT ? ValuePool.INTEGER_0

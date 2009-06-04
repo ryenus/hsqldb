@@ -469,8 +469,7 @@ public class ExpressionLogical extends Expression {
         return sb.toString();
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -601,7 +600,7 @@ public class ExpressionLogical extends Expression {
         }
     }
 
-    private void resolveTypesForLogicalOp() throws HsqlException {
+    private void resolveTypesForLogicalOp() {
 
         if (nodes[LEFT].isParam) {
             nodes[LEFT].dataType = Type.SQL_BOOLEAN;
@@ -624,8 +623,7 @@ public class ExpressionLogical extends Expression {
     }
 
     private void resolveTypesForComparison(Session session,
-                                           Expression parent)
-                                           throws HsqlException {
+                                           Expression parent) {
 
         if (exprSubType == OpTypes.ALL_QUANTIFIED
                 || exprSubType == OpTypes.ANY_QUANTIFIED) {
@@ -678,7 +676,7 @@ public class ExpressionLogical extends Expression {
         }
     }
 
-    private void resolveRowTypes() throws HsqlException {
+    private void resolveRowTypes() {
 
         for (int i = 0; i < nodes[LEFT].nodeDataTypes.length; i++) {
             Type leftType  = nodes[LEFT].nodeDataTypes[i];
@@ -704,7 +702,7 @@ public class ExpressionLogical extends Expression {
      * value for comparison
      */
     private boolean convertDateTimeLiteral(Session session, Expression a,
-                                           Expression b) throws HsqlException {
+                                           Expression b) {
 
         if (a.dataType.isDateTimeType()) {}
         else if (b.dataType.isDateTimeType()) {
@@ -731,7 +729,7 @@ public class ExpressionLogical extends Expression {
         return false;
     }
 
-    void resolveTypesForOverlaps() throws HsqlException {
+    void resolveTypesForOverlaps() {
 
         if (nodes[LEFT].nodes[0].isParam) {
             nodes[LEFT].nodes[0].dataType = nodes[RIGHT].nodes[0].dataType;
@@ -773,7 +771,7 @@ public class ExpressionLogical extends Expression {
         nodes[RIGHT].nodeDataTypes[1] = nodes[RIGHT].nodes[1].dataType;
     }
 
-    void resolveTypesForAllAny(Session session) throws HsqlException {
+    void resolveTypesForAllAny(Session session) {
 
         int degree = nodes[LEFT].getDegree();
 
@@ -814,11 +812,11 @@ public class ExpressionLogical extends Expression {
         }
     }
 
-    void resolveTypesForIn(Session session) throws HsqlException {
+    void resolveTypesForIn(Session session) {
         resolveTypesForAllAny(session);
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         switch (opType) {
 
@@ -948,8 +946,7 @@ public class ExpressionLogical extends Expression {
      * For MATCH SIMPLE and FULL expressions, nulls in left are handled
      * prior to calling this method
      */
-    private Boolean compareValues(Session session, Object left,
-                                  Object right) throws HsqlException {
+    private Boolean compareValues(Session session, Object left, Object right) {
 
         int result = 0;
 
@@ -995,7 +992,7 @@ public class ExpressionLogical extends Expression {
      * prior to calling this method
      */
     private Boolean compareValues(Session session, Object[] left,
-                                  Object[] right) throws HsqlException {
+                                  Object[] right) {
 
         int     result  = 0;
         boolean hasNull = false;
@@ -1101,8 +1098,7 @@ public class ExpressionLogical extends Expression {
     /**
      * Returns the result of testing a VALUE_LIST expression
      */
-    private Boolean testInCondition(Session session,
-                                    Object[] data) throws HsqlException {
+    private Boolean testInCondition(Session session, Object[] data) {
 
         if (data == null) {
             return null;
@@ -1130,8 +1126,7 @@ public class ExpressionLogical extends Expression {
         throw Error.runtimeError(ErrorCode.U_S0500, "");
     }
 
-    private Boolean testMatchCondition(Session session,
-                                       Object[] data) throws HsqlException {
+    private Boolean testMatchCondition(Session session, Object[] data) {
 
         int nulls;
 
@@ -1271,7 +1266,7 @@ public class ExpressionLogical extends Expression {
         throw Error.error(ErrorCode.X_42564);
     }
 
-    private Boolean testExistsCondition(Session session) throws HsqlException {
+    private Boolean testExistsCondition(Session session) {
 
         SubQuery subQuery = nodes[LEFT].subQuery;
 
@@ -1289,8 +1284,7 @@ public class ExpressionLogical extends Expression {
                                                     : Boolean.TRUE;
     }
 
-    private Boolean testAllAnyCondition(Session session,
-                                        Object[] o) throws HsqlException {
+    private Boolean testAllAnyCondition(Session session, Object[] o) {
 
         SubQuery subquery = nodes[RIGHT].subQuery;
 
@@ -1303,7 +1297,7 @@ public class ExpressionLogical extends Expression {
 
     /** @todo - null value in rows */
     private Boolean getAllAnyValue(Session session, Object[] data,
-                                   SubQuery subquery) throws HsqlException {
+                                   SubQuery subquery) {
 
         Table           table = subquery.getTable();
         boolean         empty = table.isEmpty(session);
@@ -1469,8 +1463,7 @@ public class ExpressionLogical extends Expression {
         ((ExpressionLogical) nodes[RIGHT]).distributeOr();
     }
 
-    Expression getIndexableExpression(RangeVariable rangeVar)
-    throws HsqlException {
+    Expression getIndexableExpression(RangeVariable rangeVar) {
 
         switch (opType) {
 
@@ -1606,7 +1599,7 @@ public class ExpressionLogical extends Expression {
         nodes[RIGHT] = e;
     }
 
-    boolean reorderComparison(Session session) throws HsqlException {
+    boolean reorderComparison(Session session) {
 
         Expression colExpression    = null;
         Expression nonColExpression = null;

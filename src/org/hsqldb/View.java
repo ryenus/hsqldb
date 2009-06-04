@@ -79,7 +79,7 @@ public class View extends TableDerived {
     Expression checkExpression;
 
     View(Session session, Database db, HsqlName name, HsqlName[] columnNames,
-            String definition, int check) throws HsqlException {
+            String definition, int check) {
 
         super(db, name, TableBase.VIEW_TABLE);
 
@@ -104,7 +104,7 @@ public class View extends TableDerived {
     /**
      * Compiles the query expression and sets up the columns.
      */
-    public void compile(Session session) throws HsqlException {
+    public void compile(Session session) {
 
         if (!database.schemaManager.schemaExists(compileTimeSchema.name)) {
             compileTimeSchema = session.getSchemaHsqlName(null);
@@ -213,7 +213,7 @@ public class View extends TableDerived {
     /**
      * Overridden to disable SET TABLE READONLY DDL for View objects.
      */
-    public void setDataReadOnly(boolean value) throws HsqlException {
+    public void setDataReadOnly(boolean value) {
         throw Error.error(ErrorCode.X_28000);
     }
 

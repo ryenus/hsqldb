@@ -33,7 +33,6 @@ package org.hsqldb.rights;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Table;
@@ -489,7 +488,6 @@ public final class Right {
 
         for (int i = 0; i < columnCheckList.length; i++) {
             if (columnCheckList[i]) {
-
                 if (columnSet == null) {
                     return false;
                 }
@@ -617,8 +615,7 @@ public final class Right {
                 return isFullTrigger;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "Right");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Right");
         }
     }
 
@@ -673,8 +670,7 @@ public final class Right {
                 return triggerColumnSet != null && !triggerColumnSet.isEmpty();
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "Right");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Right");
         }
     }
 
@@ -760,8 +756,7 @@ public final class Right {
         }
 
         if (count == 0) {
-            throw Error.runtimeError(ErrorCode.U_S0500,
-                                     "Right");
+            throw Error.runtimeError(ErrorCode.U_S0500, "Right");
         }
 
         buf.append('(');
@@ -781,7 +776,7 @@ public final class Right {
         buf.append(')');
     }
 
-    public void setColumns(Table table) throws HsqlException {
+    public void setColumns(Table table) {
 
         if (selectColumnSet != null) {
             setColumns(table, selectColumnSet);
@@ -804,7 +799,7 @@ public final class Right {
         }
     }
 
-    private static void setColumns(Table t, OrderedHashSet set) throws HsqlException {
+    private static void setColumns(Table t, OrderedHashSet set) {
 
         int       count        = 0;
         boolean[] colCheckList = t.getNewColumnCheckList();
@@ -897,8 +892,8 @@ public final class Right {
 
         if (isFull) {
             return new String[] {
-                Tokens.T_SELECT, Tokens.T_INSERT, Tokens.T_UPDATE, Tokens.T_DELETE,
-                Tokens.T_REFERENCES
+                Tokens.T_SELECT, Tokens.T_INSERT, Tokens.T_UPDATE,
+                Tokens.T_DELETE, Tokens.T_REFERENCES
             };
         }
 

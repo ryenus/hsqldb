@@ -32,7 +32,6 @@
 package org.hsqldb.navigator;
 
 import org.hsqldb.Row;
-import org.hsqldb.HsqlException;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -43,7 +42,7 @@ public interface RangeIterator {
 
     boolean isBeforeFirst();
 
-    boolean next() throws HsqlException;
+    boolean next();
 
     Row getCurrentRow();
 
@@ -53,7 +52,7 @@ public interface RangeIterator {
 
     Object getRowidObject();
 
-    void remove() throws HsqlException;
+    void remove();
 
     void reset();
 

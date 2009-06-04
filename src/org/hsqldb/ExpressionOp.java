@@ -86,7 +86,7 @@ public class ExpressionOp extends Expression {
     /**
      * creates a special conversion for time / timestamp comparison
      */
-    ExpressionOp(Expression e) throws HsqlException {
+    ExpressionOp(Expression e) {
 
         super(e.dataType.isDateTimeTypeWithZone() ? OpTypes.CAST
                                                   : OpTypes.ZONE_MODIFIER);
@@ -131,7 +131,7 @@ public class ExpressionOp extends Expression {
 
     public String getSQL() {
 
-        StringBuffer sb   = new StringBuffer(64);
+        StringBuffer sb    = new StringBuffer(64);
         String       left  = getContextSQL(nodes.length > 0 ? nodes[LEFT]
                                                             : null);
         String       right = getContextSQL(nodes.length > 1 ? nodes[RIGHT]
@@ -252,8 +252,7 @@ public class ExpressionOp extends Expression {
     }
 
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet,
-            boolean acceptsSequences) throws HsqlException {
+            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -278,8 +277,7 @@ public class ExpressionOp extends Expression {
         return unresolvedSet;
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -375,7 +373,7 @@ public class ExpressionOp extends Expression {
      * For CASE WHEN and its special cases section 9.3 of the SQL standard
      * on type aggregation is implemented.
      */
-    void resolveTypesForCaseWhen(Session session) throws HsqlException {
+    void resolveTypesForCaseWhen(Session session) {
 
         if (dataType != null) {
             return;
@@ -431,7 +429,7 @@ public class ExpressionOp extends Expression {
         }
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         switch (opType) {
 

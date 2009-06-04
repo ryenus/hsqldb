@@ -51,27 +51,27 @@ import org.hsqldb.types.TimestampData;
  */
 public interface SessionInterface {
 
-    int INFO_ID                  = 0;    // used
-    int INFO_INTEGER             = 1;    // used
-    int INFO_BOOLEAN             = 2;    // used
-    int INFO_VARCHAR             = 3;    // used
-    int INFO_LIMIT               = 4;
+    int INFO_ID      = 0;                // used
+    int INFO_INTEGER = 1;                // used
+    int INFO_BOOLEAN = 2;                // used
+    int INFO_VARCHAR = 3;                // used
+    int INFO_LIMIT   = 4;
 
     //
     int INFO_ISOLATION           = 0;    // used
     int INFO_AUTOCOMMIT          = 1;    // used
     int INFO_CONNECTION_READONLY = 2;    // used
     int INFO_CATALOG             = 3;    // used
+
     //
     int TX_READ_UNCOMMITTED = 1;
     int TX_READ_COMMITTED   = 2;
     int TX_REPEATABLE_READ  = 4;
     int TX_SERIALIZABLE     = 8;
 
-    Result execute(Result r) throws HsqlException;
+    Result execute(Result r);
 
-    RowSetNavigatorClient getRows(long navigatorId, int offset,
-                                  int size) throws HsqlException;
+    RowSetNavigatorClient getRows(long navigatorId, int offset, int size);
 
     void closeNavigator(long id);
 
@@ -79,50 +79,49 @@ public interface SessionInterface {
 
     boolean isClosed();
 
-    boolean isReadOnlyDefault() throws HsqlException;
+    boolean isReadOnlyDefault();
 
-    void setReadOnlyDefault(boolean readonly) throws HsqlException;
+    void setReadOnlyDefault(boolean readonly);
 
-    boolean isAutoCommit() throws HsqlException;
+    boolean isAutoCommit();
 
-    void setAutoCommit(boolean autoCommit) throws HsqlException;
+    void setAutoCommit(boolean autoCommit);
 
-    int getIsolation() throws HsqlException;
+    int getIsolation();
 
-    void setIsolationDefault(int level) throws HsqlException;
+    void setIsolationDefault(int level);
 
-    void startPhasedTransaction() throws HsqlException;
+    void startPhasedTransaction();
 
-    void prepareCommit() throws HsqlException;
+    void prepareCommit();
 
-    void commit(boolean chain) throws HsqlException;
+    void commit(boolean chain);
 
-    void rollback(boolean chain) throws HsqlException;
+    void rollback(boolean chain);
 
-    void rollbackToSavepoint(String name) throws HsqlException;
+    void rollbackToSavepoint(String name);
 
-    void savepoint(String name) throws HsqlException;
+    void savepoint(String name);
 
-    void releaseSavepoint(String name) throws HsqlException;
+    void releaseSavepoint(String name);
 
     void addWarning(HsqlException warning);
 
-    Object getAttribute(int id) throws HsqlException;
+    Object getAttribute(int id);
 
-    void setAttribute(int id, Object value) throws HsqlException;
+    void setAttribute(int id, Object value);
 
     long getId();
 
-    void resetSession() throws HsqlException;
+    void resetSession();
 
     String getInternalConnectionURL();
 
-    public BlobDataID createBlob(long length) throws HsqlException;
+    public BlobDataID createBlob(long length);
 
-    public ClobDataID createClob(long length) throws HsqlException;
+    public ClobDataID createClob(long length);
 
-    void allocateResultLob(ResultLob result,
-                           InputStream dataInput) throws HsqlException;
+    void allocateResultLob(ResultLob result, InputStream dataInput);
 
     Scanner getScanner();
 

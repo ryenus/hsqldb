@@ -141,7 +141,7 @@ public class Log {
     private DataFileCache          cache;
     private boolean                incBackup;
 
-    Log(Database db) throws HsqlException {
+    Log(Database db) {
 
         database   = db;
         fa         = db.getFileAccess();
@@ -175,7 +175,7 @@ public class Log {
      *
      * @throws  HsqlException
      */
-    void open() throws HsqlException {
+    void open() {
 
         initParams();
 
@@ -250,7 +250,7 @@ public class Log {
      *
      * This is not used for filesReadOnly databases which use shutdown.
      */
-    void close(boolean script) throws HsqlException {
+    void close(boolean script) {
 
         closeLog();
         deleteNewAndOldFiles();
@@ -291,7 +291,7 @@ public class Log {
      * Fast counterpart to close(). Does not perform a checkpoint or a backup
      * of the .data file.
      */
-    void shutdown() throws HsqlException {
+    void shutdown() {
 
         synchLog();
 
@@ -379,7 +379,7 @@ public class Log {
      * Performs checkpoint including pre and post operations. Returns to the
      * same state as before the checkpoint.
      */
-    void checkpoint(boolean defrag) throws HsqlException {
+    void checkpoint(boolean defrag) {
 
         if (filesReadOnly) {
             return;
@@ -548,7 +548,7 @@ public class Log {
     /**
      * Responsible for creating the cache instance.
      */
-    DataFileCache getCache() throws HsqlException {
+    DataFileCache getCache() {
 
 /*
         if (database.isFilesInJar()) {
@@ -584,7 +584,7 @@ public class Log {
      * Changing the script format results in a checkpoint, with the .script
      * file written in the new format.
      */
-    void setScriptType(int type) throws HsqlException {
+    void setScriptType(int type) {
 
         // OOo related code
         if (database.isStoredFileAccess()) {
@@ -621,7 +621,7 @@ public class Log {
         }
     }
 
-    public void setIncrementalBackup(boolean val) throws HsqlException {
+    public void setIncrementalBackup(boolean val) {
 
         if (incBackup == val) {
             return;
@@ -646,7 +646,7 @@ public class Log {
     /**
      * Various writeXXX() methods are used for logging statements.
      */
-    void writeStatement(Session session, String s) throws HsqlException {
+    void writeStatement(Session session, String s) {
 
         try {
             dbLogWriter.writeLogStatement(session, s);
@@ -659,8 +659,7 @@ public class Log {
         }
     }
 
-    void writeInsertStatement(Session session, Table t,
-                              Object[] row) throws HsqlException {
+    void writeInsertStatement(Session session, Table t, Object[] row) {
 
         try {
             dbLogWriter.writeInsertStatement(session, t, row);
@@ -673,8 +672,7 @@ public class Log {
         }
     }
 
-    void writeDeleteStatement(Session session, Table t,
-                              Object[] row) throws HsqlException {
+    void writeDeleteStatement(Session session, Table t, Object[] row) {
 
         try {
             dbLogWriter.writeDeleteStatement(session, t, row);
@@ -687,8 +685,7 @@ public class Log {
         }
     }
 
-    void writeSequenceStatement(Session session,
-                                NumberSequence s) throws HsqlException {
+    void writeSequenceStatement(Session session, NumberSequence s) {
 
         try {
             dbLogWriter.writeSequenceStatement(session, s);
@@ -701,7 +698,7 @@ public class Log {
         }
     }
 
-    void writeCommitStatement(Session session) throws HsqlException {
+    void writeCommitStatement(Session session) {
 
         try {
             dbLogWriter.writeCommitStatement(session);
@@ -725,7 +722,7 @@ public class Log {
      * Wrappers for openning-starting / stoping-closing the log file and
      * writer.
      */
-    private void openLog() throws HsqlException {
+    private void openLog() {
 
         if (filesReadOnly) {
             return;
@@ -743,7 +740,7 @@ public class Log {
         }
     }
 
-    private synchronized void closeLog() throws HsqlException {
+    private synchronized void closeLog() {
 
         if (dbLogWriter != null) {
             dbLogWriter.close();
@@ -753,7 +750,7 @@ public class Log {
     /**
      * Write the .script file as .script.new.
      */
-    private void writeScript(boolean full) throws HsqlException {
+    private void writeScript(boolean full) {
 
         deleteNewScript();
 
@@ -768,7 +765,7 @@ public class Log {
     /**
      * Performs all the commands in the .script file.
      */
-    private void processScript() throws HsqlException {
+    private void processScript() {
 
         ScriptReaderBase scr = null;
 
@@ -813,7 +810,7 @@ public class Log {
     /**
      * Defrag large data files when the sum of .log and .data files is large.
      */
-    private void processDataFile() throws HsqlException {
+    private void processDataFile() {
 
         // OOo related code
         if (database.isStoredFileAccess()) {
@@ -838,7 +835,7 @@ public class Log {
     /**
      * Performs all the commands in the .log file.
      */
-    private void processLog() throws HsqlException {
+    private void processLog() {
 
         if (!database.isFilesInJar() && fa.isStreamElement(logFileName)) {
             ScriptRunner.runScript(database, logFileName,
@@ -849,7 +846,7 @@ public class Log {
     /**
      * Restores a compressed backup or the .data file.
      */
-    private void restoreBackup() throws HsqlException {
+    private void restoreBackup() {
 
         if (incBackup) {
             restoreBackupIncremental();
@@ -875,7 +872,7 @@ public class Log {
     /**
      * Restores in from an incremental backup
      */
-    private void restoreBackupIncremental() throws HsqlException {
+    private void restoreBackupIncremental() {
 
         try {
             if (fa.isStreamElement(fileName + ".backup")) {
@@ -906,8 +903,7 @@ public class Log {
     private HashMap textCacheList = new HashMap();
 
     DataFileCache openTextCache(Table table, String source,
-                                boolean readOnlyData,
-                                boolean reversed) throws HsqlException {
+                                boolean readOnlyData, boolean reversed) {
 
         closeTextCache(table);
 
@@ -955,7 +951,7 @@ public class Log {
         }
     }
 
-    private void closeAllTextCaches(boolean compact) throws HsqlException {
+    private void closeAllTextCaches(boolean compact) {
 
         Iterator it = textCacheList.values().iterator();
 
@@ -968,7 +964,7 @@ public class Log {
         }
     }
 
-    private void reopenAllTextCaches() throws HsqlException {
+    private void reopenAllTextCaches() {
 
         Iterator it = textCacheList.values().iterator();
 

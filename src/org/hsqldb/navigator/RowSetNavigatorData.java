@@ -78,9 +78,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
     private Index orderIndex;
     private Index groupIndex;
 
-    public RowSetNavigatorData(Session session,
-                               QuerySpecification select)
-                               throws HsqlException {
+    public RowSetNavigatorData(Session session, QuerySpecification select) {
 
         this.session       = session;
         maxMemoryRowCount  = session.getResultMemoryRowCount();
@@ -98,8 +96,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
     }
 
     public RowSetNavigatorData(Session session,
-                               QueryExpression queryExpression)
-                               throws HsqlException {
+                               QueryExpression queryExpression) {
 
         this.session       = session;
         maxMemoryRowCount  = session.getResultMemoryRowCount();
@@ -111,8 +108,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         fullIndex = queryExpression.fullIndex;
     }
 
-    public RowSetNavigatorData(Session session,
-                               TableBase table) throws HsqlException {
+    public RowSetNavigatorData(Session session, TableBase table) {
 
         this.session       = session;
         maxMemoryRowCount  = session.getResultMemoryRowCount();
@@ -124,7 +120,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         this.size          = mainIndex.size(store);
     }
 
-    public void sortFull() throws HsqlException {
+    public void sortFull() {
 
         if (reindexTable) {
             store.indexRows();
@@ -135,7 +131,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         reset();
     }
 
-    public void sortOrder() throws HsqlException {
+    public void sortOrder() {
 
         if (orderIndex != null) {
             if (reindexTable) {
@@ -148,7 +144,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         }
     }
 
-    public void sortUnion(SortAndSlice sortAndSlice) throws HsqlException {
+    public void sortUnion(SortAndSlice sortAndSlice) {
 
         if (sortAndSlice.index != null) {
             mainIndex = sortAndSlice.index;
@@ -157,7 +153,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         }
     }
 
-    public void sortGroup() throws HsqlException {
+    public void sortGroup() {
 
         mainIndex = groupIndex;
 
@@ -223,7 +219,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         return result;
     }
 
-    public void remove() throws HsqlException {
+    public void remove() {
 
         if (currentRow != null) {
             iterator.remove();
@@ -259,10 +255,10 @@ public class RowSetNavigatorData extends RowSetNavigator {
     }
 
     public void read(RowInputInterface in,
-                     ResultMetaData meta) throws HsqlException, IOException {}
+                     ResultMetaData meta) throws IOException {}
 
     public void write(RowOutputInterface out,
-                      ResultMetaData meta) throws HsqlException, IOException {
+                      ResultMetaData meta) throws IOException {
 
         reset();
         out.writeLong(id);
@@ -280,8 +276,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         reset();
     }
 
-    public void copy(RowSetNavigatorData other,
-                     int[] rightColumnIndexes) throws HsqlException {
+    public void copy(RowSetNavigatorData other, int[] rightColumnIndexes) {
 
         while (other.hasNext()) {
             other.getNext();
@@ -294,8 +289,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         other.close();
     }
 
-    public void union(RowSetNavigatorData other,
-                      int[] rightColumnIndexes) throws HsqlException {
+    public void union(RowSetNavigatorData other, int[] rightColumnIndexes) {
 
         Object[] currentData;
 
@@ -318,8 +312,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         other.close();
     }
 
-    public void unionAll(RowSetNavigatorData other,
-                         int[] rightColumnIndexes) throws HsqlException {
+    public void unionAll(RowSetNavigatorData other, int[] rightColumnIndexes) {
 
         other.reset();
 
@@ -334,7 +327,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         other.close();
     }
 
-    public void intersect(RowSetNavigatorData other) throws HsqlException {
+    public void intersect(RowSetNavigatorData other) {
 
         removeDuplicates();
         reset();
@@ -355,7 +348,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         other.close();
     }
 
-    public void intersectAll(RowSetNavigatorData other) throws HsqlException {
+    public void intersectAll(RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
@@ -400,7 +393,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         other.close();
     }
 
-    public void except(RowSetNavigatorData other) throws HsqlException {
+    public void except(RowSetNavigatorData other) {
 
         removeDuplicates();
         reset();
@@ -421,7 +414,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         other.close();
     }
 
-    public void exceptAll(RowSetNavigatorData other) throws HsqlException {
+    public void exceptAll(RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
@@ -464,7 +457,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         other.close();
     }
 
-    public boolean hasUniqueNotNullRows() throws HsqlException {
+    public boolean hasUniqueNotNullRows() {
 
         sortFull();
         reset();
@@ -490,7 +483,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         return true;
     }
 
-    public void removeDuplicates() throws HsqlException {
+    public void removeDuplicates() {
 
         sortFull();
         reset();
@@ -510,7 +503,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         }
     }
 
-    public void trim(int limitstart, int limitcount) throws HsqlException {
+    public void trim(int limitstart, int limitcount) {
 
         if (size == 0) {
             return;
@@ -574,7 +567,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
     /**
      * Special case for isSimpleAggregate cannot use index lookup.
      */
-    public Object[] getGroupData(Object[] data) throws HsqlException {
+    public Object[] getGroupData(Object[] data) {
 
         if (isSimpleAggregate) {
             if (simpleAggregateData == null) {

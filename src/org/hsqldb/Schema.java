@@ -104,7 +104,7 @@ public final class Schema implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     public String getSQL() {
 

@@ -39,17 +39,15 @@ import java.io.InputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.Error;
-import org.hsqldb.HsqlException;
+import org.hsqldb.ErrorCode;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.persist.PersistentStore;
 
 /**
  * Reader corresponding to BinaryDatabaseScritReader.
@@ -63,8 +61,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
     private RowInputBinary    rowIn;
     protected DataInputStream dataStreamIn;
 
-    ScriptReaderBinary(Database db,
-                       String file) throws HsqlException, IOException {
+    ScriptReaderBinary(Database db, String file) throws IOException {
 
         super(db, file);
 
@@ -81,7 +78,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
                 1 << 13));
     }
 
-    protected void readDDL(Session session) throws IOException, HsqlException {
+    protected void readDDL(Session session) throws IOException {
 
         Result r = Result.newResult(dataStreamIn, rowIn);
 
@@ -103,8 +100,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
         }
     }
 
-    protected void readExistingData(Session session)
-    throws IOException, HsqlException {
+    protected void readExistingData(Session session) throws IOException {
 
         for (;;) {
             String s = readTableInit();
@@ -139,7 +135,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
     // int : row size (0 if no more rows) ,
     // BinaryServerRowInput : row (column values)
     protected boolean readRow(PersistentStore store,
-                              Table t) throws IOException, HsqlException {
+                              Table t) throws IOException {
 
         boolean more = readRow(rowIn, 0);
 
@@ -155,13 +151,13 @@ class ScriptReaderBinary extends ScriptReaderBase {
     }
 
     // int : rowcount
-    protected int readTableTerm() throws IOException, HsqlException {
+    protected int readTableTerm() throws IOException {
         return dataStreamIn.readInt();
     }
 
     // int : headersize (0 if no more tables), String : tablename, int : operation,
     // String : schemaname
-    protected String readTableInit() throws IOException, HsqlException {
+    protected String readTableInit() throws IOException {
 
         boolean more = readRow(rowIn, 0);
 

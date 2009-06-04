@@ -32,11 +32,9 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
-import org.hsqldb.scriptio.ScriptWriterText;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalSecondData;
 
@@ -89,12 +87,12 @@ public class StatementSession extends Statement {
 
             // logged by statement
             case StatementTypes.SET_SCHEMA :
-                group = StatementTypes.X_SQL_SESSION;
+                group    = StatementTypes.X_SQL_SESSION;
                 isLogged = true;
                 break;
 
             case StatementTypes.DECLARE_VARIABLE :
-                group = StatementTypes.X_HSQLDB_SESSION;
+                group    = StatementTypes.X_HSQLDB_SESSION;
                 isLogged = true;
                 break;
 
@@ -136,7 +134,6 @@ public class StatementSession extends Statement {
                 group = StatementTypes.X_DYNAMIC;
                 break;
 
-
             // logged by session
             case StatementTypes.DISCONNECT :
                 group = StatementTypes.X_SQL_CONNECTION;
@@ -172,8 +169,7 @@ public class StatementSession extends Statement {
         }
     }
 
-    StatementSession(int type, HsqlName[] readNames,
-                     HsqlName[] writeNames) {
+    StatementSession(int type, HsqlName[] readNames, HsqlName[] writeNames) {
 
         super(type);
 
@@ -273,7 +269,6 @@ public class StatementSession extends Statement {
             case StatementTypes.TRANSACTION_LOCK_TABLE : {
                 return Result.updateZeroResult;
             }
-
             case StatementTypes.RELEASE_SAVEPOINT : {
                 String savepoint = (String) parameters[0];
 
@@ -310,7 +305,6 @@ public class StatementSession extends Statement {
 
                 return Result.updateZeroResult;
             }
-
             case StatementTypes.SET_CATALOG : {
                 String name;
 

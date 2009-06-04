@@ -31,7 +31,6 @@
 
 package org.hsqldb.navigator;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 
 /**
@@ -46,7 +45,7 @@ public interface RowIterator {
 
     boolean hasNext();
 
-    void remove() throws HsqlException;
+    void remove();
 
     boolean setRowColumns(boolean[] columns);
 

@@ -231,8 +231,8 @@ public class JDBCBlobClient implements Blob {
      * @throws SQLException if there is an error accessing the
      *   <code>BLOB</code> value
      */
-    public synchronized OutputStream setBinaryStream(
-            long pos) throws SQLException {
+    public synchronized OutputStream setBinaryStream(long pos)
+    throws SQLException {
         throw Util.notSupported();
     }
 

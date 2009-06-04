@@ -199,8 +199,7 @@ public class Database {
      *      combination is illegal or unavailable, or the database files the
      *      name and path resolves to are in use by another process
      */
-    Database(String type, String path, String name,
-             HsqlProperties props) throws HsqlException {
+    Database(String type, String path, String name, HsqlProperties props) {
 
         urlProperties = props;
 
@@ -254,7 +253,7 @@ public class Database {
     /**
      * Opens this database.  The database should be opened after construction.
      */
-    synchronized void open() throws HsqlException {
+    synchronized void open() {
 
         if (!isShutdown()) {
             return;
@@ -268,7 +267,7 @@ public class Database {
      * or reopened by the close(int closemode) method during a
      * "shutdown compact". Closes the log if there is an error.
      */
-    void reopen() throws HsqlException {
+    void reopen() {
 
         boolean isNew;
 
@@ -458,7 +457,7 @@ public class Database {
      * Throws if username or password is invalid.
      */
     synchronized Session connect(String username, String password,
-                                 int timeZoneSeconds) throws HsqlException {
+                                 int timeZoneSeconds) {
 
         if (username.equalsIgnoreCase("SA")) {
             username = "SA";
@@ -593,7 +592,7 @@ public class Database {
      *       which in turn creates a new, compact *.data file.
      * </ol>
      */
-    public void close(int closemode) throws HsqlException {
+    public void close(int closemode) {
 
         HsqlException he = null;
 

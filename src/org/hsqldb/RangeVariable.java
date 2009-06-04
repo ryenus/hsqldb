@@ -150,7 +150,7 @@ final class RangeVariable {
         level            = range.level;
     }
 
-    void setJoinType(boolean isLeft, boolean isRight) throws HsqlException {
+    void setJoinType(boolean isLeft, boolean isRight) {
         isLeftJoin  = isLeft;
         isRightJoin = isRight;
     }
@@ -194,7 +194,7 @@ final class RangeVariable {
         return columnNames;
     }
 
-    public OrderedHashSet getUniqueColumnNameSet() throws HsqlException {
+    public OrderedHashSet getUniqueColumnNameSet() {
 
         OrderedHashSet set = new OrderedHashSet();
 
@@ -593,7 +593,8 @@ final class RangeVariable {
 
         if (findFirstExpressions != null) {
             StringBuffer sbt = new StringBuffer();
-            for (int i=0; i < multiColumnCount; i++) {
+
+            for (int i = 0; i < multiColumnCount; i++) {
                 sbt.append(findFirstExpressions[i].describe(session));
             }
 
@@ -626,7 +627,7 @@ final class RangeVariable {
     }
 
     public RangeIteratorMain getFullIterator(Session session,
-            RangeIteratorMain mainIterator) throws HsqlException {
+            RangeIteratorMain mainIterator) {
 
         RangeIteratorMain it = new FullRangeIterator(session, this,
             mainIterator);
@@ -637,7 +638,7 @@ final class RangeVariable {
     }
 
     public static RangeIteratorMain getIterator(Session session,
-            RangeVariable[] rangeVars) throws HsqlException {
+            RangeVariable[] rangeVars) {
 
         if (rangeVars.length == 1) {
             return rangeVars[0].getIterator(session);
@@ -679,7 +680,7 @@ final class RangeVariable {
             return isBeforeFirst;
         }
 
-        public boolean next() throws HsqlException {
+        public boolean next() {
 
             if (isBeforeFirst) {
                 isBeforeFirst = false;
@@ -768,7 +769,7 @@ final class RangeVariable {
             return isBeforeFirst;
         }
 
-        public boolean next() throws HsqlException {
+        public boolean next() {
 
             if (isBeforeFirst) {
                 isBeforeFirst = false;
@@ -804,7 +805,7 @@ final class RangeVariable {
 
         /**
          */
-        protected void initialiseIterator() throws HsqlException {
+        protected void initialiseIterator() {
 
             hasOuterRow = rangeVar.isLeftJoin;
 
@@ -841,7 +842,7 @@ final class RangeVariable {
 
         /**
          */
-        private void getFirstRow() throws HsqlException {
+        private void getFirstRow() {
 
             Object value =
                 rangeVar.indexCondition.getRightNode().getValue(session);
@@ -892,7 +893,7 @@ final class RangeVariable {
         /**
          * Uses multiple EQUAL expressions
          */
-        private void getFirstRowMulti() throws HsqlException {
+        private void getFirstRowMulti() {
 
             boolean convertible = true;
             Object[] currentJoinData =
@@ -929,10 +930,8 @@ final class RangeVariable {
          * Advances to the next available value. <p>
          *
          * @return true if a next value is available upon exit
-         *
-         * @throws HsqlException if a database access error occurs
          */
-        protected boolean findNext() throws HsqlException {
+        protected boolean findNext() {
 
             boolean result = false;
 
@@ -998,7 +997,7 @@ final class RangeVariable {
             return result;
         }
 
-        protected void addFoundRow() throws HsqlException {
+        protected void addFoundRow() {
 
             if (rangeVar.isRightJoin) {
                 try {
@@ -1013,8 +1012,7 @@ final class RangeVariable {
     public static class FullRangeIterator extends RangeIteratorMain {
 
         public FullRangeIterator(Session session, RangeVariable rangeVar,
-                                 RangeIteratorMain rangeIterator)
-                                 throws HsqlException {
+                                 RangeIteratorMain rangeIterator) {
 
             this.rangePosition = rangeVar.rangePosition;
             this.store = session.sessionData.getRowStore(rangeVar.rangeTable);
@@ -1026,9 +1024,9 @@ final class RangeVariable {
             it                 = rangeVar.rangeIndex.firstRow(session, store);
         }
 
-        protected void initialiseIterator() throws HsqlException {}
+        protected void initialiseIterator() {}
 
-        protected boolean findNext() throws HsqlException {
+        protected boolean findNext() {
 
             boolean result;
 
@@ -1087,7 +1085,7 @@ final class RangeVariable {
             return isBeforeFirst;
         }
 
-        public boolean next() throws HsqlException {
+        public boolean next() {
 
             while (currentIndex >= 0) {
                 RangeIteratorMain it = rangeIterators[currentIndex];

@@ -239,17 +239,15 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @param db the <code>Database</code> object for which this object
      *      produces system tables
-     * @throws HsqlException if a database access error occurs
      */
-    DatabaseInformationMain(Database db) throws HsqlException {
+    DatabaseInformationMain(Database db) {
 
         super(db);
 
         init();
     }
 
-    protected final void addColumn(Table t, String name,
-                                   Type type) throws HsqlException {
+    protected final void addColumn(Table t, String name, Type type) {
 
         HsqlName     cn;
         ColumnSchema c;
@@ -278,9 +276,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * Clears the contents of cached system tables and resets user slots
      * to null. <p>
      *
-     * @throws HsqlException if a database access error occurs
      */
-    protected final void cacheClear() throws HsqlException {
+    protected final void cacheClear() {
 
         int i = sysTables.length;
 
@@ -302,10 +299,9 @@ class DatabaseInformationMain extends DatabaseInformation {
      * tableIndex value. <p>
      *
      * @param tableIndex int value identifying the system table to generate
-     * @throws HsqlException if a database access error occurs
      * @return the system table corresponding to the specified tableIndex value
      */
-    protected Table generateTable(int tableIndex) throws HsqlException {
+    protected Table generateTable(int tableIndex) {
 
         Table t = sysTables[tableIndex];
 
@@ -407,9 +403,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * One time initialisation of instance attributes
      * at construction time. <p>
      *
-     * @throws HsqlException if a database access error occurs
      */
-    protected final void init() throws HsqlException {
+    protected final void init() {
 
         ns = new DINameSpace(database);
         pi = new DIProcedureInfo(ns);
@@ -455,10 +450,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return true if the table is accessible, else false
      * @param table the table for which to check accessibility
-     * @throws HsqlException if a database access error occurs
      */
-    protected final boolean isAccessibleTable(Table table)
-    throws HsqlException {
+    protected final boolean isAccessibleTable(Table table) {
         return session.getGrantee().isAccessible(table);
     }
 
@@ -467,10 +460,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return a new system table
      * @param name of the table
-     * @throws HsqlException if a database access error occurs
      */
-    protected final Table createBlankTable(HsqlName name)
-    throws HsqlException {
+    protected final Table createBlankTable(HsqlName name) {
 
         Table table = new Table(database, name, TableBase.SYSTEM_TABLE);
 
@@ -483,13 +474,11 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @param session the Session object requesting the table
      * @param name a String identifying the desired table
-     * @throws HsqlException if there is a problem producing the table or a
      *      database access error occurs
      * @return a system table corresponding to the <code>name</code> and
      *      <code>session</code> arguments
      */
-    public final Table getSystemTable(Session session,
-                                      String name) throws HsqlException {
+    public final Table getSystemTable(Session session, String name) {
 
         Table t;
         int   tableIndex;
@@ -678,9 +667,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the optimal
      * set of visible columns that uniquely identifies a row
      * for each accessible table defined within this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_BESTROWIDENTIFIER() throws HsqlException {
+    final Table SYSTEM_BESTROWIDENTIFIER() {
 
         Table t = sysTables[SYSTEM_BESTROWIDENTIFIER];
 
@@ -859,9 +847,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the
      *        visible columns of all accessible
      *        tables defined within this database.<p>
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_COLUMNS() throws HsqlException {
+    final Table SYSTEM_COLUMNS() {
 
         Table t = sysTables[SYSTEM_COLUMNS];
 
@@ -1051,9 +1038,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing how accessible tables
      *      import other accessible tables' primary key and/or unique
      *      constraint columns
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_CROSSREFERENCE() throws HsqlException {
+    final Table SYSTEM_CROSSREFERENCE() {
 
         Table t = sysTables[SYSTEM_CROSSREFERENCE];
 
@@ -1262,9 +1248,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the visible
      *        <code>Index</code> objects for each accessible
      *        table defined within this database.
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_INDEXINFO() throws HsqlException {
+    final Table SYSTEM_INDEXINFO() {
 
         Table t = sysTables[SYSTEM_INDEXINFO];
 
@@ -1440,9 +1425,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the visible
      *        primary key columns of each accessible table
      *        defined within this database.
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_PRIMARYKEYS() throws HsqlException {
+    final Table SYSTEM_PRIMARYKEYS() {
 
         Table t = sysTables[SYSTEM_PRIMARYKEYS];
 
@@ -1611,9 +1595,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        return, parameter and result columns
      *        of the accessible routines defined
      *        within this database.
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_PROCEDURECOLUMNS() throws HsqlException {
+    Table SYSTEM_PROCEDURECOLUMNS() {
 
         Table t = sysTables[SYSTEM_PROCEDURECOLUMNS];
 
@@ -1797,15 +1780,13 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      fully qualified Java Method name and signature)
      * @param origin origin of the procedure, e.g.
      *      (["BUILTIN" | "USER DEFINED"] "ROUTINE" | "TRIGGER") | "ALIAS", etc.
-     * @throws HsqlException if there is problem inserting the specified rows
-     *      in the table
      *
      */
     protected void addProcRows(Table t, HsqlArrayList l, String cat,
                                String schem, String pName, Integer ip,
                                Integer op, Integer rs, String remark,
                                Integer pType, String specificName,
-                               String origin) throws HsqlException {
+                               String origin) {
 
         PersistentStore store = database.persistentStoreCollection.getStore(t);
 
@@ -1888,9 +1869,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return a <code>Table</code> object describing the accessible
      *        routines defined within the this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_PROCEDURES() throws HsqlException {
+    Table SYSTEM_PROCEDURES() {
 
         Table t = sysTables[SYSTEM_PROCEDURES];
 
@@ -2027,8 +2007,6 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @param specificName the specific name of the procedure (typically but
      *   not limited to a fully qualified Java Method name and signature)
      * @param jdbcSequence int
-     * @throws HsqlException if there is problem inserting the specified rows
-     *   in the table
      */
     protected void addPColRows(Table t, HsqlArrayList l, String cat,
                                String schem, String pName, String cName,
@@ -2039,8 +2017,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                                Integer sqlDataType, Integer sqlDateTimeSub,
                                Integer charOctetLength,
                                Integer ordinalPosition, String isNullable,
-                               String specificName,
-                               int jdbcSequence) throws HsqlException {
+                               String specificName, int jdbcSequence) {
 
         PersistentStore store = database.persistentStoreCollection.getStore(t);
 
@@ -2156,9 +2133,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return table containing information about schemas defined
      *      within this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_SCHEMAS() throws HsqlException {
+    final Table SYSTEM_SCHEMAS() {
 
         Table t = sysTables[SYSTEM_SCHEMAS];
 
@@ -2237,9 +2213,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return a <code>Table</code> object describing the accessible
      *      tables defined within this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_TABLES() throws HsqlException {
+    final Table SYSTEM_TABLES() {
 
         Table t = sysTables[SYSTEM_TABLES];
 
@@ -2380,9 +2355,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return a <code>Table</code> object describing the table types
      *        available in this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_TABLETYPES() throws HsqlException {
+    Table SYSTEM_TABLETYPES() {
 
         Table t = sysTables[SYSTEM_TABLETYPES];
 
@@ -2461,9 +2435,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return a <code>Table</code> object describing the
      *      system-defined SQL types supported as table columns
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_TYPEINFO() throws HsqlException {
+    final Table SYSTEM_TYPEINFO() {
 
         Table t = sysTables[SYSTEM_TYPEINFO];
 
@@ -2599,9 +2572,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return a <code>Table</code> object describing all of the
      *        standard SQL types known to this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table SYSTEM_ALLTYPEINFO() throws HsqlException {
+    final Table SYSTEM_ALLTYPEINFO() {
 
         Table t = sysTables[SYSTEM_ALLTYPEINFO];
 
@@ -2866,9 +2838,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * visible <code>Users</code> defined within this database.
      * @return table containing information about the users defined within
      *      this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_USERS() throws HsqlException {
+    Table SYSTEM_USERS() {
 
         Table t = sysTables[SYSTEM_USERS];
 
@@ -2947,9 +2918,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *        access rights for all visible columns of
      *        all accessible tables defined within this
      *        database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table COLUMN_PRIVILEGES() throws HsqlException {
+    final Table COLUMN_PRIVILEGES() {
 
         Table t = sysTables[COLUMN_PRIVILEGES];
 
@@ -3138,10 +3108,9 @@ class DatabaseInformationMain extends DatabaseInformation {
      *      is materialized in an SQL statement. <p>
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    final Table SEQUENCES() throws HsqlException {
+    final Table SEQUENCES() {
 
         Table t = sysTables[SEQUENCES];
 
@@ -3247,7 +3216,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         return t;
     }
 
-    final Table SYSTEM_SEQUENCES() throws HsqlException {
+    final Table SYSTEM_SEQUENCES() {
 
         Table t = sysTables[SYSTEM_SEQUENCES];
 
@@ -3276,7 +3245,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             // order SEQUENCE_CATALOG, SEQUENCE_SCHEMA, SEQUENCE_NAME
             // false PK, as CATALOG may be null
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_SEQUENCES].name, false, SchemaObject.INDEX);
+                sysTableHsqlNames[SYSTEM_SEQUENCES].name, false,
+                SchemaObject.INDEX);
 
             t.createPrimaryKey(name, new int[] {
                 0, 1, 2
@@ -3381,9 +3351,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      * @return a <code>Table</code> object describing the visible
      *        access rights for each accessible table
      *        defined within this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table TABLE_PRIVILEGES() throws HsqlException {
+    final Table TABLE_PRIVILEGES() {
 
         Table t = sysTables[TABLE_PRIVILEGES];
 
@@ -3493,7 +3462,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         return t;
     }
 
-    Table TABLES() throws HsqlException {
+    Table TABLES() {
 
         Table t = sysTables[TABLES];
 
@@ -3612,9 +3581,8 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      * @return a <code>Table</code> object naming the accessible
      *        catalogs defined within this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    final Table INFORMATION_SCHEMA_CATALOG_NAME() throws HsqlException {
+    final Table INFORMATION_SCHEMA_CATALOG_NAME() {
 
         Table t = sysTables[INFORMATION_SCHEMA_CATALOG_NAME];
 

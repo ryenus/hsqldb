@@ -89,6 +89,7 @@ public interface ErrorCode {
     int TEXT_TABLE_UNKNOWN_DATA_SOURCE  = 48;             // S1000 The table's data source for has not been defined
     int TEXT_TABLE_SOURCE               = 75;             // S1000 Invalid TEXT table source string
     int TEXT_FILE                       = 76;             // S1000 bad TEXT table source file - line number: $$ $$
+    int TEXT_FILE_IO                    = 77;             // S1000 TEXT table source file - IO error:
     int TEXT_STRING_HAS_NEWLINE         = 145;            // S1000 end-of-line characters not allowed
     int TEXT_TABLE_HEADER               = 150;            // S1000 Header not allowed or too long
     int TEXT_SOURCE_EXISTS              = 196;            // S1000 Text source file already exists
@@ -119,8 +120,8 @@ public interface ErrorCode {
     int M_SERVER_SECURE_VERIFY_2         = 137;           // Server certificate has empty Common Name
     int M_SERVER_SECURE_VERIFY_3         = 139;           // Certificate Common Name[$$] does not match host name[$$]
 
-    //                                                       ; in LIMIT, OFFSET or FETCH
-    int INVALID_LIMIT = 153;                              //
+    //                                                       
+    int INVALID_LIMIT = 153;                              // ; in LIMIT, OFFSET or FETCH
 
     //
     int U_S0500 = 401;

@@ -87,5 +87,4 @@ class RowActionBase {
         rolledback      = action.rolledback;
         prepared        = action.prepared;
     }
-
 }

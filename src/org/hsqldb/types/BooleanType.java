@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.OpTypes;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
@@ -79,7 +78,7 @@ public final class BooleanType extends Type {
         return true;
     }
 
-    public Type getAggregateType(Type other) throws HsqlException {
+    public Type getAggregateType(Type other) {
 
         if (typeCode == other.typeCode) {
             return this;
@@ -92,8 +91,7 @@ public final class BooleanType extends Type {
         throw Error.error(ErrorCode.X_42562);
     }
 
-    public Type getCombinedType(Type other,
-                                int operation) throws HsqlException {
+    public Type getCombinedType(Type other, int operation) {
 
         switch (operation) {
 
@@ -128,13 +126,12 @@ public final class BooleanType extends Type {
                                          : 1);
     }
 
-    public Object convertToTypeLimits(SessionInterface session,
-                                      Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session, Object a) {
         return a;
     }
 
     public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) throws HsqlException {
+                                Type otherType) {
 
         if (a == null) {
             return a;
@@ -182,7 +179,7 @@ public final class BooleanType extends Type {
     }
 
     public Object convertToTypeJDBC(SessionInterface session, Object a,
-                                    Type otherType) throws HsqlException {
+                                    Type otherType) {
 
         if (a == null) {
             return a;
@@ -203,8 +200,7 @@ public final class BooleanType extends Type {
         }
     }
 
-    public Object convertToDefaultType(SessionInterface session,
-                                       Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
             return null;

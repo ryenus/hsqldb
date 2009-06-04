@@ -49,8 +49,7 @@ public class TableDerived extends Table {
     QueryExpression queryExpression;
     View            view;
 
-    public TableDerived(Database database, HsqlName name,
-                        int type) throws HsqlException {
+    public TableDerived(Database database, HsqlName name, int type) {
 
         super(database, name, type);
 
@@ -66,7 +65,7 @@ public class TableDerived extends Table {
     }
 
     public TableDerived(Database database, HsqlName name, int type,
-                        QueryExpression queryExpression) throws HsqlException {
+                        QueryExpression queryExpression) {
 
         super(database, name, type);
 
@@ -86,7 +85,7 @@ public class TableDerived extends Table {
 
     public TableDerived(Database database, HsqlName name, int type,
                         Type[] columnTypes, HashMappedList columnList,
-                        QueryExpression queryExpression) throws HsqlException {
+                        QueryExpression queryExpression) {
 
         this(database, name, type, queryExpression);
 

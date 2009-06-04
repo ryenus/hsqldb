@@ -981,8 +981,7 @@ public class StatementSchema extends Statement {
         return Result.updateZeroResult;
     }
 
-    private void dropType(Session session, HsqlName name,
-                          boolean cascade) throws HsqlException {
+    private void dropType(Session session, HsqlName name, boolean cascade) {
 
         checkSchemaUpdateAuthorisation(session, name.schema);
 
@@ -995,7 +994,7 @@ public class StatementSchema extends Statement {
     }
 
     private static void dropDomain(Session session, HsqlName name,
-                                   boolean cascade) throws HsqlException {
+                                   boolean cascade) {
 
         Type domain =
             (Type) session.database.schemaManager.getSchemaObject(name);
@@ -1026,7 +1025,7 @@ public class StatementSchema extends Statement {
     }
 
     private static void dropRole(Session session, HsqlName name,
-                                 boolean cascade) throws HsqlException {
+                                 boolean cascade) {
 
         Grantee role = session.database.getGranteeManager().getRole(name.name);
 
@@ -1044,7 +1043,7 @@ public class StatementSchema extends Statement {
     }
 
     private static void dropUser(Session session, HsqlName name,
-                                 boolean cascade) throws HsqlException {
+                                 boolean cascade) {
 
         Grantee grantee = session.database.getUserManager().get(name.name);
 
@@ -1065,8 +1064,7 @@ public class StatementSchema extends Statement {
         session.database.getUserManager().dropUser(name.name);
     }
 
-    private void dropSchema(Session session, HsqlName name,
-                            boolean cascade) throws HsqlException {
+    private void dropSchema(Session session, HsqlName name, boolean cascade) {
 
         HsqlName schema =
             session.database.schemaManager.getUserSchemaHsqlName(name.name);
@@ -1075,8 +1073,7 @@ public class StatementSchema extends Statement {
         session.database.schemaManager.dropSchema(name.name, cascade);
     }
 
-    private void dropRoutine(Session session, HsqlName name,
-                             boolean cascade) throws HsqlException {
+    private void dropRoutine(Session session, HsqlName name, boolean cascade) {
 
         HsqlName routineName =
             session.database.schemaManager.getSchemaObjectName(name.schema,
@@ -1087,8 +1084,7 @@ public class StatementSchema extends Statement {
                 cascade);
     }
 
-    private void dropObject(Session session, HsqlName name,
-                            boolean cascade) throws HsqlException {
+    private void dropObject(Session session, HsqlName name, boolean cascade) {
 
         name = session.database.schemaManager.getSchemaObjectName(name.schema,
                 name.name, name.type, true);
@@ -1096,8 +1092,7 @@ public class StatementSchema extends Statement {
         session.database.schemaManager.removeSchemaObject(name, cascade);
     }
 
-    private void dropTable(Session session, HsqlName name,
-                           boolean cascade) throws HsqlException {
+    private void dropTable(Session session, HsqlName name, boolean cascade) {
 
         Table table = session.database.schemaManager.findUserTable(session,
             name.name, name.schema.name);
@@ -1106,8 +1101,7 @@ public class StatementSchema extends Statement {
                 cascade);
     }
 
-    void checkSchemaUpdateAuthorisation(Session session,
-                                        HsqlName schema) throws HsqlException {
+    void checkSchemaUpdateAuthorisation(Session session, HsqlName schema) {
 
         if (session.isProcessingLog) {
             return;
@@ -1130,7 +1124,7 @@ public class StatementSchema extends Statement {
     }
 
     void setOrCheckObjectName(Session session, HsqlName parent, HsqlName name,
-                              boolean check) throws HsqlException {
+                              boolean check) {
 
         if (name.schema == null) {
             name.schema = schemaName == null
@@ -1159,8 +1153,7 @@ public class StatementSchema extends Statement {
         }
     }
 
-    void setSchemaName(Session session, HsqlName parent,
-                       HsqlName name) throws HsqlException {
+    void setSchemaName(Session session, HsqlName parent, HsqlName name) {
 
         if (name.schema == null) {
             name.schema = schemaName == null

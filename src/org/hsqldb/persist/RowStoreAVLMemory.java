@@ -100,7 +100,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         return 0;
     }
 
-    public void add(CachedObject object) throws HsqlException {}
+    public void add(CachedObject object) {}
 
     public CachedObject get(RowInputInterface in) {
         return null;
@@ -108,7 +108,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
     public CachedObject getNewCachedObject(Session session,
                                            Object object)
-                                           throws HsqlException {
+                                           {
 
         Row row = new RowAVL(table, (Object[]) object);
 
@@ -159,7 +159,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
     public void setAccessor(Index key, int accessor) {}
 
-    public void resetAccessorKeys(Index[] keys) throws HsqlException {
+    public void resetAccessorKeys(Index[] keys) {
 
         if (indexList.length == 0 || indexList[0] == null
                 || accessorList[0] == null) {
@@ -209,7 +209,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     }
 
     void dropIndexFromRows(Index primaryIndex,
-                           Index oldIndex) throws HsqlException {
+                           Index oldIndex) {
 
         RowIterator it       = primaryIndex.firstRow(this);
         int         position = oldIndex.getPosition() - 1;
@@ -228,7 +228,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     }
 
     boolean insertIndexNodes(Index primaryIndex,
-                             Index newIndex) throws HsqlException {
+                             Index newIndex) {
 
         int           position = newIndex.getPosition();
         RowIterator   it       = primaryIndex.firstRow(this);
@@ -276,7 +276,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     /**
      * for result tables
      */
-    void reindex(Session session, Index index) throws HsqlException {
+    void reindex(Session session, Index index) {
 
         setAccessor(index, null);
 

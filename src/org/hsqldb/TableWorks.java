@@ -66,7 +66,7 @@ public class TableWorks {
         return table;
     }
 
-    void checkCreateForeignKey(Constraint c) throws HsqlException {
+    void checkCreateForeignKey(Constraint c) {
 
         if (c.core.mainName == table.getName()) {
             if (ArrayUtil.haveCommonElement(c.core.refCols, c.core.mainCols,
@@ -154,10 +154,9 @@ public class TableWorks {
      * the same rules above. Foreign keys on permanent tables cannot reference
      * temp tables. Duplicate foreign keys are now disallowed.
      *
-     * @throws HsqlException
      * @param c the constraint object
      */
-    void addForeignKey(Constraint c) throws HsqlException {
+    void addForeignKey(Constraint c) {
 
         checkCreateForeignKey(c);
 
@@ -213,10 +212,8 @@ public class TableWorks {
      * the operation of adding such a Column to the Table argument, table.
      *
      * @param col the Column to add to the Table, t
-     * @throws HsqlException if the operation of adding the Column, c, to the
-     *   table t is not valid
      */
-    void checkAddColumn(ColumnSchema col) throws HsqlException {
+    void checkAddColumn(ColumnSchema col) {
 
         if (table.isText() && !table.isEmpty(session)) {
             throw Error.error(ErrorCode.X_S0521);
@@ -242,7 +239,7 @@ public class TableWorks {
     }
 
     void addColumn(ColumnSchema column, int colIndex,
-                   HsqlArrayList constraints) throws HsqlException {
+                   HsqlArrayList constraints) {
 
         Index      index          = null;
         Table      originalTable  = table;
@@ -393,8 +390,7 @@ public class TableWorks {
     }
 
     void updateConstraints(OrderedHashSet tableSet,
-                           OrderedHashSet dropConstraints)
-                           throws HsqlException {
+                           OrderedHashSet dropConstraints) {
 
         for (int i = 0; i < tableSet.size(); i++) {
             Table t = (Table) tableSet.get(i);
@@ -403,9 +399,7 @@ public class TableWorks {
         }
     }
 
-    void updateConstraints(Table t,
-                           OrderedHashSet dropConstraints)
-                           throws HsqlException {
+    void updateConstraints(Table t, OrderedHashSet dropConstraints) {
 
         for (int i = t.constraintList.length - 1; i >= 0; i--) {
             Constraint c = t.constraintList[i];
@@ -434,8 +428,7 @@ public class TableWorks {
 
     OrderedHashSet makeNewTables(OrderedHashSet tableSet,
                                  OrderedHashSet dropConstraintSet,
-                                 OrderedHashSet dropIndexSet)
-                                 throws HsqlException {
+                                 OrderedHashSet dropIndexSet) {
 
         OrderedHashSet newSet = new OrderedHashSet();
 
@@ -454,7 +447,7 @@ public class TableWorks {
      * Drops constriants and their indexes in table. Uses set of names.
      */
     void makeNewTable(OrderedHashSet dropConstraintSet,
-                      OrderedHashSet dropIndexSet) throws HsqlException {
+                      OrderedHashSet dropIndexSet) {
 
         Table tn = table.moveDefinition(session, table.tableType, null, null,
                                         null, -1, 0, dropConstraintSet,
@@ -486,10 +479,8 @@ public class TableWorks {
      * @param name HsqlName
      * @param unique boolean
      * @return new index
-     * @throws HsqlException normally for lack of resources
      */
-    Index addIndex(int[] col, HsqlName name,
-                   boolean unique) throws HsqlException {
+    Index addIndex(int[] col, HsqlName name, boolean unique) {
 
         Index newindex;
 
@@ -522,8 +513,7 @@ public class TableWorks {
         return newindex;
     }
 
-    void addPrimaryKey(Constraint constraint,
-                       HsqlName name) throws HsqlException {
+    void addPrimaryKey(Constraint constraint, HsqlName name) {
 
         if (table.hasPrimaryKey()) {
             throw Error.error(ErrorCode.X_42532);
@@ -556,9 +546,8 @@ public class TableWorks {
      *
      * @param cols int[]
      * @param name HsqlName
-     * @throws HsqlException
      */
-    void addUniqueConstraint(int[] cols, HsqlName name) throws HsqlException {
+    void addUniqueConstraint(int[] cols, HsqlName name) {
 
         database.schemaManager.checkSchemaObjectNotExists(name);
 
@@ -589,7 +578,7 @@ public class TableWorks {
         database.schemaManager.recompileDependentObjects(table);
     }
 
-    void addCheckConstraint(Constraint c) throws HsqlException {
+    void addCheckConstraint(Constraint c) {
 
         database.schemaManager.checkSchemaObjectNotExists(c.getName());
         c.prepareCheckConstraint(session, table, true);
@@ -615,9 +604,8 @@ public class TableWorks {
      * of the old table (fredt@users)
      *
      * @param indexName String
-     * @throws HsqlException
      */
-    void dropIndex(String indexName) throws HsqlException {
+    void dropIndex(String indexName) {
 
         Index index;
 
@@ -649,7 +637,7 @@ public class TableWorks {
         database.schemaManager.recompileDependentObjects(table);
     }
 
-    void dropColumn(int colIndex, boolean cascade) throws HsqlException {
+    void dropColumn(int colIndex, boolean cascade) {
 
         OrderedHashSet constraintNameSet = new OrderedHashSet();
         OrderedHashSet dependentConstraints =
@@ -732,8 +720,7 @@ public class TableWorks {
         table = tn;
     }
 
-    void registerConstraintNames(HsqlArrayList constraints)
-    throws HsqlException {
+    void registerConstraintNames(HsqlArrayList constraints) {
 
         for (int i = 0; i < constraints.size(); i++) {
             Constraint c = (Constraint) constraints.get(i);
@@ -748,7 +735,7 @@ public class TableWorks {
         }
     }
 
-    void dropConstraint(String name, boolean cascade) throws HsqlException {
+    void dropConstraint(String name, boolean cascade) {
 
         Constraint constraint = table.getConstraint(name);
 
@@ -892,10 +879,8 @@ public class TableWorks {
      *
      * @param oldCol Column
      * @param newCol Column
-     * @throws HsqlException
      */
-    void retypeColumn(ColumnSchema oldCol,
-                      ColumnSchema newCol) throws HsqlException {
+    void retypeColumn(ColumnSchema oldCol, ColumnSchema newCol) {
 
         boolean allowed = true;
         int     oldType = oldCol.getDataType().typeCode;
@@ -983,10 +968,8 @@ public class TableWorks {
      *
      * @param oldCol Column
      * @param newCol Column
-     * @throws HsqlException
      */
-    void checkConvertColDataType(ColumnSchema oldCol,
-                                 ColumnSchema newCol) throws HsqlException {
+    void checkConvertColDataType(ColumnSchema oldCol, ColumnSchema newCol) {
 
         int         colIndex = table.getColumnIndex(oldCol.getName().name);
         RowIterator it       = table.rowIterator(session);
@@ -1004,9 +987,8 @@ public class TableWorks {
      *
      * @param column Column
      * @param colIndex int
-     * @throws HsqlException
      */
-    void retypeColumn(ColumnSchema column, int colIndex) throws HsqlException {
+    void retypeColumn(ColumnSchema column, int colIndex) {
 
         if (table.isText() && !table.isEmpty(session)) {
             throw Error.error(ErrorCode.X_S0521);
@@ -1030,10 +1012,8 @@ public class TableWorks {
      *
      * @param column Column
      * @param nullable boolean
-     * @throws HsqlException
      */
-    void setColNullability(ColumnSchema column,
-                           boolean nullable) throws HsqlException {
+    void setColNullability(ColumnSchema column, boolean nullable) {
 
         Constraint c        = null;
         int        colIndex = table.getColumnIndex(column.getName().name);
@@ -1070,10 +1050,8 @@ public class TableWorks {
      *
      * @param colIndex int
      * @param def Expression
-     * @throws HsqlException
      */
-    void setColDefaultExpression(int colIndex,
-                                 Expression def) throws HsqlException {
+    void setColDefaultExpression(int colIndex, Expression def) {
 
         if (def == null) {
             table.checkColumnInFKConstraint(colIndex, Constraint.SET_DEFAULT);
@@ -1087,11 +1065,9 @@ public class TableWorks {
      *
      * @param session Session
      * @param newType int
-     * @throws HsqlException
      * @return boolean
      */
-    public boolean setTableType(Session session,
-                                int newType) throws HsqlException {
+    public boolean setTableType(Session session, int newType) {
 
         int currentType = table.getTableType();
 
@@ -1133,7 +1109,7 @@ public class TableWorks {
         return true;
     }
 
-    void setNewTablesInSchema(OrderedHashSet tableSet) throws HsqlException {
+    void setNewTablesInSchema(OrderedHashSet tableSet) {
 
         for (int i = 0; i < tableSet.size(); i++) {
             Table t = (Table) tableSet.get(i);
@@ -1151,7 +1127,7 @@ public class TableWorks {
         }
     }
 
-    void removeColumnNotNullConstraints(int colIndex) throws HsqlException {
+    void removeColumnNotNullConstraints(int colIndex) {
 
         for (int i = table.constraintList.length - 1; i >= 0; i--) {
             Constraint c = table.constraintList[i];

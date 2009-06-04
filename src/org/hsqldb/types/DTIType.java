@@ -35,7 +35,6 @@ import java.math.BigDecimal;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
@@ -238,7 +237,7 @@ public abstract class DTIType extends Type {
         return endIntervalType;
     }
 
-    public Type getExtractType(int part) throws HsqlException {
+    public Type getExtractType(int part) {
 
         switch (part) {
 

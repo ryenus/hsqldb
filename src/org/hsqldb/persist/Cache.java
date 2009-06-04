@@ -32,7 +32,6 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.Error;
-import org.hsqldb.HsqlException;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.Sort;
@@ -115,7 +114,7 @@ public class Cache extends BaseHashMap {
     /**
      * Adds a row to the cache.
      */
-    synchronized void put(int key, CachedObject row) throws HsqlException {
+    synchronized void put(int key, CachedObject row) {
 
         int storageSize = row.getStorageSize();
 
@@ -180,7 +179,7 @@ public class Cache extends BaseHashMap {
      * in the cache.
      *
      */
-    synchronized void cleanUp() throws HsqlException {
+    synchronized void cleanUp() {
 
         updateAccessCounts();
 
@@ -237,7 +236,7 @@ public class Cache extends BaseHashMap {
         saveRows(savecount);
     }
 
-    private synchronized void saveRows(int count) throws HsqlException {
+    private synchronized void saveRows(int count) {
 
         if (count == 0) {
             return;
@@ -264,7 +263,7 @@ public class Cache extends BaseHashMap {
     /**
      * Writes out all modified cached Rows.
      */
-    synchronized void saveAll() throws HsqlException {
+    synchronized void saveAll() {
 
         Iterator it        = new BaseHashIterator();
         int      savecount = 0;

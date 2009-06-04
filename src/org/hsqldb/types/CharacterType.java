@@ -36,7 +36,6 @@ import java.math.BigDecimal;
 import org.hsqldb.Collation;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
@@ -215,7 +214,7 @@ public class CharacterType extends Type {
         }
     }
 
-    public Type getAggregateType(Type other) throws HsqlException {
+    public Type getAggregateType(Type other) {
 
         if (typeCode == other.typeCode) {
             return precision >= other.precision ? this
@@ -289,8 +288,7 @@ public class CharacterType extends Type {
     /**
      * For concatenation
      */
-    public Type getCombinedType(Type other,
-                                int operation) throws HsqlException {
+    public Type getCombinedType(Type other, int operation) {
 
         if (operation != OpTypes.CONCAT) {
             return getAggregateType(other);
@@ -390,8 +388,7 @@ public class CharacterType extends Type {
         }
     }
 
-    public Object convertToTypeLimits(SessionInterface session,
-                                      Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session, Object a) {
 
         if (a == null) {
             return a;
@@ -453,7 +450,7 @@ public class CharacterType extends Type {
     }
 
     public Object castToType(SessionInterface session, Object a,
-                             Type otherType) throws HsqlException {
+                             Type otherType) {
 
         if (a == null) {
             return a;
@@ -463,8 +460,7 @@ public class CharacterType extends Type {
     }
 
     public Object castOrConvertToType(SessionInterface session, Object a,
-                                      Type otherType,
-                                      boolean cast) throws HsqlException {
+                                      Type otherType, boolean cast) {
 
         switch (otherType.typeCode) {
 
@@ -495,7 +491,8 @@ public class CharacterType extends Type {
                         return a;
 
                     case Types.SQL_CLOB : {
-                        ClobData clob = session.createClob(((String)a).length());
+                        ClobData clob =
+                            session.createClob(((String) a).length());
 
                         clob.setString(session, 0, (String) a);
 
@@ -540,7 +537,7 @@ public class CharacterType extends Type {
                     case Types.SQL_CLOB : {
                         if (precision != 0 && length > precision) {
                             return ((ClobData) a).getClob(session, 0,
-                                                               precision);
+                                                          precision);
                         }
 
                         return a;
@@ -570,7 +567,7 @@ public class CharacterType extends Type {
     }
 
     public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) throws HsqlException {
+                                Type otherType) {
 
         if (a == null) {
             return a;
@@ -580,7 +577,7 @@ public class CharacterType extends Type {
     }
 
     public Object convertToTypeJDBC(SessionInterface session, Object a,
-                                    Type otherType) throws HsqlException {
+                                    Type otherType) {
 
         if (a == null) {
             return a;
@@ -589,8 +586,7 @@ public class CharacterType extends Type {
         return convertToType(session, a, otherType);
     }
 
-    public Object convertToDefaultType(SessionInterface session,
-                                       Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
             return a;
@@ -684,8 +680,7 @@ public class CharacterType extends Type {
     }
 
     public long position(SessionInterface session, Object data,
-                         Object otherData, Type otherType,
-                         long offset) throws HsqlException {
+                         Object otherData, Type otherType, long offset) {
 
         if (data == null || otherData == null) {
             return -1L;
@@ -717,7 +712,7 @@ public class CharacterType extends Type {
 
     public Object substring(SessionInterface session, Object data,
                             long offset, long length, boolean hasLength,
-                            boolean trailing) throws HsqlException {
+                            boolean trailing) {
 
         long end;
         long dataLength = typeCode == Types.SQL_CLOB
@@ -782,7 +777,7 @@ public class CharacterType extends Type {
     /**
      * Memory limits apply to Upper and Lower implementations with Clob data
      */
-    public Object upper(Session session, Object data) throws HsqlException {
+    public Object upper(Session session, Object data) {
 
         if (data == null) {
             return null;
@@ -804,7 +799,7 @@ public class CharacterType extends Type {
         return collation.toUpperCase((String) data);
     }
 
-    public Object lower(Session session, Object data) throws HsqlException {
+    public Object lower(Session session, Object data) {
 
         if (data == null) {
             return null;
@@ -827,8 +822,7 @@ public class CharacterType extends Type {
     }
 
     public Object trim(SessionInterface session, Object data, int trim,
-                       boolean leading,
-                       boolean trailing) throws HsqlException {
+                       boolean leading, boolean trailing) {
 
         if (data == null) {
             return null;
@@ -879,7 +873,7 @@ public class CharacterType extends Type {
 
     public Object overlay(SessionInterface session, Object data,
                           Object overlay, long offset, long length,
-                          boolean hasLength) throws HsqlException {
+                          boolean hasLength) {
 
         if (data == null || overlay == null) {
             return null;
@@ -900,8 +894,7 @@ public class CharacterType extends Type {
                                 false));
     }
 
-    public Object concat(Session session, Object a,
-                         Object b) throws HsqlException {
+    public Object concat(Session session, Object a, Object b) {
 
         if (a == null || b == null) {
             return null;
@@ -936,8 +929,7 @@ public class CharacterType extends Type {
         }
     }
 
-    public long size(SessionInterface session,
-                     Object data) throws HsqlException {
+    public long size(SessionInterface session, Object data) {
 
         if (typeCode == Types.SQL_CLOB) {
             return ((ClobData) data).length(session);

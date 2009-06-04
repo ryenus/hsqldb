@@ -221,7 +221,7 @@ public abstract class StatementDMQL extends Statement {
         return result;
     }
 
-    abstract Result getResult(Session session) throws HsqlException;
+    abstract Result getResult(Session session);
 
     /**
      * For the creation of the statement
@@ -335,7 +335,7 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
-    void materializeSubQueries(Session session) throws HsqlException {
+    void materializeSubQueries(Session session) {
 
         if (subqueries.length == 0) {
             return;
@@ -374,8 +374,7 @@ public abstract class StatementDMQL extends Statement {
         subqueries = null;
     }
 
-    void setDatabseObjects(CompileContext compileContext)
-    throws HsqlException {
+    void setDatabseObjects(CompileContext compileContext) {
 
         parameters = compileContext.getParameters();
 
@@ -421,7 +420,7 @@ public abstract class StatementDMQL extends Statement {
      * to execute the compiled object. Completion requires the list of
      * all database objects in a compiled statement.
      */
-    void checkAccessRights(Session session) throws HsqlException {
+    void checkAccessRights(Session session) {
 
         if (targetTable != null && !targetTable.isTemp()) {
             targetTable.checkDataReadOnly();
@@ -804,7 +803,7 @@ public abstract class StatementDMQL extends Statement {
                                      "]\n");
     }
 
-    public void resolve() throws HsqlException {}
+    public void resolve() {}
 
     public RangeVariable[] getRangeVariables() {
         return rangeVariables;

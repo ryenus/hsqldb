@@ -41,6 +41,8 @@ import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.ErrorCode;
+import org.hsqldb.Error;
 
 /*
  * Implementation of PersistentStore for TEXT tables.
@@ -51,7 +53,6 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
-
     public RowStoreAVLDiskData(PersistentStoreCollection manager,
                                Table table) {
         super(manager, null, table);
@@ -61,7 +62,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         return false;
     }
 
-    public void add(CachedObject object) throws HsqlException {
+    public void add(CachedObject object) {
 
         int size = object.getRealSize(cache.rowOut);
 
@@ -73,16 +74,12 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
         try {
             return new RowAVLDiskData(table, in);
-        } catch (HsqlException e) {
-            return null;
-        } catch (IOException e1) {
-            return null;
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
         }
     }
 
-    public CachedObject getNewCachedObject(Session session,
-                                           Object object)
-                                           throws HsqlException {
+    public CachedObject getNewCachedObject(Session session, Object object) {
 
         Row row = new RowAVLDiskData(table, (Object[]) object);
 

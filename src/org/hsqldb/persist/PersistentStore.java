@@ -31,7 +31,6 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.index.Index;
@@ -71,14 +70,13 @@ public interface PersistentStore {
     int getStorageSize(int key);
 
     /** add new object */
-    void add(CachedObject object) throws HsqlException;
+    void add(CachedObject object);
 
-    CachedObject get(RowInputInterface in) throws HsqlException;
+    CachedObject get(RowInputInterface in);
 
-    CachedObject getNewInstance(int size) throws HsqlException;
+    CachedObject getNewInstance(int size);
 
-    CachedObject getNewCachedObject(Session session,
-                                    Object object) throws HsqlException;
+    CachedObject getNewCachedObject(Session session, Object object);
 
     /** remove the persisted image but not the cached copy */
     void removePersistence(int i);
@@ -94,11 +92,11 @@ public interface PersistentStore {
     /** commit persisted image */
     void commitPersistence(CachedObject object);
 
-    void delete(Row row) throws HsqlException;
+    void delete(Row row);
 
-    void indexRow(Session session, Row row) throws HsqlException;
+    void indexRow(Session session, Row row);
 
-    void indexRows() throws HsqlException;
+    void indexRows();
 
     RowIterator rowIterator();
 
@@ -115,7 +113,7 @@ public interface PersistentStore {
 
     void setAccessor(Index key, CachedObject accessor);
 
-    void setAccessor(Index key, int accessor) throws HsqlException;
+    void setAccessor(Index key, int accessor);
 
-    void resetAccessorKeys(Index[] keys) throws HsqlException;
+    void resetAccessorKeys(Index[] keys);
 }

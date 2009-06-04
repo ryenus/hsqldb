@@ -140,7 +140,7 @@ public class LobManager {
         this.database = database;
     }
 
-    public void createSchema() throws HsqlException {
+    public void createSchema() {
 
         sysLobSession = database.sessionManager.getSysLobSession();
 
@@ -174,7 +174,7 @@ public class LobManager {
         getNextLobId  = session.compileStatement(getNextLobIdSQL);
     }
 
-    public void initialiseLobSpace() throws HsqlException {
+    public void initialiseLobSpace() {
 
         Statement statement =
             sysLobSession.compileStatement(initialiseBlocksSQL);
@@ -187,9 +187,9 @@ public class LobManager {
         sysLobSession.executeCompiledStatement(statement, args);
     }
 
-    void initialiseLobStore() throws HsqlException {}
+    void initialiseLobStore() {}
 
-    public void open() throws HsqlException {
+    public void open() {
 
         if (DatabaseURL.isFileBasedDatabaseType(database.getType())) {
             lobStore = new LobStoreRAFile(database, lobBlockSize);
@@ -339,8 +339,7 @@ public class LobManager {
         }
     }
 
-    public long getLengthValue(Session session,
-                               long lobID) throws HsqlException {
+    public long getLengthValue(Session session, long lobID) {
 
         Object[] data = getLobHeader(session, lobID);
 
@@ -414,8 +413,7 @@ public class LobManager {
         return ResultLob.newLobSetResponse(newLobID, length);
     }
 
-    private void copyBlockSet(int[][] source,
-                              int[][] target) throws HsqlException {
+    private void copyBlockSet(int[][] source, int[][] target) {
 
         int sourceIndex = 0;
         int targetIndex = 0;
@@ -739,7 +737,7 @@ public class LobManager {
     }
 
     public Result setBytesForNewBlob(long lobID, InputStream inputStream,
-                                     long length) throws HsqlException {
+                                     long length) {
 
         Session session = sysLobSession;
 
@@ -790,7 +788,7 @@ public class LobManager {
     }
 
     public Result setCharsForNewClob(long lobID, InputStream inputStream,
-                                     long length) throws HsqlException {
+                                     long length) {
 
         Session session = sysLobSession;
 
@@ -856,9 +854,8 @@ public class LobManager {
 
     public Result adjustUsageCount(long lobID, int delta) {
 
-        Object[] data = getLobHeader(sysLobSession, lobID);
-
-        int count = ((Number) data[2]).intValue();
+        Object[] data  = getLobHeader(sysLobSession, lobID);
+        int      count = ((Number) data[2]).intValue();
 
         if (count + delta == 0) {
             return deleteLob(lobID);

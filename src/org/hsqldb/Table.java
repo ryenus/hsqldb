@@ -146,8 +146,7 @@ public class Table extends TableBase implements SchemaObject {
     private boolean hasDefaultValues;          //fredt - shortcut for above
 
     //
-    public Table(Database database, HsqlName name,
-                 int type) throws HsqlException {
+    public Table(Database database, HsqlName name, int type) {
 
         this.database = database;
         tableName     = name;
@@ -275,7 +274,7 @@ public class Table extends TableBase implements SchemaObject {
         createPrimaryKey();
     }
 
-    public void createDefaultStore() throws HsqlException {
+    public void createDefaultStore() {
 
         store = database.logger.newStore(null,
                                          database.persistentStoreCollection,
@@ -342,7 +341,7 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
 
@@ -573,7 +572,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Used by INSERT, DELETE, UPDATE operations
      */
-    void checkDataReadOnly() throws HsqlException {
+    void checkDataReadOnly() {
 
         if (isReadOnly) {
             throw Error.error(ErrorCode.DATA_IS_READONLY);
@@ -582,7 +581,7 @@ public class Table extends TableBase implements SchemaObject {
 
 // ----------------------------------------------------------------------------
 // akede@users - 1.7.2 patch Files readonly
-    public void setDataReadOnly(boolean value) throws HsqlException {
+    public void setDataReadOnly(boolean value) {
 
         // Changing the Read-Only mode for the table is only allowed if the
         // the database can realize it.
@@ -616,7 +615,7 @@ public class Table extends TableBase implements SchemaObject {
         updateConstraintLists();
     }
 
-    void updateConstraintPath() throws HsqlException {
+    void updateConstraintPath() {
 
         if (fkMainConstraints.length == 0) {
             return;
@@ -886,7 +885,7 @@ public class Table extends TableBase implements SchemaObject {
      *  Performs the table level checks and adds a column to the table at the
      *  DDL level. Only used at table creation, not at alter column.
      */
-    public void addColumn(ColumnSchema column) throws HsqlException {
+    public void addColumn(ColumnSchema column) {
 
         String name = column.getName().name;
 
@@ -935,10 +934,8 @@ public class Table extends TableBase implements SchemaObject {
      * @param col column array from this Table
      * @param other the other Table object
      * @param othercol column array from the other Table
-     * @throws HsqlException if there is a mismatch
      */
-    void checkColumnsMatch(int[] col, Table other,
-                           int[] othercol) throws HsqlException {
+    void checkColumnsMatch(int[] col, Table other, int[] othercol) {
 
         for (int i = 0; i < col.length; i++) {
             Type type      = colTypes[col[i]];
@@ -950,8 +947,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    void checkColumnsMatch(ColumnSchema column,
-                           int colIndex) throws HsqlException {
+    void checkColumnsMatch(ColumnSchema column, int colIndex) {
 
         Type type      = colTypes[colIndex];
         Type otherType = column.getDataType();
@@ -970,7 +966,7 @@ public class Table extends TableBase implements SchemaObject {
     Table moveDefinition(Session session, int newType, ColumnSchema column,
                          Constraint constraint, Index index, int colIndex,
                          int adjust, OrderedHashSet dropConstraints,
-                         OrderedHashSet dropIndexes) throws HsqlException {
+                         OrderedHashSet dropIndexes) {
 
         boolean newPK = false;
 
@@ -1083,7 +1079,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Used for drop / retype column.
      */
-    void checkColumnInCheckConstraint(int colIndex) throws HsqlException {
+    void checkColumnInCheckConstraint(int colIndex) {
 
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
@@ -1103,7 +1099,7 @@ public class Table extends TableBase implements SchemaObject {
      * referenced by a FK
      * @param colIndex index
      */
-    void checkColumnInFKConstraint(int colIndex) throws HsqlException {
+    void checkColumnInFKConstraint(int colIndex) {
 
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
@@ -1122,7 +1118,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Returns list of constraints dependent only on one column
      */
-    OrderedHashSet getDependentConstraints(int colIndex) throws HsqlException {
+    OrderedHashSet getDependentConstraints(int colIndex) {
 
         OrderedHashSet set = new OrderedHashSet();
 
@@ -1140,8 +1136,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Returns list of constraints dependent on more than one column
      */
-    OrderedHashSet getContainingConstraints(int colIndex)
-    throws HsqlException {
+    OrderedHashSet getContainingConstraints(int colIndex) {
 
         OrderedHashSet set = new OrderedHashSet();
 
@@ -1156,7 +1151,7 @@ public class Table extends TableBase implements SchemaObject {
         return set;
     }
 
-    OrderedHashSet getContainingIndexNames(int colIndex) throws HsqlException {
+    OrderedHashSet getContainingIndexNames(int colIndex) {
 
         OrderedHashSet set = new OrderedHashSet();
 
@@ -1174,8 +1169,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Returns list of MAIN constraints dependent on this PK or UNIQUE constraint
      */
-    OrderedHashSet getDependentConstraints(Constraint constraint)
-    throws HsqlException {
+    OrderedHashSet getDependentConstraints(Constraint constraint) {
 
         OrderedHashSet set = new OrderedHashSet();
 
@@ -1216,10 +1210,8 @@ public class Table extends TableBase implements SchemaObject {
      *
      * @param colIndex index of column
      * @param actionType referential action of the FK
-     * @throws HsqlException
      */
-    void checkColumnInFKConstraint(int colIndex,
-                                   int actionType) throws HsqlException {
+    void checkColumnInFKConstraint(int colIndex, int actionType) {
 
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
@@ -1246,7 +1238,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Returns the index of given column name or throws if not found
      */
-    public int getColumnIndex(String name) throws HsqlException {
+    public int getColumnIndex(String name) {
 
         int i = findColumn(name);
 
@@ -1463,7 +1455,7 @@ public class Table extends TableBase implements SchemaObject {
         return columnCheckList;
     }
 
-    int[] getColumnIndexes(OrderedHashSet set) throws HsqlException {
+    int[] getColumnIndexes(OrderedHashSet set) {
 
         int[] cols = new int[set.size()];
 
@@ -1474,7 +1466,7 @@ public class Table extends TableBase implements SchemaObject {
         return cols;
     }
 
-    int[] getColumnIndexes(HashMappedList list) throws HsqlException {
+    int[] getColumnIndexes(HashMappedList list) {
 
         int[] cols = new int[list.size()];
 
@@ -1542,7 +1534,7 @@ public class Table extends TableBase implements SchemaObject {
      * required and avoids evaluating these values where they will be
      * overwritten.
      */
-    Object[] getNewRowData(Session session) throws HsqlException {
+    Object[] getNewRowData(Session session) {
 
         Object[] data = new Object[getColumnCount()];
         int      i;
@@ -1750,8 +1742,7 @@ public class Table extends TableBase implements SchemaObject {
         updateConstraintLists();
     }
 
-    void renameColumn(ColumnSchema column, String newName,
-                      boolean isquoted) throws HsqlException {
+    void renameColumn(ColumnSchema column, String newName, boolean isquoted) {
 
         String oldname = column.getName().name;
         int    i       = getColumnIndex(oldname);
@@ -1760,8 +1751,7 @@ public class Table extends TableBase implements SchemaObject {
         column.getName().rename(newName, isquoted);
     }
 
-    void renameColumn(ColumnSchema column,
-                      HsqlName newName) throws HsqlException {
+    void renameColumn(ColumnSchema column, HsqlName newName) {
 
         String oldname = column.getName().name;
         int    i       = getColumnIndex(oldname);
@@ -1820,7 +1810,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     void fireAfterTriggers(Session session, int trigVecIndex,
-                           RowSetNavigator rowSet) throws HsqlException {
+                           RowSetNavigator rowSet) {
 
         if (!database.isReferentialIntegrity()) {
             return;
@@ -1878,8 +1868,7 @@ public class Table extends TableBase implements SchemaObject {
      *
      */
     void fireBeforeTriggers(Session session, int trigVecIndex,
-                            Object[] oldData, Object[] newData,
-                            int[] cols) throws HsqlException {
+                            Object[] oldData, Object[] newData, int[] cols) {
 
         if (!database.isReferentialIntegrity()) {
             return;
@@ -1920,8 +1909,7 @@ public class Table extends TableBase implements SchemaObject {
      *  Enforce max field sizes according to SQL column definition.
      *  SQL92 13.8
      */
-    void enforceRowConstraints(Session session,
-                               Object[] data) throws HsqlException {
+    void enforceRowConstraints(Session session, Object[] data) {
 
         for (int i = 0; i < defaultColumnMap.length; i++) {
             Type type = colTypes[i];
@@ -2078,7 +2066,7 @@ public class Table extends TableBase implements SchemaObject {
      *  root signifies an empty table. Accordingly, all index roots should be
      *  null or all should be a valid file pointer/reference.
      */
-    public void setIndexRoots(int[] roots) throws HsqlException {
+    public void setIndexRoots(int[] roots) {
 
         if (!isCached) {
             throw Error.error(ErrorCode.X_42501, tableName.name);
@@ -2095,7 +2083,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Sets the index roots and next identity.
      */
-    void setIndexRoots(Session session, String s) throws HsqlException {
+    void setIndexRoots(Session session, String s) {
 
         if (!isCached) {
             throw Error.error(ErrorCode.X_42501, tableName.name);
@@ -2120,8 +2108,7 @@ public class Table extends TableBase implements SchemaObject {
      *  to remove a given index from a MEMORY or TEXT table. Not for PK index.
      *
      */
-    public void dropIndex(Session session,
-                          String indexname) throws HsqlException {
+    public void dropIndex(Session session, String indexname) {
 
         // find the array index for indexname and remove
         int todrop = getIndexIndex(indexname);
@@ -2145,8 +2132,7 @@ public class Table extends TableBase implements SchemaObject {
      * The colindex argument is the index of the column that was
      * added or removed. The adjust argument is {-1 | 0 | +1}
      */
-    void moveData(Session session, Table from, int colindex,
-                  int adjust) throws HsqlException {
+    void moveData(Session session, Table from, int colindex, int adjust) {
 
         Object       colvalue = null;
         ColumnSchema column   = null;
@@ -2203,8 +2189,7 @@ public class Table extends TableBase implements SchemaObject {
      *  Mid level method for inserting rows. Performs constraint checks and
      *  fires row level triggers.
      */
-    void insertRow(Session session, PersistentStore store,
-                   Object[] data) throws HsqlException {
+    void insertRow(Session session, PersistentStore store, Object[] data) {
 
         setIdentityColumn(session, data);
 
@@ -2224,7 +2209,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Multi-row insert method. Used for CREATE TABLE AS ... queries.
      */
-    void insertIntoTable(Session session, Result result) throws HsqlException {
+    void insertIntoTable(Session session, Result result) {
 
         PersistentStore store = session.sessionData.getRowStore(this);
         RowSetNavigator nav   = result.initialiseNavigator();
@@ -2245,7 +2230,7 @@ public class Table extends TableBase implements SchemaObject {
      *  add the row to the indexes.
      */
     private Row insertNoCheck(Session session, PersistentStore store,
-                              Object[] data) throws HsqlException {
+                              Object[] data) {
 
         Row row = (Row) store.getNewCachedObject(session, data);
 
@@ -2258,8 +2243,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *
      */
-    public void insertNoCheckFromLog(Session session,
-                                     Object[] data) throws HsqlException {
+    public void insertNoCheckFromLog(Session session, Object[] data) {
 
         systemUpdateIdentityValue(data);
 
@@ -2274,8 +2258,7 @@ public class Table extends TableBase implements SchemaObject {
      * Used for system table inserts. No checks. No identity
      * columns.
      */
-    public int insertSys(PersistentStore store,
-                         Result ins) throws HsqlException {
+    public int insertSys(PersistentStore store, Result ins) {
 
         RowSetNavigator nav   = ins.getNavigator();
         int             count = 0;
@@ -2293,7 +2276,7 @@ public class Table extends TableBase implements SchemaObject {
      * Used for subquery inserts. No checks. No identity
      * columns.
      */
-    void insertResult(PersistentStore store, Result ins) throws HsqlException {
+    void insertResult(PersistentStore store, Result ins) {
 
         RowSetNavigator nav = ins.initialiseNavigator();
 
@@ -2312,8 +2295,7 @@ public class Table extends TableBase implements SchemaObject {
      * Used by ScriptReader to unconditionally insert a row into
      * the table when the .script file is read.
      */
-    public void insertFromScript(PersistentStore store,
-                                 Object[] data) throws HsqlException {
+    public void insertFromScript(PersistentStore store, Object[] data) {
         systemUpdateIdentityValue(data);
         insertData(store, data);
     }
@@ -2321,8 +2303,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * For system operations outside transaction constrol
      */
-    public void insertData(PersistentStore store,
-                           Object[] data) throws HsqlException {
+    public void insertData(PersistentStore store, Object[] data) {
 
         Row row = (Row) store.getNewCachedObject(null, data);
 
@@ -2332,8 +2313,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Used by the system tables only
      */
-    public void insertSys(PersistentStore store,
-                          Object[] data) throws HsqlException {
+    public void insertSys(PersistentStore store, Object[] data) {
 
         Row row = (Row) store.getNewCachedObject(null, data);
 
@@ -2344,8 +2324,7 @@ public class Table extends TableBase implements SchemaObject {
      * If there is an identity column in the table, sets
      * the value and/or adjusts the identiy value for the table.
      */
-    protected void setIdentityColumn(Session session,
-                                     Object[] data) throws HsqlException {
+    protected void setIdentityColumn(Session session, Object[] data) {
 
         if (identityColumn != -1) {
             Number id = (Number) data[identityColumn];
@@ -2363,9 +2342,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    protected void systemSetIdentityColumn(Session session,
-                                           Object[] data)
-                                           throws HsqlException {
+    protected void systemSetIdentityColumn(Session session, Object[] data) {
 
         if (identityColumn != -1) {
             Number id = (Number) data[identityColumn];
@@ -2383,8 +2360,7 @@ public class Table extends TableBase implements SchemaObject {
      * If there is an identity column in the table, sets
      * the max identity value.
      */
-    protected void systemUpdateIdentityValue(Object[] data)
-    throws HsqlException {
+    protected void systemUpdateIdentityValue(Object[] data) {
 
         if (identityColumn != -1) {
             Number id = (Number) data[identityColumn];
@@ -2398,8 +2374,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Delete method for referential triggered actions.
      */
-    void deleteRowAsTriggeredAction(Session session,
-                                    Row row) throws HsqlException {
+    void deleteRowAsTriggeredAction(Session session, Row row) {
         deleteNoCheck(session, row);
     }
 
@@ -2407,7 +2382,7 @@ public class Table extends TableBase implements SchemaObject {
      *  Mid level row delete method. Fires triggers but no integrity
      *  constraint checks.
      */
-    void deleteNoRefCheck(Session session, Row row) throws HsqlException {
+    void deleteNoRefCheck(Session session, Row row) {
 
         Object[] data = row.getData();
 
@@ -2424,7 +2399,7 @@ public class Table extends TableBase implements SchemaObject {
      * Low level row delete method. Removes the row from the indexes and
      * from the Cache.
      */
-    private void deleteNoCheck(Session session, Row row) throws HsqlException {
+    private void deleteNoCheck(Session session, Row row) {
 
         if (row.isDeleted(session)) {
             return;
@@ -2436,8 +2411,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * For log statements. Delete a single row.
      */
-    public void deleteNoCheckFromLog(Session session,
-                                     Object[] data) throws HsqlException {
+    public void deleteNoCheckFromLog(Session session, Object[] data) {
 
         Row             row   = null;
         PersistentStore store = session.sessionData.getRowStore(this);
@@ -2498,7 +2472,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     void updateRowSet(Session session, HashMappedList rowSet, int[] cols,
-                      boolean isTriggeredSet) throws HsqlException {
+                      boolean isTriggeredSet) {
 
         boolean         hasLob = false;
         PersistentStore store  = session.sessionData.getRowStore(this);
@@ -2574,8 +2548,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    void checkRowDataInsert(Session session,
-                            Object[] data) throws HsqlException {
+    void checkRowDataInsert(Session session, Object[] data) {
 
         enforceRowConstraints(session, data);
 
@@ -2586,8 +2559,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    void checkRowData(Session session, Object[] data,
-                      int[] cols) throws HsqlException {
+    void checkRowData(Session session, Object[] data, int[] cols) {
 
         enforceRowConstraints(session, data);
 

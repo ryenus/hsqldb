@@ -216,7 +216,7 @@ public final class DateTimeType extends DTIType {
         return typeCode != Types.SQL_DATE;
     }
 
-    public Type getAggregateType(Type other) throws HsqlException {
+    public Type getAggregateType(Type other) {
 
         // DATE with DATE returned here
         if (typeCode == other.typeCode) {
@@ -263,8 +263,7 @@ public final class DateTimeType extends DTIType {
         return getDateTimeType(newType, scale);
     }
 
-    public Type getCombinedType(Type other,
-                                int operation) throws HsqlException {
+    public Type getCombinedType(Type other, int operation) {
 
         switch (operation) {
 
@@ -383,8 +382,7 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    public Object convertToTypeLimits(SessionInterface session,
-                                      Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session, Object a) {
 
         if (a == null) {
             return null;
@@ -437,7 +435,7 @@ public final class DateTimeType extends DTIType {
     }
 
     public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) throws HsqlException {
+                                Type otherType) {
 
         if (a == null) {
             return a;
@@ -663,14 +661,12 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    public Object convertToDefaultType(SessionInterface session,
-                                       Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session, Object a) {
         throw Error.error(ErrorCode.X_42561);
     }
 
     /** @todo - do the time zone */
-    public Object convertJavaToSQL(SessionInterface session,
-                                   Object a) throws HsqlException {
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
 
         switch (typeCode) {
 
@@ -971,8 +967,7 @@ public final class DateTimeType extends DTIType {
         return true;
     }
 
-    public Object add(Object a, Object b,
-                      Type otherType) throws HsqlException {
+    public Object add(Object a, Object b, Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -1012,8 +1007,7 @@ public final class DateTimeType extends DTIType {
         throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
     }
 
-    public Object subtract(Object a, Object b,
-                           Type otherType) throws HsqlException {
+    public Object subtract(Object a, Object b, Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -1238,8 +1232,7 @@ public final class DateTimeType extends DTIType {
         }
     }
 
-    public static DateTimeType getDateTimeType(int type,
-            int scale) throws HsqlException {
+    public static DateTimeType getDateTimeType(int type, int scale) {
 
         if (scale > DTIType.maxFractionPrecision) {
             throw Error.error(ErrorCode.X_42592);
@@ -1284,7 +1277,7 @@ public final class DateTimeType extends DTIType {
     }
 
     public Object changeZone(Object a, Type otherType, int targetZone,
-                             int localZone) throws HsqlException {
+                             int localZone) {
 
         if (a == null) {
             return null;
@@ -1333,8 +1326,7 @@ public final class DateTimeType extends DTIType {
     }
 
     public static Boolean overlaps(Session session, Object[] a, Type[] ta,
-                                   Object[] b,
-                                   Type[] tb) throws HsqlException {
+                                   Object[] b, Type[] tb) {
 
         if (a == null || b == null) {
             return null;
@@ -1399,7 +1391,7 @@ public final class DateTimeType extends DTIType {
 
     //
     public static int subtractMonths(TimestampData a, TimestampData b,
-                                     boolean isYear) throws HsqlException {
+                                     boolean isYear) {
 
         synchronized (HsqlDateTime.tempCalGMT) {
             boolean negate = false;
@@ -1447,7 +1439,7 @@ public final class DateTimeType extends DTIType {
 
     /** @todo - overflow */
     public static TimeData addSeconds(TimeData source, int seconds,
-                                      int nanos) throws HsqlException {
+                                      int nanos) {
 
         nanos   += source.getNanos();
         seconds += nanos / limitNanoseconds;
@@ -1468,8 +1460,7 @@ public final class DateTimeType extends DTIType {
     }
 
     /** @todo - overflow */
-    public static TimestampData addMonths(TimestampData source,
-                                          int months) throws HsqlException {
+    public static TimestampData addMonths(TimestampData source, int months) {
 
         int n = source.getNanos();
 
@@ -1488,7 +1479,7 @@ public final class DateTimeType extends DTIType {
 
     /** @todo - overflow */
     public static TimestampData addSeconds(TimestampData source, int seconds,
-                                           int nanos) throws HsqlException {
+                                           int nanos) {
 
         nanos   += source.getNanos();
         seconds += nanos / limitNanoseconds;

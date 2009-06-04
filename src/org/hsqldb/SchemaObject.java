@@ -84,7 +84,7 @@ public interface SchemaObject {
 
     OrderedHashSet getComponents();
 
-    void compile(Session session) throws HsqlException;
+    void compile(Session session);
 
     String getSQL();
 

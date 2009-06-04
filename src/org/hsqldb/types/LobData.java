@@ -31,7 +31,6 @@
 
 package org.hsqldb.types;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 
 /**
@@ -45,7 +44,7 @@ import org.hsqldb.SessionInterface;
  */
 public interface LobData {
 
-    long length(SessionInterface session) throws HsqlException;
+    long length(SessionInterface session);
 
     long getId();
 

@@ -1661,7 +1661,7 @@ public class Server implements HsqlSocketRequestHandler {
     /**
      * return database ID
      */
-    synchronized final int getDBIndex(String aliasPath) throws HsqlException {
+    synchronized final int getDBIndex(String aliasPath) {
 
         int    semipos  = aliasPath.indexOf(';');
         String alias    = aliasPath;
@@ -1694,8 +1694,7 @@ public class Server implements HsqlSocketRequestHandler {
     /**
      * Open and return database index
      */
-    final int openDatabase(String alias,
-                           String datapath) throws HsqlException {
+    final int openDatabase(String alias, String datapath) {
 
         if (!isRemoteOpen) {
             RuntimeException e =
@@ -1775,8 +1774,6 @@ public class Server implements HsqlSocketRequestHandler {
      *
      * If openning any of the databases is attempted and an exception is
      * thrown, the server error is set to this exception.
-     *
-     * @throws HsqlException if a database access error occurs
      */
     final boolean openDatabases() {
 
@@ -2274,7 +2271,7 @@ public class Server implements HsqlSocketRequestHandler {
     /**
      * Feature is turned off by, pending a property to allow it.
      */
-    protected int closeOldestDatabase() throws HsqlException {
+    protected int closeOldestDatabase() {
 
         return -1;
 /*

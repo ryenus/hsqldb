@@ -120,7 +120,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     public String getSQL() {
 
@@ -241,7 +241,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     /**
      *  Returns default value in the session context.
      */
-    Object getDefaultValue(Session session) throws HsqlException {
+    Object getDefaultValue(Session session) {
 
         return defaultExpression == null ? null
                                          : defaultExpression.getValue(session,
@@ -251,7 +251,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     /**
      *  Returns generated value in the session context.
      */
-    Object getGeneratedValue(Session session) throws HsqlException {
+    Object getGeneratedValue(Session session) {
 
         return generatingExpression == null ? null
                                             : generatingExpression.getValue(

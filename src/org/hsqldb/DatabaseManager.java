@@ -120,8 +120,7 @@ public class DatabaseManager {
      * Used by server to open a new session
      */
     public static Session newSession(int dbID, String user, String password,
-                                     int timeZoneSeconds)
-                                     throws HsqlException {
+                                     int timeZoneSeconds) {
 
         Database db = (Database) databaseIDMap.get(dbID);
 
@@ -141,8 +140,7 @@ public class DatabaseManager {
      */
     public static Session newSession(String type, String path, String user,
                                      String password, HsqlProperties props,
-                                     int timeZoneSeconds)
-                                     throws HsqlException {
+                                     int timeZoneSeconds) {
 
         Database db = getDatabase(type, path, props);
 
@@ -171,7 +169,7 @@ public class DatabaseManager {
 
 // loosecannon1@users 1.7.2 patch properties on the JDBC URL
     public static int getDatabase(String type, String path, Server server,
-                                  HsqlProperties props) throws HsqlException {
+                                  HsqlProperties props) {
 
         Database db = getDatabase(type, path, props);
 
@@ -197,8 +195,7 @@ public class DatabaseManager {
 
 // loosecannon1@users 1.7.2 patch properties on the JDBC URL
     public static Database getDatabase(String type, String path,
-                                       HsqlProperties props)
-                                       throws HsqlException {
+                                       HsqlProperties props) {
 
         // If the (type, path) pair does not correspond to a registered
         // instance, then getDatabaseObject() returns a newly constructed
@@ -248,7 +245,7 @@ public class DatabaseManager {
 
 // loosecannon1@users 1.7.2 patch properties on the JDBC URL
     private static synchronized Database getDatabaseObject(String type,
-            String path, HsqlProperties props) throws HsqlException {
+            String path, HsqlProperties props) {
 
         Database db;
         String   key = path;
@@ -312,7 +309,7 @@ public class DatabaseManager {
      * null if there is none.
      */
     private static synchronized void addDatabaseObject(String type,
-            String path, Database db) throws HsqlException {
+            String path, Database db) {
 
         Object  key = path;
         HashMap databaseMap;

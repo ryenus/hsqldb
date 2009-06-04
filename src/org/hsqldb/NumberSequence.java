@@ -79,11 +79,11 @@ public final class NumberSequence implements SchemaObject {
         } catch (HsqlException e) {}
     }
 
-    public NumberSequence(HsqlName name, Type type) throws HsqlException {
+    public NumberSequence(HsqlName name, Type type) {
         setDefaults(name, type);
     }
 
-    public void setDefaults(HsqlName name, Type type) throws HsqlException {
+    public void setDefaults(HsqlName name, Type type) {
 
         this.name = name;
         dataType  = type;
@@ -133,7 +133,7 @@ public final class NumberSequence implements SchemaObject {
      * constructor with initial value and increment;
      */
     public NumberSequence(HsqlName name, long value, long increment,
-                          Type type) throws HsqlException {
+                          Type type) {
 
         this(name, type);
 
@@ -225,7 +225,7 @@ public final class NumberSequence implements SchemaObject {
 
     public String getRestartSQL() {
 
-        StringBuffer   sb  = new StringBuffer(128);
+        StringBuffer sb = new StringBuffer(128);
 
         sb.append(Tokens.T_ALTER).append(' ');
         sb.append(Tokens.T_SEQUENCE);
@@ -316,7 +316,7 @@ public final class NumberSequence implements SchemaObject {
         return minValue == min && maxValue == max;
     }
 
-    synchronized void setStartValue(long value) throws HsqlException {
+    synchronized void setStartValue(long value) {
 
         if (value < minValue || value > maxValue) {
             throw Error.error(ErrorCode.X_42597);
@@ -326,7 +326,7 @@ public final class NumberSequence implements SchemaObject {
         currValue  = lastValue = startValue;
     }
 
-    synchronized void setMinValue(long value) throws HsqlException {
+    synchronized void setMinValue(long value) {
 
         checkInTypeRange(value);
 
@@ -337,11 +337,11 @@ public final class NumberSequence implements SchemaObject {
         minValue = value;
     }
 
-    synchronized void setDefaultMinValue() throws HsqlException {
+    synchronized void setDefaultMinValue() {
         minValue = getDefaultMinOrMax(false);
     }
 
-    synchronized void setMaxValue(long value) throws HsqlException {
+    synchronized void setMaxValue(long value) {
 
         checkInTypeRange(value);
 
@@ -352,11 +352,11 @@ public final class NumberSequence implements SchemaObject {
         maxValue = value;
     }
 
-    synchronized void setDefaultMaxValue() throws HsqlException {
+    synchronized void setDefaultMaxValue() {
         maxValue = getDefaultMinOrMax(true);
     }
 
-    synchronized void setIncrement(long value) throws HsqlException {
+    synchronized void setIncrement(long value) {
 
         if (value < Short.MIN_VALUE / 2 || value > Short.MAX_VALUE / 2) {
             throw Error.error(ErrorCode.X_42597);
@@ -365,14 +365,14 @@ public final class NumberSequence implements SchemaObject {
         increment = value;
     }
 
-    synchronized void setCurrentValueNoCheck(long value) throws HsqlException {
+    synchronized void setCurrentValueNoCheck(long value) {
 
         checkInTypeRange(value);
 
         currValue = lastValue = value;
     }
 
-    synchronized void setStartValueNoCheck(long value) throws HsqlException {
+    synchronized void setStartValueNoCheck(long value) {
 
         checkInTypeRange(value);
 
@@ -380,18 +380,18 @@ public final class NumberSequence implements SchemaObject {
         currValue  = lastValue = startValue;
     }
 
-    synchronized void setStartValueDefault() throws HsqlException {
+    synchronized void setStartValueDefault() {
         restartValueDefault = true;
     }
 
-    synchronized void setMinValueNoCheck(long value) throws HsqlException {
+    synchronized void setMinValueNoCheck(long value) {
 
         checkInTypeRange(value);
 
         minValue = value;
     }
 
-    synchronized void setMaxValueNoCheck(long value) throws HsqlException {
+    synchronized void setMaxValueNoCheck(long value) {
 
         checkInTypeRange(value);
 
@@ -406,7 +406,7 @@ public final class NumberSequence implements SchemaObject {
         isAlways = value;
     }
 
-    private long getDefaultMinOrMax(boolean isMax) throws HsqlException {
+    private long getDefaultMinOrMax(boolean isMax) {
 
         long min;
         long max;
@@ -442,7 +442,7 @@ public final class NumberSequence implements SchemaObject {
                      : min;
     }
 
-    private void checkInTypeRange(long value) throws HsqlException {
+    private void checkInTypeRange(long value) {
 
         long min;
         long max;
@@ -479,7 +479,7 @@ public final class NumberSequence implements SchemaObject {
         }
     }
 
-    synchronized void checkValues() throws HsqlException {
+    synchronized void checkValues() {
 
         if (restartValueDefault) {
             currValue           = lastValue = startValue;
@@ -528,7 +528,7 @@ public final class NumberSequence implements SchemaObject {
     /**
      * getter for a given value
      */
-    synchronized long userUpdate(long value) throws HsqlException {
+    synchronized long userUpdate(long value) {
 
         if (value == currValue) {
             currValue += increment;
@@ -578,7 +578,7 @@ public final class NumberSequence implements SchemaObject {
         return value;
     }
 
-    synchronized Object getValueObject() throws HsqlException {
+    synchronized Object getValueObject() {
 
         long   value = getValue();
         Object result;
@@ -607,7 +607,7 @@ public final class NumberSequence implements SchemaObject {
     /**
      * principal getter for the next sequence value
      */
-    synchronized public long getValue() throws HsqlException {
+    synchronized public long getValue() {
 
         if (limitReached) {
             throw Error.error(ErrorCode.X_2200H);
@@ -677,7 +677,7 @@ public final class NumberSequence implements SchemaObject {
     /**
      * reset to new initial value
      */
-    synchronized public void reset(long value) throws HsqlException {
+    synchronized public void reset(long value) {
 
         if (value < minValue || value > maxValue) {
             throw Error.error(ErrorCode.X_42597);

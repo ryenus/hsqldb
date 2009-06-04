@@ -33,7 +33,6 @@ package org.hsqldb.rights;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Tokens;
 import org.hsqldb.lib.StringConverter;
@@ -80,7 +79,7 @@ public class User extends Grantee {
         return sb.toString();
     }
 
-    public void setPassword(String password) throws HsqlException {
+    public void setPassword(String password) {
 
         /** @todo - introduce complexity interface */
         // checkComplexity(password);
@@ -92,7 +91,7 @@ public class User extends Grantee {
      * Checks if this object's password attibute equals
      * specified argument, else throws.
      */
-    public void checkPassword(String value) throws HsqlException {
+    public void checkPassword(String value) {
 
         if (!value.equals(password)) {
             throw Error.error(ErrorCode.X_28000);

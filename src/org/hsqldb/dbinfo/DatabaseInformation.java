@@ -34,7 +34,6 @@ package org.hsqldb.dbinfo;
 import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.lib.IntValueHashMap;
@@ -285,10 +284,9 @@ public class DatabaseInformation {
      * @param db The Database object for which to produce system tables
      * @return the fullest system table producer
      *      implementation available
-     * @throws HsqlException never - required by constructor
      */
-    public static final DatabaseInformation newDatabaseInformation(Database db)
-    throws HsqlException {
+    public static final DatabaseInformation newDatabaseInformation(
+            Database db) {
 
         Class c = null;
 
@@ -319,9 +317,8 @@ public class DatabaseInformation {
      * getSystemTable() requests. <p>
      *
      * @param db The Database object for which to produce system tables
-     * @throws HsqlException never (required for descendents)
      */
-    DatabaseInformation(Database db) throws HsqlException {
+    DatabaseInformation(Database db) {
         database = db;
     }
 
@@ -342,12 +339,10 @@ public class DatabaseInformation {
      *
      * @param session the context in which to produce the table
      * @param name the name of the table to produce
-     * @throws HsqlException if a database access error occurs
      * @return a table corresponding to the name and session arguments, or
      *      <code>null</code> if there is no such table to be produced
      */
-    public Table getSystemTable(Session session,
-                                String name) throws HsqlException {
+    public Table getSystemTable(Session session, String name) {
         return null;
     }
 

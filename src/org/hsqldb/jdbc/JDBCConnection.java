@@ -3279,7 +3279,7 @@ public class JDBCConnection implements Connection {
      * @exception HsqlException never (reserved for future use);
      * @see org.hsqldb.Routine
      */
-    public JDBCConnection(SessionInterface c) throws HsqlException {
+    public JDBCConnection(SessionInterface c) {
 
         // PRE: SessionInterface is non-null
         isInternal   = true;
@@ -3452,8 +3452,7 @@ public class JDBCConnection implements Connection {
         try {
             this.sessionProxy.resetSession();
         } catch (HsqlException e) {
-            throw new SQLException("Error resetting connection: "
-                                   + e.getMessage());
+            throw Util.sqlException(ErrorCode.X_08006, e.getMessage(), e);
         }
     }
 

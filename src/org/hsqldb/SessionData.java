@@ -100,8 +100,7 @@ public class SessionData {
         return database.persistentStoreCollection.getStore(table);
     }
 
-    public PersistentStore getSubqueryRowStore(TableBase table)
-    throws HsqlException {
+    public PersistentStore getSubqueryRowStore(TableBase table) {
 
         PersistentStore store = persistentStoreCollection.getStore(table);
 
@@ -425,8 +424,7 @@ public class SessionData {
      * allocate storage for a new LOB
      */
     public void allocateLobForResult(ResultLob result,
-                                     InputStream inputStream)
-                                     throws HsqlException {
+                                     InputStream inputStream) {
 
         long                 resultLobId = result.getLobID();
         CountdownInputStream countStream;
@@ -488,7 +486,7 @@ public class SessionData {
         }
     }
 
-    public void registerLobForResult(Result result) throws HsqlException {
+    public void registerLobForResult(Result result) {
 
         RowSetNavigator navigator = result.getNavigator();
 
@@ -522,8 +520,7 @@ public class SessionData {
         }
     }
 
-    public Object getSequenceValue(NumberSequence sequence)
-    throws HsqlException {
+    public Object getSequenceValue(NumberSequence sequence) {
 
         if (sequenceMap == null) {
             sequenceMap       = new HashMap();

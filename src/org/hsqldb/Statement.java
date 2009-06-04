@@ -155,7 +155,7 @@ public abstract class Statement {
 
     public void clearVariables() {}
 
-    public void resolve() throws HsqlException {}
+    public void resolve() {}
 
     public RangeVariable[] getRangeVariables() {
         return RangeVariable.emptyArray;

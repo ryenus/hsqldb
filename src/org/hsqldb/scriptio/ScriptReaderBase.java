@@ -34,7 +34,6 @@ package org.hsqldb.scriptio;
 import java.io.IOException;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
@@ -50,7 +49,7 @@ import org.hsqldb.persist.PersistentStore;
 public abstract class ScriptReaderBase {
 
     public static ScriptReaderBase newScriptReader(Database db, String file,
-            int scriptType) throws HsqlException, IOException {
+            int scriptType) throws IOException {
 
         if (scriptType == ScriptWriterBase.SCRIPT_TEXT_170) {
             return new ScriptReaderText(db, file);
@@ -75,7 +74,7 @@ public abstract class ScriptReaderBase {
     String fileName;
 
     ScriptReaderBase(Database db,
-                     String file) throws HsqlException, IOException {
+                     String file) throws IOException {
 
         this.db  = db;
         fileName = file;
@@ -85,16 +84,16 @@ public abstract class ScriptReaderBase {
 
     protected abstract void openFile() throws IOException;
 
-    public void readAll(Session session) throws IOException, HsqlException {
+    public void readAll(Session session) throws IOException {
         readDDL(session);
         readExistingData(session);
     }
 
     protected abstract void readDDL(Session session)
-    throws IOException, HsqlException;
+    throws IOException;
 
     protected abstract void readExistingData(Session session)
-    throws IOException, HsqlException;
+    throws IOException;
 
     public abstract boolean readLoggedStatement(Session session)
     throws IOException;

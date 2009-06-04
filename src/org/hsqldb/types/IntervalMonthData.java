@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Types;
 
 /**
@@ -48,17 +47,16 @@ public class IntervalMonthData {
     public final long units;
 
     public static IntervalMonthData newIntervalYear(long years,
-            IntervalType type) throws HsqlException {
+            IntervalType type) {
         return new IntervalMonthData(years * 12, type);
     }
 
     public static IntervalMonthData newIntervalMonth(long months,
-            IntervalType type) throws HsqlException {
+            IntervalType type) {
         return new IntervalMonthData(months, type);
     }
 
-    public IntervalMonthData(long months,
-                             IntervalType type) throws HsqlException {
+    public IntervalMonthData(long months, IntervalType type) {
 
         if (months >= type.getIntervalValueLimit()) {
             throw Error.error(ErrorCode.X_22006);
@@ -71,7 +69,7 @@ public class IntervalMonthData {
         this.units = months;
     }
 
-    public IntervalMonthData(long months) throws HsqlException {
+    public IntervalMonthData(long months) {
         this.units = months;
     }
 
@@ -101,8 +99,6 @@ public class IntervalMonthData {
     }
 
     public String toString() {
-        throw Error.runtimeError(
-            ErrorCode.U_S0500,
-                                 "IntervalMonthData");
+        throw Error.runtimeError(ErrorCode.U_S0500, "IntervalMonthData");
     }
 }

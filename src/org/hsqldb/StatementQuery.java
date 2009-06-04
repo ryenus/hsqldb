@@ -47,7 +47,7 @@ import org.hsqldb.result.ResultMetaData;
 public class StatementQuery extends StatementDMQL {
 
     StatementQuery(Session session, QueryExpression queryExpression,
-                   CompileContext compileContext) throws HsqlException {
+                   CompileContext compileContext) {
 
         super(StatementTypes.SELECT_CURSOR, StatementTypes.X_SQL_DATA,
               session.currentSchema);
@@ -59,8 +59,7 @@ public class StatementQuery extends StatementDMQL {
     }
 
     StatementQuery(Session session, QueryExpression queryExpression,
-                   CompileContext compileContext,
-                   HsqlName[] targets) throws HsqlException {
+                   CompileContext compileContext, HsqlName[] targets) {
 
         super(StatementTypes.SELECT_SINGLE, StatementTypes.X_SQL_DATA,
               session.currentSchema);
@@ -71,7 +70,7 @@ public class StatementQuery extends StatementDMQL {
         checkAccessRights(session);
     }
 
-    Result getResult(Session session) throws HsqlException {
+    Result getResult(Session session) {
 
         Result result = queryExpression.getResult(session,
             session.getMaxRows());
