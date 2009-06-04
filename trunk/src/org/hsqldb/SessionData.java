@@ -113,10 +113,11 @@ public class SessionData {
     public PersistentStore getNewResultRowStore(TableBase table,
             boolean isCached) {
 
-//        return persistentStoreCollection.getStore(table);
         try {
-            return session.database.logger.newStore(session,
+            PersistentStore store = session.database.logger.newStore(session,
                     persistentStoreCollection, table, isCached);
+
+            return store;
         } catch (HsqlException e) {}
 
         throw Error.runtimeError(ErrorCode.U_S0500, "SessionData");

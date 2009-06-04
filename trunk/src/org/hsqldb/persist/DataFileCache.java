@@ -579,7 +579,7 @@ public class DataFileCache {
 
         readLock.lock();
 
-        int i;
+        int pos;
 
         try {
             if (object.isInMemory()) {
@@ -590,13 +590,13 @@ public class DataFileCache {
                 return object;
             }
 
-            i = object.getPos();
+            pos = object.getPos();
 
-            if (i < 0) {
+            if (pos < 0) {
                 return null;
             }
 
-            object = cache.get(i);
+            object = cache.get(pos);
 
             if (object != null) {
                 if (keep) {
@@ -609,22 +609,22 @@ public class DataFileCache {
             readLock.unlock();
         }
 
-        return getFromFile(i, store, keep);
+        return getFromFile(pos, store, keep);
     }
 
-    public CachedObject get(int i, PersistentStore store,
+    public CachedObject get(int pos, PersistentStore store,
                             boolean keep) throws HsqlException {
 
         CachedObject object;
 
-        if (i < 0) {
+        if (pos < 0) {
             return null;
         }
 
         readLock.lock();
 
         try {
-            object = cache.get(i);
+            object = cache.get(pos);
 
             if (object != null) {
                 if (keep) {
@@ -637,28 +637,49 @@ public class DataFileCache {
             readLock.unlock();
         }
 
-        return getFromFile(i, store, keep);
+        return getFromFile(pos, store, keep);
     }
 
-    private CachedObject getFromFile(int i, PersistentStore store,
+    private CachedObject getFromFile(int pos, PersistentStore store,
                                      boolean keep) throws HsqlException {
+
+        CachedObject object      = null;
+        boolean      outOfMemory = false;
 
         writeLock.lock();
 
         try {
-            RowInputInterface rowInput = readObject(i);
+            for (int j = 0; j < 5; j++) {
+                outOfMemory = false;
 
-            if (rowInput == null) {
-                return null;
+                try {
+                    RowInputInterface rowInput = readObject(pos);
+
+                    if (rowInput == null) {
+                        return null;
+                    }
+
+                    object = store.get(rowInput);
+
+                    break;
+                } catch (OutOfMemoryError err) {
+                    cache.cleanUp();
+
+                    outOfMemory = true;
+
+                    database.logger.appLog.logContext(err, null);
+                }
             }
 
-            CachedObject object = store.get(rowInput);
+            if (outOfMemory) {
+                throw Error.error(ErrorCode.OUT_OF_MEMORY);
+            }
 
             // for text tables with empty rows at the beginning,
             // pos may move forward in readObject
-            i = object.getPos();
+            pos = object.getPos();
 
-            cache.put(i, object);
+            cache.put(pos, object);
 
             if (keep) {
                 object.keepInMemory(true);
@@ -668,12 +689,10 @@ public class DataFileCache {
 
             return object;
         } catch (HsqlException e) {
-            database.logger.appLog.logContext(e, fileName + " get pos: " + i);
+            database.logger.appLog.logContext(e, fileName + " get pos: "
+                                              + pos);
 
-            throw Error.error(ErrorCode.DATA_FILE_ERROR,
-                              ErrorCode.M_DataFileCache_makeRow, new Object[] {
-                e, fileName
-            });
+            throw e;
         } finally {
             writeLock.unlock();
         }
@@ -718,12 +737,12 @@ public class DataFileCache {
         }
     }
 
-    public CachedObject release(int i) {
+    public CachedObject release(int pos) {
 
         writeLock.lock();
 
         try {
-            return cache.release(i);
+            return cache.release(pos);
         } finally {
             writeLock.unlock();
         }

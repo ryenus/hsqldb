@@ -211,9 +211,9 @@ public abstract class StatementDMQL extends Statement {
 
             result = Result.newErrorResult(t, commandString);
 
-            if (result.isError()) {
-                result.getException().setStatementType(group, type);
-            }
+            result.getException().setStatementType(group, type);
+
+
         }
 
         session.sessionContext.clearStructures(this);

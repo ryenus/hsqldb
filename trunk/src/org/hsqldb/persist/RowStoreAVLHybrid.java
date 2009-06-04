@@ -79,7 +79,11 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
         this.rowIdMap          = new IntKeyHashMapConcurrent();
         this.useCache          = useCache;
-        isTempTable            = table.getTableType() == TableBase.TEMP_TABLE;
+        this.isTempTable       = table.getTableType() == TableBase.TEMP_TABLE;
+
+        if (table.getTableType() == TableBase.RESULT_TABLE) {
+            timestamp = session.getActionTimestamp();
+        }
 
 // temp code to force use of cache
 /*

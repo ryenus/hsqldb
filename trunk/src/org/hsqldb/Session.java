@@ -426,6 +426,10 @@ public class Session implements SessionInterface {
         }
     }
 
+    public long getActionTimestamp() {
+        return actionTimestamp;
+    }
+
     /**
      *  Adds a delete action to the row and the transaction manager.
      *
@@ -491,6 +495,8 @@ public class Session implements SessionInterface {
         sessionData.persistentStoreCollection.clearStatementTables();
 
         if (r.isError()) {
+            sessionData.persistentStoreCollection.clearResultTables(
+                actionTimestamp);
             database.txManager.rollbackAction(this);
         } else {
             database.txManager.completeActions(this);
