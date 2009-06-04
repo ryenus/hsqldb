@@ -39,7 +39,6 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 
 /**
  *
@@ -50,7 +49,7 @@ import org.hsqldb.HsqlException;
 class ScriptReaderZipped extends ScriptReaderBinary {
 
     ScriptReaderZipped(Database db,
-                       String file) throws HsqlException, IOException {
+                       String file) throws IOException {
         super(db, file);
     }
 

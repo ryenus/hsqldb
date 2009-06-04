@@ -98,7 +98,7 @@ public class TextCache extends DataFileCache {
      *  but now this is subject to session autoCommit / or commit
      *  storeOnInsert = true;
      */
-    TextCache(Table table, String name) throws HsqlException {
+    TextCache(Table table, String name) {
 
         super(table.database, name);
 
@@ -167,8 +167,7 @@ public class TextCache extends DataFileCache {
     }
 
     static void checkTextSouceString(String fileName,
-                                     HsqlDatabaseProperties dbProps)
-                                     throws HsqlException {
+                                     HsqlDatabaseProperties dbProps) {
 
         HsqlProperties tableprops =
             HsqlProperties.delimitedArgPairsToProps(fileName, "=", ";", null);
@@ -310,7 +309,7 @@ public class TextCache extends DataFileCache {
     /**
      *  Opens a data source file.
      */
-    public void open(boolean readonly) throws HsqlException {
+    public void open(boolean readonly) {
 
         fileFreePosition = 0;
 
@@ -335,7 +334,7 @@ public class TextCache extends DataFileCache {
         cacheReadonly = readonly;
     }
 
-    void reopen() throws HsqlException {
+    void reopen() {
         open(cacheReadonly);
     }
 
@@ -344,7 +343,7 @@ public class TextCache extends DataFileCache {
      *  such rows have already been saved, so this method just removes a
      *  source file that has no rows.
      */
-    public synchronized void close(boolean write) throws HsqlException {
+    public synchronized void close(boolean write) {
 
         if (dataFile == null) {
             return;
@@ -374,7 +373,7 @@ public class TextCache extends DataFileCache {
     /**
      * Closes the source file and deletes it if it is not read-only.
      */
-    void purge() throws HsqlException {
+    void purge() {
 
         uncommittedCache.clear();
 
@@ -413,6 +412,7 @@ public class TextCache extends DataFileCache {
         row = cache.release(pos);
 
         clearRowImage(row);
+
 //        release(pos);
     }
 
@@ -428,7 +428,6 @@ public class TextCache extends DataFileCache {
 
         clearRowImage(row);
     }
-
 
     private void clearRowImage(CachedObject row) {
 
@@ -449,8 +448,7 @@ public class TextCache extends DataFileCache {
         }
     }
 
-    protected synchronized RowInputInterface readObject(int pos)
-    throws HsqlException {
+    protected synchronized RowInputInterface readObject(int pos) {
 
         try {
             ByteArray buffer   = new ByteArray(80);
@@ -539,7 +537,7 @@ public class TextCache extends DataFileCache {
         }
     }
 
-    public int readHeaderLine() throws HsqlException {
+    public int readHeaderLine() {
 
         boolean   complete  = false;
         boolean   wasCR     = false;
@@ -615,7 +613,7 @@ public class TextCache extends DataFileCache {
      *
      * If none found return -1
      */
-    int findNextUsedLinePos(int pos) throws HsqlException {
+    int findNextUsedLinePos(int pos) {
 
         try {
             int     firstPos   = pos;
@@ -663,13 +661,13 @@ public class TextCache extends DataFileCache {
         }
     }
 
-    public synchronized void add(CachedObject object) throws HsqlException {
+    public synchronized void add(CachedObject object) {
         super.add(object);
         clearRowImage(object);
     }
 
     public synchronized CachedObject get(int i, PersistentStore store,
-                                         boolean keep) throws HsqlException {
+                                         boolean keep) {
 
         if (i < 0) {
             return null;
@@ -697,7 +695,7 @@ public class TextCache extends DataFileCache {
      * back- fredt
      */
     protected synchronized void saveRows(CachedObject[] rows, int offset,
-                                         int count) throws HsqlException {
+                                         int count) {
 
         if (count == 0) {
             return;
@@ -716,7 +714,7 @@ public class TextCache extends DataFileCache {
      * In case the row has been moved to the uncommittedCache, removes it.
      * Then saves the row as normal.
      */
-    public synchronized void saveRow(CachedObject row) throws HsqlException {
+    public synchronized void saveRow(CachedObject row) {
         uncommittedCache.remove(row.getPos());
         super.saveRow(row);
     }
@@ -725,7 +723,7 @@ public class TextCache extends DataFileCache {
         return header;
     }
 
-    public void setHeader(String header) throws HsqlException {
+    public void setHeader(String header) {
 
         if (ignoreFirst && fileFreePosition == 0) {
             try {
@@ -744,7 +742,7 @@ public class TextCache extends DataFileCache {
         throw Error.error(ErrorCode.TEXT_TABLE_HEADER);
     }
 
-    private void writeHeader(String header) throws HsqlException {
+    private void writeHeader(String header) {
 
         try {
             byte[] buf       = null;
@@ -811,7 +809,7 @@ public class TextCache extends DataFileCache {
         return ((RowInputText) rowIn).getLineNumber();
     }
 
-    protected void setFileModified() throws HsqlException {
+    protected void setFileModified() {
         fileModified = true;
     }
 }

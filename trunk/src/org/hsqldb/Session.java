@@ -89,7 +89,6 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
-import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
@@ -262,8 +261,7 @@ public class Session implements SessionInterface {
         return isClosed;
     }
 
-    public synchronized void setIsolationDefault(int level)
-    throws HsqlException {
+    public synchronized void setIsolationDefault(int level) {
 
         if (level == SessionInterface.TX_READ_UNCOMMITTED) {
             isReadOnlyDefault = true;
@@ -285,7 +283,7 @@ public class Session implements SessionInterface {
     /**
      * sets ISOLATION for the next transaction only
      */
-    public void setIsolation(int level) throws HsqlException {
+    public void setIsolation(int level) {
 
         if (isInMidTransaction()) {
             throw Error.error(ErrorCode.X_25001);
@@ -302,7 +300,7 @@ public class Session implements SessionInterface {
         }
     }
 
-    public synchronized int getIsolation() throws HsqlException {
+    public synchronized int getIsolation() {
         return isolationMode;
     }
 
@@ -390,11 +388,8 @@ public class Session implements SessionInterface {
     /**
      * Checks whether this Session's current User has the privileges of
      * the ADMIN role.
-     *
-     * @throws HsqlException if this Session's User does not have the
-     *      privileges of the ADMIN role.
      */
-    void checkAdmin() throws HsqlException {
+    void checkAdmin() {
         user.checkAdmin();
     }
 
@@ -402,7 +397,7 @@ public class Session implements SessionInterface {
      * This is used for reading - writing to existing tables.
      * @throws  HsqlException
      */
-    void checkReadWrite() throws HsqlException {
+    void checkReadWrite() {
 
         if (isReadOnly) {
             throw Error.error(ErrorCode.X_25006);
@@ -413,7 +408,7 @@ public class Session implements SessionInterface {
      * This is used for creating new database objects such as tables.
      * @throws  HsqlException
      */
-    void checkDDLWrite() throws HsqlException {
+    void checkDDLWrite() {
 
         checkReadWrite();
 
@@ -437,7 +432,7 @@ public class Session implements SessionInterface {
      * @param  row the deleted row
      * @throws  HsqlException
      */
-    void addDeleteAction(Table table, Row row) throws HsqlException {
+    void addDeleteAction(Table table, Row row) {
 
 //        tempActionHistory.add("add delete action " + actionTimestamp);
         if (abortTransaction) {
@@ -448,7 +443,7 @@ public class Session implements SessionInterface {
         database.txManager.addDeleteAction(this, table, row);
     }
 
-    void addInsertAction(Table table, Row row) throws HsqlException {
+    void addInsertAction(Table table, Row row) {
 
 //        tempActionHistory.add("add insert to transaction " + actionTimestamp);
         database.txManager.addInsertAction(this, table, row);
@@ -466,8 +461,7 @@ public class Session implements SessionInterface {
      * @param  autocommit the new value
      * @throws  HsqlException
      */
-    public synchronized void setAutoCommit(boolean autocommit)
-    throws HsqlException {
+    public synchronized void setAutoCommit(boolean autocommit) {
 
         if (isClosed) {
             return;
@@ -509,17 +503,17 @@ public class Session implements SessionInterface {
         return currentStatement == lockStatement;
     }
 
-    public void startTransaction() throws HsqlException {
+    public void startTransaction() {
         database.txManager.beginTransaction(this);
     }
 
-    public synchronized void startPhasedTransaction() throws HsqlException {}
+    public synchronized void startPhasedTransaction() {}
 
     /**
      * @todo - fredt - for two phased pre-commit - after this call, further
      * state changing calls should fail
      */
-    public synchronized void prepareCommit() throws HsqlException {
+    public synchronized void prepareCommit() {
 
         if (isClosed) {
             throw Error.error(ErrorCode.X_08003);
@@ -539,7 +533,7 @@ public class Session implements SessionInterface {
      *
      * @throws  HsqlException
      */
-    public synchronized void commit(boolean chain) throws HsqlException {
+    public synchronized void commit(boolean chain) {
 
 //        tempActionHistory.add("commit " + actionTimestamp);
         if (isClosed) {
@@ -621,7 +615,7 @@ public class Session implements SessionInterface {
     /**
      * @todo no-op in this implementation. To be implemented for connection pooling
      */
-    public synchronized void resetSession() throws HsqlException {
+    public synchronized void resetSession() {
         throw new HsqlException("", "", 0);
     }
 
@@ -656,8 +650,7 @@ public class Session implements SessionInterface {
      * @param  name name of savepoint
      * @throws  HsqlException
      */
-    public synchronized void rollbackToSavepoint(String name)
-    throws HsqlException {
+    public synchronized void rollbackToSavepoint(String name) {
 
         if (isClosed) {
             return;
@@ -702,8 +695,7 @@ public class Session implements SessionInterface {
      * @param  name name of savepoint
      * @throws  HsqlException if name does not correspond to a savepoint
      */
-    public synchronized void releaseSavepoint(String name)
-    throws HsqlException {
+    public synchronized void releaseSavepoint(String name) {
 
         // remove this and all later savepoints
         int index = sessionContext.savepoints.getIndex(name);
@@ -724,7 +716,7 @@ public class Session implements SessionInterface {
      *
      * @param  readonly the new value
      */
-    public void setReadOnly(boolean readonly) throws HsqlException {
+    public void setReadOnly(boolean readonly) {
 
         if (!readonly && database.databaseReadOnly) {
             throw Error.error(ErrorCode.DATABASE_IS_READONLY);
@@ -737,8 +729,7 @@ public class Session implements SessionInterface {
         isReadOnly = readonly;
     }
 
-    public synchronized void setReadOnlyDefault(boolean readonly)
-    throws HsqlException {
+    public synchronized void setReadOnlyDefault(boolean readonly) {
 
         if (!readonly && database.databaseReadOnly) {
             throw Error.error(ErrorCode.DATABASE_IS_READONLY);
@@ -808,7 +799,7 @@ public class Session implements SessionInterface {
      *
      * @return  internal connection.
      */
-    JDBCConnection getInternalConnection() throws HsqlException {
+    JDBCConnection getInternalConnection() {
 
         if (intConnection == null) {
             intConnection = new JDBCConnection(this);
@@ -854,7 +845,7 @@ public class Session implements SessionInterface {
         return transactionTimestamp;
     }
 
-    public Statement compileStatement(String sql) throws HsqlException {
+    public Statement compileStatement(String sql) {
 
         parser.reset(sql);
 
@@ -1063,7 +1054,7 @@ public class Session implements SessionInterface {
     }
 
     public RowSetNavigatorClient getRows(long navigatorId, int offset,
-                                         int blockSize) throws HsqlException {
+                                         int blockSize) {
         return sessionData.getRowSetSlice(navigatorId, offset, blockSize);
     }
 
@@ -1132,7 +1123,6 @@ public class Session implements SessionInterface {
         if (cs.isAutoCommitStatement()) {
             try {
                 if (isReadOnly()) {
-
                     throw Error.error(ErrorCode.X_25006);
                 }
 
@@ -1641,8 +1631,7 @@ public class Session implements SessionInterface {
         return null;
     }
 
-    public synchronized void setAttribute(int id,
-                                          Object object) throws HsqlException {
+    public synchronized void setAttribute(int id, Object object) {
 
         switch (id) {
 
@@ -1676,7 +1665,7 @@ public class Session implements SessionInterface {
     }
 
     // lobs
-    public BlobDataID createBlob(long length) throws HsqlException {
+    public BlobDataID createBlob(long length) {
 
         long lobID = database.lobManager.createBlob(length);
 
@@ -1689,7 +1678,7 @@ public class Session implements SessionInterface {
         return new BlobDataID(lobID);
     }
 
-    public ClobDataID createClob(long length) throws HsqlException {
+    public ClobDataID createClob(long length) {
 
         long lobID = database.lobManager.createClob(length);
 
@@ -1702,13 +1691,11 @@ public class Session implements SessionInterface {
         return new ClobDataID(lobID);
     }
 
-    public void registerResultLobs(Result result) throws HsqlException {
+    public void registerResultLobs(Result result) {
         sessionData.registerLobForResult(result);
     }
 
-    public void allocateResultLob(ResultLob result,
-                                  InputStream inputStream)
-                                  throws HsqlException {
+    public void allocateResultLob(ResultLob result, InputStream inputStream) {
         sessionData.allocateLobForResult(result, inputStream);
     }
 
@@ -1771,11 +1758,11 @@ public class Session implements SessionInterface {
     }
 
     // schema object methods
-    public void setSchema(String schema) throws HsqlException {
+    public void setSchema(String schema) {
         currentSchema = database.schemaManager.getSchemaHsqlName(schema);
     }
 
-    public void setCatalog(String catalog) throws HsqlException {
+    public void setCatalog(String catalog) {
 
         if (database.getCatalogName().name.equals(catalog)) {
             return;
@@ -1789,7 +1776,7 @@ public class Session implements SessionInterface {
      * the HsqlName object for the schema. If schemaName does not exist,
      * throw.
      */
-    HsqlName getSchemaHsqlName(String name) throws HsqlException {
+    HsqlName getSchemaHsqlName(String name) {
         return name == null ? currentSchema
                             : database.schemaManager.getSchemaHsqlName(name);
     }
@@ -1797,7 +1784,7 @@ public class Session implements SessionInterface {
     /**
      * Same as above, but return string
      */
-    public String getSchemaName(String name) throws HsqlException {
+    public String getSchemaName(String name) {
         return name == null ? currentSchema.name
                             : database.schemaManager.getSchemaName(name);
     }
@@ -1937,7 +1924,7 @@ public class Session implements SessionInterface {
     }
 
     // SEQUENCE current values
-    void logSequences() throws HsqlException {
+    void logSequences() {
 
         OrderedHashSet set = sessionData.sequenceUpdateSet;
 

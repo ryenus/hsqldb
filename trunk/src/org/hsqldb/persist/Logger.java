@@ -36,7 +36,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
@@ -104,7 +103,7 @@ public class Logger {
      * @throws  HsqlException if there is a problem, such as the case when
      *      the specified files are in use by another process
      */
-    public void openLog(Database db) throws HsqlException {
+    public void openLog(Database db) {
 
         needsCheckpoint = false;
 
@@ -216,7 +215,7 @@ public class Logger {
     /**
      *  Returns the Cache object or null if one doesn't exist.
      */
-    public DataFileCache getCache() throws HsqlException {
+    public DataFileCache getCache() {
 
         if (log == null) {
             return null;
@@ -246,8 +245,7 @@ public class Logger {
      * @throws  HsqlException if there is a problem recording the Log
      *      entry
      */
-    public synchronized void logStartSession(Session session)
-    throws HsqlException {
+    public synchronized void logStartSession(Session session) {
 
         if (logStatements) {
             writeToLog(session, session.getUser().getConnectUserSQL());
@@ -263,9 +261,7 @@ public class Logger {
      * @param  statement the SQL statement to Log
      * @throws  HsqlException if there is a problem recording the entry
      */
-    public synchronized void writeToLog(Session session,
-                                        String statement)
-                                        throws HsqlException {
+    public synchronized void writeToLog(Session session, String statement) {
 
         if (logStatements && log != null) {
             log.writeStatement(session, statement);
@@ -273,7 +269,7 @@ public class Logger {
     }
 
     public synchronized void writeInsertStatement(Session session,
-            Table table, Object[] row) throws HsqlException {
+            Table table, Object[] row) {
 
         if (logStatements) {
             log.writeInsertStatement(session, table, row);
@@ -281,7 +277,7 @@ public class Logger {
     }
 
     public synchronized void writeDeleteStatement(Session session, Table t,
-            Object[] row) throws HsqlException {
+            Object[] row) {
 
         if (logStatements) {
             log.writeDeleteStatement(session, t, row);
@@ -289,15 +285,14 @@ public class Logger {
     }
 
     public synchronized void writeSequenceStatement(Session session,
-            NumberSequence s) throws HsqlException {
+            NumberSequence s) {
 
         if (logStatements) {
             log.writeSequenceStatement(session, s);
         }
     }
 
-    public synchronized void writeCommitStatement(Session session)
-    throws HsqlException {
+    public synchronized void writeCommitStatement(Session session) {
 
         if (logStatements) {
             log.writeCommitStatement(session);
@@ -336,7 +331,7 @@ public class Logger {
      * @throws  HsqlException if there is a problem checkpointing the
      *      database
      */
-    public synchronized void checkpoint(boolean mode) throws HsqlException {
+    public synchronized void checkpoint(boolean mode) {
 
         if (logStatements) {
             appLog.logContext(SimpleLog.LOG_NORMAL, "start");
@@ -368,7 +363,7 @@ public class Logger {
      *
      * @param  i The type
      */
-    public synchronized void setScriptType(int i) throws HsqlException {
+    public synchronized void setScriptType(int i) {
 
         if (log != null) {
             log.setScriptType(i);
@@ -412,8 +407,7 @@ public class Logger {
                            : 0;
     }
 
-    public synchronized void setIncrementalBackup(boolean val)
-    throws HsqlException {
+    public synchronized void setIncrementalBackup(boolean val) {
 
         if (log != null) {
             log.setIncrementalBackup(val);
@@ -425,7 +419,7 @@ public class Logger {
      */
     public DataFileCache openTextCache(Table table, String source,
                                        boolean readOnlyData,
-                                       boolean reversed) throws HsqlException {
+                                       boolean reversed) {
         return log.openTextCache(table, source, readOnlyData, reversed);
     }
 
@@ -451,7 +445,7 @@ public class Logger {
     /**
      * Attempts to aquire a cooperative lock condition on the database files
      */
-    public void acquireLock(String path) throws HsqlException {
+    public void acquireLock(String path) {
 
         if (lockFile != null) {
             return;
@@ -473,8 +467,7 @@ public class Logger {
 
     public PersistentStore newStore(Session session,
                                     PersistentStoreCollection collection,
-                                    TableBase table,
-                                    boolean diskBased) throws HsqlException {
+                                    TableBase table, boolean diskBased) {
 
         switch (table.getTableType()) {
 
@@ -532,7 +525,7 @@ public class Logger {
 
     public synchronized void backup(String destPath, String dbPath,
                                     boolean script, boolean blocking,
-                                    boolean compressed) throws HsqlException {
+                                    boolean compressed) {
 
         /* If want to add db Id also, will need to pass either Database
          * instead of dbPath, or pass dbPath + Id from CommandStatement.

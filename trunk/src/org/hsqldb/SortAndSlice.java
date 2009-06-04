@@ -100,7 +100,7 @@ public final class SortAndSlice {
         }
     }
 
-    public int getLimitStart(Session session) throws HsqlException {
+    public int getLimitStart(Session session) {
 
         if (limitCondition != null) {
             Integer limit =
@@ -114,8 +114,7 @@ public final class SortAndSlice {
         return 0;
     }
 
-    public int getLimitCount(Session session,
-                             int rowCount) throws HsqlException {
+    public int getLimitCount(Session session, int rowCount) {
 
         int limitCount = 0;
 

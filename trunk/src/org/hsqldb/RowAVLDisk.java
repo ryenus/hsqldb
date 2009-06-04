@@ -127,9 +127,8 @@ public class RowAVLDisk extends RowAVL {
      *
      * @param t table
      * @param o row data
-     * @throws HsqlException if a database access error occurs
      */
-    public RowAVLDisk(TableBase t, Object[] o) throws HsqlException {
+    public RowAVLDisk(TableBase t, Object[] o) {
 
         tTable  = t;
         tableId = tTable.getId();
@@ -146,10 +145,9 @@ public class RowAVLDisk extends RowAVL {
      * @param t table
      * @param in data source
      * @throws IOException
-     * @throws HsqlException
      */
     public RowAVLDisk(TableBase t,
-                      RowInputInterface in) throws IOException, HsqlException {
+                      RowInputInterface in) throws IOException {
 
         tTable      = t;
         position    = in.getPos();
@@ -174,7 +172,7 @@ public class RowAVLDisk extends RowAVL {
     }
 
     private void readRowInfo(RowInputInterface in)
-    throws IOException, HsqlException {
+    throws IOException {
 
         // for use when additional transaction info is attached to rows
     }
@@ -253,7 +251,6 @@ public class RowAVLDisk extends RowAVL {
      * Used only in Cache.java to avoid removing the row from the cache.
      *
      * @return boolean
-     * @throws HsqlException
      */
     public synchronized boolean isKeepInMemory() {
         return keepCount > 0;
@@ -386,7 +383,6 @@ public class RowAVLDisk extends RowAVL {
      * @param out
      *
      * @throws IOException
-     * @throws HsqlException
      */
     private void writeNodes(RowOutputInterface out) throws IOException {
 

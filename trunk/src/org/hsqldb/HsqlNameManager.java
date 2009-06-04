@@ -99,7 +99,7 @@ public final class HsqlNameManager {
     }
 
     public static HsqlName newInfoSchemaColumnName(String name,
-            HsqlName table) throws HsqlException {
+            HsqlName table) {
 
         HsqlName hsqlName = new HsqlName(staticManager, name, false,
                                          SchemaObject.COLUMN);
@@ -140,14 +140,12 @@ public final class HsqlNameManager {
     }
 
     //
-    public HsqlName newHsqlName(String name, boolean isquoted,
-                                int type) throws HsqlException {
+    public HsqlName newHsqlName(String name, boolean isquoted, int type) {
         return new HsqlName(this, name, isquoted, type);
     }
 
     public HsqlName newHsqlName(HsqlName schema, String name,
-                                boolean isquoted,
-                                int type) throws HsqlException {
+                                boolean isquoted, int type) {
 
         HsqlName hsqlName = new HsqlName(this, name, isquoted, type);
 
@@ -157,8 +155,7 @@ public final class HsqlNameManager {
     }
 
     public HsqlName newHsqlName(HsqlName schema, String name,
-                                boolean isquoted, int type,
-                                HsqlName parent) throws HsqlException {
+                                boolean isquoted, int type, HsqlName parent) {
 
         HsqlName hsqlName = new HsqlName(this, name, isquoted, type);
 
@@ -168,13 +165,12 @@ public final class HsqlNameManager {
         return hsqlName;
     }
 
-    public HsqlName newColumnSchemaHsqlName(HsqlName table,
-            SimpleName name) throws HsqlException {
+    public HsqlName newColumnSchemaHsqlName(HsqlName table, SimpleName name) {
         return newColumnHsqlName(table, name.name, name.isNameQuoted);
     }
 
     public HsqlName newColumnHsqlName(HsqlName table, String name,
-                                      boolean isquoted) throws HsqlException {
+                                      boolean isquoted) {
 
         HsqlName hsqlName = new HsqlName(this, name, isquoted,
                                          SchemaObject.COLUMN);
@@ -188,7 +184,7 @@ public final class HsqlNameManager {
     /**
      * Same name string but different objects and serial number
      */
-    public HsqlName getSubqueryTableName() throws HsqlException {
+    public HsqlName getSubqueryTableName() {
 
         HsqlName hsqlName = new HsqlName(this, SqlInvariants.SYSTEM_SUBQUERY,
                                          false, SchemaObject.TABLE);
@@ -349,7 +345,7 @@ public final class HsqlNameManager {
         }
 
         private HsqlName(HsqlNameManager man, String name, boolean isquoted,
-                         int type) throws HsqlException {
+                         int type) {
 
             this(man, type);
 
@@ -413,12 +409,11 @@ public final class HsqlNameManager {
             return sb.toString();
         }
 
-        public void rename(HsqlName name) throws HsqlException {
+        public void rename(HsqlName name) {
             rename(name.name, name.isNameQuoted);
         }
 
-        public void rename(String name,
-                           boolean isquoted) throws HsqlException {
+        public void rename(String name, boolean isquoted) {
 
             this.name          = name;
             this.statementName = name;
@@ -446,8 +441,7 @@ public final class HsqlNameManager {
             }
         }
 
-        void rename(String prefix, String name,
-                    boolean isquoted) throws HsqlException {
+        void rename(String prefix, String name, boolean isquoted) {
 
             StringBuffer sbname = new StringBuffer(prefix);
 

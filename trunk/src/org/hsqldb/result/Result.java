@@ -308,16 +308,15 @@ public class Result {
     }
 
     public static void readExecuteProperties(Session session, Result result,
-                                             DataInputStream dataInput,
-                                             RowInputBinary in) throws HsqlException {
+            DataInputStream dataInput, RowInputBinary in) {
 
         try {
             int length = dataInput.readInt();
 
             in.resetRow(0, length);
 
-            byte[] byteArray = in.getBuffer();
-            final int offset = 4;
+            byte[]    byteArray = in.getBuffer();
+            final int offset    = 4;
 
             dataInput.readFully(byteArray, offset, length - offset);
 
@@ -329,8 +328,8 @@ public class Result {
             result.rsHoldability   = in.readShort();
 
             Statement statement =
-                session.database.compiledStatementManager.getStatement(
-                    session, result.statementID);
+                session.database.compiledStatementManager.getStatement(session,
+                    result.statementID);
 
             result.statement = statement;
             result.metaData  = result.statement.getParametersMetaData();

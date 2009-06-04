@@ -34,7 +34,6 @@ package org.hsqldb.rights;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
@@ -128,9 +127,8 @@ public class GranteeManager {
      * objects for _SYSTEM, PUBLIC and DBA, and add them to the Grantee map.
      *
      * @param database Only needed to link to the RoleManager later on.
-     * @throws HsqlException
      */
-    public GranteeManager(Database database) throws HsqlException {
+    public GranteeManager(Database database) {
 
         this.database = database;
 
@@ -206,8 +204,7 @@ public class GranteeManager {
      *  identity, rather than on attribute values. <p>
      */
     public void grant(OrderedHashSet granteeList, SchemaObject dbObject,
-                      Right right, Grantee grantor,
-                      boolean withGrantOption) throws HsqlException {
+                      Right right, Grantee grantor, boolean withGrantOption) {
 
         if (!grantor.isGrantable(dbObject, right)) {
             throw Error.error(ErrorCode.X_0L000, grantor.getNameString());
@@ -231,8 +228,7 @@ public class GranteeManager {
         }
     }
 
-    public void checkGranteeList(OrderedHashSet granteeList)
-    throws HsqlException {
+    public void checkGranteeList(OrderedHashSet granteeList) {
 
         for (int i = 0; i < granteeList.size(); i++) {
             String  name    = (String) granteeList.get(i);
@@ -251,8 +247,7 @@ public class GranteeManager {
     /**
      * Grant a role to this Grantee.
      */
-    public void grant(String granteeName, String roleName,
-                      Grantee grantor) throws HsqlException {
+    public void grant(String granteeName, String roleName, Grantee grantor) {
 
         Grantee grantee = get(granteeName);
 
@@ -280,6 +275,7 @@ public class GranteeManager {
         if (role.hasRole(grantee)) {
 
             // boucherb@users
+
             /** @todo: Correct reporting of actual grant path */
             throw Error.error(ErrorCode.X_0P501, roleName);
         }
@@ -297,8 +293,7 @@ public class GranteeManager {
     }
 
     public void checkRoleList(String granteeName, OrderedHashSet roleList,
-                              Grantee grantor,
-                              boolean grant) throws HsqlException {
+                              Grantee grantor, boolean grant) {
 
         Grantee grantee = get(granteeName);
 
@@ -335,16 +330,14 @@ public class GranteeManager {
         }
     }
 
-    public void grantSystemToPublic(SchemaObject object,
-                                    Right right) throws HsqlException {
+    public void grantSystemToPublic(SchemaObject object, Right right) {
         publicRole.grant(object, right, systemAuthorisation, true);
     }
 
     /**
      * Revoke a role from a Grantee
      */
-    public void revoke(String granteeName, String roleName,
-                       Grantee grantor) throws HsqlException {
+    public void revoke(String granteeName, String roleName, Grantee grantor) {
 
         if (!grantor.isAdmin()) {
             throw Error.error(ErrorCode.X_42507);
@@ -375,7 +368,7 @@ public class GranteeManager {
      */
     public void revoke(OrderedHashSet granteeList, SchemaObject dbObject,
                        Right rights, Grantee grantor, boolean grantOption,
-                       boolean cascade) throws HsqlException {
+                       boolean cascade) {
 
         if (!grantor.isFullyAccessibleByRole(dbObject)) {
             throw Error.error(ErrorCode.X_42501, dbObject.getName().name);
@@ -517,7 +510,7 @@ public class GranteeManager {
      *        (This will catch attempts to create Reserved grantee names).
      *  </OL>
      */
-    public Grantee addRole(HsqlName name) throws HsqlException {
+    public Grantee addRole(HsqlName name) {
 
         if (map.containsKey(name.name)) {
             throw Error.error(ErrorCode.X_28503, name.name);
@@ -533,7 +526,7 @@ public class GranteeManager {
         return g;
     }
 
-    public User addUser(HsqlName name) throws HsqlException {
+    public User addUser(HsqlName name) {
 
         if (map.containsKey(name.name)) {
             throw Error.error(ErrorCode.X_28503, name.name);
@@ -555,7 +548,7 @@ public class GranteeManager {
         return map.containsKey(name);
     }
 
-    public static int getCheckSingleRight(String right) throws HsqlException {
+    public static int getCheckSingleRight(String right) {
 
         int r = getRight(right);
 
@@ -615,7 +608,7 @@ public class GranteeManager {
      *  </UL> <p>
      *
      */
-    public void dropRole(String name) throws HsqlException {
+    public void dropRole(String name) {
 
         if (!isRole(name)) {
             throw Error.error(ErrorCode.X_0P000, name);
@@ -639,7 +632,7 @@ public class GranteeManager {
     /**
      * Returns Grantee for the named Role
      */
-    public Grantee getRole(String name) throws HsqlException {
+    public Grantee getRole(String name) {
 
         Grantee g = (Grantee) roleMap.get(name);
 
@@ -650,7 +643,7 @@ public class GranteeManager {
         return g;
     }
 
-    public boolean isRole(String name) throws HsqlException {
+    public boolean isRole(String name) {
         return roleMap.containsKey(name);
     }
 

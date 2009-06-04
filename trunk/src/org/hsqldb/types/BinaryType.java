@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
@@ -178,7 +177,7 @@ public class BinaryType extends Type {
         }
     }
 
-    public Type getAggregateType(Type other) throws HsqlException {
+    public Type getAggregateType(Type other) {
 
         if (typeCode == other.typeCode) {
             return precision >= other.precision ? this
@@ -233,8 +232,7 @@ public class BinaryType extends Type {
     /**
      * Returns type for concat
      */
-    public Type getCombinedType(Type other,
-                                int operation) throws HsqlException {
+    public Type getCombinedType(Type other, int operation) {
 
         if (operation != OpTypes.CONCAT) {
             return getAggregateType(other);
@@ -325,23 +323,21 @@ public class BinaryType extends Type {
         throw Error.runtimeError(ErrorCode.U_S0500, "BinaryType");
     }
 
-    public Object convertToTypeLimits(SessionInterface session,
-                                      Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session, Object a) {
         return castOrConvertToType(session, a, this, false);
     }
 
     public Object castToType(SessionInterface session, Object a,
-                             Type otherType) throws HsqlException {
+                             Type otherType) {
         return castOrConvertToType(session, a, otherType, true);
     }
 
     public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) throws HsqlException {
+                                Type otherType) {
         return castOrConvertToType(session, a, otherType, false);
     }
 
-    public Object convertJavaToSQL(SessionInterface session,
-                                   Object a) throws HsqlException {
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
 
         if (a instanceof byte[]) {
             return new BinaryData((byte[]) a, true);
@@ -350,14 +346,12 @@ public class BinaryType extends Type {
         throw Error.error(ErrorCode.X_42561);
     }
 
-    public Object convertSQLToJava(SessionInterface session,
-                                   Object a) throws HsqlException {
+    public Object convertSQLToJava(SessionInterface session, Object a) {
         return ((BlobData) a).getBytes();
     }
 
     Object castOrConvertToType(SessionInterface session, Object a,
-                               Type otherType,
-                               boolean cast) throws HsqlException {
+                               Type otherType, boolean cast) {
 
         BlobData b;
 
@@ -443,8 +437,7 @@ public class BinaryType extends Type {
         throw Error.error(ErrorCode.X_22501);
     }
 
-    public Object convertToDefaultType(SessionInterface session,
-                                       Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
             return a;
@@ -486,8 +479,7 @@ public class BinaryType extends Type {
     }
 
     public long position(SessionInterface session, BlobData data,
-                         BlobData otherData, Type otherType,
-                         long offset) throws HsqlException {
+                         BlobData otherData, Type otherType, long offset) {
 
         if (data == null || otherData == null) {
             return -1L;
@@ -503,8 +495,7 @@ public class BinaryType extends Type {
     }
 
     public BlobData substring(SessionInterface session, BlobData data,
-                              long offset, long length,
-                              boolean hasLength) throws HsqlException {
+                              long offset, long length, boolean hasLength) {
 
         long end;
         long dataLength = data.length(session);
@@ -555,8 +546,7 @@ public class BinaryType extends Type {
     }
 
     public BlobData trim(Session session, BlobData data, int trim,
-                         boolean leading,
-                         boolean trailing) throws HsqlException {
+                         boolean leading, boolean trailing) {
 
         if (data == null) {
             return null;
@@ -601,8 +591,7 @@ public class BinaryType extends Type {
     }
 
     public BlobData overlay(Session session, BlobData data, BlobData overlay,
-                            long offset, long length,
-                            boolean hasLength) throws HsqlException {
+                            long offset, long length, boolean hasLength) {
 
         if (data == null || overlay == null) {
             return null;
@@ -650,8 +639,7 @@ public class BinaryType extends Type {
         }
     }
 
-    public Object concat(Session session, Object a,
-                         Object b) throws HsqlException {
+    public Object concat(Session session, Object a, Object b) {
 
         if (a == null || b == null) {
             return null;

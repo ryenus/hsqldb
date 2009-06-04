@@ -221,8 +221,7 @@ public class SqlInvariants {
          */
     }
 
-    public static final void checkSchemaNameNotSystem(String name)
-    throws HsqlException {
+    public static final void checkSchemaNameNotSystem(String name) {
 
         if (isSchemaNameSystem(name)) {
             throw Error.error(ErrorCode.X_42503, name);

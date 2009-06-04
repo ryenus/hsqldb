@@ -113,7 +113,7 @@ public class QuerySpecification extends QueryExpression {
 
     //
     QuerySpecification(Session session, Table table,
-                       CompileContext compileContext) throws HsqlException {
+                       CompileContext compileContext) {
 
         this(compileContext);
 
@@ -157,7 +157,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    void addSelectColumnExpression(Expression e) throws HsqlException {
+    void addSelectColumnExpression(Expression e) {
 
         if (e.getType() == OpTypes.ROW) {
             throw Error.error(ErrorCode.X_42564);
@@ -172,7 +172,7 @@ public class QuerySpecification extends QueryExpression {
         queryCondition = e;
     }
 
-    void addGroupByColumnExpression(Expression e) throws HsqlException {
+    void addGroupByColumnExpression(Expression e) {
 
         if (e.getType() == OpTypes.ROW) {
             throw Error.error(ErrorCode.X_42564);
@@ -198,7 +198,7 @@ public class QuerySpecification extends QueryExpression {
         this.sortAndSlice = sortAndSlice;
     }
 
-    public void resolveReferences(Session session) throws HsqlException {
+    public void resolveReferences(Session session) {
 
         finaliseRangeVariables();
         resolveColumnReferencesForAsterisk();
@@ -215,10 +215,8 @@ public class QuerySpecification extends QueryExpression {
      * Resolves all column expressions in the GROUP BY clause and beyond.
      * Replaces any alias column expression in the ORDER BY cluase
      * with the actual select column expression.
-     *
-     * @throws HsqlException
      */
-    private void resolveColumnReferences() throws HsqlException {
+    private void resolveColumnReferences() {
 
         if (isDistinctSelect || isGrouped) {
             acceptsSequences = false;
@@ -251,8 +249,7 @@ public class QuerySpecification extends QueryExpression {
         resolveColumnRefernecesInOrderBy(sortAndSlice);
     }
 
-    void resolveColumnRefernecesInOrderBy(SortAndSlice sortAndSlice)
-    throws HsqlException {
+    void resolveColumnRefernecesInOrderBy(SortAndSlice sortAndSlice) {
 
         // replace the aliases with expressions
         // replace column names with expressions and resolve the table columns
@@ -283,7 +280,7 @@ public class QuerySpecification extends QueryExpression {
     }
 
     private boolean resolveColumnReferences(Expression e, int rangeCount,
-            boolean withSequences) throws HsqlException {
+            boolean withSequences) {
 
         if (e == null) {
             return true;
@@ -303,7 +300,7 @@ public class QuerySpecification extends QueryExpression {
         return oldSize == newSize;
     }
 
-    private void resolveColumnReferencesForAsterisk() throws HsqlException {
+    private void resolveColumnReferencesForAsterisk() {
 
         for (int pos = 0; pos < indexLimitVisible; ) {
             Expression e = (Expression) (exprColumnList.get(pos));
@@ -343,7 +340,7 @@ public class QuerySpecification extends QueryExpression {
     }
 
     private void resolveColumnReferencesAndAllocate(Expression expression,
-            int count, boolean withSequences) throws HsqlException {
+            int count, boolean withSequences) {
 
         if (expression == null) {
             return;
@@ -393,7 +390,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private HashSet getAllNamedJoinColumns() throws HsqlException {
+    private HashSet getAllNamedJoinColumns() {
 
         HashSet set = null;
 
@@ -413,7 +410,7 @@ public class QuerySpecification extends QueryExpression {
     }
 
     public Expression getEquiJoinExpressions(OrderedHashSet nameSet,
-            RangeVariable rightRange, boolean fullList) throws HsqlException {
+            RangeVariable rightRange, boolean fullList) {
 
         HashSet        set             = new HashSet();
         Expression     result          = null;
@@ -515,8 +512,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private void replaceColumnIndexInOrderBy(Expression orderBy)
-    throws HsqlException {
+    private void replaceColumnIndexInOrderBy(Expression orderBy) {
 
         Expression e = orderBy.getLeftNode();
 
@@ -571,7 +567,7 @@ public class QuerySpecification extends QueryExpression {
     /**
      * Sets the types of all the expressions used in this SELECT list.
      */
-    public void resolveExpressionTypes(Session session) throws HsqlException {
+    public void resolveExpressionTypes(Session session) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
             Expression e = exprColumns[i];
@@ -612,7 +608,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private void resolveAggregates() throws HsqlException {
+    private void resolveAggregates() {
 
         tempSet.clear();
 
@@ -643,7 +639,7 @@ public class QuerySpecification extends QueryExpression {
                || unresolvedExpressions.isEmpty();
     }
 
-    private void setRangeVariableConditions() throws HsqlException {
+    private void setRangeVariableConditions() {
 
         RangeVariableResolver rangeResolver =
             new RangeVariableResolver(rangeVariables, queryCondition,
@@ -656,7 +652,7 @@ public class QuerySpecification extends QueryExpression {
 //        queryCondition = null;
     }
 
-    public void resolveTypes(Session session) throws HsqlException {
+    public void resolveTypes(Session session) {
 
         if (isResolved) {
             return;
@@ -678,7 +674,7 @@ public class QuerySpecification extends QueryExpression {
         return;
     }
 
-    void resolveTypesPartOne(Session session) throws HsqlException {
+    void resolveTypesPartOne(Session session) {
 
         resolveExpressionTypes(session);
         setRangeVariableConditions();
@@ -690,7 +686,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    void resolveTypesPartTwo(Session session) throws HsqlException {
+    void resolveTypesPartTwo(Session session) {
 
         resolveGroups();
 
@@ -720,7 +716,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private void resolveGroups() throws HsqlException {
+    private void resolveGroups() {
 
         // - 1.9.0 is standard compliant but has more extended support for
         //   referencing columns
@@ -956,7 +952,7 @@ public class QuerySpecification extends QueryExpression {
         return set == null;
     }
 
-    private int getLimitStart(Session session) throws HsqlException {
+    private int getLimitStart(Session session) {
 
         if (sortAndSlice.limitCondition != null) {
             Integer limit =
@@ -973,8 +969,7 @@ public class QuerySpecification extends QueryExpression {
         return 0;
     }
 
-    private int getLimitCount(Session session,
-                              int rowCount) throws HsqlException {
+    private int getLimitCount(Session session, int rowCount) {
 
         int limitCount = Integer.MAX_VALUE;
 
@@ -1001,8 +996,7 @@ public class QuerySpecification extends QueryExpression {
      * translate the rowCount into total number of rows needed from query,
      * including any rows skipped at the beginning
      */
-    private int getMaxRowCount(Session session,
-                               int rowCount) throws HsqlException {
+    private int getMaxRowCount(Session session, int rowCount) {
 
         int limitStart = getLimitStart(session);
         int limitCount = getLimitCount(session, rowCount);
@@ -1030,9 +1024,8 @@ public class QuerySpecification extends QueryExpression {
      * @param maxrows may be 0 to indicate no limit on the number of rows.
      * Positive values limit the size of the result set.
      * @return the result of executing this Select
-     * @throws HsqlException if a database access error occurs
      */
-    Result getResult(Session session, int maxrows) throws HsqlException {
+    Result getResult(Session session, int maxrows) {
 
         Result r;
 
@@ -1045,8 +1038,7 @@ public class QuerySpecification extends QueryExpression {
         return r;
     }
 
-    private Result getSingleResult(Session session,
-                                   int rowCount) throws HsqlException {
+    private Result getSingleResult(Session session, int rowCount) {
 
         int                 maxRows   = getMaxRowCount(session, rowCount);
         Result              r         = buildResult(session, maxRows);
@@ -1063,8 +1055,7 @@ public class QuerySpecification extends QueryExpression {
         return r;
     }
 
-    private Result buildResult(Session session,
-                               int limitcount) throws HsqlException {
+    private Result buildResult(Session session, int limitcount) {
 
         RowSetNavigatorData navigator = new RowSetNavigatorData(session,
             (QuerySpecification) this);
@@ -1250,7 +1241,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private void createResultMetaData() throws HsqlException {
+    private void createResultMetaData() {
 
         columnTypes = new Type[indexLimitData];
 
@@ -1298,7 +1289,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    void createTable(Session session) throws HsqlException {
+    void createTable(Session session) {
 
         createResultTable(session);
 
@@ -1334,7 +1325,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    void createResultTable(Session session) throws HsqlException {
+    void createResultTable(Session session) {
 
         HsqlName       tableName;
         HashMappedList columnList;
@@ -1371,7 +1362,7 @@ public class QuerySpecification extends QueryExpression {
         } catch (Exception e) {}
     }
 
-    public String getSQL() throws HsqlException {
+    public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
         int          limit;
@@ -1671,7 +1662,7 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    void getMergedSelect() throws HsqlException {
+    void getMergedSelect() {
 
         RangeVariable rangeVar            = rangeVariables[0];
         Table         table               = rangeVar.getTable();

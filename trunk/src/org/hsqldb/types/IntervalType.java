@@ -35,7 +35,6 @@ import java.math.BigDecimal;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.OpTypes;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
@@ -318,7 +317,7 @@ public final class IntervalType extends DTIType {
         return endIntervalType == Types.SQL_INTERVAL_SECOND;
     }
 
-    public Type getAggregateType(Type other) throws HsqlException {
+    public Type getAggregateType(Type other) {
 
         if (typeCode == other.typeCode) {
             if (precision >= other.precision && scale >= other.scale) {
@@ -361,8 +360,7 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Type getCombinedType(Type other,
-                                int operation) throws HsqlException {
+    public Type getCombinedType(Type other, int operation) {
 
         switch (operation) {
 
@@ -437,8 +435,7 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Object convertToTypeLimits(SessionInterface session,
-                                      Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session, Object a) {
 
         if (a == null) {
             return null;
@@ -465,7 +462,7 @@ public final class IntervalType extends DTIType {
     }
 
     public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) throws HsqlException {
+                                Type otherType) {
 
         if (a == null) {
             return null;
@@ -584,8 +581,7 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Object convertToDefaultType(SessionInterface session,
-                                       Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
             return null;
@@ -670,7 +666,7 @@ public final class IntervalType extends DTIType {
                  ^ ((IntervalType) otherType).isYearMonthIntervalType());
     }
 
-    public Object absolute(Object a) throws HsqlException {
+    public Object absolute(Object a) {
 
         if (a == null) {
             return null;
@@ -690,7 +686,7 @@ public final class IntervalType extends DTIType {
         return a;
     }
 
-    public Object negate(Object a) throws HsqlException {
+    public Object negate(Object a) {
 
         if (a == null) {
             return null;
@@ -708,8 +704,7 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Object add(Object a, Object b,
-                      Type otherType) throws HsqlException {
+    public Object add(Object a, Object b, Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -747,8 +742,7 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Object subtract(Object a, Object b,
-                           Type otherType) throws HsqlException {
+    public Object subtract(Object a, Object b, Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -817,16 +811,15 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Object multiply(Object a, Object b) throws HsqlException {
+    public Object multiply(Object a, Object b) {
         return multiplyOrDivide(a, b, false);
     }
 
-    public Object divide(Object a, Object b) throws HsqlException {
+    public Object divide(Object a, Object b) {
         return multiplyOrDivide(a, b, true);
     }
 
-    private Object multiplyOrDivide(Object a, Object b,
-                                    boolean divide) throws HsqlException {
+    private Object multiplyOrDivide(Object a, Object b, boolean divide) {
 
         if (a == null || b == null) {
             return null;
@@ -976,7 +969,7 @@ public final class IntervalType extends DTIType {
     }
 
     public static IntervalType getIntervalType(int startIndex, int endIndex,
-            long precision, int fractionPrecision) throws HsqlException {
+            long precision, int fractionPrecision) {
 
         boolean defaultPrecision = precision == -1;
 

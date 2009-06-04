@@ -35,7 +35,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.hsqldb.Error;
-import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
@@ -48,19 +47,18 @@ public class BlobDataID implements BlobData {
         this.id = id;
     }
 
-    public BlobData duplicate(SessionInterface session) throws HsqlException {
+    public BlobData duplicate(SessionInterface session) {
         return null;
     }
 
     public void free() {}
 
-    public InputStream getBinaryStream(SessionInterface session)
-    throws HsqlException {
+    public InputStream getBinaryStream(SessionInterface session) {
         return null;
     }
 
     public InputStream getBinaryStream(SessionInterface session, long pos,
-                                       long length) throws HsqlException {
+                                       long length) {
         return null;
     }
 
@@ -68,8 +66,7 @@ public class BlobDataID implements BlobData {
         return null;
     }
 
-    public byte[] getBytes(SessionInterface session, long pos,
-                           int length) throws HsqlException {
+    public byte[] getBytes(SessionInterface session, long pos, int length) {
 
         ResultLob resultOut = ResultLob.newLobGetBytesRequest(id, pos, length);
         Result    resultIn  = session.execute(resultOut);
@@ -81,8 +78,7 @@ public class BlobDataID implements BlobData {
         return ((ResultLob) resultIn).getByteArray();
     }
 
-    public BlobData getBlob(SessionInterface session, long pos,
-                        long length) throws HsqlException {
+    public BlobData getBlob(SessionInterface session, long pos, long length) {
 
         ResultLob resultOut = ResultLob.newLobGetRequest(id, pos, length);
         Result    resultIn  = session.execute(resultOut);
@@ -92,6 +88,7 @@ public class BlobDataID implements BlobData {
         }
 
         long lobID = ((ResultLob) resultIn).getLobID();
+
         return new BlobDataID(lobID);
     }
 
@@ -111,7 +108,7 @@ public class BlobDataID implements BlobData {
         return false;
     }
 
-    public long length(SessionInterface session) throws HsqlException {
+    public long length(SessionInterface session) {
 
         ResultLob resultOut = ResultLob.newLobGetLengthRequest(id);
         Result    resultIn  = session.execute(resultOut);
@@ -132,12 +129,12 @@ public class BlobDataID implements BlobData {
     }
 
     public long position(SessionInterface session, BlobData pattern,
-                         long start) throws HsqlException {
+                         long start) {
         return 0L;
     }
 
     public long position(SessionInterface session, byte[] pattern,
-                         long start) throws HsqlException {
+                         long start) {
 
         ResultLob resultOut = ResultLob.newLobGetBytePatternPositionRequest(id,
             pattern, start);
@@ -150,13 +147,12 @@ public class BlobDataID implements BlobData {
         return 0;
     }
 
-    public OutputStream setBinaryStream(SessionInterface session,
-                                        long pos) throws HsqlException {
+    public OutputStream setBinaryStream(SessionInterface session, long pos) {
         return null;
     }
 
     public int setBytes(SessionInterface session, long pos, byte[] bytes,
-                        int offset, int len) throws HsqlException {
+                        int offset, int len) {
 
         ResultLob resultOut = ResultLob.newLobSetBytesRequest(id, pos, bytes);
         Result    resultIn  = (ResultLob) session.execute(resultOut);
@@ -168,8 +164,7 @@ public class BlobDataID implements BlobData {
         return bytes.length;
     }
 
-    public int setBytes(SessionInterface session, long pos,
-                        byte[] bytes) throws HsqlException {
+    public int setBytes(SessionInterface session, long pos, byte[] bytes) {
         return 0;
     }
 
@@ -180,8 +175,7 @@ public class BlobDataID implements BlobData {
 
     public void setSession(SessionInterface session) {}
 
-    public void truncate(SessionInterface session,
-                         long len) throws HsqlException {
+    public void truncate(SessionInterface session, long len) {
 
         ResultLob resultOut = ResultLob.newLobTruncateRequest(id, len);
         Result    resultIn  = session.execute(resultOut);

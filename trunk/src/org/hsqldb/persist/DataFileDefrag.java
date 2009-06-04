@@ -87,7 +87,7 @@ final class DataFileDefrag {
         this.filename = filename;
     }
 
-    void process() throws HsqlException, IOException {
+    void process() throws IOException {
 
         boolean complete = false;
 
@@ -181,7 +181,7 @@ final class DataFileDefrag {
     /**
      * called from outside after the complete end of defrag
      */
-    void updateTableIndexRoots() throws HsqlException {
+    void updateTableIndexRoots() {
 
         HsqlArrayList allTables = database.schemaManager.getAllTables();
 
@@ -199,11 +199,11 @@ final class DataFileDefrag {
     /**
      * called from outside after the complete end of defrag
      */
-    void updateTransactionRowIDs() throws HsqlException {
+    void updateTransactionRowIDs() {
         database.txManager.convertTransactionIDs(transactionRowLookup);
     }
 
-    int[] writeTableToDataFile(Table table) throws IOException, HsqlException {
+    int[] writeTableToDataFile(Table table) throws IOException {
 
         Session session = database.getSessionManager().getSysSession();
         PersistentStore    store  = session.sessionData.getRowStore(table);

@@ -95,7 +95,7 @@ public class SchemaManager {
     /**
      * Creates a schema belonging to the given grantee.
      */
-    void createSchema(HsqlName name, Grantee owner) throws HsqlException {
+    void createSchema(HsqlName name, Grantee owner) {
 
         SqlInvariants.checkSchemaNameNotSystem(name.name);
 
@@ -104,7 +104,7 @@ public class SchemaManager {
         schemaMap.add(name.name, schema);
     }
 
-    void dropSchema(String name, boolean cascade) throws HsqlException {
+    void dropSchema(String name, boolean cascade) {
 
         Schema schema = (Schema) schemaMap.get(name);
 
@@ -163,7 +163,7 @@ public class SchemaManager {
         database.getSessionManager().removeSchemaReference(schema);
     }
 
-    void renameSchema(HsqlName name, HsqlName newName) throws HsqlException {
+    void renameSchema(HsqlName name, HsqlName newName) {
 
         Schema schema = (Schema) schemaMap.get(name.name);
         Schema exists = (Schema) schemaMap.get(newName.name);
@@ -199,7 +199,7 @@ public class SchemaManager {
         return schemaMap.keySet().iterator();
     }
 
-    HsqlName getUserSchemaHsqlName(String name) throws HsqlException {
+    HsqlName getUserSchemaHsqlName(String name) {
 
         Schema schema = (Schema) schemaMap.get(name);
 
@@ -260,7 +260,7 @@ public class SchemaManager {
      * the HsqlName object for the schema. If schemaName does not exist,
      * throw.
      */
-    public HsqlName getSchemaHsqlName(String name) throws HsqlException {
+    public HsqlName getSchemaHsqlName(String name) {
 
         if (name == null) {
             return defaultSchemaHsqlName;
@@ -282,7 +282,7 @@ public class SchemaManager {
     /**
      * Same as above, but return string
      */
-    public String getSchemaName(String name) throws HsqlException {
+    public String getSchemaName(String name) {
         return getSchemaHsqlName(name).name;
     }
 
@@ -325,7 +325,7 @@ public class SchemaManager {
     /**
      * drop all schemas with the given authorisation
      */
-    void dropSchemas(Grantee grantee, boolean cascade) throws HsqlException {
+    void dropSchemas(Grantee grantee, boolean cascade) {
 
         HsqlArrayList list = getSchemas(grantee);
         Iterator      it   = list.iterator();
@@ -395,8 +395,7 @@ public class SchemaManager {
         return temp.tableList;
     }
 
-    SchemaObjectSet getSchemaObjectSet(Schema schema,
-                                       int type) throws HsqlException {
+    SchemaObjectSet getSchemaObjectSet(Schema schema, int type) {
 
         SchemaObjectSet set = null;
 
@@ -448,7 +447,7 @@ public class SchemaManager {
         return set;
     }
 
-    void checkSchemaObjectNotExists(HsqlName name) throws HsqlException {
+    void checkSchemaObjectNotExists(HsqlName name) {
 
         Schema          schema = (Schema) schemaMap.get(name.schema.name);
         SchemaObjectSet set    = getSchemaObjectSet(schema, name.type);
@@ -462,8 +461,7 @@ public class SchemaManager {
      *  name. It excludes any temp tables created in other Sessions.
      *  Throws if the table does not exist in the context.
      */
-    public Table getTable(Session session, String name,
-                          String schema) throws HsqlException {
+    public Table getTable(Session session, String name, String schema) {
 
         Table t = null;
 
@@ -490,8 +488,7 @@ public class SchemaManager {
         return t;
     }
 
-    public Table getUserTable(Session session,
-                              HsqlName name) throws HsqlException {
+    public Table getUserTable(Session session, HsqlName name) {
         return getUserTable(session, name.name, name.schema.name);
     }
 
@@ -501,8 +498,7 @@ public class SchemaManager {
      *  any temp tables created in different Sessions.
      *  Throws if the table does not exist in the context.
      */
-    public Table getUserTable(Session session, String name,
-                              String schema) throws HsqlException {
+    public Table getUserTable(Session session, String name, String schema) {
 
         Table t = findUserTable(session, name, schema);
 
@@ -569,10 +565,8 @@ public class SchemaManager {
      * @param table if true and if the Table to drop does not exist, fail
      *   silently, else throw
      * @param cascade true if the name argument refers to a View
-     * @throws HsqlException if any of the checks listed above fail
      */
-    void dropTableOrView(Session session, Table table,
-                         boolean cascade) throws HsqlException {
+    void dropTableOrView(Session session, Table table, boolean cascade) {
 
 // ft - concurrent
         session.commit(false);
@@ -584,8 +578,7 @@ public class SchemaManager {
         }
     }
 
-    void dropTable(Session session, Table table,
-                   boolean cascade) throws HsqlException {
+    void dropTable(Session session, Table table, boolean cascade) {
 
         Schema schema    = (Schema) schemaMap.get(table.getSchemaName().name);
         int    dropIndex = schema.tableList.getIndex(table.getName().name);
@@ -692,8 +685,7 @@ public class SchemaManager {
         return schema.tableList.getIndex(name.name);
     }
 
-    void recompileDependentObjects(OrderedHashSet tableSet)
-    throws HsqlException {
+    void recompileDependentObjects(OrderedHashSet tableSet) {
 
         OrderedHashSet set = new OrderedHashSet();
 
@@ -725,7 +717,7 @@ public class SchemaManager {
      * After addition or removal of columns and indexes all views that
      * reference the table should be recompiled.
      */
-    void recompileDependentObjects(Table table) throws HsqlException {
+    void recompileDependentObjects(Table table) {
 
         OrderedHashSet set     = getReferencingObjects(table.getName());
         Session        session = database.sessionManager.getSysSession();
@@ -754,8 +746,7 @@ public class SchemaManager {
         }
     }
 
-    NumberSequence getSequence(String name, String schemaName,
-                               boolean raise) throws HsqlException {
+    NumberSequence getSequence(String name, String schemaName, boolean raise) {
 
         Schema schema = (Schema) schemaMap.get(schemaName);
 
@@ -776,7 +767,7 @@ public class SchemaManager {
     }
 
     public Type getUserDefinedType(String name, String schemaName,
-                                   boolean raise) throws HsqlException {
+                                   boolean raise) {
 
         Schema schema = (Schema) schemaMap.get(schemaName);
 
@@ -795,8 +786,7 @@ public class SchemaManager {
         return null;
     }
 
-    public Type getDomain(String name, String schemaName,
-                          boolean raise) throws HsqlException {
+    public Type getDomain(String name, String schemaName, boolean raise) {
 
         Schema schema = (Schema) schemaMap.get(schemaName);
 
@@ -816,7 +806,7 @@ public class SchemaManager {
     }
 
     public Type getDistinctType(String name, String schemaName,
-                                boolean raise) throws HsqlException {
+                                boolean raise) {
 
         Schema schema = (Schema) schemaMap.get(schemaName);
 
@@ -836,7 +826,7 @@ public class SchemaManager {
     }
 
     public SchemaObject getSchemaObject(String name, String schemaName,
-                                        int type) throws HsqlException {
+                                        int type) {
 
         SchemaObject object = findSchemaObject(name, schemaName, type);
 
@@ -967,7 +957,7 @@ public class SchemaManager {
     /**
      * Drops the index with the specified name.
      */
-    void dropIndex(Session session, HsqlName name) throws HsqlException {
+    void dropIndex(Session session, HsqlName name) {
 
         Table t = getTable(session, name.parent.name, name.parent.schema.name);
         TableWorks tw = new TableWorks(session, t);
@@ -978,8 +968,7 @@ public class SchemaManager {
     /**
      * Drops the index with the specified name.
      */
-    void dropConstraint(Session session, HsqlName name,
-                        boolean cascade) throws HsqlException {
+    void dropConstraint(Session session, HsqlName name, boolean cascade) {
 
         Table t = getTable(session, name.parent.name, name.parent.schema.name);
         TableWorks tw = new TableWorks(session, t);
@@ -1100,9 +1089,7 @@ public class SchemaManager {
         return set;
     }
 
-    OrderedHashSet getReferencingObjects(HsqlName table,
-                                         HsqlName column)
-                                         throws HsqlException {
+    OrderedHashSet getReferencingObjects(HsqlName table, HsqlName column) {
 
         OrderedHashSet set = new OrderedHashSet();
         Iterator       it  = referenceMap.get(table);
@@ -1175,7 +1162,7 @@ public class SchemaManager {
 
     //
     HsqlName getSchemaObjectName(HsqlName schemaName, String name, int type,
-                                 boolean raise) throws HsqlException {
+                                 boolean raise) {
 
         Schema          schema = (Schema) schemaMap.get(schemaName.name);
         SchemaObjectSet set    = null;
@@ -1197,7 +1184,7 @@ public class SchemaManager {
         return set.getName(name);
     }
 
-    SchemaObject getSchemaObject(HsqlName name) throws HsqlException {
+    SchemaObject getSchemaObject(HsqlName name) {
 
         Schema schema = (Schema) schemaMap.get(name.schema.name);
 
@@ -1273,8 +1260,7 @@ public class SchemaManager {
         return null;
     }
 
-    void checkColumnIsReferenced(HsqlName tableName,
-                                 HsqlName name) throws HsqlException {
+    void checkColumnIsReferenced(HsqlName tableName, HsqlName name) {
 
         OrderedHashSet set = getReferencingObjects(tableName, name);
 
@@ -1286,7 +1272,7 @@ public class SchemaManager {
         }
     }
 
-    void checkObjectIsReferenced(HsqlName name) throws HsqlException {
+    void checkObjectIsReferenced(HsqlName name) {
 
         OrderedHashSet set     = getReferencingObjects(name);
         HsqlName       refName = null;
@@ -1309,7 +1295,7 @@ public class SchemaManager {
                           refName.getSchemaQualifiedStatementName());
     }
 
-    void addSchemaObject(SchemaObject object) throws HsqlException {
+    void addSchemaObject(SchemaObject object) {
 
         HsqlName        name   = object.getName();
         Schema          schema = (Schema) schemaMap.get(name.schema.name);
@@ -1341,8 +1327,7 @@ public class SchemaManager {
         addReferences(object);
     }
 
-    void removeSchemaObject(HsqlName name,
-                            boolean cascade) throws HsqlException {
+    void removeSchemaObject(HsqlName name, boolean cascade) {
 
         OrderedHashSet objectSet = new OrderedHashSet();
 
@@ -1380,7 +1365,7 @@ public class SchemaManager {
         removeSchemaObjects(objectSet);
     }
 
-    void removeSchemaObjects(OrderedHashSet set) throws HsqlException {
+    void removeSchemaObjects(OrderedHashSet set) {
 
         for (int i = 0; i < set.size(); i++) {
             HsqlName name = (HsqlName) set.get(i);
@@ -1389,7 +1374,7 @@ public class SchemaManager {
         }
     }
 
-    void removeSchemaObject(HsqlName name) throws HsqlException {
+    void removeSchemaObject(HsqlName name) {
 
         Schema          schema = (Schema) schemaMap.get(name.schema.name);
         SchemaObject    object = null;
@@ -1484,8 +1469,7 @@ public class SchemaManager {
         removeReferencedObject(name);
     }
 
-    void renameSchemaObject(HsqlName name,
-                            HsqlName newName) throws HsqlException {
+    void renameSchemaObject(HsqlName name, HsqlName newName) {
 
         if (name.schema != newName.schema) {
             throw Error.error(ErrorCode.X_42505, newName.schema.name);

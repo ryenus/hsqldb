@@ -88,7 +88,7 @@ public class TransactionManager {
         database = db;
     }
 
-    public void setMVCC(boolean value) throws HsqlException {
+    public void setMVCC(boolean value) {
 
         writeLock.lock();
 

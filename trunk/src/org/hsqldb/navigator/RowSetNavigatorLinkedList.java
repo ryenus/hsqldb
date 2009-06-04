@@ -34,7 +34,6 @@ package org.hsqldb.navigator;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.lib.HsqlLinkedList;
 import org.hsqldb.lib.HsqlLinkedList.Node;
@@ -119,7 +118,7 @@ public class RowSetNavigatorLinkedList extends RowSetNavigator {
 
     // reading and writing
     public void write(RowOutputInterface out,
-                      ResultMetaData meta) throws HsqlException, IOException {
+                      ResultMetaData meta) throws IOException {
 
         beforeFirst();
         out.writeLong(id);
@@ -138,7 +137,7 @@ public class RowSetNavigatorLinkedList extends RowSetNavigator {
     }
 
     public void read(RowInputInterface in,
-                     ResultMetaData meta) throws HsqlException, IOException {
+                     ResultMetaData meta) throws IOException {
 
         id = in.readLong();
 

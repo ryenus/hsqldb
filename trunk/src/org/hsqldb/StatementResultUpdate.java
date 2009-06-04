@@ -66,7 +66,7 @@ public class StatementResultUpdate extends StatementDML {
         }
     }
 
-    Result getResult(Session session) throws HsqlException {
+    Result getResult(Session session) {
 
         checkAccessRights(session);
 
@@ -193,7 +193,7 @@ public class StatementResultUpdate extends StatementDML {
 
     return Result.updateZeroResult;
 */
-    void checkAccessRights(Session session) throws HsqlException {
+    void checkAccessRights(Session session) {
 
         switch (type) {
 

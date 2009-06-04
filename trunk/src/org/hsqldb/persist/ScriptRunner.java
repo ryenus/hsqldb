@@ -36,7 +36,6 @@ import java.io.EOFException;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.SimpleLog;
@@ -61,7 +60,7 @@ public class ScriptRunner {
      *  transaction rollback.
      */
     public static void runScript(Database database, String logFilename,
-                                 int logType) throws HsqlException {
+                                 int logType) {
 
         IntKeyHashMap sessionMap = new IntKeyHashMap();
         Session       current    = null;

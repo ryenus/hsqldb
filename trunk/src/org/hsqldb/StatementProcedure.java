@@ -60,7 +60,7 @@ public class StatementProcedure extends StatementDMQL {
      * Constructor for CALL statements for expressions.
      */
     StatementProcedure(Session session, Expression expression,
-                       CompileContext compileContext) throws HsqlException {
+                       CompileContext compileContext) {
 
         super(StatementTypes.CALL, StatementTypes.X_SQL_DATA,
               session.currentSchema);
@@ -75,8 +75,7 @@ public class StatementProcedure extends StatementDMQL {
      * Constructor for CALL statements for procedures.
      */
     StatementProcedure(Session session, Routine procedure,
-                       Expression[] arguments,
-                       CompileContext compileContext) throws HsqlException {
+                       Expression[] arguments, CompileContext compileContext) {
 
         super(StatementTypes.CALL, StatementTypes.X_SQL_DATA,
               session.currentSchema);
@@ -88,12 +87,12 @@ public class StatementProcedure extends StatementDMQL {
         checkAccessRights(session);
     }
 
-    Result getResult(Session session) throws HsqlException {
+    Result getResult(Session session) {
         return expression == null ? getProcedureResult(session)
                                   : getExpressionResult(session);
     }
 
-    Result getProcedureResult(Session session) throws HsqlException {
+    Result getProcedureResult(Session session) {
 
         Object[] data = ValuePool.emptyObjectArray;
 
@@ -169,7 +168,7 @@ public class StatementProcedure extends StatementDMQL {
         return result;
     }
 
-    Result getExpressionResult(Session session) throws HsqlException {
+    Result getExpressionResult(Session session) {
 
         Expression e = expression;             // representing CALL
         Object     o = e.getValue(session);    // expression return value

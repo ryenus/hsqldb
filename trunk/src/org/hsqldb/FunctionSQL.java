@@ -536,7 +536,7 @@ public class FunctionSQL extends Expression {
     /**
      * Evaluates and returns this Function in the context of the session.<p>
      */
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         Object[] data = new Object[nodes.length];
 
@@ -551,7 +551,7 @@ public class FunctionSQL extends Expression {
         return getValue(session, data);
     }
 
-    Object getValue(Session session, Object[] data) throws HsqlException {
+    Object getValue(Session session, Object[] data) {
 
         switch (funcType) {
 
@@ -1054,8 +1054,7 @@ public class FunctionSQL extends Expression {
         }
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {

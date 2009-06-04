@@ -38,7 +38,6 @@ import java.util.zip.DeflaterOutputStream;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.lib.FileAccess;
 
 /**
@@ -52,7 +51,7 @@ class ScriptWriterZipped extends ScriptWriterBinary {
     private static final int bufferSize = 1 << 15;
 
     ScriptWriterZipped(Database db, String file, boolean includeCached,
-                       boolean newFile) throws HsqlException {
+                       boolean newFile) {
         super(db, file, includeCached, newFile);
     }
 
@@ -61,7 +60,7 @@ class ScriptWriterZipped extends ScriptWriterBinary {
      */
     public void sync() {}
 
-    protected void openFile() throws HsqlException {
+    protected void openFile() {
 
         try {
             FileAccess           fa  = database.getFileAccess();
@@ -71,8 +70,8 @@ class ScriptWriterZipped extends ScriptWriterBinary {
             fileStreamOut = new DeflaterOutputStream(fos,
                     new Deflater(Deflater.DEFAULT_COMPRESSION), bufferSize);
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.M_Message_Pair,
-                              new Object[] {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.M_Message_Pair, new Object[] {
                 e.toString(), outFile
             });
         }

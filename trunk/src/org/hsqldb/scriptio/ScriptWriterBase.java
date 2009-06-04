@@ -39,7 +39,6 @@ import org.hsqldb.Database;
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.SchemaObject;
@@ -96,7 +95,7 @@ public abstract class ScriptWriterBase implements Runnable {
     FileAccess.FileSync outDescriptor;
     int                 tableRowCount;
     HsqlName            schemaToLog;
-    boolean    isClosed;
+    boolean             isClosed;
 
     /**
      * this determines if the script is the normal script (false) used
@@ -122,8 +121,7 @@ public abstract class ScriptWriterBase implements Runnable {
     public static final int      SCRIPT_ZIPPED_BINARY_172 = 3;
 
     public static ScriptWriterBase newScriptWriter(Database db, String file,
-            boolean includeCachedData, boolean newFile,
-            int scriptType) throws HsqlException {
+            boolean includeCachedData, boolean newFile, int scriptType) {
 
         if (scriptType == SCRIPT_TEXT_170) {
             return new ScriptWriterText(db, file, includeCachedData, newFile,
@@ -140,7 +138,7 @@ public abstract class ScriptWriterBase implements Runnable {
     ScriptWriterBase() {}
 
     ScriptWriterBase(Database db, String file, boolean includeCachedData,
-                     boolean isNewFile, boolean isDump) throws HsqlException {
+                     boolean isNewFile, boolean isDump) {
 
         this.isDump = isDump;
 
@@ -170,7 +168,7 @@ public abstract class ScriptWriterBase implements Runnable {
         openFile();
     }
 
-    public void reopen() throws HsqlException {
+    public void reopen() {
         openFile();
     }
 
@@ -209,7 +207,7 @@ public abstract class ScriptWriterBase implements Runnable {
         }
     }
 
-    public void close() throws HsqlException {
+    public void close() {
 
         stop();
 
@@ -220,11 +218,11 @@ public abstract class ScriptWriterBase implements Runnable {
         try {
             synchronized (fileStreamOut) {
                 needsSync = false;
-                isClosed = true;
+                isClosed  = true;
+
                 fileStreamOut.flush();
                 outDescriptor.sync();
                 fileStreamOut.close();
-
             }
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR);
@@ -237,7 +235,7 @@ public abstract class ScriptWriterBase implements Runnable {
         return byteCount;
     }
 
-    public void writeAll() throws HsqlException {
+    public void writeAll() {
 
         try {
             writeDDL();
@@ -252,7 +250,7 @@ public abstract class ScriptWriterBase implements Runnable {
      *  File is opened in append mode although in current usage the file
      *  never pre-exists
      */
-    protected void openFile() throws HsqlException {
+    protected void openFile() {
 
         try {
             FileAccess   fa  = isDump ? FileUtil.getDefaultInstance()
@@ -275,14 +273,14 @@ public abstract class ScriptWriterBase implements Runnable {
      */
     protected void finishStream() throws IOException {}
 
-    protected void writeDDL() throws IOException, HsqlException {
+    protected void writeDDL() throws IOException {
 
         Result ddlPart = database.getScript(!includeCachedData);
 
         writeSingleColumnResult(ddlPart);
     }
 
-    protected void writeExistingData() throws HsqlException, IOException {
+    protected void writeExistingData() throws IOException {
 
         // start with blank schema - SET SCHEMA to log
         currentSession.loggedSchema = null;
@@ -343,9 +341,9 @@ public abstract class ScriptWriterBase implements Runnable {
         writeDataTerm();
     }
 
-    protected void writeTableInit(Table t) throws HsqlException, IOException {}
+    protected void writeTableInit(Table t) throws IOException {}
 
-    protected void writeTableTerm(Table t) throws HsqlException, IOException {
+    protected void writeTableTerm(Table t) throws IOException {
 
         if (t.isDataReadOnly() && !t.isTemp() && !t.isText()) {
             StringBuffer a = new StringBuffer("SET TABLE ");
@@ -356,8 +354,7 @@ public abstract class ScriptWriterBase implements Runnable {
         }
     }
 
-    protected void writeSingleColumnResult(Result r)
-    throws HsqlException, IOException {
+    protected void writeSingleColumnResult(Result r) throws IOException {
 
         RowSetNavigator nav = r.initialiseNavigator();
 
@@ -369,27 +366,26 @@ public abstract class ScriptWriterBase implements Runnable {
     }
 
     abstract void writeRow(Session session, Table table,
-                           Object[] data) throws HsqlException, IOException;
+                           Object[] data) throws IOException;
 
     protected abstract void writeDataTerm() throws IOException;
 
     protected abstract void addSessionId(Session session) throws IOException;
 
     public abstract void writeLogStatement(Session session,
-                                           String s)
-                                           throws IOException, HsqlException;
+                                           String s) throws IOException;
 
     public abstract void writeInsertStatement(Session session, Table table,
-            Object[] data) throws HsqlException, IOException;
+            Object[] data) throws IOException;
 
     public abstract void writeDeleteStatement(Session session, Table table,
-            Object[] data) throws HsqlException, IOException;
+            Object[] data) throws IOException;
 
     public abstract void writeSequenceStatement(Session session,
-            NumberSequence seq) throws HsqlException, IOException;
+            NumberSequence seq) throws IOException;
 
     public abstract void writeCommitStatement(Session session)
-    throws HsqlException, IOException;
+    throws IOException;
 
     //
     private Object timerTask;

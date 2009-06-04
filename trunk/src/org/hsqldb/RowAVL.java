@@ -86,7 +86,7 @@ import org.hsqldb.lib.java.JavaSystem;
  */
 public class RowAVL extends Row {
 
-    public NodeAVL               nPrimaryNode;
+    public NodeAVL nPrimaryNode;
 
     /**
      *  Default constructor used only in subclasses.
@@ -104,7 +104,7 @@ public class RowAVL extends Row {
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that
      *  are not yet linked with other Nodes in the AVL indexes.
      */
-    public RowAVL(TableBase t, Object[] o) throws HsqlException {
+    public RowAVL(TableBase t, Object[] o) {
 
         int index = t.getIndexCount();
 
@@ -118,7 +118,7 @@ public class RowAVL extends Row {
         }
 
         tableId = t.getId();
-        rowData   = o;
+        rowData = o;
     }
 
     /**
@@ -162,7 +162,7 @@ public class RowAVL extends Row {
         return newnode;
     }
 
-    public void clearNonPrimaryNodes() throws HsqlException {
+    public void clearNonPrimaryNodes() {
 
         NodeAVL n = nPrimaryNode.nNext;
 

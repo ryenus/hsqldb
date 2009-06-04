@@ -191,7 +191,7 @@ public class DataFileCache {
      * Opens the *.data file for this cache, setting the variables that
      * allow access to the particular database version of the *.data file.
      */
-    public void open(boolean readonly) throws HsqlException {
+    public void open(boolean readonly) {
 
         fileFreePosition = 0;
 
@@ -316,7 +316,7 @@ public class DataFileCache {
      *  When true, writes out all cached rows that have been modified and the
      *  free position pointer for the *.data file and then closes the file.
      */
-    public void close(boolean write) throws HsqlException {
+    public void close(boolean write) {
 
         SimpleLog appLog = database.logger.appLog;
 
@@ -418,7 +418,7 @@ public class DataFileCache {
     /**
      *  Writes out all the rows to a new file without fragmentation.
      */
-    public void defrag() throws HsqlException {
+    public void defrag() {
 
         if (cacheReadonly) {
             return;
@@ -456,9 +456,13 @@ public class DataFileCache {
         } catch (Throwable e) {
             database.logger.appLog.logContext(e, null);
 
-            throw new HsqlException(
-                e, Error.getMessage(ErrorCode.GENERAL_IO_ERROR),
-                ErrorCode.GENERAL_IO_ERROR);
+            if (e instanceof HsqlException) {
+                throw (HsqlException) e;
+            } else {
+                throw new HsqlException(
+                    e, Error.getMessage(ErrorCode.GENERAL_IO_ERROR),
+                    ErrorCode.GENERAL_IO_ERROR);
+            }
         }
 
         database.logger.appLog.logContext(SimpleLog.LOG_NORMAL, "end");
@@ -494,7 +498,7 @@ public class DataFileCache {
      * Free space is requested from the block manager if it exists.
      * Otherwise the file is grown to accommodate it.
      */
-    private int setFilePos(CachedObject r) throws HsqlException {
+    private int setFilePos(CachedObject r) {
 
         int rowSize = r.getStorageSize();
         int i       = freeBlocks == null ? -1
@@ -517,7 +521,7 @@ public class DataFileCache {
         return i;
     }
 
-    public void add(CachedObject object) throws HsqlException {
+    public void add(CachedObject object) {
 
         writeLock.lock();
 
@@ -539,7 +543,7 @@ public class DataFileCache {
      * For a CacheObject that had been previously released from the cache.
      * A new version is introduced, using the preallocated space for the object.
      */
-    public void restore(CachedObject object) throws HsqlException {
+    public void restore(CachedObject object) {
 
         writeLock.lock();
 
@@ -557,7 +561,7 @@ public class DataFileCache {
         }
     }
 
-    public int getStorageSize(int i) throws HsqlException {
+    public int getStorageSize(int i) {
 
         readLock.lock();
 
@@ -575,7 +579,7 @@ public class DataFileCache {
     }
 
     public CachedObject get(CachedObject object, PersistentStore store,
-                            boolean keep) throws HsqlException {
+                            boolean keep) {
 
         readLock.lock();
 
@@ -612,8 +616,7 @@ public class DataFileCache {
         return getFromFile(pos, store, keep);
     }
 
-    public CachedObject get(int pos, PersistentStore store,
-                            boolean keep) throws HsqlException {
+    public CachedObject get(int pos, PersistentStore store, boolean keep) {
 
         CachedObject object;
 
@@ -641,7 +644,7 @@ public class DataFileCache {
     }
 
     private CachedObject getFromFile(int pos, PersistentStore store,
-                                     boolean keep) throws HsqlException {
+                                     boolean keep) {
 
         CachedObject object      = null;
         boolean      outOfMemory = false;
@@ -698,11 +701,11 @@ public class DataFileCache {
         }
     }
 
-    RowInputInterface getRaw(int i) throws HsqlException {
+    RowInputInterface getRaw(int i) {
         return readObject(i);
     }
 
-    protected int readSize(int pos) throws HsqlException {
+    protected int readSize(int pos) {
 
         writeLock.lock();
 
@@ -717,7 +720,7 @@ public class DataFileCache {
         }
     }
 
-    protected RowInputInterface readObject(int pos) throws HsqlException {
+    protected RowInputInterface readObject(int pos) {
 
         writeLock.lock();
 
@@ -748,8 +751,7 @@ public class DataFileCache {
         }
     }
 
-    protected void saveRows(CachedObject[] rows, int offset,
-                            int count) throws HsqlException {
+    protected void saveRows(CachedObject[] rows, int offset, int count) {
 
         writeLock.lock();
 
@@ -782,7 +784,7 @@ public class DataFileCache {
      * Writes out the specified Row. Will write only the Nodes or both Nodes
      * and table row data depending on what is not already persisted to disk.
      */
-    public void saveRow(CachedObject row) throws HsqlException {
+    public void saveRow(CachedObject row) {
 
         writeLock.lock();
 
@@ -793,7 +795,7 @@ public class DataFileCache {
         }
     }
 
-    public void saveRowNoLock(CachedObject row) throws HsqlException {
+    public void saveRowNoLock(CachedObject row) {
 
         try {
             setFileModified();
@@ -827,7 +829,7 @@ public class DataFileCache {
      *
      * @throws  HsqlException
      */
-    void backupFile() throws HsqlException {
+    void backupFile() {
 
         writeLock.lock();
 
@@ -1026,7 +1028,7 @@ public class DataFileCache {
         return dataFile != null;
     }
 
-    protected void setFileModified() throws HsqlException {
+    protected void setFileModified() {
 
         writeLock.lock();
 

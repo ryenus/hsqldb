@@ -38,7 +38,6 @@ import java.io.Reader;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.rowio.RowOutputInterface;
 
@@ -302,7 +301,7 @@ public final class ResultLob extends Result {
 
     public static ResultLob newLob(DataInput dataInput,
                                    boolean readTerminate)
-                                   throws IOException, HsqlException {
+                                   throws IOException {
 
         ResultLob result = new ResultLob();
 
@@ -396,7 +395,7 @@ public final class ResultLob extends Result {
 
     public void write(DataOutputStream dataOut,
                       RowOutputInterface rowOut)
-                      throws IOException, HsqlException {
+                      throws IOException {
 
         writeBody(dataOut);
         dataOut.writeByte(ResultConstants.NONE);
@@ -404,7 +403,7 @@ public final class ResultLob extends Result {
     }
 
     public void writeBody(DataOutputStream dataOut)
-    throws IOException, HsqlException {
+    throws IOException {
 
         dataOut.writeByte(mode);
         dataOut.writeInt(databaseID);

@@ -50,7 +50,7 @@ public class ExpressionValue extends Expression {
 
         super(OpTypes.VALUE);
 
-        nodes = Expression.emptyExpressionArray;
+        nodes     = Expression.emptyExpressionArray;
         dataType  = datatype;
         valueData = o;
     }
@@ -94,7 +94,7 @@ public class ExpressionValue extends Expression {
         }
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
         return valueData;
     }
 }

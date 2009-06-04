@@ -79,12 +79,11 @@ public class ExpressionOrderBy extends Expression {
         return isNullsLast;
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
         return nodes[LEFT].getValue(session);
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         nodes[LEFT].resolveTypes(session, parent);
 

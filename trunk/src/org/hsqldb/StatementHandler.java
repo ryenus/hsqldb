@@ -74,7 +74,7 @@ public class StatementHandler extends Statement {
         this.handlerType = handlerType;
     }
 
-    public void addConditionState(String sqlState) throws HsqlException {
+    public void addConditionState(String sqlState) {
 
         boolean result = conditionStates.add(sqlState);
 
@@ -85,7 +85,7 @@ public class StatementHandler extends Statement {
         }
     }
 
-    public void addConditionType(int conditionType) throws HsqlException {
+    public void addConditionType(int conditionType) {
 
         boolean result = conditionGroups.add(conditionType);
 

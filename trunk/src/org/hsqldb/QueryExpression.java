@@ -53,6 +53,7 @@ import org.hsqldb.types.Type;
  * @version 1.9.0
  * @since 1.9.0
  */
+
 /**
  * @todo 1.9.0 - review these
  * - work out usage of getMainSelect etc and add relevant methods
@@ -162,15 +163,14 @@ public class QueryExpression {
         rightQueryExpression.setFullOrder();
     }
 
-    public void resolve(Session session) throws HsqlException {
+    public void resolve(Session session) {
 
         resolveReferences(session);
         ExpressionColumn.checkColumnsResolved(unresolvedExpressions);
         resolveTypes(session);
     }
 
-    public void resolve(Session session,
-                        RangeVariable[] outerRanges) throws HsqlException {
+    public void resolve(Session session, RangeVariable[] outerRanges) {
 
         resolveReferences(session);
 
@@ -186,7 +186,7 @@ public class QueryExpression {
         resolveTypes(session);
     }
 
-    public void resolveReferences(Session session) throws HsqlException {
+    public void resolveReferences(Session session) {
 
         leftQueryExpression.resolveReferences(session);
         rightQueryExpression.resolveReferences(session);
@@ -272,7 +272,7 @@ public class QueryExpression {
     /**
      * Only simple column reference or column position allowed
      */
-    void resolveColumnRefernecesInUnionOrderBy() throws HsqlException {
+    void resolveColumnRefernecesInUnionOrderBy() {
 
         int orderCount = sortAndSlice.getOrderLength();
 
@@ -326,7 +326,7 @@ public class QueryExpression {
         unresolvedExpressions.addAll(expressions);
     }
 
-    public void resolveTypes(Session session) throws HsqlException {
+    public void resolveTypes(Session session) {
 
         if (isResolved) {
             return;
@@ -338,7 +338,7 @@ public class QueryExpression {
         isResolved = true;
     }
 
-    void resolveTypesPartOne(Session session) throws HsqlException {
+    void resolveTypesPartOne(Session session) {
 
         ArrayUtil.projectRowReverse(leftQueryExpression.unionColumnTypes,
                                     leftQueryExpression.unionColumnMap,
@@ -356,7 +356,7 @@ public class QueryExpression {
                              unionColumnTypes);
     }
 
-    void resolveTypesPartTwo(Session session) throws HsqlException {
+    void resolveTypesPartTwo(Session session) {
 
         ArrayUtil.projectRowReverse(leftQueryExpression.unionColumnTypes,
                                     leftQueryExpression.unionColumnMap,
@@ -391,7 +391,7 @@ public class QueryExpression {
         }
     }
 
-    public Object[] getValues(Session session) throws HsqlException {
+    public Object[] getValues(Session session) {
 
         Result r    = getResult(session, 2);
         int    size = r.getNavigator().getSize();
@@ -405,7 +405,7 @@ public class QueryExpression {
         }
     }
 
-    public Object[] getSingleRowValues(Session session) throws HsqlException {
+    public Object[] getSingleRowValues(Session session) {
 
         Result r    = getResult(session, 2);
         int    size = r.getNavigator().getSize();
@@ -419,14 +419,14 @@ public class QueryExpression {
         }
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         Object[] values = getValues(session);
 
         return values[0];
     }
 
-    Result getResult(Session session, int maxRows) throws HsqlException {
+    Result getResult(Session session, int maxRows) {
 
         int    currentMaxRows = unionType == UNION_ALL ? maxRows
                                                        : Integer.MAX_VALUE;
@@ -541,7 +541,7 @@ public class QueryExpression {
                || unresolvedExpressions.isEmpty();
     }
 
-    String[] getColumnNames() throws HsqlException {
+    String[] getColumnNames() {
 
         if (unionCorrespondingColumns == null) {
             return leftQueryExpression.getColumnNames();
@@ -558,7 +558,7 @@ public class QueryExpression {
         return unionColumnTypes;
     }
 
-    public int getColumnCount() throws HsqlException {
+    public int getColumnCount() {
 
         if (unionCorrespondingColumns == null) {
             int left  = leftQueryExpression.getColumnCount();
@@ -622,7 +622,7 @@ public class QueryExpression {
         leftQueryExpression.setTableColumnNames(list);
     }
 
-    void createTable(Session session) throws HsqlException {
+    void createTable(Session session) {
 
         createResultTable(session);
 
@@ -643,7 +643,7 @@ public class QueryExpression {
         resultTable.fullIndex = fullIndex;
     }
 
-    void createResultTable(Session session) throws HsqlException {
+    void createResultTable(Session session) {
 
         HsqlName       tableName;
         HashMappedList columnList;
@@ -674,7 +674,7 @@ public class QueryExpression {
     /**
      * Not for views. Only used on root node.
      */
-    public void setAsTopLevel() throws HsqlException {
+    public void setAsTopLevel() {
 
         if (compileContext.getSequences().length > 0) {
             throw Error.error(ErrorCode.X_42598);

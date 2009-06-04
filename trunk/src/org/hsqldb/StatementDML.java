@@ -71,7 +71,7 @@ public class StatementDML extends StatementDMQL {
      */
     StatementDML(Session session, Table targetTable,
                  RangeVariable[] rangeVars, CompileContext compileContext,
-                 boolean restartIdentity) throws HsqlException {
+                 boolean restartIdentity) {
 
         super(StatementTypes.DELETE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
               session.currentSchema);
@@ -92,7 +92,7 @@ public class StatementDML extends StatementDMQL {
     StatementDML(Session session, Table targetTable,
                  RangeVariable rangeVars[], int[] updateColumnMap,
                  Expression[] colExpressions, boolean[] checkColumns,
-                 CompileContext compileContext) throws HsqlException {
+                 CompileContext compileContext) {
 
         super(StatementTypes.UPDATE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
               session.currentSchema);
@@ -116,7 +116,7 @@ public class StatementDML extends StatementDMQL {
                  int[] insertColMap, int[] updateColMap,
                  boolean[] checkColumns, Expression mergeCondition,
                  Expression insertExpr, Expression[] updateExpr,
-                 CompileContext compileContext) throws HsqlException {
+                 CompileContext compileContext) {
 
         super(StatementTypes.MERGE, StatementTypes.X_SQL_DATA_CHANGE,
               session.currentSchema);
@@ -142,7 +142,7 @@ public class StatementDML extends StatementDMQL {
      */
     StatementDML(Session session, Table table, RangeVariable rangeVars[],
                  int[] updateColumnMap, Expression[] colExpressions,
-                 CompileContext compileContext) throws HsqlException {
+                 CompileContext compileContext) {
 
         super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_DATA_CHANGE,
               session.currentSchema);
@@ -168,7 +168,7 @@ public class StatementDML extends StatementDMQL {
               null);
     }
 
-    Result getResult(Session session) throws RuntimeException, HsqlException {
+    Result getResult(Session session) {
 
         Result result = null;
 
@@ -300,10 +300,9 @@ public class StatementDML extends StatementDMQL {
      * Executes an UPDATE statement.  It is assumed that the argument
      * is of the correct type.
      *
-     * @throws HsqlException if a database access error occurs
      * @return the result of executing the statement
      */
-    Result executeUpdateStatement(Session session) throws HsqlException {
+    Result executeUpdateStatement(Session session) {
 
         int            count          = 0;
         Expression[]   colExpressions = updateExpressions;
@@ -358,8 +357,7 @@ public class StatementDML extends StatementDMQL {
 
     Object[] getUpdatedData(Session session, Table targetTable,
                             int[] columnMap, Expression[] colExpressions,
-                            Type[] colTypes,
-                            Object[] oldData) throws HsqlException {
+                            Type[] colTypes, Object[] oldData) {
 
         Object[] data = targetTable.getEmptyRowData();
 
@@ -437,7 +435,7 @@ public class StatementDML extends StatementDMQL {
         return data;
     }
 
-    Result executeSetStatement(Session session) throws HsqlException {
+    Result executeSetStatement(Session session) {
 
         Table        table          = targetTable;
         int[]        colMap         = updateColumnMap;    // column map
@@ -460,9 +458,8 @@ public class StatementDML extends StatementDMQL {
      * is of the correct type.
      *
      * @return Result object
-     * @throws HsqlException
      */
-    Result executeMergeStatement(Session session) throws HsqlException {
+    Result executeMergeStatement(Session session) {
 
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
@@ -587,11 +584,9 @@ public class StatementDML extends StatementDMQL {
      * @param session Session
      * @param table Table
      * @param updateList HashMappedList
-     * @throws HsqlException
      * @return int
      */
-    int update(Session session, Table table,
-               HashMappedList updateList) throws HsqlException {
+    int update(Session session, Table table, HashMappedList updateList) {
 
         HashSet path = session.sessionContext.getConstraintPath();
         HashMappedList tableUpdateList =
@@ -670,10 +665,9 @@ public class StatementDML extends StatementDMQL {
      * Executes a DELETE statement.  It is assumed that the argument is
      * of the correct type.
      *
-     * @throws HsqlException if a database access error occurs
      * @return the result of executing the statement
      */
-    Result executeDeleteStatement(Session session) throws HsqlException {
+    Result executeDeleteStatement(Session session) {
 
         int                       count   = 0;
         RowSetNavigatorLinkedList oldRows = new RowSetNavigatorLinkedList();
@@ -699,8 +693,7 @@ public class StatementDML extends StatementDMQL {
      *  Highest level multiple row delete method. Corresponds to an SQL
      *  DELETE.
      */
-    int delete(Session session, Table table,
-               RowSetNavigator oldRows) throws HsqlException {
+    int delete(Session session, Table table, RowSetNavigator oldRows) {
 
         if (table.fkMainConstraints.length == 0) {
             deleteRows(session, table, oldRows);
@@ -780,8 +773,7 @@ public class StatementDML extends StatementDMQL {
         return oldRows.getSize();
     }
 
-    void deleteRows(Session session, Table table,
-                    RowSetNavigator oldRows) throws HsqlException {
+    void deleteRows(Session session, Table table, RowSetNavigator oldRows) {
 
         while (oldRows.hasNext()) {
             oldRows.next();
@@ -818,8 +810,7 @@ public class StatementDML extends StatementDMQL {
      */
     static void checkCascadeDelete(Session session, Table table,
                                    HashMappedList tableUpdateList, Row row,
-                                   boolean delete,
-                                   HashSet path) throws HsqlException {
+                                   boolean delete, HashSet path) {
 
         for (int i = 0, size = table.fkMainConstraints.length; i < size; i++) {
             Constraint c = table.fkMainConstraints[i];
@@ -970,7 +961,7 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
-    Object[] getMergeInsertData(Session session) throws HsqlException {
+    Object[] getMergeInsertData(Session session) {
 
         if (insertExpression == null) {
             return null;
@@ -1033,12 +1024,11 @@ public class StatementDML extends StatementDMQL {
      *   do not have to be checked since they have triggered the update and are
      *   valid by definition.
      * @param path HashSet
-     * @throws HsqlException
      */
     static void checkCascadeUpdate(Session session, Table table,
                                    HashMappedList tableUpdateLists, Row orow,
                                    Object[] nrow, int[] cols, Table ref,
-                                   HashSet path) throws HsqlException {
+                                   HashSet path) {
 
         // -- We iterate through all constraints associated with this table
         // --
@@ -1230,7 +1220,7 @@ public class StatementDML extends StatementDMQL {
      */
     static boolean mergeKeepUpdate(Session session, HashMappedList rowSet,
                                    int[] cols, Type[] colTypes, Row row,
-                                   Object[] newData) throws HsqlException {
+                                   Object[] newData) {
 
         Object[] data = (Object[]) rowSet.get(row);
 

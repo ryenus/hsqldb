@@ -92,7 +92,7 @@ public class HsqlDateTime {
         currentDateMillis = getNormalisedDate(System.currentTimeMillis());
     }
 
-    public static long getDateSeconds(String s) throws HsqlException {
+    public static long getDateSeconds(String s) {
 
         try {
             synchronized (sdfd) {
@@ -114,7 +114,7 @@ public class HsqlDateTime {
         }
     }
 
-    public static long getTimestampSeconds(String s) throws HsqlException {
+    public static long getTimestampSeconds(String s) {
 
         try {
             synchronized (sdfts) {
@@ -127,8 +127,8 @@ public class HsqlDateTime {
         }
     }
 
-    public static void getTimestampString(StringBuffer sb,
-            long seconds, int nanos, int scale) {
+    public static void getTimestampString(StringBuffer sb, long seconds,
+                                          int nanos, int scale) {
 
         synchronized (sdfts) {
             tempDate.setTime(seconds * 1000);
@@ -360,7 +360,7 @@ public class HsqlDateTime {
 
         int          len = format.length();
         char         ch;
-        StringBuffer sb   = new StringBuffer(len);
+        StringBuffer sb        = new StringBuffer(len);
         Tokenizer    tokenizer = new Tokenizer();
 
         for (int i = 0; i <= len; i++) {
@@ -387,7 +387,8 @@ public class HsqlDateTime {
 
         sb.setLength(sb.length() - 1);
 
-        String javaPattern =  sb.toString();
+        String javaPattern = sb.toString();
+
         return javaPattern;
     }
 

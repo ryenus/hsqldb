@@ -86,8 +86,9 @@ class JDBCBench {
 
                     if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
                             || DriverName.equals("org.hsqldb.jdbcDriver")) {
-                        tableExtension  = "CREATE CACHED TABLE ";
-                        ShutdownCommand = "SHUTDOWN";
+
+//                        tableExtension  = "CREATE CACHED TABLE ";
+//                        ShutdownCommand = "SHUTDOWN";
                     }
                 }
             } else if (Args[i].equals("-url")) {
@@ -205,15 +206,13 @@ class JDBCBench {
             MemoryWatcher = new MemoryWatcherThread();
 
             MemoryWatcher.start();
-
-
+            oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
 /*
             oneRound(url, user, password, transactions, true);
+            oneRound(url, user, password, transactions, true);
 
-            oneRound(url, user, password, transactions, true);
-            oneRound(url, user, password, transactions, true);
-            oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
@@ -222,8 +221,7 @@ class JDBCBench {
             oneRound(url, user, password, transactions, true);
             oneRound(url, user, password, transactions, true);
 */
-
-      } catch (Exception E) {
+        } catch (Exception E) {
             System.out.println(E.getMessage());
             E.printStackTrace();
         } finally {
@@ -704,7 +702,10 @@ class JDBCBench {
                                + "\t records inserted");
 
             // for tests
-            Stmt.execute(ShutdownCommand);
+            if (ShutdownCommand.length() > 0) {
+                Stmt.execute(ShutdownCommand);
+            }
+
             Stmt.close();
         } catch (Exception E) {
             System.out.println(E.getMessage());

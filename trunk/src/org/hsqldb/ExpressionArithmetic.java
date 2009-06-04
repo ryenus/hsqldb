@@ -227,8 +227,7 @@ public class ExpressionArithmetic extends Expression {
     }
 
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet,
-            boolean acceptsSequences) throws HsqlException {
+            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -246,8 +245,7 @@ public class ExpressionArithmetic extends Expression {
         return unresolvedSet;
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
@@ -307,7 +305,7 @@ public class ExpressionArithmetic extends Expression {
         }
     }
 
-    void resolveTypesForArithmetic(Session session) throws HsqlException {
+    void resolveTypesForArithmetic(Session session) {
 
         if (nodes[LEFT].isParam && nodes[RIGHT].isParam) {
             throw Error.error(ErrorCode.X_42567);
@@ -358,7 +356,7 @@ public class ExpressionArithmetic extends Expression {
         }
     }
 
-    void resolveTypesForConcat(Session session) throws HsqlException {
+    void resolveTypesForConcat(Session session) {
 
         if (dataType != null) {
             return;
@@ -397,7 +395,7 @@ public class ExpressionArithmetic extends Expression {
         }
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         switch (opType) {
 

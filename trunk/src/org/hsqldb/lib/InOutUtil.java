@@ -82,7 +82,6 @@ public class InOutUtil {
      *
      * @param s the Object to serialize
      * @return  a static byte array representing the passed Object
-     * @throws HsqlException if a serialization failure occurs
      */
     public static byte[] serialize(Serializable s) throws IOException {
 
@@ -100,7 +99,6 @@ public class InOutUtil {
      *
      * @return the Object resulting from deserializing the specified array of bytes
      * @param ba the byte array to deserialize to an Object
-     * @throws HsqlException if a serialization failure occurs
      */
     public static Serializable deserialize(byte[] ba)
     throws IOException, ClassNotFoundException {

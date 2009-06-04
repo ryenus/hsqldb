@@ -34,7 +34,6 @@ package org.hsqldb.rights;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
 import org.hsqldb.lib.HashMappedList;
@@ -74,7 +73,7 @@ public final class UserManager {
      * Creates special users PUBLIC_USER_NAME and SYSTEM_AUTHORIZATION_NAME.
      * Sets up association with the GranteeManager for this database.
      */
-    public UserManager(Database database) throws HsqlException {
+    public UserManager(Database database) {
         granteeManager = database.getGranteeManager();
         userList       = new HashMappedList();
     }
@@ -96,7 +95,7 @@ public final class UserManager {
      *  </OL>
      */
     public User createUser(HsqlName name,
-                           String password) throws HsqlException {
+                           String password) {
 
         // This will throw an appropriate exception if grantee already exists,
         // regardless of whether the name is in any User, Role, etc. list.
@@ -132,7 +131,7 @@ public final class UserManager {
      *  </UL> <p>
      *
      */
-    public void dropUser(String name) throws HsqlException {
+    public void dropUser(String name) {
 
         boolean reservedUser = GranteeManager.isReserved(name);
 
@@ -157,7 +156,7 @@ public final class UserManager {
      * Returns the User object with the specified name and
      * password from this object's set.
      */
-    public User getUser(String name, String password) throws HsqlException {
+    public User getUser(String name, String password) {
 
         if (name == null) {
             name = "";
@@ -191,7 +190,7 @@ public final class UserManager {
      * Returns the User object identified by the
      * name argument.
      */
-    public User get(String name) throws HsqlException {
+    public User get(String name) {
 
         User user = (User) userList.get(name);
 
@@ -262,9 +261,6 @@ public final class UserManager {
      * <code>SYSTEM_AUTHORIZATION_NAME</code>
      * <code>User</code> object for the current <code>Database</code> object.
      *
-     * @throws HsqlException - if the specified <code>Database</code>
-     *          has no <code>SYS_AUTHORIZATION_NAME</code>
-     *          <code>User</code> object.
      * @return the <code>SYS_AUTHORIZATION_NAME</code>
      *          <code>User</code> object
      *

@@ -92,58 +92,37 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public CachedObject get(int key) {
 
-        try {
-            CachedObject object = cache.get(key, this, false);
+        CachedObject object = cache.get(key, this, false);
 
-            return object;
-        } catch (HsqlException e) {
-            return null;
-        }
+        return object;
     }
 
     public CachedObject getKeep(int key) {
 
-        try {
-            CachedObject object = cache.get(key, this, true);
+        CachedObject object = cache.get(key, this, true);
 
-            return object;
-        } catch (HsqlException e) {
-            return null;
-        }
+        return object;
     }
 
     public CachedObject get(int key, boolean keep) {
 
-        try {
-            CachedObject object = cache.get(key, this, keep);
+        CachedObject object = cache.get(key, this, keep);
 
-            return object;
-        } catch (HsqlException e) {
-            return null;
-        }
+        return object;
     }
 
     public CachedObject get(CachedObject object, boolean keep) {
 
-        try {
-            object = cache.get(object, this, keep);
+        object = cache.get(object, this, keep);
 
-            return object;
-        } catch (HsqlException e) {
-            return null;
-        }
+        return object;
     }
 
     public int getStorageSize(int i) {
-
-        try {
-            return cache.get(i, this, false).getStorageSize();
-        } catch (HsqlException e) {
-            return 0;
-        }
+        return cache.get(i, this, false).getStorageSize();
     }
 
-    public void add(CachedObject object) throws HsqlException {
+    public void add(CachedObject object) {
 
         int size = object.getRealSize(cache.rowOut);
 
@@ -157,16 +136,12 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         try {
             return new RowAVLDisk(table, in);
-        } catch (HsqlException e) {
-            return null;
-        } catch (IOException e1) {
-            return null;
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
     }
 
-    public CachedObject getNewCachedObject(Session session,
-                                           Object object)
-                                           throws HsqlException {
+    public CachedObject getNewCachedObject(Session session, Object object) {
 
         Row row = new RowAVLDisk(table, (Object[]) object);
 
@@ -235,7 +210,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         return node;
     }
 
-    public void setAccessor(Index key, int accessor) throws HsqlException {
+    public void setAccessor(Index key, int accessor) {
 
         CachedObject object = get(accessor, false);
 

@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
 public class TableUtil {
 
     static Table newTable(Database database, int type,
-                          HsqlName tableHsqlName) throws HsqlException {
+                          HsqlName tableHsqlName) {
 
         switch (type) {
 
@@ -60,8 +60,7 @@ public class TableUtil {
     }
 
     static TableDerived newSubqueryTable(Database database,
-                                         QueryExpression queryExpression)
-                                         throws HsqlException {
+                                         QueryExpression queryExpression) {
 
         HsqlName name = database.nameManager.getSubqueryTableName();
 
@@ -95,8 +94,7 @@ public class TableUtil {
      */
     static void setTableColumnsForSubquery(Table table,
                                            QueryExpression queryExpression,
-                                           boolean fullIndex)
-                                           throws HsqlException {
+                                           boolean fullIndex) {
 
         table.columnList  = queryExpression.getColumns();
         table.columnCount = queryExpression.getColumnCount();
@@ -115,8 +113,7 @@ public class TableUtil {
     }
 
     static void setTableColumnsForSubquery(Table table, Type[] types,
-                                           boolean fullIndex)
-                                           throws HsqlException {
+                                           boolean fullIndex) {
 
         addAutoColumns(table, types);
         table.createPrimaryKey();
@@ -144,7 +141,7 @@ public class TableUtil {
     }
 
     public static void setColumnsInSchemaTable(Table table,
-            HsqlName[] columnNames, Type[] columnTypes) throws HsqlException {
+            HsqlName[] columnNames, Type[] columnTypes) {
 
         for (int i = 0; i < columnNames.length; i++) {
             HsqlName columnName = columnNames[i];

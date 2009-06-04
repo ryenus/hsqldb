@@ -73,7 +73,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.OpTypes;
@@ -152,11 +151,9 @@ public class IndexAVL implements Index {
      * @param isleft boolean
      * @param n child node
      *
-     * @throws HsqlException
      */
     private static NodeAVL set(PersistentStore store, NodeAVL x,
-                               boolean isleft,
-                               NodeAVL n) throws HsqlException {
+                               boolean isleft, NodeAVL n) {
 
         if (isleft) {
             x = x.setLeft(store, n);
@@ -179,10 +176,9 @@ public class IndexAVL implements Index {
      *
      * @return child node
      *
-     * @throws HsqlException
      */
     private static NodeAVL child(PersistentStore store, NodeAVL x,
-                                 boolean isleft) throws HsqlException {
+                                 boolean isleft) {
         return isleft ? x.getLeft(store)
                       : x.getRight(store);
     }
@@ -212,10 +208,9 @@ public class IndexAVL implements Index {
      * @param coltypes array of column types for the full row
      *
      * @return comparison result, -1,0,+1
-     * @throws HsqlException
      */
     public static int compareRows(Object[] a, Object[] b, int[] cols,
-                                  Type[] coltypes) throws HsqlException {
+                                  Type[] coltypes) {
 
         int fieldcount = cols.length;
 
@@ -429,7 +424,7 @@ public class IndexAVL implements Index {
     /**
      * Returns the node count.
      */
-    public int size(PersistentStore store) throws HsqlException {
+    public int size(PersistentStore store) {
 
         int count = 0;
 
@@ -450,7 +445,7 @@ public class IndexAVL implements Index {
         }
     }
 
-    public int sizeEstimate(PersistentStore store) throws HsqlException {
+    public int sizeEstimate(PersistentStore store) {
         return (int) (1L << depth);
     }
 
@@ -465,7 +460,7 @@ public class IndexAVL implements Index {
         }
     }
 
-    public void checkIndex(PersistentStore store) throws HsqlException {
+    public void checkIndex(PersistentStore store) {
 
         readLock.lock();
 
@@ -518,8 +513,7 @@ public class IndexAVL implements Index {
     /**
      * Insert a node into the index
      */
-    public void insert(Session session, PersistentStore store,
-                       Row row) throws HsqlException {
+    public void insert(Session session, PersistentStore store, Row row) {
 
         NodeAVL n;
         NodeAVL x;
@@ -565,9 +559,9 @@ public class IndexAVL implements Index {
         }
     }
 
-    public void delete(PersistentStore store, Row row) throws HsqlException {
+    public void delete(PersistentStore store, Row row) {
 
-        if (!row.isInMemory() ) {
+        if (!row.isInMemory()) {
             row = (Row) store.get(row, false);
         }
 
@@ -576,7 +570,7 @@ public class IndexAVL implements Index {
         delete(store, node);
     }
 
-    public void delete(PersistentStore store, NodeAVL x) throws HsqlException {
+    public void delete(PersistentStore store, NodeAVL x) {
 
         if (x == null) {
             return;
@@ -752,8 +746,7 @@ public class IndexAVL implements Index {
     }
 
     public boolean exists(Session session, PersistentStore store,
-                          Object[] rowdata,
-                          int[] rowColMap) throws HsqlException {
+                          Object[] rowdata, int[] rowColMap) {
         return findNode(session, store, rowdata, rowColMap, rowColMap.length)
                != null;
     }
@@ -767,11 +760,9 @@ public class IndexAVL implements Index {
      * @param rowdata array containing index column data
      * @param match count of columns to match
      * @return iterator
-     * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata,
-                                    int match) throws HsqlException {
+                                    Object[] rowdata, int match) {
 
         NodeAVL node = findNode(session, store, rowdata, defaultColMap, match);
 
@@ -786,10 +777,9 @@ public class IndexAVL implements Index {
      * @param store store object
      * @param rowdata array containing table row data
      * @return iterator
-     * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata) throws HsqlException {
+                                    Object[] rowdata) {
 
         NodeAVL node = findNode(session, store, rowdata, colIndex,
                                 colIndex.length);
@@ -805,11 +795,9 @@ public class IndexAVL implements Index {
      * @param store store object
      * @param rowdata array containing table row data
      * @return iterator
-     * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata,
-                                    int[] rowColMap) throws HsqlException {
+                                    Object[] rowdata, int[] rowColMap) {
 
         NodeAVL node = findNode(session, store, rowdata, rowColMap,
                                 rowColMap.length);
@@ -827,12 +815,9 @@ public class IndexAVL implements Index {
      * @param compare comparison Expression type
      *
      * @return iterator
-     *
-     * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object value,
-                                    int compare) throws HsqlException {
+                                    Object value, int compare) {
 
         readLock.lock();
 
@@ -948,12 +933,9 @@ public class IndexAVL implements Index {
      * Finds the first node where the data is not null.
      *
      * @return iterator
-     *
-     * @throws HsqlException
      */
     public RowIterator findFirstRowNotNull(Session session,
-                                           PersistentStore store)
-                                           throws HsqlException {
+                                           PersistentStore store) {
 
         readLock.lock();
 
@@ -1014,11 +996,8 @@ public class IndexAVL implements Index {
      * Returns the row for the first node of the index
      *
      * @return Iterator for first row
-     *
-     * @throws HsqlException
      */
-    public RowIterator firstRow(Session session,
-                                PersistentStore store) throws HsqlException {
+    public RowIterator firstRow(Session session, PersistentStore store) {
 
         int tempDepth = 0;
 
@@ -1082,11 +1061,8 @@ public class IndexAVL implements Index {
      * Returns the row for the last node of the index
      *
      * @return last row
-     *
-     * @throws HsqlException
      */
-    public Row lastRow(Session session,
-                       PersistentStore store) throws HsqlException {
+    public Row lastRow(Session session, PersistentStore store) {
 
         readLock.lock();
 
@@ -1122,11 +1098,8 @@ public class IndexAVL implements Index {
      * @param x node
      *
      * @return next node
-     *
-     * @throws HsqlException
      */
-    private NodeAVL next(Session session, PersistentStore store,
-                         NodeAVL x) throws HsqlException {
+    private NodeAVL next(Session session, PersistentStore store, NodeAVL x) {
 
         if (x == null) {
             return null;
@@ -1157,8 +1130,7 @@ public class IndexAVL implements Index {
         }
     }
 
-    private NodeAVL next(PersistentStore store,
-                         NodeAVL x) throws HsqlException {
+    private NodeAVL next(PersistentStore store, NodeAVL x) {
 
         NodeAVL r = x.getRight(store);
 
@@ -1187,8 +1159,7 @@ public class IndexAVL implements Index {
         return x;
     }
 
-    private NodeAVL last(PersistentStore store,
-                         NodeAVL x) throws HsqlException {
+    private NodeAVL last(PersistentStore store, NodeAVL x) {
 
         if (x == null) {
             return null;
@@ -1232,11 +1203,8 @@ public class IndexAVL implements Index {
      *
      * @param x node
      * @param n node
-     *
-     * @throws HsqlException
      */
-    private void replace(PersistentStore store, NodeAVL x,
-                         NodeAVL n) throws HsqlException {
+    private void replace(PersistentStore store, NodeAVL x, NodeAVL n) {
 
         if (x.isRoot()) {
             if (n != null) {
@@ -1260,10 +1228,8 @@ public class IndexAVL implements Index {
      * @param b a full row in this table
      *
      * @return comparison result, -1,0,+1
-     * @throws HsqlException
      */
-    public int compareRowNonUnique(Object[] a, int[] rowColMap,
-                                   Object[] b) throws HsqlException {
+    public int compareRowNonUnique(Object[] a, int[] rowColMap, Object[] b) {
 
         int fieldcount = rowColMap.length;
 
@@ -1279,7 +1245,7 @@ public class IndexAVL implements Index {
     }
 
     public int compareRowNonUnique(Object[] a, int[] rowColMap, Object[] b,
-                                   int fieldCount) throws HsqlException {
+                                   int fieldCount) {
 
         for (int j = 0; j < fieldCount; j++) {
             int i = colTypes[j].compare(a[rowColMap[j]], b[colIndex[j]]);
@@ -1295,8 +1261,7 @@ public class IndexAVL implements Index {
     /**
      * As above but use the index column data
      */
-    public int compareRowNonUnique(Object[] a, Object[] b,
-                                   int fieldcount) throws HsqlException {
+    public int compareRowNonUnique(Object[] a, Object[] b, int fieldcount) {
 
         for (int j = 0; j < fieldcount; j++) {
             int i = colTypes[j].compare(a[j], b[colIndex[j]]);
@@ -1316,10 +1281,9 @@ public class IndexAVL implements Index {
      * @param newRow data
      * @param existingRow data
      * @return comparison result, -1,0,+1
-     * @throws HsqlException
      */
     private int compareRowForInsertOrDelete(Session session, Row newRow,
-            Row existingRow) throws HsqlException {
+            Row existingRow) {
 
         Object[] a       = newRow.getData();
         Object[] b       = existingRow.getData();
@@ -1408,11 +1372,10 @@ public class IndexAVL implements Index {
      * @param rowColMap map of the data to columns
      * @param first true if the first matching node is required, false if any node
      * @return matching node or null
-     * @throws HsqlException
      */
     private NodeAVL findNode(Session session, PersistentStore store,
                              Object[] rowdata, int[] rowColMap,
-                             int fieldCount) throws HsqlException {
+                             int fieldCount) {
 
         readLock.lock();
 
@@ -1473,8 +1436,7 @@ public class IndexAVL implements Index {
     /**
      * Balances part of the tree after an alteration to the index.
      */
-    private void balance(PersistentStore store, NodeAVL x,
-                         boolean isleft) throws HsqlException {
+    private void balance(PersistentStore store, NodeAVL x, boolean isleft) {
 
         while (true) {
             int sign = isleft ? 1
@@ -1587,27 +1549,23 @@ public class IndexAVL implements Index {
 
         public Row getNextRow() {
 
-            try {
-                if (nextnode == null) {
-                    release();
+            if (nextnode == null) {
+                release();
 
-                    return null;
-                }
-
-                lastrow  = nextnode.getRow(store);
-                nextnode = index.next(session, store, nextnode);
-
-                if (nextnode == null) {
-                    release();
-                }
-
-                return lastrow;
-            } catch (Exception e) {
-                throw new NoSuchElementException(e.getMessage());
+                return null;
             }
+
+            lastrow  = nextnode.getRow(store);
+            nextnode = index.next(session, store, nextnode);
+
+            if (nextnode == null) {
+                release();
+            }
+
+            return lastrow;
         }
 
-        public void remove() throws HsqlException {
+        public void remove() {
             store.delete(lastrow);
         }
 

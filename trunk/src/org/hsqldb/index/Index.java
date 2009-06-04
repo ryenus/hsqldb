@@ -66,7 +66,6 @@
 
 package org.hsqldb.index;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
@@ -143,25 +142,25 @@ public interface Index extends SchemaObject {
     /**
      * Returns the node count.
      */
-    public int size(PersistentStore store) throws HsqlException;
+    public int size(PersistentStore store);
 
-    public int sizeEstimate(PersistentStore store) throws HsqlException;
+    public int sizeEstimate(PersistentStore store);
 
     public boolean isEmpty(PersistentStore store);
 
-    public void checkIndex(PersistentStore store) throws HsqlException;
+    public void checkIndex(PersistentStore store);
 
     /**
      * Insert a node into the index
      */
     public void insert(Session session, PersistentStore store,
-                       Row row) throws HsqlException;
+                       Row row);
 
-    public void delete(PersistentStore store, Row row) throws HsqlException;
+    public void delete(PersistentStore store, Row row);
 
     public boolean exists(Session session, PersistentStore store,
                           Object[] rowdata,
-                          int[] rowColMap) throws HsqlException;
+                          int[] rowColMap);
 
     /**
      * Return the first node equal to the indexdata object. The rowdata has
@@ -172,11 +171,10 @@ public interface Index extends SchemaObject {
      * @param coldata array containing index column data
      * @param match count of columns to match
      * @return iterator
-     * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata,
-                                    int match) throws HsqlException;
+                                    int match);
 
     /**
      * Return the first node equal to the rowdata object.
@@ -186,10 +184,9 @@ public interface Index extends SchemaObject {
      * @param store store object
      * @param rowdata array containing table row data
      * @return iterator
-     * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata) throws HsqlException;
+                                    Object[] rowdata);
 
     /**
      * Return the first node equal to the rowdata object.
@@ -199,11 +196,10 @@ public interface Index extends SchemaObject {
      * @param store store object
      * @param rowdata array containing table row data
      * @return iterator
-     * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata,
-                                    int[] rowColMap) throws HsqlException;
+                                    int[] rowColMap);
 
     /**
      * Finds the first node that is larger or equal to the given one based
@@ -215,23 +211,19 @@ public interface Index extends SchemaObject {
      * @param compare comparison Expression type
      *
      * @return iterator
-     *
-     * @throws HsqlException
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object value,
-                                    int compare) throws HsqlException;
+                                    int compare);
 
     /**
      * Finds the first node where the data is not null.
      *
      * @return iterator
-     *
-     * @throws HsqlException
      */
     public RowIterator findFirstRowNotNull(Session session,
                                            PersistentStore store)
-                                           throws HsqlException;
+                                          ;
 
     public RowIterator firstRow(PersistentStore store);
 
@@ -239,21 +231,17 @@ public interface Index extends SchemaObject {
      * Returns the row for the first node of the index
      *
      * @return Iterator for first row
-     *
-     * @throws HsqlException
      */
     public RowIterator firstRow(Session session,
-                                PersistentStore store) throws HsqlException;
+                                PersistentStore store);
 
     /**
      * Returns the row for the last node of the index
      *
      * @return last row
-     *
-     * @throws HsqlException
      */
     public Row lastRow(Session session,
-                       PersistentStore store) throws HsqlException;
+                       PersistentStore store);
 
     /**
      * Compares two table rows based on the columns of this index. The rowColMap
@@ -266,17 +254,16 @@ public interface Index extends SchemaObject {
      * @param b a full row in this table
      *
      * @return comparison result, -1,0,+1
-     * @throws HsqlException
      */
     public int compareRowNonUnique(Object[] a, int[] rowColMap,
-                                   Object[] b) throws HsqlException;
+                                   Object[] b);
 
     public int compareRowNonUnique(Object[] a, int[] rowColMap, Object[] b,
-                                   int fieldCount) throws HsqlException;
+                                   int fieldCount);
 
     /**
      * As above but use the index column data
      */
     public int compareRowNonUnique(Object[] a, Object[] b,
-                                   int fieldcount) throws HsqlException;
+                                   int fieldcount);
 }

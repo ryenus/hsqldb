@@ -111,8 +111,7 @@ public class TableBase {
     TableBase() {}
 
     //
-    public TableBase(Database database, int scope, int type,
-                     Type[] colTypes) throws HsqlException {
+    public TableBase(Database database, int scope, int type, Type[] colTypes) {
 
         tableType        = type;
         persistenceScope = scope;
@@ -383,8 +382,7 @@ public class TableBase {
 
     public final Index createAndAddIndexStructure(HsqlName name,
             int[] columns, boolean[] descending, boolean[] nullsLast,
-            boolean unique, boolean constraint,
-            boolean forward) throws HsqlException {
+            boolean unique, boolean constraint, boolean forward) {
 
         Index newindex = createIndexStructure(name, columns, descending,
                                               nullsLast, unique, constraint,
@@ -421,7 +419,7 @@ public class TableBase {
         return newIndex;
     }
 
-    final void addIndex(Index index) throws HsqlException {
+    final void addIndex(Index index) {
 
         int i = 0;
 
@@ -474,8 +472,7 @@ public class TableBase {
     public final Index createIndex(PersistentStore store, HsqlName name,
                                    int[] columns, boolean[] descending,
                                    boolean[] nullsLast, boolean unique,
-                                   boolean constraint,
-                                   boolean forward) throws HsqlException {
+                                   boolean constraint, boolean forward) {
 
         Index newIndex = createAndAddIndexStructure(name, columns, descending,
             nullsLast, unique, constraint, forward);
@@ -510,7 +507,7 @@ public class TableBase {
         return getIndex(0).isEmpty(store);
     }
 
-    public int getRowCount(PersistentStore store) throws HsqlException {
+    public int getRowCount(PersistentStore store) {
         return getPrimaryIndex().size(store);
     }
 }

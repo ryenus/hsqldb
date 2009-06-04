@@ -134,7 +134,7 @@ public class SchemaObjectSet {
         return map.containsKey(name);
     }
 
-    void checkAdd(HsqlName name) throws HsqlException {
+    void checkAdd(HsqlName name) {
 
         if (map.containsKey(name.name)) {
             int code = getAddErrorCode(name.type);
@@ -143,7 +143,7 @@ public class SchemaObjectSet {
         }
     }
 
-    void checkExists(String name) throws HsqlException {
+    void checkExists(String name) {
 
         if (!map.containsKey(name)) {
             int code = getGetErrorCode(type);
@@ -152,7 +152,7 @@ public class SchemaObjectSet {
         }
     }
 
-    void add(SchemaObject object) throws HsqlException {
+    void add(SchemaObject object) {
 
         HsqlName name = object.getName();
 
@@ -174,7 +174,7 @@ public class SchemaObjectSet {
         map.put(name.name, value);
     }
 
-    void remove(String name) throws HsqlException {
+    void remove(String name) {
         map.remove(name);
     }
 
@@ -199,7 +199,7 @@ public class SchemaObjectSet {
         }
     }
 
-    void rename(HsqlName name, HsqlName newName) throws HsqlException {
+    void rename(HsqlName name, HsqlName newName) {
 
         if (map.containsKey(newName.name)) {
             int code = getAddErrorCode(name.type);

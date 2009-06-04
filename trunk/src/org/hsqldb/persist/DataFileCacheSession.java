@@ -34,7 +34,6 @@ package org.hsqldb.persist;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.lib.FileUtil;
 
 /**
@@ -79,7 +78,7 @@ public class DataFileCacheSession extends DataFileCache {
     /**
      * Opens the *.data file for this cache.
      */
-    public void open(boolean readonly) throws HsqlException {
+    public void open(boolean readonly) {
 
         try {
             dataFile = ScaledRAFile.newScaledRAFile(database, fileName, false,
@@ -93,14 +92,14 @@ public class DataFileCacheSession extends DataFileCache {
             database.logger.appLog.logContext(e, null);
             close(false);
 
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.M_DataFileCache_open,
-                              new Object[] {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.M_DataFileCache_open, new Object[] {
                 e, fileName
             });
         }
     }
 
-    public synchronized void add(CachedObject object) throws HsqlException {
+    public synchronized void add(CachedObject object) {
         super.add(object);
     }
 
@@ -108,7 +107,7 @@ public class DataFileCacheSession extends DataFileCache {
      *  Parameter write is always false. The backing file is simply closed and
      *  deleted.
      */
-    public synchronized void close(boolean write) throws HsqlException {
+    public synchronized void close(boolean write) {
 
         try {
             if (dataFile != null) {
@@ -121,14 +120,14 @@ public class DataFileCacheSession extends DataFileCache {
         } catch (Throwable e) {
             database.logger.appLog.logContext(e, null);
 
-            throw Error.error(ErrorCode.FILE_IO_ERROR, ErrorCode.M_DataFileCache_close,
-                              new Object[] {
+            throw Error.error(ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.M_DataFileCache_close, new Object[] {
                 e, fileName
             });
         }
     }
 
-    void postClose(boolean keep) throws HsqlException {}
+    void postClose(boolean keep) {}
 
     public void clear() {
 
@@ -137,7 +136,7 @@ public class DataFileCacheSession extends DataFileCache {
         fileFreePosition = INITIAL_FREE_POS;
     }
 
-    public void deleteAll() throws HsqlException {
+    public void deleteAll() {
 
         cache.clear();
 

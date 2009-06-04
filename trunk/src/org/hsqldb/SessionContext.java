@@ -238,8 +238,7 @@ public class SessionContext {
         return constraintPath;
     }
 
-    public void addSessionVariable(ColumnSchema variable)
-    throws HsqlException {
+    public void addSessionVariable(ColumnSchema variable) {
 
         int index = sessionVariables.size();
 

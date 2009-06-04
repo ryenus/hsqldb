@@ -68,8 +68,7 @@ public class ScriptReaderText extends ScriptReaderBase {
     RowInputTextLog rowIn;
     boolean         isInsert;
 
-    ScriptReaderText(Database db,
-                     String file) throws HsqlException, IOException {
+    ScriptReaderText(Database db, String file) throws IOException {
 
         super(db, file);
 
@@ -86,7 +85,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             new InputStreamReader(new BufferedInputStream(d)));
     }
 
-    protected void readDDL(Session session) throws IOException, HsqlException {
+    protected void readDDL(Session session) throws IOException {
 
         for (; readLoggedStatement(session); ) {
             Statement cs     = null;
@@ -99,8 +98,9 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
 
             try {
-                cs     = session.compileStatement(statement);
-                result = session.executeCompiledStatement(cs, ValuePool.emptyObjectArray);
+                cs = session.compileStatement(statement);
+                result = session.executeCompiledStatement(cs,
+                        ValuePool.emptyObjectArray);
 
                 if (cs.getType() == StatementTypes.CREATE_SCHEMA) {
                     HsqlName name = cs.getSchemalName();
@@ -138,7 +138,7 @@ public class ScriptReaderText extends ScriptReaderBase {
     }
 
     protected void readExistingData(Session session)
-    throws IOException, HsqlException {
+    throws IOException {
 
         try {
             String tablename = null;

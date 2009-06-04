@@ -163,8 +163,7 @@ public class Scanner {
     };
 
 //J+
-    final static OrderedIntHashSet whiteSpaceSet =
-        new OrderedIntHashSet(32);
+    final static OrderedIntHashSet whiteSpaceSet = new OrderedIntHashSet(32);
 
     static {
         for (int i = 0; i < whitespace.length; i++) {
@@ -1721,7 +1720,7 @@ public class Scanner {
     }
 
     //
-    private void scanNext(int error) throws HsqlException {
+    private void scanNext(int error) {
 
         scanNext();
 
@@ -1733,7 +1732,7 @@ public class Scanner {
     /**
      * Reads the type part of the INTERVAL
      */
-    IntervalType scanIntervalType() throws HsqlException {
+    IntervalType scanIntervalType() {
 
         int       precision = -1;
         int       scale     = -1;
@@ -1827,7 +1826,7 @@ public class Scanner {
     private int    fractionPrecision;
     Type           dateTimeType;
 
-    public TimestampData newDate(String s) throws HsqlException {
+    public TimestampData newDate(String s) {
 
         intervalPosition  = 0;
         fractionPrecision = 0;
@@ -1851,7 +1850,7 @@ public class Scanner {
      *      - misses displacement
      *      - doesn't allow single digit components
      */
-    public TimestampData newTimestamp(String s) throws HsqlException {
+    public TimestampData newTimestamp(String s) {
 
         long    zoneSeconds = 0;
         long    seconds;
@@ -1911,7 +1910,7 @@ public class Scanner {
         return new TimestampData(seconds, fraction, (int) zoneSeconds);
     }
 
-    void scanDateParts(int lastPart) throws HsqlException {
+    void scanDateParts(int lastPart) {
 
         byte[]    separators    = DTIType.yearToSecondSeparators;
         int       i             = intervalPosition;
@@ -1973,7 +1972,7 @@ public class Scanner {
         intervalPosition = i;
     }
 
-    public TimeData newTime(String s) throws HsqlException {
+    public TimeData newTime(String s) {
 
         intervalPosition  = 0;
         fractionPrecision = 0;
@@ -2020,8 +2019,7 @@ public class Scanner {
         return new TimeData((int) seconds, fraction, (int) zoneSeconds);
     }
 
-    public Object newInterval(String s,
-                              IntervalType type) throws HsqlException {
+    public Object newInterval(String s, IntervalType type) {
 
         intervalPosition = 0;
         intervalString   = s;
@@ -2058,7 +2056,7 @@ public class Scanner {
         }
     }
 
-    public long scanIntervalValue(IntervalType type) throws HsqlException {
+    public long scanIntervalValue(IntervalType type) {
 
         byte[] separators    = DTIType.yearToSecondSeparators;
         int[]  factors       = DTIType.yearToSecondFactors;
@@ -2224,7 +2222,7 @@ public class Scanner {
      *  conversion
      */
     public synchronized Number convertToNumber(String s,
-            NumberType numberType) throws HsqlException {
+            NumberType numberType) {
 
         Number  number;
         boolean minus = false;
@@ -2267,8 +2265,7 @@ public class Scanner {
         throw Error.error(ErrorCode.X_22018);
     }
 
-    public synchronized BinaryData convertToBinary(String s)
-    throws HsqlException {
+    public synchronized BinaryData convertToBinary(String s) {
 
         boolean hi = true;
         byte    b  = 0;
@@ -2319,8 +2316,7 @@ public class Scanner {
         return data;
     }
 
-    public synchronized BinaryData convertToBit(String s)
-    throws HsqlException {
+    public synchronized BinaryData convertToBit(String s) {
 
         BitMap map      = new BitMap(32);
         int    bitIndex = map.size();
@@ -2353,7 +2349,7 @@ public class Scanner {
 
     // should perform range checks etc.
     public synchronized Object convertToDatetimeInterval(String s,
-            DTIType type) throws HsqlException {
+            DTIType type) {
 
         Object       value;
         IntervalType intervalType  = null;

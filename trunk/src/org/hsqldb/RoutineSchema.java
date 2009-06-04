@@ -90,7 +90,7 @@ public class RoutineSchema implements SchemaObject {
         return set;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     public String getSQL() {
         return null;
@@ -111,7 +111,7 @@ public class RoutineSchema implements SchemaObject {
         return array;
     }
 
-    void addSpecificRoutine(Routine routine) throws HsqlException {
+    void addSpecificRoutine(Routine routine) {
 
         int    signature = routine.getParameterSignature();
         Type[] types     = routine.getParameterTypes();
@@ -143,7 +143,7 @@ public class RoutineSchema implements SchemaObject {
         routines[routines.length - 1] = routine;
     }
 
-    public Routine getSpecificRoutine(Type[] types) throws HsqlException {
+    public Routine getSpecificRoutine(Type[] types) {
 
         int matchIndex = -1;
 
@@ -218,7 +218,7 @@ public class RoutineSchema implements SchemaObject {
         return routines[matchIndex];
     }
 
-    public Routine getSpecificRoutine(int paramCount) throws HsqlException {
+    public Routine getSpecificRoutine(int paramCount) {
 
         for (int i = 0; i < this.routines.length; i++) {
             if (routines[i].parameterTypes.length == paramCount) {

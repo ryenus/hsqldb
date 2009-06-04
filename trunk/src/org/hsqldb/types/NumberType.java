@@ -36,7 +36,6 @@ import java.math.BigInteger;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.OpTypes;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
@@ -348,7 +347,7 @@ public final class NumberType extends Type {
         return Integer.MIN_VALUE;
     }
 
-    public Type getAggregateType(Type other) throws HsqlException {
+    public Type getAggregateType(Type other) {
 
         if (this == other) {
             return this;
@@ -431,8 +430,7 @@ public final class NumberType extends Type {
      *  For ADD/SUBTRACT/DIVIDE, the scale is the larger of the two<br>
      *  For MULTIPLY, the scale is the sum of the two scales<br>
      */
-    public Type getCombinedType(Type other,
-                                int operation) throws HsqlException {
+    public Type getCombinedType(Type other, int operation) {
 
         if (other.typeCode == Types.SQL_ALL_TYPES) {
             other = this;
@@ -607,8 +605,7 @@ public final class NumberType extends Type {
     }
 
     /** @todo - review usage to see if range enforcement / java type conversion is necessary */
-    public Object convertToTypeLimits(SessionInterface session,
-                                      Object a) throws HsqlException {
+    public Object convertToTypeLimits(SessionInterface session, Object a) {
 
         if (a == null) {
             return null;
@@ -649,7 +646,7 @@ public final class NumberType extends Type {
     }
 
     public Object convertToType(SessionInterface session, Object a,
-                                Type otherType) throws HsqlException {
+                                Type otherType) {
 
         if (a == null) {
             return a;
@@ -753,7 +750,7 @@ public final class NumberType extends Type {
     }
 
     public Object convertToTypeJDBC(SessionInterface session, Object a,
-                                    Type otherType) throws HsqlException {
+                                    Type otherType) {
 
         if (a == null) {
             return a;
@@ -773,8 +770,7 @@ public final class NumberType extends Type {
     /**
      * Converts a value to this type
      */
-    public Object convertToDefaultType(SessionInterface session,
-                                       Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
             return a;
@@ -831,7 +827,7 @@ public final class NumberType extends Type {
      * Converter from a numeric object to Integer. Input is checked to be
      * within range represented by the given number type.
      */
-    static Integer convertToInt(Object a, int type) throws HsqlException {
+    static Integer convertToInt(Object a, int type) {
 
         int value;
 
@@ -888,7 +884,7 @@ public final class NumberType extends Type {
      * Converter from a numeric object to Long. Input is checked to be
      * within range represented by Long.
      */
-    static Long convertToLong(Object a) throws HsqlException {
+    static Long convertToLong(Object a) {
 
         if (a instanceof Integer) {
             return ValuePool.getLong(((Integer) a).intValue());
@@ -921,7 +917,7 @@ public final class NumberType extends Type {
      * Converter from a numeric object to Double. Input is checked to be
      * within range represented by Double
      */
-    private static Double convertToDouble(Object a) throws HsqlException {
+    private static Double convertToDouble(Object a) {
 
         double value;
 
@@ -945,7 +941,7 @@ public final class NumberType extends Type {
         return ValuePool.getDouble(Double.doubleToLongBits(value));
     }
 
-    public static double toDouble(Object a) throws HsqlException {
+    public static double toDouble(Object a) {
 
         double value;
 
@@ -1120,8 +1116,7 @@ public final class NumberType extends Type {
         return 0;
     }
 
-    public Object add(Object a, Object b,
-                      Type otherType) throws HsqlException {
+    public Object add(Object a, Object b, Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -1168,8 +1163,7 @@ public final class NumberType extends Type {
         }
     }
 
-    public Object subtract(Object a, Object b,
-                           Type otherType) throws HsqlException {
+    public Object subtract(Object a, Object b, Type otherType) {
 
         if (a == null || b == null) {
             return null;
@@ -1215,7 +1209,7 @@ public final class NumberType extends Type {
         throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
     }
 
-    public Object multiply(Object a, Object b) throws HsqlException {
+    public Object multiply(Object a, Object b) {
 
         if (a == null || b == null) {
             return null;
@@ -1260,7 +1254,7 @@ public final class NumberType extends Type {
         }
     }
 
-    public Object divide(Object a, Object b) throws HsqlException {
+    public Object divide(Object a, Object b) {
 
         if (a == null || b == null) {
             return null;
@@ -1323,12 +1317,12 @@ public final class NumberType extends Type {
         }
     }
 
-    public Object absolute(Object a) throws HsqlException {
+    public Object absolute(Object a) {
         return isNegative(a) ? negate(a)
                              : a;
     }
 
-    public Object negate(Object a) throws HsqlException {
+    public Object negate(Object a) {
 
         if (a == null) {
             return null;
@@ -1418,7 +1412,7 @@ public final class NumberType extends Type {
         }
     }
 
-    public boolean isNegative(Object a) throws HsqlException {
+    public boolean isNegative(Object a) {
 
         if (a == null) {
             return false;
@@ -1450,7 +1444,7 @@ public final class NumberType extends Type {
         }
     }
 
-    public int compareToZero(Object a) throws HsqlException {
+    public int compareToZero(Object a) {
 
         if (a == null) {
             return 0;
@@ -1534,7 +1528,7 @@ public final class NumberType extends Type {
         return true;
     }
 
-    public Object ceiling(Object a) throws HsqlException {
+    public Object ceiling(Object a) {
 
         if (a == null) {
             return null;
@@ -1569,7 +1563,7 @@ public final class NumberType extends Type {
         }
     }
 
-    public Object floor(Object a) throws HsqlException {
+    public Object floor(Object a) {
 
         if (a == null) {
             return null;
@@ -1604,7 +1598,7 @@ public final class NumberType extends Type {
         }
     }
 
-    public Object truncate(Object a, int s) throws HsqlException {
+    public Object truncate(Object a, int s) {
 
         if (a == null) {
             return null;

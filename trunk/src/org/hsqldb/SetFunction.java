@@ -42,6 +42,7 @@ import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
+
 import java.io.Serializable;
 
 /**
@@ -100,7 +101,7 @@ public class SetFunction implements Serializable {
         }
     }
 
-    void add(Session session, Object item) throws HsqlException {
+    void add(Session session, Object item) {
 
         if (item == null) {
             hasNull = true;
@@ -235,7 +236,7 @@ public class SetFunction implements Serializable {
         }
     }
 
-    Object getValue() throws HsqlException {
+    Object getValue() {
 
         if (setType == OpTypes.COUNT) {
             return ValuePool.getInt(count);
@@ -290,7 +291,8 @@ public class SetFunction implements Serializable {
                         }
                     }
                     default :
-                        throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "SetFunction");
                 }
             }
             case OpTypes.SUM : {
@@ -331,7 +333,8 @@ public class SetFunction implements Serializable {
                         }
                     }
                     default :
-                        throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "SetFunction");
                 }
             }
             case OpTypes.MIN :
@@ -365,7 +368,7 @@ public class SetFunction implements Serializable {
      * SELECT statements contain aggregates.
      *
      */
-    static Type getType(int setType, Type type) throws HsqlException {
+    static Type getType(int setType, Type type) {
 
         if (setType == OpTypes.COUNT) {
             return Type.SQL_INTEGER;
@@ -485,7 +488,7 @@ public class SetFunction implements Serializable {
 //            bigint = bigint.add(BigInteger.valueOf(value));
     }
 
-    BigInteger getLongSum() throws HsqlException {
+    BigInteger getLongSum() {
 
         BigInteger biglo  = BigInteger.valueOf(lo);
         BigInteger bighi  = BigInteger.valueOf(hi);

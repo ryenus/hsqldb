@@ -63,10 +63,8 @@ public class TextTable extends org.hsqldb.Table {
      * @param db the owning database
      * @param name the table's HsqlName
      * @param type code (normal or temp text table)
-     * @throws HsqlException Description of the Exception
      */
-    TextTable(Database db, HsqlNameManager.HsqlName name,
-              int type) throws HsqlException {
+    TextTable(Database db, HsqlNameManager.HsqlName name, int type) {
         super(db, name, type);
     }
 
@@ -77,15 +75,14 @@ public class TextTable extends org.hsqldb.Table {
     /**
      * connects to the data source
      */
-    public void connect(Session session) throws HsqlException {
+    public void connect(Session session) {
         connect(session, isReadOnly);
     }
 
     /**
      * connects to the data source
      */
-    private void connect(Session session,
-                         boolean withReadOnlyData) throws HsqlException {
+    private void connect(Session session, boolean withReadOnlyData) {
 
         // Open new cache:
         if ((dataSource.length() == 0) || isConnected) {
@@ -181,8 +178,7 @@ public class TextTable extends org.hsqldb.Table {
      * Better clarification of the role of the methods is needed.
      */
     private void openCache(Session session, String dataSourceNew,
-                           boolean isReversedNew,
-                           boolean isReadOnlyNew) throws HsqlException {
+                           boolean isReversedNew, boolean isReadOnlyNew) {
 
         String  dataSourceOld = dataSource;
         boolean isReversedOld = isReversed;
@@ -214,8 +210,7 @@ public class TextTable extends org.hsqldb.Table {
      * Reassigns only if the data source or direction has changed.
      */
     protected void setDataSource(Session session, String dataSourceNew,
-                                 boolean isReversedNew,
-                                 boolean createFile) throws HsqlException {
+                                 boolean isReversedNew, boolean createFile) {
 
         if (getTableType() == Table.TEMP_TEXT_TABLE) {
             ;
@@ -250,7 +245,7 @@ public class TextTable extends org.hsqldb.Table {
         return isReversed;
     }
 
-    public void setHeader(String header) throws HsqlException {
+    public void setHeader(String header) {
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
@@ -282,7 +277,7 @@ public class TextTable extends org.hsqldb.Table {
      * Used by INSERT, DELETE, UPDATE operations. This class will return
      * a more appropriate message when there is no data source.
      */
-    void checkDataReadOnly() throws HsqlException {
+    void checkDataReadOnly() {
 
         if (dataSource.length() == 0) {
             throw Error.error(ErrorCode.TEXT_TABLE_UNKNOWN_DATA_SOURCE);
@@ -297,7 +292,7 @@ public class TextTable extends org.hsqldb.Table {
         return !isConnected() || super.isDataReadOnly();
     }
 
-    public void setDataReadOnly(boolean value) throws HsqlException {
+    public void setDataReadOnly(boolean value) {
 
         if (!value) {
             if (isReversed) {
@@ -318,7 +313,7 @@ public class TextTable extends org.hsqldb.Table {
         return false;
     }
 
-    void setIndexRoots(String s) throws HsqlException {
+    void setIndexRoots(String s) {
 
         // do nothing
     }
@@ -373,8 +368,7 @@ public class TextTable extends org.hsqldb.Table {
     /**
      * Adds commitPersistence() call
      */
-    public void insertData(PersistentStore store,
-                           Object[] data) throws HsqlException {
+    public void insertData(PersistentStore store, Object[] data) {
 
         Row row = (Row) store.getNewCachedObject(null, data);
 

@@ -35,7 +35,6 @@ import java.io.Serializable;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.lib.InOutUtil;
 
 /**
@@ -84,7 +83,7 @@ public class JavaObjectData {
      * Used also with JDBC setParameter().
      * If parameter serialize is true, the Object is serialized for storage.
      */
-    public JavaObjectData(Serializable o) throws HsqlException {
+    public JavaObjectData(Serializable o) {
 
         try {
             data = InOutUtil.serialize(o);
@@ -107,7 +106,7 @@ public class JavaObjectData {
      * type OTHER to another type. It will throw if the OTHER is an instance
      * of a classe that is not available.
      */
-    public Serializable getObject() throws HsqlException {
+    public Serializable getObject() {
 
         try {
             return InOutUtil.deserialize(data);

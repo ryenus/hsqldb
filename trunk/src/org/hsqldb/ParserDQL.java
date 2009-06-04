@@ -98,7 +98,7 @@ public class ParserDQL extends ParserBase {
         lastError = null;
     }
 
-    void checkIsSchemaObjectName() throws HsqlException {
+    void checkIsSchemaObjectName() {
 
         if (strictSQLNames) {
             checkIsNonReservedIdentifier();
@@ -111,7 +111,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    Type readTypeDefinition(boolean includeUserTypes) throws HsqlException {
+    Type readTypeDefinition(boolean includeUserTypes) {
 
         int typeNumber = Integer.MIN_VALUE;
 
@@ -345,7 +345,7 @@ public class ParserDQL extends ParserBase {
     }
 
     void readSimpleColumnNames(OrderedHashSet columns,
-                               RangeVariable rangeVar) throws HsqlException {
+                               RangeVariable rangeVar) {
 
         while (true) {
             ColumnSchema col = readSimpleColumnName(rangeVar);
@@ -366,8 +366,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    void readColumnNames(OrderedHashSet columns,
-                         RangeVariable[] rangeVars) throws HsqlException {
+    void readColumnNames(OrderedHashSet columns, RangeVariable[] rangeVars) {
 
         while (true) {
             ColumnSchema col = readColumnName(rangeVars);
@@ -389,8 +388,7 @@ public class ParserDQL extends ParserBase {
     }
 
     void readColumnNamesForSelectInto(OrderedHashSet columns,
-                                      RangeVariable[] rangeVars)
-                                      throws HsqlException {
+                                      RangeVariable[] rangeVars) {
 
         while (true) {
             ColumnSchema col = readColumnName(rangeVars);
@@ -411,8 +409,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    void readSimpleColumnNames(OrderedHashSet columns,
-                               Table table) throws HsqlException {
+    void readSimpleColumnNames(OrderedHashSet columns, Table table) {
 
         while (true) {
             ColumnSchema col = readSimpleColumnName(table);
@@ -433,7 +430,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    HsqlName[] readColumnNames(HsqlName tableName) throws HsqlException {
+    HsqlName[] readColumnNames(HsqlName tableName) {
 
         BitMap         quotedFlags = new BitMap(32);
         OrderedHashSet set         = readColumnNames(quotedFlags, false);
@@ -450,12 +447,11 @@ public class ParserDQL extends ParserBase {
         return colList;
     }
 
-    OrderedHashSet readColumnNames(boolean readAscDesc) throws HsqlException {
+    OrderedHashSet readColumnNames(boolean readAscDesc) {
         return readColumnNames(null, readAscDesc);
     }
 
-    OrderedHashSet readColumnNames(BitMap quotedFlags,
-                                   boolean readAscDesc) throws HsqlException {
+    OrderedHashSet readColumnNames(BitMap quotedFlags, boolean readAscDesc) {
 
         readThis(Tokens.OPENBRACKET);
 
@@ -467,8 +463,7 @@ public class ParserDQL extends ParserBase {
     }
 
     OrderedHashSet readColumnNameList(BitMap quotedFlags,
-                                      boolean readAscDesc)
-                                      throws HsqlException {
+                                      boolean readAscDesc) {
 
         int            i   = 0;
         OrderedHashSet set = new OrderedHashSet();
@@ -524,7 +519,7 @@ public class ParserDQL extends ParserBase {
         return sq;
     }
 
-    int XreadUnionType() throws HsqlException {
+    int XreadUnionType() {
 
         int unionType = QueryExpression.NOUNION;
 
@@ -580,8 +575,7 @@ public class ParserDQL extends ParserBase {
         return unionType;
     }
 
-    void XreadUnionCorrespondingClause(QueryExpression queryExpression)
-    throws HsqlException {
+    void XreadUnionCorrespondingClause(QueryExpression queryExpression) {
 
         if (token.tokenType == Tokens.CORRESPONDING) {
             read();
@@ -597,7 +591,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    QueryExpression XreadQueryExpression() throws HsqlException {
+    QueryExpression XreadQueryExpression() {
 
         if (token.tokenType == Tokens.WITH) {
             throw super.unsupportedFeature();
@@ -627,7 +621,7 @@ public class ParserDQL extends ParserBase {
         return queryExpression;
     }
 
-    QueryExpression XreadQueryExpressionBody() throws HsqlException {
+    QueryExpression XreadQueryExpressionBody() {
 
         QueryExpression queryExpression = XreadQueryTerm();
 
@@ -648,7 +642,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    QueryExpression XreadQueryTerm() throws HsqlException {
+    QueryExpression XreadQueryTerm() {
 
         QueryExpression queryExpression = XreadQueryPrimary();
 
@@ -661,8 +655,8 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    private QueryExpression XreadSetOperation(QueryExpression queryExpression)
-    throws HsqlException {
+    private QueryExpression XreadSetOperation(
+            QueryExpression queryExpression) {
 
         queryExpression = new QueryExpression(compileContext, queryExpression);
 
@@ -677,7 +671,7 @@ public class ParserDQL extends ParserBase {
         return queryExpression;
     }
 
-    QueryExpression XreadQueryPrimary() throws HsqlException {
+    QueryExpression XreadQueryPrimary() {
 
         switch (token.tokenType) {
 
@@ -724,7 +718,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    QuerySpecification XreadSimpleTable() throws HsqlException {
+    QuerySpecification XreadSimpleTable() {
 
         QuerySpecification select;
 
@@ -763,7 +757,7 @@ public class ParserDQL extends ParserBase {
         return select;
     }
 
-    QuerySpecification XreadQuerySpecification() throws HsqlException {
+    QuerySpecification XreadQuerySpecification() {
 
         QuerySpecification select = XreadSelect();
 
@@ -772,12 +766,12 @@ public class ParserDQL extends ParserBase {
         return select;
     }
 
-    void XreadTableExpression(QuerySpecification select) throws HsqlException {
+    void XreadTableExpression(QuerySpecification select) {
         XreadFromClause(select);
         readWhereGroupHaving(select);
     }
 
-    QuerySpecification XreadSelect() throws HsqlException {
+    QuerySpecification XreadSelect() {
 
         QuerySpecification select = new QuerySpecification(compileContext);
 
@@ -833,7 +827,7 @@ public class ParserDQL extends ParserBase {
         return select;
     }
 
-    void XreadFromClause(QuerySpecification select) throws HsqlException {
+    void XreadFromClause(QuerySpecification select) {
 
         readThis(Tokens.FROM);
 
@@ -848,7 +842,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    void XreadTableReference(QuerySpecification select) throws HsqlException {
+    void XreadTableReference(QuerySpecification select) {
 
         boolean       natural = false;
         RangeVariable range   = readTableOrSubquery();
@@ -1045,7 +1039,7 @@ public class ParserDQL extends ParserBase {
         return new Expression(OpTypes.ROW, elements);
     }
 
-    void readWhereGroupHaving(QuerySpecification select) throws HsqlException {
+    void readWhereGroupHaving(QuerySpecification select) {
 
         // where
         if (token.tokenType == Tokens.WHERE) {
@@ -1086,7 +1080,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    SortAndSlice XreadOrderByExpression() throws HsqlException {
+    SortAndSlice XreadOrderByExpression() {
 
         SortAndSlice sortAndSlice = null;
 
@@ -1110,7 +1104,7 @@ public class ParserDQL extends ParserBase {
                                     : sortAndSlice;
     }
 
-    private SortAndSlice XreadTopOrLimit() throws HsqlException {
+    private SortAndSlice XreadTopOrLimit() {
 
         Expression e1 = null;
         Expression e2 = null;
@@ -1177,7 +1171,7 @@ public class ParserDQL extends ParserBase {
         throw Error.error(ErrorCode.X_42565, ErrorCode.INVALID_LIMIT);
     }
 
-    private void XreadLimit(SortAndSlice sortAndSlice) throws HsqlException {
+    private void XreadLimit(SortAndSlice sortAndSlice) {
 
         Expression e1 = null;
         Expression e2 = null;
@@ -1259,7 +1253,7 @@ public class ParserDQL extends ParserBase {
         throw Error.error(ErrorCode.X_42565, ErrorCode.INVALID_LIMIT);
     }
 
-    private SortAndSlice XreadOrderBy() throws HsqlException {
+    private SortAndSlice XreadOrderBy() {
 
         SortAndSlice sortAndSlice = new SortAndSlice();
 
@@ -1301,8 +1295,7 @@ public class ParserDQL extends ParserBase {
         return sortAndSlice;
     }
 
-    protected RangeVariable readSimpleRangeVariable(int operation)
-    throws HsqlException {
+    protected RangeVariable readSimpleRangeVariable(int operation) {
 
         Table      table = readTableName();
         SimpleName alias = null;
@@ -1352,7 +1345,7 @@ public class ParserDQL extends ParserBase {
     /**
      * Creates a RangeVariable from the parse context. <p>
      */
-    protected RangeVariable readTableOrSubquery() throws HsqlException {
+    protected RangeVariable readTableOrSubquery() {
 
         Table          table            = null;
         SimpleName     alias            = null;
@@ -1429,7 +1422,7 @@ public class ParserDQL extends ParserBase {
         return range;
     }
 
-    private Expression readAggregate() throws HsqlException {
+    private Expression readAggregate() {
 
         int        tokenT = token.tokenType;
         Expression e;
@@ -1444,8 +1437,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    private Expression readAggregateExpression(int tokenT)
-    throws HsqlException {
+    private Expression readAggregateExpression(int tokenT) {
 
         int     type     = ParserDQL.getExpressionType(tokenT);
         boolean distinct = false;
@@ -1502,7 +1494,7 @@ public class ParserDQL extends ParserBase {
 //--------------------------------------
     // returns null
     // := <unsigned literal> | <general value specification>
-    Expression XreadValueSpecificationOrNull() throws HsqlException {
+    Expression XreadValueSpecificationOrNull() {
 
         Expression e     = null;
         boolean    minus = false;
@@ -1535,7 +1527,7 @@ public class ParserDQL extends ParserBase {
 
     // returns null
     // <unsigned literl> | <general value specification>
-    Expression XreadUnsignedValueSpecificationOrNull() throws HsqlException {
+    Expression XreadUnsignedValueSpecificationOrNull() {
 
         Expression e;
 
@@ -1621,7 +1613,7 @@ public class ParserDQL extends ParserBase {
     }
 
     // <unsigned literl> | <parameter>
-    Expression XreadSimpleValueSpecificationOrNull() throws HsqlException {
+    Expression XreadSimpleValueSpecificationOrNull() {
 
         Expression e;
 
@@ -1650,8 +1642,7 @@ public class ParserDQL extends ParserBase {
     // combined <value expression primary> and <predicate>
     // exclusively called
     // <explicit row value constructor> needed for predicate
-    Expression XreadAllTypesValueExpressionPrimary(boolean boole)
-    throws HsqlException {
+    Expression XreadAllTypesValueExpressionPrimary(boolean boole) {
 
         Expression e = null;
 
@@ -1699,7 +1690,7 @@ public class ParserDQL extends ParserBase {
     // doesn't return null
     // <value expression primary> ::= <parenthesized value expression>
     // | <nonparenthesized value expression primary>
-    Expression XreadValueExpressionPrimary() throws HsqlException {
+    Expression XreadValueExpressionPrimary() {
 
         Expression e;
 
@@ -1725,7 +1716,7 @@ public class ParserDQL extends ParserBase {
     // returns null
     //  <row value special case> :== this
     // <boolean predicand> :== this | <parenthesized boolean value expression>
-    Expression XreadSimpleValueExpressionPrimary() throws HsqlException {
+    Expression XreadSimpleValueExpressionPrimary() {
 
         Expression e;
 
@@ -1856,7 +1847,7 @@ public class ParserDQL extends ParserBase {
 
     // OK - composite production -
     // <numeric primary> <charactr primary> <binary primary> <datetime primary> <interval primary>
-    Expression XreadAllTypesPrimary(boolean boole) throws HsqlException {
+    Expression XreadAllTypesPrimary(boolean boole) {
 
         Expression e = null;
 
@@ -1910,7 +1901,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadModifier(Expression e) throws HsqlException {
+    Expression XreadModifier(Expression e) {
 
         switch (token.tokenType) {
 
@@ -1978,7 +1969,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadValueExpressionWithContext() throws HsqlException {
+    Expression XreadValueExpressionWithContext() {
 
         Expression e;
 
@@ -1989,7 +1980,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadValueExpressionOrNull() throws HsqlException {
+    Expression XreadValueExpressionOrNull() {
         return XreadAllTypesCommonValueExpression(true);
     }
 
@@ -2000,19 +1991,18 @@ public class ParserDQL extends ParserBase {
      *   | <row value expression>
      *
      */
-    Expression XreadValueExpression() throws HsqlException {
+    Expression XreadValueExpression() {
         return XreadAllTypesCommonValueExpression(true);
     }
 
     // union of <numeric | datetime | string | interval value expression>
-    Expression XreadRowOrCommonValueExpression() throws HsqlException {
+    Expression XreadRowOrCommonValueExpression() {
         return XreadAllTypesCommonValueExpression(false);
     }
 
     // union of <numeric | datetime | string | interval | boolean value expression>
     // no <row value expression> and no <predicate>
-    Expression XreadAllTypesCommonValueExpression(boolean boole)
-    throws HsqlException {
+    Expression XreadAllTypesCommonValueExpression(boolean boole) {
 
         Expression e    = XreadAllTypesTerm(boole);
         int        type = 0;
@@ -2065,7 +2055,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadAllTypesTerm(boolean boole) throws HsqlException {
+    Expression XreadAllTypesTerm(boolean boole) {
 
         Expression e    = XreadAllTypesFactor(boole);
         int        type = 0;
@@ -2118,7 +2108,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadAllTypesFactor(boolean boole) throws HsqlException {
+    Expression XreadAllTypesFactor(boolean boole) {
 
         Expression e;
         boolean    minus   = false;
@@ -2186,14 +2176,14 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadStringValueExpression() throws HsqlException {
+    Expression XreadStringValueExpression() {
 
         return XreadCharacterValueExpression();
 
 //        XreadBinaryValueExpression();
     }
 
-    Expression XreadCharacterValueExpression() throws HsqlException {
+    Expression XreadCharacterValueExpression() {
 
         Expression   e         = XreadCharacterPrimary();
         SchemaObject collation = readCollateClauseOrNull();
@@ -2211,7 +2201,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadCharacterPrimary() throws HsqlException {
+    Expression XreadCharacterPrimary() {
 
         switch (token.tokenType) {
 
@@ -2238,7 +2228,7 @@ public class ParserDQL extends ParserBase {
         return XreadValueExpressionPrimary();
     }
 
-    Expression XreadNumericPrimary() throws HsqlException {
+    Expression XreadNumericPrimary() {
 
         switch (token.tokenType) {
 
@@ -2278,7 +2268,7 @@ public class ParserDQL extends ParserBase {
         return XreadValueExpressionPrimary();
     }
 
-    Expression XreadNumericValueExpression() throws HsqlException {
+    Expression XreadNumericValueExpression() {
 
         Expression e = XreadTerm();
 
@@ -2304,7 +2294,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadTerm() throws HsqlException {
+    Expression XreadTerm() {
 
         Expression e = XreadFactor();
         int        type;
@@ -2334,7 +2324,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadFactor() throws HsqlException {
+    Expression XreadFactor() {
 
         Expression e;
         boolean    minus = false;
@@ -2360,7 +2350,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadDatetimeValueExpression() throws HsqlException {
+    Expression XreadDatetimeValueExpression() {
 
         Expression e = XreadDateTimeIntervalTerm();
 
@@ -2386,7 +2376,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadIntervalValueExpression() throws HsqlException {
+    Expression XreadIntervalValueExpression() {
 
         Expression e = XreadDateTimeIntervalTerm();
 
@@ -2412,7 +2402,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadDateTimeIntervalTerm() throws HsqlException {
+    Expression XreadDateTimeIntervalTerm() {
 
         switch (token.tokenType) {
 
@@ -2441,7 +2431,7 @@ public class ParserDQL extends ParserBase {
     }
 
     // returns null
-    Expression XreadDateTimeValueFunctionOrNull() throws HsqlException {
+    Expression XreadDateTimeValueFunctionOrNull() {
 
         FunctionSQL function = null;
 
@@ -2473,7 +2463,7 @@ public class ParserDQL extends ParserBase {
         return readSQLFunction(function);
     }
 
-    Expression XreadBooleanValueExpression() throws HsqlException {
+    Expression XreadBooleanValueExpression() {
 
         try {
             Expression e = XreadBooleanTermOrNull();
@@ -2515,7 +2505,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    Expression XreadBooleanTermOrNull() throws HsqlException {
+    Expression XreadBooleanTermOrNull() {
 
         Expression e = XreadBooleanFactorOrNull();
         int        type;
@@ -2538,7 +2528,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    Expression XreadBooleanFactorOrNull() throws HsqlException {
+    Expression XreadBooleanFactorOrNull() {
 
         Expression e;
         boolean    not     = false;
@@ -2592,7 +2582,7 @@ public class ParserDQL extends ParserBase {
     }
 
     // <boolean primary> ::= <predicate> | <boolean predicand>
-    Expression XreadBooleanPrimaryOrNull() throws HsqlException {
+    Expression XreadBooleanPrimaryOrNull() {
 
         Expression e = null;
         int        position;
@@ -2662,7 +2652,7 @@ public class ParserDQL extends ParserBase {
     }
 
     // similar to <value expression primary>
-    Expression XreadBooleanPredicand() throws HsqlException {
+    Expression XreadBooleanPredicand() {
 
         Expression e;
 
@@ -2679,7 +2669,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    Expression XreadPredicate() throws HsqlException {
+    Expression XreadPredicate() {
 
         switch (token.tokenType) {
 
@@ -2705,8 +2695,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    Expression XreadPredicateRightPart(final Expression l)
-    throws HsqlException {
+    Expression XreadPredicateRightPart(final Expression l) {
 
         boolean           hasNot = false;
         ExpressionLogical e      = null;
@@ -2836,7 +2825,7 @@ public class ParserDQL extends ParserBase {
     }
 
     private ExpressionLogical XreadBetweenPredicateRightPart(
-            final Expression a) throws HsqlException {
+            final Expression a) {
 
         boolean symmetric = false;
 
@@ -2882,7 +2871,7 @@ public class ParserDQL extends ParserBase {
     }
 
     private ExpressionLogical XreadQuantifiedComparisonRightPart(int exprType,
-            Expression l) throws HsqlException {
+            Expression l) {
 
         int        tokenT      = token.tokenType;
         int        exprSubType = 0;
@@ -2939,8 +2928,7 @@ public class ParserDQL extends ParserBase {
         return r;
     }
 
-    private ExpressionLogical XreadInPredicateRightPart(Expression l)
-    throws HsqlException {
+    private ExpressionLogical XreadInPredicateRightPart(Expression l) {
 
         int        degree = l.getDegree();
         Expression e      = null;
@@ -2990,7 +2978,7 @@ public class ParserDQL extends ParserBase {
         return r;
     }
 
-    Expression XreadInValueList(int degree) throws HsqlException {
+    Expression XreadInValueList(int degree) {
 
         HsqlArrayList list = new HsqlArrayList();
 
@@ -3044,8 +3032,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    private ExpressionLogical XreadLikePredicateRightPart(Expression a)
-    throws HsqlException {
+    private ExpressionLogical XreadLikePredicateRightPart(Expression a) {
 
         read();
 
@@ -3062,8 +3049,7 @@ public class ParserDQL extends ParserBase {
                                   this.isCheckOrTriggerCondition);
     }
 
-    private ExpressionLogical XreadMatchPredicateRightPart(Expression a)
-    throws HsqlException {
+    private ExpressionLogical XreadMatchPredicateRightPart(Expression a) {
 
         boolean isUnique  = false;
         int     matchType = OpTypes.MATCH_SIMPLE;
@@ -3100,8 +3086,7 @@ public class ParserDQL extends ParserBase {
         return new ExpressionLogical(matchType, a, s);
     }
 
-    private ExpressionLogical XreadOverlapsPredicateRightPart(Expression l)
-    throws HsqlException {
+    private ExpressionLogical XreadOverlapsPredicateRightPart(Expression l) {
 
         if (l.getType() != OpTypes.ROW) {
             throw Error.error(ErrorCode.X_42564);
@@ -3126,7 +3111,7 @@ public class ParserDQL extends ParserBase {
         return new ExpressionLogical(OpTypes.OVERLAPS, l, r);
     }
 
-    Expression XreadRowValueExpression() throws HsqlException {
+    Expression XreadRowValueExpression() {
 
         Expression e = XreadExplicitRowValueConstructorOrNull();
 
@@ -3137,7 +3122,7 @@ public class ParserDQL extends ParserBase {
         return XreadRowValueSpecialCase();
     }
 
-    Expression XreadTableRowValueConstructor() throws HsqlException {
+    Expression XreadTableRowValueConstructor() {
 
         Expression e = XreadExplicitRowValueConstructorOrNull();
 
@@ -3152,17 +3137,17 @@ public class ParserDQL extends ParserBase {
     // <boolean predicand> | <non parenthesized value expression primary> |
     //  translated to <explicit row value constructor>
     // <value expression primary> | <non parenthesized value expression primary> |
-    Expression XreadRowValuePredicand() throws HsqlException {
+    Expression XreadRowValuePredicand() {
         return XreadRowOrCommonValueExpression();
     }
 
-    Expression XreadRowValueSpecialCase() throws HsqlException {
+    Expression XreadRowValueSpecialCase() {
         return XreadSimpleValueExpressionPrimary();
     }
 
     // <row value constructor>
     // ISSUE - XreadCommonValueExpression and XreadBooleanValueExpression should merge
-    Expression XreadRowValueConstructor() throws HsqlException {
+    Expression XreadRowValueConstructor() {
 
         Expression e;
 
@@ -3183,7 +3168,7 @@ public class ParserDQL extends ParserBase {
 
     // returns null
     // must be called in conjusnction with <parenthesized ..
-    Expression XreadExplicitRowValueConstructorOrNull() throws HsqlException {
+    Expression XreadExplicitRowValueConstructorOrNull() {
 
         Expression e;
 
@@ -3234,7 +3219,7 @@ public class ParserDQL extends ParserBase {
         return null;
     }
 
-    Expression XreadRowElementList(boolean multiple) throws HsqlException {
+    Expression XreadRowElementList(boolean multiple) {
 
         Expression    e;
         HsqlArrayList list = new HsqlArrayList();
@@ -3264,11 +3249,11 @@ public class ParserDQL extends ParserBase {
         return new Expression(OpTypes.ROW, array);
     }
 
-    Expression XreadCurrentCollationSpec() throws HsqlException {
+    Expression XreadCurrentCollationSpec() {
         throw Error.error(ErrorCode.X_0A000);
     }
 
-    Expression XreadRowSubquery() throws HsqlException {
+    Expression XreadRowSubquery() {
 
         readThis(Tokens.OPENBRACKET);
 
@@ -3279,7 +3264,7 @@ public class ParserDQL extends ParserBase {
         return new Expression(OpTypes.ROW_SUBQUERY, sq);
     }
 
-    Expression XreadTableSubqueryForPredicate(int mode) throws HsqlException {
+    Expression XreadTableSubqueryForPredicate(int mode) {
 
         readThis(Tokens.OPENBRACKET);
 
@@ -3290,7 +3275,7 @@ public class ParserDQL extends ParserBase {
         return new Expression(OpTypes.TABLE_SUBQUERY, sq);
     }
 
-    Expression XreadTableSubqueryOrJoinedTable() throws HsqlException {
+    Expression XreadTableSubqueryOrJoinedTable() {
 
         boolean joinedTable = false;
         int     position;
@@ -3330,7 +3315,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    SubQuery XreadJoinedTableAsSubquery() throws HsqlException {
+    SubQuery XreadJoinedTableAsSubquery() {
 
         compileContext.subQueryDepth++;
 
@@ -3354,7 +3339,7 @@ public class ParserDQL extends ParserBase {
         return sq;
     }
 
-    QueryExpression XreadJoinedTable() throws HsqlException {
+    QueryExpression XreadJoinedTable() {
 
         QuerySpecification select = new QuerySpecification(compileContext);
         Expression         e      = new ExpressionColumn(OpTypes.MULTICOLUMN);
@@ -3365,7 +3350,7 @@ public class ParserDQL extends ParserBase {
         return select;
     }
 
-    SubQuery XreadTableSubqueryBody() throws HsqlException {
+    SubQuery XreadTableSubqueryBody() {
 
         SubQuery sq = XreadSubqueryBody(true, OpTypes.TABLE_SUBQUERY);
 
@@ -3390,8 +3375,7 @@ public class ParserDQL extends ParserBase {
         return sq;
     }
 
-    SubQuery XreadSubqueryBody(boolean resolve,
-                               int mode) throws HsqlException {
+    SubQuery XreadSubqueryBody(boolean resolve, int mode) {
 
         compileContext.subQueryDepth++;
 
@@ -3413,7 +3397,7 @@ public class ParserDQL extends ParserBase {
         return sq;
     }
 
-    SubQuery XreadViewSubquery(View view) throws HsqlException {
+    SubQuery XreadViewSubquery(View view) {
 
         compileContext.subQueryDepth++;
 
@@ -3441,7 +3425,7 @@ public class ParserDQL extends ParserBase {
 
 // Additional Common Elements
 // returns null
-    SchemaObject readCollateClauseOrNull() throws HsqlException {
+    SchemaObject readCollateClauseOrNull() {
 
         if (token.tokenType == Tokens.COLLATE) {
             read();
@@ -3456,7 +3440,7 @@ public class ParserDQL extends ParserBase {
         return null;
     }
 
-    Expression readRow() throws HsqlException {
+    Expression readRow() {
 
         Expression r = null;
 
@@ -3492,7 +3476,7 @@ public class ParserDQL extends ParserBase {
         return r;
     }
 
-    Expression XreadContextuallyTypedTable(int degree) throws HsqlException {
+    Expression XreadContextuallyTypedTable(int degree) {
 
         Expression   e       = readRow();
         Expression[] list    = e.nodes;
@@ -3563,8 +3547,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    private Expression XreadInValueListConstructor(int degree)
-    throws HsqlException {
+    private Expression XreadInValueListConstructor(int degree) {
 
         compileContext.subQueryDepth++;
 
@@ -3579,7 +3562,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    private SubQuery XreadRowValueExpressionList() throws HsqlException {
+    private SubQuery XreadRowValueExpressionList() {
 
         compileContext.subQueryDepth++;
 
@@ -3602,7 +3585,7 @@ public class ParserDQL extends ParserBase {
         return sq;
     }
 
-    Expression XreadRowValueExpressionListBody() throws HsqlException {
+    Expression XreadRowValueExpressionListBody() {
 
         Expression r = null;
 
@@ -3654,7 +3637,7 @@ public class ParserDQL extends ParserBase {
         return r;
     }
 
-    Expression readCaseExpression() throws HsqlException {
+    Expression readCaseExpression() {
 
         Expression predicand = null;
 
@@ -3670,7 +3653,7 @@ public class ParserDQL extends ParserBase {
     /**
      * Reads part of a CASE .. WHEN  expression
      */
-    private Expression readCaseWhen(final Expression l) throws HsqlException {
+    private Expression readCaseWhen(final Expression l) {
 
         readThis(Tokens.WHEN);
 
@@ -3734,7 +3717,7 @@ public class ParserDQL extends ParserBase {
     /**
      * reads a CASEWHEN expression
      */
-    private Expression readCaseWhenExpression() throws HsqlException {
+    private Expression readCaseWhenExpression() {
 
         Expression l = null;
 
@@ -3761,7 +3744,7 @@ public class ParserDQL extends ParserBase {
     /**
      * Reads a CAST or CONVERT expression
      */
-    private Expression readCastExpression() throws HsqlException {
+    private Expression readCastExpression() {
 
         boolean isConvert = token.tokenType == Tokens.CONVERT;
 
@@ -3792,7 +3775,7 @@ public class ParserDQL extends ParserBase {
     /**
      * reads a Column or Function expression
      */
-    private Expression readColumnOrFunctionExpression() throws HsqlException {
+    private Expression readColumnOrFunctionExpression() {
 
         String  name           = token.tokenString;
         boolean isSimpleQuoted = isDelimitedSimpleName();
@@ -3909,7 +3892,7 @@ public class ParserDQL extends ParserBase {
     /**
      * Reads a NULLIF expression
      */
-    private Expression readNullIfExpression() throws HsqlException {
+    private Expression readNullIfExpression() {
 
         // turn into a CASEWHEN
         read();
@@ -3935,7 +3918,7 @@ public class ParserDQL extends ParserBase {
     /**
      * Reads a COALESE or IFNULL expression
      */
-    private Expression readCoalesceExpression() throws HsqlException {
+    private Expression readCoalesceExpression() {
 
         Expression c = null;
 
@@ -3976,7 +3959,7 @@ public class ParserDQL extends ParserBase {
         return c;
     }
 
-    Expression readSQLFunction(FunctionSQL function) throws HsqlException {
+    Expression readSQLFunction(FunctionSQL function) {
 
         read();
 
@@ -4013,7 +3996,7 @@ public class ParserDQL extends ParserBase {
     }
 
     void readExpression(HsqlArrayList exprList, short[] parseList, int start,
-                        int count, boolean isOption) throws HsqlException {
+                        int count, boolean isOption) {
 
         for (int i = start; i < start + count; i++) {
             int exprType = parseList[i];
@@ -4146,7 +4129,7 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    private Expression readSequenceExpression() throws HsqlException {
+    private Expression readSequenceExpression() {
 
         read();
         readThis(Tokens.VALUE);
@@ -4167,7 +4150,7 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
-    HsqlName readNewSchemaName() throws HsqlException {
+    HsqlName readNewSchemaName() {
 
         checkIsSchemaObjectName();
         checkValidCatalogName(token.namePrefix);
@@ -4181,7 +4164,7 @@ public class ParserDQL extends ParserBase {
         return name;
     }
 
-    HsqlName readNewSchemaObjectNameNoCheck(int type) throws HsqlException {
+    HsqlName readNewSchemaObjectNameNoCheck(int type) {
 
         checkIsSchemaObjectName();
 
@@ -4210,7 +4193,7 @@ public class ParserDQL extends ParserBase {
         return hsqlName;
     }
 
-    HsqlName readNewSchemaObjectName(int type) throws HsqlException {
+    HsqlName readNewSchemaObjectName(int type) {
 
         checkIsSchemaObjectName();
 
@@ -4233,8 +4216,7 @@ public class ParserDQL extends ParserBase {
         return hsqlName;
     }
 
-    HsqlName readNewDependentSchemaObjectName(HsqlName parentName,
-            int type) throws HsqlException {
+    HsqlName readNewDependentSchemaObjectName(HsqlName parentName, int type) {
 
         HsqlName name = readNewSchemaObjectName(type);
 
@@ -4250,7 +4232,7 @@ public class ParserDQL extends ParserBase {
         return name;
     }
 
-    HsqlName readSchemaName() throws HsqlException {
+    HsqlName readSchemaName() {
 
         checkIsSchemaObjectName();
         checkValidCatalogName(token.namePrefix);
@@ -4262,7 +4244,7 @@ public class ParserDQL extends ParserBase {
         return schema;
     }
 
-    SchemaObject readSchemaObjectName(int type) throws HsqlException {
+    SchemaObject readSchemaObjectName(int type) {
 
         checkIsSchemaObjectName();
 
@@ -4281,8 +4263,7 @@ public class ParserDQL extends ParserBase {
         return object;
     }
 
-    SchemaObject readDependentSchemaObjectName(HsqlName parentName,
-            int type) throws HsqlException {
+    SchemaObject readDependentSchemaObjectName(HsqlName parentName, int type) {
 
         checkIsSchemaObjectName();
 
@@ -4311,7 +4292,7 @@ public class ParserDQL extends ParserBase {
         return object;
     }
 
-    Table readTableName() throws HsqlException {
+    Table readTableName() {
 
         checkIsIdentifier();
 
@@ -4327,8 +4308,7 @@ public class ParserDQL extends ParserBase {
         return table;
     }
 
-    ColumnSchema readSimpleColumnName(RangeVariable rangeVar)
-    throws HsqlException {
+    ColumnSchema readSimpleColumnName(RangeVariable rangeVar) {
 
         ColumnSchema column = null;
 
@@ -4352,7 +4332,7 @@ public class ParserDQL extends ParserBase {
         throw Error.error(ErrorCode.X_42501, token.tokenString);
     }
 
-    ColumnSchema readSimpleColumnName(Table table) throws HsqlException {
+    ColumnSchema readSimpleColumnName(Table table) {
 
         checkIsIdentifier();
 
@@ -4373,8 +4353,7 @@ public class ParserDQL extends ParserBase {
         return column;
     }
 
-    ColumnSchema readColumnName(RangeVariable[] rangeVars)
-    throws HsqlException {
+    ColumnSchema readColumnName(RangeVariable[] rangeVars) {
 
         ColumnSchema column = null;
 
@@ -4400,7 +4379,7 @@ public class ParserDQL extends ParserBase {
         throw Error.error(ErrorCode.X_42501, token.tokenString);
     }
 
-    StatementDMQL compileDeclareCursor() throws HsqlException {
+    StatementDMQL compileDeclareCursor() {
 
         int sensitivity   = 0;    // ASENSITIVE
         int scrollability = 0;    // NO_SCROLL
@@ -4477,7 +4456,7 @@ public class ParserDQL extends ParserBase {
     /**
      * Retrieves a SELECT or other query expression Statement from this parse context.
      */
-    StatementDMQL compileCursorSpecification() throws HsqlException {
+    StatementDMQL compileCursorSpecification() {
 
         QueryExpression queryExpression = XreadQueryExpression();
 
@@ -4507,7 +4486,7 @@ public class ParserDQL extends ParserBase {
         return cs;
     }
 
-    int readCloseBrackets(int limit) throws HsqlException {
+    int readCloseBrackets(int limit) {
 
         int count = 0;
 
@@ -4520,7 +4499,7 @@ public class ParserDQL extends ParserBase {
         return count;
     }
 
-    int readOpenBrackets() throws HsqlException {
+    int readOpenBrackets() {
 
         int count = 0;
 
@@ -4533,7 +4512,7 @@ public class ParserDQL extends ParserBase {
         return count;
     }
 
-    void checkValidCatalogName(String name) throws HsqlException {
+    void checkValidCatalogName(String name) {
 
         if (name != null && !name.equals(database.getCatalogName().name)) {
             throw Error.error(ErrorCode.X_42501, name);
@@ -4676,7 +4655,7 @@ public class ParserDQL extends ParserBase {
          * Return the list of subqueries as an array sorted according to the
          * order of materialization
          */
-        SubQuery[] getSubqueries() throws HsqlException {
+        SubQuery[] getSubqueries() {
 
             if (subQueryList.size() == 0) {
                 return SubQuery.emptySubqueryArray;

@@ -136,8 +136,7 @@ public final class ClobType extends CharacterType {
                                         : 0);
     }
 
-    public Object convertToDefaultType(SessionInterface session,
-                                       Object a) throws HsqlException {
+    public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
             return null;
@@ -179,8 +178,7 @@ public final class ClobType extends CharacterType {
     }
 
     public long position(SessionInterface session, Object data,
-                         Object otherData, Type otherType,
-                         long start) throws HsqlException {
+                         Object otherData, Type otherType, long start) {
 
         if (otherType.typeCode == Types.SQL_CLOB) {
             return ((ClobData) data).position(session, (ClobData) otherData,

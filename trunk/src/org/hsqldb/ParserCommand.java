@@ -54,7 +54,7 @@ public class ParserCommand extends ParserDDL {
         super(session, t);
     }
 
-    Statement compileStatement() throws HsqlException {
+    Statement compileStatement() {
 
         Statement cs = compilePart();
 
@@ -69,8 +69,7 @@ public class ParserCommand extends ParserDDL {
         throw unexpectedToken();
     }
 
-    HsqlArrayList compileStatements(String sql,
-                                    int returnType) throws HsqlException {
+    HsqlArrayList compileStatements(String sql, int returnType) {
 
         HsqlArrayList list = new HsqlArrayList();
         Statement     cs   = null;
@@ -108,7 +107,7 @@ public class ParserCommand extends ParserDDL {
         return list;
     }
 
-    private Statement compilePart() throws HsqlException {
+    private Statement compilePart() {
 
         Statement cs = null;
 
@@ -262,8 +261,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileSessionVariableDeclaration()
-    throws HsqlException {
+    private Statement compileSessionVariableDeclaration() {
 
         ColumnSchema variable = readLocalVariableDeclarationOrNull();
         Object[]     args     = new Object[]{ variable };
@@ -273,7 +271,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileScript() throws HsqlException {
+    private Statement compileScript() {
 
         String name = null;
 
@@ -297,7 +295,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileConnect() throws HsqlException {
+    private Statement compileConnect() {
 
         String userName;
         String password = null;
@@ -324,7 +322,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileSetDefault() throws HsqlException {
+    private Statement compileSetDefault() {
 
         read();
 
@@ -389,7 +387,7 @@ public class ParserCommand extends ParserDDL {
         }
     }
 
-    private Statement compileSetProperty() throws HsqlException {
+    private Statement compileSetProperty() {
 
         read();
 
@@ -441,7 +439,7 @@ public class ParserCommand extends ParserDDL {
                                     args, null, null);
     }
 
-    private Statement compileSet() throws HsqlException {
+    private Statement compileSet() {
 
         int position = super.getPosition();
 
@@ -980,7 +978,7 @@ public class ParserCommand extends ParserDDL {
         }
     }
 
-    Object[] processTransactionCharacteristics() throws HsqlException {
+    Object[] processTransactionCharacteristics() {
 
         int      level    = 0;
         boolean  readonly = false;
@@ -1077,7 +1075,7 @@ public class ParserCommand extends ParserDDL {
      * @return   true if next token is "TRUE"; false if next token is "FALSE"
      * @throws  HsqlException if the next token is neither "TRUE" or "FALSE"
      */
-    private boolean processTrueOrFalse() throws HsqlException {
+    private boolean processTrueOrFalse() {
 
         if (token.tokenType == Tokens.TRUE) {
             read();
@@ -1097,7 +1095,7 @@ public class ParserCommand extends ParserDDL {
      *
      * @throws  HsqlException
      */
-    private Statement compileCommit() throws HsqlException {
+    private Statement compileCommit() {
 
         boolean chain = false;
 
@@ -1123,7 +1121,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileStartTransaction() throws HsqlException {
+    private Statement compileStartTransaction() {
 
         read();
         readThis(Tokens.TRANSACTION);
@@ -1135,7 +1133,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileLock() throws HsqlException {
+    private Statement compileLock() {
 
         read();
         readThis(Tokens.TABLE);
@@ -1187,7 +1185,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileRollback() throws HsqlException {
+    private Statement compileRollback() {
 
         boolean chain     = false;
         String  savepoint = null;
@@ -1235,7 +1233,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileSavepoint() throws HsqlException {
+    private Statement compileSavepoint() {
 
         String name;
 
@@ -1252,7 +1250,7 @@ public class ParserCommand extends ParserDDL {
         return new StatementSession(StatementTypes.SAVEPOINT, args);
     }
 
-    private Statement compileReleaseSavepoint() throws HsqlException {
+    private Statement compileReleaseSavepoint() {
 
         read();
         readThis(Tokens.SAVEPOINT);
@@ -1267,7 +1265,7 @@ public class ParserCommand extends ParserDDL {
         return new StatementSession(StatementTypes.RELEASE_SAVEPOINT, args);
     }
 
-    private Statement compileSessionSettings() throws HsqlException {
+    private Statement compileSessionSettings() {
 
         if (token.tokenType == Tokens.CHARACTERISTICS) {
             read();
@@ -1307,7 +1305,7 @@ public class ParserCommand extends ParserDDL {
         throw unexpectedToken();
     }
 
-    private Statement compileSetRole() throws HsqlException {
+    private Statement compileSetRole() {
 
         Expression e;
 
@@ -1339,7 +1337,7 @@ public class ParserCommand extends ParserDDL {
                                     new Expression[]{ e });
     }
 
-    private Statement compileSetTimeZone() throws HsqlException {
+    private Statement compileSetTimeZone() {
 
         Expression e;
 
@@ -1373,7 +1371,7 @@ public class ParserCommand extends ParserDDL {
                                     new Expression[]{ e });
     }
 
-    private Statement compileShutdown() throws HsqlException {
+    private Statement compileShutdown() {
 
         int closemode;
 
@@ -1422,7 +1420,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileBackup() throws HsqlException {
+    private Statement compileBackup() {
 
         read();
         readThis(Tokens.DATABASE);
@@ -1521,7 +1519,7 @@ public class ParserCommand extends ParserDDL {
         }, null, null);
     }
 
-    private Statement compileCheckpoint() throws HsqlException {
+    private Statement compileCheckpoint() {
 
         boolean defrag = false;
 
@@ -1552,7 +1550,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileDisconnect() throws HsqlException {
+    private Statement compileDisconnect() {
 
         read();
 
@@ -1563,7 +1561,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileExplainPlan() throws HsqlException {
+    private Statement compileExplainPlan() {
 
         Statement cs;
 
@@ -1580,7 +1578,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileTextTableSource(Table t) throws HsqlException {
+    private Statement compileTextTableSource(Table t) {
 
         boolean  isSourceHeader = false;
         boolean  isDesc         = false;

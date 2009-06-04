@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
@@ -136,7 +135,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         return userTypeModifier.getComponents();
     }
 
-    public final void compile(Session session) throws HsqlException {
+    public final void compile(Session session) {
 
         if (userTypeModifier == null) {
             throw Error.runtimeError(ErrorCode.U_S0500, "Type");
@@ -228,13 +227,13 @@ public abstract class Type implements SchemaObject, Cloneable {
             return getDefinition();
         }
 
-        return getName().getSchemaQualifiedStatementName() ;
+        return getName().getSchemaQualifiedStatementName();
     }
 
     public abstract int compare(Object a, Object b);
 
     public abstract Object convertToTypeLimits(SessionInterface session,
-            Object a) throws HsqlException;
+            Object a);
 
     /**
      * Explicit casts are handled by this method.
@@ -242,8 +241,7 @@ public abstract class Type implements SchemaObject, Cloneable {
      * are implemented. For CHARACTER values, it performs truncation in all
      * cases of long strings.
      */
-    public Object castToType(SessionInterface session, Object a,
-                             Type type) throws HsqlException {
+    public Object castToType(SessionInterface session, Object a, Type type) {
         return convertToType(session, a, type);
     }
 
@@ -253,24 +251,22 @@ public abstract class Type implements SchemaObject, Cloneable {
      * an exception.
      */
     public abstract Object convertToType(SessionInterface session, Object a,
-                                         Type type) throws HsqlException;
+                                         Type type);
 
     /**
      * Convert type for JDBC. Same as convertToType, but supports non-standard
      * SQL conversions supported by JDBC
      */
     public Object convertToTypeJDBC(SessionInterface session, Object a,
-                                    Type type) throws HsqlException {
+                                    Type type) {
         return convertToType(session, a, type);
     }
 
-    public Object convertJavaToSQL(SessionInterface session,
-                                   Object a) throws HsqlException {
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
         return a;
     }
 
-    public Object convertSQLToJava(SessionInterface session,
-                                   Object a) throws HsqlException {
+    public Object convertSQLToJava(SessionInterface session, Object a) {
         return a;
     }
 
@@ -278,7 +274,7 @@ public abstract class Type implements SchemaObject, Cloneable {
      * Converts the object to the given type. Used for JDBC conversions.
      */
     public abstract Object convertToDefaultType(
-        SessionInterface sessionInterface, Object o) throws HsqlException;
+        SessionInterface sessionInterface, Object o);
 
     public abstract String convertToString(Object a);
 
@@ -381,15 +377,14 @@ public abstract class Type implements SchemaObject, Cloneable {
      * Common type used in comparison opertions. other must be comparable
      * with this.
      */
-    public abstract Type getAggregateType(Type other) throws HsqlException;
+    public abstract Type getAggregateType(Type other);
 
     /**
      * Result type of combining values of two types in different opertions.
      * other type is not allways comparable with this, but a operation should
      * be valid without any explicit CAST
      */
-    public abstract Type getCombinedType(Type other,
-                                         int operation) throws HsqlException;
+    public abstract Type getCombinedType(Type other, int operation);
 
     public int compareToTypeRange(Object o) {
         return 0;
@@ -398,34 +393,31 @@ public abstract class Type implements SchemaObject, Cloneable {
     /**
      * All arithmetic ops are called on the pre-determined Type object of the result
      */
-    public Object absolute(Object a) throws HsqlException {
+    public Object absolute(Object a) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object negate(Object a) throws HsqlException {
+    public Object negate(Object a) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object add(Object a, Object b,
-                      Type otherType) throws HsqlException {
+    public Object add(Object a, Object b, Type otherType) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object subtract(Object a, Object b,
-                           Type otherType) throws HsqlException {
+    public Object subtract(Object a, Object b, Type otherType) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object multiply(Object a, Object b) throws HsqlException {
+    public Object multiply(Object a, Object b) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object divide(Object a, Object b) throws HsqlException {
+    public Object divide(Object a, Object b) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
-    public Object concat(Session session, Object a,
-                         Object b) throws HsqlException {
+    public Object concat(Session session, Object a, Object b) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
     }
 
@@ -808,7 +800,7 @@ public abstract class Type implements SchemaObject, Cloneable {
      * Enforces precision and scale limits on type
      */
     public static Type getType(int type, int collation, long precision,
-                               int scale) throws HsqlException {
+                               int scale) {
 
         switch (type) {
 
@@ -894,8 +886,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         }
     }
 
-    public static Type getAggregateType(Type add,
-                                        Type existing) throws HsqlException {
+    public static Type getAggregateType(Type add, Type existing) {
 
         if (existing == null || existing.typeCode == Types.SQL_ALL_TYPES) {
             return add;

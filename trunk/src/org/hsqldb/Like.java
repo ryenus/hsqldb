@@ -147,7 +147,7 @@ class Like {
                         : sb.toString();
     }
 
-    Boolean compare(Session session, Object o) throws HsqlException {
+    Boolean compare(Session session, Object o) {
 
         if (o == null) {
             return null;
@@ -162,7 +162,7 @@ class Like {
         }
 
         return compareAt(o, 0, 0, getLength(session, o, "")) ? Boolean.TRUE
-                                                : Boolean.FALSE;
+                                                             : Boolean.FALSE;
     }
 
     char getChar(Object o, int i) {
@@ -234,7 +234,7 @@ class Like {
     }
 
     void setPattern(Session session, Object pattern, Object escape,
-                    boolean hasEscape) throws HsqlException {
+                    boolean hasEscape) {
 
         isNull = pattern == null;
 
@@ -375,7 +375,7 @@ class Like {
         return getStartsWith();
     }
 
-    Object getRangeHigh(Session session) throws HsqlException {
+    Object getRangeHigh(Session session) {
 
         Object o = getStartsWith();
 

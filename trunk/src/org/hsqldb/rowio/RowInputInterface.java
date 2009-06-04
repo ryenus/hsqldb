@@ -33,7 +33,6 @@ package org.hsqldb.rowio;
 
 import java.io.IOException;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.types.Type;
 
 /**
@@ -60,7 +59,7 @@ public interface RowInputInterface {
 
     long readLong() throws IOException;
 
-    Object[] readData(Type[] colTypes) throws IOException, HsqlException;
+    Object[] readData(Type[] colTypes) throws IOException;
 
     void resetRow(int filePos, int size) throws IOException;
 

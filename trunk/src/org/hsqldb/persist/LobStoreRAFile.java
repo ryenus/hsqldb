@@ -36,7 +36,6 @@ import java.io.RandomAccessFile;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.lib.HsqlArrayList;
 
 /**
@@ -51,8 +50,7 @@ public class LobStoreRAFile implements LobStore {
     RandomAccessFile file;
     Database         database;
 
-    public LobStoreRAFile(Database database,
-                          int lobBlockSize) throws HsqlException {
+    public LobStoreRAFile(Database database, int lobBlockSize) {
 
         this.lobBlockSize = lobBlockSize;
         this.database     = database;
@@ -69,7 +67,7 @@ public class LobStoreRAFile implements LobStore {
         }
     }
 
-    private void openFile() throws HsqlException {
+    private void openFile() {
 
         try {
             String  name     = database.getPath() + ".lobs";
@@ -82,8 +80,7 @@ public class LobStoreRAFile implements LobStore {
         }
     }
 
-    public byte[] getBlockBytes(int blockAddress,
-                                int blockCount) throws HsqlException {
+    public byte[] getBlockBytes(int blockAddress, int blockCount) {
 
         if (file == null) {
             throw Error.error(ErrorCode.FILE_IO_ERROR);
@@ -104,7 +101,7 @@ public class LobStoreRAFile implements LobStore {
     }
 
     public void setBlockBytes(byte[] dataBytes, int blockAddress,
-                              int blockCount) throws HsqlException {
+                              int blockCount) {
 
         if (file == null) {
             openFile();
@@ -121,7 +118,7 @@ public class LobStoreRAFile implements LobStore {
         }
     }
 
-    public void close() throws HsqlException {
+    public void close() {
 
         try {
             if (file != null) {

@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.store.ValuePool;
@@ -114,24 +113,23 @@ implements org.hsqldb.rowio.RowInputInterface {
         return readString();
     }
 
-    protected Integer readSmallint() throws IOException, HsqlException {
+    protected Integer readSmallint() throws IOException {
         return ValuePool.getInt(readShort());
     }
 
-    protected Integer readInteger() throws IOException, HsqlException {
+    protected Integer readInteger() throws IOException {
         return ValuePool.getInt(readInt());
     }
 
-    protected Long readBigint() throws IOException, HsqlException {
+    protected Long readBigint() throws IOException {
         return ValuePool.getLong(readLong());
     }
 
-    protected Double readReal() throws IOException, HsqlException {
+    protected Double readReal() throws IOException {
         return ValuePool.getDouble(readLong());
     }
 
-    protected BigDecimal readDecimal(Type type)
-    throws IOException, HsqlException {
+    protected BigDecimal readDecimal(Type type) throws IOException {
 
         byte[]     bytes  = readByteArray();
         int        scale  = readInt();
@@ -140,12 +138,12 @@ implements org.hsqldb.rowio.RowInputInterface {
         return ValuePool.getBigDecimal(new BigDecimal(bigint, scale));
     }
 
-    protected Boolean readBoole() throws IOException, HsqlException {
+    protected Boolean readBoole() throws IOException {
         return readBoolean() ? Boolean.TRUE
                              : Boolean.FALSE;
     }
 
-    protected TimeData readTime(Type type) throws IOException, HsqlException {
+    protected TimeData readTime(Type type) throws IOException {
 
         if (type.typeCode == Types.SQL_TIME) {
             return new TimeData(readInt(), readInt(), 0);
@@ -154,16 +152,14 @@ implements org.hsqldb.rowio.RowInputInterface {
         }
     }
 
-    protected TimestampData readDate(Type type)
-    throws IOException, HsqlException {
+    protected TimestampData readDate(Type type) throws IOException {
 
         long date = readLong();
 
         return new TimestampData(date);
     }
 
-    protected TimestampData readTimestamp(Type type)
-    throws IOException, HsqlException {
+    protected TimestampData readTimestamp(Type type) throws IOException {
 
         if (type.typeCode == Types.SQL_TIMESTAMP) {
             return new TimestampData(readLong(), readInt());
@@ -173,7 +169,7 @@ implements org.hsqldb.rowio.RowInputInterface {
     }
 
     protected IntervalMonthData readYearMonthInterval(Type type)
-    throws IOException, HsqlException {
+    throws IOException {
 
         long months = readLong();
 
@@ -181,7 +177,7 @@ implements org.hsqldb.rowio.RowInputInterface {
     }
 
     protected IntervalSecondData readDaySecondInterval(Type type)
-    throws IOException, HsqlException {
+    throws IOException {
 
         long seconds = readLong();
         int  nanos   = readInt();
@@ -189,11 +185,11 @@ implements org.hsqldb.rowio.RowInputInterface {
         return new IntervalSecondData(seconds, nanos, (IntervalType) type);
     }
 
-    protected Object readOther() throws IOException, HsqlException {
+    protected Object readOther() throws IOException {
         return new JavaObjectData(readByteArray());
     }
 
-    protected BinaryData readBit() throws IOException, HsqlException {
+    protected BinaryData readBit() throws IOException {
 
         int    length = readInt();
         byte[] b      = new byte[(length + 7) / 8];
@@ -203,19 +199,21 @@ implements org.hsqldb.rowio.RowInputInterface {
         return new BinaryData(b, length);
     }
 
-    protected BinaryData readBinary() throws IOException, HsqlException {
+    protected BinaryData readBinary() throws IOException {
         return new BinaryData(readByteArray(), false);
     }
 
-    protected ClobData readClob() throws IOException, HsqlException {
+    protected ClobData readClob() throws IOException {
 
-        long id     = super.readLong();
+        long id = super.readLong();
+
         return new ClobDataID(id);
     }
 
-    protected BlobData readBlob() throws IOException, HsqlException {
+    protected BlobData readBlob() throws IOException {
 
-        long id     = super.readLong();
+        long id = super.readLong();
+
         return new BlobDataID(id);
     }
 

@@ -49,16 +49,16 @@ import org.hsqldb.SessionInterface;
  */
 public class BlobInputStream extends InputStream {
 
-    final BlobData blob;
-    final long     availableLength;
-    long           bufferOffset;
-    long           currentPosition;
-    byte[]         buffer;
-    boolean        isClosed;
+    final BlobData   blob;
+    final long       availableLength;
+    long             bufferOffset;
+    long             currentPosition;
+    byte[]           buffer;
+    boolean          isClosed;
     SessionInterface session;
 
-    public BlobInputStream(SessionInterface session, BlobData blob, long offset,
-                           long length) throws HsqlException {
+    public BlobInputStream(SessionInterface session, BlobData blob,
+                           long offset, long length) {
 
         if (!isInLimits(blob.length(session), offset, length)) {
             throw new IndexOutOfBoundsException();
@@ -115,14 +115,14 @@ public class BlobInputStream extends InputStream {
         isClosed = true;
     }
 
-    private void checkClosed() throws HsqlException {
+    private void checkClosed() {
 
         if (isClosed || blob.isClosed()) {
             throw Error.error(ErrorCode.X_0F503);
         }
     }
 
-    private void readIntoBuffer() throws HsqlException {
+    private void readIntoBuffer() {
 
         long readLength = availableLength - currentPosition;
 
@@ -132,7 +132,7 @@ public class BlobInputStream extends InputStream {
             readLength = session.getStreamBlockSize();
         }
 
-        buffer       = blob.getBytes(session, currentPosition, (int) readLength);
+        buffer = blob.getBytes(session, currentPosition, (int) readLength);
         bufferOffset = currentPosition;
     }
 

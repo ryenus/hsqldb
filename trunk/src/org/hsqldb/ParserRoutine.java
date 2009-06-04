@@ -57,7 +57,7 @@ public class ParserRoutine extends ParserDML {
     /*
      for datetime, the default must have the same fields
      */
-    Expression readDefaultClause(Type dataType) throws HsqlException {
+    Expression readDefaultClause(Type dataType) {
 
         Expression e     = null;
         boolean    minus = false;
@@ -168,8 +168,7 @@ public class ParserRoutine extends ParserDML {
     /**
      * Creates SET Statement for PSM from this parse context.
      */
-    StatementSimple compileSetStatement(RangeVariable rangeVars[])
-    throws HsqlException {
+    StatementSimple compileSetStatement(RangeVariable rangeVars[]) {
 
         read();
 
@@ -232,7 +231,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     // SQL-invoked routine
-    StatementSchema compileCreateProcedureOrFunction() throws HsqlException {
+    StatementSchema compileCreateProcedureOrFunction() {
 
         int routineType = token.tokenType == Tokens.PROCEDURE
                           ? SchemaObject.PROCEDURE
@@ -341,8 +340,7 @@ public class ParserRoutine extends ParserDML {
         return cs;
     }
 
-    private void readRoutineCharacteristics(Routine routine)
-    throws HsqlException {
+    private void readRoutineCharacteristics(Routine routine) {
 
         OrderedIntHashSet set = new OrderedIntHashSet();
         boolean           end = false;
@@ -565,7 +563,7 @@ public class ParserRoutine extends ParserDML {
 
 */
     private Object[] readLocalDeclarationList(Routine routine,
-            StatementCompound context) throws HsqlException {
+            StatementCompound context) {
 
         HsqlArrayList list = new HsqlArrayList();
 
@@ -586,7 +584,7 @@ public class ParserRoutine extends ParserDML {
         return declarations;
     }
 
-    ColumnSchema readLocalVariableDeclarationOrNull() throws HsqlException {
+    ColumnSchema readLocalVariableDeclarationOrNull() {
 
         int position = super.getPosition();
 
@@ -618,7 +616,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private StatementHandler readLocalHandlerDeclaration(Routine routine,
-            StatementCompound context) throws HsqlException {
+            StatementCompound context) {
 
         int handlerType;
 
@@ -738,7 +736,7 @@ public class ParserRoutine extends ParserDML {
         return handler;
     }
 
-    String parseSQLStateValue() throws HsqlException {
+    String parseSQLStateValue() {
 
         readIfThis(Tokens.VALUE);
         checkIsValue(Types.SQL_CHAR);
@@ -755,7 +753,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement readCompoundStatement(Routine routine,
-            StatementCompound context, HsqlName label) throws HsqlException {
+            StatementCompound context, HsqlName label) {
 
         final boolean atomic = true;
 
@@ -795,7 +793,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement[] readSQLProcedureStatementList(Routine routine,
-            StatementCompound context) throws HsqlException {
+            StatementCompound context) {
 
         Statement e = readSQLProcedureStatementOrNull(routine, context);
 
@@ -828,7 +826,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement readSQLProcedureStatementOrNull(Routine routine,
-            StatementCompound context) throws HsqlException {
+            StatementCompound context) {
 
         Statement cs    = null;
         HsqlName  label = null;
@@ -976,8 +974,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement readReturnValue(Routine routine,
-                                      StatementCompound context)
-                                      throws HsqlException {
+                                      StatementCompound context) {
 
         Expression e = XreadValueExpressionOrNull();
 
@@ -1004,8 +1001,7 @@ public class ParserRoutine extends ParserDML {
         return new StatementSimple(StatementTypes.RETURN, e);
     }
 
-    private Statement readSelectSingleRowStatement(RangeVariable[] rangeVars)
-    throws HsqlException {
+    private Statement readSelectSingleRowStatement(RangeVariable[] rangeVars) {
 
         OrderedHashSet     variableNames = new OrderedHashSet();
         QuerySpecification select        = XreadSelect();
@@ -1024,7 +1020,7 @@ public class ParserRoutine extends ParserDML {
         return statement;
     }
 
-    private Statement readIterate() throws HsqlException {
+    private Statement readIterate() {
 
         readThis(Tokens.ITERATE);
 
@@ -1033,9 +1029,7 @@ public class ParserRoutine extends ParserDML {
         return new StatementSimple(StatementTypes.ITERATE, label);
     }
 
-    private Statement readLeave(Routine routine,
-                                StatementCompound context)
-                                throws HsqlException {
+    private Statement readLeave(Routine routine, StatementCompound context) {
 
         readThis(Tokens.LEAVE);
 
@@ -1045,7 +1039,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement readWhile(Routine routine, StatementCompound context,
-                                HsqlName label) throws HsqlException {
+                                HsqlName label) {
 
         readThis(Tokens.WHILE);
 
@@ -1083,7 +1077,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement readRepeat(Routine routine, StatementCompound context,
-                                 HsqlName label) throws HsqlException {
+                                 HsqlName label) {
 
         readThis(Tokens.REPEAT);
 
@@ -1121,7 +1115,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement readLoop(Routine routine, StatementCompound context,
-                               HsqlName label) throws HsqlException {
+                               HsqlName label) {
 
         readThis(Tokens.LOOP);
 
@@ -1152,7 +1146,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement readFor(Routine routine, StatementCompound context,
-                              HsqlName label) throws HsqlException {
+                              HsqlName label) {
 
         readThis(Tokens.FOR);
 
@@ -1187,8 +1181,7 @@ public class ParserRoutine extends ParserDML {
         return result;
     }
 
-    private Statement readIf(Routine routine,
-                             StatementCompound context) throws HsqlException {
+    private Statement readIf(Routine routine, StatementCompound context) {
 
         HsqlArrayList list = new HsqlArrayList();
         RangeVariable[] rangeVariables = context == null
@@ -1279,9 +1272,7 @@ public class ParserRoutine extends ParserDML {
         return result;
     }
 
-    private Statement readCase(Routine routine,
-                               StatementCompound context)
-                               throws HsqlException {
+    private Statement readCase(Routine routine, StatementCompound context) {
 
         HsqlArrayList list      = new HsqlArrayList();
         Expression    condition = null;
@@ -1328,7 +1319,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private HsqlArrayList readSimpleCaseWhen(Routine routine,
-            StatementCompound context) throws HsqlException {
+            StatementCompound context) {
 
         HsqlArrayList list = new HsqlArrayList();
         RangeVariable[] rangeVariables = context == null
@@ -1397,8 +1388,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private HsqlArrayList readCaseWhen(Routine routine,
-                                       StatementCompound context)
-                                       throws HsqlException {
+                                       StatementCompound context) {
 
         HsqlArrayList list = new HsqlArrayList();
         RangeVariable[] rangeVariables = context == null
@@ -1443,7 +1433,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement readSignal(Routine routine, StatementCompound context,
-                                 HsqlName label) throws HsqlException {
+                                 HsqlName label) {
 
         readThis(Tokens.SIGNAL);
         readThis(Tokens.SQLSTATE);
@@ -1456,7 +1446,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement readResignal(Routine routine, StatementCompound context,
-                                   HsqlName label) throws HsqlException {
+                                   HsqlName label) {
 
         String sqlState = null;
 
@@ -1472,8 +1462,7 @@ public class ParserRoutine extends ParserDML {
         return cs;
     }
 
-    private ColumnSchema readRoutineParameter(Routine routine)
-    throws HsqlException {
+    private ColumnSchema readRoutineParameter(Routine routine) {
 
         HsqlName hsqlName      = null;
         byte     parameterMode = SchemaObject.ParameterModes.PARAM_IN;

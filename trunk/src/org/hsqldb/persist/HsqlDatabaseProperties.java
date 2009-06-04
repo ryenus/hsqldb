@@ -37,7 +37,6 @@ import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
@@ -442,7 +441,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
      * Creates file with defaults if it didn't exist.
      * Returns false if file already existed.
      */
-    public boolean load() throws HsqlException {
+    public boolean load() {
 
         boolean exists;
 
@@ -510,7 +509,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         database.setMetaDirty(false);
     }
 
-    public void save() throws HsqlException {
+    public void save() {
 
         if (!DatabaseURL.isFileBasedDatabaseType(database.getType())
                 || database.isFilesReadOnly() || database.isFilesInJar()) {
@@ -616,8 +615,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                && ((Integer) row[indexType]).intValue() == SET_PROPERTY;
     }
 
-    public String setDatabaseProperty(String key,
-                                      String value) throws HsqlException {
+    public String setDatabaseProperty(String key, String value) {
 
         Object[] row = (Object[]) meta.get(key);
 
@@ -653,7 +651,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     }
 
 //------------------------
-    public void setDBModified(int mode) throws HsqlException {
+    public void setDBModified(int mode) {
 
         String value = MODIFIED_NO;
 
@@ -667,7 +665,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         save();
     }
 
-    public int getDBModified() throws HsqlException {
+    public int getDBModified() {
 
         String value = getProperty("modified");
 

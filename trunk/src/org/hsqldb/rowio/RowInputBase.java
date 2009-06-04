@@ -102,48 +102,43 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
 // fredt@users - comment - methods used for SQL types
     protected abstract boolean checkNull() throws IOException;
 
-    protected abstract String readChar(Type type)
-    throws IOException, HsqlException;
+    protected abstract String readChar(Type type) throws IOException;
 
-    protected abstract Integer readSmallint()
-    throws IOException, HsqlException;
+    protected abstract Integer readSmallint() throws IOException;
 
-    protected abstract Integer readInteger() throws IOException, HsqlException;
+    protected abstract Integer readInteger() throws IOException;
 
-    protected abstract Long readBigint() throws IOException, HsqlException;
+    protected abstract Long readBigint() throws IOException;
 
-    protected abstract Double readReal() throws IOException, HsqlException;
+    protected abstract Double readReal() throws IOException;
 
-    protected abstract BigDecimal readDecimal(Type type)
-    throws IOException, HsqlException;
+    protected abstract BigDecimal readDecimal(Type type) throws IOException;
 
-    protected abstract Boolean readBoole() throws IOException, HsqlException;
+    protected abstract Boolean readBoole() throws IOException;
 
-    protected abstract TimeData readTime(Type type)
-    throws IOException, HsqlException;
+    protected abstract TimeData readTime(Type type) throws IOException;
 
-    protected abstract TimestampData readDate(Type type)
-    throws IOException, HsqlException;
+    protected abstract TimestampData readDate(Type type) throws IOException;
 
     protected abstract TimestampData readTimestamp(Type type)
-    throws IOException, HsqlException;
+    throws IOException;
 
     protected abstract IntervalMonthData readYearMonthInterval(Type type)
-    throws IOException, HsqlException;
+    throws IOException;
 
     protected abstract IntervalSecondData readDaySecondInterval(Type type)
-    throws IOException, HsqlException;
+    throws IOException;
 
-    protected abstract Object readOther() throws IOException, HsqlException;
+    protected abstract Object readOther() throws IOException;
 
     protected abstract BinaryData readBinary()
     throws IOException, HsqlException;
 
-    protected abstract BinaryData readBit() throws IOException, HsqlException;
+    protected abstract BinaryData readBit() throws IOException;
 
-    protected abstract ClobData readClob() throws IOException, HsqlException;
+    protected abstract ClobData readClob() throws IOException;
 
-    protected abstract BlobData readBlob() throws IOException, HsqlException;
+    protected abstract BlobData readBlob() throws IOException;
 
     /**
      *  reads row data from a stream using the JDBC types in colTypes
@@ -263,9 +258,9 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                     break;
 
                 default :
-                    throw Error.runtimeError(
-                        ErrorCode.U_S0500,
-                        "RowInputBase " + type.getNameString());
+                    throw Error.runtimeError(ErrorCode.U_S0500,
+                                             "RowInputBase "
+                                             + type.getNameString());
             }
 
             data[i] = o;
@@ -303,12 +298,10 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     }
 
     public int skipBytes(int n) throws IOException {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "RowInputBase");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowInputBase");
     }
 
     public String readLine() throws IOException {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "RowInputBase");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowInputBase");
     }
 }

@@ -33,15 +33,14 @@ package org.hsqldb.types;
 
 import org.hsqldb.Constraint;
 import org.hsqldb.Expression;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
+import org.hsqldb.Tokens;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
-import org.hsqldb.Tokens;
-import org.hsqldb.SchemaObject;
 
 /**
  * Class for DOMAIN and DISTINCT objects.<p>
@@ -187,7 +186,7 @@ public class UserTypeModifier {
         return set;
     }
 
-    public void compile(Session session) throws HsqlException {
+    public void compile(Session session) {
 
         for (int i = 0; i < constraints.length; i++) {
             constraints[i].compile(session);

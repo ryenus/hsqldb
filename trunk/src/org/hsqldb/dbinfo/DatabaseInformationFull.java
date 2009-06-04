@@ -111,9 +111,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * Constructs a new DatabaseInformationFull instance. <p>
      *
      * @param db the database for which to produce system tables.
-     * @throws HsqlException if a database access error occurs.
      */
-    DatabaseInformationFull(Database db) throws HsqlException {
+    DatabaseInformationFull(Database db) {
         super(db);
     }
 
@@ -121,10 +120,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * Retrieves the system table corresponding to the specified index. <p>
      *
      * @param tableIndex index identifying the system table to generate
-     * @throws HsqlException if a database access error occurs
      * @return the system table corresponding to the specified index
      */
-    protected Table generateTable(int tableIndex) throws HsqlException {
+    protected Table generateTable(int tableIndex) {
 
         switch (tableIndex) {
 
@@ -376,9 +374,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return a description of the current state of all row caching
      *      objects associated with the accessible tables of the database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_CACHEINFO() throws HsqlException {
+    Table SYSTEM_CACHEINFO() {
 
         Table t = sysTables[SYSTEM_CACHEINFO];
 
@@ -522,9 +519,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return table describing database and session operating parameters
      *      and capabilities
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_PROPERTIES() throws HsqlException {
+    Table SYSTEM_PROPERTIES() {
 
         Table t = sysTables[SYSTEM_PROPERTIES];
 
@@ -668,9 +664,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * @return a <code>Table</code> object describing the
      *        attributes of the connection associated
      *        with the current execution context
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_SESSIONINFO() throws HsqlException {
+    Table SYSTEM_SESSIONINFO() {
 
         Table t = sysTables[SYSTEM_SESSIONINFO];
 
@@ -775,9 +770,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return a <code>Table</code> object describing all visible
      *      sessions
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_SESSIONS() throws HsqlException {
+    Table SYSTEM_SESSIONS() {
 
         Table t = sysTables[SYSTEM_SESSIONS];
 
@@ -879,10 +873,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return a <code>Table</code> object describing the text attributes
      * of the accessible text tables defined within this database
-     * @throws HsqlException if an error occurs while producing the table
      *
      */
-    Table SYSTEM_TEXTTABLES() throws HsqlException {
+    Table SYSTEM_TEXTTABLES() {
 
         Table t = sysTables[SYSTEM_TEXTTABLES];
 
@@ -1017,9 +1010,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * @return a <code>Table</code> object describing the accessible
      *      user-defined types defined in this database
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_UDTS() throws HsqlException {
+    Table SYSTEM_UDTS() {
 
         Table t = sysTables[SYSTEM_UDTS];
 
@@ -1082,9 +1074,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * @return a <code>Table</code> object describing the columns
      *        that are automatically updated when any value
      *        in a row is updated
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table SYSTEM_VERSIONCOLUMNS() throws HsqlException {
+    Table SYSTEM_VERSIONCOLUMNS() {
 
         Table t = sysTables[SYSTEM_VERSIONCOLUMNS];
 
@@ -1130,10 +1121,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * Returns roles that are grantable by an admin user, which means all the
      * roles
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table ADMINISTRABLE_ROLE_AUTHORIZATIONS() throws HsqlException {
+    Table ADMINISTRABLE_ROLE_AUTHORIZATIONS() {
 
         Table t = sysTables[ADMINISTRABLE_ROLE_AUTHORIZATIONS];
 
@@ -1189,7 +1179,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *    TO PUBLIC WITH GRANT OPTION;
      * </pre>
      */
-    Table APPLICABLE_ROLES() throws HsqlException {
+    Table APPLICABLE_ROLES() {
 
         Table t = sysTables[APPLICABLE_ROLES];
 
@@ -1216,8 +1206,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    private void insertRoles(Table t, Grantee role,
-                             boolean isGrantable) throws HsqlException {
+    private void insertRoles(Table t, Grantee role, boolean isGrantable) {
 
         final int       grantee      = 0;
         final int       role_name    = 1;
@@ -1258,7 +1247,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
     }
 
-    Table ASSERTIONS() throws HsqlException {
+    Table ASSERTIONS() {
 
         Table t = sysTables[ASSERTIONS];
 
@@ -1336,10 +1325,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *  </table> <p>
      *  </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table AUTHORIZATIONS() throws HsqlException {
+    Table AUTHORIZATIONS() {
 
         Table t = sysTables[AUTHORIZATIONS];
 
@@ -1383,7 +1371,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table CHARACTER_SETS() throws HsqlException {
+    Table CHARACTER_SETS() {
 
         Table t = sysTables[CHARACTER_SETS];
 
@@ -1497,10 +1485,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table CHECK_CONSTRAINT_ROUTINE_USAGE() throws HsqlException {
+    Table CHECK_CONSTRAINT_ROUTINE_USAGE() {
 
         Table t = sysTables[CHECK_CONSTRAINT_ROUTINE_USAGE];
 
@@ -1678,10 +1665,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      </table>
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table CHECK_CONSTRAINTS() throws HsqlException {
+    Table CHECK_CONSTRAINTS() {
 
         Table t = sysTables[CHECK_CONSTRAINTS];
 
@@ -1836,10 +1822,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      </table> <p>
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table COLLATIONS() throws HsqlException {
+    Table COLLATIONS() {
 
         Table t = sysTables[COLLATIONS];
 
@@ -1898,10 +1883,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * For generated columns
      * <p>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table COLUMN_COLUMN_USAGE() throws HsqlException {
+    Table COLUMN_COLUMN_USAGE() {
 
         Table t = sysTables[COLUMN_COLUMN_USAGE];
 
@@ -1940,10 +1924,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * <p>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table COLUMN_DOMAIN_USAGE() throws HsqlException {
+    Table COLUMN_DOMAIN_USAGE() {
 
         Table t = sysTables[COLUMN_DOMAIN_USAGE];
 
@@ -1989,10 +1972,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * <p>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table COLUMN_UDT_USAGE() throws HsqlException {
+    Table COLUMN_UDT_USAGE() {
 
         Table t = sysTables[COLUMN_UDT_USAGE];
 
@@ -2032,7 +2014,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table COLUMNS() throws HsqlException {
+    Table COLUMNS() {
 
         Table t = sysTables[COLUMNS];
 
@@ -2332,10 +2314,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table CONSTRAINT_COLUMN_USAGE() throws HsqlException {
+    Table CONSTRAINT_COLUMN_USAGE() {
 
         Table t = sysTables[CONSTRAINT_COLUMN_USAGE];
 
@@ -2548,10 +2529,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      its columns.
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table CONSTRAINT_TABLE_USAGE() throws HsqlException {
+    Table CONSTRAINT_TABLE_USAGE() {
 
         Table t = sysTables[CONSTRAINT_TABLE_USAGE];
 
@@ -2592,7 +2572,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table DATA_TYPE_PRIVILEGES() throws HsqlException {
+    Table DATA_TYPE_PRIVILEGES() {
 
         Table t = sysTables[DATA_TYPE_PRIVILEGES];
 
@@ -2623,7 +2603,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * a DEFINITION_SCHEMA table. Not in the INFORMATION_SCHEMA list
      */
 /*
-    Table DATA_TYPE_DESCRIPTOR() throws HsqlException {
+    Table DATA_TYPE_DESCRIPTOR() {
 
         Table t = sysTables[DATA_TYPE_DESCRIPTOR];
 
@@ -2674,10 +2654,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
     /**
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table DOMAIN_CONSTRAINTS() throws HsqlException {
+    Table DOMAIN_CONSTRAINTS() {
 
         Table t = sysTables[DOMAIN_CONSTRAINTS];
 
@@ -2757,10 +2736,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *
      * </pre>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table DOMAINS() throws HsqlException {
+    Table DOMAINS() {
 
         Table t = sysTables[DOMAINS];
 
@@ -2925,7 +2903,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *    TO PUBLIC WITH GRANT OPTION;
      * </pre>
      */
-    Table ENABLED_ROLES() throws HsqlException {
+    Table ENABLED_ROLES() {
 
         Table t = sysTables[ENABLED_ROLES];
 
@@ -2996,9 +2974,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * @return a <code>Table</code> object describing the visible
      *        primary key and unique columns of each accessible table
      *        defined within this database.
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table KEY_COLUMN_USAGE() throws HsqlException {
+    Table KEY_COLUMN_USAGE() {
 
         Table t = sysTables[KEY_COLUMN_USAGE];
 
@@ -3148,10 +3125,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * REFERENCES or TRIGGER.
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table REFERENTIAL_CONSTRAINTS() throws HsqlException {
+    Table REFERENTIAL_CONSTRAINTS() {
 
         Table t = sysTables[REFERENTIAL_CONSTRAINTS];
 
@@ -3244,7 +3220,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_COLUMN_GRANTS() throws HsqlException {
+    Table ROLE_COLUMN_GRANTS() {
 
         Table t = sysTables[ROLE_COLUMN_GRANTS];
 
@@ -3288,7 +3264,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_ROUTINE_GRANTS() throws HsqlException {
+    Table ROLE_ROUTINE_GRANTS() {
 
         Table t = sysTables[ROLE_ROUTINE_GRANTS];
 
@@ -3337,7 +3313,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_TABLE_GRANTS() throws HsqlException {
+    Table ROLE_TABLE_GRANTS() {
 
         Table t = sysTables[ROLE_TABLE_GRANTS];
 
@@ -3381,7 +3357,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_UDT_GRANTS() throws HsqlException {
+    Table ROLE_UDT_GRANTS() {
 
         Table t = sysTables[ROLE_UDT_GRANTS];
 
@@ -3419,7 +3395,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table ROLE_USAGE_GRANTS() throws HsqlException {
+    Table ROLE_USAGE_GRANTS() {
 
         Table t = sysTables[ROLE_USAGE_GRANTS];
 
@@ -3540,10 +3516,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *         </ul>
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table SCHEMATA() throws HsqlException {
+    Table SCHEMATA() {
 
         Table t = sysTables[SCHEMATA];
 
@@ -3618,7 +3593,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_FEATURES() throws HsqlException {
+    Table SQL_FEATURES() {
 
         Table t = sysTables[SQL_FEATURES];
 
@@ -4108,7 +4083,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_IMPLEMENTATION_INFO() throws HsqlException {
+    Table SQL_IMPLEMENTATION_INFO() {
 
         Table t = sysTables[SQL_IMPLEMENTATION_INFO];
 
@@ -4144,7 +4119,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_PACKAGES() throws HsqlException {
+    Table SQL_PACKAGES() {
 
         Table t = sysTables[SQL_PACKAGES];
 
@@ -4184,7 +4159,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_PARTS() throws HsqlException {
+    Table SQL_PARTS() {
 
         Table t = sysTables[SQL_PARTS];
 
@@ -4225,7 +4200,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_SIZING() throws HsqlException {
+    Table SQL_SIZING() {
 
         Table t = sysTables[SQL_SIZING];
 
@@ -4278,7 +4253,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table SQL_SIZING_PROFILES() throws HsqlException {
+    Table SQL_SIZING_PROFILES() {
 
         Table t = sysTables[SQL_SIZING_PROFILES];
 
@@ -4416,10 +4391,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *  </table> <p>
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table TABLE_CONSTRAINTS() throws HsqlException {
+    Table TABLE_CONSTRAINTS() {
 
         Table t = sysTables[TABLE_CONSTRAINTS];
 
@@ -4540,7 +4514,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRANSLATIONS() throws HsqlException {
+    Table TRANSLATIONS() {
 
         Table t = sysTables[TRANSLATIONS];
 
@@ -4574,7 +4548,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGER_COLUMN_USAGE() throws HsqlException {
+    Table TRIGGER_COLUMN_USAGE() {
 
         Table t = sysTables[TRIGGER_COLUMN_USAGE];
 
@@ -4639,7 +4613,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGER_ROUTINE_USAGE() throws HsqlException {
+    Table TRIGGER_ROUTINE_USAGE() {
 
         Table t = sysTables[TRIGGER_ROUTINE_USAGE];
 
@@ -4701,7 +4675,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGER_SEQUENCE_USAGE() throws HsqlException {
+    Table TRIGGER_SEQUENCE_USAGE() {
 
         Table t = sysTables[TRIGGER_SEQUENCE_USAGE];
 
@@ -4763,7 +4737,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGER_TABLE_USAGE() throws HsqlException {
+    Table TRIGGER_TABLE_USAGE() {
 
         Table t = sysTables[TRIGGER_TABLE_USAGE];
 
@@ -4825,7 +4799,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGERS() throws HsqlException {
+    Table TRIGGERS() {
 
         Table t = sysTables[TRIGGERS];
 
@@ -4921,7 +4895,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table TRIGGERED_UPDATE_COLUMNS() throws HsqlException {
+    Table TRIGGERED_UPDATE_COLUMNS() {
 
         Table t = sysTables[TRIGGERED_UPDATE_COLUMNS];
 
@@ -5087,10 +5061,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      </table> <p>
      * <ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table USAGE_PRIVILEGES() throws HsqlException {
+    Table USAGE_PRIVILEGES() {
 
         Table t = sysTables[USAGE_PRIVILEGES];
 
@@ -5199,7 +5172,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
-    Table USER_DEFINED_TYPES() throws HsqlException {
+    Table USER_DEFINED_TYPES() {
 
         Table t = sysTables[USER_DEFINED_TYPES];
 
@@ -5392,10 +5365,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      &lt;query expression&gt; of the view being described.
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table VIEW_COLUMN_USAGE() throws HsqlException {
+    Table VIEW_COLUMN_USAGE() {
 
         Table t = sysTables[VIEW_COLUMN_USAGE];
 
@@ -5527,10 +5499,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      respectively, of the specific name of R. <p>
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table VIEW_ROUTINE_USAGE() throws HsqlException {
+    Table VIEW_ROUTINE_USAGE() {
 
         Table t = sysTables[VIEW_ROUTINE_USAGE];
 
@@ -5689,10 +5660,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      the &lt;query expression&gt; of the view being described.
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table VIEW_TABLE_USAGE() throws HsqlException {
+    Table VIEW_TABLE_USAGE() {
 
         Table t = sysTables[VIEW_TABLE_USAGE];
 
@@ -5759,9 +5729,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * @return a tabular description of the text source of all
      *        <code>View</code> objects accessible to
      *        the user.
-     * @throws HsqlException if an error occurs while producing the table
      */
-    Table VIEWS() throws HsqlException {
+    Table VIEWS() {
 
         Table t = sysTables[VIEWS];
 
@@ -5928,10 +5897,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      </table> <p>
      * </ol>
      *
-     * @throws HsqlException
      * @return Table
      */
-    Table ROLE_AUTHORIZATION_DESCRIPTORS() throws HsqlException {
+    Table ROLE_AUTHORIZATION_DESCRIPTORS() {
 
         Table t = sysTables[ROLE_AUTHORIZATION_DESCRIPTORS];
 

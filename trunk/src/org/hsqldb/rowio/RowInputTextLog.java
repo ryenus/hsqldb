@@ -78,7 +78,7 @@ implements RowInputInterface {
         scanner = new Scanner();
     }
 
-    public void setSource(String text) throws HsqlException {
+    public void setSource(String text) {
 
         scanner.reset(text);
 
@@ -204,21 +204,21 @@ implements RowInputInterface {
         return (String) value;
     }
 
-    protected Integer readSmallint() throws IOException, HsqlException {
+    protected Integer readSmallint() throws IOException {
 
         readNumberField(Type.SQL_SMALLINT);
 
         return (Integer) value;
     }
 
-    protected Integer readInteger() throws IOException, HsqlException {
+    protected Integer readInteger() throws IOException {
 
         readNumberField(Type.SQL_INTEGER);
 
         return (Integer) value;
     }
 
-    protected Long readBigint() throws IOException, HsqlException {
+    protected Long readBigint() throws IOException {
 
         readNumberField(Type.SQL_BIGINT);
 
@@ -229,7 +229,7 @@ implements RowInputInterface {
         return ValuePool.getLong(((Number) value).longValue());
     }
 
-    protected Double readReal() throws IOException, HsqlException {
+    protected Double readReal() throws IOException {
 
         readNumberField(Type.SQL_DOUBLE);
 
@@ -256,8 +256,7 @@ implements RowInputInterface {
         return (Double) value;
     }
 
-    protected BigDecimal readDecimal(Type type)
-    throws IOException, HsqlException {
+    protected BigDecimal readDecimal(Type type) throws IOException {
 
         readNumberField(type);
 
@@ -268,7 +267,7 @@ implements RowInputInterface {
         return (BigDecimal) type.convertToDefaultType(null, value);
     }
 
-    protected TimeData readTime(Type type) throws IOException, HsqlException {
+    protected TimeData readTime(Type type) throws IOException {
 
         readField();
 
@@ -279,8 +278,7 @@ implements RowInputInterface {
         return scanner.newTime((String) value);
     }
 
-    protected TimestampData readDate(Type type)
-    throws IOException, HsqlException {
+    protected TimestampData readDate(Type type) throws IOException {
 
         readField();
 
@@ -291,8 +289,7 @@ implements RowInputInterface {
         return scanner.newDate((String) value);
     }
 
-    protected TimestampData readTimestamp(Type type)
-    throws IOException, HsqlException {
+    protected TimestampData readTimestamp(Type type) throws IOException {
 
         readField();
 
@@ -304,7 +301,7 @@ implements RowInputInterface {
     }
 
     protected IntervalMonthData readYearMonthInterval(Type type)
-    throws IOException, HsqlException {
+    throws IOException {
 
         readField();
 
@@ -317,7 +314,7 @@ implements RowInputInterface {
     }
 
     protected IntervalSecondData readDaySecondInterval(Type type)
-    throws IOException, HsqlException {
+    throws IOException {
 
         readField();
 
@@ -329,14 +326,14 @@ implements RowInputInterface {
                 (IntervalType) type);
     }
 
-    protected Boolean readBoole() throws IOException, HsqlException {
+    protected Boolean readBoole() throws IOException {
 
         readField();
 
         return (Boolean) value;
     }
 
-    protected Object readOther() throws IOException, HsqlException {
+    protected Object readOther() throws IOException {
 
         readFieldPrefix();
 
@@ -346,7 +343,7 @@ implements RowInputInterface {
 
         scanner.scanBinaryStringWithQuote();
 
-        if (scanner.getTokenType() == Tokens.X_MALFORMED_BINARY_STRING ) {
+        if (scanner.getTokenType() == Tokens.X_MALFORMED_BINARY_STRING) {
             throw Error.error(ErrorCode.X_42587);
         }
 
@@ -355,7 +352,7 @@ implements RowInputInterface {
         return new JavaObjectData(((BinaryData) value).getBytes());
     }
 
-    protected BinaryData readBit() throws IOException, HsqlException {
+    protected BinaryData readBit() throws IOException {
 
         readFieldPrefix();
 
@@ -365,7 +362,7 @@ implements RowInputInterface {
 
         scanner.scanBitStringWithQuote();
 
-        if (scanner.getTokenType() == Tokens.X_MALFORMED_BIT_STRING ) {
+        if (scanner.getTokenType() == Tokens.X_MALFORMED_BIT_STRING) {
             throw Error.error(ErrorCode.X_42587);
         }
 
@@ -374,7 +371,7 @@ implements RowInputInterface {
         return (BinaryData) value;
     }
 
-    protected BinaryData readBinary() throws IOException, HsqlException {
+    protected BinaryData readBinary() throws IOException {
 
         readFieldPrefix();
 
@@ -384,7 +381,7 @@ implements RowInputInterface {
 
         scanner.scanBinaryStringWithQuote();
 
-        if (scanner.getTokenType() == Tokens.X_MALFORMED_BINARY_STRING ) {
+        if (scanner.getTokenType() == Tokens.X_MALFORMED_BINARY_STRING) {
             throw Error.error(ErrorCode.X_42587);
         }
 
@@ -393,7 +390,7 @@ implements RowInputInterface {
         return (BinaryData) value;
     }
 
-    protected ClobData readClob() throws IOException, HsqlException {
+    protected ClobData readClob() throws IOException {
 
         readNumberField(Type.SQL_BIGINT);
 
@@ -406,7 +403,7 @@ implements RowInputInterface {
         return new ClobDataID(id);
     }
 
-    protected BlobData readBlob() throws IOException, HsqlException {
+    protected BlobData readBlob() throws IOException {
 
         readNumberField(Type.SQL_BIGINT);
 

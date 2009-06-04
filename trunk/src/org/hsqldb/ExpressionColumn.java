@@ -276,8 +276,7 @@ public class ExpressionColumn extends Expression {
     }
 
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet,
-            boolean acceptsSequences) throws HsqlException {
+            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
         switch (opType) {
 
@@ -374,8 +373,7 @@ public class ExpressionColumn extends Expression {
         return false;
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         switch (opType) {
 
@@ -399,7 +397,7 @@ public class ExpressionColumn extends Expression {
         }
     }
 
-    public Object getValue(Session session) throws HsqlException {
+    public Object getValue(Session session) {
 
         switch (opType) {
 
@@ -617,7 +615,7 @@ public class ExpressionColumn extends Expression {
         return "";
     }
 
-    static void checkColumnsResolved(HsqlList set) throws HsqlException {
+    static void checkColumnsResolved(HsqlList set) {
 
         if (set != null && !set.isEmpty()) {
             ExpressionColumn e  = (ExpressionColumn) set.get(0);

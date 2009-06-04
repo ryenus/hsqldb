@@ -37,7 +37,6 @@ import java.io.UnsupportedEncodingException;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
@@ -109,7 +108,7 @@ public class ScriptWriterText extends ScriptWriterBase {
 
     public ScriptWriterText(Database db, String file,
                             boolean includeCachedData, boolean newFile,
-                            boolean isDump) throws HsqlException {
+                            boolean isDump) {
         super(db, file, includeCachedData, newFile, isDump);
     }
 
@@ -148,7 +147,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     public void writeLogStatement(Session session,
-                                  String s) throws IOException, HsqlException {
+                                  String s) throws IOException {
 
         schemaToLog = session.currentSchema;
         busyWriting = true;
@@ -169,7 +168,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     protected void writeRow(Session session, Table table,
-                            Object[] data) throws HsqlException, IOException {
+                            Object[] data) throws IOException {
 
         schemaToLog = table.getName().schema;
         busyWriting = true;
@@ -193,7 +192,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         }
     }
 
-    protected void writeTableInit(Table t) throws HsqlException, IOException {
+    protected void writeTableInit(Table t) throws IOException {
 
         if (t.isEmpty(currentSession)) {
             return;
@@ -211,8 +210,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     public void writeInsertStatement(Session session, Table table,
-                                     Object[] data)
-                                     throws HsqlException, IOException {
+                                     Object[] data) throws IOException {
 
         schemaToLog = table.getName().schema;
 
@@ -220,8 +218,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     public void writeDeleteStatement(Session session, Table table,
-                                     Object[] data)
-                                     throws HsqlException, IOException {
+                                     Object[] data) throws IOException {
 
         schemaToLog = table.getName().schema;
         busyWriting = true;
@@ -246,8 +243,7 @@ public class ScriptWriterText extends ScriptWriterBase {
     }
 
     public void writeSequenceStatement(Session session,
-                                       NumberSequence seq)
-                                       throws HsqlException, IOException {
+                                       NumberSequence seq) throws IOException {
 
         schemaToLog = seq.getName().schema;
         busyWriting = true;
@@ -272,8 +268,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         }
     }
 
-    public void writeCommitStatement(Session session)
-    throws HsqlException, IOException {
+    public void writeCommitStatement(Session session) throws IOException {
 
         busyWriting = true;
 

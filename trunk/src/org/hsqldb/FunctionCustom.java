@@ -548,7 +548,7 @@ public class FunctionCustom extends FunctionSQL {
         return super.getFunctionExpression();
     }
 
-    Object getValue(Session session, Object[] data) throws HsqlException {
+    Object getValue(Session session, Object[] data) {
 
         switch (funcType) {
 
@@ -578,6 +578,7 @@ public class FunctionCustom extends FunctionSQL {
 
             case FUNC_IDENTITY : {
                 Number id = session.getLastIdentity();
+
                 if (id instanceof Long) {
                     return id;
                 } else {
@@ -1107,8 +1108,7 @@ public class FunctionCustom extends FunctionSQL {
         }
     }
 
-    public void resolveTypes(Session session,
-                             Expression parent) throws HsqlException {
+    public void resolveTypes(Session session, Expression parent) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {

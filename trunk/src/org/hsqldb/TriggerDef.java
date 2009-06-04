@@ -81,22 +81,23 @@ public class TriggerDef implements Runnable, SchemaObject {
     String                    conditionSQL;
     String                    procedureSQL;
     OrderedHashSet            updateColumnNames;
-    Statement[] statements = Statement.emptyArray;
-    int[]       updateColumns;
+    Statement[]               statements = Statement.emptyArray;
+    int[]                     updateColumns;
+
     // other variables
-    HsqlName    name;
-    String      actionTimingString;
-    String      eventTimingString;
-    int         operationPrivilegeType;
-    boolean     forEachRow;
-    boolean     nowait;                                         // block or overwrite if queue full
-    int         maxRowsQueued;                                  // max size of queue of pending triggers
-    Table       table;
-    Trigger     trigger;
-    String      triggerClassName;
-    int         triggerType;
-    int         vectorIndex;                                    // index into TriggerDef[][]
-    Thread      thread;
+    HsqlName name;
+    String   actionTimingString;
+    String   eventTimingString;
+    int      operationPrivilegeType;
+    boolean  forEachRow;
+    boolean  nowait;                                            // block or overwrite if queue full
+    int      maxRowsQueued;                                     // max size of queue of pending triggers
+    Table    table;
+    Trigger  trigger;
+    String   triggerClassName;
+    int      triggerType;
+    int      vectorIndex;                                       // index into TriggerDef[][]
+    Thread   thread;
 
     //protected boolean busy;               // firing trigger in progress
     protected HsqlDeque        pendingQueue;                    // row triggers pending
@@ -133,14 +134,13 @@ public class TriggerDef implements Runnable, SchemaObject {
      * @param  queueSize the length to which the pending queue may grow before
      *      further additions are either blocked or overwrite the tail entry,
      *      as determined by noWait
-     * @throws HsqlException - Invalid input parameter
      */
     public TriggerDef(HsqlNameManager.HsqlName name, String when,
                       String operation, boolean forEach, Table table,
                       Table[] transitions, RangeVariable[] rangeVars,
                       Expression condition, String conditionSQL,
                       OrderedHashSet columns, String triggerClassName,
-                      boolean noWait, int queueSize) throws HsqlException {
+                      boolean noWait, int queueSize) {
 
         this.name               = name;
         this.actionTimingString = when;
@@ -212,7 +212,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         return null;
     }
 
-    public void compile(Session session) throws HsqlException {}
+    public void compile(Session session) {}
 
     /**
      *  Retrieves the SQL character sequence required to (re)create the
@@ -442,8 +442,7 @@ public class TriggerDef implements Runnable, SchemaObject {
      * @param  row1
      * @param  row2
      */
-    synchronized void pushPair(Session session, Object[] row1,
-                               Object[] row2) throws HsqlException {
+    synchronized void pushPair(Session session, Object[] row1, Object[] row2) {
 
         if (maxRowsQueued == 0) {
             trigger.fire(triggerType, name.name, table.getName().name, row1,

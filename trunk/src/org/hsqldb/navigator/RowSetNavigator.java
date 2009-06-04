@@ -35,7 +35,6 @@ import java.io.IOException;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.ResultMetaData;
@@ -99,7 +98,7 @@ public abstract class RowSetNavigator implements RangeIterator {
     /**
      * Remove current row
      */
-    public abstract void remove() throws HsqlException;
+    public abstract void remove();
 
     /**
      * Clear all rows
@@ -283,24 +282,20 @@ public abstract class RowSetNavigator implements RangeIterator {
     public void close() {}
 
     public void writeSimple(RowOutputInterface out,
-                            ResultMetaData meta)
-                            throws HsqlException, IOException {
+                            ResultMetaData meta) throws IOException {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
     public void readSimple(RowInputInterface in,
-                           ResultMetaData meta)
-                           throws HsqlException, IOException {
+                           ResultMetaData meta) throws IOException {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
     public abstract void write(RowOutputInterface out,
-                               ResultMetaData meta)
-                               throws HsqlException, IOException;
+                               ResultMetaData meta) throws IOException;
 
     public abstract void read(RowInputInterface in,
-                              ResultMetaData meta)
-                              throws HsqlException, IOException;
+                              ResultMetaData meta) throws IOException;
 
     public boolean isMemory() {
         return true;

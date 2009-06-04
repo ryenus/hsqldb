@@ -109,7 +109,7 @@ public class ParserBase {
         return scanner.getTokenPosition();
     }
 
-    void rewind(int position) throws HsqlException {
+    void rewind(int position) {
 
         if (position == scanner.getTokenPosition()) {
             return;
@@ -146,8 +146,7 @@ public class ParserBase {
         return scanner.getPart(position, scanner.getPosition());
     }
 
-    String getStatement(int startPosition,
-                        short[] startTokens) throws HsqlException {
+    String getStatement(int startPosition, short[] startTokens) {
 
         int semiPosition = 0;
 
@@ -188,8 +187,7 @@ public class ParserBase {
         isRecording = true;
     }
 
-    void recordExpressionForToken(ExpressionColumn expression)
-    throws HsqlException {
+    void recordExpressionForToken(ExpressionColumn expression) {
 
         if (isRecording) {
             Token recordToken =
@@ -214,7 +212,7 @@ public class ParserBase {
         return tokens;
     }
 
-    void read() throws HsqlException {
+    void read() {
 
         scanner.scanNext();
 
@@ -283,7 +281,7 @@ public class ParserBase {
                    || scanner.token.isDelimitedIdentifier);
     }
 
-    void checkIsNonReservedIdentifier() throws HsqlException {
+    void checkIsNonReservedIdentifier() {
 
         if (!isNonReservedIdentifier()) {
             throw unexpectedToken();
@@ -297,7 +295,7 @@ public class ParserBase {
                    || scanner.token.isDelimitedIdentifier);
     }
 
-    void checkIsNonCoreReservedIdentifier() throws HsqlException {
+    void checkIsNonCoreReservedIdentifier() {
 
         if (!isNonCoreReservedIdentifier()) {
             throw unexpectedToken();
@@ -309,7 +307,7 @@ public class ParserBase {
                || scanner.token.isDelimitedIdentifier;
     }
 
-    void checkIsIdentifier() throws HsqlException {
+    void checkIsIdentifier() {
 
         if (!isIdentifier()) {
             throw unexpectedToken();
@@ -320,28 +318,28 @@ public class ParserBase {
         return scanner.token.isDelimitedIdentifier;
     }
 
-    void checkIsDelimitedIdentifier() throws HsqlException {
+    void checkIsDelimitedIdentifier() {
 
         if (token.tokenType != Tokens.X_DELIMITED_IDENTIFIER) {
             throw Error.error(ErrorCode.X_42569);
         }
     }
 
-    void checkIsNotQuoted() throws HsqlException {
+    void checkIsNotQuoted() {
 
         if (token.tokenType == Tokens.X_DELIMITED_IDENTIFIER) {
             throw unexpectedToken();
         }
     }
 
-    void checkIsValue() throws HsqlException {
+    void checkIsValue() {
 
         if (token.tokenType != Tokens.X_VALUE) {
             throw unexpectedToken();
         }
     }
 
-    void checkIsValue(int dataTypeCode) throws HsqlException {
+    void checkIsValue(int dataTypeCode) {
 
         if (token.tokenType != Tokens.X_VALUE
                 || token.dataType.typeCode != dataTypeCode) {
@@ -349,7 +347,7 @@ public class ParserBase {
         }
     }
 
-    void checkIsThis(int type) throws HsqlException {
+    void checkIsThis(int type) {
 
         if (token.tokenType != type) {
             throw unexpectedToken();
@@ -368,21 +366,21 @@ public class ParserBase {
         return isNonReservedIdentifier() && token.namePrefix == null;
     }
 
-    void checkIsSimpleName() throws HsqlException {
+    void checkIsSimpleName() {
 
         if (!isSimpleName()) {
             throw unexpectedToken();
         }
     }
 
-    void readQuotedString() throws HsqlException {
+    void readQuotedString() {
 
         if (token.dataType.typeCode != Types.SQL_CHAR) {
             throw Error.error(ErrorCode.X_42565);
         }
     }
 
-    void readThis(int tokenId) throws HsqlException {
+    void readThis(int tokenId) {
 
         if (token.tokenType != tokenId) {
             String required = Tokens.getKeyword(tokenId);
@@ -393,7 +391,7 @@ public class ParserBase {
         read();
     }
 
-    boolean readIfThis(int tokenId) throws HsqlException {
+    boolean readIfThis(int tokenId) {
 
         if (token.tokenType == tokenId) {
             read();
@@ -404,7 +402,7 @@ public class ParserBase {
         return false;
     }
 
-    int readInteger() throws HsqlException {
+    int readInteger() {
 
         boolean minus = false;
 
@@ -439,7 +437,7 @@ public class ParserBase {
         return val;
     }
 
-    long readBigint() throws HsqlException {
+    long readBigint() {
 
         boolean minus = false;
 
@@ -474,7 +472,7 @@ public class ParserBase {
         return val;
     }
 
-    Expression readDateTimeIntervalLiteral() throws HsqlException {
+    Expression readDateTimeIntervalLiteral() {
 
         int pos = getPosition();
 
@@ -572,7 +570,7 @@ public class ParserBase {
         return null;
     }
 
-    IntervalType readIntervalType() throws HsqlException {
+    IntervalType readIntervalType() {
 
         int precision = -1;
         int scale     = -1;
@@ -760,8 +758,7 @@ public class ParserBase {
         return Error.error(ErrorCode.X_0A501, string);
     }
 
-    public Number convertToNumber(String s,
-                                  NumberType type) throws HsqlException {
+    public Number convertToNumber(String s, NumberType type) {
         return scanner.convertToNumber(s, type);
     }
 }

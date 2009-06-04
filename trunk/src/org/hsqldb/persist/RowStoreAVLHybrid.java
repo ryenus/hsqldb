@@ -179,7 +179,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    public void add(CachedObject object) throws HsqlException {
+    public void add(CachedObject object) {
 
         if (isCached) {
             int size = object.getRealSize(cache.rowOut);
@@ -206,9 +206,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         return null;
     }
 
-    public CachedObject getNewCachedObject(Session session,
-                                           Object object)
-                                           throws HsqlException {
+    public CachedObject getNewCachedObject(Session session, Object object) {
 
         if (isCached) {
             Row row = new RowAVLDisk(table, (Object[]) object);
@@ -324,7 +322,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreCached");
     }
 
-    public void changeToDiskTable() throws HsqlException {
+    public void changeToDiskTable() {
 
         cache = session.sessionData.getResultCache();
 
