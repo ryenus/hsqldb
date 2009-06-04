@@ -47,9 +47,13 @@ public abstract class RowStoreAVL implements PersistentStore {
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;
 
+    // for result tables
+    long                      timestamp;
+
     public boolean isMemory() {
         return false;
     }
+
     public abstract int getAccessCount();
 
     public abstract void set(CachedObject object);
@@ -92,7 +96,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public CachedObject getAccessor(Index key) {
 
-        int   position = key.getPosition();
+        int position = key.getPosition();
 
         if (position >= accessorList.length) {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAV");

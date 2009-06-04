@@ -180,7 +180,7 @@ public class Cache extends BaseHashMap {
      * in the cache.
      *
      */
-    private synchronized void cleanUp() throws HsqlException {
+    synchronized void cleanUp() throws HsqlException {
 
         updateAccessCounts();
 

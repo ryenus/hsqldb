@@ -188,6 +188,7 @@ public class SessionContext {
         for (int i = 0; i < count; i++) {
             if (rangeIterators[i] != null) {
                 rangeIterators[i].reset();
+                rangeIterators[i] = null;
             }
         }
     }

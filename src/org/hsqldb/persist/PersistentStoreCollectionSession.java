@@ -150,6 +150,24 @@ implements PersistentStoreCollection {
         clearStatementTables();
     }
 
+    public void clearResultTables(long actionTimestamp) {
+
+        if (rowStoreMapSession.isEmpty()) {
+            return;
+        }
+
+        Iterator it = rowStoreMapSession.values().iterator();
+
+        while (it.hasNext()) {
+            RowStoreAVL store = (RowStoreAVL) it.next();
+
+            if (store.timestamp == actionTimestamp) {
+
+                store.release();
+            }
+        }
+    }
+
     public void clearSessionTables() {
 
         if (rowStoreMapSession.isEmpty()) {
@@ -163,8 +181,6 @@ implements PersistentStoreCollection {
 
             store.release();
         }
-
-        rowStoreMapSession.clear();
     }
 
     public void clearTransactionTables() {
@@ -180,8 +196,6 @@ implements PersistentStoreCollection {
 
             store.release();
         }
-
-        rowStoreMapTransaction.clear();
     }
 
     public void clearStatementTables() {
@@ -197,7 +211,5 @@ implements PersistentStoreCollection {
 
             store.release();
         }
-
-        rowStoreMapStatement.clear();
     }
 }
