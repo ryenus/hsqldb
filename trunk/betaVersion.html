@@ -5,49 +5,47 @@
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
-<h2>HyperSQL 1.9 Alpha 2</h2>
-<p>1 April 2009</p>
-<p>This is the second alpha release of HyperSQL 1.9. Please use this version in 
-  testing and report any issues.</p>
+<h2>HyperSQL 1.9 Beta 3</h2>
+<p>9 June 2009</p>
+<p>This is the first beta release of HyperSQL 1.9 (it is released after Alpha 
+  1 and Alpha 2, hence labeled Beta 3). Please use this version in testing and 
+  report any issues.</p>
 <h3>Feedback</h3>
-<p>We are releasing this alpha version only to get feedback, bug reports, reports 
+<p>We are releasing this betaa version only to get feedback, bug reports, reports 
   about migration from older versions, and related information from our users.</p>
-<p>Please do use this alpha version in tests as soon as possible, and let us know 
+<p>Please do use this beta version in tests as soon as possible, and let us know 
   of your findings, via direct email, or posting to our user list or forums, or 
   filing a bug report.</p>
 <p>Although this version is generally stable, it should not be used in production. 
   The database file format will change slightly before the final release and it 
-  will be impossible to open files created with the alpha versions without manual 
-  modifications. </p>
+  will be impossible to open files created with the alpha and beta versions without 
+  manual modifications. </p>
 <h3>Release plan.</h3>
 <ul>
-  <li>Depending on user feedback, there may be a further alpha version in the 
-    next few weeks.</li>
-  <li>A beta version will be released in April. There may be a further beta version 
-    after a week or two.</li>
-  <li>The release version has been scheduled for May.</li>
+  <li>Depending on user feedback, there may be a further beta version in the next 
+    few weeks.</li>
+  <li>A release candidate version will be released in June.</li>
+  <li>The release version has been scheduled soon after the release candidate.</li>
 </ul>
-<h3>Known missing features in this alpha version and changes from the last alpha</h3>
+<h3>Known missing features in this beta version and changes from the first alpha</h3>
 <ul>
   <li>Most errors and minor issues reported by users have been fixed.</li>
   <li>Sources can be compiled with JDK 1.5 or 1.6</li>
   <li>New features for incremental backup of the .data file allow speedy handling 
     of huge databases up to 16GB.</li>
-  <li>Database files created with Alpha 1 cannot be opened with this alpha without 
+  <li>Database files created with Alpha 1 cannot be opened with this version without 
     manual modification. The statements for creating the SYSTEM_LOBS schema and 
     its tables and procedures should be deleted fromt the .script file before 
     opening the database.</li>
-  <li>This alpha version persists BLOB and CLOB values. A database file with the 
-    extension .lobs is used for LOB objects. LOB support is not yet transactional. 
-    Therefore only one connection at a time can safely work on LOB objects in 
-    transactions. When the transaction is committed, or in auto-commit, the lob 
-    values are stored correctly. Apart from that, operations on lobs, including 
-    modifying the contents of an existing lobs, should work and can be rolled 
-    back. The maximum total size of LOBs is currently 32TB. Access speed looks 
-    very good in our tests.</li>
-  <li>This alpha version lacks some minor features planned for Java and SQL stored 
-    procedures and functions.</li>
-  <li>This alpha version has been compiled with debug information. The jar size 
+  <li>This beta version persists BLOB and CLOB values. A database file with the 
+    extension .lobs is used for LOB objects. LOB support is now transactional. 
+    Operations on lobs, including modifying the contents of an existing lobs, 
+    should work and can be rolled back. The maximum total size of LOBs is currently 
+    16TB. Access speed looks very good in our tests.</li>
+  <li>This beta version lacks some minor features planned for Java and SQL stored 
+    procedures and functions. System tables related to these features do exist 
+    but some are not yet fully populated.</li>
+  <li>This beta version has been compiled with debug information. The jar size 
     is therefore much larger than the forthcoming release version. The jar can 
     be used with JDK 1.6 only.</li>
 </ul>
@@ -61,6 +59,12 @@
   <li>No blocking for connections set as read-only.</li>
   <li>SQL keywords are enforced in some places, therefore some table names or 
     column names may not be acceptable.</li>
+</ul>
+<h3>Documentation</h3>
+<ul>
+  <li>The new Guide is included in the package and is a must-read. It has been 
+    extensively rewritten and improved compared to version 1.8.0. The Guide will 
+    be completed for the release candidate.</li>
 </ul>
 <p>Fred Toussi</p>
 <p>Maintainer, HSQL Development Group</p>
