@@ -1382,6 +1382,15 @@ public final class NumberType extends Type {
         }
     }
 
+    public int getPrecisionRadix() {
+
+        if (typeCode == Types.SQL_DECIMAL || typeCode == Types.SQL_NUMERIC) {
+            return 10;
+        }
+
+        return 2;
+    }
+
     public Type getIntegralType() {
 
         switch (typeCode) {

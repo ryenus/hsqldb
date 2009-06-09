@@ -48,7 +48,7 @@ public class TriggerDefSQL extends TriggerDef {
                          String operation, boolean forEachRow, Table table,
                          Table[] transitions, RangeVariable[] rangeVars,
                          Expression condition, String conditionSQL,
-                         OrderedHashSet columns,
+                         int[] updateColumns,
                          StatementDMQL[] compiledStatements,
                          String procedureSQL, OrderedHashSet references) {
 
@@ -61,6 +61,7 @@ public class TriggerDefSQL extends TriggerDef {
         this.rangeVars          = rangeVars;
         this.condition          = condition == null ? Expression.EXPR_TRUE
                                                     : condition;
+        this.updateColumns      = updateColumns;
         this.statements         = compiledStatements;
         this.conditionSQL       = conditionSQL;
         this.procedureSQL       = procedureSQL;

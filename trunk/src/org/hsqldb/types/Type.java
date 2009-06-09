@@ -43,6 +43,7 @@ import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.lib.HashSet;
 
 /**
  * Base class for type objects.<p>
@@ -901,6 +902,7 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public static final IntValueHashMap typeAliases;
     public static final IntValueHashMap typeNames;
+    public static final HashSet          basicTypes;
 
     static {
         typeNames = new IntValueHashMap(37);
@@ -944,6 +946,36 @@ public abstract class Type implements SchemaObject, Cloneable {
         typeAliases.put("DATETIME", Types.SQL_TIMESTAMP);
         typeAliases.put("LONGVARBINARY", Types.SQL_VARBINARY);
         typeAliases.put("OBJECT", Types.OTHER);
+
+        //
+        basicTypes = new HashSet(37);
+        basicTypes.add(SQL_CHAR_DEFAULT);
+        basicTypes.add(SQL_VARCHAR_DEFAULT);
+        basicTypes.add(SQL_DATE);
+        basicTypes.add(SQL_TIME);
+        basicTypes.add(SQL_TIMESTAMP);
+        basicTypes.add(SQL_INTERVAL_YEAR);
+        basicTypes.add(SQL_INTERVAL_YEAR_TO_MONTH);
+        basicTypes.add(SQL_INTERVAL_MONTH);
+        basicTypes.add(SQL_INTERVAL_DAY);
+        basicTypes.add(SQL_INTERVAL_DAY_TO_HOUR);
+        basicTypes.add(SQL_INTERVAL_DAY_TO_MINUTE);
+        basicTypes.add(SQL_INTERVAL_DAY_TO_SECOND);
+        basicTypes.add(SQL_INTERVAL_HOUR);
+        basicTypes.add(SQL_INTERVAL_HOUR_TO_MINUTE);
+        basicTypes.add(SQL_INTERVAL_HOUR_TO_SECOND);
+        basicTypes.add(SQL_INTERVAL_MINUTE);
+        basicTypes.add(SQL_INTERVAL_MINUTE_TO_SECOND);
+        basicTypes.add(SQL_INTERVAL_SECOND);
+        basicTypes.add(TINYINT);
+        basicTypes.add(SQL_SMALLINT);
+        basicTypes.add(SQL_INTEGER);
+        basicTypes.add(SQL_BIGINT);
+        basicTypes.add(SQL_DOUBLE);
+
+
+
+
     }
 
     public static int getTypeNr(String name) {

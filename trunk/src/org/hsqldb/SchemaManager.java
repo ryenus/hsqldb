@@ -79,6 +79,12 @@ public class SchemaManager {
         } catch (HsqlException e) {}
     }
 
+    // pre-defined
+
+    public HsqlName getSQLJSchemaHsqlName() {
+        return SqlInvariants.SQLJ_SCHEMA_HSQLNAME;
+    }
+
     // SCHEMA management
     void createPublicSchema() {
 
@@ -1311,11 +1317,11 @@ public class SchemaManager {
                 if (routine == null) {
                     routine = new RoutineSchema(name.type, name);
 
-                    routine.addSpecificRoutine((Routine) object);
+                    routine.addSpecificRoutine(database, (Routine) object);
                     set.add(routine);
                 } else {
                     ((Routine) object).setName(routine.getName());
-                    routine.addSpecificRoutine((Routine) object);
+                    routine.addSpecificRoutine(database, (Routine) object);
                 }
 
                 addReferences(object);

@@ -80,7 +80,6 @@ public class TriggerDef implements Runnable, SchemaObject {
     boolean                   hasTransitionRanges;
     String                    conditionSQL;
     String                    procedureSQL;
-    OrderedHashSet            updateColumnNames;
     Statement[]               statements = Statement.emptyArray;
     int[]                     updateColumns;
 
@@ -139,7 +138,7 @@ public class TriggerDef implements Runnable, SchemaObject {
                       String operation, boolean forEach, Table table,
                       Table[] transitions, RangeVariable[] rangeVars,
                       Expression condition, String conditionSQL,
-                      OrderedHashSet columns, String triggerClassName,
+                      int[] updateColumns, String triggerClassName,
                       boolean noWait, int queueSize) {
 
         this.name               = name;
@@ -152,6 +151,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         this.condition          = condition == null ? Expression.EXPR_TRUE
                                                     : condition;
         this.conditionSQL       = conditionSQL;
+        this.updateColumns      = updateColumns;
         this.procedureSQL       = procedureSQL;
         this.triggerClassName   = triggerClassName;
         this.nowait             = noWait;
@@ -205,7 +205,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return null;
+        return new OrderedHashSet();
     }
 
     public OrderedHashSet getComponents() {
@@ -280,7 +280,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         return procedureSQL;
     }
 
-    public int[] getUpdateColumns() {
+    public int[] getUpdateColumnIndexes() {
         return updateColumns;
     }
 

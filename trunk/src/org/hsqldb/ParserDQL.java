@@ -4717,6 +4717,12 @@ public class ParserDQL extends ParserBase {
                 }
             }
 
+            Routine[] routines = getRoutines();
+
+            for (int i = 0; i < routines.length; i++) {
+                set.add(routines[i].getName());
+            }
+
             return set;
         }
     }

@@ -131,7 +131,7 @@ public class Routine implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return null;
+        return new OrderedHashSet();
     }
 
     public OrderedHashSet getComponents() {
@@ -200,27 +200,7 @@ public class Routine implements SchemaObject {
         sb.append(' ');
 
         //
-        switch (this.dataImpact) {
-
-            case NO_SQL :
-                sb.append(Tokens.T_NO).append(' ').append(Tokens.T_SQL);
-                break;
-
-            case CONTAINS_SQL :
-                sb.append(Tokens.T_CONTAINS).append(' ').append(Tokens.T_SQL);
-                break;
-
-            case READS_SQL :
-                sb.append(Tokens.T_READS).append(' ').append(
-                    Tokens.T_SQL).append(' ').append(Tokens.T_DATA);
-                break;
-
-            case MODIFIES_SQL :
-                sb.append(Tokens.T_MODIFIES).append(' ').append(
-                    Tokens.T_SQL).append(' ').append(Tokens.T_DATA);
-                break;
-        }
-
+        sb.append(getDataImpactString());
         sb.append(' ');
 
         //
@@ -282,6 +262,38 @@ public class Routine implements SchemaObject {
 
     public void setDataImpact(int impact) {
         dataImpact = impact;
+    }
+
+    public int getDataImpact() {
+        return dataImpact;
+    }
+
+    public String getDataImpactString() {
+
+        StringBuffer sb = new StringBuffer();
+
+        switch (this.dataImpact) {
+
+            case NO_SQL :
+                sb.append(Tokens.T_NO).append(' ').append(Tokens.T_SQL);
+                break;
+
+            case CONTAINS_SQL :
+                sb.append(Tokens.T_CONTAINS).append(' ').append(Tokens.T_SQL);
+                break;
+
+            case READS_SQL :
+                sb.append(Tokens.T_READS).append(' ').append(
+                    Tokens.T_SQL).append(' ').append(Tokens.T_DATA);
+                break;
+
+            case MODIFIES_SQL :
+                sb.append(Tokens.T_MODIFIES).append(' ').append(
+                    Tokens.T_SQL).append(' ').append(Tokens.T_DATA);
+                break;
+        }
+
+        return sb.toString();
     }
 
     public void setReturnType(Type type) {

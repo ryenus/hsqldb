@@ -99,51 +99,6 @@ public class SqlInvariants {
         SYSTEM_SUBQUERY_HSQLNAME.setSchemaIfNull(SYSTEM_SCHEMA_HSQLNAME);
     }
 
-    public static final Type CARDINAL_NUMBER;
-    public static final Type YES_OR_NO;
-    public static final Type CHARACTER_DATA;
-    public static final Type SQL_IDENTIFIER;
-    public static final Type TIME_STAMP;
-
-    static {
-        HsqlName name;
-
-        name = HsqlNameManager.newInfoSchemaObjectName("CARDINAL_NUMBER",
-                false, SchemaObject.DOMAIN);
-        CARDINAL_NUMBER = new NumberType(Types.SQL_BIGINT, 0, 0);
-        CARDINAL_NUMBER.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, CARDINAL_NUMBER);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("YES_OR_NO", false,
-                SchemaObject.DOMAIN);
-        YES_OR_NO = new CharacterType(Types.SQL_VARCHAR, 3);
-        YES_OR_NO.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, YES_OR_NO);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("CHARACTER_DATA",
-                false, SchemaObject.DOMAIN);
-        CHARACTER_DATA = new CharacterType(Types.SQL_VARCHAR, (1 << 16));
-        CHARACTER_DATA.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, CHARACTER_DATA);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("SQL_IDENTIFIER",
-                false, SchemaObject.DOMAIN);
-        SQL_IDENTIFIER = new CharacterType(Types.SQL_VARCHAR, 128);
-        SQL_IDENTIFIER.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, SQL_IDENTIFIER);
-
-        //
-        name = HsqlNameManager.newInfoSchemaObjectName("TIME_STAMP", false,
-                SchemaObject.DOMAIN);
-        TIME_STAMP = new DateTimeType(Types.SQL_TIMESTAMP,
-                                      Types.SQL_TIMESTAMP, 6);
-        TIME_STAMP.userTypeModifier = new UserTypeModifier(name,
-                SchemaObject.DOMAIN, TIME_STAMP);
-    }
-
     public static final Charset SQL_TEXT;
     public static final Charset SQL_IDENTIFIER_CHARSET;
     public static final Charset SQL_CHARACTER;
@@ -219,6 +174,51 @@ public class SqlInvariants {
          * as do collations defined by standards and collations,
          * transliterations, and transcodings defined by SQL implementations.
          */
+    }
+
+    public static final Type CARDINAL_NUMBER;
+    public static final Type YES_OR_NO;
+    public static final Type CHARACTER_DATA;
+    public static final Type SQL_IDENTIFIER;
+    public static final Type TIME_STAMP;
+
+    static {
+        HsqlName name;
+
+        name = HsqlNameManager.newInfoSchemaObjectName("CARDINAL_NUMBER",
+                false, SchemaObject.DOMAIN);
+        CARDINAL_NUMBER = new NumberType(Types.SQL_BIGINT, 0, 0);
+        CARDINAL_NUMBER.userTypeModifier = new UserTypeModifier(name,
+                SchemaObject.DOMAIN, CARDINAL_NUMBER);
+
+        //
+        name = HsqlNameManager.newInfoSchemaObjectName("YES_OR_NO", false,
+                SchemaObject.DOMAIN);
+        YES_OR_NO = new CharacterType(Types.SQL_VARCHAR, 3);
+        YES_OR_NO.userTypeModifier = new UserTypeModifier(name,
+                SchemaObject.DOMAIN, YES_OR_NO);
+
+        //
+        name = HsqlNameManager.newInfoSchemaObjectName("CHARACTER_DATA",
+                false, SchemaObject.DOMAIN);
+        CHARACTER_DATA = new CharacterType(Types.SQL_VARCHAR, (1 << 16));
+        CHARACTER_DATA.userTypeModifier = new UserTypeModifier(name,
+                SchemaObject.DOMAIN, CHARACTER_DATA);
+
+        //
+        name = HsqlNameManager.newInfoSchemaObjectName("SQL_IDENTIFIER",
+                false, SchemaObject.DOMAIN);
+        SQL_IDENTIFIER = new CharacterType(Types.SQL_VARCHAR, 128);
+        SQL_IDENTIFIER.userTypeModifier = new UserTypeModifier(name,
+                SchemaObject.DOMAIN, SQL_IDENTIFIER);
+
+        //
+        name = HsqlNameManager.newInfoSchemaObjectName("TIME_STAMP", false,
+                SchemaObject.DOMAIN);
+        TIME_STAMP = new DateTimeType(Types.SQL_TIMESTAMP,
+                                      Types.SQL_TIMESTAMP, 6);
+        TIME_STAMP.userTypeModifier = new UserTypeModifier(name,
+                SchemaObject.DOMAIN, TIME_STAMP);
     }
 
     public static final void checkSchemaNameNotSystem(String name) {

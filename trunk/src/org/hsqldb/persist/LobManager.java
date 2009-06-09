@@ -155,9 +155,12 @@ public class LobManager {
         LineNumberReader lineReader = new LineNumberReader(reader);
         LineGroupReader  lg = new LineGroupReader(lineReader, starters);
         HashMappedList   map        = lg.getAsMap();
-        String           sql = (String) map.get("/*lob_schema_definition*/");
-        Statement        statement  = session.compileStatement(sql);
-        Result           result     = statement.execute(session);
+
+        lg.close();
+
+        String    sql       = (String) map.get("/*lob_schema_definition*/");
+        Statement statement = session.compileStatement(sql);
+        Result    result    = statement.execute(session);
         Table table = database.schemaManager.getTable(session, "BLOCKS",
             "SYSTEM_LOBS");
 

@@ -1859,6 +1859,7 @@ public class ParserDDL extends ParserRoutine {
         HsqlName       name;
         HsqlName       otherName = null;
         OrderedHashSet columns   = null;
+        int[]          updateColumnIndexes = null;
 
         read();
 
@@ -1949,10 +1950,14 @@ public class ParserDDL extends ParserRoutine {
         database.schemaManager.checkSchemaObjectNotExists(name);
 
         if (columns != null) {
-            int[] cols = table.getColumnIndexes(columns);
+            updateColumnIndexes = table.getColumnIndexes(columns);
 
-            // do this inside trigger class
-            table.getColumnCheckList(cols);
+            for (int i = 0; i < updateColumnIndexes.length; i++) {
+                if (updateColumnIndexes[i] == -1) {
+                    throw Error.error(ErrorCode.X_42544,
+                                      (String) columns.get(i));
+                }
+            }
         }
 
         Expression      condition          = null;
@@ -2191,7 +2196,7 @@ public class ParserDDL extends ParserRoutine {
 
             td = new TriggerDef(name, beforeOrAfter, operation, isForEachRow,
                                 table, transitions, rangeVars, condition,
-                                conditionSQL, columns, className, isNowait,
+                                conditionSQL, updateColumnIndexes, className, isNowait,
                                 queueSize);
 
             String   sql  = getLastPart();
@@ -2336,7 +2341,7 @@ public class ParserDDL extends ParserRoutine {
 
         td = new TriggerDefSQL(name, beforeOrAfter, operation, isForEachRow,
                                table, transitions, rangeVars, condition,
-                               conditionSQL, columns, csArray, procedureSQL,
+                               conditionSQL, updateColumnIndexes, csArray, procedureSQL,
                                references);
 
         String   sql  = getLastPart();

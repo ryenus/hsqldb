@@ -37,6 +37,7 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.WrapperIterator;
 
 public final class Schema implements SchemaObject {
 
@@ -97,7 +98,7 @@ public final class Schema implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return null;
+        return new OrderedHashSet();
     }
 
     public OrderedHashSet getComponents() {
@@ -244,6 +245,12 @@ public final class Schema implements SchemaObject {
 
             case SchemaObject.FUNCTION :
                 return functionLookup.map.values().iterator();
+
+            case SchemaObject.ROUTINE :
+                Iterator functions = functionLookup.map.values().iterator();
+
+                return new WrapperIterator(
+                    functions, procedureLookup.map.values().iterator());
 
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :

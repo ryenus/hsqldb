@@ -113,7 +113,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return null;
+        return new OrderedHashSet();
     }
 
     public OrderedHashSet getComponents() {
