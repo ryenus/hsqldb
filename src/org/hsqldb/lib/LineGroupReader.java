@@ -204,6 +204,12 @@ public class LineGroupReader {
         return startLineNumber;
     }
 
+    public void close() {
+        try {
+            reader.close();
+        } catch (Exception e) {}
+    }
+
     public static String convertToString(HsqlArrayList list, int offset) {
 
         StringBuffer sb = new StringBuffer();

@@ -896,7 +896,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 SchemaObject.INDEX);
 
             t.createPrimaryKey(name, new int[] {
-                1, 2, 16, 0
+                0, 1, 2, 16
             }, false);
 
             return t;

@@ -700,12 +700,20 @@ public class Grantee implements SchemaObject {
     }
 
     public boolean isFullyAccessibleByRole(SchemaObject object) {
+        return isFullyAccessibleByRole(object.getName());
+    }
+
+    public boolean isFullyAccessibleByRole(HsqlName name) {
 
         if (isAdmin) {
             return true;
         }
 
-        Grantee owner = object.getOwner();
+        if (name.schema == null) {
+            return false;
+        }
+
+        Grantee owner = name.schema.owner;
 
         if (owner == this) {
             return true;
@@ -1058,19 +1066,23 @@ public class Grantee implements SchemaObject {
      * returns true if grantee has any privilege (to any column) of the object
      */
     public boolean isAccessible(SchemaObject object) {
+        return isAccessible(object.getName());
+    }
 
-        if (isFullyAccessibleByRole(object)) {
+    public boolean isAccessible(HsqlName name) {
+
+        if (isFullyAccessibleByRole(name)) {
             return true;
         }
 
-        Right right = (Right) fullRightsMap.get(object.getName());
+        Right right = (Right) fullRightsMap.get(name);
 
         if (right != null && !right.isEmpty()) {
             return true;
         }
 
         if (!isPublic) {
-            return granteeManager.publicRole.isAccessible(object);
+            return granteeManager.publicRole.isAccessible(name);
         }
 
         return false;

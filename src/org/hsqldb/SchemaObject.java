@@ -61,11 +61,12 @@ public interface SchemaObject {
     int COLLATION  = 15;
     int FUNCTION   = 16;
     int PROCEDURE  = 17;
-    int CURSOR     = 18;
-    int INDEX      = 19;
-    int LABEL      = 20;
-    int VARIABLE   = 21;
-    int PARAMETER  = 22;
+    int ROUTINE    = 18;
+    int CURSOR     = 19;
+    int INDEX      = 20;
+    int LABEL      = 21;
+    int VARIABLE   = 22;
+    int PARAMETER  = 23;
 
     //
     SchemaObject[] emptyArray = new SchemaObject[]{};

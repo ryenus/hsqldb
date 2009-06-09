@@ -78,7 +78,7 @@ public class RoutineSchema implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return null;
+        return new OrderedHashSet();
     }
 
     public OrderedHashSet getComponents() {
@@ -111,7 +111,7 @@ public class RoutineSchema implements SchemaObject {
         return array;
     }
 
-    void addSpecificRoutine(Routine routine) {
+    public void addSpecificRoutine(Database database, Routine routine) {
 
         int    signature = routine.getParameterSignature();
         Type[] types     = routine.getParameterTypes();
@@ -138,9 +138,20 @@ public class RoutineSchema implements SchemaObject {
             }
         }
 
+        if (routine.getSpecificName() == null) {
+            HsqlName specificName = database.nameManager.newAutoName("",
+                name.name, name.schema, name, name.type);
+
+            routine.setSpecificName(specificName);
+        }
+
         routines = (Routine[]) ArrayUtil.resizeArray(routines,
                 routines.length + 1);
         routines[routines.length - 1] = routine;
+    }
+
+    public Routine[] getSpecificRoutines() {
+        return routines;
     }
 
     public Routine getSpecificRoutine(Type[] types) {

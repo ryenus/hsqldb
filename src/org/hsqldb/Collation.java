@@ -38,6 +38,8 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.rights.Grantee;
+import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Implementation of collation support for CHAR and VARCHAR data.
@@ -47,7 +49,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * @version 1.8.0
  * @since 1.8.0
  */
-public class Collation {
+public class Collation implements SchemaObject {
 
     public static final HashMap nameToJavaName = new HashMap(101);
 
@@ -258,5 +260,35 @@ public class Collation {
 
     public String toLowerCase(String s) {
         return s.toLowerCase(locale);
+    }
+
+    public int getType() {
+        return SchemaObject.COLLATION;
+    }
+
+    public HsqlName getSchemaName() {
+        return SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
+    }
+
+    public HsqlName getCatalogName() {
+        return null;
+    }
+
+    public Grantee getOwner() {
+        return null;
+    }
+
+    public OrderedHashSet getReferences() {
+        return new OrderedHashSet();
+    }
+
+    public OrderedHashSet getComponents() {
+        return null;
+    }
+
+    public void compile(Session session) {}
+
+    public String getSQL() {
+        return "";
     }
 }

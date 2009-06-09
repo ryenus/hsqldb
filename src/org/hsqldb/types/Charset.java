@@ -37,6 +37,7 @@ import org.hsqldb.Session;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.Tokens;
+import org.hsqldb.SqlInvariants;
 
 /**
  * Implementation of CHARACTER SET objects.<p>
@@ -100,5 +101,9 @@ public class Charset implements SchemaObject {
         sb.append(' ').append(base.getSchemaQualifiedStatementName());
 
         return sb.toString();
+    }
+
+    public static Charset getDefaultInstance() {
+        return SqlInvariants.UTF16;
     }
 }

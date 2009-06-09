@@ -56,6 +56,7 @@ import org.hsqldb.store.ValuePool;
 public class CharacterType extends Type {
 
     Collation         collation;
+    Charset           charset;
     boolean           isEqualIdentical;
     final static int  sqlDefaultCharPrecision = 1;
     static final long maxCharacterPrecision   = Integer.MAX_VALUE;
@@ -65,6 +66,7 @@ public class CharacterType extends Type {
         super(Types.SQL_VARCHAR, type, precision, 0);
 
         this.collation = collation;
+        this.charset   = Charset.getDefaultInstance();
         isEqualIdentical = this.collation.isEqualAlwaysIdentical()
                            && type != Types.VARCHAR_IGNORECASE;
     }
@@ -77,6 +79,7 @@ public class CharacterType extends Type {
         super(Types.SQL_VARCHAR, type, precision, 0);
 
         this.collation   = Collation.getDefaultInstance();
+        this.charset     = Charset.getDefaultInstance();
         isEqualIdentical = type != Types.VARCHAR_IGNORECASE;
     }
 
@@ -669,6 +672,14 @@ public class CharacterType extends Type {
     public boolean canConvertFrom(Type otherType) {
         return otherType.typeCode == Types.SQL_ALL_TYPES
                || (!otherType.isBinaryType() && !otherType.isObjectType());
+    }
+
+    public Collation getCollation() {
+        return collation;
+    }
+
+    public Charset getCharacterSet() {
+        return charset;
     }
 
     public boolean isEqualIdentical() {

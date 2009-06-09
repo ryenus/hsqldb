@@ -121,34 +121,39 @@ public class DatabaseInformation {
     protected static final int ROLE_TABLE_GRANTS                 = 55;
     protected static final int ROLE_UDT_GRANTS                   = 56;
     protected static final int ROLE_USAGE_GRANTS                 = 57;
-    protected static final int ROUTINE_JAR_USAGE                 = 58;
-    protected static final int ROUTINES                          = 59;
-    protected static final int SCHEMATA                          = 60;
-    protected static final int SEQUENCES                         = 61;
-    protected static final int SQL_FEATURES                      = 62;
-    protected static final int SQL_IMPLEMENTATION_INFO           = 63;
-    protected static final int SQL_PACKAGES                      = 64;
-    protected static final int SQL_PARTS                         = 65;
-    protected static final int SQL_SIZING                        = 66;
-    protected static final int SQL_SIZING_PROFILES               = 67;
-    protected static final int TABLE_CONSTRAINTS                 = 68;
-    protected static final int TABLE_PRIVILEGES                  = 69;
-    protected static final int TABLES                            = 70;
-    protected static final int TRANSLATIONS                      = 71;
-    protected static final int TRIGGER_COLUMN_USAGE              = 72;
-    protected static final int TRIGGER_ROUTINE_USAGE             = 73;
-    protected static final int TRIGGER_SEQUENCE_USAGE            = 74;
-    protected static final int TRIGGER_TABLE_USAGE               = 75;
-    protected static final int TRIGGERED_UPDATE_COLUMNS          = 76;
-    protected static final int TRIGGERS                          = 77;
-    protected static final int TYPE_JAR_USAGE                    = 78;
-    protected static final int UDT_PRIVILEGES                    = 79;
-    protected static final int USAGE_PRIVILEGES                  = 80;
-    protected static final int USER_DEFINED_TYPES                = 81;
-    protected static final int VIEW_COLUMN_USAGE                 = 82;
-    protected static final int VIEW_ROUTINE_USAGE                = 83;
-    protected static final int VIEW_TABLE_USAGE                  = 84;
-    protected static final int VIEWS                             = 85;
+    protected static final int ROUTINE_COLUMN_USAGE              = 58;
+    protected static final int ROUTINE_JAR_USAGE                 = 59;
+    protected static final int ROUTINE_PRIVILEGES                = 60;
+    protected static final int ROUTINE_ROUTINE_USAGE             = 61;
+    protected static final int ROUTINE_SEQUENCE_USAGE            = 62;
+    protected static final int ROUTINE_TABLE_USAGE               = 63;
+    protected static final int ROUTINES                          = 64;
+    protected static final int SCHEMATA                          = 65;
+    protected static final int SEQUENCES                         = 66;
+    protected static final int SQL_FEATURES                      = 67;
+    protected static final int SQL_IMPLEMENTATION_INFO           = 68;
+    protected static final int SQL_PACKAGES                      = 69;
+    protected static final int SQL_PARTS                         = 70;
+    protected static final int SQL_SIZING                        = 71;
+    protected static final int SQL_SIZING_PROFILES               = 72;
+    protected static final int TABLE_CONSTRAINTS                 = 73;
+    protected static final int TABLE_PRIVILEGES                  = 74;
+    protected static final int TABLES                            = 75;
+    protected static final int TRANSLATIONS                      = 76;
+    protected static final int TRIGGER_COLUMN_USAGE              = 77;
+    protected static final int TRIGGER_ROUTINE_USAGE             = 78;
+    protected static final int TRIGGER_SEQUENCE_USAGE            = 79;
+    protected static final int TRIGGER_TABLE_USAGE               = 80;
+    protected static final int TRIGGERED_UPDATE_COLUMNS          = 81;
+    protected static final int TRIGGERS                          = 82;
+    protected static final int TYPE_JAR_USAGE                    = 83;
+    protected static final int UDT_PRIVILEGES                    = 84;
+    protected static final int USAGE_PRIVILEGES                  = 85;
+    protected static final int USER_DEFINED_TYPES                = 86;
+    protected static final int VIEW_COLUMN_USAGE                 = 87;
+    protected static final int VIEW_ROUTINE_USAGE                = 88;
+    protected static final int VIEW_TABLE_USAGE                  = 89;
+    protected static final int VIEWS                             = 90;
 
     /** system table names strictly in order of their ids */
     protected static final String[] sysTableNames = {
@@ -214,7 +219,12 @@ public class DatabaseInformation {
         "ROLE_TABLE_GRANTS",                                    //
         "ROLE_UDT_GRANTS",                                      //
         "ROLE_USAGE_GRANTS",                                    //
+        "ROUTINE_COLUMN_USAGE",                                 //
         "ROUTINE_JAR_USAGE",                                    //
+        "ROUTINE_PRIVILEGES",                                   //
+        "ROUTINE_ROUTINE_USAGE",                                //
+        "ROUTINE_SEQUENCE_USAGE",                               //
+        "ROUTINE_TABLE_USAGE",                                  //
         "ROUTINES",                                             //
         "SCHEMATA",                                             //
         "SEQUENCES",                                            //
@@ -248,7 +258,7 @@ public class DatabaseInformation {
     protected static final IntValueHashMap sysTableNamesMap;
 
     static {
-        sysTableNamesMap = new IntValueHashMap(89);
+        sysTableNamesMap = new IntValueHashMap(91);
 
         for (int i = 0; i < sysTableNames.length; i++) {
             sysTableNamesMap.put(sysTableNames[i], i);

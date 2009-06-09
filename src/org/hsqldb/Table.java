@@ -1564,12 +1564,10 @@ public class Table extends TableBase implements SchemaObject {
         int index = triggerList.length;
 
         if (otherName != null) {
-            for (int i = 0; i < triggerList.length; i++) {
-                if (triggerList[i].name.name.equals(otherName.name)) {
-                    index = i + 1;
+            int pos = getTriggerIndex(otherName.name);
 
-                    break;
-                }
+            if (pos != -1) {
+                index = pos + 1;
             }
         }
 
@@ -1608,6 +1606,17 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         return null;
+    }
+
+    public int getTriggerIndex(String name) {
+
+        for (int i = 0; i < triggerList.length; i++) {
+            if (triggerList[i].name.name.equals(name)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     /**
@@ -1880,9 +1889,9 @@ public class Table extends TableBase implements SchemaObject {
             TriggerDef td         = trigVec[i];
             boolean    sqlTrigger = td instanceof TriggerDefSQL;
 
-            if (cols != null && td.getUpdateColumns() != null
-                    && !ArrayUtil.haveCommonElement(td.getUpdateColumns(),
-                        cols, cols.length)) {
+            if (cols != null && td.getUpdateColumnIndexes() != null
+                    && !ArrayUtil.haveCommonElement(
+                        td.getUpdateColumnIndexes(), cols, cols.length)) {
                 continue;
             }
 
