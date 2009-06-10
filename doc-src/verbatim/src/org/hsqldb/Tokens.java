@@ -620,6 +620,7 @@ public class Tokens {
     static final String        T_BACKUP              = "BACKUP";
     public static final String T_BIT                 = "BIT";
     static final String        T_BITLENGTH           = "BITLENGTH";
+    static final String        T_CACHE               = "CACHE";
     static final String        T_CACHED              = "CACHED";
     static final String        T_CASEWHEN            = "CASEWHEN";
     static final String        T_CHECKPOINT          = "CHECKPOINT";
@@ -633,6 +634,8 @@ public class Tokens {
     static final String        T_DEFRAG              = "DEFRAG";
     static final String        T_EXPLAIN             = "EXPLAIN";
     static final String        T_EVENT               = "EVENT";
+    static final String        T_FILE                = "FILE";
+    static final String        T_FILES               = "FILES";
     static final String        T_FOLD                = "FOLD";
     static final String        T_GENERATED           = "GENERATED";
     static final String        T_HEADER              = "HEADER";
@@ -646,6 +649,7 @@ public class Tokens {
     static final String T_ISREADONLYDATABASEFILES = "ISREADONLYDATABASEFILES";
     static final String        T_ISREADONLYSESSION   = "ISREADONLYSESSION";
     static final String        T_LIMIT               = "LIMIT";
+    static final String        T_LOCK                = "LOCK";
     static final String        T_LOCKS               = "LOCKS";
     static final String        T_LOGSIZE             = "LOGSIZE";
     static final String        T_MAXROWS             = "MAXROWS";
@@ -653,6 +657,7 @@ public class Tokens {
     static final String        T_MILLIS              = "MILLIS";
     static final String        T_MINUS_EXCEPT        = "MINUS";
     static final String        T_MVCC                = "MVCC";
+    static final String        T_NIO                 = "NIO";
     static final String        T_NOW                 = "NOW";
     static final String        T_NOWAIT              = "NOWAIT";
     static final String        T_NVL                 = "NVL";
@@ -1433,10 +1438,10 @@ public class Tokens {
     public static final int SECONDS_MIDNIGHT = 656;
 
     //
-    static final int        CONTROL          = 657;
-    static final int        LOCKS            = 658;
-    static final int        MVCC             = 658;
-
+    static final int CONTROL = 657;
+    static final int LOCK    = 658;
+    static final int LOCKS   = 659;
+    static final int MVCC    = 660;
 
     //
     static final int        ASTERISK         = 661;
@@ -1471,7 +1476,13 @@ public class Tokens {
     static final int SQL_TSI_QUARTER     = 688;
     static final int SQL_TSI_YEAR        = 689;
 
-//
+    // todo - goes into general hsqldb list
+    static final int FILE  = 691;
+    static final int FILES = 692;
+    static final int CACHE = 693;
+    static final int NIO = 694;
+
+    //
     static final int SQL_BIGINT        = 701;
     static final int SQL_BINARY        = 702;
     static final int SQL_BIT           = 703;
@@ -1509,22 +1520,22 @@ public class Tokens {
     static final int X_POS_INTEGER = 733;
 
     //
-    static final int X_VALUE                    = 734;
-    static final int X_IDENTIFIER               = 735;
-    static final int X_DELIMITED_IDENTIFIER     = 736;
-    static final int X_ENDPARSE                 = 737;
-    static final int X_STARTPARSE               = 738;
-    static final int X_REMARK                   = 739;
-    static final int X_NULL                     = 730;
-    static final int X_LOB_SIZE                 = 731;
-    static final int X_MALFORMED_STRING         = 732;
-    static final int X_MALFORMED_NUMERIC        = 733;
-    static final int X_MALFORMED_BIT_STRING     = 734;
-    static final int X_MALFORMED_BINARY_STRING  = 735;
-    static final int X_MALFORMED_UNICODE_STRING = 736;
-    static final int X_MALFORMED_COMMENT        = 737;
-    static final int X_MALFORMED_IDENTIFIER     = 738;
-    static final int X_MALFORMED_UNICODE_ESCAPE = 739;
+    public static final int X_VALUE                    = 734;
+    public static final int X_IDENTIFIER               = 735;
+    public static final int X_DELIMITED_IDENTIFIER     = 736;
+    public static final int X_ENDPARSE                 = 737;
+    public static final int X_STARTPARSE               = 738;
+    public static final int X_REMARK                   = 739;
+    public static final int X_NULL                     = 730;
+    public static final int X_LOB_SIZE                 = 731;
+    public static final int X_MALFORMED_STRING         = 732;
+    public static final int X_MALFORMED_NUMERIC        = 733;
+    public static final int X_MALFORMED_BIT_STRING     = 734;
+    public static final int X_MALFORMED_BINARY_STRING  = 735;
+    public static final int X_MALFORMED_UNICODE_STRING = 736;
+    public static final int X_MALFORMED_COMMENT        = 737;
+    public static final int X_MALFORMED_IDENTIFIER     = 738;
+    public static final int X_MALFORMED_UNICODE_ESCAPE = 739;
 
     //
     public static final int X_UNKNOWN_TOKEN = -1;
@@ -1879,6 +1890,7 @@ public class Tokens {
         commandSet.put(T_BEFORE, BEFORE);
         commandSet.put(T_BIT, BIT);
         commandSet.put(T_BLOCKING, BLOCKING);
+        commandSet.put(T_CACHE, CACHE);
         commandSet.put(T_CACHED, CACHED);
         commandSet.put(T_CASCADE, CASCADE);
         commandSet.put(T_CATALOG, CATALOG);
@@ -1904,6 +1916,8 @@ public class Tokens {
         commandSet.put(T_EXCLUDING, EXCLUDING);
         commandSet.put(T_EXPLAIN, EXPLAIN);
         commandSet.put(T_EVENT, EVENT);
+        commandSet.put(T_FILE, FILE);
+        commandSet.put(T_FILES, FILES);
         commandSet.put(T_FINAL, FINAL);
         commandSet.put(T_FIRST, FIRST);
         commandSet.put(T_G_FACTOR, G);
@@ -1931,6 +1945,7 @@ public class Tokens {
         commandSet.put(T_LEVEL, LEVEL);
         commandSet.put(T_LIMIT, LIMIT);
         commandSet.put(T_LOGSIZE, LOGSIZE);
+        commandSet.put(T_LOCK, LOCK);
         commandSet.put(T_LOCKS, LOCKS);
         commandSet.put(T_M_FACTOR, M);
         commandSet.put(T_MATCHED, MATCHED);
@@ -1943,6 +1958,7 @@ public class Tokens {
         commandSet.put(T_MVCC, MVCC);
         commandSet.put(T_NAME, NAME);
         commandSet.put(T_NEXT, NEXT);
+        commandSet.put(T_NIO, NIO);
         commandSet.put(T_NOW, NOW);
         commandSet.put(T_NULLS, NULLS);
         commandSet.put(T_OFF, OFF);
@@ -2147,7 +2163,7 @@ public class Tokens {
 
         // minimal set of identifier not allowed as table / column / alias names
         // these are in effect interpreted as reserved words used by HSQLDB
-        coreReservedWords = new OrderedIntHashSet(67, 1);
+        coreReservedWords = new OrderedIntHashSet(128);
 
         short[] keyword = {
             ADMIN, AS, AND, ALL, ANY, AT, AVG, BY, BETWEEN, BOTH, CALL, CASE,

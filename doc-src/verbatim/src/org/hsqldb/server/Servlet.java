@@ -147,7 +147,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
         try {
             super.init(config);
 
-            rowOut = new RowOutputBinary(BUFFER_SIZE);
+            rowOut = new RowOutputBinary(BUFFER_SIZE, 1);
             rowIn  = new RowInputBinary(rowOut);
         } catch (ServletException e) {
             log(e.toString());
@@ -249,9 +249,13 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                 // bytes, the loop in the Result.read() method handles this
                 inStream = new DataInputStream(request.getInputStream());
 
-                int    databaseID = inStream.readInt();
-                long   sessionID  = inStream.readLong();
-                Result resultIn   = Result.newResult(inStream, rowIn);
+                int  databaseID = inStream.readInt();
+                long sessionID  = inStream.readLong();
+                int  mode       = inStream.readByte();
+                Session session = DatabaseManager.getSession(databaseID,
+                    sessionID);
+                Result resultIn = Result.newResult(session, mode, inStream,
+                                                   rowIn);
 
                 resultIn.setDatabaseId(databaseID);
                 resultIn.setSessionId(sessionID);
@@ -260,8 +264,8 @@ public class Servlet extends javax.servlet.http.HttpServlet {
 
                 if (resultIn.getType() == ResultConstants.CONNECT) {
                     try {
-                        Session session = DatabaseManager.newSession(dbType,
-                            dbPath, resultIn.getMainString(),
+                        session = DatabaseManager.newSession(
+                            dbType, dbPath, resultIn.getMainString(),
                             resultIn.getSubString(), new HsqlProperties(),
                             resultIn.getUpdateCount());
 
@@ -276,8 +280,8 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                 } else {
                     int  dbId      = resultIn.getDatabaseId();
                     long sessionId = resultIn.getSessionId();
-                    Session session = DatabaseManager.getSession(dbId,
-                        sessionId);
+
+                    session = DatabaseManager.getSession(dbId, sessionId);
 
                     resultIn.readAdditionalResults(session, inStream, rowIn);
 
