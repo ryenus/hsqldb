@@ -50,8 +50,8 @@ import org.hsqldb.jdbc.testbase.BaseTestCase;
 public class JDBCResultSetTest extends BaseTestCase {
 
     public static final int DEFAULT_RESULT_SET_CLOSED_ERROR_CODE = -ErrorCode.X_24501;
-    public static final int DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE = -ErrorCode.RS_BEFORE_FIRST;
-    public static final int DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE = -ErrorCode.RS_AFTER_LAST;
+    public static final int DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE = -ErrorCode.X_24504;
+    public static final int DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE = -ErrorCode.X_24504;
     private List<ResultSet> m_resultSetList;
 
     public JDBCResultSetTest(String testName) {
@@ -2609,8 +2609,8 @@ public class JDBCResultSetTest extends BaseTestCase {
         } catch (SQLException ex) {
             assertEquals(
                     "error code",
-                    ex.getErrorCode(),
-                    -ErrorCode.X_24501);
+                    -ErrorCode.X_24501,
+                    ex.getErrorCode());
         }
     }
 
