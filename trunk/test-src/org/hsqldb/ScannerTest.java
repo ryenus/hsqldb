@@ -27,65 +27,134 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 
-public class ScannerTest {
-    public static void main(String[] args) {
+public class ScannerTest extends TestCase {
 
-        IntervalType t       = Type.SQL_INTERVAL_DAY;
-        Object       i       = null;
-        String       s       = null;
-        Scanner      scanner = new Scanner();
+    // HACK!!
+    // TODO:  Fix
+    //    java.lang.reflect.InvocationTargetException
+    //Caused by: java.lang.ExceptionInInitializerError
+    //	at org.hsqldb.HsqlNameManager.newInfoSchemaObjectName(HsqlNameManager.java:128)
+    //	at org.hsqldb.Collation.<init>(Collation.java:166)
+    //	at org.hsqldb.Collation.<clinit>(Collation.java:154)
+    //	at org.hsqldb.types.CharacterType.<init>(CharacterType.java:81)
+    //	at org.hsqldb.types.Type.<clinit>(Type.java:451)
+    //	at org.hsqldb.ScannerTest.computeTestName(ScannerTest.java:49)
+    //	at org.hsqldb.ScannerTest.<init>(ScannerTest.java:69)
+    //	at org.hsqldb.ScannerTest.suite(ScannerTest.java:108)
+    //Caused by: java.lang.NullPointerException
+    //	at org.hsqldb.types.DTIType.<init>(DTIType.java:174)
+    //	at org.hsqldb.types.DateTimeType.<init>(DateTimeType.java:63)
+    //	at org.hsqldb.SqlInvariants.<clinit>(SqlInvariants.java:218)
+    static IntervalType sit = Type.SQL_INTERVAL_DAY;
 
-        try {
-            s = "200 10";
-            t = IntervalType.getIntervalType(Types.SQL_INTERVAL_DAY_TO_HOUR,
-                                             4, 0);
-            i = scanner.convertToDatetimeInterval(s, t);
+    public static String computeTestName(
+            final String toScan,
+            final int dataType,
+            final long precision,
+            final int fractionalPrecision) {
+        return "\"" +
+                toScan +
+                "\", " +
+                IntervalType.getIntervalType(dataType, precision, fractionalPrecision).getDefinition() +
+                ", (" +
+                precision +
+                "," +
+                fractionalPrecision +
+                ")";
+    }
+    private String m_toScan;
+    private int m_dataType;
+    private long m_precision;
+    private int m_fractionalPrecision;
 
-            s = "200 10:12:12.456789";
-            t = IntervalType.getIntervalType(Types.SQL_INTERVAL_DAY_TO_SECOND,
-                                             3, 6);
-            i = scanner.convertToDatetimeInterval(s, t);
+    public ScannerTest(
+            final String toScan,
+            final int dataType,
+            final long precision,
+            final int fractionalPrecision) {
+        super(computeTestName(toScan,dataType,precision,fractionalPrecision));
 
-            s = "200 10:12:12.456789";
-            t = IntervalType.getIntervalType(Types.SQL_INTERVAL_DAY_TO_SECOND,
-                                             3, 7);
-            i = scanner.convertToDatetimeInterval(s, t);
+        m_toScan = toScan;
+        m_dataType = dataType;
+        m_precision = precision;
+        m_fractionalPrecision = fractionalPrecision;
+    }
+    // inherit javadocs
 
-            s = "INTERVAL '200 10:12:12.' DAY(4) TO SECOND(8)";
-            t = IntervalType.getIntervalType(Types.SQL_INTERVAL_DAY_TO_SECOND,
-                                             3, 5);
-            i = scanner.convertToDatetimeInterval(s, t);
-            s = "INTERVAL '200 10:12:12.' DAY TO SECOND";
-            t = IntervalType.getIntervalType(Types.SQL_INTERVAL_DAY_TO_SECOND,
-                                             3, 5);
-            i = scanner.convertToDatetimeInterval(s, t);
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+    }
 
-            /* TODO:  Fix these tests.
-             * The inheritance design of the types has changed, breaking the
-             * usage here.
-            s = "TIME '10:12:12.'";
-            t = Type.SQL_TIME;
-            i = scanner.convertToDatetimeInterval(s, t);
 
-            s = "2007-01-02 10:12:12";
-            t = Type.SQL_TIMESTAMP;
-            i = scanner.convertToDatetimeInterval(s, t);
+    // inherit javadocs
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 
-            s = "200 10:00:12";
-            t = IntervalType.getIntervalType(Types.SQL_INTERVAL_DAY_TO_SECOND,
-                                             3, 5);
-            i = scanner.convertToDatetimeInterval(s, t);
-            */
+    @Override
+    protected void runTest() throws Exception {
+        IntervalType t = IntervalType.getIntervalType(
+                m_dataType,
+                m_precision,
+                m_fractionalPrecision);
+        Scanner scanner = new Scanner();
+        Object i = scanner.convertToDatetimeInterval(m_toScan, t);
+    }
 
-        } catch (HsqlException e) {
-            System.out.println(s);
+    /**
+     * suite method automatically generated by JUnit module
+     *
+     * @return the JDBC test suite
+     */
+    public static Test suite() {
+        TestSuite suite = new TestSuite(ScannerTest.class.getName());
+
+        ScannerTest[] tests = new ScannerTest[]{
+            new ScannerTest("200 10", Types.SQL_INTERVAL_DAY_TO_HOUR, 4, 0),
+            new ScannerTest("200 10:12:12.456789", Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 6),
+            new ScannerTest("200 10:12:12.456789", Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 7),
+            new ScannerTest("INTERVAL '200 10:12:12.' DAY(4) TO SECOND(8)", Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5),
+            new ScannerTest("INTERVAL '200 10:12:12.' DAY TO SECOND", Types.SQL_INTERVAL_DAY_TO_SECOND, 3, 5)
+        };
+
+
+        for (int i = 0; i < tests.length; i++) {
+            suite.addTest(tests[i]);
         }
+
+
+        /* TODO:  Fix these tests.
+         * The inheritance design of the types has changed, breaking the
+         * usage here.
+        s = "TIME '10:12:12.'";
+        t = Type.SQL_TIME;
+        i = scanner.convertToDatetimeInterval(s, t);
+
+        s = "2007-01-02 10:12:12";
+        t = Type.SQL_TIMESTAMP;
+        i = scanner.convertToDatetimeInterval(s, t);
+
+        s = "200 10:00:12";
+        t = IntervalType.getIntervalType(Types.SQL_INTERVAL_DAY_TO_SECOND,
+        3, 5);
+        i = scanner.convertToDatetimeInterval(s, t);
+         */
+
+        return suite;
+    }
+
+    public static void main(java.lang.String[] argList) {
+
+        junit.textui.TestRunner.run(suite());
     }
 }
