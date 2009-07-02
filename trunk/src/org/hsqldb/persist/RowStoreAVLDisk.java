@@ -47,6 +47,7 @@ import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.TransactionManagerInterface;
 
 /*
  * Implementation of PersistentStore for CACHED tables.
@@ -59,8 +60,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     DataFileCache           cache;
     Table                   table;
-    IntKeyHashMapConcurrent rowActionMap;
-
+    TransactionManagerInterface txManager;
     public RowStoreAVLDisk(PersistentStoreCollection manager,
                            DataFileCache cache, Table table) {
 
@@ -72,7 +72,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         manager.setStore(table, this);
 
-        rowActionMap = table.database.txManager.rowActionMap;
+        txManager = table.database.txManager;
     }
 
     public boolean isMemory() {
@@ -87,7 +87,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         Row row = ((Row) object);
 
-        row.rowAction = (RowAction) rowActionMap.get(row.getPos());
+        txManager.setTransactionInfo(row);
     }
 
     public CachedObject get(int key) {

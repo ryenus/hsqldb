@@ -85,7 +85,7 @@ public class TestCollation extends TestBase {
         try {
             statement.execute(
                 getSetCollationStmt(
-                    "ThisIsDefinatelyNoValidCollationIdentifier"));
+                    "ThisIsDefinitlyNoValidCollationIdentifier"));
             fail("database did not reject invalid collation name");
         } catch (java.sql.SQLException e) {}
 

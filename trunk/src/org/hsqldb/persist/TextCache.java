@@ -113,64 +113,9 @@ public class TextCache extends DataFileCache {
         fa            = FileUtil.getDefaultInstance();
 
         HsqlProperties tableprops =
-            HsqlProperties.delimitedArgPairsToProps(fileName, "=", ";", null);
-
-        // source file name is the only key without a value
-        fileName = tableprops.errorKeys[0].trim();
-
-        //-- Get separators:
+            HsqlProperties.delimitedArgPairsToProps(fileName, "=", ";",
+                "textdb");
         HsqlDatabaseProperties dbProps = database.getProperties();
-
-        fs = translateSep(tableprops.getProperty("fs",
-                dbProps.getProperty(HsqlDatabaseProperties.textdb_fs, ",")));
-        vs = translateSep(tableprops.getProperty("vs",
-                dbProps.getProperty(HsqlDatabaseProperties.textdb_vs, fs)));
-        lvs = translateSep(tableprops.getProperty("lvs",
-                dbProps.getProperty(HsqlDatabaseProperties.textdb_lvs, fs)));
-
-        //-- Get booleans
-        ignoreFirst = tableprops.isPropertyTrue(
-            "ignore_first",
-            dbProps.isPropertyTrue(
-                HsqlDatabaseProperties.textdb_ignore_first, false));
-        isQuoted = tableprops.isPropertyTrue(
-            "quoted",
-            dbProps.isPropertyTrue(
-                HsqlDatabaseProperties.textdb_quoted, true));
-        isAllQuoted = tableprops.isPropertyTrue(
-            "all_quoted",
-            dbProps.isPropertyTrue(
-                HsqlDatabaseProperties.textdb_all_quoted, false));
-
-        //-- Get encoding
-        stringEncoding = translateSep(tableprops.getProperty("encoding",
-                dbProps.getProperty(HsqlDatabaseProperties.textdb_encoding,
-                                    "ASCII")));
-
-        //-- Get size and scale
-        int cacheScale = tableprops.getIntegerProperty(
-            "cache_scale",
-            dbProps.getIntegerProperty(
-                HsqlDatabaseProperties.textdb_cache_scale, 10, 8, 16));
-        int cacheSizeScale = tableprops.getIntegerProperty(
-            "cache_size_scale",
-            dbProps.getIntegerProperty(
-                HsqlDatabaseProperties.textdb_cache_size_scale, 10, 8, 20));
-        int lookupTableLength = 1 << cacheScale;
-        int avgRowBytes       = 1 << cacheSizeScale;
-
-        maxCacheSize     = lookupTableLength * 3;
-        maxCacheBytes    = maxCacheSize * avgRowBytes;
-        maxDataFileSize  = Integer.MAX_VALUE;
-        cachedRowPadding = 1;
-        cacheFileScale   = 1;
-    }
-
-    static void checkTextSouceString(String fileName,
-                                     HsqlDatabaseProperties dbProps) {
-
-        HsqlProperties tableprops =
-            HsqlProperties.delimitedArgPairsToProps(fileName, "=", ";", null);
 
         //-- Get file name
         switch (tableprops.errorCodes.length) {
@@ -187,17 +132,68 @@ public class TextCache extends DataFileCache {
                 throw Error.error(ErrorCode.X_S0502);
         }
 
-        //-- Get separators:
-        String fs = translateSep(tableprops.getProperty("fs",
-            dbProps.getProperty(HsqlDatabaseProperties.textdb_fs, ",")));
-        String vs = translateSep(tableprops.getProperty("vs",
-            dbProps.getProperty(HsqlDatabaseProperties.textdb_vs, fs)));
-        String lvs = translateSep(tableprops.getProperty("lvs",
-            dbProps.getProperty(HsqlDatabaseProperties.textdb_lvs, fs)));
+        //-- Get separators: from database properties, then from table properties
+        fs  = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_fs);
+        fs  = tableprops.getProperty(HsqlDatabaseProperties.textdb_fs, fs);
+        vs  = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_vs);
+        vs  = tableprops.getProperty(HsqlDatabaseProperties.textdb_vs, vs);
+        lvs = dbProps.getStringProperty(HsqlDatabaseProperties.textdb_lvs);
+        lvs = tableprops.getProperty(HsqlDatabaseProperties.textdb_lvs, lvs);
+
+        if (vs == null) {
+            vs = fs;
+        }
+
+        if (lvs == null) {
+            lvs = fs;
+        }
+
+        fs  = translateSep(fs);
+        vs  = translateSep(vs);
+        lvs = translateSep(lvs);
 
         if (fs.length() == 0 || vs.length() == 0 || lvs.length() == 0) {
             throw Error.error(ErrorCode.X_S0503);
         }
+
+        //-- Get booleans
+        ignoreFirst =
+            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_ignore_first);
+        ignoreFirst = tableprops.isPropertyTrue(
+            HsqlDatabaseProperties.textdb_ignore_first, ignoreFirst);
+        isQuoted =
+            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_quoted);
+        isQuoted =
+            tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_quoted,
+                                      isQuoted);
+        isAllQuoted =
+            dbProps.isPropertyTrue(HsqlDatabaseProperties.textdb_all_quoted);
+        isAllQuoted =
+            tableprops.isPropertyTrue(HsqlDatabaseProperties.textdb_all_quoted,
+                                      isAllQuoted);
+        stringEncoding =
+            dbProps.getStringProperty(HsqlDatabaseProperties.textdb_encoding);
+        stringEncoding =
+            tableprops.getProperty(HsqlDatabaseProperties.textdb_encoding,
+                                   stringEncoding);
+
+        //-- Get size and scale
+        int cacheScale = tableprops.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_scale,
+            dbProps.getIntegerProperty(
+                HsqlDatabaseProperties.textdb_cache_scale));
+        int cacheSizeScale = tableprops.getIntegerProperty(
+            HsqlDatabaseProperties.textdb_cache_size_scale,
+            dbProps.getIntegerProperty(
+                HsqlDatabaseProperties.textdb_cache_size_scale));
+        int lookupTableLength = 1 << cacheScale;
+        int avgRowBytes       = 1 << cacheSizeScale;
+
+        maxCacheRows     = lookupTableLength * 3;
+        maxCacheBytes    = maxCacheRows * avgRowBytes;
+        maxDataFileSize  = Integer.MAX_VALUE;
+        cachedRowPadding = 1;
+        cacheFileScale   = 1;
     }
 
     protected void initBuffers() {
@@ -319,7 +315,7 @@ public class TextCache extends DataFileCache {
             fileFreePosition = dataFile.length();
 
             if (fileFreePosition > Integer.MAX_VALUE) {
-                throw new HsqlException("", "", 0);
+                throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
             }
 
             initBuffers();
@@ -533,7 +529,7 @@ public class TextCache extends DataFileCache {
 
             return null;
         } catch (IOException e) {
-            throw new HsqlException(e.getMessage(), "", 0);
+            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
         }
     }
 
@@ -657,7 +653,7 @@ public class TextCache extends DataFileCache {
                 }
             }
         } catch (IOException e) {
-            throw new HsqlException(e.getMessage(), "", 0);
+            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
         }
     }
 
@@ -758,7 +754,7 @@ public class TextCache extends DataFileCache {
 
             fileFreePosition = buf.length;
         } catch (IOException e) {
-            throw new HsqlException(e.getMessage(), "", 0);
+            throw Error.error(ErrorCode.TEXT_FILE_IO, e);
         }
     }
 

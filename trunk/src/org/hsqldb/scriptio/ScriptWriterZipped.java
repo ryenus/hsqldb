@@ -63,7 +63,7 @@ class ScriptWriterZipped extends ScriptWriterBinary {
     protected void openFile() {
 
         try {
-            FileAccess           fa  = database.getFileAccess();
+            FileAccess           fa  = database.logger.getFileAccess();
             java.io.OutputStream fos = fa.openOutputStreamElement(outFile);
 
             outDescriptor = fa.getFileSync(fos);

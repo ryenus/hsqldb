@@ -82,6 +82,8 @@ public class GranteeManager {
 
         SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.owner = systemAuthorisation;
         SqlInvariants.SYSTEM_SCHEMA_HSQLNAME.owner      = systemAuthorisation;
+        SqlInvariants.LOBS_SCHEMA_HSQLNAME.owner        = systemAuthorisation;
+        SqlInvariants.SQLJ_SCHEMA_HSQLNAME.owner        = systemAuthorisation;
     }
 
     /**

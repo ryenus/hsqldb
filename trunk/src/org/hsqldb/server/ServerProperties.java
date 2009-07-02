@@ -164,7 +164,19 @@ public class ServerProperties extends HsqlProperties {
                        == SERVER_MULTI_PROPERTY) {
                 error = validateMultiProperty(key, metadata);
             } else {
-                error = validateProperty(key, metadata);
+                String value = getProperty(key);
+
+                if (value == null) {
+                    if (metadata[indexDefaultValue] == null) {
+                        error = "missing value for property: " + key;
+                    } else {
+                        setProperty(key,
+                                    metadata[indexDefaultValue].toString());
+                    }
+                } else {
+                    error = HsqlProperties.validateProperty(key, value,
+                            metadata);
+                }
             }
 
             if (error != null) {
@@ -203,59 +215,6 @@ public class ServerProperties extends HsqlProperties {
             if (key.startsWith(prefix)) {
                 return (Object[]) meta.get(prefix);
             }
-        }
-
-        return null;
-    }
-
-    /**
-     * Perfoms any range checking for property
-     */
-    String validateProperty(String key, Object[] meta) {
-
-        String value = stringProps.getProperty(key);
-
-        if (value == null) {
-            if (meta[indexDefaultValue] == null) {
-                return "missing value for property: " + key;
-            }
-
-            stringProps.setProperty(key, meta[indexDefaultValue].toString());
-        }
-
-        if (meta[indexClass].equals("boolean")) {
-            value = value.toLowerCase();
-
-            if (value.equals("true") || value.equals("false")) {}
-
-            return null;
-        }
-
-        if (meta[indexClass].equals("string")) {
-            return null;
-        }
-
-        if (meta[indexClass].equals("int")) {
-            int number = Integer.parseInt(value);
-
-            if (Boolean.TRUE.equals(meta[indexIsRange])) {
-                int low  = ((Integer) meta[indexRangeLow]).intValue();
-                int high = ((Integer) meta[indexRangeHigh]).intValue();
-
-                if (number < low || high < number) {
-                    return "value outside range for property: " + key;
-                }
-            }
-
-            if (meta[indexValues] != null) {
-                int[] values = (int[]) meta[indexValues];
-
-                if (ArrayUtil.find(values, number) == -1) {
-                    return "value not supported for property: " + key;
-                }
-            }
-
-            return null;
         }
 
         return null;

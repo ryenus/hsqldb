@@ -61,9 +61,7 @@ import org.hsqldb.lib.LineGroupReader;
  */
 public class TestUtil {
 
-    /* This class writes \n's as line delimiters.
-     * It should write System.getProperty("line.separateor").
-     *
+    /*
      * The executing scripts do have state.  This class should be
      * redesigned with OOD.
      */

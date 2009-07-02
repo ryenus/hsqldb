@@ -146,8 +146,7 @@ public class RowAVLDisk extends RowAVL {
      * @param in data source
      * @throws IOException
      */
-    public RowAVLDisk(TableBase t,
-                      RowInputInterface in) throws IOException {
+    public RowAVLDisk(TableBase t, RowInputInterface in) throws IOException {
 
         tTable      = t;
         position    = in.getPos();
@@ -171,8 +170,7 @@ public class RowAVLDisk extends RowAVL {
         return null;
     }
 
-    private void readRowInfo(RowInputInterface in)
-    throws IOException {
+    private void readRowInfo(RowInputInterface in) throws IOException {
 
         // for use when additional transaction info is attached to rows
     }

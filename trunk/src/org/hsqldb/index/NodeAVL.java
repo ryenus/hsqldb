@@ -96,8 +96,8 @@ import org.hsqldb.lib.IntLookup;
 public abstract class NodeAVL implements CachedObject {
 
     static final int NO_POS = RowAVLDisk.NO_POS;
-    public int       iBalance;    // currently, -2 means 'deleted'
-    public NodeAVL   nNext;       // node of next index (nNext==null || nNext.iId=iId+1)
+    public int       iBalance;
+    public NodeAVL   nNext;    // node of next index (nNext==null || nNext.iId=iId+1)
 
     /**
      *  This method unlinks the Node from the other Nodes in the same Index

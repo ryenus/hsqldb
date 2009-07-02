@@ -890,7 +890,7 @@ public class Server implements HsqlSocketRequestHandler {
      * file format, except that the 'server.' prefix should not be specified.
      *
      * @param s semicolon-delimited key=value pair string,
-     *      e.g. k1=v1;k2=v2;k3=v3...
+     *      e.g. silent=false;port=8080;...
      * @throws RuntimeException if this server is running
      *
      * @jmx.managed-operation

@@ -96,6 +96,7 @@ public class ExpressionOp extends Expression {
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 nodes       = new Expression[UNARY];
                 nodes[LEFT] = new ExpressionOp(OpTypes.ZONE_MODIFIER, e, null);
+                nodes[LEFT].dataType = e.dataType;
                 dataType = DateTimeType.getDateTimeType(Types.SQL_TIME,
                         e.dataType.scale);
                 break;
@@ -103,6 +104,7 @@ public class ExpressionOp extends Expression {
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 nodes       = new Expression[UNARY];
                 nodes[LEFT] = new ExpressionOp(OpTypes.ZONE_MODIFIER, e, null);
+                nodes[LEFT].dataType = e.dataType;
                 dataType = DateTimeType.getDateTimeType(Types.SQL_TIMESTAMP,
                         e.dataType.scale);
                 break;
@@ -110,6 +112,7 @@ public class ExpressionOp extends Expression {
             case Types.SQL_TIME :
                 nodes       = new Expression[BINARY];
                 nodes[LEFT] = e;
+                nodes[LEFT].dataType = e.dataType;
                 dataType =
                     DateTimeType.getDateTimeType(Types.SQL_TIME_WITH_TIME_ZONE,
                                                  e.dataType.scale);
@@ -118,6 +121,7 @@ public class ExpressionOp extends Expression {
             case Types.SQL_TIMESTAMP :
                 nodes       = new Expression[BINARY];
                 nodes[LEFT] = e;
+                nodes[LEFT].dataType = e.dataType;
                 dataType = DateTimeType.getDateTimeType(
                     Types.SQL_TIMESTAMP_WITH_TIME_ZONE, e.dataType.scale);
                 break;

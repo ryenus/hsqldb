@@ -29,44 +29,47 @@
  */
 
 
-package org.hsqldb.lib;
+package org.hsqldb.rowio;
 
-import java.io.IOException;
+import org.hsqldb.Types;
+import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
+import org.hsqldb.types.Type;
 
-/**
- * An interface that supports the commonly used methods of java.io.RandomAccessFile.
- *
- * @author Ocke Janssen oj@openoffice.org
- * @version 1.8.0
- * @since 1.8.0
- */
-public interface Storage {
+public class RowOutputBinary180 extends RowOutputBinary {
 
-    long length() throws IOException;
+    public RowOutputBinary180() {
+        super();
+    }
 
-    void seek(long position) throws IOException;
+    public RowOutputBinary180(int initialSize, int scale) {
+        super(initialSize, scale);
+    }
 
-    long getFilePointer() throws IOException;
+    protected void writeDate(TimestampData o, Type type) {
+        writeLong(o.getSeconds() * 1000L);
+    }
 
-    int read() throws IOException;
+    protected void writeTime(TimeData o, Type type) {
 
-    void read(byte[] b, int offset, int length) throws IOException;
+        if (type.typeCode == Types.SQL_TIME) {
+            writeLong(o.getSeconds() * 1000L);
+        } else {
+            writeInt(o.getSeconds());
+            writeInt(o.getNanos());
+            writeInt(o.getZone());
+        }
+    }
 
-    void write(byte[] b, int offset, int length) throws IOException;
+    protected void writeTimestamp(TimestampData o, Type type) {
 
-    int readInt() throws IOException;
-
-    void writeInt(int i) throws IOException;
-
-    long readLong() throws IOException;
-
-    void writeLong(long i) throws IOException;
-
-    void close() throws IOException;
-
-    boolean isReadOnly();
-
-    boolean wasNio();
-
-    void synch();
+        if (type.typeCode == Types.SQL_TIMESTAMP) {
+            writeLong(o.getSeconds() * 1000L);
+            writeInt(o.getNanos());
+        } else {
+            writeLong(o.getSeconds());
+            writeInt(o.getNanos());
+            writeInt(o.getZone());
+        }
+    }
 }

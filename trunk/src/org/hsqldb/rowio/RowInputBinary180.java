@@ -29,44 +29,54 @@
  */
 
 
-package org.hsqldb.lib;
+package org.hsqldb.rowio;
 
 import java.io.IOException;
 
-/**
- * An interface that supports the commonly used methods of java.io.RandomAccessFile.
- *
- * @author Ocke Janssen oj@openoffice.org
- * @version 1.8.0
- * @since 1.8.0
- */
-public interface Storage {
+import org.hsqldb.Types;
+import org.hsqldb.types.TimeData;
+import org.hsqldb.types.TimestampData;
+import org.hsqldb.types.Type;
 
-    long length() throws IOException;
+public class RowInputBinary180 extends RowInputBinary {
 
-    void seek(long position) throws IOException;
+    public RowInputBinary180() {
+        super();
+    }
 
-    long getFilePointer() throws IOException;
+    public RowInputBinary180(byte[] buf) {
+        super(buf);
+    }
 
-    int read() throws IOException;
+    public RowInputBinary180(RowOutputBinary out) {
+        super(out);
+    }
 
-    void read(byte[] b, int offset, int length) throws IOException;
+    protected TimeData readTime(Type type) throws IOException {
 
-    void write(byte[] b, int offset, int length) throws IOException;
+        if (type.typeCode == Types.SQL_TIME) {
+            long millis = readLong();
+            return new TimeData((int) (millis/1000), 0, 0);
+        } else {
+            return new TimeData(readInt(), readInt(), readInt());
+        }
+    }
 
-    int readInt() throws IOException;
+    protected TimestampData readDate(Type type) throws IOException {
 
-    void writeInt(int i) throws IOException;
+        long millis = readLong();
 
-    long readLong() throws IOException;
+        return new TimestampData(millis/1000);
+    }
 
-    void writeLong(long i) throws IOException;
+    protected TimestampData readTimestamp(Type type) throws IOException {
 
-    void close() throws IOException;
+        if (type.typeCode == Types.SQL_TIMESTAMP) {
+            long millis = readLong();
+            return new TimestampData(millis/1000, readInt());
+        } else {
+            return new TimestampData(readLong(), readInt(), readInt());
+        }
+    }
 
-    boolean isReadOnly();
-
-    boolean wasNio();
-
-    void synch();
 }

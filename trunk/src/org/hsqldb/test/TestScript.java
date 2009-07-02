@@ -38,7 +38,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelf01Function.txt";
 //    String path = "TestSelf01Procedure.txt";
 //    String path = "TestSelf02UpdatableViews.txt";
-    String path = "TestSelf04UnionCorresponding.txt";
+//    String path = "TestSelf04UnionCorresponding.txt";
 //    String path = "TestSelf.txt";
 //    String path = "TestSelf3PartNames.txt";
 //    String path = "TestSelfArithmetic.txt";
@@ -54,7 +54,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfInterval.txt";
 //    String path = "TestSelfInternalFunctions.txt";
 //    String path = "TestSelfFieldLimits.txt";
-//    String path = "TestSelfFKModes.txt";
+    String path = "TestSelfFKModes.txt";
 //    String path = "TestSelfInPredicateReferencing.txt";
 //    String path = "TestSelfIssues.txt";
 //    String path = "TestSelfJoins.txt";
@@ -71,12 +71,14 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfSeqRightsA.txt";
 //    String path = "TestSelfSysTables.txt";
 //    String path = "TestSelfTempTable1.txt";
+//      String path = "TestSelfTransaction.txt";
 //    String path = "TestSelfTriggers.txt";
 //    String path = "TestSelfUnions.txt";
 //    String path = "TestSelfUserFunction.txt";
 //    String path = "TestSelfViews.txt";
 //    String path = "TestSelfViewGrants.txt";
 //    String path = "TestSelfSeqRightsA.txt";
+//      String path = "TestSelfSysTables.txt";
 //    String path = "TestTemp.txt";
     public TestScript(String name) {
         super(name, null, false, false);

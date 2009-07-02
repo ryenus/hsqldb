@@ -1615,7 +1615,7 @@ public class SchemaManager {
         defaultTableType = type;
     }
 
-    int getDefaultTableType() {
+    public int getDefaultTableType() {
         return defaultTableType;
     }
 }

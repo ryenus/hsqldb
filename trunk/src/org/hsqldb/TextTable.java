@@ -47,7 +47,7 @@ import org.hsqldb.persist.PersistentStore;
  * data is read from and written to a text format data file.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  */
 public class TextTable extends org.hsqldb.Table {
 
@@ -99,7 +99,7 @@ public class TextTable extends org.hsqldb.Table {
         DataFileCache cache = null;
 
         try {
-            cache = (TextCache) database.logger.openTextCache(this,
+            cache = (TextCache) database.logger.openTextFilePersistence(this,
                     dataSource, withReadOnlyData, isReversed);
 
             store.setCache(cache);
@@ -303,8 +303,6 @@ public class TextTable extends org.hsqldb.Table {
                 throw Error.error(ErrorCode.DATABASE_IS_READONLY);
             }
         }
-
-        openCache(null, dataSource, isReversed, value);
 
         isReadOnly = value;
     }

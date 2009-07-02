@@ -89,7 +89,7 @@ abstract class NodeAVLBaseMemory extends NodeAVL {
     protected NodeAVL nParent;
 
     public void delete() {
-        iBalance = -2;
+        iBalance = 0;
         nLeft    = nRight = nParent = null;
     }
 

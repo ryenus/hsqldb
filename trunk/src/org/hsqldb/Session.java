@@ -616,7 +616,7 @@ public class Session implements SessionInterface {
      * @todo no-op in this implementation. To be implemented for connection pooling
      */
     public synchronized void resetSession() {
-        throw new HsqlException("", "", 0);
+        throw Error.error(ErrorCode. X_0A000);
     }
 
     /**
@@ -1111,8 +1111,6 @@ public class Session implements SessionInterface {
         Result r;
 
         if (abortTransaction) {
-
-//            tempActionHistory.add("beginAction aborts" + actionTimestamp);
             rollback(false);
 
             return Result.newErrorResult(Error.error(ErrorCode.X_40001));
@@ -1818,7 +1816,7 @@ public class Session implements SessionInterface {
 
     public void setResultMemoryRowCount(int count) {
 
-        if (database.getTempDirectoryPath() != null) {
+        if (database.logger.getTempDirectoryPath() != null) {
             if (count <= 0) {
                 count = Integer.MAX_VALUE;
             }

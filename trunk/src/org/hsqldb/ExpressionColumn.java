@@ -104,7 +104,7 @@ public class ExpressionColumn extends Expression {
      */
     ExpressionColumn(Expression e, int colIndex, int rangePosition) {
 
-        this(OpTypes.SIMPLE_COLUMN);
+        super(OpTypes.SIMPLE_COLUMN);
 
         dataType           = e.dataType;
         columnIndex        = colIndex;

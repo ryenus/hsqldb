@@ -181,6 +181,8 @@ implements PersistentStoreCollection {
 
             store.release();
         }
+
+        rowStoreMapSession.clear();
     }
 
     public void clearTransactionTables() {
@@ -196,6 +198,8 @@ implements PersistentStoreCollection {
 
             store.release();
         }
+
+        rowStoreMapTransaction.clear();
     }
 
     public void clearStatementTables() {
@@ -211,5 +215,7 @@ implements PersistentStoreCollection {
 
             store.release();
         }
+
+        rowStoreMapStatement.clear();
     }
 }

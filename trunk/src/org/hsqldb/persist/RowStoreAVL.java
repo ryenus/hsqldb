@@ -119,8 +119,6 @@ public abstract class RowStoreAVL implements PersistentStore {
         for (int i = indexList.length - 1; i >= 0; i--) {
             indexList[i].delete(this, row);
         }
-
-        remove(row.getPos());
     }
 
     public final void indexRow(Session session, Row row) {

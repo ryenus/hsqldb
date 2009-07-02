@@ -702,6 +702,9 @@ final class DITableInfo {
                 return "SYSTEM TABLE";
 
             default :
+                if (table.getOwner().isSystem() ) {
+                    return "SYSTEM TABLE";
+                }
                 return "TABLE";
         }
     }

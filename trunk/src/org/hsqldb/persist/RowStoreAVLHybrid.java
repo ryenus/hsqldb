@@ -58,7 +58,7 @@ import org.hsqldb.Table;
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
-    TableBase                       table;
+    final TableBase                 table;
     final Session                   session;
     DataFileCacheSession            cache;
     private int                     maxMemoryRowCount;
@@ -77,9 +77,12 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         this.manager           = manager;
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
-        this.rowIdMap          = new IntKeyHashMapConcurrent();
-        this.useCache          = useCache;
         this.isTempTable       = table.getTableType() == TableBase.TEMP_TABLE;
+        this.useCache          = useCache;
+
+        if (isTempTable) {
+            this.rowIdMap = new IntKeyHashMapConcurrent();
+        }
 
         if (table.getTableType() == TableBase.RESULT_TABLE) {
             timestamp = session.getActionTimestamp();
@@ -232,7 +235,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             int id  = rowIdSequence++;
 
             row.setPos(id);
-            rowIdMap.put(id, row);
+
+            if (rowIdMap != null) {
+                rowIdMap.put(id, row);
+            }
 
             if (isTempTable) {
                 RowAction.addAction(session, RowAction.ACTION_INSERT,
@@ -246,7 +252,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     public void removeAll() {
 
         if (!isCached) {
-            rowIdMap.clear();
+            if (rowIdMap != null) {
+                rowIdMap.clear();
+            }
         }
 
         ArrayUtil.fillArray(accessorList, null);
@@ -257,7 +265,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         if (isCached) {
             cache.remove(i, this);
         } else {
-            rowIdMap.remove(i);
+            if (rowIdMap != null) {
+                rowIdMap.remove(i);
+            }
         }
     }
 
@@ -294,7 +304,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             cache    = null;
             isCached = false;
         } else {
-            rowIdMap.clear();
+            if (rowIdMap != null) {
+                rowIdMap.clear();
+            }
         }
 
         manager.setStore(table, null);
@@ -342,7 +354,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 indexRow(null, newRow);
             }
 
-            rowIdMap.clear();
+            if (rowIdMap != null) {
+                rowIdMap.clear();
+            }
         }
 
         maxMemoryRowCount = Integer.MAX_VALUE;

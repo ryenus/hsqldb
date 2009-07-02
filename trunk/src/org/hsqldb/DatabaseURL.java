@@ -64,9 +64,9 @@ public class DatabaseURL {
      * Returns true if type represents an in-process connection to a file backed
      * database.
      */
-    public static boolean isFileBasedDatabaseType(String url) {
+    public static boolean isFileBasedDatabaseType(String type) {
 
-        if (url == S_FILE || url == S_RES) {
+        if (type == S_FILE || type == S_RES) {
             return true;
         }
 
@@ -76,9 +76,9 @@ public class DatabaseURL {
     /**
      * Returns true if type represents an in-process connection to database.
      */
-    public static boolean isInProcessDatabaseType(String url) {
+    public static boolean isInProcessDatabaseType(String type) {
 
-        if (url == S_FILE || url == S_RES || url == S_MEM) {
+        if (type == S_FILE || type == S_RES || type == S_MEM) {
             return true;
         }
 

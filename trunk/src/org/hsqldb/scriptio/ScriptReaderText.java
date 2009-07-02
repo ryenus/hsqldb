@@ -79,7 +79,8 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         InputStream d = db.isFilesInJar()
                         ? getClass().getResourceAsStream(fileName)
-                        : db.getFileAccess().openInputStreamElement(fileName);
+                        : db.logger.getFileAccess().openInputStreamElement(
+                            fileName);
 
         dataStreamIn = new BufferedReader(
             new InputStreamReader(new BufferedInputStream(d)));
@@ -137,8 +138,7 @@ public class ScriptReaderText extends ScriptReaderBase {
         }
     }
 
-    protected void readExistingData(Session session)
-    throws IOException {
+    protected void readExistingData(Session session) throws IOException {
 
         try {
             String tablename = null;

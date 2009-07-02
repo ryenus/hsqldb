@@ -39,7 +39,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BlobType;
@@ -61,7 +60,6 @@ public class ParserDQL extends ParserBase {
     protected Session              session;
     protected final CompileContext compileContext;
     HsqlException                  lastError;
-    boolean                        strictSQLNames;
     boolean                        strictSQLIdentifierParts;
 
     //
@@ -79,10 +77,7 @@ public class ParserDQL extends ParserBase {
         this.session   = session;
         database       = session.getDatabase();
         compileContext = new CompileContext(session);
-        strictSQLNames = database.getProperties().isPropertyTrue(
-            HsqlDatabaseProperties.sql_enforce_keywords);
-        strictSQLIdentifierParts = database.getProperties().isPropertyTrue(
-            HsqlDatabaseProperties.sql_enforce_keywords);
+        strictSQLIdentifierParts = false;
     }
 
     /**
@@ -100,7 +95,7 @@ public class ParserDQL extends ParserBase {
 
     void checkIsSchemaObjectName() {
 
-        if (strictSQLNames) {
+        if (database.sqlEnforceNames) {
             checkIsNonReservedIdentifier();
         } else {
             checkIsNonCoreReservedIdentifier();
@@ -196,7 +191,7 @@ public class ParserDQL extends ParserBase {
 
         if (Types.requiresPrecision(typeNumber)
                 && token.tokenType != Tokens.OPENBRACKET
-                && database.sqlEnforceStrictSize) {
+                && database.sqlEnforceSize) {
             throw unexpectedTokenRequire(Tokens.T_OPENBRACKET);
         }
 
@@ -288,7 +283,7 @@ public class ParserDQL extends ParserBase {
             } else if (typeNumber == Types.SQL_BLOB
                        || typeNumber == Types.SQL_CLOB) {
                 length = BlobType.defaultBlobSize;
-            } else if (database.sqlEnforceStrictSize) {
+            } else if (database.sqlEnforceSize) {
 
                 // BIT is always BIT(1), regardless of sqlEnforceStringSize
                 if (typeNumber == Types.SQL_CHAR
@@ -1890,8 +1885,10 @@ public class ParserDQL extends ParserBase {
                 }
 
                 e = readSQLFunction(function);
-                break;
 
+                if (e != null) {
+                    break;
+                }
             default :
                 e = XreadAllTypesValueExpressionPrimary(boole);
         }
@@ -2220,7 +2217,11 @@ public class ParserDQL extends ParserBase {
                     FunctionSQL.newSQLFunction(token.tokenString,
                                                compileContext);
 
-                return readSQLFunction(function);
+                Expression e =  readSQLFunction(function);
+
+                if (e!= null) {
+                    return e;
+                }
 
             default :
         }
@@ -2260,7 +2261,11 @@ public class ParserDQL extends ParserBase {
                     throw super.unexpectedToken();
                 }
 
-                return readSQLFunction(function);
+                Expression e = readSQLFunction(function);
+
+                if (e!= null) {
+                    return e;
+                }
 
             default :
         }
@@ -3791,7 +3796,11 @@ public class ParserDQL extends ParserBase {
                 int pos = getPosition();
 
                 try {
-                    return readSQLFunction(function);
+                    Expression e = readSQLFunction(function);
+
+                    if (e != null) {
+                        return e;
+                    }
                 } catch (HsqlException ex) {
                     ex.setLevel(compileContext.subQueryDepth);
 
@@ -3806,7 +3815,13 @@ public class ParserDQL extends ParserBase {
                 function = FunctionSQL.newSQLFunction(name, compileContext);
 
                 if (function != null) {
-                    return readSQLFunction(function);
+
+
+                    Expression e = readSQLFunction(function);
+
+                    if (e != null) {
+                        return e;
+                    }
                 }
             }
         }
@@ -3961,9 +3976,9 @@ public class ParserDQL extends ParserBase {
 
     Expression readSQLFunction(FunctionSQL function) {
 
+        int     position  = getPosition();
         read();
 
-        int     position  = getPosition();
         short[] parseList = function.parseList;
 
         if (parseList.length == 0) {
@@ -3971,15 +3986,22 @@ public class ParserDQL extends ParserBase {
         }
 
         HsqlArrayList exprList = new HsqlArrayList();
-
+        boolean isOpenBracket = token.tokenType == Tokens.OPENBRACKET;
         try {
             readExpression(exprList, parseList, 0, parseList.length, false);
         } catch (HsqlException e) {
+
+            if (!isOpenBracket) {
+                rewind(position);
+                return null;
+            }
+
             if (function.parseListAlt == null) {
                 throw e;
             }
 
             rewind(position);
+            read();
 
             parseList = function.parseListAlt;
             exprList  = new HsqlArrayList();
@@ -4297,7 +4319,7 @@ public class ParserDQL extends ParserBase {
         checkIsIdentifier();
 
         if (token.namePrePrefix != null) {
-            throw Error.error(ErrorCode.X_42551, token.tokenString);
+            checkValidCatalogName(token.namePrePrefix);
         }
 
         Table table = database.schemaManager.getTable(session,

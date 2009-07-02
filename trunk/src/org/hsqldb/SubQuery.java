@@ -189,10 +189,10 @@ class SubQuery implements ObjectComparator {
         Result result = queryExpression.getResult(session,
             isExistsPredicate ? 1
                               : 0);
-        RowSetNavigatorData navigator =
-            ((RowSetNavigatorData) result.getNavigator());
 
         if (uniqueRows) {
+            RowSetNavigatorData navigator =
+                ((RowSetNavigatorData) result.getNavigator());
             navigator.removeDuplicates();
         }
 

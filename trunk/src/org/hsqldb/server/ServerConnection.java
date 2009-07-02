@@ -85,8 +85,7 @@ import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.rowio.RowInputBinary;
-import org.hsqldb.rowio.RowInputBinaryNet;
-import org.hsqldb.rowio.RowOutputBinaryNet;
+import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
 
 // fredt@users 20020215 - patch 461556 by paul-h@users - server factory
@@ -172,9 +171,9 @@ class ServerConnection implements Runnable {
      */
     ServerConnection(Socket socket, Server server) {
 
-        RowOutputBinaryNet rowOutTemp = new RowOutputBinaryNet(mainBuffer);
+        RowOutputBinary rowOutTemp = new RowOutputBinary(mainBuffer);
 
-        rowIn  = new RowInputBinaryNet(rowOutTemp);
+        rowIn  = new RowInputBinary(rowOutTemp);
         rowOut = rowOutTemp;
 
         //

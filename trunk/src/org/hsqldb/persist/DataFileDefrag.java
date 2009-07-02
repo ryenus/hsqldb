@@ -103,7 +103,7 @@ final class DataFileDefrag {
 
         try {
             OutputStream fos =
-                database.getFileAccess().openOutputStreamElement(filename
+                database.logger.getFileAccess().openOutputStreamElement(filename
                     + ".new");
 
             fileStreamOut = new BufferedOutputStream(fos, 1 << 12);
@@ -136,10 +136,13 @@ final class DataFileDefrag {
 
             // write out the end of file position
             dest = ScaledRAFile.newScaledRAFile(
-                database, filename + ".new", false,
-                ScaledRAFile.DATA_FILE_RAF,
-                database.getURLProperties().getProperty("storage_class_name"),
-                database.getURLProperties().getProperty("storage_key"));
+                database, filename
+                + ".new", false, ScaledRAFile.DATA_FILE_RAF, database
+                    .getURLProperties().getProperty(
+                        HsqlDatabaseProperties
+                            .url_storage_class_name), database
+                                .getURLProperties().getProperty(
+                                    HsqlDatabaseProperties.url_storage_key));
 
             dest.seek(DataFileCache.LONG_FREE_POS_POS);
             dest.writeLong(fileOffset);
@@ -171,7 +174,7 @@ final class DataFileDefrag {
             }
 
             if (!complete) {
-                database.getFileAccess().removeElement(filename + ".new");
+                database.logger.getFileAccess().removeElement(filename + ".new");
             }
         }
 
@@ -233,7 +236,7 @@ final class DataFileDefrag {
             pos += row.getStorageSize();
         }
 
-        Error.printSystemOut(table.getName().name + " list done ",
+        Error.printSystemOut(table.getName().name + " list done: " +
                              stopw.elapsedTime());
 
         count = 0;

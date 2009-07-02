@@ -114,7 +114,7 @@ public class SessionData {
 
         try {
             PersistentStore store = session.database.logger.newStore(session,
-                    persistentStoreCollection, table, isCached);
+                persistentStoreCollection, table, isCached);
 
             return store;
         } catch (HsqlException e) {}
@@ -284,7 +284,7 @@ public class SessionData {
     public DataFileCacheSession getResultCache() {
 
         if (resultCache == null) {
-            String path = database.getTempDirectoryPath();
+            String path = database.logger.getTempDirectoryPath();
 
             if (path == null) {
                 return null;

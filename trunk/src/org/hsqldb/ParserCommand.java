@@ -32,13 +32,10 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.HsqlDatabaseProperties;
-import org.hsqldb.scriptio.ScriptWriterBase;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
 /**
@@ -322,7 +319,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileSetDefault() {
+    private StatementCommand compileSetDefault() {
 
         read();
 
@@ -387,19 +384,18 @@ public class ParserCommand extends ParserDDL {
         }
     }
 
-    private Statement compileSetProperty() {
+    private StatementCommand compileSetProperty() {
 
         read();
 
         String                 property;
         Object                 value;
-        HsqlDatabaseProperties props;
+        HsqlDatabaseProperties props = database.getProperties();
 
         checkIsSimpleName();
         checkIsDelimitedIdentifier();
 
         property = token.tokenString;
-        props    = database.getProperties();
 
         boolean isboolean  = props.isBoolean(token.tokenString);
         boolean isintegral = props.isIntegral(token.tokenString);
@@ -417,8 +413,16 @@ public class ParserCommand extends ParserDDL {
 
         if (token.tokenType == Tokens.TRUE) {
             value = Boolean.TRUE;
+
+            if (!isboolean) {
+                throw Error.error(ErrorCode.X_42565, token.tokenString);
+            }
         } else if (token.tokenType == Tokens.FALSE) {
             value = Boolean.FALSE;
+
+            if (!isboolean) {
+                throw Error.error(ErrorCode.X_42565, token.tokenString);
+            }
         } else {
             checkIsValue();
 
@@ -505,8 +509,8 @@ public class ParserCommand extends ParserDDL {
             case Tokens.AUTOCOMMIT : {
                 read();
 
-                boolean  mode = processTrueOrFalse();
-                Object[] args = new Object[]{ Boolean.valueOf(mode) };
+                Boolean  mode = processTrueOrFalseObject();
+                Object[] args = new Object[]{ mode };
 
                 return new StatementSession(
                     StatementTypes.SET_SESSION_AUTOCOMMIT, args);
@@ -516,59 +520,17 @@ public class ParserCommand extends ParserDDL {
             case Tokens.READONLY : {
                 read();
 
-                boolean  readonly = processTrueOrFalse();
-                Object[] args     = new Object[]{ Boolean.valueOf(readonly) };
+                Boolean  readonly = processTrueOrFalseObject();
+                Object[] args     = new Object[]{ readonly };
 
                 return new StatementSession(
                     StatementTypes.SET_SESSION_CHARACTERISTICS, args);
             }
-            case Tokens.LOGSIZE : {
-                read();
-                checkDatabaseUpdateAuthorisation();
-
-                int      size = readInteger();
-                Object[] args = new Object[]{ new Integer(size) };
-
-                return new StatementCommand(
-                    StatementTypes.SET_DATABASE_FILES_LOG_SIZE, args, null,
-                    null);
-            }
-            case Tokens.SCRIPTFORMAT : {
-                read();
-                checkDatabaseUpdateAuthorisation();
-
-                switch (token.tokenType) {
-
-                    case Tokens.TEXT :
-                    case Tokens.BINARY :
-                    case Tokens.COMPRESSED :
-                        break;
-
-                    default :
-                        throw unexpectedToken();
-                }
-
-                int mode = ArrayUtil.find(ScriptWriterBase.LIST_SCRIPT_FORMATS,
-                                          token.tokenString);
-
-                if (mode == 0 || mode == 1 || mode == 3) {}
-                else {
-                    throw unexpectedToken();
-                }
-
-                read();
-
-                Object[] args = new Object[]{ new Integer(mode) };
-
-                return new StatementCommand(
-                    StatementTypes.SET_DATABASE_SCRIPT_FORMAT, args,
-                    database.getCatalogName(), null);
-            }
             case Tokens.IGNORECASE : {
                 read();
 
-                boolean  mode = processTrueOrFalse();
-                Object[] args = new Object[]{ Boolean.valueOf(mode) };
+                Boolean  mode = processTrueOrFalseObject();
+                Object[] args = new Object[]{ mode };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_SQL_IGNORECASE, args, null,
@@ -665,7 +627,7 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.READONLY : {
                         read();
 
-                        boolean readonly = processTrueOrFalse();
+                        Boolean readonly = processTrueOrFalseObject();
 
                         args[1] = Boolean.valueOf(readonly);
 
@@ -711,6 +673,7 @@ public class ParserCommand extends ParserDDL {
                     }
                 }
             }
+/*
             case Tokens.CHECKPOINT : {
                 read();
                 readThis(Tokens.DEFRAG);
@@ -722,6 +685,7 @@ public class ParserCommand extends ParserDDL {
                     StatementTypes.SET_DATABASE_FILES_DEFRAG, args, null,
                     null);
             }
+*/
             case Tokens.WRITE_DELAY : {
                 read();
 
@@ -791,180 +755,11 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(
                     StatementTypes.SET_USER_INITIAL_SCHEMA, args, null, null);
             }
+            case Tokens.FILES : {
+                return compileSetFilesProperty();
+            }
             case Tokens.DATABASE : {
-                read();
-
-                String name;
-
-                switch (token.tokenType) {
-
-                    case Tokens.BACKUP : {
-                        read();
-                        checkDatabaseUpdateAuthorisation();
-                        readThis(Tokens.INCREMENT);
-
-                        boolean  flag = processTrueOrFalse();
-                        Object[] args = new Object[]{ Boolean.valueOf(flag) };
-
-                        return new StatementCommand(
-                            StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT,
-                            args, database.getCatalogName(), null);
-                    }
-                    case Tokens.COLLATION : {
-                        read();
-                        checkIsSimpleName();
-
-                        name = token.tokenString;
-
-                        read();
-
-                        Object[] args = new Object[]{ name };
-
-                        return new StatementCommand(
-                            StatementTypes.SET_DATABASE_SQL_COLLATION, args,
-                            null, null);
-                    }
-                    case Tokens.DEFAULT : {
-                        return compileSetDefault();
-                    }
-                    case Tokens.EVENT : {
-                        read();
-                        readThis(Tokens.LOG);
-                        readThis(Tokens.LEVEL);
-
-                        int      value = readInteger();
-                        Object[] args = new Object[]{ Integer.valueOf(value) };
-
-                        return new StatementCommand(
-                            StatementTypes.SET_DATABASE_FILES_EVENT_LOG, args,
-                            null, null);
-                    }
-                    case Tokens.FILES : {
-                        read();
-
-                        int     type  = 0;
-                        boolean flag  = false;
-                        int     value = 0;
-
-                        switch (token.tokenType) {
-
-                            case Tokens.LOCK : {
-                                read();
-
-                                flag = processTrueOrFalse();
-                                type = StatementTypes.SET_DATABASE_FILES_LOCK;
-
-                                break;
-                            }
-                            case Tokens.READ : {
-                                read();
-
-                                type = StatementTypes
-                                    .SET_DATABASE_FILES_READ_ONLY;
-
-                                if (readIfThis(Tokens.ONLY)) {
-                                    flag = true;
-                                } else {
-                                    readThis(Tokens.WRITE);
-
-                                    flag = false;
-                                }
-
-                                if (readIfThis(Tokens.FILES)) {
-                                    type = StatementTypes
-                                        .SET_DATABASE_FILES_READ_ONLY_FILES;
-                                }
-
-                                flag = processTrueOrFalse();
-
-                                break;
-                            }
-                            case Tokens.CACHE : {
-                                read();
-
-                                if (readIfThis(Tokens.SIZE)) {
-                                    value = readInteger();
-                                    type = StatementTypes
-                                        .SET_DATABASE_FILES_CACHE_SIZE;
-                                } else if (readIfThis(Tokens.ROWS)) {
-                                    value = readInteger();
-                                    type = StatementTypes
-                                        .SET_DATABASE_FILES_CACHE_FILE_SCALE;
-                                } else if (readIfThis(Tokens.FILE)) {
-                                    readThis(Tokens.SCALE);
-
-                                    value = readInteger();
-                                    type = StatementTypes
-                                        .SET_DATABASE_FILES_CACHE_FILE_SCALE;
-                                }
-
-                                break;
-                            }
-                            case Tokens.DEFRAG : {
-                                read();
-
-                                type = StatementTypes
-                                    .SET_DATABASE_FILES_DEFRAG;
-                                value = readInteger();
-
-                                break;
-                            }
-                            case Tokens.NIO : {
-                                read();
-
-                                type = StatementTypes.SET_DATABASE_FILES_NIO;
-                                flag = processTrueOrFalse();
-
-                                break;
-                            }
-                            default :
-                                unexpectedToken();
-                        }
-
-                        Object[] args = new Object[] {
-                            new Integer(value), Boolean.valueOf(flag)
-                        };
-
-                        return new StatementCommand(type, args, null, null);
-                    }
-                    case Tokens.REFERENTIAL_INTEGRITY : {
-                        read();
-
-                        boolean  mode = processTrueOrFalse();
-                        Object[] args = new Object[]{ Boolean.valueOf(mode) };
-
-                        return new StatementCommand(
-                            StatementTypes
-                                .SET_DATABASE_SQL_REFERENTIAL_INTEGRITY, args,
-                                    null, null);
-                    }
-                    case Tokens.TRANSACTION : {
-                        read();
-                        readThis(Tokens.CONTROL);
-
-                        boolean mvcc = false;
-
-                        if (token.tokenType == Tokens.MVCC) {
-                            read();
-
-                            mvcc = true;
-                        } else {
-                            readThis(Tokens.LOCKS);
-                        }
-
-                        Object[] args = new Object[]{ Boolean.valueOf(mvcc) };
-
-                        return new StatementCommand(
-                            StatementTypes.SET_DATABASE_TRANSACTION_CONTROL,
-                            args, null, null);
-                    }
-                    case Tokens.PROPERTY : {
-                        return compileSetProperty();
-                    }
-                    default : {
-                        throw unexpectedToken();
-                    }
-                }
+                return compileSetDatabaseProperty();
             }
             case Tokens.PROPERTY : {
                 return compileSetProperty();
@@ -976,6 +771,280 @@ public class ParserCommand extends ParserDDL {
                     session.sessionContext.sessionVariablesRange);
             }
         }
+    }
+
+    StatementCommand compileSetDatabaseProperty() {
+
+        read();
+
+        String name;
+
+        switch (token.tokenType) {
+
+            case Tokens.COLLATION : {
+                read();
+                checkIsSimpleName();
+
+                name = token.tokenString;
+
+                read();
+
+                Object[] args = new Object[]{ name };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_SQL_COLLATION, args, null,
+                    null);
+            }
+            case Tokens.DEFAULT : {
+                return compileSetDefault();
+            }
+            case Tokens.EVENT : {
+                read();
+                readThis(Tokens.LOG);
+                readThis(Tokens.LEVEL);
+
+                int      value = readInteger();
+                Object[] args  = new Object[]{ Integer.valueOf(value) };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_FILES_EVENT_LOG, args, null,
+                    null);
+            }
+            case Tokens.REFERENTIAL_INTEGRITY : {
+                read();
+
+                boolean  mode = processTrueOrFalse();
+                Object[] args = new Object[]{ Boolean.valueOf(mode) };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY,
+                    args, null, null);
+            }
+            case Tokens.SQL : {
+                read();
+
+                int     type = 0;
+                Boolean flag = null;
+
+                switch (token.tokenType) {
+
+                    case Tokens.SIZE :
+                        read();
+
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT_SIZE;
+                        flag = processTrueOrFalseObject();
+                        break;
+
+                    case Tokens.NAMES :
+                        read();
+
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT_NAMES;
+                        flag = processTrueOrFalseObject();
+                        break;
+
+                    default :
+                        unexpectedToken();
+                }
+
+                Object[] args = new Object[]{ flag };
+
+                return new StatementCommand(type, args, null, null);
+            }
+            case Tokens.TEXT : {
+                read();
+                readThis(Tokens.TABLE);
+                readThis(Tokens.DEFAULTS);
+
+                String   source = readQuotedString();
+                Object[] args   = new Object[]{ source };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_TEXT_SOURCE, args, null, null);
+            }
+            case Tokens.TRANSACTION : {
+                read();
+                readThis(Tokens.CONTROL);
+
+                int mode = Database.LOCKS;
+
+                switch (token.tokenType) {
+
+                    case Tokens.MVCC :
+                        read();
+
+                        mode = Database.MVCC;
+                        break;
+
+                    case Tokens.MVLOCKS :
+                        read();
+
+                        mode = Database.MVLOCKS;
+                        break;
+
+                    case Tokens.LOCKS :
+                        read();
+
+                        mode = Database.LOCKS;
+                        break;
+                }
+
+                Object[] args = new Object[]{ Integer.valueOf(mode) };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_TRANSACTION_CONTROL, args,
+                    null, null);
+            }
+            default : {
+                throw unexpectedToken();
+            }
+        }
+    }
+
+    StatementCommand compileSetFilesProperty() {
+
+        read();
+
+        String  name;
+        int     type  = 0;
+        Boolean flag  = null;
+        Integer value = null;
+
+        switch (token.tokenType) {
+
+            case Tokens.LOCK : {
+                read();
+
+                flag = processTrueOrFalseObject();
+                type = StatementTypes.SET_DATABASE_FILES_LOCK;
+
+                break;
+            }
+            case Tokens.READ : {
+                read();
+
+                type = StatementTypes.SET_DATABASE_FILES_READ_ONLY;
+
+                if (readIfThis(Tokens.ONLY)) {
+                    flag = Boolean.TRUE;
+
+                    if (readIfThis(Tokens.FILES)) {
+                        type = StatementTypes
+                            .SET_DATABASE_FILES_READ_ONLY_FILES;
+                    }
+                } else {
+                    readThis(Tokens.WRITE);
+
+                    if (readIfThis(Tokens.FILES)) {
+                        type = StatementTypes
+                            .SET_DATABASE_FILES_READ_ONLY_FILES;
+                    }
+
+                    flag = Boolean.FALSE;
+                }
+
+                break;
+            }
+            case Tokens.CACHE : {
+                read();
+
+                if (readIfThis(Tokens.SIZE)) {
+                    value = readIntegerObject();
+                    type  = StatementTypes.SET_DATABASE_FILES_CACHE_SIZE;
+                } else if (readIfThis(Tokens.ROWS)) {
+                    value = readIntegerObject();
+                    type  = StatementTypes.SET_DATABASE_FILES_CACHE_ROWS;
+                }
+
+                break;
+            }
+            case Tokens.SCALE : {
+                read();
+
+                value = readIntegerObject();
+                type  = StatementTypes.SET_DATABASE_FILES_SCALE;
+
+                break;
+            }
+            case Tokens.DEFRAG : {
+                read();
+
+                type  = StatementTypes.SET_DATABASE_FILES_DEFRAG;
+                value = readIntegerObject();
+
+                break;
+            }
+            case Tokens.NIO : {
+                read();
+
+                type = StatementTypes.SET_DATABASE_FILES_NIO;
+                flag = processTrueOrFalseObject();
+
+                break;
+            }
+            case Tokens.BACKUP : {
+                read();
+
+                type = StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT;
+
+                readThis(Tokens.INCREMENT);
+
+                flag = processTrueOrFalseObject();
+
+                break;
+            }
+            case Tokens.LOG : {
+                read();
+                readThis(Tokens.SIZE);
+                checkDatabaseUpdateAuthorisation();
+
+                type  = StatementTypes.SET_DATABASE_FILES_LOG_SIZE;
+                value = readIntegerObject();
+
+                break;
+            }
+            case Tokens.WRITE : {
+                read();
+                readThis(Tokens.DELAY);
+
+                type = StatementTypes.SET_DATABASE_FILES_WRITE_DELAY;
+
+                int delay = 0;
+
+                if (token.tokenType == Tokens.TRUE) {
+                    delay = database.getProperties().getDefaultWriteDelay();
+
+                    read();
+                } else if (token.tokenType == Tokens.FALSE) {
+                    delay = 0;
+
+                    read();
+                } else {
+                    delay = this.readInteger();
+
+                    if (delay < 0) {
+                        delay = 0;
+                    }
+
+                    if (token.tokenType == Tokens.MILLIS) {
+                        read();
+                    } else {
+                        delay *= 1000;
+                    }
+                }
+
+                value = new Integer(delay);
+
+                break;
+            }
+            default :
+                unexpectedToken();
+        }
+
+        Object[] args = new Object[]{ flag == null ? value
+                                                   : flag };
+
+        return new StatementCommand(type, args, database.getCatalogName(),
+                                    null);
     }
 
     Object[] processTransactionCharacteristics() {
@@ -1085,6 +1154,21 @@ public class ParserCommand extends ParserDDL {
             read();
 
             return false;
+        } else {
+            throw unexpectedToken();
+        }
+    }
+
+    private Boolean processTrueOrFalseObject() {
+
+        if (token.tokenType == Tokens.TRUE) {
+            read();
+
+            return Boolean.TRUE;
+        } else if (token.tokenType == Tokens.FALSE) {
+            read();
+
+            return Boolean.FALSE;
         } else {
             throw unexpectedToken();
         }
@@ -1426,12 +1510,8 @@ public class ParserCommand extends ParserDDL {
         readThis(Tokens.DATABASE);
         readThis(Tokens.TO);
         checkIsValue();
-        readQuotedString();
 
-        String path = token.tokenString;
-
-        read();
-
+        String  path         = readQuotedString();
         Boolean blockingMode = null;    // Default to non-blocking
         Boolean scriptMode   = null;    // Default to non-script
         Boolean compression  = null;    // Defaults to compressed

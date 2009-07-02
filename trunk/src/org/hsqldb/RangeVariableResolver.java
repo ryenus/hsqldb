@@ -194,26 +194,30 @@ public class RangeVariableResolver {
     void assignToLists() {
 
         int lastOuterIndex = -1;
-
+        int lastRightIndex = -1;
         for (int i = 0; i < rangeVariables.length; i++) {
-            if (rangeVariables[i].isLeftJoin
-                    || rangeVariables[i].isRightJoin) {
+            if (rangeVariables[i].isLeftJoin) {
                 lastOuterIndex = i;
+            }
+            if(rangeVariables[i].isRightJoin) {
+                lastOuterIndex = i;
+                lastRightIndex = i;
             }
 
             if (lastOuterIndex == i) {
                 joinExpressions[i].addAll(tempJoinExpressions[i]);
             } else {
                 for (int j = 0; j < tempJoinExpressions[i].size(); j++) {
-                    assignToLists((Expression) tempJoinExpressions[i].get(j),
-                                  joinExpressions, lastOuterIndex + 1);
+                    assignToJoinLists(
+                        (Expression) tempJoinExpressions[i].get(j),
+                        joinExpressions, lastOuterIndex + 1);
                 }
             }
         }
 
         for (int i = 0; i < queryExpressions.size(); i++) {
-            assignToLists((Expression) queryExpressions.get(i),
-                          whereExpressions, lastOuterIndex);
+            assignToWhereLists((Expression) queryExpressions.get(i),
+                               whereExpressions, lastRightIndex);
         }
     }
 
@@ -223,8 +227,44 @@ public class RangeVariableResolver {
      * Parameter first indicates the first range variable to which condition
      * can be assigned
      */
-    void assignToLists(Expression e, HsqlArrayList[] expressionLists,
-                       int first) {
+    void assignToJoinLists(Expression e, HsqlArrayList[] expressionLists,
+                           int first) {
+
+        set.clear();
+        e.collectRangeVariables(rangeVariables, set);
+
+        int index = rangeVarSet.getLargestIndex(set);
+
+        // condition is independent of tables if no range variable is found
+        if (index == -1) {
+            index = 0;
+        }
+
+        if (set.size() == 1) {
+            switch (e.getType()) {
+
+                case OpTypes.COLUMN :
+                case OpTypes.EQUAL :
+
+            }
+        }
+
+        // condition is assigned to first non-outer range variable
+        if (index < first) {
+            index = first;
+        }
+
+        expressionLists[index].add(e);
+    }
+
+    /**
+     * Assigns a single condition to the relevant list of conditions
+     *
+     * Parameter first indicates the first range variable to which condition
+     * can be assigned
+     */
+    void assignToWhereLists(Expression e, HsqlArrayList[] expressionLists,
+                            int first) {
 
         set.clear();
         e.collectRangeVariables(rangeVariables, set);

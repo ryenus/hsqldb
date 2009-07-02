@@ -76,7 +76,7 @@ public class TestBatchBug {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             String[] urls = {
-                IN_PROCESS_FILE_URL, HSQLDB_LOCALHOST_URL,
+                IN_PROCESS_FILE_URL
             };
 
             for (int i = 0; i < urls.length; i++) {

@@ -613,7 +613,7 @@ public final class DateTimeType extends DTIType {
                     case Types.SQL_DATE : {
                         TimestampData ts = (TimestampData) a;
 
-                        return new TimestampData(ts.getSeconds(),
+                        return new TimestampData(ts.getSeconds(), 0,
                                                  session.getZoneSeconds());
                     }
                     default :
@@ -862,16 +862,13 @@ public final class DateTimeType extends DTIType {
                     ((TimestampData) a).getSeconds());
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                zone = true;
-
-            // fall through
             case Types.SQL_TIME : {
                 TimeData t       = (TimeData) a;
                 int      seconds = normaliseTime(t.getSeconds() + t.getZone());
 
                 s = intervalSecondToString(seconds, t.getNanos(), false);
 
-                if (!zone) {
+                if (!withTimeZone) {
                     return s;
                 }
 
@@ -884,9 +881,6 @@ public final class DateTimeType extends DTIType {
                 return sb.toString();
             }
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                zone = true;
-
-            // fall through
             case Types.SQL_TIMESTAMP : {
                 TimestampData ts = (TimestampData) a;
 
@@ -897,7 +891,7 @@ public final class DateTimeType extends DTIType {
                                                 + ts.getZone(), ts.getNanos(),
                                                     scale);
 
-                if (!zone) {
+                if (!withTimeZone) {
                     return sb.toString();
                 }
 

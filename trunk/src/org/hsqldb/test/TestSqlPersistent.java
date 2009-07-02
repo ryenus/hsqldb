@@ -293,7 +293,7 @@ public class TestSqlPersistent extends TestCase {
             String sqlString = "DROP TABLE TESTOBJECT IF EXISTS;"
                                + "CREATE CACHED TABLE TESTOBJECT ("
                                + "ID INTEGER NOT NULL IDENTITY, "
-                               + "STOREDOBJECT OTHER, STOREDBIN BINARY )";
+                               + "STOREDOBJECT OTHER, STOREDBIN BINARY(100) )";
 
             sStatement.execute(sqlString);
 

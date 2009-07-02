@@ -189,6 +189,10 @@ public class Grantee implements SchemaObject {
         return isRole;
     }
 
+    public boolean isSystem() {
+        return isSystem;
+    }
+
     /**
      * Retrieves the map object that represents the rights that have been
      * granted on database objects.  <p>

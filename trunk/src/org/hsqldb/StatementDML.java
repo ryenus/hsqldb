@@ -943,7 +943,7 @@ public class StatementDML extends StatementDMQL {
 
                             // fredt - we avoid infinite recursion on the fk's referencing the same table
                             // but chained rows can result in very deep recursion and StackOverflowError
-                            if (refrow != row) {
+                            if (refrow.getPos()  != row.getPos() ) {
                                 checkCascadeDelete(session, reftable,
                                                    tableUpdateList, refrow,
                                                    delete, path);

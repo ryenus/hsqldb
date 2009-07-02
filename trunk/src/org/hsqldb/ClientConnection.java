@@ -42,8 +42,8 @@ import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
-import org.hsqldb.rowio.RowInputBinaryNet;
-import org.hsqldb.rowio.RowOutputBinaryNet;
+import org.hsqldb.rowio.RowInputBinary;
+import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.server.HsqlSocketFactory;
 import org.hsqldb.store.ValuePool;
@@ -87,7 +87,7 @@ public class ClientConnection implements SessionInterface {
     protected DataOutputStream   dataOutput;
     protected DataInputStream    dataInput;
     protected RowOutputInterface rowOut;
-    protected RowInputBinaryNet  rowIn;
+    protected RowInputBinary  rowIn;
     private Result               resultOut;
     private long                 sessionID;
     private long                 lobIDSequence;
@@ -143,10 +143,10 @@ public class ClientConnection implements SessionInterface {
      */
     private void initStructures() {
 
-        RowOutputBinaryNet rowOutTemp = new RowOutputBinaryNet(mainBuffer);
+        RowOutputBinary rowOutTemp = new RowOutputBinary(mainBuffer);
 
         rowOut    = rowOutTemp;
-        rowIn     = new RowInputBinaryNet(rowOutTemp);
+        rowIn     = new RowInputBinary(rowOutTemp);
         resultOut = Result.newSessionAttributesResult();
     }
 

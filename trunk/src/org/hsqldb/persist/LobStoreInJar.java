@@ -31,7 +31,9 @@
 
 package org.hsqldb.persist;
 
-import java.io.RandomAccessFile;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.Error;
@@ -42,38 +44,23 @@ import org.hsqldb.ErrorCode;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class LobStoreRAFile implements LobStore {
+public class LobStoreInJar implements LobStore {
 
-    int              lobBlockSize  = 1024 * 32;
-    RandomAccessFile file;
-    Database         database;
+    int             lobBlockSize = 1024 * 32;
+    Database        database;
+    DataInputStream file;
+    final String    fileName;
 
-    public LobStoreRAFile(Database database, int lobBlockSize) {
+    //
+    long realPosition;
+
+    public LobStoreInJar(Database database, int lobBlockSize) {
 
         this.lobBlockSize = lobBlockSize;
         this.database     = database;
 
         try {
-            String name = database.getPath() + ".lobs";
-            boolean exists =
-                database.logger.getFileAccess().isStreamElement(name);
-
-            if (exists) {
-                openFile();
-            }
-        } catch (Throwable t) {
-            throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
-        }
-    }
-
-    private void openFile() {
-
-        try {
-            String  name     = database.getPath() + ".lobs";
-            boolean readonly = database.isReadOnly();
-
-            file = new RandomAccessFile(name, readonly ? "r"
-                                                       : "rwd");
+            fileName = database.getPath() + ".lobs";
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
@@ -90,8 +77,10 @@ public class LobStoreRAFile implements LobStore {
             int    count     = blockCount * lobBlockSize;
             byte[] dataBytes = new byte[count];
 
-            file.seek(address);
-            file.read(dataBytes);
+            fileSeek(address);
+            file.readFully(dataBytes, 0, count);
+
+            realPosition = address + count;
 
             return dataBytes;
         } catch (Throwable t) {
@@ -100,22 +89,7 @@ public class LobStoreRAFile implements LobStore {
     }
 
     public void setBlockBytes(byte[] dataBytes, int blockAddress,
-                              int blockCount) {
-
-        if (file == null) {
-            openFile();
-        }
-
-        try {
-            long address = (long) blockAddress * lobBlockSize;
-            int  count   = blockCount * lobBlockSize;
-
-            file.seek(address);
-            file.write(dataBytes, 0, count);
-        } catch (Throwable t) {
-            throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
-        }
-    }
+                              int blockCount) {}
 
     public void close() {
 
@@ -126,5 +100,42 @@ public class LobStoreRAFile implements LobStore {
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
+    }
+
+    private void resetStream() throws IOException {
+
+        if (file != null) {
+            file.close();
+        }
+
+        InputStream fis = getClass().getResourceAsStream(fileName);
+
+        if (fis == null) {
+            return;
+        }
+
+        file         = new DataInputStream(fis);
+        realPosition = 0;
+    }
+
+    private void fileSeek(long position) throws IOException {
+
+        if (file == null) {
+            resetStream();
+        }
+
+        long skipPosition = realPosition;
+
+        if (position < skipPosition) {
+            resetStream();
+
+            skipPosition = 0;
+        }
+
+        while (position > skipPosition) {
+            skipPosition += file.skip(position - skipPosition);
+        }
+
+        realPosition = position;
     }
 }
