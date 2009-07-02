@@ -244,19 +244,4 @@ public class Error {
             System.out.println(message);
         }
     }
-
-    /**
-     * Used to print messages to System.out
-     *
-     *
-     * @param message1 message to print
-     * @param message2 message to print
-     */
-    public static void printSystemOut(String message1, long message2) {
-
-        if (TRACESYSTEMOUT) {
-            System.out.print(message1);
-            System.out.println(message2);
-        }
-    }
 }

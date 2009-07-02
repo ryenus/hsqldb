@@ -103,6 +103,13 @@ import org.hsqldb.scriptio.ScriptWriterBase;
 // boucherb@users 20030510 - patch 1.7.2 consolidated all periodic database
 // tasks in one timed task queue
 // fredt@users - 20050102 patch 1.8.0 - refactoring and clearer separation of concerns
+/*
+    - if props.modified, use .backup file - .data file is ready
+    - read .script file and set index roots
+
+
+    - if .data file is modified, use .backup with .data file flag for increment backup - .data file is ready
+*/
 
 /**
  *  This class is responsible for managing the database files. An HSQLDB database
@@ -139,12 +146,12 @@ public class Log {
     private int                    writeDelay;
     private int                    scriptFormat;
     private DataFileCache          cache;
-    private boolean                incBackup;
+    boolean                        incBackup;
 
     Log(Database db) {
 
         database   = db;
-        fa         = db.getFileAccess();
+        fa         = db.logger.getFileAccess();
         fileName   = db.getPath();
         properties = db.getProperties();
     }
@@ -152,16 +159,11 @@ public class Log {
     void initParams() {
 
         // Allows the user to set log size in the properties file.
-        int logMegas = properties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_log_size, 0);
 
-        maxLogSize = logMegas * 1024L * 1024;
-        scriptFormat = properties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_script_format,
-            ScriptWriterBase.SCRIPT_TEXT_170);
-        incBackup = properties.isPropertyTrue(
-            HsqlDatabaseProperties.hsqldb_inc_backup);
-        writeDelay     = properties.getDefaultWriteDelay();
+        maxLogSize     = database.logger.propLogSize * 1024L * 1024;
+        scriptFormat   = 0;
+        incBackup      = database.logger.propIncrementBackup;
+        writeDelay     = database.logger.propWriteDelay;
         filesReadOnly  = database.isFilesReadOnly();
         scriptFileName = fileName + ".script";
         logFileName    = fileName + ".log";
@@ -261,12 +263,6 @@ public class Log {
             cache.close(true);
         }
 
-        properties.setProperty(HsqlDatabaseProperties.db_version,
-                               HsqlDatabaseProperties.THIS_VERSION);
-        properties.setProperty(
-            HsqlDatabaseProperties.hsqldb_compatible_version,
-            HsqlDatabaseProperties.FIRST_COMPATIBLE_VERSION);
-
         // set this one last to save the props
         properties.setDBModified(HsqlDatabaseProperties.FILES_NEW);
         deleteLog();
@@ -282,8 +278,6 @@ public class Log {
         }
 
         renameNewScript();
-        properties.setProperty(HsqlDatabaseProperties.hsqldb_cache_version,
-                               HsqlDatabaseProperties.THIS_CACHE_VERSION);
         properties.setDBModified(HsqlDatabaseProperties.FILES_NOT_MODIFIED);
     }
 
@@ -332,7 +326,7 @@ public class Log {
 
         if (fa.isStreamElement(fileName + ".data")) {
             FileArchiver.archive(fileName + ".data", fileName + ".backup.new",
-                                 database.getFileAccess(),
+                                 database.logger.getFileAccess(),
                                  FileArchiver.COMPRESSION_ZIP);
         }
     }
@@ -526,16 +520,15 @@ public class Log {
     }
 
     /**
-     * Returns true if lost space is above the threshold
+     * Returns true if lost space is above the threshold percentage
      */
     boolean forceDefrag() {
 
-        long megas = properties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_defrag_limit, 200);
-        long defraglimit = megas * 1024L * 1024;
+        long megas = database.logger.propCacheDefragLimit
+                     * cache.getFileFreePos() / 100;
         long lostSize    = cache.freeBlocks.getLostBlocksSize();
 
-        return lostSize > defraglimit;
+        return lostSize > megas;
     }
 
     /**
@@ -550,11 +543,6 @@ public class Log {
      */
     DataFileCache getCache() {
 
-/*
-        if (database.isFilesInJar()) {
-            return null;
-        }
-*/
         if (cache == null) {
             cache = new DataFileCache(database, fileName);
 
@@ -569,39 +557,11 @@ public class Log {
     }
 
     void setLogSize(int megas) {
-
-        properties.setProperty(HsqlDatabaseProperties.hsqldb_log_size,
-                               String.valueOf(megas));
-
         maxLogSize = megas * 1024L * 1024;
     }
 
     int getScriptType() {
         return scriptFormat;
-    }
-
-    /**
-     * Changing the script format results in a checkpoint, with the .script
-     * file written in the new format.
-     */
-    void setScriptType(int type) {
-
-        // OOo related code
-        if (database.isStoredFileAccess()) {
-            return;
-        }
-
-        // OOo end
-        boolean needsCheckpoint = scriptFormat != type;
-
-        scriptFormat = type;
-
-        properties.setProperty(HsqlDatabaseProperties.hsqldb_script_format,
-                               String.valueOf(scriptFormat));
-
-        if (needsCheckpoint) {
-            database.logger.needsCheckpoint = true;
-        }
     }
 
     /**
@@ -628,10 +588,6 @@ public class Log {
         }
 
         incBackup = val;
-
-        database.getProperties().setProperty(
-            HsqlDatabaseProperties.hsqldb_inc_backup, String.valueOf(val));
-        database.getProperties().save();
 
         if (cache != null) {
 
@@ -813,7 +769,7 @@ public class Log {
     private void processDataFile() {
 
         // OOo related code
-        if (database.isStoredFileAccess()) {
+        if (database.logger.isStoredFileAccess()) {
             return;
         }
 
@@ -859,7 +815,7 @@ public class Log {
 
         try {
             FileArchiver.unarchive(fileName + ".backup", fileName + ".data",
-                                   database.getFileAccess(),
+                                   database.logger.getFileAccess(),
                                    FileArchiver.COMPRESSION_ZIP);
         } catch (Exception e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR,
@@ -878,22 +834,9 @@ public class Log {
             if (fa.isStreamElement(fileName + ".backup")) {
                 RAShadowFile.restoreFile(fileName + ".backup",
                                          fileName + ".data");
-            } else {
-/*
-                // this is to ensure file has been written fully but it is not necessary
-                // as semantics dictate that if a backup does not exist, the file
-                // was never changed or was fully written to
-                if (FileUtil.exists(cacheFileName)) {
-                    int flags = DataFileCache.getFlags(cacheFileName);
-
-                    if (!BitMap.isSet(flags, DataFileCache.FLAG_ISSAVED)) {
-                        FileUtil.delete(cacheFileName);
-                    }
-                }
-*/
+                deleteBackup();
             }
 
-            deleteBackup();
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, fileName + ".backup");
         }
@@ -907,8 +850,7 @@ public class Log {
 
         closeTextCache(table);
 
-        if (!properties.isPropertyTrue(
-                HsqlDatabaseProperties.textdb_allow_full_path)) {
+        if (!database.logger.propTextAllowFullPath) {
             if (source.indexOf("..") != -1) {
                 throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
             }
@@ -924,9 +866,6 @@ public class Log {
         }
 
         TextCache c;
-
-        // checks are performed separately as TextChar constructor cannot throw
-        TextCache.checkTextSouceString(source, database.getProperties());
 
         if (reversed) {
             c = new TextCache(table, source);

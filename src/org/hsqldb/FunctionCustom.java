@@ -131,8 +131,9 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_SOUNDEX          = 137;
     private static final int FUNC_SPACE            = 138;
     private static final int FUNC_SUBSTR           = 139;
-    private static final int FUNC_DATEDIFF         = 140;
-    private static final int FUNC_SECONDS_MIDNIGHT = 141;
+    private static final int FUNC_DATEADD          = 140;
+    private static final int FUNC_DATEDIFF         = 141;
+    private static final int FUNC_SECONDS_MIDNIGHT = 142;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -159,7 +160,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.MINUTE, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.SECOND, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.DAYNAME, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.NONTHNAME, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.MONTHNAME, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.DAYOFMONTH, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.DAYOFWEEK, FUNC_EXTRACT);
         customRegularFuncMap.put(Tokens.DAYOFYEAR, FUNC_EXTRACT);
@@ -224,6 +225,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.RIGHT, FUNC_RIGHT);
         customRegularFuncMap.put(Tokens.SOUNDEX, FUNC_SOUNDEX);
         customRegularFuncMap.put(Tokens.SPACE, FUNC_SPACE);
+        customRegularFuncMap.put(Tokens.DATEADD, FUNC_DATEADD);
         customRegularFuncMap.put(Tokens.DATEDIFF, FUNC_DATEDIFF);
     }
 
@@ -301,7 +303,7 @@ public class FunctionCustom extends FunctionSQL {
                     function.extractSpec = Tokens.DAY_OF_WEEK;
                     break;
 
-                case Tokens.NONTHNAME :
+                case Tokens.MONTHNAME :
                     function.extractSpec = Tokens.MONTH_NAME;
                     break;
 
@@ -464,7 +466,6 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_BITXOR :
             case FUNC_DIFFERENCE :
             case FUNC_REPEAT :
-            case FUNC_DATEDIFF :
             case FUNC_RIGHT :
                 parseList = doubleParamList;
                 break;
@@ -477,6 +478,8 @@ public class FunctionCustom extends FunctionSQL {
                 };
                 break;
 
+            case FUNC_DATEADD :
+            case FUNC_DATEDIFF :
             case FUNC_REPLACE :
                 parseList = tripleParamList;
                 break;
@@ -1143,25 +1146,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 return;
 
-            case FUNC_TIMESTAMPADD :
-                if (nodes[1].dataType == null) {
-                    nodes[1].dataType = Type.SQL_BIGINT;
-                }
-
-                if (nodes[2].dataType == null) {
-                    nodes[2].dataType = Type.SQL_TIMESTAMP;
-                }
-
-                if (!nodes[1].dataType.isIntegralType()
-                        || nodes[2].dataType.typeCode != Types.SQL_TIMESTAMP) {
-                    throw Error.error(ErrorCode.X_42561);
-                }
-
-                dataType = nodes[2].dataType;
-
-                return;
-
-            case FUNC_DATEDIFF : {
+            case FUNC_DATEADD : {
                 int part;
 
                 if (!nodes[0].dataType.isCharacterType()) {
@@ -1193,29 +1178,114 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 nodes[0].valueData = ValuePool.getInt(part);
-                funcType           = FUNC_TIMESTAMPDIFF;
+                funcType           = FUNC_TIMESTAMPADD;
             }
 
             // fall through
-            case FUNC_TIMESTAMPDIFF : {
+            case FUNC_TIMESTAMPADD :
                 if (nodes[1].dataType == null) {
-                    nodes[1].dataType = Type.SQL_TIMESTAMP;
+                    nodes[1].dataType = Type.SQL_BIGINT;
                 }
 
                 if (nodes[2].dataType == null) {
                     nodes[2].dataType = Type.SQL_TIMESTAMP;
                 }
 
-                if (nodes[1].dataType.typeCode != Types.SQL_TIMESTAMP
-                        && nodes[1].dataType.typeCode
-                           != Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+                if (!nodes[1].dataType.isIntegralType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                if (nodes[2].dataType.typeCode != Types.SQL_TIMESTAMP
-                        && nodes[2].dataType.typeCode
-                           != Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+                if (nodes[2].dataType.typeCode != Types.SQL_DATE
+                        && nodes[2].dataType.typeCode != Types.SQL_TIMESTAMP) {
                     throw Error.error(ErrorCode.X_42561);
+                }
+
+                dataType = nodes[2].dataType;
+
+                return;
+
+            case FUNC_DATEDIFF : {
+                int part;
+
+                if (!nodes[0].dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42565);
+                }
+
+                if ("yy".equalsIgnoreCase((String) nodes[0].valueData)) {
+                    part = Tokens.SQL_TSI_YEAR;
+                } else if ("mm".equalsIgnoreCase(
+                        (String) nodes[0].valueData)) {
+                    part = Tokens.SQL_TSI_MONTH;
+                } else if ("dd".equalsIgnoreCase(
+                        (String) nodes[0].valueData)) {
+                    part = Tokens.SQL_TSI_DAY;
+                } else if ("hh".equalsIgnoreCase(
+                        (String) nodes[0].valueData)) {
+                    part = Tokens.SQL_TSI_HOUR;
+                } else if ("mi".equalsIgnoreCase(
+                        (String) nodes[0].valueData)) {
+                    part = Tokens.SQL_TSI_MINUTE;
+                } else if ("ss".equalsIgnoreCase(
+                        (String) nodes[0].valueData)) {
+                    part = Tokens.SQL_TSI_SECOND;
+                } else if ("ms".equalsIgnoreCase(
+                        (String) nodes[0].valueData)) {
+                    part = Tokens.SQL_TSI_FRAC_SECOND;
+                } else {
+                    throw Error.error(ErrorCode.X_42565);
+                }
+
+                nodes[0].valueData = ValuePool.getInt(part);
+                funcType           = FUNC_TIMESTAMPDIFF;
+            }
+
+            // fall through
+            case FUNC_TIMESTAMPDIFF : {
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = nodes[2].dataType;
+                }
+
+                if (nodes[2].dataType == null) {
+                    nodes[2].dataType = nodes[1].dataType;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_TIMESTAMP;
+                    nodes[2].dataType = Type.SQL_TIMESTAMP;
+                }
+
+                switch (nodes[1].dataType.typeCode) {
+
+                    case Types.SQL_DATE :
+                        if (nodes[2].dataType.typeCode != Types.SQL_DATE) {
+                            throw Error.error(ErrorCode.X_42565);
+                        }
+
+                        switch (((Integer) nodes[0].valueData).intValue()) {
+
+                            case Tokens.SQL_TSI_DAY :
+                            case Tokens.SQL_TSI_WEEK :
+                            case Tokens.SQL_TSI_MONTH :
+                            case Tokens.SQL_TSI_QUARTER :
+                            case Tokens.SQL_TSI_YEAR :
+                                break;
+
+                            default :
+                                throw Error.error(ErrorCode.X_42565);
+                        }
+                        break;
+
+                    case Types.SQL_TIMESTAMP :
+                    case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                        if (nodes[2].dataType.typeCode != Types.SQL_TIMESTAMP
+                                && nodes[2].dataType.typeCode
+                                   != Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
+                            throw Error.error(ErrorCode.X_42565);
+                        }
+                        break;
+
+                    default :
+                        throw Error.error(ErrorCode.X_42565);
                 }
 
                 dataType = Type.SQL_BIGINT;

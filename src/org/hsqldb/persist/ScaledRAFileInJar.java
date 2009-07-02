@@ -243,4 +243,6 @@ final class ScaledRAFileInJar implements ScaledRAInterface {
     public Database getDatabase() {
         return null;
     }
+
+    public void synch() {}
 }

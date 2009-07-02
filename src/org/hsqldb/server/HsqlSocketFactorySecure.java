@@ -135,7 +135,7 @@ implements HandshakeCompletedListener {
         ss = (SSLServerSocket) getServerSocketFactoryImpl()
             .createServerSocket(port);
 
-        if (Error.TRACE) {
+        if (Error.TRACESYSTEMOUT) {
             Error.printSystemOut("[" + this + "]: createServerSocket()");
             Error.printSystemOut("capabilities for " + ss + ":");
             Error.printSystemOut("----------------------------");

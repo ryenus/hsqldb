@@ -58,6 +58,9 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.Schema;
+import org.hsqldb.SqlInvariants;
+import org.hsqldb.HsqlNameManager.HsqlName;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -161,10 +164,12 @@ public class LobManager {
         String    sql       = (String) map.get("/*lob_schema_definition*/");
         Statement statement = session.compileStatement(sql);
         Result    result    = statement.execute(session);
+        HsqlName name    = database.schemaManager.getSchemaHsqlName("SYSTEM_LOBS");
+        name.owner = SqlInvariants.LOBS_SCHEMA_HSQLNAME.owner;
+
         Table table = database.schemaManager.getTable(session, "BLOCKS",
             "SYSTEM_LOBS");
 
-//            table.isTransactional = false;
         getLob        = session.compileStatement(getLobSQL);
         getLobPart    = session.compileStatement(getLobPartSQL);
         createLob     = session.compileStatement(createLobSQL);
@@ -190,11 +195,11 @@ public class LobManager {
         sysLobSession.executeCompiledStatement(statement, args);
     }
 
-    void initialiseLobStore() {}
-
     public void open() {
 
-        if (DatabaseURL.isFileBasedDatabaseType(database.getType())) {
+        if (database.getType() == DatabaseURL.S_RES) {
+            lobStore = new LobStoreInJar(database, lobBlockSize);
+        } else if (database.getType() == DatabaseURL.S_FILE) {
             lobStore = new LobStoreRAFile(database, lobBlockSize);
         } else {
             lobStore = new LobStoreMem(lobBlockSize);

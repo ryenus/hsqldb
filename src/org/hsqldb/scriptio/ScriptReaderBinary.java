@@ -72,7 +72,8 @@ class ScriptReaderBinary extends ScriptReaderBase {
 
         InputStream d = db.isFilesInJar()
                         ? getClass().getResourceAsStream(fileName)
-                        : db.getFileAccess().openInputStreamElement(fileName);
+                        : db.logger.getFileAccess().openInputStreamElement(
+                            fileName);
 
         dataStreamIn = new DataInputStream(new BufferedInputStream(d,
                 1 << 13));

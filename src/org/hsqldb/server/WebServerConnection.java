@@ -54,9 +54,7 @@ import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.rowio.RowInputBinary;
-import org.hsqldb.rowio.RowInputBinaryNet;
 import org.hsqldb.rowio.RowOutputBinary;
-import org.hsqldb.rowio.RowOutputBinaryNet;
 
 import java.io.UnsupportedEncodingException;
 
@@ -101,8 +99,8 @@ class WebServerConnection implements Runnable {
     private static final String HEADER_FORBIDDEN = "HTTP/1.0 403 Forbidden";
     static final int            BUFFER_SIZE      = 256;
     final byte[]                mainBuffer       = new byte[BUFFER_SIZE];
-    private RowOutputBinary     rowOut = new RowOutputBinaryNet(mainBuffer);
-    private RowInputBinary      rowIn = new RowInputBinaryNet(rowOut);
+    private RowOutputBinary     rowOut = new RowOutputBinary(mainBuffer);
+    private RowInputBinary      rowIn = new RowInputBinary(rowOut);
 
     //
     static byte[] BYTES_GET;

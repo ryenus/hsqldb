@@ -66,12 +66,8 @@
 
 package org.hsqldb;
 
-import java.lang.reflect.Constructor;
-
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.dbinfo.DatabaseInformation;
-import org.hsqldb.lib.FileAccess;
-import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
@@ -133,9 +129,9 @@ public class Database {
     String sName;
 
 // loosecannon1@users 1.7.2 patch properties on the JDBC URL
-    private HsqlProperties urlProperties;
-    private String         sPath;
-    DatabaseInformation    dbInfo;
+    public HsqlProperties urlProperties;
+    private String        sPath;
+    DatabaseInformation   dbInfo;
 
     /** indicates the state of the database */
     private int   dbState;
@@ -151,12 +147,14 @@ public class Database {
     private boolean filesReadOnly;
 
     /** true means filesReadOnly but CACHED and TEXT tables are disallowed */
-    private boolean                filesInJar;
-    public boolean                 sqlEnforceStrictSize;
-    private boolean                bIgnoreCase;
-    private boolean                bReferentialIntegrity;
-    private HsqlDatabaseProperties databaseProperties;
-    private boolean                shutdownOnNoConnection;
+    private boolean               filesInJar;
+    public boolean                sqlEnforceSize;
+    public boolean                sqlEnforceNames;
+    private boolean               bIgnoreCase;
+    private boolean               bReferentialIntegrity;
+    public HsqlDatabaseProperties databaseProperties;
+    private boolean               shutdownOnNoConnection;
+    int                           resultMaxMemoryRows;
 
     // schema invarient objects
     public UserManager     userManager;
@@ -164,9 +162,9 @@ public class Database {
     public HsqlNameManager nameManager;
 
     // session related objects
-    public SessionManager     sessionManager;
-    public TransactionManager txManager;
-    public StatementManager   compiledStatementManager;
+    public SessionManager              sessionManager;
+    public TransactionManagerInterface txManager;
+    public StatementManager            compiledStatementManager;
 
     // schema objects
     public SchemaManager schemaManager;
@@ -188,6 +186,11 @@ public class Database {
     public static final int CLOSEMODE_COMPACT     = 1;
     public static final int CLOSEMODE_SCRIPT      = 2;
 
+    //
+    public static final int LOCKS   = 0;
+    public static final int MVLOCKS = 1;
+    public static final int MVCC    = 2;
+
     /**
      *  Constructs a new Database object.
      *
@@ -201,51 +204,21 @@ public class Database {
      */
     Database(String type, String path, String name, HsqlProperties props) {
 
-        urlProperties = props;
-
         setState(Database.DATABASE_SHUTDOWN);
 
-        sName        = name;
-        databaseType = type;
-        sPath        = path;
+        urlProperties = props;
+        sName         = name;
+        databaseType  = type;
+        sPath         = path;
 
         if (databaseType == DatabaseURL.S_RES) {
             filesInJar    = true;
             filesReadOnly = true;
         }
 
-// oj@openoffice.org - changed to file access api
-        String fileaccess_class_name =
-            (String) urlProperties.getProperty("fileaccess_class_name");
-
-        if (fileaccess_class_name != null) {
-            String storagekey = urlProperties.getProperty("storage_key");
-
-            try {
-                Class zclass = Class.forName(fileaccess_class_name);
-                Constructor constructor = zclass.getConstructor(new Class[]{
-                    Object.class });
-
-                fileaccess =
-                    (FileAccess) constructor.newInstance(new Object[]{
-                        storagekey });
-                isStoredFileAccess = true;
-            } catch (java.lang.ClassNotFoundException e) {
-                System.out.println("ClassNotFoundException");
-            } catch (java.lang.InstantiationException e) {
-                System.out.println("InstantiationException");
-            } catch (java.lang.IllegalAccessException e) {
-                System.out.println("IllegalAccessException");
-            } catch (Exception e) {
-                System.out.println("Exception");
-            }
-        } else {
-            fileaccess = FileUtil.getDefaultInstance();
-        }
-
-        shutdownOnNoConnection = urlProperties.getProperty("shutdown",
-                "false").equals("true");
-        logger                   = new Logger();
+        logger = new Logger(this);
+        shutdownOnNoConnection =
+            urlProperties.isPropertyTrue(HsqlDatabaseProperties.url_shutdown);
         compiledStatementManager = new StatementManager(this);
         lobManager               = new LobManager(this);
     }
@@ -269,22 +242,11 @@ public class Database {
      */
     void reopen() {
 
-        boolean isNew;
+        boolean isNew = false;
 
         setState(DATABASE_OPENING);
 
         try {
-            databaseProperties = new HsqlDatabaseProperties(this);
-            isNew = !DatabaseURL.isFileBasedDatabaseType(databaseType)
-                    || !databaseProperties.checkFileExists();
-
-            if (isNew && urlProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.url_ifexists)) {
-                throw Error.error(ErrorCode.DATABASE_NOT_EXISTS, sName);
-            }
-
-            databaseProperties.load();
-            databaseProperties.setURLProperties(urlProperties);
             compiledStatementManager.reset();
 
             nameManager    = new HsqlNameManager(this);
@@ -295,27 +257,19 @@ public class Database {
                 new PersistentStoreCollectionDatabase();
             bReferentialIntegrity = true;
             sessionManager        = new SessionManager(this);
-            txManager             = new TransactionManager(this);
+            txManager             = new TransactionManager2PL(this);
             collation             = collation.getDefaultInstance();
             dbInfo = DatabaseInformation.newDatabaseInformation(this);
 
-            databaseProperties.setDatabaseVariables();
-
-            String version = databaseProperties.getProperty(
-                HsqlDatabaseProperties.db_version);
-
-            if (version.substring(0, 3).equals("1.7")) {
-                schemaManager.createPublicSchema();
-            }
-
             lobManager.createSchema();
+            logger.openPersistence();
 
-            if (DatabaseURL.isFileBasedDatabaseType(databaseType)) {
-                logger.openLog(this);
-            }
+            isNew = logger.isNewDatabase;
 
-            if (version.substring(0, 3).equals("1.7")
-                    || version.substring(0, 5).equals("1.8.0")) {
+            String version = databaseProperties.getStringProperty(
+                HsqlDatabaseProperties.hsqldb_version);
+
+            if (version.substring(0, 5).equals("1.8.0")) {
                 HsqlName name = schemaManager.findSchemaHsqlName(
                     SqlInvariants.PUBLIC_SCHEMA);
 
@@ -364,7 +318,7 @@ public class Database {
             lobManager.open();
             dbInfo.setWithContent(true);
         } catch (Throwable e) {
-            logger.closeLog(Database.CLOSEMODE_IMMEDIATELY);
+            logger.closePersistence(Database.CLOSEMODE_IMMEDIATELY);
             logger.releaseLock();
             setState(DATABASE_SHUTDOWN);
             clearStructures();
@@ -549,6 +503,22 @@ public class Database {
         return bIgnoreCase;
     }
 
+    public int getResultMaxMemoryRows() {
+        return resultMaxMemoryRows;
+    }
+
+    public void setResultMaxMemoryRows(int size) {
+        resultMaxMemoryRows = size;
+    }
+
+    public void setStrictNames(boolean mode) {
+        sqlEnforceNames = mode;
+    }
+
+    public void setStrictColumnSize(boolean mode) {
+        sqlEnforceSize = mode;
+    }
+
     /**
      *  Called by the garbage collector on this Databases object when garbage
      *  collection determines that there are no more references to it.
@@ -608,7 +578,7 @@ public class Database {
          * @todo  fredt - impact of possible error conditions in closing the log
          * should be investigated for the CLOSEMODE_COMPACT mode
          */
-        logger.closeLog(closemode);
+        logger.closePersistence(closemode);
         lobManager.close();
 
         try {
@@ -616,7 +586,7 @@ public class Database {
                 clearStructures();
                 reopen();
                 setState(DATABASE_CLOSING);
-                logger.closeLog(CLOSEMODE_NORMAL);
+                logger.closePersistence(CLOSEMODE_NORMAL);
             }
         } catch (Throwable t) {
             if (t instanceof HsqlException) {
@@ -722,44 +692,19 @@ public class Database {
         return array;
     }
 
-    public String[] getPropertiesSQL() {
-
-        HsqlArrayList list = new HsqlArrayList();
-
-        if (schemaManager.getDefaultTableType() == TableBase.CACHED_TABLE) {
-            list.add("SET DATABASE DEFAULT TABLE TYPE CACHED");
-        }
-
-        if (logger.hasLog()) {
-            int     delay  = logger.getWriteDelay();
-            boolean millis = delay < 1000;
-
-            if (millis) {
-                if (delay != 0 && delay < 20) {
-                    delay = 20;
-                }
-            } else {
-                delay /= 1000;
-            }
-
-            list.add("SET WRITE_DELAY " + delay + (millis ? " MILLIS"
-                                                          : ""));
-        }
-
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
-    }
-
     /**
      * Returns the schema and authorisation statements for the database.
      */
     public Result getScript(boolean indexRoots) {
 
-        Result   r = Result.newSingleColumnResult("COMMAND", Type.SQL_VARCHAR);
-        String[] list = getSettingsSQL();
+        Result r = Result.newSingleColumnResult("COMMAND", Type.SQL_VARCHAR);
+
+        // properties
+        String[] list = logger.getPropertiesSQL();
+
+        addRows(r, list);
+
+        list = getSettingsSQL();
 
         addRows(r, list);
 
@@ -772,13 +717,6 @@ public class Database {
 
         addRows(r, list);
 
-        // index roots
-        if (indexRoots) {
-            list = schemaManager.getIndexRootsSQL();
-
-            addRows(r, list);
-        }
-
         // user session start schema names
         list = getUserManager().getInitialSchemaSQL();
 
@@ -789,9 +727,12 @@ public class Database {
 
         addRows(r, list);
 
-        list = getPropertiesSQL();
+        // index roots
+        if (indexRoots) {
+            list = schemaManager.getIndexRootsSQL();
 
-        addRows(r, list);
+            addRows(r, list);
+        }
 
         return r;
     }
@@ -826,44 +767,5 @@ public class Database {
 // oj@openoffice.org - changed to file access api
     public HsqlProperties getURLProperties() {
         return urlProperties;
-    }
-
-    private FileAccess fileaccess;
-    private boolean    isStoredFileAccess;
-
-    public FileAccess getFileAccess() {
-        return fileaccess;
-    }
-
-    public boolean isStoredFileAccess() {
-        return isStoredFileAccess;
-    }
-
-    String tempDirectoryPath;
-
-    public String getTempDirectoryPath() {
-
-        if (tempDirectoryPath == null) {
-            if (databaseType == DatabaseURL.S_FILE) {
-                String path = sPath + ".tmp";
-
-                tempDirectoryPath = FileUtil.makeDirectories(path);
-            } else {
-                tempDirectoryPath = databaseProperties.getProperty(
-                    HsqlDatabaseProperties.hsqldb_temp_directory);
-            }
-        }
-
-        return tempDirectoryPath;
-    }
-
-    public int getResultMaxMemoryRows() {
-
-        if (getTempDirectoryPath() == null) {
-            return 0;
-        }
-
-        return databaseProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_result_max_memory_rows, 0);
     }
 }

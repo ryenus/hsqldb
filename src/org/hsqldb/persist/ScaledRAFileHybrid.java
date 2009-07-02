@@ -147,6 +147,10 @@ public final class ScaledRAFileHybrid implements ScaledRAInterface {
         return null;
     }
 
+    public void synch() {
+        store.synch();
+    }
+
     private void checkLength(int length) throws IOException {
 
         if (store.canAccess(length)) {

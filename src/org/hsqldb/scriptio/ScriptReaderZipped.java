@@ -48,8 +48,7 @@ import org.hsqldb.Database;
  */
 class ScriptReaderZipped extends ScriptReaderBinary {
 
-    ScriptReaderZipped(Database db,
-                       String file) throws IOException {
+    ScriptReaderZipped(Database db, String file) throws IOException {
         super(db, file);
     }
 
@@ -57,7 +56,8 @@ class ScriptReaderZipped extends ScriptReaderBinary {
 
         InputStream d = db.isFilesInJar()
                         ? getClass().getResourceAsStream(fileName)
-                        : db.getFileAccess().openInputStreamElement(fileName);
+                        : db.logger.getFileAccess().openInputStreamElement(
+                            fileName);
 
         dataStreamIn = new DataInputStream(
             new BufferedInputStream(

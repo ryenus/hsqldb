@@ -149,7 +149,7 @@ public abstract class ScriptWriterBase implements Runnable {
         if (isDump) {
             exists = FileUtil.getDefaultInstance().exists(file);
         } else {
-            exists = db.getFileAccess().isStreamElement(file);
+            exists = db.logger.getFileAccess().isStreamElement(file);
         }
 
         if (exists && isNewFile) {
@@ -254,7 +254,7 @@ public abstract class ScriptWriterBase implements Runnable {
 
         try {
             FileAccess   fa  = isDump ? FileUtil.getDefaultInstance()
-                                      : database.getFileAccess();
+                                      : database.logger.getFileAccess();
             OutputStream fos = fa.openOutputStreamElement(outFile);
 
             outDescriptor = fa.getFileSync(fos);

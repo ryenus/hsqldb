@@ -46,13 +46,6 @@ public class AllSimpleTests {
 
     void doTests() throws Exception {
 
-        System.out.println("*********** " + JDBCBench.class.getName());
-        JDBCBench.main(new String[] {
-            "-driver", "org.hsqldb.jdbc.JDBCDriver", "-url",
-            "jdbc:hsqldb:/hsql/jdbcbench/test;shutdown=true;applog=1",
-            "-user", "sa", "-init", "-clients", "2", "-tpc", "3200"
-        });
-
         System.out.println("*********** " + HSQLBug.class.getName());
         HSQLBug.main(args);
 
@@ -60,12 +53,12 @@ public class AllSimpleTests {
         TestBatchBug.main(args);
         System.out.println("*********** "
                            + TestDataStructures.class.getName());
-        TestDataStructures.main(args);
+  //      TestDataStructures.main(args);
         System.out.println("*********** " + TestDima.class.getName());
         TestDima.main(args);
         System.out.println("*********** "
                            + TestHashStructures.class.getName());
-        TestHashStructures.main(args);
+//        TestHashStructures.main(args);
 
         System.out.println("*********** " + TestHSQLDB.class.getName());
         TestHSQLDB.main(args);

@@ -1337,9 +1337,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         // Initialization
         ti = new DITableInfo();
         p  = database.getProperties();
-        tables = p.isPropertyTrue("hsqldb.system_table_indexinfo")
-                 ? allTables()
-                 : database.schemaManager.databaseObjectIterator(
+        tables = database.schemaManager.databaseObjectIterator(
                      SchemaObject.TABLE);
 
         // Do it.
@@ -1484,9 +1482,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // Initialization
         p = database.getProperties();
-        tables = p.isPropertyTrue("hsqldb.system_table_primarykeys")
-                 ? allTables()
-                 : database.schemaManager.databaseObjectIterator(
+        tables =  database.schemaManager.databaseObjectIterator(
                      SchemaObject.TABLE);
 
         while (tables.hasNext()) {

@@ -373,11 +373,17 @@ public class ParserBase {
         }
     }
 
-    void readQuotedString() {
+    String readQuotedString() {
 
         if (token.dataType.typeCode != Types.SQL_CHAR) {
             throw Error.error(ErrorCode.X_42565);
         }
+
+        String value = token.tokenString;
+
+        read();
+
+        return value;
     }
 
     void readThis(int tokenId) {
@@ -400,6 +406,13 @@ public class ParserBase {
         }
 
         return false;
+    }
+
+    Integer readIntegerObject() {
+
+        int value = readInteger();
+
+        return new Integer(value);
     }
 
     int readInteger() {

@@ -66,11 +66,11 @@ public class DataFileCacheSession extends DataFileCache {
 
         Error.printSystemOut("cache_size_scale: " + cacheSizeScale);
 
-        maxCacheSize = 2048;
+        maxCacheRows = 2048;
 
         int avgRowBytes = 1 << cacheSizeScale;
 
-        maxCacheBytes   = maxCacheSize * avgRowBytes;
+        maxCacheBytes   = maxCacheRows * avgRowBytes;
         maxDataFileSize = (long) Integer.MAX_VALUE * 4;
         dataFile        = null;
     }

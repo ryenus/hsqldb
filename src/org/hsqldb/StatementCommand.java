@@ -36,6 +36,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.User;
 import org.hsqldb.scriptio.ScriptWriterText;
+import org.hsqldb.persist.HsqlProperties;
 
 /**
  * Implementation of Statement for SQL commands.<p>
@@ -82,8 +83,9 @@ public class StatementCommand extends Statement {
 //
             case StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA :
             case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE :
-            case StatementTypes.SET_DATABASE_FILES_CACHE_FILE_SCALE :
+            case StatementTypes.SET_DATABASE_FILES_CACHE_ROWS :
             case StatementTypes.SET_DATABASE_FILES_CACHE_SIZE :
+            case StatementTypes.SET_DATABASE_FILES_SCALE :
             case StatementTypes.SET_DATABASE_FILES_DEFRAG :
             case StatementTypes.SET_DATABASE_FILES_EVENT_LOG :
             case StatementTypes.SET_DATABASE_FILES_LOCK :
@@ -94,7 +96,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_DATABASE_SQL_IGNORECASE :
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
-            case StatementTypes.SET_DATABASE_SQL_STRICT_KEYWORDS :
+            case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES :
             case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE :
             case StatementTypes.SET_DATABASE_FILES_READ_ONLY :
             case StatementTypes.SET_DATABASE_FILES_READ_ONLY_FILES :
@@ -104,6 +106,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_COLLATION :
             case StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT :
             case StatementTypes.SET_DATABASE_SCRIPT_FORMAT :
+            case StatementTypes.SET_DATABASE_TEXT_SOURCE :
                 group                       = StatementTypes.X_HSQLDB_SETTING;
                 this.isTransactionStatement = true;
                 break;
@@ -262,10 +265,44 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.SET_DATABASE_FILES_CACHE_SIZE :
-            case StatementTypes.SET_DATABASE_FILES_CACHE_FILE_SCALE : {
+            case StatementTypes.SET_DATABASE_FILES_CACHE_ROWS : {
+                try {
+                    int value = ((Integer) parameters[0]).intValue();
 
-                // todo
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setCacheMaxRows(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_FILES_CACHE_SIZE : {
+                try {
+                    int value = ((Integer) parameters[0]).intValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setCacheSize(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_FILES_SCALE : {
+                try {
+                    int value = ((Integer) parameters[0]).intValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setCacheFileScale(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
             }
             case StatementTypes.SET_DATABASE_FILES_DEFRAG : {
                 try {
@@ -273,8 +310,7 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.getProperties().setProperty(
-                        HsqlDatabaseProperties.hsqldb_defrag_limit, value);
+                    session.database.logger.setDefagLimit(value);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -287,8 +323,6 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.getProperties().setProperty(
-                        HsqlDatabaseProperties.hsqldb_applog, value);
                     session.database.logger.appLog.setLevel(value);
 
                     return Result.updateZeroResult;
@@ -297,17 +331,56 @@ public class StatementCommand extends Statement {
                 }
             }
             case StatementTypes.SET_DATABASE_FILES_LOCK : {
+                try {
+                    boolean value = ((Boolean) parameters[0]).booleanValue();
 
-                // todo
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setFileLock(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
             }
             case StatementTypes.SET_DATABASE_FILES_NIO : {
+                try {
+                    boolean value = ((Boolean) parameters[0]).booleanValue();
 
-                // todo
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setNioDataFile(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
             }
-            case StatementTypes.SET_DATABASE_FILES_READ_ONLY :
-            case StatementTypes.SET_DATABASE_FILES_READ_ONLY_FILES : {
+            case StatementTypes.SET_DATABASE_FILES_READ_ONLY : {
+                try {
+                    boolean value = ((Boolean) parameters[0]).booleanValue();
 
-                // todo
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setDatabaseReadonly(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_FILES_READ_ONLY_FILES : {
+                try {
+                    boolean value = ((Boolean) parameters[0]).booleanValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setFilesReadonly(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
             }
             case StatementTypes.SET_DATABASE_FILES_LOG_SIZE : {
                 try {
@@ -364,23 +437,24 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.SET_DATABASE_SCRIPT_FORMAT : {
-                try {
-                    int value = ((Integer) parameters[0]).intValue();
-
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-                    session.database.logger.setScriptType(value);
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
-            }
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY : {
                 boolean mode = ((Boolean) parameters[0]).booleanValue();
 
                 session.database.setReferentialIntegrity(mode);
+
+                return Result.updateZeroResult;
+            }
+            case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES : {
+                boolean mode = ((Boolean) parameters[0]).booleanValue();
+
+                session.database.setStrictNames(mode);
+
+                return Result.updateZeroResult;
+            }
+            case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE : {
+                boolean mode = ((Boolean) parameters[0]).booleanValue();
+
+                session.database.setStrictColumnSize(mode);
 
                 return Result.updateZeroResult;
             }
@@ -405,61 +479,27 @@ public class StatementCommand extends Statement {
                 //
                 return Result.updateZeroResult;
             }
-            case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL : {
+            case StatementTypes.SET_DATABASE_SCRIPT_FORMAT : {
                 try {
-                    boolean mvcc = ((Boolean) parameters[0]).booleanValue();
+                    int value = ((Integer) parameters[0]).intValue();
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.txManager.setMVCC(mvcc);
+                    session.database.logger.setScriptType(value);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.SET_USER_INITIAL_SCHEMA : {
+            case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL : {
                 try {
-                    User     user   = (User) parameters[0];
-                    HsqlName schema = (HsqlName) parameters[1];
+                    int mode = ((Integer) parameters[0]).intValue();
 
+                    session.checkAdmin();
                     session.checkDDLWrite();
-
-                    if (user == null) {
-                        user = session.getUser();
-                    } else {
-                        session.checkAdmin();
-                        session.checkDDLWrite();
-
-                        user = session.database.userManager.get(
-                            user.getNameString());
-                    }
-
-                    if (schema != null) {
-                        schema =
-                            session.database.schemaManager.getSchemaHsqlName(
-                                schema.name);
-                    }
-
-                    //
-                    user.setInitialSchema(schema);
-                    session.database.setMetaDirty(false);
-
-                    //
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
-            }
-            case StatementTypes.SET_USER_PASSWORD : {
-                try {
-                    User   user = parameters[0] == null ? session.getUser()
-                                                        : (User) parameters[0];
-                    String password = (String) parameters[1];
-
-                    session.checkDDLWrite();
-                    session.setScripting(true);
-                    user.setPassword(password);
+                    session.database.txManager.setTransactionControl(session,
+                            mode);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -475,25 +515,13 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
 
-                    //
-                    if (HsqlDatabaseProperties.hsqldb_cache_file_scale.equals(
-                            property)) {
-                        if (session.database.logger.hasCache()
-                                || ((Integer) value).intValue() != 8) {
-                            HsqlException e = Error.error(ErrorCode.X_42513,
-                                                          property);
-
-                            return Result.newErrorResult(e, sql);
-                        }
-                    }
-
                     HsqlDatabaseProperties p =
                         session.database.getProperties();
 
                     p.setDatabaseProperty(property,
                                           value.toString().toLowerCase());
-                    p.setDatabaseVariables();
-                    p.save();
+//                    p.setDatabaseVariables();
+//                    p.save();
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -506,8 +534,63 @@ public class StatementCommand extends Statement {
                 session.database.getProperties().setProperty(
                     HsqlDatabaseProperties.hsqldb_result_max_memory_rows,
                     size);
+                session.database.setResultMaxMemoryRows(size);
 
                 return Result.updateZeroResult;
+            }
+            case StatementTypes.SET_DATABASE_TEXT_SOURCE : {
+                try {
+                    String         source = (String) parameters[0];
+                    HsqlProperties props  = null;
+
+                    if (source.length() > 0) {
+                        props = HsqlProperties.delimitedArgPairsToProps(source,
+                                "=", ";", null);
+
+                        if (props.getErrorKeys().length > 0) {
+                            throw Error.error(ErrorCode.TEXT_TABLE_SOURCE,
+                                              props.getErrorKeys()[0]);
+                        }
+                    }
+
+                    session.database.logger.setDefaultTextTableProperties(
+                        source, props);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.DATABASE_SCRIPT : {
+                ScriptWriterText dsw  = null;
+                String           name = (String) parameters[0];
+
+                if (name == null) {
+                    return session.database.getScript(false);
+                } else {
+                    try {
+                        dsw = new ScriptWriterText(session.database, name,
+                                                   true, true, true);
+
+                        dsw.writeAll();
+                        dsw.close();
+                    } catch (HsqlException e) {
+                        return Result.newErrorResult(e, sql);
+                    }
+
+                    return Result.updateZeroResult;
+                }
+            }
+            case StatementTypes.DATABASE_SHUTDOWN : {
+                try {
+                    int mode = ((Integer) parameters[0]).intValue();
+
+                    session.database.close(mode);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
             }
             case StatementTypes.SET_TABLE_INDEX : {
                 try {
@@ -625,31 +708,48 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.DATABASE_SCRIPT : {
-                ScriptWriterText dsw  = null;
-                String           name = (String) parameters[0];
+            case StatementTypes.SET_USER_INITIAL_SCHEMA : {
+                try {
+                    User     user   = (User) parameters[0];
+                    HsqlName schema = (HsqlName) parameters[1];
 
-                if (name == null) {
-                    return session.database.getScript(false);
-                } else {
-                    try {
-                        dsw = new ScriptWriterText(session.database, name,
-                                                   true, true, true);
+                    session.checkDDLWrite();
 
-                        dsw.writeAll();
-                        dsw.close();
-                    } catch (HsqlException e) {
-                        return Result.newErrorResult(e, sql);
+                    if (user == null) {
+                        user = session.getUser();
+                    } else {
+                        session.checkAdmin();
+                        session.checkDDLWrite();
+
+                        user = session.database.userManager.get(
+                            user.getNameString());
                     }
 
+                    if (schema != null) {
+                        schema =
+                            session.database.schemaManager.getSchemaHsqlName(
+                                schema.name);
+                    }
+
+                    //
+                    user.setInitialSchema(schema);
+                    session.database.setMetaDirty(false);
+
+                    //
                     return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.DATABASE_SHUTDOWN : {
+            case StatementTypes.SET_USER_PASSWORD : {
                 try {
-                    int mode = ((Integer) parameters[0]).intValue();
+                    User   user = parameters[0] == null ? session.getUser()
+                                                        : (User) parameters[0];
+                    String password = (String) parameters[1];
 
-                    session.database.close(mode);
+                    session.checkDDLWrite();
+                    session.setScripting(true);
+                    user.setPassword(password);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -658,7 +758,7 @@ public class StatementCommand extends Statement {
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "CompiledStateemntCommand");
+                                         "StatemntCommand");
         }
     }
 

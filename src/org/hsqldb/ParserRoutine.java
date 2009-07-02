@@ -109,10 +109,6 @@ public class ParserRoutine extends ParserDML {
                         FunctionSQL.newSQLFunction(token.tokenString,
                                                    compileContext);
 
-                    if (function == null) {
-                        throw unexpectedToken();
-                    }
-
                     e = readSQLFunction(function);
                     break;
 

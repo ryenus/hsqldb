@@ -132,24 +132,22 @@ public class RowAction extends RowActionBase {
         super.setAsAction(action);
     }
 
-    private void setAsNoOp(Row row) {
-
-        memoryRow = null;
+    synchronized void setAsNoOp(Row row) {
 
         synchronized (row) {
+            memoryRow     = null;
             row.hasAction = false;
             row.rowAction = null;
-        }
-
-        session = null;
+            session       = null;
 
 //        actionTimestamp = 0;
-        commitTimestamp = 0;
+            commitTimestamp = 0;
 
 //        rolledback      = false;
 //        prepared        = false;
-        type = RowActionBase.ACTION_NONE;
-        next = null;
+            type = RowActionBase.ACTION_NONE;
+            next = null;
+        }
     }
 
     private void setAsDeleteFinal() {
@@ -219,7 +217,13 @@ public class RowAction extends RowActionBase {
 
         do {
             if (action.commitTimestamp == timestamp) {
-                type = action.type;
+                if (type == ACTION_NONE) {
+                    type = action.type;
+                } else if (type == ACTION_INSERT) {
+
+                    // ACTION_INSERT + ACTION_DELETE
+                    type = action.ACTION_NONE;
+                }
             }
 
             action = action.next;

@@ -1347,6 +1347,12 @@ public class ParserDDL extends ParserRoutine {
         Constraint uniqueConstraint =
             c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols,
                 c.core.refCols);
+
+
+        if (uniqueConstraint == null) {
+            throw Error.error(ErrorCode.X_42523);
+        }
+
         Index      mainIndex  = uniqueConstraint.getMainIndex();
         TableWorks tableWorks = new TableWorks(session, table);
 
@@ -1857,8 +1863,8 @@ public class ParserDDL extends ParserRoutine {
         String         className;
         TriggerDef     td;
         HsqlName       name;
-        HsqlName       otherName = null;
-        OrderedHashSet columns   = null;
+        HsqlName       otherName           = null;
+        OrderedHashSet columns             = null;
         int[]          updateColumnIndexes = null;
 
         read();
@@ -2196,8 +2202,8 @@ public class ParserDDL extends ParserRoutine {
 
             td = new TriggerDef(name, beforeOrAfter, operation, isForEachRow,
                                 table, transitions, rangeVars, condition,
-                                conditionSQL, updateColumnIndexes, className, isNowait,
-                                queueSize);
+                                conditionSQL, updateColumnIndexes, className,
+                                isNowait, queueSize);
 
             String   sql  = getLastPart();
             Object[] args = new Object[] {
@@ -2341,8 +2347,8 @@ public class ParserDDL extends ParserRoutine {
 
         td = new TriggerDefSQL(name, beforeOrAfter, operation, isForEachRow,
                                table, transitions, rangeVars, condition,
-                               conditionSQL, updateColumnIndexes, csArray, procedureSQL,
-                               references);
+                               conditionSQL, updateColumnIndexes, csArray,
+                               procedureSQL, references);
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
@@ -2459,6 +2465,12 @@ public class ParserDDL extends ParserRoutine {
 
                 readThis(Tokens.CLOSEBRACKET);
             }
+        } else if (token.tokenType == Tokens.IDENTITY && !isIdentity) {
+            read();
+
+            isIdentity   = true;
+            isPKIdentity = true;
+            sequence     = new NumberSequence(null, 0, 1, typeObject);
         }
 
         ColumnSchema column = new ColumnSchema(hsqlName, typeObject,

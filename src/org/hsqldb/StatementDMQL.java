@@ -202,18 +202,9 @@ public abstract class StatementDMQL extends Statement {
 
             result = getResult(session);
         } catch (Throwable t) {
-            String commandString = sql;
-
-            if (session.database.getProperties().getErrorLevel()
-                    == HsqlDatabaseProperties.NO_MESSAGE) {
-                commandString = null;
-            }
-
-            result = Result.newErrorResult(t, commandString);
+            result = Result.newErrorResult(t, null);
 
             result.getException().setStatementType(group, type);
-
-
         }
 
         session.sessionContext.clearStructures(this);
@@ -423,6 +414,13 @@ public abstract class StatementDMQL extends Statement {
     void checkAccessRights(Session session) {
 
         if (targetTable != null && !targetTable.isTemp()) {
+            if (targetTable.getOwner().isSystem()) {
+                if (!session.getUser().isSystem()) {
+                    throw Error.error(ErrorCode.X_42501,
+                                      targetTable.getName().name);
+                }
+            }
+
             targetTable.checkDataReadOnly();
             session.checkReadWrite();
         }

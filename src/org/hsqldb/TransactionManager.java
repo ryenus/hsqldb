@@ -54,7 +54,7 @@ import org.hsqldb.store.ValuePool;
  * @version 2.0.0
  * @since 2.0.0
  */
-public class TransactionManager {
+public class TransactionManager implements TransactionManagerInterface {
 
     Database database;
     boolean  mvcc = false;
@@ -88,14 +88,44 @@ public class TransactionManager {
         database = db;
     }
 
-    public void setMVCC(boolean value) {
+    public boolean isMVRows() {
+        return true;
+    }
+
+    public int getTransactionControl() {
+        return mvcc ? Database.MVCC
+                    : Database.MVLOCKS;
+    }
+
+    public void setTransactionControl(Session session, int mode) {
 
         writeLock.lock();
 
         try {
             synchronized (liveTransactionTimestamps) {
-                if (liveTransactionTimestamps.isEmpty()) {
-                    mvcc = value;
+
+                // statement runs as transaction
+                if (liveTransactionTimestamps.size() == 1) {
+                    switch (mode) {
+
+                        case Database.MVCC :
+                            mvcc = true;
+                            break;
+
+                        case Database.MVLOCKS :
+                            mvcc = false;
+                            break;
+
+                        case Database.LOCKS :
+                            TransactionManager2PL manager =
+                                new TransactionManager2PL(database);
+
+                            manager.globalChangeTimestamp.set(
+                                globalChangeTimestamp.get());
+
+                            database.txManager = manager;
+                            break;
+                    }
 
                     return;
                 }
@@ -249,8 +279,6 @@ public class TransactionManager {
     public boolean commitTransaction(Session session) {
 
         if (session.abortTransaction) {
-
-//            System.out.println("cascade fail " + session + " " + session.actionTimestamp);
             return false;
         }
 
@@ -594,6 +622,7 @@ public class TransactionManager {
                     }
 
                     store.delete(row);
+                    store.remove(row.getPos());
                 } catch (HsqlException e) {
 
 //                    throw unexpectedException(e.getMessage());
@@ -756,7 +785,7 @@ public class TransactionManager {
             session.transactionTimestamp = session.actionTimestamp;
             session.isTransaction        = true;
 
-            liveTransactionTimestamps.addLast(session.actionTimestamp);
+            liveTransactionTimestamps.addLast(session.transactionTimestamp);
 
             try {
                 if (mvcc) {
@@ -1222,11 +1251,4 @@ public class TransactionManager {
             writeLock.unlock();
         }
     }
-
-//
-    void logTransaction(Object[] list, int size) {}
-
-    void unexpectedException(String message) {}
-
-    public void finalize() {}
 }

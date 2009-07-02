@@ -152,7 +152,10 @@ public class NodeAVLDisk extends NodeAVL {
         iLeft    = NO_POS;
         iRight   = NO_POS;
         iParent  = NO_POS;
-        iBalance = -2;
+        nLeft    = null;
+        nRight   = null;
+        nParent  = null;
+        iBalance = 0;
     }
 
     public boolean isInMemory() {

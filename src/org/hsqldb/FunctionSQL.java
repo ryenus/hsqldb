@@ -796,7 +796,7 @@ public class FunctionSQL extends Expression {
                     length = ((Number) value).longValue();
                 }
 
-                if (nodes[3] != null
+                if (nodes.length > 3 && nodes[3] != null
                         && ((Number) nodes[2].valueData).intValue()
                            == Tokens.OCTETS) {
 

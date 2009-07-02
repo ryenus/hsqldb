@@ -32,6 +32,7 @@
 package org.hsqldb.persist;
 
 import java.io.EOFException;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -64,6 +65,7 @@ final class ScaledRAFile implements ScaledRAInterface {
     //
     final SimpleLog                appLog;
     final RandomAccessFile         file;
+    final FileDescriptor           fileDescriptor;
     private final boolean          readOnly;
     final String                   fileName;
     boolean                        isNio;
@@ -151,12 +153,11 @@ final class ScaledRAFile implements ScaledRAInterface {
         this.fileName = name;
         this.file     = file;
 
-        int bufferScale = database.getProperties().getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_raf_buffer_scale, 12, 8, 13);
-        int bufferSize = 1 << bufferScale;
+        int bufferSize = 1 << 12;
 
-        buffer = new byte[bufferSize];
-        ba     = new HsqlByteArrayInputStream(buffer);
+        buffer         = new byte[bufferSize];
+        ba             = new HsqlByteArrayInputStream(buffer);
+        fileDescriptor = file.getFD();
     }
 
     ScaledRAFile(Database database, String name,
@@ -168,12 +169,11 @@ final class ScaledRAFile implements ScaledRAInterface {
         this.file     = new RandomAccessFile(name, readonly ? "r"
                                                             : "rw");
 
-        int bufferScale = database.getProperties().getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_raf_buffer_scale, 12);
-        int bufferSize = 1 << bufferScale;
+        int bufferSize = 1 << 12;
 
-        buffer = new byte[bufferSize];
-        ba     = new HsqlByteArrayInputStream(buffer);
+        buffer         = new byte[bufferSize];
+        ba             = new HsqlByteArrayInputStream(buffer);
+        fileDescriptor = file.getFD();
     }
 
     public long length() throws IOException {
@@ -502,6 +502,13 @@ final class ScaledRAFile implements ScaledRAInterface {
 
     public Database getDatabase() {
         return null;
+    }
+
+    public void synch() {
+
+        try {
+            fileDescriptor.sync();
+        } catch (IOException e) {}
     }
 
     private void resetPointer() {

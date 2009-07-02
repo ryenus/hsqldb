@@ -347,6 +347,13 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         return null;
     }
 
+    public void synch() {
+
+        try {
+            buffer.force();
+        } catch (Throwable t) {}
+    }
+
     static int newNIOBufferSize(int newSize) {
 
         int bufSize = 0;

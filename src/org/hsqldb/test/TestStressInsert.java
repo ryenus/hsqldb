@@ -38,6 +38,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Random;
+
 import org.hsqldb.jdbc.JDBCBlob;
 
 /**
@@ -68,13 +69,13 @@ public class TestStressInsert {
         Statement stmt = con.createStatement();
 
         try {
-
-//            stmt.execute("set property \"hsqldb.nio_data_file\" false");
+            stmt.execute("set property \"hsqldb.nio_data_file\" false");
             stmt.execute("set property \"hsqldb.applog\" 1");
             stmt.execute("set property \"hsqldb.cache_scale\" 8");
-            stmt.execute("set property \"hsqldb.cache_size_scale\" 10");
+            stmt.execute("set property \"hsqldb.cache_size_scale\" 12");
             stmt.execute("set write_delay 10000 millis");
-            stmt.execute("set logsize " + 20);
+            stmt.execute("set logsize " + 200);
+
 //            stmt.execute("set property \"hsqldb.cache_file_scale\" 8");
             stmt.execute("set database backup increment true");
 
@@ -162,7 +163,6 @@ public class TestStressInsert {
         }
 
         System.out.println("total inserted " + MAX_SIZE + " in " + (t2 - t1));
-
         shutdown();
     }
 
@@ -186,7 +186,6 @@ public class TestStressInsert {
         }
 
         System.out.println("total inserted " + MAX_SIZE + " in " + (t2 - t1));
-
         shutdown();
     }
 
