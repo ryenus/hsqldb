@@ -85,7 +85,8 @@ public class StatementCompound extends Statement {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "StatementCompound");
         }
     }
 
@@ -277,7 +278,8 @@ public class StatementCompound extends Statement {
                 break;
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "StatementCompound");
         }
 
         if (result.isError()) {

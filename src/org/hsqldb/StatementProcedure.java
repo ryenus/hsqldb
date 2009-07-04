@@ -63,7 +63,7 @@ public class StatementProcedure extends StatementDMQL {
                        CompileContext compileContext) {
 
         super(StatementTypes.CALL, StatementTypes.X_SQL_DATA,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.expression = expression;
 
@@ -78,7 +78,7 @@ public class StatementProcedure extends StatementDMQL {
                        Expression[] arguments, CompileContext compileContext) {
 
         super(StatementTypes.CALL, StatementTypes.X_SQL_DATA,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.procedure = procedure;
         this.arguments = arguments;
@@ -245,9 +245,8 @@ public class StatementProcedure extends StatementDMQL {
                 return md;
             }
             default :
-                throw Error.runtimeError(
-                    ErrorCode.U_S0500,
-                    "CompiledStatement.getResultMetaData()");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "StatementProcedure");
         }
     }
 

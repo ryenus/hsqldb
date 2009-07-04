@@ -214,7 +214,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     }
 
     public void setWriteable(boolean value) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "");
+        throw Error.runtimeError(ErrorCode.U_S0500, "ColumnSchema");
     }
 
     public boolean isSearchable() {

@@ -453,7 +453,8 @@ public class ExpressionColumn extends Expression {
             case OpTypes.ASTERISK :
             case OpTypes.MULTICOLUMN :
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionColumn");
         }
     }
 
@@ -520,7 +521,8 @@ public class ExpressionColumn extends Expression {
                 return sb.toString();
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionColumn");
         }
     }
 

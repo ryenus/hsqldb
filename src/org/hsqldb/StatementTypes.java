@@ -161,30 +161,31 @@ public interface StatementTypes {
     int SET_DATABASE_DEFAULT_INITIAL_SCHEMA    = 1011;
     int SET_DATABASE_DEFAULT_TABLE_TYPE        = 1012;
     int SET_DATABASE_FILES_BACKUP_INCREMENT    = 1013;
-    int SET_DATABASE_FILES_SCALE    = 1014;
+    int SET_DATABASE_FILES_CACHE_ROWS          = 1014;
     int SET_DATABASE_FILES_CACHE_SIZE          = 1015;
-    int SET_DATABASE_FILES_CACHE_ROWS          = 1016;
-    int SET_DATABASE_FILES_DEFRAG              = 1017;
-    int SET_DATABASE_FILES_EVENT_LOG           = 1018;
-    int SET_DATABASE_FILES_LOCK                = 1019;
-    int SET_DATABASE_FILES_LOG_SIZE            = 1020;
-    int SET_DATABASE_FILES_NIO                 = 1021;
-    int SET_DATABASE_FILES_READ_ONLY           = 1022;
-    int SET_DATABASE_FILES_READ_ONLY_FILES     = 1023;
+    int SET_DATABASE_FILES_DEFRAG              = 1016;
+    int SET_DATABASE_FILES_EVENT_LOG           = 1017;
+    int SET_DATABASE_FILES_LOCK                = 1018;
+    int SET_DATABASE_FILES_LOG_SIZE            = 1019;
+    int SET_DATABASE_FILES_NIO                 = 1020;
+    int SET_DATABASE_FILES_READ_ONLY           = 1021;
+    int SET_DATABASE_FILES_READ_ONLY_FILES     = 1022;
+    int SET_DATABASE_FILES_SCALE               = 1023;
     int SET_DATABASE_FILES_SCRIPT_FORMAT       = 1024;
     int SET_DATABASE_FILES_WRITE_DELAY         = 1025;
-    int SET_DATABASE_PROPERTY                  = 1026;
-    int SET_DATABASE_RESULT_MEMORY_ROWS        = 1027;
-    int SET_DATABASE_SCRIPT_FORMAT             = 1028;
-    int SET_DATABASE_SQL_COLLATION             = 1029;
-    int SET_DATABASE_SQL_IGNORECASE            = 1030;
-    int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1031;
-    int SET_DATABASE_SQL_STRICT_NAMES          = 1032;
-    int SET_DATABASE_SQL_STRICT_SIZE           = 1033;
-    int SET_DATABASE_READ_ONLY                 = 1034;
-    int SET_DATABASE_READ_ONLY_FILES           = 1035;
-    int SET_DATABASE_TRANSACTION_CONTROL       = 1036;
+    int SET_DATABASE_GC                        = 1026;
+    int SET_DATABASE_PROPERTY                  = 1027;
+    int SET_DATABASE_READ_ONLY                 = 1028;
+    int SET_DATABASE_READ_ONLY_FILES           = 1029;
+    int SET_DATABASE_RESULT_MEMORY_ROWS        = 1030;
+    int SET_DATABASE_SCRIPT_FORMAT             = 1031;
+    int SET_DATABASE_SQL_COLLATION             = 1032;
+    int SET_DATABASE_SQL_IGNORECASE            = 1033;
+    int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1034;
+    int SET_DATABASE_SQL_STRICT_NAMES          = 1035;
+    int SET_DATABASE_SQL_STRICT_SIZE           = 1036;
     int SET_DATABASE_TEXT_SOURCE               = 1037;
+    int SET_DATABASE_TRANSACTION_CONTROL       = 1038;
 
     // hsqldb user settings
     int SET_USER_INITIAL_SCHEMA = 1042;
@@ -240,4 +241,31 @@ public interface StatementTypes {
     int RETURN_ANY    = 0;
     int RETURN_COUNT  = 1;
     int RETURN_RESULT = 2;
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

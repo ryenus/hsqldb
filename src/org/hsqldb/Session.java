@@ -1037,7 +1037,7 @@ public class Session implements SessionInterface {
             default : {
                 return Result.newErrorResult(
                     Error.runtimeError(
-                        ErrorCode.U_S0500, "Session.execute()"));
+                        ErrorCode.U_S0500, "Session"));
             }
         }
 

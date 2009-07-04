@@ -149,7 +149,8 @@ public class ExpressionLogical extends Expression {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
         }
     }
 
@@ -173,7 +174,8 @@ public class ExpressionLogical extends Expression {
                 break;
 
             default :
-                Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
         }
     }
 
@@ -358,7 +360,8 @@ public class ExpressionLogical extends Expression {
                 return sb.toString();
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
         }
 
         return sb.toString();
@@ -451,7 +454,8 @@ public class ExpressionLogical extends Expression {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
         }
 
         if (nodes[LEFT] != null) {
@@ -596,7 +600,7 @@ public class ExpressionLogical extends Expression {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "Expression.resolveTypes()");
+                                         "ExpressionLogical");
         }
     }
 
@@ -938,7 +942,8 @@ public class ExpressionLogical extends Expression {
                 }
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
         }
     }
 
@@ -983,7 +988,8 @@ public class ExpressionLogical extends Expression {
                                   : Boolean.FALSE;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
         }
     }
 
@@ -1091,7 +1097,8 @@ public class ExpressionLogical extends Expression {
                                   : Boolean.FALSE;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionLogical");
         }
     }
 
@@ -1123,7 +1130,7 @@ public class ExpressionLogical extends Expression {
             return Boolean.FALSE;
         }
 
-        throw Error.runtimeError(ErrorCode.U_S0500, "");
+        throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionLogical");
     }
 
     private Boolean testMatchCondition(Session session, Object[] data) {
@@ -1588,7 +1595,7 @@ public class ExpressionLogical extends Expression {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "Expression.swapCondition");
+                                         "ExpressionLogical");
         }
 
         opType = i;

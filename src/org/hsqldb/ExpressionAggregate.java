@@ -131,7 +131,8 @@ public class ExpressionAggregate extends Expression {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "ExpressionAggregate");
         }
 
         return sb.toString();

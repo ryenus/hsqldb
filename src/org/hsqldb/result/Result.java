@@ -579,8 +579,7 @@ public class Result {
                 break;
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "Result.newResult");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Result");
         }
 
         return result;

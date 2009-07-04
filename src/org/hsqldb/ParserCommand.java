@@ -345,8 +345,8 @@ public class ParserCommand extends ParserDDL {
                 readThis(Tokens.MEMORY);
                 readThis(Tokens.SIZE);
 
-                int      size = readInteger();
-                Object[] args = new Object[]{ new Integer(size) };
+                Integer  size = readIntegerObject();
+                Object[] args = new Object[]{ size };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS, args,
@@ -539,8 +539,8 @@ public class ParserCommand extends ParserDDL {
             case Tokens.MAXROWS : {
                 read();
 
-                int      size = readInteger();
-                Object[] args = new Object[]{ new Integer(size) };
+                Integer  size = readIntegerObject();
+                Object[] args = new Object[]{ size };
 
                 return new StatementSession(
                     StatementTypes.SET_SESSION_RESULT_MAX_ROWS, args);
@@ -580,8 +580,8 @@ public class ParserCommand extends ParserDDL {
                 readThis(Tokens.MEMORY);
                 readThis(Tokens.SIZE);
 
-                int      size = readInteger();
-                Object[] args = new Object[]{ new Integer(size) };
+                Integer  size = readIntegerObject();
+                Object[] args = new Object[]{ size };
 
                 return new StatementSession(
                     StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS, args);
@@ -803,8 +803,8 @@ public class ParserCommand extends ParserDDL {
                 readThis(Tokens.LOG);
                 readThis(Tokens.LEVEL);
 
-                int      value = readInteger();
-                Object[] args  = new Object[]{ Integer.valueOf(value) };
+                Integer  value = readIntegerObject();
+                Object[] args  = new Object[]{ value };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_FILES_EVENT_LOG, args, null,
@@ -893,6 +893,15 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_TRANSACTION_CONTROL, args,
                     null, null);
+            }
+            case Tokens.GC : {
+                read();
+
+                Integer  size = readIntegerObject();
+                Object[] args = new Object[]{ size };
+
+                return new StatementCommand(StatementTypes.SET_DATABASE_GC,
+                                            args, null, null);
             }
             default : {
                 throw unexpectedToken();

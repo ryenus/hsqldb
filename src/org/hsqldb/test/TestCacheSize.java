@@ -92,7 +92,7 @@ public class TestCacheSize {
     boolean nioMode        = false;
 
     // script format {TEXT | BINARY | COMPRESSED}
-    String  logType       = "TEXT";
+    String  logType       = "BINARY";
     int     writeDelay    = 60;
     boolean indexZip      = false;
     boolean indexLastName = false;
@@ -176,7 +176,7 @@ public class TestCacheSize {
                 sStatement = cConnection.createStatement();
 
                 sStatement.execute("SET WRITE_DELAY " + 2);
-                sStatement.execute("SET CHECKPOINT DEFRAG " + 0);
+                sStatement.execute("SET FILES DEFRAG " + 0);
                 sStatement.execute("SET SCRIPTFORMAT " + logType);
                 sStatement.execute("SET LOGSIZE " + 0);
                 sStatement.execute("SET PROPERTY \"hsqldb.applog\" " + 1);
@@ -186,7 +186,7 @@ public class TestCacheSize {
                                    + cacheSizeScale);
                 sStatement.execute("SET PROPERTY \"hsqldb.nio_data_file\" "
                                    + nioMode);
-                sStatement.execute("SET DATABASE BACKUP INCREMENT " + false);
+                sStatement.execute("SET FILES BACKUP INCREMENT " + false);
                 sStatement.execute("SHUTDOWN");
                 cConnection.close();
             }

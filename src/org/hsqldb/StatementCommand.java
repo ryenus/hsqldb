@@ -32,11 +32,12 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
+import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.User;
 import org.hsqldb.scriptio.ScriptWriterText;
-import org.hsqldb.persist.HsqlProperties;
 
 /**
  * Implementation of Statement for SQL commands.<p>
@@ -101,6 +102,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_READ_ONLY :
             case StatementTypes.SET_DATABASE_FILES_READ_ONLY_FILES :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
+            case StatementTypes.SET_DATABASE_GC :
 
 //
             case StatementTypes.SET_DATABASE_SQL_COLLATION :
@@ -258,7 +260,7 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.logger.setIncrementalBackup(mode);
+                    session.database.logger.setIncrementBackup(mode);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -506,6 +508,19 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+            case StatementTypes.SET_DATABASE_GC : {
+                try {
+                    int count = ((Integer) parameters[0]).intValue();
+
+                    session.checkAdmin();
+
+                    JavaSystem.gcFrequency = count;
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.SET_DATABASE_PROPERTY : {
                 try {
                     String property = (String) parameters[0];
@@ -520,9 +535,9 @@ public class StatementCommand extends Statement {
 
                     p.setDatabaseProperty(property,
                                           value.toString().toLowerCase());
+
 //                    p.setDatabaseVariables();
 //                    p.save();
-
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -757,8 +772,7 @@ public class StatementCommand extends Statement {
                 }
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatemntCommand");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatemntCommand");
         }
     }
 

@@ -400,7 +400,7 @@ public class TestSqlPersistent extends TestCase {
             sqlString =
                 "create cached table objects (object_id INTEGER IDENTITY,"
                 + "object_name VARCHAR(128) NOT NULL,role_name VARCHAR(128) NOT NULL,"
-                + "value LONGVARBINARY NOT NULL,description LONGVARCHAR)";
+                + "value LONGVARBINARY(1000) NOT NULL,description LONGVARCHAR(1000)";
             ps = cConnection.prepareStatement(sqlString);
 
             ps.execute();

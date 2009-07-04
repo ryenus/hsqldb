@@ -50,7 +50,7 @@ public class StatementQuery extends StatementDMQL {
                    CompileContext compileContext) {
 
         super(StatementTypes.SELECT_CURSOR, StatementTypes.X_SQL_DATA,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.queryExpression = queryExpression;
 
@@ -62,7 +62,7 @@ public class StatementQuery extends StatementDMQL {
                    CompileContext compileContext, HsqlName[] targets) {
 
         super(StatementTypes.SELECT_SINGLE, StatementTypes.X_SQL_DATA,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.queryExpression = queryExpression;
 

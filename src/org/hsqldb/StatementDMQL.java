@@ -514,9 +514,7 @@ public abstract class StatementDMQL extends Statement {
                 return ResultMetaData.emptyResultMetaData;
 
             default :
-                throw Error.runtimeError(
-                    ErrorCode.U_S0500,
-                    "CompiledStatement.getResultMetaData()");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementDMQL");
         }
     }
 

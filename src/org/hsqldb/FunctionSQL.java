@@ -1010,7 +1010,7 @@ public class FunctionSQL extends Expression {
                 return null;
 
             case FUNC_CURRENT_SCHEMA :
-                return session.currentSchema.name;
+                return session.getCurrentSchemaHsqlName().name;
 
             /*
             case FUNC_CURRENT_TRANSFORM_GROUP_FOR_TYPE :
@@ -1075,7 +1075,7 @@ public class FunctionSQL extends Expression {
                             || nodes[1].dataType.isBinaryType()) {
                         nodes[0].dataType = nodes[1].dataType;
                     } else {
-                        nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                        nodes[0].dataType = Type.SQL_VARCHAR;
                     }
                 }
 
@@ -1084,7 +1084,7 @@ public class FunctionSQL extends Expression {
                             || nodes[0].dataType.isBinaryType()) {
                         nodes[1].dataType = nodes[0].dataType;
                     } else {
-                        nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
+                        nodes[1].dataType = Type.SQL_VARCHAR;
                     }
                 }
 
@@ -1151,7 +1151,7 @@ public class FunctionSQL extends Expression {
             // fall through
             case FUNC_OCTET_LENGTH : {
                 if (nodes[0].dataType == null) {
-                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                    nodes[0].dataType = Type.SQL_VARCHAR;
                 }
 
                 if (!nodes[0].dataType.isCharacterType()
@@ -1404,7 +1404,7 @@ public class FunctionSQL extends Expression {
                             || nodes[1].dataType.isBinaryType()) {
                         nodes[0].dataType = nodes[1].dataType;
                     } else {
-                        nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                        nodes[0].dataType = Type.SQL_VARCHAR;
                     }
                 }
 
@@ -1413,7 +1413,7 @@ public class FunctionSQL extends Expression {
                             || nodes[0].dataType.isBinaryType()) {
                         nodes[1].dataType = nodes[0].dataType;
                     } else {
-                        nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
+                        nodes[1].dataType = Type.SQL_VARCHAR;
                     }
                 }
 

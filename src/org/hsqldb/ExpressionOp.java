@@ -66,7 +66,7 @@ public class ExpressionOp extends Expression {
                 return;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }
     }
 
@@ -94,7 +94,7 @@ public class ExpressionOp extends Expression {
         switch (e.dataType.typeCode) {
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                nodes       = new Expression[UNARY];
+                nodes                = new Expression[UNARY];
                 nodes[LEFT] = new ExpressionOp(OpTypes.ZONE_MODIFIER, e, null);
                 nodes[LEFT].dataType = e.dataType;
                 dataType = DateTimeType.getDateTimeType(Types.SQL_TIME,
@@ -102,7 +102,7 @@ public class ExpressionOp extends Expression {
                 break;
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                nodes       = new Expression[UNARY];
+                nodes                = new Expression[UNARY];
                 nodes[LEFT] = new ExpressionOp(OpTypes.ZONE_MODIFIER, e, null);
                 nodes[LEFT].dataType = e.dataType;
                 dataType = DateTimeType.getDateTimeType(Types.SQL_TIMESTAMP,
@@ -110,8 +110,8 @@ public class ExpressionOp extends Expression {
                 break;
 
             case Types.SQL_TIME :
-                nodes       = new Expression[BINARY];
-                nodes[LEFT] = e;
+                nodes                = new Expression[BINARY];
+                nodes[LEFT]          = e;
                 nodes[LEFT].dataType = e.dataType;
                 dataType =
                     DateTimeType.getDateTimeType(Types.SQL_TIME_WITH_TIME_ZONE,
@@ -119,15 +119,15 @@ public class ExpressionOp extends Expression {
                 break;
 
             case Types.SQL_TIMESTAMP :
-                nodes       = new Expression[BINARY];
-                nodes[LEFT] = e;
+                nodes                = new Expression[BINARY];
+                nodes[LEFT]          = e;
                 nodes[LEFT].dataType = e.dataType;
                 dataType = DateTimeType.getDateTimeType(
                     Types.SQL_TIMESTAMP_WITH_TIME_ZONE, e.dataType.scale);
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }
 
         this.alias = e.alias;
@@ -150,7 +150,7 @@ public class ExpressionOp extends Expression {
 
                 if (dataType == null) {
                     throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "Expression.getSQL()");
+                                             "ExpressionOp");
                 }
 
                 return dataType.convertToSQLString(valueData);
@@ -196,7 +196,7 @@ public class ExpressionOp extends Expression {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }
 
         return sb.toString();
@@ -368,8 +368,7 @@ public class ExpressionOp extends Expression {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "Expression.resolveTypes()");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }
     }
 
@@ -504,7 +503,7 @@ public class ExpressionOp extends Expression {
                         session.timeZoneSeconds);
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }
     }
 }

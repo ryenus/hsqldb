@@ -74,7 +74,7 @@ public class StatementDML extends StatementDMQL {
                  boolean restartIdentity) {
 
         super(StatementTypes.DELETE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.targetTable            = targetTable;
         this.baseTable              = targetTable.getBaseTable();
@@ -95,7 +95,7 @@ public class StatementDML extends StatementDMQL {
                  CompileContext compileContext) {
 
         super(StatementTypes.UPDATE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.targetTable            = targetTable;
         this.baseTable              = targetTable.getBaseTable();
@@ -119,7 +119,7 @@ public class StatementDML extends StatementDMQL {
                  CompileContext compileContext) {
 
         super(StatementTypes.MERGE, StatementTypes.X_SQL_DATA_CHANGE,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.sourceTable          = targetRangeVars[0].rangeTable;
         this.targetTable          = targetRangeVars[1].rangeTable;
@@ -145,7 +145,7 @@ public class StatementDML extends StatementDMQL {
                  CompileContext compileContext) {
 
         super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_DATA_CHANGE,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.targetTable       = table;
         this.baseTable         = targetTable.getBaseTable();
@@ -191,9 +191,7 @@ public class StatementDML extends StatementDMQL {
                 break;
 
             default :
-                throw Error.runtimeError(
-                    ErrorCode.U_S0500,
-                    "CompiledStatementExecutor.executeImpl()");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementDML");
         }
 
         return result;
@@ -943,7 +941,7 @@ public class StatementDML extends StatementDMQL {
 
                             // fredt - we avoid infinite recursion on the fk's referencing the same table
                             // but chained rows can result in very deep recursion and StackOverflowError
-                            if (refrow.getPos()  != row.getPos() ) {
+                            if (refrow.getPos() != row.getPos()) {
                                 checkCascadeDelete(session, reftable,
                                                    tableUpdateList, refrow,
                                                    delete, path);

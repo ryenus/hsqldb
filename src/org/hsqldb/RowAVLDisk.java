@@ -274,7 +274,7 @@ public class RowAVLDisk extends RowAVL {
 
             if (keepCount < 0) {
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "CachedRow keep count");
+                                         "RowAVLDisk - keep count");
             }
         }
 

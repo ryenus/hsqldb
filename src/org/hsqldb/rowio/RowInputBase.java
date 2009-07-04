@@ -259,7 +259,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
 
                 default :
                     throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "RowInputBase "
+                                             "RowInputBase - "
                                              + type.getNameString());
             }
 

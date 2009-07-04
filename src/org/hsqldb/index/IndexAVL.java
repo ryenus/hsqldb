@@ -846,7 +846,7 @@ public class IndexAVL implements Index {
                             || compare == OpTypes.GREATER_EQUAL;
 
             if (!check) {
-                Error.runtimeError(ErrorCode.U_S0500, "Index.findFirst");
+                Error.runtimeError(ErrorCode.U_S0500, "IndexAVL");
             }
 
             while (x != null) {

@@ -122,11 +122,11 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     }
 
     public Row getCurrentRow() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "ClientRowSetNavigator");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 
     public void remove() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "ClientRowSetNavigator");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 
     public void add(Object data) {

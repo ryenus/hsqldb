@@ -1831,7 +1831,7 @@ public class Server implements HsqlSocketRequestHandler {
         if (!success && getServerError() == null) {
 
             // database alias / path list is empty or without full info for any DB
-            setServerError(Error.error(ErrorCode.M_SERVER_NO_DATABASE));
+            setServerError(Error.error(ErrorCode.SERVER_NO_DATABASE));
         }
 
         return success;

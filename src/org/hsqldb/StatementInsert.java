@@ -56,7 +56,7 @@ public class StatementInsert extends StatementDML {
                     CompileContext compileContext) {
 
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.targetTable            = targetTable;
         this.baseTable              = targetTable.getBaseTable();
@@ -77,7 +77,7 @@ public class StatementInsert extends StatementDML {
                     CompileContext compileContext) {
 
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
-              session.currentSchema);
+              session.getCurrentSchemaHsqlName());
 
         this.targetTable            = targetTable;
         this.baseTable              = targetTable.getBaseTable();

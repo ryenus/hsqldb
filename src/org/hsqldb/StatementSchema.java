@@ -1112,7 +1112,7 @@ public class StatementSchema extends Statement {
         }
 
         if (session.parser.isSchemaDefinition) {
-            if (schema == session.currentSchema) {
+            if (schema == session.getCurrentSchemaHsqlName()) {
                 return;
             }
 

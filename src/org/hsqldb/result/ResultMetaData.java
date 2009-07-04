@@ -341,7 +341,7 @@ public final class ResultMetaData {
                 return;
             }
             default : {
-                throw Error.runtimeError(ErrorCode.U_S0500, "");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ResultMetaData");
             }
         }
     }
@@ -433,7 +433,7 @@ public final class ResultMetaData {
                 return;
             }
             default : {
-                throw Error.runtimeError(ErrorCode.U_S0500, "");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ResultMetaData");
             }
         }
     }

@@ -265,7 +265,7 @@ public final class Schema implements SchemaObject {
             case SchemaObject.INDEX :
             case SchemaObject.CONSTRAINT :
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaManager");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Schema");
         }
     }
 

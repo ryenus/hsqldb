@@ -287,7 +287,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     }
 
     public void setCache(DataFileCache cache) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLHybrid");
     }
 
     public void release() {
@@ -331,7 +331,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             return;
         }
 
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreCached");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLHybrid");
     }
 
     public void changeToDiskTable() {
