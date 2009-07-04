@@ -1131,7 +1131,7 @@ public final class DateTimeType extends DTIType {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "IntervalType - " + part);
+                                         "DateTimeType - " + part);
         }
 
         long millis;

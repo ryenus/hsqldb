@@ -257,7 +257,7 @@ public class SessionManager {
         for (int i = 0; it.hasNext(); i++) {
             Session session = (Session) it.next();
 
-            if (session.currentSchema == schema.name) {
+            if (session.getCurrentSchemaHsqlName() == schema.name) {
                 session.resetSchema();
             }
         }
@@ -270,9 +270,7 @@ public class SessionManager {
         for (int i = 0; it.hasNext(); i++) {
             Session session = (Session) it.next();
 
-            session.resetSchema();
+            session.loggedSchema = null;
         }
-
-        sysLobSession.resetSchema();
     }
 }

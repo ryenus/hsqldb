@@ -41,6 +41,7 @@ import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.Type;
+import org.hsqldb.store.ValuePool;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -412,7 +413,7 @@ public class ParserBase {
 
         int value = readInteger();
 
-        return new Integer(value);
+        return ValuePool.getInt(value);
     }
 
     int readInteger() {
@@ -575,7 +576,7 @@ public class ParserBase {
                 return new ExpressionValue(interval, dataType);
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Parser");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ParserBase");
         }
 
         rewind(pos);
@@ -658,7 +659,7 @@ public class ParserBase {
         int type = expressionTypeMap.get(tokenT, -1);
 
         if (type == -1) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "Parser");
+            throw Error.runtimeError(ErrorCode.U_S0500, "ParserBase");
         }
 
         return type;

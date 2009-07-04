@@ -124,13 +124,13 @@ import org.hsqldb.types.Type;
  */
 public class Database {
 
-    int    databaseID;
-    String databaseType;
-    String sName;
+    int                  databaseID;
+    String               databaseType;
+    private final String name;
 
 // loosecannon1@users 1.7.2 patch properties on the JDBC URL
     public HsqlProperties urlProperties;
-    private String        sPath;
+    private final String  path;
     DatabaseInformation   dbInfo;
 
     /** indicates the state of the database */
@@ -206,10 +206,10 @@ public class Database {
 
         setState(Database.DATABASE_SHUTDOWN);
 
-        urlProperties = props;
-        sName         = name;
-        databaseType  = type;
-        sPath         = path;
+        this.databaseType  = type;
+        this.path          = path;
+        this.name          = name;
+        this.urlProperties = props;
 
         if (databaseType == DatabaseURL.S_RES) {
             filesInJar    = true;
@@ -369,7 +369,7 @@ public class Database {
      *  Returns the path of the database
      */
     public String getPath() {
-        return sPath;
+        return path;
     }
 
     public HsqlName getCatalogName() {
@@ -761,7 +761,7 @@ public class Database {
      * @return the uri portion of this object's in-process JDBC url
      */
     public String getURI() {
-        return sName;
+        return name;
     }
 
 // oj@openoffice.org - changed to file access api

@@ -254,13 +254,29 @@ public class DatabaseManager {
         if (type == DatabaseURL.S_FILE) {
             databaseMap = fileDatabaseMap;
             key         = filePathToKey(path);
+            db          = (Database) databaseMap.get(key);
+
+            if (db == null) {
+                if (databaseMap.size() > 0) {
+                    Iterator it = databaseMap.keySet().iterator();
+
+                    while (it.hasNext()) {
+                        String current = (String) it.next();
+
+                        if (key.equalsIgnoreCase(current)) {
+                            key = current;
+
+                            break;
+                        }
+                    }
+                }
+            }
         } else if (type == DatabaseURL.S_RES) {
             databaseMap = resDatabaseMap;
         } else if (type == DatabaseURL.S_MEM) {
             databaseMap = memDatabaseMap;
         } else {
-            throw Error.runtimeError(ErrorCode.U_S0500,
-                                     "DatabaseManager.getDatabaseObject");
+            throw Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager");
         }
 
         db = (Database) databaseMap.get(key);
@@ -297,16 +313,14 @@ public class DatabaseManager {
         } else if (type == DatabaseURL.S_MEM) {
             databaseMap = memDatabaseMap;
         } else {
-            throw (Error.runtimeError(
-                ErrorCode.U_S0500, "DatabaseManager.lookupDatabaseObject()"));
+            throw (Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager"));
         }
 
         return (Database) databaseMap.get(key);
     }
 
     /**
-     * Adds a database to the registry. Returns
-     * null if there is none.
+     * Adds a database to the registry.
      */
     private static synchronized void addDatabaseObject(String type,
             String path, Database db) {
@@ -322,8 +336,7 @@ public class DatabaseManager {
         } else if (type == DatabaseURL.S_MEM) {
             databaseMap = memDatabaseMap;
         } else {
-            throw Error.runtimeError(ErrorCode.U_S0500,
-                                     "DatabaseManager.addDatabaseObject()");
+            throw Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager");
         }
 
         databaseIDMap.put(db.databaseID, db);
@@ -351,8 +364,7 @@ public class DatabaseManager {
         } else if (type == DatabaseURL.S_MEM) {
             databaseMap = memDatabaseMap;
         } else {
-            throw (Error.runtimeError(
-                ErrorCode.U_S0500, "DatabaseManager.lookupDatabaseObject()"));
+            throw (Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager"));
         }
 
         databaseIDMap.remove(dbID);

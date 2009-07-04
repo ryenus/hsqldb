@@ -473,7 +473,7 @@ public final class BitType extends BinaryType {
                 return binary;
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "BinaryType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "BitType");
         }
     }
 

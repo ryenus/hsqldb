@@ -233,7 +233,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             return;
         }
 
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreCached");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLDisk");
     }
 
     public CachedObject getNewInstance(int size) {

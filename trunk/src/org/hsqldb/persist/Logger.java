@@ -51,6 +51,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
+import org.hsqldb.lib.java.JavaSystem;
 
 // boucherb@users 20030510 - patch 1.7.2 - added cooperative file locking
 
@@ -276,6 +277,9 @@ public class Logger {
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_write_delay) ? 10000
                                                            : 0;
+        JavaSystem.gcFrequency =
+            database.databaseProperties.getIntegerProperty(
+                HsqlDatabaseProperties.runtime_gc_interval);
 
         database.setMetaDirty(false);
     }
@@ -554,12 +558,18 @@ public class Logger {
                            : 0;
     }
 
-    public synchronized void setIncrementalBackup(boolean val) {
+    public synchronized void setIncrementBackup(boolean val) {
+
+        if (val == propIncrementBackup) {
+            return;
+        }
 
         propIncrementBackup = val;
 
         if (log != null) {
-            log.setIncrementalBackup(val);
+            log.setIncrementBackup(val);
+
+            database.logger.needsCheckpoint = true;
         }
     }
 
@@ -742,7 +752,7 @@ public class Logger {
                 }
         }
 
-        throw Error.runtimeError(ErrorCode.U_S0500, "PSCS");
+        throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
     }
 
     public String[] getPropertiesSQL() {
@@ -757,10 +767,10 @@ public class Logger {
             }
 
             int     delay  = propWriteDelay;
-            boolean millis = delay < 1000;
+            boolean millis = delay > 0 && delay < 1000;
 
             if (millis) {
-                if (delay != 0 && delay < 20) {
+                if (delay < 20) {
                     delay = 20;
                 }
             } else {
@@ -838,6 +848,10 @@ public class Logger {
             sb.setLength(0);
             sb.append("SET DATABASE TEXT TABLE DEFAULTS ").append('\'');
             sb.append(propTextSourceDefault).append('\'');
+            list.add(sb.toString());
+            sb.setLength(0);
+            sb.append("SET DATABASE ").append(Tokens.T_GC).append(' ');
+            sb.append(JavaSystem.gcFrequency);
             list.add(sb.toString());
             sb.setLength(0);
         }

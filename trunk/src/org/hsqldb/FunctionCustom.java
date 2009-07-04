@@ -485,7 +485,7 @@ public class FunctionCustom extends FunctionSQL {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "SQLFunction");
+                throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
         }
     }
 

@@ -74,9 +74,9 @@ public class ParserDQL extends ParserBase {
 
         super(t);
 
-        this.session   = session;
-        database       = session.getDatabase();
-        compileContext = new CompileContext(session);
+        this.session             = session;
+        database                 = session.getDatabase();
+        compileContext           = new CompileContext(session);
         strictSQLIdentifierParts = false;
     }
 
@@ -192,7 +192,8 @@ public class ParserDQL extends ParserBase {
         if (Types.requiresPrecision(typeNumber)
                 && token.tokenType != Tokens.OPENBRACKET
                 && database.sqlEnforceSize) {
-            throw unexpectedTokenRequire(Tokens.T_OPENBRACKET);
+            throw Error.error(ErrorCode.X_42599,
+                              Type.getDefaultType(typeNumber).getNameString());
         }
 
         if (Types.acceptsPrecision(typeNumber)) {
@@ -317,6 +318,34 @@ public class ParserDQL extends ParserBase {
                     readThis(Tokens.ZONE);
                 }
             }
+        }
+
+        switch (typeNumber) {
+
+            case Types.LONGVARCHAR : {
+                typeNumber = Types.SQL_VARCHAR;
+
+                if (length == 0) {
+                    length = 1024 * 1024;
+                }
+
+                break;
+            }
+            case Types.LONGVARBINARY : {
+                typeNumber = Types.SQL_VARBINARY;
+
+                if (length == 0) {
+                    length = 1024 * 1024;
+                }
+
+                break;
+            }
+            case Types.SQL_CHAR :
+            case Types.SQL_VARCHAR :
+                if (length == 0) {
+                    length = 32 * 1024;
+                }
+                break;
         }
 
         Type typeObject = Type.getType(typeNumber, 0, length, scale);
@@ -1120,7 +1149,8 @@ public class ParserDQL extends ParserBase {
             e2 = XreadSimpleValueSpecificationOrNull();
 
             if (e2 == null) {
-                throw Error.error(ErrorCode.X_42565, ErrorCode.INVALID_LIMIT);
+                throw Error.error(ErrorCode.X_42565,
+                                  ErrorCode.M_INVALID_LIMIT);
             }
         } else if (token.tokenType == Tokens.TOP) {
             int position = getPosition();
@@ -1163,7 +1193,7 @@ public class ParserDQL extends ParserBase {
             return sortAndSlice;
         }
 
-        throw Error.error(ErrorCode.X_42565, ErrorCode.INVALID_LIMIT);
+        throw Error.error(ErrorCode.X_42565, ErrorCode.M_INVALID_LIMIT);
     }
 
     private void XreadLimit(SortAndSlice sortAndSlice) {
@@ -1177,7 +1207,8 @@ public class ParserDQL extends ParserBase {
             e1 = XreadSimpleValueSpecificationOrNull();
 
             if (e1 == null) {
-                throw Error.error(ErrorCode.X_42565, ErrorCode.INVALID_LIMIT);
+                throw Error.error(ErrorCode.X_42565,
+                                  ErrorCode.M_INVALID_LIMIT);
             }
         }
 
@@ -1187,7 +1218,8 @@ public class ParserDQL extends ParserBase {
             e2 = XreadSimpleValueSpecificationOrNull();
 
             if (e2 == null) {
-                throw Error.error(ErrorCode.X_42565, ErrorCode.INVALID_LIMIT);
+                throw Error.error(ErrorCode.X_42565,
+                                  ErrorCode.M_INVALID_LIMIT);
             }
 
             if (e1 == null && token.tokenType == Tokens.OFFSET) {
@@ -1245,7 +1277,7 @@ public class ParserDQL extends ParserBase {
             return;
         }
 
-        throw Error.error(ErrorCode.X_42565, ErrorCode.INVALID_LIMIT);
+        throw Error.error(ErrorCode.X_42565, ErrorCode.M_INVALID_LIMIT);
     }
 
     private SortAndSlice XreadOrderBy() {
@@ -2216,13 +2248,11 @@ public class ParserDQL extends ParserBase {
                 FunctionSQL function =
                     FunctionSQL.newSQLFunction(token.tokenString,
                                                compileContext);
+                Expression e = readSQLFunction(function);
 
-                Expression e =  readSQLFunction(function);
-
-                if (e!= null) {
+                if (e != null) {
                     return e;
                 }
-
             default :
         }
 
@@ -2263,10 +2293,9 @@ public class ParserDQL extends ParserBase {
 
                 Expression e = readSQLFunction(function);
 
-                if (e!= null) {
+                if (e != null) {
                     return e;
                 }
-
             default :
         }
 
@@ -2894,7 +2923,7 @@ public class ParserDQL extends ParserBase {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Parser");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ParserDQL");
         }
 
         read();
@@ -3815,8 +3844,6 @@ public class ParserDQL extends ParserBase {
                 function = FunctionSQL.newSQLFunction(name, compileContext);
 
                 if (function != null) {
-
-
                     Expression e = readSQLFunction(function);
 
                     if (e != null) {
@@ -3976,7 +4003,8 @@ public class ParserDQL extends ParserBase {
 
     Expression readSQLFunction(FunctionSQL function) {
 
-        int     position  = getPosition();
+        int position = getPosition();
+
         read();
 
         short[] parseList = function.parseList;
@@ -3985,14 +4013,15 @@ public class ParserDQL extends ParserBase {
             return function;
         }
 
-        HsqlArrayList exprList = new HsqlArrayList();
-        boolean isOpenBracket = token.tokenType == Tokens.OPENBRACKET;
+        HsqlArrayList exprList      = new HsqlArrayList();
+        boolean       isOpenBracket = token.tokenType == Tokens.OPENBRACKET;
+
         try {
             readExpression(exprList, parseList, 0, parseList.length, false);
         } catch (HsqlException e) {
-
             if (!isOpenBracket) {
                 rewind(position);
+
                 return null;
             }
 
@@ -4036,13 +4065,13 @@ public class ParserDQL extends ParserBase {
                 }
                 case Tokens.X_POS_INTEGER : {
                     Expression e       = null;
-                    int        integer = readInteger();
+                    Integer        value = readIntegerObject();
 
-                    if (integer < 0) {
+                    if (value.intValue() < 0) {
                         throw Error.error(ErrorCode.X_42592);
                     }
 
-                    e = new ExpressionValue(ValuePool.getInt(integer),
+                    e = new ExpressionValue(value,
                                             Type.SQL_INTEGER);
 
                     exprList.add(e);

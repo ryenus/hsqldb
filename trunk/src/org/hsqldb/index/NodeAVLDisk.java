@@ -306,7 +306,7 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         if (!row.isInMemory()) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "NAVLD");
+            throw Error.runtimeError(ErrorCode.U_S0500, "NodeAVLDisk");
         }
 
         row.setNodesChanged();
@@ -336,7 +336,7 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         if (!row.isInMemory()) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "NAVLD");
+            throw Error.runtimeError(ErrorCode.U_S0500, "NodeAVLDisk");
         }
 
         row.setNodesChanged();
@@ -359,7 +359,7 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         if (!row.isInMemory()) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "NAVLD");
+            throw Error.runtimeError(ErrorCode.U_S0500, "NodeAVLDisk");
         }
 
         row.setNodesChanged();
@@ -389,7 +389,7 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         if (!row.isInMemory()) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "NAVLD");
+            throw Error.runtimeError(ErrorCode.U_S0500, "NodeAVLDisk");
         }
 
         row.setNodesChanged();

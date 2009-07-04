@@ -168,7 +168,7 @@ public abstract class DTIType extends Type {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "DTIType");
         }
 
         startPartIndex = intervalIndexMap.get(startIntervalType);
@@ -302,7 +302,7 @@ public abstract class DTIType extends Type {
                 return Type.SQL_INTEGER;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "DTIType");
         }
     }
 
@@ -377,7 +377,7 @@ public abstract class DTIType extends Type {
                 return SECONDS_MIDNIGHT;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "DTIType");
         }
     }
 
@@ -434,7 +434,7 @@ public abstract class DTIType extends Type {
                 return Tokens.T_SECONDS_MIDNIGHT;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "DTIType");
         }
     }
 

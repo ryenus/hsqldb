@@ -610,7 +610,7 @@ public class Tokens {
         "USER_DEFINED_TYPE_SCHEMA";
     static final String        T_VIEW  = "VIEW";
     static final String        T_WORK  = "WORK";
-    public static final String        T_WRITE = "WRITE";
+    public static final String T_WRITE = "WRITE";
     public static final String T_ZONE  = "ZONE";
 
     // other tokens
@@ -758,10 +758,11 @@ public class Tokens {
     static final String        T_DEGREES          = "DEGREES";
     static final String        T_DIFFERENCE       = "DIFFERENCE";
     static final String        T_DMOD             = "DMOD";
+    public static final String T_GC               = "GC";
     static final String        T_HEXTORAW         = "HEXTORAW";
     static final String        T_LCASE            = "LCASE";
     static final String        T_LOCATE           = "LOCATE";
-    public static final String        T_LOG              = "LOG";
+    public static final String T_LOG              = "LOG";
     static final String        T_LOG10            = "LOG10";
     static final String        T_LTRIM            = "LTRIM";
     static final String        T_PI               = "PI";
@@ -1345,31 +1346,32 @@ public class Tokens {
     static final int EXPLAIN               = 567;
     static final int FILE                  = 568;
     static final int FILES                 = 569;
-    static final int HEADER                = 570;
-    static final int IGNORECASE            = 571;
-    static final int IMMEDIATELY           = 572;
-    static final int INDEX                 = 573;
-    static final int INITIAL               = 574;
-    static final int LIMIT                 = 575;
-    static final int LOCK                  = 576;
-    static final int LOCKS                 = 577;
-    static final int MAXROWS               = 578;
-    static final int MEMORY                = 579;
-    static final int MILLIS                = 580;
-    static final int MINUS_EXCEPT          = 581;
-    static final int OFF                   = 582;
-    static final int PASSWORD              = 583;
-    static final int PLAN                  = 584;
-    static final int PROPERTY              = 585;
-    static final int READONLY              = 586;
-    static final int REFERENTIAL_INTEGRITY = 587;
-    static final int RENAME                = 588;
-    static final int SCRIPT                = 589;
-    static final int SCRIPTFORMAT          = 590;
-    static final int SHUTDOWN              = 591;
-    static final int TEMP                  = 592;
-    static final int TEXT                  = 593;
-    static final int WRITE_DELAY           = 594;
+    static final int GC                    = 570;
+    static final int HEADER                = 571;
+    static final int IGNORECASE            = 572;
+    static final int IMMEDIATELY           = 573;
+    static final int INDEX                 = 574;
+    static final int INITIAL               = 575;
+    static final int LIMIT                 = 576;
+    static final int LOCK                  = 577;
+    static final int LOCKS                 = 578;
+    static final int MAXROWS               = 579;
+    static final int MEMORY                = 580;
+    static final int MILLIS                = 581;
+    static final int MINUS_EXCEPT          = 582;
+    static final int OFF                   = 583;
+    static final int PASSWORD              = 584;
+    static final int PLAN                  = 585;
+    static final int PROPERTY              = 586;
+    static final int READONLY              = 587;
+    static final int REFERENTIAL_INTEGRITY = 588;
+    static final int RENAME                = 589;
+    static final int SCRIPT                = 590;
+    static final int SCRIPTFORMAT          = 591;
+    static final int SHUTDOWN              = 592;
+    static final int TEMP                  = 593;
+    static final int TEXT                  = 594;
+    static final int WRITE_DELAY           = 595;
 
     //
     static final int        ACOS                    = 601;
@@ -1910,6 +1912,7 @@ public class Tokens {
         commandSet.put(T_FINAL, FINAL);
         commandSet.put(T_FIRST, FIRST);
         commandSet.put(T_G_FACTOR, G);
+        commandSet.put(T_GC, GC);
         commandSet.put(T_GENERATED, GENERATED);
         commandSet.put(T_GRANTED, GRANTED);
         commandSet.put(T_HEADER, HEADER);

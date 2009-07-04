@@ -459,7 +459,7 @@ final class RangeVariable {
                 break;
 
             default :
-                Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
         }
     }
 

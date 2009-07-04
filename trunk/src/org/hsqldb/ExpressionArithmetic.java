@@ -97,8 +97,7 @@ public class ExpressionArithmetic extends Expression {
                 }
 
                 if (dataType == null) {
-                    throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "Expression.getSQL()");
+                    throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
                 }
 
                 return dataType.convertToSQLString(valueData);
@@ -300,8 +299,7 @@ public class ExpressionArithmetic extends Expression {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "Expression.resolveTypes()");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
     }
 

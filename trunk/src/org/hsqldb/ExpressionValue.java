@@ -67,7 +67,7 @@ public class ExpressionValue extends Expression {
                 return dataType.convertToSQLString(valueData);
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionValue");
         }
     }
 
@@ -90,7 +90,7 @@ public class ExpressionValue extends Expression {
                 return sb.toString();
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+                throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionValue");
         }
     }
 

@@ -63,22 +63,21 @@ public interface ErrorCode {
     int DATABASE_IS_READONLY        = 31;                 // S1000 The database is in read only mode
     int DATA_IS_READONLY            = 32;                 // S1000 The table data is read only
     int ACCESS_IS_DENIED            = 33;                 // S1000 Access is denied
-    int NO_DATA_IS_AVAILABLE        = 35;                 // S1000 No data is available
     int GENERAL_ERROR               = 40;                 // S1000 General error
     int DATABASE_IS_MEMORY_ONLY     = 63;                 // S1000 Database is memory only
     int OUT_OF_MEMORY               = 72;                 // S1000 Out of Memory
     int ERROR_IN_SCRIPT_FILE        = 78;                 // S1000 error in script file
     int UNSUPPORTED_FILENAME_SUFFIX = 79;                 // S1000 Unsupported suffix in file name '$$'.  (Supported suffixes:  $$)
     int COMPRESSION_SUFFIX_MISMATCH = 80;                 // S1000 Mismatch between specified compression mode '$$' and file name '$$'
-    int DATABASE_IS_NON_FILE        = 82;                 // S1000 Database is non-file type
-    int DATABASE_NOT_EXISTS         = 94;                 // S1000 Database does not exists
-    int DATA_FILE_ERROR             = 129;                // S1000 Data File input/output error
-    int GENERAL_IO_ERROR            = 98;                 // S1000 IO error
+    int DATABASE_IS_NON_FILE = 82;                        // S1000 Database is non-file type
+    int DATABASE_NOT_EXISTS  = 94;                        // S1000 Database does not exists
+    int DATA_FILE_ERROR      = 129;                       // S1000 Data File input/output error
+    int GENERAL_IO_ERROR     = 98;                        // S1000 IO error
 
     //
-    int M_ERROR_IN_BINARY_SCRIPT_1              = 96;     // \u0020table $$ row count error : $$ read, needed $$
-    int M_ERROR_IN_BINARY_SCRIPT_2              = 97;     // \u0020 wrong data for insert operation
-    int M_DatabaseManager_getDatabase           = 107;    // attempt to connect while db opening /closing
+    int M_ERROR_IN_BINARY_SCRIPT_1 = 96;                  // \u0020table $$ row count error : $$ read, needed $$
+    int M_ERROR_IN_BINARY_SCRIPT_2 = 97;                  // \u0020 wrong data for insert operation
+    int M_DatabaseManager_getDatabase = 107;              // attempt to connect while db opening /closing
     int M_DatabaseScriptReader_readDDL          = 113;    // \u0020line: $$ $$
     int M_DatabaseScriptReader_readExistingData = 114;    // \u0020line: $$ $$
     int M_Message_Pair                          = 115;    // \u0020$$ $$
@@ -86,11 +85,11 @@ public interface ErrorCode {
     int M_HsqlProperties_load                   = 135;    // properties name is null or empty
 
     //
-    int TEXT_TABLE_UNKNOWN_DATA_SOURCE  = 48;             // S1000 The table's data source for has not been defined
-    int TEXT_TABLE_SOURCE               = 75;             // S1000 Invalid TEXT table source string
-    int TEXT_FILE                       = 76;             // S1000 bad TEXT table source file - line number: $$ $$
-    int TEXT_FILE_IO                    = 77;             // S1000 TEXT table source file - IO error:
-    int TEXT_STRING_HAS_NEWLINE         = 145;            // S1000 end-of-line characters not allowed
+    int TEXT_TABLE_UNKNOWN_DATA_SOURCE = 48;              // S1000 The table's data source for has not been defined
+    int TEXT_TABLE_SOURCE       = 75;                     // S1000 Invalid TEXT table source string
+    int TEXT_FILE               = 76;                     // S1000 bad TEXT table source file - line number: $$ $$
+    int TEXT_FILE_IO            = 77;                     // S1000 TEXT table source file - IO error:
+    int TEXT_STRING_HAS_NEWLINE = 145;                    // S1000 end-of-line characters not allowed
     int TEXT_TABLE_HEADER               = 150;            // S1000 Header not allowed or too long
     int TEXT_SOURCE_EXISTS              = 196;            // S1000 Text source file already exists
     int TEXT_SOURCE_NO_END_SEPARATOR    = 183;            // S1000 No end sep.
@@ -106,22 +105,28 @@ public interface ErrorCode {
     int DATA_FILE_IS_FULL       = 225;                    // S1000 Data file size limit is reached
 
     //
-    int SERVER_TRANSFER_CORRUPTED        = 19;            // S1000 Transfer corrupted
-    int SERVER_DATABASE_DISCONNECTED     = 259;           // S0504 database disconnected
-    int SERVER_VERSIONS_INCOMPATIBLE     = 260;           // S0504 Client version '$$' incompatible.  \
-                                                          //    HSQLDB Network-Compatibility-Version '$$' required.
-    int SERVER_UNKNOWN_CLIENT            = 261;           // S0504 Network client is not a HSQLDB JDBC driver
-    int SERVER_HTTP_NOT_HSQL_PROTOCOL    = 262;           // S0504 Client using HSQLDB http protocol instead of hsql
-    int SERVER_INCOMPLETE_HANDSHAKE_READ = 263;           // S0504 Incomplete read of handshaking bytes
-    int M_SERVER_NO_DATABASE             = 147;           // S1000 no valid database paths
-    int M_SERVER_OPEN_SERVER_SOCKET_1    = 148;           // Invalid address : $$\nTry one of: $$
-    int M_SERVER_OPEN_SERVER_SOCKET_2    = 149;           // Invalid address : $$
-    int M_SERVER_SECURE_VERIFY_1         = 136;           // Server certificate has no Common Name
-    int M_SERVER_SECURE_VERIFY_2         = 137;           // Server certificate has empty Common Name
-    int M_SERVER_SECURE_VERIFY_3         = 139;           // Certificate Common Name[$$] does not match host name[$$]
+    int SERVER_TRANSFER_CORRUPTED    = 19;                // S1000 Transfer corrupted
+    int SERVER_DATABASE_DISCONNECTED = 259;               // S0504 database disconnected
+    int SERVER_VERSIONS_INCOMPATIBLE = 260;               // S0504 Client version '$$' incompatible.  \
 
-    //                                                       
-    int INVALID_LIMIT = 153;                              // ; in LIMIT, OFFSET or FETCH
+    //    HSQLDB Network-Compatibility-Version '$$' required.
+    int SERVER_UNKNOWN_CLIENT = 261;                      // S0504 Network client is not a HSQLDB JDBC driver
+    int SERVER_HTTP_NOT_HSQL_PROTOCOL = 262;              // S0504 Client using HSQLDB http protocol instead of hsql
+    int SERVER_INCOMPLETE_HANDSHAKE_READ = 263;           // S0504 Incomplete read of handshaking bytes
+    int SERVER_NO_DATABASE          = 147;              // S1000 no valid database paths
+    int M_SERVER_OPEN_SERVER_SOCKET_1 = 148;              // Invalid address : $$\nTry one of: $$
+    int M_SERVER_OPEN_SERVER_SOCKET_2 = 149;              // Invalid address : $$
+    int M_SERVER_SECURE_VERIFY_1      = 136;              // Server certificate has no Common Name
+    int M_SERVER_SECURE_VERIFY_2      = 137;              // Server certificate has empty Common Name
+    int M_SERVER_SECURE_VERIFY_3 = 139;                   // Certificate Common Name[$$] does not match host name[$$]
+
+    //
+    int M_RS_EMPTY        = 410;                          // ResultSet is empty
+    int M_RS_BEFORE_FIRST = 411;                          // ResultSet is positioned before first row
+    int M_RS_AFTER_LAST   = 412;                          // ResultSet is positioned after last row
+
+    //
+    int M_INVALID_LIMIT = 153;                              // ; in LIMIT, OFFSET or FETCH
 
     //
     int U_S0500 = 401;
@@ -131,9 +136,6 @@ public interface ErrorCode {
     int X_S0504           = 304;
     int X_S0521           = 320;                          // operation is not allowed on text table with data
     int X_S0522           = 321;                          // invalid statemnet - text table required
-    int M_RS_EMPTY        = 410;                          // ResultSet is empty
-    int M_RS_BEFORE_FIRST = 411;                          // ResultSet is positioned before first row
-    int M_RS_AFTER_LAST   = 412;                          // ResultSet is positioned after last row
 
     // SQLSTATE definitions
     // successful completion
@@ -577,6 +579,7 @@ public interface ErrorCode {
     int X_42596 = 5596;                                   // schema qualifier does not match enclosing create schema statement.
     int X_42597 = 5597;                                   // number out of the valid range for sequence generator
     int X_42598 = 5598;                                   // sequence expression cannot be specified in this context
+    int X_42599 = 5599;                                   // length must be specified in type definition
 
     // HSQLDB - PSM definition
     int X_42601 = 5601;                                   // repeat handler declaration

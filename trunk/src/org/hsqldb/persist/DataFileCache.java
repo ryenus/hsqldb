@@ -74,8 +74,8 @@ public class DataFileCache {
     // flags
     public static final int FLAG_ISSHADOWED = 1;
     public static final int FLAG_ISSAVED    = 2;
-    public static final int FLAG_190        = 3;
-    public static final int FLAG_ROWINFO    = 4;
+    public static final int FLAG_ROWINFO    = 3;
+    public static final int FLAG_190        = 4;
 
     // file format fields
     static final int LONG_EMPTY_SIZE      = 4;     // empty space size
@@ -115,9 +115,6 @@ public class DataFileCache {
     public long maxDataFileSize;
 
     //
-    boolean incBackup;
-
-    //
     boolean is180;
 
     //
@@ -152,7 +149,6 @@ public class DataFileCache {
         backupFileName   = baseFileName + ".backup";
         this.database    = database;
         fa               = database.logger.getFileAccess();
-        incBackup        = database.logger.propIncrementBackup;
         cacheFileScale   = database.logger.getCacheFileScale();
         cachedRowPadding = 8;
 
@@ -218,7 +214,7 @@ public class DataFileCache {
                 int     flags   = dataFile.readInt();
                 boolean isSaved = BitMap.isSet(flags, FLAG_ISSAVED);
 
-                incBackup = BitMap.isSet(flags, FLAG_ISSHADOWED);
+                database.logger.propIncrementBackup = BitMap.isSet(flags, FLAG_ISSHADOWED);
                 is180     = !BitMap.isSet(flags, FLAG_190);
 
                 if (!isSaved) {
@@ -226,7 +222,7 @@ public class DataFileCache {
 
                     dataFile.close();
 
-                    if (incBackup) {
+                    if (database.logger.propIncrementBackup) {
                         restored = restoreBackupIncremental();
 
                         if (!restored) {
@@ -258,7 +254,7 @@ public class DataFileCache {
                     fileFreePosition = INITIAL_FREE_POS;
                 }
 
-                if (incBackup && fileFreePosition != INITIAL_FREE_POS) {
+                if (database.logger.propIncrementBackup && fileFreePosition != INITIAL_FREE_POS) {
                     shadowFile = new RAShadowFile(database, dataFile,
                                                   backupFileName,
                                                   fileFreePosition, 1 << 14);
@@ -295,7 +291,7 @@ public class DataFileCache {
         // set shadowed flag;
         int flags = 0;
 
-        if (incBackup) {
+        if (database.logger.propIncrementBackup) {
             flags = BitMap.set(flags, FLAG_ISSHADOWED);
         }
 
@@ -303,6 +299,30 @@ public class DataFileCache {
 
         dataFile.seek(FLAGS_POS);
         dataFile.writeInt(flags);
+    }
+
+    void setIncrementBackup(boolean value) {
+
+        writeLock.lock();
+
+        try {
+            dataFile.seek(FLAGS_POS);
+
+            int flags = dataFile.readInt();
+
+            if (value) {
+                flags = BitMap.set(flags, FLAG_ISSHADOWED);
+            } else {
+                flags = BitMap.unset(flags, FLAG_ISSHADOWED);
+            }
+
+            dataFile.seek(FLAGS_POS);
+            dataFile.writeInt(flags);
+            dataFile.synch();
+        } catch (Throwable t) {}
+        finally {
+            writeLock.unlock();
+        }
     }
 
     /**
@@ -878,7 +898,7 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            if (incBackup) {
+            if (database.logger.propIncrementBackup) {
                 if (fa.isStreamElement(backupFileName)) {
                     fa.removeElement(backupFileName);
                 }
@@ -905,7 +925,7 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            if (incBackup) {
+            if (database.logger.propIncrementBackup) {
                 if (fa.isStreamElement(backupFileName)) {
                     fa.removeElement(backupFileName);
                 }

@@ -1014,8 +1014,7 @@ public class Expression {
                 break;
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "Expression.resolveTypes()");
+                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
     }
 
@@ -1326,8 +1325,7 @@ public class Expression {
     }
 
     void setAttributesAsColumn(ColumnSchema column, boolean isWritable) {
-        throw Error.runtimeError(ErrorCode.U_S0500,
-                                 "Expression.setAttributesAsColumn");
+        throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
 
     String getValueClassName() {

@@ -197,8 +197,8 @@ implements RowOutputInterface {
             switch (t.typeCode) {
 
                 case Types.SQL_ALL_TYPES :
-                    throw Error.runtimeError(
-                        ErrorCode.U_S0500, "RowOutputBase");
+                    throw Error.runtimeError(ErrorCode.U_S0500,
+                                             "RowOutputBase");
                 case Types.SQL_CHAR :
                 case Types.SQL_VARCHAR :
                 case Types.VARCHAR_IGNORECASE :
@@ -289,9 +289,9 @@ implements RowOutputInterface {
                     break;
 
                 default :
-                    throw Error.runtimeError(
-                        ErrorCode.U_S0500,
-                        t.getNameString());
+                    throw Error.runtimeError(ErrorCode.U_S0500,
+                                             "RowOutputBase - "
+                                             + t.getNameString());
             }
         }
     }

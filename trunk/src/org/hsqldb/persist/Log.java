@@ -146,7 +146,6 @@ public class Log {
     private int                    writeDelay;
     private int                    scriptFormat;
     private DataFileCache          cache;
-    boolean                        incBackup;
 
     Log(Database db) {
 
@@ -162,7 +161,6 @@ public class Log {
 
         maxLogSize     = database.logger.propLogSize * 1024L * 1024;
         scriptFormat   = 0;
-        incBackup      = database.logger.propIncrementBackup;
         writeDelay     = database.logger.propWriteDelay;
         filesReadOnly  = database.isFilesReadOnly();
         scriptFileName = fileName + ".script";
@@ -187,7 +185,6 @@ public class Log {
 
             case HsqlDatabaseProperties.FILES_MODIFIED :
                 deleteNewAndOldFiles();
-                restoreBackup();
                 processScript();
                 processDataFile();
                 processLog();
@@ -318,7 +315,7 @@ public class Log {
 
     void backupData() throws IOException {
 
-        if (incBackup) {
+        if (database.logger.propIncrementBackup) {
             fa.removeElement(fileName + ".backup");
 
             return;
@@ -581,22 +578,13 @@ public class Log {
         }
     }
 
-    public void setIncrementalBackup(boolean val) {
-
-        if (incBackup == val) {
-            return;
-        }
-
-        incBackup = val;
+    public void setIncrementBackup(boolean val) {
 
         if (cache != null) {
 
-            // need to set file modified to force a backup if necessary
-            cache.incBackup    = true;
+            cache.setIncrementBackup(val);
             cache.fileModified = true;
         }
-
-        database.logger.needsCheckpoint = true;
     }
 
     /**
@@ -804,7 +792,7 @@ public class Log {
      */
     private void restoreBackup() {
 
-        if (incBackup) {
+        if (database.logger.propIncrementBackup) {
             restoreBackupIncremental();
 
             return;

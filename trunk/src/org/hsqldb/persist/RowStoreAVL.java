@@ -99,7 +99,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         int position = key.getPosition();
 
         if (position >= accessorList.length) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAV");
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
         }
 
         return accessorList[position];
@@ -166,7 +166,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     public final RowIterator rowIterator() {
 
         if (indexList.length == 0 || indexList[0] == null) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAV");
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
         }
 
         return indexList[0].firstRow(this);

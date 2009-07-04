@@ -509,7 +509,7 @@ public class PgType {
     static protected final PgType dateSingleton =
         new PgType(Type.SQL_DATE, TYPE_DATE, 4);
     static protected final PgType unknownSingleton =
-        new PgType(Type.SQL_CHAR, TYPE_UNKNOWN, -2);
+        new PgType(Type.SQL_CHAR_DEFAULT, TYPE_UNKNOWN, -2);
     static protected final PgType bitSingleton =
         new PgType(Type.SQL_BIT, TYPE_BIT);
     static protected final PgType bitVaryingSingleton =

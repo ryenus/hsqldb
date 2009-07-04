@@ -692,7 +692,6 @@ public class Types {
         switch (type) {
 
             case Types.SQL_BIT_VARYING :
-            case Types.NCLOB :
             case Types.SQL_VARBINARY :
             case Types.SQL_VARCHAR :
             case Types.SQL_NVARCHAR :
@@ -714,6 +713,8 @@ public class Types {
 
         switch (type) {
 
+            case Types.LONGVARCHAR :
+            case Types.LONGVARBINARY :
             case Types.SQL_BINARY :
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :

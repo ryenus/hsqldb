@@ -93,7 +93,7 @@ implements PersistentStoreCollection {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "PersistentStoreCollection");
+                                         "PersistentStoreCollectionSession");
         }
     }
 
@@ -140,7 +140,8 @@ implements PersistentStoreCollection {
             }
         } catch (HsqlException e) {}
 
-        throw Error.runtimeError(ErrorCode.U_S0500, "PSCS");
+        throw Error.runtimeError(ErrorCode.U_S0500,
+                                 "PersistentStoreCollectionSession");
     }
 
     public void clearAllTables() {
@@ -162,7 +163,6 @@ implements PersistentStoreCollection {
             RowStoreAVL store = (RowStoreAVL) it.next();
 
             if (store.timestamp == actionTimestamp) {
-
                 store.release();
             }
         }

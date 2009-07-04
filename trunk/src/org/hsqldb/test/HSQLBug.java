@@ -56,9 +56,9 @@ public class HSQLBug {
         Statement  s   = con.createStatement();
 
         s.executeUpdate(
-            "CREATE TABLE Table1 (Id INTEGER IDENTITY NOT NULL, Timec DATETIME NOT NULL)");
+            "CREATE TABLE Table1 (Id INTEGER IDENTITY, Timec DATETIME NOT NULL)");
         s.executeUpdate(
-            "CREATE TABLE Table2 (Id INTEGER NOT NULL, Value VARCHAR NOT NULL)");
+            "CREATE TABLE Table2 (Id INTEGER NOT NULL, Value VARCHAR(100) NOT NULL)");
         s.executeUpdate("CREATE INDEX idx1 ON Table1(timec)");
 
         // Add test data to the tables
@@ -92,7 +92,7 @@ public class HSQLBug {
 //                      query.append( "AND Table1.Time IN " );  // The work-around is to replace it with IN
         query.append("(");
         query.append(
-            "SELECT MAX(Timec) FROM Table1 WHERE Timec <= '2010-01-01'");
+            "SELECT MAX(Timec) FROM Table1 WHERE Timec <= '2010-01-01 00:00:00'");
         query.append(")");
         System.out.println("Query = " + query);
         System.out.println(

@@ -173,7 +173,7 @@ public class BinaryType extends Type {
                                                           : -2;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
+                throw Error.runtimeError(ErrorCode.U_S0500, "BinaryType");
         }
     }
 

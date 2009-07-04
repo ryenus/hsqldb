@@ -44,7 +44,7 @@ public class TestBatchBug {
     static final int    DECIMAL_FIELDS_PER_DATASET = 2;
     static final String TABLE_ATTR_CACHED          = "CACHED";
     static final String IN_PROCESS_FILE_URL =
-        "jdbc:hsqldb:/temp/hsqldb/perftest";
+        "jdbc:hsqldb:/hsql/testbatch/perftest";
     static final String HSQLDB_LOCALHOST_URL =
         "jdbc:hsqldb:hsql://localhost/yourtest";
     ;
