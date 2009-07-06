@@ -68,9 +68,12 @@ public class StatementCommand extends Statement {
         }
 
         switch (type) {
+            case StatementTypes.DATABASE_CHECKPOINT :
+                group    = StatementTypes.X_HSQLDB_OPERATION;
+                isLogged = false;
+                break;
 
             case StatementTypes.DATABASE_BACKUP :
-            case StatementTypes.DATABASE_CHECKPOINT :
             case StatementTypes.DATABASE_SCRIPT :
                 group    = StatementTypes.X_HSQLDB_OPERATION;
                 isLogged = false;

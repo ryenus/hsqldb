@@ -525,7 +525,7 @@ public class Log {
                      * cache.getFileFreePos() / 100;
         long lostSize    = cache.freeBlocks.getLostBlocksSize();
 
-        return lostSize > megas;
+        return megas > 0 && lostSize > megas;
     }
 
     /**

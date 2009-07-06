@@ -1046,7 +1046,7 @@ public class ParserCommand extends ParserDDL {
                 break;
             }
             default :
-                unexpectedToken();
+                throw unexpectedToken();
         }
 
         Object[] args = new Object[]{ flag == null ? value
@@ -1628,13 +1628,23 @@ public class ParserCommand extends ParserDDL {
             throw unexpectedToken();
         }
 
-        String   sql       = getLastPart();
-        Object[] args      = new Object[]{ Boolean.valueOf(defrag) };
-        HsqlName writeName = defrag ? database.getCatalogName()
-                                    : null;
+        String sql = getLastPart();
+
+        return getCheckpointStatement(database, defrag);
+    }
+
+    public static Statement getCheckpointStatement(Database database,
+            boolean defrag) {
+
+        Object[] args = new Object[]{ Boolean.valueOf(defrag) };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_CHECKPOINT,
-                                            args, database.getCatalogName(),
-                                            writeName);
+                                            args, null, null);
+        OrderedHashSet set   = database.schemaManager.getBaseTableNames();
+        HsqlName[]     names = new HsqlName[set.size()];
+
+        set.toArray(names);
+
+        cs.writeTableNames = names;
 
         return cs;
     }
