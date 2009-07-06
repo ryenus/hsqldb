@@ -556,6 +556,15 @@ public class Session implements SessionInterface {
         }
 
         endTransaction(true);
+
+        if (database != null && database.logger.needsCheckpoint()) {
+            database.logger.needsCheckpoint = false;
+
+            Statement checkpoint =
+                ParserCommand.getCheckpointStatement(database, false);
+
+            executeCompiledStatement(checkpoint, null);
+        }
     }
 
     /**
@@ -597,26 +606,17 @@ public class Session implements SessionInterface {
         isReadOnly    = isReadOnlyDefault;
         isolationMode = isolationModeDefault;
         lockStatement = null;
-
 /* debug 190
         tempActionHistory.add("commit ends " + actionTimestamp);
         tempActionHistory.clear();
 //*/
-        if (database != null && database.logger.needsCheckpoint()) {
-            try {
-                database.logger.checkpoint(false);
-            } catch (HsqlException e) {
-                database.logger.appLog.logContext(
-                    SimpleLog.LOG_ERROR, "checkpoint did not complete");
-            }
-        }
     }
 
     /**
      * @todo no-op in this implementation. To be implemented for connection pooling
      */
     public synchronized void resetSession() {
-        throw Error.error(ErrorCode. X_0A000);
+        throw Error.error(ErrorCode.X_0A000);
     }
 
     /**
@@ -1036,8 +1036,7 @@ public class Session implements SessionInterface {
             }
             default : {
                 return Result.newErrorResult(
-                    Error.runtimeError(
-                        ErrorCode.U_S0500, "Session"));
+                    Error.runtimeError(ErrorCode.U_S0500, "Session"));
             }
         }
 

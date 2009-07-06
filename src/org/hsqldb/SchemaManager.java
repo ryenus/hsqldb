@@ -80,7 +80,6 @@ public class SchemaManager {
     }
 
     // pre-defined
-
     public HsqlName getSQLJSchemaHsqlName() {
         return SqlInvariants.SQLJ_SCHEMA_HSQLNAME;
     }
@@ -399,6 +398,22 @@ public class SchemaManager {
         Schema temp = (Schema) schemaMap.get(schema);
 
         return temp.tableList;
+    }
+
+    public OrderedHashSet getBaseTableNames() {
+
+        OrderedHashSet names  = new OrderedHashSet();
+        HsqlArrayList  tables = getAllTables();
+
+        for (int i = 0; i < tables.size(); i++) {
+            Table table = (Table) tables.get(i);
+
+            if (!table.isTemp()) {
+                names.add(table.getName());
+            }
+        }
+
+        return names;
     }
 
     SchemaObjectSet getSchemaObjectSet(Schema schema, int type) {

@@ -36,7 +36,6 @@ import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;

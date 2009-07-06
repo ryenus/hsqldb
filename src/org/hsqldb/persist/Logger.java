@@ -73,7 +73,7 @@ public class Logger {
     private Log      log;
     private Database database;
     private LockFile lockFile;
-    boolean          needsCheckpoint;
+    public boolean          needsCheckpoint;
     private boolean  logsStatements;
     private boolean  loggingEnabled;
     private boolean  syncFile = false;
@@ -569,7 +569,9 @@ public class Logger {
         if (log != null) {
             log.setIncrementBackup(val);
 
-            database.logger.needsCheckpoint = true;
+            if (log.hasCache()) {
+                database.logger.needsCheckpoint = true;
+            }
         }
     }
 
