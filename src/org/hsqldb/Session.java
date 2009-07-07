@@ -557,9 +557,7 @@ public class Session implements SessionInterface {
 
         endTransaction(true);
 
-        if (database != null && database.logger.needsCheckpoint()) {
-            database.logger.needsCheckpoint = false;
-
+        if (database != null && database.logger.needsCheckpointReset()) {
             Statement checkpoint =
                 ParserCommand.getCheckpointStatement(database, false);
 

@@ -520,7 +520,7 @@ public class IndexAVL implements Index {
         boolean isleft  = true;
         int     compare = -1;
 
-        writeLock.lock();
+        readLock.lock();
 
         try {
             n = getAccessor(store);
@@ -550,7 +550,13 @@ public class IndexAVL implements Index {
                     break;
                 }
             }
+        } finally {
+            readLock.unlock();
+        }
 
+        writeLock.lock();
+
+        try {
             x = set(store, x, isleft, ((RowAVL) row).getNode(position));
 
             balance(store, x, isleft);
