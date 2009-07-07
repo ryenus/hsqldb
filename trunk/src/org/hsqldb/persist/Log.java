@@ -158,7 +158,6 @@ public class Log {
     void initParams() {
 
         // Allows the user to set log size in the properties file.
-
         maxLogSize     = database.logger.propLogSize * 1024L * 1024;
         scriptFormat   = 0;
         writeDelay     = database.logger.propWriteDelay;
@@ -521,11 +520,11 @@ public class Log {
      */
     boolean forceDefrag() {
 
-        long megas = database.logger.propCacheDefragLimit
+        long limit = database.logger.propCacheDefragLimit
                      * cache.getFileFreePos() / 100;
-        long lostSize    = cache.freeBlocks.getLostBlocksSize();
+        long lostSize = cache.freeBlocks.getLostBlocksSize();
 
-        return megas > 0 && lostSize > megas;
+        return limit > 0 && lostSize > limit;
     }
 
     /**
@@ -581,8 +580,8 @@ public class Log {
     public void setIncrementBackup(boolean val) {
 
         if (cache != null) {
-
             cache.setIncrementBackup(val);
+
             cache.fileModified = true;
         }
     }
@@ -599,7 +598,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.needsCheckpoint = true;
+            database.logger.checkpointRequired = true;
         }
     }
 
@@ -612,7 +611,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.needsCheckpoint = true;
+            database.logger.checkpointRequired = true;
         }
     }
 
@@ -625,7 +624,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.needsCheckpoint = true;
+            database.logger.checkpointRequired = true;
         }
     }
 
@@ -638,7 +637,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.needsCheckpoint = true;
+            database.logger.checkpointRequired = true;
         }
     }
 
@@ -651,7 +650,7 @@ public class Log {
         }
 
         if (maxLogSize > 0 && dbLogWriter.size() > maxLogSize) {
-            database.logger.needsCheckpoint = true;
+            database.logger.checkpointRequired = true;
         }
     }
 
@@ -772,7 +771,7 @@ public class Log {
         long dataLength = cache.getFileFreePos();
 
         if (logLength + dataLength > cache.maxDataFileSize) {
-            database.logger.needsCheckpoint = true;
+            database.logger.checkpointRequired = true;
         }
     }
 
@@ -824,7 +823,6 @@ public class Log {
                                          fileName + ".data");
                 deleteBackup();
             }
-
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, fileName + ".backup");
         }

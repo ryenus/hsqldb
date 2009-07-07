@@ -586,7 +586,7 @@ public class Tokens {
     static final String        T_TEMPORARY            = "TEMPORARY";
     static final String        T_TIES                 = "TIES";
     static final String        T_TOP_LEVEL_COUNT      = "TOP_LEVEL_COUNT";
-    static final String        T_TRANSACTION          = "TRANSACTION";
+    public static final String T_TRANSACTION          = "TRANSACTION";
     static final String        T_TRANSACT_COMMITTED = "TRANSACTIONS_COMMITTED";
     static final String T_TRANSACTION_ROLLED_BACK = "TRANSACTIONS_ROLLED_BACK";
     static final String        T_TRANSACT_ACTIVE      = "TRANSACTION_ACTIVE";
@@ -627,7 +627,7 @@ public class Tokens {
     static final String        T_CLASS               = "CLASS";
     static final String        T_COMPACT             = "COMPACT";
     public static final String T_COMPRESSED          = "COMPRESSED";
-    static final String        T_CONTROL             = "CONTROL";
+    public static final String T_CONTROL             = "CONTROL";
     static final String        T_CURDATE             = "CURDATE";
     static final String        T_CURTIME             = "CURTIME";
     static final String        T_DATABASE            = "DATABASE";
@@ -656,8 +656,8 @@ public class Tokens {
     static final String        T_MEMORY              = "MEMORY";
     public static final String T_MILLIS              = "MILLIS";
     static final String        T_MINUS_EXCEPT        = "MINUS";
-    static final String        T_MVCC                = "MVCC";
-    static final String        T_MVLOCKS             = "MVLOCKS";
+    public static final String T_MVCC                = "MVCC";
+    public static final String T_MVLOCKS             = "MVLOCKS";
     public static final String T_NIO                 = "NIO";
     static final String        T_NOW                 = "NOW";
     static final String        T_NOWAIT              = "NOWAIT";

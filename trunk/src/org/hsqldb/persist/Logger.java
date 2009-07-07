@@ -73,7 +73,8 @@ public class Logger {
     private Log      log;
     private Database database;
     private LockFile lockFile;
-    public boolean          needsCheckpoint;
+    public boolean   checkpointRequired;
+    public boolean   checkpointHandled;
     private boolean  logsStatements;
     private boolean  loggingEnabled;
     private boolean  syncFile = false;
@@ -179,7 +180,7 @@ public class Logger {
         }
 
         //
-        needsCheckpoint = false;
+        checkpointRequired = false;
 
         String path = database.getPath();
         int loglevel = database.getProperties().getIntegerProperty(
@@ -484,7 +485,8 @@ public class Logger {
         if (loggingEnabled) {
             appLog.logContext(SimpleLog.LOG_NORMAL, "start");
 
-            needsCheckpoint = false;
+            checkpointRequired = false;
+            checkpointHandled  = false;
 
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
@@ -570,7 +572,7 @@ public class Logger {
             log.setIncrementBackup(val);
 
             if (log.hasCache()) {
-                database.logger.needsCheckpoint = true;
+                database.logger.checkpointRequired = true;
             }
         }
     }
@@ -628,8 +630,18 @@ public class Logger {
         log.closeTextCache(table);
     }
 
-    public boolean needsCheckpoint() {
-        return needsCheckpoint;
+    public synchronized boolean needsCheckpointReset() {
+
+        if (checkpointRequired && !checkpointHandled) {
+            checkpointHandled  = true;
+            checkpointRequired = false;
+
+            return true;
+        }
+
+        checkpointRequired = false;
+
+        return false;
     }
 
     public void stopLogging() {
@@ -856,6 +868,26 @@ public class Logger {
             sb.append(JavaSystem.gcFrequency);
             list.add(sb.toString());
             sb.setLength(0);
+            sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
+            sb.append(' ').append(Tokens.T_CONTROL).append(' ');
+
+            switch (database.txManager.getTransactionControl()) {
+
+                case Database.MVCC :
+                    sb.append(Tokens.T_MVCC);
+                    break;
+
+                case Database.MVLOCKS :
+                    sb.append(Tokens.T_MVLOCKS);
+                    break;
+
+                case Database.LOCKS :
+                    sb.append(Tokens.T_LOCKS);
+                    break;
+            }
+
+            list.add(sb.toString());
+            sb.setLength(0);
         }
 
         String[] array = new String[list.size()];
@@ -947,7 +979,7 @@ public class Logger {
         } finally {
             log.openAfterBackup();
 
-            needsCheckpoint = false;
+            checkpointRequired = false;
         }
     }
 }
