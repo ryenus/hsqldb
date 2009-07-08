@@ -378,7 +378,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
       <para>In the SQL session, or in the body of another stored procedure, a
       variable must be assigned to the OUT parameter. After the procedure
       call, this variable will hold the new identity value that was generated
-      inside the procedure. </para>
+      inside the procedure.</para>
 
       <para>In the example below, a session variable,
       <literal>the_new_id</literal> is declared. Afther the call to
@@ -677,12 +677,6 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
             <entry><para>BINARY</para></entry>
 
             <entry><para>Byte[]</para></entry>
-          </row>
-
-          <row>
-            <entry></entry>
-
-            <entry></entry>
           </row>
 
           <row>

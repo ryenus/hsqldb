@@ -116,6 +116,16 @@
       allows calling stored procedures which have INOUT or OUT arguments. See
       the example in the SQL Invoked Routines Chapter, under Formal
       Parameters.</para>
+
+      <example>
+        <title>User-defined Session Variables</title>
+
+        <screen>    DECLARE counter INTEGER DEFAULT 3;
+    DECLARE result VARCHAR(20) DEFAULT NULL;
+    SET counter=15;
+    CALL myroutine(counter, result)
+</screen>
+      </example>
     </section>
   </section>
 
@@ -156,14 +166,19 @@
       session can complete the intended reads and writes on the locked
       tables.</para>
 
-      <para>When a transaction is running in read-only mode (or the session is
-      in read-only mode), then it will not lock the tables and will go ahead
-      and complete regardless of what other transactions may do. The READ
-      UNCOMMITTED isolation level can be used in this mode for read-only
-      operations.</para>
-
       <para>If a table is read-only, it will not be locked by any
       transaction.</para>
+
+      <para>The 2PL mode has two sub-modes. The default is 2PL without
+      multi-version rows. This mode is identified as LOCKS. The other mode is
+      2PL with multiversion rows. This mode is identified as MVLOCKS. In the
+      MVLOCKS mode, when a transaction is running in read-only mode (or the
+      session is in read-only mode), then it will not lock the tables and will
+      go ahead and complete regardless of what other transactions may
+      do.</para>
+
+      <para>The READ UNCOMMITTED isolation level can be used in 2PL modes for
+      read-only operations.</para>
     </section>
 
     <section>
@@ -193,9 +208,10 @@
       the new architecture is based on multi-version rows for uncommitted data
       and more than one version may exist for some rows.</para>
 
-      <para>In all isolation modes, when a transaction only reads data, then
-      it will go ahead and complete regardless of what other transactions may
-      do. This does not depend on the transaction being read-only.</para>
+      <para>With MVCC, when a transaction only reads data, then it will go
+      ahead and complete regardless of what other transactions may do. This
+      does not depend on the transaction being read-only or the isolation
+      modes.</para>
     </section>
   </section>
 
@@ -247,11 +263,12 @@
     <simpara><emphasis>set database transaction control</emphasis></simpara>
 
     <simpara><literal>&lt;set database transaction control statement&gt; ::=
-    SET DATABASE TRANSACTION CONTROL { LOCKS | MVCC }</literal></simpara>
+    SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
+    }</literal></simpara>
 
     <simpara>Set the concurrency control system for the database. It can be
-    issued only when all sessions have been committed or rolled
-    back.</simpara>
+    issued only when all sessions have been committed or rolled back. The MVCC
+    option is not available in version 1.9.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET TRANSACTION</primary>
@@ -303,6 +320,15 @@
 
     <simpara>Specify transaction characteristics.</simpara>
 
+    <example>
+      <title>Setting Transaction Characteristics</title>
+
+      <screen>    SET TRANSACTION READ ONLY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+    SET TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
+</screen>
+    </example>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET CONSTRAINTS</primary>
     </indexterm>
@@ -344,6 +370,12 @@
     statements use the locks already obtained (and obtain new locks if
     necessary) and can proceed without waiting. All the locks are released
     when a COMMIT or ROLLBACK statement is issued.</simpara>
+
+    <example>
+      <title>Locking Tables</title>
+
+      <screen>    LOCK TABLE table_a WRITE, table_b READ</screen>
+    </example>
 
     <indexterm significance="preferred" type="sql">
       <primary>SAVEPOINT</primary>
@@ -473,6 +505,15 @@
     command is used to set the transaction mode for the session. This endures
     until the next use of this command.</simpara>
 
+    <example>
+      <title>Setting Session Characteristics</title>
+
+      <screen>    SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY
+    SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
+    SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
+</screen>
+    </example>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET SESSION AUTHORIZATION</primary>
     </indexterm>
@@ -531,6 +572,14 @@
     the time zone of the client. This command changes the time zone
     displacement. The effect of this lasts for the lifetime of the
     session.</simpara>
+
+    <example>
+      <title>Setting Session Time Zone</title>
+
+      <screen>    SET TIME ZONE LOCAL
+    SET TIME ZONE INTERVAL '+6:00' HOUR TO MINUTE
+</screen>
+    </example>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET CATALOG</primary>
