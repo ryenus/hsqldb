@@ -279,40 +279,10 @@ public class Database {
             }
 
             if (isNew) {
-                String tableType = urlProperties.getProperty(
-                    HsqlDatabaseProperties.hsqldb_default_table_type,
-                    "MEMORY");
-
-                if ("CACHED".equalsIgnoreCase(tableType)) {
-                    schemaManager.setDefaultTableType(TableBase.CACHED_TABLE);
-                }
-
-                HsqlName name = nameManager.newHsqlName("SA", false,
-                    SchemaObject.GRANTEE);
-
-                userManager.createUser(name, "");
-
-                Session session = sessionManager.getSysSession();
-
-                granteeManager.grant(name.name,
-                                     SqlInvariants.DBA_ADMIN_ROLE_NAME,
-                                     granteeManager.getDBARole());
-                logger.writeToLog(session,
-                                  "CREATE USER SA PASSWORD \'\' ADMIN");
+                userManager.createSAUser();
                 schemaManager.createPublicSchema();
-                logger.writeToLog(session,
-                                  "CREATE SCHEMA PUBLIC AUTHORIZATION DBA");
-                logger.writeToLog(
-                    session, "SET DATABASE DEFAULT INITIAL SCHEMA PUBLIC");
-
-                if (schemaManager.getDefaultTableType()
-                        == Table.CACHED_TABLE) {
-                    logger.writeToLog(
-                        session, "SET DATABASE DEFAULT TABLE TYPE CACHED");
-                }
-
                 lobManager.initialiseLobSpace();
-                logger.synchLogForce();
+                logger.checkpoint(false);
             }
 
             lobManager.open();

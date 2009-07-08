@@ -203,8 +203,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     //
     public static final String sql_compare_in_locale = "sql.compare_in_locale";
-    public static final String sql_enforce_size = "sql.enforce_strict_size";
-    public static final String sql_enforce_names     = "sql.enforce_names";
+    public static final String sql_enforce_size      = "sql.enforce_size";
+    public static final String sql_enforce_strict_size =
+        "sql.enforce_strict_size";
+    public static final String sql_enforce_names = "sql.enforce_names";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
@@ -266,9 +268,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_compatible_version,
                    HsqlProperties.getMeta(hsqldb_compatible_version,
                                           FILE_PROPERTY, null));
-        dbMeta.put(hsqldb_default_table_type,
-                   HsqlProperties.getMeta(hsqldb_default_table_type,
-                                          FILE_PROPERTY, "MEMORY"));
         dbMeta.put(hsqldb_modified,
                    HsqlProperties.getMeta(hsqldb_modified, FILE_PROPERTY,
                                           null));
@@ -293,6 +292,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_temp_directory,
                    HsqlProperties.getMeta(hsqldb_temp_directory, SQL_PROPERTY,
                                           null));
+        dbMeta.put(hsqldb_default_table_type,
+                   HsqlProperties.getMeta(hsqldb_default_table_type,
+                                          SQL_PROPERTY, "MEMORY"));
 
         // boolean defaults for user defined props
         dbMeta.put(hsqldb_inc_backup,
@@ -310,6 +312,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(sql_enforce_size, SQL_PROPERTY,
                                           true));
 
+        dbMeta.put(sql_enforce_strict_size,
+                   HsqlProperties.getMeta(sql_enforce_strict_size, SQL_PROPERTY,
+                                          true));
         // SQL reserved words not allowed as some identifiers
         dbMeta.put(sql_enforce_names,
                    HsqlProperties.getMeta(sql_enforce_names, SQL_PROPERTY,
@@ -333,8 +338,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         // integral defaults for user defined range props
         dbMeta.put(hsqldb_log_size,
-                   HsqlProperties.getMeta(hsqldb_log_size, SQL_PROPERTY, 200,
-                                          0, 10000));
+                   HsqlProperties.getMeta(hsqldb_log_size, SQL_PROPERTY, 50,
+                                          0, 1000));
         dbMeta.put(hsqldb_defrag_limit,
                    HsqlProperties.getMeta(hsqldb_defrag_limit, SQL_PROPERTY,
                                           20, 0, 100));
@@ -343,7 +348,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           0, 0, 1000000));
         dbMeta.put(hsqldb_cache_size,
                    HsqlProperties.getMeta(hsqldb_cache_size, SQL_PROPERTY,
-                                          10000, 100, 1000000));
+                                          5000, 100, 1000000));
         dbMeta.put(hsqldb_cache_rows,
                    HsqlProperties.getMeta(hsqldb_cache_rows, SQL_PROPERTY,
                                           50000, 100, 1000000));
@@ -404,9 +409,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // hsqldb (the Java Runtime will do it's own garbage collection
         // in any case).
         setProperty(runtime_gc_interval, 0);
-
-        // maximum size of .log file in megabytes
-        setProperty(hsqldb_log_size, 200);
 
         // type of logging (0 : text , 1 : binary, 3 : compressed)
         setProperty(hsqldb_script_format, 0);

@@ -38,6 +38,8 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.SchemaObject;
+import org.hsqldb.SqlInvariants;
 
 /**
  * Manages the User objects for a Database instance.
@@ -94,8 +96,7 @@ public final class UserManager {
      *        (This will catch attempts to create Reserved grantee names).
      *  </OL>
      */
-    public User createUser(HsqlName name,
-                           String password) {
+    public User createUser(HsqlName name, String password) {
 
         // This will throw an appropriate exception if grantee already exists,
         // regardless of whether the name is in any User, Role, etc. list.
@@ -150,6 +151,17 @@ public final class UserManager {
         if (user == null) {
             throw Error.error(ErrorCode.X_28501, name);
         }
+    }
+
+    public void createSAUser() {
+
+        HsqlName name = granteeManager.database.nameManager.newHsqlName("SA", false,
+            SchemaObject.GRANTEE);
+
+        createUser(name, "");
+
+        granteeManager.grant(name.name, SqlInvariants.DBA_ADMIN_ROLE_NAME,
+                             granteeManager.getDBARole());
     }
 
     /**

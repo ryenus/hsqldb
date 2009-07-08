@@ -551,11 +551,13 @@ public class CharacterType extends Type {
                 }
             }
             case Types.OTHER :
+                throw Error.error(ErrorCode.X_42561);
+
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
             case Types.SQL_BLOB :
             case Types.SQL_BINARY :
-            case Types.SQL_VARBINARY : {
-                throw Error.error(ErrorCode.X_42561);
-            }
+            case Types.SQL_VARBINARY :
             default :
                 String s = otherType.convertToString(a);
 

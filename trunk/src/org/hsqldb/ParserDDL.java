@@ -37,6 +37,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.rights.Grantee;
@@ -305,15 +306,13 @@ public class ParserDDL extends ParserRoutine {
 */
     Statement compileDrop() {
 
-        int      objectTokenType;
-        int      objectType;
-        int      statementType;
-        boolean  canCascade  = false;
-        boolean  cascade     = false;
-        boolean  useIfExists = false;
-        boolean  ifExists    = false;
-        HsqlName readName    = null;
-        HsqlName writeName   = null;
+        int     objectTokenType;
+        int     objectType;
+        int     statementType;
+        boolean canCascade  = false;
+        boolean cascade     = false;
+        boolean useIfExists = false;
+        boolean ifExists    = false;
 
         read();
 
@@ -484,8 +483,7 @@ public class ParserDDL extends ParserRoutine {
                 break;
             }
             case Tokens.SCHEMA : {
-                name      = readNewSchemaName();
-                writeName = database.getCatalogName();
+                name = readNewSchemaName();
 
                 break;
             }
@@ -499,20 +497,6 @@ public class ParserDDL extends ParserRoutine {
                     SchemaObject object =
                         database.schemaManager.getSchemaObject(name.name,
                             schemaName, objectType);
-
-                    if (cascade) {
-                        writeName = database.getCatalogName();
-                    } else {
-                        writeName = object.getName();
-
-                        if (writeName.parent != null) {
-                            writeName = writeName.parent;
-                        }
-
-                        if (writeName.type != SchemaObject.TABLE) {
-                            writeName = null;
-                        }
-                    }
                 } catch (HsqlException e) {}
         }
 
@@ -538,9 +522,10 @@ public class ParserDDL extends ParserRoutine {
             Boolean.valueOf(ifExists)
         };
         String sql = getLastPart();
+        Statement cs = new StatementSchema(sql, statementType, args, null,
+                                           null);
 
-        return new StatementSchema(sql, statementType, args, readName,
-                                   writeName);
+        return cs;
     }
 
     private void processAlterTable() {
@@ -870,9 +855,7 @@ public class ParserDDL extends ParserRoutine {
 
     private Statement compileAlterTableDropConstraint(Table t) {
 
-        HsqlName readName  = null;
-        HsqlName writeName = null;
-        boolean  cascade   = false;
+        boolean cascade = false;
         SchemaObject object = readDependentSchemaObjectName(t.getName(),
             SchemaObject.CONSTRAINT);
 
@@ -884,27 +867,23 @@ public class ParserDDL extends ParserRoutine {
             cascade = true;
         }
 
-        if (cascade) {
-            writeName = database.getCatalogName();
-        } else {
-            writeName = t.getName();
-        }
-
         Object[] args = new Object[] {
             object.getName(), Integer.valueOf(SchemaObject.CONSTRAINT),
             Boolean.valueOf(cascade), Boolean.valueOf(false)
         };
         String sql = getLastPart();
+        Statement cs = new StatementSchema(sql,
+                                           StatementTypes.DROP_CONSTRAINT,
+                                           args, null, null);
 
-        return new StatementSchema(sql, StatementTypes.DROP_CONSTRAINT, args,
-                                   readName, writeName);
+        cs.writeTableNames = getReferenceArray(t.getName(), cascade);
+
+        return cs;
     }
 
     private Statement compileAlterTableDropPrimaryKey(Table t) {
 
-        HsqlName readName  = null;
-        HsqlName writeName = null;
-        boolean  cascade   = false;
+        boolean cascade = false;
 
         if (token.tokenType == Tokens.RESTRICT) {
             read();
@@ -918,21 +897,46 @@ public class ParserDDL extends ParserRoutine {
             throw Error.error(ErrorCode.X_42501);
         }
 
-        if (cascade) {
-            writeName = database.getCatalogName();
-        } else {
-            writeName = t.getName();
-        }
-
         SchemaObject object = t.getPrimaryConstraint();
         Object[]     args   = new Object[] {
             object.getName(), Integer.valueOf(SchemaObject.CONSTRAINT),
             Boolean.valueOf(cascade), Boolean.valueOf(false)
         };
         String sql = getLastPart();
+        Statement cs = new StatementSchema(sql,
+                                           StatementTypes.DROP_CONSTRAINT,
+                                           args, null, null);
 
-        return new StatementSchema(sql, StatementTypes.DROP_CONSTRAINT, args,
-                                   readName, writeName);
+        cs.writeTableNames = getReferenceArray(t.getName(), cascade);
+
+        return cs;
+    }
+
+    HsqlName[] getReferenceArray(HsqlName objectName, boolean cascade) {
+
+        if (cascade) {
+            OrderedHashSet names = new OrderedHashSet();
+
+            database.schemaManager.getCascadingReferences(objectName, names);
+
+            Iterator it = names.iterator();
+
+            while (it.hasNext()) {
+                HsqlName name = (HsqlName) it.next();
+
+                if (name.type != SchemaObject.TABLE) {
+                    it.remove();
+                }
+            }
+
+            names.add(objectName);
+
+            HsqlName[] array = new HsqlName[names.size()];
+
+            return array;
+        } else {
+            return new HsqlName[]{ objectName };
+        }
     }
 
     StatementSchema compileCreateTable(int type) {
@@ -1347,7 +1351,6 @@ public class ParserDDL extends ParserRoutine {
         Constraint uniqueConstraint =
             c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols,
                 c.core.refCols);
-
 
         if (uniqueConstraint == null) {
             throw Error.error(ErrorCode.X_42523);

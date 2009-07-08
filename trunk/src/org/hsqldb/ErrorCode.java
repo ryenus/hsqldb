@@ -363,11 +363,11 @@ public interface ErrorCode {
     // integrity constraint violation - xxxx
     int X_23000 = 3500;                                   // integrity constraint violation - 200x
     int X_23001 = 3501;                                   // integrity constraint violation: restrict violation - 200x
-    int X_23501 = 8;                                      // integrity constraint violation: foreing key no action
-    int X_23502 = 177;                                    // integrity constraint violation: foreign key no parent
-    int X_23503 = 10;                                     // integrity constraint violation: NOT NULL check constraint
-    int X_23504 = 157;                                    // integrity constraint violation: check constraint
+    int X_23502 = 10;                                     // integrity constraint violation: NOT NULL check constraint
+    int X_23503 = 177;                                    // integrity constraint violation: foreign key no parent
+    int X_23504 = 8;                                      // integrity constraint violation: foreing key no action
     int X_23505 = 104;                                    // integrity constraint violation: unique constraint or index
+    int X_23513 = 157;                                    // integrity constraint violation: check constraint
 
     // invalid cursor state - xxxx
     int X_24000 = 3600;                                   // invalid cursor state - 2003

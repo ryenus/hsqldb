@@ -836,7 +836,7 @@ public class StatementDML extends StatementDMQL {
                     }
 
                     int errorCode = c.core.deleteAction
-                                    == Constraint.NO_ACTION ? ErrorCode.X_23501
+                                    == Constraint.NO_ACTION ? ErrorCode.X_23504
                                                             : ErrorCode
                                                                 .X_23001;
                     String[] info = new String[] {
@@ -1102,7 +1102,7 @@ public class StatementDML extends StatementDMQL {
                 if (c.core.updateAction == Constraint.NO_ACTION
                         || c.core.updateAction == Constraint.RESTRICT) {
                     int errorCode = c.core.deleteAction
-                                    == Constraint.NO_ACTION ? ErrorCode.X_23501
+                                    == Constraint.NO_ACTION ? ErrorCode.X_23504
                                                             : ErrorCode
                                                                 .X_23001;
                     String[] info = new String[] {

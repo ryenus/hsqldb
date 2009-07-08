@@ -286,8 +286,10 @@ public class ParserCommand extends ParserDDL {
 
         Object[] args = new Object[]{ name };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_SCRIPT,
-                                            args, database.getCatalogName(),
+                                            args, null,
                                             null);
+        HsqlName[] names = database.schemaManager.getBaseTableNames();
+        cs.readTableNames = names;
 
         return cs;
     }
@@ -810,8 +812,10 @@ public class ParserCommand extends ParserDDL {
                     StatementTypes.SET_DATABASE_FILES_EVENT_LOG, args, null,
                     null);
             }
-            case Tokens.REFERENTIAL_INTEGRITY : {
+            case Tokens.REFERENTIAL : {
                 read();
+
+                readThis(Tokens.INTEGRITY);
 
                 boolean  mode = processTrueOrFalse();
                 Object[] args = new Object[]{ Boolean.valueOf(mode) };
@@ -1639,11 +1643,7 @@ public class ParserCommand extends ParserDDL {
         Object[] args = new Object[]{ Boolean.valueOf(defrag) };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_CHECKPOINT,
                                             args, null, null);
-        OrderedHashSet set   = database.schemaManager.getBaseTableNames();
-        HsqlName[]     names = new HsqlName[set.size()];
-
-        set.toArray(names);
-
+        HsqlName[] names   = database.schemaManager.getBaseTableNames();
         cs.writeTableNames = names;
 
         return cs;

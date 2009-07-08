@@ -1949,7 +1949,7 @@ public class Table extends TableBase implements SchemaObject {
                         c.getName().name, tableName.name
                     };
 
-                    throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT,
+                    throw Error.error(ErrorCode.X_23502, ErrorCode.CONSTRAINT,
                                       info);
                 }
             }
