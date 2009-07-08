@@ -240,6 +240,15 @@ public class Logger {
             database.setResultMaxMemoryRows(rows);
         }
 
+        String tableType = database.databaseProperties.getStringProperty(
+            HsqlDatabaseProperties.hsqldb_default_table_type);
+
+        if ("CACHED".equalsIgnoreCase(tableType)) {
+            database.schemaManager.setDefaultTableType(TableBase.CACHED_TABLE);
+        }
+
+        database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_enforce_strict_size);
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_size);
         database.sqlEnforceNames = database.databaseProperties.isPropertyTrue(
@@ -278,6 +287,8 @@ public class Logger {
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_write_delay) ? 10000
                                                            : 0;
+        propLogSize = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_log_size);
         JavaSystem.gcFrequency =
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.runtime_gc_interval);

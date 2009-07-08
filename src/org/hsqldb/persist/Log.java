@@ -548,10 +548,6 @@ public class Log {
         return cache;
     }
 
-    int getLogSize() {
-        return (int) (maxLogSize / (1024 * 1024));
-    }
-
     void setLogSize(int megas) {
         maxLogSize = megas * 1024L * 1024;
     }

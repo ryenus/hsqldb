@@ -176,9 +176,8 @@ public class Session implements SessionInterface {
      * @param  readonly the initial readonly value
      * @param  id the session identifier, as known to the database
      */
-    Session(Database db, User user, boolean isInitiallyLogged,
-            boolean autocommit, boolean readonly, long id,
-            int timeZoneSeconds) {
+    Session(Database db, User user, boolean autocommit, boolean readonly,
+            long id, int timeZoneSeconds) {
 
         sessionId                   = id;
         database                    = db;
@@ -198,12 +197,6 @@ public class Session implements SessionInterface {
         resetSchema();
 
         sessionData = new SessionData(database, this);
-
-        try {
-            if (isInitiallyLogged) {
-                database.logger.writeToLog(this, getSetSchemaStatement());
-            }
-        } catch (HsqlException e) {}
     }
 
     void resetSchema() {
@@ -1256,7 +1249,8 @@ public class Session implements SessionInterface {
             // esultConstants.EXECUTE_FAILED is encountered in the result
             if (in.isUpdateCount()) {
                 if (cs.hasGeneratedColumns()) {
-                    Object generatedRow = in.getNavigator().getNext();
+                    Object generatedRow =
+                        in.getChainedResult().getNavigator().getNext();
 
                     generatedResult.getNavigator().add(generatedRow);
                 }

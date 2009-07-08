@@ -400,7 +400,7 @@ public class SchemaManager {
         return temp.tableList;
     }
 
-    public OrderedHashSet getBaseTableNames() {
+    public HsqlName[] getBaseTableNames() {
 
         OrderedHashSet names  = new OrderedHashSet();
         HsqlArrayList  tables = getAllTables();
@@ -413,7 +413,11 @@ public class SchemaManager {
             }
         }
 
-        return names;
+        HsqlName[]     array = new HsqlName[names.size()];
+
+        names.toArray(array);
+
+        return array;
     }
 
     SchemaObjectSet getSchemaObjectSet(Schema schema, int type) {
@@ -1133,7 +1137,7 @@ public class SchemaManager {
     }
 
     //
-    private void getCascadingReferences(HsqlName object, OrderedHashSet set) {
+    void getCascadingReferences(HsqlName object, OrderedHashSet set) {
 
         OrderedHashSet newSet = new OrderedHashSet();
         Iterator       it     = referenceMap.get(object);
@@ -1155,7 +1159,7 @@ public class SchemaManager {
     }
 
     //
-    private void getCascadingSchemaReferences(HsqlName schema,
+    void getCascadingSchemaReferences(HsqlName schema,
             OrderedHashSet set) {
 
         Iterator mainIterator = referenceMap.keySet().iterator();

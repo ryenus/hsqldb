@@ -765,7 +765,7 @@ public final class Constraint implements SchemaObject {
                     core.refName.name, core.mainTable.getName().name
                 };
 
-                throw Error.error(ErrorCode.X_23502, ErrorCode.CONSTRAINT,
+                throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT,
                                   info);
         }
     }
@@ -801,7 +801,7 @@ public final class Constraint implements SchemaObject {
                 name.name, table.tableName.name
             };
 
-            throw Error.error(ErrorCode.X_23504, ErrorCode.CONSTRAINT, info);
+            throw Error.error(ErrorCode.X_23513, ErrorCode.CONSTRAINT, info);
         }
     }
 
@@ -815,13 +815,13 @@ public final class Constraint implements SchemaObject {
 
         if (nomatch) {
             if (table == null) {
-                throw Error.error(ErrorCode.X_23504, name.name);
+                throw Error.error(ErrorCode.X_23513, name.name);
             } else {
                 String[] info = new String[] {
                     name.name, table.tableName.name
                 };
 
-                throw Error.error(ErrorCode.X_23504, ErrorCode.CONSTRAINT,
+                throw Error.error(ErrorCode.X_23513, ErrorCode.CONSTRAINT,
                                   info);
             }
         }
@@ -877,7 +877,7 @@ public final class Constraint implements SchemaObject {
                 core.refName.name, core.mainTable.getName().name
             };
 
-            throw Error.error(ErrorCode.X_23502, ErrorCode.CONSTRAINT, info);
+            throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT, info);
         }
 
         return exists;
@@ -929,7 +929,7 @@ public final class Constraint implements SchemaObject {
                 getName().name, getMain().getName().name
             };
 
-            throw Error.error(ErrorCode.X_23502, ErrorCode.CONSTRAINT, info);
+            throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT, info);
         }
     }
 
@@ -990,7 +990,7 @@ public final class Constraint implements SchemaObject {
                     table.getName().name, ""
                 };
 
-                throw Error.error(ErrorCode.X_23504, ErrorCode.CONSTRAINT,
+                throw Error.error(ErrorCode.X_23513, ErrorCode.CONSTRAINT,
                                   info);
             }
 
