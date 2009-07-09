@@ -1249,10 +1249,14 @@ public class Session implements SessionInterface {
             // esultConstants.EXECUTE_FAILED is encountered in the result
             if (in.isUpdateCount()) {
                 if (cs.hasGeneratedColumns()) {
-                    Object generatedRow =
-                        in.getChainedResult().getNavigator().getNext();
+                    RowSetNavigator navgen =
+                        in.getChainedResult().getNavigator();
 
-                    generatedResult.getNavigator().add(generatedRow);
+                    while (navgen.hasNext()) {
+                        Object generatedRow = navgen.getNext();
+
+                        generatedResult.getNavigator().add(generatedRow);
+                    }
                 }
 
                 updateCounts[count++] = in.getUpdateCount();
