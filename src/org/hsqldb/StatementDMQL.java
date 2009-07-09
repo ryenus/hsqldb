@@ -296,6 +296,10 @@ public abstract class StatementDMQL extends Statement {
         return generatedIndexes != null;
     }
 
+    public ResultMetaData generatedResultMetaData() {
+        return generatedResultMetaData;
+    }
+
     boolean[] getInsertOrUpdateColumnCheckList() {
 
         switch (type) {

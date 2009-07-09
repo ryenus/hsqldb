@@ -45,18 +45,18 @@ import org.hsqldb.lib.StopWatch;
  * A quick test of the new CompiledStatement and batch execution facilities.
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.2
- * @version 1.7.2
  */
 
-// fredt@users - modified to do some network connection tests
+// fredt@users - modified to do some network connection and generated result tests
 public class TestBatchExecution extends TestBase {
 
     static final String drop_table_sql = "drop table test if exists";
     static final String create_cached  = "create cached ";
     static final String create_memory  = "create memory ";
     static final String create_temp    = "create temp ";
-    static final String table_sql = "table test(id int primary key,"
+    static final String table_sql = "table test(id int identity primary key,"
                                     + "fname varchar(20), lname "
                                     + "varchar(20), zip int)";
     static final String insert_sql = "insert into test values(?,?,?,?)";
@@ -234,7 +234,8 @@ public class TestBatchExecution extends TestBase {
         sw = new StopWatch();
 
         // prepare the statements
-        insertStmnt = conn.prepareStatement(insert_sql);
+        insertStmnt = conn.prepareStatement(insert_sql,
+                                            Statement.RETURN_GENERATED_KEYS);
         updateStmnt = conn.prepareStatement(update_sql);
         selectStmnt = conn.prepareStatement(select_sql);
         deleteStmnt = conn.prepareStatement(delete_sql);
@@ -275,6 +276,17 @@ public class TestBatchExecution extends TestBase {
             insertStmnt.executeBatch();
             printCommandStats(sw, "inserts");
 
+            ResultSet generated = insertStmnt.getGeneratedKeys();
+            StringBuffer sb = new StringBuffer();
+            while(generated.next()){
+                int gen = generated.getInt(1);
+                if (gen % 1000 == 0) {
+                    sb.append(gen).append(" - ");
+                }
+            }
+            System.out.println(sb.toString());
+            printCommandStats(sw, "generated reads");
+
             // updates
             sw.zero();
             updateStmnt.executeBatch();
@@ -282,9 +294,9 @@ public class TestBatchExecution extends TestBase {
 
             // selects
             sw.zero();
+
 //            selectStmnt.executeBatch();
 //            printCommandStats(sw, "selects");
-
             // deletes
             sw.zero();
             deleteStmnt.executeBatch();
@@ -292,6 +304,7 @@ public class TestBatchExecution extends TestBase {
 
             // calls
             sw.zero();
+
 //            callStmnt.executeBatch();
 //            printCommandStats(sw, "calls  ");
         }

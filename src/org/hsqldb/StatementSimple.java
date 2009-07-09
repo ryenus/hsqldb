@@ -312,10 +312,6 @@ public class StatementSimple extends Statement {
         root = routine;
     }
 
-    public boolean hasGeneratedColumns() {
-        return false;
-    }
-
     public String describe(Session session) {
         return "";
     }
