@@ -933,6 +933,8 @@ public class ParserDDL extends ParserRoutine {
 
             HsqlName[] array = new HsqlName[names.size()];
 
+            names.toArray(array);
+
             return array;
         } else {
             return new HsqlName[]{ objectName };
