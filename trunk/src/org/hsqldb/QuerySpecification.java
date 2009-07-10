@@ -79,6 +79,7 @@ public class QuerySpecification extends QueryExpression {
     private int           indexLimitRowId;
     private int           groupByColumnCount;    // columns in 'group by'
     private int           havingColumnCount;     // columns in 'having' (0 or 1)
+    private int           indexStartHaving;
     public int            indexStartOrderBy;
     private int           indexStartAggregates;
     private int           indexLimitExpressions;
@@ -235,13 +236,24 @@ public class QuerySpecification extends QueryExpression {
         resolveColumnReferencesAndAllocate(queryCondition,
                                            rangeVariables.length, false);
 
+        if (resolvedSubqueryExpressions != null) {
+
+            // subqueries in conditions not to be converted to SIMPLE_COLUMN
+            resolvedSubqueryExpressions.setSize(0);
+        }
+
         for (int i = 0; i < indexLimitVisible; i++) {
             resolveColumnReferencesAndAllocate(exprColumns[i],
                                                rangeVariables.length,
                                                acceptsSequences);
         }
 
-        for (int i = indexLimitVisible; i < indexStartOrderBy; i++) {
+        for (int i = indexLimitVisible; i < indexStartHaving; i++) {
+            resolveColumnReferencesAndAllocate(exprColumns[i],
+                                               rangeVariables.length, false);
+        }
+
+        for (int i = indexStartHaving; i < indexStartOrderBy; i++) {
             resolveColumnReferencesAndAllocate(exprColumns[i],
                                                rangeVariables.length, false);
         }
@@ -490,9 +502,9 @@ public class QuerySpecification extends QueryExpression {
 
     private void finaliseColumns() {
 
-        indexLimitRowId = indexLimitVisible;
-        indexStartOrderBy = indexLimitRowId + groupByColumnCount
-                            + havingColumnCount;
+        indexLimitRowId   = indexLimitVisible;
+        indexStartHaving  = indexLimitRowId + groupByColumnCount;
+        indexStartOrderBy = indexStartHaving + havingColumnCount;
         indexStartAggregates = indexStartOrderBy
                                + sortAndSlice.getOrderLength();
         indexLimitData = indexLimitExpressions = indexStartAggregates;
@@ -663,7 +675,7 @@ public class QuerySpecification extends QueryExpression {
         ArrayUtil.copyArray(resultTable.colTypes, unionColumnTypes,
                             unionColumnTypes.length);
 
-        for (int i = 0; i < indexStartOrderBy; i++) {
+        for (int i = 0; i < indexStartHaving; i++) {
             if (exprColumns[i].dataType == null) {
                 throw Error.error(ErrorCode.X_42567);
             }
@@ -700,7 +712,7 @@ public class QuerySpecification extends QueryExpression {
             exprColumns[unionColumnMap[i]].setDataType(session, type);
         }
 
-        for (int i = 0; i < indexStartOrderBy; i++) {
+        for (int i = 0; i < indexStartHaving; i++) {
             if (exprColumns[i].dataType == null) {
                 throw Error.error(ErrorCode.X_42567);
             }
@@ -861,7 +873,7 @@ public class QuerySpecification extends QueryExpression {
             columnExpressions.add(c);
         }
 
-        for (int i = 0; i < indexStartOrderBy; i++) {
+        for (int i = 0; i < indexStartHaving; i++) {
             if (exprColumns[i].isAggregate) {
                 continue;
             }
