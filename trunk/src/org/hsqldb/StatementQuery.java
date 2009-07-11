@@ -31,7 +31,6 @@
 
 package org.hsqldb;
 
-import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
@@ -50,18 +49,6 @@ public class StatementQuery extends StatementDMQL {
                    CompileContext compileContext) {
 
         super(StatementTypes.SELECT_CURSOR, StatementTypes.X_SQL_DATA,
-              session.getCurrentSchemaHsqlName());
-
-        this.queryExpression = queryExpression;
-
-        setDatabseObjects(compileContext);
-        checkAccessRights(session);
-    }
-
-    StatementQuery(Session session, QueryExpression queryExpression,
-                   CompileContext compileContext, HsqlName[] targets) {
-
-        super(StatementTypes.SELECT_SINGLE, StatementTypes.X_SQL_DATA,
               session.getCurrentSchemaHsqlName());
 
         this.queryExpression = queryExpression;

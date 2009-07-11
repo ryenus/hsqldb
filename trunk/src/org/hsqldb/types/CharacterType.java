@@ -663,7 +663,7 @@ public class CharacterType extends Type {
     public String convertToSQLString(Object a) {
 
         if (a == null) {
-            return "NULL";
+            return Tokens.T_NULL;
         }
 
         String s = convertToString(a);

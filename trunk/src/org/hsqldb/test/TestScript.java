@@ -54,11 +54,11 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfInterval.txt";
 //    String path = "TestSelfInternalFunctions.txt";
 //    String path = "TestSelfFieldLimits.txt";
-    String path = "TestSelfFKModes.txt";
+//    String path = "TestSelfFKModes.txt";
 //    String path = "TestSelfInPredicateReferencing.txt";
 //    String path = "TestSelfIssues.txt";
 //    String path = "TestSelfJoins.txt";
-//    String path = "TestSelfLeftJoin.txt";
+    String path = "TestSelfLeftJoin.txt";
 //    String path = "TestSelfNameResolution.txt";
 //    String path = "TestSelfImmediateShutdown.txt";
 //    String path = "TestSelfInsertDeleteQueries.txt";

@@ -60,6 +60,7 @@ public class AllTests extends TestCase {
         suite.addTestSuite(org.hsqldb.test.TestLobs.class);
         suite.addTestSuite(org.hsqldb.test.TestMerge.class);
         suite.addTestSuite(org.hsqldb.test.TestMultiInsert.class);
+        suite.addTestSuite(org.hsqldb.test.TestPreparedSubQueries.class);
         suite.addTestSuite(org.hsqldb.test.TestSql.class);
         suite.addTestSuite(org.hsqldb.test.TestStoredProcedure.class);
         suite.addTestSuite(org.hsqldb.test.TestSubselect.class);

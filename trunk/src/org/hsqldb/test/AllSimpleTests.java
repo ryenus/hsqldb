@@ -66,9 +66,6 @@ public class AllSimpleTests {
         TestLibSpeed.main(args);
         System.out.println("*********** " + TestObjectSize.class.getName());
         TestObjectSize.main(args);
-        System.out.println("*********** "
-                           + TestPreparedSubQueries.class.getName());
-        TestPreparedSubQueries.main(args);
         System.out.println(
             "*********** "
             + TestSubQueriesInPreparedStatements.class.getName());

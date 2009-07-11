@@ -739,15 +739,15 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Object[]        row;
 
         row    = t.getEmptyRowData();
-        row[0] = "SESSION_ID";
+        row[0] = "SESSION ID";
         row[1] = String.valueOf(session.getId());
 
         t.insertSys(store, row);
 
         row    = t.getEmptyRowData();
         row[0] = "AUTOCOMMIT";
-        row[1] = session.isAutoCommit() ? "TRUE"
-                                        : "FALSE";
+        row[1] = session.isAutoCommit()  ? Tokens.T_TRUE
+                                         : Tokens.T_FALSE;
 
         t.insertSys(store, row);
 
@@ -758,16 +758,16 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         t.insertSys(store, row);
 
         row    = t.getEmptyRowData();
-        row[0] = "SESSION_READONLY";
-        row[1] = session.isReadOnlyDefault() ? "TRUE"
-                                             : "FALSE";
+        row[0] = "SESSION READONLY";
+        row[1] = session.isReadOnlyDefault() ? Tokens.T_TRUE
+                                             : Tokens.T_FALSE;
 
         t.insertSys(store, row);
 
         row    = t.getEmptyRowData();
-        row[0] = "DATABASE_READONLY";
-        row[1] = database.isReadOnly() ? "TRUE"
-                                       : "FALSE";
+        row[0] = "DATABASE READONLY";
+        row[1] = database.isReadOnly()  ? Tokens.T_TRUE
+                                        : Tokens.T_FALSE;
 
         t.insertSys(store, row);
 
@@ -791,7 +791,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         t.insertSys(store, row);
 
         row    = t.getEmptyRowData();
-        row[0] = "SCHEMA";
+        row[0] = "CURRENT SCHEMA";
         row[1] = String.valueOf(session.getSchemaName(null));
 
         t.insertSys(store, row);

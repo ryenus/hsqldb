@@ -37,6 +37,7 @@ import java.math.BigDecimal;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.Scanner;
+import org.hsqldb.Tokens;
 import org.hsqldb.Types;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
@@ -427,8 +428,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         if (s.length() == 0) {
             return null;
         }
-
-        return s.equalsIgnoreCase("TRUE") ? Boolean.TRUE
+        return s.equalsIgnoreCase(Tokens.T_TRUE) ? Boolean.TRUE
                                           : Boolean.FALSE;
     }
 

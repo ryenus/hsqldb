@@ -37,6 +37,7 @@ import java.math.BigDecimal;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.Row;
+import org.hsqldb.Tokens;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
@@ -61,11 +62,12 @@ public class RowOutputTextLog extends RowOutputBase {
     static byte[] BYTES_AND;
     static byte[] BYTES_IS;
 
+
     static {
         try {
-            BYTES_NULL  = "NULL".getBytes("ISO-8859-1");
-            BYTES_TRUE  = "TRUE".getBytes("ISO-8859-1");
-            BYTES_FALSE = "FALSE".getBytes("ISO-8859-1");
+            BYTES_NULL  = Tokens.T_NULL.getBytes("ISO-8859-1");
+            BYTES_TRUE  = Tokens.T_TRUE.getBytes("ISO-8859-1");
+            BYTES_FALSE = Tokens.T_FALSE.getBytes("ISO-8859-1");
             BYTES_AND   = " AND ".getBytes("ISO-8859-1");
             BYTES_IS    = " IS ".getBytes("ISO-8859-1");
         } catch (UnsupportedEncodingException e) {
