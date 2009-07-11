@@ -33,12 +33,15 @@ package org.hsqldb.test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.Statement;
+
+import junit.framework.TestCase;
 
 /**
  * @author kloska@users
  */
-class TestPreparedSubQueries {
+public class TestPreparedSubQueries extends TestCase {
 
     private Connection con = null;
 
@@ -82,39 +85,22 @@ class TestPreparedSubQueries {
         { new Integer(2) }
     };
 
-    public static void main(String[] argv) {
+    public TestPreparedSubQueries(String name) {
+        super(name);
+    }
 
-        Connection con = null;
+    protected void setUp() {
+
+        String url = "jdbc:hsqldb:test";
 
         try {
-            String url = "jdbc:hsqldb:test";
-
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
             con = java.sql.DriverManager.getConnection(url, "sa", "");
-
-            System.out.println("SciSelect::connect -- connected to '" + url
-                               + "'");
-        } catch (Exception e) {
-            System.out.println(" ?? main: Caught Exception " + e);
-            System.out.println(" - FAILED - ");
-
-            return;
-        }
-
-        TestPreparedSubQueries t = new TestPreparedSubQueries(con);
-        boolean                b = t.test();
-
-        System.out.println(b ? " -- OK -- "
-                             : " ?? FAILED ?? ");
-        System.exit(0);
+        } catch (Exception e) {}
     }
 
-    public TestPreparedSubQueries(Connection c) {
-        con = c;
-    }
-
-    public boolean test() {
+    public void testA() {
 
         try {
             int i = 0;
@@ -166,10 +152,35 @@ class TestPreparedSubQueries {
             }
         } catch (Exception e) {
             System.out.println(" ?? Caught Exception " + e);
-
-            return false;
+            assertTrue(false);
         }
 
-        return true;
+        assertTrue(true);
     }
+
+    public void testGenerated() {
+        boolean valid = false;
+        try {
+            Statement s = con.createStatement();
+            s.execute("drop table a if existst");
+            s.execute("create cached table a (a int identity,b int)");
+            s.execute("insert into a(b) values(1)", Statement.RETURN_GENERATED_KEYS);
+            ResultSet r = s.getGeneratedKeys();
+            while(r.next()) {
+                r.getInt(1);
+                valid = true;
+            }
+            r.close();
+            assertTrue(valid);
+
+            s.execute("insert into a(b) values(2)",new int[]{1});
+            r = s.getGeneratedKeys();
+            while(r.next()) {
+                r.getInt(1);
+                valid = true;
+            }
+            assertTrue(valid);
+        } catch (Exception e) {}
+    }
+
 }

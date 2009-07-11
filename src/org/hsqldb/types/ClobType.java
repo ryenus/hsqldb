@@ -169,7 +169,7 @@ public final class ClobType extends CharacterType {
     public String convertToSQLString(Object a) {
 
         if (a == null) {
-            return "NULL";
+            return Tokens.T_NULL;
         }
 
         String s = convertToString(a);

@@ -627,7 +627,7 @@ public final class IntervalType extends DTIType {
     public String convertToSQLString(Object a) {
 
         if (a == null) {
-            return "NULL";
+            return Tokens.T_NULL;
         }
 
         StringBuffer sb = new StringBuffer(32);

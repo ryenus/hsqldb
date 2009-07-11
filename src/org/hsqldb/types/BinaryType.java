@@ -466,7 +466,7 @@ public class BinaryType extends Type {
     public String convertToSQLString(Object a) {
 
         if (a == null) {
-            return "NULL";
+            return Tokens.T_NULL;
         }
 
         return StringConverter.byteArrayToSQLHexString(

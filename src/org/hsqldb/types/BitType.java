@@ -248,6 +248,31 @@ public final class BitType extends BinaryType {
                 b = (BlobData) a;
                 break;
 
+            case Types.SQL_BOOLEAN : {
+                if (precision != 1) {
+                    throw Error.error(ErrorCode.X_22501);
+                }
+
+                if (((Boolean) a).booleanValue()) {
+                    return new BinaryData(new byte[]{ -0x80 }, 1);
+                } else {
+                    return new BinaryData(new byte[]{ 0 }, 1);
+                }
+            }
+            case Types.TINYINT :
+            case Types.SQL_SMALLINT :
+            case Types.SQL_INTEGER :
+            case Types.SQL_BIGINT : {
+                if (precision != 1) {
+                    throw Error.error(ErrorCode.X_22501);
+                }
+
+                if (((Number) a).longValue() == 0) {
+                    return new BinaryData(new byte[]{ 0 }, 1);
+                } else {
+                    return new BinaryData(new byte[]{ -0x80 }, 1);
+                }
+            }
             default :
                 throw Error.error(ErrorCode.X_22501);
         }
@@ -329,6 +354,10 @@ public final class BitType extends BinaryType {
             return convertToTypeLimits(session, a);
         } else if (a instanceof String) {
             return convertToType(session, a, Type.SQL_VARCHAR);
+        } else if (a instanceof Integer) {
+            return convertToType(session, a, Type.SQL_INTEGER);
+        } else if (a instanceof Long) {
+            return convertToType(session, a, Type.SQL_BIGINT);
         }
 
         throw Error.error(ErrorCode.X_22501);
@@ -348,7 +377,7 @@ public final class BitType extends BinaryType {
     public String convertToSQLString(Object a) {
 
         if (a == null) {
-            return "NULL";
+            return Tokens.T_NULL;
         }
 
         return StringConverter.byteArrayToSQLHexString(
@@ -356,8 +385,12 @@ public final class BitType extends BinaryType {
     }
 
     public boolean canConvertFrom(Type otherType) {
+
         return otherType.typeCode == Types.SQL_ALL_TYPES
-               || otherType.isBinaryType();
+               || otherType.isBinaryType()
+               || (precision == 1
+                   && (otherType.isIntegralType()
+                       || otherType.isBooleanType()));
     }
 
     /** @todo - implement */

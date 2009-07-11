@@ -3866,20 +3866,18 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 break;
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
-                if (o instanceof Boolean) {
-                    if (outType.precision == 1) {
-                        byte[] bytes = ((Boolean) o).booleanValue()
-                                       ? new byte[] { -0x80 }
-                                       : new byte[] { 0 };
-
-                        o = new BinaryData(bytes, 1);
+                try {
+                    if (o instanceof Boolean) {
+                        o = outType.convertToDefaultType(
+                            connection.sessionProxy, o);
+                        break;
+                    }
+                    if (o instanceof Integer) {
+                        o = outType.convertToDefaultType(
+                            connection.sessionProxy, o);
 
                         break;
                     }
-                    Util.throwError(Error.error(ErrorCode.X_42565));
-                }
-
-                try {
                     if (o instanceof byte[]) {
                         o = outType.convertToDefaultType(
                             connection.sessionProxy, o);

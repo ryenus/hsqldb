@@ -489,15 +489,6 @@ public class ParserDDL extends ParserRoutine {
             }
             default :
                 name = readNewSchemaObjectNameNoCheck(objectType);
-
-                try {
-                    String schemaName = name.schema == null
-                                        ? session.getSchemaName(null)
-                                        : name.schema.name;
-                    SchemaObject object =
-                        database.schemaManager.getSchemaObject(name.name,
-                            schemaName, objectType);
-                } catch (HsqlException e) {}
         }
 
         if (useIfExists && token.tokenType == Tokens.IF) {
@@ -524,6 +515,19 @@ public class ParserDDL extends ParserRoutine {
         String sql = getLastPart();
         Statement cs = new StatementSchema(sql, statementType, args, null,
                                            null);
+
+
+        switch (objectTokenType) {
+            case Tokens.INDEX:
+            case Tokens.SCHEMA :
+            case Tokens.TYPE :
+            case Tokens.TABLE :
+            case Tokens.CHARACTER :
+        }
+
+        /** @todo - lock tables and schemas to drop  */
+
+
 
         return cs;
     }
@@ -1657,9 +1661,21 @@ public class ParserDDL extends ParserRoutine {
 
         String   fullSQL = getLastPart();
         Object[] args    = new Object[]{ view };
+        StatementSchema cs = new StatementSchema(fullSQL,
+            StatementTypes.CREATE_VIEW, args, null, null);
 
-        return new StatementSchema(fullSQL, StatementTypes.CREATE_VIEW, args,
-                                   null, null);
+        /** @todo - should also lock subquery tables */
+        OrderedHashSet set = new OrderedHashSet();
+
+        queryExpression.getBaseTableNames(set);
+
+        HsqlName[] names = new HsqlName[set.size()];
+
+        set.toArray(names);
+
+        cs.readTableNames = names;
+
+        return cs;
     }
 
     StatementSchema compileCreateSequence() {
@@ -3805,7 +3821,7 @@ public class ParserDDL extends ParserRoutine {
                 throw Error.error(ErrorCode.X_42535);
             }
 
-            return compileAlterColumnSequenceOptions(column);
+            return compileAlterColumnSequenceOptions(table, column);
         } else {
             return compileAlterColumnType(table, column);
         }
@@ -3821,36 +3837,28 @@ public class ParserDDL extends ParserRoutine {
             table, column, typeObject
         };
 
-        if (!table.isTemp()) {
-            writeName = table.getName();
-        }
-
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
-                                   null, writeName);
+                                   null, table.getName());
     }
 
     private Statement compileAlterColumnType(Table table,
             ColumnSchema column) {
 
-        HsqlName writeName = null;
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
 
-        if (!table.isTemp()) {
-            writeName = table.getName();
-        }
-
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
-                                   writeName);
+                                   table.getName());
     }
 
-    private Statement compileAlterColumnSequenceOptions(ColumnSchema column) {
+    private Statement compileAlterColumnSequenceOptions(Table table,
+            ColumnSchema column) {
 
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
 
-        return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
-                                   null);
+        return new StatementSchema(sql, StatementTypes.ALTER_TABLE,
+                                   table.getName(), null);
     }
 
     private Statement compileAlterColumnSetNullability(Table table,

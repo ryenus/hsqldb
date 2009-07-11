@@ -146,7 +146,7 @@ public final class BooleanType extends Type {
             case Types.SQL_BIT_VARYING : {
                 BinaryData b = (BinaryData) a;
 
-                if (b.length(session) == 1) {
+                if (b.bitLength(session) == 1) {
                     return BitMap.isSet(b.getBytes(), 0) ? Boolean.TRUE
                                                          : Boolean.FALSE;
                 }
@@ -163,15 +163,25 @@ public final class BooleanType extends Type {
                 a = ((CharacterType) otherType).trim(session, a, (int) ' ',
                                                      true, true);
 
-                if (((String) a).equalsIgnoreCase("TRUE")) {
+                if (((String) a).equalsIgnoreCase(Tokens.T_TRUE)) {
                     return Boolean.TRUE;
-                } else if (((String) a).equalsIgnoreCase("FALSE")) {
+                } else if (((String) a).equalsIgnoreCase(Tokens.T_FALSE)) {
                     return Boolean.FALSE;
-                } else if (((String) a).equalsIgnoreCase("UNKNOWN")) {
+                } else if (((String) a).equalsIgnoreCase(Tokens.T_UNKNOWN)) {
                     return null;
                 }
 
                 break;
+            }
+            case Types.TINYINT :
+            case Types.SQL_SMALLINT :
+            case Types.SQL_INTEGER :
+            case Types.SQL_BIGINT : {
+                if (((Number) a).longValue() == 0) {
+                    return Boolean.FALSE;
+                } else {
+                    return Boolean.TRUE;
+                }
             }
         }
 
@@ -221,23 +231,26 @@ public final class BooleanType extends Type {
             return null;
         }
 
-        return ((Boolean) a).booleanValue() ? "TRUE"
-                                            : "FALSE";
+        return ((Boolean) a).booleanValue() ? Tokens.T_TRUE
+                                            : Tokens.T_FALSE;
     }
 
     public String convertToSQLString(Object a) {
 
         if (a == null) {
-            return "UNKNOWN";
+            return Tokens.T_UNKNOWN;
         }
 
-        return ((Boolean) a).booleanValue() ? "TRUE"
-                                            : "FALSE";
+        return ((Boolean) a).booleanValue()? Tokens.T_TRUE
+                                           : Tokens.T_FALSE;
     }
 
     public boolean canConvertFrom(Type otherType) {
+
         return otherType.typeCode == Types.SQL_ALL_TYPES
-               || otherType.isBooleanType() || otherType.isCharacterType();
+               || otherType.isBooleanType() || otherType.isCharacterType()
+               || otherType.isIntegralType()
+               || (otherType.isBitType() && otherType.precision == 1);
     }
 
     public static BooleanType getBooleanType() {

@@ -186,7 +186,7 @@ public final class BlobType extends BinaryType {
     public String convertToSQLString(Object a) {
 
         if (a == null) {
-            return "NULL";
+            return Tokens.T_NULL;
         }
 
         byte[] bytes = ((BlobData) a).getBytes();
