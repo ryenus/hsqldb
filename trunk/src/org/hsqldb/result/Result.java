@@ -144,6 +144,7 @@ public class Result {
 
     // max rows (out)
     // update count (in)
+    // fetch part result count (in)
     // time zone seconds (connect)
     private int updateCount;
 

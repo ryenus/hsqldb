@@ -6112,8 +6112,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         // next, causing the JDBCResultSet's Result object to be nullified
         final int scroll = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
         final int concur = JDBCResultSet.CONCUR_READ_ONLY;
-        ResultSet r = connection.createStatement(scroll,
-            concur).executeQuery(sql);
+        JDBCStatement st = (JDBCStatement) connection.createStatement(scroll,
+            concur);
+        st.maxRows = -1;
+        ResultSet r =st.executeQuery(sql);
 
         ((JDBCResultSet) r).autoClose = true;
 
