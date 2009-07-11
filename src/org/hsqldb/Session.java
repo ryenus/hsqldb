@@ -858,11 +858,10 @@ public class Session implements SessionInterface {
         }
 
 //        synchronized (database) {
-        int type = cmd.getType();
+        int type    = cmd.getType();
+        int maxRows = cmd.getUpdateCount();
 
-        if (sessionMaxRows == 0) {
-            currentMaxRows = cmd.getUpdateCount();
-        }
+        currentMaxRows = sessionMaxRows;
 
         JavaSystem.gc();
 
@@ -872,6 +871,12 @@ public class Session implements SessionInterface {
                 return performLOBOperation((ResultLob) cmd);
             }
             case ResultConstants.EXECUTE : {
+                if (maxRows == -1) {
+                    currentMaxRows = 0;
+                } else if (sessionMaxRows == 0) {
+                    currentMaxRows = maxRows;
+                }
+
                 Result result = executeCompiledStatement(cmd);
 
                 result = performPostExecute(cmd, result);
@@ -886,6 +891,12 @@ public class Session implements SessionInterface {
                 return result;
             }
             case ResultConstants.EXECDIRECT : {
+                if (maxRows == -1) {
+                    currentMaxRows = 0;
+                } else if (sessionMaxRows == 0) {
+                    currentMaxRows = maxRows;
+                }
+
                 Result result = executeDirectStatement(cmd);
 
                 result = performPostExecute(cmd, result);
@@ -1067,6 +1078,9 @@ public class Session implements SessionInterface {
 
         for (int i = 0; i < list.size(); i++) {
             Statement cs = (Statement) list.get(i);
+
+            cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
+                                      cmd.getGeneratedResultMetaData());
 
             result = executeCompiledStatement(cs, ValuePool.emptyObjectArray);
 
