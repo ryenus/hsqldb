@@ -113,64 +113,72 @@
     tables, which are for temporary data, and permanent base tables, which are
     for persistent data.</para>
 
-    <para>TEMPORARY tables are not saved and last only for the lifetime of the
-    Connection object. The contents of each TEMP table is visible only from
-    the Connection that was used to populate it. The definition of TEMP tables
-    conforms to the GLOBAL TEMPORARY type in the SQL standard. The definition
-    of the table persists but each new connections sees its own copy of the
-    table, which is empty at the beginning. When the connection commits, the
-    contents of the table are cleared by default. If the table definition
-    statements includes ON COMMIT PRESERVE ROWS, then the contents are kept
-    when a commit takes place.</para>
+    <section>
+      <title>Temporary Tables</title>
 
-    <para>HSQLDB supports the Standard definition of persistent base table,
-    but defines three types according to the way the data is stored. These are
-    MEMORY tables, CACHED tables and TEXT tables.</para>
+      <para>TEMPORARY tables are not saved and last only for the lifetime of
+      the Connection object. The contents of each TEMP table is visible only
+      from the Connection that was used to populate it. The definition of TEMP
+      tables conforms to the GLOBAL TEMPORARY type in the SQL standard. The
+      definition of the table persists but each new connections sees its own
+      copy of the table, which is empty at the beginning. When the connection
+      commits, the contents of the table are cleared by default. If the table
+      definition statements includes ON COMMIT PRESERVE ROWS, then the
+      contents are kept when a commit takes place.</para>
+    </section>
 
-    <para>Memory tables are the default type when the CREATE TABLE command is
-    used. Their data is held entirely in memory but any change to their
-    structure or contents is written to the <filename>*.log</filename> and
-    <filename>*.script</filename> files. The <filename>*.script</filename>
-    file and the <filename>*.log</filename> file are read the next time the
-    database is opened, and the MEMORY tables are recreated with all their
-    contents. So unlike TEMPORARY tables, MEMORY tables are persistent.</para>
+    <section>
+      <title>Persistent Tables</title>
 
-    <para>CACHED tables are created with the CREATE CACHED TABLE command. Only
-    part of their data or indexes is held in memory, allowing large tables
-    that would otherwise take up to several hundred megabytes of memory.
-    Another advantage of cached tables is that the database engine takes less
-    time to start up when a cached table is used for large amounts of data.
-    The disadvantage of cached tables is a reduction in speed. Do not use
-    cached tables if your data set is relatively small. In an application with
-    some small tables and some large ones, it is better to use the default,
-    MEMORY mode for the small tables.</para>
+      <para>HSQLDB supports the Standard definition of persistent base table,
+      but defines three types according to the way the data is stored. These
+      are MEMORY tables, CACHED tables and TEXT tables.</para>
 
-    <para>TEXT tables use a CSV (Comma Separated Value) or other delimited
-    text file as the source of their data. You can specify an existing CSV
-    file, such as a dump from another database or program, as the source of a
-    TEXT table. Alternatively, you can specify an empty file to be filled with
-    data by the database engine. TEXT tables are efficient in memory usage as
-    they cache only part of the text data and all of the indexes. The Text
-    table data source can always be reassigned to a different file if
-    necessary. The commands are needed to set up a TEXT table as detailed in
-    the <link endterm="sqlgeneral-title"
-    xlink:href="#sqlgeneral-chapt">**todo**</link> chapter.</para>
+      <para>Memory tables are the default type when the CREATE TABLE command
+      is used. Their data is held entirely in memory but any change to their
+      structure or contents is written to the <filename>*.log</filename> and
+      <filename>*.script</filename> files. The <filename>*.script</filename>
+      file and the <filename>*.log</filename> file are read the next time the
+      database is opened, and the MEMORY tables are recreated with all their
+      contents. So unlike TEMPORARY tables, MEMORY tables are
+      persistent.</para>
 
-    <para>With all-in-memory databases <link endterm="sqlgeneral-title"
-    xlink:href="#sqlgeneral-chapt">**todo**</link> , both MEMORY table and
-    CACHED table declarations are treated as declarations for non-persistent
-    memory tables. TEXT table declarations are not allowed in this
-    mode.</para>
+      <para>CACHED tables are created with the CREATE CACHED TABLE command.
+      Only part of their data or indexes is held in memory, allowing large
+      tables that would otherwise take up to several hundred megabytes of
+      memory. Another advantage of cached tables is that the database engine
+      takes less time to start up when a cached table is used for large
+      amounts of data. The disadvantage of cached tables is a reduction in
+      speed. Do not use cached tables if your data set is relatively small. In
+      an application with some small tables and some large ones, it is better
+      to use the default, MEMORY mode for the small tables.</para>
 
-    <para>The default type of table resulting from future CREATE TABLE
-    statements can be specified with the SQL command:</para>
+      <para>TEXT tables use a CSV (Comma Separated Value) or other delimited
+      text file as the source of their data. You can specify an existing CSV
+      file, such as a dump from another database or program, as the source of
+      a TEXT table. Alternatively, you can specify an empty file to be filled
+      with data by the database engine. TEXT tables are efficient in memory
+      usage as they cache only part of the text data and all of the indexes.
+      The Text table data source can always be reassigned to a different file
+      if necessary. The commands are needed to set up a TEXT table as detailed
+      in the <link endterm="sqlgeneral-title"
+      xlink:href="#sqlgeneral-chapt">**todo**</link> chapter.</para>
 
-    <para><programlisting>    SET DEFAULT TABLE TYPE { CACHED | MEMORY };</programlisting>The
-    type of an existing table can be changed with the SQL command:</para>
+      <para>With all-in-memory databases, both MEMORY table and CACHED table
+      declarations are treated as declarations for non-persistent memory
+      tables. TEXT table declarations are not allowed in these
+      databases.</para>
 
-    <para><programlisting>    SET TABLE &lt;table name&gt; TYPE { CACHED | MEMORY };</programlisting>SQL
-    statements access different types of tables uniformly. No change to
-    statements is needed to access different types of table.</para>
+      <para>The default type of table resulting from future CREATE TABLE
+      statements can be specified with the SQL command:</para>
+
+      <para><programlisting>    SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY };</programlisting>The
+      type of an existing table can be changed with the SQL command:</para>
+
+      <para><programlisting>    SET TABLE &lt;table name&gt; TYPE { CACHED | MEMORY };</programlisting>SQL
+      statements access different types of tables uniformly. No change to
+      statements is needed to access different types of table.</para>
+    </section>
   </section>
 
   <section xml:id="sqlgeneral_types_ops-sect">
@@ -372,7 +380,7 @@
 
       <para>The BOOLEAN type represents the values <literal>TRUE</literal>,
       <literal>FALSE</literal> and <literal>UNKNOWN</literal>. This type of
-      column can be initialised with Java boolean values, or with null for the
+      column can be initialised with Java boolean values, or with NULL for the
       UNKNOWN value.</para>
 
       <para>The BOOLEAN type conforms to the SQL standards and supports the
@@ -384,6 +392,20 @@
       BIT is a single-bit bit map.</para>
 
       <simpara><literal>&lt;boolean type&gt; ::= BOOLEAN</literal></simpara>
+
+      <para>The SQL Standard does not support type conversion to BOOLEAN apart
+      from character strings that cosists of boolean literals. Because the
+      BOOLEAN type is relatively new to the Standard, several database
+      products used other types to represent boolean values. For improved
+      compatibility, HyperSQL allows some type conversions to boolean.</para>
+
+      <para>Values of BIT and BIT VARYING types with length 1 can be converted
+      to BOOLEAN. If the bit is set, the result of conversion is the TRUE
+      value, otherwise it is FALSE.</para>
+
+      <para>Values of TINYINT, SMALLINT, INTEGER and BIGINT types can be
+      converted to BOOLEAN. If the value is zero, the result is the FALSE
+      value, otherwise it is TRUE.</para>
     </section>
 
     <section>
@@ -393,13 +415,13 @@
         <primary>CHARACTER types</primary>
       </indexterm>
 
-      <para>The CHARACTER, CHARACTER VARYING and CLOB types are the supported
-      SQL Standard character string types. CHAR, VARCHAR and CHARACTER LARGE
+      <para>The CHARACTER, CHARACTER VARYING and CLOB types are the SQL
+      Standard character string types. CHAR, VARCHAR and CHARACTER LARGE
       OBJECT are synonyms for these types. HyperSQL also supports LONGVARCHAR
       as a synonym for VARCHAR.</para>
 
-      <para>HyperSQL's main character set is Unicode, therefore all possible
-      character strings can be represented by these types.</para>
+      <para>HyperSQL's default character set is Unicode, therefore all
+      possible character strings can be represented by these types.</para>
 
       <para>The SQL Standard behaviour of the CHARACTER type is a remnant of
       legacy systems in which character strings are padded with spaces to fill
@@ -463,10 +485,10 @@ CHARACTER LARGE OBJECT(1M)
         <primary>BINARY types</primary>
       </indexterm>
 
-      <para>The BINARY, BINARY VARYING and BLOB types are the supported
-      Standard binary string types. VARBINARY and BINARY LARGE OBJECT are
-      synonyms for BINARY VARYING and BLOB types. HyperSQL also supports
-      LONGVARBINARY as a synonym for VARBINARY.</para>
+      <para>The BINARY, BINARY VARYING and BLOB types are the SQL Standard
+      binary string types. VARBINARY and BINARY LARGE OBJECT are synonyms for
+      BINARY VARYING and BLOB types. HyperSQL also supports LONGVARBINARY as a
+      synonym for VARBINARY.</para>
 
       <para>Binary string types are used in a similar way to character string
       types. There are several built-in functions that are overloaded to
@@ -514,10 +536,14 @@ BINARY LARGE OBJECT(1M)
       </indexterm>
 
       <para>The BIT and BIT VARYING types are the supported bit string types.
-      Bit types represent bit maps of given lengths. Each bit is 0 or 1. The
-      BIT type represents a fixed width-string. Each shorter string is padded
-      with zeros to fill the fixed with. If BIT is used without specifying the
-      length, the length defaults to 1.</para>
+      These types were defined by SQL:1999 but were later removed from the
+      standard. Bit types represent bit maps of given lengths. Each bit is 0
+      or 1. The BIT type represents a fixed width-string. Each shorter string
+      is padded with zeros to fill the fixed with. If BIT is used without
+      specifying the length, the length defaults to 1.</para>
+
+      <para>For compatibility, values of BIT and BIT VARYING types with length
+      1 can be converted to and from the BOOLEAN type.</para>
 
       <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
       &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
@@ -569,7 +595,12 @@ BIT VARYING(2)
       length, precision or scale.</para>
 
       <para>In 2.0, length, precision and scale qualifiers are always
-      enforced.</para>
+      enforced. For backward compatibility, when older databases which had the
+      property hsqldb.enforce_strict_size=false are converted to version 1.9,
+      this property is retained. However, this is a temporary measure. You
+      should test your applicaction to ensure the length, precision and scale
+      that is used for column definitions is appropriate for the application
+      data.</para>
 
       <para>String types, including all BIT, BINARY and CHAR string types plus
       CLOB and BLOB, are generally defined with a length. If no length is
@@ -579,9 +610,11 @@ BIT VARYING(2)
       precision between 0 and 9. INTERVAL type definition may have precision
       and, in some cases, fraction second precision. DECIMAL and NUMERIC types
       may be defined with precision and scale. For all of these types a
-      default precision or scale value is used if one is not specified.</para>
+      default precision or scale value is used if one is not specified. The
+      default scale is 0. The default fractional precision for TIME is 0,
+      while it is 6 for TIMESTAMP.</para>
 
-      <para>Values are be changed from one type to another in two different
+      <para>Values can be converted from one type to another in two different
       ways: by using explicit CAST expression or by implicit conversion used
       in assignment, comparison and aggregation.</para>
 
