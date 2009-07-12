@@ -70,35 +70,16 @@ import java.util.Locale;
 
 import org.hsqldb.persist.HsqlDatabaseProperties;
 
-// fredt@users 20020305 - patch 1.7.0 - change to 2D string arrays
-// sqlbob@users 20020420- patch 1.7.0 - added HEXTORAW and RAWTOHEX.
-// boucherb@user 20020918 - doc 1.7.2 - added JavaDoc  and code comments
-// fredt@user 20021021 - doc 1.7.2 - modified JavaDoc
-// boucherb@users 20030201 - patch 1.7.2 - direct calls for org.hsqldb.Library
-// fredt@users - patch 1.8.0 - new functions added
-// boucherb@users 20060428 - patch 1.8.0 - Bug fix for [ 1455637 ] allow double args for modulo
-// fredt@users - patch 1.9.0 - most methods removed - see legacy support details
-
 /**
- * fredt - since the introduction of SQL built-in functions and rewrite of
+ * Since the introduction of SQL built-in functions and rewrite of
  * OpenGroup CLI functions as SQL functions, most previous methods have been
  * removed. The remaining methods are called when SQL functions are executed.
- */
-
-/**
- * Provides the HSQLDB implementation of standard Open Group SQL CLI
- * <em>Extended Scalar Functions</em> and other public HSQLDB SQL functions.<p>
- *
- * All methods here that have a Connection parameter are dummies and should
- * not be called from user supplied Java procedure or trigger code. Use real
- * SQL functions should be called instead in these instances.
  *
  * For 1.9.0, several methods have been deleted. These methods are now supported
  * by other classes. All the deleted method signatures are still supported.
  *
  * Extensively rewritten and extended in successive versions of HSQLDB.
  *
- * @author Thomas Mueller (Hypersonic SQL Group)
  * @version 1.8.0
  * @since Hypersonic SQL
  */
@@ -129,6 +110,7 @@ public class Library {
      * <LI> the <code>java.lang.Double.doubleValue</code> of the <code>String</code>
      *      form is returned
      * </UL>
+     * @author Thomas Mueller (Hypersonic SQL Group)
      * @param d the double value for which to retrieve the <em>magically</em>
      *      rounded value
      * @return the <em>magically</em> rounded value produced

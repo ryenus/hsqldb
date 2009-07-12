@@ -52,13 +52,14 @@ import org.hsqldb.store.ValuePool;
  */
 public final class NumberType extends Type {
 
-    static final int tinyintPrecision             = 3;
-    static final int smallintPrecision            = 5;
-    static final int integerPrecision             = 10;
-    static final int bigintPrecision              = 19;
-    static final int doublePrecision              = 0;
-    static final int defaultNumericPrecision      = 100;
-    static final int bigintSquareNumericPrecision = 40;
+    static final int        tinyintPrecision             = 3;
+    static final int        smallintPrecision            = 5;
+    static final int        integerPrecision             = 10;
+    static final int        bigintPrecision              = 19;
+    static final int        doublePrecision              = 0;
+    public static final int defaultNumericPrecision      = 100;
+    public static final int legacyNumericScale           = 6;
+    static final int        bigintSquareNumericPrecision = 40;
 
     //
     static final int TINYINT_WIDTH  = 8;

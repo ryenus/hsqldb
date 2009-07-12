@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
@@ -564,6 +565,21 @@ public class StatementCompound extends Statement {
 
     public String describe(Session session) {
         return "";
+    }
+
+    public OrderedHashSet getReferences() {
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        for (int i = 0; i < statements.length; i++) {
+            set.addAll(statements[i].getReferences());
+        }
+
+        for (int i = 0; i < handlers.length; i++) {
+            set.addAll(handlers[i].getReferences());
+        }
+
+        return set;
     }
 
     public void setAtomic(boolean atomic) {

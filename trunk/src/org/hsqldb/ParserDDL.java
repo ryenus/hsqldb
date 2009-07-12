@@ -516,19 +516,16 @@ public class ParserDDL extends ParserRoutine {
         Statement cs = new StatementSchema(sql, statementType, args, null,
                                            null);
 
-
         switch (objectTokenType) {
-            case Tokens.INDEX:
+
+            case Tokens.INDEX :
             case Tokens.SCHEMA :
             case Tokens.TYPE :
             case Tokens.TABLE :
             case Tokens.CHARACTER :
         }
 
-        /** @todo - lock tables and schemas to drop  */
-
-
-
+        /** @todo - lock tables and schemas to drop */
         return cs;
     }
 
@@ -4565,66 +4562,97 @@ public class ParserDDL extends ParserRoutine {
 
         readThis(Tokens.ON);
 
-        if (token.tokenString.equals(Tokens.T_CLASS)) {
-            if (!isExec && !isAll) {
-                throw unexpectedToken();
-            }
+        int objectType = 0;
 
-            read();
+        switch (token.tokenType) {
 
-            if (!isSimpleName() || !isDelimitedIdentifier()) {
-                throw Error.error(ErrorCode.X_42569);
-            }
+            case Tokens.CLASS :
+                if (!isExec && !isAll) {
+                    throw unexpectedToken();
+                }
 
-            objectName = readNewSchemaObjectNameNoCheck(SchemaObject.FUNCTION);
-        } else if (token.tokenType == Tokens.TYPE
-                   || token.tokenType == Tokens.DOMAIN
-                   || token.tokenType == Tokens.SEQUENCE
-                   || token.tokenType == Tokens.CHARACTER) {
-            if (!isUsage && !isAll) {
-                throw unexpectedToken();
-            }
+                read();
 
-            int type = 0;
+                if (!isSimpleName() || !isDelimitedIdentifier()) {
+                    throw Error.error(ErrorCode.X_42569);
+                }
 
-            switch (token.tokenType) {
+                objectType = SchemaObject.FUNCTION;
+                objectName =
+                    readNewSchemaObjectNameNoCheck(SchemaObject.FUNCTION);
+                break;
 
-                case Tokens.TYPE :
-                    read();
+            case Tokens.FUNCTION :
+                read();
 
-                    type = SchemaObject.TYPE;
-                    break;
+                objectType = SchemaObject.FUNCTION;
+                break;
 
-                case Tokens.DOMAIN :
-                    read();
+            case Tokens.PROCEDURE :
+                read();
 
-                    type = SchemaObject.DOMAIN;
-                    break;
+                objectType = SchemaObject.PROCEDURE;
+                break;
 
-                case Tokens.SEQUENCE :
-                    read();
+            case Tokens.ROUTINE :
+                read();
 
-                    type = SchemaObject.SEQUENCE;
-                    break;
+                objectType = SchemaObject.ROUTINE;
+                break;
 
-                case Tokens.CHARACTER :
-                    read();
-                    readThis(Tokens.SET);
+            case Tokens.TYPE :
+                if (!isUsage && !isAll) {
+                    throw unexpectedToken();
+                }
 
-                    type = SchemaObject.CHARSET;
-                    break;
-            }
+                read();
 
-            objectName = readNewSchemaObjectNameNoCheck(type);
-        } else {
-            if (!isTable && !isAll) {
-                throw unexpectedToken();
-            }
+                objectType = SchemaObject.TYPE;
+                break;
 
-            readIfThis(Tokens.TABLE);
+            case Tokens.DOMAIN :
+                if (!isUsage && !isAll) {
+                    throw unexpectedToken();
+                }
 
-            objectName = readNewSchemaObjectNameNoCheck(SchemaObject.TABLE);
+                read();
+
+                objectType = SchemaObject.DOMAIN;
+                break;
+
+            case Tokens.SEQUENCE :
+                if (!isUsage && !isAll) {
+                    throw unexpectedToken();
+                }
+
+                read();
+
+                objectType = SchemaObject.SEQUENCE;
+                break;
+
+            case Tokens.CHARACTER :
+                if (!isUsage && !isAll) {
+                    throw unexpectedToken();
+                }
+
+                read();
+                readThis(Tokens.SET);
+
+                objectType = SchemaObject.CHARSET;
+                break;
+
+            case Tokens.TABLE :
+            default :
+                if (!isTable && !isAll) {
+                    throw unexpectedToken();
+                }
+
+                readIfThis(Tokens.TABLE);
+
+                objectType = SchemaObject.TABLE;
         }
+
+        objectName = readNewSchemaObjectNameNoCheck(objectType);
 
         if (grant) {
             readThis(Tokens.TO);
@@ -4676,14 +4704,14 @@ public class ParserDDL extends ParserRoutine {
             }
         }
 
-        int      type = grant ? StatementTypes.GRANT
+        int      typee = grant ? StatementTypes.GRANT
                               : StatementTypes.REVOKE;
         Object[] args = new Object[] {
             granteeList, objectName, right, grantor, Boolean.valueOf(cascade),
             Boolean.valueOf(isGrantOption)
         };
         String          sql = getLastPart();
-        StatementSchema cs  = new StatementSchema(sql, type, args, null, null);
+        StatementSchema cs  = new StatementSchema(sql, typee, args, null, null);
 
         return cs;
     }

@@ -45,6 +45,7 @@ import org.hsqldb.types.BlobType;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalType;
+import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 
 /**
@@ -109,6 +110,8 @@ public class ParserDQL extends ParserBase {
     Type readTypeDefinition(boolean includeUserTypes) {
 
         int typeNumber = Integer.MIN_VALUE;
+        boolean hasLength = false;
+        boolean hasScale = false;
 
         checkIsIdentifier();
 
@@ -243,6 +246,7 @@ public class ParserDQL extends ParserBase {
                         throw unexpectedToken();
                 }
 
+                hasLength = true;
                 length = ((Number) token.tokenValue).longValue();
 
                 if (length < 0
@@ -276,6 +280,7 @@ public class ParserDQL extends ParserBase {
                     if (scale < 0) {
                         throw Error.error(ErrorCode.X_42592);
                     }
+                    hasScale = true;
                 }
 
                 readThis(Tokens.CLOSEBRACKET);
@@ -342,8 +347,16 @@ public class ParserDQL extends ParserBase {
             }
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
-                if (length == 0) {
+                if (!hasLength) {
                     length = 32 * 1024;
+                }
+                break;
+
+            case Types.SQL_DECIMAL :
+            case Types.SQL_NUMERIC :
+                if (!hasLength && !hasScale && !database.sqlEnforceSize) {
+                    length = NumberType.defaultNumericPrecision;
+                    scale =  NumberType.legacyNumericScale;
                 }
                 break;
         }

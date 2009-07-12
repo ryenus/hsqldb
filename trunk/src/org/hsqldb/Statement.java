@@ -115,6 +115,10 @@ public abstract class Statement {
         return sql;
     }
 
+    public OrderedHashSet getReferences() {
+        return new OrderedHashSet();
+    }
+
     public final void setDescribe() {
         isExplain = true;
     }
