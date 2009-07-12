@@ -260,7 +260,7 @@ public class Grantee implements SchemaObject {
 
             Grantee role = (Grantee) roles.get(i);
 
-            sb.append(role.getNameString());
+            sb.append(role.getStatementName());
         }
 
         return sb.toString();
@@ -1098,7 +1098,12 @@ public class Grantee implements SchemaObject {
         String        roleString = getDirectRolesAsString();
 
         if (roleString.length() != 0) {
-            list.add("GRANT " + roleString + " TO " + getStatementName());
+            StringBuffer sb = new StringBuffer(128);
+
+            sb.append(Tokens.T_GRANT).append(' ').append(roleString);
+            sb.append(' ').append(Tokens.T_TO).append(' ');
+            sb.append(getStatementName());
+            list.add(sb.toString());
         }
 
         MultiValueHashMap rightsMap = getRights();
@@ -1126,7 +1131,8 @@ public class Grantee implements SchemaObject {
                             sb.append(Tokens.T_GRANT).append(' ');
                             sb.append(right.getTableRightsSQL(table));
                             sb.append(' ').append(Tokens.T_ON).append(' ');
-                            sb.append("TABLE ").append(
+                            sb.append(Tokens.T_TABLE).append(' ');
+                            sb.append(
                                 hsqlname.getSchemaQualifiedStatementName());
                         }
                         break;
@@ -1143,7 +1149,8 @@ public class Grantee implements SchemaObject {
                             sb.append(Tokens.T_GRANT).append(' ');
                             sb.append(Tokens.T_USAGE);
                             sb.append(' ').append(Tokens.T_ON).append(' ');
-                            sb.append("SEQUENCE ").append(
+                            sb.append(Tokens.T_SEQUENCE).append(' ');
+                            sb.append(
                                 hsqlname.getSchemaQualifiedStatementName());
                         }
                         break;
@@ -1159,7 +1166,8 @@ public class Grantee implements SchemaObject {
                             sb.append(Tokens.T_GRANT).append(' ');
                             sb.append(Tokens.T_USAGE);
                             sb.append(' ').append(Tokens.T_ON).append(' ');
-                            sb.append("DOMAIN ").append(
+                            sb.append(Tokens.T_DOMAIN).append(' ');
+                            sb.append(
                                 hsqlname.getSchemaQualifiedStatementName());
                         }
                         break;
@@ -1175,7 +1183,34 @@ public class Grantee implements SchemaObject {
                             sb.append(Tokens.T_GRANT).append(' ');
                             sb.append(Tokens.T_USAGE);
                             sb.append(' ').append(Tokens.T_ON).append(' ');
-                            sb.append("TYPE ").append(
+                            sb.append(Tokens.T_TYPE).append(' ');
+                            sb.append(
+                                hsqlname.getSchemaQualifiedStatementName());
+                        }
+                        break;
+
+                    case SchemaObject.PROCEDURE :
+                    case SchemaObject.FUNCTION :
+                        SchemaObject routine =
+                            (SchemaObject) granteeManager.database
+                                .schemaManager
+                                .findSchemaObject(hsqlname.name,
+                                                  hsqlname.schema.name,
+                                                  hsqlname.type);
+
+                        if (routine != null) {
+                            sb.append(Tokens.T_GRANT).append(' ');
+                            sb.append(Tokens.T_EXECUTE);
+                            sb.append(' ').append(Tokens.T_ON).append(' ');
+
+                            if (routine.getType() == SchemaObject.PROCEDURE) {
+                                sb.append(Tokens.T_PROCEDURE);
+                            } else {
+                                sb.append(Tokens.T_FUNCTION);
+                            }
+
+                            sb.append(' ');
+                            sb.append(
                                 hsqlname.getSchemaQualifiedStatementName());
                         }
                         break;

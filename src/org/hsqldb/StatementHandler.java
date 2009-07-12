@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.result.Result;
 
@@ -147,6 +148,10 @@ public class StatementHandler extends Statement {
 
     public String describe(Session session) {
         return "";
+    }
+
+    public OrderedHashSet getReferences() {
+        return statement.getReferences();
     }
 
     public String getSQL() {

@@ -3358,90 +3358,6 @@ public class JDBCConnection implements Connection {
     }
 
     /**
-     * Translates <code>ResultSet</code> type, adding to the warning
-     * chain if the requested type is downgraded. <p>
-     *
-     * Up to and including HSQLDB 1.7.2,  <code>TYPE_FORWARD_ONLY</code> and
-     * <code>TYPE_SCROLL_INSENSITIVE</code> are passed through. <p>
-     *
-     * Starting with 1.7.2, while <code>TYPE_SCROLL_SENSITIVE</code> is
-     * downgraded to <code>TYPE_SCROLL_INSENSITIVE</code> and an SQLWarning is
-     * issued. <p>
-     *
-     * @param type of <code>ResultSet</code>; one of
-     *     <code>JDBCResultSet.TYPE_XXX</code>
-     * @return the actual type that will be used
-     * @throws SQLException if type is not one of the defined values
-     */
-    int xlateRSType(int type) throws SQLException {
-
-        SQLWarning w;
-        String     msg;
-
-        switch (type) {
-
-            case JDBCResultSet.TYPE_FORWARD_ONLY :
-            case JDBCResultSet.TYPE_SCROLL_INSENSITIVE : {
-                return type;
-            }
-            case JDBCResultSet.TYPE_SCROLL_SENSITIVE : {
-                msg = "TYPE_SCROLL_SENSITIVE => TYPE_SCROLL_SENSITIVE";
-                w = new SQLWarning(msg, "SOO10",
-                                   ErrorCode.JDBC_INVALID_ARGUMENT);
-
-                addWarning(w);
-
-                return JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
-            }
-            default : {
-                msg = "ResultSet type: " + type;
-
-                throw Util.invalidArgument(msg);
-            }
-        }
-    }
-
-    /**
-     * Translates <code>ResultSet</code> concurrency, adding to the warning
-     * chain if the requested concurrency is downgraded. <p>
-     *
-     * Starting with HSQLDB 1.7.2, <code>CONCUR_READ_ONLY</code> is
-     * passed through while <code>CONCUR_UPDATABLE</code> is downgraded
-     * to <code>CONCUR_READ_ONLY</code> and an SQLWarning is issued.
-     *
-     * @param concurrency of <code>ResultSet</code>; one of
-     *     <code>JDBCResultSet.CONCUR_XXX</code>
-     * @return the actual concurrency that will be used
-     * @throws SQLException if concurrency is not one of the defined values
-     */
-    int xlateRSConcurrency(int concurrency) throws SQLException {
-
-        SQLWarning w;
-        String     msg;
-
-        switch (concurrency) {
-
-            case JDBCResultSet.CONCUR_READ_ONLY : {
-                return concurrency;
-            }
-            case JDBCResultSet.CONCUR_UPDATABLE : {
-                msg = "CONCUR_UPDATABLE => CONCUR_READ_ONLY";
-                w = new SQLWarning(msg, "SOO10",
-                                   ErrorCode.JDBC_INVALID_ARGUMENT);
-
-                addWarning(w);
-
-                return JDBCResultSet.CONCUR_READ_ONLY;
-            }
-            default : {
-                msg = "ResultSet concurrency: " + concurrency;
-
-                throw Util.invalidArgument(msg);
-            }
-        }
-    }
-
-    /**
      * Resets this connection so it can be used again. Used when connections are
      * returned to a connection pool.
      *
@@ -3477,6 +3393,12 @@ public class JDBCConnection implements Connection {
         } else if (sql.regionMatches(true, i, "call ", 0, 5)) {
             i += 4;
         } else if (sql.regionMatches(true, i, "?= call ", 0, 8)) {
+            sb.setCharAt(i++, ' ');
+            sb.setCharAt(i++, ' ');
+
+            i += 5;
+        } else if (sql.regionMatches(true, i, "? = call ", 0, 8)) {
+            sb.setCharAt(i++, ' ');
             sb.setCharAt(i++, ' ');
             sb.setCharAt(i++, ' ');
 

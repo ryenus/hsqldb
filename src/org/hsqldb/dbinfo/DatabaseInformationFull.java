@@ -639,7 +639,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row         = t.getEmptyRowData();
         row[iscope] = scope;
         row[ins]    = nameSpace;
-        row[iname]  = "SCRIPTFORMAT";
+        row[iname]  = "SCRIPT FORMAT";
 
         try {
             row[ivalue] =
@@ -655,7 +655,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row         = t.getEmptyRowData();
         row[iscope] = scope;
         row[ins]    = nameSpace;
-        row[iname]  = "WRITE_DELAY";
+        row[iname]  = "WRITE DELAY";
         row[ivalue] = "" + database.logger.getWriteDelay();
         row[iclass] = "int";
 
@@ -676,7 +676,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row         = t.getEmptyRowData();
         row[iscope] = scope;
         row[ins]    = nameSpace;
-        row[iname]  = "REFERENTIAL_INTEGRITY";
+        row[iname]  = "REFERENTIAL INTEGRITY";
         row[ivalue] = database.isReferentialIntegrity() ? "true"
                                                         : "false";
         row[iclass] = "boolean";
