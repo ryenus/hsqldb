@@ -746,7 +746,9 @@ INTERVAL -'08:08' MINUTE TO SECOND
       paren&gt; &lt;row value constructor element list&gt; &lt;right paren&gt;
       | &lt;row subquery&gt;</literal></simpara>
 
-      <simpara>**</simpara>
+      <simpara>Specify a row consisting of one or more elements. A comma
+      separated list of expressions, enclosed in brackets, with the optional
+      keyword ROW.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>set function specification</primary>
@@ -2365,10 +2367,10 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inser
     <simpara>In the example below, the <literal>&lt;table
     reference&gt;</literal> is the subquery <literal>(SELECT X FROM U WHERE Y
     = 2)</literal>. Suppose this subquery returns two rows. If some rows of T
-    match either of these two rows, then those rows of T are updated according
-    to the UPDATE clause. If any of the rows returned by the subquery is not
-    matched, then for each unmatched row, the INSERT statement is
-    executed.</simpara>
+    match either of these two rows (where T.A = U.X), then those rows of T are
+    updated according to the UPDATE clause. If any of the rows returned by the
+    subquery is not matched, then for each unmatched row, the INSERT statement
+    is executed.</simpara>
 
     <programlisting>MERGE INTO T USING (SELECT X FROM U WHERE Y = 2) AS U ON T.A = U.X
    WHEN MATCHED THEN UPDATE SET T.B = U.X

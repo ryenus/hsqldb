@@ -69,10 +69,21 @@
   <preface xml:id="book-pref">
     <title>Preface</title>
 
-    <para>ALPHA DOCUMENTATION</para>
+    <para>HSQLDB (HyperSQL DataBase) is a modern relational database manager
+    that conforms closely to the SQL Standard and JDBC specifications.</para>
 
-    <para>This documentation is not complete and is released to accompany an
-    BETA version of HSQLDB 1.9 or 2.0. The latest, updated version of this
+    <para>Early version of HSQLDB were released in the 2001-2002 period and
+    were largely based on a previous open-source product named HypersonicSQL.
+    Versions released in 2004-2005 featured several new capabilities and
+    components, together with rewrite and enhancement of other SQL features.
+    Versions 1.9 and 2.0, first released in 2009, feature a complete rewrite
+    of most parts of the database engine. In the core engine, only a few
+    classes are based on the original HypersonicSQL code to maintain
+    compatibility with database files created with version 1.8.0.</para>
+
+    <para>This documentation covers HyperSQL versions 1.9 and 2.0. Any
+    reference to version 2.0 in this documentation also applies to version 1.9
+    unless it is stated otherwise. The latest, updated version of this
     documentation can be found at http://hsqldb.org/doc/2.0/</para>
 
     <para>If you notice any mistakes in this document, please email the author

@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
-
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
-      xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="listeners-chapt"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+<chapter version="5.0" xml:id="listeners-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns4="http://www.w3.org/1999/xhtml"
+         xmlns:ns3="http://www.w3.org/2000/svg"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
   <info>
     <title xml:id="listeners-title">HyperSQL Network Listeners</title>
+
     <subtitle>Server, WebServer, and Servlet</subtitle>
 
     <authorgroup>
@@ -43,39 +48,37 @@
     <legalnotice>
       <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
-      HSQLDB license. Additional permission is granted to the HSQLDB
-      Development Group to distribute this document with or without
-      alterations under the terms of the HSQLDB license.</para>
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
   <section xml:id="listeners-sect">
     <title>Listeners</title>
 
-    <simpara>As described in the
-      <link xlink:href="#running-chapt" endterm="running-title"/> chapter,
-      network listeners or servers
-      provide connectivity to catalogs from different JVM processes.
-      The HyperSQL listeners support both ipv4 and ipv6 network addressing.
-    </simpara>
+    <simpara>As described in the <link endterm="running-title"
+    xlink:href="#running-chapt"></link> chapter, network listeners or servers
+    provide connectivity to catalogs from different JVM processes. The
+    HyperSQL listeners support both ipv4 and ipv6 network
+    addressing.</simpara>
 
     <section xml:id="listeners_hsqlserver-sect">
       <title>HyperSQL Server</title>
 
       <para>This is the preferred way of running a database server and the
-      fastest one. This mode uses the proprietary
-      <glossterm>hsql:</glossterm> communications protocol. The following
-      example of the command for starting the server starts the server with
-      one (default) database with files named "mydb.*" and the public name
-      (alias) of "xdb".</para>
+      fastest one. This mode uses the proprietary <glossterm>hsql:</glossterm>
+      communications protocol. The following example of the command for
+      starting the server starts the server with one (default) database with
+      files named "mydb.*" and the public name (alias) of "xdb".</para>
 
       <informalexample>
         <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
       </informalexample>
 
       <para>Alternatively, a server.properties file can be used for passing
-      the arguments to the server. This file must be located in the
-      directory where the command is issued.</para>
+      the arguments to the server. This file must be located in the directory
+      where the command is issued.</para>
 
       <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server</screen>
 
@@ -87,13 +90,12 @@
       <title>HyperSQL HTTP Server</title>
 
       <para>This method of access is used when the computer hosting the
-      database server is restricted to the HTTP protocol. The only reason
-      for using this method of access is restrictions imposed by firewalls
-      on the client or server machines and it should not be used where there
-      are no such restrictions. The HyperSQL HTTP Server is a special web
-      server that allows JDBC clients to connect via HTTP. The server can
-      also act as a small general-purpose web server for static
-      pages.</para>
+      database server is restricted to the HTTP protocol. The only reason for
+      using this method of access is restrictions imposed by firewalls on the
+      client or server machines and it should not be used where there are no
+      such restrictions. The HyperSQL HTTP Server is a special web server that
+      allows JDBC clients to connect via HTTP. The server can also act as a
+      small general-purpose web server for static pages.</para>
 
       <para>To run an HTTP server, replace the main class for the server in
       the example command line above with the following:</para>
@@ -109,21 +111,19 @@
     <section xml:id="listeners_servlet-sect">
       <title>HyperSQL HTTP Servlet</title>
 
-      <para>This method of access also uses the HTTP protocol. It is used
-      when a separate servlet engine (or application server) such as Tomcat
-      or Resin provides access to the database. The Servlet Mode cannot be
+      <para>This method of access also uses the HTTP protocol. It is used when
+      a separate servlet engine (or application server) such as Tomcat or
+      Resin provides access to the database. The Servlet Mode cannot be
       started independently from the servlet engine. The
       <filename>Servlet</filename> class, in the HSQLDB jar, should be
       installed on the application server to provide the connection. The
-      database is specified using an application server property. Refer to
-      the source file <filename xlink:href="#Servlet.java-link">
-      src/org/hsqldb/server/Servlet.java</filename> to see the
-      details.</para>
+      database is specified using an application server property. Refer to the
+      source file <filename xlink:href="#Servlet.java-link">
+      src/org/hsqldb/server/Servlet.java</filename> to see the details.</para>
 
-      <para>Both HTTP Server and Servlet modes can only be accessed using
-      the JDBC driver at the client end. They do not provide a web front end
-      to the database. The Servlet mode can serve only a single
-      database.</para>
+      <para>Both HTTP Server and Servlet modes can only be accessed using the
+      JDBC driver at the client end. They do not provide a web front end to
+      the database. The Servlet mode can serve only a single database.</para>
 
       <para>Please note that you do not normally use this mode if you are
       using the database engine in an application server. In this situation,
@@ -144,12 +144,12 @@
     directory where the command to run the
     <classname>org.hsqldb.server.Server</classname> class is issued.</para>
 
-    <para>In all properties files, values are case-sensitive. All values
-    apart from names of files or pages are required in lowercase (e.g.
+    <para>In all properties files, values are case-sensitive. All values apart
+    from names of files or pages are required in lowercase (e.g.
     <property>server.silent</property>=<literal>FALSE</literal> will have no
     effect, but <property>server.silent</property>=<literal>false</literal>
-    will work). Supported properties and their default values (if any) are
-    as follows:</para>
+    will work). Supported properties and their default values (if any) are as
+    follows:</para>
 
     <table frame="all" pgwide="1" tocentry="1">
       <title>common server and webserver properties</title>
@@ -177,8 +177,8 @@
 
             <entry><literal>file:test</literal></entry>
 
-            <entry>the catalog type, path and file name of the first
-            database file to use</entry>
+            <entry>the catalog type, path and file name of the first database
+            file to use</entry>
           </row>
 
           <row>
@@ -186,8 +186,7 @@
 
             <entry><literal>""</literal></entry>
 
-            <entry>lowercase server alias for the first database
-            file</entry>
+            <entry>lowercase server alias for the first database file</entry>
           </row>
 
           <row>
@@ -196,9 +195,8 @@
             <entry><literal>NO DEFAULT</literal></entry>
 
             <entry>SqlTool urlid used by UNIX init script. (This property is
-            not used if your are running Server/Webserver on a platform
-            other than UNIX, or if you are not using our UNIX init
-            script).</entry>
+            not used if your are running Server/Webserver on a platform other
+            than UNIX, or if you are not using our UNIX init script).</entry>
           </row>
 
           <row>
@@ -280,8 +278,8 @@
             <entry><literal>9001 (normal) or 554 (if TLS
             encrypted)</literal></entry>
 
-            <entry>TCP/IP port used for talking to clients. All databases
-            are served on the same port.</entry>
+            <entry>TCP/IP port used for talking to clients. All databases are
+            served on the same port.</entry>
           </row>
 
           <row>
@@ -289,8 +287,8 @@
 
             <entry><literal>true</literal></entry>
 
-            <entry>no <literal>System.exit()</literal> call when the
-            database is closed</entry>
+            <entry>no <literal>System.exit()</literal> call when the database
+            is closed</entry>
           </row>
         </tbody>
       </tgroup>
@@ -349,10 +347,10 @@
 
             <entry><literal>NO DEFAULT</literal></entry>
 
-            <entry>multiple entries such as
-            <literal>.html=text/html</literal> define the mime types of the
-            static files served by the web server. See the source for
-            <filename xlink:href="#WebServer.java-link">
+            <entry>multiple entries such as <literal>.html=text/html</literal>
+            define the mime types of the static files served by the web
+            server. See the source for <filename
+            xlink:href="#WebServer.java-link">
             src/org/hsqldb/server/WebServer.java</filename> for a
             list.</entry>
           </row>
@@ -374,8 +372,8 @@
 
     <para>In the above example, the <filename>server.properties</filename>
     file indicates that the server provides access to 3 different databases.
-    Two of the databases are file-based, while the third is all-in-memory.
-    The aliases for the databases that the users connect to are
+    Two of the databases are file-based, while the third is all-in-memory. The
+    aliases for the databases that the users connect to are
     <literal>accounts</literal>, <literal>enrollments</literal> and
     <literal>quickdb</literal>.</para>
 
@@ -398,9 +396,9 @@
     <title>Starting a Server from your application</title>
 
     <para>If you want to start the server from within your application, as
-    opposed to the command line or batch files, you should create an
-    instance of Server or Web Server, then assign the properties and start
-    the Server. An working example of this can be found in the <classname
+    opposed to the command line or batch files, you should create an instance
+    of Server or Web Server, then assign the properties and start the Server.
+    An working example of this can be found in the <classname
     xlink:href="#TestBase.java-link"> org.hsqldb.test.TestBase</classname>
     source. The example below sets the same properties as in the
     server.properties file example.</para>
@@ -417,8 +415,8 @@
 </programlisting>
 
     <para>The Server object has several alternative methods for setting
-    databases and their public names. The server should be shutdown using
-    the shutdown() method.</para>
+    databases and their public names. The server should be shutdown using the
+    shutdown() method.</para>
 
     <para>**todo** restart on shutdown etc. modes</para>
 
@@ -428,6 +426,7 @@
   <section xml:id="listeners_tls-sect">
     <info>
       <title xml:id="tls-sect-title">TLS Encryption</title>
+
       <subtitle>Listener TLS Support (a. k. a. SSL)</subtitle>
 
       <authorgroup>
@@ -443,8 +442,7 @@
 
       <releaseinfo>$Revision$</releaseinfo>
 
-      <pubdate>$Date: 2008-12-04 20:36:53 +0000 (Thu, 04 Dec 2008)
-      $</pubdate>
+      <pubdate>$Date$</pubdate>
 
       <keywordset>
         <keyword>HyperSQL</keyword>
@@ -460,14 +458,15 @@
         <keyword>Security</keyword>
       </keywordset>
     </info>
+
     <indexterm>
       <primary>security</primary>
     </indexterm>
 
-    <para>This section explains how to encrypt the stream between JDBC
-    network clients and HyperSQL Listeners. If you are running an
-    <glossterm>in-process</glossterm> (non-Listener) setup, this chapter
-    does not apply to you.</para>
+    <para>This section explains how to encrypt the stream between JDBC network
+    clients and HyperSQL Listeners. If you are running an
+    <glossterm>in-process</glossterm> (non-Listener) setup, this chapter does
+    not apply to you.</para>
 
     <section>
       <title>Requirements</title>
@@ -477,10 +476,9 @@
 
         <listitem>
           <para>Sun Java 2.x and up. (This is probably possible with IBM's
-          Java, but I don't think anybody has attempted to run HSQLDB with
-          TLS under IBM's Java, and I'm sure that nobody in the HSQLDB
-          Development Group has documented how to set up the
-          environment).</para>
+          Java, but I don't think anybody has attempted to run HSQLDB with TLS
+          under IBM's Java, and I'm sure that nobody in the HSQLDB Development
+          Group has documented how to set up the environment).</para>
         </listitem>
 
         <listitem>
@@ -493,26 +491,25 @@
         </listitem>
 
         <listitem>
-          <para>A <link xlink:href="#privatekey-sect">JKS keystore
-          containing a private key</link>, in order to run a
-          Listener.</para>
+          <para>A <link xlink:href="#privatekey-sect">JKS keystore containing
+          a private key</link>, in order to run a Listener.</para>
         </listitem>
 
         <listitem>
-          <para>If you are running the listener side, then you'll need to
-          run a HSQLDB Server or WebServer Listener instance. It doesn't
-          matter if the underlying database catalogs are new, and it doesn't
-          matter if you are making a new Listener configuration or
-          encrypting an existing Listener configuration. (You can turn
-          encryption on and off at will).</para>
+          <para>If you are running the listener side, then you'll need to run
+          a HSQLDB Server or WebServer Listener instance. It doesn't matter if
+          the underlying database catalogs are new, and it doesn't matter if
+          you are making a new Listener configuration or encrypting an
+          existing Listener configuration. (You can turn encryption on and off
+          at will).</para>
         </listitem>
 
         <listitem>
           <para>You need a HSQLDB jar file that was built with JSSE present.
-          If you obtained your HSQLDB 1.7.2-or-later distribution from us,
-          you are all set, because we build with Java 1.4 or later (which
-          contains JSSE). If you build your own jar file with Java 1.3, make
-          sure to install JSSE first.</para>
+          If you obtained your HSQLDB 1.7.2-or-later distribution from us, you
+          are all set, because we build with Java 1.4 or later (which contains
+          JSSE). If you build your own jar file with Java 1.3, make sure to
+          install JSSE first.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -520,8 +517,7 @@
     <section>
       <title>Encrypting your JDBC connection</title>
 
-      <para>At this time, only 1-way, server-cert encryption is
-      tested.</para>
+      <para>At this time, only 1-way, server-cert encryption is tested.</para>
 
       <section>
         <title>Client-Side</title>
@@ -540,28 +536,27 @@
           </listitem>
         </itemizedlist>
 
-        <para>At this time, the latter will only work for clients running
-        with Java 1.4 or later.</para>
+        <para>At this time, the latter will only work for clients running with
+        Java 1.4 or later.</para>
 
         <para>If the listener you wish to connect to is using a certificate
-        approved by your default trust keystore, then there is nothing else
-        to do. If not, then you need to tell Java to "trust" the server
-        cert. (It's a slight over-simplification to say that if the server
+        approved by your default trust keystore, then there is nothing else to
+        do. If not, then you need to tell Java to "trust" the server cert.
+        (It's a slight over-simplification to say that if the server
         certificate was purchased, then you are all set; if somebody "signed
         their own" certificate by self-signing or using a private ca
         certificate, then you need to set up trust).</para>
 
         <para>First, you need to obtain the cert (only the "public" part of
-        it). Since this cert is passed to all clients, you could obtain it
-        by writing a java client that dumps it to file, or perhaps by using
+        it). Since this cert is passed to all clients, you could obtain it by
+        writing a java client that dumps it to file, or perhaps by using
         <emphasis>openssl s_client</emphasis>. Since in most cases, if you
         want to trust a non-commercial cert, you probably have access to the
-        server keystore, I'll show an example of how to get what you need
-        from the server-side JKS keystore.</para>
+        server keystore, I'll show an example of how to get what you need from
+        the server-side JKS keystore.</para>
 
-        <para>You may already have an X509 cert for your server. If you have
-        a server keystore, then you can generate a X509 cert like this.
-        <example>
+        <para>You may already have an X509 cert for your server. If you have a
+        server keystore, then you can generate a X509 cert like this. <example>
             <title>Exporting certificate from the server's keystore</title>
 
             <screen>    keytool -export -keystore server.store -alias existing_alias -file server.cer</screen>
@@ -585,9 +580,9 @@
 
         <para>If you are making a new keystore, you probably want to start
         with a copy of your system default keystore which you can find
-        somewhere under your <varname>JAVA_HOME</varname> directory
-        (typically <filename>jre/lib/security/cacerts</filename> for a JDK,
-        but I forget exactly where it is for a JRE).</para>
+        somewhere under your <varname>JAVA_HOME</varname> directory (typically
+        <filename>jre/lib/security/cacerts</filename> for a JDK, but I forget
+        exactly where it is for a JRE).</para>
 
         <para>Unless your OS can't stop other people from writing to your
         files, you probably do not want to set a password on the trust
@@ -609,12 +604,11 @@
         configuration file.</para>
 
         <para>Note: The hostname in your database URL must match the
-        <emphasis>Common Name</emphasis> of the server's certificate
-        exactly. That means that if a site certificate is
-        <literal>admc.com</literal>, you can not use
-        <literal>jdbc:hsqldb:hsqls://localhost</literal> or
-        <literal>jdbc:hsqldb:hsqls://www.admc.com:1100</literal> to connect
-        to it.</para>
+        <emphasis>Common Name</emphasis> of the server's certificate exactly.
+        That means that if a site certificate is <literal>admc.com</literal>,
+        you can not use <literal>jdbc:hsqldb:hsqls://localhost</literal> or
+        <literal>jdbc:hsqldb:hsqls://www.admc.com:1100</literal> to connect to
+        it.</para>
 
         <para>If you want more details on anything, see JSSERefGuide.html on
         <link
@@ -636,27 +630,27 @@
         <varname>system.javax.net.ssl.keyStore</varname> to the path of the
         private key JKD keystore, and
         <varname>system.javax.net.ssl.keyStorePassword</varname> to the
-        password (of both the keystore and the private key record-- they
-        must be the same).</simpara>
+        password (of both the keystore and the private key record-- they must
+        be the same).</simpara>
 
         <caution xml:id="tlspassword-caution">
-          <para>If you set any password in a .properties (or any other)
-          file, you need to restrict access to the file. On a good operating
-          system, you can do this like so: <informalexample>
+          <para>If you set any password in a .properties (or any other) file,
+          you need to restrict access to the file. On a good operating system,
+          you can do this like so: <informalexample>
               <screen>    chmod 600 path/to/server.properties</screen>
             </informalexample></para>
         </caution>
 
-        <simpara>The values and behavior of these .properties settings
-        exactly match the usage documented for
+        <simpara>The values and behavior of these .properties settings exactly
+        match the usage documented for
         <varname>javax.net.ssl.keyStorePassword</varname> and
         <varname>avax.net.ssl.keyStore</varname> in the JSSE docs.</simpara>
 
         <note>
           <simpara>Before version 1.9, HyperSQL depended on directly setting
-          the corresponding JSSE properties. The new idiom is more secure
-          and easier to manage. If you have an old password in your config
-          file, you should remove it.</simpara>
+          the corresponding JSSE properties. The new idiom is more secure and
+          easier to manage. If you have an old password in your config file,
+          you should remove it.</simpara>
         </note>
       </section>
     </section>
@@ -669,14 +663,13 @@
       work with 1.x). Java 2.x and 3.x users continue...</para>
 
       <para>Go to <link
-      xlink:href="http://java.sun.com/products/jsse/index-103.html"></link>
-      If you agree to the terms and meet the requirements, download the
-      domestic or global JSSE software. All you need from the software
-      distro is the three jar files. If you have a JDK installation, then
-      move the 3 jar files into the directory
-      <filename>$JAVA_HOME/jre/lib/ext</filename>. If you have a JRE
-      installation, then move the 3 jar files into the directory
-      <filename>$JAVA_HOME/lib/ext</filename>.</para>
+      xlink:href="http://java.sun.com/products/jsse/index-103.html"></link> If
+      you agree to the terms and meet the requirements, download the domestic
+      or global JSSE software. All you need from the software distro is the
+      three jar files. If you have a JDK installation, then move the 3 jar
+      files into the directory <filename>$JAVA_HOME/jre/lib/ext</filename>. If
+      you have a JRE installation, then move the 3 jar files into the
+      directory <filename>$JAVA_HOME/lib/ext</filename>.</para>
 
       <para>Pretty painless.</para>
     </section>
@@ -685,10 +678,10 @@
       <title>Making a Private-key Keystore</title>
 
       <para>There are two main ways to do this. Either you can use a
-      certificate signed by a certificate authority, or you can make your
-      own. One thing that you need to know in both cases is, the
-      <emphasis>Common Name</emphasis> of the cert has to be the exact
-      hostname that JDBC clients will use in their database URL.</para>
+      certificate signed by a certificate authority, or you can make your own.
+      One thing that you need to know in both cases is, the <emphasis>Common
+      Name</emphasis> of the cert has to be the exact hostname that JDBC
+      clients will use in their database URL.</para>
 
       <section>
         <title>CA-Signed Cert</title>
@@ -699,8 +692,7 @@
         <para>Assuming that you have a standard pem-style private key
         certificate, here's how you can use <link
         xlink:href="http://www.openssl.org">openssl</link> and the program
-        <classname>DERImport</classname> to get it into a JKS
-        keystore.</para>
+        <classname>DERImport</classname> to get it into a JKS keystore.</para>
 
         <para>Because I have spent a lot of time on this document already, I
         am just giving you an example.</para>
@@ -760,98 +752,98 @@
   <section xml:id="listeners_acl-sect">
     <info>
       <title>Network Access Control</title>
+
       <subtitle>Aka Server ACLs</subtitle>
     </info>
+
     <indexterm>
       <primary>security</primary>
     </indexterm>
+
     <indexterm>
       <primary>ACL</primary>
     </indexterm>
 
-
     <simpara>JDBC connections will always be denied if the supplied user and
-    password are not found in the target catalog. But an HyperSQL listener
-    can also restrict access at the listener level, even protecting private
+    password are not found in the target catalog. But an HyperSQL listener can
+    also restrict access at the listener level, even protecting private
     catalogs which have insecure (or default) passwords. If you have an
-    <glossterm>in-process</glossterm> setup, this section of the Guide
-    doesn't apply to you.</simpara>
+    <glossterm>in-process</glossterm> setup, this section of the Guide doesn't
+    apply to you.</simpara>
 
-    <simpara>Many (in fact, most) distributed database applications don't
-    have application clients connect directly to the database, but instead
+    <simpara>Many (in fact, most) distributed database applications don't have
+    application clients connect directly to the database, but instead
     encapsulate access in a controlling process. For example, a web app will
     usually access the data source on behalf of users, with end-user web
-    browsers never accessing the database directly. In these cases and
-    others, the security benefits of restricting listener access to specific
-    source addresses is well worth the effort. ACLs work by restricting
-    access according to the source address of the incoming connection
-    request. This is efficient because the database engine never even gets
-    the request until it is approved by the ACL filter code.</simpara>
+    browsers never accessing the database directly. In these cases and others,
+    the security benefits of restricting listener access to specific source
+    addresses is well worth the effort. ACLs work by restricting access
+    according to the source address of the incoming connection request. This
+    is efficient because the database engine never even gets the request until
+    it is approved by the ACL filter code.</simpara>
 
     <para>The sample file <filename
     xlink:href="#acl.txt-link">sample/acl.txt</filename> in your HyperSQL
     distribution explains how to write an ACL file. <programlisting><xi:include
           href="../verbatim/sample/acl.txt" parse="text" /></programlisting>
-    You put your file wherever it is convenient for you, and specify that
-    path with the property <varname>server.acl</varname> or
+    You put your file wherever it is convenient for you, and specify that path
+    with the property <varname>server.acl</varname> or
     <varname>webserver.acl</varname> in your
     <filename>server.properties</filename> or
-    <filename>webserver.properties</filename> file (depending on whether
-    your listener instance is a <classname>Server</classname> or
+    <filename>webserver.properties</filename> file (depending on whether your
+    listener instance is a <classname>Server</classname> or
     <classname>WebServer</classname>). You can specify the ACL file path with
     an absolute or relative path. If you use a relative path, it must be
     relative to the <filename>.properties</filename> file. It's often
-    convenient to name the ACL file <filename>acl.txt</filename>, in the
-    same directory as your <filename>.properties</filename> file and specify
-    the property value as just <filename>acl.txt</filename>. This file name
-    is intuitive, and things will continue to work as expected if you move
-    or copy the entire directory.</para>
+    convenient to name the ACL file <filename>acl.txt</filename>, in the same
+    directory as your <filename>.properties</filename> file and specify the
+    property value as just <filename>acl.txt</filename>. This file name is
+    intuitive, and things will continue to work as expected if you move or
+    copy the entire directory.</para>
 
     <warning>
       <simpara>If your <classname>Server</classname> or
       <classname>WebServer</classname> was started with a
       <varname>*.acl</varname> property, changes afterwards to the ACL file
-      will be picked up immediately by your listener instance. You are
-      advised to use the procedure below to prevent partial edits or
-      mistakes from crippling your running server.</simpara>
+      will be picked up immediately by your listener instance. You are advised
+      to use the procedure below to prevent partial edits or mistakes from
+      crippling your running server.</simpara>
     </warning>
 
     <para>When you edit your ACL file, it is both more convenient and more
     secure to test it as explained here before activating it. You could, of
-    course, test an ACL file by editing it in-place, then trying to connect
-    to your listener with JDBC clients from various source addresses.
-    Besides being mightily laborious and boring, with this method it is very
-    easy to accidentally open access to all source addresses or to deny
-    access to all users until you fix incorrect ACL entries.</para>
+    course, test an ACL file by editing it in-place, then trying to connect to
+    your listener with JDBC clients from various source addresses. Besides
+    being mightily laborious and boring, with this method it is very easy to
+    accidentally open access to all source addresses or to deny access to all
+    users until you fix incorrect ACL entries.</para>
 
-    <para>The suggested method of creating or changing ACLs is to work with
-    an inactive file (for new ACL files, just don't enable the
-    <varname>*.acl</varname> property yet; for changing an existing file,
-    just copy it to a temporary file and edit the temporary file). Then use
-    the <classname>ServerAcl</classname> class to test it. <example>
+    <para>The suggested method of creating or changing ACLs is to work with an
+    inactive file (for new ACL files, just don't enable the
+    <varname>*.acl</varname> property yet; for changing an existing file, just
+    copy it to a temporary file and edit the temporary file). Then use the
+    <classname>ServerAcl</classname> class to test it. <example>
         <title>Validating and Testing an ACL file</title>
 
         <screen>    java -cp path/to/hsqldb.jar org.hsqldb.server.ServerAcl path/to/acl.txt</screen>
-      </example> If the specified ACL file fails validation, you will be
-    given details about the problem. Otherwise, the validated rules will be
+      </example> If the specified ACL file fails validation, you will be given
+    details about the problem. Otherwise, the validated rules will be
     displayed (including the implicit, default deny rules). You then type in
-    host names and addresses, one-per-line. Each name or address is tested
-    as if it were a HyperSQL network client address, using the same exact
-    method that the HyperSQL listener will use. (HyperSQL listeners use this
-    same <classname>ServerAcl</classname> class to test incoming source
-    addresses). <classname>ServerAcl</classname> will report the rule which
-    matches and whether access is denied or allowed to that address.</para>
+    host names and addresses, one-per-line. Each name or address is tested as
+    if it were a HyperSQL network client address, using the same exact method
+    that the HyperSQL listener will use. (HyperSQL listeners use this same
+    <classname>ServerAcl</classname> class to test incoming source addresses).
+    <classname>ServerAcl</classname> will report the rule which matches and
+    whether access is denied or allowed to that address.</para>
 
     <simpara>If you have edited a copy of an existing ACL file (as suggested
     above), then overwrite your live ACL file with your new, validated ACL
-    file. I.e., copy your temp file over top of your live ACL
-    file.</simpara>
+    file. I.e., copy your temp file over top of your live ACL file.</simpara>
 
-    <simpara><classname>ServerAcl</classname> can be run in the same exact
-    way described above, to troubleshoot runtime access issues. If you use
-    an ACL file and a user or application can't get a connection to the
-    database, you can run <classname>ServerAcl</classname> to quickly and
-    definitively find if the client is being prohibited by an ACL
-    rule.</simpara>
+    <simpara><classname>ServerAcl</classname> can be run in the same exact way
+    described above, to troubleshoot runtime access issues. If you use an ACL
+    file and a user or application can't get a connection to the database, you
+    can run <classname>ServerAcl</classname> to quickly and definitively find
+    if the client is being prohibited by an ACL rule.</simpara>
   </section>
 </chapter>

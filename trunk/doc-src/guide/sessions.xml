@@ -4,7 +4,7 @@
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
-         xmlns:ns="http://docbook.org/ns/docbook">
+         xmlns:ns="http://docbook.org/ns/docbook" xml:id="sessions-chapt">
   <title xml:id="sessions-title">Sessions and Transactions</title>
 
   <info>
@@ -99,12 +99,13 @@
     returned using the <literal>VALUES &lt;attribute name&gt;, ...</literal>
     statement.</para>
 
-    <para>The named attributes such as CURRENT_USER, CURRENT_SCHEMA, etc. are
-    listed in the Built In Functions section.</para>
+    <para>The named properties such as CURRENT_USER, CURRENT_SCHEMA, etc. are
+    listed in the Built In Functions section. Other properties of the session,
+    such as auto-commit read-only modes can be read using other built-in
+    functions.</para>
 
-    <para>The attributes for default session time zone, current session time
-    zone, current default transaction isolation mode and read only mode cannot
-    be read.</para>
+    <para>The properties for default session time zone, current session time
+    zone, current default transaction isolation mode cannot be read.</para>
 
     <section>
       <title>Session Variables</title>
@@ -179,6 +180,31 @@
 
       <para>The READ UNCOMMITTED isolation level can be used in 2PL modes for
       read-only operations.</para>
+    </section>
+
+    <section>
+      <title>Lock Contention</title>
+
+      <para>When each transaction performs only one reads or writes on a
+      single table, there is no contention. Each transaction waits until it
+      can obtain a lock then performs the operation and commits. All
+      contentions occur when transactions perform reads and writes on more
+      than one table, or perform a read, followed by a write, on the same
+      table.</para>
+
+      <para>For example, when multipe connections first read from a table in
+      order to check if a row exists, then insert a row into the same table
+      when it doesn't exist, there will be regular contention. Transaction A
+      reads from the table, then does Transaction B. Now if either Transaction
+      A or B attempts to insert a row, it will have to be terminated as the
+      other transaction holds a shared lock. If instead of two operations, a
+      single MERGE statement is performed to perform the read and write, no
+      contention occurs. In such scenarios, there is the option of obtaining
+      the necessary write lock with an explicit LOCK TABLE statement.</para>
+
+      <para>HyperSQL is fully multithreaded. It therefore allows different
+      transactions to execute concurrently so long as they are not modifying
+      the same table.</para>
     </section>
 
     <section>
@@ -267,8 +293,9 @@
     }</literal></simpara>
 
     <simpara>Set the concurrency control system for the database. It can be
-    issued only when all sessions have been committed or rolled back. The MVCC
-    option is not available in version 1.9.</simpara>
+    issued only when all sessions have been committed or rolled back. The
+    default is LOCKS. The MVCC option is not available in version
+    1.9.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET TRANSACTION</primary>
@@ -503,7 +530,9 @@
 
     <simpara>Set one or more characteristics for the current SQL-session. This
     command is used to set the transaction mode for the session. This endures
-    until the next use of this command.</simpara>
+    for all transactions until the session is closed or the next use of this
+    command. The current read-only mode can be accessed with the ISREADONLY()
+    function.</simpara>
 
     <example>
       <title>Setting Session Characteristics</title>
@@ -531,7 +560,8 @@
     current user. The user that executes this command must have the
     CHANGE_AUTHORIZATION role, or the DBA role. After this statement is
     executed, all SQL statements are executed with the privileges of the new
-    user.</simpara>
+    user. The current authorisation can be accessed with the CURRENT_USER and
+    SESSION_USER functions.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET ROLE</primary>
@@ -550,8 +580,8 @@
     <simpara>Set the SQL-session role name and the current role name for the
     current SQL-session context. The user that executes this command must have
     the specifid role. If NONE is specified, then the previous CURRENT_ROLE is
-    elminated. The effect of this lasts for the lifetime of the
-    session.</simpara>
+    elminated. The effect of this lasts for the lifetime of the session. The
+    current role can be accessed with the CURRENT_ROLE function.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET TIME ZONE</primary>
@@ -598,7 +628,8 @@
     <simpara>Set the default schema name for unqualified names used in SQL
     statements that are prepared or executed directly in the current sessions.
     As there is only one catalog in the database, only the name of this
-    catalog can be used.</simpara>
+    catalog can be used. The current catalog can be accessed with the
+    CURRENT_CATALOG function.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET SCHEMA</primary>
@@ -618,7 +649,8 @@
     statements that are prepared or executed directly in the current sessions.
     The effect of this lasts for the lifetime of the session. The SQL Standard
     form requires the schema name as a single-quoted string. HyperSQL also
-    allows the use of the identifier for the schema.</simpara>
+    allows the use of the identifier for the schema. The current schema can be
+    accessed with the CURRENT_SCHEMA function.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET PATH</primary>
@@ -650,13 +682,16 @@
     <simpara><literal>&lt;set max rows statement&gt; ::= SET MAXROWS
     &lt;unsigned integer literal&gt;</literal></simpara>
 
-    <simpara>Set the maximum number of rows of each result returned by
-    executing queries. This statement has a similar effect to the
-    <methodname>setMaxRows(int max)</methodname> method of the JDBC
-    <classname>Statement</classname> interface, but it affects all the results
-    returned in the lifetime of the session. The normal operation of the
-    session has no limit on the number of rows returned. If <literal>SET
-    MAXROWS 0</literal> is specified, normal operation is restored.</simpara>
+    <simpara>The normal operation of the session has no limit on the number of
+    rows returned from a SELECT statement. This command set the maximum number
+    of rows of each result returned by executing queries. This statement has a
+    similar effect to the <methodname>setMaxRows(int max)</methodname> method
+    of the JDBC <classname>Statement</classname> interface, but it affects all
+    the results returned in the lifetime of the session. Only zero or positive
+    values can be used with this command. The value overrides any value
+    specified with <methodname>setMaxRows(int max)</methodname> method of a
+    JDBC statement. If <literal>SET MAXROWS 0</literal> is specified, normal
+    operation is restored.</simpara>
 
     <simpara>This command is not recommended for general use. The only
     legitimate use of this command is for checking and testing queries that

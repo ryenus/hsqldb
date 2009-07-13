@@ -74,16 +74,16 @@
           SQL as <literal>SELECT EXTRACT (DAY_OF_MONTH FROM dateColumn) FROM
           myTable</literal> if a database engine supports the Standard syntax.
           If a database engine does not support Standard SQL, then the
-          translation will be different. HSQLDB supports all the function
+          translation will be different. HyperSQL supports all the function
           names specified in the JDBC specifications as native functions.
           Therefore, there is no need to use the <literal>{fn FUNC_NAME ( ...
-          ) }</literal> escape with HSQLDB. If a JDBC function is supported by
-          the SQL Standard in a different form, the SQL Standard form is the
-          preferred form to use.</para>
+          ) }</literal> escape with HyperSQL. If a JDBC function is supported
+          by the SQL Standard in a different form, the SQL Standard form is
+          the preferred form to use.</para>
         </listitem>
 
         <listitem>
-          <para>HSQLDB Built-In Functions</para>
+          <para>HyperSQL Built-In Functions</para>
 
           <para>A few additional built-in functions are available for some
           useful operations.</para>
@@ -104,7 +104,7 @@
     tokens are separated with the vertical bar ( <literal>&lt;vertical
     bar&gt;</literal> ). At the end of each function definition, the standard
     which specifies the function is noted in parentheses as SQL/Foundation,
-    JDBC or HSQLDB.</para>
+    JDBC or HyperSQL.</para>
   </section>
 
   <section xml:id="builtin_functions_string-sect">
@@ -201,7 +201,7 @@
     character of the <literal>&lt;char value expr&gt;</literal> must be a
     digit or a letter in the A | B | C | D | E | F set. Each byte of the
     retured binary string is formed by translating two hex digits into one
-    byte. (HSQLDB)</para>
+    byte. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LCASE function</primary>
@@ -284,7 +284,7 @@
     <para>Returns a character string composed of hexadecimal digits
     representing the bytes in the <literal>&lt;binary value
     expr&gt;</literal>. Each byte of the <literal>&lt;binary value
-    expr&gt;</literal> is translated into two hex digits. (HSQLDB)</para>
+    expr&gt;</literal> is translated into two hex digits. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>REPEAT function</primary>
@@ -621,7 +621,7 @@
     )</literal></para>
 
     <para>These three functions perform the bit operations: OR, AND, XOR, on
-    two integer values. The result is an integer value. (HSQLDB)</para>
+    two integer values. The result is an integer value. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>COS function</primary>
@@ -773,7 +773,7 @@
     <para><literal>RAND ( [ &lt;int value expr&gt; ] ) </literal></para>
 
     <para>Returns a random value in the DOUBLE type. The optional <literal>[
-    &lt;int value expr&gt; ]</literal> is used as seed value. In HSQLDB each
+    &lt;int value expr&gt; ]</literal> is used as seed value. In HyperSQL each
     session has a separate random number generator. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -910,7 +910,7 @@
     SECONDS_MIDNIGHT</literal> options may be valid for INTERVAL types based
     on seconds. For example,<literal> DAY | HOUR | MINUTE</literal> are the
     only valid fields for the INTERVAL DAY TO MINUTE data type. (Foundation
-    with HSQLDB extensions)</para>
+    with HyperSQL extensions)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CURRENT_DATE function</primary>
@@ -1124,7 +1124,7 @@
 
     <para>This function is equvalent to<literal> EXTRACT (
     SECONDS_SINCE_MIDNIGHT FROM ... ) </literal>Returns an integer in the
-    range of 0 - 86399. (HSQLDB)</para>
+    range of 0 - 86399. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>WEEK function</primary>
@@ -1171,7 +1171,7 @@
     SQL_TSI_WEEK | SQL_TSI_MONTH | SQL_TSI_QUARTER |
     SQL_TSI_YEAR</literal></para>
 
-    <para>HSQLDB supports full SQL Standard dateteime features. It supports
+    <para>HyperSQL supports full SQL Standard dateteime features. It supports
     adding integers representing units of time directly to datetime values
     using the arithmetic plus operator. It also supports subtracting one
     <literal>&lt;datetime value expr&gt;</literal> from another in the given
@@ -1216,7 +1216,7 @@
     <para>The DATEADD and DATEDIFF function are alternatives to TIMESTAMPADD
     and TIMESTAMPDIFF, with fewer available field options. The fields
     translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
-    (HSQLDB}</para>
+    (HyperSQL}</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TO_CHAR function</primary>
@@ -1428,7 +1428,7 @@
     inserted into a table by the current session. Each session manages this
     function call separetly and is not affected by inserts in other sessions.
     The statement can be executed as a direct statement or a prepared
-    statement. (HSQLDB)</para>
+    statement. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>IFNULL function</primary>
@@ -1487,10 +1487,10 @@
     <para>The definition of CONVERT in the JDBC Standard does not allow the
     precision, scale or length to be specified. This is required by the SQL
     standard for BINARY, BIT, BLOB, CHAR, CLOB, VARBINARY and VARCHAR types
-    and is often needed for DECIMAL and NUMERIC. Therefore, HSQLDB allows the
-    use of precision, scale or length for the type definition when they are
-    valid for the type definition. HSQLDB also allows the use of real type
-    names (without the <literal>SQL_</literal> prefix). (JDBC)</para>
+    and is often needed for DECIMAL and NUMERIC. Therefore, HyperSQL allows
+    the use of precision, scale or length for the type definition when they
+    are valid for the type definition. HyperSQL also allows the use of real
+    type names (without the <literal>SQL_</literal> prefix). (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CURRENT_USER function</primary>
@@ -1554,7 +1554,50 @@
     <para>CURRENT_SCHEMA is default schema of the user, or a schema
     subsequently set by the SET SCHEMA command.</para>
 
-    <para>CURRENT_CATALOG is always the same within a given HSQLDB database
+    <para>CURRENT_CATALOG is always the same within a given HyperSQL database
     and indicates the name of the catalog.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ISAUTOCOMMIT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ISAUTOCOMMIT</emphasis></simpara>
+
+    <para><literal>ISAUTOCOMMIT()</literal></para>
+
+    <para>Returns TRUE if the session is in autocommit mode.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ISREADONLYSESSION function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ISREADONLYSESSION</emphasis></simpara>
+
+    <para><literal>ISREADONLYSESSION()</literal></para>
+
+    <para>Returns TRUE if the session is in read only mode.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ISREADONLYDATABASE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ISREADONLYDATABASE</emphasis></simpara>
+
+    <para><literal>ISREADONLYDATABASE()</literal></para>
+
+    <para>Returns TRUE if the database is a read only database.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ISREADONLYDATABASEFILES function</primary>
+    </indexterm>
+
+    <simpara><emphasis
+    role="bold">ISREADONLYDATABASEFILES</emphasis></simpara>
+
+    <para><literal>ISREADONLYDATABASEFILES()</literal></para>
+
+    <para>Returns TRUE if the database is a read only files database. In this
+    kind of database, it is possible to modify the data, but the changes are
+    not persisted to the database files.</para>
   </section>
 </chapter>

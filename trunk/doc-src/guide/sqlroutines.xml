@@ -43,7 +43,7 @@
   HyperSQL 2.0 supports routines conforming to two parts of the SQL Standard.
   Routines written in the SQL language are supported in conformance to SQL/PSM
   (Persistent Stored Modules) specification. Routines written in Java are
-  supported in conformance to SQL/JRT specification. In addition, HSQLDB’s
+  supported in conformance to SQL/JRT specification. In addition, HyperSQL’s
   previous non-standard support for calling Java routines without prior method
   definition is retained and enhanced in the latest version by extending the
   SQL/JRT specification.</para>
@@ -311,7 +311,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     INSERT INTO invalid_customers VALUES(firstanme, lastname, address);</programlisting>
 
       <para>The <literal>&lt;SQL procedure statement&gt;</literal> is required
-      by the SQL Standard but is optional in HSQLDB. If the execution of the
+      by the SQL Standard but is optional in HyperSQL. If the execution of the
       <literal>&lt;SQL procedure statement&gt;</literal> specified in the
       handler declaration throws an exception itself, then it is handled by
       the handlers that are currently active. The <literal>&lt;SQL procedure
@@ -736,11 +736,11 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
 
     <para>Legacy Support</para>
 
-    <para>The legacy HSQLDB statement, <literal>CREATE ALIAS &lt;name&gt; FOR
-    &lt;fully qualified java method name&gt;</literal> is no longer supported
-    directly. It is supported when importing databases and translates to a
-    special <literal>CREATE FUNCTION &lt;name&gt;</literal> statement that
-    creates the function in the PUBLIC schema.</para>
+    <para>The legacy HyperSQL statement, <literal>CREATE ALIAS &lt;name&gt;
+    FOR &lt;fully qualified java method name&gt;</literal> is no longer
+    supported directly. It is supported when importing databases and
+    translates to a special <literal>CREATE FUNCTION &lt;name&gt;</literal>
+    statement that creates the function in the PUBLIC schema.</para>
 
     <para>The direct use of a Java method as a function is still supported but
     deprecated. It is internally translated to a special <literal>CREATE
@@ -844,7 +844,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     routine. The alternative <literal>SQL SECURITY INVOKER</literal> means
     access rights on all the database objects referenced by the routine are
     checked for the invoker. This alternative is not supported by
-    HSQLDB.</para>
+    HyperSQL.</para>
 
     <simpara><literal>&lt;routine body&gt; ::= &lt;SQL routine spec&gt; |
     &lt;external body reference&gt;</literal></simpara>
@@ -890,7 +890,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     <simpara><literal>&lt;language name&gt; ::= SQL | JAVA</literal></simpara>
 
     <para>The parameter style is not allowed for SQL routines. It is optional
-    for Java routines and, in HSQLDB, the only value allowed is JAVA.</para>
+    for Java routines and, in HyperSQL, the only value allowed is JAVA.</para>
 
     <simpara><literal>&lt;parameter style&gt; ::= JAVA</literal></simpara>
 
@@ -954,7 +954,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     within the body of the procedure. If <literal>NEW SAVEPOINT
     LEVEL</literal> is specified, savepoints that have been declared prior to
     calling the procedure become invisible within the body of the procedure.
-    HSQLDB’s implementation accepts only <literal>NEW SAVEPOINT
+    HyperSQL’s implementation accepts only <literal>NEW SAVEPOINT
     LEVEL</literal>, which must be specified.</para>
 
     <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
@@ -983,16 +983,16 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     modifying rows of a result set one by one. This mechanism is absolutely
     necessary when the database is accessed from an external application
     program. The JDBC ResultSet interface allows this method of access from
-    Java programs and is supported by HSQLDB.</para>
+    Java programs and is supported by HyperSQL.</para>
 
     <para>The SQL Standard uses cursors within the body of a procedure to
     return result sets. It specifies a somewhat complex mechanism to allow
-    access to these cursors from the calling contexts. HSQLDB does not support
-    access to such result sets within a calling SQL/PSM procedure. This is
-    considered redundant as all operations on data can be performed with
-    non-cursor SQL statements.</para>
+    access to these cursors from the calling contexts. HyperSQL does not
+    support access to such result sets within a calling SQL/PSM procedure.
+    This is considered redundant as all operations on data can be performed
+    with non-cursor SQL statements.</para>
 
-    <para>(feature to be implemented) HSQLDB supports returning single or
+    <para>(feature to be implemented) HyperSQL supports returning single or
     multiple result sets from SQL/PSM procedures only via the JDBC
     CallableStatement interface. Cursors are declared and opened within the
     body of the procedure. No further operation is performed on the cursors
