@@ -43,9 +43,9 @@
     <legalnotice>
       <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
-      HSQLDB license. Additional permission is granted to the HSQLDB
-      Development Group to distribute this document with or without
-      alterations under the terms of the HSQLDB license.</para>
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -181,13 +181,13 @@
       </listitem>
     </itemizedlist>
 
-    <para>The properties file contains general settings about the database.
-    The script file contains the definition of tables and other database
-    objects, plus the data for non-cached tables. The log file contains recent
-    changes to the database. The data file contains the data for cached tables
-    and the backup file is a compressed backup of the last known consistent
-    state of the data file. All these files are essential and should never be
-    deleted. For some catalogs, the <filename>test.data</filename> and
+    <para>The properties file contains a few settings about the database. The
+    script file contains the definition of tables and other database objects,
+    plus the data for non-cached tables. The log file contains recent changes
+    to the database. The data file contains the data for cached tables and the
+    backup file is a compressed backup of the last known consistent state of
+    the data file. All these files are essential and should never be deleted.
+    For some catalogs, the <filename>test.data</filename> and
     <filename>test.backup</filename> files will not be present. In addition to
     those files, a HyperSQL database may link to any formatted text files,
     such as CSV lists, anywhere on the disk.</para>
@@ -203,8 +203,9 @@
       <para>When the engine closes the database at a shutdown, it creates
       temporary files with the extension <literal>.new</literal> which it then
       renames to those listed above. In some circumstances, a
-      <filename>test.data.old</filename> is created and deleted
-      afterwards.</para>
+      <filename>test.data.old</filename> is created and deleted afterwards.
+      These files should not be deleted by the user. At the time of the next
+      startup, all such files will be deleted by the database engine.</para>
     </note>
 
     <para>A <glossterm>res:</glossterm> catalog consists of the files for a
@@ -241,8 +242,15 @@
     <para>When using relative paths, these paths will be taken relative to the
     directory in which the shell command to start the Java Virtual Machine was
     executed. Refer to the Javadoc for <classname
-    xlink:href="#JDBCConnection.html-link"> JDBCConnection</classname> for
-    more details.</para>
+    xlink:href="#JDBCConnection.html-link">JDBCConnection</classname> for more
+    details.</para>
+
+    <para>Paths and database names for file databases are treated as
+    case-sensitive when the database is created or the first connection is
+    made to the database. But if a second connection is made to an open
+    database, using a path and name that differs only in case, then the
+    connection is made to the existing open database. This measure is
+    necessary because in Windows the two paths are equivalent.</para>
 
     <para>A <glossterm>mem:</glossterm> database is specified by the
     <glossterm>mem:</glossterm> protocol. For <glossterm>mem:</glossterm>
@@ -304,8 +312,8 @@
     the server, or optionally, as a connection request is received.</para>
 
     <para>There are three server modes, based on the protocol used for
-    communications between the client and server, and briefly disucssed below.
-    More details on servres is provided in a separate chapter.</para>
+    communications between the client and server. They are briefly disucssed
+    below. More details on servers is provided in a separate chapter.</para>
 
     <section xml:id="running_hsqlserver-sect">
       <title>HyperSQL HSQL Server</title>
@@ -315,7 +323,8 @@
       mode. A command similar to those used for running tools and described
       above is used for running the server. The following example of the
       command for starting the server starts the server with one (default)
-      database with files named "mydb.*" and the public name of "xdb".</para>
+      database with files named "mydb.*" and the public name of "xdb". The
+      public name hides the file names from users.</para>
 
       <informalexample>
         <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
@@ -367,7 +376,7 @@
       <para>Please note that you do not normally use this mode if you are
       using the database engine in an application server. In this situation,
       connections to a catalog are usually made
-      <glossterm>in-process</glossterm>, or using a Server</para>
+      <glossterm>in-process</glossterm>, or using a a separate Server</para>
     </section>
 
     <section xml:id="running_connecting-sect">
@@ -408,9 +417,10 @@
 
       <para>Note in the above connection URL, there is no mention of the
       database file, as this was specified when running the server. Instead,
-      the public name defined for dbname.0 is used. Also, see the **todo**
-      chapter for the connection URL when there is more than one database per
-      server instance.</para>
+      the public name defined for dbname.0 is used. Also, see the <link
+      endterm="listeners-title" xlink:href="#listeners-chapt"></link> chapter
+      for the connection URL when there is more than one database per server
+      instance.</para>
     </section>
 
     <section xml:id="running_security-sect">

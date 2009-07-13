@@ -569,7 +569,7 @@
           <note>
             <simpara>Pre-1.9 versions of the hsqldb init script required use
             of .properties settings of the
-            form<varname>server.urlid.X</varname>. These settings are not
+            form<varname>server.urlid.X</varname>. These settings are
             obsolete and should be removed.</simpara>
           </note>
         </step>

@@ -123,33 +123,38 @@
     by the Standard, which has left it to implementors to define such roles as
     they are needed for the particular SQL implementation.</para>
 
-    <para>A ROLE is a collection of zero or more other roles, plus some
-    privileges (access rights). A USER is similarly a collection of zero or
-    more roles plus some privileges. USER objects existed in the SQL-92, but
-    ROLE objects were introduced in SQL:1999. Originally it was intended that
-    USER objects would normally be the same as the operating system USER
-    objects and their authentication would be handled outside the SQL
-    environment. The existence of ROLE and USER objects results in complexity.
-    With the addition of ROLE objects, there is no rationale, other than
-    legacy support, for the possibility of granting privileges to USER
-    objects.</para>
+    <para>A ROLE has a name a collection of zero or more other roles, plus
+    some privileges (access rights). A USER has a name and a password. It
+    similarly has a collection of zero or more roles plus some
+    privileges.</para>
+
+    <para>USER objects existed in the SQL-92, but ROLE objects were introduced
+    in SQL:1999. Originally it was intended that USER objects would normally
+    be the same as the operating system USER objects and their authentication
+    would be handled outside the SQL environment. The co-existence of ROLE and
+    USER objects results in complexity. With the addition of ROLE objects,
+    there is no rationale, other than legacy support, for granting privileges
+    to USER objects directly. It is better to create roles and grant
+    privileges to them, then grant the roles to USER objects.</para>
 
     <para>The Standard effectively defines a special ROLE, named PUBLIC. All
     authorization have the PUBLIC role, which cannot be removed from them.
     Therefore any access right assigned to the PUBLIC role applies to all
-    authorizations in the database. Access to INFORMATION_SCHEMA views is
-    granted to PUBLIC, therefore these views are accessible to all. However,
-    the contents of each view depends on the ROLE or USER (AUTHORIZATION) that
-    is in force while accessing the view.</para>
+    authorizations in the database. For many simple databases, it is adequate
+    to create a single, non-admin user, then assign access rights to the
+    pre-existing PUBLIC role. Access to INFORMATION_SCHEMA views is granted to
+    PUBLIC, therefore these views are accessible to all. However, the contents
+    of each view depends on the ROLE or USER (AUTHORIZATION) that is in force
+    while accessing the view.</para>
 
     <para>Each schema has a single AUTHORIZATION. This is commonly known as
     the <emphasis>owner</emphasis> of the schema. All the objects in the
     schema inherit the schema owner. The schema owner can add objects to the
     schema, drop them or alter them.</para>
 
-    <para>The objects in a schema can only be accessed by the schema owner.
-    The schema owner can grant access rights on the objects to other users or
-    roles.</para>
+    <para>By default, the objects in a schema can only be accessed by the
+    schema owner. The schema owner can grant access rights on the objects to
+    other users or roles.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>AUTHORIZATION IDENTIFIER</primary>
@@ -446,14 +451,27 @@
       schema is the schema used by default for SQL statements issued during a
       session. If <literal>DEFAULT</literal> is used, the default initial
       schema for all users is used as the initial schema for the current user.
-      The SET SCHEMA command allows the user to change the schema for the
-      duration of the sesssion.</simpara>
+      The separate SET SCHEMA command allows the user to change the schema for
+      the duration of the session. See also the <link endterm="sessions-title"
+      ns6:arcrole="" ns6:href="#deployment-chapt"></link> chapter. </simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>*</primary>
+        <primary>SET DATABASE DEFAULT INITIAL SCHEMA</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">*</emphasis></simpara>
+      <simpara><emphasis role="bold">SET DATABASE DEFAULT
+      INITIALSCHEMA</emphasis></simpara>
+
+      <simpara><emphasis>set the default initial schema for all users
+      (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;set database default initial schema statement&gt;
+      ::= SET DATABASE DEFAULT INITIAL SCHEMA &lt;schema
+      name&gt;</literal></simpara>
+
+      <simpara>Sets the initial schema for new users. This schema can later be
+      changed with the <literal>&lt;set initial schema statement&gt;</literal>
+      command.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE ROLE</primary>
@@ -531,7 +549,8 @@
       CHARACTER SET &lt;character set name&gt; | TRANSLATION
       &lt;transliteration name&gt; | TYPE &lt;user-defined type name&gt; |
       SEQUENCE &lt;sequence generator name&gt; | &lt;specific routine
-      designator&gt; | ROUTINE &lt;routine name&gt;</literal></simpara>
+      designator&gt; | ROUTINE &lt;routine name&gt; | FUNCTION &lt;function
+      name&gt; | PROCEDURE &lt;procedure name&gt;</literal></simpara>
 
       <simpara><literal>&lt;object privileges&gt; ::= ALL PRIVILEGES |
       &lt;action&gt; [ { &lt;comma&gt; &lt;action&gt; }...
@@ -553,17 +572,33 @@
 
       <simpara>The <literal>&lt;object privileges&gt;</literal> that can be
       used depend on the type of the <literal>&lt;object name&gt;</literal>.
-      These are discussed in the previous section. If <literal>&lt;privilege
-      column list&gt;</literal> is not specified, then the privilege is
-      granted on the table, which includes all of its columns and any column
-      that may be added to it in the future. For routines, the name of the
-      routine can be specified in two ways. The SQL Standard requires the use
-      of <literal>&lt;specific routine designator&gt;</literal>, but HyperSQL
-      allows referencing all overloaded versions of a routine at the same
-      time, using its name.</simpara>
+      These are discussed in the previous section. For a table, if
+      <literal>&lt;privilege column list&gt;</literal> is not specified, then
+      the privilege is granted on the table, which includes all of its columns
+      and any column that may be added to it in the future. For routines, the
+      name of the routine can be specified in two ways, either as generic
+      ROUTINE, or as specific FUNCTION or PROCEDURE. HyperSQL allows
+      referencing all overloaded versions of a routine at the same time, using
+      its name. This differs from the SQL Standard which requires the use of
+      <literal>&lt;specific routine designator&gt;</literal> to grant
+      privileges on each different function signature separately.</simpara>
 
       <simpara>Each <literal>&lt;grantee&gt;</literal> is the name of a role
-      or a user.</simpara>
+      or a user. Examples of GRANT statement are given below:</simpara>
+
+      <informalexample>
+        <programlisting>GRANT ALL ON SEQUENCE aSequence TO roleOrUser 
+GRANT SELELCT ON aTable TO roleOrUser  
+GRANT SELECT, UPDATE ON aTABLE TO roleOrUser1, roleOrUser2
+GRANT SELECT(columnA, columnB), UPDATE(columnA, columnB) ON TABLE aTable TO roleOrUser
+</programlisting>
+      </informalexample>
+
+      <simpara>As mentioned in the general discussion, it is better to define
+      a role for the collection of all the privileges required by an
+      application. This role is then granted to any user. If further changes
+      are made to the privileges of this role, they are automatically
+      reflected in all the users that have the role.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>GRANT role</primary>
@@ -583,7 +618,18 @@
       <literal>&lt;grantee&gt;</literal> is a user or a role. If the
       <literal>[ WITH ADMIN OPTION ]</literal> is specified, then each
       <literal>&lt;grantee&gt;</literal> can grant the newly assigned roles to
-      other grantees.</simpara>
+      other grantees. An example of user and role creation with grants is
+      given below:</simpara>
+
+      <informalexample>
+        <programlisting>CREATE USER appuser
+CREATE ROLE approle
+GRANT approle TO appuser
+GRANT SELECT, UPDATE ON TABLE atable TO approle
+GRANT USAGE ON SEQUENCE asequence to approle
+GRANT EXECUTE ON ROUTINE aroutine TO approle
+</programlisting>
+      </informalexample>
 
       <indexterm significance="preferred" type="sql">
         <primary>REVOKE</primary>
@@ -722,8 +768,14 @@
       character set and SQL_IDENTIFIER as the UNICODE character set minus the
       SQL language special characters.</simpara>
 
-      <simpara>Alpha versions of HSQLDB may not enforce the CHARACTER SET that
-      is specified and default to UTF16.</simpara>
+      <simpara>The character repertoire of HyperSQL is the UTF16 character
+      set, which covers all possible character sets. If a predefined character
+      set is specified for a table column, then any string stored in the
+      column must contain only characters from the specified character
+      set.</simpara>
+
+      <simpara>HyperSQL version 1.9 may not enforce the CHARACTER SET that is
+      specified for a column and accept any character string.</simpara>
     </section>
 
     <section>
@@ -734,18 +786,17 @@
       strings.</simpara>
 
       <simpara>There are several predefined collations. These collations
-      belong to INFORMATION-SCHEMA. However, when they are referenced in a
+      belong to INFORMATION_SCHEMA. However, when they are referenced in a
       statement, no schema prefix can be used in the statement that references
       them.</simpara>
 
-      <simpara>There is a separate name-space for collations.</simpara>
-
-      <simpara>The SQL Standard specifies several collations for use with its
-      predefined character sets.</simpara>
+      <simpara>There is a separate name-space for collations..</simpara>
 
       <simpara>Collations for a large number of lagnuages are supported by
-      HyperSQL. Alpha versions of HSQLDB may only support a single collation
-      for the whole database.</simpara>
+      HyperSQL. </simpara>
+
+      <simpara>HyperSQL version 1.9 may only support a single collation for
+      the whole database.</simpara>
     </section>
 
     <section>
@@ -783,11 +834,11 @@
       unnamed SEQUENCE object.</simpara>
 
       <simpara>SEQUENCE objects and IDENTITY columns are supported fully
-      according to the latest SQL 200n Standard syntax.</simpara>
+      according to the latest SQL 2008 Standard syntax.</simpara>
 
       <simpara><emphasis role="bold">Sequences</emphasis></simpara>
 
-      <para>The SQL 200n syntax and usage is different from what is supported
+      <para>The SQL 2008 syntax and usage is different from what is supported
       by many existing database engines. Sequences are created with the
       <literal>CREATE SEQUENCE</literal> command and their current value can
       be modified at any time with <literal>ALTER SEQUENCE</literal>. The next
@@ -798,7 +849,7 @@
       <example>
         <title>inserting the next sequence value into a table row</title>
 
-        <programlisting>    INSERT INTO mytable VALUES 2, 'John', NEXT VALUE FOR mysequence;</programlisting>
+        <programlisting>INSERT INTO mytable VALUES 2, 'John', NEXT VALUE FOR mysequence;</programlisting>
       </example>
 
       <para>You can also use it in select statements. For example, if you want
@@ -808,7 +859,7 @@
       <example>
         <title>numbering returned rows of a SELECT in sequential order</title>
 
-        <programlisting>    SELECT NEXT VALUE FOR mysequence, col1, col2 FROM mytable WHERE ...</programlisting>
+        <programlisting>SELECT NEXT VALUE FOR mysequence, col1, col2 FROM mytable WHERE ...</programlisting>
       </example>
 
       <para>In version 2.0, the semantics of sequences is exactly as defined
@@ -835,7 +886,7 @@
       are possible with an IDENTITY column present).</para>
 
       <para>The SQL standard syntax is used, which allows the initial value
-      and other options to be specified.<programlisting>    &lt;colname&gt; INTEGER GENERATED { BY DEFAULT | ALWAYS} AS IDENTITY [( &lt;options&gt; )] [PRIMARY KEY]</programlisting></para>
+      and other options to be specified.<programlisting>&lt;colname&gt; INTEGER GENERATED { BY DEFAULT | ALWAYS} AS IDENTITY [( &lt;options&gt; )] [PRIMARY KEY]</programlisting></para>
 
       <para>When you add a new row to such a table using an <literal>INSERT
       INTO &lt;tablename&gt; ...; </literal>statement, you can use the NULL
@@ -850,7 +901,7 @@
       statements are issued on the database.</para>
 
       <para>The next IDENTITY value to be used can be set with following
-      command: <programlisting>    ALTER TABLE ALTER COLUMN &lt;column name&gt; RESTART WITH &lt;new value&gt;;</programlisting>For
+      command: <programlisting>ALTER TABLE ALTER COLUMN &lt;column name&gt; RESTART WITH &lt;new value&gt;;</programlisting>For
       backward compatibility, support has been retained for <literal>CREATE
       TABLE &lt;tablename&gt;(&lt;colname&gt; IDENTITY, ...)</literal> as a
       shortcut which defines the column both as an IDENTITY column and a
@@ -1598,6 +1649,23 @@
       must match those of a row in the referenced table. HyperSQL does not
       support <literal>MATCH PARTIAL</literal>.</simpara>
 
+      <simpara>Referential actions are specified with ON UPDATE and ON DELETE
+      clauses. These actions take place when a row in the referenced table
+      (the parent table) has referencing rows in the referencing table and it
+      is deleted or modified with any SQL statement. The default is NO ACTION.
+      This means the SQL statement that causes the DELETE or UPDATE is
+      terminated with an exception. The RESTRICT option is similar and works
+      exactly the same without deferable constraints (which are not allowed by
+      HyperSQL). The other three options, CASCADE, SET NULL and SET DEFAULT
+      all allow the DELETE or UPDATE statement to complete. With DELETE
+      statements the CASCALE option results in the referencing rows to be
+      deleted. With UPDATE statments, the changes to the values of the
+      referenced columns are copied to the referencing rows. With both DELETE
+      or UPDATE statement, the SET NULL option results in the columns of the
+      referencing rows to be set to NULL. Similarly, the SET DEFAULT option
+      results in the columns of the referending rows to be set to their
+      default values.</simpara>
+
       <indexterm significance="preferred" type="sql">
         <primary>CHECK constraint</primary>
       </indexterm>
@@ -1744,7 +1812,7 @@
       </variablelist>
 
       <variablelist>
-        <title>Special indicators for Hsqldb Text Table separators</title>
+        <title>Special indicators for HyperSQL Text Table separators</title>
 
         <varlistentry>
           <term>\semi</term>
@@ -1887,7 +1955,8 @@
       definition&gt; | &lt;add table constraint definition&gt; | &lt;drop
       table constraint definition&gt;</literal></simpara>
 
-      <simpara>Change the definition of a table.</simpara>
+      <simpara>Change the definition of a table. Specific types of this
+      statement are covered below.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ADD COLUMN</primary>
@@ -1929,7 +1998,8 @@
       type clause&gt; | &lt;alter identity column
       specification&gt;</literal></simpara>
 
-      <simpara>Change a column and its definition.</simpara>
+      <simpara>Change a column and its definition. Specific types of this
+      statement are covered below.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DEFAULT</primary>
@@ -2352,8 +2422,8 @@
       <simpara><literal>&lt;transliteration routine&gt; ::= &lt;specific
       routine designator&gt;</literal></simpara>
 
-      <simpara>Define a character transliteration. This feature is planned for
-      future versions of HSQLDB.</simpara>
+      <simpara>Define a character transliteration. This feature may be
+      supported in a future versions of HyperSQL.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP TRANSLATION</primary>
@@ -2495,9 +2565,8 @@
       class that implements the <classname>org.hsqldb.Trigger</classname>
       interface.</simpara>
 
-      <simpara>Alpha versions of HSQLDB may not support statement level
-      triggers and therefore not allow use of OLD TABLE or NEW
-      TABLE.</simpara>
+      <simpara>HyperSQL version 1.9 may not support statement level triggers
+      and therefore not allow use of OLD TABLE or NEW TABLE.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP TRIGGER</primary>
@@ -2730,8 +2799,8 @@
       <simpara><literal>&lt;target data type&gt; ::= &lt;data
       type&gt;</literal></simpara>
 
-      <simpara>Define a user-defined cast. This feature is planned for future
-      versions of HSQLDB.</simpara>
+      <simpara>Define a user-defined cast. This feature may be supported in a
+      future versions of HyperSQL.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP CAST</primary>
@@ -2967,9 +3036,9 @@
     <title>The Information Schema</title>
 
     <para>The Information Schema is a special schema in each catalog. The SQL
-    Standard defines a number of character sets and domains. In addition, all
-    the implementation-defined collations belong to the Information
-    Schema.</para>
+    Standard defines a number of character sets and domains in this schema. In
+    addition, all the implementation-defined collations belong to the
+    Information Schema.</para>
 
     <para>The SQL Standard defines many views in the Information Schema. These
     views show the properties of the database objects that currently exist in
@@ -2981,8 +3050,8 @@
     features of the Standard that are not supported by HyperSQL.</para>
 
     <para>HyperSQL also adds some views to the Information Schema. These views
-    are for features that are not reported in any of the views defined by
-    the</para>
+    are for features that are not reported in any of the views defined by the
+    Standard, or for use by JDBC DatabaseMetaData.</para>
 
     <section>
       <title>Predefined Character Sets, Collations and Domains</title>

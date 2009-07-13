@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns6="http://www.w3.org/1999/xlink"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
@@ -34,9 +35,9 @@
     <legalnotice>
       <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
-      HSQLDB license. Additional permission is granted to the HSQLDB
-      Development Group to distribute this document with or without
-      alterations under the terms of the HSQLDB license.</para>
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -123,7 +124,7 @@
     <section>
       <title>Large Objects</title>
 
-      <para>HyperSQL 1.9.0 supports decicated storage and access to BLOB and
+      <para>HyperSQL 2.0 supports decicated storage and access to BLOB and
       CLOB objects. These objects can have huge sizes. BLOB or CLOB is
       specified as the type of a column of the table. Afterwards, rows can be
       inserted into the table using a PreparedStatement for efficient transfer
@@ -136,13 +137,13 @@
     <section>
       <title>Deployment context</title>
 
-      <para>The files used for storing HSQLDB database data are all in the
+      <para>The files used for storing HyperSQL database data are all in the
       same directory. New files are always created and deleted by the database
       engine. Two simple principles must be observed:</para>
 
       <itemizedlist>
         <listitem>
-          <para>The Java process running HSQLDB must have full privileges on
+          <para>The Java process running HyperSQL must have full privileges on
           the directory where the files are stored. This include create and
           delete privileges.</para>
         </listitem>
@@ -150,7 +151,7 @@
         <listitem>
           <para>The file system must have enough spare room both for the
           'permanent' and 'temporary' files. The default maximum size of the
-          *.log file is 200MB. The *.data file can grow to up to 16GB. The
+          *.log file is 50MB. The *.data file can grow to up to 16GB. The
           .backup file can be up to the size of the *.data file. The temporary
           files created at the time of a SHUTDOWN can be equal in size to the
           *.script file and the .data file.</para>
@@ -202,6 +203,11 @@
     hundreds of modification to data will take up a lot of memory until the
     next COMMIT or ROLLBACK clears the list.</para>
 
+    <para>HyperSQL uses a fast cache for immutable objects such as Integer or
+    String that are stored in the database. In most circumstances, this
+    reduces the memory footprint still further as fewer copies of the most
+    frequently-used objects are kept in memory.</para>
+
     <para>Most JVM implementations allocate up to a maximum amount of memory
     (usually 64 MB by default). This amount is generally not adequate when
     large memory tables are used, or when the average size of rows in cached
@@ -220,44 +226,47 @@
     result set into an array of bytes which is then transmitted to the
     client.</para>
 
-    <para>**todo** updates to cover new large result support</para>
-
-    <para>HyperSQL uses a fast cache for immutable objects such as Integer or
-    String that are stored in the database. In most circumstances, this
-    reduces the memory footprint still further as fewer copies of the most
-    frequently-used objects are kept in memory.</para>
+    <para>HyperSQL 2.0 supports disk-based result sets. The commands,
+    <literal>SET RESULT MEMORY ROWS &lt;integer&gt;</literal> and <literal>SET
+    DATABASE DEFAULT RESULT MEMORY ROWS &lt;integer&gt;</literal> specify a
+    threshold for the number of rows. Results with row counts above the
+    threshold are stored on disk. When the setFetchSize() method of the
+    Statement interface is used to limit the number rows fetched, the whole
+    result is held by the engine and is returnd to the JDBC ResultSet in
+    blocks of rows of the specified fetch size.</para>
 
     <section>
       <title>Cache Memory Allocation</title>
 
       <para>With CACHED tables, the data is stored on disk and only up to a
       maximum number of rows are held in memory at any time. The default is up
-      to 3*16384 rows. The <property>hsqldb.cache_scale</property> database
-      property can be set to alter this amount. As any random subset of the
-      rows in any of the CACHED tables can be held in the cache, the amount of
-      memory needed by cached rows can reach the sum of the rows containing
-      the largest field data. For example if a table with 100,000 rows
-      contains 40,000 rows with 1,000 bytes of data in each row and 60,000
-      rows with 100 bytes in each, the cache can grow to contain nearly 50,000
-      rows, including all the 40,000 larger rows.</para>
+      to 50,000 rows. The SET FILES CACHE ROWS command or the
+      <property>hsqldb.cache_rows</property> connection property can be set to
+      alter this amount. As any random subset of the rows in any of the CACHED
+      tables can be held in the cache, the amount of memory needed by cached
+      rows can reach the sum of the rows containing the largest field data.
+      For example if a table with 100,000 rows contains 40,000 rows with 1,000
+      bytes of data in each row and 60,000 rows with 100 bytes in each, the
+      cache can grow to contain 50,000 of the smaller rows, but as explained
+      further, only 10,000 or the large rows.</para>
 
-      <para>An additional property,
-      <property>hsqldb.cache_size_scale</property> can be used in conjunction
-      with the <property>hsqldb.cache_scale</property> property. This puts a
-      limit in bytes on the total size of rows that are cached. When the
-      default values is used for both properties, the limit on the total size
-      of rows is approximately 50MB. (This is the size of binary images of the
-      rows and indexes. It translates to more actual memory, typically 2-4
-      times, used for the cache because the data is represented by Java
-      objects.)</para>
+      <para>An additional property, <property>hsqldb.cache_size</property> is
+      used in conjunction with the <property>hsqldb.cache_rows</property>
+      property. This puts a limit in bytes on the total size of rows that are
+      cached. The default values is 10,000KB. (This is the size of binary
+      images of the rows and indexes. It translates to more actual memory,
+      typically 2-4 times, used for the cache because the data is represented
+      by Java objects.)</para>
 
-      <para>If memory is limited, the <property>hsqldb.cache_scale</property>
-      or <property>hsqldb.cache_size_scale</property> database properties can
-      be reduced. In the example above, if the
-      <property>hsqldb.cache_size_scale</property> is reduced from 10 to 8,
-      then the total binary size limit is reduced from 50MB to 12.5 MB. This
-      will allow the number of cached rows to reach 50,000 small rows, but
-      only 12,500 of the larger rows.</para>
+      <para>If memory is limited, the <property>hsqldb.cache_rows</property>
+      or <property>hsqldb.cache_size</property> database properties can be
+      reduced. In the example above, if the
+      <property>hsqldb.cache_size</property> is reduced from 10,000 to 5,000,
+      it will allow the number of cached rows to reach 50,000 small rows, but
+      only 5,000 of the larger rows.</para>
+
+      <para>Data for CLOB and BLOB columns is not cached and does not affect
+      the CACHED table memory cache. </para>
     </section>
   </section>
 
@@ -325,10 +334,11 @@
   <section xml:id="deployment_upgrade-sect">
     <title>Upgrading Databases</title>
 
-    <para>Any database that is not produced with the release version of HSQLDB
-    2.0 must be upgraded to this version. Some catalogs created with 1.8.0 can
-    be upgraded simply by opening with HyperSQL 2.0. When this is not possible
-    due to errors, the rest of the procedures below should be followed.</para>
+    <para>Any database that is not produced with the release version of
+    HyperSQL 2.0 or 1.9 must be upgraded to this version. Some catalogs
+    created with 1.8.0 can be upgraded simply by opening with HyperSQL 2.0.
+    When this is not possible due to errors, the rest of the procedures below
+    should be followed.</para>
 
     <para>Once a database is upgraded to 2.0, it can no longer be used with
     previous versions of HyperSQL.</para>
@@ -337,21 +347,15 @@
       <title xml:id="upgrade_via_script-title">Upgrading From Older
       Versions</title>
 
-      <para>To upgrade from the more recent versions, 1.7.2, 1.7.3 or 1.8.0
-      simply issue the SET SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with
-      the old version, then open with the new version of the engine. The
-      upgrade is then complete.</para>
-
-      <para>To upgrade from older version database files (1.7.1 and older)
-      that do not contain CACHED tables, simply SHUTDOWN with the older
-      version and open with the new version. If there is any error in the
-      <literal>*.logs</literal> or <literal>*.script</literal> file, try again
-      after editing the <literal>*.logs</literal> or
-      <literal>*.script</literal> file.</para>
+      <para>To upgrade from the more recent version 1.8.0 simply open the
+      database with 1.9. With version 1.8.0 files, as well as versions 1.7.2
+      and 1.7.3 files, it is best to issue the SET SCRIPTFORMAT TEXT and
+      SHUTDOWN SCRIPT commands with the old version, then open with the new
+      version of the engine. The upgrade is then complete.</para>
 
       <para>To upgrade from older version database files (1.7.1 and older)
       that contain CACHED tables, use the SCRIPT procedure below. In all
-      versions of HSQLDB, the <literal>SCRIPT 'filename'</literal> command
+      versions of HyperSQL, the <literal>SCRIPT 'filename'</literal> command
       (used as an SQL statement) allows you to save a full record of your
       database, including database object definitions and data, to a file of
       your choice. You can export a script file using the old version of the
@@ -402,11 +406,11 @@
     <section>
       <title>Manual Changes to the *.script File</title>
 
-      <para>In 2.0 the full range of ALTER TABLE commands is available to
-      change the data structures and their names. However, if an old database
-      cannot be opened due to data inconsistencies, or the use of index or
-      column names that are not compatible with 2.0, manual editing of the
-      <literal>*.script</literal> file can be performed.</para>
+      <para>In HyperSQL 2.0 the full range of ALTER TABLE commands is
+      available to change the data structures and their names. However, if an
+      old database cannot be opened due to data inconsistencies, or the use of
+      index or column names that are not compatible with 2.0, manual editing
+      of the <literal>*.script</literal> file can be performed.</para>
 
       <itemizedlist>
         <listitem>
@@ -415,8 +419,8 @@
         </listitem>
 
         <listitem>
-          <para>Version 2.0 does not accept table or column names that are SQL
-          reserved keywords without double quoting.</para>
+          <para>Version 2.0 does not accept some table or column names that
+          are SQL reserved keywords without double quoting.</para>
         </listitem>
       </itemizedlist>
 
@@ -427,16 +431,8 @@
 
       <itemizedlist>
         <listitem>
-          <para>Names of tables, columns and indexes can be changed.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>CREATE UNIQUE INDEX ...</literal> to <literal>CREATE
-          INDEX ...</literal> and vice versa</para>
-
-          <para>A unique index can always be converted into a normal index. A
-          non-unique index can only be converted into a unique index if the
-          table data for the column(s) is unique in each row.</para>
+          <para>Names of tables, columns and indexes can be changed. These
+          changes must be consistent regarding foreign key constraints.</para>
         </listitem>
 
         <listitem>
@@ -469,8 +465,7 @@
           <para><literal>COLUMN TYPES</literal></para>
 
           <para>Some changes to column types are possible. For example an
-          INTEGER column can be changed to BIGINT, or DATE, TIME and TIMESTAMP
-          columns can be changed to VARCHAR.</para>
+          INTEGER column can be changed to BIGINT.</para>
         </listitem>
       </itemizedlist>
 
@@ -499,14 +494,14 @@
 
     <para>The data for each catalog consists of up to 5 files in the same
     directory with the endings such as <literal>*.properties</literal>,
-    <literal>*.script</literal>, etc., as detailed in previous chapters
-    **todo**</para>
+    <literal>*.script</literal>, etc., as detailed in previous
+    chapters.</para>
 
-    <simpara>HyperSQL 1.9 and later includes commands to backup the database
-    files into a single <literal>.tar</literal> or <literal>.tar.gz</literal>
-    file archive. The backup can be performed by a command given in a JDBC
-    session if the target database catalog is running, or on the command-line
-    if the target catalog has been shutdown.</simpara>
+    <simpara>HyperSQL 2.0 includes commands to backup the database files into
+    a single <literal>.tar</literal> or <literal>.tar.gz</literal> file
+    archive. The backup can be performed by a command given in a JDBC session
+    if the target database catalog is running, or on the command-line if the
+    target catalog has been shutdown.</simpara>
 
     <section>
       <title>Making Online Backups</title>
@@ -583,310 +578,10 @@
   <section>
     <title>Statements</title>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>BACKUP DATABASE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">BACKUP DATABASE</emphasis></simpara>
-
-    <simpara><emphasis>backup database statement</emphasis></simpara>
-
-    <simpara><literal>&lt;backup database statement&gt; ::= BACKUP DATABASE TO
-    &lt;file path&gt; {SCRIPT | [NOT] COMPRESSED} BLOCKING</literal></simpara>
-
-    <simpara>Backup the database to specified <literal>&lt;file
-    path&gt;</literal> for archiving purposes.</simpara>
-
-    <simpara>The <literal>&lt;file path&gt;</literal> can be in two forms. If
-    the <literal>&lt;file path&gt;</literal> ends with a forward slash, it
-    specifies a directory. In this case, an automatic name for the archive is
-    generated that includes the date, time and the base name of the database.
-    The database is backed up to this archive file in the specified directory.
-    If the <literal>&lt;file path&gt;</literal> does not end with a forward
-    slash, it specifies a user-defined file name for the backup archive. The
-    archive is in tar, gzip format depending on whether it is compressed or
-    not.</simpara>
-
-    <simpara>The SCRIPT option is not currently supported. If SCRIPT is
-    specified, the backup will consist of two files, a
-    <literal>*.properties</literal> file and a <literal>*.script</literal>
-    file, which contain all the data and settings of the database. These files
-    are not compressed.</simpara>
-
-    <simpara>If COMPRESSED or NOT COMPRESSED is specified, the backup consists
-    of the current snapshot of database files. During backup, a CHECKPOINT
-    command is silently executed.</simpara>
-
-    <simpara>The qualifier, BLOCKING, means all database operations are
-    suspended during backup.</simpara>
-
-    <simpara>The HSQLDB jar also contains a program that creates an archive of
-    an offline database. It also contains a program to expand an archive into
-    database files. These programs are documented in ***todo Backing up
-    Database Catalog section of Deployment Chapter.</simpara>
-
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>CHECKPOINT</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">CHECKPOINT</emphasis></simpara>
-
-    <simpara><emphasis>checkpoint statement</emphasis></simpara>
-
-    <simpara><literal>&lt;checkpoint statement&gt; ::= CHECKPOINT
-    [DEFRAG]</literal></simpara>
-
-    <simpara>Closes the database files, rewrites the script file, deletes the
-    log file and opens the database. If <literal>DEFRAG</literal> is
-    specified, also shrinks the <literal>*.data</literal> file to its minumum
-    size. Only a user with the DBA role can execute this statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SCRIPT</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SCRIPT</emphasis></simpara>
-
-    <simpara><emphasis>script statement</emphasis></simpara>
-
-    <simpara><literal>&lt;script statement&gt; ::= SCRIPT [&lt;file
-    name&gt;]</literal></simpara>
-
-    <simpara>Returns a script containing SQL statments that define the
-    database, its users, and its schema objects. If <literal>&lt;file
-    name&gt;</literal> is not specified, the statements are returned in a
-    Result, with each row containing an SQL statement.No data statements are
-    included in this form. The optional file name is a single-quoted string.
-    If <literal>&lt;file name&gt;</literal> is specified, then the script is
-    written to the named file. In this case, all the data in all tables of the
-    database is included in the script as INSERT statements.</simpara>
-
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET CHECKPOINT DEFRAG</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET CHECKPOINT DEFRAG</emphasis></simpara>
-
-    <simpara><emphasis>set checkpoint defrag statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set checkpoint defrag statement&gt; ::= SET
-    CHECKPOINT DEFRAG &lt;unsigned integer literal&gt;</literal></simpara>
-
-    <simpara>Sets the threshold for perfoming a DEFRAG during a checkpoint.
-    The <literal>&lt;unsigned integer literal&gt;</literal> is the megabytes
-    of abandoned space in the <literal>*.data</literal> file. When a
-    CHECKPOINT is performed either as a result of the <literal>.log</literal>
-    file reaching the limit set by <literal>SET LOGSIZE m</literal>, or by the
-    user issuing a CHECKPOINT command, the amount of space abandoned since the
-    database was opened is checked and if it is larger than n, a CHECKPOINT
-    DEFRAG is performed instead of a CHECKPOINT.</simpara>
-
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET LOGSIZE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET LOGSIZE</emphasis></simpara>
-
-    <simpara><emphasis>set log size statement</emphasis></simpara>
-
-    <simpara><literal>&lt;log size statement&gt; ::= SET LOGSIZE &lt;unsigned
-    integer literal&gt;</literal></simpara>
-
-    <simpara>Sets the maximum size in MB of the <literal>*.log</literal> file
-    to the specified value. The default maximum size is 200 MB. If the value
-    is zero, no limit is used for the size of the file. When the size of the
-    file reaches this value, a CHECKPOINT is performed and the the
-    <literal>*.log</literal> file is cleared to size 0. Only a user with the
-    DBA role can execute this statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET PROPERTY</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET PROPERTY</emphasis></simpara>
-
-    <simpara><emphasis>set property statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set property statement&gt; ::= SET PROPERTY
-    &lt;double quoted property name&gt; &lt;boolean or integer
-    literal&gt;;</literal></simpara>
-
-    <simpara>Sets a database property. Properties that can be set using this
-    command are either boolean or integral and are listed in the chapter.**.
-    Only a user with the DBA role can execute this statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET SCRIPTFORMAT</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET SCRIPTFORMAT</emphasis></simpara>
-
-    <simpara><emphasis>set scriptformat statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set script format statement&gt; ::= SET SCRIPTFORMAT
-    {TEXT | BINARY | COMPRESSED};</literal></simpara>
-
-    <simpara>Changes the format of the <literal>*.script</literal> file. The
-    default format of the <literal>*.script</literal> file is TEXT. This has
-    the advantage that the SQL statements can be viewed, and in some cases,
-    edited . BINARY and COMPRESSED formats are slightly faster and more
-    compact than the default TEXT. Recommended only for very large script
-    files. This command performs a CHECKPOINT. Only a user with the DBA role
-    can execute this statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET WRITE DELAY</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET WRITE DELAY</emphasis></simpara>
-
-    <simpara><emphasis>set write delay statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set write delay statement&gt; ::= SET WRITE_DELAY {{
-    TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt;
-    MILLIS};</literal></simpara>
-
-    <para>Set the WRITE_DELAY property of the database. The WRITE_DELAY
-    controls the frequency of file sync for the log file. When WRITE_DELAY is
-    set to FALSE or 0, the sync takes place immediately at each COMMIT.
-    WRITE_DELAY TRUE performs the sync once every 10 seconds (which is the
-    default). A numeric value can be specified instead.</para>
-
-    <para>The purpose of this command is to control the amount of data loss in
-    case of a total system crash. A delay of 1 second means at most the data
-    written to disk during the last second before the crash is lost. All data
-    written prior to this has been synced and should be recoverable.</para>
-
-    <para>A write delay of 0 impacts performance in high load situations, as
-    the engine has to wait for the file system to catch up.</para>
-
-    <para>To avoid this, you can set write delay down to 10
-    milliseconds.</para>
-
-    <para>Each time the SET WRITE_DELAY statement is executed with any value,
-    a sync is immediately performed. Only a user with the DBA role can execute
-    this statement.</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE COLLATION</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET DATABASE COLLATION</emphasis></simpara>
-
-    <simpara><emphasis>set database collation statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set database collation statement&gt; ::= SET
-    DATABASE COLLATION &lt;collation name&gt;</literal></simpara>
-
-    <simpara>Each database can have its own collation. Sets the collation from
-    the set of collations supported by HyperSQL. Once this command has been
-    issued, the database can be opened in any JVM and will retain its
-    collation. Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET IGNORECASE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET IGNORECASE</emphasis></simpara>
-
-    <simpara><emphasis>set ignore case statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set ignore case statement&gt; ::= SET IGNORECASE
-    {TRUE | FALSE}</literal></simpara>
-
-    <simpara>Set the type used for VARCHAR table columns. By default,
-    character columns in new databases are case sensitive. If <literal>SET
-    IGNORECASE TRUE</literal> is specified, all VARCHAR columns in new table
-    are set to <literal>VARCHAR_IGNORECASE</literal>. It is possible to
-    specify the <literal>VARCHAR_IGNORECASE</literal> type for the definition
-    of individual columns. So it is possible to have some columns case
-    sensitive and some not, even in the same table. This statement must be
-    switched before creating tables. Existing tables and their data are not
-    affected.</simpara>
-
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE BACKUP INCREMENT</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET DATABASE BACKUP INCREMENT
-    </emphasis></simpara>
-
-    <simpara><emphasis>set database backup increment
-    statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set database backup increment statement&gt; ::= SET
-    DATABASE BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
-
-    <simpara>HyperSQL performs a backup of the .data file before its contents
-    are modified. The setting is FALSE by default and the whole .data file is
-    saved in a compressed form when a CHECKPOINT or SHUTDOWN is performed.
-    This takes a long time when the size of the database exceeds 100 MB or
-    so.</simpara>
-
-    <simpara>The alternative is backup in increments, just before some part of
-    the .data file is modified. This mode can be set by specifying TRUE with
-    this command. In this this mode, no backup is performed at CHECKPIONT or
-    SHUTDOWN. This mode is prefered for large databases which are opened and
-    closed frequently.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET REFERENTIAL INTEGRITY</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET DATABASE REFERENTIAL
-    INTEGRITY</emphasis></simpara>
-
-    <simpara><emphasis>set database referential integrity
-    statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set database referential integrity statement&gt; ::=
-    SET DATABASE REFERENTIAL INTEGRITY {TRUE | FALSE}</literal></simpara>
-
-    <simpara>This commands enables or disables the enforcement of referential
-    integrity constraints (foreign key constraints). By default, referential
-    integrity constraints are checked.</simpara>
-
-    <simpara>The only legitimate use of this statement is before importing
-    large amounts of external data into tables that have existing FOREIGN KEY
-    constraints. After importing the data, queries must be run to verify all
-    rows conform to the FOREIGN KEY constraints and take appropriate actions
-    for the rows that do not conform. After verification, the statement must
-    be used again to enable constraint enforcement.</simpara>
-
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE TRANSACTION CONTROL</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET DATABASE TRANSACTION
-    CONTROL</emphasis></simpara>
-
-    <simpara><emphasis>set database transaction control</emphasis></simpara>
-
-    <simpara><literal>&lt;set database transaction control statement&gt; ::=
-    SET DATABASE TRANSACTION CONTROL { LOCKS | MVCC }</literal></simpara>
-
-    <simpara>Set the concurrency control system for the database. It can be
-    issued only when all sessions have been committed or rolled
-    back.</simpara>
-
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+    <para>System level statements are listed in this section. Statements that
+    begin with SET DATABASE are for properties that have an effect on the
+    normal operation of HyperSQL. The effects of these statements are
+    discussed in differnt chapters.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SHUTDOWN</primary>
@@ -948,16 +643,388 @@
     statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>*</primary>
+      <primary>BACKUP DATABASE</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">*</emphasis></simpara>
+    <simpara><emphasis role="bold">BACKUP DATABASE</emphasis></simpara>
 
-    <simpara><emphasis>*</emphasis></simpara>
+    <simpara><emphasis>backup database statement</emphasis></simpara>
 
-    <simpara><literal>&lt;* statement&gt; ::= </literal></simpara>
+    <simpara><literal>&lt;backup database statement&gt; ::= BACKUP DATABASE TO
+    &lt;file path&gt; {SCRIPT | [NOT] COMPRESSED} BLOCKING</literal></simpara>
 
-    <simpara>**.</simpara>
+    <simpara>Backup the database to specified <literal>&lt;file
+    path&gt;</literal> for archiving purposes.</simpara>
+
+    <simpara>The <literal>&lt;file path&gt;</literal> can be in two forms. If
+    the <literal>&lt;file path&gt;</literal> ends with a forward slash, it
+    specifies a directory. In this case, an automatic name for the archive is
+    generated that includes the date, time and the base name of the database.
+    The database is backed up to this archive file in the specified directory.
+    If the <literal>&lt;file path&gt;</literal> does not end with a forward
+    slash, it specifies a user-defined file name for the backup archive. The
+    archive is in tar, gzip format depending on whether it is compressed or
+    not.</simpara>
+
+    <simpara>The SCRIPT option is not currently supported. If SCRIPT is
+    specified, the backup will consist of two files, a
+    <literal>*.properties</literal> file and a <literal>*.script</literal>
+    file, which contain all the data and settings of the database. These files
+    are not compressed.</simpara>
+
+    <simpara>If COMPRESSED or NOT COMPRESSED is specified, the backup consists
+    of the current snapshot of database files. During backup, a CHECKPOINT
+    command is silently executed.</simpara>
+
+    <simpara>The qualifier, BLOCKING, means all database operations are
+    suspended during backup.</simpara>
+
+    <simpara>The HyperSQL jar also contains a program that creates an archive
+    of an offline database. It also contains a program to expand an archive
+    into database files. These programs are documented in ***todo Backing up
+    Database Catalog section of Deployment Chapter.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CHECKPOINT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CHECKPOINT</emphasis></simpara>
+
+    <simpara><emphasis>checkpoint statement</emphasis></simpara>
+
+    <simpara><literal>&lt;checkpoint statement&gt; ::= CHECKPOINT
+    [DEFRAG]</literal></simpara>
+
+    <simpara>Closes the database files, rewrites the script file, deletes the
+    log file and opens the database. If <literal>DEFRAG</literal> is
+    specified, also shrinks the <literal>*.data</literal> file to its minumum
+    size. Only a user with the DBA role can execute this statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SCRIPT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SCRIPT</emphasis></simpara>
+
+    <simpara><emphasis>script statement</emphasis></simpara>
+
+    <simpara><literal>&lt;script statement&gt; ::= SCRIPT [&lt;file
+    name&gt;]</literal></simpara>
+
+    <simpara>Returns a script containing SQL statments that define the
+    database, its users, and its schema objects. If <literal>&lt;file
+    name&gt;</literal> is not specified, the statements are returned in a
+    ResultSet, with each row containing an SQL statement. No data statements
+    are included in this form. The optional file name is a single-quoted
+    string. If <literal>&lt;file name&gt;</literal> is specified, then the
+    script is written to the named file. In this case, all the data in all
+    tables of the database is included in the script as INSERT
+    statements.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES DEFRAG</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES DEFRAG</emphasis></simpara>
+
+    <simpara><emphasis>set files defrag statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files defrag statement&gt; ::= SET FILES DEFRAG
+    &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Sets the threshold for perfoming a DEFRAG during a checkpoint.
+    The <literal>&lt;unsigned integer literal&gt;</literal> is the percentage
+    of abandoned space in the <literal>*.data</literal> file. When a
+    CHECKPOINT is performed either as a result of the <literal>.log</literal>
+    file reaching the limit set by <literal>SET FILES LOG SIZE m</literal>, or
+    by the user issuing a CHECKPOINT command, the amount of space abandoned
+    since the database was opened is checked and if it is larger than
+    specified percentage, a CHECKPOINT DEFRAG is performed instead of a
+    CHECKPOINT.</simpara>
+
+    <simpara>The default is 0, which indicates no DEFRAG.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES LOG SIZE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES LOG SIZE</emphasis></simpara>
+
+    <simpara><emphasis>set files log size statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files log size statement&gt; ::= SET FILES LOG
+    SIZE &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Sets the maximum size in MB of the <literal>*.log</literal> file
+    to the specified value. The default maximum size is 50 MB. If the value is
+    zero, no limit is used for the size of the file. When the size of the file
+    reaches this value, a CHECKPOINT is performed and the the
+    <literal>*.log</literal> file is cleared to size 0. Only a user with the
+    DBA role can execute this statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES LOCK</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES LOCK</emphasis></simpara>
+
+    <simpara><emphasis>set files lock statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files lock statement&gt; ::= SET FILES LOCK {
+    TRUE | FLASE }</literal></simpara>
+
+    <simpara>The .lck file is created by default. This command allows the
+    creation of the lock file to be disabled or enabled. The setting . Only a
+    user with the DBA role can execute this statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES NIO</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES NIO</emphasis></simpara>
+
+    <simpara><emphasis>set files nio</emphasis></simpara>
+
+    <simpara><literal>&lt;set files nio statement&gt; ::= SET FILES NIO { TRUE
+    | FALSE };</literal></simpara>
+
+    <simpara>Changes the access method of the .data file. The default is TRUE
+    and uses the Java nio classes to access the file.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES WRITE DELAY</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES WRITE DELAY</emphasis></simpara>
+
+    <simpara><emphasis>set files write delay statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files write delay statement&gt; ::= SET FILES
+    WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds
+    value&gt; MILLIS};</literal></simpara>
+
+    <para>Set the WRITE DELAY property of the database. The WRITE DELAY
+    controls the frequency of file sync for the log file. When WRITE_DELAY is
+    set to FALSE or 0, the sync takes place immediately at each COMMIT. WRITE
+    DELAY TRUE performs the sync once every 10 seconds (which is the default).
+    A numeric value can be specified instead.</para>
+
+    <para>The purpose of this command is to control the amount of data loss in
+    case of a total system crash. A delay of 1 second means at most the data
+    written to disk during the last second before the crash is lost. All data
+    written prior to this has been synced and should be recoverable.</para>
+
+    <para>A write delay of 0 impacts performance in high load situations, as
+    the engine has to wait for the file system to catch up.</para>
+
+    <para>To avoid this, you can set write delay down to 10
+    milliseconds.</para>
+
+    <para>Each time the SET FILES WRITE DELAY statement is executed with any
+    value, a sync is immediately performed. Only a user with the DBA role can
+    execute this statement.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES BACKUP INCREMENT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES BACKUP INCREMENT
+    </emphasis></simpara>
+
+    <simpara><emphasis>set files backup increment
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database backup increment statement&gt; ::= SET
+    FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
+
+    <simpara>Older versions of HSQLDB perform a backup of the .data file
+    before its contents are modified and the whole .data file is saved in a
+    compressed form when a CHECKPOINT or SHUTDOWN is performed. This takes a
+    long time when the size of the database exceeds 100 MB or so.</simpara>
+
+    <simpara>The alternative is backup in increments, just before some part of
+    the .data file is modified. In this this mode, no backup is performed at
+    CHECKPIONT or SHUTDOWN. This mode is prefered for large databases which
+    are opened and closed frequently.</simpara>
+
+    <simpara>The default mode is TRUE. If the old method of backup is
+    required, the mode can be set FALSE.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET REFERENTIAL INTEGRITY</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE REFERENTIAL
+    INTEGRITY</emphasis></simpara>
+
+    <simpara><emphasis>set database referential integrity
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database referential integrity statement&gt; ::=
+    SET DATABASE REFERENTIAL INTEGRITY { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This commands enables or disables the enforcement of referential
+    integrity constraints (foreign key constraints). By default, referential
+    integrity constraints are checked.</simpara>
+
+    <simpara>The only legitimate use of this statement is before importing
+    large amounts of external data into tables that have existing FOREIGN KEY
+    constraints. After importing the data, queries must be run to verify all
+    rows conform to the FOREIGN KEY constraints and take appropriate actions
+    for the rows that do not conform. After verification, the statement must
+    be used again to enable constraint enforcement.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE COLLATION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE COLLATION</emphasis></simpara>
+
+    <simpara><emphasis>set database collation statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database collation statement&gt; ::= SET
+    DATABASE COLLATION &lt;collation name&gt;</literal></simpara>
+
+    <simpara>Each database can have its own collation. Sets the collation from
+    the set of collations supported by HyperSQL. Once this command has been
+    issued, the database can be opened in any JVM and will retain its
+    collation. Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE DEFAULT TABLE TYPE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE DEFAULT TABLE
+    TYPE</emphasis></simpara>
+
+    <simpara><emphasis>set database default table type
+    statement</emphasis><literal> </literal></simpara>
+
+    <simpara><literal>SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY
+    }</literal></simpara>
+
+    <simpara>Sets the type of table created when the next CREATE TABLE
+    statement is executed. The default is MEMORY.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE DEFAULT RESULT MEMORY ROWS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE DEFAULT RESULT MEMORY
+    ROWS</emphasis></simpara>
+
+    <simpara><emphasis>set database default result memory rows
+    statement</emphasis><literal> </literal></simpara>
+
+    <simpara><literal>&lt;set database default result memory rows&gt; ::= SET
+    DATABASE DEFAULT RESULT MEMORY ROWS &lt;unsigned integer
+    literal&gt;.</literal></simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE TRANSACTION CONTROL</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE TRANSACTION
+    CONTROL</emphasis></simpara>
+
+    <simpara><emphasis>set database transaction control
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database transaction control statement&gt; ::=
+    SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
+    }</literal></simpara>
+
+    <simpara>Set the concurrency control system for the database. It can be
+    issued only when all sessions have been committed or rolled back. This
+    command and its modes is discussed in the <link endterm="sessions-title"
+    ns6:href="#sessions-chapt"></link> chapter.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE GC</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE GC</emphasis></simpara>
+
+    <simpara><emphasis>set database gc statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database gc statement&gt; ::= SET DATABASE GC
+    &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>An optional property which forces calls to System.gc() after the
+    specified number of row operations. The default value for this property is
+    0, which means no System.gc() calls. Usual values for this property range
+    from 10000 depending on the system and the memory allocation. This
+    property may be useful in some in-process deployments. </simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE SQL SIZE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE SQL SIZE</emphasis></simpara>
+
+    <simpara><emphasis>set database sql size statement</emphasis><literal>
+    </literal></simpara>
+
+    <simpara><literal>&lt;set database sql size statement&gt; ::= SET DATABASE
+    SQL SIZE { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This command can disable enforcement of column sizes for CHAR and
+    VARCHAR columns. The default is TRUE.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE SQL NAMES</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE SQL NAMES</emphasis></simpara>
+
+    <simpara><emphasis>set database sql names statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database sql names statement&gt; ::= SET
+    DATABASE SQL NAMES { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This command can enable full enforcement of the rule that
+    prevents SQL keywords being used for database object names such as columns
+    and tables. The default is FALSE.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET IGNORECASE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET IGNORECASE</emphasis></simpara>
+
+    <simpara><emphasis>set ignore case statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set ignore case statement&gt; ::= SET IGNORECASE {
+    TRUE | FALSE }</literal></simpara>
+
+    <simpara>Sets the type used for new VARCHAR table columns. By default,
+    character columns in new databases are case sensitive. If <literal>SET
+    IGNORECASE TRUE</literal> is used, all VARCHAR columns in new tables are
+    set to <literal>VARCHAR_IGNORECASE</literal>. It is possible to specify
+    the <literal>VARCHAR_IGNORECASE</literal> type for the definition of
+    individual columns. So it is possible to have some columns case sensitive
+    and some not, even in the same table. This statement must be switched
+    before creating tables. Existing tables and their data are not
+    affected.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this statement. This
+    setting is not saved with the database.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>*</primary>

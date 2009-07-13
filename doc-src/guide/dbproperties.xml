@@ -43,9 +43,9 @@
     <legalnotice>
       <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
-      HSQLDB license. Additional permission is granted to the HSQLDB
-      Development Group to distribute this document with or without
-      alterations under the terms of the HSQLDB license.</para>
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
     </legalnotice>
   </info>
 
@@ -209,7 +209,7 @@
     <section xml:id="conn_props-sect">
       <title>Connection properties</title>
 
-      <para>Each new JDBC Connection to a database can specify connection
+      <para>Each JDBC Connection to a database can specify connection
       properties. The properties <property>user</property> and
       <property>password</property> are always required. In 2.0 the following
       optional properties can also be used.</para>
@@ -313,253 +313,239 @@
     </section>
   </section>
 
-  <section xml:id="dbproperties_dbprops-sect">
-    <title>Database Properties</title>
+  <section>
+    <title>Database Properties in Connection URL and Properties</title>
 
-    <para>The database engine generates a <literal>.properties</literal> file
-    for each file catalog. Most of these properties can be changed via SQL
-    commands. Some properties are only changed by the engine. There are,
-    however, a few properties than can be modified by the user while the
-    database is shutdown.</para>
+    <para>The database engine has several properties that are listed in the
+    <link endterm="deployment-title" xlink:href="#deployment-chapt"></link>
+    chapter. These properties can be changed via SQL commands after a
+    connection is made to the database. It is possible to specify all of these
+    properties in the connection properties on as part of the URL string when
+    the first connection is made to a new file: or mem: database. This allows
+    the properties to be set without using any SQL commands.</para>
 
-    <section>
-      <title>Individual Database Properties</title>
+    <para>Management of properties has changed since version 1.8. The
+    .properties file should not be modified by the user.</para>
 
-      <para>Each database has its own <filename>&lt;dbname&gt;.properties
-      </filename> file as part of a small group of files which also includes
-      <filename>&lt;dbname&gt;.script</filename> and
-      <filename>&lt;dbname&gt;.data</filename>. The properties files contain
-      key/value pairs for some important settings.</para>
+    <para>In the example URL below, two properties are set for the first
+    connection to a new database. If the properties are used for connection to
+    an existing database, they are ignored.</para>
 
-      <para>In version 2.0, SQL commands are used to modify most database
-      properties:</para>
+    <programlisting>    jdbc:hsqldb:file:enrollments;hsqldb.cache_rows=10000;hsqldb.nio_data_file=false</programlisting>
 
-      <programlisting>    SET DATABASE &lt;property description&gt; &lt;property specification&gt;</programlisting>
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Database-specific Property File Properties</title>
 
-      <para>Management of properties has changed since version 1.8. The
-      .properties file should not be modified by the user. For new databases,
-      the properties can be specified in the connection properties or on the
-      connection URL. This method is identical to version 1.8, but a few
-      properties have been superseded.</para>
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm" />
 
-      <table frame="all" pgwide="1" tocentry="1">
-        <title>Database-specific Property File Properties</title>
+        <colspec colname="c2" colwidth="1.5cm" />
 
-        <tgroup align="left" cols="3">
-          <colspec colname="c1" colwidth="6.5cm" />
+        <colspec colname="c3" />
 
-          <colspec colname="c2" colwidth="1.5cm" />
+        <thead>
+          <row>
+            <entry>Value</entry>
 
-          <colspec colname="c3" />
+            <entry>Default</entry>
 
-          <thead>
-            <row>
-              <entry>Value</entry>
+            <entry>Description</entry>
+          </row>
+        </thead>
 
-              <entry>Default</entry>
+        <tbody valign="top">
+          <row>
+            <entry><property>sql.enforce_size</property></entry>
 
-              <entry>Description</entry>
-            </row>
-          </thead>
+            <entry><literal>true</literal></entry>
 
-          <tbody valign="top">
-            <row>
-              <entry><property>sql.enforce_size</property></entry>
+            <entry>trimming and padding string columns</entry>
+          </row>
 
-              <entry><literal>true</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property is the same as
+            sql.enforce_strict_size</para></entry>
+          </row>
 
-              <entry>trimming and padding string columns</entry>
-            </row>
+          <row>
+            <entry><property>sql.enforce_strict_size</property></entry>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>This property is the same
-              as sql.enforce_strict_size</para></entry>
-            </row>
+            <entry><literal>true</literal></entry>
 
-            <row>
-              <entry><property>sql.enforce_strict_size</property></entry>
+            <entry>size enforcement and padding string columns</entry>
+          </row>
 
-              <entry><literal>true</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>Conforms to SQL standards
+            for size and precision of data types. When true, all CHARACTER,
+            VARCHAR, NUMERIC and DECIMAL values that are in a row affected by
+            an INSERT INTO or UPDATE statement are checked against the size
+            specified in the SQL table definition. An exception is thrown if
+            the value is too long. Also all CHARACTER values that are shorter
+            than the specified size are padded with spaces.</para></entry>
+          </row>
 
-              <entry>size enforcement and padding string columns</entry>
-            </row>
+          <row>
+            <entry><property>hsqldb.cache_rows</property></entry>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>Conforms to SQL standards
-              for size and precision of data types. When true, all CHARACTER,
-              VARCHAR, NUMERIC and DECIMAL values that are in a row affected
-              by an INSERT INTO or UPDATE statement are checked against the
-              size specified in the SQL table definition. An exception is
-              thrown if the value is too long. Also all CHARACTER values that
-              are shorter than the specified size are padded with
-              spaces.</para></entry>
-            </row>
+            <entry><literal>50000</literal></entry>
 
-            <row>
-              <entry><property>hsqldb.cache_rows</property></entry>
+            <entry>maximum number of rows in memory cache</entry>
+          </row>
 
-              <entry><literal>50000</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>Indicates the maximum number
+            of rows of cached tables that are held in memory.</para><para>The
+            value can range between 100-1,000,000. If the value is set via SET
+            FILES then it becomes effective after the next database SHUTDOWN
+            or CHECKPOINT.</para><para>The property is changed via the
+            <literal>SET FILES CACHE ROWS nnn</literal> SQL
+            command.</para></entry>
+          </row>
 
-              <entry>maximum number of rows in memory cache</entry>
-            </row>
+          <row>
+            <entry><property>hsqldb.cache_size</property></entry>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>Indicates the maximum
-              number of rows of cached tables that are held in
-              memory.</para><para>The value can range between 100-1,000,000.
-              If the value is set via SET FILES then it becomes effective
-              after the next database SHUTDOWN or CHECKPOINT.</para><para>The
-              property is changed via the <literal>SET FILES CACHE ROWS
-              nnn</literal> SQL command.</para></entry>
-            </row>
+            <entry><literal>10000</literal></entry>
 
-            <row>
-              <entry><property>hsqldb.cache_size</property></entry>
+            <entry>memory cache size</entry>
+          </row>
 
-              <entry><literal>5000</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>Indicates the total size (in
+            kilobytes) of rows in the memory cache used with cached tables.
+            This size is calculated as the binary size of the rows, for
+            example an INTEGER is 4 bytes. The memory size is 2 to 4 times
+            this value.</para><para>The value can range between 100-1,000,000.
+            If the value is set via SET FILES then it becomes effective after
+            the next database SHUTDOWN or CHECKPOINT.</para><para>The property
+            is changed via the <literal>SET FILES CACHE SIZE nnn</literal> SQL
+            command.</para></entry>
+          </row>
 
-              <entry>memory cache size</entry>
-            </row>
+          <row>
+            <entry><property>hsqldb.log_size</property></entry>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>Indicates the total size
-              (in kilobytes) of rows in the memory cache used with cached
-              tables. This size is calculated as the binary size of the rows,
-              for example an INTEGER is 4 bytes. The memory size is 2 to 4
-              times this value.</para><para>The value can range between
-              100-1,000,000. If the value is set via SET FILES then it becomes
-              effective after the next database SHUTDOWN or
-              CHECKPOINT.</para><para>The property is changed via the
-              <literal>SET FILES CACHE SIZE nnn</literal> SQL
-              command.</para></entry>
-            </row>
+            <entry><literal>50</literal></entry>
 
-            <row>
-              <entry><property>hsqldb.log_size</property></entry>
+            <entry>size of log when checkpoint is performed</entry>
+          </row>
 
-              <entry><literal>50</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>The value is the size (in
+            megabytes) that the <literal>.log</literal> file can reach before
+            an automatic checkpoint occurs. A checkpoint and rewrites the
+            <literal>.script</literal> file and clears the
+            <literal>.log</literal> file.</para><para>The property is changed
+            via the <literal>SET FILES LOG SIZE nnn</literal> SQL
+            command.</para></entry>
+          </row>
 
-              <entry>size of log when checkpoint is performed</entry>
-            </row>
+          <row>
+            <entry><property>runtime.gc_interval</property></entry>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>The value is the size (in
-              megabytes) that the <literal>.log</literal> file can reach
-              before an automatic checkpoint occurs. A checkpoint and rewrites
-              the <literal>.script</literal> file and clears the
-              <literal>.log</literal> file.</para><para>The property is
-              changed via the <literal>SET FILES LOG SIZE nnn</literal> SQL
-              command.</para></entry>
-            </row>
+            <entry><literal>0</literal></entry>
 
-            <row>
-              <entry><property>runtime.gc_interval</property></entry>
+            <entry>forced garbage collection</entry>
+          </row>
 
-              <entry><literal>0</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>This setting forces garbage
+            collection each time a set number of result set row or cache row
+            objects are created. The default, "0" means no garbage collection
+            is forced by the program.</para></entry>
+          </row>
 
-              <entry>forced garbage collection</entry>
-            </row>
+          <row>
+            <entry><property>hsqldb.nio_data_file</property></entry>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>This setting forces
-              garbage collection each time a set number of result set row or
-              cache row objects are created. The default, "0" means no garbage
-              collection is forced by the program.</para></entry>
-            </row>
+            <entry><literal>true</literal></entry>
 
-            <row>
-              <entry><property>hsqldb.nio_data_file</property></entry>
+            <entry>use of nio access methods for the .data file</entry>
+          </row>
 
-              <entry><literal>true</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>When HSQLDB is compiled and
+            run in Java 1.4 or higher, setting this property to
+            <literal>false</literal> will avoid the use of nio access methods,
+            resulting in somewhat reduced speed. If the data file is larger
+            than 256MB when it is first opened, nio access methods are not
+            used. Also, if the file gets larger than the amount of available
+            computer memory that needs to be allocated for nio access, non-nio
+            access methods are used.</para><para>If used before defining any
+            CACHED table, it applies immediately, otherwise it comes into
+            effect after a SHUTDOWN and restart or CHECKPOINT.</para></entry>
+          </row>
 
-              <entry>use of nio access methods for the .data file</entry>
-            </row>
+          <row>
+            <entry><property>hsqldb.default_table_type</property></entry>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>When HSQLDB is compiled
-              and run in Java 1.4 or higher, setting this property to
-              <literal>false</literal> will avoid the use of nio access
-              methods, resulting in somewhat reduced speed. If the data file
-              is larger than 256MB when it is first opened, nio access methods
-              are not used. Also, if the file gets larger than the amount of
-              available computer memory that needs to be allocated for nio
-              access, non-nio access methods are used.</para><para>If used
-              before defining any CACHED table, it applies immediately,
-              otherwise it comes into effect after a SHUTDOWN and restart or
-              CHECKPOINT.</para></entry>
-            </row>
+            <entry><literal>memory</literal></entry>
 
-            <row>
-              <entry><property>hsqldb.default_table_type</property></entry>
+            <entry>type of table created with unqualified CREATE TABLE</entry>
+          </row>
 
-              <entry><literal>memory</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>The CREATE TABLE command
+            results in a MEMORY table by default. Setting the value "cached"
+            for this property will result in a cached table by default. The
+            qualified forms such as CREATE MEMORY TABLE or CREATE CACHED TABLE
+            are not affected at all by this property. This value is changed
+            via the <literal>SET DEFAULT TABLE TYPE</literal> SQL
+            command.</para></entry>
+          </row>
 
-              <entry>type of table created with unqualified CREATE
-              TABLE</entry>
-            </row>
+          <row>
+            <entry><property>hsqldb.applog</property></entry>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>The CREATE TABLE command
-              results in a MEMORY table by default. Setting the value "cached"
-              for this property will result in a cached table by default. The
-              qualified forms such as CREATE MEMORY TABLE or CREATE CACHED
-              TABLE are not affected at all by this property. This value is
-              changed via the <literal>SET DEFAULT TABLE TYPE</literal> SQL
-              command.</para></entry>
-            </row>
+            <entry><literal>0</literal></entry>
 
-            <row>
-              <entry><property>hsqldb.applog</property></entry>
+            <entry>application logging level</entry>
+          </row>
 
-              <entry><literal>0</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>The default level 0
+            indicates no logging. Level 1 results in events related to
+            persistence to be logged, including any failures. The events are
+            logged in a file ending with ".app.log". This value is changed via
+            the <literal>SET DATABASE EVENT LOG LEVEL</literal> SQL
+            command.</para></entry>
+          </row>
 
-              <entry>application logging level</entry>
-            </row>
+          <row>
+            <entry><property>textdb.*</property></entry>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>The default level 0
-              indicates no logging. Level 1 results in events related to
-              persistence to be logged, including any failures. The events are
-              logged in a file ending with ".app.log". This value is changed
-              via the <literal>SET DATABASE EVENT LOG LEVEL</literal> SQL
-              command.</para></entry>
-            </row>
+            <entry><literal>0</literal></entry>
 
-            <row>
-              <entry><property>textdb.*</property></entry>
+            <entry>default properties for new text tables</entry>
+          </row>
 
-              <entry><literal>0</literal></entry>
+          <row>
+            <entry nameend="c3" namest="c1"><para>Properties that override the
+            database engine defaults for newly created text tables. Settings
+            in the text table <literal>SET &lt;tablename&gt; SOURCE &lt;source
+            string&gt; </literal>command override both the engine defaults and
+            the database properties defaults. Individual
+            <property>textdb.*</property> properties are listed in the <link
+            endterm="texttables-title" xlink:href="#texttables-chapt"></link>
+            chapter.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
-              <entry>default properties for new text tables</entry>
-            </row>
+    <para>When connecting to an <glossterm>in-process</glossterm> database
+    creates a new database, or opens an existing database (i.e. it is the
+    first connection made to the database by the application), all the
+    user-defined database properties listed in this section can be specified
+    as URL properties.</para>
 
-            <row>
-              <entry nameend="c3" namest="c1"><para>Properties that override
-              the database engine defaults for newly created text tables.
-              Settings in the text table <literal>SET &lt;tablename&gt; SOURCE
-              &lt;source string&gt; </literal>command override both the engine
-              defaults and the database properties defaults. Individual
-              <property>textdb.*</property> properties are listed in the <link
-              endterm="texttables-title"
-              xlink:href="#texttables-chapt"></link> chapter.</para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
+    <simpara>When HSQLDB is used in OpenOffice.org, some property values will
+    have a different default. The properties and values are:</simpara>
 
-      <para>When connecting to an <glossterm>in-process</glossterm> database
-      creates a new database, or opens an existing database (i.e. it is the
-      first connection made to the database by the application), all the
-      user-defined database properties listed in this section can be specified
-      as URL properties.</para>
-
-      <simpara>When HSQLDB is used in OpenOffice.org, some property values
-      will have a different default. The properties and values are:</simpara>
-
-      <simpara>hsqldb.default_table_type=cached hsqldb.cache_rows=13
-      hsqldb.cache_size=13 hsqldb.log_size=10; hsqldb.nio_data_file=false
-      sql.enforce_strict_size=true</simpara>
-    </section>
+    <simpara>hsqldb.default_table_type=cached hsqldb.cache_rows=13
+    hsqldb.cache_size=13 hsqldb.log_size=10; hsqldb.nio_data_file=false
+    sql.enforce_strict_size=true</simpara>
   </section>
 
   <section xml:id="dbproperties_sqlcmd_dbprops-sect">
