@@ -347,7 +347,7 @@ public class ParserDQL extends ParserBase {
             }
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
-                if (!hasLength) {
+                if (!hasLength && !database.sqlEnforceSize) {
                     length = 32 * 1024;
                 }
                 break;

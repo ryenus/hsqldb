@@ -68,6 +68,7 @@ public class StatementCommand extends Statement {
         }
 
         switch (type) {
+
             case StatementTypes.DATABASE_CHECKPOINT :
                 group    = StatementTypes.X_HSQLDB_OPERATION;
                 isLogged = false;
@@ -80,6 +81,7 @@ public class StatementCommand extends Statement {
                 break;
 
             case StatementTypes.SET_DATABASE_FILES_WRITE_DELAY :
+            case StatementTypes.SET_DATABASE_FILES_TEMP_PATH :
                 this.isTransactionStatement = false;
                 group                       = StatementTypes.X_HSQLDB_SETTING;
                 break;
@@ -395,6 +397,19 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setLogSize(value);
 
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_FILES_TEMP_PATH : {
+                try {
+                    String value = (String) parameters[0];
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+
+                    // no action
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);

@@ -445,7 +445,7 @@ public class Tokens {
     static final String T_DATETIME_INTERVAL_CODE = "DATETIME_INTERVAL_CODE";
     static final String T_DATETIME_INTERVAL_PRECISION =
         "DATETIME_INTERVAL_PRECISION";
-    static final String        T_DEFAULTS             = "DEFAULTS";
+    public static final String T_DEFAULTS             = "DEFAULTS";
     static final String        T_DEFERRABLE           = "DEFERRABLE";
     static final String        T_DEFERRED             = "DEFERRED";
     static final String        T_DEFINED              = "DEFINED";
@@ -533,7 +533,7 @@ public class Tokens {
     static final String T_PARAMETER_SPEC_SCHEMA = "PARAMETER_SPECIFIC_SCHEMA";
     static final String        T_PARTIAL              = "PARTIAL";
     static final String        T_PASCAL               = "PASCAL";
-    static final String        T_PATH                 = "PATH";
+    public static final String T_PATH                 = "PATH";
     static final String        T_PLACING              = "PLACING";
     static final String        T_PLI                  = "PLI";
     static final String        T_PRECEDING            = "PRECEDING";
@@ -717,7 +717,7 @@ public class Tokens {
     static final String        T_SQL_VARBINARY       = "SQL_VARBINARY";
     static final String        T_SQL_VARCHAR         = "SQL_VARCHAR";
     static final String        T_SYSDATE             = "SYSDATE";
-    static final String        T_TEMP                = "TEMP";
+    public static final String T_TEMP                = "TEMP";
     public static final String T_TEXT                = "TEXT";
     static final String        T_TIMESTAMPADD        = "TIMESTAMPADD";
     static final String        T_TIMESTAMPDIFF       = "TIMESTAMPDIFF";
