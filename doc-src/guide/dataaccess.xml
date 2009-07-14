@@ -2345,11 +2345,11 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inser
     specification&gt;</literal></simpara>
 
     <simpara>Update rows, or insert new rows into the <literal>&lt;target
-    table&gt;</literal>. The MERGE command uses a second table, specified by
+    table&gt;</literal>. The MERGE statement uses a second table, specified by
     <literal>&lt;table reference&gt;</literal>, to determine the rows to be
-    updated or inserted. It is possible to use the command only to update rows
-    or to insert rows, but usually both update and insert are
-    intended.</simpara>
+    updated or inserted. It is possible to use the statement only to update
+    rows or to insert rows, but usually both update and insert are
+    specified.</simpara>
 
     <simpara>The <literal>&lt;search condition&gt;</literal> matches a row of
     the <literal>&lt;table reference&gt;</literal> with each row of the
@@ -2364,20 +2364,26 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inser
     The total number of inserted and unpdated rows is always the same as the
     number of rows in <literal>&lt;table reference&gt;</literal> .</simpara>
 
-    <simpara>In the example below, the <literal>&lt;table
-    reference&gt;</literal> is the subquery <literal>(SELECT X FROM U WHERE Y
-    = 2)</literal>. Suppose this subquery returns two rows. If some rows of T
-    match either of these two rows (where T.A = U.X), then those rows of T are
-    updated according to the UPDATE clause. If any of the rows returned by the
-    subquery is not matched, then for each unmatched row, the INSERT statement
-    is executed.</simpara>
+    <simpara>In the first example below, the <literal>&lt;table
+    reference&gt;</literal> is the <literal>(VALUES(1, 'conference table'),
+    (14, 'sofa'), (5, 'coffee table'))</literal> expression, which evaluates
+    to a table with 3 rows. When the x value for a row matches an existing
+    row, then the existing row is updated. When the x value does not match,
+    the row is inserted. Therefore one row of table t is updated, and two rows
+    are inserted into table t. The second example uses a SELECT statement as
+    the source of the values for the MERGE.</simpara>
 
-    <programlisting>MERGE INTO T USING (SELECT X FROM U WHERE Y = 2) AS U ON T.A = U.X
-   WHEN MATCHED THEN UPDATE SET T.B = U.X
-   WHEN NOT MATCHED THEN INSERT INTO T (A, B) VALUES (1, U.X)
+    <programlisting>CREATE TABLE t (id INT PRIMARY KEY, description VARCHAR(100))
+INSERT INTO t VALUES (1, 'dining table'), (2, 'deck chair')
+MERGE INTO t USING (VALUES(1, 'conference table'), (14, 'sofa'), (5, 'coffee table')) 
+   AS vals(x,y) ON t.id = vals.x
+   WHEN MATCHED THEN UPDATE SET t.description = vals.y
+   WHEN NOT MATCHED THEN INSERT VALUES vals.x, vals.y
+
+MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals.x
+   WHEN MATCHED THEN UPDATE SET t.description = vals.y
+   WHEN NOT MATCHED THEN INSERT VALUES vals.x, vals.y
 </programlisting>
-
-    <simpara></simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>UPDATE</primary>
@@ -2399,8 +2405,8 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inser
     &lt;correlation name&gt; ] [ WHERE &lt;search condition&gt;
     ]</literal></simpara>
 
-    <simpara>The it applies the <literal>SET &lt;set clause list&gt;</literal>
-    expression to each selected row.</simpara>
+    <simpara>Then it applies the <literal>SET &lt;set clause
+    list&gt;</literal> expression to each selected row.</simpara>
 
     <simpara>If the implicit SELECT returns no rows, no update takes place.
     When used in JDBC, the number of rows returned by the implicit SELECT is
@@ -2459,7 +2465,5 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* 3 rows are inserted 
     <programlisting>UPDATE T SET A = 5 WHERE ...
 UPDATE T SET (A, B) = (1, NULL) WHERE ...
 UPDATE T SET (A, C) = (SELECT X, Y FROM U WHERE Z = C), B = 10 WHERE ...</programlisting>
-
-    <simpara></simpara>
   </section>
 </chapter>
