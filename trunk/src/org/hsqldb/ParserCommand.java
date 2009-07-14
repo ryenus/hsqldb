@@ -345,7 +345,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.RESULT : {
                 read();
                 readThis(Tokens.MEMORY);
-                readThis(Tokens.SIZE);
+                readThis(Tokens.ROWS);
 
                 Integer  size = readIntegerObject();
                 Object[] args = new Object[]{ size };

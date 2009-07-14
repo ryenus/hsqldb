@@ -348,7 +348,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           0, 0, 1000000));
         dbMeta.put(hsqldb_cache_size,
                    HsqlProperties.getMeta(hsqldb_cache_size, SQL_PROPERTY,
-                                          5000, 100, 1000000));
+                                          10000, 100, 1000000));
         dbMeta.put(hsqldb_cache_rows,
                    HsqlProperties.getMeta(hsqldb_cache_rows, SQL_PROPERTY,
                                           50000, 100, 1000000));

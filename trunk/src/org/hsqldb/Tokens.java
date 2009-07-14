@@ -282,7 +282,7 @@ public class Tokens {
     static final String        T_RELEASE           = "RELEASE";
     static final String        T_REPEAT            = "REPEAT";
     static final String        T_RESIGNAL          = "RESIGNAL";
-    static final String        T_RESULT            = "RESULT";
+    public static final String T_RESULT            = "RESULT";
     static final String        T_RETURN            = "RETURN";
     static final String        T_RETURNS           = "RETURNS";
     static final String        T_REVOKE            = "REVOKE";
@@ -307,7 +307,7 @@ public class Tokens {
     static final String        T_SOME              = "SOME";
     static final String        T_SPECIFIC          = "SPECIFIC";
     static final String        T_SPECIFICTYPE      = "SPECIFICTYPE";
-    static final String        T_SQL               = "SQL";
+    public static final String T_SQL               = "SQL";
     static final String        T_SQLEXCEPTION      = "SQLEXCEPTION";
     static final String        T_SQLSTATE          = "SQLSTATE";
     static final String        T_SQLWARNING        = "SQLWARNING";
@@ -493,7 +493,7 @@ public class Tokens {
     static final String        T_KEY_TYPE             = "KEY_TYPE";
     static final String        T_LAST                 = "LAST";
     static final String        T_LENGTH               = "LENGTH";
-    static final String        T_LEVEL                = "LEVEL";
+    public static final String T_LEVEL                = "LEVEL";
     static final String        T_LOCATOR              = "LOCATOR";
     public static final String T_M_FACTOR             = "M";
     static final String        T_MAP                  = "MAP";
@@ -506,7 +506,7 @@ public class Tokens {
     static final String        T_MORE                 = "MORE";
     static final String        T_MUMPS                = "MUMPS";
     static final String        T_NAME                 = "NAME";
-    static final String        T_NAMES                = "NAMES";
+    public static final String T_NAMES                = "NAMES";
     static final String        T_NESTING              = "NESTING";
     static final String        T_NEXT                 = "NEXT";
     static final String        T_NORMALIZED           = "NORMALIZED";
@@ -634,7 +634,7 @@ public class Tokens {
     public static final String T_DEFRAG              = "DEFRAG";
     public static final String T_DELAY               = "DELAY";
     static final String        T_EXPLAIN             = "EXPLAIN";
-    static final String        T_EVENT               = "EVENT";
+    public static final String T_EVENT               = "EVENT";
     static final String        T_FILE                = "FILE";
     public static final String T_FILES               = "FILES";
     static final String        T_FOLD                = "FOLD";
@@ -654,7 +654,7 @@ public class Tokens {
     public static final String T_LOCK                = "LOCK";
     public static final String T_LOCKS               = "LOCKS";
     static final String        T_MAXROWS             = "MAXROWS";
-    static final String        T_MEMORY              = "MEMORY";
+    public static final String T_MEMORY              = "MEMORY";
     public static final String T_MILLIS              = "MILLIS";
     static final String        T_MINUS_EXCEPT        = "MINUS";
     public static final String T_MVCC                = "MVCC";
@@ -1977,6 +1977,7 @@ public class Tokens {
         commandSet.put(T_REPEATABLE, REPEATABLE);
         commandSet.put(T_RESTART, RESTART);
         commandSet.put(T_RESTRICT, RESTRICT);
+        commandSet.put(T_RESULT, RESULT);
         commandSet.put(T_ROLE, ROLE);
         commandSet.put(T_SCALE, SCALE);
         commandSet.put(T_SCHEMA, SCHEMA);
@@ -2079,6 +2080,7 @@ public class Tokens {
         commandSet.put(T_LOG10, LOG10);
         commandSet.put(T_LTRIM, LTRIM);
         commandSet.put(T_MONTH_NAME, MONTH_NAME);
+        commandSet.put(T_NAMES, Tokens.NAMES);
         commandSet.put(T_NVL, Tokens.IFNULL);
         commandSet.put(T_OCTETLENGTH, OCTETLENGTH);
         commandSet.put(T_PI, PI);
