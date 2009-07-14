@@ -1185,6 +1185,10 @@ public class Scanner {
         while (true) {
             scanStringPart('\'');
 
+            if (token.isMalformed) {
+                return;
+            }
+
             if (scanSeparator() && charAt(currentPosition) == '\'') {
                 continue;
             }
@@ -1536,6 +1540,10 @@ public class Scanner {
 
             case '\'' :
                 scanCharacterString();
+
+                if (token.isMalformed) {
+                    return;
+                }
 
                 token.dataType = CharacterType.getCharacterType(Types.SQL_CHAR,
                         token.tokenString.length());
