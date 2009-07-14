@@ -74,12 +74,12 @@
 
     <para>Early version of HSQLDB were released in the 2001-2002 period and
     were largely based on a previous open-source product named HypersonicSQL.
-    Versions released in 2004-2005 featured several new capabilities and
-    components, together with rewrite and enhancement of other SQL features.
-    Versions 1.9 and 2.0, first released in 2009, feature a complete rewrite
-    of most parts of the database engine. In the core engine, only a few
-    classes are based on the original HypersonicSQL code to maintain
-    compatibility with database files created with version 1.8.0.</para>
+    Versions released in 2004-2005 featured several new SQL capabilities,
+    through rewrites and enhancements to software components. Versions 1.9 and
+    2.0, first released in 2009, includes a complete rewrite of most parts of
+    the database engine. In the core engine, only a few classes are based on
+    the original HypersonicSQL code to maintain compatibility with database
+    files created with older versions.</para>
 
     <para>This documentation covers HyperSQL versions 1.9 and 2.0. Any
     reference to version 2.0 in this documentation also applies to version 1.9
@@ -118,6 +118,8 @@
   <xi:include href="unix.xml" />
 
   <xi:include href="texttables.xml" />
+
+  <xi:include href="lists-app.xml" />
 
   <xi:include href="building-app.xml" />
 
