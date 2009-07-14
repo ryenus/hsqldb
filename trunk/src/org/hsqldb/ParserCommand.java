@@ -1015,6 +1015,16 @@ public class ParserCommand extends ParserDDL {
 
                 break;
             }
+            case Tokens.TEMP : {
+                read();
+                readThis(Tokens.PATH);
+                checkDatabaseUpdateAuthorisation();
+
+                type  = StatementTypes.SET_DATABASE_FILES_TEMP_PATH;
+                value = readIntegerObject();
+
+                break;
+            }
             case Tokens.WRITE : {
                 read();
                 readThis(Tokens.DELAY);
