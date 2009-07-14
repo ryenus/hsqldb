@@ -573,7 +573,7 @@ LONGVARBINARY
 
       <para>For compatibility, values of BIT and BIT VARYING types with length
       1 can be converted to and from the BOOLEAN type. Integer values 1 and 0
-      can also be asigned to these bit values.</para>
+      can also be assigned to these bit values.</para>
 
       <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
       &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
@@ -628,7 +628,7 @@ BIT VARYING(2)
       enforced. For backward compatibility, when older databases which had the
       property hsqldb.enforce_strict_size=false are converted to version 1.9,
       this property is retained. However, this is a temporary measure. You
-      should test your applicaction to ensure the length, precision and scale
+      should test your application to ensure the length, precision and scale
       that is used for column definitions is appropriate for the application
       data.</para>
 

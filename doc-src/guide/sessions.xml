@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter version="5.0" xml:id="sessions-chapt"
+         xmlns="http://docbook.org/ns/docbook"
          xmlns:ns6="http://www.w3.org/1999/xlink"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
-         xmlns:ns="http://docbook.org/ns/docbook" xml:id="sessions-chapt">
+         xmlns:ns="http://docbook.org/ns/docbook">
   <title xml:id="sessions-title">Sessions and Transactions</title>
 
   <info>
@@ -111,12 +112,11 @@
       <title>Session Variables</title>
 
       <para>Session variables are user-defined variables created the same way
-      as the variables for for stored procedures and functions. Currently,
-      these variables cannot be used in general SQL statements. They can be
-      assigned to IN, INOUT and OUT arguments of stored procedures. This
-      allows calling stored procedures which have INOUT or OUT arguments. See
-      the example in the SQL Invoked Routines Chapter, under Formal
-      Parameters.</para>
+      as the variables for stored procedures and functions. Currently, these
+      variables cannot be used in general SQL statements. They can be assigned
+      to IN, INOUT and OUT arguments of stored procedures. This allows calling
+      stored procedures which have INOUT or OUT arguments. See the example in
+      the SQL Invoked Routines Chapter, under Formal Parameters.</para>
 
       <example>
         <title>User-defined Session Variables</title>
@@ -140,7 +140,7 @@
 
     <para>HyperSQL 2.0 supports 4 levels of transaction isolation: READ
     UNCOMMITTED, READ COMMITTED, REPEATABLE READ and SERIALIZABLE. It also
-    supports two concurrency control modes, two-phased-locking (2PL) and
+    supports two concurrency control modes, two-phase-locking (2PL) and
     multiversion concurrency control (MVCC). The isolation level is a property
     of each SQL session, so different sessions can have different isolation
     levels. The concurrency control strategy governs all the sessions and is
@@ -183,24 +183,32 @@
     </section>
 
     <section>
-      <title>Lock Contention</title>
+      <title>Lock Contention in 2PL</title>
 
-      <para>When each transaction performs only one reads or writes on a
-      single table, there is no contention. Each transaction waits until it
-      can obtain a lock then performs the operation and commits. All
-      contentions occur when transactions perform reads and writes on more
-      than one table, or perform a read, followed by a write, on the same
-      table.</para>
+      <para>When multiple connections are used to access the database, the
+      transaction manager controls their activities. When each transaction
+      performs only reads or writes on a single table, there is no contention.
+      Each transaction waits until it can obtain a lock then performs the
+      operation and commits. All contentions occur when transactions perform
+      reads and writes on more than one table, or perform a read, followed by
+      a write, on the same table.</para>
 
-      <para>For example, when multipe connections first read from a table in
+      <para>For example, when multiple connections first read from a table in
       order to check if a row exists, then insert a row into the same table
       when it doesn't exist, there will be regular contention. Transaction A
       reads from the table, then does Transaction B. Now if either Transaction
       A or B attempts to insert a row, it will have to be terminated as the
       other transaction holds a shared lock. If instead of two operations, a
       single MERGE statement is performed to perform the read and write, no
-      contention occurs. In such scenarios, there is the option of obtaining
-      the necessary write lock with an explicit LOCK TABLE statement.</para>
+      contention occurs because both locks are obtained at the same
+      time.</para>
+
+      <para>Alternatively, there is the option of obtaining the necessary
+      locks with an explicit LOCK TABLE statement. This statement should be
+      executed before other statements and should include the names of all the
+      tables and the locks needed. After this statement, all the other
+      statements in the transaction can be executed and the transaction
+      committed. The commit will remove all the locks.</para>
 
       <para>HyperSQL is fully multithreaded. It therefore allows different
       transactions to execute concurrently so long as they are not modifying

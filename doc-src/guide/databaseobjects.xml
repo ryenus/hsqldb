@@ -398,7 +398,7 @@
       DBA role can execute this command.</simpara>
 
       <indexterm significance="preferred" type="sql">
-        <primary>ALTER USER ... SET INTITIAL SCHEMA</primary>
+        <primary>ALTER USER ... SET INITIAL SCHEMA</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">ALTER USER ... SET INITIAL
@@ -415,7 +415,7 @@
       schema used by default for SQL statements issued during a session. If
       <literal>DEFAULT</literal> is used, the default initial schema for all
       users is used as the initial schema for the user. The SET SCHEMA command
-      allows the user to change the schema for the duration of the sesssion.
+      allows the user to change the schema for the duration of the session.
       Only a user with the DBA role can execute this statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -453,14 +453,14 @@
       schema for all users is used as the initial schema for the current user.
       The separate SET SCHEMA command allows the user to change the schema for
       the duration of the session. See also the <link endterm="sessions-title"
-      ns6:arcrole="" ns6:href="#deployment-chapt"></link> chapter. </simpara>
+      ns6:arcrole="" ns6:href="#deployment-chapt"></link> chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET DATABASE DEFAULT INITIAL SCHEMA</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">SET DATABASE DEFAULT
-      INITIALSCHEMA</emphasis></simpara>
+      <simpara><emphasis role="bold">SET DATABASE DEFAULT INITIAL
+      SCHEMA</emphasis></simpara>
 
       <simpara><emphasis>set the default initial schema for all users
       (HyperSQL)</emphasis></simpara>
@@ -792,8 +792,8 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
 
       <simpara>There is a separate name-space for collations..</simpara>
 
-      <simpara>Collations for a large number of lagnuages are supported by
-      HyperSQL. </simpara>
+      <simpara>Collations for a large number of languages are supported by
+      HyperSQL.</simpara>
 
       <simpara>HyperSQL version 1.9 may only support a single collation for
       the whole database.</simpara>

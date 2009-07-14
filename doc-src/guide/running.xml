@@ -300,7 +300,7 @@
     application is running.</para>
 
     <para>Server modes provide the maximum accessibility. The database engine
-    runs in a JVM and and opens one or more <glossterm>in-process</glossterm>
+    runs in a JVM and opens one or more <glossterm>in-process</glossterm>
     catalogs. It listens for connections from programs on the same computer or
     other computers on the network. It translates these connections into
     <glossterm>in-process</glossterm> connections to the databases.</para>
@@ -312,7 +312,7 @@
     the server, or optionally, as a connection request is received.</para>
 
     <para>There are three server modes, based on the protocol used for
-    communications between the client and server. They are briefly disucssed
+    communications between the client and server. They are briefly discussed
     below. More details on servers is provided in a separate chapter.</para>
 
     <section xml:id="running_hsqlserver-sect">
@@ -376,7 +376,7 @@
       <para>Please note that you do not normally use this mode if you are
       using the database engine in an application server. In this situation,
       connections to a catalog are usually made
-      <glossterm>in-process</glossterm>, or using a a separate Server</para>
+      <glossterm>in-process</glossterm>, or using a separate Server</para>
     </section>
 
     <section xml:id="running_connecting-sect">
@@ -519,9 +519,9 @@
 
     <para>A <classname>java.sql.CallableStatement</classname> object is used
     to execute an SQL CALL statement. The SQL CALL statement may contain
-    parameters, which should be be set to new values before each reuse.
-    Similar to <classname>java.sql.PreparedStatement</classname>, the engine
-    keeps the compiled SQL statement for reuse, until the
+    parameters, which should be set to new values before each reuse. Similar
+    to <classname>java.sql.PreparedStatement</classname>, the engine keeps the
+    compiled SQL statement for reuse, until the
     <classname>java.sql.CallableStatement</classname> object is closed.</para>
 
     <para>A <classname>java.sql.Connection</classname> object also has some
