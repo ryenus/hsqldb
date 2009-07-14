@@ -330,7 +330,7 @@ public class ParserDQL extends ParserBase {
             case Types.LONGVARCHAR : {
                 typeNumber = Types.SQL_VARCHAR;
 
-                if (length == 0) {
+                if (!hasLength) {
                     length = 1024 * 1024;
                 }
 
@@ -339,7 +339,7 @@ public class ParserDQL extends ParserBase {
             case Types.LONGVARBINARY : {
                 typeNumber = Types.SQL_VARBINARY;
 
-                if (length == 0) {
+                if (!hasLength) {
                     length = 1024 * 1024;
                 }
 

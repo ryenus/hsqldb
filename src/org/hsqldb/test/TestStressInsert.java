@@ -71,13 +71,13 @@ public class TestStressInsert {
         try {
             stmt.execute("set property \"hsqldb.nio_data_file\" false");
             stmt.execute("set property \"hsqldb.applog\" 1");
-            stmt.execute("set property \"hsqldb.cache_scale\" 8");
-            stmt.execute("set property \"hsqldb.cache_size_scale\" 12");
-            stmt.execute("set write_delay 10000 millis");
-            stmt.execute("set logsize " + 200);
+            stmt.execute("set property \"hsqldb.cache_rows\" 800");
+            stmt.execute("set property \"hsqldb.cache_size\" 1200");
+            stmt.execute("set files write delay 10000 millis");
+            stmt.execute("set files log size " + 200);
 
 //            stmt.execute("set property \"hsqldb.cache_file_scale\" 8");
-            stmt.execute("set database backup increment true");
+            stmt.execute("set files backup increment true");
 
             DatabaseMetaData metaData = con.getMetaData();
             ResultSet        rs = metaData.getTables(null, null, "B", null);
@@ -91,7 +91,7 @@ public class TestStressInsert {
 
             if (!schemaExists) {
                 stmt.execute(
-                    "create cached table A (ID binary(16) PRIMARY KEY, DATA varbinary not null)");
+                    "create cached table A (ID binary(16) PRIMARY KEY, DATA longvarbinary not null)");
                 stmt.execute(
                     "create cached table B (ID binary(16) PRIMARY KEY, DATA BLOB(10M) not null)");
             }
@@ -197,7 +197,7 @@ public class TestStressInsert {
             TestStressInsert test = new TestStressInsert();
 
             test.init();
-            test.stressInsertA();
+            test.stressInsertB();
         } catch (Exception e) {
             e.printStackTrace();
         }
