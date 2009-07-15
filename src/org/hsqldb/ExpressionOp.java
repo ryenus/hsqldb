@@ -133,6 +133,19 @@ public class ExpressionOp extends Expression {
         this.alias = e.alias;
     }
 
+    public static Expression getCastExpression(Session session, Expression e,
+                                        Type dataType) {
+
+        if (e.getType() == OpTypes.VALUE) {
+            Object value = dataType.castToType(session, e.getValue(session),
+                                               e.getDataType());
+
+            return new ExpressionValue(value, dataType);
+        }
+
+        return new ExpressionOp(e, dataType);
+    }
+
     public String getSQL() {
 
         StringBuffer sb    = new StringBuffer(64);

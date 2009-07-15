@@ -1761,6 +1761,10 @@ public class Session implements SessionInterface {
                             : database.schemaManager.getSchemaName(name);
     }
 
+    public void setCurrentSchemaHsqlName(HsqlName name) {
+        currentSchema = name;
+    }
+
     public HsqlName getCurrentSchemaHsqlName() {
         return currentSchema;
     }

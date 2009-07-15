@@ -196,7 +196,7 @@ implements org.hsqldb.rowio.RowInputInterface {
 
         readFully(b);
 
-        return new BinaryData(b, length);
+        return BinaryData.getBitData(b, length);
     }
 
     protected BinaryData readBinary() throws IOException {

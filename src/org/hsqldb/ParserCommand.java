@@ -1419,7 +1419,7 @@ public class ParserCommand extends ParserDDL {
         if (token.tokenType == Tokens.NONE) {
             read();
 
-            e = new ExpressionOp(null, Type.SQL_VARCHAR);
+            e = new ExpressionValue(null, Type.SQL_VARCHAR);
         } else {
             e = XreadValueSpecificationOrNull();
 
