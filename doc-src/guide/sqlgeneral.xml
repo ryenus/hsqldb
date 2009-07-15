@@ -571,9 +571,20 @@ LONGVARBINARY
       is padded with zeros to fill the fixed with. If BIT is used without
       specifying the length, the length defaults to 1.</para>
 
-      <para>For compatibility, values of BIT and BIT VARYING types with length
-      1 can be converted to and from the BOOLEAN type. Integer values 1 and 0
-      can also be assigned to these bit values.</para>
+      <para>For compatibility with other products that do not conform to, or
+      extend, the SQL Standard, values of BIT and BIT VARYING types with
+      length 1 can be converted to and from the BOOLEAN type. BOOLEAN TRUE is
+      considered equal to B'1', BOOLEAN FALSE is considered equal to
+      B'0'.</para>
+
+      <para>For the same reason, numeric values can be assigned to columns and
+      variables of For assignment, any numeric value zero is converted to
+      B'0', while all other values are converted to to B'1'. For comparison,
+      numeric values 1 is considered equal to B'1' and numeric value zero is
+      considered equal to B'0'.</para>
+
+      <para>It is not allowed to perform other arithmetic or boolean
+      operations involving BIT(1) and BIT VARYING(1).</para>
 
       <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
       &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
