@@ -390,19 +390,21 @@ public class StatementSession extends Statement {
 
             case StatementTypes.SET_ROLE : {
                 String  name;
-                Grantee role;
+                Grantee role = null;
 
                 try {
                     name = (String) expressions[0].getValue(session);
-                    role = session.database.granteeManager.getRole(name);
+
+                    if (role != null) {
+                        role = session.database.granteeManager.getRole(name);
+                    }
                 } catch (HsqlException e) {
                     return Result.newErrorResult(
                         Error.error(ErrorCode.X_0P000), sql);
                 }
 
                 if (role == null) {
-                    return Result.newErrorResult(
-                        Error.error(ErrorCode.X_0P000), sql);
+                    /** @todo 1.9.0 - implement */
                 }
 
                 if (session.getGrantee().hasRole(role)) {

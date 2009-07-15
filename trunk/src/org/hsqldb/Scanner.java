@@ -455,7 +455,7 @@ public class Scanner {
             break;
         }
 
-        token.tokenValue = new BinaryData(map.getBytes(), map.size());
+        token.tokenValue = BinaryData.getBitData(map.getBytes(), map.size());
     }
 
     public void scanBitStringWithQuote() {
@@ -2352,7 +2352,7 @@ public class Scanner {
 
         map.setSize(bitIndex);
 
-        return new BinaryData(map.getBytes(), map.size());
+        return BinaryData.getBitData(map.getBytes(), map.size());
     }
 
     // should perform range checks etc.

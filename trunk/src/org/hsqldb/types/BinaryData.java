@@ -51,6 +51,10 @@ import org.hsqldb.lib.ArrayUtil;
  */
 public class BinaryData implements BlobData {
 
+    public final static BinaryData singleBitZero =
+        new BinaryData(new byte[]{ 0 }, 1);
+    public final static BinaryData singleBitOne =
+        new BinaryData(new byte[]{ -0x80 }, 1);
     public final static BinaryData zeroLengthBinary =
         new BinaryData(new byte[0], false);
     long             id;
@@ -58,6 +62,14 @@ public class BinaryData implements BlobData {
     private boolean  isBits;
     private long     bitLength;
 
+    public static BinaryData getBitData(byte[] data, long bitLength) {
+        if (bitLength == 1) {
+            return data[0] == 0 ? singleBitZero : singleBitOne;
+        }
+
+        return new BinaryData(data, bitLength);
+
+    }
     /**
      * This constructor is used inside the engine when an already serialized
      * byte[] is read from a file (.log, .script, .data or text table source).

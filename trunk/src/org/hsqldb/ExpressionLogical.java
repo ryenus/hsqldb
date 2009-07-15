@@ -662,7 +662,19 @@ public class ExpressionLogical extends Expression {
                 if (convertDateTimeLiteral(session, nodes[LEFT],
                                            nodes[RIGHT])) {
 
-                    // compatibility for scalars only
+                    // compatibility for BIT with number and BOOLEAN - convert bit to other type
+                } else if (nodes[LEFT].dataType.isBitType()) {
+                    if (nodes[RIGHT].dataType.canConvertFrom(
+                            nodes[LEFT].dataType)) {
+                        nodes[LEFT] = ExpressionOp.getCastExpression(session,
+                                nodes[LEFT], nodes[RIGHT].dataType);
+                    }
+                } else if (nodes[RIGHT].dataType.isBitType()) {
+                    if (nodes[LEFT].dataType.canConvertFrom(
+                            nodes[RIGHT].dataType)) {
+                        nodes[RIGHT] = ExpressionOp.getCastExpression(session,
+                                nodes[RIGHT], nodes[LEFT].dataType);
+                    }
                 } else {
                     throw Error.error(ErrorCode.X_42562);
                 }

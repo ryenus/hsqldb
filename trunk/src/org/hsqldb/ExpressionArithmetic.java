@@ -381,7 +381,8 @@ public class ExpressionArithmetic extends Expression {
             Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
                 nodes[RIGHT].dataType.displaySize());
 
-            nodes[RIGHT] = new ExpressionOp(nodes[RIGHT], newType);
+            nodes[RIGHT] = ExpressionOp.getCastExpression(session,
+                    nodes[RIGHT], newType);
         }
 
         dataType = nodes[LEFT].dataType.getCombinedType(nodes[RIGHT].dataType,

@@ -195,7 +195,8 @@ public final class BitType extends BinaryType {
         int i = super.compare(a, b);
 
         if (i == 0) {
-            if (((BinaryData) a).bitLength(null) == 0) {
+            if (((BinaryData) a).bitLength(null)
+                    == ((BinaryData) b).bitLength(null)) {
                 return 0;
             }
 
@@ -254,23 +255,28 @@ public final class BitType extends BinaryType {
                 }
 
                 if (((Boolean) a).booleanValue()) {
-                    return new BinaryData(new byte[]{ -0x80 }, 1);
+                    return BinaryData.singleBitOne;
                 } else {
-                    return new BinaryData(new byte[]{ 0 }, 1);
+                    return BinaryData.singleBitZero;
                 }
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER :
-            case Types.SQL_BIGINT : {
+            case Types.SQL_BIGINT :
+            case Types.SQL_REAL :
+            case Types.SQL_FLOAT :
+            case Types.SQL_DOUBLE :
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL : {
                 if (precision != 1) {
                     throw Error.error(ErrorCode.X_22501);
                 }
 
-                if (((Number) a).longValue() == 0) {
-                    return new BinaryData(new byte[]{ 0 }, 1);
+                if (((NumberType) otherType).compareToZero(a) == 0) {
+                    return BinaryData.singleBitZero;
                 } else {
-                    return new BinaryData(new byte[]{ -0x80 }, 1);
+                    return BinaryData.singleBitOne;
                 }
             }
             default :

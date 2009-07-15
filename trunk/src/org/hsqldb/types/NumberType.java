@@ -720,6 +720,17 @@ public final class NumberType extends Type {
             case Types.SQL_DECIMAL :
                 break;
 
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
+                if (otherType.precision == 1) {
+                    if (((BinaryData) a).getBytes()[0] == 0) {
+                        a = ValuePool.INTEGER_0;
+                    } else {
+                        a = ValuePool.INTEGER_1;
+                    }
+
+                    break;
+                }
             default :
                 throw Error.error(ErrorCode.X_42561);
         }
@@ -1060,6 +1071,10 @@ public final class NumberType extends Type {
         }
 
         if (otherType.isCharacterType()) {
+            return true;
+        }
+
+        if (otherType.isBitType() && otherType.precision == 1) {
             return true;
         }
 
