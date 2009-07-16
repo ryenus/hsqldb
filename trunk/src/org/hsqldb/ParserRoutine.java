@@ -328,6 +328,12 @@ public class ParserRoutine extends ParserDML {
             routine.setProcedure(statement);
         }
 
+        if (routine.getSpecificName() == null) {
+            routine.setSpecificName(
+                database.nameManager.newSpecificRoutineName(
+                    routine.getName()));
+        }
+
         Object[] args = new Object[]{ routine };
         String   sql  = getLastPart();
         StatementSchema cs = new StatementSchema(sql,

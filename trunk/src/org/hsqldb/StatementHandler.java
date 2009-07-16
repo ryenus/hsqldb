@@ -151,6 +151,11 @@ public class StatementHandler extends Statement {
     }
 
     public OrderedHashSet getReferences() {
+
+        if (statement == null) {
+            return new OrderedHashSet();
+        }
+
         return statement.getReferences();
     }
 

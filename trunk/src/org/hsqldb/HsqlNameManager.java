@@ -206,6 +206,18 @@ public final class HsqlNameManager {
         return name;
     }
 
+    public HsqlName newSpecificRoutineName(HsqlName name) {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(name.name).append('_').append(++sysNumber);
+
+        HsqlName hsqlName = new HsqlName(this, sb.toString(), name.type,
+                                         name.isNameQuoted);
+
+        return hsqlName;
+    }
+
     /**
      * Column index i is 0 based, returns 1 based numbered column.
      */

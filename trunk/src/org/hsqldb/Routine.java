@@ -131,7 +131,12 @@ public class Routine implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
+
+        if (statement == null) {
+            return new OrderedHashSet();
+        }
+
+        return statement.getReferences();
     }
 
     public OrderedHashSet getComponents() {
@@ -178,6 +183,13 @@ public class Routine implements SchemaObject {
         }
 
         // SPECIFIC
+        if (specificName != null) {
+            sb.append(Tokens.T_SPECIFIC);
+            sb.append(' ');
+            sb.append(specificName.getStatementName());
+            sb.append(' ');
+        }
+
         //
         sb.append(Tokens.T_LANGUAGE);
         sb.append(' ');
@@ -227,8 +239,7 @@ public class Routine implements SchemaObject {
 
         if (language == LANGUAGE_JAVA) {
             sb.append(Tokens.T_EXTERNAL).append(' ').append(Tokens.T_NAME);
-            sb.append(' ').append('\'').append(methodName).append('\'').append(
-                ';');
+            sb.append(' ').append('\'').append(methodName).append('\'');
         } else {
             sb.append(statement.getSQL());
         }
