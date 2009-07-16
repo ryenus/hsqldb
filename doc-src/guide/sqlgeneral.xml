@@ -77,7 +77,7 @@
     name. You should avoid using such names as future versions of HyperSQL are
     likely to support the reserved words and may reject your table definitions
     or queries. The full list of SQL reserved words is in the appendix <link
-    endterm="lists-title" xlink:href="#lists-chapt"></link> .</para>
+    endterm="lists-title" xlink:href="#lists-app"></link> .</para>
 
     <para>If you have to use a reserved keyword as the name of a database
     object, you can enclose it in double quotes.</para>
