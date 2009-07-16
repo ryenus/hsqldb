@@ -453,7 +453,7 @@
     for all users is used as the initial schema for the current user. The
     separate SET SCHEMA command allows the user to change the schema for the
     duration of the session. See also the <link endterm="sessions-title"
-    ns6:arcrole="" ns6:href="#deployment-chapt"></link> chapter.</simpara>
+    xlink:href="#deployment-chapt"></link> chapter.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE DEFAULT INITIAL SCHEMA</primary>

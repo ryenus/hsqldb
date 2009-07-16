@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter xml:id="deployment-chapt"
+         version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns6="http://www.w3.org/1999/xlink"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
          xmlns:ns="http://docbook.org/ns/docbook">
-  <title xml:id="deploymnet-title">System Management and Deployment
+  <title xml:id="deployment-title">System Management and Deployment
   Issues</title>
 
   <info>
@@ -950,7 +951,7 @@
     <simpara>Set the concurrency control system for the database. It can be
     issued only when all sessions have been committed or rolled back. This
     command and its modes is discussed in the <link endterm="sessions-title"
-    ns6:href="#sessions-chapt"></link> chapter.</simpara>
+    xlink:href="#sessions-chapt"></link> chapter.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
