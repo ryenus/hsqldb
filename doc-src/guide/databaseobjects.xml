@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
-         xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
@@ -453,7 +453,7 @@
     for all users is used as the initial schema for the current user. The
     separate SET SCHEMA command allows the user to change the schema for the
     duration of the session. See also the <link endterm="sessions-title"
-    xlink:href="#deployment-chapt"></link> chapter.</simpara>
+    xlink:arcrole="" xlink:href="#sessions-chapt"></link> chapter.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE DEFAULT INITIAL SCHEMA</primary>
@@ -575,12 +575,12 @@
     <literal>&lt;privilege column list&gt;</literal> is not specified, then
     the privilege is granted on the table, which includes all of its columns
     and any column that may be added to it in the future. For routines, the
-    name of the routine can be specified in two ways, either as generic
-    ROUTINE, or as specific FUNCTION or PROCEDURE. HyperSQL allows referencing
-    all overloaded versions of a routine at the same time, using its name.
-    This differs from the SQL Standard which requires the use of
-    <literal>&lt;specific routine designator&gt;</literal> to grant privileges
-    on each different function signature separately.</simpara>
+    name of the routine can be specified in two ways, either as the generic
+    name as the specific name. HyperSQL allows referencing all overloaded
+    versions of a routine at the same time, using its name. This differs from
+    the SQL Standard which requires the use of <literal>&lt;specific routine
+    designator&gt;</literal> to grant privileges separately on each different
+    signature of the routine.</simpara>
 
     <simpara>Each <literal>&lt;grantee&gt;</literal> is the name of a role or
     a user. Examples of GRANT statement are given below:</simpara>
@@ -590,6 +590,7 @@
 GRANT SELELCT ON aTable TO roleOrUser  
 GRANT SELECT, UPDATE ON aTABLE TO roleOrUser1, roleOrUser2
 GRANT SELECT(columnA, columnB), UPDATE(columnA, columnB) ON TABLE aTable TO roleOrUser
+GRANT EXECUTE ON SPECIFIC ROUTINE aroutine_1234 TO rolOrUser
 </programlisting>
     </informalexample>
 
@@ -836,7 +837,7 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
 
       <simpara><emphasis role="bold">Sequences</emphasis></simpara>
 
-      <para>The SQL 2008 syntax and usage is different from what is supported
+      <para>The SQL:2008 syntax and usage is different from what is supported
       by many existing database engines. Sequences are created with the
       <literal>CREATE SEQUENCE</literal> command and their current value can
       be modified at any time with <literal>ALTER SEQUENCE</literal>. The next
@@ -861,7 +862,7 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
       </example>
 
       <para>In version 2.0, the semantics of sequences is exactly as defined
-      by SQL 200n. If you use the same sequence twice in the same row in an
+      by SQL:2008. If you use the same sequence twice in the same row in an
       INSERT statement, you will get the same value as required by the
       Standard.</para>
 
@@ -1157,12 +1158,17 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
       more than one name. The name of the routine is the same for all
       overloaded variants, but each variant has a <glossterm>specific
       name</glossterm>, different from all other routine names and specific
-      names in the schema. The specific name is used only for schema
-      manipulation statements, which need to reference a specific variant of
-      the routine.</simpara>
+      names in the schema. The <glossterm>specific name</glossterm> can be
+      specified in the routine definition statement. Otherwise it is assigned
+      by the engine. The specific name is used only for schema manipulation
+      statements, which need to reference a specific variant of the routine.
+      For example, if a routine has two signatures, each signature has its own
+      <glossterm>specific name</glossterm>. This allows the user to drop one
+      of the signatures while keeping the other. </simpara>
 
-      <simpara>Routines are discussed in detail in a separate
-      chapter.</simpara>
+      <simpara>Routines are discussed in detail in a separate chapter <link
+      endterm="sqlroutines-title" os=""
+      xlink:href="#sqlroutines-chapt"></link> .</simpara>
     </section>
 
     <section>
