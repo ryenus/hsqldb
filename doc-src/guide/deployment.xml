@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xml:id="deployment-chapt"
-         version="5.0" xmlns="http://docbook.org/ns/docbook"
-         xmlns:xi="http://www.w3.org/2001/XInclude"
+<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
          xmlns:ns="http://docbook.org/ns/docbook">
-  <title xml:id="deployment-title">System Management and Deployment
+  <title xml:id="deploymnet-title">System Management and Deployment
   Issues</title>
 
   <info>
@@ -267,7 +266,7 @@
       only 5,000 of the larger rows.</para>
 
       <para>Data for CLOB and BLOB columns is not cached and does not affect
-      the CACHED table memory cache. </para>
+      the CACHED table memory cache.</para>
     </section>
   </section>
 
@@ -971,7 +970,7 @@
     specified number of row operations. The default value for this property is
     0, which means no System.gc() calls. Usual values for this property range
     from 10000 depending on the system and the memory allocation. This
-    property may be useful in some in-process deployments. </simpara>
+    property may be useful in some in-process deployments.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE SQL SIZE</primary>
