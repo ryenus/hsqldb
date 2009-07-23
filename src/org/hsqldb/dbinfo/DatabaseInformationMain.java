@@ -771,19 +771,20 @@ class DatabaseInformationMain extends DatabaseInformation {
             for (int i = 0; i < cols.length; i++) {
                 ColumnSchema column = table.getColumn(i);
 
-                row                  = t.getEmptyRowData();
-                row[iscope]          = scope;
-                row[icolumn_name]    = column.getName().name;
+                row               = t.getEmptyRowData();
+                row[iscope]       = scope;
+                row[icolumn_name] = column.getName().name;
                 row[idata_type] = ValuePool.getInt(types[i].getJDBCTypeCode());
-                row[itype_name]      = types[i].getNameString();
-                row[icolumn_size]    = types[i].getJDBCPrecision();
+                row[itype_name]   = types[i].getNameString();
+                row[icolumn_size] =
+                    ValuePool.getInt(types[i].getJDBCPrecision());
                 row[ibuffer_length]  = null;
                 row[idecimal_digits] = types[i].getJDBCScale();
                 row[ipseudo_column]  = pseudo;
                 row[itable_cat]      = tableCatalog;
                 row[itable_schem]    = tableSchema;
                 row[itable_name]     = tableName;
-                row[inullable]       = column.getNullability();
+                row[inullable] = ValuePool.getInt(column.getNullability());
                 row[iinKey]          = inKey;
 
                 t.insertSys(store, row);
@@ -2196,7 +2197,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                                                            : Boolean.FALSE;
             row[ilocal_type_name]  = null;
             row[iminimum_scale]    = ValuePool.INTEGER_0;
-            row[imaximum_scale]    = type.getMaxScale();
+            row[imaximum_scale]    = ValuePool.getInt(type.getMaxScale());
             row[isql_data_type]    = null;
             row[isql_datetime_sub] = null;
             row[inum_prec_radix] = ValuePool.getInt(type.getPrecisionRadix());
@@ -2209,7 +2210,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         row             = t.getEmptyRowData();
         row[itype_name] = "DISTINCT";
-        row[idata_type] = Types.DISTINCT;
+        row[idata_type] = ValuePool.getInt(Types.DISTINCT);
 
         return t;
     }

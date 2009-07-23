@@ -365,6 +365,8 @@ public final class BitType extends BinaryType {
             return convertToTypeLimits(session, a);
         } else if (a instanceof String) {
             return convertToType(session, a, Type.SQL_VARCHAR);
+        } else if (a instanceof Boolean) {
+            return convertToType(session, a, Type.SQL_BOOLEAN);
         } else if (a instanceof Integer) {
             return convertToType(session, a, Type.SQL_INTEGER);
         } else if (a instanceof Long) {

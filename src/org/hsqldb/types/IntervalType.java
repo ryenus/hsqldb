@@ -160,7 +160,7 @@ public final class IntervalType extends DTIType {
         }
     }
 
-    public Integer getJDBCPrecision() {
+    public int getJDBCPrecision() {
         return this.displaySize();
     }
 

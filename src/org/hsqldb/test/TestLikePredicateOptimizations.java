@@ -64,6 +64,7 @@ public class TestLikePredicateOptimizations extends TestBase {
         int               actualCount;
 
         stmt.execute("drop table test if exists");
+        stmt.execute("drop table empty if exists");
 
         sql = "create table test(name varchar(255))";
 

@@ -234,8 +234,8 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.INDEX : {
                 read();
 
-                HsqlName name =
-                    readNewSchemaObjectName(SchemaObject.INDEX, true);
+                HsqlName name = readNewSchemaObjectName(SchemaObject.INDEX,
+                    true);
 
                 readThis(Tokens.RENAME);
                 readThis(Tokens.TO);
@@ -471,6 +471,20 @@ public class ParserDDL extends ParserRoutine {
                 throw unexpectedToken();
         }
 
+        if (useIfExists && token.tokenType == Tokens.IF) {
+            int position = getPosition();
+
+            read();
+
+            if (token.tokenType == Tokens.EXISTS) {
+                read();
+
+                ifExists = true;
+            } else {
+                rewind(position);
+            }
+        }
+
         checkIsIdentifier();
 
         HsqlName name = null;
@@ -512,7 +526,7 @@ public class ParserDDL extends ParserRoutine {
                 name = readNewSchemaObjectName(objectType, false);
         }
 
-        if (useIfExists && token.tokenType == Tokens.IF) {
+        if (!ifExists && useIfExists && token.tokenType == Tokens.IF) {
             read();
             readThis(Tokens.EXISTS);
 
@@ -1900,7 +1914,7 @@ public class ParserDDL extends ParserRoutine {
         boolean        isForEachRow = false;
         boolean        isNowait     = false;
         boolean        hasQueueSize = false;
-        Integer        queueSize    = TriggerDef.defaultQueueSize;
+        int            queueSize    = TriggerDef.defaultQueueSize;
         String         beforeOrAfter;
         int            beforeOrAfterType;
         String         operation;
@@ -4278,8 +4292,8 @@ public class ParserDDL extends ParserRoutine {
                 read();
                 readThis(Tokens.TO);
 
-                HsqlName newName =
-                    readNewSchemaObjectName(SchemaObject.DOMAIN, true);
+                HsqlName newName = readNewSchemaObjectName(SchemaObject.DOMAIN,
+                    true);
 
                 newName.setSchemaIfNull(schema);
 
@@ -4618,8 +4632,8 @@ public class ParserDDL extends ParserRoutine {
                 }
 
                 objectType = SchemaObject.FUNCTION;
-                objectName =
-                    readNewSchemaObjectName(SchemaObject.FUNCTION, false);
+                objectName = readNewSchemaObjectName(SchemaObject.FUNCTION,
+                                                     false);
                 break;
 
             case Tokens.SPECIFIC : {
