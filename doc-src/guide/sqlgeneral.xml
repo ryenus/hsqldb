@@ -686,439 +686,444 @@ BIT VARYING(2)
   </section>
 
   <section>
-    <title>Datetime and Interval Types</title>
+    <title>Datetime types</title>
 
     <para>HSQLDB fully supports datetime and interval types and operations,
     including all relevant optional features, as specified by the SQL Standard
     since SQL-92. The two groups of types are complementary.</para>
 
-    <section>
-      <title>Datetime types</title>
+    <indexterm significance="preferred" type="sql">
+      <primary>DATETIME types</primary>
+    </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>DATETIME types</primary>
-      </indexterm>
+    <para>The DATE type represents a calendar date with YEAR, MONTH and DAY
+    fields.</para>
 
-      <para>The DATE type represents a calendar date with YEAR, MONTH and DAY
-      fields.</para>
+    <para>The TIME type represents time of day with HOUR, MINUTE and SECOND
+    fields, plus an optional SECOND FRACTION field.</para>
 
-      <para>The TIME type represents time of day with HOUR, MINUTE and SECOND
-      fields, plus an optional SECOND FRACTION field.</para>
+    <para>The TIMESTAMP type represents the combination of DATE and TIME
+    types.</para>
 
-      <para>The TIMESTAMP type represents the combination of DATE and TIME
-      types.</para>
+    <para>TIME and TIMESTAMP types can include WITH TIME ZONE or WITHOUT TIME
+    ZONE (the default) qualifiers. They can have fractional second parts. For
+    example, TIME(6) has six fractional digits for the second field.</para>
 
-      <para>TIME and TIMESTAMP types can include WITH TIME ZONE or WITHOUT
-      TIME ZONE (the default) qualifiers. They can have fractional second
-      parts. For example, TIME(6) has six fractional digits for the second
-      field.</para>
+    <para>If fractional second precision is not specified, it defaults to 0
+    for TIME and to 6 for TIMESTAMP.</para>
 
-      <para>If fractional second precision is not specified, it defaults to 0
-      for TIME and to 6 for TIMESTAMP.</para>
+    <simpara><literal>&lt;datetime type&gt; ::= DATE | TIME [ &lt;left
+    paren&gt; &lt;time precision&gt; &lt;right paren&gt; ] [ &lt;with or
+    without time zone&gt; ] | TIMESTAMP [ &lt;left paren&gt; &lt;timestamp
+    precision&gt; &lt;right paren&gt; ] [ &lt;with or without time zone&gt;
+    ]</literal></simpara>
 
-      <simpara><literal>&lt;datetime type&gt; ::= DATE | TIME [ &lt;left
-      paren&gt; &lt;time precision&gt; &lt;right paren&gt; ] [ &lt;with or
-      without time zone&gt; ] | TIMESTAMP [ &lt;left paren&gt; &lt;timestamp
-      precision&gt; &lt;right paren&gt; ] [ &lt;with or without time zone&gt;
-      ]</literal></simpara>
+    <simpara><literal>&lt;with or without time zone&gt; ::= WITH TIME ZONE |
+    WITHOUT TIME ZONE</literal></simpara>
 
-      <simpara><literal>&lt;with or without time zone&gt; ::= WITH TIME ZONE |
-      WITHOUT TIME ZONE</literal></simpara>
+    <simpara><literal>&lt;time precision&gt; ::= &lt;time fractional seconds
+    precision&gt;</literal></simpara>
 
-      <simpara><literal>&lt;time precision&gt; ::= &lt;time fractional seconds
-      precision&gt;</literal></simpara>
+    <simpara><literal>&lt;timestamp precision&gt; ::= &lt;time fractional
+    seconds precision&gt;</literal></simpara>
 
-      <simpara><literal>&lt;timestamp precision&gt; ::= &lt;time fractional
-      seconds precision&gt;</literal></simpara>
+    <simpara><literal>&lt;time fractional seconds precision&gt; ::=
+    &lt;unsigned integer&gt;</literal></simpara>
 
-      <simpara><literal>&lt;time fractional seconds precision&gt; ::=
-      &lt;unsigned integer&gt;</literal></simpara>
-
-      <programlisting>DATE
+    <programlisting>DATE
 TIME(6)
 TIMESTAMP(2) WITH TIME ZONE
 </programlisting>
 
-      <para>Examples of the string literals used to represent date time
-      values, some with time zone, some without, are below:</para>
+    <para>Examples of the string literals used to represent date time values,
+    some with time zone, some without, are below:</para>
 
-      <programlisting>DATE '2008-08-22'
+    <programlisting>DATE '2008-08-22'
 TIMESTAMP '2008-08-08 20:08:08'
 TIMESTAMP '2008-08-08 20:08:08+8:00' /* Beijing */
 TIME '20:08:08.034900'
 TIME '20:08:08.034900-8:00' /* US Pacific */</programlisting>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>Time Zone</primary>
-      </indexterm>
+    <indexterm significance="preferred" type="sql">
+      <primary>Time Zone</primary>
+    </indexterm>
 
-      <simpara><emphasis role="bold">Time Zone</emphasis></simpara>
+    <simpara><emphasis role="bold">Time Zone</emphasis></simpara>
 
-      <para>DATE values do not take time zones. For example United Nations
-      designates 5 June as World Environment Day, which was observed on DATE
-      '2008-06-05' in different time zones.</para>
+    <para>DATE values do not take time zones. For example United Nations
+    designates 5 June as World Environment Day, which was observed on DATE
+    '2008-06-05' in different time zones.</para>
 
-      <para>TIME and TIMESTAMP values without time zone, usually have a
-      context that indicates some local time zone. For example, a database for
-      college course timetables usually stores class dates and times without
-      time zones. This works because the location of the college is fixed and
-      the time zone displacement is the same for all the values. Even when the
-      events take place in different time zones, for example international
-      flight times, it is possible to store all the datetime information as
-      references to a single time zone, usually GMT. For some databases it may
-      be useful to store the time zone displacement together with each
-      datetime value. SQL’s TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE
-      values include a time zone displacement value.</para>
+    <para>TIME and TIMESTAMP values without time zone, usually have a context
+    that indicates some local time zone. For example, a database for college
+    course timetables usually stores class dates and times without time zones.
+    This works because the location of the college is fixed and the time zone
+    displacement is the same for all the values. Even when the events take
+    place in different time zones, for example international flight times, it
+    is possible to store all the datetime information as references to a
+    single time zone, usually GMT. For some databases it may be useful to
+    store the time zone displacement together with each datetime value. SQL’s
+    TIME WITH TIME ZONE and TIMESTAMP WITH TIME ZONE values include a time
+    zone displacement value.</para>
 
-      <para>The time zone displacement is of the type INTERVAL HOUR TO MINUTE.
-      This data type is described in the next section. The legal values are
-      between '–14:00' and   '+14:00'.</para>
+    <para>The time zone displacement is of the type INTERVAL HOUR TO MINUTE.
+    This data type is described in the next section. The legal values are
+    between '–14:00' and   '+14:00'.</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>Datetime Operations</primary>
-      </indexterm>
+    <indexterm significance="preferred" type="sql">
+      <primary>Datetime Operations</primary>
+    </indexterm>
 
-      <simpara><emphasis role="bold">Operations on Datetime
-      Types</emphasis></simpara>
+    <simpara><emphasis role="bold">Operations on Datetime
+    Types</emphasis></simpara>
 
-      <para>The expression <literal>&lt;datetime expression&gt; AT TIME ZONE
-      &lt;time displacement&gt;</literal> evaluates to a datetime value
-      representing exactly the same point of time in the specified
-      <literal>&lt;time displacement&gt;</literal>. The expression,
-      <literal>AT LOCAL</literal> is equivalent to <literal>AT TIME ZONE
-      &lt;local time displacement&gt;</literal>. If <literal>AT TIME
-      ZONE</literal> is used with a datetime operand of type WITHOUT TIME
-      ZONE, the operand is first converted to a value of type WITH TIME ZONE
-      at the session’s time displacement, then the specified time zone
-      displacement is set for the value. Therefore, in these cases, the final
-      value depends on the time zone of the session in which the statement was
-      used.</para>
+    <para>The expression <literal>&lt;datetime expression&gt; AT TIME ZONE
+    &lt;time displacement&gt;</literal> evaluates to a datetime value
+    representing exactly the same point of time in the specified
+    <literal>&lt;time displacement&gt;</literal>. The expression, <literal>AT
+    LOCAL</literal> is equivalent to <literal>AT TIME ZONE &lt;local time
+    displacement&gt;</literal>. If <literal>AT TIME ZONE</literal> is used
+    with a datetime operand of type WITHOUT TIME ZONE, the operand is first
+    converted to a value of type WITH TIME ZONE at the session’s time
+    displacement, then the specified time zone displacement is set for the
+    value. Therefore, in these cases, the final value depends on the time zone
+    of the session in which the statement was used.</para>
 
-      <para>AT TIME ZONE, modifies the field values of the datetime operand.
-      This is done by the following procedure:</para>
+    <para>AT TIME ZONE, modifies the field values of the datetime operand.
+    This is done by the following procedure:</para>
 
-      <orderedlist>
-        <listitem>
-          <para>determine the corresponding datetime at UTC.</para>
-        </listitem>
+    <orderedlist>
+      <listitem>
+        <para>determine the corresponding datetime at UTC.</para>
+      </listitem>
 
-        <listitem>
-          <para>find the datetime value at the given time zone that
-          corresponds with the UTC value from step 1.</para>
-        </listitem>
-      </orderedlist>
+      <listitem>
+        <para>find the datetime value at the given time zone that corresponds
+        with the UTC value from step 1.</para>
+      </listitem>
+    </orderedlist>
 
-      <para>Example a:</para>
+    <para>Example a:</para>
 
-      <programlisting>TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+    <programlisting>TIME '12:00:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
 </programlisting>
 
-      <para>If the session’s time zone displacement is -'8:00', then in step
-      1, TIME '12:00:00' is converted to UTC, which is TIME '20:00:00+0:00'.
-      In step 2, this value is expressed as TIME '21:00:00+1:00'.</para>
+    <para>If the session’s time zone displacement is -'8:00', then in step 1,
+    TIME '12:00:00' is converted to UTC, which is TIME '20:00:00+0:00'. In
+    step 2, this value is expressed as TIME '21:00:00+1:00'.</para>
 
-      <para>Example b:</para>
+    <para>Example b:</para>
 
-      <programlisting>TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
+    <programlisting>TIME '12:00:00-5:00' AT TIME ZONE INTERVAL '1:00' HOUR TO MINUTE
 </programlisting>
 
-      <para>Because the operand has a time zone, the result is independent of
-      the session  time zone displacement. Step 1 results in TIME
-      '17:00:00+0:00', and step 2 results in TIME '18:00:00+1:00'</para>
+    <para>Because the operand has a time zone, the result is independent of
+    the session  time zone displacement. Step 1 results in TIME
+    '17:00:00+0:00', and step 2 results in TIME '18:00:00+1:00'</para>
 
-      <para>Note that the operand is not limited to datetime literals used in
-      these examples. Any valid expression that evaluates to a datetime value
-      can be the operand.</para>
+    <para>Note that the operand is not limited to datetime literals used in
+    these examples. Any valid expression that evaluates to a datetime value
+    can be the operand.</para>
 
-      <simpara><emphasis role="bold">Type Conversion</emphasis></simpara>
+    <simpara><emphasis role="bold">Type Conversion</emphasis></simpara>
 
-      <para>CAST is used to for all other conversions. Examples:</para>
+    <para>CAST is used to for all other conversions. Examples:</para>
 
-      <programlisting>CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)
+    <programlisting>CAST (&lt;value&gt; AS TIME WITHOUT TIME ZONE)
 CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
 
-      <para>In the first example, if <literal>&lt;value&gt;</literal> has a
-      time zone component, it is simply dropped. For example TIME
-      '12:00:00-5:00' is converted to TIME '12:00:00'</para>
+    <para>In the first example, if <literal>&lt;value&gt;</literal> has a time
+    zone component, it is simply dropped. For example TIME '12:00:00-5:00' is
+    converted to TIME '12:00:00'</para>
 
-      <para>In the second example, if <literal>&lt;value&gt;</literal> has no
-      time zone component, the current time zone displacement of the session
-      is added. For example TIME '12:00:00' is converted to TIME
-      '12:00:00-8:00' when the session time zone displacement is
-      '-8:00'.</para>
+    <para>In the second example, if <literal>&lt;value&gt;</literal> has no
+    time zone component, the current time zone displacement of the session is
+    added. For example TIME '12:00:00' is converted to TIME '12:00:00-8:00'
+    when the session time zone displacement is '-8:00'.</para>
 
-      <para>Conversion between DATE and TIMESTAMP is performed by removing the
-      TIME component of a TIMESTAMP value or by setting the hour, minute and
-      second fields to zero. TIMESTAMP '2008-08-08 20:08:08+8:00' becomes DATE
-      '2008-08-08', while DATE '2008-08-22' becomes TIMESTAMP '2008-08-22
-      00:00:00'.</para>
+    <para>Conversion between DATE and TIMESTAMP is performed by removing the
+    TIME component of a TIMESTAMP value or by setting the hour, minute and
+    second fields to zero. TIMESTAMP '2008-08-08 20:08:08+8:00' becomes DATE
+    '2008-08-08', while DATE '2008-08-22' becomes TIMESTAMP '2008-08-22
+    00:00:00'.</para>
 
-      <para>Conversion between TIME and TIMESTAMP is performed by removing the
-      DATE field values of a TIMESTAMP value or by appending the fields of the
-      TIME value to the fields of the current session date value.</para>
+    <para>Conversion between TIME and TIMESTAMP is performed by removing the
+    DATE field values of a TIMESTAMP value or by appending the fields of the
+    TIME value to the fields of the current session date value.</para>
 
-      <simpara><emphasis role="bold">Assignment</emphasis></simpara>
+    <simpara><emphasis role="bold">Assignment</emphasis></simpara>
 
-      <para>When a value is assigned to a datetime target, e.g., a value is
-      used to update a row of a table, the type of the value must be the same
-      as the target, but the WITH TIME ZONE or WITHOUT TIME ZONE
-      characteristics can be different. If the types are not the same, an
-      explicit CAST must be used to convert the value into the target
-      type.</para>
+    <para>When a value is assigned to a datetime target, e.g., a value is used
+    to update a row of a table, the type of the value must be the same as the
+    target, but the WITH TIME ZONE or WITHOUT TIME ZONE characteristics can be
+    different. If the types are not the same, an explicit CAST must be used to
+    convert the value into the target type.</para>
 
-      <simpara><emphasis role="bold">Comparison</emphasis></simpara>
+    <simpara><emphasis role="bold">Comparison</emphasis></simpara>
 
-      <para>When values WITH TIME ZONE are compared, they are converted to UTC
-      values before comparison. If a value WITH TIME ZONE is compared to
-      another WITHOUT TIME ZONE, then the WITH TIME ZONE value is converted to
-      AT LOCAL, then converted to WITHOUT TIME ZONE before comparison.</para>
+    <para>When values WITH TIME ZONE are compared, they are converted to UTC
+    values before comparison. If a value WITH TIME ZONE is compared to another
+    WITHOUT TIME ZONE, then the WITH TIME ZONE value is converted to AT LOCAL,
+    then converted to WITHOUT TIME ZONE before comparison.</para>
 
-      <para>It is not recommended to design applications that rely on
-      comparisons and conversions between TIME values WITH TIME ZONE. The
-      conversions may involve normalisation of the time value, resulting in
-      unexpected results. For example, the expression: BETWEEN(TIME
-      '12:00:00-8:00', TIME '22:00:00-8:00') is converted to BETWEEN(TIME
-      '20:00:00+0:00', TIME '06:00:00+0:00') when it is evaluated in the UTC
-      zone, which is always FALSE.</para>
+    <para>It is not recommended to design applications that rely on
+    comparisons and conversions between TIME values WITH TIME ZONE. The
+    conversions may involve normalisation of the time value, resulting in
+    unexpected results. For example, the expression: BETWEEN(TIME
+    '12:00:00-8:00', TIME '22:00:00-8:00') is converted to BETWEEN(TIME
+    '20:00:00+0:00', TIME '06:00:00+0:00') when it is evaluated in the UTC
+    zone, which is always FALSE.</para>
 
-      <simpara><emphasis role="bold">Functions</emphasis></simpara>
+    <simpara><emphasis role="bold">Functions</emphasis></simpara>
 
-      <para>Several functions return the current session timestamp in
-      different datetime types:</para>
+    <para>Several functions return the current session timestamp in different
+    datetime types:</para>
 
-      <informaltable frame="all">
-        <tgroup cols="2">
-          <tbody>
-            <row>
-              <entry><para>CURRENT_DATE</para></entry>
+    <informaltable frame="all">
+      <tgroup cols="2">
+        <tbody>
+          <row>
+            <entry><para>CURRENT_DATE</para></entry>
 
-              <entry><para>DATE</para></entry>
-            </row>
+            <entry><para>DATE</para></entry>
+          </row>
 
-            <row>
-              <entry><para>CURRENT_TIME</para></entry>
+          <row>
+            <entry><para>CURRENT_TIME</para></entry>
 
-              <entry><para>TIME WITH TIME ZONE</para></entry>
-            </row>
+            <entry><para>TIME WITH TIME ZONE</para></entry>
+          </row>
 
-            <row>
-              <entry><para>CURRENT_TIMESTAMP</para></entry>
+          <row>
+            <entry><para>CURRENT_TIMESTAMP</para></entry>
 
-              <entry><para>TIMESTAMP WITH TIME ZONE</para></entry>
-            </row>
+            <entry><para>TIMESTAMP WITH TIME ZONE</para></entry>
+          </row>
 
-            <row>
-              <entry><para>LOCALTIME</para></entry>
+          <row>
+            <entry><para>LOCALTIME</para></entry>
 
-              <entry><para>TIMESTAMP WITHOUT TIME ZONE</para></entry>
-            </row>
+            <entry><para>TIMESTAMP WITHOUT TIME ZONE</para></entry>
+          </row>
 
-            <row>
-              <entry><para>LOCALTIMESTAMP</para></entry>
+          <row>
+            <entry><para>LOCALTIMESTAMP</para></entry>
 
-              <entry><para>TIMESTAMP WITHOUT TIME ZONE</para></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </informaltable>
+            <entry><para>TIMESTAMP WITHOUT TIME ZONE</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </informaltable>
 
-      <simpara><emphasis role="bold">Session Time Zone
-      Displacement</emphasis></simpara>
+    <simpara><emphasis role="bold">Session Time Zone
+    Displacement</emphasis></simpara>
 
-      <para>When an SQL session is started (with a JDBC connection) the local
-      time zone of the client JVM (including any seasonal time adjustments
-      such as daylight saving time) is used as the session time zone
-      displacement. Note that the SQL session time displacement is not changed
-      when a seasonal time adjustment takes place while the session is open.
-      To change the SQL session time zone displacement use the following
-      commands:</para>
+    <para>When an SQL session is started (with a JDBC connection) the local
+    time zone of the client JVM (including any seasonal time adjustments such
+    as daylight saving time) is used as the session time zone displacement.
+    Note that the SQL session time displacement is not changed when a seasonal
+    time adjustment takes place while the session is open. To change the SQL
+    session time zone displacement use the following commands:</para>
 
-      <simpara><literal>SET TIME ZONE &lt;time
-      displacement&gt;</literal></simpara>
+    <simpara><literal>SET TIME ZONE &lt;time
+    displacement&gt;</literal></simpara>
 
-      <simpara><literal>SET TIME ZONE LOCAL</literal></simpara>
+    <simpara><literal>SET TIME ZONE LOCAL</literal></simpara>
 
-      <para>The first command sets the displacement to the given value. The
-      second command restores the original, real time zone displacement of the
-      session.</para>
+    <para>The first command sets the displacement to the given value. The
+    second command restores the original, real time zone displacement of the
+    session.</para>
 
-      <simpara><emphasis role="bold">Datetime Values and
-      Java</emphasis></simpara>
+    <simpara><emphasis role="bold">Datetime Values and
+    Java</emphasis></simpara>
 
-      <para>When datetime values are sent to the database using the
-      <classname>PreparedStatement</classname> or
-      <classname>CallableStatement</classname> interfaces, the Java object is
-      converted to the type of the prepared or callable statement parameter.
-      This type may be DATE, TIME, or TIMESTAMP (with or without time zone).
-      The time zone displacement is the time zone of the JDBC session.</para>
+    <para>When datetime values are sent to the database using the
+    <classname>PreparedStatement</classname> or
+    <classname>CallableStatement</classname> interfaces, the Java object is
+    converted to the type of the prepared or callable statement parameter.
+    This type may be DATE, TIME, or TIMESTAMP (with or without time zone). The
+    time zone displacement is the time zone of the JDBC session.</para>
 
-      <para>When datetime values are retrieved from the database using the
-      <literal>ResultSet</literal> interface, there are two representations.
-      The <methodname>getString(…)</methodname> methods of the
-      <classname>ResultSet</classname> interface, return an exact
-      representation of the value in the SQL type as it is stored in the
-      database. This includes the correct number of digits for the fractional
-      second field, and for values with time zone displacement, the time zone
-      displacement. Therefore if TIME '12:00:00' is stored in the database,
-      all users in different time zones will get '12:00:00' when they retrieve
-      the value as a string. The <methodname>getTime(…)</methodname> and
-      <methodname>getTimestamp(…)</methodname> methods of the
-      <classname>ResultSet</classname> interface return Java objects that are
-      corrected for the session time zone. The UTC millisecond value contained
-      the <classname>java.sql.Time</classname> or
-      <classname>java.sql.Timestamp</classname> objects will be adjusted to
-      the time zone of the session, therefore the
-      <methodname>toString()</methodname> method of these objects return the
-      same values in different time zones.</para>
+    <para>When datetime values are retrieved from the database using the
+    <literal>ResultSet</literal> interface, there are two representations. The
+    <methodname>getString(…)</methodname> methods of the
+    <classname>ResultSet</classname> interface, return an exact representation
+    of the value in the SQL type as it is stored in the database. This
+    includes the correct number of digits for the fractional second field, and
+    for values with time zone displacement, the time zone displacement.
+    Therefore if TIME '12:00:00' is stored in the database, all users in
+    different time zones will get '12:00:00' when they retrieve the value as a
+    string. The <methodname>getTime(…)</methodname> and
+    <methodname>getTimestamp(…)</methodname> methods of the
+    <classname>ResultSet</classname> interface return Java objects that are
+    corrected for the session time zone. The UTC millisecond value contained
+    the <classname>java.sql.Time</classname> or
+    <classname>java.sql.Timestamp</classname> objects will be adjusted to the
+    time zone of the session, therefore the
+    <methodname>toString()</methodname> method of these objects return the
+    same values in different time zones.</para>
 
-      <para>If you want to store and retrieve UTC values that are independent
-      of any session's time zone, you can use a TIMESTAMP WITH TIME ZONE
-      column. The method calls in ResultSet and PreparedStatement interfaces
-      which have a Calendar parameter can be used to access the values without
-      any adjustment to the sessions time zone.</para>
-    </section>
+    <para>If you want to store and retrieve UTC values that are independent of
+    any session's time zone, you can use a TIMESTAMP WITH TIME ZONE column.
+    The method calls in ResultSet and PreparedStatement interfaces which have
+    a Calendar parameter can be used to access the values without any
+    adjustment to the sessions time zone.</para>
+  </section>
 
-    <section>
-      <title>Interval Types</title>
+  <section>
+    <title>Interval Types</title>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>INTERVAL types</primary>
-      </indexterm>
+    <indexterm significance="preferred" type="sql">
+      <primary>INTERVAL types</primary>
+    </indexterm>
 
-      <para>Interval types are used to represent differences between date time
-      values. The difference between two date time values can be measured in
-      seconds or in months. For measurements in months, the units YEAR and
-      MONTH are available, while for measurements in seconds, the units DAY,
-      HOUR, MINUTE, SECOND are available. The units can be used individually,
-      or as a range. An interval type can specify the precision of the most
-      significant field and the second fraction digits of the SECOND field (if
-      it has a SECOND field). The default precision is 2. The default second
-      precision is 0.</para>
+    <para>Interval types are used to represent differences between date time
+    values. The difference between two date time values can be measured in
+    seconds or in months. For measurements in months, the units YEAR and MONTH
+    are available, while for measurements in seconds, the units DAY, HOUR,
+    MINUTE, SECOND are available. The units can be used individually, or as a
+    range. An interval type can specify the precision of the most significant
+    field and the second fraction digits of the SECOND field (if it has a
+    SECOND field). The default precision is 2. The default second precision is
+    0.</para>
 
-      <simpara><literal>&lt;interval type&gt; ::= INTERVAL &lt;interval
-      qualifier&gt;</literal></simpara>
+    <simpara><literal>&lt;interval type&gt; ::= INTERVAL &lt;interval
+    qualifier&gt;</literal></simpara>
 
-      <simpara><literal>&lt;interval qualifier&gt; ::= &lt;start field&gt; TO
-      &lt;end field&gt; | &lt;single datetime field&gt;</literal></simpara>
+    <simpara><literal>&lt;interval qualifier&gt; ::= &lt;start field&gt; TO
+    &lt;end field&gt; | &lt;single datetime field&gt;</literal></simpara>
 
-      <simpara><literal>&lt;start field&gt; ::= &lt;non-second primary
-      datetime field&gt; [ &lt;left paren&gt; &lt;interval leading field
-      precision&gt; &lt;right paren&gt; ]</literal></simpara>
+    <simpara><literal>&lt;start field&gt; ::= &lt;non-second primary datetime
+    field&gt; [ &lt;left paren&gt; &lt;interval leading field precision&gt;
+    &lt;right paren&gt; ]</literal></simpara>
 
-      <simpara><literal>&lt;end field&gt; ::= &lt;non-second primary datetime
-      field&gt; | SECOND [ &lt;left paren&gt; &lt;interval fractional seconds
-      precision&gt; &lt;right paren&gt; ]</literal></simpara>
+    <simpara><literal>&lt;end field&gt; ::= &lt;non-second primary datetime
+    field&gt; | SECOND [ &lt;left paren&gt; &lt;interval fractional seconds
+    precision&gt; &lt;right paren&gt; ]</literal></simpara>
 
-      <simpara><literal>&lt;single datetime field&gt; ::= &lt;non-second
-      primary datetime field&gt; [ &lt;left paren&gt; &lt;interval leading
-      field precision&gt; &lt;right paren&gt; ] | SECOND [ &lt;left paren&gt;
-      &lt;interval leading field precision&gt; [ &lt;comma&gt; &lt;interval
-      fractional seconds precision&gt; ] &lt;right paren&gt;
-      ]</literal></simpara>
+    <simpara><literal>&lt;single datetime field&gt; ::= &lt;non-second primary
+    datetime field&gt; [ &lt;left paren&gt; &lt;interval leading field
+    precision&gt; &lt;right paren&gt; ] | SECOND [ &lt;left paren&gt;
+    &lt;interval leading field precision&gt; [ &lt;comma&gt; &lt;interval
+    fractional seconds precision&gt; ] &lt;right paren&gt;
+    ]</literal></simpara>
 
-      <simpara><literal>&lt;primary datetime field&gt; ::= &lt;non-second
-      primary datetime field&gt; | SECOND</literal></simpara>
+    <simpara><literal>&lt;primary datetime field&gt; ::= &lt;non-second
+    primary datetime field&gt; | SECOND</literal></simpara>
 
-      <simpara><literal>&lt;non-second primary datetime field&gt; ::= YEAR |
-      MONTH | DAY | HOUR | MINUTE</literal></simpara>
+    <simpara><literal>&lt;non-second primary datetime field&gt; ::= YEAR |
+    MONTH | DAY | HOUR | MINUTE</literal></simpara>
 
-      <simpara><literal>&lt;interval fractional seconds precision&gt; ::=
-      &lt;unsigned integer&gt;</literal></simpara>
+    <simpara><literal>&lt;interval fractional seconds precision&gt; ::=
+    &lt;unsigned integer&gt;</literal></simpara>
 
-      <simpara><literal>&lt;interval leading field precision&gt; ::=
-      &lt;unsigned integer&gt;</literal></simpara>
+    <simpara><literal>&lt;interval leading field precision&gt; ::=
+    &lt;unsigned integer&gt;</literal></simpara>
 
-      <para>Examples:</para>
+    <para>Examples of INTERVAL type definition:</para>
 
-      <programlisting>INTERVAL YEAR TO MONTH
+    <programlisting>INTERVAL YEAR TO MONTH
 INTERVAL YEAR(3)
 INTERVAL DAY(4) TO HOUR
 INTERVAL MINUTE(4) TO SECOND(6)
 INTERVAL SECOND(4,6)
 </programlisting>
 
-      <para>The word INTERVAL indicates the general type name. The rest of the
-      definition is called an <literal>&lt;interval qualifier&gt;</literal>.
-      This designation is important, as in most expressions
-      <literal>&lt;interval qualifier&gt;</literal> is used without the word
-      INTERVAL.</para>
+    <para>The word INTERVAL indicates the general type name. The rest of the
+    definition is called an <literal>&lt;interval qualifier&gt;</literal>.
+    This designation is important, as in most expressions
+    <literal>&lt;interval qualifier&gt;</literal> is used without the word
+    INTERVAL.</para>
 
-      <para>An interval value can be negative, positive or zero. An interval
-      type has all the datetime fields in the specified range. These fields
-      are similar to those in the TIMESTAMP type. The differences are as
-      follows:</para>
+    <simpara><emphasis role="bold">Interval Values</emphasis></simpara>
 
-      <para>The first field of an interval value can hold any numeric value up
-      to the specified precision. For example, the hour field in HOUR(2) TO
-      SECOND can hold values above 23 (up to 99). The year and month fields
-      can hold zero (unlike a TIMESTAMP value) and the maximum value of a
-      month field that is not the most significant field, is 11.</para>
+    <para>An interval value can be negative, positive or zero. An interval
+    type has all the datetime fields in the specified range. These fields are
+    similar to those in the TIMESTAMP type. The differences are as
+    follows:</para>
 
-      <para>Some examples of interval literal below:</para>
+    <para>The first field of an interval value can hold any numeric value up
+    to the specified precision. For example, the hour field in HOUR(2) TO
+    SECOND can hold values above 23 (up to 99). The year and month fields can
+    hold zero (unlike a TIMESTAMP value) and the maximum value of a month
+    field that is not the most significant field, is 11.</para>
 
-      <programlisting>INTERVAL '145 23:12:19.345' DAY(3) TO SECOND(3)
+    <para>The standard function <literal>ABS(&lt;interval value
+    expression&gt;)</literal> can be used to convert a negative interval value
+    to a positive one.</para>
+
+    <para>The literal representation of interval values consists of the type
+    definition, with a string representing the interval value inserted after
+    the word INTERVAL. Some examples of interval literal below:</para>
+
+    <programlisting>INTERVAL '145 23:12:19.345' DAY(3) TO SECOND(3)
 INTERVAL '3503:12:19.345' HOUR TO SECOND(3) /* equal to the first value */
 INTERVAL '19.345' SECOND(4,3) /* maximum number of digits for the second value is 4, and each value is expressed with three fraction digits. */
 INTERVAL '-23-10' YEAR(2) TO MONTH
 </programlisting>
 
-      <para>Interval values of the types that are based on seconds can be cast
-      into one another. Similarly those that are based on months can be cast
-      into one another. It is not possible to cast or convert a value based on
-      seconds to one based on months, or vice versa.</para>
+    <para>Interval values of the types that are based on seconds can be cast
+    into one another. Similarly those that are based on months can be cast
+    into one another. It is not possible to cast or convert a value based on
+    seconds to one based on months, or vice versa.</para>
 
-      <para>When a cast is performed to a type with a smaller
-      least-significant field, nothing is lost from the interval value.
-      Otherwise, the values for the missing least-significant fields are
-      discarded. Examples:</para>
+    <para>When a cast is performed to a type with a smaller least-significant
+    field, nothing is lost from the interval value. Otherwise, the values for
+    the missing least-significant fields are discarded. Examples:</para>
 
-      <programlisting>CAST ( INTERVAL '145 23:12:19' DAY TO SECOND AS INTERVAL DAY TO HOUR ) = INTERVAL '145 23' DAY TO HOUR
+    <programlisting>CAST ( INTERVAL '145 23:12:19' DAY TO SECOND AS INTERVAL DAY TO HOUR ) = INTERVAL '145 23' DAY TO HOUR
 CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23:00:00' DAY TO SECOND
 </programlisting>
 
-      <para>A numeric value can be cast to an interval type. In this case the
-      numeric value is first converted to a single-field INTERVAL type with
-      the same field as the least significant field of the target interval
-      type. This value is then converted to the target interval type For
-      example CAST( 22 AS INTERVAL YEAR TO MONTH) evaluates to INTERVAL '22'
-      MONTH and then INTERVAL '1 10' YEAR TO MONTH. Note that SQL Standard
-      only supports casts to single-field INTERVAL types, while HyperSQL
-      allows casting to multi-field types as well.</para>
+    <para>A numeric value can be cast to an interval type. In this case the
+    numeric value is first converted to a single-field INTERVAL type with the
+    same field as the least significant field of the target interval type.
+    This value is then converted to the target interval type For example CAST(
+    22 AS INTERVAL YEAR TO MONTH) evaluates to INTERVAL '22' MONTH and then
+    INTERVAL '1 10' YEAR TO MONTH. Note that SQL Standard only supports casts
+    to single-field INTERVAL types, while HyperSQL allows casting to
+    multi-field types as well.</para>
 
-      <para>An interval value can be cast to a numeric type. In this case the
-      interval value is first converted to a single-field INTERVAL type with
-      the same field as the least significant filed of the interval value. The
-      value is then converted to the target type. For example CAST (INTERVAL
-      '1-11' YEAR TO MONTH AS INT) evaluates to INTERVAL '23' MONTH, and then
-      23.</para>
+    <para>An interval value can be cast to a numeric type. In this case the
+    interval value is first converted to a single-field INTERVAL type with the
+    same field as the least significant filed of the interval value. The value
+    is then converted to the target type. For example CAST (INTERVAL '1-11'
+    YEAR TO MONTH AS INT) evaluates to INTERVAL '23' MONTH, and then
+    23.</para>
 
-      <para>An interval value can be cast into a character type, which results
-      in an INTERVAL literal. A character value can be cast into an INTERVAL
-      type so long as it is a string with a format compatible with an INTERVAL
-      literal.</para>
+    <para>An interval value can be cast into a character type, which results
+    in an INTERVAL literal. A character value can be cast into an INTERVAL
+    type so long as it is a string with a format compatible with an INTERVAL
+    literal.</para>
 
-      <para>Two interval values can be added or subtracted so long as the
-      types of both are based on the same field, i.e., both are based on MONTH
-      or SECOND. The values are both converted to a single-field interval type
-      with same field as the least-significant field between the two types.
-      After addition or subtraction, the result is converted to an interval
-      type that contains all the fields of the two original types.</para>
+    <para>Two interval values can be added or subtracted so long as the types
+    of both are based on the same field, i.e., both are based on MONTH or
+    SECOND. The values are both converted to a single-field interval type with
+    same field as the least-significant field between the two types. After
+    addition or subtraction, the result is converted to an interval type that
+    contains all the fields of the two original types.</para>
 
-      <para>An interval value can be multiplied or divided by a numeric value.
-      Again, the value is converted to a numeric, which is then multiplied or
-      divided, before converting back to the original interval type.</para>
+    <para>An interval value can be multiplied or divided by a numeric value.
+    Again, the value is converted to a numeric, which is then multiplied or
+    divided, before converting back to the original interval type.</para>
 
-      <para>An interval value is negated by simply prefixing with the minus
-      sign.</para>
+    <para>An interval value is negated by simply prefixing with the minus
+    sign.</para>
 
-      <para>Interval values used in expressions are either typed values,
-      including interval literals, or are interval casts. The expression:
-      <literal>&lt;expression&gt; &lt;interval qualifier&gt;</literal> is a
-      cast of the result of the <literal>&lt;expression&gt;</literal> into the
-      INTERVAL type specified by the <literal>&lt;interval
-      qualifier&gt;</literal></para>
+    <para>Interval values used in expressions are either typed values,
+    including interval literals, or are interval casts. The expression:
+    <literal>&lt;expression&gt; &lt;interval qualifier&gt;</literal> is a cast
+    of the result of the <literal>&lt;expression&gt;</literal> into the
+    INTERVAL type specified by the <literal>&lt;interval qualifier&gt;. The
+    cast can be formed by adding the keywords and prentheses as follows: CAST
+    ( &lt;expression&gt; AS INTERVAL &lt;interval qualitifer&gt;
+    ).</literal></para>
 
-      <programlisting>DATE '2000-01-01' + INTERVAL '1-10' YEAR TO MONTH /* interval literal */
+    <para><literal>The examples below feature different forms of expression
+    that represent an interval value, which is then added to the given date
+    literal.</literal></para>
+
+    <programlisting>DATE '2000-01-01' + INTERVAL '1-10' YEAR TO MONTH /* interval literal */
 DATE '2000-01-01' + '1-10' YEAR TO MONTH /* the string '1-10' is cast into INTERVAL YEAR TO MONTH */
 DATE '2000-01-01' + 22 MONTH /* the integer 22 is cast into INTERVAL MONTH, same value as above */
 DATE '2000-01-01' - 22 DAY /* the integer 22 is cast into INTERVAL DAY */
@@ -1126,66 +1131,63 @@ DATE '2000-01-01' + COL2 /* the type of COL2 must be an INTERVAL type */
 DATE '2000-01-01' + COL2 MONTH /* COL2 may be a number, it is cast into a MONTH interval */
 </programlisting>
 
-      <simpara><emphasis role="bold">Datetime and Interval
-      Operations</emphasis></simpara>
+    <simpara><emphasis role="bold">Datetime and Interval
+    Operations</emphasis></simpara>
 
-      <para>An interval can be added to or subtracted from a datetime value so
-      long as they have some fields in common. For example, an INTERVAL MONTH
-      cannot be added to a TIME value, while an INTERVAL HOUR TO SECOND can.
-      The interval is first converted to a numeric value, then the value is
-      added to, or subtracted from, the corresponding field of the datetime
-      value.</para>
+    <para>An interval can be added to or subtracted from a datetime value so
+    long as they have some fields in common. For example, an INTERVAL MONTH
+    cannot be added to a TIME value, while an INTERVAL HOUR TO SECOND can. The
+    interval is first converted to a numeric value, then the value is added
+    to, or subtracted from, the corresponding field of the datetime
+    value.</para>
 
-      <para>If the result of addition or subtraction is beyond the permissible
-      range for the field, the field value is normalised and carried over to
-      the next significant field until all the fields are normalised. For
-      example, adding 20 minutes to TIME '23:50:10' will result successively
-      in '23:70:10', '24:10:10' and finally TIME '00:10:10'. Subtracting 20
-      minutes from the result is performed as follows: '00:-10:10',
-      '-1:50:10', finally TIME '23:50:10'. Note that if DATE or TIMESTAMP
-      normalisation results in the YEAR field value out of the range (1,1000),
-      then an exception condition is raised.</para>
+    <para>If the result of addition or subtraction is beyond the permissible
+    range for the field, the field value is normalised and carried over to the
+    next significant field until all the fields are normalised. For example,
+    adding 20 minutes to TIME '23:50:10' will result successively in
+    '23:70:10', '24:10:10' and finally TIME '00:10:10'. Subtracting 20 minutes
+    from the result is performed as follows: '00:-10:10', '-1:50:10', finally
+    TIME '23:50:10'. Note that if DATE or TIMESTAMP normalisation results in
+    the YEAR field value out of the range (1,1000), then an exception
+    condition is raised.</para>
 
-      <para>If an interval value based on MONTH is added to, or subtracted
-      from a DATE or TIMESTAMP value, the result may have an invalid day (30
-      or 31) for the given result month. In this case an exception condition
-      is raised.</para>
+    <para>If an interval value based on MONTH is added to, or subtracted from
+    a DATE or TIMESTAMP value, the result may have an invalid day (30 or 31)
+    for the given result month. In this case an exception condition is
+    raised.</para>
 
-      <para>The result of subtraction of two datetime expressions is an
-      interval value. The two datetime expressions must be of the same type.
-      The type of the interval value must be specified in the expression,
-      using only the interval field names. The two datetime expressions are
-      enclosed in parentheses, followed by the <literal>&lt;interval
-      qualifier&gt;</literal> fields. In the first example below, COL1 and
-      COL2 are of the same datetime type, and the result is evaluated in
-      INTERVAL YEAR TO MONTH type.</para>
+    <para>The result of subtraction of two datetime expressions is an interval
+    value. The two datetime expressions must be of the same type. The type of
+    the interval value must be specified in the expression, using only the
+    interval field names. The two datetime expressions are enclosed in
+    parentheses, followed by the <literal>&lt;interval qualifier&gt;</literal>
+    fields. In the first example below, COL1 and COL2 are of the same datetime
+    type, and the result is evaluated in INTERVAL YEAR TO MONTH type.</para>
 
-      <programlisting>(COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIEMSTAMP values in years and months */
+    <programlisting>(COL1 – COL2) YEAR TO MONTH /* the difference between two DATE or two TIEMSTAMP values in years and months */
 (CURRENT_DATE – COL3) DAY /* the number of days between the value of COL3 and the current date */
 (CURRENT_DATE - DATE '2000-01-01') YEAR TO MONTH /* the number of years and months since the beginning of this century */
 CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
 (CURRENT_TIMESTAMP - TIMESTAMP '2009-01-01 00:00:00') DAY(4) TO SECOND(2) /* days to seconds since the given date */
 </programlisting>
 
-      <para>The individual fields of both datetime and interval values can be
-      extracted using the EXTRACT function. The same function can also be used
-      to extract the time zone displacement fields of a datetime value.</para>
+    <para>The individual fields of both datetime and interval values can be
+    extracted using the EXTRACT function. The same function can also be used
+    to extract the time zone displacement fields of a datetime value.</para>
 
-      <simpara><literal>EXTRACT ({YEAR | MONTH | DAY | HOUR | MINUTE | SECOND
-      | TIMEZONE_HOUR | TIMEZONE_MINUTE | DAY_OF_WEEK | WEEK_OF_YEAR } FROM
-      {&lt;datetime value&gt; | &lt;interval value&gt;})</literal></simpara>
+    <simpara><literal>EXTRACT ({YEAR | MONTH | DAY | HOUR | MINUTE | SECOND |
+    TIMEZONE_HOUR | TIMEZONE_MINUTE | DAY_OF_WEEK | WEEK_OF_YEAR } FROM
+    {&lt;datetime value&gt; | &lt;interval value&gt;})</literal></simpara>
 
-      <para>The dichotomy between interval types based on seconds, and those
-      based on months, stems from the fact that the different calendar months
-      have different numbers of days. For example, the expression, “nine
-      months and nine days since an event” is not exact when the date of the
-      event is unknown. It can represent a period of around 284 days give or
-      take one. SQL interval values are independent of any start or end dates
-      or times. However, when they are added to or subtracted from certain
-      date or timestamp values, the result may be invalid and cause an
-      exception (e.g. adding one month to January 30 results in February
-      30).</para>
-    </section>
+    <para>The dichotomy between interval types based on seconds, and those
+    based on months, stems from the fact that the different calendar months
+    have different numbers of days. For example, the expression, “nine months
+    and nine days since an event” is not exact when the date of the event is
+    unknown. It can represent a period of around 284 days give or take one.
+    SQL interval values are independent of any start or end dates or times.
+    However, when they are added to or subtracted from certain date or
+    timestamp values, the result may be invalid and cause an exception (e.g.
+    adding one month to January 30 results in February 30).</para>
   </section>
 
   <section xml:id="sqlgeneral_constr_indexes-sect">
