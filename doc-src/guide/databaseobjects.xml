@@ -1217,9 +1217,10 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
     EXISTS</literal></simpara>
 
     <simpara>This clause is not part of the SQL standard and is a HyperSQL
-    extension to some commands that drop objects. If it is specified, then the
-    statement does not return an error if the drop statement is issued on a
-    non-existent object.</simpara>
+    extension to some commands that drop objects (schemas, tables, views,
+    sequences and indexes). If it is specified, then the statement does not
+    return an error if the drop statement is issued on a non-existent
+    object.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SPECIFIC</primary>
@@ -1330,8 +1331,9 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
 
     <simpara><emphasis>drop schema statement</emphasis></simpara>
 
-    <simpara><literal>&lt;drop schema statement&gt; ::= DROP SCHEMA &lt;schema
-    name&gt; &lt;drop behavior&gt; [ IF EXISTS ]</literal></simpara>
+    <simpara><literal>&lt;drop schema statement&gt; ::= DROP SCHEMA [ IF
+    EXISTS ] &lt;schema name&gt; [ IF EXISTS ] &lt;drop behavior&gt;
+    </literal></simpara>
 
     <simpara>This command destroys an existing schema. If <literal>&lt;drop
     behavior&gt;</literal> is <literal>RESTRICT</literal>, the schema must be
@@ -2155,8 +2157,9 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
 
     <simpara><emphasis>drop table statement</emphasis></simpara>
 
-    <simpara><literal>&lt;drop table statement&gt; ::= DROP TABLE &lt;table
-    name&gt; &lt;drop behavior&gt;</literal></simpara>
+    <simpara><literal>&lt;drop table statement&gt; ::= DROP TABLE [ IF EXISTS
+    ] &lt;table name&gt; [ IF EXISTS ] &lt;drop
+    behavior&gt;</literal></simpara>
 
     <simpara>Destroy a table. If <literal>&lt;drop behavior&gt;</literal> is
     <literal>CASCADE</literal>, it causes all schema objects that reference
@@ -2211,8 +2214,8 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
 
     <simpara><emphasis>drop view statement</emphasis></simpara>
 
-    <simpara><literal>&lt;drop view statement&gt; ::= DROP VIEW &lt;table
-    name&gt; &lt;drop behavior&gt;</literal></simpara>
+    <simpara><literal>&lt;drop view statement&gt; ::= DROP VIEW [ IF EXISTS ]
+    &lt;table name&gt; [ IF EXISTS ] &lt;drop behavior&gt;</literal></simpara>
 
     <simpara>Destroy a view. The <literal>&lt;drop behavior&gt;</literal> is
     similar to dropping a table.</simpara>
@@ -2329,7 +2332,7 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
     <simpara><emphasis>drop domain statement</emphasis></simpara>
 
     <simpara><literal>&lt;drop domain statement&gt; ::= DROP DOMAIN &lt;domain
-    name&gt; &lt;drop behavior&gt; [ IF EXISTS ]</literal></simpara>
+    name&gt; &lt;drop behavior&gt;</literal></simpara>
 
     <simpara>Destroy a domain. If <literal>&lt;drop behavior&gt;</literal> is
     <literal>CASCADE</literal>, it works differently from most other objects.
@@ -2955,8 +2958,8 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
     <simpara><emphasis>drop sequence generator statement</emphasis></simpara>
 
     <simpara><literal>&lt;drop sequence generator statement&gt; ::= DROP
-    SEQUENCE &lt;sequence generator name&gt; &lt;drop behavior&gt; [ IF EXISTS
-    ]</literal></simpara>
+    SEQUENCE [ IF EXISTS ] &lt;sequence generator name&gt; [ IF EXISTS ]
+    &lt;drop behavior&gt;</literal></simpara>
 
     <simpara>Destroy an external sequence generator. If the <literal>&lt;drop
     behavior&gt;</literal> is <literal>CASCADE</literal>, then all objects
@@ -2987,8 +2990,8 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
 
     <simpara><emphasis>drop index statement</emphasis></simpara>
 
-    <simpara><literal>&lt;drop index statement&gt; ::= DROP INDEX &lt;index
-    name&gt; [ IF EXISTS ]</literal></simpara>
+    <simpara><literal>&lt;drop index statement&gt; ::= DROP INDEX [ IF EXISTS
+    ] &lt;index name&gt; [ IF EXISTS ]</literal></simpara>
 
     <simpara>Destroy an index.</simpara>
 
