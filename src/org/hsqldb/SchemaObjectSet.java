@@ -67,6 +67,7 @@ public class SchemaObjectSet {
             case SchemaObject.COLLATION :
             case SchemaObject.PROCEDURE :
             case SchemaObject.FUNCTION :
+            case SchemaObject.SPECIFIC_ROUTINE :
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
                 map = new HashMappedList();
@@ -91,6 +92,7 @@ public class SchemaObjectSet {
             case SchemaObject.TYPE :
             case SchemaObject.COLLATION :
             case SchemaObject.PROCEDURE :
+            case SchemaObject.SPECIFIC_ROUTINE :
             case SchemaObject.FUNCTION :
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
@@ -120,6 +122,7 @@ public class SchemaObjectSet {
             case SchemaObject.TYPE :
             case SchemaObject.COLLATION :
             case SchemaObject.PROCEDURE :
+            case SchemaObject.SPECIFIC_ROUTINE :
             case SchemaObject.FUNCTION :
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
@@ -156,6 +159,10 @@ public class SchemaObjectSet {
 
         HsqlName name = object.getName();
 
+        if (type == SchemaObject.SPECIFIC_ROUTINE) {
+            name = ((Routine) object).getSpecificName();
+        }
+
         if (map.containsKey(name.name)) {
             int code = getAddErrorCode(name.type);
 
@@ -183,10 +190,11 @@ public class SchemaObjectSet {
         Iterator it = map.values().iterator();
 
         while (it.hasNext()) {
-            if (type == SchemaObject.TRIGGER) {
-                SchemaObject trigger = (SchemaObject) it.next();
+            if (type == SchemaObject.TRIGGER
+                    || type == SchemaObject.SPECIFIC_ROUTINE) {
+                SchemaObject object = (SchemaObject) it.next();
 
-                if (trigger.getName().parent == parent) {
+                if (object.getName().parent == parent) {
                     it.remove();
                 }
             } else {
@@ -262,6 +270,7 @@ public class SchemaObjectSet {
             case SchemaObject.COLLATION :
             case SchemaObject.PROCEDURE :
             case SchemaObject.FUNCTION :
+            case SchemaObject.SPECIFIC_ROUTINE :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.ASSERTION :
             case SchemaObject.INDEX :
@@ -292,6 +301,7 @@ public class SchemaObjectSet {
             case SchemaObject.COLLATION :
             case SchemaObject.PROCEDURE :
             case SchemaObject.FUNCTION :
+            case SchemaObject.SPECIFIC_ROUTINE :
             case SchemaObject.ASSERTION :
             case SchemaObject.INDEX :
             case SchemaObject.TRIGGER :

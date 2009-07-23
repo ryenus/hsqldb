@@ -36,17 +36,18 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.Routine;
+import org.hsqldb.RoutineSchema;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
 import org.hsqldb.lib.Collection;
 import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HashSet;
+import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
-import org.hsqldb.lib.HsqlArrayList;
 
 /**
  * Contains a set of Grantee objects, and supports operations for creating,
@@ -208,6 +209,20 @@ public class GranteeManager {
     public void grant(OrderedHashSet granteeList, SchemaObject dbObject,
                       Right right, Grantee grantor, boolean withGrantOption) {
 
+        if (dbObject instanceof RoutineSchema) {
+            SchemaObject[] routines =
+                ((RoutineSchema) dbObject).getSpecificRoutines();
+
+            grant(granteeList, routines, right, grantor, withGrantOption);
+
+            return;
+        }
+
+        HsqlName name = dbObject.getName();
+        if (dbObject instanceof Routine) {
+            name = ((Routine) dbObject).getSpecificName();
+        }
+
         if (!grantor.isGrantable(dbObject, right)) {
             throw Error.error(ErrorCode.X_0L000, grantor.getNameString());
         }
@@ -219,14 +234,33 @@ public class GranteeManager {
         checkGranteeList(granteeList);
 
         for (int i = 0; i < granteeList.size(); i++) {
-            String  name    = (String) granteeList.get(i);
-            Grantee grantee = get(name);
+            Grantee grantee = get((String) granteeList.get(i));
 
-            grantee.grant(dbObject, right, grantor, withGrantOption);
+            grantee.grant(name, right, grantor, withGrantOption);
 
             if (grantee.isRole) {
                 updateAllRights(grantee);
             }
+        }
+    }
+
+    public void grant(OrderedHashSet granteeList, SchemaObject[] routines,
+                      Right right, Grantee grantor, boolean withGrantOption) {
+
+        boolean granted = false;
+
+        for (int i = 0; i < routines.length; i++) {
+            if (!grantor.isGrantable(routines[i], right)) {
+                continue;
+            }
+
+            grant(granteeList, routines[i], right, grantor, withGrantOption);
+
+            granted = true;
+        }
+
+        if (!granted) {
+            throw Error.error(ErrorCode.X_0L000, grantor.getNameString());
         }
     }
 
@@ -333,7 +367,7 @@ public class GranteeManager {
     }
 
     public void grantSystemToPublic(SchemaObject object, Right right) {
-        publicRole.grant(object, right, systemAuthorisation, true);
+        publicRole.grant(object.getName(), right, systemAuthorisation, true);
     }
 
     /**
@@ -372,7 +406,22 @@ public class GranteeManager {
                        Right rights, Grantee grantor, boolean grantOption,
                        boolean cascade) {
 
-        if (!grantor.isFullyAccessibleByRole(dbObject)) {
+        if (dbObject instanceof RoutineSchema) {
+            SchemaObject[] routines =
+                ((RoutineSchema) dbObject).getSpecificRoutines();
+
+            revoke(granteeList, routines, rights, grantor, grantOption,
+                   cascade);
+
+            return;
+        }
+
+        HsqlName name = dbObject.getName();
+        if (dbObject instanceof Routine) {
+            name = ((Routine) dbObject).getSpecificName();
+        }
+
+        if (!grantor.isFullyAccessibleByRole(name)) {
             throw Error.error(ErrorCode.X_42501, dbObject.getName().name);
         }
 
@@ -381,21 +430,21 @@ public class GranteeManager {
         }
 
         for (int i = 0; i < granteeList.size(); i++) {
-            String  name = (String) granteeList.get(i);
-            Grantee g    = get(name);
+            String  granteeName = (String) granteeList.get(i);
+            Grantee g    = get(granteeName);
 
             if (g == null) {
-                throw Error.error(ErrorCode.X_28501, name);
+                throw Error.error(ErrorCode.X_28501, granteeName);
             }
 
-            if (isImmutable(name)) {
-                throw Error.error(ErrorCode.X_28502, name);
+            if (isImmutable(granteeName)) {
+                throw Error.error(ErrorCode.X_28502, granteeName);
             }
         }
 
         for (int i = 0; i < granteeList.size(); i++) {
-            String  name = (String) granteeList.get(i);
-            Grantee g    = get(name);
+            String  granteeName = (String) granteeList.get(i);
+            Grantee g    = get(granteeName);
 
             g.revoke(dbObject, rights, grantor, grantOption);
             g.updateAllRights();
@@ -403,6 +452,16 @@ public class GranteeManager {
             if (g.isRole) {
                 updateAllRights(g);
             }
+        }
+    }
+
+    public void revoke(OrderedHashSet granteeList, SchemaObject[] routines,
+                       Right rights, Grantee grantor, boolean grantOption,
+                       boolean cascade) {
+
+        for (int i = 0; i < routines.length; i++) {
+            revoke(granteeList, routines[i], rights, grantor, grantOption,
+                   cascade);
         }
     }
 

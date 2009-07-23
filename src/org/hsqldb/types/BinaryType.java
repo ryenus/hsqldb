@@ -136,6 +136,10 @@ public class BinaryType extends Type {
         return true;
     }
 
+    public long getMaxPrecision() {
+        return maxBinaryPrecision;
+    }
+
     public boolean requiresPrecision() {
         return typeCode == Types.SQL_VARBINARY;
     }

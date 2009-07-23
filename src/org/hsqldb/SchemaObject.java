@@ -44,29 +44,30 @@ import org.hsqldb.lib.OrderedHashSet;
  */
 public interface SchemaObject {
 
-    int CATALOG    = 1;
-    int SCHEMA     = 2;
-    int TABLE      = 3;
-    int VIEW       = 4;
-    int CONSTRAINT = 5;
-    int ASSERTION  = 6;
-    int SEQUENCE   = 7;
-    int TRIGGER    = 8;
-    int COLUMN     = 9;
-    int TRANSITION = 10;
-    int GRANTEE    = 11;
-    int TYPE       = 12;
-    int DOMAIN     = 13;
-    int CHARSET    = 14;
-    int COLLATION  = 15;
-    int FUNCTION   = 16;
-    int PROCEDURE  = 17;
-    int ROUTINE    = 18;
-    int CURSOR     = 19;
-    int INDEX      = 20;
-    int LABEL      = 21;
-    int VARIABLE   = 22;
-    int PARAMETER  = 23;
+    int CATALOG          = 1;
+    int SCHEMA           = 2;
+    int TABLE            = 3;
+    int VIEW             = 4;
+    int CONSTRAINT       = 5;
+    int ASSERTION        = 6;
+    int SEQUENCE         = 7;
+    int TRIGGER          = 8;
+    int COLUMN           = 9;
+    int TRANSITION       = 10;
+    int GRANTEE          = 11;
+    int TYPE             = 12;
+    int DOMAIN           = 13;
+    int CHARSET          = 14;
+    int COLLATION        = 15;
+    int FUNCTION         = 16;
+    int PROCEDURE        = 17;
+    int ROUTINE          = 18;
+    int CURSOR           = 19;
+    int INDEX            = 20;
+    int LABEL            = 21;
+    int VARIABLE         = 22;
+    int PARAMETER        = 23;
+    int SPECIFIC_ROUTINE = 24;
 
     //
     SchemaObject[] emptyArray = new SchemaObject[]{};
@@ -88,6 +89,41 @@ public interface SchemaObject {
     void compile(Session session);
 
     String getSQL();
+
+    interface ConstraintTypes {
+
+        int FOREIGN_KEY = 0;
+        int MAIN        = 1;
+        int UNIQUE      = 2;
+        int CHECK       = 3;
+        int PRIMARY_KEY = 4;
+        int TEMP        = 5;
+    }
+
+    /*
+     SQL CLI codes
+
+     Referential Constraint 0 CASCADE
+     Referential Constraint 1 RESTRICT
+     Referential Constraint 2 SET NULL
+     Referential Constraint 3 NO ACTION
+     Referential Constraint 4 SET DEFAULT
+     */
+    interface ReferentialAction {
+
+        int CASCADE     = 0;
+        int RESTRICT    = 1;
+        int SET_NULL    = 2;
+        int NO_ACTION   = 3;
+        int SET_DEFAULT = 4;
+    }
+
+    interface Deferable {
+
+        int NOT_DEFERRABLE = 0;
+        int INIT_DEFERRED  = 1;
+        int INIT_IMMEDIATE = 2;
+    }
 
     interface ViewCheckModes {
 

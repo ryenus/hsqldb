@@ -52,6 +52,7 @@ public final class Schema implements SchemaObject {
     SchemaObjectSet collationLookup;
     SchemaObjectSet procedureLookup;
     SchemaObjectSet functionLookup;
+    SchemaObjectSet specificRoutineLookup;
     SchemaObjectSet assertionLookup;
     HashMappedList  tableList;
     HashMappedList  sequenceList;
@@ -70,6 +71,7 @@ public final class Schema implements SchemaObject {
         collationLookup  = new SchemaObjectSet(SchemaObject.COLLATION);
         procedureLookup  = new SchemaObjectSet(SchemaObject.PROCEDURE);
         functionLookup   = new SchemaObjectSet(SchemaObject.FUNCTION);
+        specificRoutineLookup = new SchemaObjectSet(SchemaObject.SPECIFIC_ROUTINE);
         assertionLookup  = new SchemaObjectSet(SchemaObject.ASSERTION);
         tableList        = (HashMappedList) tableLookup.map;
         sequenceList     = (HashMappedList) sequenceLookup.map;
@@ -263,7 +265,11 @@ public final class Schema implements SchemaObject {
                 return triggerLookup.map.values().iterator();
 
             case SchemaObject.INDEX :
+                return indexLookup.map.values().iterator();
+
             case SchemaObject.CONSTRAINT :
+                return constraintLookup.map.values().iterator();
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Schema");
         }

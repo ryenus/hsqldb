@@ -235,7 +235,7 @@ public class ParserDDL extends ParserRoutine {
                 read();
 
                 HsqlName name =
-                    readNewSchemaObjectNameNoCheck(SchemaObject.INDEX);
+                    readNewSchemaObjectName(SchemaObject.INDEX, true);
 
                 readThis(Tokens.RENAME);
                 readThis(Tokens.TO);
@@ -334,6 +334,27 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_ASSERTION;
                 objectType    = SchemaObject.ASSERTION;
+                canCascade    = true;
+
+                break;
+            }
+            case Tokens.SPECIFIC : {
+                read();
+
+                switch (token.tokenType) {
+
+                    case Tokens.ROUTINE :
+                    case Tokens.PROCEDURE :
+                    case Tokens.FUNCTION :
+                        read();
+                        break;
+
+                    default :
+                        throw unexpectedToken();
+                }
+
+                statementType = StatementTypes.DROP_ROUTINE;
+                objectType    = SchemaObject.SPECIFIC_ROUTINE;
                 canCascade    = true;
 
                 break;
@@ -488,7 +509,7 @@ public class ParserDDL extends ParserRoutine {
                 break;
             }
             default :
-                name = readNewSchemaObjectNameNoCheck(objectType);
+                name = readNewSchemaObjectName(objectType, false);
         }
 
         if (useIfExists && token.tokenType == Tokens.IF) {
@@ -944,7 +965,7 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSchema compileCreateTable(int type) {
 
-        HsqlName name = readNewSchemaObjectNameNoCheck(SchemaObject.TABLE);
+        HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
         HsqlArrayList tempConstraints = new HsqlArrayList();
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
@@ -960,7 +981,8 @@ public class ParserDDL extends ParserRoutine {
         readThis(Tokens.OPENBRACKET);
 
         {
-            Constraint c = new Constraint(null, null, Constraint.TEMP);
+            Constraint c = new Constraint(null, null,
+                                          SchemaObject.ConstraintTypes.TEMP);
 
             tempConstraints.add(c);
         }
@@ -1262,7 +1284,8 @@ public class ParserDDL extends ParserRoutine {
 
         if (c.core.mainCols != null) {
             Constraint newconstraint = new Constraint(c.getName(), table,
-                table.getPrimaryIndex(), Constraint.PRIMARY_KEY);
+                table.getPrimaryIndex(),
+                SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
             table.addConstraint(newconstraint);
             session.database.schemaManager.addSchemaObject(newconstraint);
@@ -1273,7 +1296,7 @@ public class ParserDDL extends ParserRoutine {
 
             switch (c.constType) {
 
-                case Constraint.UNIQUE : {
+                case SchemaObject.ConstraintTypes.UNIQUE : {
                     c.setColumnsIndexes(table);
 
                     if (table.getUniqueConstraintForColumns(c.core.mainCols)
@@ -1289,7 +1312,7 @@ public class ParserDDL extends ParserRoutine {
                     Index index = table.createAndAddIndexStructure(indexName,
                         c.core.mainCols, null, null, true, true, false);
                     Constraint newconstraint = new Constraint(c.getName(),
-                        table, index, Constraint.UNIQUE);
+                        table, index, SchemaObject.ConstraintTypes.UNIQUE);
 
                     table.addConstraint(newconstraint);
                     session.database.schemaManager.addSchemaObject(
@@ -1297,12 +1320,12 @@ public class ParserDDL extends ParserRoutine {
 
                     break;
                 }
-                case Constraint.FOREIGN_KEY : {
+                case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
                     addForeignKey(session, table, c, constraintList);
 
                     break;
                 }
-                case Constraint.CHECK : {
+                case SchemaObject.ConstraintTypes.CHECK : {
                     c.prepareCheckConstraint(session, table, false);
                     table.addConstraint(c);
 
@@ -1471,9 +1494,9 @@ public class ParserDDL extends ParserRoutine {
         // -- "ON" statements following the foreign key
         // -- definition this can be
         // -- ON [UPDATE|DELETE] [NO ACTION|RESTRICT|CASCADE|SET [NULL|DEFAULT]]
-        int               deleteAction = Constraint.NO_ACTION;
-        int               updateAction = Constraint.NO_ACTION;
-        OrderedIntHashSet set          = new OrderedIntHashSet();
+        int deleteAction      = SchemaObject.ReferentialAction.NO_ACTION;
+        int updateAction      = SchemaObject.ReferentialAction.NO_ACTION;
+        OrderedIntHashSet set = new OrderedIntHashSet();
 
         while (token.tokenType == Tokens.ON) {
             read();
@@ -1493,14 +1516,16 @@ public class ParserDDL extends ParserRoutine {
                         case Tokens.DEFAULT : {
                             read();
 
-                            deleteAction = Constraint.SET_DEFAULT;
+                            deleteAction =
+                                SchemaObject.ReferentialAction.SET_DEFAULT;
 
                             break;
                         }
                         case Tokens.NULL :
                             read();
 
-                            deleteAction = Constraint.SET_NULL;
+                            deleteAction =
+                                SchemaObject.ReferentialAction.SET_NULL;
                             break;
 
                         default :
@@ -1509,7 +1534,7 @@ public class ParserDDL extends ParserRoutine {
                 } else if (token.tokenType == Tokens.CASCADE) {
                     read();
 
-                    deleteAction = Constraint.CASCADE;
+                    deleteAction = SchemaObject.ReferentialAction.CASCADE;
                 } else if (token.tokenType == Tokens.RESTRICT) {
                     read();
                 } else {
@@ -1527,14 +1552,16 @@ public class ParserDDL extends ParserRoutine {
                         case Tokens.DEFAULT : {
                             read();
 
-                            deleteAction = Constraint.SET_DEFAULT;
+                            deleteAction =
+                                SchemaObject.ReferentialAction.SET_DEFAULT;
 
                             break;
                         }
                         case Tokens.NULL :
                             read();
 
-                            deleteAction = Constraint.SET_NULL;
+                            deleteAction =
+                                SchemaObject.ReferentialAction.SET_NULL;
                             break;
 
                         default :
@@ -1543,7 +1570,7 @@ public class ParserDDL extends ParserRoutine {
                 } else if (token.tokenType == Tokens.CASCADE) {
                     read();
 
-                    updateAction = Constraint.CASCADE;
+                    updateAction = SchemaObject.ReferentialAction.CASCADE;
                 } else if (token.tokenType == Tokens.RESTRICT) {
                     read();
                 } else {
@@ -1563,8 +1590,8 @@ public class ParserDDL extends ParserRoutine {
 
         return new Constraint(constraintName, refTable.getName(), refColSet,
                               mainTableName, mainColSet,
-                              Constraint.FOREIGN_KEY, deleteAction,
-                              updateAction, matchType);
+                              SchemaObject.ConstraintTypes.FOREIGN_KEY,
+                              deleteAction, updateAction, matchType);
     }
 
     private HsqlName readFKTableName(HsqlName schema) {
@@ -1602,7 +1629,7 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
-        HsqlName name = readNewSchemaObjectName(SchemaObject.VIEW);
+        HsqlName name = readNewSchemaObjectName(SchemaObject.VIEW, true);
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
@@ -1685,7 +1712,7 @@ public class ParserDDL extends ParserRoutine {
                 [START WITH <value>]
                 [INCREMENT BY <value>]
         */
-        HsqlName name = readNewSchemaObjectNameNoCheck(SchemaObject.SEQUENCE);
+        HsqlName name = readNewSchemaObjectName(SchemaObject.SEQUENCE, false);
         NumberSequence sequence = new NumberSequence(name, Type.SQL_INTEGER);
 
         readSequenceOptions(sequence, true, false);
@@ -1704,7 +1731,7 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
-        name = readNewSchemaObjectNameNoCheck(SchemaObject.DOMAIN);
+        name = readNewSchemaObjectName(SchemaObject.DOMAIN, false);
 
         readIfThis(Tokens.AS);
 
@@ -1766,7 +1793,7 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
-        HsqlName name = readNewSchemaObjectNameNoCheck(SchemaObject.TYPE);
+        HsqlName name = readNewSchemaObjectName(SchemaObject.TYPE, false);
 
         readThis(Tokens.AS);
 
@@ -1791,7 +1818,7 @@ public class ParserDDL extends ParserRoutine {
         read();
         readThis(Tokens.SET);
 
-        HsqlName name = readNewSchemaObjectNameNoCheck(SchemaObject.CHARSET);
+        HsqlName name = readNewSchemaObjectName(SchemaObject.CHARSET, false);
 
         readIfThis(Tokens.AS);
         readThis(Tokens.GET);
@@ -1887,7 +1914,7 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
-        name = readNewSchemaObjectName(SchemaObject.TRIGGER);
+        name = readNewSchemaObjectName(SchemaObject.TRIGGER, true);
 
         switch (token.tokenType) {
 
@@ -1947,7 +1974,7 @@ public class ParserDDL extends ParserRoutine {
             read();
             checkIsSimpleName();
 
-            otherName = readNewSchemaObjectName(SchemaObject.TRIGGER);
+            otherName = readNewSchemaObjectName(SchemaObject.TRIGGER, true);
         }
 
         name.setSchemaIfNull(table.getSchemaName());
@@ -2516,8 +2543,9 @@ public class ParserDDL extends ParserRoutine {
             HsqlName constName = database.nameManager.newAutoName("PK",
                 table.getSchemaName(), table.getName(),
                 SchemaObject.CONSTRAINT);
-            Constraint c = new Constraint(constName, set,
-                                          Constraint.PRIMARY_KEY);
+            Constraint c =
+                new Constraint(constName, set,
+                               SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
             constraintList.set(0, c);
             column.setPrimaryKey(true);
@@ -2684,7 +2712,8 @@ public class ParserDDL extends ParserRoutine {
 
                 mainConst = (Constraint) constraintList.get(0);
 
-                if (mainConst.constType == Constraint.PRIMARY_KEY) {
+                if (mainConst.constType
+                        == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                     throw Error.error(ErrorCode.X_42532);
                 }
 
@@ -2695,8 +2724,9 @@ public class ParserDDL extends ParserRoutine {
                 }
 
                 OrderedHashSet set = readColumnNames(false);
-                Constraint c = new Constraint(constName, set,
-                                              Constraint.PRIMARY_KEY);
+                Constraint c =
+                    new Constraint(constName, set,
+                                   SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
                 constraintList.set(0, c);
 
@@ -2717,8 +2747,9 @@ public class ParserDDL extends ParserRoutine {
                             schemaObject.getName(), SchemaObject.CONSTRAINT);
                 }
 
-                Constraint c = new Constraint(constName, set,
-                                              Constraint.UNIQUE);
+                Constraint c =
+                    new Constraint(constName, set,
+                                   SchemaObject.ConstraintTypes.UNIQUE);
 
                 constraintList.add(c);
 
@@ -2749,8 +2780,9 @@ public class ParserDDL extends ParserRoutine {
                             schemaObject.getName(), SchemaObject.CONSTRAINT);
                 }
 
-                Constraint c = new Constraint(constName, null,
-                                              Constraint.CHECK);
+                Constraint c =
+                    new Constraint(constName, null,
+                                   SchemaObject.ConstraintTypes.CHECK);
 
                 readCheckConstraintCondition(c);
                 constraintList.add(c);
@@ -2792,7 +2824,8 @@ public class ParserDDL extends ParserRoutine {
                     Constraint existingConst =
                         (Constraint) constraintList.get(0);
 
-                    if (existingConst.constType == Constraint.PRIMARY_KEY) {
+                    if (existingConst.constType
+                            == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                         throw Error.error(ErrorCode.X_42532);
                     }
 
@@ -2806,8 +2839,9 @@ public class ParserDDL extends ParserRoutine {
                                 SchemaObject.CONSTRAINT);
                     }
 
-                    Constraint c = new Constraint(constName, set,
-                                                  Constraint.PRIMARY_KEY);
+                    Constraint c = new Constraint(
+                        constName, set,
+                        SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
                     constraintList.set(0, c);
                     column.setPrimaryKey(true);
@@ -2827,8 +2861,9 @@ public class ParserDDL extends ParserRoutine {
                                 SchemaObject.CONSTRAINT);
                     }
 
-                    Constraint c = new Constraint(constName, set,
-                                                  Constraint.UNIQUE);
+                    Constraint c =
+                        new Constraint(constName, set,
+                                       SchemaObject.ConstraintTypes.UNIQUE);
 
                     constraintList.add(c);
 
@@ -2860,8 +2895,9 @@ public class ParserDDL extends ParserRoutine {
                                 SchemaObject.CONSTRAINT);
                     }
 
-                    Constraint c = new Constraint(constName, null,
-                                                  Constraint.CHECK);
+                    Constraint c =
+                        new Constraint(constName, null,
+                                       SchemaObject.ConstraintTypes.CHECK);
 
                     readCheckConstraintCondition(c);
 
@@ -2895,8 +2931,9 @@ public class ParserDDL extends ParserRoutine {
                                 SchemaObject.CONSTRAINT);
                     }
 
-                    Constraint c = new Constraint(constName, null,
-                                                  Constraint.CHECK);
+                    Constraint c =
+                        new Constraint(constName, null,
+                                       SchemaObject.ConstraintTypes.CHECK);
 
                     c.check = new ExpressionLogical(column);
 
@@ -2962,7 +2999,7 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
-        indexHsqlName = readNewSchemaObjectName(SchemaObject.INDEX);
+        indexHsqlName = readNewSchemaObjectName(SchemaObject.INDEX, true);
 
         readThis(Tokens.ON);
 
@@ -3297,7 +3334,7 @@ public class ParserDDL extends ParserRoutine {
 
     Statement compileRenameObject(HsqlName name, int objectType) {
 
-        HsqlName newName = readNewSchemaObjectName(objectType);
+        HsqlName newName = readNewSchemaObjectName(objectType, true);
         String   sql     = getLastPart();
         Object[] args    = new Object[] {
             name, newName
@@ -3313,7 +3350,7 @@ public class ParserDDL extends ParserRoutine {
      */
     void processAlterTableRename(Table table) {
 
-        HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE);
+        HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, true);
 
         name.setSchemaIfNull(table.getSchemaName());
 
@@ -3418,7 +3455,7 @@ public class ParserDDL extends ParserRoutine {
                     SchemaObject.CONSTRAINT);
         }
 
-        check = new Constraint(name, null, Constraint.CHECK);
+        check = new Constraint(name, null, SchemaObject.ConstraintTypes.CHECK);
 
         readCheckConstraintCondition(check);
         session.commit(false);
@@ -3438,7 +3475,7 @@ public class ParserDDL extends ParserRoutine {
                     SchemaObject.CONSTRAINT);
         }
 
-        check = new Constraint(name, null, Constraint.CHECK);
+        check = new Constraint(name, null, SchemaObject.ConstraintTypes.CHECK);
 
         readCheckConstraintCondition(check);
 
@@ -3451,9 +3488,10 @@ public class ParserDDL extends ParserRoutine {
 
     void processAlterTableAddColumn(Table table) {
 
-        int           colIndex   = table.getColumnCount();
-        HsqlArrayList list       = new HsqlArrayList();
-        Constraint    constraint = new Constraint(null, null, Constraint.TEMP);
+        int           colIndex = table.getColumnCount();
+        HsqlArrayList list     = new HsqlArrayList();
+        Constraint constraint =
+            new Constraint(null, null, SchemaObject.ConstraintTypes.TEMP);
 
         list.add(constraint);
         checkIsSchemaObjectName();
@@ -3489,9 +3527,10 @@ public class ParserDDL extends ParserRoutine {
 
     Statement compileAlterTableAddColumn(Table table) {
 
-        int           colIndex   = table.getColumnCount();
-        HsqlArrayList list       = new HsqlArrayList();
-        Constraint    constraint = new Constraint(null, null, Constraint.TEMP);
+        int           colIndex = table.getColumnCount();
+        HsqlArrayList list     = new HsqlArrayList();
+        Constraint constraint =
+            new Constraint(null, null, SchemaObject.ConstraintTypes.TEMP);
 
         list.add(constraint);
         checkIsSchemaObjectName();
@@ -3535,8 +3574,9 @@ public class ParserDDL extends ParserRoutine {
         }
 
         int[] cols = readColumnList(table, false);
-        Constraint constraint = new Constraint(name, null,
-                                               Constraint.PRIMARY_KEY);
+        Constraint constraint =
+            new Constraint(name, null,
+                           SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
         constraint.core.mainCols = cols;
 
@@ -3556,8 +3596,9 @@ public class ParserDDL extends ParserRoutine {
         }
 
         int[] cols = readColumnList(table, false);
-        Constraint constraint = new Constraint(name, null,
-                                               Constraint.PRIMARY_KEY);
+        Constraint constraint =
+            new Constraint(name, null,
+                           SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
         constraint.core.mainCols = cols;
 
@@ -4072,7 +4113,8 @@ public class ParserDDL extends ParserRoutine {
             Constraint    c    = table.getPrimaryConstraint();
 
             if (c == null) {
-                c = new Constraint(null, null, Constraint.TEMP);
+                c = new Constraint(null, null,
+                                   SchemaObject.ConstraintTypes.TEMP);
             }
 
             list.add(c);
@@ -4132,7 +4174,7 @@ public class ParserDDL extends ParserRoutine {
 
         checkIsSimpleName();
 
-        HsqlName name = readNewSchemaObjectNameNoCheck(SchemaObject.COLUMN);
+        HsqlName name = readNewSchemaObjectName(SchemaObject.COLUMN, true);
 
         if (table.findColumn(name.name) > -1) {
             throw Error.error(ErrorCode.X_42504, name.name);
@@ -4237,7 +4279,7 @@ public class ParserDDL extends ParserRoutine {
                 readThis(Tokens.TO);
 
                 HsqlName newName =
-                    readNewSchemaObjectName(SchemaObject.DOMAIN);
+                    readNewSchemaObjectName(SchemaObject.DOMAIN, true);
 
                 newName.setSchemaIfNull(schema);
 
@@ -4268,8 +4310,6 @@ public class ParserDDL extends ParserRoutine {
                         SchemaObject.CONSTRAINT, true);
 
                     read();
-
-//                    domain.removeConstraint(tokenString);
                     database.schemaManager.removeSchemaObject(name);
 
                     return;
@@ -4579,22 +4619,57 @@ public class ParserDDL extends ParserRoutine {
 
                 objectType = SchemaObject.FUNCTION;
                 objectName =
-                    readNewSchemaObjectNameNoCheck(SchemaObject.FUNCTION);
+                    readNewSchemaObjectName(SchemaObject.FUNCTION, false);
                 break;
 
+            case Tokens.SPECIFIC : {
+                if (!isExec && !isAll) {
+                    throw unexpectedToken();
+                }
+
+                read();
+
+                switch (token.tokenType) {
+
+                    case Tokens.ROUTINE :
+                    case Tokens.PROCEDURE :
+                    case Tokens.FUNCTION :
+                        read();
+                        break;
+
+                    default :
+                        throw unexpectedToken();
+                }
+
+                objectType = SchemaObject.SPECIFIC_ROUTINE;
+
+                break;
+            }
             case Tokens.FUNCTION :
+                if (!isExec && !isAll) {
+                    throw unexpectedToken();
+                }
+
                 read();
 
                 objectType = SchemaObject.FUNCTION;
                 break;
 
             case Tokens.PROCEDURE :
+                if (!isExec && !isAll) {
+                    throw unexpectedToken();
+                }
+
                 read();
 
                 objectType = SchemaObject.PROCEDURE;
                 break;
 
             case Tokens.ROUTINE :
+                if (!isExec && !isAll) {
+                    throw unexpectedToken();
+                }
+
                 read();
 
                 objectType = SchemaObject.ROUTINE;
@@ -4652,7 +4727,7 @@ public class ParserDDL extends ParserRoutine {
                 objectType = SchemaObject.TABLE;
         }
 
-        objectName = readNewSchemaObjectNameNoCheck(objectType);
+        objectName = readNewSchemaObjectName(objectType, false);
 
         if (grant) {
             readThis(Tokens.TO);
@@ -4705,13 +4780,13 @@ public class ParserDDL extends ParserRoutine {
         }
 
         int      typee = grant ? StatementTypes.GRANT
-                              : StatementTypes.REVOKE;
-        Object[] args = new Object[] {
+                               : StatementTypes.REVOKE;
+        Object[] args  = new Object[] {
             granteeList, objectName, right, grantor, Boolean.valueOf(cascade),
             Boolean.valueOf(isGrantOption)
         };
         String          sql = getLastPart();
-        StatementSchema cs  = new StatementSchema(sql, typee, args, null, null);
+        StatementSchema cs = new StatementSchema(sql, typee, args, null, null);
 
         return cs;
     }

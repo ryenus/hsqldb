@@ -515,7 +515,7 @@ final class DITableInfo {
      */
     Integer getColSqlDateTimeSub(int i) {
 
-        ti.setTypeCode(table.getColumn(i).getDataType().getJDBCTypeCode());
+        ti.setTypeCode(table.getColumn(i).getDataType().typeCode);
 
         return ti.getSqlDateTimeSub();
     }

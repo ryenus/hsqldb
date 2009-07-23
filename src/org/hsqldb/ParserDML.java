@@ -382,7 +382,7 @@ public class ParserDML extends ParserDQL {
 
             for (int i = 0; i < table.constraintList.length; i++) {
                 if (table.constraintList[i].getConstraintType()
-                        == Constraint.MAIN) {
+                        == SchemaObject.ConstraintTypes.MAIN) {
                     throw Error.error(ErrorCode.X_23504);
                 }
             }

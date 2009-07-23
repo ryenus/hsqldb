@@ -61,7 +61,6 @@ public class ParserDQL extends ParserBase {
     protected Session              session;
     protected final CompileContext compileContext;
     HsqlException                  lastError;
-    boolean                        strictSQLIdentifierParts;
 
     //
 
@@ -75,10 +74,9 @@ public class ParserDQL extends ParserBase {
 
         super(t);
 
-        this.session             = session;
-        database                 = session.getDatabase();
-        compileContext           = new CompileContext(session);
-        strictSQLIdentifierParts = false;
+        this.session   = session;
+        database       = session.getDatabase();
+        compileContext = new CompileContext(session);
     }
 
     /**
@@ -101,17 +99,13 @@ public class ParserDQL extends ParserBase {
         } else {
             checkIsNonCoreReservedIdentifier();
         }
-
-        if (token.namePrePrefix != null) {
-            throw tooManyIdentifiers();
-        }
     }
 
     Type readTypeDefinition(boolean includeUserTypes) {
 
-        int typeNumber = Integer.MIN_VALUE;
-        boolean hasLength = false;
-        boolean hasScale = false;
+        int     typeNumber = Integer.MIN_VALUE;
+        boolean hasLength  = false;
+        boolean hasScale   = false;
 
         checkIsIdentifier();
 
@@ -182,7 +176,7 @@ public class ParserDQL extends ParserBase {
                 break;
 
             case Types.SQL_INTERVAL :
-                return readIntervalType();
+                return readIntervalType(false);
 
             default :
         }
@@ -247,7 +241,7 @@ public class ParserDQL extends ParserBase {
                 }
 
                 hasLength = true;
-                length = ((Number) token.tokenValue).longValue();
+                length    = ((Number) token.tokenValue).longValue();
 
                 if (length < 0
                         || (length == 0
@@ -280,6 +274,7 @@ public class ParserDQL extends ParserBase {
                     if (scale < 0) {
                         throw Error.error(ErrorCode.X_42592);
                     }
+
                     hasScale = true;
                 }
 
@@ -356,7 +351,7 @@ public class ParserDQL extends ParserBase {
             case Types.SQL_NUMERIC :
                 if (!hasLength && !hasScale && !database.sqlEnforceSize) {
                     length = NumberType.defaultNumericPrecision;
-                    scale =  NumberType.legacyNumericScale;
+                    scale  = NumberType.legacyNumericScale;
                 }
                 break;
         }
@@ -1968,7 +1963,7 @@ public class ParserDQL extends ParserBase {
                         case Tokens.HOUR :
                         case Tokens.MINUTE :
                         case Tokens.SECOND : {
-                            IntervalType type = readIntervalType();
+                            IntervalType type = readIntervalType(false);
 
                             if (e1.getType() == OpTypes.SUBTRACT) {
                                 e1.dataType = type;
@@ -1989,7 +1984,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.HOUR :
             case Tokens.MINUTE :
             case Tokens.SECOND : {
-                IntervalType type = readIntervalType();
+                IntervalType type = readIntervalType(true);
 
                 if (e.getType() == OpTypes.SUBTRACT) {
                     e.dataType = type;
@@ -3828,6 +3823,7 @@ public class ParserDQL extends ParserBase {
         boolean isSimpleQuoted = isDelimitedSimpleName();
         String  prefix         = token.namePrefix;
         String  prePrefix      = token.namePrePrefix;
+        String  prePrePrefix   = token.namePrePrePrefix;
 
         if (isUndelimitedSimpleName()) {
             FunctionSQL function =
@@ -3869,9 +3865,15 @@ public class ParserDQL extends ParserBase {
         read();
 
         if (token.tokenType != Tokens.OPENBRACKET) {
+            checkValidCatalogName(prePrePrefix);
+
             Expression column = new ExpressionColumn(prePrefix, prefix, name);
 
             return column;
+        }
+
+        if (prePrePrefix != null) {
+            throw Error.error(ErrorCode.X_42551, prePrePrefix);
         }
 
         checkValidCatalogName(prePrefix);
@@ -3891,16 +3893,7 @@ public class ParserDQL extends ParserBase {
                     schema.name, SchemaObject.FUNCTION);
 
             if (routineSchema == null) {
-                Method[]  methods  = Routine.getMethods(name);
-                Routine[] routines = Routine.newRoutines(methods);
-                HsqlName routineName = database.nameManager.newHsqlName(schema,
-                    name, true, SchemaObject.FUNCTION);
-
-                for (int i = 0; i < routines.length; i++) {
-                    routines[i].setName(routineName);
-                    session.database.schemaManager.addSchemaObject(
-                        routines[i]);
-                }
+                Routine.createRoutines(session, schema, name);
 
                 routineSchema =
                     (RoutineSchema) database.schemaManager.findSchemaObject(
@@ -4077,15 +4070,14 @@ public class ParserDQL extends ParserBase {
                     continue;
                 }
                 case Tokens.X_POS_INTEGER : {
-                    Expression e       = null;
-                    Integer        value = readIntegerObject();
+                    Expression e     = null;
+                    Integer    value = readIntegerObject();
 
                     if (value.intValue() < 0) {
                         throw Error.error(ErrorCode.X_42592);
                     }
 
-                    e = new ExpressionValue(value,
-                                            Type.SQL_INTEGER);
+                    e = new ExpressionValue(value, Type.SQL_INTEGER);
 
                     exprList.add(e);
 
@@ -4228,7 +4220,7 @@ public class ParserDQL extends ParserBase {
         return name;
     }
 
-    HsqlName readNewSchemaObjectNameNoCheck(int type) {
+    HsqlName readNewSchemaObjectName(int type, boolean checkSchema) {
 
         checkIsSchemaObjectName();
 
@@ -4236,43 +4228,65 @@ public class ParserDQL extends ParserBase {
             isDelimitedIdentifier(), type);
 
         if (token.namePrefix != null) {
-            if (type == SchemaObject.GRANTEE) {
-                throw unexpectedToken();
+            switch (type) {
+
+                case SchemaObject.LABEL :
+                case SchemaObject.VARIABLE :
+                case SchemaObject.SPECIFIC_ROUTINE :
+                case SchemaObject.GRANTEE :
+                case SchemaObject.CATALOG :
+                    throw unexpectedToken();
+                case SchemaObject.CURSOR : {
+                    if (token.namePrePrefix == null
+                            && Tokens.T_MODULE.equals(token.namePrefix)
+                            && !token.isDelimitedPrefix) {}
+                    else {
+                        throw unexpectedTokenRequire(Tokens.T_MODULE);
+                    }
+
+                    break;
+                }
+                case SchemaObject.SCHEMA : {
+                    checkValidCatalogName(token.namePrefix);
+
+                    if (token.namePrePrefix != null) {
+                        throw tooManyIdentifiers();
+                    }
+
+                    break;
+                }
+                case SchemaObject.COLUMN : {
+                    if (token.namePrefix != null) {
+                        throw tooManyIdentifiers();
+                    }
+
+                    break;
+                }
+                default : {
+                    checkValidCatalogName(token.namePrePrefix);
+
+                    HsqlName schemaName;
+
+                    if (checkSchema) {
+                        schemaName =
+                            session.getSchemaHsqlName(token.namePrefix);
+                    } else {
+                        schemaName =
+                            session.database.schemaManager.findSchemaHsqlName(
+                                token.namePrefix);
+
+                        if (schemaName == null) {
+                            schemaName = database.nameManager.newHsqlName(
+                                token.namePrefix, isDelimitedIdentifier(),
+                                SchemaObject.SCHEMA);
+                        }
+                    }
+
+                    hsqlName.setSchemaIfNull(schemaName);
+
+                    break;
+                }
             }
-
-            HsqlName schemaName =
-                session.database.schemaManager.findSchemaHsqlName(
-                    token.namePrefix);
-
-            if (schemaName == null) {
-                schemaName = database.nameManager.newHsqlName(token.namePrefix,
-                        isDelimitedIdentifier(), SchemaObject.SCHEMA);
-            }
-
-            hsqlName.setSchemaIfNull(schemaName);
-        }
-
-        read();
-
-        return hsqlName;
-    }
-
-    HsqlName readNewSchemaObjectName(int type) {
-
-        checkIsSchemaObjectName();
-
-        HsqlName hsqlName = database.nameManager.newHsqlName(token.tokenString,
-            isDelimitedIdentifier(), type);
-
-        if (token.namePrefix != null) {
-            if (type == SchemaObject.GRANTEE || type == SchemaObject.VARIABLE
-                    || type == SchemaObject.CATALOG) {
-                throw unexpectedToken();
-            }
-
-            HsqlName schemaName = session.getSchemaHsqlName(token.namePrefix);
-
-            hsqlName.setSchemaIfNull(schemaName);
         }
 
         read();
@@ -4282,7 +4296,7 @@ public class ParserDQL extends ParserBase {
 
     HsqlName readNewDependentSchemaObjectName(HsqlName parentName, int type) {
 
-        HsqlName name = readNewSchemaObjectName(type);
+        HsqlName name = readNewSchemaObjectName(type, true);
 
         name.parent = parentName;
 
@@ -4311,16 +4325,11 @@ public class ParserDQL extends ParserBase {
     SchemaObject readSchemaObjectName(int type) {
 
         checkIsSchemaObjectName();
+        checkValidCatalogName(token.namePrePrefix);
 
         SchemaObject object =
             database.schemaManager.getSchemaObject(token.tokenString,
                 token.namePrefix, type);
-
-        if (token.namePrePrefix != null) {
-            if (!token.namePrePrefix.equals(database.getCatalogName().name)) {
-                throw Error.error(ErrorCode.X_42505, token.namePrefix);
-            }
-        }
 
         read();
 
@@ -4379,7 +4388,7 @@ public class ParserDQL extends ParserBase {
         checkIsIdentifier();
 
         if (token.namePrefix != null) {
-            throw Error.error(ErrorCode.X_42551, token.tokenString);
+            throw tooManyIdentifiers();
         }
 
         int index = rangeVar.findColumn(token.tokenString);
@@ -4401,7 +4410,7 @@ public class ParserDQL extends ParserBase {
         checkIsIdentifier();
 
         if (token.namePrefix != null) {
-            throw Error.error(ErrorCode.X_42551, token.tokenString);
+            throw tooManyIdentifiers();
         }
 
         int index = table.findColumn(token.tokenString);
@@ -4423,8 +4432,8 @@ public class ParserDQL extends ParserBase {
 
         checkIsIdentifier();
 
-        if (strictSQLIdentifierParts && token.namePrefix != null) {
-            throw Error.error(ErrorCode.X_42551, token.tokenString);
+        if (token.namePrePrePrefix != null) {
+            checkValidCatalogName(token.namePrePrePrefix);
         }
 
         for (int i = 0; i < rangeVars.length; i++) {
@@ -4451,7 +4460,7 @@ public class ParserDQL extends ParserBase {
         int returnability = 0;    // WITHOUT_RETURN
 
         readThis(Tokens.DECLARE);
-        readNewSchemaObjectName(SchemaObject.CURSOR);
+        readNewSchemaObjectName(SchemaObject.CURSOR, true);
 
         switch (token.tokenType) {
 
@@ -4511,6 +4520,8 @@ public class ParserDQL extends ParserBase {
                 }
             }
         }
+
+        readThis(Tokens.FOR);
 
         StatementDMQL cs = compileCursorSpecification();
 
@@ -4784,7 +4795,7 @@ public class ParserDQL extends ParserBase {
             Routine[] routines = getRoutines();
 
             for (int i = 0; i < routines.length; i++) {
-                set.add(routines[i].getName());
+                set.add(routines[i].getSpecificName());
             }
 
             return set;

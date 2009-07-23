@@ -41,6 +41,7 @@ public class Token {
     Object  tokenValue;
     String  namePrefix;
     String  namePrePrefix;
+    String  namePrePrePrefix;
     String  charsetSchema;
     String  charsetName;
     String  fullString;
@@ -49,6 +50,7 @@ public class Token {
     boolean isDelimitedIdentifier;
     boolean isDelimitedPrefix;
     boolean isDelimitedPrePrefix;
+    boolean isDelimitedPrePrePrefix;
     boolean isUndelimitedIdentifier;
     boolean isReservedIdentifier;
     boolean isCoreReservedIdentifier;
@@ -67,14 +69,16 @@ public class Token {
         tokenValue               = null;
         namePrefix               = null;
         namePrePrefix            = null;
+        namePrePrePrefix         = null;
         charsetSchema            = null;
         charsetName              = null;
-         fullString              = null;
+        fullString               = null;
         lobMultiplierType        = Tokens.X_UNKNOWN_TOKEN;
         isDelimiter              = false;
         isDelimitedIdentifier    = false;
         isDelimitedPrefix        = false;
         isDelimitedPrePrefix     = false;
+        isDelimitedPrePrePrefix  = false;
         isUndelimitedIdentifier  = false;
         isReservedIdentifier     = false;
         isCoreReservedIdentifier = false;
@@ -92,6 +96,7 @@ public class Token {
         token.tokenValue               = tokenValue;
         token.namePrefix               = namePrefix;
         token.namePrePrefix            = namePrePrefix;
+        token.namePrePrePrefix         = namePrePrePrefix;
         token.charsetSchema            = charsetSchema;
         token.charsetName              = charsetName;
         token.fullString               = fullString;
@@ -100,6 +105,7 @@ public class Token {
         token.isDelimitedIdentifier    = isDelimitedIdentifier;
         token.isDelimitedPrefix        = isDelimitedPrefix;
         token.isDelimitedPrePrefix     = isDelimitedPrePrefix;
+        token.isDelimitedPrePrePrefix  = isDelimitedPrePrePrefix;
         token.isUndelimitedIdentifier  = isUndelimitedIdentifier;
         token.isReservedIdentifier     = isReservedIdentifier;
         token.isCoreReservedIdentifier = isCoreReservedIdentifier;
@@ -112,7 +118,6 @@ public class Token {
     public String getFullString() {
         return fullString;
     }
-
 
     String getSQL() {
 
@@ -139,6 +144,7 @@ public class Token {
 
                     if (e.opType == OpTypes.COALESCE) {
                         sb.append(e.getColumnName());
+
                         continue;
                     }
 
@@ -147,8 +153,8 @@ public class Token {
                     } else {
                         RangeVariable range = e.getRangeVariable();
 
-                        name = range.tableAlias.getStatementName()
-                               + '.' + c.getName().statementName;
+                        name = range.tableAlias.getStatementName() + '.'
+                               + c.getName().statementName;
                     }
 
                     if (i > 0) {

@@ -58,6 +58,7 @@ public final class NumberType extends Type {
     static final int        bigintPrecision              = 19;
     static final int        doublePrecision              = 0;
     public static final int defaultNumericPrecision      = 100;
+    public static final int maxNumericPrecision          = Integer.MAX_VALUE;
     public static final int legacyNumericScale           = 6;
     static final int        bigintSquareNumericPrecision = 40;
 
@@ -299,6 +300,68 @@ public final class NumberType extends Type {
             default :
                 return getNameString();
         }
+    }
+
+    public long getMaxPrecision() {
+
+        switch (typeCode) {
+
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                return maxNumericPrecision;
+
+            default :
+                return getNumericPrecisionInRadix();
+        }
+    }
+
+    public int getMaxScale() {
+
+        switch (typeCode) {
+
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                return Short.MAX_VALUE;
+
+            default :
+                return 0;
+        }
+    }
+
+    public boolean acceptsPrecision() {
+
+        switch (typeCode) {
+
+            case Types.SQL_DECIMAL :
+            case Types.SQL_NUMERIC :
+            case Types.SQL_FLOAT :
+                return true;
+
+            default :
+                return false;
+        }
+    }
+
+    public boolean acceptsScale() {
+
+        switch (typeCode) {
+
+            case Types.SQL_DECIMAL :
+            case Types.SQL_NUMERIC :
+                return true;
+
+            default :
+                return false;
+        }
+    }
+
+    public int getPrecisionRadix() {
+
+        if (typeCode == Types.SQL_DECIMAL || typeCode == Types.SQL_NUMERIC) {
+            return 10;
+        }
+
+        return 2;
     }
 
     public boolean isNumberType() {
@@ -1398,13 +1461,34 @@ public final class NumberType extends Type {
         }
     }
 
-    public int getPrecisionRadix() {
+    public int getNumericPrecisionInRadix() {
 
-        if (typeCode == Types.SQL_DECIMAL || typeCode == Types.SQL_NUMERIC) {
-            return 10;
+        switch (typeCode) {
+
+            case Types.TINYINT :
+                return 8;
+
+            case Types.SQL_SMALLINT :
+                return 16;
+
+            case Types.SQL_INTEGER :
+                return 32;
+
+            case Types.SQL_BIGINT :
+                return 64;
+
+            case Types.SQL_REAL :
+            case Types.SQL_FLOAT :
+            case Types.SQL_DOUBLE :
+                return 64;
+
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                return (int) precision;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
-
-        return 2;
     }
 
     public Type getIntegralType() {

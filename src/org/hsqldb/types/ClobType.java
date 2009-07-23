@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.Types;
@@ -107,6 +106,10 @@ public final class ClobType extends CharacterType {
         sb.append(')');
 
         return sb.toString();
+    }
+
+    public long getMaxPrecision() {
+        return maxClobPrecision;
     }
 
     public boolean isLobType() {

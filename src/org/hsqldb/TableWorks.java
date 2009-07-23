@@ -76,8 +76,10 @@ public class TableWorks {
         }
 
         // column defaults
-        boolean check = c.core.updateAction == Constraint.SET_DEFAULT
-                        || c.core.deleteAction == Constraint.SET_DEFAULT;
+        boolean check =
+            c.core.updateAction == SchemaObject.ReferentialAction.SET_DEFAULT
+            || c.core.deleteAction
+               == SchemaObject.ReferentialAction.SET_DEFAULT;
 
         if (check) {
             for (int i = 0; i < c.core.refCols.length; i++) {
@@ -92,8 +94,9 @@ public class TableWorks {
             }
         }
 
-        check = c.core.updateAction == Constraint.SET_NULL
-                || c.core.deleteAction == Constraint.SET_NULL;
+        check = c.core.updateAction == SchemaObject.ReferentialAction.SET_NULL
+                || c.core.deleteAction
+                   == SchemaObject.ReferentialAction.SET_NULL;
 
         if (check) {
             for (int i = 0; i < c.core.refCols.length; i++) {
@@ -252,7 +255,8 @@ public class TableWorks {
 
         Constraint c = (Constraint) constraints.get(0);
 
-        if (c.getConstraintType() == Constraint.PRIMARY_KEY) {
+        if (c.getConstraintType()
+                == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
             c.core.mainCols = new int[]{ colIndex };
 
             database.schemaManager.checkSchemaObjectNotExists(c.getName());
@@ -274,7 +278,7 @@ public class TableWorks {
 
             switch (c.constType) {
 
-                case Constraint.UNIQUE : {
+                case SchemaObject.ConstraintTypes.UNIQUE : {
                     if (addUnique) {
                         throw Error.error(ErrorCode.X_42522);
                     }
@@ -302,7 +306,7 @@ public class TableWorks {
 
                     break;
                 }
-                case Constraint.FOREIGN_KEY : {
+                case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
                     if (addFK) {
                         throw Error.error(ErrorCode.X_42528);
                     }
@@ -358,7 +362,7 @@ public class TableWorks {
 
                     break;
                 }
-                case Constraint.CHECK :
+                case SchemaObject.ConstraintTypes.CHECK :
                     if (addCheck) {
                         throw Error.error(ErrorCode.X_42528);
                     }
@@ -410,13 +414,15 @@ public class TableWorks {
                 continue;
             }
 
-            if (c.getConstraintType() == Constraint.FOREIGN_KEY) {
+            if (c.getConstraintType()
+                    == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
                 Table mainT = database.schemaManager.getUserTable(session,
                     c.core.mainTable.getName());
                 Constraint mainC = mainT.getConstraint(c.getMainName().name);
 
                 mainC.core = c.core;
-            } else if (c.getConstraintType() == Constraint.MAIN) {
+            } else if (c.getConstraintType()
+                       == SchemaObject.ConstraintTypes.MAIN) {
                 Table refT = database.schemaManager.getUserTable(session,
                     c.core.refTable.getName());
                 Constraint refC = refT.getConstraint(c.getRefName().name);
@@ -561,8 +567,9 @@ public class TableWorks {
             SchemaObject.INDEX);
         Index index = table.createIndexStructure(indexname, cols, null, null,
             true, true, false);
-        Constraint constraint = new Constraint(name, table, index,
-                                               Constraint.UNIQUE);
+        Constraint constraint =
+            new Constraint(name, table, index,
+                           SchemaObject.ConstraintTypes.UNIQUE);
         Table tn = table.moveDefinition(session, table.tableType, null,
                                         constraint, index, -1, 0, emptySet,
                                         emptySet);
@@ -681,14 +688,14 @@ public class TableWorks {
         for (int i = 0; i < dependentConstraints.size(); i++) {
             Constraint c = (Constraint) dependentConstraints.get(i);
 
-            if (c.constType == Constraint.FOREIGN_KEY) {
+            if (c.constType == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
                 tableSet.add(c.getMain());
                 constraintNameSet.add(c.getMainName());
                 constraintNameSet.add(c.getRefName());
                 indexNameSet.add(c.getRefIndex().getName());
             }
 
-            if (c.constType == Constraint.MAIN) {
+            if (c.constType == SchemaObject.ConstraintTypes.MAIN) {
                 tableSet.add(c.getRef());
                 constraintNameSet.add(c.getMainName());
                 constraintNameSet.add(c.getRefName());
@@ -727,9 +734,9 @@ public class TableWorks {
 
             switch (c.constType) {
 
-                case Constraint.PRIMARY_KEY :
-                case Constraint.UNIQUE :
-                case Constraint.CHECK :
+                case SchemaObject.ConstraintTypes.PRIMARY_KEY :
+                case SchemaObject.ConstraintTypes.UNIQUE :
+                case SchemaObject.ConstraintTypes.CHECK :
                     database.schemaManager.addSchemaObject(c);
             }
         }
@@ -745,10 +752,10 @@ public class TableWorks {
 
         switch (constraint.getConstraintType()) {
 
-            case Constraint.MAIN :
+            case SchemaObject.ConstraintTypes.MAIN :
                 throw Error.error(ErrorCode.X_28502);
-            case Constraint.PRIMARY_KEY :
-            case Constraint.UNIQUE : {
+            case SchemaObject.ConstraintTypes.PRIMARY_KEY :
+            case SchemaObject.ConstraintTypes.UNIQUE : {
                 OrderedHashSet dependentConstraints =
                     table.getDependentConstraints(constraint);
 
@@ -786,7 +793,8 @@ public class TableWorks {
 
                 constraintNameSet.add(constraint.getName());
 
-                if (constraint.getConstraintType() == Constraint.UNIQUE) {
+                if (constraint.getConstraintType()
+                        == SchemaObject.ConstraintTypes.UNIQUE) {
                     indexNameSet.add(constraint.getMainIndex().getName());
                 }
 
@@ -800,7 +808,8 @@ public class TableWorks {
                 tableSet = makeNewTables(tableSet, constraintNameSet,
                                          indexNameSet);
 
-                if (constraint.getConstraintType() == Constraint.PRIMARY_KEY) {
+                if (constraint.getConstraintType()
+                        == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                     int[] cols = constraint.getMainColumns();
 
                     for (int i = 0; i < cols.length; i++) {
@@ -824,7 +833,7 @@ public class TableWorks {
                 // handle cascadingConstraints and cascadingTables
                 break;
             }
-            case Constraint.FOREIGN_KEY : {
+            case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
                 OrderedHashSet constraints = new OrderedHashSet();
                 Table          mainTable   = constraint.getMain();
                 HsqlName       mainName    = constraint.getMainName();
@@ -859,7 +868,7 @@ public class TableWorks {
 
                 break;
             }
-            case Constraint.CHECK :
+            case SchemaObject.ConstraintTypes.CHECK :
                 database.schemaManager.removeSchemaObject(
                     constraint.getName());
 
@@ -1027,14 +1036,16 @@ public class TableWorks {
                 throw Error.error(ErrorCode.X_42526);
             }
 
-            table.checkColumnInFKConstraint(colIndex, Constraint.SET_NULL);
+            table.checkColumnInFKConstraint(
+                colIndex, SchemaObject.ReferentialAction.SET_NULL);
             removeColumnNotNullConstraints(colIndex);
         } else {
             HsqlName constName = database.nameManager.newAutoName("CT",
                 table.getSchemaName(), table.getName(),
                 SchemaObject.CONSTRAINT);
 
-            c       = new Constraint(constName, null, Constraint.CHECK);
+            c = new Constraint(constName, null,
+                               SchemaObject.ConstraintTypes.CHECK);
             c.check = new ExpressionLogical(column);
 
             c.prepareCheckConstraint(session, table, true);
@@ -1054,7 +1065,8 @@ public class TableWorks {
     void setColDefaultExpression(int colIndex, Expression def) {
 
         if (def == null) {
-            table.checkColumnInFKConstraint(colIndex, Constraint.SET_DEFAULT);
+            table.checkColumnInFKConstraint(
+                colIndex, SchemaObject.ReferentialAction.SET_DEFAULT);
         }
 
         table.setDefaultExpression(colIndex, def);

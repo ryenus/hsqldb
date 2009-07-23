@@ -146,15 +146,32 @@ public class RoutineSchema implements SchemaObject {
         }
 
         if (routine.getSpecificName() == null) {
-            HsqlName specificName = database.nameManager.newAutoName("",
-                name.name, name.schema, name, name.type);
+            HsqlName specificName =
+                database.nameManager.newSpecificRoutineName(name);
 
             routine.setSpecificName(specificName);
+        } else {
+            routine.getSpecificName().parent = name;
+            routine.getSpecificName().schema = name.schema;
         }
+        routine.setName(name);
 
+        routine.routineSchema = this;
         routines = (Routine[]) ArrayUtil.resizeArray(routines,
                 routines.length + 1);
         routines[routines.length - 1] = routine;
+    }
+
+    public void removeSpecificRoutine(Routine routine) {
+
+        for (int i = 0; i < this.routines.length; i++) {
+            if (routines[i] == routine) {
+                routines = (Routine[]) ArrayUtil.toAdjustedArray(routines,
+                        null, i, -1);
+
+                break;
+            }
+        }
     }
 
     public Routine[] getSpecificRoutines() {

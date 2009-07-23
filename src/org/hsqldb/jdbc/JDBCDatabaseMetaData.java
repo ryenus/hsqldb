@@ -862,11 +862,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     public String getSQLKeywords() throws SQLException {
 
         return "";
-        /*
-        return "BEFORE,BIGINT,BINARY,CACHED,DATETIME,"
-               + "LIMIT,LONGVARBINARY,LONGVARCHAR,OBJECT,OTHER,SAVEPOINT,"
-               + "TEMP,TEXT,TOP,TRIGGER,TINYINT,VARBINARY,VARCHAR_IGNORECASE";
-        */
     }
 
     /**
@@ -1338,8 +1333,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         return true;
     }
 
-    /** @todo 1.9.0 - return according to multiple result set cpability */
-
     /**
      * Retrieves whether this database supports getting multiple
      * <code>ResultSet</code> objects from a single call to the
@@ -1349,7 +1342,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.8.0.x, HSQLDB does not support getting multiple
+     * Up to and including 1.9.0, HSQLDB does not support getting multiple
      * <code>ResultSet</code> objects from a single call to the method
      * <code>execute</code>; this method always returns <code>false</code>. <p>
      *
@@ -1413,7 +1406,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports the ODBC Minimum SQL grammar;
+     * From 1.9.0, HSQLDB supports the ODBC Minimum SQL grammar;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1431,7 +1424,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports core SQL grammar;
+     * From 1.9.0, HSQLDB supports the ODBC Core SQL grammar;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1449,7 +1442,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports the ODBC Extended SQL grammar;
+     * From 1.9.0, HSQLDB supports the ODBC Extended SQL grammar;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1468,8 +1461,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports the ANSI92 entry level SQL grammar;
-     * this method always returns <code>true</code>. <p>
+     * From 1.9.0, HSQLDB supports the ANSI92 entry level SQL grammar;
+     * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1486,7 +1479,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports the ANSI92 intermediate SQL grammar;
+     * From 1.9.0, HSQLDB supports the ANSI92 intermediate SQL grammar;
      * this method always returns <code>true</code>.
      * <p>
      * </div>
@@ -1505,8 +1498,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports the ANSI92 full SQL grammar;
-     * this method always returns <code>true</code>. <p>
+     * From 1.9.0, HSQLDB supports the ANSI92 full SQL grammar. The exceptions,
+     * such as support for ASSERTION, are not considered grammer issues.
+     * This method always returns <code>true</code>. <p>
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1616,18 +1610,15 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support declaration of
-     * functions or procedures directly in SQL but instead relies on the
-     * HSQLDB-specific CLASS grant mechanism to make public static
-     * Java methods available as SQL routines; this method always returns
-     * an empty <code>String</code>. <p>
+     * From 1.9.0, HSQLDB supports declaration of
+     * functions or procedures directly in SQL.<p>
      * </div>
      * <!-- end release-specific documentation -->
      * @return the vendor term for "procedure"
      * @exception SQLException if a database access error occurs
      */
     public String getProcedureTerm() throws SQLException {
-        return "";
+        return "PROCEDURE";
     }
 
     /**
@@ -1717,15 +1708,15 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support schema-qualified
-     * procedure identifiers; this method always returns <code>false</code>.
+     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsSchemasInProcedureCalls() throws SQLException {
-        return supportsSchemasIn;
+        return true;
     }
 
     /**
@@ -1735,8 +1726,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.8.0, HSQLDB supports schemas;
-     * By default, this method returns <code>true</code>.
+     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * this method always returns <code>true</code>.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1744,7 +1735,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsSchemasInTableDefinitions() throws SQLException {
-        return supportsSchemasIn;
+        return true;
     }
 
     /**
@@ -1754,8 +1745,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.8.0, HSQLDB supports schemas;
-     * By default, this method returns <code>true</code>.
+     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * this method always returns <code>true</code>.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1763,7 +1754,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsSchemasInIndexDefinitions() throws SQLException {
-        return supportsSchemasIn;
+        return true;
     }
 
     /**
@@ -1773,8 +1764,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.8.0, HSQLDB supports schemas;
-     * By default, this method returns <code>true</code>.
+     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * this method always returns <code>true</code>.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1782,7 +1773,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsSchemasInPrivilegeDefinitions() throws SQLException {
-        return supportsSchemasIn;
+        return true;
     }
 
     /**
@@ -1792,8 +1783,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports catalog-qualified
-     * data manipulation; this method always returns <code>true</code>.
+     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1810,8 +1801,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support catalog-qualified
-     * procedure calls; this method always returns <code>false</code>.
+     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1828,8 +1819,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports catalog-qualified
-     * table definitions; this method always returns <code>true</code>.
+     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1846,8 +1837,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports catalog-qualified
-     * index definitions; this method always returns <code>true</code>.
+     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -1864,8 +1855,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports catalog-qualified
-     * privilege definitions; this method always returns <code>true</code>.
+     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if so; <code>false</code> otherwise
@@ -2136,7 +2127,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsOpenCursorsAcrossRollback() throws SQLException {
-        return false;
+        return true;
     }
 
     /**
@@ -2865,11 +2856,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Therefore, care must be taken to specify name arguments precisely
      * (including case) as they are stored in the database. <p>
      *
-     * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
-     * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * In version 1.9, the rows returned by this method are based on rows in
+     * the INFORMATION_SCHEMA.ROUTINES table.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3521,7 +3509,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             "SELECT TABLE_CATALOG TABLE_CAT, TABLE_SCHEMA TABLE_SCHEM,"
             + "TABLE_NAME, COLUMN_NAME, GRANTOR, GRANTEE, PRIVILEGE_TYPE PRIVILEGE, IS_GRANTABLE "
             + "FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TRUE "
-            + and("TABLE_CAT", "=", catalog) + and("TABLE_SCHEM", "=", schema)
+            + and("TABLE_CATALOG", "=", catalog) + and("TABLE_SCHEMA", "=", schema)
             + and("TABLE_NAME", "=", table)
             + and("COLUMN_NAME", "LIKE", columnNamePattern)
         ;

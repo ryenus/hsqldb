@@ -305,7 +305,7 @@ public class Tokens {
     static final String        T_SIMILAR           = "SIMILAR";
     public static final String T_SMALLINT          = "SMALLINT";
     static final String        T_SOME              = "SOME";
-    static final String        T_SPECIFIC          = "SPECIFIC";
+    public static final String T_SPECIFIC          = "SPECIFIC";
     static final String        T_SPECIFICTYPE      = "SPECIFICTYPE";
     public static final String T_SQL               = "SQL";
     static final String        T_SQLEXCEPTION      = "SQLEXCEPTION";
@@ -1979,6 +1979,7 @@ public class Tokens {
         commandSet.put(T_RESTRICT, RESTRICT);
         commandSet.put(T_RESULT, RESULT);
         commandSet.put(T_ROLE, ROLE);
+        commandSet.put(T_ROUTINE, ROUTINE);
         commandSet.put(T_SCALE, SCALE);
         commandSet.put(T_SCHEMA, SCHEMA);
         commandSet.put(T_SCRIPT, SCRIPT);
