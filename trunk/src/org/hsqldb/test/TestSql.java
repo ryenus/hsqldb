@@ -713,22 +713,22 @@ public class TestSql extends TestBase {
 
         assertTrue(rs.next());
         assertEquals("t1", rs.getObject("atable"));
-        assertEquals(1, rs.getObject("idvalue"));
-        assertEquals(1, rs.getObject("value1"));
-        assertEquals(1, rs.getObject("value2"));
+        assertEquals(1, rs.getInt("idvalue"));
+        assertEquals(1, rs.getInt("value1"));
+        assertEquals(1, rs.getInt("value2"));
         assertEquals(null, rs.getObject("value3"));
         assertTrue(rs.next());
         assertEquals("t1", rs.getObject("atable"));
-        assertEquals(2, rs.getObject("idvalue"));
-        assertEquals(2, rs.getObject("value1"));
-        assertEquals(2, rs.getObject("value2"));
+        assertEquals(2, rs.getInt("idvalue"));
+        assertEquals(2, rs.getInt("value1"));
+        assertEquals(2, rs.getInt("value2"));
         assertEquals(null, rs.getObject("value3"));
         assertTrue(rs.next());
         assertEquals("t2", rs.getObject("atable"));
-        assertEquals(1, rs.getObject("idvalue"));
-        assertEquals(3, rs.getObject("value1"));
+        assertEquals(1, rs.getInt("idvalue"));
+        assertEquals(3, rs.getInt("value1"));
         assertEquals(null, rs.getObject("value2"));
-        assertEquals(3, rs.getObject("value3"));    //this fails!
+        assertEquals(3, rs.getInt("value3"));    //this fails!
         assertFalse(rs.next());
     }
 

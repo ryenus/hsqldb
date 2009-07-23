@@ -188,11 +188,11 @@ public abstract class Type implements SchemaObject, Cloneable {
                               : null;
     }
 
-    public Integer getJDBCPrecision() {
+    public int getJDBCPrecision() {
 
         return precision > Integer.MAX_VALUE
-               ? ValuePool.getInt(Integer.MAX_VALUE)
-               : ValuePool.INTEGER_0;
+               ? Integer.MAX_VALUE
+               : (int) precision;
     }
 
     /**

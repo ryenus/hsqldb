@@ -41,11 +41,10 @@ import java.sql.RowIdLifetime;
 //#endif JAVA6
 import java.sql.SQLException;
 
-import org.hsqldb.ErrorCode;
+import org.hsqldb.FunctionCustom;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.types.Type;
-import org.hsqldb.FunctionCustom;
 
 /* $Id$ */
 
@@ -1698,7 +1697,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         // false for OOo client server compatibility
         // otherwise schema name is used by OOo in column references
-        return supportsSchemasIn;
+        return !useSchemaDefault;
     }
 
     /**
@@ -4823,7 +4822,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             // do not use to narrow search
         } else {
             select.append(" AND DATA_TYPE IN (").append(
-                StringUtil.getList(types, ",", "'")).append(')');
+                StringUtil.getList(types, ",","")).append(')');
         }
 
         // By default, the query already returns a result ordered by
@@ -5645,7 +5644,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             "sp.procedure_schem as FUNCTION_SCHEM,").append(
             "sp.procedure_name as FUNCTION_NAME,").append(
             "sp.remarks as REMARKS,").append("1 as FUNCTION_TYPE,").append(
-            "sp.specific_name as SPECIFIC_NAME,").append("sp.origin ").append(
+            "sp.specific_name as SPECIFIC_NAME ").append(
             "from information_schema.system_procedures sp ").append(
             "where sp.procedure_type = 2 ");
 
@@ -5882,11 +5881,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     private boolean useSchemaDefault;
 
     /**
-     * true if internal connection; false external connection and !useSchemaDefault
-     */
-    private boolean supportsSchemasIn;
-
-    /**
      * A CSV list representing the SQL IN list to use when generating
      * queries for <code>getBestRowIdentifier</code> when the
      * <code>scope</code> argument is <code>bestRowSession</code>.
@@ -5966,7 +5960,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                                         : c.connProperties
                                         .isPropertyTrue(HsqlDatabaseProperties
                                             .url_default_schema);
-        supportsSchemasIn = c.isInternal || !useSchemaDefault;
     }
 
     /**

@@ -920,7 +920,8 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                return ((NumberType) nodes[0].dataType).compareToZero(data[0]);
+                int val = ((NumberType) nodes[0].dataType).compareToZero(data[0]);
+                return ValuePool.getInt(val);
             }
             case FUNC_ATAN2 : {
                 if (data[0] == null) {
@@ -968,7 +969,8 @@ public class FunctionCustom extends FunctionSQL {
                 double d = NumberType.toDouble(data[0]);
                 int    i = ((Number) data[1]).intValue();
 
-                return Library.round(d, i);
+                d = Library.round(d, i);
+                return new Double(d);
             }
             case FUNC_ROUNDMAGIC : {
                 if (data[0] == null) {
@@ -977,7 +979,8 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Library.roundMagic(d);
+                d = Library.roundMagic(d);
+                return new Double(d);
             }
             case FUNC_SOUNDEX : {
                 if (data[0] == null) {
@@ -1070,7 +1073,7 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 return Library.repeat((String) data[0],
-                                      ((Number) data[1]).intValue());
+                                      ValuePool.getInt((( Number) data[1]).intValue()));
             }
             case FUNC_REPLACE : {
                 for (int i = 0; i < data.length; i++) {

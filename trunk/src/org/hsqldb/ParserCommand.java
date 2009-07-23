@@ -640,7 +640,7 @@ public class ParserCommand extends ParserDDL {
 
                         Boolean readonly = processTrueOrFalseObject();
 
-                        args[1] = Boolean.valueOf(readonly);
+                        args[1] = readonly;
 
                         return new StatementCommand(
                             StatementTypes.SET_TABLE_READONLY, args, null,

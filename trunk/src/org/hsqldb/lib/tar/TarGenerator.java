@@ -268,7 +268,7 @@ public class TarGenerator {
     static protected class TarEntrySupplicant {
 
         static protected byte[] HEADER_TEMPLATE =
-            TarFileOutputStream.ZERO_BLOCK.clone();
+            (byte[]) TarFileOutputStream.ZERO_BLOCK.clone();
         static Character              swapOutDelim = null;
         final protected static byte[] ustarBytes   = {
             'u', 's', 't', 'a', 'r'
@@ -360,7 +360,7 @@ public class TarGenerator {
                                              '0', false);
         }
 
-        protected byte[] rawHeader = HEADER_TEMPLATE.clone();
+        protected byte[] rawHeader = (byte[]) HEADER_TEMPLATE.clone();
         protected String fileMode  = DEFAULT_FILE_MODES;
 
         // Following fields are always initialized by constructors.

@@ -1178,10 +1178,11 @@ class ServerConnection implements Runnable {
                     Object[] paramVals = new Object[paramCount];
 
                     for (int i = 0; i < paramVals.length; i++) {
-                        paramVals[i] =
-                            (i < paramBinary.length && paramBinary[i])
-                            ? inPacket.readSizedBinaryData()
-                            : inPacket.readSizedString();
+                        if (i < paramBinary.length && paramBinary[i]) {
+                            paramVals[i] = inPacket.readSizedBinaryData();
+                        } else {
+                            paramVals[i] = inPacket.readSizedString();
+                        }
                     }
 
                     int outFormatCount = inPacket.readUnsignedShort();

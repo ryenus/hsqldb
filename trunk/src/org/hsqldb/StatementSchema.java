@@ -643,7 +643,7 @@ public class StatementSchema extends Statement {
                     OrderedHashSet granteeList = (OrderedHashSet) arguments[0];
                     OrderedHashSet roleList    = (OrderedHashSet) arguments[1];
                     Grantee        grantor     = (Grantee) arguments[2];
-                    boolean        cascade     = (Boolean) arguments[3];
+                    boolean cascade = ((Boolean) arguments[3]).booleanValue();
                     GranteeManager gm = session.database.granteeManager;
 
                     gm.checkGranteeList(granteeList);
@@ -1086,10 +1086,7 @@ public class StatementSchema extends Statement {
 
     private void dropRoutine(Session session, HsqlName name, boolean cascade) {
         checkSchemaUpdateAuthorisation(session, name.schema);
-
-
-        session.database.schemaManager.removeSchemaObject(name,
-                cascade);
+        session.database.schemaManager.removeSchemaObject(name, cascade);
     }
 
     private void dropObject(Session session, HsqlName name, boolean cascade) {

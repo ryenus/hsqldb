@@ -346,8 +346,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB supports BOOLEAN type for boolean values. This method can also
-     * be used to set the value of a parameter of the SQL type BIT, which is
-     * a bit string.
+     * be used to set the value of a parameter of the SQL type BIT(1), which is
+     * a bit string consisting of a 0 or 1.
      * </div>
      * <!-- end release-specific documentation -->
      *

@@ -188,6 +188,9 @@ public final class BooleanType extends Type {
         throw Error.error(ErrorCode.X_22018);
     }
 
+    /**
+     * ResultSet getBoolean support
+     */
     public Object convertToTypeJDBC(SessionInterface session, Object a,
                                     Type otherType) {
 
@@ -201,9 +204,12 @@ public final class BooleanType extends Type {
                 return a;
 
             default :
-                if (otherType.isNumberType()) {
-                    return NumberType.isZero(a) ? Boolean.FALSE
-                                                : Boolean.TRUE;
+                if (otherType.isCharacterType()) {
+                    if ("0".equals(a)) {
+                        return Boolean.TRUE;
+                    } else if ("1".equals(a)) {
+                        return Boolean.TRUE;
+                    }
                 }
 
                 return convertToType(session, a, otherType);
@@ -241,8 +247,8 @@ public final class BooleanType extends Type {
             return Tokens.T_UNKNOWN;
         }
 
-        return ((Boolean) a).booleanValue()? Tokens.T_TRUE
-                                           : Tokens.T_FALSE;
+        return ((Boolean) a).booleanValue() ? Tokens.T_TRUE
+                                            : Tokens.T_FALSE;
     }
 
     public boolean canConvertFrom(Type otherType) {

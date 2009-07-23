@@ -710,8 +710,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[ordinal_position] = ValuePool.getInt(j + 1);
                     row[parameter_mode] =
                         ValuePool.getInt(column.getParameterMode());
-                    row[data_type]              = type.getFullNameString();
-                    row[data_type_sql_id]       = type.getJDBCTypeCode();
+                    row[data_type] = type.getFullNameString();
+                    row[data_type_sql_id] =
+                        ValuePool.getInt(type.getJDBCTypeCode());
                     row[numeric_precision]      = ValuePool.INTEGER_0;
                     row[character_octet_length] = ValuePool.INTEGER_0;
 
@@ -1422,9 +1423,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             addColumn(t, "TYPE_CAT", SQL_IDENTIFIER);
             addColumn(t, "TYPE_SCHEM", SQL_IDENTIFIER);
-            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);     // not null
-            addColumn(t, "CLASS_NAME", CHARACTER_DATA);    // not null
-            addColumn(t, "DATA_TYPE", SQL_IDENTIFIER);     // not null
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "CLASS_NAME", CHARACTER_DATA);
+            addColumn(t, "DATA_TYPE", Type.SQL_INTEGER);
             addColumn(t, "REMARKS", CHARACTER_DATA);
             addColumn(t, "BASE_TYPE", Type.SQL_SMALLINT);
 
@@ -1464,9 +1465,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             data[type_schema]  = distinct.getSchemaName().name;
             data[type_name]    = distinct.getName().name;
             data[class_name]   = distinct.getJDBCClassName();
-            data[data_type]    = "DISTINCT";
+            data[data_type]    = ValuePool.getInt(Types.DISTINCT);
             data[remarks]      = null;
-            data[base_type]    = distinct.getJDBCTypeCode();
+            data[base_type]    = ValuePool.getInt(distinct.getJDBCTypeCode());
 
             t.insertSys(store, data);
         }
@@ -3880,6 +3881,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         row[udt_schema]  = type.getSchemaName().name;
                         row[udt_name]    = type.getName().name;
                     }
+
                     // end common block
                     t.insertSys(store, row);
                 }
@@ -6162,8 +6164,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[event_object_catalog] = database.getCatalogName().name;
             row[event_object_schema] = trigger.getTable().getSchemaName().name;
             row[event_object_table]   = trigger.getTable().getName().name;
-            row[action_order] =
+
+            int order =
                 trigger.getTable().getTriggerIndex(trigger.getName().name);
+
+            row[action_order]       = ValuePool.getInt(order);
             row[action_condition]   = trigger.getConditionSQL();
             row[action_statement]   = trigger.getProcedureSQL();
             row[action_orientation] = trigger.getActionOrientationString();
