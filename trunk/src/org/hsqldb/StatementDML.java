@@ -820,8 +820,9 @@ public class StatementDML extends StatementDMQL {
             }
 
             try {
-                if (c.core.deleteAction == Constraint.NO_ACTION
-                        || c.core.deleteAction == Constraint.RESTRICT) {
+                if (c.core.deleteAction == SchemaObject.ReferentialAction
+                        .NO_ACTION || c.core.deleteAction == SchemaObject
+                        .ReferentialAction.RESTRICT) {
                     if (c.core.mainTable == c.core.refTable) {
                         Row refrow = refiterator.getNextRow();
 
@@ -835,10 +836,10 @@ public class StatementDML extends StatementDMQL {
                         }
                     }
 
-                    int errorCode = c.core.deleteAction
-                                    == Constraint.NO_ACTION ? ErrorCode.X_23504
-                                                            : ErrorCode
-                                                                .X_23001;
+                    int errorCode =
+                        c.core.deleteAction == SchemaObject.ReferentialAction
+                            .NO_ACTION ? ErrorCode.X_23504
+                                       : ErrorCode.X_23001;
                     String[] info = new String[] {
                         c.core.refName.name, c.core.refTable.getName().name
                     };
@@ -860,9 +861,10 @@ public class StatementDML extends StatementDMQL {
                 int[]    m_columns = c.getMainColumns();
                 int[]    r_columns = c.getRefColumns();
                 Object[] mdata     = row.getData();
-                boolean isUpdate = c.getDeleteAction() == Constraint.SET_NULL
-                                   || c.getDeleteAction()
-                                      == Constraint.SET_DEFAULT;
+                boolean isUpdate =
+                    c.getDeleteAction() == SchemaObject.ReferentialAction
+                        .SET_NULL || c.getDeleteAction() == SchemaObject
+                        .ReferentialAction.SET_DEFAULT;
 
                 // -- list for records to be inserted if this is
                 // -- a 'ON DELETE SET [NULL|DEFAULT]' constraint
@@ -897,7 +899,8 @@ public class StatementDML extends StatementDMQL {
                         System.arraycopy(refrow.getData(), 0, rnd, 0,
                                          rnd.length);
 
-                        if (c.getDeleteAction() == Constraint.SET_NULL) {
+                        if (c.getDeleteAction()
+                                == SchemaObject.ReferentialAction.SET_NULL) {
                             for (int j = 0; j < r_columns.length; j++) {
                                 rnd[r_columns[j]] = null;
                             }
@@ -1099,12 +1102,13 @@ public class StatementDML extends StatementDMQL {
                                                   false);
 
             if (refiterator.hasNext()) {
-                if (c.core.updateAction == Constraint.NO_ACTION
-                        || c.core.updateAction == Constraint.RESTRICT) {
-                    int errorCode = c.core.deleteAction
-                                    == Constraint.NO_ACTION ? ErrorCode.X_23504
-                                                            : ErrorCode
-                                                                .X_23001;
+                if (c.core.updateAction == SchemaObject.ReferentialAction
+                        .NO_ACTION || c.core.updateAction == SchemaObject
+                        .ReferentialAction.RESTRICT) {
+                    int errorCode =
+                        c.core.deleteAction == SchemaObject.ReferentialAction
+                            .NO_ACTION ? ErrorCode.X_23504
+                                       : ErrorCode.X_23001;
                     String[] info = new String[] {
                         c.core.refName.name, c.core.refTable.getName().name
                     };
@@ -1120,8 +1124,8 @@ public class StatementDML extends StatementDMQL {
             Table reftable = c.getRef();
 
             // -- unused shortcut when update table has no imported constraint
-            boolean hasref =
-                reftable.getNextConstraintIndex(0, Constraint.MAIN) != -1;
+            boolean hasref = reftable.getNextConstraintIndex(
+                0, SchemaObject.ConstraintTypes.MAIN) != -1;
             Index refindex = c.getRefIndex();
 
             // -- walk the index for all the nodes that reference update node
@@ -1150,14 +1154,16 @@ public class StatementDML extends StatementDMQL {
                 // -- Depending on the type constraint we are dealing with we have to
                 // -- fill up the forign key of the current record with different values
                 // -- And handle the insertion procedure differently.
-                if (c.getUpdateAction() == Constraint.SET_NULL) {
+                if (c.getUpdateAction()
+                        == SchemaObject.ReferentialAction.SET_NULL) {
 
                     // -- set null; we do not have to check referential integrity any further
                     // -- since we are setting <code>null</code> values
                     for (int j = 0; j < r_columns.length; j++) {
                         rnd[r_columns[j]] = null;
                     }
-                } else if (c.getUpdateAction() == Constraint.SET_DEFAULT) {
+                } else if (c.getUpdateAction()
+                           == SchemaObject.ReferentialAction.SET_DEFAULT) {
 
                     // -- set default; we check referential integrity with ref==null; since we manipulated
                     // -- the values and referential integrity is no longer guaranteed to be valid

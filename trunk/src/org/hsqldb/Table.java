@@ -350,8 +350,8 @@ public class Table extends TableBase implements SchemaObject {
 
             if (c.isForward) {
                 unresolved.add(c);
-            } else if (c.getConstraintType() == Constraint.UNIQUE
-                       || c.getConstraintType() == Constraint.PRIMARY_KEY) {
+            } else if (c.getConstraintType() == SchemaObject.ConstraintTypes.UNIQUE
+                       || c.getConstraintType() == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                 resolved.add(c.getName());
             }
         }
@@ -604,7 +604,7 @@ public class Table extends TableBase implements SchemaObject {
      */
     public void addConstraint(Constraint c) {
 
-        int index = c.getConstraintType() == Constraint.PRIMARY_KEY ? 0
+        int index = c.getConstraintType() == SchemaObject.ConstraintTypes.PRIMARY_KEY ? 0
                                                                     : constraintList
                                                                         .length;
 
@@ -662,15 +662,15 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0; i < constraintList.length; i++) {
             switch (constraintList[i].getConstraintType()) {
 
-                case Constraint.FOREIGN_KEY :
+                case SchemaObject.ConstraintTypes.FOREIGN_KEY :
                     fkCount++;
                     break;
 
-                case Constraint.MAIN :
+                case SchemaObject.ConstraintTypes.MAIN :
                     mainCount++;
                     break;
 
-                case Constraint.CHECK :
+                case SchemaObject.ConstraintTypes.CHECK :
                     if (constraintList[i].isNotNull()) {
                         break;
                     }
@@ -693,19 +693,19 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0; i < constraintList.length; i++) {
             switch (constraintList[i].getConstraintType()) {
 
-                case Constraint.FOREIGN_KEY :
+                case SchemaObject.ConstraintTypes.FOREIGN_KEY :
                     fkConstraints[fkCount] = constraintList[i];
 
                     fkCount++;
                     break;
 
-                case Constraint.MAIN :
+                case SchemaObject.ConstraintTypes.MAIN :
                     fkMainConstraints[mainCount] = constraintList[i];
 
                     mainCount++;
                     break;
 
-                case Constraint.CHECK :
+                case SchemaObject.ConstraintTypes.CHECK :
                     if (constraintList[i].isNotNull()) {
                         break;
                     }
@@ -790,7 +790,7 @@ public class Table extends TableBase implements SchemaObject {
             Constraint c    = constraintList[i];
             int        type = c.getConstraintType();
 
-            if (type != Constraint.UNIQUE && type != Constraint.PRIMARY_KEY) {
+            if (type != SchemaObject.ConstraintTypes.UNIQUE && type != SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                 continue;
             }
 
@@ -853,8 +853,8 @@ public class Table extends TableBase implements SchemaObject {
             Constraint c = constraintList[i];
 
             if (c.getMainIndex() == index
-                    && (c.getConstraintType() == Constraint.UNIQUE
-                        || c.getConstraintType() == Constraint.PRIMARY_KEY)) {
+                    && (c.getConstraintType() == SchemaObject.ConstraintTypes.UNIQUE
+                        || c.getConstraintType() == SchemaObject.ConstraintTypes.PRIMARY_KEY)) {
                 return c;
             }
         }
@@ -971,7 +971,7 @@ public class Table extends TableBase implements SchemaObject {
         boolean newPK = false;
 
         if (constraint != null
-                && constraint.constType == Constraint.PRIMARY_KEY) {
+                && constraint.constType == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
             newPK = true;
         }
 
@@ -1084,7 +1084,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.constType == Constraint.CHECK && !c.isNotNull()
+            if (c.constType == SchemaObject.ConstraintTypes.CHECK && !c.isNotNull()
                     && c.hasColumn(colIndex)) {
                 HsqlName name = c.getName();
 
@@ -1105,8 +1105,8 @@ public class Table extends TableBase implements SchemaObject {
             Constraint c = constraintList[i];
 
             if (c.hasColumn(colIndex)
-                    && (c.getConstraintType() == Constraint.MAIN
-                        || c.getConstraintType() == Constraint.FOREIGN_KEY)) {
+                    && (c.getConstraintType() == SchemaObject.ConstraintTypes.MAIN
+                        || c.getConstraintType() == SchemaObject.ConstraintTypes.FOREIGN_KEY)) {
                 HsqlName name = c.getName();
 
                 throw Error.error(ErrorCode.X_42533,
@@ -1176,7 +1176,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.getConstraintType() == Constraint.MAIN) {
+            if (c.getConstraintType() == SchemaObject.ConstraintTypes.MAIN) {
                 if (c.core.uniqueName == constraint.getName()) {
                     set.add(c);
                 }
@@ -1193,8 +1193,8 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.getConstraintType() == Constraint.MAIN
-                    || c.getConstraintType() == Constraint.FOREIGN_KEY) {
+            if (c.getConstraintType() == SchemaObject.ConstraintTypes.MAIN
+                    || c.getConstraintType() == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
                 if (c.core.mainTable != c.core.refTable) {
                     set.add(c);
                 }
@@ -1216,7 +1216,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, size = constraintList.length; i < size; i++) {
             Constraint c = constraintList[i];
 
-            if (c.getConstraintType() == Constraint.FOREIGN_KEY
+            if (c.getConstraintType() == SchemaObject.ConstraintTypes.FOREIGN_KEY
                     && c.hasColumn(colIndex)
                     && (actionType == c.getUpdateAction()
                         || actionType == c.getDeleteAction())) {
@@ -1310,7 +1310,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, count = constraintList.length; i < count; i++) {
             Constraint constraint = constraintList[i];
 
-            if (constraint.constType == Constraint.UNIQUE) {
+            if (constraint.constType == SchemaObject.ConstraintTypes.UNIQUE) {
                 int[] indexCols = constraint.getMainColumns();
 
                 if (ArrayUtil.areIntIndexesInBooleanArray(
@@ -1319,7 +1319,7 @@ public class Table extends TableBase implements SchemaObject {
                                 indexCols, usedColumns)) {
                     return indexCols;
                 }
-            } else if (constraint.constType == Constraint.PRIMARY_KEY) {
+            } else if (constraint.constType == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                 int[] indexCols = constraint.getMainColumns();
 
                 if (ArrayUtil.areIntIndexesInBooleanArray(indexCols,

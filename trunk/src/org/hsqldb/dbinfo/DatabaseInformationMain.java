@@ -31,8 +31,6 @@
 
 package org.hsqldb.dbinfo;
 
-import java.lang.reflect.Method;
-
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Constraint;
 import org.hsqldb.Database;
@@ -46,6 +44,7 @@ import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.Types;
+import org.hsqldb.index.Index;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
@@ -53,7 +52,6 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.result.Result;
 import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
@@ -193,9 +191,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
     /** Provides naming support. */
     protected DINameSpace ns;
-
-    /** Provides SQL function/procedure reporting support. */
-    protected DIProcedureInfo pi;
 
     static {
         nonCachedTablesSet = new HashSet();
@@ -340,9 +335,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 //            fully comprehensive, security aware and accessible to all users.
         switch (tableIndex) {
 
-            case SYSTEM_ALLTYPEINFO :
-                return SYSTEM_ALLTYPEINFO();
-
             case SYSTEM_BESTROWIDENTIFIER :
                 return SYSTEM_BESTROWIDENTIFIER();
 
@@ -357,12 +349,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             case SYSTEM_PRIMARYKEYS :
                 return SYSTEM_PRIMARYKEYS();
-
-            case SYSTEM_PROCEDURECOLUMNS :
-                return SYSTEM_PROCEDURECOLUMNS();
-
-            case SYSTEM_PROCEDURES :
-                return SYSTEM_PROCEDURES();
 
             case SYSTEM_SCHEMAS :
                 return SYSTEM_SCHEMAS();
@@ -407,7 +393,6 @@ class DatabaseInformationMain extends DatabaseInformation {
     protected final void init() {
 
         ns = new DINameSpace(database);
-        pi = new DIProcedureInfo(ns);
 
         // flag the Session-dependent cached tables
         Table t;
@@ -834,7 +819,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      *                             (may be <code>null</code>)
      * SQL_DATA_TYPE     VARCHAR   type code as expected in the SQL CLI SQLDA
      * SQL_DATETIME_SUB  INTEGER   the SQL CLI subtype for DATETIME types
-     * CHAR_OCTET_LENGTH INTEGER   for char types, max # of bytes in column
+     * CHAR_OCTET_LENGTH INTEGER   for char types, max # of chars/bytes in column
      * ORDINAL_POSITION  INTEGER   1-based index of column in table
      * IS_NULLABLE       VARCHAR   is column nullable? ("YES"|"NO"|""}
      * SCOPE_CATLOG      VARCHAR   catalog of REF attribute scope table
@@ -881,12 +866,12 @@ class DatabaseInformationMain extends DatabaseInformation {
             // ----------------------------------------------------------------
             // JDBC 4.0 - added Mustang b86
             // ----------------------------------------------------------------
-            addColumn(t, "IS_AUTOINCREMENT", Type.SQL_BOOLEAN);     // not null
+            addColumn(t, "IS_AUTOINCREMENT", YES_OR_NO);            // 22
 
             // ----------------------------------------------------------------
             // HSQLDB-specific
             // ----------------------------------------------------------------
-            addColumn(t, "TYPE_SUB", Type.SQL_INTEGER);             // not null
+            addColumn(t, "TYPE_SUB", Type.SQL_INTEGER);             // 23
 
             // order: TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION
             // added for unique: TABLE_CAT
@@ -963,13 +948,12 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             tableCatalog = table.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
-            tableName    = ti.getName();
+            tableName    = table.getName().name;
             columnCount  = table.getColumnCount();
-
-            Type[] types = table.getColumnTypes();
 
             for (int i = 0; i < columnCount; i++) {
                 ColumnSchema column = table.getColumn(i);
+                Type         type   = column.getDataType();
 
                 row = t.getEmptyRowData();
 
@@ -978,23 +962,58 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[itable_schem]       = tableSchema;
                 row[itable_name]        = tableName;
                 row[icolumn_name]       = column.getName().name;
-                row[idata_type]         = types[i].getJDBCTypeCode();
-                row[itype_name]         = types[i].getNameString();
-                row[icolumn_size]       = types[i].getJDBCPrecision();
-                row[ibuffer_length]     = null;
-                row[idecimal_digits]    = types[i].getJDBCScale();
-                row[inum_prec_radix]    = ti.getColPrecRadix(i);
-                row[inullable]          = column.getNullability();
-                row[iremark]            = ti.getColRemarks(i);
-                row[icolumn_def]        = column.getDefaultSQL();
-                row[isql_data_type]     = types[i].getJDBCTypeCode();
-                row[isql_datetime_sub]  = ti.getColSqlDateTimeSub(i);
-                row[ichar_octet_length] = ti.getColCharOctLen(i);
-                row[iordinal_position]  = ValuePool.getInt(i + 1);
-                row[iis_nullable]       = ti.getColIsNullable(i);
+                row[idata_type] = ValuePool.getInt(type.getJDBCTypeCode());
+                row[itype_name]         = type.getNameString();
+                row[icolumn_size]       = ValuePool.INTEGER_0;
+                row[ichar_octet_length] = ValuePool.INTEGER_0;
+
+                if (type.isCharacterType()) {
+                    row[icolumn_size] =
+                        ValuePool.getInt(type.getJDBCPrecision());
+
+                    // this is length not octet_length, for character columns
+                    row[ichar_octet_length] =
+                        ValuePool.getInt(type.getJDBCPrecision());
+                }
+
+                if (type.isBinaryType()) {
+                    row[icolumn_size] =
+                        ValuePool.getInt(type.getJDBCPrecision());
+                    row[ichar_octet_length] =
+                        ValuePool.getInt(type.getJDBCPrecision());
+                }
+
+                if (type.isNumberType()) {
+                    row[icolumn_size] = ValuePool.getInt(
+                        ((NumberType) type).getNumericPrecisionInRadix());
+                    row[inum_prec_radix] =
+                        ValuePool.getInt(type.getPrecisionRadix());
+
+                    if (type.isExactNumberType()) {
+                        row[idecimal_digits] = ValuePool.getLong(type.scale);
+                    }
+                }
+
+                if (type.isDateTimeType()) {
+                    int size = (int) column.getDataType().displaySize();
+
+                    row[icolumn_size] = ValuePool.getInt(size);
+                }
+
+                row[icolumn_size]      = row[ibuffer_length] = null;
+                row[inum_prec_radix]   = ti.getColPrecRadix(i);
+                row[inullable] = ValuePool.getInt(column.getNullability());
+                row[iremark]           = ti.getColRemarks(i);
+                row[icolumn_def]       = column.getDefaultSQL();
+                row[isql_data_type]    = ValuePool.getInt(type.typeCode);
+                row[isql_datetime_sub] = ti.getColSqlDateTimeSub(i);
+                row[iordinal_position] = ValuePool.getInt(i + 1);
+                row[iis_nullable]      = column.isNullable() ? "YES"
+                                                             : "NO";
 
                 // JDBC 4.0
-                row[iis_autoinc] = ti.getColIsIdentity(i);
+                row[iis_autoinc] = column.isIdentity() ? "YES"
+                                                       : "NO";
 
                 // HSQLDB-specific
                 row[itype_sub] = ti.getColDataTypeSub(i);
@@ -1107,8 +1126,6 @@ class DatabaseInformationMain extends DatabaseInformation {
         int           constraintCount;
         HsqlArrayList fkConstraintsList;
         Object[]      row;
-        DITableInfo   pkInfo;
-        DITableInfo   fkInfo;
 
         // column number mappings
         final int ipk_table_cat   = 0;
@@ -1128,8 +1145,6 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         tables =
             database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
-        pkInfo = new DITableInfo();
-        fkInfo = new DITableInfo();
 
         // We must consider all the constraints in all the user tables, since
         // this is where reference relationships are recorded.  However, we
@@ -1154,8 +1169,10 @@ class DatabaseInformationMain extends DatabaseInformation {
             for (int i = 0; i < constraintCount; i++) {
                 constraint = (Constraint) constraints[i];
 
-                if (constraint.getConstraintType() == Constraint.FOREIGN_KEY
-                        && isAccessibleTable(constraint.getRef())) {
+                if (constraint.getConstraintType() == SchemaObject
+                        .ConstraintTypes
+                        .FOREIGN_KEY && isAccessibleTable(constraint
+                            .getRef())) {
                     fkConstraintsList.add(constraint);
                 }
             }
@@ -1166,17 +1183,11 @@ class DatabaseInformationMain extends DatabaseInformation {
         // imported/exported column pair of each constraint.
         // Do it.
         for (int i = 0; i < fkConstraintsList.size(); i++) {
-            constraint = (Constraint) fkConstraintsList.get(i);
-            pkTable    = constraint.getMain();
-
-            pkInfo.setTable(pkTable);
-
-            pkTableName = pkInfo.getName();
-            fkTable     = constraint.getRef();
-
-            fkInfo.setTable(fkTable);
-
-            fkTableName    = fkInfo.getName();
+            constraint     = (Constraint) fkConstraintsList.get(i);
+            pkTable        = constraint.getMain();
+            pkTableName    = pkTable.getName().name;
+            fkTable        = constraint.getRef();
+            fkTableName    = fkTable.getName().name;
             pkTableCatalog = pkTable.getCatalogName().name;
             pkTableSchema  = pkTable.getSchemaName().name;
             fkTableCatalog = fkTable.getCatalogName().name;
@@ -1194,8 +1205,8 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             for (int j = 0; j < columnCount; j++) {
                 keySequence          = ValuePool.getInt(j + 1);
-                pkColumnName         = pkInfo.getColName(mainCols[j]);
-                fkColumnName         = fkInfo.getColName(refCols[j]);
+                pkColumnName = pkTable.getColumn(mainCols[j]).getNameString();
+                fkColumnName = fkTable.getColumn(refCols[j]).getNameString();
                 row                  = t.getEmptyRowData();
                 row[ipk_table_cat]   = pkTableCatalog;
                 row[ipk_table_schem] = pkTableSchema;
@@ -1282,7 +1293,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 SchemaObject.INDEX);
 
             t.createPrimaryKey(name, new int[] {
-                3, 6, 5, 7, 4, 2, 1
+                0, 1, 2, 3, 4, 5, 7
             }, false);
 
             return t;
@@ -1308,15 +1319,13 @@ class DatabaseInformationMain extends DatabaseInformation {
         Integer rowCardinality;
 
         // Intermediate holders
-        Iterator       tables;
-        Table          table;
-        int            indexCount;
-        int[]          cols;
-        int            col;
-        int            colCount;
-        Object[]       row;
-        DITableInfo    ti;
-        HsqlProperties p;
+        Iterator tables;
+        Table    table;
+        int      indexCount;
+        int[]    cols;
+        int      col;
+        int      colCount;
+        Object[] row;
 
         // column number mappings
         final int itable_cat        = 0;
@@ -1335,10 +1344,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int irow_cardinality  = 13;
 
         // Initialization
-        ti = new DITableInfo();
-        p  = database.getProperties();
-        tables = database.schemaManager.databaseObjectIterator(
-                     SchemaObject.TABLE);
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         // Do it.
         while (tables.hasNext()) {
@@ -1348,11 +1355,9 @@ class DatabaseInformationMain extends DatabaseInformation {
                 continue;
             }
 
-            ti.setTable(table);
-
             tableCatalog = table.getCatalogName().name;
             tableSchema  = table.getSchemaName().name;
-            tableName    = ti.getName();
+            tableName    = table.getName().name;
 
             // not supported yet
             filterCondition = null;
@@ -1363,19 +1368,22 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             // process all of the visible indices for this table
             for (int i = 0; i < indexCount; i++) {
-                colCount = ti.getIndexVisibleColumns(i);
+                Index index = table.getIndex(i);
+
+                colCount = table.getIndex(i).getColumnCount();
 
                 if (colCount < 1) {
                     continue;
                 }
 
-                indexName      = ti.getIndexName(i);
-                nonUnique      = ti.isIndexNonUnique(i);
-                cardinality    = ti.getIndexCardinality(i);
+                indexName      = index.getName().name;
+                nonUnique      = index.isUnique() ? Boolean.FALSE
+                                                  : Boolean.TRUE;
+                cardinality    = null;
                 pages          = ValuePool.INTEGER_0;
-                rowCardinality = ti.getIndexRowCardinality(i);
-                cols           = ti.getIndexColumns(i);
-                indexType      = ti.getIndexType(i);
+                rowCardinality = null;
+                cols           = index.getColumns();
+                indexType      = ValuePool.getInt(3);
 
                 for (int k = 0; k < colCount; k++) {
                     col                    = cols[k];
@@ -1388,8 +1396,9 @@ class DatabaseInformationMain extends DatabaseInformation {
                     row[iindex_name]       = indexName;
                     row[itype]             = indexType;
                     row[iordinal_position] = ValuePool.getInt(k + 1);
-                    row[icolumn_name]      = ti.getColName(col);
-                    row[iasc_or_desc]      = ti.getIndexColDirection(i, col);
+                    row[icolumn_name] =
+                        table.getColumn(cols[k]).getName().name;
+                    row[iasc_or_desc]      = "A";
                     row[icardinality]      = cardinality;
                     row[ipages]            = pages;
                     row[irow_cardinality]  = rowCardinality;
@@ -1482,8 +1491,8 @@ class DatabaseInformationMain extends DatabaseInformation {
 
         // Initialization
         p = database.getProperties();
-        tables =  database.schemaManager.databaseObjectIterator(
-                     SchemaObject.TABLE);
+        tables =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
         while (tables.hasNext()) {
             table = (Table) tables.next();
@@ -1511,241 +1520,6 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[ipk_name]     = primaryKeyName;
 
                 t.insertSys(store, row);
-            }
-        }
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing the
-     * return, parameter and result columns of the accessible
-     * routines defined within this database.<p>
-     *
-     * Each row is a procedure column description with the following
-     * columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * PROCEDURE_CAT   VARCHAR   routine catalog
-     * PROCEDURE_SCHEM VARCHAR   routine schema
-     * PROCEDURE_NAME  VARCHAR   routine name
-     * COLUMN_NAME     VARCHAR   column/parameter name
-     * COLUMN_TYPE     SMALLINT  kind of column/parameter
-     * DATA_TYPE       SMALLINT  SQL type from DITypes
-     * TYPE_NAME       VARCHAR   SQL type name
-     * PRECISION       INTEGER   precision (length) of type
-     * LENGTH          INTEGER   transfer size, in bytes, if definitely known
-     *                           (roughly equivalent to BUFFER_SIZE for table
-     *                           columns)
-     * SCALE           SMALLINT  scale
-     * RADIX           SMALLINT  radix
-     * NULLABLE        SMALLINT  can column contain NULL?
-     * REMARKS         VARCHAR   explanatory comment on column
-     * // JDBC 4.0
-     * COLUMN_DEF        VARCHAR The default column value.
-     *                           The string NULL (not enclosed in quotes)
-     *                           - If NULL was specified as the default value
-     *                           TRUNCATE (not enclosed in quotes)
-     *                           - If the specified default value cannot be
-     *                           represented without truncation
-     *                           NULL
-     *                           - If a default value was not specified
-     * SQL_DATA_TYPE     INTEGER CLI type list from SQL 2003 Table 37,
-     *                           tables 6-9 Annex A1, and/or addendums in other
-     *                           documents, such as:
-     *                           SQL 2003 Part 9: Management of External Data (SQL/MED) : DATALINK
-     *                           SQL 2003 Part 14: XML-Related Specifications (SQL/XML) : XML
-     * SQL_DATETIME_SUB  INTEGER SQL 2003 CLI datetime/interval subcode.
-     * CHAR_OCTET_LENGTH INTEGER The maximum length of binary and character
-     *                           based columns.  For any other datatype the
-     *                           returned value is a NULL
-     * ORDINAL_POSITION  INTEGER The ordinal position, starting from 1, for the
-     *                           input and output parameters for a procedure.
-     *                           A value of 0 is returned if this row describes
-     *                           the procedure's return value.
-     * IS_NULLABLE       VARCHAR ISO rules are used to determinte the nulliblity
-     *                           for a column.
-     *
-     *                           YES (enclosed in quotes)  --- if the column can include NULLs
-     *                           NO  (enclosed in quotes)  --- if the column cannot include NULLs
-     *                           empty string              --- if the nullability for the column is unknown
-     *
-     * SPECIFIC_NAME     VARCHAR The name which uniquely identifies this
-     *                           procedure within its schema.
-     *                           Typically (but not restricted to) a
-     *                           fully qualified Java Method name and
-     *                           signature
-     * // HSQLDB extension
-     * JDBC_SEQ          INTEGER The JDBC-specified order within
-     *                           runs of PROCEDURE_SCHEM, PROCEDURE_NAME,
-     *                           SPECIFIC_NAME, which is:
-     *
-     *                           return value (0), if any, first, followed
-     *                           by the parameter descriptions in call order
-     *                           (1..n1), followed by the result column
-     *                           descriptions in column number order
-     *                           (n1 + 1..n1 + n2)
-     * </pre> <p>
-     *
-     * @return a <code>Table</code> object describing the
-     *        return, parameter and result columns
-     *        of the accessible routines defined
-     *        within this database.
-     */
-    Table SYSTEM_PROCEDURECOLUMNS() {
-
-        Table t = sysTables[SYSTEM_PROCEDURECOLUMNS];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_PROCEDURECOLUMNS]);
-
-            // ----------------------------------------------------------------
-            // required
-            // ----------------------------------------------------------------
-            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);          // 0
-            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);        // 1
-            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);         // not null
-            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);            // not null
-            addColumn(t, "COLUMN_TYPE", Type.SQL_SMALLINT);         // not null
-            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);           // not null
-            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);              // not null
-            addColumn(t, "PRECISION", Type.SQL_INTEGER);            // 7
-            addColumn(t, "LENGTH", Type.SQL_INTEGER);               // 8
-            addColumn(t, "SCALE", Type.SQL_SMALLINT);               // 9
-            addColumn(t, "RADIX", Type.SQL_SMALLINT);               // 10
-            addColumn(t, "NULLABLE", Type.SQL_SMALLINT);            // not null
-            addColumn(t, "REMARKS", CHARACTER_DATA);                // 12
-
-            // ----------------------------------------------------------------
-            // JDBC 4.0
-            // ----------------------------------------------------------------
-            addColumn(t, "COLUMN_DEF", CHARACTER_DATA);             // 13
-            addColumn(t, "SQL_DATA_TYPE", Type.SQL_INTEGER);        // 14
-            addColumn(t, "SQL_DATETIME_SUB", Type.SQL_INTEGER);     // 15
-            addColumn(t, "CHAR_OCTET_LENGTH", Type.SQL_INTEGER);    // 16
-            addColumn(t, "ORDINAL_POSITION", Type.SQL_INTEGER);     // not null
-            addColumn(t, "IS_NULLABLE", CHARACTER_DATA);            // not null
-            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);          // not null
-
-            // ----------------------------------------------------------------
-            // just for JDBC sort contract
-            // ----------------------------------------------------------------
-            addColumn(t, "JDBC_SEQ", Type.SQL_INTEGER);             // not null
-
-            // ----------------------------------------------------------------
-            // order: PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME, SEQ
-            // added for unique: PROCEDURE_CAT
-            // false PK, as PROCEDURE_SCHEM and/or PROCEDURE_CAT may be null
-            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_PROCEDURECOLUMNS].name, false,
-                SchemaObject.INDEX);
-
-            t.createPrimaryKey(name, new int[] {
-                1, 2, 19, 20, 0
-            }, false);
-
-            return t;
-        }
-
-        // calculated column values
-        String  procedureCatalog;
-        String  procedureSchema;
-        String  procedureName;
-        String  columnName;
-        Integer columnType;
-        Integer dataType;
-        String  dataTypeName;
-        Integer precision;
-        Integer length;
-        Integer scale;
-        Integer radix;
-        Integer nullability;
-        String  remark;
-
-        // JDBC 4.0
-        String  colDefault;
-        Integer sqlDataType;
-        Integer sqlDateTimeSub;
-        Integer charOctetLength;
-        Integer ordinalPosition;
-        String  isNullable;
-        String  specificName;
-
-        // extended
-        int jdbcSequence;
-
-        // intermediate holders
-        int           colCount;
-        HsqlArrayList aliasList;
-        Object[]      info;
-        Method        method;
-        Iterator      methods;
-        Object[]      row;
-        DITypeInfo    ti;
-
-        // Initialization
-        methods = ns.iterateAllAccessibleMethods(session, true);    // and aliases
-        ti      = new DITypeInfo();
-
-        // no such thing as identity or ignorecase return/parameter
-        // procedure columns.  Future: may need to worry about this if
-        // result columns are ever reported
-        ti.setTypeSub(Types.TYPE_SUB_DEFAULT);
-
-        // JDBC 4.0
-
-        /**
-         * @todo we do not yet support declarative p-column defaults.
-         * In essence, the default value for a procedure column is NULL
-         */
-        colDefault       = null;
-        procedureCatalog = database.getCatalogName().name;
-        procedureSchema =
-            database.schemaManager.getDefaultSchemaHsqlName().name;
-
-        // Do it.
-        while (methods.hasNext()) {
-            info      = (Object[]) methods.next();
-            method    = (Method) info[0];
-            aliasList = (HsqlArrayList) info[1];
-
-            pi.setMethod(method);
-
-            specificName  = pi.getSpecificName();
-            procedureName = pi.getFQN();
-            colCount      = pi.getColCount();
-
-            for (int i = 0; i < colCount; i++) {
-                ti.setTypeCode(pi.getColTypeCode(i));
-
-                columnName   = pi.getColName(i);
-                columnType   = pi.getColUsage(i);
-                dataType     = pi.getColJDBCDataType(i);
-                dataTypeName = ti.getTypeName();
-                precision    = ti.getPrecision();
-                length       = pi.getColLen(i);
-                scale        = ti.getDefaultScale();
-                radix        = ti.getNumPrecRadix();
-                nullability  = pi.getColNullability(i);
-                remark       = pi.getColRemark(i);
-
-                // JDBC 4.0
-                //colDefault    = null;
-                sqlDataType     = ti.getSqlDataType();
-                sqlDateTimeSub  = ti.getSqlDateTimeSub();
-                charOctetLength = ti.getCharOctLen();
-                ordinalPosition = pi.getColOrdinalPosition(i);
-                isNullable      = pi.getColIsNullable(i);
-
-                // extended
-                jdbcSequence = pi.getColSequence(i);
-
-                addPColRows(t, aliasList, procedureCatalog, procedureSchema,
-                            procedureName, columnName, columnType, dataType,
-                            dataTypeName, precision, length, scale, radix,
-                            nullability, remark, colDefault, sqlDataType,
-                            sqlDateTimeSub, charOctetLength, ordinalPosition,
-                            isNullable, specificName, jdbcSequence);
             }
         }
 
@@ -1835,144 +1609,6 @@ class DatabaseInformationMain extends DatabaseInformation {
     }
 
     /**
-     * Retrieves a <code>Table</code> object describing the accessible
-     * routines defined within this database.
-     *
-     * Each row is a procedure description with the following
-     * columns: <p>
-     *
-     * <pre class="SqlCodeExample">
-     * PROCEDURE_CAT     VARCHAR   catalog in which routine is defined
-     * PROCEDURE_SCHEM   VARCHAR   schema in which routine is defined
-     * PROCEDURE_NAME    VARCHAR   simple routine identifier
-     * NUM_INPUT_PARAMS  INTEGER   number of input parameters
-     * NUM_OUTPUT_PARAMS INTEGER   number of output parameters
-     * NUM_RESULT_SETS   INTEGER   number of result sets returned
-     * REMARKS           VARCHAR   explanatory comment on the routine
-     * PROCEDURE_TYPE    SMALLINT  { Unknown | No Result | Returns Result }
-     * // JDBC 4.0
-     * SPECIFIC_NAME     VARCHAR   The name which uniquely identifies this
-     *                             procedure within its schema.
-     *                             typically (but not restricted to) a
-     *                             fully qualified Java Method name
-     *                             and signature.
-     * // HSQLDB extension
-     * ORIGIN            VARCHAR   {ALIAS |
-     *                             [BUILTIN | USER DEFINED] ROUTINE |
-     *                             [BUILTIN | USER DEFINED] TRIGGER |
-     *                              ...}
-     * </pre> <p>
-     *
-     * @return a <code>Table</code> object describing the accessible
-     *        routines defined within the this database
-     */
-    Table SYSTEM_PROCEDURES() {
-
-        Table t = sysTables[SYSTEM_PROCEDURES];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_PROCEDURES]);
-
-            // ----------------------------------------------------------------
-            // required
-            // ----------------------------------------------------------------
-            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);          // 0
-            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);        // 1
-            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);         // not null
-            addColumn(t, "NUM_INPUT_PARAMS", Type.SQL_INTEGER);     // 3
-            addColumn(t, "NUM_OUTPUT_PARAMS", Type.SQL_INTEGER);    // 4
-            addColumn(t, "NUM_RESULT_SETS", Type.SQL_INTEGER);      // 5
-            addColumn(t, "REMARKS", CHARACTER_DATA);                // 6
-
-            // basically: function (returns result), procedure (no return value)
-            // or unknown (say, a trigger callout routine)
-            addColumn(t, "PROCEDURE_TYPE", Type.SQL_SMALLINT);      // not null
-
-            // ----------------------------------------------------------------
-            // JDBC 4.0
-            // ----------------------------------------------------------------
-            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);          // not null
-
-            // ----------------------------------------------------------------
-            // extended
-            // ----------------------------------------------------------------
-            addColumn(t, "ORIGIN", CHARACTER_DATA);                 // not null
-
-            // ----------------------------------------------------------------
-            // order: PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME
-            // added for uniqe: PROCEDURE_CAT
-            // false PK, as PROCEDURE_SCHEM and/or PROCEDURE_CAT may be null
-            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_PROCEDURES].name, false,
-                SchemaObject.INDEX);
-
-            t.createPrimaryKey(name, new int[] {
-                1, 2, 8, 0
-            }, false);
-
-            return t;
-        }
-
-        // calculated column values
-        // ------------------------
-        // required
-        // ------------------------
-        String  catalog;
-        String  schema;
-        String  procName;
-        Integer numInputParams;
-        Integer numOutputParams;
-        Integer numResultSets;
-        String  remarks;
-        Integer procRType;
-
-        // -------------------
-        // extended
-        // -------------------
-        String procOrigin;
-        String specificName;
-
-        // intermediate holders
-        String        alias;
-        HsqlArrayList aliasList;
-        Iterator      methods;
-        Object[]      methodInfo;
-        Method        method;
-        String        methodOrigin;
-        Object[]      row;
-
-        // Initialization
-        methods = ns.iterateAllAccessibleMethods(session, true);    //and aliases
-        catalog = database.getCatalogName().name;
-        schema  = database.schemaManager.getDefaultSchemaHsqlName().name;
-
-        // Do it.
-        while (methods.hasNext()) {
-            methodInfo   = (Object[]) methods.next();
-            method       = (Method) methodInfo[0];
-            aliasList    = (HsqlArrayList) methodInfo[1];
-            methodOrigin = (String) methodInfo[2];
-
-            pi.setMethod(method);
-
-            procName        = pi.getFQN();
-            numInputParams  = pi.getInputParmCount();
-            numOutputParams = pi.getOutputParmCount();
-            numResultSets   = pi.getResultSetCount();
-            remarks         = pi.getRemark();
-            procRType       = pi.getResultType(methodOrigin);
-            specificName    = pi.getSpecificName();
-            procOrigin      = pi.getOrigin(methodOrigin);
-
-            addProcRows(t, aliasList, catalog, schema, procName,
-                        numInputParams, numOutputParams, numResultSets,
-                        remarks, procRType, specificName, procOrigin);
-        }
-
-        return t;
-    }
-
-    /**
      * Inserts a set of procedure column description rows into the
      * <code>Table</code> specified by the <code>t</code> argument.
      *
@@ -2013,7 +1649,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                                Integer sqlDataType, Integer sqlDateTimeSub,
                                Integer charOctetLength,
                                Integer ordinalPosition, String isNullable,
-                               String specificName, int jdbcSequence) {
+                               String specificName) {
 
         PersistentStore store = database.persistentStoreCollection.getStore(t);
 
@@ -2041,12 +1677,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int iis_nullable      = 18;
         final int ispecific_name    = 19;
 
-        // HSQLDB extension
-        final int ijdbc_sequence = 20;
-
         // initialization
-        Object[] row      = t.getEmptyRowData();
-        Integer  sequence = ValuePool.getInt(jdbcSequence);
+        Object[] row = t.getEmptyRowData();
 
         // Do it.
         row[icat]       = cat;
@@ -2071,9 +1703,6 @@ class DatabaseInformationMain extends DatabaseInformation {
         row[iordinal_position] = ordinalPosition;
         row[iis_nullable]      = isNullable;
         row[ispecific_name]    = specificName;
-
-        // HSQLDB extension
-        row[ijdbc_sequence] = sequence;
 
         t.insertSys(store, row);
 
@@ -2105,9 +1734,6 @@ class DatabaseInformationMain extends DatabaseInformation {
                 row[iordinal_position] = ordinalPosition;
                 row[iis_nullable]      = isNullable;
                 row[ispecific_name]    = specificName;
-
-                // HSQLDB extension
-                row[ijdbc_sequence] = sequence;
 
                 t.insertSys(store, row);
             }
@@ -2303,7 +1929,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             row               = t.getEmptyRowData();
             row[itable_cat]   = database.getCatalogName().name;
             row[itable_schem] = table.getSchemaName().name;
-            row[itable_name]  = ti.getName();
+            row[itable_name]  = table.getName().name;
             row[itable_type]  = ti.getJDBCStandardType();
             row[iremark]      = ti.getRemark();
             row[ihsqldb_type] = ti.getHsqlType();
@@ -2424,9 +2050,6 @@ class DatabaseInformationMain extends DatabaseInformation {
      * SQL_DATETIME_SUB   INTEGER   SQL CLI datetime/interval subcode.
      * NUM_PREC_RADIX     INTEGER   numeric base w.r.t # of digits reported in
      *                              PRECISION column (typically 10).
-     * TYPE_SUB           INTEGER   From DITypes:
-     *                              {TYPE_SUB_DEFAULT | TYPE_SUB_IDENTITY |
-     *                               TYPE_SUB_IGNORECASE}
      * </pre> <p>
      *
      * @return a <code>Table</code> object describing the
@@ -2462,229 +2085,22 @@ class DatabaseInformationMain extends DatabaseInformation {
             addColumn(t, "NUM_PREC_RADIX", Type.SQL_INTEGER);
 
             //-------------------------------------------
-            // for JDBC sort contract:
-            //-------------------------------------------
-            addColumn(t, "TYPE_SUB", Type.SQL_INTEGER);
+            // SQL CLI / ODBC - not in JDBC spec
+            // ------------------------------------------
+            addColumn(t, "INTERVAL_PRECISION", Type.SQL_INTEGER);
 
-            // order: DATA_TYPE, TYPE_SUB
-            // true PK
+            // order:  DATA_TYPE, TYPE_NAME
+            // true primary key
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[SYSTEM_TYPEINFO].name, false,
                 SchemaObject.INDEX);
 
             t.createPrimaryKey(name, new int[] {
-                1, 18
+                1, 0
             }, true);
 
             return t;
         }
-
-        PersistentStore store = database.persistentStoreCollection.getStore(t);
-        Session sys = database.sessionManager.newSysSession(
-            SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
-        Result rs = sys.executeDirectStatement(
-            "select TYPE_NAME, DATA_TYPE, PRECISION, LITERAL_PREFIX,"
-            + "LITERAL_SUFFIX, CREATE_PARAMS, NULLABLE, CASE_SENSITIVE,"
-            + "SEARCHABLE,"
-            + "UNSIGNED_ATTRIBUTE, FIXED_PREC_SCALE, AUTO_INCREMENT, LOCAL_TYPE_NAME, MINIMUM_SCALE, "
-            + "MAXIMUM_SCALE, SQL_DATA_TYPE, SQL_DATETIME_SUB, NUM_PREC_RADIX, TYPE_SUB "
-            + "from INFORMATION_SCHEMA.SYSTEM_ALLTYPEINFO  where AS_TAB_COL = true;");
-
-        t.insertSys(store, rs);
-        sys.close();
-
-        return t;
-    }
-
-    /**
-     * Retrieves a <code>Table</code> object describing, in an extended
-     * fashion, all of the system or formal specification SQL types known to
-     * this database, including its level of support for them (which may
-     * be no support at all) in various capacities. <p>
-     *
-     * <pre class="SqlCodeExample">
-     * TYPE_NAME          VARCHAR   the canonical name used in DDL statements.
-     * DATA_TYPE          SMALLINT  data type code from Types
-     * PRECISION          INTEGER   max column size.
-     *                              number => max. precision.
-     *                              character => max characters.
-     *                              datetime => max chars incl. frac. component.
-     * LITERAL_PREFIX     VARCHAR   char(s) prefixing literal of this type.
-     * LITERAL_SUFFIX     VARCHAR   char(s) terminating literal of this type.
-     * CREATE_PARAMS      VARCHAR   Localized syntax-order list of domain
-     *                              create parameter keywords.
-     *                              - for human consumption only
-     * NULLABLE           SMALLINT  { No Nulls | Nullable | Unknown }
-     * CASE_SENSITIVE     BOOLEAN   case-sensitive in collations/comparisons?
-     * SEARCHABLE         SMALLINT  { None | Char (Only WHERE .. LIKE) |
-     *                                Basic (Except WHERE .. LIKE) |
-     *                                Searchable (All forms) }
-     * UNSIGNED_ATTRIBUTE BOOLEAN   { TRUE  (unsigned) | FALSE (signed) |
-     *                                NULL (non-numeric or not applicable) }
-     * FIXED_PREC_SCALE   BOOLEAN   { TRUE (fixed) | FALSE (variable) |
-     *                                NULL (non-numeric or not applicable) }
-     * AUTO_INCREMENT     BOOLEAN   automatic unique value generated for
-     *                              inserts and updates when no value or
-     *                              NULL specified?
-     * LOCAL_TYPE_NAME    VARCHAR   Localized name of data type;
-     *                              - NULL => not supported (no resource avail).
-     *                              - for human consumption only
-     * MINIMUM_SCALE      SMALLINT  minimum scale supported.
-     * MAXIMUM_SCALE      SMALLINT  maximum scale supported.
-     * SQL_DATA_TYPE      INTEGER   value expected in SQL CLI SQL_DESC_TYPE
-     *                              field of the SQLDA.
-     * SQL_DATETIME_SUB   INTEGER   SQL CLI datetime/interval subcode
-     * NUM_PREC_RADIX     INTEGER   numeric base w.r.t # of digits reported
-     *                              in PRECISION column (typically 10)
-     * INTERVAL_PRECISION INTEGER   interval leading precision (not implemented)
-     * AS_TAB_COL         BOOLEAN   type supported as table column?
-     * AS_PROC_COL        BOOLEAN   type supported as procedure column?
-     * MAX_PREC_ACT       BIGINT    like PRECISION unless value would be
-     *                              truncated using INTEGER
-     * MIN_SCALE_ACT      INTEGER   like MINIMUM_SCALE unless value would be
-     *                              truncated using SMALLINT
-     * MAX_SCALE_ACT      INTEGER   like MAXIMUM_SCALE unless value would be
-     *                              truncated using SMALLINT
-     * COL_ST_CLS_NAME    VARCHAR   Java Class FQN of in-memory representation
-     * COL_ST_IS_SUP      BOOLEAN   is COL_ST_CLS_NAME supported under the
-     *                              hosting JVM and engine build option?
-     * STD_MAP_CLS_NAME   VARCHAR   Java class FQN of standard JDBC mapping
-     * STD_MAP_IS_SUP     BOOLEAN   Is STD_MAP_CLS_NAME supported under the
-     *                              hosting JVM?
-     * CST_MAP_CLS_NAME   VARCHAR   Java class FQN of HSQLDB-provided JDBC
-     *                              interface representation
-     * CST_MAP_IS_SUP     BOOLEAN   is CST_MAP_CLS_NAME supported under the
-     *                              hosting JVM and engine build option?
-     * MCOL_JDBC          INTEGER   maximum character octet length representable
-     *                              via JDBC interface
-     * MCOL_ACT           BIGINT    like MCOL_JDBC unless value would be
-     *                              truncated using INTEGER
-     * DEF_OR_FIXED_SCALE INTEGER   default or fixed scale for numeric types
-     * REMARKS            VARCHAR   localized comment on the data type
-     * TYPE_SUB           INTEGER   From Types:
-     *                              {TYPE_SUB_DEFAULT | TYPE_SUB_IGNORECASE}
-     *                              deprecated: TYPE_SUB_IDENTITY
-     * </pre> <p>
-     *
-     * @return a <code>Table</code> object describing all of the
-     *        standard SQL types known to this database
-     */
-    final Table SYSTEM_ALLTYPEINFO() {
-
-        Table t = sysTables[SYSTEM_ALLTYPEINFO];
-
-        if (t == null) {
-            t = createBlankTable(sysTableHsqlNames[SYSTEM_ALLTYPEINFO]);
-
-            //-------------------------------------------
-            // same as SYSTEM_TYPEINFO:
-            // ------------------------------------------
-            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);
-            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);
-            addColumn(t, "PRECISION", Type.SQL_INTEGER);
-            addColumn(t, "LITERAL_PREFIX", CHARACTER_DATA);
-            addColumn(t, "LITERAL_SUFFIX", CHARACTER_DATA);
-            addColumn(t, "CREATE_PARAMS", CHARACTER_DATA);
-            addColumn(t, "NULLABLE", Type.SQL_SMALLINT);
-            addColumn(t, "CASE_SENSITIVE", Type.SQL_BOOLEAN);
-            addColumn(t, "SEARCHABLE", Type.SQL_SMALLINT);
-            addColumn(t, "UNSIGNED_ATTRIBUTE", Type.SQL_BOOLEAN);
-            addColumn(t, "FIXED_PREC_SCALE", Type.SQL_BOOLEAN);
-            addColumn(t, "AUTO_INCREMENT", Type.SQL_BOOLEAN);
-            addColumn(t, "LOCAL_TYPE_NAME", SQL_IDENTIFIER);
-            addColumn(t, "MINIMUM_SCALE", Type.SQL_SMALLINT);
-            addColumn(t, "MAXIMUM_SCALE", Type.SQL_SMALLINT);
-            addColumn(t, "SQL_DATA_TYPE", Type.SQL_INTEGER);
-            addColumn(t, "SQL_DATETIME_SUB", Type.SQL_INTEGER);
-            addColumn(t, "NUM_PREC_RADIX", Type.SQL_INTEGER);
-
-            //-------------------------------------------
-            // SQL CLI / ODBC - not in JDBC spec
-            // ------------------------------------------
-            addColumn(t, "INTERVAL_PRECISION", Type.SQL_INTEGER);
-
-            //-------------------------------------------
-            // extended:
-            //-------------------------------------------
-            // level of support
-            //-------------------------------------------
-            addColumn(t, "AS_TAB_COL", Type.SQL_BOOLEAN);
-
-            // for instance, some executable methods take Connection
-            // or return non-serializable Object such as ResultSet, neither
-            // of which maps to a supported table column type but which
-            // we show as JAVA_OBJECT in SYSTEM_PROCEDURECOLUMNS.
-            // Also, triggers take Object[] row, which we show as ARRAY
-            // presently, although STRUCT would probably be better in the
-            // future, as the row can actually contain mixed data types.
-            addColumn(t, "AS_PROC_COL", Type.SQL_BOOLEAN);
-
-            //-------------------------------------------
-            // actual values for attributes that cannot be represented
-            // within the limitations of the SQL CLI / JDBC interface
-            //-------------------------------------------
-            addColumn(t, "MAX_PREC_ACT", Type.SQL_BIGINT);
-            addColumn(t, "MIN_SCALE_ACT", Type.SQL_INTEGER);
-            addColumn(t, "MAX_SCALE_ACT", Type.SQL_INTEGER);
-
-            //-------------------------------------------
-            // how do we store this internally as a column value?
-            //-------------------------------------------
-            addColumn(t, "COL_ST_CLS_NAME", SQL_IDENTIFIER);
-            addColumn(t, "COL_ST_IS_SUP", Type.SQL_BOOLEAN);
-
-            //-------------------------------------------
-            // what is the standard Java mapping for the type?
-            //-------------------------------------------
-            addColumn(t, "STD_MAP_CLS_NAME", SQL_IDENTIFIER);
-            addColumn(t, "STD_MAP_IS_SUP", Type.SQL_BOOLEAN);
-
-            //-------------------------------------------
-            // what, if any, custom mapping do we provide?
-            // (under the current build options and hosting VM)
-            //-------------------------------------------
-            addColumn(t, "CST_MAP_CLS_NAME", SQL_IDENTIFIER);
-            addColumn(t, "CST_MAP_IS_SUP", Type.SQL_BOOLEAN);
-
-            //-------------------------------------------
-            // what is the max representable and actual
-            // character octet length, if applicable?
-            //-------------------------------------------
-            addColumn(t, "MCOL_JDBC", Type.SQL_INTEGER);
-            addColumn(t, "MCOL_ACT", Type.SQL_BIGINT);
-
-            //-------------------------------------------
-            // what is the default or fixed scale, if applicable?
-            //-------------------------------------------
-            addColumn(t, "DEF_OR_FIXED_SCALE", Type.SQL_INTEGER);
-
-            //-------------------------------------------
-            // Any type-specific, localized remarks can go here
-            //-------------------------------------------
-            addColumn(t, "REMARKS", CHARACTER_DATA);
-
-            //-------------------------------------------
-            // required for JDBC sort contract:
-            //-------------------------------------------
-            addColumn(t, "TYPE_SUB", Type.SQL_INTEGER);
-
-            // order:  DATA_TYPE, TYPE_SUB
-            // true primary key
-            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
-                sysTableHsqlNames[SYSTEM_ALLTYPEINFO].name, false,
-                SchemaObject.INDEX);
-
-            t.createPrimaryKey(name, new int[] {
-                1, 34
-            }, true);
-
-            return t;
-        }
-
-        PersistentStore store = database.persistentStoreCollection.getStore(t);
-        Object[]        row;
-        int             type;
-        DITypeInfo      ti;
 
         //-----------------------------------------
         // Same as SYSTEM_TYPEINFO
@@ -2713,118 +2129,87 @@ class DatabaseInformationMain extends DatabaseInformation {
         //------------------------------------------
         // not in JDBC, but in SQL CLI SQLDA / ODBC
         //------------------------------------------
-        final int iinterval_precision = 18;
-
-        //------------------------------------------
-        // HSQLDB/Java-specific:
-        //------------------------------------------
-        final int iis_sup_as_tcol = 19;
-        final int iis_sup_as_pcol = 20;
-
-        //------------------------------------------
-        final int imax_prec_or_len_act = 21;
-        final int imin_scale_actual    = 22;
-        final int imax_scale_actual    = 23;
-
-        //------------------------------------------
-        final int ics_cls_name         = 24;
-        final int ics_cls_is_supported = 25;
-
-        //------------------------------------------
-        final int ism_cls_name         = 26;
-        final int ism_cls_is_supported = 27;
-
-        //------------------------------------------
-        final int icm_cls_name         = 28;
-        final int icm_cls_is_supported = 29;
-
-        //------------------------------------------
-        final int imax_char_oct_len_jdbc = 30;
-        final int imax_char_oct_len_act  = 31;
-
-        //------------------------------------------
-        final int idef_or_fixed_scale = 32;
-
-        //------------------------------------------
-        final int iremarks = 33;
-
-        //------------------------------------------
-        final int itype_sub = 34;
+        final int       iinterval_precision = 18;
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+        Object[]        row;
+        DITypeInfo      ti;
 
         ti = new DITypeInfo();
 
-        for (int i = 0; i < Types.ALL_TYPES.length; i++) {
-            ti.setTypeCode(Types.ALL_TYPES[i][0]);
-            ti.setTypeSub(Types.ALL_TYPES[i][1]);
+        Iterator it = Type.typeNames.keySet().iterator();
 
-            row                      = t.getEmptyRowData();
-            row[itype_name]          = ti.getTypeName();
-            row[idata_type]          = ti.getDataType();
-            row[iprecision]          = ti.getPrecision();
-            row[iliteral_prefix]     = ti.getLiteralPrefix();
-            row[iliteral_suffix]     = ti.getLiteralSuffix();
-            row[icreate_params]      = ti.getCreateParams();
-            row[inullable]           = ti.getNullability();
-            row[icase_sensitive]     = ti.isCaseSensitive();
-            row[isearchable]         = ti.getSearchability();
-            row[iunsigned_attribute] = ti.isUnsignedAttribute();
-            row[ifixed_prec_scale]   = ti.isFixedPrecisionScale();
-            row[iauto_increment]     = ti.isAutoIncrement();
-            row[ilocal_type_name]    = ti.getLocalName();
-            row[iminimum_scale]      = ti.getMinScale();
-            row[imaximum_scale]      = ti.getMaxScale();
-            row[isql_data_type]      = ti.getSqlDataType();
-            row[isql_datetime_sub]   = ti.getSqlDateTimeSub();
-            row[inum_prec_radix]     = ti.getNumPrecRadix();
+        while (it.hasNext()) {
+            String typeName = (String) it.next();
+            int    typeCode = Type.typeNames.get(typeName);
+            Type   type     = Type.getDefaultType(typeCode);
+
+            if (type == null) {
+                continue;
+            }
+
+            row             = t.getEmptyRowData();
+            row[itype_name] = typeName;
+            row[idata_type] = ValuePool.getInt(type.getJDBCTypeCode());
+
+            long maxPrecision = type.getMaxPrecision();
+
+            row[iprecision] = maxPrecision > Integer.MAX_VALUE
+                              ? ValuePool.INTEGER_MAX
+                              : ValuePool.getInt((int) maxPrecision);
+
+            if (type.isBinaryType() || type.isCharacterType()
+                    || type.isDateTimeType() || type.isIntervalType()) {
+                row[iliteral_prefix] = "\'";
+                row[iliteral_suffix] = "\'";
+            }
+
+            if (type.acceptsPrecision() && type.acceptsScale()) {
+                row[icreate_params] = "PRECISION,SCALE";
+            } else if (type.acceptsPrecision()) {
+                row[icreate_params] = type.isNumberType() ? "PRECISION"
+                                                          : "LENGTH";
+            } else if (type.acceptsScale()) {
+                row[icreate_params] = "SCALE";
+            }
+
+            row[inullable] = ValuePool.INTEGER_1;
+            row[icase_sensitive] =
+                type.isCharacterType()
+                && type.typeCode != Types.VARCHAR_IGNORECASE ? Boolean.TRUE
+                                                             : Boolean.FALSE;
+
+            if (type.isLobType()) {
+                row[isearchable] = ValuePool.INTEGER_0;
+            } else if (type.isCharacterType()
+                       || (type.isBinaryType() && !type.isBitType())) {
+                row[isearchable] = ValuePool.getInt(3);
+            } else {
+                row[isearchable] = ValuePool.getInt(2);
+            }
+
+            row[iunsigned_attribute] = Boolean.FALSE;
+            row[ifixed_prec_scale] =
+                type.typeCode == Types.SQL_NUMERIC
+                || type.typeCode == Types.SQL_DECIMAL ? Boolean.TRUE
+                                                      : Boolean.FALSE;
+            row[iauto_increment]   = type.isIntegralType() ? Boolean.TRUE
+                                                           : Boolean.FALSE;
+            row[ilocal_type_name]  = null;
+            row[iminimum_scale]    = ValuePool.INTEGER_0;
+            row[imaximum_scale]    = type.getMaxScale();
+            row[isql_data_type]    = null;
+            row[isql_datetime_sub] = null;
+            row[inum_prec_radix] = ValuePool.getInt(type.getPrecisionRadix());
 
             //------------------------------------------
             row[iinterval_precision] = ti.getIntervalPrecision();
 
-            //------------------------------------------
-            row[iis_sup_as_tcol] = ti.isSupportedAsTCol();
-            row[iis_sup_as_pcol] = ti.isSupportedAsPCol();
-
-            //------------------------------------------
-            row[imax_prec_or_len_act] = ti.getPrecisionAct();
-            row[imin_scale_actual]    = ti.getMinScaleAct();
-            row[imax_scale_actual]    = ti.getMaxScaleAct();
-
-            //------------------------------------------
-            row[ics_cls_name]         = ti.getColStClsName();
-            row[ics_cls_is_supported] = ti.isColStClsSupported();
-
-            //------------------------------------------
-            row[ism_cls_name]         = ti.getStdMapClsName();
-            row[ism_cls_is_supported] = ti.isStdMapClsSupported();
-
-            //------------------------------------------
-            row[icm_cls_name] = ti.getCstMapClsName();
-
-            try {
-                if (row[icm_cls_name] != null) {
-                    ns.classForName((String) row[icm_cls_name]);
-
-                    row[icm_cls_is_supported] = Boolean.TRUE;
-                }
-            } catch (Exception e) {
-                row[icm_cls_is_supported] = Boolean.FALSE;
-            }
-
-            //------------------------------------------
-            row[imax_char_oct_len_jdbc] = ti.getCharOctLen();
-            row[imax_char_oct_len_act]  = ti.getCharOctLenAct();
-
-            //------------------------------------------
-            row[idef_or_fixed_scale] = ti.getDefaultScale();
-
-            //------------------------------------------
-            row[iremarks] = ti.getRemarks();
-
-            //------------------------------------------
-            row[itype_sub] = ti.getDataTypeSub();
-
             t.insertSys(store, row);
         }
+
+        row             = t.getEmptyRowData();
+        row[itype_name] = "DISTINCT";
+        row[idata_type] = Types.DISTINCT;
 
         return t;
     }
@@ -3428,7 +2813,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                     Right grantableRight = right.getGrantableRights();
 
                     for (int k = 0; k < Right.privilegeTypes.length; k++) {
-                        if (!right.canAccess(Right.privilegeTypes[k])) {
+                        if (!right.canAccessFully(Right.privilegeTypes[k])) {
                             continue;
                         }
 
@@ -3442,7 +2827,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                         row[privilege_type] = privilege;
                         row[is_grantable] =
                             right.getGrantee() == table.getOwner()
-                            || grantableRight.canAccess(
+                            || grantableRight.canAccessFully(
                                 Right.privilegeTypes[k]) ? "YES"
                                                          : "NO";
                         row[with_hierarchy] = "NO";

@@ -178,6 +178,10 @@ public class CharacterType extends Type {
         return true;
     }
 
+    public long getMaxPrecision() {
+        return maxCharacterPrecision;
+    }
+
     public boolean acceptsPrecision() {
         return true;
     }

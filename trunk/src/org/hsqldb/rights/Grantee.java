@@ -35,6 +35,7 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
+import org.hsqldb.Routine;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
@@ -346,11 +347,10 @@ public class Grantee implements SchemaObject {
      * Keys stored in rightsMap for database tables are their HsqlName
      * attribute. This allows rights to persist when a table is renamed. <p>
      */
-    void grant(SchemaObject object, Right right, Grantee grantor,
+    void grant(HsqlName name, Right right, Grantee grantor,
                boolean withGrant) {
 
-        final HsqlName name            = object.getName();
-        final Right    grantableRights = grantor.getAllGrantableRights(object);
+        final Right    grantableRights = grantor.getAllGrantableRights(name);
         Right          existingRight   = null;
 
         if (right == Right.fullRights) {
@@ -414,9 +414,11 @@ public class Grantee implements SchemaObject {
     void revoke(SchemaObject object, Right right, Grantee grantor,
                 boolean grantOption) {
 
-        final HsqlName name     = object.getName();
-        Iterator       it       = directRightsMap.get(name);
-        Right          existing = null;
+        HsqlName name = object.getType() == SchemaObject.SPECIFIC_ROUTINE
+                        ? ((Routine) object).getSpecificName()
+                        : object.getName();
+        Iterator it       = directRightsMap.get(name);
+        Right    existing = null;
 
         while (it.hasNext()) {
             existing = (Right) it.next();
@@ -450,7 +452,7 @@ public class Grantee implements SchemaObject {
 
         if (existing.isEmpty()) {
             directRightsMap.remove(name, existing);
-            grantor.grantedRightsMap.remove(object, existing);
+            grantor.grantedRightsMap.remove(name, existing);
         }
 
         updateAllRights();
@@ -486,7 +488,7 @@ public class Grantee implements SchemaObject {
 
     public OrderedHashSet getColumnsForAllPrivileges(Table table) {
 
-        if (isFullyAccessibleByRole(table)) {
+        if (isFullyAccessibleByRole(table.getName())) {
             return table.getColumnNameSet();
         }
 
@@ -547,7 +549,7 @@ public class Grantee implements SchemaObject {
      */
     public void checkSelect(Table table, boolean[] checkList) {
 
-        if (isFullyAccessibleByRole(table)) {
+        if (isFullyAccessibleByRole(table.getName())) {
             return;
         }
 
@@ -562,7 +564,7 @@ public class Grantee implements SchemaObject {
 
     public void checkInsert(Table table, boolean[] checkList) {
 
-        if (isFullyAccessibleByRole(table)) {
+        if (isFullyAccessibleByRole(table.getName())) {
             return;
         }
 
@@ -577,7 +579,7 @@ public class Grantee implements SchemaObject {
 
     public void checkUpdate(Table table, boolean[] checkList) {
 
-        if (isFullyAccessibleByRole(table)) {
+        if (isFullyAccessibleByRole(table.getName())) {
             return;
         }
 
@@ -592,7 +594,7 @@ public class Grantee implements SchemaObject {
 
     public void checkReferences(Table table, boolean[] checkList) {
 
-        if (isFullyAccessibleByRole(table)) {
+        if (isFullyAccessibleByRole(table.getName())) {
             return;
         }
 
@@ -607,7 +609,7 @@ public class Grantee implements SchemaObject {
 
     public void checkTrigger(Table table, boolean[] checkList) {
 
-        if (isFullyAccessibleByRole(table)) {
+        if (isFullyAccessibleByRole(table.getName())) {
             return;
         }
 
@@ -622,7 +624,7 @@ public class Grantee implements SchemaObject {
 
     public void checkDelete(Table table) {
 
-        if (isFullyAccessibleByRole(table)) {
+        if (isFullyAccessibleByRole(table.getName())) {
             return;
         }
 
@@ -637,7 +639,7 @@ public class Grantee implements SchemaObject {
 
     public void checkAccess(SchemaObject object) {
 
-        if (isFullyAccessibleByRole(object)) {
+        if (isFullyAccessibleByRole(object.getName())) {
             return;
         }
 
@@ -690,11 +692,11 @@ public class Grantee implements SchemaObject {
 
     public boolean isGrantable(SchemaObject object, Right right) {
 
-        if (isFullyAccessibleByRole(object)) {
+        if (isFullyAccessibleByRole(object.getName())) {
             return true;
         }
 
-        Right grantableRights = getAllGrantableRights(object);
+        Right grantableRights = getAllGrantableRights(object.getName());
 
         return grantableRights.contains(right);
     }
@@ -703,9 +705,6 @@ public class Grantee implements SchemaObject {
         return isAdmin;
     }
 
-    public boolean isFullyAccessibleByRole(SchemaObject object) {
-        return isFullyAccessibleByRole(object.getName());
-    }
 
     public boolean isFullyAccessibleByRole(HsqlName name) {
 
@@ -977,7 +976,7 @@ public class Grantee implements SchemaObject {
 
     public boolean hasNonSelectTableRight(Table table) {
 
-        if (isFullyAccessibleByRole(table)) {
+        if (isFullyAccessibleByRole(table.getName())) {
             return true;
         }
 
@@ -994,7 +993,7 @@ public class Grantee implements SchemaObject {
 
     public boolean hasTableRight(Table table) {
 
-        if (isFullyAccessibleByRole(table)) {
+        if (isFullyAccessibleByRole(table.getName())) {
             return true;
         }
 
@@ -1020,18 +1019,18 @@ public class Grantee implements SchemaObject {
         return directRightsMap.get(object.getName());
     }
 
-    public Right getAllGrantableRights(SchemaObject object) {
+    public Right getAllGrantableRights(HsqlName name) {
 
         if (isAdmin) {
-            return object.getOwner().ownerRights;
+            return name.schema.owner.ownerRights;
         }
 
-        if (object.getOwner() == this) {
+        if (name.schema.owner == this) {
             return ownerRights;
         }
 
-        if (roles.contains(object.getOwner())) {
-            return object.getOwner().ownerRights;
+        if (roles.contains(name.schema.owner)) {
+            return name.schema.owner.ownerRights;
         }
 
         OrderedHashSet set = getAllRoles();
@@ -1039,31 +1038,31 @@ public class Grantee implements SchemaObject {
         for (int i = 0; i < set.size(); i++) {
             Grantee role = (Grantee) set.get(i);
 
-            if (object.getOwner() == role) {
+            if (name.schema.owner == role) {
                 return role.ownerRights;
             }
         }
 
-        Right right = (Right) fullRightsMap.get(object.getName());
+        Right right = (Right) fullRightsMap.get(name);
 
         return right == null || right.grantableRights == null ? Right.noRights
                                                               : right
                                                               .grantableRights;
     }
 
-    public boolean isAccessible(SchemaObject object, int privilegeType) {
+    public boolean isAccessible(HsqlName name, int privilegeType) {
 
-        if (isFullyAccessibleByRole(object)) {
+        if (isFullyAccessibleByRole(name)) {
             return true;
         }
 
-        Right right = (Right) fullRightsMap.get(object.getName());
+        Right right = (Right) fullRightsMap.get(name);
 
         if (right == null) {
             return false;
         }
 
-        return right.canAccess(object, privilegeType);
+        return right.canAccess(privilegeType);
     }
 
     /**
@@ -1191,6 +1190,7 @@ public class Grantee implements SchemaObject {
 
                     case SchemaObject.PROCEDURE :
                     case SchemaObject.FUNCTION :
+                    case SchemaObject.SPECIFIC_ROUTINE :
                         SchemaObject routine =
                             (SchemaObject) granteeManager.database
                                 .schemaManager
@@ -1200,8 +1200,9 @@ public class Grantee implements SchemaObject {
 
                         if (routine != null) {
                             sb.append(Tokens.T_GRANT).append(' ');
-                            sb.append(Tokens.T_EXECUTE);
-                            sb.append(' ').append(Tokens.T_ON).append(' ');
+                            sb.append(Tokens.T_EXECUTE).append(' ');
+                            sb.append(Tokens.T_ON).append(' ');
+                            sb.append(Tokens.T_SPECIFIC).append(' ');
 
                             if (routine.getType() == SchemaObject.PROCEDURE) {
                                 sb.append(Tokens.T_PROCEDURE);

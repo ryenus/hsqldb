@@ -56,12 +56,6 @@ public class TestDatabaseMetaData extends TestBase {
         int               updateCount;
 
         try {
-            pstmt = conn.prepareStatement(
-                "SET PROPERTY \"sql.enforce_strict_size\" true");
-
-            pstmt.executeUpdate();
-            pstmt.close();
-
             pstmt = conn.prepareStatement("DROP TABLE t1 IF EXISTS");
 
             pstmt.executeUpdate();
@@ -205,6 +199,18 @@ public class TestDatabaseMetaData extends TestBase {
 
             assertTrue("wrong result metadata", testresult);
             pstmt.close();
+
+            //
+            DatabaseMetaData dbmeta = conn.getMetaData();
+
+            dbmeta.allProceduresAreCallable();
+            dbmeta.getBestRowIdentifier(null, null, "T_1", DatabaseMetaData.bestRowTransaction, true);
+            dbmeta.getCatalogs();
+            dbmeta.getColumnPrivileges(null, "PUBLIC", "T_1", "*");
+            dbmeta.getColumns("PUBLIC", "PUBLIC", "T_1", "*");
+            dbmeta.getCrossReference(null, null, "T_1", null, null, "T_1");
+            dbmeta.getExportedKeys(null, null, "T_1");
+            dbmeta.getFunctionColumns(null, "*", "*", "*");
             conn.close();
         } catch (Exception e) {
             assertTrue("unable to prepare or execute DDL", false);

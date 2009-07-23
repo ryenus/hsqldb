@@ -35,7 +35,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.lib.Collection;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
@@ -70,6 +69,7 @@ public class Routine implements SchemaObject {
     final static Routine[] emptyArray = new Routine[]{};
 
     //
+    RoutineSchema    routineSchema;
     private HsqlName name;
     private HsqlName specificName;
     Type[]           parameterTypes;
@@ -456,7 +456,7 @@ public class Routine implements SchemaObject {
         return routineType == SchemaObject.FUNCTION;
     }
 
-    ColumnSchema getParameter(int i) {
+    public ColumnSchema getParameter(int i) {
         return (ColumnSchema) parameterList.get(i);
     }
 
@@ -468,8 +468,23 @@ public class Routine implements SchemaObject {
         return typeGroups;
     }
 
-    int getParameterCount() {
+    public int getParameterCount() {
         return parameterTypes.length;
+    }
+
+    public int getParameterCount(int type) {
+
+        int count = 0;
+
+        for (int i = 0; i < parameterList.size(); i++) {
+            ColumnSchema col = (ColumnSchema) parameterList.get(i);
+
+            if (col.getParameterMode() == type) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     public int getParameterIndex(String name) {
@@ -482,6 +497,28 @@ public class Routine implements SchemaObject {
 
     public int getVariableCount() {
         return variableCount;
+    }
+
+    public boolean isLibraryRoutine() {
+        return isLibraryRoutine;
+    }
+
+    public HsqlName[] getTableNamesForRead() {
+
+        if (statement == null) {
+            return HsqlName.emptyArray;
+        }
+
+        return statement.getTableNamesForRead();
+    }
+
+    public HsqlName[] getTableNamesForWrite() {
+
+        if (statement == null) {
+            return HsqlName.emptyArray;
+        }
+
+        return statement.getTableNamesForWrite();
     }
 
     static Method getMethod(String name, Type[] types, Type returnType,
@@ -691,25 +728,17 @@ public class Routine implements SchemaObject {
         return routine;
     }
 
-    public boolean isLibraryRoutine() {
-        return isLibraryRoutine;
-    }
+    public static void createRoutines(Session session, HsqlName schema,
+                                      String name) {
 
-    public HsqlName[] getTableNamesForRead() {
+        Method[]  methods  = Routine.getMethods(name);
+        Routine[] routines = Routine.newRoutines(methods);
+        HsqlName routineName = session.database.nameManager.newHsqlName(schema,
+            name, true, SchemaObject.FUNCTION);
 
-        if (statement == null) {
-            return HsqlName.emptyArray;
+        for (int i = 0; i < routines.length; i++) {
+            routines[i].setName(routineName);
+            session.database.schemaManager.addSchemaObject(routines[i]);
         }
-
-        return statement.getTableNamesForRead();
-    }
-
-    public HsqlName[] getTableNamesForWrite() {
-
-        if (statement == null) {
-            return HsqlName.emptyArray;
-        }
-
-        return statement.getTableNamesForWrite();
     }
 }

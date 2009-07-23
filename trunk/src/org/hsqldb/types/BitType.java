@@ -107,6 +107,11 @@ public final class BitType extends BinaryType {
         return true;
     }
 
+    public long getMaxPrecision() {
+        return maxBitPrecision;
+    }
+
+
     public boolean requiresPrecision() {
         return typeCode == Types.SQL_BIT_VARYING;
     }

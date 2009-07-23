@@ -103,6 +103,18 @@ public final class BlobType extends BinaryType {
         return sb.toString();
     }
 
+    public boolean acceptsPrecision() {
+        return true;
+    }
+
+    public boolean requiresPrecision() {
+        return false;
+    }
+
+    public long getMaxPrecision() {
+        return maxBlobPrecision;
+    }
+
     public boolean isBinaryType() {
         return true;
     }

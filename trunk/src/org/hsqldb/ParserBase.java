@@ -564,7 +564,7 @@ public class ParserBase {
 
                 read();
 
-                IntervalType dataType = readIntervalType();
+                IntervalType dataType = readIntervalType(false);
                 Object       interval = scanner.newInterval(s, dataType);
 
                 dataType = (IntervalType) scanner.dateTimeType;
@@ -584,10 +584,11 @@ public class ParserBase {
         return null;
     }
 
-    IntervalType readIntervalType() {
+    IntervalType readIntervalType(boolean maxPrecisionDefault) {
 
-        int precision = -1;
-        int scale     = -1;
+        int precision = maxPrecisionDefault ? IntervalType.maxIntervalPrecision
+                                            : -1;
+        int scale = -1;
         int startToken;
         int endToken;
 
@@ -753,7 +754,9 @@ public class ParserBase {
 
         String tokenS;
 
-        if (token.namePrePrefix != null) {
+        if (token.namePrePrePrefix != null) {
+            tokenS = token.namePrePrePrefix;
+        } else if (token.namePrePrefix != null) {
             tokenS = token.namePrePrefix;
         } else if (token.namePrefix != null) {
             tokenS = token.namePrefix;

@@ -240,7 +240,7 @@ public class ParserCommand extends ParserDDL {
                 break;
 
             case Tokens.DECLARE :
-                cs = compileSessionVariableDeclaration();
+                cs = compileDeclare();
                 break;
 
             default :
@@ -258,12 +258,21 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileSessionVariableDeclaration() {
+    private Statement compileDeclare() {
 
+        Statement cs;
         ColumnSchema variable = readLocalVariableDeclarationOrNull();
-        Object[]     args     = new Object[]{ variable };
-        Statement cs = new StatementSession(StatementTypes.DECLARE_VARIABLE,
-                                            args);
+
+        if (variable != null) {
+            Object[] args = new Object[] {
+                variable};
+            cs = new StatementSession(StatementTypes.DECLARE_VARIABLE,
+                                                args);
+            return cs;
+        }
+
+        cs = compileDeclareCursor();
+
 
         return cs;
     }

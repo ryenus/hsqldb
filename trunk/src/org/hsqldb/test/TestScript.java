@@ -36,6 +36,7 @@ import java.sql.Connection;
 public class TestScript extends TestBase {
 
 //    String path = "TestSelf01Function.txt";
+
 //    String path = "TestSelf01Procedure.txt";
 //    String path = "TestSelf02UpdatableViews.txt";
 //    String path = "TestSelf04UnionCorresponding.txt";
@@ -58,7 +59,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfInPredicateReferencing.txt";
 //    String path = "TestSelfIssues.txt";
 //    String path = "TestSelfJoins.txt";
-    String path = "TestSelfLeftJoin.txt";
+//    String path = "TestSelfLeftJoin.txt";
 //    String path = "TestSelfNameResolution.txt";
 //    String path = "TestSelfImmediateShutdown.txt";
 //    String path = "TestSelfInsertDeleteQueries.txt";
@@ -69,7 +70,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfQueries.txt";
 //    String path = "TestSelfSchemaPersistB1.txt";
 //    String path = "TestSelfSeqRightsA.txt";
-//    String path = "TestSelfSysTables.txt";
+    String path = "TestSelfSysTables.txt";
 //    String path = "TestSelfTempTable1.txt";
 //      String path = "TestSelfTransaction.txt";
 //    String path = "TestSelfTriggers.txt";
@@ -85,16 +86,17 @@ public class TestScript extends TestBase {
     }
 
     public void test() throws java.lang.Exception {
+
         TestSelf.deleteDatabase("test");
 
         Connection conn = newConnection();
 
         TestUtil.testScript(conn, path);
-
         conn.createStatement().execute("SHUTDOWN IMMEDIATELY");
     }
 
     public static void main(String[] Args) throws Exception {
+
         TestScript ts = new TestScript("test");
 
         ts.test();

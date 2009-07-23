@@ -32,6 +32,7 @@
 package org.hsqldb.store;
 
 import java.math.BigDecimal;
+
 import org.hsqldb.types.TimestampData;
 
 /**
@@ -83,6 +84,8 @@ public class ValuePool {
 
     public static final Integer INTEGER_0 = ValuePool.getInt(0);
     public static final Integer INTEGER_1 = ValuePool.getInt(1);
+    public static final Integer INTEGER_MAX =
+        ValuePool.getInt(Integer.MAX_VALUE);
     public static final BigDecimal BIG_DECIMAL_0 =
         ValuePool.getBigDecimal(new BigDecimal(0.0));
     public static final BigDecimal BIG_DECIMAL_1 =
@@ -169,9 +172,9 @@ public class ValuePool {
             return spaceStrings[length];
         }
 
-        int          times  = length / SPACE_STRING_SIZE;
-        int          add    = length % SPACE_STRING_SIZE;
-        StringBuffer sb = new StringBuffer(length);
+        int          times = length / SPACE_STRING_SIZE;
+        int          add   = length % SPACE_STRING_SIZE;
+        StringBuffer sb    = new StringBuffer(length);
 
         for (int i = 0; i < times; i++) {
             sb.append(spaceStrings[SPACE_STRING_SIZE]);

@@ -484,12 +484,23 @@ public class StatementSchema extends Statement {
                             checkSchemaUpdateAuthorisation(session,
                                                            name.schema);
 
-                            name = session.database.schemaManager
-                                .getSchemaObjectName(name.schema, name.name,
-                                                     objectType, !ifExists);
+                            SchemaObject object =
+                                session.database.schemaManager.getSchemaObject(
+                                    name);
 
-                            if (name == null) {
-                                return Result.updateZeroResult;
+                            if (object == null) {
+                                if (ifExists) {
+                                    return Result.updateZeroResult;
+                                }
+
+                                throw Error.error(ErrorCode.X_42501,
+                                                  name.name);
+                            }
+
+                            if (name.type == SchemaObject.SPECIFIC_ROUTINE) {
+                                name = ((Routine) object).getSpecificName();
+                            } else {
+                                name = object.getName();
                             }
                     }
 
@@ -1074,13 +1085,10 @@ public class StatementSchema extends Statement {
     }
 
     private void dropRoutine(Session session, HsqlName name, boolean cascade) {
-
-        HsqlName routineName =
-            session.database.schemaManager.getSchemaObjectName(name.schema,
-                name.name, name.type, true);
-
         checkSchemaUpdateAuthorisation(session, name.schema);
-        session.database.schemaManager.removeSchemaObject(routineName,
+
+
+        session.database.schemaManager.removeSchemaObject(name,
                 cascade);
     }
 

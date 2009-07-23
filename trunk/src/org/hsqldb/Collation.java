@@ -275,7 +275,7 @@ public class Collation implements SchemaObject {
     }
 
     public Grantee getOwner() {
-        return null;
+        return SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.owner;
     }
 
     public OrderedHashSet getReferences() {

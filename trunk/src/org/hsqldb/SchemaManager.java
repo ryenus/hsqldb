@@ -413,7 +413,7 @@ public class SchemaManager {
             }
         }
 
-        HsqlName[]     array = new HsqlName[names.size()];
+        HsqlName[] array = new HsqlName[names.size()];
 
         names.toArray(array);
 
@@ -467,6 +467,9 @@ public class SchemaManager {
             case SchemaObject.TRIGGER :
                 set = schema.triggerLookup;
                 break;
+
+            case SchemaObject.SPECIFIC_ROUTINE :
+                set = schema.specificRoutineLookup;
         }
 
         return set;
@@ -619,7 +622,8 @@ public class SchemaManager {
                 HsqlName   tablename = c.getRef().getName();
                 HsqlName   refname   = c.getRefName();
 
-                if (c.getConstraintType() == Constraint.MAIN) {
+                if (c.getConstraintType()
+                        == SchemaObject.ConstraintTypes.MAIN) {
                     throw Error.error(ErrorCode.X_42533,
                                       refname.schema.name + '.'
                                       + tablename.name + '.' + refname.name);
@@ -912,6 +916,18 @@ public class SchemaManager {
             case SchemaObject.FUNCTION :
                 return schema.functionLookup.getObject(name);
 
+            case SchemaObject.ROUTINE : {
+                SchemaObject object = schema.procedureLookup.getObject(name);
+
+                if (object == null) {
+                    object = schema.functionLookup.getObject(name);
+                }
+
+                return object;
+            }
+            case SchemaObject.SPECIFIC_ROUTINE :
+                return schema.specificRoutineLookup.getObject(name);
+
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
                 return schema.typeLookup.getObject(name);
@@ -1159,8 +1175,7 @@ public class SchemaManager {
     }
 
     //
-    void getCascadingSchemaReferences(HsqlName schema,
-            OrderedHashSet set) {
+    void getCascadingSchemaReferences(HsqlName schema, OrderedHashSet set) {
 
         Iterator mainIterator = referenceMap.keySet().iterator();
 
@@ -1237,6 +1252,9 @@ public class SchemaManager {
 
             case SchemaObject.FUNCTION :
                 return schema.functionLookup.getObject(name.name);
+
+            case RoutineSchema.SPECIFIC_ROUTINE :
+                return schema.specificRoutineLookup.getObject(name.name);
 
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
@@ -1337,10 +1355,26 @@ public class SchemaManager {
                     routine = new RoutineSchema(name.type, name);
 
                     routine.addSpecificRoutine(database, (Routine) object);
+                    set.checkAdd(name);
+
+                    SchemaObjectSet specificSet = getSchemaObjectSet(schema,
+                        SchemaObject.SPECIFIC_ROUTINE);
+
+                    specificSet.checkAdd(((Routine) object).getSpecificName());
                     set.add(routine);
+                    specificSet.add(object);
                 } else {
-                    ((Routine) object).setName(routine.getName());
+                    SchemaObjectSet specificSet = getSchemaObjectSet(schema,
+                        SchemaObject.SPECIFIC_ROUTINE);
+                    HsqlName specificName =
+                        ((Routine) object).getSpecificName();
+
+                    if (specificName != null) {
+                        specificSet.checkAdd(specificName);
+                    }
+
                     routine.addSpecificRoutine(database, (Routine) object);
+                    specificSet.add(object);
                 }
 
                 addReferences(object);
@@ -1358,14 +1392,26 @@ public class SchemaManager {
 
         switch (name.type) {
 
+            case SchemaObject.PROCEDURE :
+            case SchemaObject.FUNCTION : {
+                RoutineSchema routine = (RoutineSchema) getSchemaObject(name);
+
+                if (routine != null) {
+                    Routine[] specifics = routine.getSpecificRoutines();
+
+                    for (int i = 0; i < specifics.length; i++) {
+                        getCascadingReferences(specifics[i].getSpecificName(),
+                                               objectSet);
+                    }
+                }
+            }
             case SchemaObject.SEQUENCE :
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
             case SchemaObject.TYPE :
             case SchemaObject.CHARSET :
             case SchemaObject.COLLATION :
-            case SchemaObject.PROCEDURE :
-            case SchemaObject.FUNCTION :
+            case SchemaObject.SPECIFIC_ROUTINE :
                 getCascadingReferences(name, objectSet);
                 break;
 
@@ -1431,16 +1477,53 @@ public class SchemaManager {
                 object = set.getObject(name.name);
                 break;
 
-            case SchemaObject.PROCEDURE :
-                set    = schema.procedureLookup;
-                object = set.getObject(name.name);
-                break;
+            case SchemaObject.PROCEDURE : {
+                set = schema.procedureLookup;
 
-            case SchemaObject.FUNCTION :
-                set    = schema.functionLookup;
-                object = set.getObject(name.name);
-                break;
+                RoutineSchema routine =
+                    (RoutineSchema) set.getObject(name.name);
 
+                object = routine;
+
+                Routine[] specifics = routine.getSpecificRoutines();
+
+                for (int i = 0; i < specifics.length; i++) {
+                    removeSchemaObject(specifics[i].getSpecificName());
+                }
+
+                break;
+            }
+            case SchemaObject.FUNCTION : {
+                set = schema.functionLookup;
+
+                RoutineSchema routine =
+                    (RoutineSchema) set.getObject(name.name);
+
+                object = routine;
+
+                Routine[] specifics = routine.getSpecificRoutines();
+
+                for (int i = 0; i < specifics.length; i++) {
+                    removeSchemaObject(specifics[i].getSpecificName());
+                }
+
+                break;
+            }
+            case SchemaObject.SPECIFIC_ROUTINE : {
+                set = schema.specificRoutineLookup;
+
+                Routine routine = (Routine) set.getObject(name.name);
+
+                object = routine;
+
+                routine.routineSchema.removeSpecificRoutine(routine);
+
+                if (routine.routineSchema.getSpecificRoutines().length == 0) {
+                    removeSchemaObject(routine.getName());
+                }
+
+                break;
+            }
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
                 set    = schema.typeLookup;
@@ -1486,7 +1569,7 @@ public class SchemaManager {
         }
 
         if (object != null) {
-            database.getGranteeManager().removeDbObject(object.getName());
+            database.getGranteeManager().removeDbObject(name);
             removeReferencingObject(object);
         }
 

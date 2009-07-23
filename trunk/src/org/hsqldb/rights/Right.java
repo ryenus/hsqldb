@@ -588,7 +588,7 @@ public final class Right {
         return isFull || isFullDelete;
     }
 
-    public boolean canAccess(int privilegeType) {
+    public boolean canAccessFully(int privilegeType) {
 
         if (isFull) {
             return true;
@@ -622,7 +622,7 @@ public final class Right {
     /**
      * Supports column level rights
      */
-    public boolean canAccess(SchemaObject object, int privilegeType) {
+    public boolean canAccess(int privilegeType) {
 
         if (isFull) {
             return true;

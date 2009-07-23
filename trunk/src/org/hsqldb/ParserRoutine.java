@@ -236,7 +236,7 @@ public class ParserRoutine extends ParserDML {
 
         read();
 
-        name = readNewSchemaObjectNameNoCheck(routineType);
+        name = readNewSchemaObjectName(routineType, false);
 
         Routine routine = new Routine(routineType);
 
@@ -328,12 +328,6 @@ public class ParserRoutine extends ParserDML {
             routine.setProcedure(statement);
         }
 
-        if (routine.getSpecificName() == null) {
-            routine.setSpecificName(
-                database.nameManager.newSpecificRoutineName(
-                    routine.getName()));
-        }
-
         Object[] args = new Object[]{ routine };
         String   sql  = getLastPart();
         StatementSchema cs = new StatementSchema(sql,
@@ -394,8 +388,8 @@ public class ParserRoutine extends ParserDML {
 
                     read();
 
-                    HsqlName name =
-                        readNewSchemaObjectNameNoCheck(routine.getType());
+                    HsqlName name = readNewSchemaObjectName(
+                        SchemaObject.SPECIFIC_ROUTINE, false);
 
                     routine.setSpecificName(name);
 
@@ -590,31 +584,36 @@ public class ParserRoutine extends ParserDML {
 
         int position = super.getPosition();
 
-        readThis(Tokens.DECLARE);
+        try {
+            readThis(Tokens.DECLARE);
 
-        if (isReservedKey()) {
+            if (isReservedKey()) {
+                rewind(position);
+
+                return null;
+            }
+
+            HsqlName name =
+                super.readNewSchemaObjectName(SchemaObject.VARIABLE, false);
+            Type type = readTypeDefinition(true);
+            Expression def = null;
+
+            if (token.tokenType == Tokens.DEFAULT) {
+                read();
+
+                def = readDefaultClause(type);
+            }
+
+            ColumnSchema variable = new ColumnSchema(name, type, true, false, def);
+
+            variable.setParameterMode(SchemaObject.ParameterModes.PARAM_INOUT);
+            readThis(Tokens.SEMICOLON);
+
+            return variable;
+        } catch (Exception e) {
             rewind(position);
-
             return null;
         }
-
-        HsqlName name =
-            super.readNewSchemaObjectNameNoCheck(SchemaObject.VARIABLE);
-        Type       type = readTypeDefinition(true);
-        Expression def  = null;
-
-        if (token.tokenType == Tokens.DEFAULT) {
-            read();
-
-            def = readDefaultClause(type);
-        }
-
-        ColumnSchema variable = new ColumnSchema(name, type, true, false, def);
-
-        variable.setParameterMode(SchemaObject.ParameterModes.PARAM_INOUT);
-        readThis(Tokens.SEMICOLON);
-
-        return variable;
     }
 
     private StatementHandler readLocalHandlerDeclaration(Routine routine,
@@ -837,7 +836,7 @@ public class ParserRoutine extends ParserDML {
                                          : context.getRangeVariables();
 
         if (isSimpleName() && !isReservedKey()) {
-            label = readNewSchemaObjectNameNoCheck(SchemaObject.LABEL);
+            label = readNewSchemaObjectName(SchemaObject.LABEL, false);
 
             readThis(Tokens.COLON);
         }
@@ -1026,7 +1025,7 @@ public class ParserRoutine extends ParserDML {
 
         readThis(Tokens.ITERATE);
 
-        HsqlName label = readNewSchemaObjectNameNoCheck(SchemaObject.LABEL);
+        HsqlName label = readNewSchemaObjectName(SchemaObject.LABEL, false);
 
         return new StatementSimple(StatementTypes.ITERATE, label);
     }
@@ -1035,7 +1034,7 @@ public class ParserRoutine extends ParserDML {
 
         readThis(Tokens.LEAVE);
 
-        HsqlName label = readNewSchemaObjectNameNoCheck(SchemaObject.LABEL);
+        HsqlName label = readNewSchemaObjectName(SchemaObject.LABEL, false);
 
         return new StatementSimple(StatementTypes.LEAVE, label);
     }

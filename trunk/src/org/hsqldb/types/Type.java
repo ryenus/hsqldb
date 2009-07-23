@@ -43,7 +43,6 @@ import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.lib.HashSet;
 
 /**
  * Base class for type objects.<p>
@@ -355,6 +354,18 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public boolean requiresPrecision() {
         return false;
+    }
+
+    public long getMaxPrecision() {
+        return 0;
+    }
+
+    public int getMaxScale() {
+        return 0;
+    }
+
+    public int getPrecisionRadix() {
+        return 0;
     }
 
     public boolean acceptsFractionalPrecision() {
