@@ -1164,7 +1164,7 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
       statements, which need to reference a specific variant of the routine.
       For example, if a routine has two signatures, each signature has its own
       <glossterm>specific name</glossterm>. This allows the user to drop one
-      of the signatures while keeping the other. </simpara>
+      of the signatures while keeping the other.</simpara>
 
       <simpara>Routines are discussed in detail in a separate chapter <link
       endterm="sqlroutines-title" os=""
@@ -3170,8 +3170,6 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
 
       <para>The following views are specific to HyperSQL:</para>
 
-      <para>SYSTEM_ALLTYPEINFO</para>
-
       <para>SYSTEM_BESTROWIDENTIFIER</para>
 
       <para>SYSTEM_CACHEINFO</para>
@@ -3201,10 +3199,6 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
       <para>SYSTEM_TABLETYPES</para>
 
       <para>SYSTEM_TEXTTABLES</para>
-
-      <para>SYSTEM_TRIGGERCOLUMNS</para>
-
-      <para>SYSTEM_TRIGGERS</para>
 
       <para>SYSTEM_TYPEINFO</para>
 
