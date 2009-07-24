@@ -106,10 +106,10 @@ public class UtilTest extends BaseTestCase {
 */
             }
         }, {
-            SQLIntegrityConstraintViolationException.class, new int[] {
-                ErrorCode.X_23000, ErrorCode.X_23001, ErrorCode.X_23501,
-                ErrorCode.X_23502, ErrorCode.X_23503, ErrorCode.X_23504,
-                ErrorCode.X_23505,
+            SQLIntegrityConstraintViolationException.class, new int[]{
+                ErrorCode.X_23000, ErrorCode.X_23001, ErrorCode.X_23502,
+                ErrorCode.X_23503, ErrorCode.X_23504, ErrorCode.X_23505,
+                ErrorCode.X_23513
             }
         }, {
             SQLInvalidAuthorizationSpecException.class, new int[] {

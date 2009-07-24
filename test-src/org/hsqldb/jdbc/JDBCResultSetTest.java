@@ -2713,7 +2713,7 @@ public class JDBCResultSetTest extends BaseTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -ErrorCode.NO_DATA_IS_AVAILABLE);
+                    -ErrorCode.N_02000); // NO_DATA_IS_AVAILABLE
         }
     }
 
@@ -2735,7 +2735,7 @@ public class JDBCResultSetTest extends BaseTestCase {
             assertEquals(
                     "error code",
                     ex.getErrorCode(),
-                    -ErrorCode.NO_DATA_IS_AVAILABLE);
+                    -ErrorCode.N_02000); // NO_DATA_IS_AVAILABLE
         }
     }
 
