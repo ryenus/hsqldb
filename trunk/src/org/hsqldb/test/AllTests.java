@@ -73,8 +73,8 @@ public class AllTests extends TestCase {
 //        suite.addTestSuite(org.hsqldb.test.TestDataStructures.class);
         suite.addTestSuite(org.hsqldb.test.TestGroupByHaving.class);
         suite.addTestSuite(org.hsqldb.test.TestSqlPersistent.class);
-        //suite.addTestSuite(org.hsqldb.test.TestUpdatableResults.class);
-        //suite.addTestSuite(org.hsqldb.test.TestUpdatableResultSets.class);
+        suite.addTestSuite(org.hsqldb.test.TestUpdatableResults.class);
+        suite.addTestSuite(org.hsqldb.test.TestUpdatableResultSets.class);
         return suite;
     }
 }
