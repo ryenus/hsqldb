@@ -84,7 +84,10 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         Row row = new RowAVLDiskData(table, (Object[]) object);
 
         add(row);
-        RowAction.addAction(session, RowAction.ACTION_INSERT, table, row);
+
+        if (session != null) {
+            RowAction.addAction(session, RowAction.ACTION_INSERT, table, row);
+        }
 
         return row;
     }
