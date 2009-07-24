@@ -520,7 +520,7 @@ final class RangeVariable {
     }
 
     boolean hasIndexCondition() {
-        return indexCondition != null;
+        return isMultiFindFirst || indexCondition != null;
     }
 
     /**
