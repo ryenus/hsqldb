@@ -452,17 +452,23 @@
       legacy systems in which character strings are padded with spaces to fill
       a fixed width. These spaces are sometimes significant while in other
       cases they are silently discarded. It would be best to avoid the
-      CHARACTER type altogether.</para>
+      CHARACTER type altogether. With the rest of the types, the strings are
+      not padded when assigned to columns or variables of the given type. The
+      trailing spaces are still considered discardable for all character
+      types. Therefore if a string with trailing spaces is too long to assigne
+      to a column or variable of a given length, the spaces beyond the type
+      length are discarded and the assignment succeeds (provided all the
+      characters beyond the type length are spaces).</para>
 
       <para>The VARCHAR and CLOB types have length limits, but the strings are
       not padded by the system.</para>
 
       <para>If CHARACTER is used without specifying the length, the length
       defaults to 1. For the CLOB type, the length limit can be defined in
-      units of kilobyte (1024), megabyte (1024 * 1024) or gigabyte (1024 *
-      1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If CLOB
-      is used without specifying the length, the length defaults to 1
-      megabyte.</para>
+      units of kilobyte (K, 1024), megabyte (M, 1024 * 1024) or gigabyte (G,
+      1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
+      CLOB is used without specifying the length, the length defaults to
+      1M.</para>
 
       <simpara><literal>&lt;character string type&gt; ::= { CHARACTER | CHAR }
       [ &lt;left paren&gt; &lt;character length&gt; &lt;right paren&gt; ] | {
@@ -529,10 +535,10 @@ LONGVARCHAR
 
       <para>If BINARY is used without specifying the length, the length
       defaults to 1. For the BLOB type, the length limit can be defined in
-      units of kilobyte (1024), megabyte (1024 * 1024) or gigabyte (1024 *
-      1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If BLOB
-      is used without specifying the length, the length defaults to 1
-      megabyte.</para>
+      units of kilobyte (K, 1024), megabyte (M, 1024 * 1024) or gigabyte (G,
+      1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
+      BLOB is used without specifying the length, the length defaults to
+      1M.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
@@ -569,22 +575,27 @@ LONGVARBINARY
       Standard. Bit types represent bit maps of given lengths. Each bit is 0
       or 1. The BIT type represents a fixed width-string. Each shorter string
       is padded with zeros to fill the fixed with. If BIT is used without
-      specifying the length, the length defaults to 1.</para>
+      specifying the length, the length defaults to 1. The BIT VARYING type
+      represents a maximumn width and shorter strings are not padded.</para>
 
-      <para>For compatibility with other products that do not conform to, or
-      extend, the SQL Standard, values of BIT and BIT VARYING types with
-      length 1 can be converted to and from the BOOLEAN type. BOOLEAN TRUE is
-      considered equal to B'1', BOOLEAN FALSE is considered equal to
-      B'0'.</para>
+      <para>Before the introduction of the BOOLEAN type to the SQL Standard, a
+      sigle-bit string of the type BIT(1) was commonly used. For compatibility
+      with other products that do not conform to, or extend, the SQL Standard,
+      HyperSQL allows values of BIT and BIT VARYING types with length 1 to be
+      converted to and from the BOOLEAN type. BOOLEAN TRUE is considered equal
+      to B'1', BOOLEAN FALSE is considered equal to B'0'.</para>
 
       <para>For the same reason, numeric values can be assigned to columns and
-      variables of For assignment, any numeric value zero is converted to
-      B'0', while all other values are converted to to B'1'. For comparison,
-      numeric values 1 is considered equal to B'1' and numeric value zero is
-      considered equal to B'0'.</para>
+      variables of the type BIT(1). For assignment, the numeric value zero is
+      converted to B'0', while all other values are converted to to B'1'. For
+      comparison, numeric values 1 is considered equal to B'1' and numeric
+      value zero is considered equal to B'0'.</para>
 
       <para>It is not allowed to perform other arithmetic or boolean
-      operations involving BIT(1) and BIT VARYING(1).</para>
+      operations involving BIT(1) and BIT VARYING(1). The kid of operations
+      allowed on bit strings are analogous to those allowed on BINARY and
+      CHARACTER strings and several built-in functions supposrt all three
+      types of string.</para>
 
       <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
       &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
@@ -630,12 +641,12 @@ BIT VARYING(2)
     <section>
       <title>Type Length, Precision and Scale</title>
 
-      <para>In older version of HSQLDB, all table column type definitions with
-      a column length, precision or scale qualifier were accepted and ignored.
-      HSQLDB 1.8 enforced correctness but included an option to enforce the
-      length, precision or scale.</para>
+      <para>In older version of HyperSQL, all table column type definitions
+      with a column length, precision or scale qualifier were accepted and
+      ignored. HSQLDB 1.8 enforced correctness but included an option to
+      enforce the length, precision or scale.</para>
 
-      <para>In 2.0, length, precision and scale qualifiers are always
+      <para>In HyperSQL 2.0, length, precision and scale qualifiers are always
       enforced. For backward compatibility, when older databases which had the
       property hsqldb.enforce_strict_size=false are converted to version 1.9,
       this property is retained. However, this is a temporary measure. You
@@ -645,7 +656,8 @@ BIT VARYING(2)
 
       <para>String types, including all BIT, BINARY and CHAR string types plus
       CLOB and BLOB, are generally defined with a length. If no length is
-      specified, the default length is 1.</para>
+      specified for BIT, BINARY and CHAR, the default length is 1. For CLOB
+      and BLOB an implementation defined length of 1M is used.</para>
 
       <para>TIME and TIMESTAMP types can be defined with a fractional second
       precision between 0 and 9. INTERVAL type definition may have precision
@@ -965,9 +977,12 @@ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
 
     <para>If you want to store and retrieve UTC values that are independent of
     any session's time zone, you can use a TIMESTAMP WITH TIME ZONE column.
-    The method calls in ResultSet and PreparedStatement interfaces which have
-    a Calendar parameter can be used to access the values without any
-    adjustment to the sessions time zone.</para>
+    The setTime(...) and setTimestamp(...) methods of the PreparedStatement
+    interface which have a Calendar parameter can be used to assign the
+    values. The time zone of the given Calendar argument is used as the time
+    zone. Conversly, the getTime(...) and getTimestamp(...) methods of the
+    ResultSet interface which have a Calendar parameter can be used with a
+    Calendar argument to retrieve the values.</para>
   </section>
 
   <section>
@@ -1247,13 +1262,14 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     atable(c1);</literal>. So you do not need to specify an extra index if you
     require one on the first column of the list.</para>
 
-    <para>In 2.0, a multi-column index will speed up queries that contain
-    joins or values on ALL the columns. You need NOT declare additional
-    individual indexes on those columns unless you use queries that search
-    only on a subset of the columns. For example, rows of a table that has a
-    PRIMARY KEY or UNIQUE constraint on three columns or simply an ordinary
-    index on those columns can be found efficiently when values for all three
-    columns are specified in the WHERE clause. For example, <literal>SELECT
+    <para>In HyperSQL 2.0, a multi-column index will speed up queries that
+    contain joins or values on the first n columns of the index. You need NOT
+    declare additional individual indexes on those columns unless you use
+    queries that search only on a subset of the columns. For example, rows of
+    a table that has a PRIMARY KEY or UNIQUE constraint on three columns or
+    simply an ordinary index on those columns can be found efficiently when
+    values for all three columns, or the first two columns, or the first
+    column, are specified in the WHERE clause. For example, <literal>SELECT
     ... FROM t1 WHERE t1.c1 = 4 AND t1.c2 = 6 AND t1.c3 = 8 </literal>will use
     an index on <literal>t1(c1,c2,c3)</literal> if it exists.</para>
 
