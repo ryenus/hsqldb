@@ -1568,6 +1568,7 @@ class ServerConnection implements Runnable {
 
             session = DatabaseManager.newSession(dbID, user,
                                                  resultIn.getSubString(),
+                                                 resultIn.getZoneString(),
                                                  resultIn.getUpdateCount());
 
             if (!server.isSilent()) {
@@ -1823,7 +1824,8 @@ class ServerConnection implements Runnable {
             }
 
             try {
-                session = DatabaseManager.newSession(dbID, user, password, 0);
+                session = DatabaseManager.newSession(dbID, user, password,
+                                                     null, 0);
 
                 // TODO:  Find out what updateCount, the last para, is for:
                 //                                   resultIn.getUpdateCount());

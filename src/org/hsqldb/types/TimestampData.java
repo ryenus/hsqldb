@@ -40,17 +40,22 @@ package org.hsqldb.types;
  */
 public class TimestampData {
 
-    long seconds;
-    int  nanos;
-    int  zone;
+    final long seconds;
+    final int  nanos;
+    final int  zone;
 
     public TimestampData(long seconds) {
+
         this.seconds = seconds;
+        this.nanos   = 0;
+        this.zone    = 0;
     }
 
     public TimestampData(long seconds, int nanos) {
+
         this.seconds = seconds;
         this.nanos   = nanos;
+        this.zone    = 0;
     }
 
     public TimestampData(long seconds, int nanos, int zoneSeconds) {

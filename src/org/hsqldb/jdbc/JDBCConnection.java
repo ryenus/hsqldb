@@ -3217,7 +3217,7 @@ public class JDBCConnection implements Connection {
                  *   the jdbc package - we may make it dynamic
                  */
                 sessionProxy = DatabaseManager.newSession(connType, database,
-                        user, password, props, zoneSeconds);
+                        user, password, props, null, zoneSeconds);
             } else if (connType == DatabaseURL.S_HSQL
                        || connType == DatabaseURL.S_HSQLS) {
                 sessionProxy = new ClientConnection(host, port, path,

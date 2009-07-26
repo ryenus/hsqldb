@@ -67,9 +67,9 @@ public class SessionManager {
         User sysUser = db.getUserManager().getSysUser();
 
         sysSession = new Session(db, sysUser, false, false, sessionIdCount++,
-                                 0);
+                                 null, 0);
         sysLobSession = new Session(db, sysUser, true, false,
-                                    sessionIdCount++, 0);
+                                    sessionIdCount++, null, 0);
     }
 
     /**
@@ -100,10 +100,11 @@ public class SessionManager {
      */
     public synchronized Session newSession(Database db, User user,
                                            boolean readonly, boolean forLog,
+                                           String zoneString,
                                            int timeZoneSeconds) {
 
         Session s = new Session(db, user, !forLog, readonly, sessionIdCount,
-                                timeZoneSeconds);
+                                zoneString, timeZoneSeconds);
 
         s.isProcessingLog = forLog;
 
@@ -120,7 +121,7 @@ public class SessionManager {
     public Session getSysSessionForScript(Database db) {
 
         Session session = new Session(db, db.getUserManager().getSysUser(),
-                                      false, false, 0, 0);
+                                      false, false, 0, null, 0);
 
         session.isProcessingScript = true;
 
@@ -164,7 +165,7 @@ public class SessionManager {
     public Session newSysSession(HsqlName schema, User user) {
 
         Session session = new Session(sysSession.database, user, false, false,
-                                      0, 0);
+                                      0, null, 0);
 
         session.currentSchema = schema;
 

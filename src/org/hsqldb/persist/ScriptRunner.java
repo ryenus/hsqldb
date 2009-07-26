@@ -89,7 +89,7 @@ public class ScriptRunner {
                         current =
                             database.getSessionManager().newSession(database,
                                 database.getUserManager().getSysUser(), false,
-                                true, 0);
+                                true, null, 0);
 
                         sessionMap.put(currentId, current);
                     }

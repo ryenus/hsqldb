@@ -87,7 +87,7 @@ class JDBCBench {
                     if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
                             || DriverName.equals("org.hsqldb.jdbcDriver")) {
 
-//                        tableExtension  = "CREATE CACHED TABLE ";
+                        tableExtension  = "CREATE CACHED TABLE ";
 //                        ShutdownCommand = "SHUTDOWN";
                     }
                 }

@@ -677,25 +677,28 @@ public final class DateTimeType extends DTIType {
                 }
 
                 if (a instanceof java.util.Date) {
-                    long seconds =
-                        HsqlDateTime.getNormalisedTime(
-                            ((java.util.Date) a).getTime()) / 1000;;
-                    int zoneSeconds;
-                    int nanos = 0;
+                    long millis;
+                    int  nanos       = 0;
+                    int  zoneSeconds = 0;
 
-                    if (this.isDateTimeTypeWithZone()) {
-                        zoneSeconds = session.getZoneSeconds();
+                    if (typeCode == Types.SQL_TIME) {
+                        millis = HsqlDateTime.convertMillisFromCalendar(
+                            session.getCalendar(),
+                            ((java.util.Date) a).getTime());
                     } else {
-                        zoneSeconds = 0;
-                        seconds     += session.getZoneSeconds();
+                        millis      = ((java.util.Date) a).getTime();
+                        zoneSeconds = session.getZoneSeconds();
                     }
+
+                    millis = HsqlDateTime.getNormalisedTime(millis);
 
                     if (a instanceof java.sql.Timestamp) {
                         nanos = ((java.sql.Timestamp) a).getNanos();
-                        nanos = this.normaliseFraction(nanos, (int) scale);
+                        nanos = normaliseFraction(nanos, scale);
                     }
 
-                    return new TimeData((int) seconds, nanos, zoneSeconds);
+                    return new TimeData((int) millis / 1000, nanos,
+                                        zoneSeconds);
                 }
                 break;
 
@@ -705,11 +708,15 @@ public final class DateTimeType extends DTIType {
                 }
 
                 if (a instanceof java.util.Date) {
-                    long nanos = ((java.util.Date) a).getTime()
-                                 + session.getZoneSeconds() * 1000;
+                    long millis;
 
-                    return new TimestampData(
-                        HsqlDateTime.getNormalisedDate(nanos) / 1000);
+                    millis = HsqlDateTime.convertMillisFromCalendar(
+                    session.getCalendar(),
+                            ((java.util.Date) a).getTime());
+
+                    millis = HsqlDateTime.getNormalisedDate(millis);
+
+                    return new TimestampData(millis / 1000);
                 }
 
                 break;
@@ -721,23 +728,26 @@ public final class DateTimeType extends DTIType {
                 }
 
                 if (a instanceof java.util.Date) {
-                    long seconds = ((java.util.Date) a).getTime() / 1000;
-                    int  zoneSeconds;
-                    int  nanos = 0;
+                    long millis;
+                    int  nanos       = 0;
+                    int  zoneSeconds = 0;
 
-                    if (this.isDateTimeTypeWithZone()) {
-                        zoneSeconds = session.getZoneSeconds();
+                    if (typeCode == Types.SQL_TIMESTAMP) {
+                        millis = HsqlDateTime.convertMillisFromCalendar(
+                            session.getCalendar(),
+                            ((java.util.Date) a).getTime());
                     } else {
-                        zoneSeconds = 0;
-                        seconds     += session.getZoneSeconds();
+                        millis      = ((java.util.Date) a).getTime();
+                        zoneSeconds = session.getZoneSeconds();
                     }
 
                     if (a instanceof java.sql.Timestamp) {
                         nanos = ((java.sql.Timestamp) a).getNanos();
-                        nanos = this.normaliseFraction(nanos, (int) scale);
+                        nanos = this.normaliseFraction(nanos, scale);
                     }
 
-                    return new TimestampData(seconds, nanos, zoneSeconds);
+                    return new TimestampData(millis / 1000, nanos,
+                                        zoneSeconds);
                 }
 
                 break;
@@ -790,12 +800,14 @@ public final class DateTimeType extends DTIType {
         switch (typeCode) {
 
             case Types.SQL_TIME : {
-                int seconds = ((TimeData) a).getSeconds()
-                              - session.getZoneSeconds();
+                Calendar cal = session.getCalendar();
+                long millis = HsqlDateTime.convertMillisToCalendar(cal,
+                    ((TimeData) a).getSeconds() * 1000);
 
-                seconds = normaliseTime(seconds);
+                millis = HsqlDateTime.getNormalisedTime(cal, millis);
+                java.sql.Time value = new java.sql.Time(millis);
 
-                return new java.sql.Time(seconds * 1000);
+                return value;
             }
             case Types.SQL_TIME_WITH_TIME_ZONE : {
                 int seconds = ((TimeData) a).getSeconds();
@@ -803,16 +815,22 @@ public final class DateTimeType extends DTIType {
                 return new java.sql.Time(seconds * 1000);
             }
             case Types.SQL_DATE : {
-                long seconds = ((TimestampData) a).getSeconds()
-                               - session.getZoneSeconds();
+                Calendar cal = session.getCalendar();
+                long millis = HsqlDateTime.convertMillisToCalendar(cal,
+                    ((TimestampData) a).getSeconds() * 1000);
 
-                return new java.sql.Date(seconds * 1000);
+                // millis = HsqlDateTime.getNormalisedDate(cal, millis);
+                java.sql.Date value = new java.sql.Date(millis);
+
+                return value;
             }
+
+
             case Types.SQL_TIMESTAMP : {
-                long seconds = ((TimestampData) a).getSeconds()
-                               - session.getZoneSeconds();
-                java.sql.Timestamp value = new java.sql.Timestamp(seconds
-                    * 1000);
+                Calendar cal = session.getCalendar();
+                long millis = HsqlDateTime.convertMillisToCalendar(cal,
+                    ((TimestampData) a).getSeconds() * 1000);
+                java.sql.Timestamp value = new java.sql.Timestamp(millis);
 
                 value.setNanos(((TimestampData) a).getNanos());
 

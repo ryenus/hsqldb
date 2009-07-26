@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import java.io.InputStream;
+import java.util.Calendar;
 
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
@@ -124,6 +125,8 @@ public interface SessionInterface {
     void allocateResultLob(ResultLob result, InputStream dataInput);
 
     Scanner getScanner();
+
+    public Calendar getCalendar();
 
     TimestampData getCurrentDate();
 

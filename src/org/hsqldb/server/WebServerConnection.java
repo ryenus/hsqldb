@@ -344,6 +344,7 @@ class WebServerConnection implements Runnable {
                         DatabaseManager.newSession(dbID,
                                                    resultIn.getMainString(),
                                                    resultIn.getSubString(),
+                                                   resultIn.getZoneString(),
                                                    resultIn.getUpdateCount());
 
                     resultIn.readAdditionalResults(session, dataIn, rowIn);

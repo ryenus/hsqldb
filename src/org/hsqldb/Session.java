@@ -46,7 +46,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CountUpDownLatch;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
@@ -101,6 +100,7 @@ public class Session implements SessionInterface {
     Statement                lockStatement;
 
     // current settings
+    final String       zoneString;
     final int          sessionTimeZoneSeconds;
     int                timeZoneSeconds;
     boolean            isNetwork;
@@ -142,11 +142,12 @@ public class Session implements SessionInterface {
      * @param  id the session identifier, as known to the database
      */
     Session(Database db, User user, boolean autocommit, boolean readonly,
-            long id, int timeZoneSeconds) {
+            long id, String zoneString, int timeZoneSeconds) {
 
         sessionId                   = id;
         database                    = db;
         this.user                   = user;
+        this.zoneString             = zoneString;
         this.sessionTimeZoneSeconds = timeZoneSeconds;
         this.timeZoneSeconds        = timeZoneSeconds;
         rowActionList               = new HsqlArrayList(true);
@@ -1851,6 +1852,9 @@ public class Session implements SessionInterface {
     SimpleDateFormat simpleDateFormatGMT;
     Random           randomGenerator = new Random();
 
+    //
+    Calendar calendar;
+
     public double random(long seed) {
 
         randomGenerator.setSeed(seed);
@@ -1862,6 +1866,21 @@ public class Session implements SessionInterface {
         return randomGenerator.nextDouble();
     }
 
+    public Calendar getCalendar() {
+
+        if (calendar == null) {
+            if (zoneString == null) {
+                calendar = new GregorianCalendar();
+            } else {
+                TimeZone zone = TimeZone.getTimeZone(zoneString);
+
+                calendar = new GregorianCalendar(zone);
+            }
+        }
+
+        return calendar;
+    }
+
     public Scanner getScanner() {
 
         if (secondaryScanner == null) {
@@ -1869,21 +1888,6 @@ public class Session implements SessionInterface {
         }
 
         return secondaryScanner;
-    }
-
-    public SimpleDateFormat getSimpleDateFormat() {
-
-        if (simpleDateFormat == null) {
-            simpleDateFormat = new SimpleDateFormat("MMMM", Locale.ENGLISH);
-
-            SimpleTimeZone zone = new SimpleTimeZone(timeZoneSeconds,
-                "hsqldb");
-            Calendar cal = new GregorianCalendar(zone);
-
-            simpleDateFormat.setCalendar(cal);
-        }
-
-        return simpleDateFormat;
     }
 
     public SimpleDateFormat getSimpleDateFormatGMT() {
