@@ -95,7 +95,7 @@ public class TestDateTime extends TestBase {
         // Set date of my birthday ;-)
         calGenerate.set(1995, 9, 15, 1, 2, 3);
 
-        insertDate      = new java.sql.Date(calGenerate.getTime().getTime());
+        insertDate      = new java.sql.Date(calGenerate.getTimeInMillis());
         insertStatement = connection.prepareStatement(INSERT_DATE);
 
         insertStatement.setDate(1, insertDate);
@@ -120,7 +120,7 @@ public class TestDateTime extends TestBase {
         calGenerate.set(1995, 9, 15, 2, 3, 4);
 
         java.sql.Date selectDate =
-            new java.sql.Date(calGenerate.getTime().getTime());
+            new java.sql.Date(calGenerate.getTimeInMillis());
 
         selectStatement = connection.prepareStatement(SELECT_DATE);
 

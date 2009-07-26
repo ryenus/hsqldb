@@ -1563,23 +1563,23 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         long millis     = x.getTime();
         int  zoneOffset = 0;
 
-        if (cal != null) {
-            zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
-        }
+        Calendar calendar = cal == null ? connection.sessionProxy.getCalendar()
+                                        : cal;
+
+        millis = HsqlDateTime.convertMillisFromCalendar(calendar, millis);
+        millis = HsqlDateTime.convertToNormalisedTime(millis);
 
         switch (outType.typeCode) {
 
             case Types.SQL_TIME :
-                millis     += zoneOffset;
-                zoneOffset = 0;
 
-            // fall through
+                break;
             case Types.SQL_TIME_WITH_TIME_ZONE :
+                zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
                 break;
             default :
                 throw Util.sqlException(ErrorCode.X_42561);
         }
-        millis = HsqlDateTime.convertToNormalisedTime(millis);
         parameterValues[i] = new TimeData((int) (millis / 1000), 0,
                 zoneOffset / 1000);
     }
@@ -1601,10 +1601,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * When a setXXX method is used to set a parameter of type
      * TIMESTAMP WITH TIME ZONE or TIME WITH TIME ZONE the time zone (including
      * Daylight Saving Time) of the Calendar is used as time zone.<p>
+     * In this case, if the Calendar argument is null, then the default Calendar
+     * for the clients JVM is used as the Calendar<p>
      *
      * When this method is used to set a parameter of type TIME or
      * TIME WITH TIME ZONE, then the nanosecond value of the Timestamp object
-     * is used if the TIME parameter accepts fractional seconds.
+     * is used if the TIME parameter accepts fractional seconds.<p>
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1631,39 +1633,42 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return;
         }
 
+
         Type outType    = parameterTypes[i];
         long millis     = x.getTime();
         int  zoneOffset = 0;
 
-        if (cal != null) {
-            zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
-        }
+        Calendar calendar = cal == null ? connection.sessionProxy.getCalendar()
+                                        : cal;
+
+        millis = HsqlDateTime.convertMillisFromCalendar(calendar, millis);
 
         switch (outType.typeCode) {
 
             case Types.SQL_TIMESTAMP :
-                millis     += zoneOffset;
-                zoneOffset = 0;
-
-            // fall through
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                parameterValues[i] = new TimestampData(millis / 1000,
-                        x.getNanos(), zoneOffset / 1000);
 
                 break;
-            case Types.SQL_TIME :
-                millis     += zoneOffset;
-                zoneOffset = 0;
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
+                break;
 
-            // fall through
+            case Types.SQL_TIME :
+                parameterValues[i] = new TimeData((int) (millis / 1000),
+                        x.getNanos(), 0);
+
             case Types.SQL_TIME_WITH_TIME_ZONE :
+                zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), zoneOffset / 1000);
 
-                break;
             default :
                 throw Util.sqlException(ErrorCode.X_42561);
         }
+
+        parameterValues[i] = new TimestampData(millis / 1000,
+                x.getNanos(), zoneOffset / 1000);
+
+
     }
 
     /**

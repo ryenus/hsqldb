@@ -143,7 +143,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     private static final HashMap textMeta = new HashMap(17);
 
     // versions
-    public static final String VERSION_STRING_1_7_0 = "1.7.0";
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
     public static final String VERSION_STRING_1_9_0 = "1.9.0";
     public static final String THIS_VERSION         = "1.9.0";
@@ -185,8 +184,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.cache_free_count_scale";
     public static final String hsqldb_cache_rows = "hsqldb.cache_rows";
     public static final String hsqldb_cache_size = "hsqldb.cache_size";
-    public static final String hsqldb_compatible_version =
-        "hsqldb.compatible_version";
     public static final String hsqldb_default_table_type =
         "hsqldb.default_table_type";
     public static final String hsqldb_defrag_limit   = "hsqldb.defrag_limit";
@@ -265,9 +262,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_version,
                    HsqlProperties.getMeta(hsqldb_version, FILE_PROPERTY,
                                           null));
-        dbMeta.put(hsqldb_compatible_version,
-                   HsqlProperties.getMeta(hsqldb_compatible_version,
-                                          FILE_PROPERTY, null));
         dbMeta.put(hsqldb_modified,
                    HsqlProperties.getMeta(hsqldb_modified, FILE_PROPERTY,
                                           null));
@@ -311,10 +305,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_enforce_size,
                    HsqlProperties.getMeta(sql_enforce_size, SQL_PROPERTY,
                                           true));
-
         dbMeta.put(sql_enforce_strict_size,
-                   HsqlProperties.getMeta(sql_enforce_strict_size, SQL_PROPERTY,
-                                          true));
+                   HsqlProperties.getMeta(sql_enforce_strict_size,
+                                          SQL_PROPERTY, true));
+
         // SQL reserved words not allowed as some identifiers
         dbMeta.put(sql_enforce_names,
                    HsqlProperties.getMeta(sql_enforce_names, SQL_PROPERTY,
@@ -380,55 +374,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // version of a new database
         setProperty(hsqldb_version, THIS_VERSION);
 
-        // the earliest version that can open this database
-        // this is set to 1.9.0 when the db is written to
-        setProperty(hsqldb_compatible_version, VERSION_STRING_1_9_0);
-        /*
-             garbage collection with gc_interval
-             Setting this value can be useful when HSQLDB is used as an
-             in-process part of an application. The minimum practical
-             amount is probably "10000" and the maximum "1000000"
-
-             In some versions of Java, such as 1.3.1_02 on windows,
-             when the application runs out of memory it runs the gc AND
-             requests more memory from the OS. Setting this property
-             forces the DB to live inside its memory budget but the
-             maximum amount of memory can still be set with the
-             java -Xmx argument to provide the memory needed by other
-             parts of the app to do graphics and networking.
-
-             Of course there is a speed penalty for setting the value
-             too low and doing garbage collection too often.
-
-             This was introduced as a result of tests by Karl Meissner
-             (meissnersd@users)
-         */
-
-        // garbage collect per Record or Cache Row objects created
-        // the default, "0" means no garbage collection is forced by
-        // hsqldb (the Java Runtime will do it's own garbage collection
-        // in any case).
-        setProperty(runtime_gc_interval, 0);
-
-        // type of logging (0 : text , 1 : binary, 3 : compressed)
-        setProperty(hsqldb_script_format, 0);
-        setProperty(hsqldb_readonly, false);
         setProperty(hsqldb_modified, "no-new-files");
 
-        // the property "version" is also set to the current version
-        //
-        // the following properties can be set by the user as defaults for
-        // text tables. the default values are shown.
-        // "textdb.fs", ","
-        // "textdb.vs", ",";
-        // "textdb.lvs", ","
-        // "textdb.ignore_first", false
-        // "textdb.quoted", true
-        // "textdb.all_quoted", false
-        // "textdb.encoding", "ASCII"
-        // "textdb.cache_scale", 10  -- allowed range 8-16
-        // "textdb.cache_size_scale", 10  -- allowed range 8-20
-        //
         // OOo related code
         if (database.logger.isStoredFileAccess()) {
             setProperty(hsqldb_cache_rows, 25000);
@@ -468,26 +415,31 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         filterLoadedProperties();
 
-        String version = getStringProperty(hsqldb_compatible_version);
+        String version = getStringProperty(hsqldb_version);
+        int    check = version.substring(0, 5).compareTo(VERSION_STRING_1_8_0);
+
+        // do not open early version databases
+        if (check < 0) {
+            throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
+        }
+
+        check = version.substring(0, 5).compareTo(THIS_VERSION);
 
         // do not open if the database belongs to a later (future) version
-        int check = version.substring(0, 5).compareTo(THIS_VERSION);
-
         if (check > 0) {
             throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
         }
 
-        if (getIntegerProperty(hsqldb_script_format) != 0) {
-            throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
-        }
-
-        if (!THIS_VERSION.equals(getStringProperty(hsqldb_version))) {
+        // do not open modified databases of compatible earlier versions
+        if (check < 0) {
             if (!MODIFIED_NO.equals(getStringProperty(hsqldb_modified))) {
                 throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
             }
         }
 
-        version = getStringProperty(hsqldb_version);
+        if (getIntegerProperty(hsqldb_script_format) != 0) {
+            throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
+        }
 
         return true;
     }
@@ -504,7 +456,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 database.getPath(), database.logger.getFileAccess(), false);
 
             props.setProperty(hsqldb_version, THIS_VERSION);
-            props.setProperty(hsqldb_compatible_version, VERSION_STRING_1_9_0);
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
             props.save(fileName + ".properties" + ".new");
             fa.renameElement(fileName + ".properties" + ".new",

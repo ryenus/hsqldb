@@ -276,6 +276,7 @@ public class Database {
                 if (name != null) {
                     schemaManager.setDefaultSchemaHsqlName(name);
                 }
+                logger.checkpoint(false);
             }
 
             if (isNew) {
@@ -381,7 +382,7 @@ public class Database {
      * Throws if username or password is invalid.
      */
     synchronized Session connect(String username, String password,
-                                 int timeZoneSeconds) {
+                                 String zoneString, int timeZoneSeconds) {
 
         if (username.equalsIgnoreCase("SA")) {
             username = "SA";
@@ -389,7 +390,7 @@ public class Database {
 
         User user = userManager.getUser(username, password);
         Session session = sessionManager.newSession(this, user,
-            databaseReadOnly, false, timeZoneSeconds);
+            databaseReadOnly, false, zoneString, timeZoneSeconds);
 
         return session;
     }

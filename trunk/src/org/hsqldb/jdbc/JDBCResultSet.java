@@ -79,6 +79,7 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.DateTimeType;
 
 /* $Id$ */
 
@@ -4578,19 +4579,19 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        long millis = t.getSeconds() * 1000;
+        long millis = DateTimeType.normaliseTime(t.getSeconds()) * 1000;
 
-        if (resultMetaData.columnTypes[--columnIndex]
-                .isDateTimeTypeWithZone()) {}
-        else {
+        if (!resultMetaData.columnTypes[--columnIndex]
+                .isDateTimeTypeWithZone()) {
 
-            // UTC - calZO == (UTC - sessZO) + (sessionZO - calZO)
-            if (cal != null) {
-                int zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
+            Calendar calendar = cal == null ? session.getCalendar()
+                                            : cal;
 
-                millis += session.getZoneSeconds() * 1000 - zoneOffset;
-            }
+            millis = HsqlDateTime.convertMillisToCalendar(
+                                  calendar, millis);
+            millis = HsqlDateTime.getNormalisedTime(millis);
         }
+
 
         return new Time(millis);
     }
@@ -4657,11 +4658,13 @@ public class JDBCResultSet implements ResultSet {
      * of the returned java.sql.Timestamp object is the UTC of the SQL value
      * without modification. In other words, the Calendar object is not used.
      * </li>
-     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the UTC
-     * value of the returned java.sql.Timestamp is correct for the given
-     * Calendar object.</li>
-     * <li>If the cal argument is null, it it ignored and the method returns
-     * the same Object as the method without the Calendar parameter.</li>
+     * <li>If the SQL type of the column is WITHOUT TIME ZONE, then the
+     * UTC value of the returned java.sql.Timestamp will represent the correct
+     * timestamp for the time zone (including daylight saving time) of the given
+     * Calendar object. </li>
+     * <li>In this case, if the cal argument is null, then the default Calendar
+     * of the JVM is used, which results in the same Object as one returned by the
+     * getTimestamp() methods without the Calendar parameter.</li>
      * </ol>
      * </div>
      *
@@ -4688,15 +4691,15 @@ public class JDBCResultSet implements ResultSet {
 
         long millis = t.getSeconds() * 1000;
 
-        if (resultMetaData.columnTypes[--columnIndex]
-                .isDateTimeTypeWithZone()) {}
-        else {
+        if (!resultMetaData.columnTypes[--columnIndex]
+                .isDateTimeTypeWithZone()) {
 
-            // UTC - calZO == (UTC - sessZO) + (sessionZO - calZO)
+            Calendar calendar = cal == null ? session.getCalendar()
+                                            : cal;
+
             if (cal != null) {
-                int zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
-
-                millis += session.getZoneSeconds() * 1000 - zoneOffset;
+                millis = HsqlDateTime.convertMillisToCalendar(
+                                  calendar, millis);
             }
         }
 

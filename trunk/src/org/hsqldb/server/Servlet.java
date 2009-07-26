@@ -267,6 +267,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                         session = DatabaseManager.newSession(
                             dbType, dbPath, resultIn.getMainString(),
                             resultIn.getSubString(), new HsqlProperties(),
+                            resultIn.getZoneString(),
                             resultIn.getUpdateCount());
 
                         resultIn.readAdditionalResults(null, inStream, rowIn);

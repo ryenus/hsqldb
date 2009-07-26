@@ -186,6 +186,41 @@ public class HsqlDateTime {
         cal.set(Calendar.MILLISECOND, 0);
     }
 
+    public static long convertMillisToCalendar(Calendar calendar,
+            long millis) {
+
+        calendar.clear();
+
+        synchronized (tempCalGMT) {
+            tempCalGMT.setTimeInMillis(millis);
+            calendar.set(tempCalGMT.get(Calendar.YEAR),
+                         tempCalGMT.get(Calendar.MONTH),
+                         tempCalGMT.get(Calendar.DAY_OF_MONTH),
+                         tempCalGMT.get(Calendar.HOUR_OF_DAY),
+                         tempCalGMT.get(Calendar.MINUTE),
+                         tempCalGMT.get(Calendar.SECOND));
+
+            return calendar.getTimeInMillis();
+        }
+    }
+
+    public static long convertMillisFromCalendar(Calendar calendar,
+            long millis) {
+
+        synchronized (tempCalGMT) {
+            tempCalGMT.clear();
+            calendar.setTimeInMillis(millis);
+            tempCalGMT.set(calendar.get(Calendar.YEAR),
+                           calendar.get(Calendar.MONTH),
+                           calendar.get(Calendar.DAY_OF_MONTH),
+                           calendar.get(Calendar.HOUR_OF_DAY),
+                           calendar.get(Calendar.MINUTE),
+                           calendar.get(Calendar.SECOND));
+
+            return tempCalGMT.getTimeInMillis();
+        }
+    }
+
     /**
      * Sets the time in the given Calendar using the given milliseconds value; wrapper method to
      * allow use of more efficient JDK1.4 method on JDK1.4 (was protected in earlier versions).
@@ -271,6 +306,16 @@ public class HsqlDateTime {
         }
     }
 
+    public static long getNormalisedTime(Calendar cal, long t) {
+
+        synchronized (cal) {
+            setTimeInMillis(cal, t);
+            resetToTime(cal);
+
+            return getTimeInMillis(cal);
+        }
+    }
+
     public static long getNormalisedDate(long d) {
 
         synchronized (tempCalGMT) {
@@ -278,6 +323,16 @@ public class HsqlDateTime {
             resetToDate(tempCalGMT);
 
             return getTimeInMillis(tempCalGMT);
+        }
+    }
+
+    public static long getNormalisedDate(Calendar cal, long d) {
+
+        synchronized (cal) {
+            setTimeInMillis(cal, d);
+            resetToDate(cal);
+
+            return getTimeInMillis(cal);
         }
     }
 

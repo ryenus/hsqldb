@@ -36,6 +36,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.navigator.RowSetNavigatorClient;
@@ -87,16 +90,18 @@ public class ClientConnection implements SessionInterface {
     protected DataOutputStream   dataOutput;
     protected DataInputStream    dataInput;
     protected RowOutputInterface rowOut;
-    protected RowInputBinary  rowIn;
+    protected RowInputBinary     rowIn;
     private Result               resultOut;
     private long                 sessionID;
     private long                 lobIDSequence;
 
     //
-    private boolean isReadOnlyDefault = false;
-    private boolean isAutoCommit      = true;
-    private int     zoneSeconds;
-    private Scanner scanner;
+    private boolean  isReadOnlyDefault = false;
+    private boolean  isAutoCommit      = true;
+    private int      zoneSeconds;
+    private Scanner  scanner;
+    private String   zoneString;
+    private Calendar calendar;
 
     //
     String  host;
@@ -119,11 +124,12 @@ public class ClientConnection implements SessionInterface {
         this.database    = database;
         this.isTLS       = isTLS;
         this.zoneSeconds = timeZoneSeconds;
+        this.zoneString  = TimeZone.getDefault().getID();
 
         initStructures();
 
         Result login = Result.newConnectionAttemptRequest(user, password,
-            database, timeZoneSeconds);
+            database, zoneString, timeZoneSeconds);
 
         initConnection(host, port, isTLS);
 
@@ -521,6 +527,17 @@ public class ClientConnection implements SessionInterface {
         }
 
         return scanner;
+    }
+
+    public Calendar getCalendar() {
+
+        if (calendar == null) {
+            TimeZone zone = TimeZone.getTimeZone(zoneString);
+
+            calendar = new GregorianCalendar(zone);
+        }
+
+        return calendar;
     }
 
     public TimestampData getCurrentDate() {

@@ -65,7 +65,7 @@ public class TestBug1191815 extends TestBase {
             TimeZone pst = TimeZone.getTimeZone("PST");
             Calendar cal = new GregorianCalendar(pst);
 
-            cal.setTimeInMillis(0L);
+            cal.clear();
             cal.set(2005, 0, 1, 0, 0, 0);
 
 
@@ -95,6 +95,7 @@ public class TestBug1191815 extends TestBase {
             Timestamp def = rs.getTimestamp(1, null);
 
             assertEquals(ts, returned);
+            assertEquals(ts, def);
         } catch (Exception e) {
             e.printStackTrace();
             fail();

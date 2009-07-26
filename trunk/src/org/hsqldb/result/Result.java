@@ -128,6 +128,7 @@ public class Result {
     // error strings in error results
     private String mainString;
     private String subString;
+    private String zoneString;
 
     // vendor error code
     int errorCode;
@@ -414,6 +415,7 @@ public class Result {
                 result.databaseName = in.readString();
                 result.mainString   = in.readString();
                 result.subString    = in.readString();
+                result.zoneString   = in.readString();
                 result.updateCount  = in.readInt();
                 break;
 
@@ -757,12 +759,14 @@ public class Result {
     }
 
     public static Result newConnectionAttemptRequest(String user,
-            String password, String database, int timeZoneSeconds) {
+            String password, String database, String zoneString,
+            int timeZoneSeconds) {
 
         Result result = newResult(ResultConstants.CONNECT);
 
         result.mainString   = user;
         result.subString    = password;
+        result.zoneString   = zoneString;
         result.databaseName = database;
         result.updateCount  = timeZoneSeconds;
 
@@ -1167,6 +1171,7 @@ public class Result {
                 rowOut.writeString(databaseName);
                 rowOut.writeString(mainString);
                 rowOut.writeString(subString);
+                rowOut.writeString(zoneString);
                 rowOut.writeInt(updateCount);
                 break;
 
@@ -1382,6 +1387,10 @@ public class Result {
 
     public String getSubString() {
         return subString;
+    }
+
+    public String getZoneString() {
+        return zoneString;
     }
 
     public int getErrorCode() {

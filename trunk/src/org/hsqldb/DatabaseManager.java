@@ -120,7 +120,7 @@ public class DatabaseManager {
      * Used by server to open a new session
      */
     public static Session newSession(int dbID, String user, String password,
-                                     int timeZoneSeconds) {
+                                     String zoneString, int timeZoneSeconds) {
 
         Database db = (Database) databaseIDMap.get(dbID);
 
@@ -128,7 +128,8 @@ public class DatabaseManager {
             return null;
         }
 
-        Session session = db.connect(user, password, timeZoneSeconds);
+        Session session = db.connect(user, password, zoneString,
+                                     timeZoneSeconds);
 
         session.isNetwork = true;
 
@@ -140,7 +141,7 @@ public class DatabaseManager {
      */
     public static Session newSession(String type, String path, String user,
                                      String password, HsqlProperties props,
-                                     int timeZoneSeconds) {
+                                     String zoneString, int timeZoneSeconds) {
 
         Database db = getDatabase(type, path, props);
 
@@ -148,7 +149,7 @@ public class DatabaseManager {
             return null;
         }
 
-        return db.connect(user, password, timeZoneSeconds);
+        return db.connect(user, password, zoneString, timeZoneSeconds);
     }
 
     /**
