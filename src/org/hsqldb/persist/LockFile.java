@@ -48,6 +48,8 @@ import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlTimer;
 import org.hsqldb.lib.StringConverter;
 
+// patch fredt@users    20090720 - patch by Frank Behrens
+
 /**
  * Base cooperative file locking implementation and <tt>LockFile</tt>
  * factory. <p>
@@ -791,12 +793,13 @@ public class LockFile {
         long lastHeartbeat;
         long length = 0;
 
+//#ifdef JAVA2FULL
         try {
             if (withCreateNewFile) {
                 try {
-                    file.createNewFile();
-
-                    return;
+                    if (file.createNewFile()) {
+                        return;
+                    }
                 } catch (IOException ioe) {}
             }
 
@@ -809,6 +812,21 @@ public class LockFile {
             throw new FileSecurityException(this, "checkHeartbeat", se);
         }
 
+//#else
+/*
+
+        if (!file.exists()) {
+            if (withCreateNewFile) {
+                openRAF();
+                closeRAF();
+            }
+            return;
+        }
+
+        length = file.length();
+*/
+
+//#endif JAVA2
         if (length != USED_REGION) {
             throw new WrongLengthException(this, "checkHeartbeat", length);
         }
@@ -1048,7 +1066,7 @@ public class LockFile {
      */
     private final void openRAF()
     throws LockFile.UnexpectedFileNotFoundException,
-           LockFile.FileSecurityException {
+           LockFile.FileSecurityException, LockFile.UnexpectedFileIOException {
 
         try {
             raf = new RandomAccessFile(file, "rw");
@@ -1056,6 +1074,8 @@ public class LockFile {
             throw new FileSecurityException(this, "openRAF", ex);
         } catch (FileNotFoundException ex) {
             throw new UnexpectedFileNotFoundException(this, "openRAF", ex);
+        } catch (IOException ex) {
+            throw new UnexpectedFileIOException(this, "openRAF", ex);
         }
     }
 
