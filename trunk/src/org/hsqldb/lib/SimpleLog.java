@@ -57,24 +57,31 @@ public class SimpleLog {
     private PrintWriter     writer;
     private int             level;
     private boolean         isSystem;
+    private String          filePath;
 
     public SimpleLog(String path, int level, boolean useFile) {
 
-        this.level = level;
+        this.level    = level;
+        this.isSystem = !useFile;
+        this.filePath = path;
+
+        setupWriter();
+    }
+
+    private void setupWriter() {
 
         if (level != LOG_NONE) {
-            if (useFile) {
-                File file = new File(path);
-
-                makeLog(file);
-            } else {
-                isSystem = true;
+            if (isSystem) {
                 writer = new PrintWriter(System.out);
+            } else {
+                File file = new File(filePath);
+
+                setupLog(file);
             }
         }
     }
 
-    private void makeLog(File file) {
+    private void setupLog(File file) {
 
         try {
             FileUtil.getDefaultInstance().makeParentDirectories(file);
@@ -83,7 +90,7 @@ public class SimpleLog {
                                      true);
         } catch (Exception e) {
             isSystem = true;
-            writer = new PrintWriter(System.out);
+            writer   = new PrintWriter(System.out);
         }
     }
 
@@ -92,7 +99,12 @@ public class SimpleLog {
     }
 
     public void setLevel(int level) {
+
         this.level = level;
+
+        if (level != LOG_NONE && writer == null) {
+            setupWriter();
+        }
     }
 
     public PrintWriter getPrintWriter() {

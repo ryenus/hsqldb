@@ -80,7 +80,7 @@ public class TestCacheSize {
 
 //    protected String  filepath = "hsql://localhost/mytest";
 //    protected String filepath = "mem:test";
-    protected String filepath = "/hsql/testcache/test";
+    protected String filepath = "D:/hsql/testcache/test";
 
     // frequent reporting of progress
     boolean reportProgress = false;
@@ -91,8 +91,6 @@ public class TestCacheSize {
     int     cacheSizeScale = 10;
     boolean nioMode        = false;
 
-    // script format {TEXT | BINARY | COMPRESSED}
-    String  logType       = "BINARY";
     int     writeDelay    = 60;
     boolean indexZip      = false;
     boolean indexLastName = false;
@@ -107,10 +105,10 @@ public class TestCacheSize {
     int     deleteWhileInsertInterval = 10000;
 
     // size of the tables used in test
-    int bigrows = 256000;
+    int bigrows = 4048000;
 
     // number of ops
-    int bigops    = 256000;
+    int bigops    = 4048000;
     int smallops  = 8000;
     int smallrows = 0xfff;
 
@@ -175,17 +173,17 @@ public class TestCacheSize {
                         user, password);
                 sStatement = cConnection.createStatement();
 
-                sStatement.execute("SET WRITE_DELAY " + 2);
+                sStatement.execute("SET FILES WRITE DELAY " + 2);
                 sStatement.execute("SET FILES DEFRAG " + 0);
-                sStatement.execute("SET SCRIPTFORMAT " + logType);
-                sStatement.execute("SET LOGSIZE " + 0);
-                sStatement.execute("SET PROPERTY \"hsqldb.applog\" " + 1);
-                sStatement.execute("SET PROPERTY \"hsqldb.cache_scale\" "
-                                   + cacheScale);
-                sStatement.execute("SET PROPERTY \"hsqldb.cache_size_scale\" "
-                                   + cacheSizeScale);
-                sStatement.execute("SET PROPERTY \"hsqldb.nio_data_file\" "
-                                   + nioMode);
+                sStatement.execute("SET FILES LOG SIZE " + 0);
+                sStatement.execute("SET DATABASE EVENT LOG LEVEL 1");
+                int cacheRows = (1 << cacheScale) * 3;
+                int cacheSize = ((1 << cacheSizeScale) / 1024) * cacheRows ;
+                sStatement.execute("SET FILES CACHE ROWS "
+                                   + cacheRows);
+                sStatement.execute("SET FILES CACHE SIZE "
+                                   + cacheSize);
+                sStatement.execute("SET FILES NIO " + nioMode);
                 sStatement.execute("SET FILES BACKUP INCREMENT " + false);
                 sStatement.execute("SHUTDOWN");
                 cConnection.close();
@@ -333,7 +331,7 @@ public class TestCacheSize {
         }
 
         ps.close();
-        sStatement.execute("SET DATABASE REFERENTIAL_INTEGRITY " + this.refIntegrity);
+        sStatement.execute("SET DATABASE REFERENTIAL INTEGRITY " + this.refIntegrity);
 
         ps = cConnection.prepareStatement(
             "INSERT INTO test (firstname,lastname,zip,filler) VALUES (?,?,?,?)");
@@ -990,7 +988,6 @@ public class TestCacheSize {
         test.smallops = test.bigops / 8;
         test.cacheScale = props.getIntegerProperty("test.scale",
                 test.cacheScale);
-        test.logType   = props.getProperty("test.logtype", test.logType);
         test.tableType = props.getProperty("test.tabletype", test.tableType);
         test.nioMode   = props.isPropertyTrue("test.nio", test.nioMode);
 
