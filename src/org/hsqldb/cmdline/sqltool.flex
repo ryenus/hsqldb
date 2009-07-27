@@ -34,7 +34,7 @@
 package org.hsqldb.cmdline.sqltool;
 
 import java.io.PrintStream;
-import org.hsqldb.cmdline.SqlFile.ToolLogger;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.cmdline.SqltoolRB;
 
 %%
@@ -42,7 +42,8 @@ import org.hsqldb.cmdline.SqltoolRB;
 %class SqlFileScanner
 %implements TokenSource
 %{
-    static private ToolLogger logger = ToolLogger.getLog(SqlFileScanner.class);
+    static private FrameworkLogger logger =
+            FrameworkLogger.getLog(SqlFileScanner.class);
     private StringBuffer commandBuffer = new StringBuffer();
     private boolean interactive = false;
     private PrintStream psStd = System.out;
