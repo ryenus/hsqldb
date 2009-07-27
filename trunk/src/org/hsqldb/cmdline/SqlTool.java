@@ -40,6 +40,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.ValidatingResourceBundle;
 import org.hsqldb.lib.RCData;
 
@@ -70,8 +71,8 @@ import org.hsqldb.lib.RCData;
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class SqlTool {
-    private static SqlFile.ToolLogger logger =
-            SqlFile.ToolLogger.getLog(SqlTool.class);
+    private static FrameworkLogger logger =
+            FrameworkLogger.getLog(SqlTool.class);
     private static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/sqltool.rc";
     // N.b. the following is static!
