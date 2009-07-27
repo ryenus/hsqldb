@@ -645,7 +645,7 @@ public class Tokens {
     static final String        T_IMMEDIATELY         = "IMMEDIATELY";
     public static final String T_INDEX               = "INDEX";
     public static final String T_INITIAL             = "INITIAL";
-    public static final String T_INTEGRITY           = "INTEGRIT";
+    public static final String T_INTEGRITY           = "INTEGRITY";
     static final String        T_ISAUTOCOMMIT        = "ISAUTOCOMMIT";
     static final String        T_ISREADONLYDATABASE  = "ISREADONLYDATABASE";
     static final String T_ISREADONLYDATABASEFILES = "ISREADONLYDATABASEFILES";
