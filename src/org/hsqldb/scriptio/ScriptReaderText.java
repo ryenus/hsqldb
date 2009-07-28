@@ -44,7 +44,7 @@ import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.StatementTypes;
-import org.hsqldb.lib.SimpleLog;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputTextLog;
@@ -67,10 +67,19 @@ public class ScriptReaderText extends ScriptReaderBase {
     BufferedReader  dataStreamIn;
     RowInputTextLog rowIn;
     boolean         isInsert;
+    private FrameworkLogger fwLogger;
+      // We are using persist.Logger-instance-specific FrameworkLogger
+      // because it is Database-instance specific.
+      // If add any static level logging, should instantiate a standard,
+      // context-agnostic FrameworkLogger for that purpose.
 
     ScriptReaderText(Database db, String file) throws IOException {
 
         super(db, file);
+
+        fwLogger = FrameworkLogger.getLog(
+                ScriptReaderText.class, db.getContextString());
+        // Set fwLogger as first thing, so it can capture all errors.
 
         rowIn = new RowInputTextLog();
     }
@@ -126,8 +135,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
 
             if (result.isError()) {
-                db.logger.appLog.logContext(SimpleLog.LOG_ERROR,
-                                            result.getMainString());
+                fwLogger.warning(result.getMainString());
 
                 throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
                                   ErrorCode.M_DatabaseScriptReader_readDDL,
@@ -170,7 +178,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
             db.setReferentialIntegrity(true);
         } catch (Exception e) {
-            db.logger.appLog.logContext(e, null);
+            fwLogger.severe("readExistingData failed", e);
 
             throw Error.error(
                 ErrorCode.ERROR_IN_SCRIPT_FILE,

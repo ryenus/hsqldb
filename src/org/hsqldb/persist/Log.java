@@ -76,11 +76,11 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptWriterBase;
 
@@ -146,8 +146,16 @@ public class Log {
     private int                    writeDelay;
     private int                    scriptFormat;
     private DataFileCache          cache;
+    private FrameworkLogger fwLogger;
+      // We are using persist.Logger-instance-specific FrameworkLogger
+      // because it is Database-instance specific.
+      // If add any static level logging, should instantiate a standard,
+      // context-agnostic FrameworkLogger for that purpose.
 
     Log(Database db) {
+        fwLogger = FrameworkLogger.getLog(
+                Log.class, db.getContextString());
+        // Set fwLogger as first thing, so it can capture all errors.
 
         database   = db;
         fa         = db.logger.getFileAccess();
@@ -206,7 +214,7 @@ public class Log {
                     properties.setDBModified(
                         HsqlDatabaseProperties.FILES_NOT_MODIFIED);
                 } catch (IOException e) {
-                    database.logger.appLog.logContext(e, null);
+                    fwLogger.severe("Failed to open Log for Catalog",  e);
                 }
 
             // continue as non-modified files
@@ -375,7 +383,7 @@ public class Log {
             return;
         }
 
-        database.logger.appLog.logContext(SimpleLog.LOG_NORMAL, "start");
+        fwLogger.info("Checkpoint start");
         deleteNewAndOldFiles();
         writeScript(false);
 
@@ -432,7 +440,7 @@ public class Log {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
 */
-        database.logger.appLog.logContext(SimpleLog.LOG_NORMAL, "end");
+        fwLogger.info("Checkpoint end");
     }
 
     /**
@@ -732,7 +740,7 @@ public class Log {
                 closeAllTextCaches(false);
             }
 
-            database.logger.appLog.logContext(e, null);
+            fwLogger.warning("Script processing failure", e);
 
             if (e instanceof HsqlException) {
                 throw (HsqlException) e;

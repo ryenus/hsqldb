@@ -42,7 +42,7 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.lib.SimpleLog;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
@@ -60,10 +60,19 @@ class ScriptReaderBinary extends ScriptReaderBase {
 
     private RowInputBinary    rowIn;
     protected DataInputStream dataStreamIn;
+    private FrameworkLogger fwLogger;
+      // We are using persist.Logger-instance-specific FrameworkLogger
+      // because it is Database-instance specific.
+      // If add any static level logging, should instantiate a standard,
+      // context-agnostic FrameworkLogger for that purpose.
 
     ScriptReaderBinary(Database db, String file) throws IOException {
 
         super(db, file);
+
+        fwLogger = FrameworkLogger.getLog(
+                ScriptReaderBinary.class, db.getContextString());
+        // Set fwLogger as first thing, so it can capture all errors.
 
         rowIn = new RowInputBinary();
     }
@@ -93,8 +102,7 @@ class ScriptReaderBinary extends ScriptReaderBase {
             Result   result = session.executeDirectStatement(s);
 
             if (result.isError()) {
-                db.logger.appLog.logContext(SimpleLog.LOG_ERROR,
-                                            result.getMainString());
+                fwLogger.warning(result.getMainString());
 
                 throw Error.error(result);
             }

@@ -41,8 +41,8 @@ import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.Set;
-import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.lib.FrameworkLogger;
 
 /**
  * Manages a .properties file for a database.
@@ -53,6 +53,11 @@ import org.hsqldb.lib.StringUtil;
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
 
+    private FrameworkLogger fwLogger;
+      // We are using persist.Logger-instance-specific FrameworkLogger
+      // because it is Database-instance specific.
+      // If add any static level logging, should instantiate a standard,
+      // context-agnostic FrameworkLogger for that purpose.
     private static final String hsqldb_method_class_names =
         "hsqldb.method_class_names";
     private static HashSet accessibleJavaMethodNames;
@@ -364,6 +369,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         super(dbMeta, db.getPath(), db.logger.getFileAccess(),
               db.isFilesInJar());
 
+        fwLogger = FrameworkLogger.getLog(
+                HsqlDatabaseProperties.class, db.getContextString());
+        // Set fwLogger as first thing, so it can capture all errors.
+
         database = db;
 
         setNewDatabaseProperties();
@@ -461,7 +470,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             fa.renameElement(fileName + ".properties" + ".new",
                              fileName + ".properties");
         } catch (Exception e) {
-            database.logger.appLog.logContext(SimpleLog.LOG_ERROR, "failed");
+            fwLogger.severe("save failed");
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {

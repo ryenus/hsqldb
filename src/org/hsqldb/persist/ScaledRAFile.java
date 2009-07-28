@@ -41,8 +41,8 @@ import java.lang.reflect.Constructor;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
-import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.Storage;
+import org.hsqldb.lib.FrameworkLogger;
 
 // fredt@users 20030111 - patch 1.7.2 by bohgammer@users - pad file before seek() beyond end
 // some incompatible JVM implementations do not allow seek beyond the existing end of file
@@ -63,7 +63,11 @@ final class ScaledRAFile implements ScaledRAInterface {
     static final long MAX_NIO_LENGTH = (1L << 28);
 
     //
-    final SimpleLog                appLog;
+    private FrameworkLogger fwLogger;
+      // We are using persist.Logger-instance-specific FrameworkLogger
+      // because it is Database-instance specific.
+      // If add any static level logging, should instantiate a standard,
+      // context-agnostic FrameworkLogger for that purpose.
     final RandomAccessFile         file;
     final FileDescriptor           fileDescriptor;
     private final boolean          readOnly;
@@ -148,7 +152,9 @@ final class ScaledRAFile implements ScaledRAInterface {
     ScaledRAFile(Database database, String name, RandomAccessFile file,
                  boolean readonly) throws FileNotFoundException, IOException {
 
-        this.appLog   = database.logger.appLog;
+        fwLogger = FrameworkLogger.getLog(
+                ScaledRAFile.class, database.getContextString());
+        // Set fwLogger as first thing, so it can capture all errors.
         this.readOnly = readonly;
         this.fileName = name;
         this.file     = file;
@@ -163,7 +169,9 @@ final class ScaledRAFile implements ScaledRAInterface {
     ScaledRAFile(Database database, String name,
                  boolean readonly) throws FileNotFoundException, IOException {
 
-        this.appLog   = database.logger.appLog;
+        fwLogger = FrameworkLogger.getLog(
+                ScaledRAFile.class, database.getContextString());
+        // Set fwLogger as first thing, so it can capture all errors.
         this.readOnly = readonly;
         this.fileName = name;
         this.file     = new RandomAccessFile(name, readonly ? "r"
@@ -209,7 +217,7 @@ final class ScaledRAFile implements ScaledRAInterface {
 
                 realPosition = position;
             } catch (IOException e) {
-                appLog.logContext(e, null);
+                fwLogger.warning("seek failed", e);
 
                 throw e;
             }
@@ -246,7 +254,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             bufferDirty  = false;
         } catch (IOException e) {
             resetPointer();
-            appLog.logContext(e, "" + realPosition + " " + readLength);
+            fwLogger.warning("" + realPosition + " " + readLength, e);
 
             throw e;
         }
@@ -278,7 +286,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             return val;
         } catch (IOException e) {
             resetPointer();
-            appLog.logContext(e, null);
+            fwLogger.warning("read failed", e);
 
             throw e;
         }
@@ -317,7 +325,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             return val;
         } catch (IOException e) {
             resetPointer();
-            appLog.logContext(e, null);
+            fwLogger.warning("failed ot read a Long", e);
 
             throw e;
         }
@@ -356,7 +364,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             return val;
         } catch (IOException e) {
             resetPointer();
-            appLog.logContext(e, null);
+            fwLogger.warning("failed to read an Int", e);
 
             throw e;
         }
@@ -395,7 +403,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             }
         } catch (IOException e) {
             resetPointer();
-            appLog.logContext(e, null);
+            fwLogger.warning("faeild to read a byte array", e);
 
             throw e;
         }
@@ -421,7 +429,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             realPosition = seekPosition;
         } catch (IOException e) {
             resetPointer();
-            appLog.logContext(e, null);
+            fwLogger.warning("failed to write a byte array", e);
 
             throw e;
         }
@@ -447,7 +455,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             realPosition = seekPosition;
         } catch (IOException e) {
             resetPointer();
-            appLog.logContext(e, null);
+            fwLogger.warning("failed to write an int", e);
 
             throw e;
         }
@@ -473,7 +481,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             realPosition = seekPosition;
         } catch (IOException e) {
             resetPointer();
-            appLog.logContext(e, null);
+            fwLogger.warning("failed to write a Long", e);
 
             throw e;
         }

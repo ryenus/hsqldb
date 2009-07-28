@@ -35,6 +35,7 @@ import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.FrameworkLogger;
 
 /**
  * A file-based row store for temporary CACHED table persistence.<p>
@@ -45,10 +46,20 @@ import org.hsqldb.lib.FileUtil;
  */
 public class DataFileCacheSession extends DataFileCache {
 
+    private FrameworkLogger fwLogger;
+      // We are using persist.Logger-instance-specific FrameworkLogger
+      // because it is Database-instance specific.
+      // If add any static level logging, should instantiate a standard,
+      // context-agnostic FrameworkLogger for that purpose.
+
     public int storeCount;
 
     public DataFileCacheSession(Database db, String baseFileName) {
         super(db, baseFileName);
+
+        fwLogger = FrameworkLogger.getLog(
+                DataFileCacheSession.class, database.getContextString());
+        // Set fwLogger as first thing, so it can capture all errors.
     }
 
     /**
@@ -89,7 +100,7 @@ public class DataFileCacheSession extends DataFileCache {
 
             freeBlocks = new DataFileBlockManager(0, cacheFileScale, 0);
         } catch (Throwable e) {
-            database.logger.appLog.logContext(e, null);
+            fwLogger.warning("Failed to open RA file", e);
             close(false);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
@@ -118,7 +129,7 @@ public class DataFileCacheSession extends DataFileCache {
                 fa.removeElement(fileName);
             }
         } catch (Throwable e) {
-            database.logger.appLog.logContext(e, null);
+            fwLogger.warning("Failed to close RA file", e);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
