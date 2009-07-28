@@ -33,7 +33,6 @@ package org.hsqldb.lib;
 
 import java.util.Enumeration;
 import java.util.logging.Level;
-import java.util.logging.SimpleFormatter;
 import java.util.logging.FileHandler;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
@@ -115,7 +114,8 @@ public class FrameworkLogger {
             if (haveLoadedOurDefault || isDefaultJdkConfig()) {
                 haveLoadedOurDefault = true;
                 jdkContextLoggerNames = new ArrayList();
-                consoleHandler.setFormatter(new SimpleFormatter());
+                consoleHandler.setFormatter(
+                        new BasicTextJdkLogFormatter(false));
                 consoleHandler.setLevel(Level.INFO);
                 lm.readConfiguration(
                         FrameworkLogger.class.getResourceAsStream(
@@ -238,7 +238,7 @@ public class FrameworkLogger {
             FileHandler contextHandler =
                     new FileHandler(contextId + ".applog", true);
             contextHandler.setLevel(Level.WARNING);
-            contextHandler.setFormatter(new SimpleFormatter());
+            contextHandler.setFormatter(new BasicTextJdkLogFormatter());
             Logger.getLogger(contextId).addHandler(contextHandler);
             jdkContextLoggerNames.add(contextId);
             return logger;
