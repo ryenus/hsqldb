@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
@@ -48,6 +49,8 @@ import org.hsqldb.scriptio.ScriptWriterText;
  */
 public class StatementCommand extends Statement {
 
+    static FrameworkLogger fwLogger =
+            FrameworkLogger.getLog(StatementCommand.class);
     Expression[] expressions;
     Object[]     parameters;
 
@@ -330,7 +333,9 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.logger.appLog.setLevel(value);
+                    //session.database.logger.appLog.setLevel(value);
+                    // TODO:  Eliminate this.  Log levels are not set directly
+                    // with the logging framework.
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -709,7 +714,8 @@ public class StatementCommand extends Statement {
                             || session.isProcessingScript()) {
                         session.addWarning((HsqlException) e);
 
-                        //* @todo - add an entry to applog too */
+                        fwLogger.warning(
+                                "Problem processing SET TABLE SOURE", e);
                         return Result.updateZeroResult;
                     } else {
                         return Result.newErrorResult(e, sql);

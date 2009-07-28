@@ -237,6 +237,7 @@ public class FrameworkLogger {
         try {
             FileHandler contextHandler =
                     new FileHandler(contextId + ".applog", true);
+            contextHandler.setLevel(Level.WARNING);
             contextHandler.setFormatter(new SimpleFormatter());
             Logger.getLogger(contextId).addHandler(contextHandler);
             jdkContextLoggerNames.add(contextId);

@@ -296,6 +296,7 @@ public class Database {
             DatabaseManager.removeDatabase(this);
 
             if (!(e instanceof HsqlException)) {
+e.printStackTrace();
                 e = Error.error(ErrorCode.GENERAL_ERROR, e.toString());
             }
 

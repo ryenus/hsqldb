@@ -35,8 +35,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.hsqldb.Database;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.FileUtil;
-import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.Storage;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.store.BitMap;
@@ -61,9 +61,18 @@ public class RAShadowFile {
     boolean          zeroPageSet;
     HsqlByteArrayOutputStream byteArrayOutputStream =
         new HsqlByteArrayOutputStream(new byte[]{});
+    private FrameworkLogger fwLogger;
+      // We are using persist.Logger-instance-specific FrameworkLogger
+      // because it is Database-instance specific.
+      // If add any static level logging, should instantiate a standard,
+      // context-agnostic FrameworkLogger for that purpose.
 
     RAShadowFile(Database database, Storage source, String pathName,
                  long maxSize, int pageSize) {
+
+        fwLogger = FrameworkLogger.getLog(
+                RAShadowFile.class, database.getContextString());
+        // Set fwLogger as first thing, so it can capture all errors.
 
         this.database = database;
         this.pathName = pathName;
@@ -141,9 +150,7 @@ public class RAShadowFile {
         } catch (Throwable t) {
             bitMap.unset(pageOffset);
             close();
-            database.logger.appLog.logContext(SimpleLog.LOG_ERROR,
-                                              "pos" + position + " "
-                                              + readSize);
+            fwLogger.warning("pos" + position + " " + readSize);
 
             throw FileUtil.toIOException(t);
         } finally {}
