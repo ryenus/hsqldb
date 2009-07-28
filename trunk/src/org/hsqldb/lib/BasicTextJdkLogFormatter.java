@@ -46,6 +46,7 @@ import java.util.Date;
  *
  * @see Formatter
  * @see SimpleFormatter
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class BasicTextJdkLogFormatter extends Formatter {
     protected boolean withTime = true;
