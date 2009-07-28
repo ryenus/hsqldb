@@ -35,6 +35,7 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.FileHandler;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 import java.util.logging.LogManager;
 import java.util.Map;
@@ -82,13 +83,16 @@ import java.lang.reflect.Method;
  */
 public class FrameworkLogger {
 
-    static private Map    loggerInstances  = new HashMap();
-    static private Map    jdkToLog4jLevels = new HashMap();
-    static private List   jdkContextLoggerNames;
-    static private Method log4jGetLogger;
-    static private Method log4jLogMethod;
-    private Object        log4jLogger;
-    private Logger        jdkLogger;
+    static private Map     loggerInstances  = new HashMap();
+    static private Map     jdkToLog4jLevels = new HashMap();
+    static private List    jdkContextLoggerNames;
+    static private Method  log4jGetLogger;
+    static private Method  log4jLogMethod;
+    private Object         log4jLogger;
+    private Logger         jdkLogger;
+    static private boolean haveLoadedOurDefault;
+    static private ConsoleHandler  consoleHandler = new ConsoleHandler();
+    // No need for more than one static, since we have only one console
 
     static {
         reconfigure();
@@ -105,10 +109,29 @@ public class FrameworkLogger {
         }
 
         if (log4jLoggerClass == null) try {
-            jdkContextLoggerNames = isDefaultJdkConfig()
-                    ? new ArrayList() : null;
             log4jGetLogger = null;
             log4jLogMethod = null;
+            LogManager lm = LogManager.getLogManager();
+            if (haveLoadedOurDefault || isDefaultJdkConfig()) {
+                haveLoadedOurDefault = true;
+                jdkContextLoggerNames = new ArrayList();
+                consoleHandler.setFormatter(new SimpleFormatter());
+                consoleHandler.setLevel(Level.INFO);
+                lm.readConfiguration(
+                        FrameworkLogger.class.getResourceAsStream(
+                        "/org/hsqldb/resources/jdklogging-default.properties"));
+                Logger.getLogger("org.hsqldb.cmdline")
+                        .addHandler(consoleHandler);
+            } else {
+                // Do not intervene.  Use JDK logging exactly as configured by
+                // user.
+                jdkContextLoggerNames = null;
+                lm.readConfiguration();
+                // The only bad thing about doing this is that if the app has
+                // programmatically changed the logging config after starting
+                // the program but before using FrameworkLogger, we will
+                // clobber those customizations.
+            }
         } catch (Exception e) {
             throw new RuntimeException(
                 "<clinit> failure initializing JDK logging system", e);
