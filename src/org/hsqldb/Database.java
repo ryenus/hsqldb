@@ -330,6 +330,18 @@ public class Database {
     }
 
     /**
+     * Returns a unique String identifier for the database.
+     */
+    public String getContextString() {
+        /* TODO:  Find out whether could use relative disk drive notation like
+         * "D:directory".  */
+        int postSlash = path.lastIndexOf('/') + 1;
+        // Hopefully always stored with forward slashes in Java fashion.
+        return Integer.toString(path.hashCode())
+                + '_' + path.substring(postSlash);
+    }
+
+    /**
      *  Returns the type of the database: "mem", "file", "res"
      */
     public String getType() {
