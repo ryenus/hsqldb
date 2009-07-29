@@ -50,6 +50,8 @@ import java.util.Date;
  */
 public class BasicTextJdkLogFormatter extends Formatter {
     protected boolean withTime = true;
+    public static String LS = System.getProperty("line.separator");
+
     protected SimpleDateFormat sdf =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
@@ -67,11 +69,8 @@ public class BasicTextJdkLogFormatter extends Formatter {
             sb.append(sdf.format(new Date(record.getMillis())) + "  ");
         }
         sb.append(record.getLevel() + "  " + formatMessage(record));
-        return sb.toString() + '\n';
-        // Seems it would be better to use the platform-specific
-        // "line.separator" property, but the examples I see of Formatter
-        // implementations write a newline.
-        // I'm just winging it, so change if you think line.separator would be
-        // better.
+        return sb.toString() + LS;
+        // This uses platform-specific line-separator, the same as
+        // SimpleLogger does.
     }
 }
