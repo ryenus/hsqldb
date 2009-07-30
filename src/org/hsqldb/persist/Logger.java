@@ -53,6 +53,7 @@ import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
+import org.hsqldb.lib.StringUtil;
 
 // boucherb@users 20030510 - patch 1.7.2 - added cooperative file locking
 
@@ -69,8 +70,6 @@ import org.hsqldb.lib.tar.TarMalformatException;
  * @since 1.7.0
  */
 public class Logger {
-
-    private FrameworkLogger fwLogger;
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
@@ -115,7 +114,6 @@ public class Logger {
     public Logger(Database database) {
 
         this.database = database;
-        fwLogger      = getEventLogger(Logger.class);
 
         // oj@openoffice.org - changed to file access api
         String fileaccess_class_name =
@@ -168,6 +166,9 @@ public class Logger {
             || !database.databaseProperties.propertiesFileExists();
 
         if (isNewDatabase) {
+            database.setUniqueName( StringUtil.toPaddedString(
+                Long.toHexString(System.currentTimeMillis()), 16, '0', false));
+
             if (database.urlProperties.isPropertyTrue(
                     HsqlDatabaseProperties.url_ifexists)) {
                 throw Error.error(ErrorCode.DATABASE_NOT_EXISTS,
@@ -191,10 +192,7 @@ public class Logger {
 
         String path = database.getPath();
 
-        this.database = database;
-
-        fwLogger.warning("Database (re)opened");
-
+        this.database  = database;
         loggingEnabled = false;
 
         boolean useLock = database.getProperties().isPropertyTrue(
@@ -347,14 +345,14 @@ public class Logger {
                     break;
             }
         } catch (Throwable e) {
-            fwLogger.severe("error closing log", e);
+            getEventLogger(Logger.class).severe("error closing log", e);
 
             log = null;
 
             return false;
         }
 
-        fwLogger.warning("Database closed");
+        getEventLogger(Logger.class).warning("Database closed");
 
         log = null;
 
@@ -375,7 +373,25 @@ public class Logger {
         return log != null;
     }
 
+    /**
+     * All usage of FrameworkLogger should use this method to get an instance.
+     * It ensures and requires that no logging should take place before a new
+     * database unique name has been created for a new database or read from the
+     * .script file for an old database.
+     */
     public FrameworkLogger getEventLogger(Class callingClass) {
+        String name = database.getUniqueName();
+        if (name == null) {
+            // temp code to test all usage is correct
+            // will later return null or an anonymous instance if this
+            // is called before name creation
+            // This situation is only possible with a malformed .script
+            // file that does not contain the statement to set the
+            // unique name, or an error in script file before the said
+            // statement
+
+            throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
+        }
         return FrameworkLogger.getLog(callingClass, database.getUniqueName());
     }
 
@@ -505,14 +521,14 @@ public class Logger {
     public synchronized void checkpoint(boolean mode) {
 
         if (loggingEnabled) {
-            fwLogger.info("Checkpoint start");
+            getEventLogger(Logger.class).info("Checkpoint start");
 
             checkpointRequired = false;
             checkpointHandled  = false;
 
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
-            fwLogger.info("Checkpoint end");
+            getEventLogger(Logger.class).info("Checkpoint end");
         }
     }
 
@@ -912,7 +928,8 @@ public class Logger {
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
         sb.append(Tokens.T_NAME).append(' ').append(
-            StringConverter.toQuotedString(database.getUniqueName(), '"', true));
+            StringConverter.toQuotedString(
+                database.getUniqueName(), '"', true));
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
@@ -1012,8 +1029,8 @@ public class Logger {
         log.closeForBackup();
 
         try {
-            fwLogger.info("Initiating backup of instance '" + instanceName
-                          + "'");
+            getEventLogger(Logger.class).info("Initiating backup of instance '"
+                           + instanceName + "'");
 
             // By default, DbBackup will throw if archiveFile (or
             // corresponding work file) already exist.  That's just what we
@@ -1022,8 +1039,9 @@ public class Logger {
 
             backup.setAbortUponModify(false);
             backup.write();
-            fwLogger.info("Successfully backed up instance '" + instanceName
-                          + "' to '" + destPath + "'");
+            getEventLogger(Logger.class).info(
+                "Successfully backed up instance '" + instanceName + "' to '"
+                + destPath + "'");
 
             // RENAME tempPath to destPath
         } catch (IllegalArgumentException iae) {

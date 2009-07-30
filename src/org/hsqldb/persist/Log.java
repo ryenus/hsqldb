@@ -146,7 +146,6 @@ public class Log {
     private int                    writeDelay;
     private int                    scriptFormat;
     private DataFileCache          cache;
-    private FrameworkLogger        fwLogger;
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
@@ -158,7 +157,6 @@ public class Log {
         fa         = db.logger.getFileAccess();
         fileName   = db.getPath();
         properties = db.getProperties();
-        fwLogger   = database.logger.getEventLogger(Log.class);
     }
 
     void initParams() {
@@ -212,7 +210,8 @@ public class Log {
                     properties.setDBModified(
                         HsqlDatabaseProperties.FILES_NOT_MODIFIED);
                 } catch (IOException e) {
-                    fwLogger.severe("Failed to open Log for Catalog", e);
+                    database.logger.getEventLogger(Log.class).severe(
+                        "Failed to open Log for Catalog", e);
                 }
 
             // continue as non-modified files
@@ -381,7 +380,7 @@ public class Log {
             return;
         }
 
-        fwLogger.info("Checkpoint start");
+        database.logger.getEventLogger(Log.class).info("Checkpoint start");
         deleteNewAndOldFiles();
         writeScript(false);
 
@@ -438,7 +437,7 @@ public class Log {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
 */
-        fwLogger.info("Checkpoint end");
+        database.logger.getEventLogger(Log.class).info("Checkpoint end");
     }
 
     /**
@@ -738,16 +737,17 @@ public class Log {
                 closeAllTextCaches(false);
             }
 
-            fwLogger.warning("Script processing failure", e);
+            database.logger.getEventLogger(Log.class).warning(
+                "Script processing failure", e);
 
             if (e instanceof HsqlException) {
                 throw (HsqlException) e;
             } else if (e instanceof IOException) {
-                throw Error.error(ErrorCode.FILE_IO_ERROR, e.toString());
+                throw Error.error(ErrorCode.FILE_IO_ERROR, e);
             } else if (e instanceof OutOfMemoryError) {
                 throw Error.error(ErrorCode.OUT_OF_MEMORY);
             } else {
-                throw Error.error(ErrorCode.GENERAL_ERROR, e.toString());
+                throw Error.error(ErrorCode.GENERAL_ERROR, e);
             }
         }
     }

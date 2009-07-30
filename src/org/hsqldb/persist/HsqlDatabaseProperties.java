@@ -53,8 +53,6 @@ import org.hsqldb.lib.StringUtil;
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
 
-    private FrameworkLogger fwLogger;
-
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
     // If add any static level logging, should instantiate a standard,
@@ -371,8 +369,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
               db.isFilesInJar());
 
         database = db;
-        fwLogger =
-            database.logger.getEventLogger(HsqlDatabaseProperties.class);
 
         setNewDatabaseProperties();
     }
@@ -468,7 +464,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             fa.renameElement(fileName + ".properties" + ".new",
                              fileName + ".properties");
         } catch (Exception e) {
-            fwLogger.severe("save failed");
+            database.logger.getEventLogger(
+                HsqlDatabaseProperties.class).severe("save failed");
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {

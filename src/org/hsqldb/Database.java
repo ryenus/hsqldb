@@ -153,7 +153,7 @@ public class Database {
     public boolean                sqlEnforceSize;
     public boolean                sqlEnforceNames;
     private boolean               bIgnoreCase;
-    private boolean               bReferentialIntegrity;
+    private boolean               isReferentialIntegrity;
     public HsqlDatabaseProperties databaseProperties;
     private boolean               shutdownOnNoConnection;
     int                           resultMaxMemoryRows;
@@ -218,8 +218,6 @@ public class Database {
             filesReadOnly = true;
         }
 
-        databaseUniqueName = StringUtil.toPaddedString(
-            Long.toHexString(System.currentTimeMillis()), 16, '0', false);
         logger = new Logger(this);
         shutdownOnNoConnection =
             urlProperties.isPropertyTrue(HsqlDatabaseProperties.url_shutdown);
@@ -259,10 +257,10 @@ public class Database {
             schemaManager  = new SchemaManager(this);
             persistentStoreCollection =
                 new PersistentStoreCollectionDatabase();
-            bReferentialIntegrity = true;
-            sessionManager        = new SessionManager(this);
-            txManager             = new TransactionManager2PL(this);
-            collation             = collation.getDefaultInstance();
+            isReferentialIntegrity = true;
+            sessionManager         = new SessionManager(this);
+            txManager              = new TransactionManager2PL(this);
+            collation              = collation.getDefaultInstance();
             dbInfo = DatabaseInformation.newDatabaseInformation(this);
 
             lobManager.createSchema();
@@ -301,7 +299,7 @@ public class Database {
             DatabaseManager.removeDatabase(this);
 
             if (!(e instanceof HsqlException)) {
-                e = Error.error(ErrorCode.GENERAL_ERROR, e.toString());
+                e = Error.error(ErrorCode.GENERAL_ERROR, e);
             }
 
             throw (HsqlException) e;
@@ -464,14 +462,14 @@ public class Database {
      *  Sets the isReferentialIntegrity attribute.
      */
     public void setReferentialIntegrity(boolean ref) {
-        bReferentialIntegrity = ref;
+        isReferentialIntegrity = ref;
     }
 
     /**
      *  Is referential integrity currently enforced?
      */
     public boolean isReferentialIntegrity() {
-        return bReferentialIntegrity;
+        return isReferentialIntegrity;
     }
 
     /**
