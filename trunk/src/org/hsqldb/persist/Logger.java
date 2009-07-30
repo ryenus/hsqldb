@@ -812,6 +812,60 @@ public class Logger {
         HsqlArrayList list = new HsqlArrayList();
         StringBuffer  sb   = new StringBuffer();
 
+        sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
+        sb.append(Tokens.T_NAME).append(' ').append(
+            StringConverter.toQuotedString(
+                database.getUniqueName(), '"', true));
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_GC).append(' ');
+        sb.append(JavaSystem.gcFrequency);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_DEFAULT).append(' ');
+        sb.append(Tokens.T_RESULT).append(' ').append(Tokens.T_MEMORY);
+        sb.append(' ').append(Tokens.T_ROWS).append(' ');
+        sb.append(database.getResultMaxMemoryRows());
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_EVENT).append(' ');
+        sb.append(Tokens.T_LOG).append(' ').append(Tokens.T_LEVEL);
+        sb.append(' ').append(propEventLogLevel);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_SIZE).append(' ');
+        sb.append(database.sqlEnforceSize ? Tokens.T_TRUE
+                                          : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_NAMES).append(' ');
+        sb.append(database.sqlEnforceNames ? Tokens.T_TRUE
+                                           : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
+        sb.append(' ').append(Tokens.T_CONTROL).append(' ');
+
+        switch (database.txManager.getTransactionControl()) {
+
+            case Database.MVCC :
+                sb.append(Tokens.T_MVCC);
+                break;
+
+            case Database.MVLOCKS :
+                sb.append(Tokens.T_MVLOCKS);
+                break;
+
+            case Database.LOCKS :
+                sb.append(Tokens.T_LOCKS);
+                break;
+        }
+
+        list.add(sb.toString());
+        sb.setLength(0);
+
         if (hasPersistence()) {
             if (database.schemaManager.getDefaultTableType()
                     == TableBase.CACHED_TABLE) {
@@ -911,59 +965,6 @@ public class Logger {
             sb.setLength(0);
         }
 
-        sb.append("SET DATABASE ").append(Tokens.T_GC).append(' ');
-        sb.append(JavaSystem.gcFrequency);
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_DEFAULT).append(' ');
-        sb.append(Tokens.T_RESULT).append(' ').append(Tokens.T_MEMORY);
-        sb.append(' ').append(Tokens.T_ROWS).append(' ');
-        sb.append(database.getResultMaxMemoryRows());
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_EVENT).append(' ');
-        sb.append(Tokens.T_LOG).append(' ').append(Tokens.T_LEVEL);
-        sb.append(' ').append(propEventLogLevel);
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
-        sb.append(Tokens.T_NAME).append(' ').append(
-            StringConverter.toQuotedString(
-                database.getUniqueName(), '"', true));
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-        sb.append(Tokens.T_SIZE).append(' ');
-        sb.append(database.sqlEnforceSize ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-        sb.append(Tokens.T_NAMES).append(' ');
-        sb.append(database.sqlEnforceNames ? Tokens.T_TRUE
-                                           : Tokens.T_FALSE);
-        list.add(sb.toString());
-        sb.setLength(0);
-        sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);
-        sb.append(' ').append(Tokens.T_CONTROL).append(' ');
-
-        switch (database.txManager.getTransactionControl()) {
-
-            case Database.MVCC :
-                sb.append(Tokens.T_MVCC);
-                break;
-
-            case Database.MVLOCKS :
-                sb.append(Tokens.T_MVLOCKS);
-                break;
-
-            case Database.LOCKS :
-                sb.append(Tokens.T_LOCKS);
-                break;
-        }
-
-        list.add(sb.toString());
-        sb.setLength(0);
 
         String[] array = new String[list.size()];
 
