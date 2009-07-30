@@ -256,19 +256,18 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compileDeclare() {
 
-        Statement cs;
+        Statement    cs;
         ColumnSchema variable = readLocalVariableDeclarationOrNull();
 
         if (variable != null) {
-            Object[] args = new Object[] {
-                variable};
-            cs = new StatementSession(StatementTypes.DECLARE_VARIABLE,
-                                                args);
+            Object[] args = new Object[]{ variable };
+
+            cs = new StatementSession(StatementTypes.DECLARE_VARIABLE, args);
+
             return cs;
         }
 
         cs = compileDeclareCursor();
-
 
         return cs;
     }
@@ -291,9 +290,9 @@ public class ParserCommand extends ParserDDL {
 
         Object[] args = new Object[]{ name };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_SCRIPT,
-                                            args, null,
-                                            null);
+                                            args, null, null);
         HsqlName[] names = database.schemaManager.getBaseTableNames();
+
         cs.readTableNames = names;
 
         return cs;
@@ -844,9 +843,17 @@ public class ParserCommand extends ParserDDL {
                     StatementTypes.SET_DATABASE_FILES_EVENT_LOG, args, null,
                     null);
             }
-            case Tokens.REFERENTIAL : {
+            case Tokens.GC : {
                 read();
 
+                Integer  size = readIntegerObject();
+                Object[] args = new Object[]{ size };
+
+                return new StatementCommand(StatementTypes.SET_DATABASE_GC,
+                                            args, null, null);
+            }
+            case Tokens.REFERENTIAL : {
+                read();
                 readThis(Tokens.INTEGRITY);
 
                 boolean  mode = processTrueOrFalse();
@@ -930,11 +937,19 @@ public class ParserCommand extends ParserDDL {
                     StatementTypes.SET_DATABASE_TRANSACTION_CONTROL, args,
                     null, null);
             }
-            case Tokens.GC : {
+            case Tokens.UNIQUE : {
                 read();
+                readThis(Tokens.NAME);
+                checkIsSimpleName();
 
-                Integer  size = readIntegerObject();
-                Object[] args = new Object[]{ size };
+                name = token.tokenString;
+
+                /** @todo - only digits, letters and underscore*/
+                if (name.length() != 16) {
+                    throw Error.error(ErrorCode.X_42511);
+                }
+
+                Object[] args = new Object[]{ name };
 
                 return new StatementCommand(StatementTypes.SET_DATABASE_GC,
                                             args, null, null);
@@ -1685,7 +1700,8 @@ public class ParserCommand extends ParserDDL {
         Object[] args = new Object[]{ Boolean.valueOf(defrag) };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_CHECKPOINT,
                                             args, null, null);
-        HsqlName[] names   = database.schemaManager.getBaseTableNames();
+        HsqlName[] names = database.schemaManager.getBaseTableNames();
+
         cs.writeTableNames = names;
 
         return cs;

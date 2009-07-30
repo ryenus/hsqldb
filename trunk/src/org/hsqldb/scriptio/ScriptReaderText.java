@@ -64,24 +64,24 @@ import org.hsqldb.store.ValuePool;
 public class ScriptReaderText extends ScriptReaderBase {
 
     // this is used only to enable reading one logged line at a time
-    BufferedReader  dataStreamIn;
-    RowInputTextLog rowIn;
-    boolean         isInsert;
+    BufferedReader          dataStreamIn;
+    RowInputTextLog         rowIn;
+    boolean                 isInsert;
     private FrameworkLogger fwLogger;
-      // We are using persist.Logger-instance-specific FrameworkLogger
-      // because it is Database-instance specific.
-      // If add any static level logging, should instantiate a standard,
-      // context-agnostic FrameworkLogger for that purpose.
 
+    // We are using persist.Logger-instance-specific FrameworkLogger
+    // because it is Database-instance specific.
+    // If add any static level logging, should instantiate a standard,
+    // context-agnostic FrameworkLogger for that purpose.
     ScriptReaderText(Database db, String file) throws IOException {
 
         super(db, file);
 
-        fwLogger = FrameworkLogger.getLog(
-                ScriptReaderText.class, db.getContextString());
-        // Set fwLogger as first thing, so it can capture all errors.
+        fwLogger = db.logger.getEventLogger(ScriptReaderText.class);
 
-        rowIn = new RowInputTextLog();
+        // Set fwLogger as first thing, so it can capture all errors.
+        fwLogger = db.logger.getEventLogger(ScriptReaderText.class);
+        rowIn    = new RowInputTextLog();
     }
 
     protected void openFile() throws IOException {

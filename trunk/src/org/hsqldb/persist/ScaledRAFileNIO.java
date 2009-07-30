@@ -54,24 +54,24 @@ import org.hsqldb.lib.FrameworkLogger;
  */
 final class ScaledRAFileNIO implements ScaledRAInterface {
 
-    private final boolean       readOnly;
-    private final long          bufferLength;
-    private RandomAccessFile    file;
-    private MappedByteBuffer    buffer;
-    private FileChannel         channel;
-    private boolean             bufferModified;
-    private FrameworkLogger fwLogger;
-      // We are using persist.Logger-instance-specific FrameworkLogger
-      // because it is Database-instance specific.
-      // If add any static level logging, should instantiate a standard,
-      // context-agnostic FrameworkLogger for that purpose.
+    private final boolean    readOnly;
+    private final long       bufferLength;
+    private RandomAccessFile file;
+    private MappedByteBuffer buffer;
+    private FileChannel      channel;
+    private boolean          bufferModified;
+    private FrameworkLogger  fwLogger;
+
+    // We are using persist.Logger-instance-specific FrameworkLogger
+    // because it is Database-instance specific.
+    // If add any static level logging, should instantiate a standard,
+    // context-agnostic FrameworkLogger for that purpose.
     private final static String JVM_ERROR = "JVM threw unsupported Exception";
 
     ScaledRAFileNIO(Database database, String name, boolean readOnly,
                     int bufferLength) throws Throwable {
-        fwLogger = FrameworkLogger.getLog(
-                ScaledRAFileNIO.class, database.getContextString());
-        // Set fwLogger as first thing, so it can capture all errors.
+
+        fwLogger = database.logger.getEventLogger(ScaledRAFileNIO.class);
 
         long fileLength;
 
@@ -159,8 +159,8 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
                     buffer.put(temp, 0, (int) (bufferLength - pos));
                     buffer.force();
                 } catch (Throwable t) {
-                    fwLogger.warning(
-                            JVM_ERROR + " " + "length: " + bufferLength, t);
+                    fwLogger.warning(JVM_ERROR + " " + "length: "
+                                     + bufferLength, t);
                 }
 
                 buffer.position(0);
@@ -315,8 +315,8 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
                     try {
                         buffer.force();
                     } catch (Throwable t1) {
-                        fwLogger.warning(
-                                JVM_ERROR + " " + "length: " + bufferLength, t);
+                        fwLogger.warning(JVM_ERROR + " " + "length: "
+                                         + bufferLength, t);
                     }
                 }
             }

@@ -49,6 +49,7 @@ import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
@@ -70,10 +71,11 @@ import org.hsqldb.lib.tar.TarMalformatException;
 public class Logger {
 
     private FrameworkLogger fwLogger;
-      // We are using persist.Logger-instance-specific FrameworkLogger
-      // because it is Database-instance specific.
-      // If add any static level logging, should instantiate a standard,
-      // context-agnostic FrameworkLogger for that purpose.
+
+    // We are using persist.Logger-instance-specific FrameworkLogger
+    // because it is Database-instance specific.
+    // If add any static level logging, should instantiate a standard,
+    // context-agnostic FrameworkLogger for that purpose.
     private Log      log;
     private Database database;
     private LockFile lockFile;
@@ -100,6 +102,7 @@ public class Logger {
     boolean        propTextAllowFullPath;
     int            propWriteDelay;
     int            propLogSize;
+    int            propEventLogLevel;
 
     //
     public FileAccess fileaccess;
@@ -111,10 +114,8 @@ public class Logger {
 
     public Logger(Database database) {
 
-        fwLogger = FrameworkLogger.getLog(
-                Logger.class, database.getContextString());
-        // Set fwLogger as first thing, so it can capture all errors.
         this.database = database;
+        fwLogger      = getEventLogger(Logger.class);
 
         // oj@openoffice.org - changed to file access api
         String fileaccess_class_name =
@@ -372,6 +373,14 @@ public class Logger {
      */
     public boolean hasPersistence() {
         return log != null;
+    }
+
+    public FrameworkLogger getEventLogger(Class callingClass) {
+        return FrameworkLogger.getLog(callingClass, database.getUniqueName());
+    }
+
+    public void setEventLogLevel(int level) {
+        propEventLogLevel = level;
     }
 
     /**
@@ -898,9 +907,12 @@ public class Logger {
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_EVENT).append(' ');
         sb.append(Tokens.T_LOG).append(' ').append(Tokens.T_LEVEL);
-        //sb.append(' ').append(appLog.getLevel());
-        sb.append(' ').append(0);
-        // appLog setting should be completely removed
+        sb.append(' ').append(propEventLogLevel);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
+        sb.append(Tokens.T_NAME).append(' ').append(
+            StringConverter.toQuotedString(database.getUniqueName(), '"', true));
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
@@ -1000,8 +1012,8 @@ public class Logger {
         log.closeForBackup();
 
         try {
-            fwLogger.info(
-                    "Initiating backup of instance '" + instanceName + "'");
+            fwLogger.info("Initiating backup of instance '" + instanceName
+                          + "'");
 
             // By default, DbBackup will throw if archiveFile (or
             // corresponding work file) already exist.  That's just what we
@@ -1010,8 +1022,8 @@ public class Logger {
 
             backup.setAbortUponModify(false);
             backup.write();
-            fwLogger.info("Successfully backed up instance '"
-                    + instanceName + "' to '" + destPath + "'");
+            fwLogger.info("Successfully backed up instance '" + instanceName
+                          + "' to '" + destPath + "'");
 
             // RENAME tempPath to destPath
         } catch (IllegalArgumentException iae) {

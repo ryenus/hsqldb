@@ -142,9 +142,8 @@ public class DataFileCache {
 
         initParams(db, baseFileName);
 
-        fwLogger = FrameworkLogger.getLog(DataFileCache.class,
-                                          database.getContextString());
-        cache = new Cache(this);
+        fwLogger = database.logger.getEventLogger(DataFileCache.class);
+        cache    = new Cache(this);
     }
 
     /**
@@ -1014,8 +1013,7 @@ public class DataFileCache {
     static void deleteOrResetFreePos(Database database, String filename) {
 
         FrameworkLogger localFwLogger =
-            FrameworkLogger.getLog(DataFileCache.class,
-                                   database.getContextString());
+            database.logger.getEventLogger(DataFileCache.class);
         ScaledRAFile raFile = null;
 
         database.logger.getFileAccess().removeElement(filename);

@@ -62,23 +62,20 @@ public class RAShadowFile {
     HsqlByteArrayOutputStream byteArrayOutputStream =
         new HsqlByteArrayOutputStream(new byte[]{});
     private FrameworkLogger fwLogger;
-      // We are using persist.Logger-instance-specific FrameworkLogger
-      // because it is Database-instance specific.
-      // If add any static level logging, should instantiate a standard,
-      // context-agnostic FrameworkLogger for that purpose.
 
+    // We are using persist.Logger-instance-specific FrameworkLogger
+    // because it is Database-instance specific.
+    // If add any static level logging, should instantiate a standard,
+    // context-agnostic FrameworkLogger for that purpose.
     RAShadowFile(Database database, Storage source, String pathName,
                  long maxSize, int pageSize) {
-
-        fwLogger = FrameworkLogger.getLog(
-                RAShadowFile.class, database.getContextString());
-        // Set fwLogger as first thing, so it can capture all errors.
 
         this.database = database;
         this.pathName = pathName;
         this.source   = source;
         this.pageSize = pageSize;
         this.maxSize  = maxSize;
+        fwLogger      = database.logger.getEventLogger(RAShadowFile.class);
 
         int bitSize = (int) (maxSize / pageSize);
 
@@ -134,17 +131,14 @@ public class RAShadowFile {
                 open();
             }
 
-            long writePos = dest.length();
-
-            byte[] buffer = new byte[pageSize + 12];
+            long   writePos = dest.length();
+            byte[] buffer   = new byte[pageSize + 12];
 
             byteArrayOutputStream.setBuffer(buffer);
             byteArrayOutputStream.writeInt(pageSize);
             byteArrayOutputStream.writeLong(position);
-
             source.seek(position);
             source.read(buffer, 12, readSize);
-
             dest.seek(writePos);
             dest.write(buffer);
         } catch (Throwable t) {
