@@ -187,6 +187,7 @@ public interface StatementTypes {
     int SET_DATABASE_SQL_STRICT_SIZE           = 1037;
     int SET_DATABASE_TEXT_SOURCE               = 1038;
     int SET_DATABASE_TRANSACTION_CONTROL       = 1039;
+    int SET_DATABASE_UNIQUE_NAME               = 1040;
 
     // hsqldb user settings
     int SET_USER_INITIAL_SCHEMA = 1042;
@@ -242,31 +243,4 @@ public interface StatementTypes {
     int RETURN_ANY    = 0;
     int RETURN_COUNT  = 1;
     int RETURN_RESULT = 2;
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

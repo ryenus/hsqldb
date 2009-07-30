@@ -505,7 +505,7 @@ public class Tokens {
     static final String        T_MINVALUE             = "MINVALUE";
     static final String        T_MORE                 = "MORE";
     static final String        T_MUMPS                = "MUMPS";
-    static final String        T_NAME                 = "NAME";
+    public static final String T_NAME                 = "NAME";
     public static final String T_NAMES                = "NAMES";
     static final String        T_NESTING              = "NESTING";
     static final String        T_NEXT                 = "NEXT";

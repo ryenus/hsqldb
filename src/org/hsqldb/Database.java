@@ -69,6 +69,7 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.LobManager;
@@ -125,6 +126,7 @@ import org.hsqldb.types.Type;
 public class Database {
 
     int                  databaseID;
+    String               databaseUniqueName;
     String               databaseType;
     private final String name;
 
@@ -216,6 +218,8 @@ public class Database {
             filesReadOnly = true;
         }
 
+        databaseUniqueName = StringUtil.toPaddedString(
+            Long.toHexString(System.currentTimeMillis()), 16, '0', false);
         logger = new Logger(this);
         shutdownOnNoConnection =
             urlProperties.isPropertyTrue(HsqlDatabaseProperties.url_shutdown);
@@ -276,6 +280,7 @@ public class Database {
                 if (name != null) {
                     schemaManager.setDefaultSchemaHsqlName(name);
                 }
+
                 logger.checkpoint(false);
             }
 
@@ -332,13 +337,12 @@ public class Database {
     /**
      * Returns a unique String identifier for the database.
      */
-    public String getContextString() {
-        /* TODO:  Find out whether could use relative disk drive notation like
-         * "D:directory".  */
-        int postSlash = path.lastIndexOf('/') + 1;
-        // Hopefully always stored with forward slashes in Java fashion.
-        return Integer.toString(path.hashCode())
-                + '_' + path.substring(postSlash);
+    public String getUniqueName() {
+        return databaseUniqueName;
+    }
+
+    public void setUniqueName(String name) {
+        databaseUniqueName = name;
     }
 
     /**

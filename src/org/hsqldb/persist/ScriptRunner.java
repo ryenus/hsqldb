@@ -156,9 +156,8 @@ public class ScriptRunner {
                 }
             }
         } catch (Throwable e) {
-            FrameworkLogger fwLogger = FrameworkLogger.getLog(
-                ScriptRunner.class, database.getContextString());
-
+            FrameworkLogger fwLogger =
+                database.logger.getEventLogger(ScriptRunner.class);
 
             // catch out-of-memory errors and terminate
             if (e instanceof EOFException) {
@@ -166,13 +165,14 @@ public class ScriptRunner {
                 // end of file - normal end
             } else if (e instanceof OutOfMemoryError) {
                 fwLogger.severe("out of memory processing " + logFilename
-                          + " line: " + scr.getLineNumber());
+                                + " line: " + scr.getLineNumber());
 
                 throw Error.error(ErrorCode.OUT_OF_MEMORY);
             } else {
+
                 // stop processing on bad log line
-                fwLogger.severe(logFilename
-                    + " line: " + scr.getLineNumber() + " " + e);
+                fwLogger.severe(logFilename + " line: " + scr.getLineNumber()
+                                + " " + e);
             }
         } finally {
             if (scr != null) {

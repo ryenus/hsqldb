@@ -146,21 +146,19 @@ public class Log {
     private int                    writeDelay;
     private int                    scriptFormat;
     private DataFileCache          cache;
-    private FrameworkLogger fwLogger;
-      // We are using persist.Logger-instance-specific FrameworkLogger
-      // because it is Database-instance specific.
-      // If add any static level logging, should instantiate a standard,
-      // context-agnostic FrameworkLogger for that purpose.
+    private FrameworkLogger        fwLogger;
 
+    // We are using persist.Logger-instance-specific FrameworkLogger
+    // because it is Database-instance specific.
+    // If add any static level logging, should instantiate a standard,
+    // context-agnostic FrameworkLogger for that purpose.
     Log(Database db) {
-        fwLogger = FrameworkLogger.getLog(
-                Log.class, db.getContextString());
-        // Set fwLogger as first thing, so it can capture all errors.
 
         database   = db;
         fa         = db.logger.getFileAccess();
         fileName   = db.getPath();
         properties = db.getProperties();
+        fwLogger   = database.logger.getEventLogger(Log.class);
     }
 
     void initParams() {
@@ -214,7 +212,7 @@ public class Log {
                     properties.setDBModified(
                         HsqlDatabaseProperties.FILES_NOT_MODIFIED);
                 } catch (IOException e) {
-                    fwLogger.severe("Failed to open Log for Catalog",  e);
+                    fwLogger.severe("Failed to open Log for Catalog", e);
                 }
 
             // continue as non-modified files

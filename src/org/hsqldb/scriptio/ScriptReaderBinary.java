@@ -60,21 +60,18 @@ class ScriptReaderBinary extends ScriptReaderBase {
 
     private RowInputBinary    rowIn;
     protected DataInputStream dataStreamIn;
-    private FrameworkLogger fwLogger;
-      // We are using persist.Logger-instance-specific FrameworkLogger
-      // because it is Database-instance specific.
-      // If add any static level logging, should instantiate a standard,
-      // context-agnostic FrameworkLogger for that purpose.
+    private FrameworkLogger   fwLogger;
 
+    // We are using persist.Logger-instance-specific FrameworkLogger
+    // because it is Database-instance specific.
+    // If add any static level logging, should instantiate a standard,
+    // context-agnostic FrameworkLogger for that purpose.
     ScriptReaderBinary(Database db, String file) throws IOException {
 
         super(db, file);
 
-        fwLogger = FrameworkLogger.getLog(
-                ScriptReaderBinary.class, db.getContextString());
-        // Set fwLogger as first thing, so it can capture all errors.
-
-        rowIn = new RowInputBinary();
+        fwLogger = db.logger.getEventLogger(ScriptReaderBinary.class);
+        rowIn    = new RowInputBinary();
     }
 
     protected void openFile() throws IOException {

@@ -50,7 +50,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
 public class StatementCommand extends Statement {
 
     static FrameworkLogger fwLogger =
-            FrameworkLogger.getLog(StatementCommand.class);
+        FrameworkLogger.getLog(StatementCommand.class);
     Expression[] expressions;
     Object[]     parameters;
 
@@ -83,6 +83,7 @@ public class StatementCommand extends Statement {
                 isLogged = false;
                 break;
 
+            case StatementTypes.SET_DATABASE_UNIQUE_NAME :
             case StatementTypes.SET_DATABASE_FILES_WRITE_DELAY :
             case StatementTypes.SET_DATABASE_FILES_TEMP_PATH :
                 this.isTransactionStatement = false;
@@ -333,8 +334,8 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-//                    session.database.logger.appLog.setLevel(value);
 
+                    session.database.logger.setEventLogLevel(value);
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -557,8 +558,6 @@ public class StatementCommand extends Statement {
                     p.setDatabaseProperty(property,
                                           value.toString().toLowerCase());
 
-//                    p.setDatabaseVariables();
-//                    p.save();
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -591,6 +590,17 @@ public class StatementCommand extends Statement {
 
                     session.database.logger.setDefaultTextTableProperties(
                         source, props);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_UNIQUE_NAME : {
+                try {
+                    String name = (String) parameters[0];
+
+                    session.database.setUniqueName(name);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -711,9 +721,9 @@ public class StatementCommand extends Statement {
                     if (session.isProcessingLog()
                             || session.isProcessingScript()) {
                         session.addWarning((HsqlException) e);
+                        fwLogger.warning("Problem processing SET TABLE SOURE",
+                                         e);
 
-                        fwLogger.warning(
-                                "Problem processing SET TABLE SOURE", e);
                         return Result.updateZeroResult;
                     } else {
                         return Result.newErrorResult(e, sql);

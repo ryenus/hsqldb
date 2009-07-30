@@ -47,19 +47,18 @@ import org.hsqldb.lib.FrameworkLogger;
 public class DataFileCacheSession extends DataFileCache {
 
     private FrameworkLogger fwLogger;
-      // We are using persist.Logger-instance-specific FrameworkLogger
-      // because it is Database-instance specific.
-      // If add any static level logging, should instantiate a standard,
-      // context-agnostic FrameworkLogger for that purpose.
 
+    // We are using persist.Logger-instance-specific FrameworkLogger
+    // because it is Database-instance specific.
+    // If add any static level logging, should instantiate a standard,
+    // context-agnostic FrameworkLogger for that purpose.
     public int storeCount;
 
     public DataFileCacheSession(Database db, String baseFileName) {
+
         super(db, baseFileName);
 
-        fwLogger = FrameworkLogger.getLog(
-                DataFileCacheSession.class, database.getContextString());
-        // Set fwLogger as first thing, so it can capture all errors.
+        fwLogger = database.logger.getEventLogger(DataFileCacheSession.class);
     }
 
     /**
