@@ -431,11 +431,14 @@ public final class HsqlNameManager {
 
         public void rename(String name, boolean isquoted) {
 
+            if (name.length() > 128) {
+                throw Error.error(ErrorCode.X_42501, name);
+            }
+
             this.name          = name;
             this.statementName = name;
             this.isNameQuoted  = isquoted;
 
-            if (name.length() > 128) {}
 
             if (isNameQuoted) {
                 statementName = StringConverter.toQuotedString(name, '"',

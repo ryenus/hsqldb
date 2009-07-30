@@ -1405,6 +1405,7 @@ public class SchemaManager {
                     }
                 }
             }
+            // fall through
             case SchemaObject.SEQUENCE :
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
@@ -1566,6 +1567,8 @@ public class SchemaManager {
 
                 break;
             }
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500,"SchemaManager");
         }
 
         if (object != null) {

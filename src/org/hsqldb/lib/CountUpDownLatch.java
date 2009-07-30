@@ -40,7 +40,6 @@ public class CountUpDownLatch {
 
     public CountUpDownLatch() {
         latch      = new CountDownLatch(1);
-        this.count = count;
     }
 
     public void await() throws InterruptedException {

@@ -1503,7 +1503,7 @@ public class ParserRoutine extends ParserDML {
         }
 
         Type typeObject = readTypeDefinition(true);
-        ColumnSchema column = new ColumnSchema(hsqlName, typeObject, false,
+        ColumnSchema column = new ColumnSchema(hsqlName, typeObject, true,
                                                false, null);
 
         column.setParameterMode(parameterMode);

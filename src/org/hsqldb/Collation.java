@@ -198,7 +198,7 @@ public class Collation implements SchemaObject {
         String jname = (String) Collation.nameToJavaName.get(newName);
 
         if (jname == null) {
-            throw Error.error(ErrorCode.X_42501, jname);
+            throw Error.error(ErrorCode.X_42501, newName);
         }
 
         name.rename(newName, true);
@@ -244,7 +244,7 @@ public class Collation implements SchemaObject {
         int i;
 
         if (collator == null) {
-            i = JavaSystem.CompareIngnoreCase(a, b);
+            i = JavaSystem.compareIngnoreCase(a, b);
         } else {
             i = collator.compare(toUpperCase(a), toUpperCase(b));
         }

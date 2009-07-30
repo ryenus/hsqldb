@@ -364,7 +364,7 @@ public class ParserBase {
     }
 
     boolean isSimpleName() {
-        return isNonReservedIdentifier() && token.namePrefix == null;
+        return isNonCoreReservedIdentifier() && token.namePrefix == null;
     }
 
     void checkIsSimpleName() {

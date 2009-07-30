@@ -105,7 +105,7 @@ public class JavaSystem {
 //#endif JAVA6
     }
 
-    public static int CompareIngnoreCase(String a, String b) {
+    public static int compareIngnoreCase(String a, String b) {
 
 //#ifdef JAVA2FULL
         return a.compareToIgnoreCase(b);

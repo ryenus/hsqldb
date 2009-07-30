@@ -894,17 +894,17 @@ public final class Constraint implements SchemaObject {
                 continue;
             }
 
-            String colValues = "";
+            StringBuffer sb = new StringBuffer();
 
             for (int i = 0; i < rowColArray.length; i++) {
                 Object o = rowData[rowColArray[i]];
 
-                colValues += table.getColumnTypes()[i].convertToString(o);
-                colValues += ",";
+                sb.append(table.getColumnTypes()[i].convertToString(o));
+                sb.append(',');
             }
 
             String[] info = new String[] {
-                getName().name, getMain().getName().name
+                getName().name, getMain().getName().name, sb.toString()
             };
 
             throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT, info);

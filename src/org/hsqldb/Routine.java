@@ -73,7 +73,6 @@ public class Routine implements SchemaObject {
     private HsqlName name;
     private HsqlName specificName;
     Type[]           parameterTypes;
-    boolean[]        parameterNullable;
     int              typeGroups;
     Type             returnType;
     Type[]           tableType;
@@ -433,12 +432,9 @@ public class Routine implements SchemaObject {
         }
 
         if (methodName != null && javaMethod == null) {
-            parameterNullable = new boolean[parameterTypes.length];
-
             boolean[] hasConnection = new boolean[1];
 
-            javaMethod = getMethod(methodName, parameterTypes, returnType,
-                                   parameterNullable, hasConnection);
+            javaMethod = getMethod(methodName, this, hasConnection);
 
             if (javaMethod == null) {
                 throw Error.error(ErrorCode.X_46103);
@@ -521,8 +517,8 @@ public class Routine implements SchemaObject {
         return statement.getTableNamesForWrite();
     }
 
-    static Method getMethod(String name, Type[] types, Type returnType,
-                            boolean[] nullability, boolean[] hasConnection) {
+    static Method getMethod(String name, Routine routine,
+                            boolean[] hasConnection) {
 
         int i = name.indexOf(':');
 
@@ -547,7 +543,7 @@ public class Routine implements SchemaObject {
                 hasConnection[0] = true;
             }
 
-            if (params.length - offset != types.length) {
+            if (params.length - offset != routine.parameterTypes.length) {
                 continue;
             }
 
@@ -558,13 +554,13 @@ public class Routine implements SchemaObject {
                 continue;
             }
 
-            if (methodReturnType.typeCode != returnType.typeCode) {
+            if (methodReturnType.typeCode != routine.returnType.typeCode) {
                 continue;
             }
 
             method = methods[i];
 
-            for (int j = 0; j < types.length; j++) {
+            for (int j = 0; j < routine.parameterTypes.length; j++) {
                 Class param = params[j + offset];
                 Type methodParamType = Type.getDefaultType(
                     Types.getParameterSQLTypeNumber(param));
@@ -573,9 +569,10 @@ public class Routine implements SchemaObject {
                     break;
                 }
 
-                nullability[j] = !param.isPrimitive();
+                routine.getParameter(j).setNullable(!params[i].isPrimitive());
 
-                if (types[j].typeCode != methodParamType.typeCode) {
+                if (routine.parameterTypes[j].typeCode
+                        != methodParamType.typeCode) {
                     method = null;
 
                     break;

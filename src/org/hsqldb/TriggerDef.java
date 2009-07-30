@@ -152,7 +152,6 @@ public class TriggerDef implements Runnable, SchemaObject {
                                                     : condition;
         this.conditionSQL       = conditionSQL;
         this.updateColumns      = updateColumns;
-        this.procedureSQL       = procedureSQL;
         this.triggerClassName   = triggerClassName;
         this.nowait             = noWait;
         this.maxRowsQueued      = queueSize;
@@ -175,8 +174,8 @@ public class TriggerDef implements Runnable, SchemaObject {
             // dynamically instantiate it
             trigger = (Trigger) cl.newInstance();
         } catch (Exception e) {
-            valid = false;
-            cl    = DefaultTrigger.class;
+            valid   = false;
+            trigger = new DefaultTrigger();
         }
     }
 

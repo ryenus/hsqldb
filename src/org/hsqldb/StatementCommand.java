@@ -333,9 +333,7 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    //session.database.logger.appLog.setLevel(value);
-                    // TODO:  Eliminate this.  Log levels are not set directly
-                    // with the logging framework.
+//                    session.database.logger.appLog.setLevel(value);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

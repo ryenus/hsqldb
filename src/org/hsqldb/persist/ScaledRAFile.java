@@ -40,9 +40,9 @@ import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
 import org.hsqldb.Error;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.Storage;
-import org.hsqldb.lib.FrameworkLogger;
 
 // fredt@users 20030111 - patch 1.7.2 by bohgammer@users - pad file before seek() beyond end
 // some incompatible JVM implementations do not allow seek beyond the existing end of file

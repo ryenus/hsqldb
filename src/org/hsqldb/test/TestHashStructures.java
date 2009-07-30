@@ -35,6 +35,7 @@ import java.util.Random;
 
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.StopWatch;
+
 import junit.framework.TestCase;
 
 /**
@@ -538,7 +539,13 @@ public class TestHashStructures extends TestCase {
 
     int nextIntRandom(Random r, int range) {
 
-        int b = Math.abs(r.nextInt());
+        int b = r.nextInt();
+
+        if (b == Integer.MIN_VALUE) {
+            b = Integer.MAX_VALUE;
+        }
+
+        b = Math.abs(b);
 
         return b % range;
     }

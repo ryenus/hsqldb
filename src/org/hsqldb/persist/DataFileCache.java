@@ -41,10 +41,10 @@ import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
-import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.Storage;
 import org.hsqldb.rowio.RowInputBinary;
@@ -69,13 +69,13 @@ import org.hsqldb.store.BitMap;
  */
 public class DataFileCache {
 
-    protected FileAccess fa;
+    protected FileAccess    fa;
     private FrameworkLogger fwLogger;
-      // We are using persist.Logger-instance-specific FrameworkLogger
-      // because it is Database-instance specific.
-      // If add any static level logging, should instantiate a standard,
-      // context-agnostic FrameworkLogger for that purpose.
 
+    // We are using persist.Logger-instance-specific FrameworkLogger
+    // because it is Database-instance specific.
+    // If add any static level logging, should instantiate a standard,
+    // context-agnostic FrameworkLogger for that purpose.
     // flags
     public static final int FLAG_ISSHADOWED = 1;
     public static final int FLAG_ISSAVED    = 2;
@@ -139,12 +139,11 @@ public class DataFileCache {
     Lock          writeLock = lock.writeLock();
 
     public DataFileCache(Database db, String baseFileName) {
-        fwLogger = FrameworkLogger.getLog(
-                DataFileCache.class, database.getContextString());
-        // Set fwLogger as first thing, so it can capture all errors.
 
         initParams(db, baseFileName);
 
+        fwLogger = FrameworkLogger.getLog(DataFileCache.class,
+                                          database.getContextString());
         cache = new Cache(this);
     }
 
@@ -222,8 +221,9 @@ public class DataFileCache {
                 int     flags   = dataFile.readInt();
                 boolean isSaved = BitMap.isSet(flags, FLAG_ISSAVED);
 
-                database.logger.propIncrementBackup = BitMap.isSet(flags, FLAG_ISSHADOWED);
-                is180     = !BitMap.isSet(flags, FLAG_190);
+                database.logger.propIncrementBackup = BitMap.isSet(flags,
+                        FLAG_ISSHADOWED);
+                is180 = !BitMap.isSet(flags, FLAG_190);
 
                 if (!isSaved) {
                     boolean restored = true;
@@ -262,7 +262,8 @@ public class DataFileCache {
                     fileFreePosition = INITIAL_FREE_POS;
                 }
 
-                if (database.logger.propIncrementBackup && fileFreePosition != INITIAL_FREE_POS) {
+                if (database.logger.propIncrementBackup
+                        && fileFreePosition != INITIAL_FREE_POS) {
                     shadowFile = new RAShadowFile(database, dataFile,
                                                   backupFileName,
                                                   fileFreePosition, 1 << 14);
@@ -837,7 +838,6 @@ public class DataFileCache {
         } catch (Throwable e) {
             fwLogger.severe("saveRows failed", e);
 
-
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
             initBuffers();
@@ -1013,8 +1013,9 @@ public class DataFileCache {
      */
     static void deleteOrResetFreePos(Database database, String filename) {
 
-        FrameworkLogger localFwLogger = FrameworkLogger.getLog(
-                DataFileCache.class, database.getContextString());
+        FrameworkLogger localFwLogger =
+            FrameworkLogger.getLog(DataFileCache.class,
+                                   database.getContextString());
         ScaledRAFile raFile = null;
 
         database.logger.getFileAccess().removeElement(filename);

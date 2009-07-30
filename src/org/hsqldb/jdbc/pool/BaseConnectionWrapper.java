@@ -280,7 +280,8 @@ public abstract class BaseConnectionWrapper implements java.sql.Connection {
 
         validate();
 
-        return this.prepareStatement(sql, resultSetType, resultSetConcurrency);
+        return this.getConnection().prepareStatement(sql, resultSetType,
+                                                     resultSetConcurrency);
     }
 
     public PreparedStatement prepareStatement(String sql, int resultSetType,

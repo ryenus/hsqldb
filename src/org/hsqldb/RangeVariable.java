@@ -1018,6 +1018,7 @@ final class RangeVariable {
             this.store = session.sessionData.getRowStore(rangeVar.rangeTable);
             this.session       = session;
             this.rangeVar      = rangeVar;
+            isFullIterator     = true;
             isBeforeFirst      = true;
             lookupTable        = rangeIterator.lookupTable;
             lookupStore        = rangeIterator.lookupStore;
