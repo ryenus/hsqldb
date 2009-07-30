@@ -944,15 +944,17 @@ public class ParserCommand extends ParserDDL {
 
                 name = token.tokenString;
 
-                /** @todo - only digits, letters and underscore*/
+                read();
+
+                /** @todo - only digits, letters and underscore */
                 if (name.length() != 16) {
                     throw Error.error(ErrorCode.X_42511);
                 }
 
                 Object[] args = new Object[]{ name };
 
-                return new StatementCommand(StatementTypes.SET_DATABASE_GC,
-                                            args, null, null);
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_UNIQUE_NAME, args, null, null);
             }
             default : {
                 throw unexpectedToken();

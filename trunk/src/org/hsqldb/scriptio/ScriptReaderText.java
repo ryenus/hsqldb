@@ -64,10 +64,9 @@ import org.hsqldb.store.ValuePool;
 public class ScriptReaderText extends ScriptReaderBase {
 
     // this is used only to enable reading one logged line at a time
-    BufferedReader          dataStreamIn;
-    RowInputTextLog         rowIn;
-    boolean                 isInsert;
-    private FrameworkLogger fwLogger;
+    BufferedReader  dataStreamIn;
+    RowInputTextLog rowIn;
+    boolean         isInsert;
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
@@ -77,11 +76,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         super(db, file);
 
-        fwLogger = db.logger.getEventLogger(ScriptReaderText.class);
-
-        // Set fwLogger as first thing, so it can capture all errors.
-        fwLogger = db.logger.getEventLogger(ScriptReaderText.class);
-        rowIn    = new RowInputTextLog();
+        rowIn = new RowInputTextLog();
     }
 
     protected void openFile() throws IOException {
@@ -135,7 +130,12 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
 
             if (result.isError()) {
-                fwLogger.warning(result.getMainString());
+                FrameworkLogger logger =
+                    db.logger.getEventLogger(ScriptReaderText.class);
+
+                if (logger != null) {
+                    logger.warning(result.getMainString());
+                }
 
                 throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
                                   ErrorCode.M_DatabaseScriptReader_readDDL,
@@ -178,7 +178,10 @@ public class ScriptReaderText extends ScriptReaderBase {
 
             db.setReferentialIntegrity(true);
         } catch (Exception e) {
-            fwLogger.severe("readExistingData failed", e);
+            FrameworkLogger logger =
+                db.logger.getEventLogger(ScriptReaderText.class);
+
+            logger.severe("readExistingData failed", e);
 
             throw Error.error(
                 ErrorCode.ERROR_IN_SCRIPT_FILE,
