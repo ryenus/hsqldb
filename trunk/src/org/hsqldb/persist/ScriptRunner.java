@@ -120,10 +120,6 @@ public class ScriptRunner {
                         }
                         break;
 
-                    case ScriptReaderBase.SEQUENCE_STATEMENT :
-                        scr.getCurrentSequence().reset(scr.getSequenceValue());
-                        break;
-
                     case ScriptReaderBase.COMMIT_STATEMENT :
                         current.commit(false);
                         break;

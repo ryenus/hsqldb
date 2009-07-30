@@ -1272,7 +1272,9 @@ public class ParserDDL extends ParserRoutine {
         StatementSchema st = new StatementSchema(sql,
             StatementTypes.CREATE_TABLE, args, null, null);
 
-        st.readTableNames = statement.getTableNamesForRead();
+        if (statement != null) {
+            st.readTableNames = statement.getTableNamesForRead();
+        }
 
         return st;
     }

@@ -76,9 +76,9 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.scriptio.ScriptReaderBase;
@@ -855,13 +855,7 @@ public class Log {
             }
         }
 
-        TextCache c;
-
-        if (reversed) {
-            c = new TextCache(table, source);
-        } else {
-            c = new TextCache(table, source);
-        }
+        TextCache c = new TextCache(table, source);
 
         c.open(readOnlyData || filesReadOnly);
         textCacheList.put(table.getName(), c);

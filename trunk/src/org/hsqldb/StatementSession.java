@@ -64,6 +64,7 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_NAMES :
             case StatementTypes.SET_ROLE :
             case StatementTypes.SET_SCHEMA :
+            case StatementTypes.SET_CATALOG :
             case StatementTypes.SET_SESSION_AUTHORIZATION :
             case StatementTypes.SET_COLLATION :
                 group = StatementTypes.X_SQL_SESSION;
@@ -143,7 +144,6 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_CONNECTION :
             case StatementTypes.SET_CONSTRAINT :
             case StatementTypes.SET_DESCRIPTOR :
-            case StatementTypes.SET_CATALOG :
             case StatementTypes.SET_SESSION_CHARACTERISTICS :
             case StatementTypes.SET_TRANSFORM_GROUP :
             case StatementTypes.SET_SESSION_RESULT_MAX_ROWS :
@@ -311,7 +311,7 @@ public class StatementSession extends Statement {
                 try {
                     name = (String) expressions[0].getValue(session);
 
-                    if (session.database.getCatalogName().equals(name)) {
+                    if (session.database.getCatalogName().name.equals(name)) {
                         return Result.updateZeroResult;
                     }
 

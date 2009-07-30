@@ -31,8 +31,6 @@
 
 package org.hsqldb;
 
-import java.lang.reflect.Method;
-
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.lib.ArrayUtil;

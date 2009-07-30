@@ -46,10 +46,10 @@ import java.io.Reader;
  */
 public class DataOutputStream extends java.io.BufferedOutputStream {
 
-    byte[] buf = new byte[8];
+    byte[] tempBuffer = new byte[8];
 
     public DataOutputStream(OutputStream stream) {
-        super(stream);
+        super(stream, 8);
     }
 
     public final void writeByte(int v) throws IOException {
@@ -60,12 +60,12 @@ public class DataOutputStream extends java.io.BufferedOutputStream {
 
         int count = 0;
 
-        buf[count++] = (byte) (v >>> 24);
-        buf[count++] = (byte) (v >>> 16);
-        buf[count++] = (byte) (v >>> 8);
-        buf[count++] = (byte) v;
+        tempBuffer[count++] = (byte) (v >>> 24);
+        tempBuffer[count++] = (byte) (v >>> 16);
+        tempBuffer[count++] = (byte) (v >>> 8);
+        tempBuffer[count++] = (byte) v;
 
-        write(buf, 0, count);
+        write(tempBuffer, 0, count);
     }
 
     public final void writeLong(long v) throws IOException {
@@ -77,10 +77,10 @@ public class DataOutputStream extends java.io.BufferedOutputStream {
 
         int count = 0;
 
-        buf[count++] = (byte) (v >>> 8);
-        buf[count++] = (byte) v;
+        tempBuffer[count++] = (byte) (v >>> 8);
+        tempBuffer[count++] = (byte) v;
 
-        write(buf, 0, count);
+        write(tempBuffer, 0, count);
     }
 
     public void writeChars(String s) throws IOException {
@@ -91,10 +91,10 @@ public class DataOutputStream extends java.io.BufferedOutputStream {
             int v     = s.charAt(i);
             int count = 0;
 
-            buf[count++] = (byte) (v >>> 8);
-            buf[count++] = (byte) v;
+            tempBuffer[count++] = (byte) (v >>> 8);
+            tempBuffer[count++] = (byte) v;
 
-            write(buf, 0, count);
+            write(tempBuffer, 0, count);
         }
     }
 
@@ -108,10 +108,10 @@ public class DataOutputStream extends java.io.BufferedOutputStream {
             int v     = c[i];
             int count = 0;
 
-            buf[count++] = (byte) (v >>> 8);
-            buf[count++] = (byte) v;
+            tempBuffer[count++] = (byte) (v >>> 8);
+            tempBuffer[count++] = (byte) v;
 
-            write(buf, 0, count);
+            write(tempBuffer, 0, count);
         }
     }
 

@@ -1121,8 +1121,6 @@ public class Expression {
     void insertValuesIntoSubqueryTable(Session session,
                                        PersistentStore store) {
 
-        TableDerived table = subQuery.getTable();
-
         for (int i = 0; i < nodes.length; i++) {
             Object[] data = nodes[i].getRowValue(session);
 

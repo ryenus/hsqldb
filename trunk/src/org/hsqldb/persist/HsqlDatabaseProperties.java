@@ -37,12 +37,12 @@ import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
+import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.Set;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.lib.FrameworkLogger;
 
 /**
  * Manages a .properties file for a database.

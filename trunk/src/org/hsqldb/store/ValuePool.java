@@ -220,7 +220,7 @@ public class ValuePool {
     public static String getSubString(String val, int start, int limit) {
 
         synchronized (stringPool) {
-            return stringPool.getOrAddString(null);
+            return stringPool.getOrAddString(val.substring(start, limit));
         }
     }
 

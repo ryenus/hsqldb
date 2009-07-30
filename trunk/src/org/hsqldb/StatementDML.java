@@ -286,7 +286,7 @@ public class StatementDML extends StatementDMQL {
 
             for (int j = 0; j < td.statements.length; j++) {
                 if (write) {
-                    set.addAll(td.statements[j].getTableNamesForRead());
+                    set.addAll(td.statements[j].getTableNamesForWrite());
                 } else {
                     set.addAll(td.statements[j].getTableNamesForRead());
                 }

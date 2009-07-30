@@ -110,7 +110,7 @@ public class FunctionSQLInvoked extends Expression {
                     return null;
                 }
 
-                if (!routine.parameterNullable[i]) {
+                if (!routine.getParameter(i).isNullable()) {
                     throw Error.error(ErrorCode.X_39004);
                 }
             }

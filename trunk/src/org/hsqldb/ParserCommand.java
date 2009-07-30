@@ -82,11 +82,7 @@ public class ParserCommand extends ParserDDL {
 
             cs = compilePart();
 
-            if (cs == null) {
-                list.add(cs);
-            } else {
-                list.add(cs);
-            }
+            list.add(cs);
         }
 
         if (returnType != StatementTypes.RETURN_ANY) {
@@ -106,7 +102,7 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compilePart() {
 
-        Statement cs = null;
+        Statement cs;
 
         setParsePosition(getPosition());
 
@@ -463,6 +459,33 @@ public class ParserCommand extends ParserDDL {
 
         switch (token.tokenType) {
 
+            case Tokens.CATALOG : {
+                read();
+
+                Expression e = XreadValueSpecificationOrNull();
+
+                if (e == null) {
+                    HsqlName name = readSchemaName();
+                    Object[] args = new Object[]{ name };
+
+                    return new StatementSession(StatementTypes.SET_CATALOG,
+                                                args);
+                }
+
+                if (!e.getDataType().isCharacterType()) {
+                    throw Error.error(ErrorCode.X_0P000);
+                }
+
+                if (e.getType() != OpTypes.VALUE
+                        && (e.getType() != OpTypes.SQL_FUNCTION
+                            || !((FunctionSQL) e).isValueFunction())) {
+                    throw Error.error(ErrorCode.X_0P000);
+                }
+
+                Expression[] args = new Expression[]{ e };
+
+                return new StatementSession(StatementTypes.SET_CATALOG, args);
+            }
             case Tokens.SCHEMA : {
                 read();
 

@@ -4000,10 +4000,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     void setClobParameter(int i, Object o) throws SQLException {
 
         if (o instanceof JDBCClobClient) {
-            if (o instanceof JDBCClobClient) {
-                throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                         "invalid Clob");
-            }
         } else if (o instanceof Clob) {
             parameterValues[i - 1] = o;
             parameterSet[i - 1]    = true;

@@ -494,9 +494,8 @@ public interface ErrorCode {
     int X_42507 = 5507;                                   // admin rights required
     int X_42508 = 5508;                                   // label not found
     int X_42509 = 5509;                                   // type not found or user lacks privilege
+    int X_42510 = 5510;                                   // name too long
     int X_42511 = 5511;                                   // invalid property name
-    int X_42512 = 5512;                                   // invalid property value
-    int X_42513 = 5513;                                   // property cannot be changed
 
     // constraint defintition issues
     int X_42520 = 5520;                                   // SET NULL requires nullable column

@@ -80,7 +80,7 @@ public class TestCacheSize {
 
 //    protected String  filepath = "hsql://localhost/mytest";
 //    protected String filepath = "mem:test";
-    protected String filepath = "D:/hsql/testcache/test";
+    protected String filepath = "/hsql/testcache/test";
 
     // frequent reporting of progress
     boolean reportProgress = false;
@@ -90,12 +90,11 @@ public class TestCacheSize {
     int     cacheScale     = 14;
     int     cacheSizeScale = 10;
     boolean nioMode        = false;
-
-    int     writeDelay    = 60;
-    boolean indexZip      = false;
-    boolean indexLastName = false;
-    boolean addForeignKey = false;
-    boolean refIntegrity  = true;
+    int     writeDelay     = 60;
+    boolean indexZip       = false;
+    boolean indexLastName  = false;
+    boolean addForeignKey  = false;
+    boolean refIntegrity   = true;
 
     // may speed up inserts when tableType=="CACHED"
     boolean createTempTable = false;
@@ -109,7 +108,7 @@ public class TestCacheSize {
 
     // number of ops
     int bigops    = 4048000;
-    int smallops  = 8000;
+    int smallops  = 506000;
     int smallrows = 0xfff;
 
     // if the extra table needs to be created and filled up
@@ -123,9 +122,8 @@ public class TestCacheSize {
     FileWriter writer;
 
     //
-    String filler =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        + "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    String filler = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    + "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     private void checkSelects() {
 
@@ -177,12 +175,12 @@ public class TestCacheSize {
                 sStatement.execute("SET FILES DEFRAG " + 0);
                 sStatement.execute("SET FILES LOG SIZE " + 0);
                 sStatement.execute("SET DATABASE EVENT LOG LEVEL 1");
+
                 int cacheRows = (1 << cacheScale) * 3;
-                int cacheSize = ((1 << cacheSizeScale) / 1024) * cacheRows ;
-                sStatement.execute("SET FILES CACHE ROWS "
-                                   + cacheRows);
-                sStatement.execute("SET FILES CACHE SIZE "
-                                   + cacheSize);
+                int cacheSize = ((1 << cacheSizeScale) / 1024) * cacheRows;
+
+                sStatement.execute("SET FILES CACHE ROWS " + cacheRows);
+                sStatement.execute("SET FILES CACHE SIZE " + cacheSize);
                 sStatement.execute("SET FILES NIO " + nioMode);
                 sStatement.execute("SET FILES BACKUP INCREMENT " + false);
                 sStatement.execute("SHUTDOWN");
@@ -206,9 +204,8 @@ public class TestCacheSize {
         String    ddl11 = "DROP TABLE zip IF EXISTS";
         String    ddl2  = "CREATE TABLE zip( zip INT IDENTITY )";
         String ddl3 = "CREATE " + tableType + " TABLE test( id INT IDENTITY,"
-                      + " firstname VARCHAR(20), "
-                      + " lastname VARCHAR(20), " + " zip INTEGER, "
-                      + " filler VARCHAR(300))";
+                      + " firstname VARCHAR(20), " + " lastname VARCHAR(20), "
+                      + " zip INTEGER, " + " filler VARCHAR(300))";
         String ddl31 = "SET TABLE test SOURCE \"test.csv;cache_scale="
                        + cacheScale + "\"";
 
@@ -331,7 +328,8 @@ public class TestCacheSize {
         }
 
         ps.close();
-        sStatement.execute("SET DATABASE REFERENTIAL INTEGRITY " + this.refIntegrity);
+        sStatement.execute("SET DATABASE REFERENTIAL INTEGRITY "
+                           + this.refIntegrity);
 
         ps = cConnection.prepareStatement(
             "INSERT INTO test (firstname,lastname,zip,filler) VALUES (?,?,?,?)");
@@ -787,6 +785,7 @@ public class TestCacheSize {
 
                 int randomLength = nextIntRandom(randomgen, filler.length());
                 String newFiller = filler.substring(randomLength);
+
                 ps.setString(1, newFiller);
                 ps.setInt(2, random);
                 ps.execute();
@@ -902,8 +901,8 @@ public class TestCacheSize {
         long rate = (count * 1000) / (time + 1);
 
         storeResult("delete with random id", count, time, rate);
-        System.out.println("delete time for random id " + count
-                           + " rows  -- " + time + " ms -- " + rate + " tps");
+        System.out.println("delete time for random id " + count + " rows  -- "
+                           + time + " ms -- " + rate + " tps");
     }
 
     void deleteZipTable() {
@@ -962,6 +961,7 @@ public class TestCacheSize {
     static void deleteDatabase(String path) {
 
         FileUtil fileUtil = FileUtil.getDefaultInstance();
+
         fileUtil.delete(path + ".backup");
         fileUtil.delete(path + ".properties");
         fileUtil.delete(path + ".script");
@@ -973,7 +973,13 @@ public class TestCacheSize {
 
     int nextIntRandom(Random r, int range) {
 
-        int b = Math.abs(r.nextInt());
+        int b = r.nextInt();
+
+        if (b == Integer.MIN_VALUE) {
+            b = Integer.MAX_VALUE;
+        }
+
+        b = Math.abs(b);
 
         return b % range;
     }
