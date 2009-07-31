@@ -265,6 +265,8 @@ public class Logger {
             database.collation.setCollationAsLocale();
         }
 
+        propEventLogLevel = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_applog);
         propFilesReadOnly = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_files_readonly);
         propDatabaseReadOnly = database.databaseProperties.isPropertyTrue(
@@ -348,14 +350,14 @@ public class Logger {
                     break;
             }
         } catch (Throwable e) {
-            getEventLogger(Logger.class).severe("error closing log", e);
+            logSevereEvent("error closing log", e);
 
             log = null;
 
             return false;
         }
 
-        getEventLogger(Logger.class).warning("Database closed");
+        logInfoEvent("Database closed");
 
         log = null;
 
@@ -376,20 +378,40 @@ public class Logger {
         return log != null;
     }
 
+    FrameworkLogger fwLogger;
+    boolean         useFrameworkLogger = true;
+
     /**
      * All usage of FrameworkLogger should use this method to get an instance.
      * It ensures and requires that no logging should take place before a new
      * database unique name has been created for a new database or read from the
-     * .script file for an old database.
+     * .script file for an old database.<p>
+     *
+     * An instance is returned when:
+     * - database unique name has been created
+     * - FrameworkLogger would use log4j
+     *
+     * Otherwise null is returned.
+     *
+     * This tactic avoids usage of file-based jdk logging for the time being.
+     *
      */
-    public FrameworkLogger getEventLogger(Class callingClass) {
+    public FrameworkLogger getEventLogger() {
+
+        if (!useFrameworkLogger) {
+            return null;
+        }
+
+        if (fwLogger != null) {
+            return fwLogger;
+        }
 
         String name = database.getUniqueName();
 
         if (name == null) {
 
             // temp code to test all usage is correct
-            // will later return null or an anonymous instance if this
+            // will later return null
             // is called before name creation
             // This situation is only possible with a malformed .script
             // file that does not contain the statement to set the
@@ -399,11 +421,49 @@ public class Logger {
             return null;
         }
 
-        return FrameworkLogger.getLog(callingClass, database.getUniqueName());
+        try {
+            Class.forName("org.apache.log4j.Logger");
+
+            fwLogger = FrameworkLogger.getLog(Logger.class,
+                                              database.getUniqueName());
+
+            return fwLogger;
+        } catch (Exception e) {
+            useFrameworkLogger = false;
+
+            return null;
+        }
     }
 
     public void setEventLogLevel(int level) {
         propEventLogLevel = level;
+    }
+
+    public void logSevereEvent(String message, Throwable t) {
+
+        FrameworkLogger logger = getEventLogger();
+
+        if (logger != null) {
+            logger.severe(message, t);
+        }
+    }
+
+    public void logWarningEvent(String message, Throwable t) {
+
+        FrameworkLogger logger = getEventLogger();
+
+        if (logger != null) {
+            logger.warning(message, t);
+        }
+    }
+
+    public void logInfoEvent(String message) {
+
+        FrameworkLogger logger = getEventLogger();
+
+        if (logger != null) {
+            logger.info(message);
+        }
     }
 
     /**
@@ -528,14 +588,14 @@ public class Logger {
     public synchronized void checkpoint(boolean mode) {
 
         if (loggingEnabled) {
-            getEventLogger(Logger.class).info("Checkpoint start");
+            logInfoEvent("Checkpoint start");
 
             checkpointRequired = false;
             checkpointHandled  = false;
 
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
-            getEventLogger(Logger.class).info("Checkpoint end");
+            logInfoEvent("Checkpoint end");
         }
     }
 
@@ -1034,8 +1094,8 @@ public class Logger {
         log.closeForBackup();
 
         try {
-            getEventLogger(Logger.class).info("Initiating backup of instance '"
-                           + instanceName + "'");
+            logInfoEvent("Initiating backup of instance '" + instanceName
+                         + "'");
 
             // By default, DbBackup will throw if archiveFile (or
             // corresponding work file) already exist.  That's just what we
@@ -1044,9 +1104,8 @@ public class Logger {
 
             backup.setAbortUponModify(false);
             backup.write();
-            getEventLogger(Logger.class).info(
-                "Successfully backed up instance '" + instanceName + "' to '"
-                + destPath + "'");
+            logInfoEvent("Successfully backed up instance '" + instanceName
+                         + "' to '" + destPath + "'");
 
             // RENAME tempPath to destPath
         } catch (IllegalArgumentException iae) {

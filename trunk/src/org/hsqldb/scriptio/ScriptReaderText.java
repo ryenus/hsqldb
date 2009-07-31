@@ -37,20 +37,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.hsqldb.Statement;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
+import org.hsqldb.Statement;
 import org.hsqldb.StatementTypes;
-import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputTextLog;
-import org.hsqldb.types.Type;
-import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.Type;
 
 /**
  * Handles operations involving reading back a script or log file written
@@ -81,10 +80,10 @@ public class ScriptReaderText extends ScriptReaderBase {
 
     protected void openFile() throws IOException {
 
-        InputStream d = db.isFilesInJar()
+        InputStream d = database.isFilesInJar()
                         ? getClass().getResourceAsStream(fileName)
-                        : db.logger.getFileAccess().openInputStreamElement(
-                            fileName);
+                        : database.logger.getFileAccess()
+                            .openInputStreamElement(fileName);
 
         dataStreamIn = new BufferedReader(
             new InputStreamReader(new BufferedInputStream(d)));
@@ -130,12 +129,8 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
 
             if (result.isError()) {
-                FrameworkLogger logger =
-                    db.logger.getEventLogger(ScriptReaderText.class);
-
-                if (logger != null) {
-                    logger.warning(result.getMainString());
-                }
+                database.logger.logWarningEvent(result.getMainString(),
+                                                result.getException());
 
                 throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
                                   ErrorCode.M_DatabaseScriptReader_readDDL,
@@ -152,7 +147,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             String tablename = null;
 
             // fredt - needed for forward referencing FK constraints
-            db.setReferentialIntegrity(false);
+            database.setReferentialIntegrity(false);
 
             for (; isInsert || readLoggedStatement(session);
                     isInsert = false) {
@@ -166,22 +161,21 @@ public class ScriptReaderText extends ScriptReaderBase {
 
                         String schema = session.getSchemaName(currentSchema);
 
-                        currentTable = db.schemaManager.getUserTable(session,
+                        currentTable =
+                            database.schemaManager.getUserTable(session,
                                 tablename, schema);
-                        currentStore = db.persistentStoreCollection.getStore(
-                            currentTable);
+                        currentStore =
+                            database.persistentStoreCollection.getStore(
+                                currentTable);
                     }
 
                     currentTable.insertFromScript(currentStore, rowData);
                 }
             }
 
-            db.setReferentialIntegrity(true);
+            database.setReferentialIntegrity(true);
         } catch (Exception e) {
-            FrameworkLogger logger =
-                db.logger.getEventLogger(ScriptReaderText.class);
-
-            logger.severe("readExistingData failed", e);
+            database.logger.logSevereEvent("readExistingData failed", e);
 
             throw Error.error(
                 ErrorCode.ERROR_IN_SCRIPT_FILE,
@@ -247,9 +241,10 @@ public class ScriptReaderText extends ScriptReaderBase {
             String name   = rowIn.getTableName();
             String schema = session.getCurrentSchemaHsqlName().name;
 
-            currentTable = db.schemaManager.getUserTable(session, name,
+            currentTable = database.schemaManager.getUserTable(session, name,
                     schema);
-            currentStore = db.persistentStoreCollection.getStore(currentTable);
+            currentStore =
+                database.persistentStoreCollection.getStore(currentTable);
 
             Type[] colTypes;
 

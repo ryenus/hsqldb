@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.hsqldb.Database;
-import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.Storage;
 import org.hsqldb.lib.java.JavaSystem;
@@ -61,7 +60,6 @@ public class RAShadowFile {
     boolean          zeroPageSet;
     HsqlByteArrayOutputStream byteArrayOutputStream =
         new HsqlByteArrayOutputStream(new byte[]{});
-    private FrameworkLogger fwLogger;
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
@@ -75,7 +73,6 @@ public class RAShadowFile {
         this.source   = source;
         this.pageSize = pageSize;
         this.maxSize  = maxSize;
-        fwLogger      = database.logger.getEventLogger(RAShadowFile.class);
 
         int bitSize = (int) (maxSize / pageSize);
 
@@ -144,7 +141,8 @@ public class RAShadowFile {
         } catch (Throwable t) {
             bitMap.unset(pageOffset);
             close();
-            fwLogger.warning("pos" + position + " " + readSize);
+            database.logger.logWarningEvent("pos" + position + " " + readSize,
+                                            t);
 
             throw FileUtil.toIOException(t);
         } finally {}

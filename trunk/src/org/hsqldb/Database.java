@@ -345,12 +345,10 @@ public class Database {
         databaseUniqueName = name;
 
         if (oldName == null) {
-            logger.getEventLogger(Database.class).warning(
-                "database opened");
+            logger.logInfoEvent("database opened");
         } else {
-            logger.getEventLogger(Database.class).warning(
-                "database unique name changed from: " + oldName + " to: "
-                + databaseUniqueName);
+            logger.logInfoEvent("database unique name changed from: "
+                                + oldName + " to: " + databaseUniqueName);
         }
     }
 

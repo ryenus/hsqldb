@@ -38,7 +38,6 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.Session;
 import org.hsqldb.lib.IntKeyHashMap;
-import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.result.Result;
 import org.hsqldb.scriptio.ScriptReaderBase;
@@ -156,23 +155,22 @@ public class ScriptRunner {
                 }
             }
         } catch (Throwable e) {
-            FrameworkLogger fwLogger =
-                database.logger.getEventLogger(ScriptRunner.class);
 
             // catch out-of-memory errors and terminate
             if (e instanceof EOFException) {
 
                 // end of file - normal end
             } else if (e instanceof OutOfMemoryError) {
-                fwLogger.severe("out of memory processing " + logFilename
-                                + " line: " + scr.getLineNumber());
+                database.logger.logSevereEvent("out of memory processing "
+                                               + logFilename + " line: "
+                                               + scr.getLineNumber(), e);
 
                 throw Error.error(ErrorCode.OUT_OF_MEMORY);
             } else {
 
-                // stop processing on bad log line
-                fwLogger.severe(logFilename + " line: " + scr.getLineNumber()
-                                + " " + e);
+                // stop processing on bad script line
+                database.logger.logSevereEvent(logFilename + " line: "
+                                               + scr.getLineNumber(), e);
             }
         } finally {
             if (scr != null) {

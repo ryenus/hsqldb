@@ -44,7 +44,6 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.FileUtil;
-import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.Storage;
 import org.hsqldb.rowio.RowInputBinary;
@@ -69,8 +68,7 @@ import org.hsqldb.store.BitMap;
  */
 public class DataFileCache {
 
-    protected FileAccess    fa;
-    private FrameworkLogger fwLogger;
+    protected FileAccess fa;
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
@@ -142,8 +140,7 @@ public class DataFileCache {
 
         initParams(db, baseFileName);
 
-        fwLogger = database.logger.getEventLogger(DataFileCache.class);
-        cache    = new Cache(this);
+        cache = new Cache(this);
     }
 
     /**
@@ -179,7 +176,7 @@ public class DataFileCache {
 
         fileFreePosition = 0;
 
-        fwLogger.info("open start");
+        database.logger.logInfoEvent("open start");
 
         try {
             boolean isNio    = database.logger.propNioDataFile;
@@ -277,9 +274,9 @@ public class DataFileCache {
             freeBlocks = new DataFileBlockManager(maxFreeBlocks,
                                                   cacheFileScale, freesize);
 
-            fwLogger.info("open end");
+            database.logger.logInfoEvent("open end");
         } catch (Throwable e) {
-            fwLogger.severe("open failed", e);
+            database.logger.logSevereEvent("open failed", e);
             close(false);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
@@ -405,12 +402,14 @@ public class DataFileCache {
 
             StopWatch sw = new StopWatch();
 
-            fwLogger.info("DataFileCache.close(" + write + ") : start");
+            database.logger.logInfoEvent("DataFileCache.close(" + write
+                                         + ") : start");
 
             if (write) {
                 cache.saveAll();
                 Error.printSystemOut("saveAll: " + sw.elapsedTime());
-                fwLogger.info("DataFileCache.close() : save data");
+                database.logger.logInfoEvent(
+                    "DataFileCache.close() : save data");
 
                 if (fileModified || freeBlocks.isModified()) {
 
@@ -431,18 +430,20 @@ public class DataFileCache {
 
                     dataFile.seek(FLAGS_POS);
                     dataFile.writeInt(flags);
-                    fwLogger.info("DataFileCache.close() : flags");
+                    database.logger.logInfoEvent(
+                        "DataFileCache.close() : flags");
 
                     //
                     dataFile.seek(fileFreePosition);
-                    fwLogger.info("DataFileCache.close() : seek end");
+                    database.logger.logInfoEvent(
+                        "DataFileCache.close() : seek end");
                     Error.printSystemOut("pos and flags: " + sw.elapsedTime());
                 }
             }
 
             if (dataFile != null) {
                 dataFile.close();
-                fwLogger.info("DataFileCache.close() : close");
+                database.logger.logInfoEvent("DataFileCache.close() : close");
 
                 dataFile = null;
 
@@ -456,7 +457,7 @@ public class DataFileCache {
                 fa.removeElement(backupFileName);
             }
         } catch (Throwable e) {
-            fwLogger.severe("Close failed", e);
+            database.logger.logSevereEvent("Close failed", e);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
@@ -499,7 +500,7 @@ public class DataFileCache {
             return;
         }
 
-        fwLogger.info("defrag start");
+        database.logger.logInfoEvent("defrag start");
 
         try {
             boolean wasNio = dataFile.wasNio();
@@ -521,16 +522,16 @@ public class DataFileCache {
             dfd.updateTableIndexRoots();
             dfd.updateTransactionRowIDs();
         } catch (HsqlException e) {
-            fwLogger.severe("defrag failure", e);
+            database.logger.logSevereEvent("defrag failure", e);
 
             throw (HsqlException) e;
         } catch (Throwable e) {
-            fwLogger.severe("defrag failure", e);
+            database.logger.logSevereEvent("defrag failure", e);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
 
-        fwLogger.info("defrag end");
+        database.logger.logInfoEvent("defrag end");
     }
 
     /**
@@ -735,7 +736,8 @@ public class DataFileCache {
 
                     outOfMemory = true;
 
-                    fwLogger.severe("Problem  getting object from file", err);
+                    database.logger.logSevereEvent(
+                        "Problem  getting object from file", err);
                 }
             }
 
@@ -757,7 +759,7 @@ public class DataFileCache {
 
             return object;
         } catch (HsqlException e) {
-            fwLogger.severe(fileName + " get pos: " + pos, e);
+            database.logger.logSevereEvent(fileName + " get pos: " + pos, e);
 
             throw e;
         } finally {
@@ -831,11 +833,11 @@ public class DataFileCache {
                 rows[i] = null;
             }
         } catch (HsqlException e) {
-            fwLogger.severe("saveRows failed", e);
+            database.logger.logSevereEvent("saveRows failed", e);
 
             throw e;
         } catch (Throwable e) {
-            fwLogger.severe("saveRows failed", e);
+            database.logger.logSevereEvent("saveRows failed", e);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
@@ -912,7 +914,7 @@ public class DataFileCache {
                                      FileArchiver.COMPRESSION_ZIP);
             }
         } catch (IOException e) {
-            fwLogger.severe("backupFile failed", e);
+            database.logger.logSevereEvent("backupFile failed", e);
 
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
@@ -1012,8 +1014,6 @@ public class DataFileCache {
      */
     static void deleteOrResetFreePos(Database database, String filename) {
 
-        FrameworkLogger localFwLogger =
-            database.logger.getEventLogger(DataFileCache.class);
         ScaledRAFile raFile = null;
 
         database.logger.getFileAccess().removeElement(filename);
@@ -1034,13 +1034,14 @@ public class DataFileCache {
             raFile.seek(LONG_FREE_POS_POS);
             raFile.writeLong(INITIAL_FREE_POS);
         } catch (IOException e) {
-            localFwLogger.severe("deleteOrResetFreePos failed", e);
+            database.logger.logSevereEvent("deleteOrResetFreePos failed", e);
         } finally {
             if (raFile != null) {
                 try {
                     raFile.close();
                 } catch (IOException e) {
-                    localFwLogger.warning("Failed to close RA file", e);
+                    database.logger.logWarningEvent("Failed to close RA file",
+                                                    e);
                 }
             }
         }

@@ -37,7 +37,6 @@ import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
@@ -464,8 +463,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             fa.renameElement(fileName + ".properties" + ".new",
                              fileName + ".properties");
         } catch (Exception e) {
-            database.logger.getEventLogger(
-                HsqlDatabaseProperties.class).severe("save failed");
+            database.logger.logSevereEvent("save failed", e);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {

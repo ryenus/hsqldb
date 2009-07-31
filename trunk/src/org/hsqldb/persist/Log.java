@@ -78,7 +78,6 @@ import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
-import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.scriptio.ScriptReaderBase;
@@ -210,7 +209,7 @@ public class Log {
                     properties.setDBModified(
                         HsqlDatabaseProperties.FILES_NOT_MODIFIED);
                 } catch (IOException e) {
-                    database.logger.getEventLogger(Log.class).severe(
+                    database.logger.logSevereEvent(
                         "Failed to open Log for Catalog", e);
                 }
 
@@ -380,7 +379,7 @@ public class Log {
             return;
         }
 
-        database.logger.getEventLogger(Log.class).info("Checkpoint start");
+        database.logger.logInfoEvent("Checkpoint start");
         deleteNewAndOldFiles();
         writeScript(false);
 
@@ -437,7 +436,7 @@ public class Log {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }
 */
-        database.logger.getEventLogger(Log.class).info("Checkpoint end");
+        database.logger.logInfoEvent("Checkpoint end");
     }
 
     /**
@@ -737,8 +736,7 @@ public class Log {
                 closeAllTextCaches(false);
             }
 
-            database.logger.getEventLogger(Log.class).warning(
-                "Script processing failure", e);
+            database.logger.logWarningEvent("Script processing failure", e);
 
             if (e instanceof HsqlException) {
                 throw (HsqlException) e;
