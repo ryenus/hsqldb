@@ -50,14 +50,7 @@ public abstract class ScriptReaderBase {
 
     public static ScriptReaderBase newScriptReader(Database db, String file,
             int scriptType) throws IOException {
-
-        if (scriptType == ScriptWriterBase.SCRIPT_TEXT_170) {
-            return new ScriptReaderText(db, file);
-        } else if (scriptType == ScriptWriterBase.SCRIPT_BINARY_172) {
-            return new ScriptReaderBinary(db, file);
-        } else {
-            return new ScriptReaderZipped(db, file);
-        }
+        return new ScriptReaderText(db, file);
     }
 
     public static final int ANY_STATEMENT        = 1;
@@ -66,17 +59,16 @@ public abstract class ScriptReaderBase {
     public static final int COMMIT_STATEMENT     = 4;
     public static final int SESSION_ID           = 5;
     public static final int SET_SCHEMA_STATEMENT = 6;
-    Database                db;
+    Database                database;
     int                     lineCount;
 
 //    int         byteCount;
     String fileName;
 
-    ScriptReaderBase(Database db,
-                     String file) throws IOException {
+    ScriptReaderBase(Database db, String file) throws IOException {
 
-        this.db  = db;
-        fileName = file;
+        this.database = db;
+        fileName      = file;
 
         openFile();
     }
@@ -88,8 +80,7 @@ public abstract class ScriptReaderBase {
         readExistingData(session);
     }
 
-    protected abstract void readDDL(Session session)
-    throws IOException;
+    protected abstract void readDDL(Session session) throws IOException;
 
     protected abstract void readExistingData(Session session)
     throws IOException;

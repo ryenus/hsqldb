@@ -38,7 +38,6 @@ import java.nio.channels.FileChannel;
 
 import org.hsqldb.Database;
 import org.hsqldb.Error;
-import org.hsqldb.lib.FrameworkLogger;
 
 /**
  * New NIO version of ScaledRAFile. This class is used only for storing a CACHED
@@ -54,13 +53,13 @@ import org.hsqldb.lib.FrameworkLogger;
  */
 final class ScaledRAFileNIO implements ScaledRAInterface {
 
+    private final Database   database;
     private final boolean    readOnly;
     private final long       bufferLength;
     private RandomAccessFile file;
     private MappedByteBuffer buffer;
     private FileChannel      channel;
     private boolean          bufferModified;
-    private FrameworkLogger  fwLogger;
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
@@ -71,7 +70,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
     ScaledRAFileNIO(Database database, String name, boolean readOnly,
                     int bufferLength) throws Throwable {
 
-        fwLogger = database.logger.getEventLogger(ScaledRAFileNIO.class);
+        this.database = database;
 
         long fileLength;
 
@@ -159,8 +158,9 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
                     buffer.put(temp, 0, (int) (bufferLength - pos));
                     buffer.force();
                 } catch (Throwable t) {
-                    fwLogger.warning(JVM_ERROR + " " + "length: "
-                                     + bufferLength, t);
+                    database.logger.logWarningEvent(JVM_ERROR + " "
+                                                    + "length: "
+                                                    + bufferLength, t);
                 }
 
                 buffer.position(0);
@@ -183,11 +183,11 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         try {
             return file.length();
         } catch (IOException e) {
-            fwLogger.warning("nio", e);
+            database.logger.logWarningEvent("nio", e);
 
             throw e;
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -198,11 +198,11 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         try {
             buffer.position((int) newPos);
         } catch (IllegalArgumentException e) {
-            fwLogger.warning("nio", e);
+            database.logger.logWarningEvent("nio", e);
 
             throw new IOException(e.toString());
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -213,7 +213,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         try {
             return buffer.position();
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -224,7 +224,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         try {
             return buffer.get();
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -235,7 +235,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         try {
             buffer.get(b, offset, length);
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -246,7 +246,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         try {
             return buffer.getInt();
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -257,7 +257,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         try {
             return buffer.getLong();
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -270,7 +270,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
 
             buffer.put(b, offset, len);
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -283,7 +283,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
 
             buffer.putInt(i);
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -296,7 +296,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
 
             buffer.putLong(i);
         } catch (Throwable e) {
-            fwLogger.warning(JVM_ERROR, e);
+            database.logger.logWarningEvent(JVM_ERROR, e);
 
             throw new IOException(e.toString());
         }
@@ -315,8 +315,9 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
                     try {
                         buffer.force();
                     } catch (Throwable t1) {
-                        fwLogger.warning(JVM_ERROR + " " + "length: "
-                                         + bufferLength, t);
+                        database.logger.logWarningEvent(JVM_ERROR + " "
+                                                        + "length: "
+                                                        + bufferLength, t);
                     }
                 }
             }
@@ -327,7 +328,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
             file.close();
             System.gc();
         } catch (Throwable e) {
-            fwLogger.warning("length: " + bufferLength, e);
+            database.logger.logWarningEvent("length: " + bufferLength, e);
 
             throw new IOException(e.toString());
         }
