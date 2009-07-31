@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
@@ -49,11 +50,10 @@ import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
-import org.hsqldb.lib.StringUtil;
 
 // boucherb@users 20030510 - patch 1.7.2 - added cooperative file locking
 
@@ -166,8 +166,12 @@ public class Logger {
             || !database.databaseProperties.propertiesFileExists();
 
         if (isNewDatabase) {
-            database.setUniqueName( StringUtil.toPaddedString(
-                Long.toHexString(System.currentTimeMillis()), 16, '0', false));
+            String name = StringUtil.toPaddedString(
+                Long.toHexString(System.currentTimeMillis()), 16, '0', false);
+
+            name = "HSQLDB" + name.substring(6).toUpperCase(Locale.ENGLISH);
+
+            database.setUniqueName(name);
 
             if (database.urlProperties.isPropertyTrue(
                     HsqlDatabaseProperties.url_ifexists)) {
@@ -192,7 +196,6 @@ public class Logger {
 
         String path = database.getPath();
 
-        this.database  = database;
         loggingEnabled = false;
 
         boolean useLock = database.getProperties().isPropertyTrue(
@@ -380,8 +383,11 @@ public class Logger {
      * .script file for an old database.
      */
     public FrameworkLogger getEventLogger(Class callingClass) {
+
         String name = database.getUniqueName();
+
         if (name == null) {
+
             // temp code to test all usage is correct
             // will later return null or an anonymous instance if this
             // is called before name creation
@@ -389,9 +395,10 @@ public class Logger {
             // file that does not contain the statement to set the
             // unique name, or an error in script file before the said
             // statement
-
-            throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
+//            throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
+            return null;
         }
+
         return FrameworkLogger.getLog(callingClass, database.getUniqueName());
     }
 
@@ -813,9 +820,7 @@ public class Logger {
         StringBuffer  sb   = new StringBuffer();
 
         sb.append("SET DATABASE ").append(Tokens.T_UNIQUE).append(' ');
-        sb.append(Tokens.T_NAME).append(' ').append(
-            StringConverter.toQuotedString(
-                database.getUniqueName(), '"', true));
+        sb.append(Tokens.T_NAME).append(' ').append(database.getUniqueName());
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_GC).append(' ');
@@ -964,7 +969,6 @@ public class Logger {
             list.add(sb.toString());
             sb.setLength(0);
         }
-
 
         String[] array = new String[list.size()];
 

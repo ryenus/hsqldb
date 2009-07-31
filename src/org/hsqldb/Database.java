@@ -69,7 +69,6 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.dbinfo.DatabaseInformation;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.LobManager;
@@ -340,7 +339,19 @@ public class Database {
     }
 
     public void setUniqueName(String name) {
+
+        String oldName = databaseUniqueName;
+
         databaseUniqueName = name;
+
+        if (oldName == null) {
+            logger.getEventLogger(Database.class).warning(
+                "database opened");
+        } else {
+            logger.getEventLogger(Database.class).warning(
+                "database unique name changed from: " + oldName + " to: "
+                + databaseUniqueName);
+        }
     }
 
     /**

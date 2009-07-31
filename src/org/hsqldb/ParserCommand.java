@@ -37,6 +37,7 @@ import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Charset;
 
 /**
  * Parser for session and management statements
@@ -940,7 +941,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.UNIQUE : {
                 read();
                 readThis(Tokens.NAME);
-                checkIsSimpleName();
+                isUndelimitedSimpleName();
 
                 name = token.tokenString;
 
@@ -949,6 +950,11 @@ public class ParserCommand extends ParserDDL {
                 /** @todo - only digits, letters and underscore */
                 if (name.length() != 16) {
                     throw Error.error(ErrorCode.X_42511);
+                }
+
+                if (!Charset.isInSet(name, Charset.unquotedIdentifier) ||
+                    !Charset.startsWith(name, Charset.uppercaseLetters)) {
+                    throw Error.error(ErrorCode.X_42501);
                 }
 
                 Object[] args = new Object[]{ name };

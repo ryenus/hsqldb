@@ -32,6 +32,7 @@
 package org.hsqldb.server;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import org.hsqldb.ColumnBase;
 import org.hsqldb.lib.DataOutputStream;
@@ -64,7 +65,7 @@ public class OdbcUtil {
     }
 
     static String echoBackReplyString(String inCommand, int retval) {
-        String uc = inCommand.trim().toUpperCase();
+        String uc = inCommand.trim().toUpperCase(Locale.ENGLISH);
         int firstWhiteSpace;
         for (firstWhiteSpace = 0; firstWhiteSpace < uc.length();
             firstWhiteSpace++) {
