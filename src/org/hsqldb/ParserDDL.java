@@ -4783,6 +4783,13 @@ public class ParserDDL extends ParserRoutine {
                     //
                 } else {
                     readThis(Tokens.CURRENT_ROLE);
+
+                    if (session.getRole() == null) {
+                        throw Error.error(ErrorCode.X_0P000);
+                    }
+
+                    grantor = session.getRole();
+
                 }
             }
         } else {
@@ -4872,9 +4879,20 @@ public class ParserDDL extends ParserRoutine {
 
             if (token.tokenType == Tokens.CURRENT_USER) {
                 read();
+
+                //
             } else {
                 readThis(Tokens.CURRENT_ROLE);
+
+                if (session.getRole() == null) {
+                    throw Error.error(ErrorCode.X_0P000);
+                }
+
+                grantor = session.getRole();
+
             }
+
+
         }
 
         if (!grant) {

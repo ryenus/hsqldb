@@ -41,8 +41,10 @@ import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
+import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.Tokens;
@@ -51,7 +53,6 @@ import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StringUtil;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
 
@@ -102,6 +103,7 @@ public class Logger {
     int            propWriteDelay;
     int            propLogSize;
     int            propEventLogLevel;
+    int            propGC;
 
     //
     public FileAccess fileaccess;
@@ -166,10 +168,7 @@ public class Logger {
             || !database.databaseProperties.propertiesFileExists();
 
         if (isNewDatabase) {
-            String name = StringUtil.toPaddedString(
-                Long.toHexString(System.currentTimeMillis()), 16, '0', false);
-
-            name = "HSQLDB" + name.substring(6).toUpperCase(Locale.ENGLISH);
+            String name = newUniqueName();
 
             database.setUniqueName(name);
 
@@ -210,6 +209,26 @@ public class Logger {
         log.open();
 
         logsStatements = loggingEnabled = !database.isFilesReadOnly();
+
+        String version = database.databaseProperties.getStringProperty(
+            HsqlDatabaseProperties.hsqldb_version);
+
+        if (version.substring(0, 5).equals("1.8.0")) {
+            HsqlName name = database.schemaManager.findSchemaHsqlName(
+                SqlInvariants.PUBLIC_SCHEMA);
+
+            if (name != null) {
+                database.schemaManager.setDefaultSchemaHsqlName(name);
+            }
+
+            database.setUniqueName(newUniqueName());
+
+            checkpoint(false);
+        }
+
+        if (database.getUniqueName() == null) {
+            database.setUniqueName(newUniqueName());
+        }
     }
 
     public void setVariables() {
@@ -297,9 +316,8 @@ public class Logger {
                                                            : 0;
         propLogSize = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_log_size);
-        JavaSystem.gcFrequency =
-            database.databaseProperties.getIntegerProperty(
-                HsqlDatabaseProperties.runtime_gc_interval);
+        propGC = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.runtime_gc_interval);
 
         database.setMetaDirty(false);
     }
@@ -362,6 +380,16 @@ public class Logger {
         log = null;
 
         return true;
+    }
+
+    String newUniqueName() {
+
+        String name = StringUtil.toPaddedString(
+            Long.toHexString(System.currentTimeMillis()), 16, '0', false);
+
+        name = "HSQLDB" + name.substring(6).toUpperCase(Locale.ENGLISH);
+
+        return name;
     }
 
     /**
@@ -884,7 +912,7 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_GC).append(' ');
-        sb.append(JavaSystem.gcFrequency);
+        sb.append(propGC);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_DEFAULT).append(' ');

@@ -154,7 +154,7 @@ public class Database {
     private boolean               bIgnoreCase;
     private boolean               isReferentialIntegrity;
     public HsqlDatabaseProperties databaseProperties;
-    private boolean               shutdownOnNoConnection;
+    private final boolean         shutdownOnNoConnection;
     int                           resultMaxMemoryRows;
 
     // schema invarient objects
@@ -266,20 +266,6 @@ public class Database {
             logger.openPersistence();
 
             isNew = logger.isNewDatabase;
-
-            String version = databaseProperties.getStringProperty(
-                HsqlDatabaseProperties.hsqldb_version);
-
-            if (version.substring(0, 5).equals("1.8.0")) {
-                HsqlName name = schemaManager.findSchemaHsqlName(
-                    SqlInvariants.PUBLIC_SCHEMA);
-
-                if (name != null) {
-                    schemaManager.setDefaultSchemaHsqlName(name);
-                }
-
-                logger.checkpoint(false);
-            }
 
             if (isNew) {
                 userManager.createSAUser();

@@ -304,9 +304,9 @@ class ServerConnection implements Runnable {
         }
     }
 
-    private class CleanExit extends Exception {}
+    private static class CleanExit extends Exception {}
 
-    private class ClientFailure extends Exception {
+    private static class ClientFailure extends Exception {
 
         private String clientMessage = null;
 

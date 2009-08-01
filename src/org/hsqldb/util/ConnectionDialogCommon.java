@@ -162,7 +162,8 @@ class ConnectionDialogCommon {
     private static final String fileName       = "hsqlprefs.dat";
     private static File         recentSettings = null;
 
-    static Hashtable loadRecentConnectionSettings() throws IOException {
+    static synchronized Hashtable loadRecentConnectionSettings()
+    throws IOException {
 
         Hashtable list = new Hashtable();
 
@@ -179,8 +180,6 @@ class ConnectionDialogCommon {
                 if (!recentSettings.exists()) {
                     JavaSystem.createNewFile(recentSettings);
 
-                    // Changed back to what I recived from you
-//                  recentSettings.createNewFile();
                     return list;
                 }
             }

@@ -76,7 +76,9 @@ public class Session implements SessionInterface {
 
     //
     public Database database;
+    private User    sessionUser;
     private User    user;
+    private Grantee role;
 
     // transaction support
     private volatile boolean isAutoCommit;
@@ -315,14 +317,21 @@ public class Session implements SessionInterface {
         return user;
     }
 
+    public Grantee getRole() {
+        return role;
+    }
     /**
      * Sets this Session's User object to the one specified by the
      * user argument.
      *
      * @param  user the new User object for this session
      */
-    void setUser(User user) {
+    public void setUser(User user) {
         this.user = user;
+    }
+
+    public void setRole(Grantee role) {
+        this.role = role;
     }
 
     int getMaxRows() {

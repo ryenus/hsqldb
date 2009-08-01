@@ -980,7 +980,8 @@ public class DataFileCache {
             // OOo end
             if (fa.isStreamElement(fileName)) {
                 if (wasNio) {
-                    System.gc();
+
+                    // System.gc();
                     fa.removeElement(fileName);
                 }
 

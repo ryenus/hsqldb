@@ -496,11 +496,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             cacheClear();
         }
 
-        HsqlName oldUser    = sysTableSessions[tableIndex];
-        boolean  tableValid = oldUser != null;
+        HsqlName oldGrantee    = sysTableSessions[tableIndex];
+        boolean  tableValid = oldGrantee != null;
 
         // user has changed and table is user-dependent
-        if (session.getGrantee().getName() != oldUser
+        if (session.getGrantee().getName() != oldGrantee
                 && sysTableSessionDependent[tableIndex]) {
             tableValid = false;
         }

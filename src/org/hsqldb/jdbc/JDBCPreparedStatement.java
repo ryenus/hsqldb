@@ -1655,11 +1655,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_TIME :
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), 0);
+                break;
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), zoneOffset / 1000);
+                break;
 
             default :
                 throw Util.sqlException(ErrorCode.X_42561);

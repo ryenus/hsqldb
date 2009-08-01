@@ -37,6 +37,8 @@ import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalSecondData;
+import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.Type;
 
 /**
  * Implementation of Statement for SQL commands.<p>
@@ -310,6 +312,8 @@ public class StatementSession extends Statement {
 
                 try {
                     name = (String) expressions[0].getValue(session);
+                    name = (String) Type.SQL_VARCHAR.trim(session, name, ' ',
+                                                          true, true);
 
                     if (session.database.getCatalogName().name.equals(name)) {
                         return Result.updateZeroResult;
@@ -395,7 +399,9 @@ public class StatementSession extends Statement {
                 try {
                     name = (String) expressions[0].getValue(session);
 
-                    if (role != null) {
+                    if (name != null) {
+                        name = (String) Type.SQL_VARCHAR.trim(session, name,
+                                                              ' ', true, true);
                         role = session.database.granteeManager.getRole(name);
                     }
                 } catch (HsqlException e) {
@@ -403,13 +409,18 @@ public class StatementSession extends Statement {
                         Error.error(ErrorCode.X_0P000), sql);
                 }
 
+                if (session.isInMidTransaction()) {
+                    return Result.newErrorResult(
+                        Error.error(ErrorCode.X_25001), sql);
+                }
+
                 if (role == null) {
-                    /** @todo 1.9.0 - implement */
+                    session.setRole(null);
                 }
 
                 if (session.getGrantee().hasRole(role)) {
+                    session.setRole(role);
 
-                    /** @todo 1.9.0 - implement */
                     return Result.updateZeroResult;
                 } else {
                     return Result.newErrorResult(
@@ -427,6 +438,8 @@ public class StatementSession extends Statement {
                         name = (String) expressions[0].getValue(session);
                     }
 
+                    name = (String) Type.SQL_VARCHAR.trim(session, name, ' ',
+                                                          true, true);
                     schema =
                         session.database.schemaManager.getSchemaHsqlName(name);
 
@@ -448,6 +461,8 @@ public class StatementSession extends Statement {
                     String password = null;
 
                     user = (String) expressions[0].getValue(session);
+                    user = (String) Type.SQL_VARCHAR.trim(session, user, ' ',
+                                                          true, true);
 
                     if (expressions[1] != null) {
                         password = (String) expressions[1].getValue(session);
@@ -475,6 +490,7 @@ public class StatementSession extends Statement {
 
                     if (session.getGrantee().canChangeAuthorisation()) {
                         session.setUser((User) userObject);
+                        session.setRole(null);
                         session.resetSchema();
 
                         return Result.updateZeroResult;

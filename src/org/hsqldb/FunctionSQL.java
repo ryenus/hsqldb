@@ -1007,7 +1007,9 @@ public class FunctionSQL extends Expression {
             case FUNC_CURRENT_PATH :
             */
             case FUNC_CURRENT_ROLE :
-                return null;
+                return session.getRole() == null ? null
+                                                 : session.getRole()
+                                                     .getNameString();
 
             case FUNC_CURRENT_SCHEMA :
                 return session.getCurrentSchemaHsqlName().name;
@@ -1016,16 +1018,16 @@ public class FunctionSQL extends Expression {
             case FUNC_CURRENT_TRANSFORM_GROUP_FOR_TYPE :
             */
             case FUNC_CURRENT_USER :
-                return session.getGrantee().getNameString();
+                return session.getUser().getNameString();
 
             case FUNC_SESSION_USER :
-                return session.getGrantee().getNameString();
+                return session.getUser().getNameString();
 
             case FUNC_SYSTEM_USER :
-                return session.getGrantee().getNameString();
+                return session.getUser().getNameString();
 
             case FUNC_USER :
-                return session.getGrantee().getNameString();
+                return session.getUser().getNameString();
 
             case FUNC_VALUE :
                 return session.sessionData.currentValue;

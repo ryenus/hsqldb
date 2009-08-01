@@ -1622,7 +1622,7 @@ implements ActionListener, WindowListener, KeyListener {
                 updateResult();
                 displayResults();
                 updateAutoCommitBox();
-                System.gc();
+                // System.gc();
             } catch (RuntimeException re) {
                 CommonSwing.errorMessage(re);
 
