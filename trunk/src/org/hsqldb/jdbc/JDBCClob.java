@@ -807,17 +807,16 @@ public class JDBCClob implements Clob {
         this.checkValid(ldata);
 
         final long dlen  = ldata.length();
-        final long chars = len;
 
-        if (chars == dlen) {
+        if (len == dlen) {
 
             // nothing has changed, so there's nothing to be done
-        } else if (len < 0 || chars > dlen) {
+        } else if (len < 0 || len > dlen) {
             throw Util.outOfRangeArgument("len: " + len);
         } else {
 
-            // use new String() to ensure we get rid of slack
-            data = new String(ldata.substring(0, (int) chars));
+            // no need to get rid of slack
+            data = ldata.substring(0, (int) len);
         }
     }
 

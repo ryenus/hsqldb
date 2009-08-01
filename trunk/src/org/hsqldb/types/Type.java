@@ -189,10 +189,8 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     public int getJDBCPrecision() {
-
-        return precision > Integer.MAX_VALUE
-               ? Integer.MAX_VALUE
-               : (int) precision;
+        return precision > Integer.MAX_VALUE ? Integer.MAX_VALUE
+                                             : (int) precision;
     }
 
     /**
@@ -459,13 +457,14 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final Type SQL_ALL_TYPES = NullType.getNullType();
 
     // character types
-    public static final Type SQL_CHAR = new CharacterType(Types.SQL_CHAR, 1);
-    public static final Type SQL_VARCHAR = new CharacterType(Types.SQL_VARCHAR,
-        32 * 1024);
-    public static final Type SQL_CHAR_DEFAULT =
+    public static final CharacterType SQL_CHAR =
+        new CharacterType(Types.SQL_CHAR, 1);
+    public static final CharacterType SQL_VARCHAR =
+        new CharacterType(Types.SQL_VARCHAR, 32 * 1024);
+    public static final CharacterType SQL_CHAR_DEFAULT =
         new CharacterType(Types.SQL_CHAR, 32 * 1024);
     public static final ClobType SQL_CLOB = new ClobType();
-    public static final Type VARCHAR_IGNORECASE =
+    public static final CharacterType VARCHAR_IGNORECASE =
         new CharacterType(Types.VARCHAR_IGNORECASE, 0);
 
     // binary types

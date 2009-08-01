@@ -33,10 +33,9 @@ package org.hsqldb.test;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.Reader;
-import java.io.FileNotFoundException;
-import java.io.LineNumberReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,8 +43,8 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.LineGroupReader;
+import org.hsqldb.lib.StringUtil;
 
 /**
  * Utility class providing methodes for submitting test statements or
@@ -82,7 +81,11 @@ public class TestUtil {
             return;
         }
 
-        String timestamp = sdfYMDHMS.format(new java.util.Date());
+        String timestamp;
+
+        synchronized (sdfYMDHMS) {
+            timestamp = sdfYMDHMS.format(new java.util.Date());
+        }
 
         while (i > -1) {
             sb.replace(i, i + TIMESTAMP_VAR_STR.length(), timestamp);
@@ -127,7 +130,7 @@ public class TestUtil {
 
         Statement        statement = aConnection.createStatement();
         LineNumberReader reader    = new LineNumberReader(inReader);
-        LineGroupReader        sqlReader = new LineGroupReader(reader);
+        LineGroupReader  sqlReader = new LineGroupReader(reader);
         int              startLine = 0;
 
         System.out.println("Opened test script file: " + sourceName);

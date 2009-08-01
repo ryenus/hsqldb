@@ -591,12 +591,9 @@ class TransferDb extends DataAccessPoint {
             throw new DataAccessPointException(e.getMessage());
         }
 
-        boolean primarykeys           = false;
-        String  PrimaryKeysConstraint = new String();
-
-        PrimaryKeysConstraint = "";
-
-        ResultSet PrimaryKeys = null;
+        boolean   primarykeys           = false;
+        String    PrimaryKeysConstraint = "";
+        ResultSet PrimaryKeys           = null;
 
         try {
             PrimaryKeys = meta.getPrimaryKeys(TTable.Stmts.sDatabaseToConvert,

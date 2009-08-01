@@ -172,8 +172,8 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
             channel = null;
 
             file.close();
-            System.gc();
 
+            // System.gc();
             throw e;
         }
     }
@@ -326,7 +326,8 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
             channel = null;
 
             file.close();
-            System.gc();
+
+            // System.gc();
         } catch (Throwable e) {
             database.logger.logWarningEvent("length: " + bufferLength, e);
 

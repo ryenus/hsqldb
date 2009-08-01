@@ -361,11 +361,15 @@ public class StringConverter {
     public static void stringToUnicodeBytes(HsqlByteArrayOutputStream b,
             String s, boolean doubleSingleQuotes) {
 
+        if (s == null) {
+            return;
+        }
+
         final int len = s.length();
         char[]    chars;
         int       extras = 0;
 
-        if (s == null || len == 0) {
+        if (len == 0) {
             return;
         }
 

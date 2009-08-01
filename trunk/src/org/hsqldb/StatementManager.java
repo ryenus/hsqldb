@@ -210,6 +210,7 @@ public final class StatementManager {
             try {
                 Session sys = database.sessionManager.getSysSession(
                     session.currentSchema.name, session.getUser());
+                sys.setRole(session.getRole());
 
                 cs = sys.compileStatement(sql);
 
@@ -414,6 +415,7 @@ public final class StatementManager {
         if (cs == null || !cs.isValid() || !session.isAdmin()) {
             Session sys = database.sessionManager.getSysSession(
                 session.currentSchema.name, session.getUser());
+            sys.setRole(session.getRole());
 
             cs   = sys.compileStatement(sql);
             csid = registerStatement(csid, cs);

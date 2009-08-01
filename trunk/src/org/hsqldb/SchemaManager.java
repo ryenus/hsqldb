@@ -494,7 +494,7 @@ public class SchemaManager {
         Table t = null;
 
         if (schema == null) {
-            t = findSessionTable(session, name, schema);
+            t = findSessionTable(session, name, null);
         }
 
         if (t == null) {

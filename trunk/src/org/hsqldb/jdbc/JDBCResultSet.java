@@ -481,6 +481,18 @@ public class JDBCResultSet implements ResultSet {
      * a <code>byte</code> in the Java programming language.
      * <!-- end generic documentation -->
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB converts the numeric value to the return type. If the value is
+     * out of the range for the return type, an error is returned. For example,
+     * this can happen if getByte() or getShort() is used to retrieve a value
+     * of type INTEGER or BIGINT and the value is beyond the range covered by
+     * the return type.
+     *
+     * </div>
+     * <!-- end release-specific documentation -->
      * @param columnIndex the first column is 1, the second is 2, ...
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>0</code>
@@ -501,6 +513,19 @@ public class JDBCResultSet implements ResultSet {
      * of this <code>ResultSet</code> object as
      * a <code>short</code> in the Java programming language.
      * <!-- end generic documentation -->
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB converts the numeric value to the return type. If the value is
+     * out of the range for the return type, an error is returned. For example,
+     * this can happen if getByte() or getShort() is used to retrieve a value
+     * of type INTEGER or BIGINT and the value is beyond the range covered by
+     * the return type.
+     *
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param columnIndex the first column is 1, the second is 2, ...
      * @return the column value; if the value is SQL <code>NULL</code>, the
@@ -523,6 +548,18 @@ public class JDBCResultSet implements ResultSet {
      * an <code>int</code> in the Java programming language.
      * <!-- end generic documentation -->
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB converts the numeric value to the return type. If the value is
+     * out of the range for the return type, an error is returned. For example,
+     * this can happen if getInt() or getLong() is used to retrieve a value
+     * of type DECIMAL or NUMERIC with a large precision and the value is beyond
+     * the range covered by the return type.
+     *
+     * </div>
+     * <!-- end release-specific documentation -->
      * @param columnIndex the first column is 1, the second is 2, ...
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>0</code>
@@ -544,6 +581,18 @@ public class JDBCResultSet implements ResultSet {
      * a <code>long</code> in the Java programming language.
      * <!-- end generic documentation -->
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB converts the numeric value to the return type. If the value is
+     * out of the range for the return type, an error is returned. For example,
+     * this can happen if getInt() or getLong() is used to retrieve a value
+     * of type DECIMAL or NUMERIC with a large precision and the value is beyond
+     * the range covered by the return type.
+     *
+     * </div>
+     * <!-- end release-specific documentation -->
      * @param columnIndex the first column is 1, the second is 2, ...
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>0</code>
@@ -564,7 +613,18 @@ public class JDBCResultSet implements ResultSet {
      * of this <code>ResultSet</code> object as
      * a <code>float</code> in the Java programming language.
      * <!-- end generic documentation -->
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
      *
+     * HSQLDB converts the numeric value to the return type. If the value is
+     * out of the range for the return type, an error is returned. For example,
+     * this can happen if getFloat() or getDouble() is used to retrieve a value
+     * of type DECIMAL or NUMERIC with a large precision and the value is beyond
+     * the range covered by the return type.
+     *
+     * </div>
+     * <!-- end release-specific documentation -->
      * @param columnIndex the first column is 1, the second is 2, ...
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>0</code>
@@ -586,6 +646,18 @@ public class JDBCResultSet implements ResultSet {
      * a <code>double</code> in the Java programming language.
      * <!-- end generic documentation -->
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB converts the numeric value to the return type. If the value is
+     * out of the range for the return type, an error is returned. For example,
+     * this can happen if getFloat() or getDouble() is used to retrieve a value
+     * of type DECIMAL or NUMERIC with a large precision and the value is beyond
+     * the range covered by the return type.
+     *
+     * </div>
+     * <!-- end release-specific documentation -->
      * @param columnIndex the first column is 1, the second is 2, ...
      * @return the column value; if the value is SQL <code>NULL</code>, the
      * value returned is <code>0</code>
@@ -1521,6 +1593,8 @@ public class JDBCResultSet implements ResultSet {
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 return getBytes(columnIndex);
+            case Types.SQL_BIT :
+                return getBoolean(columnIndex);
             case Types.OTHER :
             case Types.JAVA_OBJECT : {
                 Object o = getColumnInType(columnIndex, sourceType);
@@ -4501,10 +4575,18 @@ public class JDBCResultSet implements ResultSet {
 
         TimestampData t = (TimestampData) getColumnInType(columnIndex,
             Type.SQL_DATE);
-        long millis     = t.getSeconds() * 1000;
-        int  zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
 
-        return new Date(millis - zoneOffset);
+        if (t == null) {
+            return null;
+        }
+
+        long millis = t.getSeconds() * 1000;
+
+        if (cal != null) {
+            millis = HsqlDateTime.convertMillisToCalendar(cal, millis);
+        }
+
+        return new Date(millis);
     }
 
     /**

@@ -64,6 +64,7 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -953,6 +954,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 return getBytes(parameterIndex);
+            case Types.SQL_BIT :
+                return getBoolean(parameterIndex);
             case Types.OTHER :
             case Types.JAVA_OBJECT : {
                 Object o = getColumnInType(parameterIndex, sourceType);
@@ -1257,10 +1260,18 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         TimestampData t = (TimestampData) getColumnInType(parameterIndex,
             Type.SQL_DATE);
-        long millis     = t.getSeconds() * 1000;
-        int  zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
 
-        return new Date(millis - zoneOffset);
+        if (t == null) {
+            return null;
+        }
+
+        long millis = t.getSeconds() * 1000;
+
+        if (cal != null) {
+            millis = HsqlDateTime.convertMillisToCalendar(cal, millis);
+        }
+
+        return new Date(millis);
     }
 
     /**
@@ -1301,24 +1312,26 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     public synchronized Time getTime(int parameterIndex,
                                      Calendar cal) throws SQLException {
 
+
         TimeData t = (TimeData) getColumnInType(parameterIndex, Type.SQL_TIME);
 
         if (t == null) {
             return null;
         }
 
-        long millis = t.getSeconds() * 1000;
+        long millis = DateTimeType.normaliseTime(t.getSeconds()) * 1000;
 
-        if (parameterTypes[--parameterIndex].isDateTimeTypeWithZone()) {}
-        else {
+        if (!resultMetaData.columnTypes[--parameterIndex]
+                .isDateTimeTypeWithZone()) {
 
-            // UTC - calZO == (UTC - sessZO) + (sessionZO - calZO)
-            if (cal != null) {
-                int zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
+            Calendar calendar = cal == null ? session.getCalendar()
+                                            : cal;
 
-                millis += session.getZoneSeconds() * 1000 - zoneOffset;
-            }
+            millis = HsqlDateTime.convertMillisToCalendar(
+                                  calendar, millis);
+            millis = HsqlDateTime.getNormalisedTime(millis);
         }
+
 
         return new Time(millis);
     }
@@ -1370,14 +1383,15 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         long millis = t.getSeconds() * 1000;
 
-        if (parameterTypes[--parameterIndex].isDateTimeTypeWithZone()) {}
-        else {
+        if (!resultMetaData.columnTypes[--parameterIndex]
+                .isDateTimeTypeWithZone()) {
 
-            // UTC - calZO == (UTC - sessZO) + (sessionZO - calZO)
+            Calendar calendar = cal == null ? session.getCalendar()
+                                            : cal;
+
             if (cal != null) {
-                int zoneOffset = HsqlDateTime.getZoneMillis(cal, millis);
-
-                millis += session.getZoneSeconds() * 1000 - zoneOffset;
+                millis = HsqlDateTime.convertMillisToCalendar(
+                                  calendar, millis);
             }
         }
 

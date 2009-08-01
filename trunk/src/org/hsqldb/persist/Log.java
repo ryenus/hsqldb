@@ -235,6 +235,7 @@ public class Log {
 
                     reopenAllTextCaches();
                 }
+
                 break;
         }
 

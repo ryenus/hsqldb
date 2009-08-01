@@ -243,7 +243,7 @@ public class SessionManager {
         for (int i = 0; it.hasNext(); i++) {
             Session session = (Session) it.next();
 
-            if (userName.equals(session.getGrantee().getNameString())) {
+            if (userName.equals(session.getUser().getNameString())) {
                 return true;
             }
         }
