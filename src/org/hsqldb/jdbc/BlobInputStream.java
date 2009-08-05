@@ -33,11 +33,11 @@ package org.hsqldb.jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Blob;
 import java.sql.SQLException;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
+import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * This class is used as an InputStream to retrieve data from a Blob.
@@ -83,7 +83,7 @@ public class BlobInputStream extends InputStream {
             try {
                 readIntoBuffer();
             } catch (SQLException e) {
-                throw new IOException(e.getMessage());
+                throw JavaSystem.toIOException(e);
             }
         }
 

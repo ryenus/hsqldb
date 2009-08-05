@@ -1286,7 +1286,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 if (nodes[1].dataType == null) {
-                    nodes[1].dataType = NumberType.SQL_NUMERIC_DEFAULT_INT;
+                    nodes[1].dataType = Type.SQL_NUMERIC;
                 }
 
                 if (!nodes[1].dataType.isNumberType()) {
@@ -1295,7 +1295,7 @@ public class FunctionSQL extends Expression {
 
                 if (nodes[2] != null) {
                     if (nodes[2].dataType == null) {
-                        nodes[2].dataType = NumberType.SQL_NUMERIC_DEFAULT_INT;
+                        nodes[2].dataType = Type.SQL_NUMERIC;
                     }
 
                     if (!nodes[2].dataType.isNumberType()) {
@@ -1456,7 +1456,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 if (nodes[2].dataType == null) {
-                    nodes[2].dataType = NumberType.SQL_NUMERIC_DEFAULT_INT;
+                    nodes[2].dataType = Type.SQL_NUMERIC;
                 }
 
                 if (!nodes[2].dataType.isNumberType()) {
@@ -1468,7 +1468,7 @@ public class FunctionSQL extends Expression {
 
                 if (nodes[3] != null) {
                     if (nodes[3].dataType == null) {
-                        nodes[3].dataType = NumberType.SQL_NUMERIC_DEFAULT_INT;
+                        nodes[3].dataType = Type.SQL_NUMERIC;
                     }
 
                     if (!nodes[3].dataType.isNumberType()) {

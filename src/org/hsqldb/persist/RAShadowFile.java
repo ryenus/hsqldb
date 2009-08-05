@@ -144,7 +144,7 @@ public class RAShadowFile {
             database.logger.logWarningEvent("pos" + position + " " + readSize,
                                             t);
 
-            throw FileUtil.toIOException(t);
+            throw JavaSystem.toIOException(t);
         } finally {}
     }
 

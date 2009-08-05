@@ -60,7 +60,7 @@ public class DataFileCacheSession extends DataFileCache {
      */
     protected void initParams(Database database, String baseFileName) {
 
-        fileName      = baseFileName + ".data.tmp";
+        this.dataFileName      = baseFileName + ".data.tmp";
         this.database = database;
         fa            = FileUtil.getDefaultInstance();
 
@@ -85,7 +85,7 @@ public class DataFileCacheSession extends DataFileCache {
     public void open(boolean readonly) {
 
         try {
-            dataFile = ScaledRAFile.newScaledRAFile(database, fileName, false,
+            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName, false,
                     ScaledRAFile.DATA_FILE_RAF, null, null);
             fileFreePosition = INITIAL_FREE_POS;
 
@@ -98,7 +98,7 @@ public class DataFileCacheSession extends DataFileCache {
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_open, new Object[] {
-                e, fileName
+                e, dataFileName
             });
         }
     }
@@ -119,14 +119,14 @@ public class DataFileCacheSession extends DataFileCache {
 
                 dataFile = null;
 
-                fa.removeElement(fileName);
+                fa.removeElement(dataFileName);
             }
         } catch (Throwable e) {
             database.logger.logWarningEvent("Failed to close RA file", e);
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
-                e, fileName
+                e, dataFileName
             });
         }
     }

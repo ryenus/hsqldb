@@ -104,7 +104,7 @@ abstract class NodeAVLBaseMemory extends NodeAVL {
         return this;
     }
 
-    public int getBalance() {
+    public int getBalance(PersistentStore store) {
         return iBalance;
     }
 
@@ -131,7 +131,7 @@ abstract class NodeAVLBaseMemory extends NodeAVL {
         return nParent;
     }
 
-    boolean isRoot() {
+    boolean isRoot(PersistentStore store) {
         return nParent == null;
     }
 
@@ -151,7 +151,7 @@ abstract class NodeAVLBaseMemory extends NodeAVL {
 
     boolean isFromLeft(PersistentStore store) {
 
-        if (this.isRoot()) {
+        if (this.isRoot(store)) {
             return true;
         }
 

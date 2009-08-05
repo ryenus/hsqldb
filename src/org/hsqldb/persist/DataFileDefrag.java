@@ -50,6 +50,7 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.store.BitMap;
 
 // oj@openoffice.org - changed to file access api
 
@@ -72,19 +73,19 @@ final class DataFileDefrag {
     BufferedOutputStream fileStreamOut;
     long                 fileOffset;
     StopWatch            stopw = new StopWatch();
-    String               filename;
+    String               dataFileName;
     int[][]              rootsList;
     Database             database;
     DataFileCache        cache;
     int                  scale;
     DoubleIntIndex       transactionRowLookup;
 
-    DataFileDefrag(Database db, DataFileCache cache, String filename) {
+    DataFileDefrag(Database db, DataFileCache cache, String dataFileName) {
 
-        this.database = db;
-        this.cache    = cache;
-        this.scale    = cache.cacheFileScale;
-        this.filename = filename;
+        this.database     = db;
+        this.cache        = cache;
+        this.scale        = cache.cacheFileScale;
+        this.dataFileName = dataFileName;
     }
 
     void process() throws IOException {
@@ -103,8 +104,8 @@ final class DataFileDefrag {
 
         try {
             OutputStream fos =
-                database.logger.getFileAccess().openOutputStreamElement(filename
-                    + ".new");
+                database.logger.getFileAccess().openOutputStreamElement(
+                    dataFileName + ".new");
 
             fileStreamOut = new BufferedOutputStream(fos, 1 << 12);
 
@@ -136,7 +137,7 @@ final class DataFileDefrag {
 
             // write out the end of file position
             dest = ScaledRAFile.newScaledRAFile(
-                database, filename
+                database, dataFileName
                 + ".new", false, ScaledRAFile.DATA_FILE_RAF, database
                     .getURLProperties().getProperty(
                         HsqlDatabaseProperties
@@ -146,6 +147,19 @@ final class DataFileDefrag {
 
             dest.seek(DataFileCache.LONG_FREE_POS_POS);
             dest.writeLong(fileOffset);
+
+            // set shadowed flag;
+            int flags = 0;
+
+            if (database.logger.propIncrementBackup) {
+                flags = BitMap.set(flags, DataFileCache.FLAG_ISSHADOWED);
+            }
+
+            flags = BitMap.set(flags, DataFileCache.FLAG_190);
+            flags = BitMap.set(flags, DataFileCache.FLAG_ISSAVED);
+
+            dest.seek(DataFileCache.FLAGS_POS);
+            dest.writeInt(flags);
             dest.close();
 
             dest = null;
@@ -161,7 +175,7 @@ final class DataFileDefrag {
 
             complete = true;
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, filename + ".new");
+            throw Error.error(ErrorCode.FILE_IO_ERROR, dataFileName + ".new");
         } catch (OutOfMemoryError e) {
             throw Error.error(ErrorCode.OUT_OF_MEMORY);
         } finally {
@@ -174,7 +188,8 @@ final class DataFileDefrag {
             }
 
             if (!complete) {
-                database.logger.getFileAccess().removeElement(filename + ".new");
+                database.logger.getFileAccess().removeElement(dataFileName
+                        + ".new");
             }
         }
 
@@ -210,7 +225,7 @@ final class DataFileDefrag {
 
         Session session = database.getSessionManager().getSysSession();
         PersistentStore    store  = session.sessionData.getRowStore(table);
-        RowOutputInterface rowOut = new RowOutputBinary();
+        RowOutputInterface rowOut = new RowOutputBinary(1024, scale);
         DoubleIntIndex pointerLookup =
             new DoubleIntIndex(table.getPrimaryIndex().sizeEstimate(store),
                                false);
@@ -236,8 +251,8 @@ final class DataFileDefrag {
             pos += row.getStorageSize();
         }
 
-        Error.printSystemOut(table.getName().name + " list done: " +
-                             stopw.elapsedTime());
+        Error.printSystemOut(table.getName().name + " list done: "
+                             + stopw.elapsedTime());
 
         count = 0;
         it    = table.rowIterator(session);

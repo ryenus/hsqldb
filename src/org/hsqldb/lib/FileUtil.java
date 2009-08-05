@@ -71,7 +71,7 @@ public class FileUtil implements FileAccess {
         try {
             return new FileInputStream(new File(streamName));
         } catch (Throwable e) {
-            throw toIOException(e);
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -177,15 +177,6 @@ public class FileUtil implements FileAccess {
         }
 
         return deleted;
-    }
-
-    public static IOException toIOException(Throwable e) {
-
-        if (e instanceof IOException) {
-            return (IOException) e;
-        } else {
-            return new IOException(e.toString());
-        }
     }
 
     /**

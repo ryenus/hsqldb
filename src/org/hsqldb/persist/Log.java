@@ -382,7 +382,6 @@ public class Log {
 
         database.logger.logInfoEvent("Checkpoint start");
         deleteNewAndOldFiles();
-        writeScript(false);
 
         if (cache != null) {
             if (forceDefrag()) {
@@ -392,8 +391,10 @@ public class Log {
             if (defrag) {
                 try {
                     cache.defrag();
+                    writeScript(false);
                 } catch (Exception e) {}
             } else {
+                writeScript(false);
                 cache.close(true);
 
                 try {

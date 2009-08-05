@@ -38,6 +38,7 @@ import java.nio.channels.FileChannel;
 
 import org.hsqldb.Database;
 import org.hsqldb.Error;
+import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * New NIO version of ScaledRAFile. This class is used only for storing a CACHED
@@ -189,7 +190,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -200,11 +201,11 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (IllegalArgumentException e) {
             database.logger.logWarningEvent("nio", e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -215,7 +216,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -226,7 +227,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -237,7 +238,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -248,7 +249,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -259,7 +260,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -272,7 +273,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -285,7 +286,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -298,7 +299,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent(JVM_ERROR, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 
@@ -331,7 +332,7 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable e) {
             database.logger.logWarningEvent("length: " + bufferLength, e);
 
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 

@@ -131,16 +131,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             try {
                 Class.forName("java.nio.MappedByteBuffer");
 
-                Class c =
-                    Class.forName("org.hsqldb.persist.ScaledRAFileHybrid");
-                Constructor constructor = c.getConstructor(new Class[] {
-                    Database.class, String.class, boolean.class
-                });
-
-                return (ScaledRAInterface) constructor.newInstance(
-                    new Object[] {
-                    database, name, new Boolean(readonly)
-                });
+                return new ScaledRAFileHybrid(database, name, readonly);
             } catch (Exception e) {
                 return new ScaledRAFile(database, name, readonly);
             }

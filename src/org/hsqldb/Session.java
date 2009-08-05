@@ -37,7 +37,6 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.Random;
-import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
@@ -468,7 +467,7 @@ public class Session implements SessionInterface {
     }
 
     public boolean hasLocks() {
-        return currentStatement == lockStatement;
+        return false;
     }
 
     public void startTransaction() {
@@ -832,7 +831,6 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(Error.error(ErrorCode.X_08503));
         }
 
-//        synchronized (database) {
         int type    = cmd.getType();
         int maxRows = cmd.getUpdateCount();
 
@@ -1016,8 +1014,6 @@ public class Session implements SessionInterface {
                     Error.runtimeError(ErrorCode.U_S0500, "Session"));
             }
         }
-
-//      }
     }
 
     private Result performPostExecute(Result command, Result result) {
@@ -1103,7 +1099,7 @@ public class Session implements SessionInterface {
                     throw Error.error(ErrorCode.X_25006);
                 }
 
-                /** @todo - special autocommit for backward compatibility */
+                /** special autocommit for backward compatibility */
                 commit(false);
             } catch (HsqlException e) {}
         }

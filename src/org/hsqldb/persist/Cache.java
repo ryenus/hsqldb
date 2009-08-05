@@ -189,20 +189,20 @@ public class Cache extends BaseHashMap {
         int                          savecount   = 0;
 
         for (; it.hasNext(); ) {
-            CachedObject r = (CachedObject) it.next();
+            CachedObject row = (CachedObject) it.next();
 
             if (it.getAccessCount() <= accessTarget) {
-                synchronized (r) {
-                    if (!r.isKeepInMemory()) {
-                        r.setInMemory(false);
+                synchronized (row) {
+                    if (!row.isKeepInMemory()) {
+                        row.setInMemory(false);
 
-                        if (r.hasChanged()) {
-                            rowTable[savecount++] = r;
+                        if (row.hasChanged()) {
+                            rowTable[savecount++] = row;
                         }
 
                         it.remove();
 
-                        cacheBytesLength -= r.getStorageSize();
+                        cacheBytesLength -= row.getStorageSize();
 
                         removeCount--;
                     }

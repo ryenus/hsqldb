@@ -48,8 +48,36 @@ import org.hsqldb.SqlInvariants;
  */
 public class Charset implements SchemaObject {
 
-    HsqlName        name;
-    public HsqlName base;
+    public static final int[][] uppercaseLetters   = new int[][] {
+        {
+            'A', 'Z'
+        }
+    };
+    public static final int[][] unquotedIdentifier = new int[][] {
+        {
+            '0', '9'
+        }, {
+            'A', 'Z'
+        }, {
+            '_', '_'
+        }
+    };
+    public static final int[][] basicIdentifier    = new int[][] {
+        {
+            '0', '9'
+        }, {
+            'A', 'Z'
+        }, {
+            '_', '_'
+        }, {
+            'a', 'z'
+        }
+    };
+    HsqlName                    name;
+    public HsqlName             base;
+
+    //
+    int[][] ranges;
 
     public Charset(HsqlName name) {
         this.name = name;
@@ -101,6 +129,51 @@ public class Charset implements SchemaObject {
         sb.append(' ').append(base.getSchemaQualifiedStatementName());
 
         return sb.toString();
+    }
+
+    public static boolean isInSet(String value, int[][] ranges) {
+
+        int length = value.length();
+
+        mainLoop:
+        for (int index = 0; index < length; index++) {
+            int ch = value.charAt(index);
+
+            for (int i = 0; i < ranges.length; i++) {
+                if (ch > ranges[i][1]) {
+                    continue;
+                }
+
+                if (ch < ranges[i][0]) {
+                    return false;
+                }
+
+                continue mainLoop;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean startsWith(String value, int[][] ranges) {
+
+        int ch = value.charAt(0);
+
+        for (int i = 0; i < ranges.length; i++) {
+            if (ch > ranges[i][1]) {
+                continue;
+            }
+
+            if (ch < ranges[i][0]) {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     public static Charset getDefaultInstance() {

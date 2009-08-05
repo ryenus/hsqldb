@@ -36,10 +36,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
+
+import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * Creates a direct, compressed or decompressed copy of a file.
@@ -130,7 +132,7 @@ public class FileArchiver {
 
             completed = true;
         } catch (Throwable e) {
-            throw FileUtil.toIOException(e);
+            throw JavaSystem.toIOException(e);
         } finally {
             try {
                 if (in != null) {
@@ -149,7 +151,7 @@ public class FileArchiver {
                     storage.removeElement(outfilename);
                 }
             } catch (Throwable e) {
-                throw FileUtil.toIOException(e);
+                throw JavaSystem.toIOException(e);
             }
         }
     }
@@ -205,7 +207,7 @@ public class FileArchiver {
 
             completed = true;
         } catch (Throwable e) {
-            throw FileUtil.toIOException(e);
+            throw JavaSystem.toIOException(e);
         } finally {
             try {
                 if (f != null) {
@@ -221,7 +223,7 @@ public class FileArchiver {
                     storage.removeElement(outfilename);
                 }
             } catch (Throwable e) {
-                throw FileUtil.toIOException(e);
+                throw JavaSystem.toIOException(e);
             }
         }
     }

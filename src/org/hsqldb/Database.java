@@ -258,7 +258,6 @@ public class Database {
                 new PersistentStoreCollectionDatabase();
             isReferentialIntegrity = true;
             sessionManager         = new SessionManager(this);
-            txManager              = new TransactionManager2PL(this);
             collation              = collation.getDefaultInstance();
             dbInfo = DatabaseInformation.newDatabaseInformation(this);
 
