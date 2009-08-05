@@ -92,7 +92,7 @@ public class DataFileCache {
     private static final int initIOBufferSize = 256;
 
     //
-    protected String   fileName;
+    protected String   dataFileName;
     protected String   backupFileName;
     protected Database database;
 
@@ -148,12 +148,12 @@ public class DataFileCache {
      */
     protected void initParams(Database database, String baseFileName) {
 
-        fileName         = baseFileName + ".data";
-        backupFileName   = baseFileName + ".backup";
-        this.database    = database;
-        fa               = database.logger.getFileAccess();
-        cacheFileScale   = database.logger.getCacheFileScale();
-        cachedRowPadding = 8;
+        this.dataFileName   = baseFileName + ".data";
+        this.backupFileName = baseFileName + ".backup";
+        this.database       = database;
+        fa                  = database.logger.getFileAccess();
+        cacheFileScale      = database.logger.getCacheFileScale();
+        cachedRowPadding    = 8;
 
         if (cacheFileScale > 8) {
             cachedRowPadding = cacheFileScale;
@@ -193,8 +193,8 @@ public class DataFileCache {
                 HsqlDatabaseProperties.url_storage_key);
 
             if (readonly || database.isFilesInJar()) {
-                dataFile = ScaledRAFile.newScaledRAFile(database, fileName,
-                        readonly, fileType, cname, skey);
+                dataFile = ScaledRAFile.newScaledRAFile(database,
+                        dataFileName, readonly, fileType, cname, skey);
 
                 initBuffers();
 
@@ -204,11 +204,11 @@ public class DataFileCache {
             boolean preexists = false;
             long    freesize  = 0;
 
-            if (fa.isStreamElement(fileName)) {
+            if (fa.isStreamElement(dataFileName)) {
                 preexists = true;
             }
 
-            dataFile = ScaledRAFile.newScaledRAFile(database, fileName,
+            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
                     readonly, fileType, cname, skey);
 
             if (preexists) {
@@ -239,7 +239,7 @@ public class DataFileCache {
                     }
 
                     dataFile = ScaledRAFile.newScaledRAFile(database,
-                            fileName, readonly, fileType, cname, skey);
+                            dataFileName, readonly, fileType, cname, skey);
 
                     if (!restored) {
                         initNewFile();
@@ -281,7 +281,7 @@ public class DataFileCache {
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_open, new Object[] {
-                e, fileName
+                e, dataFileName
             });
         }
     }
@@ -336,14 +336,13 @@ public class DataFileCache {
     private boolean restoreBackup() {
 
         // in case data file cannot be deleted, reset it
-        DataFileCache.deleteOrResetFreePos(database, fileName + ".data");
+        DataFileCache.deleteOrResetFreePos(database, dataFileName);
 
         try {
             FileAccess fa = database.logger.getFileAccess();
 
-            if (fa.isStreamElement(fileName + ".backup")) {
-                FileArchiver.unarchive(fileName + ".backup",
-                                       fileName + ".data", fa,
+            if (fa.isStreamElement(backupFileName)) {
+                FileArchiver.unarchive(backupFileName, dataFileName, fa,
                                        FileArchiver.COMPRESSION_ZIP);
 
                 return true;
@@ -353,7 +352,7 @@ public class DataFileCache {
         } catch (Exception e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_Message_Pair, new Object[] {
-                fileName + ".backup", e.toString()
+                backupFileName, e.toString()
             });
         }
     }
@@ -364,9 +363,8 @@ public class DataFileCache {
     private boolean restoreBackupIncremental() {
 
         try {
-            if (fa.isStreamElement(fileName + ".backup")) {
-                RAShadowFile.restoreFile(fileName + ".backup",
-                                         fileName + ".data");
+            if (fa.isStreamElement(backupFileName)) {
+                RAShadowFile.restoreFile(backupFileName, dataFileName);
                 deleteBackup();
 
                 return true;
@@ -374,7 +372,7 @@ public class DataFileCache {
 
             return false;
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, fileName + ".backup");
+            throw Error.error(ErrorCode.FILE_IO_ERROR, backupFileName);
         }
     }
 
@@ -453,7 +451,7 @@ public class DataFileCache {
             boolean empty = fileFreePosition == INITIAL_FREE_POS;
 
             if (empty) {
-                fa.removeElement(fileName);
+                fa.removeElement(dataFileName);
                 fa.removeElement(backupFileName);
             }
         } catch (Throwable e) {
@@ -461,7 +459,7 @@ public class DataFileCache {
 
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
-                e, fileName
+                e, dataFileName
             });
         }
     }
@@ -507,7 +505,32 @@ public class DataFileCache {
 
             cache.saveAll();
 
-            DataFileDefrag dfd = new DataFileDefrag(database, this, fileName);
+/*
+// test
+            {
+                Session session = database.getSessionManager().getSysSession();
+                HsqlArrayList allTables =
+                    database.schemaManager.getAllTables();
+
+                for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
+                    Table t     = (Table) allTables.get(i);
+                    int   count = 0;
+
+                    if (t.getTableType() == TableBase.CACHED_TABLE) {
+                        RowIterator it = t.rowIterator(session);
+
+                        for (; it.hasNext(); count++) {
+                            CachedObject row = it.getNextRow();
+                        }
+
+                        System.out.println("table " + t.getName().name + " "
+                                           + count);
+                    }
+                }
+            }
+*/
+            DataFileDefrag dfd = new DataFileDefrag(database, this,
+                dataFileName);
 
             dfd.process();
             close(false);
@@ -516,6 +539,7 @@ public class DataFileCache {
             backupFile();
             cache.clear();
 
+            is180 = false;
             cache = new Cache(this);
 
             open(cacheReadonly);
@@ -531,6 +555,31 @@ public class DataFileCache {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         }
 
+/*
+// test
+        {
+            Session session = database.getSessionManager().getSysSession();
+            HsqlArrayList allTables = database.schemaManager.getAllTables();
+
+            for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
+                Table t     = (Table) allTables.get(i);
+                int   count = 0;
+
+                if (t.getTableType() == TableBase.CACHED_TABLE) {
+                    RowIterator it = t.rowIterator(session);
+
+                    for (; it.hasNext(); count++) {
+                        CachedObject row = it.getNextRow();
+                    }
+
+                    System.out.println("table " + t.getName().name + " "
+                                       + count);
+                }
+            }
+        }
+
+//
+*/
         database.logger.logInfoEvent("defrag end");
     }
 
@@ -759,7 +808,8 @@ public class DataFileCache {
 
             return object;
         } catch (HsqlException e) {
-            database.logger.logSevereEvent(fileName + " get pos: " + pos, e);
+            database.logger.logSevereEvent(dataFileName + " get pos: " + pos,
+                                           e);
 
             throw e;
         } finally {
@@ -908,8 +958,8 @@ public class DataFileCache {
                 return;
             }
 
-            if (fa.isStreamElement(fileName)) {
-                FileArchiver.archive(fileName, backupFileName + ".new",
+            if (fa.isStreamElement(dataFileName)) {
+                FileArchiver.archive(dataFileName, backupFileName + ".new",
                                      database.logger.getFileAccess(),
                                      FileArchiver.COMPRESSION_ZIP);
             }
@@ -954,9 +1004,9 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            if (fa.isStreamElement(fileName + ".new")) {
+            if (fa.isStreamElement(dataFileName + ".new")) {
                 deleteFile(wasNio);
-                fa.renameElement(fileName + ".new", fileName);
+                fa.renameElement(dataFileName + ".new", dataFileName);
             }
         } finally {
             writeLock.unlock();
@@ -970,7 +1020,7 @@ public class DataFileCache {
         try {
 
             // first attemp to delete
-            fa.removeElement(fileName);
+            fa.removeElement(dataFileName);
 
             // OOo related code
             if (database.logger.isStoredFileAccess()) {
@@ -978,17 +1028,29 @@ public class DataFileCache {
             }
 
             // OOo end
-            if (fa.isStreamElement(fileName)) {
+            if (fa.isStreamElement(dataFileName)) {
                 if (wasNio) {
 
                     // System.gc();
-                    fa.removeElement(fileName);
+                    fa.removeElement(dataFileName);
                 }
 
-                if (fa.isStreamElement(fileName)) {
-                    fa.renameElement(fileName, fileName + ".old");
+                if (fa.isStreamElement(dataFileName)) {
+                    if (fa.isStreamElement(dataFileName + ".old")) {
+                        String oldName = dataFileName + "."
+                                         + database.logger.newUniqueName()
+                                         + ".old";
 
-                    File oldfile = new File(fileName + ".old");
+                        fa.renameElement(dataFileName + ".old", oldName);
+
+                        File oldFile = new File(oldName);
+
+                        FileUtil.getDefaultInstance().deleteOnExit(oldFile);
+                    }
+
+                    fa.renameElement(dataFileName, dataFileName + ".old");
+
+                    File oldfile = new File(dataFileName + ".old");
 
                     FileUtil.getDefaultInstance().deleteOnExit(oldfile);
                 }
@@ -1081,7 +1143,7 @@ public class DataFileCache {
     }
 
     public String getFileName() {
-        return fileName;
+        return dataFileName;
     }
 
     public boolean hasRowInfo() {

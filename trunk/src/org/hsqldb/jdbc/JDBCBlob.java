@@ -37,6 +37,8 @@ import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
+import org.hsqldb.lib.java.JavaSystem;
+
 // boucherb@users 2004-04-xx - patch 1.7.2 - position and truncate methods
 //                             implemented; minor changes for moderate thread
 //                             safety and optimal performance
@@ -646,7 +648,7 @@ public class JDBCBlob implements Blob {
                 try {
                     JDBCBlob.this.setBytes(pos, toByteArray());
                 } catch (SQLException se) {
-                    throw new java.io.IOException(se.toString());
+                    throw JavaSystem.toIOException(se);
                 } finally {
                     super.close();
                 }

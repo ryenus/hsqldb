@@ -140,11 +140,11 @@ public abstract class NodeAVL implements CachedObject {
 
     abstract NodeAVL setParent(PersistentStore store, NodeAVL n);
 
-    abstract int getBalance();
+    abstract int getBalance(PersistentStore store);
 
     abstract public NodeAVL setBalance(PersistentStore store, int b);
 
-    abstract boolean isRoot();
+    abstract boolean isRoot(PersistentStore store);
 
     abstract boolean isFromLeft(PersistentStore store);
 

@@ -276,23 +276,49 @@ public class NodeAVLDisk extends NodeAVL {
         return node.nParent;
     }
 
-    int getBalance() {
-        return iBalance;
+    int getBalance(PersistentStore store) {
+        NodeAVLDisk node = this;
+        RowAVLDisk  row  = this.row;
+
+        if (!row.isInMemory()) {
+            row  = (RowAVLDisk) store.get(this.row, false);
+            node = (NodeAVLDisk) row.getNode(iId);
+        }
+
+        return node.iBalance;
     }
 
-    boolean isRoot() {
-        return iParent == NodeAVL.NO_POS;
+    boolean isRoot(PersistentStore store) {
+        NodeAVLDisk node = this;
+        RowAVLDisk  row  = this.row;
+
+        if (!row.isInMemory()) {
+            row  = (RowAVLDisk) store.get(this.row, false);
+            node = (NodeAVLDisk) row.getNode(iId);
+        }
+
+        return node.iParent == NO_POS;
     }
 
     boolean isFromLeft(PersistentStore store) {
 
-        if (this.isRoot()) {
+        NodeAVLDisk node = this;
+        RowAVLDisk  row  = this.row;
+
+        if (!row.isInMemory()) {
+            row  = (RowAVLDisk) store.get(this.row, false);
+            node = (NodeAVLDisk) row.getNode(iId);
+        }
+
+        if ( node.iParent == NO_POS) {
             return true;
         }
 
-        NodeAVLDisk parent = (NodeAVLDisk) getParent(store);
+        if (node.nParent == null || !node.nParent.isInMemory()) {
+            node.nParent = findNode(store, iParent);
+        }
 
-        return getPos() == parent.iLeft;
+        return getPos() == node.nParent.iLeft;
     }
 
     NodeAVL setParent(PersistentStore store, NodeAVL n) {

@@ -67,6 +67,24 @@ public class JavaSystem {
         }
     }
 
+    public static IOException toIOException(Throwable t) {
+
+        if (t instanceof IOException) {
+            return (IOException) t;
+        }
+
+//#ifdef JAVA6
+        return new IOException(t);
+
+//#else
+/*
+        return new IOException(t.getMessage());
+*/
+
+//#endif JAVA6
+    }
+
+
     public static int precision(BigDecimal o) {
 
         if (o == null) {

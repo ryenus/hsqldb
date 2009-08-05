@@ -108,12 +108,12 @@ public class TextCache extends DataFileCache {
 
     protected void initParams(Database database, String baseFileName) {
 
-        fileName      = baseFileName;
+        this.dataFileName      = dataFileName;
         this.database = database;
         fa            = FileUtil.getDefaultInstance();
 
         HsqlProperties tableprops =
-            HsqlProperties.delimitedArgPairsToProps(fileName, "=", ";",
+            HsqlProperties.delimitedArgPairsToProps(this.dataFileName, "=", ";",
                 "textdb");
         HsqlDatabaseProperties dbProps = database.getProperties();
 
@@ -125,7 +125,7 @@ public class TextCache extends DataFileCache {
             case 1 :
 
                 // source file name is the only key without a value
-                fileName = tableprops.errorKeys[0].trim();
+                this.dataFileName = tableprops.errorKeys[0].trim();
                 break;
 
             default :
@@ -310,7 +310,7 @@ public class TextCache extends DataFileCache {
         fileFreePosition = 0;
 
         try {
-            dataFile = ScaledRAFile.newScaledRAFile(database, fileName,
+            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
                     readonly, ScaledRAFile.DATA_FILE_RAF, null, null);
             fileFreePosition = dataFile.length();
 
@@ -323,7 +323,7 @@ public class TextCache extends DataFileCache {
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_openning_file_error,
                               new Object[] {
-                fileName, e
+                dataFileName, e
             });
         }
 
@@ -355,13 +355,13 @@ public class TextCache extends DataFileCache {
             dataFile = null;
 
             if (empty && !cacheReadonly) {
-                FileUtil.getDefaultInstance().delete(fileName);
+                FileUtil.getDefaultInstance().delete(dataFileName);
             }
         } catch (Exception e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_closing_file_error,
                               new Object[] {
-                fileName, e
+                dataFileName, e
             });
         }
     }
@@ -383,13 +383,13 @@ public class TextCache extends DataFileCache {
                     dataFile = null;
                 }
 
-                FileUtil.getDefaultInstance().delete(fileName);
+                FileUtil.getDefaultInstance().delete(dataFileName);
             }
         } catch (Exception e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_purging_file_error,
                               new Object[] {
-                fileName, e
+                dataFileName, e
             });
         }
     }

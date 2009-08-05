@@ -180,6 +180,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_default_schema = "default_schema";
 
     //
+    public static final String hsqldb_tx = "hsqldb.tx";
     public static final String hsqldb_applog = "hsqldb.applog";
     public static final String hsqldb_cache_file_scale =
         "hsqldb.cache_file_scale";
@@ -286,6 +287,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         }));
 
         // string defaults for user defined props
+        dbMeta.put(hsqldb_tx,
+                   HsqlProperties.getMeta(hsqldb_tx, SQL_PROPERTY,
+                                          null));
         dbMeta.put(hsqldb_temp_directory,
                    HsqlProperties.getMeta(hsqldb_temp_directory, SQL_PROPERTY,
                                           null));
@@ -435,7 +439,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // do not open modified databases of compatible earlier versions
         if (check < 0) {
             if (!MODIFIED_NO.equals(getStringProperty(hsqldb_modified))) {
-                throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
+                throw Error.error(ErrorCode.SHUTDOWN_REQUIRED);
             }
         }
 

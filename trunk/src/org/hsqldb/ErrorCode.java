@@ -59,7 +59,8 @@ public interface ErrorCode {
 
     //
     int FILE_IO_ERROR               = 29;                 // S1000 File input/output error
-    int WRONG_DATABASE_FILE_VERSION = 30;                 // S1000 Wrong database file version
+    int WRONG_DATABASE_FILE_VERSION = 30;                 // S1000 unsupported database file version
+    int SHUTDOWN_REQUIRED           = 27;                 // S1000 old version database must be shutdown
     int DATABASE_IS_READONLY        = 31;                 // S1000 The database is in read only mode
     int DATA_IS_READONLY            = 32;                 // S1000 The table data is read only
     int ACCESS_IS_DENIED            = 33;                 // S1000 Access is denied

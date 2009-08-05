@@ -91,10 +91,10 @@ public class HsqldbTestCase {
 
         String url = "jdbc:hsqldb:";
 
-        url += "./hsqldb/statBase.hsqldb";
+        url += "/hsql/statBase/test";
 
         //delete earlier files
-        HsqldbTestCase.deleteDir(new File("hsqldb"));
+        HsqldbTestCase.deleteDir(new File("/hsql/statBase/"));
 
         try {
             Class  clsDriver = Class.forName("org.hsqldb.jdbc.JDBCDriver");
@@ -115,7 +115,7 @@ public class HsqldbTestCase {
                 "insert into test1 (col1,col2,col3) values (?,?,?)";
             PreparedStatement pst = con.prepareStatement(insertQuery);
 
-            //we insert 1000
+            //we insert 1001
             for (int i = 0; i < 1001; i++) {
                 pst.setString(1, "string_" + i);
                 pst.setInt(2, i);
@@ -127,7 +127,6 @@ public class HsqldbTestCase {
                 }
             }
 
-            pst.executeBatch();
             pst.close();
 
             //we try to do a select on this statement and to scroll it with the absolute method
@@ -148,8 +147,8 @@ public class HsqldbTestCase {
             }
 
             //we go from 0 to 1000 with absolute and a gap of 100
-            for (int i = 0; i < 1000; i += 100) {
-                scrollableSet.absolute(i);
+            for (int i = 0; i <= 1000; i += 100) {
+                scrollableSet.absolute(i + 1);
 
                 tmpIndex = scrollableSet.getInt(3);
 
@@ -157,7 +156,7 @@ public class HsqldbTestCase {
             }
 
             //we go from 1000 to 0 with absolute and a gap of 100
-            for (int i = 900; i >= 0; i -= 100) {
+            for (int i = 1000; i > 0; i -= 100) {
                 scrollableSet.relative(-100);
 
                 tmpIndex = scrollableSet.getInt(3);

@@ -493,11 +493,11 @@ public class IndexAVL implements Index {
         NodeAVL l = p.getLeft(store);
         NodeAVL r = p.getRight(store);
 
-        if (l != null && l.getBalance() == -2) {
+        if (l != null && l.getBalance(store) == -2) {
             System.out.print("broken index - deleted");
         }
 
-        if (r != null && r.getBalance() == -2) {
+        if (r != null && r.getBalance(store) == -2) {
             System.out.print("broken index -deleted");
         }
 
@@ -520,7 +520,7 @@ public class IndexAVL implements Index {
         boolean isleft  = true;
         int     compare = -1;
 
-        readLock.lock();
+        writeLock.lock();
 
         try {
             n = getAccessor(store);
@@ -550,13 +550,7 @@ public class IndexAVL implements Index {
                     break;
                 }
             }
-        } finally {
-            readLock.unlock();
-        }
 
-        writeLock.lock();
-
-        try {
             x = set(store, x, isleft, ((RowAVL) row).getNode(position));
 
             balance(store, x, isleft);
@@ -610,16 +604,16 @@ public class IndexAVL implements Index {
                 n = x.getLeft(store);
 
                 // swap d and x
-                int b = x.getBalance();
+                int b = x.getBalance(store);
 
-                x = x.setBalance(store, d.getBalance());
+                x = x.setBalance(store, d.getBalance(store));
                 d = d.setBalance(store, b);
 
                 // set x.parent
                 NodeAVL xp = x.getParent(store);
                 NodeAVL dp = d.getParent(store);
 
-                if (d.isRoot()) {
+                if (d.isRoot(store)) {
                     store.setAccessor(this, x);
                 }
 
@@ -661,7 +655,6 @@ public class IndexAVL implements Index {
                     x = x.setRight(store, dr);
                 }
 
-                // apprently no-ops
                 x.getRight(store).setParent(store, x);
                 x.getLeft(store).setParent(store, x);
 
@@ -690,7 +683,7 @@ public class IndexAVL implements Index {
                 int sign = isleft ? 1
                                   : -1;
 
-                switch (x.getBalance() * sign) {
+                switch (x.getBalance(store) * sign) {
 
                     case -1 :
                         x = x.setBalance(store, 0);
@@ -703,7 +696,7 @@ public class IndexAVL implements Index {
 
                     case 1 :
                         NodeAVL r = child(store, x, !isleft);
-                        int     b = r.getBalance();
+                        int     b = r.getBalance(store);
 
                         if (b * sign >= 0) {
                             replace(store, x, r);
@@ -727,7 +720,7 @@ public class IndexAVL implements Index {
 
                             replace(store, x, l);
 
-                            b = l.getBalance();
+                            b = l.getBalance(store);
                             r = set(store, r, isleft,
                                     child(store, l, !isleft));
                             l = set(store, l, !isleft, r);
@@ -1214,7 +1207,7 @@ public class IndexAVL implements Index {
      */
     private void replace(PersistentStore store, NodeAVL x, NodeAVL n) {
 
-        if (x.isRoot()) {
+        if (x.isRoot(store)) {
             if (n != null) {
                 n = n.setParent(store, null);
             }
@@ -1450,7 +1443,7 @@ public class IndexAVL implements Index {
             int sign = isleft ? 1
                               : -1;
 
-            switch (x.getBalance() * sign) {
+            switch (x.getBalance(store) * sign) {
 
                 case 1 :
                     x = x.setBalance(store, 0);
@@ -1464,7 +1457,7 @@ public class IndexAVL implements Index {
                 case -1 :
                     NodeAVL l = child(store, x, isleft);
 
-                    if (l.getBalance() == -sign) {
+                    if (l.getBalance(store) == -sign) {
                         replace(store, x, l);
 
                         x = set(store, x, isleft, child(store, l, !isleft));
@@ -1481,7 +1474,7 @@ public class IndexAVL implements Index {
                         x = set(store, x, isleft, child(store, r, !isleft));
                         r = set(store, r, !isleft, x);
 
-                        int rb = r.getBalance();
+                        int rb = r.getBalance(store);
 
                         x = x.setBalance(store, (rb == -sign) ? sign
                                                               : 0);
@@ -1493,7 +1486,7 @@ public class IndexAVL implements Index {
                     return;
             }
 
-            if (x.isRoot()) {
+            if (x.isRoot(store)) {
                 return;
             }
 

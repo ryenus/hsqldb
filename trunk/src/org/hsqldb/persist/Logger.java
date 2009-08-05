@@ -48,6 +48,8 @@ import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.Tokens;
+import org.hsqldb.TransactionManager;
+import org.hsqldb.TransactionManager2PL;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
@@ -104,6 +106,7 @@ public class Logger {
     int            propLogSize;
     int            propEventLogLevel;
     int            propGC;
+    int            propTxMode = Database.LOCKS;
 
     //
     public FileAccess fileaccess;
@@ -186,6 +189,19 @@ public class Logger {
 
         setVariables();
 
+        switch (propTxMode) {
+
+            case Database.LOCKS :
+                database.txManager = new TransactionManager2PL(database);
+                break;
+
+            case Database.MVLOCKS :
+            case Database.MVCC :
+                database.txManager = new TransactionManager(database,
+                        propTxMode);
+                break;
+        }
+
         if (!DatabaseURL.isFileBasedDatabaseType(database.getType())) {
             return;
         }
@@ -222,7 +238,6 @@ public class Logger {
             }
 
             database.setUniqueName(newUniqueName());
-
             checkpoint(false);
         }
 
@@ -270,6 +285,17 @@ public class Logger {
 
         if ("CACHED".equalsIgnoreCase(tableType)) {
             database.schemaManager.setDefaultTableType(TableBase.CACHED_TABLE);
+        }
+
+        String txMode = database.databaseProperties.getStringProperty(
+            HsqlDatabaseProperties.hsqldb_tx);
+
+        if (Tokens.T_MVCC.equalsIgnoreCase(txMode)) {
+            propTxMode = Database.MVCC;
+        } else if (Tokens.T_MVLOCKS.equalsIgnoreCase(txMode)) {
+            propTxMode = Database.MVLOCKS;
+        } else if (Tokens.T_LOCKS.equalsIgnoreCase(txMode)) {
+            propTxMode = Database.LOCKS;
         }
 
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
