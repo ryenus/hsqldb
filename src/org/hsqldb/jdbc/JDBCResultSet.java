@@ -4292,7 +4292,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public Blob getBlob(int columnIndex) throws SQLException {
 
-        Object o = getObject(columnIndex);
+        Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
+
+        Object o = getColumnInType(columnIndex, sourceType);
 
         if (o == null) {
             return null;
@@ -4341,7 +4343,9 @@ public class JDBCResultSet implements ResultSet {
      */
     public Clob getClob(int columnIndex) throws SQLException {
 
-        Object o = getObject(columnIndex);
+        Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
+
+        Object o = getColumnInType(columnIndex, sourceType);
 
         if (o == null) {
             return null;
