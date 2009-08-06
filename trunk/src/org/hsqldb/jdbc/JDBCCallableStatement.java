@@ -1127,7 +1127,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
     public synchronized Blob getBlob(int parameterIndex) throws SQLException {
 
-        Object o = getObject(parameterIndex);
+        Type sourceType = resultMetaData.columnTypes[parameterIndex - 1];
+
+        Object o = getColumnInType(parameterIndex, sourceType);
 
         if (o == null) {
             return null;
@@ -1171,7 +1173,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
     public synchronized Clob getClob(int parameterIndex) throws SQLException {
 
-        Object o = getObject(parameterIndex);
+        Type sourceType = resultMetaData.columnTypes[parameterIndex - 1];
+
+        Object o = getColumnInType(parameterIndex, sourceType);
 
         if (o == null) {
             return null;
