@@ -1001,7 +1001,6 @@ class DatabaseInformationMain extends DatabaseInformation {
                     row[icolumn_size] = ValuePool.getInt(size);
                 }
 
-                row[icolumn_size]      = row[ibuffer_length] = null;
                 row[inum_prec_radix]   = ti.getColPrecRadix(i);
                 row[inullable] = ValuePool.getInt(column.getNullability());
                 row[iremark]           = ti.getColRemarks(i);
