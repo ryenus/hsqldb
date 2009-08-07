@@ -60,7 +60,7 @@ public class BlobInputStream extends InputStream {
     public BlobInputStream(JDBCBlobClient blob, long offset, long length,
                            int blockSize) throws SQLException {
 
-        if (!JDBCBlobClient.isInLimits(blob.length(), offset - 1, length)) {
+        if (!JDBCBlobClient.isInLimits(blob.length(), offset, length)) {
             throw Util.outOfRangeArgument();
         }
 
@@ -140,7 +140,7 @@ public class BlobInputStream extends InputStream {
             readLength = streamBlockSize;
         }
 
-        buffer       = blob.getBytes(currentPosition, (int) readLength);
+        buffer       = blob.getBytes(currentPosition + 1, (int) readLength);
         bufferOffset = currentPosition;
     }
 }
