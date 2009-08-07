@@ -117,7 +117,7 @@ public class LobManager {
     private static String getLobSQL =
         "SELECT * FROM SYSTEM_LOBS.LOB_IDS WHERE LOB_ID = ?";
     private static String getLobPartSQL =
-        "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND BLOCK_OFFSET >= ? AND BLOCK_OFFSET < ? ORDER BY BLOCK_OFFSET";
+        "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND BLOCK_OFFSET + BLOCK_COUNT > ? AND BLOCK_OFFSET < ? ORDER BY BLOCK_OFFSET";
 
     // DELETE_BLOCKS(L_ID BIGINT, B_OFFSET INT, B_COUNT INT, TX_ID BIGINT)
     private static String deleteLobPartSQL =
@@ -505,8 +505,8 @@ public class LobManager {
 
         //
         int i = 0;
-        int blockCount = blockAddresses[i][1]
-                         - (blockAddresses[i][2] - blockOffset);
+        int blockCount = blockAddresses[i][1] +
+                         blockAddresses[i][2] - blockOffset;
 
         if (blockAddresses[i][1] + blockAddresses[i][2] > blockLimit) {
             blockCount -= (blockAddresses[i][1] + blockAddresses[i][2]
