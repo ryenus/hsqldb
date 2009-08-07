@@ -71,7 +71,7 @@ public class TransactionManager2PL implements TransactionManagerInterface {
     HashMap           tableWriteLocks = new HashMap();
     MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
 
-    TransactionManager2PL(Database db) {
+    public TransactionManager2PL(Database db) {
         database = db;
     }
 
@@ -93,9 +93,7 @@ public class TransactionManager2PL implements TransactionManagerInterface {
                 case Database.MVCC :
                 case Database.MVLOCKS :
                     TransactionManager manager =
-                        new TransactionManager(database);
-
-                    manager.mvcc = mode == Database.MVCC;
+                        new TransactionManager(database, mode);
 
                     manager.globalChangeTimestamp.set(
                         globalChangeTimestamp.get());
@@ -382,28 +380,24 @@ public class TransactionManager2PL implements TransactionManagerInterface {
 // functional unit - accessibility of rows
     public boolean canRead(Session session, Row row) {
 
-        synchronized (row) {
-            RowAction action = row.rowAction;
+        RowAction action = row.rowAction;
 
-            if (action == null) {
-                return true;
-            }
-
-            return action.canRead(session);
+        if (action == null) {
+            return true;
         }
+
+        return action.canRead(session);
     }
 
     public boolean isDeleted(Session session, Row row) {
 
-        synchronized (row) {
-            RowAction action = row.rowAction;
+        RowAction action = row.rowAction;
 
-            if (action == null) {
-                return false;
-            }
-
-            return !action.canRead(session);
+        if (action == null) {
+            return false;
         }
+
+        return !action.canRead(session);
     }
 
     public boolean canRead(Session session, int id) {
@@ -443,10 +437,6 @@ public class TransactionManager2PL implements TransactionManagerInterface {
             session.isTransaction        = true;
         }
 
-        if (session.isReadOnly()) {
-            return;
-        }
-
         if (session.hasLocks()) {
             return;
         }
@@ -467,10 +457,6 @@ public class TransactionManager2PL implements TransactionManagerInterface {
     void endTransactionTPL(Session session) {
 
         int unlockedCount = 0;
-
-        if (session.isReadOnly()) {
-            return;
-        }
 
         unlockTablesTPL(session);
 
@@ -530,10 +516,6 @@ public class TransactionManager2PL implements TransactionManagerInterface {
     }
 
     boolean beginActionTPL(Session session, Statement cs) {
-
-        if (session.isReadOnly()) {
-            return true;
-        }
 
         boolean canProceed = setWaitedSessionsTPL(session, cs);
 
