@@ -80,8 +80,9 @@
 
     <para>This documentation covers HyperSQL versions 1.9 and 2.0. Any
     reference to version 2.0 in this documentation also applies to version 1.9
-    unless it is stated otherwise. The latest, updated version of this
-    documentation can be found at http://hsqldb.org/doc/2.0/</para>
+    unless it is stated otherwise. This documentation is regularly imroved and
+    undated. The latest, updated version can be found at
+    http://hsqldb.org/doc/2.0/</para>
 
     <para>If you notice any mistakes in this document, please email the author
     listed at the beginning of the chapter. You can find the emails in the

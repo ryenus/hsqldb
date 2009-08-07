@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
-         xmlns:ns6="http://www.w3.org/1999/xlink"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
@@ -242,6 +243,35 @@ SELECT X FROM V WHERE Y = 5
       autocommit mode, all <classname>ResultSet</classname> objects are
       read-only and holdable.</para>
     </section>
+
+    <section>
+      <title>JDBC Overview</title>
+
+      <para>The JDBC settings, ResultSet.CONCUR_READONLY and
+      ResultSet.CONCUR_UPDATABLE are the alternatives for read-only or
+      updatability. The default is ResultSet.CONCUR_READONLY.</para>
+
+      <para>The JDBC settings, ResultSet.TYPE_FORWARD_ONLY,
+      ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.TYPE_SCROLL_INSENSITIVE are
+      the alternatives for both scrollability (navigation) and sensitivity.
+      HYperSQL does not support ResultSet.TYPE_SCROLL_INSENSITIVE. The two
+      other alternatives can be used for both updatable and read-only result
+      sets.</para>
+
+      <para>The JDBC settings ResultSet.CLOSE_CURSORS_AT_COMMIT and
+      ResultSet.HOLD_CURSORS_OVER_COMMIT are the alternatives for the lifetime
+      of the result set. The default is ResultSet.CLOSE_CURSORS_AT_COMMIT. The
+      other setting can only be used for read-only result sets.</para>
+
+      <para>Examples of creating statements for updatabase result sets are
+      given below:</para>
+
+      <programlisting>Connection c = newConnection();
+Statement st;
+c.setAutoCommit(false);
+st = c.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
+st = c.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);</programlisting>
+    </section>
   </section>
 
   <section>
@@ -287,8 +317,10 @@ SELECT X FROM V WHERE Y = 5
       <simpara><literal>&lt;Unicode character escape value&gt; ::= &lt;Unicode
       escape character&gt;&lt;Unicode escape character&gt;</literal></simpara>
 
-      <simpara><literal>&lt;Unicode escape character&gt; ::= !! See the Syntax
-      Rules.</literal></simpara>
+      <simpara><literal>&lt;Unicode escape character&gt; ::= a single
+      character than a &lt;hexit&gt; (a-f, A-F, 0-9), &lt;plus sign&gt;,
+      &lt;quote&gt;, &lt;double quote&gt;, or &lt;white
+      space&gt;</literal></simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>character literal</primary>
@@ -310,8 +342,8 @@ SELECT X FROM V WHERE Y = 5
       <simpara><literal>&lt;character representation&gt; ::= &lt;nonquote
       character&gt; | &lt;quote symbol&gt;</literal></simpara>
 
-      <simpara><literal>&lt;nonquote character&gt; ::= !! See the Syntax
-      Rules.</literal></simpara>
+      <simpara><literal>&lt;nonquote character&gt; ::= any character apart
+      from the quote symbol.</literal></simpara>
 
       <simpara><literal>&lt;quote symbol&gt; ::=
       &lt;quote&gt;&lt;quote&gt;</literal></simpara>
@@ -335,12 +367,18 @@ SELECT X FROM V WHERE Y = 5
       string literal is the character length of the type. If the quote
       character is used in a string, it is represented with two quote
       characters. Long literals can be divided into multiple quoted strings,
-      separated with a space or end-of-line character. Example of character
-      literals are given below:</simpara>
+      separated with a space or end-of-line character.</simpara>
 
-      <programlisting>'a literal'  ' string seperated' ' into parts'
-'a string''s literal form with double quote character'
-U&amp;'Unicode string'
+      <simpara>Unicode literals start with U&amp; and can contain ordinary
+      characters and unicode escapes. A unicode escape begins with the
+      backslash ( \ ) character and is followed by four hexadecimal characters
+      which specify the character code.</simpara>
+
+      <simpara>Example of character literals are given below:</simpara>
+
+      <programlisting>'a literal'  ' string seperated'  ' into parts'
+'a string''s literal form with quote character'
+U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -429,11 +467,16 @@ U&amp;'Unicode string'
 
       <simpara>The type of an exact numeric literal without a decimal point is
       INTEGER, BIGINT, or DECIMAL, depending on the value of the literal (the
-      smallest type that can represent the value is the type). The precision
-      of a decimal literal is the number of digits of the literal. The type of
-      an exact numeric literal with a decimal piont is DECIMAL. The precision
-      and scale of the literal is used for the type. The type of an
-      approximate numeric literal is DOUBLE.</simpara>
+      smallest type that can represent the value is the type).</simpara>
+
+      <simpara>The type of an exact numeric literal with a decimal piont is
+      DECIMAL. The precision of a decimal literal is the total number of
+      digits of the literal. The scale of the literal is the total number of
+      digits to the right of the decimal point.</simpara>
+
+      <simpara>The type of an approximate numeric literal is DOUBLE. An
+      approximate numeric literal always includes the mantissa and exponent,
+      separated by E.</simpara>
 
       <programlisting>12
 34.35
@@ -572,9 +615,11 @@ INTERVAL -'08:08' MINUTE TO SECOND
     </section>
 
     <section>
-      <title>Basic Elements</title>
+      <title>References, etc.</title>
 
-      <para>The basic elements are</para>
+      <para>References are identifier chains, which can be a single
+      identifiers or identifiers chains composed of sinle identifiers chained
+      together with the period symbol.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>identifier chain</primary>
@@ -602,8 +647,12 @@ INTERVAL -'08:08' MINUTE TO SECOND
 
       <simpara>correlation name, column</simpara>
 
-      <simpara>If the first itentifier specifies a catalog, the negenrallly
-      refer to database objects</simpara>
+      <simpara>Examples of identifier chain are given below:</simpara>
+
+      <programlisting>SELECT MYCAT.MYSCHEMA.MYTABLE.MYCOL FROM MYCAT.MYSCHEMA.MYTABLE
+DROP TABLE MYCAT.MYSCHEMA.MYTABLE CASCADE
+ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>column reference</primary>
@@ -767,7 +816,8 @@ INTERVAL -'08:08' MINUTE TO SECOND
       reference&gt; }... ] &lt;right paren&gt;</literal></simpara>
 
       <simpara>Specify a value derived by the application of a function to an
-      argument.</simpara>
+      argument. HyperSQL 1.9 does not support <literal>&lt;grouping
+      operation&gt;</literal> .</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>COALESCE expression</primary>
@@ -785,13 +835,13 @@ INTERVAL -'08:08' MINUTE TO SECOND
       has two or more instances of &lt;value expression&gt;. If the first
       &lt;value expression&gt; evaluates to a non-null value, it is returned
       as the result of the coalesce expression. If it is null, the next
-      &lt;value expression&gt; is evaluated and if it evaluates to a non-non
-      value, it is returned, and so on.</simpara>
+      <literal>&lt;value expression&gt;</literal> is evaluated and if it
+      evaluates to a non-non value, it is returned, and so on.</simpara>
 
       <simpara>The type of the return value of a COALESCE expression is the
-      aggregate type of the types of all the &lt;value expression&gt;
-      instances. Therefore, any value returned is implicitly cast to this
-      type.</simpara>
+      aggregate type of the types of all the <literal>&lt;value
+      expression&gt;</literal> instances. Therefore, any value returned is
+      implicitly cast to this type.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>NULLIF expression</primary>
@@ -919,7 +969,11 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       returned for each invocation. After evaluation of the particular row is
       complete, the sequence generator will return a different value from the
       old value. The new value is generated by the sequence generator by
-      adding the increment to the last value it generated.</simpara>
+      adding the increment to the last value it generated. In the example
+      below:</simpara>
+
+      <programlisting>INSERT INTO MYTABLE(COL1, COL2) VALUES 2, NEXT VALUE FOR MYSEQUENCE
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>value expression</primary>
@@ -1059,7 +1113,9 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <simpara><literal>&lt;time zone specifier&gt; ::= LOCAL | TIME ZONE
       &lt;interval primary&gt;</literal></simpara>
 
-      <simpara>Specify a datetime value.</simpara>
+      <simpara>Specify a datetime value. Details are described in the <link
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>datetime value function</primary>
@@ -1074,8 +1130,9 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       ...</literal></simpara>
 
       <simpara>Specify a function that returns a datetime value. The supported
-      datetime value functions are listed and described in Built-In Functions
-      chapter.</simpara>
+      datetime value functions are listed and described in the <link
+      endterm="builtinfunctions-title" xlink:arcrole=""
+      xlink:href="#builtinfunctions-chapt"></link> chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>interval term</primary>
@@ -1113,7 +1170,9 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <simpara><literal>&lt;interval term 2&gt; ::= &lt;interval
       term&gt;</literal></simpara>
 
-      <simpara>Specify an interval value.</simpara>
+      <simpara>Specify an interval value. Details are described in the <link
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>interval absolute value function</primary>
