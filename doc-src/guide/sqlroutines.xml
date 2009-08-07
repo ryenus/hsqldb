@@ -755,6 +755,20 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     mandatory or optional clauses. The complete BNF supported by HyperSQL and
     the remaining clauses are documented in this section.</para>
 
+    <indexterm significance="preferred" type="sql">
+      <primary>CREATE FUNCTION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CREATE FUNCTION</emphasis></simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CREATE PROCEDURE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CREATE PROCEDURE</emphasis></simpara>
+
+    <simpara><emphasis>routine definition</emphasis></simpara>
+
     <para>Routine definition is similar for procedures and functions. A
     function definition has the mandatory <literal>&lt;returns
     clause&gt;</literal> which is discussed later. The description given so
@@ -791,6 +805,14 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     type&gt;</literal></simpara>
 
     <para>Return Value and Table Functions</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RETURN</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RETURN</emphasis></simpara>
+
+    <simpara><emphasis>return clause</emphasis></simpara>
 
     <para>The <literal>&lt;returns clause&gt;</literal> specifies the type of
     the return value of a function. For all SQL/PSM functions and ordinary
@@ -829,7 +851,11 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     <simpara><literal>&lt;returns data type&gt; ::= &lt;data
     type&gt;</literal></simpara>
 
-    <para>ACCESS RIGHTS</para>
+    <indexterm significance="preferred" type="sql">
+      <primary>routine body</primary>
+    </indexterm>
+
+    <simpara><emphasis>routine body</emphasis></simpara>
 
     <para>Routine body is either one or more SQL statements or a Java
     reference, as described. The user that defines the routine by issuing the
@@ -855,10 +881,33 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     <simpara><literal>&lt;rights clause&gt; ::= SQL SECURITY INVOKER | SQL
     SECURITY DEFINER</literal></simpara>
 
+    <indexterm significance="preferred" type="sql">
+      <primary>SQL routine body</primary>
+    </indexterm>
+
+    <simpara><emphasis>SQL routine body</emphasis></simpara>
+
+    <para>The routine body of a an SQL routine consists of an
+    statement.</para>
+
     <simpara><literal>&lt;SQL routine body&gt; ::= &lt;SQL procedure
     statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL [ NAME
+    <indexterm significance="preferred" type="sql">
+      <primary>EXTERNAL NAME</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">EXTERNAL NAME</emphasis></simpara>
+
+    <simpara><emphasis>external body reference</emphasis></simpara>
+
+    <para>External name specifies the qualified name of the Java method
+    associated with this routine. HyperSQL 1.9 only supports Java methods
+    within the classpath. The &lt;external Java reference string&gt; is a
+    quoted string which starts with CLASSPATH: and is followed by the java
+    package, class and method names seperated with dots.</para>
+
+    <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL NAME
     &lt;external Java reference string&gt; ]</literal></simpara>
 
     <simpara><literal>&lt;external Java reference string&gt; ::= &lt;jar and
@@ -878,7 +927,13 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     characteristic&gt; | &lt;savepoint level
     indication&gt;</literal></simpara>
 
-    <para>LANGUAGE</para>
+    <indexterm significance="preferred" type="sql">
+      <primary>LANGUAGE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LANGUAGE</emphasis></simpara>
+
+    <simpara><emphasis>language clause</emphasis></simpara>
 
     <para>The <literal>&lt;language clause&gt;</literal> refers to the
     language in which the routine body is written. It is either SQL or Java.
@@ -894,7 +949,13 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
 
     <simpara><literal>&lt;parameter style&gt; ::= JAVA</literal></simpara>
 
-    <para>SPECIFIC NAME</para>
+    <indexterm significance="preferred" type="sql">
+      <primary>SPECIFIC NAME</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SPECIFIC NAME</emphasis></simpara>
+
+    <simpara><emphasis>specific name</emphasis></simpara>
 
     <para>The SPECIFIC <literal>&lt;specific name&gt;</literal> clause is
     optional and can be used for making further alterations to overloaded
@@ -934,6 +995,14 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
 
     <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL | CONTAINS
     SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>NULL INPUT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">NULL INPUT</emphasis></simpara>
+
+    <simpara><emphasis>null call clause</emphasis></simpara>
 
     <para>Null Arguments</para>
 
