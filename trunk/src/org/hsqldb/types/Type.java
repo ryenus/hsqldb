@@ -459,24 +459,27 @@ public abstract class Type implements SchemaObject, Cloneable {
     // character types
     public static final CharacterType SQL_CHAR =
         new CharacterType(Types.SQL_CHAR, 1);
-    public static final CharacterType SQL_VARCHAR =
-        new CharacterType(Types.SQL_VARCHAR, 32 * 1024);
     public static final CharacterType SQL_CHAR_DEFAULT =
-        new CharacterType(Types.SQL_CHAR, 32 * 1024);
+        new CharacterType(Types.SQL_CHAR, CharacterType.defaultCharPrecision);
+    public static final CharacterType SQL_VARCHAR =
+        new CharacterType(Types.SQL_VARCHAR, 0);
+    public static final CharacterType SQL_VARCHAR_DEFAULT =
+        new CharacterType(Types.SQL_VARCHAR,
+                          CharacterType.defaultCharPrecision);
     public static final ClobType SQL_CLOB = new ClobType();
     public static final CharacterType VARCHAR_IGNORECASE =
         new CharacterType(Types.VARCHAR_IGNORECASE, 0);
 
     // binary types
-    public static final BitType SQL_BIT = new BitType(Types.SQL_BIT, 0);
+    public static final BitType SQL_BIT = new BitType(Types.SQL_BIT, 1);
     public static final BitType SQL_BIT_VARYING =
-        new BitType(Types.SQL_BIT_VARYING, 0);
+        new BitType(Types.SQL_BIT_VARYING, 1);
     public static final BitType SQL_BIT_VARYING_MAX_LENGTH =
-        new BitType(Types.SQL_BIT_VARYING, 32 * 1024);
+        new BitType(Types.SQL_BIT_VARYING, BitType.maxBitPrecision);
 
     // binary types
     public static final BinaryType SQL_BINARY =
-        new BinaryType(Types.SQL_BINARY, 0);
+        new BinaryType(Types.SQL_BINARY, 1);
     public static final BinaryType SQL_BINARY_DEFAULT =
         new BinaryType(Types.SQL_BINARY, 32 * 1024);
     public static final BinaryType SQL_VARBINARY =
@@ -623,12 +626,11 @@ public abstract class Type implements SchemaObject, Cloneable {
             case Types.SQL_ALL_TYPES :
                 return SQL_ALL_TYPES;
 
-//                return SQL_ALL_TYPES; // needs changes to Expression type resolution
             case Types.SQL_CHAR :
                 return SQL_CHAR_DEFAULT;
 
             case Types.SQL_VARCHAR :
-                return SQL_VARCHAR;
+                return SQL_VARCHAR_DEFAULT;
 
             case Types.VARCHAR_IGNORECASE :
                 return VARCHAR_IGNORECASE;

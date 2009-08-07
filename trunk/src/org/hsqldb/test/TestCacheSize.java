@@ -182,7 +182,7 @@ public class TestCacheSize {
                 sStatement.execute("SET FILES CACHE ROWS " + cacheRows);
                 sStatement.execute("SET FILES CACHE SIZE " + cacheSize);
                 sStatement.execute("SET FILES NIO " + nioMode);
-                sStatement.execute("SET FILES BACKUP INCREMENT " + false);
+                sStatement.execute("SET FILES BACKUP INCREMENT " + true);
                 sStatement.execute("SHUTDOWN");
                 cConnection.close();
             }

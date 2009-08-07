@@ -84,8 +84,11 @@ public class TransactionManager implements TransactionManagerInterface {
     HashMap           tableWriteLocks = new HashMap();
     MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
 
-    TransactionManager(Database db) {
+    public TransactionManager(Database db, int mode) {
+
         database = db;
+
+        mvcc = mode == Database.MVCC;
     }
 
     public boolean isMVRows() {

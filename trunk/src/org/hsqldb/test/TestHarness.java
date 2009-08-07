@@ -166,7 +166,7 @@ public class TestHarness extends JFrame {
     protected void doInsert() {
 
         try {
-            Connection con = getConnection("abcd", "dcba", false);
+            Connection con = getConnection("ABCD", "dcba", false);
 
             if (con != null) {
                 Statement stmt = con.createStatement();
@@ -191,7 +191,7 @@ public class TestHarness extends JFrame {
     protected void doListing() {
 
         try {
-            Connection con = getConnection("abcd", "dcba", false);
+            Connection con = getConnection("ABCD", "dcba", false);
 
             if (con != null) {
                 Statement stmt = con.createStatement();
@@ -248,12 +248,13 @@ public class TestHarness extends JFrame {
                 stmt.execute("CREATE USER abcd PASSWORD 'dcba'");
                 stmt.execute("CREATE SEQUENCE MySeq");
                 stmt.execute(
-                    "CREATE TABLE MyTable (Id INT PRIMARY KEY, Name VARCHAR NOT NULL)");
-                stmt.execute("CREATE TABLE Dummy (Blah VARCHAR NOT NULL)");
+                    "CREATE TABLE MyTable (Id INT PRIMARY KEY, Name VARCHAR(100) NOT NULL)");
+                stmt.execute("CREATE TABLE Dummy (Blah VARCHAR(100) NOT NULL)");
                 stmt.execute(
                     "INSERT INTO Dummy (Blah) VALUES ('dummy value')");
                 stmt.execute("GRANT ALL ON MyTable TO abcd");
                 stmt.execute("GRANT ALL ON Dummy TO abcd");
+                stmt.execute("GRANT ALL ON SEQUENCE MySeq TO abcd");
                 stmt.close();
                 con.close();
                 textArea.setText("Database created.");

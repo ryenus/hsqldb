@@ -58,8 +58,8 @@ public class CharacterType extends Type {
     Collation         collation;
     Charset           charset;
     boolean           isEqualIdentical;
-    final static int  sqlDefaultCharPrecision = 1;
-    static final long maxCharacterPrecision   = Integer.MAX_VALUE;
+    final static int  defaultCharPrecision = 32 * 1024;
+    static final long maxCharPrecision     = Integer.MAX_VALUE;
 
     public CharacterType(Collation collation, int type, long precision) {
 
@@ -179,7 +179,7 @@ public class CharacterType extends Type {
     }
 
     public long getMaxPrecision() {
-        return maxCharacterPrecision;
+        return maxCharPrecision;
     }
 
     public boolean acceptsPrecision() {
@@ -333,13 +333,13 @@ public class CharacterType extends Type {
                 throw Error.error(ErrorCode.X_42562);
         }
 
-        if (newPrecision > maxCharacterPrecision) {
+        if (newPrecision > maxCharPrecision) {
             if (typeCode == Types.SQL_BINARY) {
 
                 // Standard disallows type length reduction
                 throw Error.error(ErrorCode.X_42570);
             } else if (typeCode == Types.SQL_CHAR) {
-                newPrecision = maxCharacterPrecision;
+                newPrecision = maxCharPrecision;
             }
         }
 
@@ -528,12 +528,12 @@ public class CharacterType extends Type {
                     case Types.SQL_CHAR :
                     case Types.SQL_VARCHAR :
                     case Types.VARCHAR_IGNORECASE : {
-                        if (length > maxCharacterPrecision) {
+                        if (length > maxCharPrecision) {
                             if (!cast) {
                                 throw Error.error(ErrorCode.X_22001);
                             }
 
-                            length = maxCharacterPrecision;
+                            length = maxCharPrecision;
                         }
 
                         a = ((ClobData) a).getSubString(session, 0,
@@ -556,7 +556,6 @@ public class CharacterType extends Type {
             }
             case Types.OTHER :
                 throw Error.error(ErrorCode.X_42561);
-
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
             case Types.SQL_BLOB :

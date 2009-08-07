@@ -38,6 +38,7 @@ import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.lib.java.JavaSystem;
 
 /**
  * This class is used as an InputStream to retrieve data from a Blob.
@@ -81,7 +82,7 @@ public class BlobInputStream extends InputStream {
                 checkClosed();
                 readIntoBuffer();
             } catch (HsqlException e) {
-                throw new IOException(e.getMessage());
+                throw JavaSystem.toIOException(e);
             }
         }
 
