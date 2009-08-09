@@ -85,10 +85,8 @@ public class TransactionManager implements TransactionManagerInterface {
     MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
 
     public TransactionManager(Database db, int mode) {
-
         database = db;
-
-        mvcc = mode == Database.MVCC;
+        mvcc     = mode == Database.MVCC;
     }
 
     public boolean isMVRows() {
@@ -547,28 +545,24 @@ public class TransactionManager implements TransactionManagerInterface {
     // functional unit - accessibility of rows
     public boolean canRead(Session session, Row row) {
 
-        synchronized (row) {
-            RowAction action = row.rowAction;
+        RowAction action = row.rowAction;
 
-            if (action == null) {
-                return true;
-            }
-
-            return action.canRead(session);
+        if (action == null) {
+            return true;
         }
+
+        return action.canRead(session);
     }
 
     public boolean isDeleted(Session session, Row row) {
 
-        synchronized (row) {
-            RowAction action = row.rowAction;
+        RowAction action = row.rowAction;
 
-            if (action == null) {
-                return false;
-            }
-
-            return !action.canRead(session);
+        if (action == null) {
+            return false;
         }
+
+        return !action.canRead(session);
     }
 
     public boolean canRead(Session session, int id) {
