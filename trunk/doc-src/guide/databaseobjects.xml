@@ -1489,19 +1489,32 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
     <simpara>The <literal>&lt;generation clause&gt;</literal> is used for
     special columns which represent values based on the values held in other
     columns in the same row. The <literal>&lt;value expression&gt;</literal>
-    must reference only other, non-generatate, columns of the table in the
-    same row. Therefore, any function used in the expression may not access
+    must reference only other, non-generated, columns of the table in the same
+    row. Therefore, any function used in the expression may not access
     SQL-data, and no <literal>&lt;query expression&gt;</literal> is allowed.
     When <literal>&lt;generation clause&gt;</literal> is used,
     <literal>&lt;data type&gt;</literal> or <literal>&lt;domain
-    name&gt;</literal> may be omitted. When a row is inserted into a table, no
-    value can be specified for a generated column.</simpara>
+    name&gt;</literal> may be omitted.</simpara>
+
+    <simpara>A generated column can be part of a foreign key or unique
+    constraints or a column of an index. This capability is the main reason
+    for using generated columns. A generated column may contain a formula that
+    computes a value based on the values of other columns. Fast searches of
+    the computed value can be performed when an index is declared on the
+    generated column. Or the computed values can be declared to be unique,
+    using a UNIQUE constraint on the table.</simpara>
+
+    <simpara>When a row is inserted into a table, or an existing row is
+    updated, no value can be specified for a generated column. In the example
+    below, data is inserted into the non-generated columns and the generated
+    column will contain 'Felix the Cat'.</simpara>
 
     <informalexample>
       <programlisting>CREATE TABLE t (id INTEGER PRIMARY KEY, 
    firstname VARCHAR(20),
    lastname VARCHAR(20), 
    fullname GENERATED ALWAYS AS (firstname || ' ' || lastname)) 
+INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
 </programlisting>
     </informalexample>
 

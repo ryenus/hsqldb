@@ -602,8 +602,10 @@ U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
       integer&gt;</literal></simpara>
 
       <simpara>The type of a datetime or interval type is specified in the
-      literal. The fractional second precision is is number of digits in the
-      fractional part of the literal.</simpara>
+      literal. The fractional second precision is the number of digits in the
+      fractional part of the literal. Details are described in the <link
+      endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      chapter</simpara>
 
       <programlisting>DATE '2008-08-08'
 TIME '20:08:08'
@@ -702,13 +704,14 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       <simpara><literal>&lt;default specification&gt; ::=
       DEFAULT</literal></simpara>
 
-      <simpara>Specify a value whose data type is inferred from its context.
-      DEFAULT is used for assignments to table columns that have a default
-      value. NULL can be used only in a context where the type of the value is
-      known. For example, a NULL can be assigned to a a column of the table in
-      an INSERT or UPDATE statement, because the type of the column is known.
-      But if NULL is used in a SELECT list, it must be used in a CAST
-      statement.</simpara>
+      <simpara>Specify a value whose data type or value is inferred from its
+      context. DEFAULT is used for assignments to table columns that have a
+      default value, or to table columns that are generated either as an
+      IDENTITY value or as an expression. NULL can be used only in a context
+      where the type of the value is known. For example, a NULL can be
+      assigned to a a column of the table in an INSERT or UPDATE statement,
+      because the type of the column is known. But if NULL is used in a SELECT
+      list, it must be used in a CAST statement.</simpara>
     </section>
 
     <section>
@@ -1903,7 +1906,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
     <para><glossterm>GROUPING and AGGREGATION</glossterm></para>
 
-    <para><glossterm>SET OPERATIONS</glossterm></para>
+    <para><glossterm>SET and MULTISET (COLLECTION)
+    OPERATIONS</glossterm></para>
 
     <para><glossterm>ORDERING</glossterm></para>
 
@@ -2219,17 +2223,18 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       copies those rows from the first table which do not exist in the second
       table, but avoids copying duplicate rows.</para>
 
-      <para>The collection operations are similar to the set operations. They
-      are <literal>A UNION ALL B</literal>, <literal>A INTERSECT ALL
-      B</literal> and <literal>A EXCEPT ALL B</literal>. The UNION ALL
-      operation adds all the rows from A and B into the new table. The
-      INTERSET operation copies only those rows from each table that also
-      exist in the other table. If n copies of a rows exists in one table, and
-      m copies in the other table, the number of copies in the result table is
-      the smaller of n and m. The EXCEPT operation copies those rows from the
-      first table which do not exist in the second table. If n copies of a row
-      exist in the first table and m copies in the second table the number of
-      copies in the result table is n-m, or if n &lt; m, then zero.</para>
+      <para>The collection operations are similar to the set operations, but
+      can return duplicate rows. They are <literal>A UNION ALL B</literal>,
+      <literal>A INTERSECT ALL B</literal> and <literal>A EXCEPT ALL
+      B</literal>. The UNION ALL operation adds all the rows from A and B into
+      the new table. The INTERSET operation copies only those rows from each
+      table that also exist in the other table. If n copies of a rows exists
+      in one table, and m copies in the other table, the number of copies in
+      the result table is the smaller of n and m. The EXCEPT operation copies
+      those rows from the first table which do not exist in the second table.
+      If n copies of a row exist in the first table and m copies in the second
+      table the number of copies in the result table is n-m, or if n &lt; m,
+      then zero.</para>
     </section>
 
     <section>
