@@ -579,9 +579,9 @@
     <title>Statements</title>
 
     <para>System level statements are listed in this section. Statements that
-    begin with SET DATABASE are for properties that have an effect on the
-    normal operation of HyperSQL. The effects of these statements are
-    discussed in differnt chapters.</para>
+    begin with SET DATABASE or SET FILES are for properties that have an
+    effect on the normal operation of HyperSQL. The effects of these
+    statements are also discussed in different chapters.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SHUTDOWN</primary>
@@ -728,6 +728,62 @@
     statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
+      <primary>SET FILES BACKUP INCREMENT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES BACKUP INCREMENT
+    </emphasis></simpara>
+
+    <simpara><emphasis>set files backup increment
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database backup increment statement&gt; ::= SET
+    FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
+
+    <simpara>Older versions of HSQLDB perform a backup of the .data file
+    before its contents are modified and the whole .data file is saved in a
+    compressed form when a CHECKPOINT or SHUTDOWN is performed. This takes a
+    long time when the size of the database exceeds 100 MB or so.</simpara>
+
+    <simpara>The alternative is backup in increments, just before some part of
+    the .data file is modified. In this this mode, no backup is performed at
+    CHECKPIONT or SHUTDOWN. This mode is prefered for large databases which
+    are opened and closed frequently.</simpara>
+
+    <simpara>The default mode is TRUE. If the old method of backup is
+    required, the mode can be set FALSE.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES CACHE ROWS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES CACHE ROWS</emphasis></simpara>
+
+    <simpara><emphasis>set files cache rows statement</emphasis><literal>
+    </literal></simpara>
+
+    <simpara><literal>&lt;set files cache rows statement&gt; ::= SET FILES
+    CACHE ROWS &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Sets the maximum number of rows (of CACHED tables) held in the
+    memory cache.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES CACHE SIZE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES CACHE SIZE</emphasis></simpara>
+
+    <simpara><emphasis>set files cache size statement</emphasis><literal>
+    </literal></simpara>
+
+    <simpara><literal>&lt;set files cache size statement&gt; ::= SET FILES
+    CACHE SIZE &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Sets maximum amount of data (of CACHED tables) in kilobytes held
+    in the memory cache.</simpara>
+
+    <indexterm significance="preferred" type="sql">
       <primary>SET FILES DEFRAG</primary>
     </indexterm>
 
@@ -748,10 +804,26 @@
     specified percentage, a CHECKPOINT DEFRAG is performed instead of a
     CHECKPOINT.</simpara>
 
-    <simpara>The default is 0, which indicates no DEFRAG.</simpara>
+    <simpara>The default is 0, which indicates no DEFRAG. Useful values are
+    between 10 to 50</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES LOCK</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES LOCK</emphasis></simpara>
+
+    <simpara><emphasis>set files lock statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files lock statement&gt; ::= SET FILES LOCK {
+    TRUE | FLASE }</literal></simpara>
+
+    <simpara>The .lck file is created by default. This command allows the
+    creation of the lock file to be disabled or enabled. The setting . Only a
+    user with the DBA role can execute this statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES LOG SIZE</primary>
@@ -772,19 +844,20 @@
     DBA role can execute this statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>SET FILES LOCK</primary>
+      <primary>SET FILES INCREMENT BACKUP</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">SET FILES LOCK</emphasis></simpara>
+    <simpara><emphasis role="bold">SET FILES INCREMENT
+    BACKUP</emphasis></simpara>
 
-    <simpara><emphasis>set files lock statement</emphasis></simpara>
+    <simpara><emphasis>set files increment backup
+    statement</emphasis></simpara>
 
-    <simpara><literal>&lt;set files lock statement&gt; ::= SET FILES LOCK {
-    TRUE | FLASE }</literal></simpara>
+    <simpara><literal>&lt;set files increment backup statement&gt; ::= SET
+    FILES INCREMENT BACKUP { TRUE | FALSE }</literal></simpara>
 
-    <simpara>The .lck file is created by default. This command allows the
-    creation of the lock file to be disabled or enabled. The setting . Only a
-    user with the DBA role can execute this statement.</simpara>
+    <simpara>This specifies the method for internal backup operation. The
+    default is true.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES NIO</primary>
@@ -832,32 +905,6 @@
     <para>Each time the SET FILES WRITE DELAY statement is executed with any
     value, a sync is immediately performed. Only a user with the DBA role can
     execute this statement.</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES BACKUP INCREMENT</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET FILES BACKUP INCREMENT
-    </emphasis></simpara>
-
-    <simpara><emphasis>set files backup increment
-    statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set database backup increment statement&gt; ::= SET
-    FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
-
-    <simpara>Older versions of HSQLDB perform a backup of the .data file
-    before its contents are modified and the whole .data file is saved in a
-    compressed form when a CHECKPOINT or SHUTDOWN is performed. This takes a
-    long time when the size of the database exceeds 100 MB or so.</simpara>
-
-    <simpara>The alternative is backup in increments, just before some part of
-    the .data file is modified. In this this mode, no backup is performed at
-    CHECKPIONT or SHUTDOWN. This mode is prefered for large databases which
-    are opened and closed frequently.</simpara>
-
-    <simpara>The default mode is TRUE. If the old method of backup is
-    required, the mode can be set FALSE.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET REFERENTIAL INTEGRITY</primary>
@@ -970,7 +1017,8 @@
     specified number of row operations. The default value for this property is
     0, which means no System.gc() calls. Usual values for this property range
     from 10000 depending on the system and the memory allocation. This
-    property may be useful in some in-process deployments.</simpara>
+    property may be useful in some in-process deployments, expecially with
+    older JVM implementations.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE SQL SIZE</primary>
@@ -984,8 +1032,9 @@
     <simpara><literal>&lt;set database sql size statement&gt; ::= SET DATABASE
     SQL SIZE { TRUE | FALSE }</literal></simpara>
 
-    <simpara>This command can disable enforcement of column sizes for CHAR and
-    VARCHAR columns. The default is TRUE.</simpara>
+    <simpara>This command can enable or disable enforcement of column sizes
+    for CHAR and VARCHAR columns. The default is TRUE, meaning
+    enable.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE SQL NAMES</primary>
@@ -998,9 +1047,9 @@
     <simpara><literal>&lt;set database sql names statement&gt; ::= SET
     DATABASE SQL NAMES { TRUE | FALSE }</literal></simpara>
 
-    <simpara>This command can enable full enforcement of the rule that
-    prevents SQL keywords being used for database object names such as columns
-    and tables. The default is FALSE.</simpara>
+    <simpara>This command can enable or disable full enforcement of the rule
+    that prevents SQL keywords being used for database object names such as
+    columns and tables. The default is FALSE, meaning disable.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET IGNORECASE</primary>

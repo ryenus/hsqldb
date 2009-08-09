@@ -543,8 +543,8 @@
     <simpara>When HSQLDB is used in OpenOffice.org, some property values will
     have a different default. The properties and values are:</simpara>
 
-    <simpara>hsqldb.default_table_type=cached hsqldb.cache_rows=13
-    hsqldb.cache_size=13 hsqldb.log_size=10; hsqldb.nio_data_file=false
+    <simpara>hsqldb.default_table_type=cached hsqldb.cache_rows=25000;
+    hsqldb.cache_size=6000; hsqldb.log_size=10; hsqldb.nio_data_file=false;
     sql.enforce_strict_size=true</simpara>
   </section>
 
