@@ -49,7 +49,7 @@ public class TestStressInsert {
     private Connection        con;
     private PreparedStatement insertStmtA;
     private PreparedStatement insertStmtB;
-    private static final int  LOB_SIZE = 800000;
+    private static final int  LOB_SIZE = 1024 * 1024;
     private static final int  MAX_SIZE = 4000;
     private final Random      random   = new Random(0);
     byte[]                    data     = getRandomBytes(LOB_SIZE);
@@ -57,7 +57,7 @@ public class TestStressInsert {
     public void init() throws Exception {
 
         String driver = "org.hsqldb.jdbc.JDBCDriver";
-        String url    = "jdbc:hsqldb:file:testing/test";
+        String url    = "jdbc:hsqldb:file:/hsql/stress/test";
 
         Class.forName(driver);
 
