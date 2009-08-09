@@ -59,18 +59,23 @@ public class SimpleLog {
     private boolean         isSystem;
     private String          filePath;
 
-    public SimpleLog(String path, int level, boolean useFile) {
+    public SimpleLog(String path, int level) {
 
-        this.level    = level;
-        this.isSystem = !useFile;
+        this.isSystem = path == null;
         this.filePath = path;
 
-        setupWriter();
+        setLevel(level);
     }
 
     private void setupWriter() {
 
-        if (level != LOG_NONE) {
+        if (level == LOG_NONE) {
+            close();
+
+            return;
+        }
+
+        if (writer == null) {
             if (isSystem) {
                 writer = new PrintWriter(System.out);
             } else {
@@ -102,9 +107,7 @@ public class SimpleLog {
 
         this.level = level;
 
-        if (level != LOG_NONE && writer == null) {
-            setupWriter();
-        }
+        setupWriter();
     }
 
     public PrintWriter getPrintWriter() {

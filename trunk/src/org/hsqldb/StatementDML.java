@@ -596,14 +596,17 @@ public class StatementDML extends StatementDMQL {
             Object[] data = (Object[]) updateList.get(i);
 
             /**
-             * @todo 1.9.0 - make optional using database property - this means the identity column can be set to null to force
+             * @todo 1.9.0 - make optional using database property -
+             * this means the identity column can be set to null to force
              * creation of a new identity value
              */
             table.setIdentityColumn(session, data);
+            table.setGeneratedColumns(session, data);
 
             if (table.triggerLists[Trigger.UPDATE_BEFORE].length != 0) {
                 table.fireBeforeTriggers(session, Trigger.UPDATE_BEFORE,
                                          row.getData(), data, updateColumnMap);
+                table.setGeneratedColumns(session, data);
             }
 
             table.enforceRowConstraints(session, data);

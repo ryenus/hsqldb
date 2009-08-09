@@ -169,7 +169,7 @@ public final class NumberSequence implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) {}
+    public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
 

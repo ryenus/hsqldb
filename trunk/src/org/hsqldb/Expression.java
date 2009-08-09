@@ -66,6 +66,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.lib.ArrayListIdentity;
@@ -1316,6 +1317,34 @@ public class Expression {
         s.resolveTypes(session);
 
         return s;
+    }
+
+    static void resolveGenerationExpression(Session session, Table t,
+                                        Expression e) {
+
+        HsqlList unresolved = e.resolveColumnReferences(t.defaultRanges, null);
+
+        ExpressionColumn.checkColumnsResolved(unresolved);
+        e.resolveTypes(session, null);
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        e.collectObjectNames(set);
+
+        for (int i = 0; i < set.size(); i++) {
+            HsqlName name = (HsqlName) set.get(i);
+
+            if (name.type == SchemaObject.COLUMN) {
+                int          colIndex = t.findColumn(name.name);
+                ColumnSchema column   = t.getColumn(colIndex);
+
+                if (column.isGenerated()) {
+                    throw Error.error(ErrorCode.X_42512);
+                }
+
+                /** todo - deterministic, non-sql function */
+            }
+        }
     }
 
     boolean isParam() {

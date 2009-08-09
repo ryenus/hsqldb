@@ -54,6 +54,7 @@ import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
@@ -74,10 +75,7 @@ import org.hsqldb.lib.tar.TarMalformatException;
  */
 public class Logger {
 
-    // We are using persist.Logger-instance-specific FrameworkLogger
-    // because it is Database-instance specific.
-    // If add any static level logging, should instantiate a standard,
-    // context-agnostic FrameworkLogger for that purpose.
+    public SimpleLog appLog;
     private Log      log;
     private Database database;
     private LockFile lockFile;
@@ -189,35 +187,27 @@ public class Logger {
 
         setVariables();
 
-        switch (propTxMode) {
+        String logPath = null;
 
-            case Database.LOCKS :
-                database.txManager = new TransactionManager2PL(database);
-                break;
-
-            case Database.MVLOCKS :
-            case Database.MVCC :
-                database.txManager = new TransactionManager(database,
-                        propTxMode);
-                break;
+        if (DatabaseURL.isFileBasedDatabaseType(database.getType())
+                && !database.isFilesReadOnly()) {
+            logPath = database.getPath() + ".app.log";
         }
+
+        this.appLog = new SimpleLog(logPath, propEventLogLevel);
 
         if (!DatabaseURL.isFileBasedDatabaseType(database.getType())) {
             return;
         }
 
-        //
         checkpointRequired = false;
-
-        String path = database.getPath();
-
-        loggingEnabled = false;
+        loggingEnabled     = false;
 
         boolean useLock = database.getProperties().isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_lock_file);
 
         if (useLock && !database.isFilesReadOnly()) {
-            acquireLock(path);
+            acquireLock(database.getPath());
         }
 
         log = new Log(database);
@@ -296,6 +286,19 @@ public class Logger {
             propTxMode = Database.MVLOCKS;
         } else if (Tokens.T_LOCKS.equalsIgnoreCase(txMode)) {
             propTxMode = Database.LOCKS;
+        }
+
+        switch (propTxMode) {
+
+            case Database.LOCKS :
+                database.txManager = new TransactionManager2PL(database);
+                break;
+
+            case Database.MVLOCKS :
+            case Database.MVCC :
+                database.txManager = new TransactionManager(database,
+                        propTxMode);
+                break;
         }
 
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
@@ -405,6 +408,8 @@ public class Logger {
 
         log = null;
 
+        appLog.close();
+
         return true;
     }
 
@@ -436,7 +441,9 @@ public class Logger {
     boolean         useFrameworkLogger = true;
 
     /**
-     * All usage of FrameworkLogger should use this method to get an instance.
+     * All usage of FrameworkLogger should call this method before using an
+     * instance.
+     *
      * It ensures and requires that no logging should take place before a new
      * database unique name has been created for a new database or read from the
      * .script file for an old database.<p>
@@ -450,7 +457,7 @@ public class Logger {
      * This tactic avoids usage of file-based jdk logging for the time being.
      *
      */
-    public FrameworkLogger getEventLogger() {
+    private FrameworkLogger getEventLogger() {
 
         if (!useFrameworkLogger) {
             return null;
@@ -490,34 +497,43 @@ public class Logger {
     }
 
     public void setEventLogLevel(int level) {
+
         propEventLogLevel = level;
+
+        appLog.setLevel(level);
     }
 
     public void logSevereEvent(String message, Throwable t) {
 
-        FrameworkLogger logger = getEventLogger();
+        getEventLogger();
 
-        if (logger != null) {
-            logger.severe(message, t);
+        if (fwLogger != null) {
+            fwLogger.severe(message, t);
         }
+
+        appLog.logContext(t, message);
     }
 
     public void logWarningEvent(String message, Throwable t) {
 
-        FrameworkLogger logger = getEventLogger();
+        getEventLogger();
 
-        if (logger != null) {
-            logger.warning(message, t);
+        if (fwLogger != null) {
+            fwLogger.warning(message, t);
         }
+
+        appLog.logContext(t, message);
     }
 
     public void logInfoEvent(String message) {
 
-        FrameworkLogger logger = getEventLogger();
+        getEventLogger();
 
-        if (logger != null) {
-            logger.info(message);
+        if (fwLogger != null) {
+            fwLogger.info(message);
         }
+
+        appLog.logContext(SimpleLog.LOG_NORMAL, message);
     }
 
     /**

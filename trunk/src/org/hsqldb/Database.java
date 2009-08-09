@@ -325,16 +325,7 @@ public class Database {
 
     public void setUniqueName(String name) {
 
-        String oldName = databaseUniqueName;
-
         databaseUniqueName = name;
-
-        if (oldName == null) {
-            logger.logInfoEvent("database opened");
-        } else {
-            logger.logInfoEvent("database unique name changed from: "
-                                + oldName + " to: " + databaseUniqueName);
-        }
     }
 
     /**

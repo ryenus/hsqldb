@@ -61,11 +61,10 @@ public class ParserDML extends ParserDQL {
         boolean[] columnCheckList;
         int[]     columnMap;
         int       colCount;
-        Table     table                = readTableName();
-        boolean   overridingUser       = false;
-        boolean   overridingSystem     = false;
-        int       enforcedDefaultIndex = table.getIdentityColumnIndex();
-        boolean   assignsToIdentity    = false;
+        Table     table             = readTableName();
+        boolean   overridingUser    = false;
+        boolean   overridingSystem  = false;
+        boolean   assignsToIdentity = false;
 
         columnCheckList = null;
         columnMap       = table.getColumnMap();
@@ -96,7 +95,9 @@ public class ParserDML extends ParserDQL {
                 for (int i = 0; i < table.colDefaults.length; i++) {
                     if (table.colDefaults[i] == null
                             && table.identityColumn != i) {
-                        throw Error.error(ErrorCode.X_42544);
+                        if (!table.getColumn(i).isGenerated()) {
+                            throw Error.error(ErrorCode.X_42544);
+                        }
                     }
                 }
 
@@ -209,8 +210,10 @@ public class ParserDML extends ParserDQL {
 
                     for (int i = 0; i < rowArgs.length; i++) {
                         Expression e = rowArgs[i];
+                        ColumnSchema column =
+                            baseTable.getColumn(columnMap[i]);
 
-                        if (enforcedDefaultIndex == columnMap[i]) {
+                        if (column.isIdentity()) {
                             assignsToIdentity = true;
 
                             if (e.getType() != OpTypes.DEFAULT) {
@@ -227,16 +230,19 @@ public class ParserDML extends ParserDQL {
 */
                                 }
                             }
+                        } else if (column.hasDefault()) {}
+                        else if (column.isGenerated()) {
+                            if (e.getType() != OpTypes.DEFAULT) {
+                                throw Error.error(ErrorCode.X_42541);
+                            }
+                        } else {
+                            if (e.getType() == OpTypes.DEFAULT) {
+                                throw Error.error(ErrorCode.X_42544);
+                            }
                         }
 
                         if (e.isParam()) {
-                            e.setAttributesAsColumn(
-                                table.getColumn(columnMap[i]), true);
-                        } else if (e.getType() == OpTypes.DEFAULT) {
-                            if (table.colDefaults[i] == null
-                                    && table.identityColumn != columnMap[i]) {
-                                throw Error.error(ErrorCode.X_42544);
-                            }
+                            e.setAttributesAsColumn(column, true);
                         }
                     }
                 }
@@ -283,6 +289,8 @@ public class ParserDML extends ParserDQL {
 
             columnMap = newColumnMap;
         }
+
+        int enforcedDefaultIndex = table.getIdentityColumnIndex();
 
         if (enforcedDefaultIndex != -1
                 && ArrayUtil.find(columnMap, enforcedDefaultIndex) > -1) {
@@ -530,6 +538,12 @@ public class ParserDML extends ParserDQL {
             ArrayUtil.projectRow(baseColumnMap, columnMap, newColumnMap);
 
             columnMap = newColumnMap;
+
+            for (int i = 0; i < columnMap.length; i++) {
+                if (baseTable.colGenerated[columnMap[i]]) {
+                    throw Error.error(ErrorCode.X_42513);
+                }
+            }
         }
 
         StatementDMQL cs = new StatementDML(session, table, rangeVariables,
@@ -556,6 +570,11 @@ public class ParserDML extends ParserDQL {
         for (int i = 0, ix = 0; i < columnMap.length; ix++) {
             Expression expr = colExpressions[ix];
             Expression e;
+
+            // no generated column can be updated
+            if (targetTable.colGenerated[columnMap[i]]) {
+                throw Error.error(ErrorCode.X_42513);
+            }
 
             if (expr.getType() == OpTypes.ROW) {
                 Expression[] elements = expr.nodes;

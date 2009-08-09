@@ -211,7 +211,7 @@ public class TriggerDef implements Runnable, SchemaObject {
         return null;
     }
 
-    public void compile(Session session) {}
+    public void compile(Session session, SchemaObject parentObject) {}
 
     /**
      *  Retrieves the SQL character sequence required to (re)create the

@@ -123,21 +123,16 @@ final class RangeVariable {
         compileContext.registerRangeVariable(this);
     }
 
-/*
-    RangeVariable(Table table, String alias, OrderedHashSet columnList,
-                  Index index, CompileContext compileContext) {
+    RangeVariable(Table table, int position) {
 
         rangeTable       = table;
-        tableAlias       = alias;
-        columnAliases    = columnList;
+        tableAlias       = null;
         emptyData        = rangeTable.getEmptyRowData();
         columnsInGroupBy = rangeTable.getNewColumnCheckList();
         usedColumns      = rangeTable.getNewColumnCheckList();
-        rangeIndex       = index;
-
-        compileContext.registerRangeVariable(this);
+        rangePosition = position;
     }
-*/
+
     RangeVariable(RangeVariable range) {
 
         rangeTable       = range.rangeTable;

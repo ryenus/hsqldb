@@ -86,7 +86,7 @@ public interface SchemaObject {
 
     OrderedHashSet getComponents();
 
-    void compile(Session session);
+    void compile(Session session, SchemaObject parentObject);
 
     String getSQL();
 

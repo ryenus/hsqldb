@@ -97,7 +97,7 @@ public class RoutineSchema implements SchemaObject {
         return set;
     }
 
-    public void compile(Session session) {}
+    public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
         return null;

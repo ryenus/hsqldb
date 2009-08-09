@@ -166,7 +166,7 @@ public class Grantee implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) {}
+    public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
 

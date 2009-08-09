@@ -307,14 +307,24 @@ public class StatementSchema extends Statement {
                 try {
                     name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
-                    object =
-                        session.database.schemaManager.getSchemaObject(name);
+                    if (name.type == SchemaObject.COLUMN) {
+                        Table table =
+                            session.database.schemaManager.getUserTable(
+                                session, name.parent);
+                        int index = table.getColumnIndex(name.name);
 
-                    if (object == null) {
-                        throw Error.error(ErrorCode.X_42501, name.name);
+                        object = table.getColumn(index);
+                    } else {
+                        object =
+                            session.database.schemaManager.getSchemaObject(
+                                name);
+
+                        if (object == null) {
+                            throw Error.error(ErrorCode.X_42501, name.name);
+                        }
+
+                        name = object.getName();
                     }
-
-                    name = object.getName();
 
                     checkSchemaUpdateAuthorisation(session, name.schema);
                     newName.setSchemaIfNull(name.schema);
@@ -855,6 +865,7 @@ public class StatementSchema extends Statement {
                         arguments[1] = foreignConstraints;
                     }
 
+                    table.compile(session, null);
                     session.database.schemaManager.addSchemaObject(table);
 
                     if (statement != null) {

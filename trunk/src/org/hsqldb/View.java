@@ -104,7 +104,7 @@ public class View extends TableDerived {
     /**
      * Compiles the query expression and sets up the columns.
      */
-    public void compile(Session session) {
+    public void compile(Session session, SchemaObject parentObject) {
 
         if (!database.schemaManager.schemaExists(compileTimeSchema.name)) {
             compileTimeSchema = session.getSchemaHsqlName(null);
