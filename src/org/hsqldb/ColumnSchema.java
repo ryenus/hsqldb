@@ -120,7 +120,20 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) {}
+    public void compile(Session session, SchemaObject table) {
+
+        if (generatingExpression == null) {
+            return;
+        }
+
+        Expression.resolveGenerationExpression(session, (Table) table,
+                                               generatingExpression);
+
+        if (dataType.typeComparisonGroup
+                != generatingExpression.getDataType().typeComparisonGroup) {
+            throw Error.error(ErrorCode.X_42561);
+        }
+    }
 
     public String getSQL() {
 

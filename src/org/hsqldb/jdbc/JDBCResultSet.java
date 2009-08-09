@@ -7126,6 +7126,10 @@ public class JDBCResultSet implements ResultSet {
         if (resultMetaData.colIndexes[--columnIndex] == -1) {
             throw Util.notUpdatableColumn();
         }
+
+        if (!resultMetaData.columns[columnIndex].isWriteable() ) {
+            throw Util.notUpdatableColumn();
+        }
     }
 
     void startUpdate(int columnIndex) throws SQLException {

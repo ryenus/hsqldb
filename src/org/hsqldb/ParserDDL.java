@@ -1691,7 +1691,7 @@ public class ParserDDL extends ParserRoutine {
         queryExpression.setAsTopLevel();
         queryExpression.setView(view);
         queryExpression.resolve(session);
-        view.compile(session);
+        view.compile(session, null);
         checkSchemaUpdateAuthorisation(name.schema);
         database.schemaManager.checkSchemaObjectNotExists(name);
 
@@ -2463,12 +2463,12 @@ public class ParserDDL extends ParserRoutine {
     ColumnSchema readColumnDefinitionOrNull(Table table, HsqlName hsqlName,
             HsqlArrayList constraintList) {
 
-        boolean        isIdentity     = false;
-        boolean        isPKIdentity   = false;
-        boolean        identityAlways = false;
-        Expression     generateExpr   = null;
-        boolean        isNullable     = true;
-        Expression     defaultExpr    = null;
+        boolean        isIdentity      = false;
+        boolean        isPKIdentity    = false;
+        boolean        generatedAlways = false;
+        Expression     generateExpr    = null;
+        boolean        isNullable      = true;
+        Expression     defaultExpr     = null;
         Type           typeObject;
         NumberSequence sequence = null;
 
@@ -2500,7 +2500,7 @@ public class ParserDDL extends ParserRoutine {
             } else {
                 readThis(Tokens.ALWAYS);
 
-                identityAlways = true;
+                generatedAlways = true;
             }
 
             readThis(Tokens.AS);
@@ -2510,7 +2510,7 @@ public class ParserDDL extends ParserRoutine {
 
                 sequence = new NumberSequence(null, typeObject);
 
-                sequence.setAlways(identityAlways);
+                sequence.setAlways(generatedAlways);
 
                 if (token.tokenType == Tokens.OPENBRACKET) {
                     read();
@@ -2520,6 +2520,10 @@ public class ParserDDL extends ParserRoutine {
 
                 isIdentity = true;
             } else if (token.tokenType == Tokens.OPENBRACKET) {
+                if (!generatedAlways) {
+                    throw super.unexpectedTokenRequire(Tokens.T_ALWAYS);
+                }
+
                 read();
 
                 generateExpr = XreadValueExpression();
@@ -2537,6 +2541,7 @@ public class ParserDDL extends ParserRoutine {
         ColumnSchema column = new ColumnSchema(hsqlName, typeObject,
                                                isNullable, false, defaultExpr);
 
+        column.setGeneratingExpression(generateExpr);
         readColumnConstraints(table, column, constraintList);
 
         if (token.tokenType == Tokens.IDENTITY && !isIdentity) {
@@ -4789,7 +4794,6 @@ public class ParserDDL extends ParserRoutine {
                     }
 
                     grantor = session.getRole();
-
                 }
             }
         } else {
@@ -4889,10 +4893,7 @@ public class ParserDDL extends ParserRoutine {
                 }
 
                 grantor = session.getRole();
-
             }
-
-
         }
 
         if (!grant) {

@@ -189,7 +189,7 @@ public class UserTypeModifier {
     public void compile(Session session) {
 
         for (int i = 0; i < constraints.length; i++) {
-            constraints[i].compile(session);
+            constraints[i].compile(session, null);
         }
     }
 

@@ -736,7 +736,7 @@ public class SchemaManager {
                 case SchemaObject.ASSERTION :
                     SchemaObject object = getSchemaObject(name);
 
-                    object.compile(session);
+                    object.compile(session, null);
                     break;
             }
         }
@@ -761,7 +761,7 @@ public class SchemaManager {
                 case SchemaObject.ASSERTION :
                     SchemaObject object = getSchemaObject(name);
 
-                    object.compile(session);
+                    object.compile(session, null);
                     break;
             }
         }

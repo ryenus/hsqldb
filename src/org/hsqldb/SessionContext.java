@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
@@ -193,12 +194,18 @@ public class SessionContext {
         }
     }
 
-    public RangeIterator getCheckIterator() {
-        return rangeIterators[1];
-    }
+    public RangeIteratorBase getCheckIterator(RangeVariable rangeVariable) {
+        RangeIterator it = rangeIterators[1];
 
-    public void setCheckIterator(RangeIterator iterator) {
-        rangeIterators[iterator.getRangePosition()] = iterator;
+
+
+        if (it == null) {
+            it = rangeVariable.getIterator(session);
+
+            rangeIterators[1] = it;
+        }
+
+        return (RangeIteratorBase) it;
     }
 
     public void setRangeIterator(RangeIterator iterator) {

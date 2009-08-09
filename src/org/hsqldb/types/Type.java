@@ -135,7 +135,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         return userTypeModifier.getComponents();
     }
 
-    public final void compile(Session session) {
+    public final void compile(Session session, SchemaObject parentObject) {
 
         if (userTypeModifier == null) {
             throw Error.runtimeError(ErrorCode.U_S0500, "Type");

@@ -216,8 +216,11 @@ public class StatementInsert extends StatementDML {
                         continue;
                     }
 
-                    data[colIndex] =
-                        baseTable.colDefaults[colIndex].getValue(session);
+                    if (baseTable.colDefaults[colIndex] != null) {
+                        data[colIndex] =
+                            baseTable.colDefaults[colIndex].getValue(session);
+                        continue;
+                    }
 
                     continue;
                 }

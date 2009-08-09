@@ -260,7 +260,7 @@ public final class Constraint implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session) {}
+    public void compile(Session session, SchemaObject parentObject) {}
 
     public String getSQL() {
 
@@ -760,13 +760,7 @@ public final class Constraint implements SchemaObject {
         }
 */
         RangeIteratorBase it =
-            (RangeIteratorBase) session.sessionContext.getCheckIterator();
-
-        if (it == null) {
-            it = rangeVariable.getIterator(session);
-
-            session.sessionContext.setCheckIterator(it);
-        }
+            session.sessionContext.getCheckIterator(rangeVariable);
 
         it.currentData = data;
 
