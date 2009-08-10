@@ -113,7 +113,7 @@ public class TextCache extends DataFileCache {
         fa            = FileUtil.getDefaultInstance();
 
         HsqlProperties tableprops =
-            HsqlProperties.delimitedArgPairsToProps(this.dataFileName, "=", ";",
+            HsqlProperties.delimitedArgPairsToProps(baseFileName, "=", ";",
                 "textdb");
         HsqlDatabaseProperties dbProps = database.getProperties();
 

@@ -219,8 +219,9 @@ public final class ResultMetaData {
     }
 
     private static void decodeTableColumnAttrs(int in, ColumnBase column) {
-        column.setNullability((byte) (in & 0x0000000f));
-        column.setIdentity((in & 0x00000010) != 0);
+        column.setNullability((byte) (in & 0x00000003));
+        column.setIdentity((in & 0x00000004) != 0);
+        column.setWriteable((in & 0x00000008) != 0);
     }
 
     private static int encodeTableColumnAttrs(ColumnBase column) {
@@ -228,14 +229,18 @@ public final class ResultMetaData {
         int out = column.getNullability();    // always between 0x00 and 0x02
 
         if (column.isIdentity()) {
-            out |= 0x00000010;
+            out |= 0x00000004;
+        }
+
+        if (column.isWriteable()) {
+            out |= 0x00000008;
         }
 
         return out;
     }
 
     private void decodeParamColumnAttrs(int in, int columnIndex) {
-        paramNullable[columnIndex] = (byte) (in & 0x0000000f);
+        paramNullable[columnIndex] = (byte) (in & 0x00000003);
         paramModes[columnIndex]    = (byte) ((in >> 4) & 0x0000000f);
     }
 
