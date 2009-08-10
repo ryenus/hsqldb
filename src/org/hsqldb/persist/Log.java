@@ -235,7 +235,6 @@ public class Log {
 
                     reopenAllTextCaches();
                 }
-
                 break;
         }
 
@@ -383,7 +382,9 @@ public class Log {
         database.logger.logInfoEvent("Checkpoint start");
         deleteNewAndOldFiles();
 
-        if (cache != null) {
+        if (cache == null) {
+            writeScript(false);
+        } else {
             if (forceDefrag()) {
                 defrag = true;
             }
