@@ -1,0 +1,12 @@
+\dX [parameter...] where X is one of the following.
+    t:  list Tables
+    v:  list Views
+    s:  list Sequences
+    i:  list Indexes
+    S:  list System tables
+    a:  list Aliases
+    n:  list schema Names
+    u:  list Users
+    r:  list Roles
+    *:  list table-like objects
+
