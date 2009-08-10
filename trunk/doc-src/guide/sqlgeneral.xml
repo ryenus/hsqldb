@@ -1219,7 +1219,7 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     <para>HyperSQL allows defining indexes on single or multiple columns. You
     should not create duplicate user-defined indexes on the same column sets
     covered by constraints. This would result in unnecessary memory and speed
-    overheads. See the discussion in the <link endterm="deploymnet-title"
+    overheads. See the discussion in the <link endterm="deployment-title"
     xlink:arcrole="" xlink:href="#deployment-chapt"></link> chapter for more
     information.</para>
 
