@@ -183,12 +183,6 @@ public class RAShadowFile {
             dest.seek(position);
             dest.write(buffer);
         }
-
-        dest.seek(DataFileCache.LONG_FREE_POS_POS);
-
-        long length = dest.readLong();
-
-        JavaSystem.setRAFileLength(dest, length);
         source.close();
         dest.close();
     }

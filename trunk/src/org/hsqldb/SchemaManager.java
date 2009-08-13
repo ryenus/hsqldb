@@ -1405,6 +1405,7 @@ public class SchemaManager {
                     }
                 }
             }
+
             // fall through
             case SchemaObject.SEQUENCE :
             case SchemaObject.TABLE :
@@ -1568,7 +1569,7 @@ public class SchemaManager {
                 break;
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,"SchemaManager");
+                throw Error.runtimeError(ErrorCode.U_S0500, "SchemaManager");
         }
 
         if (object != null) {
@@ -1694,18 +1695,19 @@ public class SchemaManager {
     public String[] getIndexRootsSQL() {
 
         Session       sysSession = database.sessionManager.getSysSession();
+        int[][]       rootsArray = getIndexRoots(sysSession);
         HsqlArrayList tableList  = getAllTables();
         HsqlArrayList list       = new HsqlArrayList();
 
-        for (int i = 0, tSize = tableList.size(); i < tSize; i++) {
+        for (int i = 0; i < rootsArray.length; i++) {
             Table t = (Table) tableList.get(i);
 
-            if (t.isIndexCached() && !t.isEmpty(sysSession)) {
-                String ddl = ((Table) tableList.get(i)).getIndexRootsSQL();
+            if (rootsArray[i] != null && rootsArray[i].length > 0
+                    && rootsArray[i][0] != -1) {
+                String ddl =
+                    ((Table) tableList.get(i)).getIndexRootsSQL(rootsArray[i]);
 
-                if (ddl != null) {
-                    list.add(ddl);
-                }
+                list.add(ddl);
             }
         }
 
@@ -1714,6 +1716,64 @@ public class SchemaManager {
         list.toArray(array);
 
         return array;
+    }
+
+    int[][] tempIndexRoots;
+
+    public void setTempIndexRoots(int[][] roots) {
+        tempIndexRoots = roots;
+    }
+
+    public int[][] getIndexRoots(Session session) {
+
+        if (tempIndexRoots != null) {
+            int[][] roots = tempIndexRoots;
+
+            tempIndexRoots = null;
+
+            return roots;
+        }
+
+        HsqlArrayList allTables = getAllTables();
+        HsqlArrayList list      = new HsqlArrayList();
+
+        for (int i = 0, size = allTables.size(); i < size; i++) {
+            Table t = (Table) allTables.get(i);
+
+            if (t.getTableType() == TableBase.CACHED_TABLE) {
+                int[] roots = t.getIndexRootsArray();
+
+                list.add(roots);
+            } else {
+                list.add(null);
+            }
+        }
+
+        int[][] array = new int[list.size()][];
+
+        list.toArray(array);
+
+        return array;
+    }
+
+    /**
+     * called after the completion of defrag
+     */
+    public void setIndexRoots(int[][] roots) {
+
+        HsqlArrayList allTables = database.schemaManager.getAllTables();
+
+        for (int i = 0, size = allTables.size(); i < size; i++) {
+            Table t = (Table) allTables.get(i);
+
+            if (t.getTableType() == TableBase.CACHED_TABLE) {
+                int[] rootsArray = roots[i];
+
+                if (roots != null) {
+                    t.setIndexRoots(rootsArray);
+                }
+            }
+        }
     }
 
     public void setDefaultTableType(int type) {

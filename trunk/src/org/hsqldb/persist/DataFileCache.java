@@ -230,7 +230,7 @@ public class DataFileCache {
                         restored = restoreBackupIncremental();
 
                         if (!restored) {
-                            deleteFile(isNio);
+                            deleteFile();
 
                             is180 = false;
                         }
@@ -372,7 +372,7 @@ public class DataFileCache {
 
             return false;
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, backupFileName);
+            throw Error.error(ErrorCode.FILE_IO_ERROR, e);
         }
     }
 
@@ -485,102 +485,22 @@ public class DataFileCache {
         }
     }
 
-    /**
-     *  Writes out all the rows to a new file without fragmentation.
-     */
-    public void defrag() {
+    DataFileDefrag defrag() {
 
-        if (cacheReadonly) {
-            return;
-        }
-
-        if (fileFreePosition == INITIAL_FREE_POS) {
-            return;
-        }
-
-        database.logger.logInfoEvent("defrag start");
+        writeLock.lock();
 
         try {
-            boolean wasNio = dataFile.wasNio();
-
             cache.saveAll();
 
-/*
-// test
-            {
-                Session session = database.getSessionManager().getSysSession();
-                HsqlArrayList allTables =
-                    database.schemaManager.getAllTables();
-
-                for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
-                    Table t     = (Table) allTables.get(i);
-                    int   count = 0;
-
-                    if (t.getTableType() == TableBase.CACHED_TABLE) {
-                        RowIterator it = t.rowIterator(session);
-
-                        for (; it.hasNext(); count++) {
-                            CachedObject row = it.getNextRow();
-                        }
-
-                        System.out.println("table " + t.getName().name + " "
-                                           + count);
-                    }
-                }
-            }
-*/
             DataFileDefrag dfd = new DataFileDefrag(database, this,
                 dataFileName);
 
             dfd.process();
-            close(false);
-            deleteFile(wasNio);
-            renameDataFile(wasNio);
-            backupFile();
-            cache.clear();
 
-            is180 = false;
-            cache = new Cache(this);
-
-            open(cacheReadonly);
-            dfd.updateTableIndexRoots();
-            dfd.updateTransactionRowIDs();
-        } catch (HsqlException e) {
-            database.logger.logSevereEvent("defrag failure", e);
-
-            throw (HsqlException) e;
-        } catch (Throwable e) {
-            database.logger.logSevereEvent("defrag failure", e);
-
-            throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
+            return dfd;
+        } finally {
+            writeLock.unlock();
         }
-
-/*
-// test
-        {
-            Session session = database.getSessionManager().getSysSession();
-            HsqlArrayList allTables = database.schemaManager.getAllTables();
-
-            for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
-                Table t     = (Table) allTables.get(i);
-                int   count = 0;
-
-                if (t.getTableType() == TableBase.CACHED_TABLE) {
-                    RowIterator it = t.rowIterator(session);
-
-                    for (; it.hasNext(); count++) {
-                        CachedObject row = it.getNextRow();
-                    }
-
-                    System.out.println("table " + t.getName().name + " "
-                                       + count);
-                }
-            }
-        }
-
-//
-*/
-        database.logger.logInfoEvent("defrag end");
     }
 
     /**
@@ -999,13 +919,13 @@ public class DataFileCache {
      *
      * @throws  HsqlException
      */
-    void renameDataFile(boolean wasNio) {
+    void renameDataFile() {
 
         writeLock.lock();
 
         try {
             if (fa.isStreamElement(dataFileName + ".new")) {
-                deleteFile(wasNio);
+                deleteFile();
                 fa.renameElement(dataFileName + ".new", dataFileName);
             }
         } finally {
@@ -1013,7 +933,7 @@ public class DataFileCache {
         }
     }
 
-    void deleteFile(boolean wasNio) {
+    void deleteFile() {
 
         writeLock.lock();
 
@@ -1029,11 +949,7 @@ public class DataFileCache {
 
             // OOo end
             if (fa.isStreamElement(dataFileName)) {
-                if (wasNio) {
-
-                    // System.gc();
-                    fa.removeElement(dataFileName);
-                }
+                fa.removeElement(dataFileName);
 
                 if (fa.isStreamElement(dataFileName)) {
                     if (fa.isStreamElement(dataFileName + ".old")) {

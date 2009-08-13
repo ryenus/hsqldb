@@ -63,9 +63,7 @@ public class Cache extends BaseHashMap {
 
     // for testing
     StopWatch saveAllTimer = new StopWatch(false);
-    StopWatch makeRowTimer = new StopWatch(false);
     StopWatch sortTimer    = new StopWatch(false);
-    int       makeRowCount = 0;
     int       saveRowCount = 0;
 
     Cache(DataFileCache dfc) {
@@ -279,14 +277,9 @@ public class Cache extends BaseHashMap {
         saveRows(savecount);
         Error.printSystemOut(
             saveAllTimer.elapsedTimeToMessage(
-                "Cache.saveRow() total row save time"));
+                "Cache.saveRows() total row save time"));
         Error.printSystemOut("Cache.saveRow() total row save count = "
                              + saveRowCount);
-        Error.printSystemOut(
-            makeRowTimer.elapsedTimeToMessage(
-                "Cache.makeRow() total row load time"));
-        Error.printSystemOut("Cache.makeRow() total row load count = "
-                             + makeRowCount);
         Error.printSystemOut(
             sortTimer.elapsedTimeToMessage("Cache.sort() total time"));
     }

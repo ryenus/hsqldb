@@ -67,9 +67,9 @@ public class TestUpdatableResultSets extends TestBase {
             statement.execute(
                 "create table t1 (i int primary key, c varchar(10), t varbinary(3))");
 
-            String            insert = "insert into t1 values(?,?,?)";
-            String            select = "select i, c, t from t1";
-            PreparedStatement ps     = connection.prepareStatement(insert);
+            String insert = "insert into t1 values(?,?,?)";
+            String select = "select i, c, t from t1";
+            PreparedStatement ps = connection.prepareStatement(insert);
 
             for (int i = 0; i < 10; i++) {
                 ps.setInt(1, i);

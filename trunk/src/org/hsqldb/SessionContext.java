@@ -249,7 +249,9 @@ public class SessionContext {
 
         int index = sessionVariables.size();
 
-        sessionVariables.add(variable.getName().name, variable);
+        if (!sessionVariables.add(variable.getName().name, variable)) {
+            throw Error.error(ErrorCode.X_42504);
+        }
 
         Object[] vars = new Object[sessionVariables.size()];
 

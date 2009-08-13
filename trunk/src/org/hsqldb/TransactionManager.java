@@ -1205,7 +1205,8 @@ public class TransactionManager implements TransactionManagerInterface {
         writeLock.lock();
 
         try {
-            DoubleIntIndex lookup = new DoubleIntIndex(10, false);
+            int            size   = rowActionMap.size();
+            DoubleIntIndex lookup = new DoubleIntIndex(size, false);
 
             lookup.setKeysSearchTarget();
 

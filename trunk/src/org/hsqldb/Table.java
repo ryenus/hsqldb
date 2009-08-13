@@ -529,14 +529,14 @@ public class Table extends TableBase implements SchemaObject {
         return sb.toString();
     }
 
-    public String getIndexRootsSQL() {
+    public String getIndexRootsSQL(int[] roots) {
 
         StringBuffer sb = new StringBuffer(128);
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());
         sb.append(' ').append(Tokens.T_INDEX).append(' ').append('\'');
-        sb.append(getIndexRoots());
+        sb.append(getIndexRoots(roots));
         sb.append('\'');
 
         return sb.toString();
@@ -1796,7 +1796,11 @@ public class Table extends TableBase implements SchemaObject {
         String oldname = column.getName().name;
         int    i       = getColumnIndex(oldname);
 
-        columnList.setKey(i, newName);
+        if (findColumn(newName.name) != -1) {
+            throw Error.error(ErrorCode.X_42504);
+        }
+
+        columnList.setKey(i, newName.name);
         column.getName().rename(newName);
     }
 
@@ -2087,9 +2091,9 @@ public class Table extends TableBase implements SchemaObject {
      * plus the next identity value (hidden or user defined). This is used
      * with CACHED tables.
      */
-    String getIndexRoots() {
+    static String getIndexRoots(int[] rootsArray) {
 
-        String       roots = StringUtil.getList(getIndexRootsArray(), " ", "");
+        String       roots = StringUtil.getList(rootsArray, " ", "");
         StringBuffer s     = new StringBuffer(roots);
 
 /*

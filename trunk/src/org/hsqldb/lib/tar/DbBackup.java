@@ -235,7 +235,8 @@ public class DbBackup {
             propertiesFile, scriptFile,
             new File(dbDir, instanceName + ".backup"),
             new File(dbDir, instanceName + ".data"),
-            new File(dbDir, instanceName + ".log")
+            new File(dbDir, instanceName + ".log"),
+            new File(dbDir, instanceName + ".lobs")
         };
         boolean[] existList = new boolean[componentFiles.length];
         long      startTime = new java.util.Date().getTime();

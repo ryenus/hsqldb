@@ -157,7 +157,11 @@ public class ParserRoutine extends ParserDML {
 
         e.resolveTypes(session, null);
 
-        // check type and length compatibility of datetime and character functions
+        if (dataType.typeComparisonGroup
+                != e.getDataType().typeComparisonGroup) {
+            throw Error.error(ErrorCode.X_42562);
+        }
+
         return e;
     }
 
@@ -388,8 +392,9 @@ public class ParserRoutine extends ParserDML {
 
                     read();
 
-                    HsqlName name = readNewSchemaObjectName(
-                        SchemaObject.SPECIFIC_ROUTINE, false);
+                    HsqlName name =
+                        readNewSchemaObjectName(SchemaObject.SPECIFIC_ROUTINE,
+                                                false);
 
                     routine.setSpecificName(name);
 
@@ -582,7 +587,9 @@ public class ParserRoutine extends ParserDML {
 
     ColumnSchema readLocalVariableDeclarationOrNull() {
 
-        int position = super.getPosition();
+        int      position = super.getPosition();
+        Type     type;
+        HsqlName name;
 
         try {
             readThis(Tokens.DECLARE);
@@ -593,27 +600,30 @@ public class ParserRoutine extends ParserDML {
                 return null;
             }
 
-            HsqlName name =
-                super.readNewSchemaObjectName(SchemaObject.VARIABLE, false);
-            Type type = readTypeDefinition(true);
-            Expression def = null;
-
-            if (token.tokenType == Tokens.DEFAULT) {
-                read();
-
-                def = readDefaultClause(type);
-            }
-
-            ColumnSchema variable = new ColumnSchema(name, type, true, false, def);
-
-            variable.setParameterMode(SchemaObject.ParameterModes.PARAM_INOUT);
-            readThis(Tokens.SEMICOLON);
-
-            return variable;
+            name = super.readNewSchemaObjectName(SchemaObject.VARIABLE, false);
+            type = readTypeDefinition(true);
         } catch (Exception e) {
+
+            // may be cursor
             rewind(position);
+
             return null;
         }
+
+        Expression def = null;
+
+        if (token.tokenType == Tokens.DEFAULT) {
+            read();
+
+            def = readDefaultClause(type);
+        }
+
+        ColumnSchema variable = new ColumnSchema(name, type, true, false, def);
+
+        variable.setParameterMode(SchemaObject.ParameterModes.PARAM_INOUT);
+        readThis(Tokens.SEMICOLON);
+
+        return variable;
     }
 
     private StatementHandler readLocalHandlerDeclaration(Routine routine,
