@@ -85,6 +85,7 @@ import org.hsqldb.lib.HsqlByteArrayOutputStream;
 // boucherb@users 20030930 - patch 1.7.2 - optimize into joins if possible
 // fredt@users 20031006 - patch 1.7.2 - reuse Like objects for all rows
 // fredt@users 1.9.0 - LIKE for binary strings
+// fredt@users 1.9.0 - CompareAt() changes for performance suggested by Gary Frost
 class Like {
 
     private final static BinaryData maxByteValue =
@@ -161,8 +162,9 @@ class Like {
             o = ((CharacterType) dataType).upper(session, o);
         }
 
-        return compareAt(o, 0, 0, getLength(session, o, "")) ? Boolean.TRUE
-                                                             : Boolean.FALSE;
+        return compareAt(o, 0, 0, iLen, getLength(session, o), cLike, wildCardType)
+               ? Boolean.TRUE
+               : Boolean.FALSE;
     }
 
     char getChar(Object o, int i) {
@@ -178,7 +180,7 @@ class Like {
         return c;
     }
 
-    int getLength(SessionInterface session, Object o, String s) {
+    int getLength(SessionInterface session, Object o) {
 
         int l;
 
@@ -191,7 +193,8 @@ class Like {
         return l;
     }
 
-    private boolean compareAt(Object o, int i, int j, int jLen) {
+    private boolean compareAt(Object o, int i, int j, int iLen, int jLen,
+                              char cLike[], int[] wildCardType) {
 
         for (; i < iLen; i++) {
             switch (wildCardType[i]) {
@@ -215,7 +218,8 @@ class Like {
 
                     while (j < jLen) {
                         if ((cLike[i] == getChar(o, j))
-                                && compareAt(o, i, j, jLen)) {
+                                && compareAt(o, i, j, iLen, jLen, cLike,
+                                             wildCardType)) {
                             return true;
                         }
 
@@ -246,7 +250,7 @@ class Like {
 
                 return;
             } else {
-                int length = getLength(session, escape, "");
+                int length = getLength(session, escape);
 
                 if (length != 1) {
                     if (isBinary) {
@@ -271,7 +275,7 @@ class Like {
         iLen           = 0;
         iFirstWildCard = -1;
 
-        int l = getLength(session, pattern, "");
+        int l = getLength(session, pattern);
 
         cLike        = new char[l];
         wildCardType = new int[l];
