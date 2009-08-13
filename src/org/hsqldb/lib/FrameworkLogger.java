@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 import java.util.logging.LogManager;
 import java.util.Map;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.util.Properties;
 import java.io.IOException;
 import java.util.HashMap;
@@ -472,12 +472,12 @@ public class FrameworkLogger {
         if (!globalCfgFile.isFile()) {
             return false;
         }
-        FileReader reader = null;
+        FileInputStream fis = null;
         LogManager lm = LogManager.getLogManager();
         try {
-            reader = new FileReader(globalCfgFile);
+            fis = new FileInputStream(globalCfgFile);
             Properties defaultProps = new Properties();
-            defaultProps.load(reader);
+            defaultProps.load(fis);
             Enumeration names = defaultProps.propertyNames();
             int i = 0;
             String name;
@@ -497,8 +497,8 @@ public class FrameworkLogger {
         } catch (IOException ioe) {
             return false;
         } finally {
-            if (reader != null) try {
-                reader.close();
+            if (fis != null) try {
+                fis.close();
             } catch (IOException ioe) {
                 // Intentional no-op
             }
