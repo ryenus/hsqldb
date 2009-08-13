@@ -252,10 +252,10 @@ SELECT X FROM V WHERE Y = 5
       updatability. The default is ResultSet.CONCUR_READONLY.</para>
 
       <para>The JDBC settings, ResultSet.TYPE_FORWARD_ONLY,
-      ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.TYPE_SCROLL_INSENSITIVE are
+      ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.TYPE_SCROLL_SENSITIVE are
       the alternatives for both scrollability (navigation) and sensitivity.
-      HYperSQL does not support ResultSet.TYPE_SCROLL_INSENSITIVE. The two
-      other alternatives can be used for both updatable and read-only result
+      HYperSQL does not support ResultSet.TYPE_SCROLL_SENSITIVE. The two other
+      alternatives can be used for both updatable and read-only result
       sets.</para>
 
       <para>The JDBC settings ResultSet.CLOSE_CURSORS_AT_COMMIT and

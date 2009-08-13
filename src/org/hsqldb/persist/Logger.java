@@ -81,6 +81,7 @@ public class Logger {
     private LockFile lockFile;
     public boolean   checkpointRequired;
     public boolean   checkpointHandled;
+    public boolean   checkpointDisabled;
     private boolean  logsStatements;
     private boolean  loggingEnabled;
     private boolean  syncFile = false;
@@ -660,9 +661,6 @@ public class Logger {
         if (loggingEnabled) {
             logInfoEvent("Checkpoint start");
 
-            checkpointRequired = false;
-            checkpointHandled  = false;
-
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
             logInfoEvent("Checkpoint end");
@@ -807,7 +805,7 @@ public class Logger {
 
     public synchronized boolean needsCheckpointReset() {
 
-        if (checkpointRequired && !checkpointHandled) {
+        if (checkpointRequired && !checkpointHandled && !checkpointDisabled) {
             checkpointHandled  = true;
             checkpointRequired = false;
 
@@ -1161,7 +1159,7 @@ public class Logger {
             });
         }
 
-        log.closeForBackup();
+        log.checkpointClose();
 
         try {
             logInfoEvent("Initiating backup of instance '" + instanceName
@@ -1185,9 +1183,7 @@ public class Logger {
         } catch (TarMalformatException tme) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, tme.getMessage());
         } finally {
-            log.openAfterBackup();
-
-            checkpointRequired = false;
+            log.checkpointReopen();
         }
     }
 }

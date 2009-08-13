@@ -38,7 +38,6 @@ import java.io.OutputStream;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
@@ -47,7 +46,6 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.Storage;
 import org.hsqldb.navigator.RowIterator;
-import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.store.BitMap;
@@ -88,13 +86,16 @@ final class DataFileDefrag {
         this.dataFileName = dataFileName;
     }
 
-    void process() throws IOException {
+    void process() {
 
         boolean complete = false;
 
-        Error.printSystemOut("Defrag Transfer begins");
+        Error.printSystemOut("Defrag process begins");
 
         transactionRowLookup = database.txManager.getTransactionIDList();
+
+        Error.printSystemOut("transaction count: "
+                             + transactionRowLookup.size());
 
         HsqlArrayList allTables = database.schemaManager.getAllTables();
 
@@ -126,10 +127,10 @@ final class DataFileDefrag {
                     rootsList[i] = null;
                 }
 
-                Error.printSystemOut(t.getName().name + " complete");
+                Error.printSystemOut("table: " + t.getName().name
+                                     + " complete");
             }
 
-            writeTransactionRows();
             fileStreamOut.flush();
             fileStreamOut.close();
 
@@ -169,23 +170,28 @@ final class DataFileDefrag {
 
                 if (roots != null) {
                     Error.printSystemOut(
-                        org.hsqldb.lib.StringUtil.getList(roots, ",", ""));
+                        "roots: "
+                        + org.hsqldb.lib.StringUtil.getList(roots, ",", ""));
                 }
             }
 
             complete = true;
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, dataFileName + ".new");
-        } catch (OutOfMemoryError e) {
-            throw Error.error(ErrorCode.OUT_OF_MEMORY);
+        } catch (IOException e1) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, e1);
+        } catch (OutOfMemoryError e2) {
+            throw Error.error(ErrorCode.OUT_OF_MEMORY, e2);
+        } catch (Throwable t) {
+            throw Error.error(ErrorCode.GENERAL_ERROR, t);
         } finally {
-            if (fileStreamOut != null) {
-                fileStreamOut.close();
-            }
+            try {
+                if (fileStreamOut != null) {
+                    fileStreamOut.close();
+                }
 
-            if (dest != null) {
-                dest.close();
-            }
+                if (dest != null) {
+                    dest.close();
+                }
+            } catch (Throwable e) {}
 
             if (!complete) {
                 database.logger.getFileAccess().removeElement(dataFileName
@@ -193,7 +199,8 @@ final class DataFileDefrag {
             }
         }
 
-        //Error.printSystemOut("Transfer complete: ", stopw.elapsedTime());
+        Error.printSystemOut("Defrag transfer complete: "
+                             + stopw.elapsedTime());
     }
 
     /**
@@ -236,7 +243,8 @@ final class DataFileDefrag {
         pointerLookup.setKeysSearchTarget();
         Error.printSystemOut("lookup begins: " + stopw.elapsedTime());
 
-        RowIterator it = table.rowIterator(session);
+        // all rows
+        RowIterator it = table.rowIterator(store);
 
         for (; it.hasNext(); count++) {
             CachedObject row = it.getNextRow();
@@ -251,11 +259,11 @@ final class DataFileDefrag {
             pos += row.getStorageSize();
         }
 
-        Error.printSystemOut(table.getName().name + " list done: "
+        Error.printSystemOut("table: " + table.getName().name + " list done: "
                              + stopw.elapsedTime());
 
         count = 0;
-        it    = table.rowIterator(session);
+        it    = table.rowIterator(store);
 
         for (; it.hasNext(); count++) {
             CachedObject row = it.getNextRow();
@@ -288,9 +296,14 @@ final class DataFileDefrag {
         }
 
         setTransactionRowLookups(pointerLookup);
-        Error.printSystemOut(table.getName().name + " : table converted");
+        Error.printSystemOut("table: " + table.getName().name
+                             + " : table converted");
 
         return rootsArray;
+    }
+
+    public int[][] getIndexRoots() {
+        return rootsList;
     }
 
     void setTransactionRowLookups(DoubleIntIndex pointerLookup) {
@@ -303,28 +316,6 @@ final class DataFileDefrag {
                 transactionRowLookup.setValue(
                     i, pointerLookup.getValue(lookupIndex));
             }
-        }
-    }
-
-    void writeTransactionRows() {
-
-        for (int i = 0, size = transactionRowLookup.size(); i < size; i++) {
-            if (transactionRowLookup.getValue(i) != 0) {
-                continue;
-            }
-
-            int key = transactionRowLookup.getKey(i);
-
-            try {
-                transactionRowLookup.setValue(i, (int) (fileOffset / scale));
-
-                RowInputInterface rowIn = cache.readObject(key);
-
-                fileStreamOut.write(rowIn.getBuffer(), 0, rowIn.getSize());
-
-                fileOffset += rowIn.getSize();
-            } catch (HsqlException e) {}
-            catch (IOException e) {}
         }
     }
 }

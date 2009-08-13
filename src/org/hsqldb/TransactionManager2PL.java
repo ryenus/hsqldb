@@ -760,58 +760,13 @@ public class TransactionManager2PL implements TransactionManagerInterface {
      */
     public DoubleIntIndex getTransactionIDList() {
 
-        writeLock.lock();
+        DoubleIntIndex lookup = new DoubleIntIndex(10, false);
 
-        try {
-            Session[]      sessions = database.sessionManager.getAllSessions();
-            DoubleIntIndex lookup   = new DoubleIntIndex(10, false);
-
-            lookup.setKeysSearchTarget();
-
-            for (int i = 0; i < sessions.length; i++) {
-                HsqlArrayList tlist = sessions[i].rowActionList;
-
-                for (int j = 0, size = tlist.size(); j < size; j++) {
-                    RowAction rowact = (RowAction) tlist.get(j);
-
-                    if (rowact.table.getTableType()
-                            == TableBase.CACHED_TABLE) {
-                        lookup.addUnique(rowact.getPos(), 0);
-                    }
-                }
-            }
-
-            return lookup;
-        } finally {
-            writeLock.unlock();
-        }
+        return lookup;
     }
 
     /**
      * Convert row ID's for cached table rows in transactions
      */
-    public void convertTransactionIDs(DoubleIntIndex lookup) {
-
-        writeLock.lock();
-
-        try {
-            Session[] sessions = database.sessionManager.getAllSessions();
-
-            for (int i = 0; i < sessions.length; i++) {
-                HsqlArrayList tlist = sessions[i].rowActionList;
-
-                for (int j = 0, size = tlist.size(); j < size; j++) {
-                    RowAction rowact = (RowAction) tlist.get(j);
-
-                    if (rowact.memoryRow == null) {
-                        int pos = lookup.lookupFirstEqual(rowact.getPos());
-
-                        rowact.setPos(pos);
-                    }
-                }
-            }
-        } finally {
-            writeLock.unlock();
-        }
-    }
+    public void convertTransactionIDs(DoubleIntIndex lookup) {}
 }
