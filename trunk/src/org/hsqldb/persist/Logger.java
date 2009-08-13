@@ -439,7 +439,6 @@ public class Logger {
     }
 
     FrameworkLogger fwLogger;
-    boolean         useFrameworkLogger = true;
 
     /**
      * All usage of FrameworkLogger should call this method before using an
@@ -460,10 +459,6 @@ public class Logger {
      */
     private FrameworkLogger getEventLogger() {
 
-        if (!useFrameworkLogger) {
-            return null;
-        }
-
         if (fwLogger != null) {
             return fwLogger;
         }
@@ -471,30 +466,17 @@ public class Logger {
         String name = database.getUniqueName();
 
         if (name == null) {
-
-            // temp code to test all usage is correct
-            // will later return null
-            // is called before name creation
-            // This situation is only possible with a malformed .script
-            // file that does not contain the statement to set the
-            // unique name, or an error in script file before the said
-            // statement
-//            throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
+            // The database unique name is set up at different times
+            // depending on upgraded / exiting / new databases.
+            // Therefore FrameworkLogger is not used until the unique
+            // name is known.
             return null;
         }
 
-        try {
-            Class.forName("org.apache.log4j.Logger");
+        fwLogger = FrameworkLogger.getLog(Logger.class,
+                                          database.getUniqueName());
 
-            fwLogger = FrameworkLogger.getLog(Logger.class,
-                                              database.getUniqueName());
-
-            return fwLogger;
-        } catch (Exception e) {
-            useFrameworkLogger = false;
-
-            return null;
-        }
+        return fwLogger;
     }
 
     public void setEventLogLevel(int level) {
@@ -660,7 +642,6 @@ public class Logger {
 
         if (loggingEnabled) {
             logInfoEvent("Checkpoint start");
-
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
             logInfoEvent("Checkpoint end");
