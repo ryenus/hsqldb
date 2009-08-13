@@ -33,7 +33,6 @@ package org.hsqldb.lib;
 
 import java.util.Enumeration;
 import java.util.logging.Level;
-import java.util.logging.FileHandler;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 import java.util.logging.LogManager;
@@ -43,8 +42,6 @@ import java.io.FileInputStream;
 import java.util.Properties;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
 import java.lang.reflect.Method;
 
 /**
@@ -82,7 +79,6 @@ public class FrameworkLogger {
 
     static private Map     loggerInstances  = new HashMap();
     static private Map     jdkToLog4jLevels = new HashMap();
-    static private List    jdkContextLoggerNames;
     static private Method  log4jGetLogger;
     static private Method  log4jLogMethod;
     private Object         log4jLogger;
@@ -111,7 +107,6 @@ public class FrameworkLogger {
             LogManager lm = LogManager.getLogManager();
             if (haveLoadedOurDefault || isDefaultJdkConfig()) {
                 haveLoadedOurDefault = true;
-                jdkContextLoggerNames = new ArrayList();
                 consoleHandler.setFormatter(
                         new BasicTextJdkLogFormatter(false));
                 consoleHandler.setLevel(Level.INFO);
@@ -123,7 +118,6 @@ public class FrameworkLogger {
             } else {
                 // Do not intervene.  Use JDK logging exactly as configured by
                 // user.
-                jdkContextLoggerNames = null;
                 lm.readConfiguration();
                 // The only bad thing about doing this is that if the app has
                 // programmatically changed the logging config after starting
@@ -134,7 +128,6 @@ public class FrameworkLogger {
             throw new RuntimeException(
                 "<clinit> failure initializing JDK logging system", e);
         } else try {
-            jdkContextLoggerNames = null;
             Method log4jToLevel = Class.forName(
                 "org.apache.log4j.Level").getMethod(
                 "toLevel", new Class[]{ String.class });
@@ -220,30 +213,9 @@ public class FrameworkLogger {
      * associated FileHander using the supplied String identifier.
      */
     public static FrameworkLogger getLog(Class c, String contextId) {
-        if (contextId == null) {
-            return getLog(c);
-        }
-        FrameworkLogger logger = getLog(contextId + '.' + c.getName());
-        if (jdkContextLoggerNames == null) {
-            return logger;
-        }
-
-        if (jdkContextLoggerNames.contains(contextId)) {
-            return logger;
-        }
-
-        try {
-            FileHandler contextHandler =
-                    new FileHandler(contextId + ".applog", true);
-            contextHandler.setLevel(Level.WARNING);
-            contextHandler.setFormatter(new BasicTextJdkLogFormatter());
-            Logger.getLogger(contextId).addHandler(contextHandler);
-            jdkContextLoggerNames.add(contextId);
-            return logger;
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Logging framework internals failure", e);
-        }
+        return (contextId == null)
+                ?  getLog(c)
+                :  getLog(contextId + '.' + c.getName());
     }
 
     /**
