@@ -130,7 +130,7 @@ final class RangeVariable {
         emptyData        = rangeTable.getEmptyRowData();
         columnsInGroupBy = rangeTable.getNewColumnCheckList();
         usedColumns      = rangeTable.getNewColumnCheckList();
-        rangePosition = position;
+        rangePosition    = position;
     }
 
     RangeVariable(RangeVariable range) {
@@ -752,6 +752,7 @@ final class RangeVariable {
             this.store = session.sessionData.getRowStore(rangeVar.rangeTable);
             this.session       = session;
             this.rangeVar      = rangeVar;
+            currentData        = rangeVar.emptyData;
             isBeforeFirst      = true;
 
             if (rangeVar.isRightJoin) {
