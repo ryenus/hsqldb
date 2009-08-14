@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
-         xml:id="deployment-chapt"
+<chapter version="5.0" xml:id="deployment-chapt"
+         xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
@@ -153,9 +153,10 @@
           <para>The file system must have enough spare room both for the
           'permanent' and 'temporary' files. The default maximum size of the
           *.log file is 50MB. The *.data file can grow to up to 16GB. The
-          .backup file can be up to the size of the *.data file. The temporary
-          files created at the time of a SHUTDOWN can be equal in size to the
-          *.script file and the .data file.</para>
+          .backup file can be up to the size of the *.data file. The *.lobs
+          file can grow to several terabytes. The temporary files created at
+          the time of a SHUTDOWN can be equal in size to the *.script file and
+          the .data file.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -164,50 +165,16 @@
   <section xml:id="deployment_mem_disk-sect">
     <title>Memory and Disk Use</title>
 
+    <indexterm significance="preferred">
+      <primary>memory use</primary>
+    </indexterm>
+
     <para>Memory used by the program can be thought of as two distinct pools:
-    memory used for table data, and memory used for building result sets and
-    other internal operations. In addition, when transactions are used, memory
-    is utilised for storing the information needed for a rollback.</para>
-
-    <para>The memory used for a MEMORY table is the sum of memory used by each
-    row. Each MEMORY table row is a Java object that has 2 int or reference
-    variables. It contains an array of objects for the fields in the row. Each
-    field is an object such as <classname>Integer</classname>,
-    <classname>Long</classname>, <classname>String</classname>, etc. In
-    addition each index on the table adds a node object to the row. Each node
-    object has 6 int or reference variables. As a result, a table with just
-    one column of type INTEGER will have four objects per row, with a total of
-    10 variables of 4 bytes each - currently taking up 80 bytes per row.
-    Beyond this, each extra column in the table adds at least a few bytes to
-    the size of each row.</para>
-
-    <para>All the rows in the result set are built in memory, so very large
-    result sets may not be possible. In server mode databases, the result set
-    memory is released from the server once the database server has returned
-    the result set. <glossterm>in-process</glossterm> databases release the
-    memory when the application program releases the
-    <classname>java.sql.ResultSet</classname> object. Server modes require
-    additional memory for returning result sets, as they convert the full
-    result set into an array of bytes which is then transmitted to the
-    client.</para>
-
-    <para>When UPDATE and DELETE queries are performed on CACHED tables, the
-    full set of rows that are affected, including those affected due to ON
-    UPDATE actions, is held in memory for the duration of the operation. This
-    means it may not be possible to perform deletes or updates involving very
-    large numbers of rows of CACHED tables. Such operations should be
-    performed in smaller sets.</para>
-
-    <para>When transactions support is enabled with SET AUTOCOMMIT FALSE,
-    lists of all insert, delete or update operations are stored in memory so
-    that they can be undone when ROLLBACK is issued. Transactions that span
-    hundreds of modification to data will take up a lot of memory until the
-    next COMMIT or ROLLBACK clears the list.</para>
-
-    <para>HyperSQL uses a fast cache for immutable objects such as Integer or
-    String that are stored in the database. In most circumstances, this
-    reduces the memory footprint still further as fewer copies of the most
-    frequently-used objects are kept in memory.</para>
+    memory used for table data which is not released unless the data is
+    deleted and memory that can be released or is released automatically,
+    including memory used for caching, building result sets and other internal
+    operations such as storing the information needed for a rollback a
+    transaction.</para>
 
     <para>Most JVM implementations allocate up to a maximum amount of memory
     (usually 64 MB by default). This amount is generally not adequate when
@@ -217,27 +184,70 @@
     HyperSQL. For example, with Sun JVM version 1.3.0 the parameter -Xmx256m
     increases the amount to 256 MB.</para>
 
-    <para>By default, all the rows in the result set are built in memory, so
-    very large result sets may not be possible. In server mode databases, the
-    result set memory is released from the server once the database server has
-    returned the result set. <glossterm>in-process</glossterm> databases
-    release the memory when the application program releases the
-    <classname>java.sql.ResultSet</classname> object. Server modes require
-    additional memory for returning result sets, as they convert the full
-    result set into an array of bytes which is then transmitted to the
-    client.</para>
+    <section>
+      <title>Table Memory Allocation</title>
 
-    <para>HyperSQL 2.0 supports disk-based result sets. The commands,
-    <literal>SET RESULT MEMORY ROWS &lt;integer&gt;</literal> and <literal>SET
-    DATABASE DEFAULT RESULT MEMORY ROWS &lt;integer&gt;</literal> specify a
-    threshold for the number of rows. Results with row counts above the
-    threshold are stored on disk. When the setFetchSize() method of the
-    Statement interface is used to limit the number rows fetched, the whole
-    result is held by the engine and is returnd to the JDBC ResultSet in
-    blocks of rows of the specified fetch size.</para>
+      <para>The memory used for a MEMORY table is the sum of memory used by
+      each row. Each MEMORY table row is a Java object that has 2 int or
+      reference variables. It contains an array of objects for the fields in
+      the row. Each field is an object such as <classname>Integer</classname>,
+      <classname>Long</classname>, <classname>String</classname>, etc. In
+      addition each index on the table adds a node object to the row. Each
+      node object has 6 int or reference variables. As a result, a table with
+      just one column of type INTEGER will have four objects per row, with a
+      total of 10 variables of 4 bytes each - currently taking up 80 bytes per
+      row. Beyond this, each extra column in the table adds at least a few
+      bytes to the size of each row.</para>
+    </section>
 
     <section>
-      <title>Cache Memory Allocation</title>
+      <title>Result Set Memory Allocation</title>
+
+      <para>By default, all the rows in the result set are built in memory, so
+      very large result sets may not be possible. In server mode databases, by
+      default, the result set memory is released from the server once the
+      database server has returned the result set.
+      <glossterm>in-process</glossterm> databases release the memory when the
+      application program releases the
+      <classname>java.sql.ResultSet</classname> object. Server modes require
+      additional memory for returning result sets, as they convert the full
+      result set into an array of bytes which is then transmitted to the
+      client.</para>
+
+      <para>HyperSQL 2.0 supports disk-based result sets. The commands,
+      <literal>SET RESULT MEMORY ROWS &lt;integer&gt;</literal> and
+      <literal>SET DATABASE DEFAULT RESULT MEMORY ROWS
+      &lt;integer&gt;</literal> specify a threshold for the number of rows.
+      Results with row counts above the threshold are stored on disk. When the
+      setFetchSize() method of the Statement interface is used to limit the
+      number rows fetched, the whole result is held by the engine and is
+      returnd to the JDBC ResultSet in blocks of rows of the specified fetch
+      size.</para>
+    </section>
+
+    <section>
+      <title>Temporary Memory Use During Operations</title>
+
+      <para>When UPDATE and DELETE queries are performed on CACHED tables, the
+      full set of rows that are affected, including those affected due to ON
+      UPDATE actions, is held in memory for the duration of the operation.
+      This means it may not be possible to perform deletes or updates
+      involving very large numbers of rows of CACHED tables. Such operations
+      should be performed in smaller sets.</para>
+
+      <para>When transactions support is enabled with SET AUTOCOMMIT FALSE,
+      lists of all insert, delete or update operations are stored in memory so
+      that they can be undone when ROLLBACK is issued. Transactions that span
+      hundreds of modification to data will take up a lot of memory until the
+      next COMMIT or ROLLBACK clears the list.</para>
+
+      <para>When subquries or views are used in SELECT and other statements,
+      transient tables are created and populated by the engine. If the SET
+      RESULT MEMORY ROWS has been used.</para>
+    </section>
+
+    <section>
+      <title>Data Cache Memory Allocation</title>
 
       <para>With CACHED tables, the data is stored on disk and only up to a
       maximum number of rows are held in memory at any time. The default is up
@@ -268,6 +278,18 @@
 
       <para>Data for CLOB and BLOB columns is not cached and does not affect
       the CACHED table memory cache.</para>
+    </section>
+
+    <section>
+      <title>Object Pool Memory Allocation</title>
+
+      <para>HyperSQL uses a set of fast pools for immutable objects such as
+      Integer, Long and short String objects that are stored in the database.
+      In most circumstances, this reduces the memory footprint still further
+      as fewer copies of the most frequently-used objects are kept in memory.
+      The object pools are shared among all databases in the JVM. The size of
+      each pool can be modified only by altering and recompiling the
+      <literal>org.hsqldb.store.ValuePool</literal> class.</para>
     </section>
   </section>
 
@@ -335,6 +357,10 @@
   <section xml:id="deployment_upgrade-sect">
     <title>Upgrading Databases</title>
 
+    <indexterm significance="preferred">
+      <primary>upgrading</primary>
+    </indexterm>
+
     <para>Any database that is not produced with the release version of
     HyperSQL 2.0 or 1.9 must be upgraded to this version. Some catalogs
     created with 1.8.0 can be upgraded simply by opening with HyperSQL 2.0.
@@ -349,10 +375,11 @@
       Versions</title>
 
       <para>To upgrade from the more recent version 1.8.0 simply open the
-      database with 1.9. With version 1.8.0 files, as well as versions 1.7.2
-      and 1.7.3 files, it is best to issue the SET SCRIPTFORMAT TEXT and
-      SHUTDOWN SCRIPT commands with the old version, then open with the new
-      version of the engine. The upgrade is then complete.</para>
+      database with 1.9. With version 1.8.0 files which have database script
+      format set to BINARY or COMPRESSED (ZIPPED) you must issue the SET
+      SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with the old version,
+      then open with the new version of the engine. The upgrade is then
+      complete.</para>
 
       <para>To upgrade from older version database files (1.7.1 and older)
       that contain CACHED tables, use the SCRIPT procedure below. In all
@@ -425,10 +452,11 @@
         </listitem>
       </itemizedlist>
 
-      <para>Note that the <literal>*.script</literal> file must be the result
-      of a SHUTDOWN SCRIPT and must contain the full data for the database.The
-      following changes can be applied so long as they do not affect the
-      integrity of existing data.</para>
+      <para>Other manual changes are also possible. Note that the
+      <literal>*.script</literal> file must be the result of a SHUTDOWN SCRIPT
+      and must contain the full data for the database.The following changes
+      can be applied so long as they do not affect the integrity of existing
+      data.</para>
 
       <itemizedlist>
         <listitem>
@@ -577,6 +605,53 @@
   </section>
 
   <section>
+    <title>Monitoring Database Operations</title>
+
+    <para>Database operations can be monitored at different levels using
+    internal HyperSQL capabilities or add-ons. </para>
+
+    <section>
+      <title>Statement Level Monitoring</title>
+
+      <para>Statement level monitoring allows you to gather statistics about
+      executed statements. HyperSQL is supported by the monitoring tool JAMon
+      (Java Application Monitor).</para>
+
+      <para>JAMon works at the JDBC level. It can monitor and gather
+      statistics on different types of executed statements or other JDBC
+      calls.</para>
+
+      <para> Early versions of JAMon were developed with HSQLDB and had to be
+      integrated into HSQLDB at code level. The latest versions can be added
+      on as a proxy in a much simpler fashion.</para>
+    </section>
+
+    <section>
+      <title>Internal Event Monitoring</title>
+
+      <para>HyperSQL can log important internal events of the engine. These
+      events occur during the operation of the engine, and are not always
+      coupled with the exact type of statement being executed. Normal events
+      such as opening and closing of files, or errors such as OutOfMemory
+      conditions are examples of logged events.</para>
+
+      <para>HyperSQL supports two methods of logging. One method is specific
+      to the individual database and is mangaged internally by HyperSQL. The
+      other method is specific to JVM and is managed by a logging
+      framework.</para>
+
+      <para>The individual log for the database can be enabled with the SET
+      DATABASE EVENT LOG LEVEL statement, described in the next
+      section.</para>
+
+      <para>HyperSQL also supports log4J and JDK logging. The same event
+      information that is passed to the internal log, is passed to external
+      logging frameworks. These frameworks are configured outside
+      HyperSQL.</para>
+    </section>
+  </section>
+
+  <section>
     <title>Statements</title>
 
     <para>System level statements are listed in this section. Statements that
@@ -704,6 +779,9 @@
     specified, also shrinks the <literal>*.data</literal> file to its minumum
     size. Only a user with the DBA role can execute this statement.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SCRIPT</primary>
     </indexterm>
@@ -754,6 +832,9 @@
     <simpara>The default mode is TRUE. If the old method of backup is
     required, the mode can be set FALSE.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES CACHE ROWS</primary>
     </indexterm>
@@ -769,6 +850,9 @@
     <simpara>Sets the maximum number of rows (of CACHED tables) held in the
     memory cache.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES CACHE SIZE</primary>
     </indexterm>
@@ -783,6 +867,9 @@
 
     <simpara>Sets maximum amount of data (of CACHED tables) in kilobytes held
     in the memory cache.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES DEFRAG</primary>
@@ -826,6 +913,9 @@
     creation of the lock file to be disabled or enabled. The setting . Only a
     user with the DBA role can execute this statement.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES LOG SIZE</primary>
     </indexterm>
@@ -844,6 +934,9 @@
     <literal>*.log</literal> file is cleared to size 0. Only a user with the
     DBA role can execute this statement.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES INCREMENT BACKUP</primary>
     </indexterm>
@@ -860,6 +953,9 @@
     <simpara>This specifies the method for internal backup operation. The
     default is true.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES NIO</primary>
     </indexterm>
@@ -873,6 +969,9 @@
 
     <simpara>Changes the access method of the .data file. The default is TRUE
     and uses the Java nio classes to access the file.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES WRITE DELAY</primary>
@@ -907,30 +1006,6 @@
     value, a sync is immediately performed. Only a user with the DBA role can
     execute this statement.</para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET REFERENTIAL INTEGRITY</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET DATABASE REFERENTIAL
-    INTEGRITY</emphasis></simpara>
-
-    <simpara><emphasis>set database referential integrity
-    statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set database referential integrity statement&gt; ::=
-    SET DATABASE REFERENTIAL INTEGRITY { TRUE | FALSE }</literal></simpara>
-
-    <simpara>This commands enables or disables the enforcement of referential
-    integrity constraints (foreign key constraints). By default, referential
-    integrity constraints are checked.</simpara>
-
-    <simpara>The only legitimate use of this statement is before importing
-    large amounts of external data into tables that have existing FOREIGN KEY
-    constraints. After importing the data, queries must be run to verify all
-    rows conform to the FOREIGN KEY constraints and take appropriate actions
-    for the rows that do not conform. After verification, the statement must
-    be used again to enable constraint enforcement.</simpara>
-
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
 
@@ -951,6 +1026,9 @@
     collation. Only a user with the DBA role can execute this
     statement.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE DEFAULT TABLE TYPE</primary>
     </indexterm>
@@ -967,6 +1045,9 @@
     <simpara>Sets the type of table created when the next CREATE TABLE
     statement is executed. The default is MEMORY.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE DEFAULT RESULT MEMORY ROWS</primary>
     </indexterm>
@@ -981,24 +1062,34 @@
     DATABASE DEFAULT RESULT MEMORY ROWS &lt;unsigned integer
     literal&gt;.</literal></simpara>
 
+    <simpara>Sets the maximum number of rows of each result set and other
+    internal temporary table that is held in memory. This setting applies to
+    all sessions. Individual sessions can change the value with the
+    <literal>SET RESULT MEMORY ROWS</literal> command. The default is 0,
+    meaning all result sets are held in memory.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE TRANSACTION CONTROL</primary>
+      <primary>SET DATABASE EVENT LOG LEVEL</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">SET DATABASE TRANSACTION
-    CONTROL</emphasis></simpara>
+    <simpara><emphasis role="bold">SET DATABASE EVENT LOG
+    LEVEL</emphasis></simpara>
 
-    <simpara><emphasis>set database transaction control
-    statement</emphasis></simpara>
+    <simpara><emphasis>set database event log level
+    statement*</emphasis><literal> </literal></simpara>
 
-    <simpara><literal>&lt;set database transaction control statement&gt; ::=
-    SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
-    }</literal></simpara>
+    <simpara><literal>&lt;set database event log level&gt; ::= SET DATABASE
+    EVENT LOG LEVEL { 0 | 1 | 2 }</literal></simpara>
 
-    <simpara>Set the concurrency control system for the database. It can be
-    issued only when all sessions have been committed or rolled back. This
-    command and its modes is discussed in the <link endterm="sessions-title"
-    xlink:href="#sessions-chapt"></link> chapter.</simpara>
+    <simpara>Sets the amount of information logged in the internal,
+    database-specific event log. Level 0 means no log. Level 1 means only
+    important (error) events. Level 2 means more events, including both
+    important and less important (normal) events. For readonly and mem:
+    databases, if the level is set above 0, the log messages are directed to
+    stderr.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1021,6 +1112,9 @@
     property may be useful in some in-process deployments, expecially with
     older JVM implementations.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE SQL SIZE</primary>
     </indexterm>
@@ -1037,6 +1131,9 @@
     for CHAR and VARCHAR columns. The default is TRUE, meaning
     enable.</simpara>
 
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE SQL NAMES</primary>
     </indexterm>
@@ -1051,6 +1148,61 @@
     <simpara>This command can enable or disable full enforcement of the rule
     that prevents SQL keywords being used for database object names such as
     columns and tables. The default is FALSE, meaning disable.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET REFERENTIAL INTEGRITY</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE REFERENTIAL
+    INTEGRITY</emphasis></simpara>
+
+    <simpara><emphasis>set database referential integrity
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database referential integrity statement&gt; ::=
+    SET DATABASE REFERENTIAL INTEGRITY { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This commands enables or disables the enforcement of referential
+    integrity constraints (foreign key constraints), check constraints apart
+    from NOT NULL and triggers. By default, referential integrity constraints
+    are checked.</simpara>
+
+    <simpara>The only legitimate use of this statement is before importing
+    large amounts of external data into tables that have existing FOREIGN KEY
+    constraints. After import, the statement must be used again to enable
+    constraint enforcement.</simpara>
+
+    <simpara>If you are not sure the data conforms to the constraints, run
+    queries to verify all rows conform to the FOREIGN KEY constraints and take
+    appropriate actions for the rows that do not conform.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE TRANSACTION CONTROL</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE TRANSACTION
+    CONTROL</emphasis></simpara>
+
+    <simpara><emphasis>set database transaction control
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database transaction control statement&gt; ::=
+    SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
+    }</literal></simpara>
+
+    <simpara>Set the concurrency control system for the database. It can be
+    issued only when all sessions have been committed or rolled back. This
+    command and its modes is discussed in the <link endterm="sessions-title"
+    xlink:href="#sessions-chapt"></link> chapter.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET IGNORECASE</primary>
