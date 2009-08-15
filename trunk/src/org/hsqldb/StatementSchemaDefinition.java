@@ -55,7 +55,13 @@ public class StatementSchemaDefinition extends StatementSchema {
 
     public Result execute(Session session) {
 
-        Result result = getResult(session);
+        Result result;
+
+        try {
+            result = getResult(session);
+        } catch (Throwable t) {
+            result = Result.newErrorResult(t, null);
+        }
 
         if (result.isError()) {
             result.getException().setStatementType(group, type);

@@ -276,7 +276,7 @@ public class TestSql extends TestBase {
                     + getColumnName + "');");
 
                 ResultSet rs = stmnt.executeQuery(
-                    "SELECT I, A, B, A \"aliasA\", B \"aliasB\" FROM T;");
+                    "SELECT I, A, B, A \"aliasA\", B \"aliasB\", 1 FROM T;");
                 ResultSetMetaData rsmd = rs.getMetaData();
 
                 result5 = "";
@@ -293,7 +293,7 @@ public class TestSql extends TestBase {
                 rs.close();
 
                 rs = stmnt.executeQuery(
-                    "SELECT I, A, B, A \"aliasA\", B \"aliasB\" FROM T;");;
+                    "SELECT I, A, B, A \"aliasA\", B \"aliasB\", 1 FROM T;");;
                 rsmd = rs.getMetaData();
 
                 for (; rs.next(); ) {

@@ -165,17 +165,41 @@ public class ParserRoutine extends ParserDML {
         return e;
     }
 
+    Statement compileSelectSingleRowStatement(RangeVariable[] rangeVars) {
+
+        OrderedHashSet     variableNames = new OrderedHashSet();
+        QuerySpecification select        = XreadSelect();
+
+        readThis(Tokens.INTO);
+        readColumnNamesForSelectInto(variableNames, rangeVars);
+        XreadTableExpression(select);
+        select.setAsTopLevel();
+        select.resolve(session, rangeVars);
+
+
+        int[]          indexes   = new int[variableNames.size()];
+        ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
+
+        setVariables(rangeVars, variableNames, indexes, variables);
+
+        Statement statement = new StatementSet(compileContext, variables,
+                                               select, indexes);
+
+        return statement;
+    }
+
+
     /**
      * Creates SET Statement for PSM from this parse context.
      */
-    StatementSimple compileSetStatement(RangeVariable rangeVars[]) {
+    Statement compileSetStatement(RangeVariable rangeVars[]) {
 
         read();
 
-        OrderedHashSet colNames = new OrderedHashSet();
+        OrderedHashSet variableNames = new OrderedHashSet();
         HsqlArrayList  exprList = new HsqlArrayList();
 
-        readSetClauseList(rangeVars, colNames, exprList);
+        readSetClauseList(rangeVars, variableNames, exprList);
 
         if (exprList.size() > 1) {
             throw Error.error(ErrorCode.X_42602);
@@ -183,15 +207,15 @@ public class ParserRoutine extends ParserDML {
 
         Expression expression = (Expression) exprList.get(0);
 
-        if (expression.getDegree() != colNames.size()) {
+        if (expression.getDegree() != variableNames.size()) {
 
 //            throw Error.error(ErrorCode.X_42546);
         }
 
-        int[]          indexes   = new int[colNames.size()];
-        ColumnSchema[] variables = new ColumnSchema[colNames.size()];
+        int[]          indexes   = new int[variableNames.size()];
+        ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
 
-        setVariables(rangeVars, colNames, indexes, variables);
+        setVariables(rangeVars, variableNames, indexes, variables);
 
         HsqlList unresolved = expression.resolveColumnReferences(rangeVars,
             rangeVars.length, null, false);
@@ -201,8 +225,8 @@ public class ParserRoutine extends ParserDML {
         ExpressionColumn.checkColumnsResolved(unresolved);
         expression.resolveTypes(session, null);
 
-        StatementSimple cs = new StatementSimple(StatementTypes.ASSIGNMENT,
-            variables, expression, indexes);
+        StatementSet cs = new StatementSet(compileContext, variables,
+                                           expression, indexes);
 
         return cs;
     }
@@ -763,7 +787,7 @@ public class ParserRoutine extends ParserDML {
         return sqlState;
     }
 
-    private Statement readCompoundStatement(Routine routine,
+    private Statement compileCompoundStatement(Routine routine,
             StatementCompound context, HsqlName label) {
 
         final boolean atomic = true;
@@ -855,7 +879,7 @@ public class ParserRoutine extends ParserDML {
 
             // data
             case Tokens.SELECT : {
-                cs = readSelectSingleRowStatement(rangeVariables);
+                cs = compileSelectSingleRowStatement(rangeVariables);
 
                 break;
             }
@@ -899,32 +923,32 @@ public class ParserRoutine extends ParserDML {
 
                 read();
 
-                cs = readReturnValue(routine, context);
+                cs = compileReturnValue(routine, context);
 
                 break;
             }
             case Tokens.BEGIN : {
-                cs = readCompoundStatement(routine, context, label);
+                cs = compileCompoundStatement(routine, context, label);
 
                 break;
             }
             case Tokens.WHILE : {
-                cs = readWhile(routine, context, label);
+                cs = compileWhile(routine, context, label);
 
                 break;
             }
             case Tokens.REPEAT : {
-                cs = readRepeat(routine, context, label);
+                cs = compileRepeat(routine, context, label);
 
                 break;
             }
             case Tokens.LOOP : {
-                cs = readLoop(routine, context, label);
+                cs = compileLoop(routine, context, label);
 
                 break;
             }
             case Tokens.FOR : {
-                cs = readFor(routine, context, label);
+                cs = compileFor(routine, context, label);
 
                 break;
             }
@@ -933,7 +957,7 @@ public class ParserRoutine extends ParserDML {
                     throw unexpectedToken();
                 }
 
-                cs = readIterate();
+                cs = compileIterate();
 
                 break;
             }
@@ -942,7 +966,7 @@ public class ParserRoutine extends ParserDML {
                     throw unexpectedToken();
                 }
 
-                cs = readLeave(routine, context);
+                cs = compileLeave(routine, context);
 
                 break;
             }
@@ -951,7 +975,7 @@ public class ParserRoutine extends ParserDML {
                     throw unexpectedToken();
                 }
 
-                cs = readIf(routine, context);
+                cs = compileIf(routine, context);
 
                 break;
             }
@@ -960,17 +984,17 @@ public class ParserRoutine extends ParserDML {
                     throw unexpectedToken();
                 }
 
-                cs = readCase(routine, context);
+                cs = compileCase(routine, context);
 
                 break;
             }
             case Tokens.SIGNAL : {
-                cs = readSignal(routine, context, label);
+                cs = compileSignal(routine, context, label);
 
                 break;
             }
             case Tokens.RESIGNAL : {
-                cs = readResignal(routine, context, label);
+                cs = compileResignal(routine, context, label);
 
                 break;
             }
@@ -984,7 +1008,7 @@ public class ParserRoutine extends ParserDML {
         return cs;
     }
 
-    private Statement readReturnValue(Routine routine,
+    private Statement compileReturnValue(Routine routine,
                                       StatementCompound context) {
 
         Expression e = XreadValueExpressionOrNull();
@@ -1012,26 +1036,7 @@ public class ParserRoutine extends ParserDML {
         return new StatementSimple(StatementTypes.RETURN, e);
     }
 
-    private Statement readSelectSingleRowStatement(RangeVariable[] rangeVars) {
-
-        OrderedHashSet     variableNames = new OrderedHashSet();
-        QuerySpecification select        = XreadSelect();
-
-        readThis(Tokens.INTO);
-        readColumnNamesForSelectInto(variableNames, rangeVars);
-        XreadTableExpression(select);
-        select.setAsTopLevel();
-        select.resolve(session);
-
-        int[]          indexes   = new int[variableNames.size()];
-        ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
-        Statement statement = new StatementSimple(StatementTypes.ASSIGNMENT,
-            variables, null, indexes);
-
-        return statement;
-    }
-
-    private Statement readIterate() {
+    private Statement compileIterate() {
 
         readThis(Tokens.ITERATE);
 
@@ -1040,7 +1045,7 @@ public class ParserRoutine extends ParserDML {
         return new StatementSimple(StatementTypes.ITERATE, label);
     }
 
-    private Statement readLeave(Routine routine, StatementCompound context) {
+    private Statement compileLeave(Routine routine, StatementCompound context) {
 
         readThis(Tokens.LEAVE);
 
@@ -1049,7 +1054,7 @@ public class ParserRoutine extends ParserDML {
         return new StatementSimple(StatementTypes.LEAVE, label);
     }
 
-    private Statement readWhile(Routine routine, StatementCompound context,
+    private Statement compileWhile(Routine routine, StatementCompound context,
                                 HsqlName label) {
 
         readThis(Tokens.WHILE);
@@ -1087,7 +1092,7 @@ public class ParserRoutine extends ParserDML {
         return statement;
     }
 
-    private Statement readRepeat(Routine routine, StatementCompound context,
+    private Statement compileRepeat(Routine routine, StatementCompound context,
                                  HsqlName label) {
 
         readThis(Tokens.REPEAT);
@@ -1125,7 +1130,7 @@ public class ParserRoutine extends ParserDML {
         return statement;
     }
 
-    private Statement readLoop(Routine routine, StatementCompound context,
+    private Statement compileLoop(Routine routine, StatementCompound context,
                                HsqlName label) {
 
         readThis(Tokens.LOOP);
@@ -1156,7 +1161,7 @@ public class ParserRoutine extends ParserDML {
         return result;
     }
 
-    private Statement readFor(Routine routine, StatementCompound context,
+    private Statement compileFor(Routine routine, StatementCompound context,
                               HsqlName label) {
 
         readThis(Tokens.FOR);
@@ -1192,7 +1197,7 @@ public class ParserRoutine extends ParserDML {
         return result;
     }
 
-    private Statement readIf(Routine routine, StatementCompound context) {
+    private Statement compileIf(Routine routine, StatementCompound context) {
 
         HsqlArrayList list = new HsqlArrayList();
         RangeVariable[] rangeVariables = context == null
@@ -1283,7 +1288,7 @@ public class ParserRoutine extends ParserDML {
         return result;
     }
 
-    private Statement readCase(Routine routine, StatementCompound context) {
+    private Statement compileCase(Routine routine, StatementCompound context) {
 
         HsqlArrayList list      = new HsqlArrayList();
         Expression    condition = null;
@@ -1443,7 +1448,7 @@ public class ParserRoutine extends ParserDML {
         return list;
     }
 
-    private Statement readSignal(Routine routine, StatementCompound context,
+    private Statement compileSignal(Routine routine, StatementCompound context,
                                  HsqlName label) {
 
         readThis(Tokens.SIGNAL);
@@ -1456,7 +1461,7 @@ public class ParserRoutine extends ParserDML {
         return cs;
     }
 
-    private Statement readResignal(Routine routine, StatementCompound context,
+    private Statement compileResignal(Routine routine, StatementCompound context,
                                    HsqlName label) {
 
         String sqlState = null;

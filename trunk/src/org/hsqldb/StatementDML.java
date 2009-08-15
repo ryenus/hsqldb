@@ -138,29 +138,6 @@ public class StatementDML extends StatementDMQL {
     }
 
     /**
-     * Instantiate this as a SET statement.
-     */
-    StatementDML(Session session, Table table, RangeVariable rangeVars[],
-                 int[] updateColumnMap, Expression[] colExpressions,
-                 CompileContext compileContext) {
-
-        super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_DATA_CHANGE,
-              session.getCurrentSchemaHsqlName());
-
-        this.targetTable       = table;
-        this.baseTable         = targetTable.getBaseTable();
-        this.updateColumnMap   = updateColumnMap;
-        this.updateExpressions = colExpressions;
-        this.updateCheckColumns =
-            targetTable.getColumnCheckList(updateColumnMap);
-        this.targetRangeVariables = rangeVars;
-        isTransactionStatement    = false;
-
-        setDatabseObjects(compileContext);
-        checkAccessRights(session);
-    }
-
-    /**
      * Instantiate this as a CURSOR operation statement.
      */
     StatementDML() {
@@ -184,10 +161,6 @@ public class StatementDML extends StatementDMQL {
 
             case StatementTypes.DELETE_WHERE :
                 result = executeDeleteStatement(session);
-                break;
-
-            case StatementTypes.ASSIGNMENT :
-                result = executeSetStatement(session);
                 break;
 
             default :
@@ -353,7 +326,7 @@ public class StatementDML extends StatementDMQL {
         return Result.getUpdateCountResult(count);
     }
 
-    Object[] getUpdatedData(Session session, Table targetTable,
+    static Object[] getUpdatedData(Session session, Table targetTable,
                             int[] columnMap, Expression[] colExpressions,
                             Type[] colTypes, Object[] oldData) {
 
@@ -431,24 +404,6 @@ public class StatementDML extends StatementDMQL {
         }
 
         return data;
-    }
-
-    Result executeSetStatement(Session session) {
-
-        Table        table          = targetTable;
-        int[]        colMap         = updateColumnMap;    // column map
-        Expression[] colExpressions = updateExpressions;
-        Type[]       colTypes       = table.getColumnTypes();
-        int index = targetRangeVariables[TriggerDef.NEW_ROW].rangePosition;
-        Object[] oldData =
-            session.sessionContext.rangeIterators[index].getCurrentRow()
-                .getData();
-        Object[] data = getUpdatedData(session, table, colMap, colExpressions,
-                                       colTypes, oldData);
-
-        ArrayUtil.copyArray(data, oldData, data.length);
-
-        return Result.updateOneResult;
     }
 
     /**

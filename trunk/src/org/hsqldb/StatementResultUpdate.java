@@ -61,8 +61,8 @@ public class StatementResultUpdate extends StatementDML {
 
         try {
             return getResult(session);
-        } catch (HsqlException e) {
-            return Result.newErrorResult(e);
+        } catch (Throwable e) {
+            return Result.newErrorResult(e, null);
         }
     }
 
