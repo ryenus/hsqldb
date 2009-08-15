@@ -221,7 +221,9 @@ class TestBench {
             oneRound(url, user, password);
             oneRound(url, user, password);
             oneRound(url, user, password);
+
             guardian = connect(url, user, password);
+
             checkSums(guardian);
             connectClose(guardian);
             oneRound(url, user, password);
@@ -233,8 +235,10 @@ class TestBench {
             oneRound(url, user, password);
 
             guardian = connect(url, user, password);
+
             checkSums(guardian);
             connectClose(guardian);
+
             tempTime = System.currentTimeMillis() - tempTime;
 
             System.out.println("Total time: " + tempTime / 1000D + " seconds");
@@ -297,7 +301,7 @@ class TestBench {
 
         guardian = connect(url, user, password);
 
-        if (count_results ) {
+        if (count_results) {
             checkSums(guardian);
         }
 
@@ -770,7 +774,9 @@ class TestBench {
 
         public void run() {
 
-            while (ntrans-- > 0) {
+            int count = ntrans;
+
+            while (count-- > 0) {
                 int account = TestBench.getRandomID(ACCOUNT);
                 int branch  = TestBench.getRandomID(BRANCH);
                 int teller  = TestBench.getRandomID(TELLER);
@@ -780,6 +786,21 @@ class TestBench {
                 incrementTransactionCount();
             }
 
+/*
+            count = ntrans * 20;
+
+            try {
+                Conn.setReadOnly(true);
+                while (count-- > 0) {
+                    int account = TestBench.getRandomID(ACCOUNT);
+
+                    pstmt2.setInt(1, account);
+                    pstmt2.executeQuery();
+                    Conn.commit();
+                    incrementTransactionCount();
+                }
+            } catch (SQLException e) {}
+*/
             try {
                 if (pstmt1 != null) {
                     pstmt1.close();

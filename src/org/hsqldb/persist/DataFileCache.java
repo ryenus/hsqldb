@@ -706,7 +706,7 @@ public class DataFileCache {
                     outOfMemory = true;
 
                     database.logger.logSevereEvent(
-                        "Problem  getting object from file", err);
+                        "OOME in getFromFile", err);
                 }
             }
 
@@ -728,7 +728,7 @@ public class DataFileCache {
 
             return object;
         } catch (HsqlException e) {
-            database.logger.logSevereEvent(dataFileName + " get pos: " + pos,
+            database.logger.logSevereEvent(dataFileName + " getFromFile " + pos,
                                            e);
 
             throw e;

@@ -435,8 +435,11 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         String label = resultMetaData.columnLabels[column];
 
-        return label == null ? resultMetaData.columns[column].getNameString()
-                             : label;
+        if( label != null && label.length() > 0) {
+            return label;
+        }
+
+        return resultMetaData.columns[column].getNameString();
     }
 
     /**
@@ -471,16 +474,20 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      */
     public String getColumnName(int column) throws SQLException {
 
-        checkColumn(column);
+        checkColumn(column--);
 
         if (useColumnName) {
-            String name = resultMetaData.columns[--column].getNameString();
+            String name = resultMetaData.columns[column].getNameString();
 
-            return name == null ? ""
-                                : name;
+            if( name != null && name.length() > 0) {
+                return name;
+            }
         }
 
-        return resultMetaData.columnLabels[--column];
+        String label = resultMetaData.columnLabels[column];
+
+        return label == null ? resultMetaData.columns[column].getNameString()
+                             : label;
     }
 
     /**

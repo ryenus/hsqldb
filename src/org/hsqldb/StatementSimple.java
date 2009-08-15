@@ -33,8 +33,6 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Implementation of Statement for simple PSM control statements.
@@ -80,17 +78,6 @@ public class StatementSimple extends Statement {
         this.sqlState          = sqlState;
     }
 
-    StatementSimple(int type, ColumnSchema[] variables, Expression e,
-                    int[] indexes) {
-
-        super(type, StatementTypes.X_SQL_CONTROL);
-
-        isTransactionStatement = false;
-        this.expression        = e;
-        this.variables         = variables;
-        variableIndexes        = indexes;
-    }
-
     public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
@@ -129,13 +116,6 @@ public class StatementSimple extends Statement {
                 sb.append(expression.getSQL());
                 break;
 
-            case StatementTypes.ASSIGNMENT :
-
-                /** @todo - cover row assignment */
-                sb.append(Tokens.T_SET).append(' ');
-                sb.append(variables[0].getName().statementName).append(' ');
-                sb.append('=').append(' ').append(expression.getSQL());
-                break;
         }
 
         return sb.toString();
@@ -158,7 +138,13 @@ public class StatementSimple extends Statement {
 
     public Result execute(Session session) {
 
-        Result result = getResult(session);
+        Result result;
+
+        try {
+            result = getResult(session);
+        } catch (Throwable t) {
+            result = Result.newErrorResult(t, null);
+        }
 
         if (result.isError()) {
             result.getException().setStatementType(group, type);
@@ -185,58 +171,8 @@ public class StatementSimple extends Statement {
             case StatementTypes.CONDITION :
                 return this.getResultValue(session);
 
-            case StatementTypes.ASSIGNMENT : {
-                try {
-                    performAssignment(session);
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e);
-                }
-            }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "");
-        }
-    }
-
-    void performAssignment(Session session) {
-
-        Object[] values;
-
-        if (expression.getType() == OpTypes.ROW) {
-            values = expression.getRowValue(session);
-        } else if (expression.getType() == OpTypes.TABLE_SUBQUERY) {
-            values = expression.subQuery.queryExpression.getSingleRowValues(
-                session);
-
-            if (values == null) {
-                return;
-            }
-        } else {
-            values = new Object[1];
-            values[0] = expression.getValue(session,
-                                            variables[0].getDataType());
-        }
-
-        for (int j = 0; j < values.length; j++) {
-            Object[] data = ValuePool.emptyObjectArray;
-
-            switch (variables[j].getType()) {
-
-                case SchemaObject.PARAMETER :
-                    data = session.sessionContext.routineArguments;
-                    break;
-
-                case SchemaObject.VARIABLE :
-                    data = session.sessionContext.routineVariables;
-                    break;
-            }
-
-            int colIndex = variableIndexes[j];
-
-            data[colIndex] =
-                variables[j].getDataType().convertToDefaultType(session,
-                    values[j]);
         }
     }
 
@@ -287,10 +223,6 @@ public class StatementSimple extends Statement {
                 resolved = true;
                 break;
 
-            case StatementTypes.ASSIGNMENT :
-                resolved = true;
-                break;
-
             case StatementTypes.CONDITION :
                 resolved = true;
                 break;
@@ -302,14 +234,6 @@ public class StatementSimple extends Statement {
         if (!resolved) {
             throw Error.error(ErrorCode.X_42602);
         }
-    }
-
-    public void setParent(StatementCompound statement) {
-        parent = statement;
-    }
-
-    public void setRoot(Routine routine) {
-        root = routine;
     }
 
     public String describe(Session session) {

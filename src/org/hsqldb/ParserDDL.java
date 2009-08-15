@@ -2444,7 +2444,7 @@ public class ParserDDL extends ParserRoutine {
         resolveUpdateExpressions(table, rangeVars, columnMap,
                                  updateExpressions, RangeVariable.emptyArray);
 
-        StatementDMQL cs = new StatementDML(session, table, rangeVars,
+        StatementDMQL cs = new StatementSet(session, table, rangeVars,
                                             columnMap, updateExpressions,
                                             compileContext);
 

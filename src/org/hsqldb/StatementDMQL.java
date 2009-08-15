@@ -106,7 +106,7 @@ public abstract class StatementDMQL extends Statement {
     QueryExpression queryExpression;
 
     /**
-     * Parse-order array of Expression objects, all of iType == PARAM ,
+     * Parse-order array of Expression objects, all of type PARAMETER ,
      * involved in some way in any INSERT_XXX, UPDATE, DELETE, SELECT or
      * CALL CompiledStatement
      */
@@ -130,7 +130,7 @@ public abstract class StatementDMQL extends Statement {
     /**
      * Subqueries inverse usage depth order
      */
-    SubQuery[] subqueries;
+    SubQuery[] subqueries = SubQuery.emptySubqueryArray;
 
     /**
      * The type of this CompiledStatement. <p>

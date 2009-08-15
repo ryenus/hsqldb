@@ -1,0 +1,324 @@
+/* Copyright (c) 2001-2009, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+package org.hsqldb;
+
+import org.hsqldb.result.Result;
+import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.types.Type;
+import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.store.ValuePool;
+
+/**
+ * <p>Title: </p>
+ *
+ * <p>Description: </p>
+ *
+ * <p>Copyright: Copyright (c) 2002</p>
+ *
+ * <p>Company: </p>
+ *
+ * @author not attributable
+ * @version 1.0
+ */
+public class StatementSet extends StatementDMQL {
+
+    Expression      expression;
+    QueryExpression queryExpression;
+
+    //
+    ColumnSchema[] variables;
+    int[]          variableIndexes;
+
+    //
+    final int               operationType;
+    public final static int TRIGGER_SET  = 1;
+    public final static int SELECT_INTO  = 2;
+    public final static int VARIABLE_SET = 3;
+
+    /**
+     * Instantiate this as a SET statement.
+     */
+    StatementSet(Session session, Table table, RangeVariable rangeVars[],
+                 int[] updateColumnMap, Expression[] colExpressions,
+                 CompileContext compileContext) {
+
+        super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_DATA_CHANGE,
+              session.getCurrentSchemaHsqlName());
+
+        this.operationType     = TRIGGER_SET;
+        this.targetTable       = table;
+        this.baseTable         = targetTable.getBaseTable();
+        this.updateColumnMap   = updateColumnMap;
+        this.updateExpressions = colExpressions;
+        this.updateCheckColumns =
+            targetTable.getColumnCheckList(updateColumnMap);
+        this.targetRangeVariables = rangeVars;
+        isTransactionStatement    = false;
+
+        setDatabseObjects(compileContext);
+        checkAccessRights(session);
+    }
+
+    StatementSet(CompileContext context, ColumnSchema[] variables,
+                 Expression e, int[] indexes) {
+
+        super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_CONTROL, null);
+
+        this.operationType     = VARIABLE_SET;
+        isTransactionStatement = false;
+        this.expression        = e;
+        this.variables         = variables;
+        variableIndexes        = indexes;
+    }
+
+    StatementSet(CompileContext context, ColumnSchema[] variables,
+                 QueryExpression query, int[] indexes) {
+
+        super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_CONTROL, null);
+
+        this.operationType     = SELECT_INTO;
+        isTransactionStatement = false;
+        this.queryExpression   = query;
+        this.variables         = variables;
+        variableIndexes        = indexes;
+    }
+
+    Result getResult(Session session) {
+
+        Result result = null;
+
+        switch (operationType) {
+
+            case StatementSet.TRIGGER_SET :
+                result = executeSetStatement(session);
+                break;
+
+            case StatementSet.SELECT_INTO : {
+                Object[] values = queryExpression.getSingleRowValues(session);
+
+                if (values == null) {
+                    result = Result.updateZeroResult;
+
+                    break;
+                }
+
+                result = executeAssignment(session, values);
+
+                break;
+            }
+            case StatementSet.VARIABLE_SET : {
+                Object[] values = getExpressionValues(session);
+
+                if (values == null) {
+                    result = Result.updateZeroResult;
+
+                    break;
+                }
+
+                result = executeAssignment(session, values);
+
+                break;
+            }
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementSet");
+        }
+
+        return result;
+    }
+
+    public void resolve() {
+
+        switch (operationType) {
+
+            case StatementSet.TRIGGER_SET :
+            case StatementSet.SELECT_INTO :
+            case StatementSet.VARIABLE_SET : {
+                break;
+            }
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementSet");
+        }
+    }
+
+    public String getSQL() {
+
+        StringBuffer sb = new StringBuffer();
+
+        switch (operationType) {
+
+            case StatementSet.VARIABLE_SET : {
+
+                /** @todo - cover row assignment */
+                sb.append(Tokens.T_SET).append(' ');
+                sb.append(variables[0].getName().statementName).append(' ');
+                sb.append('=').append(' ').append(expression.getSQL());
+
+                break;
+            }
+        }
+
+        return sb.toString();
+    }
+
+    protected String describe(Session session, int blanks) {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append('\n');
+
+        for (int i = 0; i < blanks; i++) {
+            sb.append(' ');
+        }
+
+        sb.append(Tokens.T_STATEMENT);
+
+        return sb.toString();
+    }
+
+    public Result execute(Session session) {
+
+        Result result;
+
+        try {
+            materializeSubQueries(session);
+
+            result = getResult(session);
+        } catch (Throwable t) {
+            result = Result.newErrorResult(t, null);
+        }
+
+        if (result.isError()) {
+            result.getException().setStatementType(group, type);
+        }
+
+        return result;
+    }
+
+    public String describe(Session session) {
+        return "";
+    }
+
+    Result executeSetStatement(Session session) {
+
+        Table        table          = targetTable;
+        int[]        colMap         = updateColumnMap;    // column map
+        Expression[] colExpressions = updateExpressions;
+        Type[]       colTypes       = table.getColumnTypes();
+        int index = targetRangeVariables[TriggerDef.NEW_ROW].rangePosition;
+        Object[] oldData =
+            session.sessionContext.rangeIterators[index].getCurrentRow()
+                .getData();
+        Object[] data = StatementDML.getUpdatedData(session, table, colMap,
+            colExpressions, colTypes, oldData);
+
+        ArrayUtil.copyArray(data, oldData, data.length);
+
+        return Result.updateOneResult;
+    }
+
+    // this fk references -> other  :  other read lock
+    void getTableNamesForRead(OrderedHashSet set) {
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            Table    rangeTable = rangeVariables[i].rangeTable;
+            HsqlName name       = rangeTable.getName();
+
+            if (rangeTable.isReadOnly() || rangeTable.isTemp()) {
+                continue;
+            }
+
+            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                continue;
+            }
+
+            set.add(name);
+        }
+
+        for (int i = 0; i < subqueries.length; i++) {
+            if (subqueries[i].queryExpression != null) {
+                subqueries[i].queryExpression.getBaseTableNames(set);
+            }
+        }
+    }
+
+    Object[] getExpressionValues(Session session) {
+
+        Object[] values;
+
+        if (expression.getType() == OpTypes.ROW) {
+            values = expression.getRowValue(session);
+        } else if (expression.getType() == OpTypes.TABLE_SUBQUERY) {
+            values = expression.subQuery.queryExpression.getSingleRowValues(
+                session);
+
+            if (values == null) {
+
+                // todo - verify semantics
+                return null;
+            }
+        } else {
+            values = new Object[1];
+            values[0] = expression.getValue(session,
+                                            variables[0].getDataType());
+        }
+
+        return values;
+    }
+
+    Result executeAssignment(Session session, Object[] values) {
+
+        for (int j = 0; j < values.length; j++) {
+            Object[] data = ValuePool.emptyObjectArray;
+
+            switch (variables[j].getType()) {
+
+                case SchemaObject.PARAMETER :
+                    data = session.sessionContext.routineArguments;
+                    break;
+
+                case SchemaObject.VARIABLE :
+                    data = session.sessionContext.routineVariables;
+                    break;
+            }
+
+            int colIndex = variableIndexes[j];
+
+            data[colIndex] =
+                variables[j].getDataType().convertToDefaultType(session,
+                    values[j]);
+        }
+
+        return Result.updateZeroResult;
+    }
+}

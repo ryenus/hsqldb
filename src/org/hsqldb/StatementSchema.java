@@ -257,7 +257,13 @@ public class StatementSchema extends Statement {
 
     public Result execute(Session session) {
 
-        Result result = getResult(session);
+        Result result;
+
+        try {
+            result = getResult(session);
+        } catch (Throwable t) {
+            result = Result.newErrorResult(t, null);
+        }
 
         if (result.isError()) {
             result.getException().setStatementType(group, type);
@@ -269,7 +275,7 @@ public class StatementSchema extends Statement {
             if (isLogged) {
                 session.database.logger.writeToLog(session, sql);
             }
-        } catch (HsqlException e) {
+        } catch (Throwable e) {
             return Result.newErrorResult(e, sql);
         }
 
