@@ -259,7 +259,7 @@ public class StatementProcedure extends StatementDMQL {
         return super.getParametersMetaData();
     }
 
-    void getTableNamesForRead(OrderedHashSet set) {}
+    void collectTableNamesForRead(OrderedHashSet set) {}
 
-    void getTableNamesForWrite(OrderedHashSet set) {}
+    void collectTableNamesForWrite(OrderedHashSet set) {}
 }

@@ -171,7 +171,7 @@ public class StatementDML extends StatementDMQL {
     }
 
     // this fk references -> other  :  other read lock
-    void getTableNamesForRead(OrderedHashSet set) {
+    void collectTableNamesForRead(OrderedHashSet set) {
 
         if (!baseTable.isTemp()) {
             for (int i = 0; i < baseTable.fkConstraints.length; i++) {
@@ -204,7 +204,7 @@ public class StatementDML extends StatementDMQL {
     }
 
     // other fk references this :  if constraint trigger action  : other write lock
-    void getTableNamesForWrite(OrderedHashSet set) {
+    void collectTableNamesForWrite(OrderedHashSet set) {
 
         if (baseTable.isTemp()) {
             return;

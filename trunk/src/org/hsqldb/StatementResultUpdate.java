@@ -31,15 +31,14 @@
 
 package org.hsqldb;
 
-import org.hsqldb.result.Result;
-import org.hsqldb.types.Type;
-import org.hsqldb.result.ResultConstants;
-import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.navigator.RowSetNavigator;
-import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.navigator.RowSetNavigatorLinkedList;
+import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultConstants;
+import org.hsqldb.types.Type;
 
 public class StatementResultUpdate extends StatementDML {
 

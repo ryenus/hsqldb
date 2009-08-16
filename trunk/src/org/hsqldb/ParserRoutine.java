@@ -176,28 +176,26 @@ public class ParserRoutine extends ParserDML {
         select.setAsTopLevel();
         select.resolve(session, rangeVars);
 
-
         int[]          indexes   = new int[variableNames.size()];
         ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
 
         setVariables(rangeVars, variableNames, indexes, variables);
 
-        Statement statement = new StatementSet(compileContext, variables,
-                                               select, indexes);
+        Statement statement = new StatementSet(session, compileContext,
+                                               variables, select, indexes);
 
         return statement;
     }
 
-
     /**
-     * Creates SET Statement for PSM from this parse context.
+     * Creates SET Statement for PSM or session variables from this parse context.
      */
     Statement compileSetStatement(RangeVariable rangeVars[]) {
 
         read();
 
         OrderedHashSet variableNames = new OrderedHashSet();
-        HsqlArrayList  exprList = new HsqlArrayList();
+        HsqlArrayList  exprList      = new HsqlArrayList();
 
         readSetClauseList(rangeVars, variableNames, exprList);
 
@@ -225,7 +223,7 @@ public class ParserRoutine extends ParserDML {
         ExpressionColumn.checkColumnsResolved(unresolved);
         expression.resolveTypes(session, null);
 
-        StatementSet cs = new StatementSet(compileContext, variables,
+        StatementSet cs = new StatementSet(session, compileContext, variables,
                                            expression, indexes);
 
         return cs;
@@ -347,7 +345,7 @@ public class ParserRoutine extends ParserDML {
         } else {
             startRecording();
 
-            Statement statement = readSQLProcedureStatementOrNull(routine,
+            Statement statement = compileSQLProcedureStatementOrNull(routine,
                 null);
             Token[] tokenList = getRecordedStatement();
             String  sql       = Token.getSQL(tokenList);
@@ -596,7 +594,7 @@ public class ParserRoutine extends ParserDML {
             Object var = readLocalVariableDeclarationOrNull();
 
             if (var == null) {
-                var = readLocalHandlerDeclaration(routine, context);
+                var = compileLocalHandlerDeclaration(routine, context);
             }
 
             list.add(var);
@@ -650,7 +648,7 @@ public class ParserRoutine extends ParserDML {
         return variable;
     }
 
-    private StatementHandler readLocalHandlerDeclaration(Routine routine,
+    private StatementHandler compileLocalHandlerDeclaration(Routine routine,
             StatementCompound context) {
 
         int handlerType;
@@ -758,7 +756,7 @@ public class ParserRoutine extends ParserDML {
         if (token.tokenType == Tokens.SEMICOLON) {
             read();
         } else {
-            Statement e = readSQLProcedureStatementOrNull(routine, context);
+            Statement e = compileSQLProcedureStatementOrNull(routine, context);
 
             if (e == null) {
                 throw unexpectedToken();
@@ -806,7 +804,7 @@ public class ParserRoutine extends ParserDML {
 
         statement.setLocalDeclarations(declarations);
 
-        Statement[] statements = readSQLProcedureStatementList(routine,
+        Statement[] statements = compileSQLProcedureStatementList(routine,
             statement);
 
         statement.setStatements(statements);
@@ -827,23 +825,14 @@ public class ParserRoutine extends ParserDML {
         return statement;
     }
 
-    private Statement[] readSQLProcedureStatementList(Routine routine,
+    private Statement[] compileSQLProcedureStatementList(Routine routine,
             StatementCompound context) {
 
-        Statement e = readSQLProcedureStatementOrNull(routine, context);
-
-        if (e == null) {
-            throw unexpectedToken();
-        }
-
-        readThis(Tokens.SEMICOLON);
-
+        Statement     e;
         HsqlArrayList list = new HsqlArrayList();
 
-        list.add(e);
-
         while (true) {
-            e = readSQLProcedureStatementOrNull(routine, context);
+            e = compileSQLProcedureStatementOrNull(routine, context);
 
             if (e == null) {
                 break;
@@ -853,6 +842,10 @@ public class ParserRoutine extends ParserDML {
             list.add(e);
         }
 
+        if (list.size() == 0) {
+            throw unexpectedToken();
+        }
+
         Statement[] statements = new Statement[list.size()];
 
         list.toArray(statements);
@@ -860,7 +853,7 @@ public class ParserRoutine extends ParserDML {
         return statements;
     }
 
-    private Statement readSQLProcedureStatementOrNull(Routine routine,
+    private Statement compileSQLProcedureStatementOrNull(Routine routine,
             StatementCompound context) {
 
         Statement cs    = null;
@@ -874,6 +867,8 @@ public class ParserRoutine extends ParserDML {
 
             readThis(Tokens.COLON);
         }
+
+        compileContext.reset();
 
         switch (token.tokenType) {
 
@@ -1009,7 +1004,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement compileReturnValue(Routine routine,
-                                      StatementCompound context) {
+                                         StatementCompound context) {
 
         Expression e = XreadValueExpressionOrNull();
 
@@ -1021,19 +1016,10 @@ public class ParserRoutine extends ParserDML {
             }
         }
 
-        RangeVariable[] rangeVars = routine.getParameterRangeVariables();
+        resolveOuterReferences(routine, context, e);
 
-        if (context != null) {
-            rangeVars = context.getRangeVariables();
-        }
-
-        HsqlList list = e.resolveColumnReferences(rangeVars, rangeVars.length,
-            null, false);
-
-        ExpressionColumn.checkColumnsResolved(list);
-        e.resolveTypes(session, null);
-
-        return new StatementSimple(StatementTypes.RETURN, e);
+        return new StatementExpression(session, compileContext,
+                                       StatementTypes.RETURN, e);
     }
 
     private Statement compileIterate() {
@@ -1045,7 +1031,8 @@ public class ParserRoutine extends ParserDML {
         return new StatementSimple(StatementTypes.ITERATE, label);
     }
 
-    private Statement compileLeave(Routine routine, StatementCompound context) {
+    private Statement compileLeave(Routine routine,
+                                   StatementCompound context) {
 
         readThis(Tokens.LEAVE);
 
@@ -1055,17 +1042,17 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement compileWhile(Routine routine, StatementCompound context,
-                                HsqlName label) {
+                                   HsqlName label) {
 
         readThis(Tokens.WHILE);
 
-        StatementSimple condition =
-            new StatementSimple(StatementTypes.CONDITION,
-                                XreadBooleanValueExpression());
+        StatementExpression condition = new StatementExpression(session,
+            compileContext, StatementTypes.CONDITION,
+            XreadBooleanValueExpression());
 
         readThis(Tokens.DO);
 
-        Statement[] statements = readSQLProcedureStatementList(routine,
+        Statement[] statements = compileSQLProcedureStatementList(routine,
             context);
 
         readThis(Tokens.END);
@@ -1092,19 +1079,20 @@ public class ParserRoutine extends ParserDML {
         return statement;
     }
 
-    private Statement compileRepeat(Routine routine, StatementCompound context,
-                                 HsqlName label) {
+    private Statement compileRepeat(Routine routine,
+                                    StatementCompound context,
+                                    HsqlName label) {
 
         readThis(Tokens.REPEAT);
 
-        Statement[] statements = readSQLProcedureStatementList(routine,
+        Statement[] statements = compileSQLProcedureStatementList(routine,
             context);
 
         readThis(Tokens.UNTIL);
 
-        StatementSimple condition =
-            new StatementSimple(StatementTypes.CONDITION,
-                                XreadBooleanValueExpression());
+        StatementExpression condition = new StatementExpression(session,
+            compileContext, StatementTypes.CONDITION,
+            XreadBooleanValueExpression());
 
         readThis(Tokens.END);
         readThis(Tokens.REPEAT);
@@ -1131,11 +1119,11 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement compileLoop(Routine routine, StatementCompound context,
-                               HsqlName label) {
+                                  HsqlName label) {
 
         readThis(Tokens.LOOP);
 
-        Statement[] statements = readSQLProcedureStatementList(routine,
+        Statement[] statements = compileSQLProcedureStatementList(routine,
             context);
 
         readThis(Tokens.END);
@@ -1162,7 +1150,7 @@ public class ParserRoutine extends ParserDML {
     }
 
     private Statement compileFor(Routine routine, StatementCompound context,
-                              HsqlName label) {
+                                 HsqlName label) {
 
         readThis(Tokens.FOR);
 
@@ -1170,7 +1158,7 @@ public class ParserRoutine extends ParserDML {
 
         readThis(Tokens.DO);
 
-        Statement[] statements = readSQLProcedureStatementList(routine,
+        Statement[] statements = compileSQLProcedureStatementList(routine,
             context);
 
         readThis(Tokens.END);
@@ -1200,31 +1188,20 @@ public class ParserRoutine extends ParserDML {
     private Statement compileIf(Routine routine, StatementCompound context) {
 
         HsqlArrayList list = new HsqlArrayList();
-        RangeVariable[] rangeVariables = context == null
-                                         ? routine.getParameterRangeVariables()
-                                         : context.getRangeVariables();
-        HsqlList unresolved = null;
 
         readThis(Tokens.IF);
 
         Expression condition = XreadBooleanValueExpression();
 
-        unresolved = condition.resolveColumnReferences(rangeVariables,
-                rangeVariables.length, unresolved, false);
+        resolveOuterReferences(routine, context, condition);
 
-        ExpressionColumn.checkColumnsResolved(unresolved);
-
-        unresolved = null;
-
-        condition.resolveTypes(session, null);
-
-        Statement statement = new StatementSimple(StatementTypes.CONDITION,
-            condition);
+        Statement statement = new StatementExpression(session, compileContext,
+            StatementTypes.CONDITION, condition);
 
         list.add(statement);
         readThis(Tokens.THEN);
 
-        Statement[] statements = readSQLProcedureStatementList(routine,
+        Statement[] statements = compileSQLProcedureStatementList(routine,
             context);
 
         for (int i = 0; i < statements.length; i++) {
@@ -1235,22 +1212,17 @@ public class ParserRoutine extends ParserDML {
             read();
 
             condition = XreadBooleanValueExpression();
-            unresolved = condition.resolveColumnReferences(rangeVariables,
-                    rangeVariables.length, unresolved, false);
 
-            ExpressionColumn.checkColumnsResolved(unresolved);
+            resolveOuterReferences(routine, context, condition);
 
-            unresolved = null;
-
-            condition.resolveTypes(session, null);
-
-            statement = new StatementSimple(StatementTypes.CONDITION,
-                                            condition);
+            statement = new StatementExpression(session, compileContext,
+                                                StatementTypes.CONDITION,
+                                                condition);
 
             list.add(statement);
             readThis(Tokens.THEN);
 
-            statements = readSQLProcedureStatementList(routine, context);
+            statements = compileSQLProcedureStatementList(routine, context);
 
             for (int i = 0; i < statements.length; i++) {
                 list.add(statements[i]);
@@ -1261,12 +1233,13 @@ public class ParserRoutine extends ParserDML {
             read();
 
             condition = Expression.EXPR_TRUE;
-            statement = new StatementSimple(StatementTypes.CONDITION,
-                                            condition);
+            statement = new StatementExpression(session, compileContext,
+                                                StatementTypes.CONDITION,
+                                                condition);
 
             list.add(statement);
 
-            statements = readSQLProcedureStatementList(routine, context);
+            statements = compileSQLProcedureStatementList(routine, context);
 
             for (int i = 0; i < statements.length; i++) {
                 list.add(statements[i]);
@@ -1307,12 +1280,13 @@ public class ParserRoutine extends ParserDML {
             read();
 
             condition = Expression.EXPR_TRUE;
-            statement = new StatementSimple(StatementTypes.CONDITION,
-                                            condition);
+            statement = new StatementExpression(session, compileContext,
+                                                StatementTypes.CONDITION,
+                                                condition);
 
             list.add(statement);
 
-            statements = readSQLProcedureStatementList(routine, context);
+            statements = compileSQLProcedureStatementList(routine, context);
 
             for (int i = 0; i < statements.length; i++) {
                 list.add(statements[i]);
@@ -1337,15 +1311,11 @@ public class ParserRoutine extends ParserDML {
     private HsqlArrayList readSimpleCaseWhen(Routine routine,
             StatementCompound context) {
 
-        HsqlArrayList list = new HsqlArrayList();
-        RangeVariable[] rangeVariables = context == null
-                                         ? routine.getParameterRangeVariables()
-                                         : context.getRangeVariables();
-        HsqlList    unresolved = null;
-        Expression  condition  = null;
-        Statement   statement;
-        Statement[] statements;
-        Expression  predicand = XreadRowValuePredicand();
+        HsqlArrayList list      = new HsqlArrayList();
+        Expression    condition = null;
+        Statement     statement;
+        Statement[]   statements;
+        Expression    predicand = XreadRowValuePredicand();
 
         do {
             readThis(Tokens.WHEN);
@@ -1359,14 +1329,7 @@ public class ParserRoutine extends ParserDML {
                                               XreadRowValuePredicand());
                 }
 
-                unresolved =
-                    newCondition.resolveColumnReferences(rangeVariables,
-                        rangeVariables.length, unresolved, false);
-
-                ExpressionColumn.checkColumnsResolved(unresolved);
-
-                unresolved = null;
-
+                resolveOuterReferences(routine, context, newCondition);
                 newCondition.resolveTypes(session, null);
 
                 if (condition == null) {
@@ -1383,13 +1346,14 @@ public class ParserRoutine extends ParserDML {
                 }
             } while (true);
 
-            statement = new StatementSimple(StatementTypes.CONDITION,
-                                            condition);
+            statement = new StatementExpression(session, compileContext,
+                                                StatementTypes.CONDITION,
+                                                condition);
 
             list.add(statement);
             readThis(Tokens.THEN);
 
-            statements = readSQLProcedureStatementList(routine, context);
+            statements = compileSQLProcedureStatementList(routine, context);
 
             for (int i = 0; i < statements.length; i++) {
                 list.add(statements[i]);
@@ -1406,35 +1370,26 @@ public class ParserRoutine extends ParserDML {
     private HsqlArrayList readCaseWhen(Routine routine,
                                        StatementCompound context) {
 
-        HsqlArrayList list = new HsqlArrayList();
-        RangeVariable[] rangeVariables = context == null
-                                         ? routine.getParameterRangeVariables()
-                                         : context.getRangeVariables();
-        HsqlList    unresolved = null;
-        Expression  condition  = null;
-        Statement   statement;
-        Statement[] statements;
+        HsqlArrayList list      = new HsqlArrayList();
+        Expression    condition = null;
+        Statement     statement;
+        Statement[]   statements;
 
         do {
             readThis(Tokens.WHEN);
 
             condition = XreadBooleanValueExpression();
-            unresolved = condition.resolveColumnReferences(rangeVariables,
-                    rangeVariables.length, unresolved, false);
 
-            ExpressionColumn.checkColumnsResolved(unresolved);
+            resolveOuterReferences(routine, context, condition);
 
-            unresolved = null;
-
-            condition.resolveTypes(session, null);
-
-            statement = new StatementSimple(StatementTypes.CONDITION,
-                                            condition);
+            statement = new StatementExpression(session, compileContext,
+                                                StatementTypes.CONDITION,
+                                                condition);
 
             list.add(statement);
             readThis(Tokens.THEN);
 
-            statements = readSQLProcedureStatementList(routine, context);
+            statements = compileSQLProcedureStatementList(routine, context);
 
             for (int i = 0; i < statements.length; i++) {
                 list.add(statements[i]);
@@ -1448,8 +1403,9 @@ public class ParserRoutine extends ParserDML {
         return list;
     }
 
-    private Statement compileSignal(Routine routine, StatementCompound context,
-                                 HsqlName label) {
+    private Statement compileSignal(Routine routine,
+                                    StatementCompound context,
+                                    HsqlName label) {
 
         readThis(Tokens.SIGNAL);
         readThis(Tokens.SQLSTATE);
@@ -1461,8 +1417,9 @@ public class ParserRoutine extends ParserDML {
         return cs;
     }
 
-    private Statement compileResignal(Routine routine, StatementCompound context,
-                                   HsqlName label) {
+    private Statement compileResignal(Routine routine,
+                                      StatementCompound context,
+                                      HsqlName label) {
 
         String sqlState = null;
 
@@ -1524,5 +1481,23 @@ public class ParserRoutine extends ParserDML {
         column.setParameterMode(parameterMode);
 
         return column;
+    }
+
+    void resolveOuterReferences(Routine routine, StatementCompound context,
+                                Expression e) {
+
+        RangeVariable[] rangeVars = routine.getParameterRangeVariables();
+
+        if (context != null) {
+            rangeVars = context.getRangeVariables();
+        }
+
+        HsqlList unresolved = e.resolveColumnReferences(rangeVars,
+            rangeVars.length, null, false);
+
+        unresolved = Expression.resolveColumnSet(rangeVars, unresolved, null);
+
+        ExpressionColumn.checkColumnsResolved(unresolved);
+        e.resolveTypes(session, null);
     }
 }

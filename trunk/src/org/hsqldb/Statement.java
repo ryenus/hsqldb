@@ -82,6 +82,8 @@ public abstract class Statement {
     /** table names written - for concurrency control */
     HsqlName[] writeTableNames = HsqlName.emptyArray;;
 
+    OrderedHashSet references;
+
     public abstract Result execute(Session session);
 
     public void setParameters(ExpressionColumn[] params) {}
@@ -116,7 +118,7 @@ public abstract class Statement {
     }
 
     public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
+        return references;
     }
 
     public final void setDescribe() {
@@ -164,10 +166,6 @@ public abstract class Statement {
     public RangeVariable[] getRangeVariables() {
         return RangeVariable.emptyArray;
     }
-
-    void getTableNamesForRead(OrderedHashSet set) {}
-
-    void getTableNamesForWrite(OrderedHashSet set) {}
 
     public final HsqlName[] getTableNamesForRead() {
         return readTableNames;

@@ -40,16 +40,11 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.store.ValuePool;
 
 /**
- * <p>Title: </p>
+ * Implementation of Statement for PSM and trigger assignment.
  *
- * <p>Description: </p>
- *
- * <p>Copyright: Copyright (c) 2002</p>
- *
- * <p>Company: </p>
- *
- * @author not attributable
- * @version 1.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
  */
 public class StatementSet extends StatementDMQL {
 
@@ -90,8 +85,8 @@ public class StatementSet extends StatementDMQL {
         checkAccessRights(session);
     }
 
-    StatementSet(CompileContext context, ColumnSchema[] variables,
-                 Expression e, int[] indexes) {
+    StatementSet(Session session, CompileContext compileContext,
+                 ColumnSchema[] variables, Expression e, int[] indexes) {
 
         super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_CONTROL, null);
 
@@ -100,10 +95,13 @@ public class StatementSet extends StatementDMQL {
         this.expression        = e;
         this.variables         = variables;
         variableIndexes        = indexes;
+
+        setDatabseObjects(compileContext);
+        checkAccessRights(session);
     }
 
-    StatementSet(CompileContext context, ColumnSchema[] variables,
-                 QueryExpression query, int[] indexes) {
+    StatementSet(Session session, CompileContext compileContext,
+                 ColumnSchema[] variables, QueryExpression query, int[] indexes) {
 
         super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_CONTROL, null);
 
@@ -112,6 +110,9 @@ public class StatementSet extends StatementDMQL {
         this.queryExpression   = query;
         this.variables         = variables;
         variableIndexes        = indexes;
+
+        setDatabseObjects(compileContext);
+        checkAccessRights(session);
     }
 
     Result getResult(Session session) {
@@ -248,7 +249,7 @@ public class StatementSet extends StatementDMQL {
     }
 
     // this fk references -> other  :  other read lock
-    void getTableNamesForRead(OrderedHashSet set) {
+    void collectTableNamesForRead(OrderedHashSet set) {
 
         for (int i = 0; i < rangeVariables.length; i++) {
             Table    rangeTable = rangeVariables[i].rangeTable;
@@ -271,6 +272,8 @@ public class StatementSet extends StatementDMQL {
             }
         }
     }
+
+    void collectTableNamesForWrite(OrderedHashSet set) {}
 
     Object[] getExpressionValues(Session session) {
 
