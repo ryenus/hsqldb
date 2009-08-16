@@ -84,7 +84,7 @@ public class StatementQuery extends StatementDMQL {
         }
     }
 
-    void getTableNamesForRead(OrderedHashSet set) {
+    void collectTableNamesForRead(OrderedHashSet set) {
 
         queryExpression.getBaseTableNames(set);
 
@@ -95,5 +95,5 @@ public class StatementQuery extends StatementDMQL {
         }
     }
 
-    void getTableNamesForWrite(OrderedHashSet set) {}
+    void collectTableNamesForWrite(OrderedHashSet set) {}
 }

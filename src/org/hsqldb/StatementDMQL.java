@@ -213,6 +213,10 @@ public abstract class StatementDMQL extends Statement {
 
     abstract Result getResult(Session session);
 
+    abstract void collectTableNamesForRead(OrderedHashSet set);
+
+    abstract void collectTableNamesForWrite(OrderedHashSet set);
+
     /**
      * For the creation of the statement
      */
@@ -383,7 +387,7 @@ public abstract class StatementDMQL extends Statement {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        getTableNamesForRead(set);
+        collectTableNamesForRead(set);
 
         for (int i = 0; i < routines.length; i++) {
             set.addAll(routines[i].getTableNamesForRead());
@@ -396,7 +400,7 @@ public abstract class StatementDMQL extends Statement {
             set.clear();
         }
 
-        getTableNamesForWrite(set);
+        collectTableNamesForWrite(set);
 
         for (int i = 0; i < routines.length; i++) {
             set.addAll(routines[i].getTableNamesForWrite());
@@ -407,6 +411,8 @@ public abstract class StatementDMQL extends Statement {
 
             set.toArray(writeTableNames);
         }
+
+        references = compileContext.getSchemaObjectNames();
     }
 
     /**

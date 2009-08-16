@@ -48,13 +48,13 @@ import org.hsqldb.result.ResultConstants;
  */
 public class StatementCompound extends Statement {
 
-    final boolean      isLoop;
-    HsqlName           label;
-    StatementHandler[] handlers = StatementHandler.emptyExceptionHandlerArray;
-    Statement          loopCursor;
-    Statement[]        statements;
-    StatementSimple    condition;
-    boolean            isAtomic;
+    final boolean       isLoop;
+    HsqlName            label;
+    StatementHandler[]  handlers = StatementHandler.emptyExceptionHandlerArray;
+    Statement           loopCursor;
+    Statement[]         statements;
+    StatementExpression condition;
+    boolean             isAtomic;
 
     //
     ColumnSchema[]  variables = ColumnSchema.emptyArray;
@@ -249,7 +249,7 @@ public class StatementCompound extends Statement {
         this.statements = statements;
     }
 
-    public void setCondition(StatementSimple condition) {
+    public void setCondition(StatementExpression condition) {
         this.condition = condition;
     }
 

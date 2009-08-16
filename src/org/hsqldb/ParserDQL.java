@@ -4677,16 +4677,18 @@ public class ParserDQL extends ParserBase {
                 return Routine.emptyArray;
             }
 
+            OrderedHashSet set = new OrderedHashSet();
+
             for (int i = 0; i < usedRoutines.size(); i++) {
                 FunctionSQLInvoked function =
                     (FunctionSQLInvoked) usedRoutines.get(i);
 
-                usedRoutines.set(i, function.routine);
+                set.add(function.routine);
             }
 
-            Routine[] array = new Routine[usedRoutines.size()];
+            Routine[] array = new Routine[set.size()];
 
-            usedRoutines.toArray(array);
+            set.toArray(array);
 
             return array;
         }

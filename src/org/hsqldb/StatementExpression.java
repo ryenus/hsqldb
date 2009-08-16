@@ -34,39 +34,32 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.result.Result;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.ParserDQL.CompileContext;
 
 /**
- * Implementation of Statement for simple PSM control statements.
+ * Implementation of Statement for PSM statements with expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public class StatementSimple extends Statement {
+public class StatementExpression extends StatementDMQL {
 
-    String   sqlState;
-    HsqlName label;
+    Expression expression;
 
-    //
-    ColumnSchema[] variables;
-    int[]          variableIndexes;
+    /**
+     * for RETURN and flow control
+     */
+    StatementExpression(Session session, CompileContext compileContext,
+                        int type, Expression expression) {
 
-    StatementSimple(int type, HsqlName label) {
+        super(type, StatementTypes.X_SQL_CONTROL, null);
 
-        super(type, StatementTypes.X_SQL_CONTROL);
-
-        references             = new OrderedHashSet();
         isTransactionStatement = false;
-        this.label             = label;
-    }
+        this.expression        = expression;
 
-    StatementSimple(int type, String sqlState) {
-
-        super(type, StatementTypes.X_SQL_CONTROL);
-
-        references             = new OrderedHashSet();
-        isTransactionStatement = false;
-        this.sqlState          = sqlState;
+        setDatabseObjects(compileContext);
+        checkAccessRights(session);
     }
 
     public String getSQL() {
@@ -75,25 +68,27 @@ public class StatementSimple extends Statement {
 
         switch (type) {
 
-            /** @todo 1.9.0 - add the exception */
-            case StatementTypes.SIGNAL :
-                sb.append(Tokens.T_SIGNAL);
-                break;
+            case StatementTypes.RETURN :
+/*
+                sb.append(Tokens.T_RETURN);
 
-            case StatementTypes.RESIGNAL :
-                sb.append(Tokens.T_RESIGNAL);
+                if (expression != null) {
+                    sb.append(' ').append(expression.getSQL());
+                }
                 break;
+*/
+                return sql;
 
-            case StatementTypes.ITERATE :
-                sb.append(Tokens.T_ITERATE).append(' ').append(label);
-                break;
-
-            case StatementTypes.LEAVE :
-                sb.append(Tokens.T_LEAVE).append(' ').append(label);
+            case StatementTypes.CONDITION :
+                sb.append(expression.getSQL());
                 break;
         }
 
         return sb.toString();
+    }
+
+    public OrderedHashSet getReferences() {
+        return new OrderedHashSet();
     }
 
     protected String describe(Session session, int blanks) {
@@ -132,17 +127,9 @@ public class StatementSimple extends Statement {
 
         switch (type) {
 
-            /** @todo - check sqlState against allowed values */
-            case StatementTypes.SIGNAL :
-            case StatementTypes.RESIGNAL :
-                HsqlException ex = Error.error("sql routine error", sqlState,
-                                               -1);
-
-                return Result.newErrorResult(ex);
-
-            case StatementTypes.ITERATE :
-            case StatementTypes.LEAVE :
-                return Result.newPSMResult(type, label.name, null);
+            case StatementTypes.RETURN :
+            case StatementTypes.CONDITION :
+                return this.getResultValue(session);
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "");
@@ -155,36 +142,15 @@ public class StatementSimple extends Statement {
 
         switch (type) {
 
-            case StatementTypes.SIGNAL :
-            case StatementTypes.RESIGNAL :
+            case StatementTypes.RETURN :
+                if (root.isProcedure()) {
+                    throw Error.error(ErrorCode.X_42602);
+                }
+
                 resolved = true;
                 break;
 
-            case StatementTypes.ITERATE : {
-                StatementCompound statement = parent;
-
-                while (statement != null) {
-                    if (statement.isLoop) {
-                        if (label == null) {
-                            resolved = true;
-
-                            break;
-                        }
-
-                        if (statement.label != null
-                                && label.name.equals(statement.label.name)) {
-                            resolved = true;
-
-                            break;
-                        }
-                    }
-
-                    statement = statement.parent;
-                }
-
-                break;
-            }
-            case StatementTypes.LEAVE :
+            case StatementTypes.CONDITION :
                 resolved = true;
                 break;
 
@@ -200,4 +166,23 @@ public class StatementSimple extends Statement {
     public String describe(Session session) {
         return "";
     }
+
+    private Result getResultValue(Session session) {
+
+        try {
+            Object value = null;
+
+            if (expression != null) {
+                value = expression.getValue(session);
+            }
+
+            return Result.newPSMResult(type, null, value);
+        } catch (HsqlException e) {
+            return Result.newErrorResult(e);
+        }
+    }
+
+    void collectTableNamesForRead(OrderedHashSet set) {}
+
+    void collectTableNamesForWrite(OrderedHashSet set) {}
 }

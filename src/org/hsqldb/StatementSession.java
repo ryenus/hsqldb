@@ -41,7 +41,7 @@ import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Type;
 
 /**
- * Implementation of Statement for SQL commands.<p>
+ * Implementation of Statement for SQL session statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0

@@ -2298,6 +2298,8 @@ public class ParserDDL extends ParserRoutine {
         while (true) {
             StatementDMQL cs = null;
 
+            compileContext.reset();
+
             switch (token.tokenType) {
 
                 case Tokens.INSERT :

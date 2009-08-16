@@ -79,8 +79,6 @@ public class ParserCommand extends ParserDDL {
                 break;
             }
 
-            compileContext.reset();
-
             cs = compilePart();
 
             list.add(cs);
@@ -104,6 +102,8 @@ public class ParserCommand extends ParserDDL {
     private Statement compilePart() {
 
         Statement cs;
+
+        compileContext.reset();
 
         setParsePosition(getPosition());
 
