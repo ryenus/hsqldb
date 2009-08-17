@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
-         xml:id="sqlroutines-chapt"
+<chapter version="5.0" xml:id="sqlroutines-chapt"
+         xmlns="http://docbook.org/ns/docbook"
          xmlns:ns6="http://www.w3.org/1999/xlink"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
@@ -323,7 +323,7 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
     <section>
       <title>Assignment Statement</title>
 
-      <para>The SET command is used for assignment. It can be used flexibly
+      <para>The SET statement is used for assignment. It can be used flexibly
       with rows or single values. The BNF is given below:</para>
 
       <simpara><literal>&lt;assignment statement&gt; ::= &lt;singleton
@@ -349,6 +349,36 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
       VAR1.</para>
 
       <programlisting>SET var1 = SQRT(var2);</programlisting>
+    </section>
+
+    <section>
+      <title>Select Statement : Single Row</title>
+
+      <para>A special form of SELECT can also be used for assigning values
+      from a query to one or more parameters or variables. This works similar
+      to a SET statement that has a SELECT statement as the source.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SELECT : SINGLE ROW</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SELECT : SINGLE ROW</emphasis></simpara>
+
+      <simpara><emphasis>select statement: single row</emphasis></simpara>
+
+      <simpara><literal>&lt;select statement: single row&gt; ::= SELECT [
+      &lt;set quantifier&gt; ] &lt;select list&gt; INTO &lt;select target
+      list&gt; &lt;table expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;select target list&gt; ::= &lt;target
+      specification&gt; [ { &lt;comma&gt; &lt;target specification&gt; }...
+      ]</literal></simpara>
+
+      <simpara>Retrieve values from a specified row of a table assigns the
+      fields to the specified targets. The example below has an identical
+      effect to the example of SET statement given above.</simpara>
+
+      <programlisting>SELECT col1, col2 INTO arg1, arg2 FROM atable WHERE id = 10;</programlisting>
     </section>
 
     <section>
@@ -484,17 +514,49 @@ CALL the_new_id;
     </section>
 
     <section>
+      <title>Return Statement</title>
+
+      <para>The RETURN statement is required and used only in functions. The
+      body of a function is either a RETURN statement, or a compound statement
+      that contains a RETURN statement.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>RETURN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">RETURN</emphasis></simpara>
+
+      <simpara><emphasis>return statement</emphasis></simpara>
+
+      <simpara><literal>&lt;return statement&gt; ::= RETURN &lt;return
+      value&gt;</literal></simpara>
+
+      <simpara><literal>&lt;return value&gt; ::= &lt;value expression&gt; |
+      NULL</literal></simpara>
+
+      <simpara>Return a value from an SQL function. The value expression can
+      be any scalar expression. In the examples below, the same function is
+      written with or without a BEGIN END block.</simpara>
+
+      <programlisting>CREATE FUNCTION an_hour_before_max (e_type INT)
+RETURNS TIMESTAMP
+RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
+
+CREATE FUNCTION an_hour_before_max (e_type INT)
+RETURNS TIMESTAMP
+BEGIN ATOMIC
+DECLAR max_event TIMESTAMP;
+SET max_event = SELECT MAX(event_time) FROM atable WHERE event_type = e_type;
+RETURN max_event - 1 HOUR;
+END
+</programlisting>
+    </section>
+
+    <section>
       <title>Control Statements</title>
 
-      <para>These statements can be used in specific contexts.</para>
-
-      <para>RETURN STATEMENT</para>
-
-      <para>The RETURN statement is used only in functions to return a
-      value.</para>
-
-      <simpara><literal>&lt;return statement&gt; ::= RETURN &lt;value
-      expression&gt; | NULL</literal></simpara>
+      <para>In addition to the RETURN statement, the following statements can
+      be used in specific contexts.</para>
 
       <para>ITERATE STATEMENT</para>
 
@@ -516,10 +578,10 @@ CALL the_new_id;
 
       <simpara>Signal and Resignal Statements</simpara>
 
-      <para>The SIGNAL statement is used to throw an exception. When invoked,
-      any exception handler for the given exception is in turn invoked. If
-      there is no handler, the exception is propagated to the enclosing
-      context.</para>
+      <para>The SIGNAL statement is used to throw an exception (or force an
+      excpetion). When invoked, any exception handler for the given exception
+      is in turn invoked. If there is no handler, the exception is propagated
+      to the enclosing context.</para>
 
       <simpara><literal>&lt;signal statement&gt; ::= SIGNAL SQL_STATE
       &lt;state value&gt;</literal></simpara>
@@ -547,7 +609,9 @@ CALL the_new_id;
       <para><literal>&lt;merge statement&gt;</literal></para>
 
       <para>These statements can be used only in procedures and have the same
-      effect as when they are used outside routines.</para>
+      effect as when they are used outside routines. As shown in the examples
+      of procedures, the formal parameters and the variables of the procedure
+      can be used in these statements.</para>
     </section>
 
     <section>
@@ -959,20 +1023,26 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     <simpara><emphasis>specific name</emphasis></simpara>
 
     <para>The SPECIFIC <literal>&lt;specific name&gt;</literal> clause is
-    optional and can be used for making further alterations to overloaded
-    routines. When there are several versions of the same routine, the
+    optional but the engine will creates an automatic name if it is not
+    present. When there are several versions of the same routine, the
     <literal>&lt;specific name&gt;</literal> is used in schema manipulation
     statements to drop or alter a specific version. The <literal>&lt;specific
-    name&gt;</literal> is a user-defined name. In the example below, a
-    specific name is specified in order to distinguish the function that has a
-    TIMESTAMP parameter:</para>
+    name&gt;</literal> is a user-defined name. It applies to both functions
+    and procedures. In the examples below, a specific name is specified for
+    each function.</para>
 
     <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     RETURNS TIMESTAMP
     NO SQL
     LANGUAGE JAVA PARAMETER STYLE JAVA
     SPECIFIC an_hour_before_or_now_with_timestamp
-    EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'</programlisting>
+    EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
+
+CREATE FUNCTION an_hour_before_max (e_type INT)
+RETURNS TIMESTAMP SPECIFIC an_hour_before_max_with_int
+RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
+
+</programlisting>
 
     <para>Determinism and Data Impact</para>
 
