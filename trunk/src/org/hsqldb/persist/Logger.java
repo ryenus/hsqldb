@@ -164,10 +164,13 @@ public class Logger {
      */
     public void openPersistence() {
 
+        boolean isFile =
+            DatabaseURL.isFileBasedDatabaseType(database.getType());
+
         database.databaseProperties = new HsqlDatabaseProperties(database);
-        isNewDatabase =
-            !DatabaseURL.isFileBasedDatabaseType(database.getType())
-            || !database.databaseProperties.propertiesFileExists();
+        isNewDatabase = !isFile
+                        || !fileaccess.isStreamElement(database.getPath()
+                            + ".script");
 
         if (isNewDatabase) {
             String name = newUniqueName();
@@ -197,7 +200,7 @@ public class Logger {
 
         this.appLog = new SimpleLog(logPath, propEventLogLevel);
 
-        if (!DatabaseURL.isFileBasedDatabaseType(database.getType())) {
+        if (!isFile) {
             return;
         }
 
@@ -466,6 +469,7 @@ public class Logger {
         String name = database.getUniqueName();
 
         if (name == null) {
+
             // The database unique name is set up at different times
             // depending on upgraded / exiting / new databases.
             // Therefore FrameworkLogger is not used until the unique

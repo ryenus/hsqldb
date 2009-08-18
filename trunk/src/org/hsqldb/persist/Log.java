@@ -82,6 +82,8 @@ import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptWriterBase;
+import org.hsqldb.scriptio.ScriptWriterText;
+import org.hsqldb.scriptio.ScriptReaderText;
 
 // fredt@users 20020215 - patch 1.7.0 by fredt
 // to move operations on the database.properties files to new
@@ -746,9 +748,8 @@ public class Log {
         }
 
         try {
-            dbLogWriter = ScriptWriterBase.newScriptWriter(database,
-                    logFileName, false, false,
-                    ScriptWriterBase.SCRIPT_TEXT_170);
+            dbLogWriter = new ScriptWriterText(database, logFileName, false,
+                                               false, false);
 
             dbLogWriter.setWriteDelay(writeDelay);
             dbLogWriter.start();
@@ -771,8 +772,8 @@ public class Log {
 
         deleteNewScript();
 
-        ScriptWriterBase scw = ScriptWriterBase.newScriptWriter(database,
-            scriptFileName + ".new", full, true, scriptFormat);
+        ScriptWriterBase scw = new ScriptWriterText(database,
+            scriptFileName + ".new", full, true, false);
 
         scw.writeAll();
         scw.close();
@@ -788,9 +789,7 @@ public class Log {
         try {
             if (database.isFilesInJar()
                     || fa.isStreamElement(scriptFileName)) {
-                scr = ScriptReaderBase.newScriptReader(database,
-                                                       scriptFileName,
-                                                       scriptFormat);
+                scr = new ScriptReaderText(database, scriptFileName);
 
                 Session session =
                     database.sessionManager.getSysSessionForScript(database);
@@ -829,8 +828,7 @@ public class Log {
     private void processLog() {
 
         if (!database.isFilesInJar() && fa.isStreamElement(logFileName)) {
-            ScriptRunner.runScript(database, logFileName,
-                                   ScriptWriterBase.SCRIPT_TEXT_170);
+            ScriptRunner.runScript(database, logFileName);
         }
     }
 

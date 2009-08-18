@@ -94,6 +94,4 @@ public class StatementQuery extends StatementDMQL {
             }
         }
     }
-
-    void collectTableNamesForWrite(OrderedHashSet set) {}
 }

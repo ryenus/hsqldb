@@ -215,8 +215,6 @@ public abstract class StatementDMQL extends Statement {
 
     abstract void collectTableNamesForRead(OrderedHashSet set);
 
-    abstract void collectTableNamesForWrite(OrderedHashSet set);
-
     /**
      * For the creation of the statement
      */
@@ -400,7 +398,20 @@ public abstract class StatementDMQL extends Statement {
             set.clear();
         }
 
-        collectTableNamesForWrite(set);
+        // other fk references this :  if constraint trigger action  : other write lock
+        if (baseTable != null) {
+            if (baseTable.isTemp()) {
+                return;
+            }
+
+            set.add(baseTable.getName());
+
+            for (int i = 0; i < baseTable.fkPath.length; i++) {
+                set.add(baseTable.fkPath[i].getMain().getName());
+            }
+
+            getTriggerTableNames(set, true);
+        }
 
         for (int i = 0; i < routines.length; i++) {
             set.addAll(routines[i].getTableNamesForWrite());
@@ -414,6 +425,8 @@ public abstract class StatementDMQL extends Statement {
 
         references = compileContext.getSchemaObjectNames();
     }
+
+    void getTriggerTableNames(OrderedHashSet set, boolean write) {}
 
     /**
      * Determines if the authorizations are adequate

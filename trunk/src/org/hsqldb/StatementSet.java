@@ -273,8 +273,6 @@ public class StatementSet extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForWrite(OrderedHashSet set) {}
-
     Object[] getExpressionValues(Session session) {
 
         Object[] values;

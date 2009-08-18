@@ -130,6 +130,10 @@ class JDBCStatementBase {
     /** Counter for ResultSet in getMoreResults(). */
     protected int resultSetCounter;
 
+
+    /** Query timeout in seconds */
+    protected int queryTimeout;
+
     /** Implementation in subclasses **/
     public synchronized void close() throws SQLException {}
 

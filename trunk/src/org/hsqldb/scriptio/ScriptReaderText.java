@@ -71,7 +71,7 @@ public class ScriptReaderText extends ScriptReaderBase {
     // because it is Database-instance specific.
     // If add any static level logging, should instantiate a standard,
     // context-agnostic FrameworkLogger for that purpose.
-    ScriptReaderText(Database db, String file) throws IOException {
+    public ScriptReaderText(Database db, String file) throws IOException {
 
         super(db, file);
 

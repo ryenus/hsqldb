@@ -2988,7 +2988,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, calls to this method are ignored; HSQLDB waits an
+     * The maximum value is Short.MAX_VALUE. The minimum is 0, indicating no limit.
+     * In 1.9.0, calls to this method are ignored; HSQLDB waits an
      * unlimited amount of time for statement execution
      * requests to return.
      * </div>
@@ -3005,9 +3006,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         checkClosed();
 
-        if (seconds < 0) {
+        if (seconds < 0 || seconds > Short.MAX_VALUE) {
             throw Util.outOfRangeArgument();
         }
+
+        queryTimeout = seconds;
     }
 
     /**
@@ -3631,9 +3634,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
         resultOut = Result.newPrepareStatementRequest();
 
-        resultOut.setPrepareOrExecuteProperties(sql, 0, 0, 0, resultSetType,
-                resultSetConcurrency, resultSetHoldability, generatedKeys,
-                generatedIndexes, generatedNames);
+        resultOut.setPrepareOrExecuteProperties(sql, 0, 0, 0, queryTimeout,
+                resultSetType, resultSetConcurrency, resultSetHoldability,
+                generatedKeys, generatedIndexes, generatedNames);
 
         Result in = connection.sessionProxy.execute(resultOut);
 

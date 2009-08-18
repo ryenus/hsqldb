@@ -41,14 +41,15 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 
 class OdbcPreparedStatement {
-    public String handle, query;
-    public Result ackResult;
+
+    public String  handle, query;
+    public Result  ackResult;
     public Session session;
-    private Map containingMap;
-    private List portals = new ArrayList();
+    private Map    containingMap;
+    private List   portals = new ArrayList();
 
     protected OdbcPreparedStatement(OdbcPreparedStatement other) {
-        this.handle = other.handle;
+        this.handle    = other.handle;
         this.ackResult = other.ackResult;
     }
 
@@ -56,30 +57,40 @@ class OdbcPreparedStatement {
      * Instantiates an proxy OdbcPreparedStatement object for the
      * Connection Session, and adds the new instance to the specified map.
      */
-    public OdbcPreparedStatement(
-    String handle, String query, Map containingMap, Session session)
-    throws RecoverableOdbcFailure {
-        this.handle = handle;
-        this.query = query;
+    public OdbcPreparedStatement(String handle, String query,
+                                 Map containingMap,
+                                 Session session)
+                                 throws RecoverableOdbcFailure {
+
+        this.handle        = handle;
+        this.query         = query;
         this.containingMap = containingMap;
-        this.session = session;
+        this.session       = session;
+
         Result psResult = Result.newPrepareStatementRequest();
-        psResult.setPrepareOrExecuteProperties(query, 0, 0, 0,
+
+        psResult.setPrepareOrExecuteProperties(
+            query, 0, 0, 0, 0,
             org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
             org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
             org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
             Statement.NO_GENERATED_KEYS, null, null);
+
         ackResult = session.execute(psResult);
+
         switch (ackResult.getType()) {
-            case ResultConstants.PREPARE_ACK:
+
+            case ResultConstants.PREPARE_ACK :
                 break;
-            case ResultConstants.ERROR:
+
+            case ResultConstants.ERROR :
                 throw new RecoverableOdbcFailure(ackResult);
-            default:
+            default :
                 throw new RecoverableOdbcFailure(
                     "Output Result from Statement prep is of "
                     + "unexpected type: " + ackResult.getType());
         }
+
         containingMap.put(handle, this);
     }
 
@@ -88,8 +99,10 @@ class OdbcPreparedStatement {
      * and removes this instance from the containing map.
      */
     public void close() {
+
         // TODO:  Free up resources!
         containingMap.remove(handle);
+
         while (portals.size() > 0) {
             ((StatementPortal) portals.remove(1)).close();
         }

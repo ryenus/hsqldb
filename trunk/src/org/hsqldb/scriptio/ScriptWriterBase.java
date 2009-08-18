@@ -113,29 +113,9 @@ public abstract class ScriptWriterBase implements Runnable {
 
     /** the last schema for last sessionId */
     Session                      currentSession;
-    public static final String[] LIST_SCRIPT_FORMATS      = new String[] {
+    public static final String[] LIST_SCRIPT_FORMATS = new String[] {
         Tokens.T_TEXT, Tokens.T_BINARY, null, Tokens.T_COMPRESSED
     };
-    public static final int      SCRIPT_TEXT_170          = 0;
-    public static final int      SCRIPT_BINARY_172        = 1;
-    public static final int      SCRIPT_ZIPPED_BINARY_172 = 3;
-
-    public static ScriptWriterBase newScriptWriter(Database db, String file,
-            boolean includeCachedData, boolean newFile, int scriptType) {
-
-        if (scriptType == SCRIPT_TEXT_170) {
-            return new ScriptWriterText(db, file, includeCachedData, newFile,
-                                        false);
-        } else if (scriptType == SCRIPT_BINARY_172) {
-            return new ScriptWriterBinary(db, file, includeCachedData,
-                                          newFile);
-        } else {
-            return new ScriptWriterZipped(db, file, includeCachedData,
-                                          newFile);
-        }
-    }
-
-    ScriptWriterBase() {}
 
     ScriptWriterBase(Database db, String file, boolean includeCachedData,
                      boolean isNewFile, boolean isDump) {

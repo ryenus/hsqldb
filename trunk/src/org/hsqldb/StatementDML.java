@@ -203,22 +203,6 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
-    // other fk references this :  if constraint trigger action  : other write lock
-    void collectTableNamesForWrite(OrderedHashSet set) {
-
-        if (baseTable.isTemp()) {
-            return;
-        }
-
-        set.add(baseTable.getName());
-
-        for (int i = 0; i < baseTable.fkPath.length; i++) {
-            set.add(baseTable.fkPath[i].getMain().getName());
-        }
-
-        getTriggerTableNames(set, true);
-    }
-
     void getTriggerTableNames(OrderedHashSet set, boolean write) {
 
         for (int i = 0; i < baseTable.triggerList.length; i++) {
@@ -327,8 +311,9 @@ public class StatementDML extends StatementDMQL {
     }
 
     static Object[] getUpdatedData(Session session, Table targetTable,
-                            int[] columnMap, Expression[] colExpressions,
-                            Type[] colTypes, Object[] oldData) {
+                                   int[] columnMap,
+                                   Expression[] colExpressions,
+                                   Type[] colTypes, Object[] oldData) {
 
         Object[] data = targetTable.getEmptyRowData();
 
@@ -556,14 +541,13 @@ public class StatementDML extends StatementDMQL {
              * creation of a new identity value
              */
             table.setIdentityColumn(session, data);
-            table.setGeneratedColumns(session, data);
 
             if (table.triggerLists[Trigger.UPDATE_BEFORE].length != 0) {
                 table.fireBeforeTriggers(session, Trigger.UPDATE_BEFORE,
                                          row.getData(), data, updateColumnMap);
-                table.setGeneratedColumns(session, data);
             }
 
+            table.setGeneratedColumns(session, data);
             table.enforceRowConstraints(session, data);
         }
 

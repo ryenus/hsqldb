@@ -174,6 +174,9 @@ public class Result {
     public int rsHoldability;
 
     //
+    public int queryTimeout;
+
+    //
     int generateKeys;
 
     // simple value for PSM
@@ -309,39 +312,6 @@ public class Result {
         }
     }
 
-    public static void readExecuteProperties(Session session, Result result,
-            DataInputStream dataInput, RowInputBinary in) {
-
-        try {
-            int length = dataInput.readInt();
-
-            in.resetRow(0, length);
-
-            byte[]    byteArray = in.getBuffer();
-            final int offset    = 4;
-
-            dataInput.readFully(byteArray, offset, length - offset);
-
-            result.updateCount     = in.readInt();
-            result.fetchSize       = in.readInt();
-            result.statementID     = in.readLong();
-            result.rsScrollability = in.readShort();
-            result.rsConcurrency   = in.readShort();
-            result.rsHoldability   = in.readShort();
-
-            Statement statement =
-                session.database.compiledStatementManager.getStatement(session,
-                    result.statementID);
-
-            result.statement = statement;
-            result.metaData  = result.statement.getParametersMetaData();
-
-            result.navigator.readSimple(in, result.metaData);
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.X_08000);
-        }
-    }
-
     private static Result newResult(Session session, DataInput dataInput,
                                     RowInputBinary in,
                                     int mode)
@@ -401,6 +371,7 @@ public class Result {
                 result.rsScrollability     = in.readShort();
                 result.rsConcurrency       = in.readShort();
                 result.rsHoldability       = in.readShort();
+                result.queryTimeout        = in.readShort();
                 result.generateKeys        = in.readByte();
 
                 if (result.generateKeys == ResultConstants
@@ -507,6 +478,7 @@ public class Result {
                 result.rsScrollability = in.readShort();
                 result.rsConcurrency   = in.readShort();
                 result.rsHoldability   = in.readShort();
+                result.queryTimeout        = in.readShort();
 
                 Statement statement =
                     session.database.compiledStatementManager.getStatement(
@@ -538,6 +510,7 @@ public class Result {
                 result.updateCount = in.readInt();
                 result.fetchSize   = in.readInt();
                 result.statementID = in.readLong();
+                result.queryTimeout        = in.readShort();
                 result.metaData    = new ResultMetaData(in);
 
                 result.navigator.readSimple(in, result.metaData);
@@ -910,14 +883,16 @@ public class Result {
      * For both EXECDIRECT and PREPARE
      */
     public void setPrepareOrExecuteProperties(String sql, int maxRows,
-            int fetchSize, int statementReturnType, int resultSetType,
-            int resultSetConcurrency, int resultSetHoldability, int keyMode,
-            int[] generatedIndexes, String[] generatedNames) {
+            int fetchSize, int statementReturnType, int timeout,
+            int resultSetType, int resultSetConcurrency,
+            int resultSetHoldability, int keyMode, int[] generatedIndexes,
+            String[] generatedNames) {
 
         mainString               = sql;
         updateCount              = maxRows;
         this.fetchSize           = fetchSize;
         this.statementReturnType = statementReturnType;
+        this.queryTimeout        = timeout;
         rsScrollability          = resultSetType;
         rsConcurrency            = resultSetConcurrency;
         rsHoldability            = resultSetHoldability;
@@ -1158,6 +1133,7 @@ public class Result {
                 rowOut.writeShort(rsScrollability);
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
+                rowOut.writeShort(queryTimeout);
                 rowOut.writeByte(generateKeys);
 
                 if (generateKeys == ResultConstants
@@ -1242,6 +1218,7 @@ public class Result {
                 rowOut.writeShort(rsScrollability);
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
+                rowOut.writeShort(queryTimeout);
                 navigator.writeSimple(rowOut, metaData);
                 break;
 
@@ -1259,6 +1236,7 @@ public class Result {
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
                 rowOut.writeLong(statementID);
+                rowOut.writeShort(queryTimeout);
                 metaData.write(rowOut);
                 navigator.writeSimple(rowOut, metaData);
 

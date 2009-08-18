@@ -104,8 +104,6 @@ public class ScriptWriterText extends ScriptWriterBase {
         }
     }
 
-    ScriptWriterText() {}
-
     public ScriptWriterText(Database db, String file,
                             boolean includeCachedData, boolean newFile,
                             boolean isDump) {
