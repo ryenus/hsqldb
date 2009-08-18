@@ -2236,13 +2236,13 @@ public class Table extends TableBase implements SchemaObject {
     void insertRow(Session session, PersistentStore store, Object[] data) {
 
         setIdentityColumn(session, data);
-        setGeneratedColumns(session, data);
 
         if (triggerLists[Trigger.INSERT_BEFORE].length != 0) {
             fireBeforeTriggers(session, Trigger.INSERT_BEFORE, null, data,
                                null);
-            setGeneratedColumns(session, data);
         }
+
+        setGeneratedColumns(session, data);
 
         if (isView) {
             return;

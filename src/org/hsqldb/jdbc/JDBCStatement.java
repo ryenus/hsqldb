@@ -445,7 +445,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, calls to this method are ignored; HSQLDB waits an
+     * The maximum value is Short.MAX_VALUE. The minimum is 0, indicating no limit.
+     * In 1.9.0, calls to this method are ignored; HSQLDB waits an
      * unlimited amount of time for statement execution
      * requests to return.
      * </div>
@@ -462,9 +463,11 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
 
         checkClosed();
 
-        if (seconds < 0) {
+        if (seconds < 0 || seconds > Short.MAX_VALUE) {
             throw Util.outOfRangeArgument();
         }
+
+        queryTimeout = seconds;
     }
 
     /**
@@ -1789,9 +1792,9 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             sql = connection.nativeSQL(sql);
         }
         resultOut.setPrepareOrExecuteProperties(sql, maxRows, fetchSize,
-                statementRetType, rsScrollability, rsConcurrency,
-                rsHoldability, generatedKeys, generatedIndexes,
-                generatedNames);
+                statementRetType, queryTimeout, rsScrollability,
+                rsConcurrency, rsHoldability, generatedKeys,
+                generatedIndexes, generatedNames);
 
         try {
             resultIn = connection.sessionProxy.execute(resultOut);

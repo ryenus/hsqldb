@@ -48,11 +48,6 @@ import org.hsqldb.persist.PersistentStore;
  */
 public abstract class ScriptReaderBase {
 
-    public static ScriptReaderBase newScriptReader(Database db, String file,
-            int scriptType) throws IOException {
-        return new ScriptReaderText(db, file);
-    }
-
     public static final int ANY_STATEMENT        = 1;
     public static final int DELETE_STATEMENT     = 2;
     public static final int INSERT_STATEMENT     = 3;

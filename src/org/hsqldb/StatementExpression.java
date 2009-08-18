@@ -87,10 +87,6 @@ public class StatementExpression extends StatementDMQL {
         return sb.toString();
     }
 
-    public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
-    }
-
     protected String describe(Session session, int blanks) {
 
         StringBuffer sb = new StringBuffer();
@@ -182,7 +178,7 @@ public class StatementExpression extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForRead(OrderedHashSet set) {}
+    void collectTableNamesForRead(OrderedHashSet set) {
 
-    void collectTableNamesForWrite(OrderedHashSet set) {}
+    }
 }

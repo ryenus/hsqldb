@@ -260,6 +260,4 @@ public class StatementProcedure extends StatementDMQL {
     }
 
     void collectTableNamesForRead(OrderedHashSet set) {}
-
-    void collectTableNamesForWrite(OrderedHashSet set) {}
 }

@@ -132,7 +132,6 @@ class ServerConnection implements Runnable {
     Thread                   runnerThread;
     protected static String  TEXTBANNER_PART1 = null;
     protected static String  TEXTBANNER_PART2 = null;
-    Result                   result;
 
     static {
         int serverBundleHandle =
@@ -175,9 +174,6 @@ class ServerConnection implements Runnable {
 
         rowIn  = new RowInputBinary(rowOutTemp);
         rowOut = rowOutTemp;
-
-        //
-        result = Result.newResult(ResultConstants.EXECUTE);
 
         //
         Thread runnerThread;
@@ -327,15 +323,8 @@ class ServerConnection implements Runnable {
     private void receiveResult(int resultMode)
     throws CleanExit, IOException, HsqlException {
 
-        Result resultIn;
-
-        if (resultMode == ResultConstants.EXECUTE) {
-            Result.readExecuteProperties(session, result, dataInput, rowIn);
-
-            resultIn = result;
-        } else {
-            resultIn = Result.newResult(session, resultMode, dataInput, rowIn);
-        }
+        Result resultIn = Result.newResult(session, resultMode, dataInput,
+                                           rowIn);
 
         resultIn.readAdditionalResults(session, dataInput, rowIn);
         server.printRequest(mThread, resultIn);
@@ -692,7 +681,7 @@ class ServerConnection implements Runnable {
                         r = Result.newExecuteDirectRequest();
 
                         r.setPrepareOrExecuteProperties(sql, 0, 0, org.hsqldb
-                            .StatementTypes.RETURN_RESULT, org.hsqldb.jdbc
+                            .StatementTypes.RETURN_RESULT, 0, org.hsqldb.jdbc
                             .JDBCResultSet.TYPE_FORWARD_ONLY, org.hsqldb.jdbc
                             .JDBCResultSet.CONCUR_READ_ONLY, org.hsqldb.jdbc
                             .JDBCResultSet.HOLD_CURSORS_OVER_COMMIT, java.sql
@@ -1938,7 +1927,7 @@ class ServerConnection implements Runnable {
         Result r = Result.newExecuteDirectRequest();
 
         r.setPrepareOrExecuteProperties(
-            statement, 0, 0, org.hsqldb.StatementTypes.RETURN_COUNT,
+            statement, 0, 0, org.hsqldb.StatementTypes.RETURN_COUNT, 0,
             org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
             org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
             org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,

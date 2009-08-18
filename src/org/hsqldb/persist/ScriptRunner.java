@@ -41,6 +41,7 @@ import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.result.Result;
 import org.hsqldb.scriptio.ScriptReaderBase;
+import org.hsqldb.scriptio.ScriptReaderText;
 
 /**
  * Restores the state of a Database instance from an SQL log file. <p>
@@ -58,8 +59,7 @@ public class ScriptRunner {
      *  This is used to read the *.log file and manage any necessary
      *  transaction rollback.
      */
-    public static void runScript(Database database, String logFilename,
-                                 int logType) {
+    public static void runScript(Database database, String logFilename) {
 
         IntKeyHashMap sessionMap = new IntKeyHashMap();
         Session       current    = null;
@@ -74,8 +74,7 @@ public class ScriptRunner {
         try {
             StopWatch sw = new StopWatch();
 
-            scr = ScriptReaderBase.newScriptReader(database, logFilename,
-                                                   logType);
+            scr = new ScriptReaderText(database, logFilename);
 
             while (scr.readLoggedStatement(current)) {
                 int sessionId = scr.getSessionNumber();
