@@ -52,7 +52,7 @@
   <section xml:id="dbproperties_connections-sect">
     <title>Connections</title>
 
-    <para>The normal method of accessing an HSQLDB database is via the JDBC
+    <para>The normal method of accessing a HyperSQL catalog is via the JDBC
     Connection interface. An introduction to different methods of providing
     database services and accessing them can be found in the <link
     endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link> chapter.
@@ -69,7 +69,7 @@
     appended to the end of the URL, separated with semicolons.</para>
 
     <table frame="all" pgwide="1" tocentry="1">
-      <title>Hsqldb URL Components</title>
+      <title>HyperSQL URL Components</title>
 
       <tgroup align="left" cols="3">
         <colspec colname="c1" />
@@ -112,6 +112,10 @@
           </row>
 
           <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><simplelist type="vert">
                 <member><literal>jdbc:hsqldb:file:</literal></member>
               </simplelist></entry>
@@ -137,6 +141,10 @@
           </row>
 
           <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><simplelist type="vert">
                 <member><literal>jdbc:hsqldb:res:</literal></member>
               </simplelist></entry>
@@ -154,6 +162,10 @@
             command the same way as resource files are accessed in Java
             programs. The <literal>/adirectory</literal> above stands for a
             directory in one of the jars.</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
           </row>
 
           <row>
@@ -254,6 +266,10 @@
             </row>
 
             <row>
+              <entry nameend="c3" namest="c1"></entry>
+            </row>
+
+            <row>
               <entry><property>ifexists</property></entry>
 
               <entry><literal>false</literal></entry>
@@ -271,6 +287,10 @@
               not exist.</para> <para>Setting the property to true is useful
               when troubleshooting as no database is created if the URL is
               malformed. Example below:</para> <programlisting>    jdbc:hsqldb:file:enrollments;ifexists=true</programlisting></entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"></entry>
             </row>
 
             <row>
@@ -322,10 +342,12 @@
     connection is made to the database. It is possible to specify all of these
     properties in the connection properties on as part of the URL string when
     the first connection is made to a new file: or mem: database. This allows
-    the properties to be set without using any SQL commands.</para>
+    the properties to be set without using any SQL commands. The corresponding
+    SQL command is given for each property.</para>
 
-    <para>Management of properties has changed since version 1.8. The
-    .properties file should not be modified by the user.</para>
+    <para>Management of properties has changed since version 1.8. The old SET
+    PROPERTY does not change a property and is retained to simplify
+    application upgrades.</para>
 
     <para>In the example URL below, two properties are set for the first
     connection to a new database. If the properties are used for connection to
@@ -355,11 +377,63 @@
 
         <tbody valign="top">
           <row>
+            <entry><property>hsqldb.read_only</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>readonly database</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1">This property is a special
+            property that can be added manually to the .properties file, or
+            included in the URL or connection properties. When this property
+            is true, the database becomes readonly.</entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.files_read_only</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>readonly files database</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1">This property is used similarly to
+            the hsqldb.read_only property. When this property is true, CACHED
+            and TEXT tables are readonly but memory files are not. Any change
+            to the data is not persisted to database files.</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>sql.enforce_names</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>enforcing SQL keywords</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property, when set
+            true, prevents SQL keywords being used for database object names
+            such as columns and tables.</para><para><programlisting>SET DATABASE SQL NAMES { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><property>sql.enforce_size</property></entry>
 
             <entry><literal>true</literal></entry>
 
-            <entry>trimming and padding string columns</entry>
+            <entry>trimming and padding string columns.</entry>
           </row>
 
           <row>
@@ -382,7 +456,108 @@
             an INSERT INTO or UPDATE statement are checked against the size
             specified in the SQL table definition. An exception is thrown if
             the value is too long. Also all CHARACTER values that are shorter
-            than the specified size are padded with spaces.</para></entry>
+            than the specified size are padded with
+            spaces.</para><para><programlisting>SET DATABASE SQL SIZE { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>runtime.gc_interval</property></entry>
+
+            <entry><literal>0</literal></entry>
+
+            <entry>forced garbage collection</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This setting forces garbage
+            collection each time a set number of result set row or cache row
+            objects are created. The default, "0" means no garbage collection
+            is forced by the program.</para><para><programlisting>SET DATABASE GC &lt;numeric value&gt;</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.default_table_type</property></entry>
+
+            <entry><literal>memory</literal></entry>
+
+            <entry>type of table created with unqualified CREATE TABLE</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The CREATE TABLE command
+            results in a MEMORY table by default. Setting the value "cached"
+            for this property will result in a cached table by default. The
+            qualified forms such as CREATE MEMORY TABLE or CREATE CACHED TABLE
+            are not affected at all by this
+            property.</para><para><programlisting>SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.applog</property></entry>
+
+            <entry><literal>0</literal></entry>
+
+            <entry>application logging level</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The default level 0
+            indicates no logging. Level 1 results in events related to
+            persistence to be logged, including any failures. Level 2
+            indicates all events, including ordinary events.The events are
+            logged in a file ending with
+            ".app.log".</para><para><programlisting>SET DATABASE EVENT LOG LEVEL { 0 | 1 | 2 }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.result_max_memory_rows</property></entry>
+
+            <entry><literal>0</literal></entry>
+
+            <entry>amount of result rows that are kept in memory</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Sets the maximum number of
+            rows of each result set and other internal temporary table that is
+            held in memory. </para><para><programlisting>SET DATABASE DEFAULT RESULT MEMORY ROWS &lt;unsigned integer literal&gt;</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.tx</property></entry>
+
+            <entry><literal>locks</literal></entry>
+
+            <entry>database transaction control mode</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Indicates the trasaction
+            control mode for the database.</para><para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
           </row>
 
           <row>
@@ -400,7 +575,11 @@
             FILES then it becomes effective after the next database SHUTDOWN
             or CHECKPOINT.</para><para>The property is changed via the
             <literal>SET FILES CACHE ROWS nnn</literal> SQL
-            command.</para></entry>
+            command.</para><para><programlisting>SET FILES CACHE ROWS &lt;numeric value&gt;</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
           </row>
 
           <row>
@@ -417,10 +596,13 @@
             This size is calculated as the binary size of the rows, for
             example an INTEGER is 4 bytes. The memory size is 2 to 4 times
             this value.</para><para>The value can range between 100-1,000,000.
-            If the value is set via SET FILES then it becomes effective after
-            the next database SHUTDOWN or CHECKPOINT.</para><para>The property
-            is changed via the <literal>SET FILES CACHE SIZE nnn</literal> SQL
-            command.</para></entry>
+            The default is 5,000, representing 5,000 kilobytes. If the value
+            is set via SET FILES then it becomes effective after the next
+            database SHUTDOWN or CHECKPOINT.</para><para><programlisting>SET FILES CACHE SIZE &lt;numeric value&gt;</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
           </row>
 
           <row>
@@ -434,26 +616,13 @@
           <row>
             <entry nameend="c3" namest="c1"><para>The value is the size (in
             megabytes) that the <literal>.log</literal> file can reach before
-            an automatic checkpoint occurs. A checkpoint and rewrites the
+            an automatic checkpoint occurs. A checkpoint rewrites the
             <literal>.script</literal> file and clears the
-            <literal>.log</literal> file.</para><para>The property is changed
-            via the <literal>SET FILES LOG SIZE nnn</literal> SQL
-            command.</para></entry>
+            <literal>.log</literal> file.</para><para><programlisting>SET FILES LOG SIZE &lt;numeric value&gt;</programlisting></para></entry>
           </row>
 
           <row>
-            <entry><property>runtime.gc_interval</property></entry>
-
-            <entry><literal>0</literal></entry>
-
-            <entry>forced garbage collection</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>This setting forces garbage
-            collection each time a set number of result set row or cache row
-            objects are created. The default, "0" means no garbage collection
-            is forced by the program.</para></entry>
+            <entry nameend="c3" namest="c1"></entry>
           </row>
 
           <row>
@@ -465,8 +634,8 @@
           </row>
 
           <row>
-            <entry nameend="c3" namest="c1"><para>When HSQLDB is compiled and
-            run in Java 1.4 or higher, setting this property to
+            <entry nameend="c3" namest="c1"><para>When HyperSQL is compiled
+            and run in Java 1.4 or higher, setting this property to
             <literal>false</literal> will avoid the use of nio access methods,
             resulting in somewhat reduced speed. If the data file is larger
             than 256MB when it is first opened, nio access methods are not
@@ -474,42 +643,29 @@
             computer memory that needs to be allocated for nio access, non-nio
             access methods are used.</para><para>If used before defining any
             CACHED table, it applies immediately, otherwise it comes into
-            effect after a SHUTDOWN and restart or CHECKPOINT.</para></entry>
+            effect after a SHUTDOWN and restart or
+            CHECKPOINT.</para><para><programlisting>SET FILES NIO { TRUE | FALSE }</programlisting></para></entry>
           </row>
 
           <row>
-            <entry><property>hsqldb.default_table_type</property></entry>
-
-            <entry><literal>memory</literal></entry>
-
-            <entry>type of table created with unqualified CREATE TABLE</entry>
+            <entry nameend="c3" namest="c1"></entry>
           </row>
 
           <row>
-            <entry nameend="c3" namest="c1"><para>The CREATE TABLE command
-            results in a MEMORY table by default. Setting the value "cached"
-            for this property will result in a cached table by default. The
-            qualified forms such as CREATE MEMORY TABLE or CREATE CACHED TABLE
-            are not affected at all by this property. This value is changed
-            via the <literal>SET DEFAULT TABLE TYPE</literal> SQL
-            command.</para></entry>
+            <entry><property>hsqldb.write_delay</property></entry>
+
+            <entry><literal>10</literal></entry>
+
+            <entry>write delay for writing log file entries</entry>
           </row>
 
           <row>
-            <entry><property>hsqldb.applog</property></entry>
-
-            <entry><literal>0</literal></entry>
-
-            <entry>application logging level</entry>
+            <entry nameend="c3" namest="c1"><para>Set the WRITE DELAY property
+            of the database in seconds.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS}</programlisting></para></entry>
           </row>
 
           <row>
-            <entry nameend="c3" namest="c1"><para>The default level 0
-            indicates no logging. Level 1 results in events related to
-            persistence to be logged, including any failures. The events are
-            logged in a file ending with ".app.log". This value is changed via
-            the <literal>SET DATABASE EVENT LOG LEVEL</literal> SQL
-            command.</para></entry>
+            <entry nameend="c3" namest="c1"></entry>
           </row>
 
           <row>
@@ -546,129 +702,5 @@
     <simpara>hsqldb.default_table_type=cached hsqldb.cache_rows=25000;
     hsqldb.cache_size=6000; hsqldb.log_size=10; hsqldb.nio_data_file=false;
     sql.enforce_strict_size=true</simpara>
-  </section>
-
-  <section xml:id="dbproperties_sqlcmd_dbprops-sect">
-    <title>SQL Commands for Database Properties</title>
-
-    <para><programlisting>SET DATABASE COLLATION &lt;collation name&gt;</programlisting>Sets
-    the collation used for the database. The default is English.</para>
-
-    <para><programlisting>SET DATABASE DEFAULT INITIAL SCHEMA &lt;schema name&gt;</programlisting>Sets
-    the default schema used when a new session is started.</para>
-
-    <para><programlisting>SET DATABASE DEFAULT RESULT MEMORY SIZE &lt;numeric value&gt;</programlisting></para>
-
-    <para>Sets the default for the number of memory rows in result sets and
-    subqueries. Zero value indicates all result sets are held in memory. The
-    default is 0. If a result set is has more rows than the specified size,
-    the result set is stored on disk.</para>
-
-    <para><programlisting>SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY }</programlisting></para>
-
-    <para>Sets the type of table created when the next CREATE TABLE statement
-    is executed.</para>
-
-    <para><programlisting>SET DATABASE EVENT LOG LEVEL { 0 | 1 | 2 }</programlisting>Sets
-    the level of detail for events stored in the database applog. Zero
-    indicates no logging. One indicates logging for errors only. Two indicates
-    logging for all the main events, which include operations on database
-    files.</para>
-
-    <para><programlisting>SET DATABASE SQL NAMES { TRUE | FALSE }</programlisting>Sets
-    enforcement of reserved names. The default is FALSE. When true, reserved
-    names cannot be used as names of database objects such as columns and
-    tables.</para>
-
-    <para><programlisting>SET DATABASE SQL SIZE { TRUE | FALSE }</programlisting>Sets
-    enforcement of column sizes specified in table definitions.</para>
-
-    <para><programlisting>SET DATABASE REFERENTIAL INTEGRITY { TRUE | FALSE }</programlisting>This
-    is TRUE by default. If bulk data needs to be loaded into the database,
-    this property can be set FALSE for the duration of bulk load operation.
-    This allows loading data for related tables in any order. The property
-    should be set TRUE after bulk load. If the loaded data is not guaranteed
-    to conform to the referential integrity constraints, SQL queries should be
-    run after loading to identify and modify any non-conforming rows.</para>
-
-    <para><programlisting>SET DATABASE TEXT TABLE DEFAULTS &lt;delimited text table properties&gt;</programlisting>Sets
-    the default properties for new text tables. The delimited string is parsed
-    as a text table source string.</para>
-
-    <para><programlisting>SET FILES LOG SIZE &lt;numeric value&gt;</programlisting>The
-    engine writes out a log of all the changes to the database as they occur.
-    This log is synched to the disk based on the WRITE_DELAY property above.
-    The log is never reused unless there is an abnormal termination, i.e. the
-    database process is terminated without SHUTDOWN, or it was terminated
-    using SHUTDOWN IMMEDIATELY.</para>
-
-    <para>The default maximum size of the .log file is 50 MB. When the maximum
-    size is reached, a CHECKPOINT operation is performed. This operation will
-    save the other database files in a consistent state and delete the old
-    log. A value of 0 indicates no limit for the .log file. The default is 50,
-    representing 50 megabytes.</para>
-
-    <para><programlisting>SET FILES DEFRAG &lt;numeric value&gt;</programlisting>When
-    rows in CACHED tables are updated or deleted, the spaces are mostly
-    reused. However, in time, some unused spaces are left in the .data file,
-    especially when large tables are dropped or their structure is
-    modified.</para>
-
-    <para>A CHECKPOINT operation does not normally reclaim the empty spaces,
-    whereas CHECKPOINT DEFRAG always does.</para>
-
-    <para>This property determines when a normal CHECKPOINT, whether initiated
-    by an administrator or when the size of the log exceeds its limit.</para>
-
-    <para>The numeric value is the percentage of recorded empty spaces in the
-    .data file that would force a DEFRAG operation. Low values result in more
-    frequent DEFRAG operations. A value of 0 indicates no automatic DEFRAG is
-    performed. The default is 20, indicating 20% of the .data file size
-    .</para>
-
-    <para><programlisting>SET FILES CACHE ROWS &lt;numeric value&gt;</programlisting>Sets
-    the maximum number or rows in the memory cache. The default is 50,000
-    rows.</para>
-
-    <para><programlisting>SET FILES CACHE SIZE &lt;numeric value&gt;</programlisting>Sets
-    the maximum size of rows in the memory cache. The default is 5,000,
-    representing 5,000 kilobytes.</para>
-
-    <para><programlisting>SET FILES INCREMENT BACKUP { TRUE | FALSE }</programlisting>Sets
-    the internal backup method for the .data file. The default is TRUE,
-    indicating incremental backup of the .data file as it is modified.</para>
-
-    <para><programlisting>SET FILES NIO { TRUE | FALSE }</programlisting>Sets
-    the use of Java nio classes for .data file access.</para>
-
-    <para><programlisting>SET FILES WRITE DELAY {{TRUE | FALSE} | &lt;seconds&gt; | &lt;milliseconds&gt; MILLIS</programlisting>The
-    default is TRUE and indicates that the changes to the database that have
-    been logged are synched to the file system once every 10 seconds. FALSE
-    indicates there is no delay and at each commit a file synch operation is
-    performed. Numeric values from 0 can also be specified for the synch
-    delay.</para>
-
-    <para>The purpose of this command is to control the amount of data loss in
-    case of a total system crash. A delay of 1 second means at most the data
-    written to disk during the last second before the crash is lost. All data
-    written prior to this has been synced and should be recoverable</para>
-
-    <para>This setting should be specified on the basis of the reliability of
-    the hardware used for running the database engine, the type of disk system
-    used, the possibility of power failure etc. Also the nature of the data
-    stored should be considered.</para>
-
-    <para>In general, when the system is very reliable, the setting can be
-    left to the default. If it is not very reliable, or the data is critical a
-    setting of 1 or 2 seconds would suffice. Only in the worst case scenario
-    or with the most critical data should a setting of 0 or FALSE be specified
-    as this will slow the engine down to the speed at which the file synch
-    operation can be performed by the disk subsystem.</para>
-
-    <para>Values down to 10 milliseconds can be specified by adding MILLIS to
-    the command, but in practice a delay of 100 milliseconds provides
-    99.99999% reliability with an average one system crash per 6 days.</para>
-
-    <para></para>
   </section>
 </chapter>

@@ -840,8 +840,8 @@
     <simpara><emphasis>set database default table type
     statement</emphasis><literal> </literal></simpara>
 
-    <simpara><literal>SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY
-    }</literal></simpara>
+    <simpara><literal>&lt;set database default table type&gt; ::= SET DATABASE
+    DEFAULT TABLE TYPE { CACHED | MEMORY }</literal></simpara>
 
     <simpara>Sets the type of table created when the next CREATE TABLE
     statement is executed. The default is MEMORY.</simpara>
@@ -861,7 +861,7 @@
 
     <simpara><literal>&lt;set database default result memory rows&gt; ::= SET
     DATABASE DEFAULT RESULT MEMORY ROWS &lt;unsigned integer
-    literal&gt;.</literal></simpara>
+    literal&gt;</literal></simpara>
 
     <simpara>Sets the maximum number of rows of each result set and other
     internal temporary table that is held in memory. This setting applies to
@@ -1179,7 +1179,7 @@
     <simpara><emphasis>set files nio</emphasis></simpara>
 
     <simpara><literal>&lt;set files nio statement&gt; ::= SET FILES NIO { TRUE
-    | FALSE };</literal></simpara>
+    | FALSE }</literal></simpara>
 
     <simpara>Changes the access method of the .data file. The default is TRUE
     and uses the Java nio classes to access the file.</simpara>
@@ -1197,7 +1197,7 @@
 
     <simpara><literal>&lt;set files write delay statement&gt; ::= SET FILES
     WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds
-    value&gt; MILLIS};</literal></simpara>
+    value&gt; MILLIS}</literal></simpara>
 
     <para>Set the WRITE DELAY property of the database. The WRITE DELAY
     controls the frequency of file sync for the log file. When WRITE_DELAY is
