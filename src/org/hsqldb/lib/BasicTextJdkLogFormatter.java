@@ -31,6 +31,8 @@
 
 package org.hsqldb.lib;
 
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 import java.text.SimpleDateFormat;
@@ -69,6 +71,11 @@ public class BasicTextJdkLogFormatter extends Formatter {
             sb.append(sdf.format(new Date(record.getMillis())) + "  ");
         }
         sb.append(record.getLevel() + "  " + formatMessage(record));
+        if (record.getThrown() != null) {
+            StringWriter sw = new StringWriter();
+            record.getThrown().printStackTrace(new PrintWriter(sw));
+            sb.append(LS + sw);
+        }
         return sb.toString() + LS;
         // This uses platform-specific line-separator, the same as
         // SimpleLogger does.
