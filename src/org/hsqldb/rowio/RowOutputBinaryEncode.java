@@ -32,59 +32,62 @@
 package org.hsqldb.rowio;
 
 import org.hsqldb.Row;
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HsqlByteArrayOutputStream;
+import org.hsqldb.persist.Crypto;
 import org.hsqldb.types.Type;
 
 /**
- * Public interface for writing the data for a database row.
- *
- * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
- * @since 1.7.0
+ * @since 1.9.0
  */
-public interface RowOutputInterface extends Cloneable {
+public class RowOutputBinaryEncode extends RowOutputBinary {
 
-    void writeEnd();
+    final Crypto crypto;
 
-    void writeSize(int size);
+    public RowOutputBinaryEncode(Crypto crypto, int initialSize, int scale) {
 
-    void writeType(int type);
+        super(initialSize, scale);
 
-    void writeString(String value);
+        this.crypto = crypto;
+    }
 
-    void writeByte(int i);
+    public void writeData(Object[] data, Type[] types) {
 
-    void writeShort(int i);
+        if (crypto == null) {
+            super.writeData(data, types);
+        } else {
+            int start = count;
 
-    void writeInt(int i);
+            writeInt(0);
+            super.writeData(data, types);
 
-    void writeIntData(int i, int position);
+            int origLength = count - start - INT_STORE_SIZE;
+            int newLength = crypto.encode(buffer, start + INT_STORE_SIZE,
+                                          origLength, buffer,
+                                          start + INT_STORE_SIZE);
 
-    void writeLong(long i);
+            writeIntData(newLength, start);
 
-    void writeData(Object[] data, Type[] types);
+            count = start + INT_STORE_SIZE + newLength;
+        }
+    }
 
-    void writeData(int l, Type[] types, Object[] data, HashMappedList cols,
-                   int[] primarykeys);
+    /**
+     *  Calculate the size of byte array required to store a row.
+     *
+     * @param  row - a database row
+     * @return  size of byte array
+     * @exception  HsqlException When data is inconsistent
+     */
+    public int getSize(Row row) {
 
-    // independent of the this object, calls only a static method
-    int getSize(Row row);
+        int size = super.getSize(row);
 
-    int getStorageSize(int size);
+        if (crypto != null) {
+            size = crypto.getEncodedSize(size - INT_STORE_SIZE)
+                   + INT_STORE_SIZE * 2;
+        }
 
-    // returns the underlying HsqlByteArrayOutputStream
-    HsqlByteArrayOutputStream getOutputStream();
-
-    // sets the byte[] buffer
-    public void setBuffer(byte[] mainBuffer);
-
-    // resets the byte[] buffer, ready for processing new row
-    void reset();
-
-    // returns the current size
-    int size();
-
-    public RowOutputInterface clone();
+        return size;
+    }
 }

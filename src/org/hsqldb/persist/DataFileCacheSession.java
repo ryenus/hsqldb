@@ -60,9 +60,9 @@ public class DataFileCacheSession extends DataFileCache {
      */
     protected void initParams(Database database, String baseFileName) {
 
-        this.dataFileName      = baseFileName + ".data.tmp";
-        this.database = database;
-        fa            = FileUtil.getDefaultInstance();
+        this.dataFileName = baseFileName + ".data.tmp";
+        this.database     = database;
+        fa                = FileUtil.getDefaultInstance();
 
         int cacheSizeScale = 10;
 
@@ -85,20 +85,20 @@ public class DataFileCacheSession extends DataFileCache {
     public void open(boolean readonly) {
 
         try {
-            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName, false,
-                    ScaledRAFile.DATA_FILE_RAF, null, null);
+            dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
+                    false, ScaledRAFile.DATA_FILE_RAF, null, null);
             fileFreePosition = INITIAL_FREE_POS;
 
             initBuffers();
 
             freeBlocks = new DataFileBlockManager(0, cacheFileScale, 0);
-        } catch (Throwable e) {
-            database.logger.logWarningEvent("Failed to open RA file", e);
+        } catch (Throwable t) {
+            database.logger.logWarningEvent("Failed to open RA file", t);
             close(false);
 
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_open, new Object[] {
-                e, dataFileName
+                t.getMessage(), dataFileName
             });
         }
     }
@@ -121,12 +121,12 @@ public class DataFileCacheSession extends DataFileCache {
 
                 fa.removeElement(dataFileName);
             }
-        } catch (Throwable e) {
-            database.logger.logWarningEvent("Failed to close RA file", e);
+        } catch (Throwable t) {
+            database.logger.logWarningEvent("Failed to close RA file", t);
 
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
-                e, dataFileName
+                t.getMessage(), dataFileName
             });
         }
     }

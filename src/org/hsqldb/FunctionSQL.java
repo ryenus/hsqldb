@@ -88,7 +88,7 @@ public class FunctionSQL extends Expression {
     protected final static int FUNC_CURRENT_TIME                     = 42;
     protected final static int FUNC_CURRENT_TIMESTAMP                = 43;
     protected final static int FUNC_LOCALTIME                        = 44;
-    private final static int   FUNC_LOCALTIMESTAMP                   = 50;
+    protected final static int FUNC_LOCALTIMESTAMP                   = 50;
     private final static int   FUNC_CURRENT_CATALOG                  = 51;    // general
     private final static int   FUNC_CURRENT_DEFAULT_TRANSFORM_GROUP  = 52;
     private final static int   FUNC_CURRENT_PATH                     = 53;
@@ -1521,7 +1521,7 @@ public class FunctionSQL extends Expression {
             case FUNC_CURRENT_TIMESTAMP : {
                 int precision = DateTimeType.defaultTimestampFractionPrecision;
 
-                if (nodes[0] != null) {
+                if (nodes.length > 0 && nodes[0] != null) {
                     precision = ((Integer) nodes[0].valueData).intValue();
                 }
 
@@ -1545,7 +1545,7 @@ public class FunctionSQL extends Expression {
             case FUNC_LOCALTIMESTAMP : {
                 int precision = DateTimeType.defaultTimestampFractionPrecision;
 
-                if (nodes[0] != null) {
+                if (nodes.length > 0 && nodes[0] != null) {
                     precision = ((Integer) nodes[0].valueData).intValue();
                 }
 

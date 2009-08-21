@@ -108,9 +108,9 @@ public class TextCache extends DataFileCache {
 
     protected void initParams(Database database, String baseFileName) {
 
-        this.dataFileName      = dataFileName;
-        this.database = database;
-        fa            = FileUtil.getDefaultInstance();
+        this.dataFileName = dataFileName;
+        this.database     = database;
+        fa                = FileUtil.getDefaultInstance();
 
         HsqlProperties tableprops =
             HsqlProperties.delimitedArgPairsToProps(baseFileName, "=", ";",
@@ -319,11 +319,11 @@ public class TextCache extends DataFileCache {
             }
 
             initBuffers();
-        } catch (Exception e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+        } catch (Throwable t) {
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_openning_file_error,
                               new Object[] {
-                dataFileName, e
+                t.getMessage(), dataFileName
             });
         }
 
@@ -357,11 +357,11 @@ public class TextCache extends DataFileCache {
             if (empty && !cacheReadonly) {
                 FileUtil.getDefaultInstance().delete(dataFileName);
             }
-        } catch (Exception e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+        } catch (Throwable t) {
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_closing_file_error,
                               new Object[] {
-                dataFileName, e
+                t.getMessage(), dataFileName
             });
         }
     }
@@ -385,11 +385,11 @@ public class TextCache extends DataFileCache {
 
                 FileUtil.getDefaultInstance().delete(dataFileName);
             }
-        } catch (Exception e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+        } catch (Throwable t) {
+            throw Error.error(null, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_purging_file_error,
                               new Object[] {
-                dataFileName, e
+                t.getMessage(), dataFileName
             });
         }
     }

@@ -180,7 +180,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_default_schema = "default_schema";
 
     //
-    public static final String hsqldb_tx = "hsqldb.tx";
+    public static final String hsqldb_tx     = "hsqldb.tx";
     public static final String hsqldb_applog = "hsqldb.applog";
     public static final String hsqldb_cache_file_scale =
         "hsqldb.cache_file_scale";
@@ -229,6 +229,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "fileaccess_class_name";
     public static final String url_storage_key = "storage_key";
     public static final String url_shutdown    = "shutdown";
+
+    //
+    public static final String url_crypt_key      = "crypt_key";
+    public static final String url_crypt_type     = "crypt_type";
+    public static final String url_crypt_provider = "crypt_provider";
 
     static {
 
@@ -288,8 +293,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         // string defaults for user defined props
         dbMeta.put(hsqldb_tx,
-                   HsqlProperties.getMeta(hsqldb_tx, SQL_PROPERTY,
-                                          null));
+                   HsqlProperties.getMeta(hsqldb_tx, SQL_PROPERTY, null));
         dbMeta.put(hsqldb_temp_directory,
                    HsqlProperties.getMeta(hsqldb_temp_directory, SQL_PROPERTY,
                                           null));
@@ -408,10 +412,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         try {
             exists = super.load();
-        } catch (Exception e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+        } catch (Throwable t) {
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {
-                fileName, e
+                t.getMessage(), fileName
             });
         }
 
@@ -466,12 +470,12 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             props.save(fileName + ".properties" + ".new");
             fa.renameElement(fileName + ".properties" + ".new",
                              fileName + ".properties");
-        } catch (Exception e) {
-            database.logger.logSevereEvent("save failed", e);
+        } catch (Throwable t) {
+            database.logger.logSevereEvent("save failed", t);
 
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_LOAD_SAVE_PROPERTIES, new Object[] {
-                fileName, e
+                t.getMessage(), fileName
             });
         }
     }

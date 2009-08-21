@@ -149,13 +149,6 @@ implements RowOutputInterface {
 
     protected abstract void writeBlob(BlobData o, Type type);
 
-    public void writeRow(Object[] data, Type[] types) {
-
-        writeSize(0);
-        writeData(data, types);
-        writeIntData(size(), 0);
-    }
-
     /**
      *  This method is called to write data for a table row.
      */
@@ -299,5 +292,14 @@ implements RowOutputInterface {
     // returns the underlying HsqlByteArrayOutputStream
     public HsqlByteArrayOutputStream getOutputStream() {
         return this;
+    }
+
+    public RowOutputInterface clone() {
+
+        try {
+            return (RowOutputInterface) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
     }
 }

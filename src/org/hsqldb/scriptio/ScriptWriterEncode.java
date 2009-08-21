@@ -29,62 +29,54 @@
  */
 
 
-package org.hsqldb.rowio;
+package org.hsqldb.scriptio;
 
-import org.hsqldb.Row;
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HsqlByteArrayOutputStream;
-import org.hsqldb.types.Type;
+import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
+
+import org.hsqldb.Database;
+import org.hsqldb.Error;
+import org.hsqldb.ErrorCode;
+import org.hsqldb.lib.FileAccess;
+import org.hsqldb.persist.Crypto;
 
 /**
- * Public interface for writing the data for a database row.
  *
- * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @since 1.9.0
  * @version 1.9.0
- * @since 1.7.0
  */
-public interface RowOutputInterface extends Cloneable {
+public class ScriptWriterEncode extends ScriptWriterText {
 
-    void writeEnd();
+    private static final int bufferSize = 1 << 15;
 
-    void writeSize(int size);
+    public ScriptWriterEncode(Database db, String file, boolean includeCached,
+                              Crypto crypto) {
 
-    void writeType(int type);
+        super(db, file, includeCached, true, false);
 
-    void writeString(String value);
+        try {
+            fileStreamOut = crypto.getOutputStream(fileStreamOut);
+            fileStreamOut = new GZIPOutputStream(fileStreamOut);
+        } catch (IOException e) {
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.M_Message_Pair, new Object[] {
+                e.getMessage(), outFile
+            });
+        }
+    }
 
-    void writeByte(int i);
+    /**
+     * Override the underlying method with no operation.
+     */
+    public void sync() {}
 
-    void writeShort(int i);
-
-    void writeInt(int i);
-
-    void writeIntData(int i, int position);
-
-    void writeLong(long i);
-
-    void writeData(Object[] data, Type[] types);
-
-    void writeData(int l, Type[] types, Object[] data, HashMappedList cols,
-                   int[] primarykeys);
-
-    // independent of the this object, calls only a static method
-    int getSize(Row row);
-
-    int getStorageSize(int size);
-
-    // returns the underlying HsqlByteArrayOutputStream
-    HsqlByteArrayOutputStream getOutputStream();
-
-    // sets the byte[] buffer
-    public void setBuffer(byte[] mainBuffer);
-
-    // resets the byte[] buffer, ready for processing new row
-    void reset();
-
-    // returns the current size
-    int size();
-
-    public RowOutputInterface clone();
+    /**
+     * This may not really be necessary, unless we add implementations where
+     * non-compressed data is added to the end of the copressed part.
+     */
+    protected void finishStream() throws IOException {
+        ((GZIPOutputStream) fileStreamOut).finish();
+        fileStreamOut.flush();
+    }
 }

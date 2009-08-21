@@ -46,6 +46,7 @@ import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.rowio.RowOutputInterface;
 
 /*
  * Implementation of PersistentStore for CACHED tables.
@@ -56,9 +57,11 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLDisk extends RowStoreAVL {
 
-    DataFileCache           cache;
-    Table                   table;
+    DataFileCache               cache;
+    RowOutputInterface          rowOut;
+    Table                       table;
     TransactionManagerInterface txManager;
+
     public RowStoreAVLDisk(PersistentStoreCollection manager,
                            DataFileCache cache, Table table) {
 
@@ -67,6 +70,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
         this.cache        = cache;
+        rowOut            = cache.rowOut.clone();
 
         manager.setStore(table, this);
 
@@ -122,9 +126,9 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public void add(CachedObject object) {
 
-        int size = object.getRealSize(cache.rowOut);
+        int size = object.getRealSize(rowOut);
 
-        size = cache.rowOut.getStorageSize(size);
+        size = rowOut.getStorageSize(size);
 
         object.setStorageSize(size);
         cache.add(object);

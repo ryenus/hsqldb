@@ -31,60 +31,43 @@
 
 package org.hsqldb.rowio;
 
-import org.hsqldb.Row;
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HsqlByteArrayOutputStream;
+import java.io.IOException;
+
+import org.hsqldb.persist.Crypto;
 import org.hsqldb.types.Type;
+import org.hsqldb.HsqlException;
 
 /**
- * Public interface for writing the data for a database row.
- *
- * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
- * @since 1.7.0
+ * @since 1.9.0
  */
-public interface RowOutputInterface extends Cloneable {
+public class RowInputBinaryDecode extends RowInputBinary {
 
-    void writeEnd();
+    final Crypto crypto;
 
-    void writeSize(int size);
+    public RowInputBinaryDecode(Crypto crypto, byte[] buf) {
 
-    void writeType(int type);
+        super(buf);
 
-    void writeString(String value);
+        this.crypto = crypto;
+    }
 
-    void writeByte(int i);
+    public Object[] readData(Type[] colTypes) throws IOException {
 
-    void writeShort(int i);
+        int start = pos;
 
-    void writeInt(int i);
+        if (crypto != null) {
+            int size = readInt();
 
-    void writeIntData(int i, int position);
+            try {
+                crypto.decode(buffer, pos, size, buffer, start);
+            } catch (HsqlException e) {
+                System.out.println("problem");
+            }
+            pos = start;
+        }
 
-    void writeLong(long i);
-
-    void writeData(Object[] data, Type[] types);
-
-    void writeData(int l, Type[] types, Object[] data, HashMappedList cols,
-                   int[] primarykeys);
-
-    // independent of the this object, calls only a static method
-    int getSize(Row row);
-
-    int getStorageSize(int size);
-
-    // returns the underlying HsqlByteArrayOutputStream
-    HsqlByteArrayOutputStream getOutputStream();
-
-    // sets the byte[] buffer
-    public void setBuffer(byte[] mainBuffer);
-
-    // resets the byte[] buffer, ready for processing new row
-    void reset();
-
-    // returns the current size
-    int size();
-
-    public RowOutputInterface clone();
+        return super.readData(colTypes);
+    }
 }

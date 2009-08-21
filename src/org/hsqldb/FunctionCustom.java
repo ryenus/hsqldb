@@ -47,6 +47,8 @@ import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.persist.Crypto;
+import org.hsqldb.lib.StringConverter;
 
 /**
  * Implementation of calls to HSQLDB functions with reserved names or functions
@@ -94,6 +96,7 @@ public class FunctionCustom extends FunctionSQL {
     private final static int FUNC_TRUNCATE                = 80;
     private final static int FUNC_TO_CHAR                 = 81;
     private final static int FUNC_TIMESTAMP               = 82;
+    private final static int FUNC_CIPHER_KEY              = 83;
 
     //
     private static final int FUNC_ACOS             = 101;
@@ -151,6 +154,9 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.CURDATE, FUNC_CURRENT_DATE);
         customRegularFuncMap.put(Tokens.CURTIME, FUNC_LOCALTIME);
         customRegularFuncMap.put(Tokens.SUBSTR, FUNC_SUBSTRING_CHAR);
+
+        //
+        customRegularFuncMap.put(Tokens.CIPHER_KEY, FUNC_CIPHER_KEY);
 
         //
         customRegularFuncMap.put(Tokens.YEAR, FUNC_EXTRACT);
@@ -233,9 +239,9 @@ public class FunctionCustom extends FunctionSQL {
         new IntKeyIntValueHashMap();
 
     static {
-        customValueFuncMap.put(Tokens.SYSDATE, FUNC_SYSDATE);
+        customValueFuncMap.put(Tokens.SYSDATE, FUNC_LOCALTIMESTAMP);
         customValueFuncMap.put(Tokens.TODAY, FUNC_CURRENT_DATE);
-        customValueFuncMap.put(Tokens.NOW, FUNC_CURRENT_TIMESTAMP);
+        customValueFuncMap.put(Tokens.NOW, FUNC_LOCALTIMESTAMP);
     }
 
     private int extractSpec;
@@ -261,9 +267,10 @@ public class FunctionCustom extends FunctionSQL {
             case Tokens.BITLENGTH :
             case Tokens.OCTETLENGTH :
             case Tokens.TODAY :
-            case Tokens.NOW :
+            case Tokens.SYSDATE :
                 return new FunctionSQL(id);
 
+            case Tokens.NOW :
             case Tokens.CURDATE :
             case Tokens.CURTIME : {
                 FunctionSQL function = new FunctionSQL(id);
@@ -383,11 +390,6 @@ public class FunctionCustom extends FunctionSQL {
                 parseList = emptyParamList;
                 break;
 
-            case FUNC_SYSDATE :
-                name      = Tokens.T_SYSDATE;
-                parseList = noParamList;
-                break;
-
             case FUNC_TIMESTAMPADD :
                 name      = Tokens.T_TIMESTAMPADD;
                 parseList = new short[] {
@@ -470,6 +472,10 @@ public class FunctionCustom extends FunctionSQL {
                 parseList = doubleParamList;
                 break;
 
+            case FUNC_CIPHER_KEY :
+                parseList = doubleParamList;
+                break;
+
             case FUNC_LOCATE :
                 parseList = new short[] {
                     Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
@@ -533,15 +539,6 @@ public class FunctionCustom extends FunctionSQL {
 
         switch (funcType) {
 
-            case FUNC_SYSDATE : {
-                FunctionSQL f = new FunctionSQL(FUNC_CURRENT_TIMESTAMP);
-
-                f.nodes = new Expression[]{
-                    new ExpressionValue(ValuePool.INTEGER_0,
-                                        Type.SQL_INTEGER) };
-
-                return f;
-            }
             case FUNC_CONCAT :
                 return new ExpressionArithmetic(OpTypes.CONCAT,
                                                 nodes[Expression.LEFT],
@@ -920,7 +917,9 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                int val = ((NumberType) nodes[0].dataType).compareToZero(data[0]);
+                int val =
+                    ((NumberType) nodes[0].dataType).compareToZero(data[0]);
+
                 return ValuePool.getInt(val);
             }
             case FUNC_ATAN2 : {
@@ -970,6 +969,7 @@ public class FunctionCustom extends FunctionSQL {
                 int    i = ((Number) data[1]).intValue();
 
                 d = Library.round(d, i);
+
                 return new Double(d);
             }
             case FUNC_ROUNDMAGIC : {
@@ -980,6 +980,7 @@ public class FunctionCustom extends FunctionSQL {
                 double d = NumberType.toDouble(data[0]);
 
                 d = Library.roundMagic(d);
+
                 return new Double(d);
             }
             case FUNC_SOUNDEX : {
@@ -1072,8 +1073,9 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                return Library.repeat((String) data[0],
-                                      ValuePool.getInt((( Number) data[1]).intValue()));
+                return Library.repeat(
+                    (String) data[0],
+                    ValuePool.getInt(((Number) data[1]).intValue()));
             }
             case FUNC_REPLACE : {
                 for (int i = 0; i < data.length; i++) {
@@ -1109,6 +1111,12 @@ public class FunctionCustom extends FunctionSQL {
 
                 return ValuePool.getSpaces(count);
             }
+            case FUNC_CIPHER_KEY : {
+                byte[] bytes = Crypto.getNewKey((String) data[0],
+                                                (String) data[1]);
+
+                return StringConverter.byteArrayToHexString(bytes);
+            }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "FunctionCustom");
         }
@@ -1132,7 +1140,7 @@ public class FunctionCustom extends FunctionSQL {
                 return;
 
             case FUNC_DATABASE :
-                dataType = Type.SQL_VARCHAR;
+                dataType = Type.SQL_VARCHAR_DEFAULT;
 
                 return;
 
@@ -1537,7 +1545,10 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                dataType = Type.SQL_VARBINARY;
+                dataType = nodes[0].dataType.precision == 0
+                           ? Type.SQL_VARBINARY_DEFAULT
+                           : Type.getType(Types.SQL_VARBINARY, 0,
+                                          nodes[0].dataType.precision / 2, 0);
 
                 break;
             }
@@ -1550,7 +1561,10 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                dataType = Type.SQL_VARCHAR;
+                dataType = nodes[0].dataType.precision == 0
+                           ? Type.SQL_VARCHAR_DEFAULT
+                           : Type.getType(Types.SQL_VARCHAR, 0,
+                                          nodes[0].dataType.precision * 2, 0);
 
                 break;
             }
@@ -1594,8 +1608,8 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                dataType = isChar ? Type.SQL_VARCHAR
-                                  : Type.SQL_VARBINARY;;
+                dataType = isChar ? Type.SQL_VARCHAR_DEFAULT
+                                  : Type.SQL_VARBINARY_DEFAULT;
 
                 break;
             }
@@ -1608,7 +1622,7 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                dataType = Type.SQL_VARCHAR;
+                dataType = Type.SQL_VARCHAR_DEFAULT;
 
                 break;
             }
@@ -1630,12 +1644,27 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                dataType = Type.SQL_VARCHAR;
+                dataType = nodes[0].dataType.precision == 0
+                           ? Type.SQL_VARCHAR_DEFAULT
+                           : Type.getType(Types.SQL_VARCHAR, 0,
+                                          nodes[0].dataType.precision, 0);
                 break;
 
             case FUNC_SPACE :
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_INTEGER;
+                }
+
+                dataType = Type.SQL_VARCHAR;
+                break;
+
+            case FUNC_CIPHER_KEY :
+                for (int i = 0; i < nodes.length; i++) {
+                    if (nodes[i].dataType == null) {
+                        nodes[i].dataType = Type.SQL_VARCHAR;
+                    } else if (!nodes[i].dataType.isCharacterType()) {
+                        throw Error.error(ErrorCode.X_42561);
+                    }
                 }
 
                 dataType = Type.SQL_VARCHAR;
@@ -1716,6 +1745,11 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_ROUND : {
                 return new StringBuffer(Tokens.ROUND).append('(')         //
+                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
+                    .append(nodes[1].getSQL()).append(')').toString();
+            }
+            case FUNC_CIPHER_KEY : {
+                return new StringBuffer(Tokens.CIPHER_KEY).append('(')    //
                     .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
                     .append(nodes[1].getSQL()).append(')').toString();
             }

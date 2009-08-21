@@ -46,11 +46,11 @@ import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.Storage;
-import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowInputBinary180;
+import org.hsqldb.rowio.RowInputBinaryDecode;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputBinary180;
+import org.hsqldb.rowio.RowOutputBinaryEncode;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.store.BitMap;
 
@@ -275,13 +275,13 @@ public class DataFileCache {
                                                   cacheFileScale, freesize);
 
             database.logger.logInfoEvent("open end");
-        } catch (Throwable e) {
-            database.logger.logSevereEvent("open failed", e);
+        } catch (Throwable t) {
+            database.logger.logSevereEvent("open failed", t);
             close(false);
 
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_open, new Object[] {
-                e, dataFileName
+                t.getMessage(), dataFileName
             });
         }
     }
@@ -349,10 +349,10 @@ public class DataFileCache {
             }
 
             return false;
-        } catch (Exception e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+        } catch (Throwable t) {
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_Message_Pair, new Object[] {
-                backupFileName, e.toString()
+                t.getMessage(), backupFileName
             });
         }
     }
@@ -454,12 +454,12 @@ public class DataFileCache {
                 fa.removeElement(dataFileName);
                 fa.removeElement(backupFileName);
             }
-        } catch (Throwable e) {
-            database.logger.logSevereEvent("Close failed", e);
+        } catch (Throwable t) {
+            database.logger.logSevereEvent("Close failed", t);
 
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_DataFileCache_close, new Object[] {
-                e, dataFileName
+                t.getMessage(), dataFileName
             });
         }
     }
@@ -472,7 +472,8 @@ public class DataFileCache {
             if (is180) {
                 rowOut = new RowOutputBinary180(256, cachedRowPadding);
             } else {
-                rowOut = new RowOutputBinary(256, cachedRowPadding);
+                rowOut = new RowOutputBinaryEncode(database.logger.getCrypto(),
+                                                   256, cachedRowPadding);
             }
         }
 
@@ -480,7 +481,8 @@ public class DataFileCache {
             if (is180) {
                 rowIn = new RowInputBinary180(new byte[256]);
             } else {
-                rowIn = new RowInputBinary(new byte[256]);
+                rowIn = new RowInputBinaryDecode(database.logger.getCrypto(),
+                                                 new byte[256]);
             }
         }
     }
@@ -705,8 +707,7 @@ public class DataFileCache {
 
                     outOfMemory = true;
 
-                    database.logger.logSevereEvent(
-                        "OOME in getFromFile", err);
+                    database.logger.logSevereEvent("OOME in getFromFile", err);
                 }
             }
 
@@ -728,8 +729,8 @@ public class DataFileCache {
 
             return object;
         } catch (HsqlException e) {
-            database.logger.logSevereEvent(dataFileName + " getFromFile " + pos,
-                                           e);
+            database.logger.logSevereEvent(dataFileName + " getFromFile "
+                                           + pos, e);
 
             throw e;
         } finally {

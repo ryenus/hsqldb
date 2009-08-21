@@ -131,7 +131,7 @@ public class TextTable extends org.hsqldb.Table {
                     indexList[i].insert(null, store, row);
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable t) {
             int linenumber = cache == null ? 0
                                            : ((TextCache) cache)
                                                .getLineNumber();
@@ -146,8 +146,8 @@ public class TextTable extends org.hsqldb.Table {
             // everything is in order here.
             // At this point table should either have a valid (old) data
             // source and cache or have an empty source and null cache.
-            throw Error.error(ErrorCode.TEXT_FILE, 0, new Object[] {
-                new Integer(linenumber), e.getMessage()
+            throw Error.error(t, ErrorCode.TEXT_FILE, 0, new Object[] {
+                t.getMessage(), new Integer(linenumber)
             });
         }
 

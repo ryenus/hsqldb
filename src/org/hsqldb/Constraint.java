@@ -743,8 +743,8 @@ public final class Constraint implements SchemaObject {
                     core.refName.name, core.mainTable.getName().name
                 };
 
-                throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT,
-                                  info);
+                throw Error.error(null, ErrorCode.X_23503,
+                                  ErrorCode.CONSTRAINT, info);
         }
     }
 
@@ -773,7 +773,8 @@ public final class Constraint implements SchemaObject {
                 name.name, table.tableName.name
             };
 
-            throw Error.error(ErrorCode.X_23513, ErrorCode.CONSTRAINT, info);
+            throw Error.error(null, ErrorCode.X_23513, ErrorCode.CONSTRAINT,
+                              info);
         }
     }
 
@@ -793,8 +794,8 @@ public final class Constraint implements SchemaObject {
                     name.name, table.tableName.name
                 };
 
-                throw Error.error(ErrorCode.X_23513, ErrorCode.CONSTRAINT,
-                                  info);
+                throw Error.error(null, ErrorCode.X_23513,
+                                  ErrorCode.CONSTRAINT, info);
             }
         }
     }
@@ -849,7 +850,8 @@ public final class Constraint implements SchemaObject {
                 core.refName.name, core.mainTable.getName().name
             };
 
-            throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT, info);
+            throw Error.error(null, ErrorCode.X_23503, ErrorCode.CONSTRAINT,
+                              info);
         }
 
         return exists;
@@ -901,7 +903,8 @@ public final class Constraint implements SchemaObject {
                 getName().name, getMain().getName().name, sb.toString()
             };
 
-            throw Error.error(ErrorCode.X_23503, ErrorCode.CONSTRAINT, info);
+            throw Error.error(null, ErrorCode.X_23503, ErrorCode.CONSTRAINT,
+                              info);
         }
     }
 
@@ -962,8 +965,8 @@ public final class Constraint implements SchemaObject {
                     table.getName().name, ""
                 };
 
-                throw Error.error(ErrorCode.X_23513, ErrorCode.CONSTRAINT,
-                                  info);
+                throw Error.error(null, ErrorCode.X_23513,
+                                  ErrorCode.CONSTRAINT, info);
             }
 
             rangeVariable = s.rangeVariables[0];

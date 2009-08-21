@@ -105,8 +105,6 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
             case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES :
             case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE :
-            case StatementTypes.SET_DATABASE_FILES_READ_ONLY :
-            case StatementTypes.SET_DATABASE_FILES_READ_ONLY_FILES :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
             case StatementTypes.SET_DATABASE_GC :
 
@@ -370,32 +368,6 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.SET_DATABASE_FILES_READ_ONLY : {
-                try {
-                    boolean value = ((Boolean) parameters[0]).booleanValue();
-
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-                    session.database.logger.setDatabaseReadonly(value);
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
-            }
-            case StatementTypes.SET_DATABASE_FILES_READ_ONLY_FILES : {
-                try {
-                    boolean value = ((Boolean) parameters[0]).booleanValue();
-
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-                    session.database.logger.setFilesReadonly(value);
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
-            }
             case StatementTypes.SET_DATABASE_FILES_LOG_SIZE : {
                 try {
                     int value = ((Integer) parameters[0]).intValue();
@@ -551,16 +523,17 @@ public class StatementCommand extends Statement {
                     String property = (String) parameters[0];
                     Object value    = parameters[1];
 
-                    //
+                    // command is a no-op from 1.9
                     session.checkAdmin();
                     session.checkDDLWrite();
 
+                    /*
                     HsqlDatabaseProperties p =
                         session.database.getProperties();
 
                     p.setDatabaseProperty(property,
                                           value.toString().toLowerCase());
-
+                    */
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);

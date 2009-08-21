@@ -240,9 +240,9 @@ public abstract class ScriptWriterBase implements Runnable {
             outDescriptor = fa.getFileSync(fos);
             fileStreamOut = new BufferedOutputStream(fos, 2 << 12);
         } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_Message_Pair, new Object[] {
-                e.toString(), outFile
+                e.getMessage(), outFile
             });
         }
     }

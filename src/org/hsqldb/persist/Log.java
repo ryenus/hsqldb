@@ -81,9 +81,11 @@ import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.scriptio.ScriptReaderBase;
+import org.hsqldb.scriptio.ScriptReaderText;
 import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.scriptio.ScriptWriterText;
-import org.hsqldb.scriptio.ScriptReaderText;
+import org.hsqldb.scriptio.ScriptReaderDecode;
+import org.hsqldb.scriptio.ScriptWriterEncode;
 
 // fredt@users 20020215 - patch 1.7.0 by fredt
 // to move operations on the database.properties files to new
@@ -772,8 +774,16 @@ public class Log {
 
         deleteNewScript();
 
-        ScriptWriterBase scw = new ScriptWriterText(database,
-            scriptFileName + ".new", full, true, false);
+        ScriptWriterBase scw;
+        Crypto           crypto = database.logger.getCrypto();
+
+        if (crypto == null) {
+            scw = new ScriptWriterText(database, scriptFileName + ".new",
+                                       full, true, false);
+        } else {
+            scw = new ScriptWriterEncode(database, scriptFileName + ".new",
+                                         full, crypto);
+        }
 
         scw.writeAll();
         scw.close();
@@ -789,7 +799,14 @@ public class Log {
         try {
             if (database.isFilesInJar()
                     || fa.isStreamElement(scriptFileName)) {
-                scr = new ScriptReaderText(database, scriptFileName);
+                Crypto crypto = database.logger.getCrypto();
+
+                if (crypto == null) {
+                    scr = new ScriptReaderText(database, scriptFileName);
+                } else {
+                    scr = new ScriptReaderDecode(database, scriptFileName,
+                                                 crypto);
+                }
 
                 Session session =
                     database.sessionManager.getSysSessionForScript(database);
@@ -850,10 +867,10 @@ public class Log {
             FileArchiver.unarchive(fileName + ".backup", fileName + ".data",
                                    database.logger.getFileAccess(),
                                    FileArchiver.COMPRESSION_ZIP);
-        } catch (Exception e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR,
+        } catch (Throwable t) {
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_Message_Pair, new Object[] {
-                fileName + ".backup", e.toString()
+                t.getMessage(), fileName + ".backup"
             });
         }
     }

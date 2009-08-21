@@ -786,7 +786,8 @@ public class StatementDML extends StatementDMQL {
                         c.core.refName.name, c.core.refTable.getName().name
                     };
 
-                    throw Error.error(errorCode, ErrorCode.CONSTRAINT, info);
+                    throw Error.error(null, errorCode, ErrorCode.CONSTRAINT,
+                                      info);
                 }
 
                 Table reftable = c.getRef();
@@ -1055,7 +1056,8 @@ public class StatementDML extends StatementDMQL {
                         c.core.refName.name, c.core.refTable.getName().name
                     };
 
-                    throw Error.error(errorCode, ErrorCode.CONSTRAINT, info);
+                    throw Error.error(null, errorCode, ErrorCode.CONSTRAINT,
+                                      info);
                 }
             } else {
 

@@ -150,7 +150,7 @@ public class Util {
     }
 
     static final SQLException sqlException(int id, int subId, Object[] add) {
-        return sqlException(Error.error(id, subId, add));
+        return sqlException(Error.error(null, id, subId, add));
     }
 
     static final SQLException notSupported() {

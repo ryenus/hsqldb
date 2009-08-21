@@ -108,6 +108,7 @@ public class Logger {
     int            propTxMode = Database.LOCKS;
 
     //
+    private Crypto    crypto;
     public FileAccess fileaccess;
     public boolean    isStoredFileAccess;
     String            tempDirectoryPath;
@@ -187,6 +188,18 @@ public class Logger {
                 database.urlProperties);
         } else {
             database.databaseProperties.load();
+
+            if (database.urlProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.hsqldb_files_readonly)) {
+                database.databaseProperties.setProperty(
+                    HsqlDatabaseProperties.hsqldb_files_readonly, true);
+            }
+
+            if (database.urlProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.hsqldb_readonly)) {
+                database.databaseProperties.setProperty(
+                    HsqlDatabaseProperties.hsqldb_readonly, true);
+            }
         }
 
         setVariables();
@@ -241,6 +254,21 @@ public class Logger {
     }
 
     public void setVariables() {
+
+        String cryptKey = database.urlProperties.getProperty(
+            HsqlDatabaseProperties.url_crypt_key);
+
+        if (cryptKey != null) {
+            String cryptType = database.urlProperties.getProperty(
+                HsqlDatabaseProperties.url_crypt_type);
+            String cryptProvider = database.urlProperties.getProperty(
+                HsqlDatabaseProperties.url_crypt_provider);
+            Crypto c = new Crypto();
+
+            c.init(cryptKey, cryptType, cryptProvider);
+
+            crypto = c;
+        }
 
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.hsqldb_readonly)) {
@@ -705,6 +733,10 @@ public class Logger {
         }
     }
 
+    public Crypto getCrypto() {
+        return crypto;
+    }
+
     public int getWriteDelay() {
         return propWriteDelay;
     }
@@ -841,14 +873,6 @@ public class Logger {
 
     public void setNioDataFile(boolean value) {
         propNioDataFile = value;
-    }
-
-    public void setDatabaseReadonly(boolean value) {
-        propDatabaseReadOnly = true;
-    }
-
-    public void setFilesReadonly(boolean value) {
-        propFilesReadOnly = true;
     }
 
     public FileAccess getFileAccess() {
@@ -1012,21 +1036,6 @@ public class Logger {
             list.add(sb.toString());
             sb.setLength(0);
 
-            if (database.isReadOnly()) {
-                sb.append("SET FILES ").append(Tokens.T_READ);
-                sb.append(' ').append(Tokens.T_ONLY);
-                list.add(sb.toString());
-                sb.setLength(0);
-            }
-
-            if (database.isFilesReadOnly()) {
-                sb.append("SET FILES ").append(Tokens.T_READ);
-                sb.append(' ').append(Tokens.T_ONLY).append(' ');
-                sb.append(Tokens.T_FILES);
-                list.add(sb.toString());
-                sb.setLength(0);
-            }
-
             if (propUseLockFile) {
                 sb.append("SET FILES ").append(Tokens.T_LOCK);
                 sb.append(' ').append(Tokens.T_TRUE);
@@ -1131,14 +1140,14 @@ public class Logger {
 
         if ((!nameImpliesCompress)
                 && !archiveFile.getName().endsWith(".tar")) {
-            throw Error.error(ErrorCode.UNSUPPORTED_FILENAME_SUFFIX, 0,
+            throw Error.error(null, ErrorCode.UNSUPPORTED_FILENAME_SUFFIX, 0,
                               new String[] {
                 archiveFile.getName(), ".tar, .tar.gz, .tgz"
             });
         }
 
         if (compressed != nameImpliesCompress) {
-            throw Error.error(ErrorCode.COMPRESSION_SUFFIX_MISMATCH, 0,
+            throw Error.error(null, ErrorCode.COMPRESSION_SUFFIX_MISMATCH, 0,
                               new Object[] {
                 new Boolean(compressed), archiveFile.getName()
             });
