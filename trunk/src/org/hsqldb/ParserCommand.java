@@ -987,31 +987,6 @@ public class ParserCommand extends ParserDDL {
 
                 break;
             }
-            case Tokens.READ : {
-                read();
-
-                type = StatementTypes.SET_DATABASE_FILES_READ_ONLY;
-
-                if (readIfThis(Tokens.ONLY)) {
-                    flag = Boolean.TRUE;
-
-                    if (readIfThis(Tokens.FILES)) {
-                        type = StatementTypes
-                            .SET_DATABASE_FILES_READ_ONLY_FILES;
-                    }
-                } else {
-                    readThis(Tokens.WRITE);
-
-                    if (readIfThis(Tokens.FILES)) {
-                        type = StatementTypes
-                            .SET_DATABASE_FILES_READ_ONLY_FILES;
-                    }
-
-                    flag = Boolean.FALSE;
-                }
-
-                break;
-            }
             case Tokens.CACHE : {
                 read();
 

@@ -254,7 +254,7 @@ class ServerConnection implements Runnable {
                             ClientConnection.toNetCompVersionString(firstInt);
 
                         throw Error.error(
-                            ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
+                            null, ErrorCode.SERVER_VERSIONS_INCOMPATIBLE, 0,
                             new String[] {
                             verString,
                             ClientConnection.NETWORK_COMPATIBILITY_VERSION

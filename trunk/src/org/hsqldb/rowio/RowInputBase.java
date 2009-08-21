@@ -280,21 +280,21 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
 
         reset();
 
-        if (buf.length < rowsize) {
-            buf = new byte[rowsize];
+        if (buffer.length < rowsize) {
+            buffer = new byte[rowsize];
         }
 
-        filePos = filepos;
-        size    = count = rowsize;
-        pos     = 4;
-        buf[0]  = (byte) ((rowsize >>> 24) & 0xFF);
-        buf[1]  = (byte) ((rowsize >>> 16) & 0xFF);
-        buf[2]  = (byte) ((rowsize >>> 8) & 0xFF);
-        buf[3]  = (byte) ((rowsize >>> 0) & 0xFF);
+        filePos   = filepos;
+        size      = count = rowsize;
+        pos       = 4;
+        buffer[0] = (byte) ((rowsize >>> 24) & 0xFF);
+        buffer[1] = (byte) ((rowsize >>> 16) & 0xFF);
+        buffer[2] = (byte) ((rowsize >>> 8) & 0xFF);
+        buffer[3] = (byte) ((rowsize >>> 0) & 0xFF);
     }
 
     public byte[] getBuffer() {
-        return buf;
+        return buffer;
     }
 
     public int skipBytes(int n) throws IOException {

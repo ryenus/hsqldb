@@ -107,7 +107,6 @@ public class TestBatchExecution extends TestBase {
 
         int    runs;
         String db_path;
-        String url;
         Driver driver;
 
         runs    = def_runs;
@@ -117,6 +116,7 @@ public class TestBatchExecution extends TestBase {
             runs = Integer.parseInt(args[0]);
         } catch (Exception e) {}
 
+        db_path = "batchtest";
         try {
             db_path = args[1];
         } catch (Exception e) {}
@@ -127,7 +127,9 @@ public class TestBatchExecution extends TestBase {
 
         DriverManager.registerDriver(driver);
 
-        url   = "jdbc:hsqldb:file:" + db_path;
+        url = "jdbc:hsqldb:file:" + db_path
+              + ";crypt_key=604a6105889da65326bf35790a923932;crypt_type=blowfish;hsqldb.default_table_type=cached;hsqldb.cache_rows=100"
+        ;
         conn  = DriverManager.getConnection(url, "SA", "");
         stmnt = conn.createStatement();
 
@@ -276,14 +278,17 @@ public class TestBatchExecution extends TestBase {
             insertStmnt.executeBatch();
             printCommandStats(sw, "inserts");
 
-            ResultSet generated = insertStmnt.getGeneratedKeys();
-            StringBuffer sb = new StringBuffer();
-            while(generated.next()){
+            ResultSet    generated = insertStmnt.getGeneratedKeys();
+            StringBuffer sb        = new StringBuffer();
+
+            while (generated.next()) {
                 int gen = generated.getInt(1);
+
                 if (gen % 1000 == 0) {
                     sb.append(gen).append(" - ");
                 }
             }
+
             System.out.println(sb.toString());
             printCommandStats(sw, "generated reads");
 

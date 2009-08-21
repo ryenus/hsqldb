@@ -29,62 +29,42 @@
  */
 
 
-package org.hsqldb.rowio;
+package org.hsqldb.scriptio;
 
-import org.hsqldb.Row;
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HsqlByteArrayOutputStream;
-import org.hsqldb.types.Type;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
+
+import org.hsqldb.Database;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import org.hsqldb.persist.Crypto;
 
 /**
- * Public interface for writing the data for a database row.
  *
- * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
- * @since 1.7.0
+ * @since 1.9.0
  */
-public interface RowOutputInterface extends Cloneable {
+public class ScriptReaderDecode extends ScriptReaderText {
 
-    void writeEnd();
+    public ScriptReaderDecode(Database db, String file,
+                              Crypto crypto) throws IOException {
 
-    void writeSize(int size);
+        super(db, file);
 
-    void writeType(int type);
+        InputStream d = database.isFilesInJar()
+                        ? getClass().getResourceAsStream(fileName)
+                        : database.logger.getFileAccess()
+                            .openInputStreamElement(fileName);
+        InputStream stream = crypto.getInputStream(d);
 
-    void writeString(String value);
+        stream       = new GZIPInputStream(stream);
+        dataStreamIn = new BufferedReader(new InputStreamReader(stream));
+    }
 
-    void writeByte(int i);
-
-    void writeShort(int i);
-
-    void writeInt(int i);
-
-    void writeIntData(int i, int position);
-
-    void writeLong(long i);
-
-    void writeData(Object[] data, Type[] types);
-
-    void writeData(int l, Type[] types, Object[] data, HashMappedList cols,
-                   int[] primarykeys);
-
-    // independent of the this object, calls only a static method
-    int getSize(Row row);
-
-    int getStorageSize(int size);
-
-    // returns the underlying HsqlByteArrayOutputStream
-    HsqlByteArrayOutputStream getOutputStream();
-
-    // sets the byte[] buffer
-    public void setBuffer(byte[] mainBuffer);
-
-    // resets the byte[] buffer, ready for processing new row
-    void reset();
-
-    // returns the current size
-    int size();
-
-    public RowOutputInterface clone();
+    protected void openFile() throws IOException {}
 }

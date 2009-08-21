@@ -36,11 +36,12 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
+/**
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class RowOutputBinary180 extends RowOutputBinary {
-
-    public RowOutputBinary180() {
-        super();
-    }
 
     public RowOutputBinary180(int initialSize, int scale) {
         super(initialSize, scale);

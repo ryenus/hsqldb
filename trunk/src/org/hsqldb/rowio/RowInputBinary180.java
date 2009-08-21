@@ -38,18 +38,15 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 
+/**
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public class RowInputBinary180 extends RowInputBinary {
-
-    public RowInputBinary180() {
-        super();
-    }
 
     public RowInputBinary180(byte[] buf) {
         super(buf);
-    }
-
-    public RowInputBinary180(RowOutputBinary out) {
-        super(out);
     }
 
     protected TimeData readTime(Type type) throws IOException {

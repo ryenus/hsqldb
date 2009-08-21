@@ -132,7 +132,7 @@ public class ScriptReaderText extends ScriptReaderBase {
                 database.logger.logWarningEvent(result.getMainString(),
                                                 result.getException());
 
-                throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE,
+                throw Error.error(null, ErrorCode.ERROR_IN_SCRIPT_FILE,
                                   ErrorCode.M_DatabaseScriptReader_readDDL,
                                   new Object[] {
                     new Integer(lineCount), result.getMainString()
@@ -174,14 +174,14 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
 
             database.setReferentialIntegrity(true);
-        } catch (Exception e) {
-            database.logger.logSevereEvent("readExistingData failed", e);
+        } catch (Throwable t) {
+            database.logger.logSevereEvent("readExistingData failed", t);
 
             throw Error.error(
-                ErrorCode.ERROR_IN_SCRIPT_FILE,
+                t, ErrorCode.ERROR_IN_SCRIPT_FILE,
                 ErrorCode.M_DatabaseScriptReader_readExistingData,
-                new Object[] {
-                new Integer(lineCount), e.toString()
+                new Object[] {t.getMessage(),
+                new Integer(lineCount)
             });
         }
     }

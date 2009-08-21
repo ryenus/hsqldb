@@ -60,7 +60,9 @@ public class HsqlException extends RuntimeException {
      * @param state XOPEN / SQL code for exception
      * @param code number code in HSQLDB
      */
-    public HsqlException(String message, String state, int code) {
+    public HsqlException(Throwable t, String message, String state, int code) {
+
+        super(t);
 
         this.message = message;
         this.state   = state;

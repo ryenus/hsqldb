@@ -701,8 +701,8 @@ public class ParserBase {
     HsqlException unexpectedTokenRequire(String required) {
 
         if (token.tokenType == Tokens.X_ENDPARSE) {
-            return Error.error(ErrorCode.X_42590, ErrorCode.TOKEN_REQUIRED,
-                               new Object[] {
+            return Error.error(null, ErrorCode.X_42590,
+                               ErrorCode.TOKEN_REQUIRED, new Object[] {
                 "", required
             });
         }
@@ -721,7 +721,7 @@ public class ParserBase {
             tokenS = token.tokenString;
         }
 
-        return Error.error(ErrorCode.X_42581, ErrorCode.TOKEN_REQUIRED,
+        return Error.error(null, ErrorCode.X_42581, ErrorCode.TOKEN_REQUIRED,
                            new Object[] {
             tokenS, required
         });

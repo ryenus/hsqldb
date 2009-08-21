@@ -100,7 +100,7 @@ public class RowAVLDisk extends RowAVL {
     public static final int NO_POS = -1;
 
     //
-    protected TableBase tTable;
+    protected TableBase table;
     int                 storageSize;
     int                 keepCount;
     boolean             isInMemory;
@@ -130,8 +130,8 @@ public class RowAVLDisk extends RowAVL {
      */
     public RowAVLDisk(TableBase t, Object[] o) {
 
-        tTable  = t;
-        tableId = tTable.getId();
+        table  = t;
+        tableId = table.getId();
 
         setNewNodes();
 
@@ -148,7 +148,7 @@ public class RowAVLDisk extends RowAVL {
      */
     public RowAVLDisk(TableBase t, RowInputInterface in) throws IOException {
 
-        tTable      = t;
+        table      = t;
         position    = in.getPos();
         storageSize = in.getSize();
 
@@ -163,7 +163,7 @@ public class RowAVLDisk extends RowAVL {
             n       = n.nNext;
         }
 
-        rowData = in.readData(tTable.getColumnTypes());
+        rowData = in.readData(table.getColumnTypes());
     }
 
     public NodeAVL insertNode(int index) {
@@ -237,7 +237,7 @@ public class RowAVLDisk extends RowAVL {
      * @return Table
      */
     public TableBase getTable() {
-        return tTable;
+        return table;
     }
 
     public void setStorageSize(int size) {
@@ -258,7 +258,7 @@ public class RowAVLDisk extends RowAVL {
 
         super.destroy();
 
-        tTable = null;
+        table = null;
     }
 
     public synchronized boolean keepInMemory(boolean keep) {
@@ -313,7 +313,7 @@ public class RowAVLDisk extends RowAVL {
      */
     void setNewNodes() {
 
-        int indexcount = tTable.getIndexCount();
+        int indexcount = table.getIndexCount();
 
         nPrimaryNode = new NodeAVLDisk(this, 0);
 
@@ -328,7 +328,7 @@ public class RowAVLDisk extends RowAVL {
     public int getRealSize(RowOutputInterface out) {
 
         int size = out.getSize((RowAVLDisk) this)
-                   + tTable.getIndexCount() * NodeAVLDisk.SIZE_IN_BYTE;
+                   + table.getIndexCount() * NodeAVLDisk.SIZE_IN_BYTE;
 
         return size;
     }
@@ -346,17 +346,12 @@ public class RowAVLDisk extends RowAVL {
             writeNodes(out);
 
             if (hasDataChanged) {
-                out.writeData(rowData, tTable.colTypes);
+                out.writeData(rowData, table.colTypes);
                 out.writeEnd();
 
                 hasDataChanged = false;
             }
         } catch (IOException e) {}
-    }
-
-    private void writeRowInfo(RowOutputInterface out) {
-
-        // for use when additional transaction info is attached to rows
     }
 
     public void write(RowOutputInterface out, IntLookup lookup) {
@@ -371,7 +366,7 @@ public class RowAVLDisk extends RowAVL {
             rownode = rownode.nNext;
         }
 
-        out.writeData(getData(), tTable.colTypes);
+        out.writeData(getData(), table.colTypes);
         out.writeEnd();
     }
 

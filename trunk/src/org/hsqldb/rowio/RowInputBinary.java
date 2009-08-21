@@ -67,10 +67,6 @@ implements org.hsqldb.rowio.RowInputInterface {
 
     private RowOutputBinary out;
 
-    public RowInputBinary() {
-        super();
-    }
-
     public RowInputBinary(byte[] buf) {
         super(buf);
     }
@@ -93,7 +89,7 @@ implements org.hsqldb.rowio.RowInputInterface {
     public String readString() throws IOException {
 
         int    length = readInt();
-        String s      = StringConverter.readUTF(buf, pos, length);
+        String s      = StringConverter.readUTF(buffer, pos, length);
 
         s   = ValuePool.getString(s);
         pos += length;
@@ -217,6 +213,10 @@ implements org.hsqldb.rowio.RowInputInterface {
         return new BlobDataID(id);
     }
 
+    public Object[] readData(Type[] colTypes) throws IOException {
+        return super.readData(colTypes);
+    }
+
     // helper methods
     public byte[] readByteArray() throws IOException {
 
@@ -238,8 +238,8 @@ implements org.hsqldb.rowio.RowInputInterface {
         }
 
         for (int i = 0; i < c.length; i++) {
-            int ch1 = buf[pos++] & 0xff;
-            int ch2 = buf[pos++] & 0xff;
+            int ch1 = buffer[pos++] & 0xff;
+            int ch2 = buffer[pos++] & 0xff;
 
             c[i] = (char) ((ch1 << 8) + (ch2));
         }
@@ -257,7 +257,7 @@ implements org.hsqldb.rowio.RowInputInterface {
         if (out != null) {
             out.reset(rowsize);
 
-            buf = out.getBuffer();
+            buffer = out.getBuffer();
         }
 
         super.reset();
@@ -273,7 +273,7 @@ implements org.hsqldb.rowio.RowInputInterface {
         if (out != null) {
             out.reset(rowsize);
 
-            buf = out.getBuffer();
+            buffer = out.getBuffer();
         }
 
         super.resetRow(filepos, rowsize);

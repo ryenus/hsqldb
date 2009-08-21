@@ -62,16 +62,9 @@ import org.hsqldb.types.Type;
  */
 public class RowOutputBinary extends RowOutputBase {
 
-    private static final int INT_STORE_SIZE = 4;
+    protected static final int INT_STORE_SIZE = 4;
     int                      storageSize;
     final int                scale;
-
-    public RowOutputBinary() {
-
-        super();
-
-        scale = 1;
-    }
 
     public RowOutputBinary(int initialSize, int scale) {
 
@@ -106,12 +99,16 @@ public class RowOutputBinary extends RowOutputBase {
         }
     }
 
+    public void writeData(Object[] data, Type[] types) {
+        super.writeData(data, types);
+    }
+
     public void writeEnd() {
 
-        // fredt - this value is used in 1.7.0 when reading back, for a
-        // 'data integrity' check
-        // has been removed in 1.7.2 as compatibility is no longer necessary
-        // writeInt(pos);
+        if (count > storageSize) {
+            Error.runtimeError(ErrorCode.U_S0500, "RowOutputBinary");
+        }
+
         for (; count < storageSize; ) {
             this.write(0);
         }
@@ -136,7 +133,7 @@ public class RowOutputBinary extends RowOutputBase {
 
         if (s != null && s.length() != 0) {
             StringConverter.stringToUTFBytes(s, this);
-            writeIntData(count - temp - 4, temp);
+            writeIntData(count - temp - INT_STORE_SIZE, temp);
         }
     }
 
@@ -278,7 +275,7 @@ public class RowOutputBinary extends RowOutputBase {
      * @param types - array of java.sql.Types values
      * @return size of byte array
      */
-    private static int getSize(Object[] data, int l, Type[] types) {
+    private int getSize(Object[] data, int l, Type[] types) {
 
         int s = 0;
 
@@ -296,7 +293,7 @@ public class RowOutputBinary extends RowOutputBase {
                     case Types.SQL_CHAR :
                     case Types.SQL_VARCHAR :
                     case Types.VARCHAR_IGNORECASE :
-                        s += 4;
+                        s += INT_STORE_SIZE;
                         s += StringConverter.getUTFSize((String) o);
                         break;
 
@@ -372,13 +369,13 @@ public class RowOutputBinary extends RowOutputBase {
 
                     case Types.SQL_BINARY :
                     case Types.SQL_VARBINARY :
-                        s += 4;
+                        s += INT_STORE_SIZE;
                         s += ((BinaryData) o).length(null);
                         break;
 
                     case Types.SQL_BIT :
                     case Types.SQL_BIT_VARYING :
-                        s += 4;
+                        s += INT_STORE_SIZE;
                         s += ((BinaryData) o).length(null);
                         break;
 
@@ -390,7 +387,7 @@ public class RowOutputBinary extends RowOutputBase {
                     case Types.OTHER :
                         JavaObjectData jo = (JavaObjectData) o;
 
-                        s += 4;
+                        s += INT_STORE_SIZE;
                         s += jo.getBytesLength();
                         break;
 

@@ -138,6 +138,8 @@ public interface ErrorCode {
     int X_S0521           = 320;                          // operation is not allowed on text table with data
     int X_S0522           = 321;                          // invalid statemnet - text table required
 
+    int X_S0531           = 331;                         // crypto error:
+
     // SQLSTATE definitions
     // successful completion
     int S_00000 = 0000;                                   // successful completion

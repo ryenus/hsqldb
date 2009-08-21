@@ -70,11 +70,11 @@ public class RowAVLDiskData extends RowAVLDisk {
                           RowInputInterface in)
                           throws IOException {
 
-        tTable         = t;
+        table         = t;
         tableId        = t.getId();
         position       = in.getPos();
         storageSize    = in.getSize();
-        rowData        = in.readData(tTable.getColumnTypes());
+        rowData        = in.readData(table.getColumnTypes());
         hasDataChanged = false;
     }
 
@@ -84,7 +84,7 @@ public class RowAVLDiskData extends RowAVLDisk {
      */
     void setNewNodes() {
 
-        int index = tTable.getIndexCount();
+        int index = table.getIndexCount();
 
         nPrimaryNode = new NodeAVLMemoryPointer(this);
 
@@ -128,7 +128,7 @@ public class RowAVLDiskData extends RowAVLDisk {
     public void write(RowOutputInterface out) {
 
         out.writeSize(storageSize);
-        out.writeData(rowData, tTable.colTypes);
+        out.writeData(rowData, table.colTypes);
         out.writeEnd();
 
         hasDataChanged = false;
@@ -173,7 +173,7 @@ public class RowAVLDiskData extends RowAVLDisk {
 
         if (obj instanceof RowAVLDiskData) {
             return ((RowAVLDiskData) obj).position == position
-                   && ((RowAVLDiskData) obj).tTable == tTable;
+                   && ((RowAVLDiskData) obj).table == table;
         }
 
         return false;
