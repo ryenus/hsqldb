@@ -826,6 +826,7 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            setFileModified();
             saveRowNoLock(row);
         } finally {
             writeLock.unlock();
@@ -835,7 +836,6 @@ public class DataFileCache {
     public void saveRowNoLock(CachedObject row) {
 
         try {
-            setFileModified();
             rowOut.reset();
             row.write(rowOut);
             dataFile.seek((long) row.getPos() * cacheFileScale);

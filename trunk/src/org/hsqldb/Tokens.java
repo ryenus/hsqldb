@@ -660,7 +660,6 @@ public class Tokens {
     public static final String T_MVCC                = "MVCC";
     public static final String T_MVLOCKS             = "MVLOCKS";
     public static final String T_NIO                 = "NIO";
-    static final String        T_NOW                 = "NOW";
     static final String        T_NOWAIT              = "NOWAIT";
     static final String        T_NVL                 = "NVL";
     static final String        T_OCTETLENGTH         = "OCTETLENGTH";
@@ -716,7 +715,6 @@ public class Tokens {
     static final String        T_SQL_TINYINT         = "SQL_TINYINT";
     static final String        T_SQL_VARBINARY       = "SQL_VARBINARY";
     static final String        T_SQL_VARCHAR         = "SQL_VARCHAR";
-    static final String        T_SYSDATE             = "SYSDATE";
     public static final String T_TEMP                = "TEMP";
     public static final String T_TEXT                = "TEXT";
     static final String        T_TIMESTAMPADD        = "TIMESTAMPADD";
@@ -728,6 +726,8 @@ public class Tokens {
     public static final String T_VARCHAR_IGNORECASE  = "VARCHAR_IGNORECASE";
     static final String        T_WRITE_DELAY         = "WRITE_DELAY";
     public static final String T_YES                 = "YES";
+
+    //
     public static final String T_DAY_NAME            = "DAY_NAME";
     public static final String T_MONTH_NAME          = "MONTH_NAME";
     public static final String T_QUARTER             = "QUARTER";
@@ -751,10 +751,10 @@ public class Tokens {
     static final String        T_BITAND           = "BITAND";
     static final String        T_BITOR            = "BITOR";
     static final String        T_BITXOR           = "BITXOR";
-    static final String        T_CIPHER_KEY       = "CIPHER_KEY";
     static final String        T_CONCAT_WORD      = "CONCAT";
     static final String        T_COS              = "COS";
     static final String        T_COT              = "COT";
+    static final String        T_CRYPT_KEY        = "CRYPT_KEY";
     static final String        T_DATEADD          = "DATEADD";
     static final String        T_DATEDIFF         = "DATEDIFF";
     static final String        T_DEGREES          = "DEGREES";
@@ -767,11 +767,13 @@ public class Tokens {
     public static final String T_LOG              = "LOG";
     static final String        T_LOG10            = "LOG10";
     static final String        T_LTRIM            = "LTRIM";
+    static final String        T_NOW              = "NOW";
     static final String        T_PI               = "PI";
     static final String        T_RADIANS          = "RADIANS";
     static final String        T_RAND             = "RAND";
     static final String        T_RAWTOHEX         = "RAWTOHEX";
     static final String        T_REPLACE          = "REPLACE";
+    static final String        T_REVERSE          = "REVERSE";
     static final String        T_ROUND            = "ROUND";
     static final String        T_ROUNDMAGIC       = "ROUNDMAGIC";
     static final String        T_RTRIM            = "RTRIM";
@@ -781,6 +783,7 @@ public class Tokens {
     static final String        T_SOUNDEX          = "SOUNDEX";
     static final String        T_SPACE_WORD       = "SPACE_WORD";
     static final String        T_SUBSTR           = "SUBSTR";
+    static final String        T_SYSDATE          = "SYSDATE";
     static final String        T_TAN              = "TAN";
     static final String        T_UCASE            = "UCASE";
 
@@ -1388,10 +1391,10 @@ public class Tokens {
     static final int        BITLENGTH               = 608;
     static final int        BITOR                   = 609;
     static final int        BITXOR                  = 610;
-    static final int        CIPHER_KEY              = 611;
-    static final int        CONCAT_WORD             = 612;
-    static final int        COS                     = 613;
-    static final int        COT                     = 614;
+    static final int        CONCAT_WORD             = 611;
+    static final int        COS                     = 612;
+    static final int        COT                     = 613;
+    static final int        CRYPT_KEY               = 614;
     static final int        CURDATE                 = 615;
     static final int        CURTIME                 = 616;
     static final int        DATEADD                 = 617;
@@ -1431,25 +1434,26 @@ public class Tokens {
     static final int        RAND                    = 651;
     static final int        RAWTOHEX                = 652;
     static final int        REPLACE                 = 653;
-    static final int        ROUND                   = 654;
-    static final int        ROUNDMAGIC              = 655;
-    static final int        RTRIM                   = 656;
-    public static final int SECONDS_MIDNIGHT        = 657;
-    static final int        SIGN                    = 658;
-    static final int        SIN                     = 659;
-    static final int        SOUNDEX                 = 660;
-    static final int        SPACE_WORD              = 661;
-    static final int        SUBSTR                  = 662;
-    static final int        SYSDATE                 = 663;
-    static final int        TAN                     = 664;
-    static final int        TIMESTAMPADD            = 665;
-    static final int        TIMESTAMPDIFF           = 666;
-    static final int        TO_CHAR                 = 667;
-    static final int        TODAY                   = 668;
-    static final int        TOP                     = 669;
-    static final int        UCASE                   = 670;
-    static final int        WEEK                    = 671;
-    public static final int WEEK_OF_YEAR            = 672;
+    static final int        REVERSE                 = 654;
+    static final int        ROUND                   = 655;
+    static final int        ROUNDMAGIC              = 656;
+    static final int        RTRIM                   = 657;
+    public static final int SECONDS_MIDNIGHT        = 658;
+    static final int        SIGN                    = 659;
+    static final int        SIN                     = 660;
+    static final int        SOUNDEX                 = 661;
+    static final int        SPACE_WORD              = 662;
+    static final int        SUBSTR                  = 663;
+    static final int        SYSDATE                 = 664;
+    static final int        TAN                     = 665;
+    static final int        TIMESTAMPADD            = 666;
+    static final int        TIMESTAMPDIFF           = 667;
+    static final int        TO_CHAR                 = 668;
+    static final int        TODAY                   = 669;
+    static final int        TOP                     = 670;
+    static final int        UCASE                   = 671;
+    static final int        WEEK                    = 672;
+    public static final int WEEK_OF_YEAR            = 673;
 
     //
     static final int        ASTERISK         = 681;
@@ -1891,7 +1895,7 @@ public class Tokens {
         commandSet.put(T_CATALOG, CATALOG);
         commandSet.put(T_CHARACTERISTICS, CHARACTERISTICS);
         commandSet.put(T_CHECKPOINT, CHECKPOINT);
-        commandSet.put(T_CIPHER_KEY, CIPHER_KEY);
+        commandSet.put(T_CRYPT_KEY, CRYPT_KEY);
         commandSet.put(T_CLASS, CLASS);
         commandSet.put(T_COLLATE, COLLATE);
         commandSet.put(T_COLLATION, COLLATION);
@@ -2093,6 +2097,7 @@ public class Tokens {
         commandSet.put(T_RAND, RAND);
         commandSet.put(T_RAWTOHEX, RAWTOHEX);
         commandSet.put(T_REPLACE, REPLACE);
+        commandSet.put(T_REVERSE, REVERSE);
         commandSet.put(T_ROUND, ROUND);
         commandSet.put(T_ROUNDMAGIC, ROUNDMAGIC);
         commandSet.put(T_RTRIM, RTRIM);
