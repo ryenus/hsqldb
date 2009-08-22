@@ -478,7 +478,7 @@ public class Result {
                 result.rsScrollability = in.readShort();
                 result.rsConcurrency   = in.readShort();
                 result.rsHoldability   = in.readShort();
-                result.queryTimeout        = in.readShort();
+                result.queryTimeout    = in.readShort();
 
                 Statement statement =
                     session.database.compiledStatementManager.getStatement(
@@ -507,11 +507,11 @@ public class Result {
             case ResultConstants.BATCHEXECUTE :
             case ResultConstants.BATCHEXECDIRECT :
             case ResultConstants.SETSESSIONATTR : {
-                result.updateCount = in.readInt();
-                result.fetchSize   = in.readInt();
-                result.statementID = in.readLong();
-                result.queryTimeout        = in.readShort();
-                result.metaData    = new ResultMetaData(in);
+                result.updateCount  = in.readInt();
+                result.fetchSize    = in.readInt();
+                result.statementID  = in.readLong();
+                result.queryTimeout = in.readShort();
+                result.metaData     = new ResultMetaData(in);
 
                 result.navigator.readSimple(in, result.metaData);
 
@@ -1058,16 +1058,13 @@ public class Result {
 
             /** @todo 1.9.0 - review if it's better to gc higher up the stack */
             System.gc();
-            t.printStackTrace();
 
-            result.exception  = Error.error(ErrorCode.OUT_OF_MEMORY);
+            result.exception  = Error.error(ErrorCode.OUT_OF_MEMORY, t);
             result.mainString = result.exception.getMessage();
             result.subString  = result.exception.getSQLState();
             result.errorCode  = result.exception.getErrorCode();
         } else {
-            t.printStackTrace();
-
-            result.exception  = Error.error(ErrorCode.GENERAL_ERROR);
+            result.exception  = Error.error(ErrorCode.GENERAL_ERROR, t);
             result.mainString = result.exception.getMessage() + " " + t;
             result.subString  = result.exception.getSQLState();
             result.errorCode  = result.exception.getErrorCode();

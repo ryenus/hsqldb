@@ -96,7 +96,7 @@ public class FunctionCustom extends FunctionSQL {
     private final static int FUNC_TRUNCATE                = 80;
     private final static int FUNC_TO_CHAR                 = 81;
     private final static int FUNC_TIMESTAMP               = 82;
-    private final static int FUNC_CIPHER_KEY              = 83;
+    private final static int FUNC_CRYPT_KEY               = 83;
 
     //
     private static final int FUNC_ACOS             = 101;
@@ -129,14 +129,15 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_RAWTOHEX         = 132;
     private static final int FUNC_REPEAT           = 133;
     private static final int FUNC_REPLACE          = 134;
-    private static final int FUNC_RIGHT            = 135;
-    private static final int FUNC_RTRIM            = 136;
-    private static final int FUNC_SOUNDEX          = 137;
-    private static final int FUNC_SPACE            = 138;
-    private static final int FUNC_SUBSTR           = 139;
-    private static final int FUNC_DATEADD          = 140;
-    private static final int FUNC_DATEDIFF         = 141;
-    private static final int FUNC_SECONDS_MIDNIGHT = 142;
+    private static final int FUNC_REVERSE          = 135;
+    private static final int FUNC_RIGHT            = 136;
+    private static final int FUNC_RTRIM            = 137;
+    private static final int FUNC_SOUNDEX          = 138;
+    private static final int FUNC_SPACE            = 139;
+    private static final int FUNC_SUBSTR           = 140;
+    private static final int FUNC_DATEADD          = 141;
+    private static final int FUNC_DATEDIFF         = 142;
+    private static final int FUNC_SECONDS_MIDNIGHT = 143;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -156,7 +157,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.SUBSTR, FUNC_SUBSTRING_CHAR);
 
         //
-        customRegularFuncMap.put(Tokens.CIPHER_KEY, FUNC_CIPHER_KEY);
+        customRegularFuncMap.put(Tokens.CRYPT_KEY, FUNC_CRYPT_KEY);
 
         //
         customRegularFuncMap.put(Tokens.YEAR, FUNC_EXTRACT);
@@ -188,6 +189,7 @@ public class FunctionCustom extends FunctionSQL {
         //
         customRegularFuncMap.put(Tokens.LOCATE, FUNC_LOCATE);
         customRegularFuncMap.put(Tokens.INSERT, FUNC_OVERLAY_CHAR);
+        customRegularFuncMap.put(Tokens.REVERSE, FUNC_REVERSE);
 
         //
         //
@@ -464,6 +466,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_CHAR :
             case FUNC_HEXTORAW :
             case FUNC_RAWTOHEX :
+            case FUNC_REVERSE :
             case FUNC_SPACE :
                 parseList = singleParamList;
                 break;
@@ -478,7 +481,7 @@ public class FunctionCustom extends FunctionSQL {
                 parseList = doubleParamList;
                 break;
 
-            case FUNC_CIPHER_KEY :
+            case FUNC_CRYPT_KEY :
                 parseList = doubleParamList;
                 break;
 
@@ -1107,17 +1110,26 @@ public class FunctionCustom extends FunctionSQL {
                         0, count, true, funcType == FUNC_RIGHT);
             }
             case FUNC_SPACE : {
-                for (int i = 0; i < data.length; i++) {
-                    if (data[0] == null) {
-                        return null;
-                    }
+                if (data[0] == null) {
+                    return null;
                 }
 
                 int count = ((Number) data[0]).intValue();
 
                 return ValuePool.getSpaces(count);
             }
-            case FUNC_CIPHER_KEY : {
+            case FUNC_REVERSE : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                StringBuffer sb = new StringBuffer((String) data[0]);
+
+                sb = sb.reverse();
+
+                return sb.toString();
+            }
+            case FUNC_CRYPT_KEY : {
                 byte[] bytes = Crypto.getNewKey((String) data[0],
                                                 (String) data[1]);
 
@@ -1661,10 +1673,26 @@ public class FunctionCustom extends FunctionSQL {
                     nodes[0].dataType = Type.SQL_INTEGER;
                 }
 
-                dataType = Type.SQL_VARCHAR;
+                if (!nodes[0].dataType.isIntegralType()) {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+
+                dataType = Type.SQL_VARCHAR_DEFAULT;
                 break;
 
-            case FUNC_CIPHER_KEY :
+            case FUNC_REVERSE :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                dataType = nodes[0].dataType;
+
+                if (!dataType.isCharacterType() || dataType.isLobType()) {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+                break;
+
+            case FUNC_CRYPT_KEY :
                 for (int i = 0; i < nodes.length; i++) {
                     if (nodes[i].dataType == null) {
                         nodes[i].dataType = Type.SQL_VARCHAR;
@@ -1673,7 +1701,7 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                dataType = Type.SQL_VARCHAR;
+                dataType = Type.SQL_VARCHAR_DEFAULT;
                 break;
 
             default :
@@ -1754,8 +1782,8 @@ public class FunctionCustom extends FunctionSQL {
                     .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
                     .append(nodes[1].getSQL()).append(')').toString();
             }
-            case FUNC_CIPHER_KEY : {
-                return new StringBuffer(Tokens.CIPHER_KEY).append('(')    //
+            case FUNC_CRYPT_KEY : {
+                return new StringBuffer(Tokens.CRYPT_KEY).append('(')     //
                     .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
                     .append(nodes[1].getSQL()).append(')').toString();
             }
