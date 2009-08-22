@@ -59,9 +59,7 @@ public class Crypto {
     Cipher        outCipher;
     Cipher        inCipher;
 
-    public Crypto() {}
-
-    public void init(String keyString, String cipherName, String provider) {
+    public Crypto(String keyString, String cipherName, String provider) {
 
         try {
             byte[] encodedKey =
@@ -82,31 +80,19 @@ public class Crypto {
 
             return;
         } catch (NoSuchPaddingException e) {
-            outCipher = null;
-            inCipher  = null;
-
             throw Error.error(ErrorCode.X_S0531, e);
         } catch (NoSuchAlgorithmException e) {
-            outCipher = null;
-            inCipher  = null;
-
             throw Error.error(ErrorCode.X_S0531, e);
         } catch (InvalidKeyException e) {
-            outCipher = null;
-            inCipher  = null;
-
             throw Error.error(ErrorCode.X_S0531, e);
         } catch (NoSuchProviderException e) {
-            outCipher = null;
-            inCipher  = null;
-
             throw Error.error(ErrorCode.X_S0531, e);
         } catch (IOException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         }
     }
 
-    public InputStream getInputStream(InputStream in) {
+    public synchronized InputStream getInputStream(InputStream in) {
 
         if (inCipher == null) {
             return in;
@@ -121,7 +107,7 @@ public class Crypto {
         }
     }
 
-    public OutputStream getOutputStream(OutputStream out) {
+    public synchronized OutputStream getOutputStream(OutputStream out) {
 
         if (outCipher == null) {
             return out;
@@ -136,8 +122,8 @@ public class Crypto {
         }
     }
 
-    public int decode(byte[] source, int sourceOffset, int length,
-                      byte[] dest, int destOffset) {
+    public synchronized int decode(byte[] source, int sourceOffset,
+                                   int length, byte[] dest, int destOffset) {
 
         if (inCipher == null) {
             return length;
@@ -159,8 +145,8 @@ public class Crypto {
         }
     }
 
-    public int encode(byte[] source, int sourceOffset, int length,
-                      byte[] dest, int destOffset) {
+    public synchronized int encode(byte[] source, int sourceOffset,
+                                   int length, byte[] dest, int destOffset) {
 
         if (outCipher == null) {
             return length;
@@ -200,7 +186,7 @@ public class Crypto {
         }
     }
 
-    public int getEncodedSize(int size) {
+    public synchronized int getEncodedSize(int size) {
 
         try {
             return outCipher.getOutputSize(size);

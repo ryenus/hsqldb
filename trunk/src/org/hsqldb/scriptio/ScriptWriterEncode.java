@@ -37,7 +37,6 @@ import java.util.zip.GZIPOutputStream;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.lib.FileAccess;
 import org.hsqldb.persist.Crypto;
 
 /**

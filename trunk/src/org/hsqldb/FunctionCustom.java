@@ -270,7 +270,13 @@ public class FunctionCustom extends FunctionSQL {
             case Tokens.SYSDATE :
                 return new FunctionSQL(id);
 
-            case Tokens.NOW :
+            case Tokens.NOW : {
+                FunctionSQL function = new FunctionSQL(id);
+
+                function.parseList = optionalNoParamList;
+
+                return function;
+            }
             case Tokens.CURDATE :
             case Tokens.CURTIME : {
                 FunctionSQL function = new FunctionSQL(id);
@@ -1004,7 +1010,7 @@ public class FunctionCustom extends FunctionSQL {
                 if (nodes[0].dataType.isIntegralType()) {
                     int v = 0;
                     int a = ((Number) data[0]).intValue();
-                    int b = ((Number) data[0]).intValue();
+                    int b = ((Number) data[1]).intValue();
 
                     switch (funcType) {
 
