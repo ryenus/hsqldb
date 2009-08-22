@@ -673,6 +673,7 @@ public class ExpressionColumn extends Expression {
             for (int i = 0; i < rangeVariables.length; i++) {
                 if (rangeVariables[i] == rangeVariable) {
                     set.add(rangeVariables[i]);
+                    break;
                 }
             }
         }

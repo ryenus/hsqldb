@@ -35,7 +35,6 @@ import java.io.IOException;
 
 import org.hsqldb.persist.Crypto;
 import org.hsqldb.types.Type;
-import org.hsqldb.HsqlException;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -55,16 +54,12 @@ public class RowInputBinaryDecode extends RowInputBinary {
 
     public Object[] readData(Type[] colTypes) throws IOException {
 
-        int start = pos;
-
         if (crypto != null) {
-            int size = readInt();
+            int start = pos;
+            int size  = readInt();
 
-            try {
-                crypto.decode(buffer, pos, size, buffer, start);
-            } catch (HsqlException e) {
-                System.out.println("problem");
-            }
+            crypto.decode(buffer, pos, size, buffer, start);
+
             pos = start;
         }
 

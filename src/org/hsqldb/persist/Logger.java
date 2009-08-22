@@ -80,7 +80,7 @@ public class Logger {
     private Database database;
     private LockFile lockFile;
     public boolean   checkpointRequired;
-    public boolean   checkpointHandled;
+    public boolean   checkpointDue;
     public boolean   checkpointDisabled;
     private boolean  logsStatements;
     private boolean  loggingEnabled;
@@ -263,11 +263,8 @@ public class Logger {
                 HsqlDatabaseProperties.url_crypt_type);
             String cryptProvider = database.urlProperties.getProperty(
                 HsqlDatabaseProperties.url_crypt_provider);
-            Crypto c = new Crypto();
 
-            c.init(cryptKey, cryptType, cryptProvider);
-
-            crypto = c;
+            crypto = new Crypto(cryptKey, cryptType, cryptProvider);
         }
 
         if (database.databaseProperties.isPropertyTrue(
@@ -678,6 +675,8 @@ public class Logger {
             database.sessionManager.resetLoggedSchemas();
             logInfoEvent("Checkpoint end");
         }
+
+        checkpointDue = false;
     }
 
     /**
@@ -822,8 +821,8 @@ public class Logger {
 
     public synchronized boolean needsCheckpointReset() {
 
-        if (checkpointRequired && !checkpointHandled && !checkpointDisabled) {
-            checkpointHandled  = true;
+        if (checkpointRequired && !checkpointDue && !checkpointDisabled) {
+            checkpointDue      = true;
             checkpointRequired = false;
 
             return true;
