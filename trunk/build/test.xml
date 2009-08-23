@@ -125,25 +125,6 @@
           <include name="**/*.java"/>
       </javac>
 
-      <!-- Copy Resources -->
-      <copy todir="${test.classes.dir}/org/hsqldb/jdbc">
-         <fileset dir="${test.src.dir}/org/hsqldb/jdbc" 
-                  includes="*.sql"/>
-
-         <fileset dir="${test.src.dir}/org/hsqldb/jdbc" 
-                  includes="*.dtd"/>
-
-         <fileset dir="${test.src.dir}/org/hsqldb/jdbc" 
-                  includes="*.ent"/>
-                  
-         <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/sql" 
-                  includes="*.*"/>
-      </copy>
-
-      <copy todir="${test.classes.dir}/org/hsqldb/resources">
-         <fileset dir="${test.src.dir}/org/hsqldb/resources" includes="*.data"/>
-      </copy>
-
       <!-- Build Jar -->
       <jar jarfile="${test.suite.jar}"
            basedir="${test.classes.dir}">
@@ -200,15 +181,17 @@
                   includes="*.inc"/>
       </copy>
       <copy todir="${test.results.dir}/resources/org/hsqldb/util/preprocessor">
-           <fileset dir="${test.src.dir}/org/hsqldb/util/preprocessor" 
-                  includes="*.exp"/>
-      </copy> 
-      <copy todir="${test.results.dir}/resources/org/hsqldb/util/preprocessor">
           <fileset dir="${test.src.dir}/org/hsqldb/util/preprocessor" 
                    includes="*.src"/>
       </copy>
 
       <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc"/>
+	  
+      <copy todir="${test.results.dir}/resources/org/hsqldb/jdbc">
+         <fileset dir="${test.src.dir}/org/hsqldb/jdbc"
+                  includes="*.sql"/>
+      </copy>
+	  
       <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources"/>
       <mkdir dir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/xml"/>      
 
@@ -222,9 +205,31 @@
       <copy todir="${test.results.dir}/resources/org/hsqldb/jdbc/resources/sql">
          <fileset dir="${test.src.dir}/org/hsqldb/jdbc/resources/sql"
                   includes="*.*"/>
-      </copy>      
+      </copy> 
 
-      <!-- User Test Properties -->
+      <mkdir dir="${test.results.dir}/resources/org/hsqldb/resources"/>	  
+
+      <copy todir="${test.results.dir}/resources/org/hsqldb/resources">
+	     <fileset dir="${test.src.dir}/org/hsqldb/resources" includes="*.*"/>
+      </copy>  
+
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+      <!-- U S E R  T E S T  P R O P E R T I E S                                -->
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	  <!-- Now using BundleHandler facility as primary properties loader, but   -->
+	  <!-- System properties still work (e.g. on command line -Dfoo=xyz or      --> 
+	  <!-- using Ant to load properties files) and now take  precedence over    -->
+	  <!-- bundle handler resources.                                            -->
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	  <!-- In this way, the bulk of the standard properties (that will probably -->
+	  <!-- never need to be overriden) stay under the test source folder, hence -->
+      <!-- only specific property overrides need to be placed in the build      -->
+      <!-- folder properties files or on the command line as -Dx=y directives.  -->	  
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	  <!-- The only (minor) disadvantage of this new scheme is that the bulk of -->
+	  <!-- the test properties will no longer show up in the test report output -->
+	  <!-- as environment settings                                              -->
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
       <property file="${basedir}/build/test.properties"/>
       <property file="${basedir}/build/test.dbmd.convert.properties"/>
 
