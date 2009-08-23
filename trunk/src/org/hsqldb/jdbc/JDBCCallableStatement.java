@@ -340,7 +340,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
     public synchronized void registerOutParameter(int parameterIndex,
             int sqlType) throws SQLException {
-
         checkGetParameterIndex(parameterIndex);
 
         if (parameterModes[--parameterIndex]
@@ -421,6 +420,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * this method is called on a closed <code>CallableStatement</code>
      */
     public synchronized boolean wasNull() throws SQLException {
+	    checkClosed();
         return wasNullValue;
     }
 
@@ -734,7 +734,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 //#ifdef DEPRECATEDJDBC
     public synchronized BigDecimal getBigDecimal(int parameterIndex,
             int scale) throws SQLException {
-
+        checkClosed();
         if (scale < 0) {
             throw Util.outOfRangeArgument();
         }
@@ -936,7 +936,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
     public synchronized Object getObject(
             int parameterIndex) throws SQLException {
-
         checkGetParameterIndex(parameterIndex);
 
         Type sourceType = parameterTypes[parameterIndex - 1];
@@ -1050,12 +1049,14 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 //#ifdef JAVA6
     public Object getObject(int parameterIndex,
                             Map<String, Class<?>> map) throws SQLException {
+		checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 
 //#else
 /*
     public Object getObject(int parameterIndex, Map map) throws SQLException {
+	    checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 */
@@ -1093,6 +1094,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * JDBCParameterMetaData)
      */
     public Ref getRef(int parameterIndex) throws SQLException {
+	    checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 
@@ -1126,7 +1128,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  JDBCParameterMetaData)
      */
     public synchronized Blob getBlob(int parameterIndex) throws SQLException {
-
+		checkGetParameterIndex(parameterIndex);
+		
         Type sourceType = resultMetaData.columnTypes[parameterIndex - 1];
 
         Object o = getColumnInType(parameterIndex, sourceType);
@@ -1172,7 +1175,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  JDBCParameterMetaData)
      */
     public synchronized Clob getClob(int parameterIndex) throws SQLException {
-
+		checkGetParameterIndex(parameterIndex);
+		
         Type sourceType = resultMetaData.columnTypes[parameterIndex - 1];
 
         Object o = getColumnInType(parameterIndex, sourceType);
@@ -1218,8 +1222,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      *  JDBCParameterMetaData)
      */
     public Array getArray(int parameterIndex) throws SQLException {
-
-        checkGetParameterIndex(parameterIndex);
+		checkGetParameterIndex(parameterIndex);
 
         throw Util.notSupported();
     }
@@ -1675,6 +1678,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 //#ifdef JAVA4
     public java.net.URL getURL(int parameterIndex) throws SQLException {
+	    checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 
@@ -3558,6 +3562,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 //#ifdef JAVA6
     public RowId getRowId(int parameterIndex) throws SQLException {
+	    checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 
@@ -3829,6 +3834,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 //#ifdef JAVA6
     public NClob getNClob(int parameterIndex) throws SQLException {
+	    checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 
@@ -3922,6 +3928,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 //#ifdef JAVA6
     public SQLXML getSQLXML(int parameterIndex) throws SQLException {
+	    checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 
@@ -3999,6 +4006,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 //#ifdef JAVA6
     public String getNString(int parameterIndex) throws SQLException {
+	    checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 
@@ -4081,6 +4089,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 //#ifdef JAVA6
     public Reader getNCharacterStream(int parameterIndex) throws SQLException {
+	    checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 
@@ -4153,6 +4162,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
 //#ifdef JAVA6
     public Reader getCharacterStream(int parameterIndex) throws SQLException {
+	    checkGetParameterIndex(parameterIndex);
         throw Util.notSupported();
     }
 
@@ -4261,7 +4271,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 //#ifdef JAVA6
     public synchronized void setAsciiStream(String parameterName,
             java.io.InputStream x, long length) throws SQLException {
-
+        
         if (length > Integer.MAX_VALUE) {
             String msg = "Maximum ASCII input octet length exceeded: "
                          + length;    // NOI18N
@@ -4712,8 +4722,9 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
     private Object getColumnInType(int columnIndex,
                                    Type targetType) throws SQLException {
-
-        Type   sourceType;
+        checkGetParameterIndex(columnIndex);
+        
+		Type   sourceType;
         Object value;
 
         sourceType = parameterTypes[--columnIndex];
