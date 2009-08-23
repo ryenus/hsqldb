@@ -730,7 +730,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         println("setNull");
 
         setUpDualTable();
-        prepareCall("select cast(? as varchar) from dual")
+        prepareCall("select cast(? as varchar(1)) from dual")
             .setNull("@p1", Types.VARCHAR);
     }
 
@@ -859,7 +859,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         println("setString");
 
         setUpDualTable();
-        prepareCall("select cast(? as varchar) from dual")
+        prepareCall("select cast(? as varchar(9)) from dual")
             .setString("@p1", "setString");
     }
 
@@ -918,7 +918,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         byte[]               bytes = "2005-12-13 11:23:02.1234".getBytes();
         ByteArrayInputStream bais  = new ByteArrayInputStream(bytes);
 
-        prepareCall("select cast(? as varchar) from dual")
+        prepareCall("select cast(? as varchar(30)) from dual")
             .setAsciiStream("@p1", bais, bytes.length);
     }
 
@@ -984,7 +984,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
 
         setUpDualTable();
 
-        setObjectTest("char", "setObject  ", Types.CHAR);
+        setObjectTest("char(11)", "setObject  ", Types.CHAR);
     }
 
     /**
@@ -1377,7 +1377,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
 
         setUpDualTable();
 
-        setObjectTest("varchar", "setObject", Types.VARCHAR);
+        setObjectTest("varchar(9)", "setObject", Types.VARCHAR);
     }
 
     /**
@@ -1387,7 +1387,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         println("setCharacterStream");
 
         setUpDualTable();
-        prepareCall("select cast(? as varchar) from dual")
+        prepareCall("select cast(? as varchar(18)) from dual")
             .setCharacterStream("@p1",
                                 new java.io.StringReader("setCharacterStream"),
                                 "setCharacterStream".length());
@@ -1433,7 +1433,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         println("setNString");
 
         setUpDualTable();
-        prepareCall("select cast(? as varchar) from dual")
+        prepareCall("select cast(? as varchar(9)) from dual")
             .setNString("@p1", "setString");
     }
 
@@ -1444,7 +1444,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         println("setNCharacterStream");
 
         setUpDualTable();
-        prepareCall("select cast(? as varchar) from dual")
+        prepareCall("select cast(? as varchar(18)) from dual")
             .setNCharacterStream("@p1",
                                 new java.io.StringReader("setCharacterStream"),
                                 "setCharacterStream".length());
@@ -1457,7 +1457,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         println("setNClob");
 
         setUpDualTable();
-        prepareCall("select cast(? as varchar) from dual")
+        prepareCall("select cast(? as varchar(18)) from dual")
             .setNClob("@p1", new JDBCNClob("setCharacterStream"));
     }
 
@@ -1468,8 +1468,8 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         println("setClob");
 
         setUpDualTable();
-        prepareCall("select cast(? as varchar) from dual")
-            .setClob("@p1", new JDBCClob("setCharacterStream"));
+        prepareCall("select cast(? as varchar(18)) from dual")
+            .setClob("@p1", new JDBCClob("setClob"));
     }
 
     /**
@@ -1479,8 +1479,8 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         println("setBlob");
 
         setUpDualTable();
-        prepareCall("select cast(? as varchar) from dual")
-            .setBlob("@p1", new JDBCBlob("setCharacterStream".getBytes()));
+        prepareCall("select cast(? as binary(255)) from dual")
+            .setBlob("@p1", new JDBCBlob("setBlob".getBytes()));
     }
 
     /**
@@ -1560,7 +1560,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         String            result    = null;
 
         try {
-            stmt = prepRegAndExec("{?= call cast('getString' as varchar)}",
+            stmt = prepRegAndExec("{?= call cast('getString' as varchar(9))}",
                                   1,
                                   Types.VARCHAR);
 
@@ -1588,7 +1588,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         Reader            result    = null;
 
         try {
-            stmt = prepRegAndExec("{?= call cast('getString' as varchar)}",
+            stmt = prepRegAndExec("{?= call cast('getString' as varchar(9))}",
                                   1,
                                   Types.VARCHAR);
 
@@ -1614,7 +1614,7 @@ public class JDBCCallableStatementTest extends BaseTestCase {
         Reader            result    = null;
 
         try {
-            stmt = prepRegAndExec("{?= call cast('getString' as varchar)}",
+            stmt = prepRegAndExec("{?= call cast('getString' as varchar(9))}",
                                   1,
                                   Types.VARCHAR);
 

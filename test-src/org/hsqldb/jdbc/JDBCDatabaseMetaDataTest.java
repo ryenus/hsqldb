@@ -2465,7 +2465,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.updates.are.visible.type.scroll.insensitive",
-                true);
+                false);
 
         result = dbmd.ownUpdatesAreVisible(type);
 
@@ -2478,7 +2478,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.updates.are.visible.type.scroll.sensitive",
-                true);
+                false);
 
         result = dbmd.ownUpdatesAreVisible(type);
 
@@ -2512,7 +2512,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.deletes.are.visible.type.scroll.insensitive",
-                true);
+                false);
 
         result = dbmd.ownDeletesAreVisible(type);
 
@@ -2525,7 +2525,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.deletes.are.visible.type.scroll.sensitive",
-                true);
+                false);
 
         result = dbmd.ownDeletesAreVisible(type);
 
@@ -2559,7 +2559,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.inserts.are.visible.type.scroll.insensitive",
-                true);
+                false);
 
         result = dbmd.ownInsertsAreVisible(type);
 
@@ -2572,7 +2572,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.own.inserts.are.visible.type.scroll.sensitive",
-                true);
+                false);
 
         result = dbmd.ownInsertsAreVisible(type);
 
@@ -2606,7 +2606,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.updates.are.visible.type.scroll.insensitive",
-                true);
+                false);
 
         result = dbmd.othersUpdatesAreVisible(type);
 
@@ -2619,7 +2619,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.updates.are.visible.type.scroll.sensitive",
-                true);
+                false);
 
         result = dbmd.othersUpdatesAreVisible(type);
 
@@ -2653,7 +2653,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.deletes.are.visible.type.scroll.insensitive",
-                true);
+                false);
 
         result = dbmd.othersDeletesAreVisible(type);
 
@@ -2666,7 +2666,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.deletes.are.visible.type.scroll.sensitive",
-                true);
+                false);
 
         result = dbmd.othersDeletesAreVisible(type);
 
@@ -2700,7 +2700,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.inserts.are.visible.type.scroll.insensitive",
-                true);
+                false);
 
         result = dbmd.othersInsertsAreVisible(type);
 
@@ -2713,7 +2713,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
 
         expResult = getBooleanProperty(
                 "dbmd.others.inserts.are.visible.type.scroll.sensitive",
-                true);
+                false);
 
         result = dbmd.othersInsertsAreVisible(type);
 

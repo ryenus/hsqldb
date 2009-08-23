@@ -199,7 +199,7 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
                 toCode);
 
         if (expectedResult != actualResult) {
-            System.out.println("CHECK THE PROPERTY ********");
+            System.out.println("CHECK FOR MISSING PROPERTY: " + translatePropertyKey(propertyName) + "=" + actualResult);
         }
         assertEquals(expectedResult, actualResult);
     }
