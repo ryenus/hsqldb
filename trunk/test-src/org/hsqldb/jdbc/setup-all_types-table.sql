@@ -5,9 +5,9 @@ drop table all_types if exists;
 create table all_types(
      id                   integer identity,
      c_bigint             bigint,
-     c_binary             binary,
+     c_binary             binary(255),
      c_boolean            boolean,
-     c_char               char,
+     c_char               char(255),
      c_date               date,
      c_decimal            decimal,
      c_double             double,
@@ -21,9 +21,9 @@ create table all_types(
      c_time               time,
      c_timestamp          timestamp,
      c_tinyint            tinyint,
-     c_varbinary          varbinary,
-     c_varchar            varchar,
-     c_varchar_ignorecase varchar_ignorecase
+     c_varbinary          varbinary(255),
+     c_varchar            varchar(255),
+     c_varchar_ignorecase varchar_ignorecase(255)
 );
 
 insert into all_types(

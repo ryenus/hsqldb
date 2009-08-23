@@ -469,7 +469,15 @@ public abstract class BaseTestCase extends TestCase {
      * @throws java.lang.Exception thrown by any internal operation.
      */
     protected void executeScript(String resource) throws Exception {
+	    if (resource == null) {
+		    throw new RuntimeException("resource parameter must not be null.");
+		}
+		resource = resource.trim();
         java.net.URL   url  = this.getClass().getResource(resource);
+		if (url == null) {
+			String fullResource = (resource.startsWith("/")) ? resource : '/'+ this.getClass().getPackage().getName().replace('.','/') + '/' + resource;
+		    throw new RuntimeException("No such resource on CLASSPATH: [" + fullResource + "]");
+		}
         ScriptIterator it   = new ScriptIterator(url);
         Connection     conn = newConnection();
         Statement      stmt = conn.createStatement();
@@ -861,19 +869,29 @@ public abstract class BaseTestCase extends TestCase {
      * @return the matching value.
      */
     public String getProperty(final String key, final String defaultValue) {
-        try {
-            String value = BundleHandler.getString(testBundleHandle, key);
-
-            if (value == null) {
-                value = BundleHandler.getString(testConvertBundleHandle, key);
-            }
-
-            return value == null ? defaultValue : value;
-
-//            return System.getProperty(translatePropertyKey(key), defaultValue);
-        } catch(SecurityException se) {
-            return defaultValue;
-        }
+	    String value = null;
+	    String translatedPropertyKey = translatePropertyKey(key);
+		
+        // Note: some properties may be submitted on the command line and
+        // should override property file resources on the class path.
+		try {
+            value = System.getProperty(translatedPropertyKey, null);		
+		} catch(SecurityException se) {
+		}
+		
+		if (value == null) {
+		    value = BundleHandler.getString(testBundleHandle, translatedPropertyKey);			
+		}
+		
+		if (value == null) {
+		    value = BundleHandler.getString(testConvertBundleHandle, translatedPropertyKey);			
+		}
+		
+		if (value == null) {
+		    value = defaultValue;
+		}		
+		
+		return value;
     }
 
     /**

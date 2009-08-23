@@ -410,6 +410,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             StringBuffer sb = new StringBuffer();
 
             if (getMessage() != null) {
+			    sb.append('\n');
                 sb.append(getMessage());
             }
             sb.append("\n");
@@ -480,7 +481,10 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
                 stmt.execute(getSql());
                 success = true;
             } catch (Exception x) {
-                m_message = x.getMessage();
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);				
+                x.printStackTrace(pw);			
+                m_message = sw.toString();
             }
 
             return success;
