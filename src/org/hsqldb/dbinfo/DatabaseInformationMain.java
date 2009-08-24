@@ -50,6 +50,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.WrapperIterator;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.GrantConstants;
@@ -341,6 +342,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             case SYSTEM_COLUMNS :
                 return SYSTEM_COLUMNS();
 
+            case SYSTEM_CONNECTION_PROPERTIES :
+                return SYSTEM_CONNECTION_PROPERTIES();
+
             case SYSTEM_CROSSREFERENCE :
                 return SYSTEM_CROSSREFERENCE();
 
@@ -496,7 +500,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             cacheClear();
         }
 
-        HsqlName oldGrantee    = sysTableSessions[tableIndex];
+        HsqlName oldGrantee = sysTableSessions[tableIndex];
         boolean  tableValid = oldGrantee != null;
 
         // user has changed and table is user-dependent
@@ -1521,6 +1525,82 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                 t.insertSys(store, row);
             }
+        }
+
+        return t;
+    }
+
+    /**
+     * getClientInfoProperties
+     *
+     * @return Result
+     *
+     * <li><b>NAME</b> String=> The name of the client info property<br>
+     * <li><b>MAX_LEN</b> int=> The maximum length of the value for the property<br>
+     * <li><b>DEFAULT_VALUE</b> String=> The default value of the property<br>
+     * <li><b>DESCRIPTION</b> String=> A description of the property.  This will typically
+     *                                                  contain information as to where this property is
+     *                                                  stored in the database.
+     */
+    final Table SYSTEM_CONNECTION_PROPERTIES() {
+
+        Table t = sysTables[SYSTEM_CONNECTION_PROPERTIES];
+
+        if (t == null) {
+            t = createBlankTable(
+                sysTableHsqlNames[SYSTEM_CONNECTION_PROPERTIES]);
+
+            addColumn(t, "NAME", SQL_IDENTIFIER);
+            addColumn(t, "MAX_LEN", Type.SQL_INTEGER);
+            addColumn(t, "DEFAULT_VALUE", SQL_IDENTIFIER);    // not null
+            addColumn(t, "DESCRIPTION", SQL_IDENTIFIER);      // not null
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_PRIMARYKEYS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKey(name, new int[]{ 0 }, true);
+
+            return t;
+        }
+
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+        Object[]        row;
+
+        // column number mappings
+        final int iname          = 0;
+        final int imax_len       = 1;
+        final int idefault_value = 2;
+        final int idescription   = 3;
+        Iterator  it = HsqlDatabaseProperties.getPropertiesMetaIterator();
+
+        while (it.hasNext()) {
+            Object[] meta = (Object[]) it.next();
+            int propType =
+                ((Integer) meta[HsqlProperties.indexType]).intValue();
+
+            if (propType == HsqlDatabaseProperties.FILE_PROPERTY) {
+                if (HsqlDatabaseProperties.hsqldb_readonly.equals(
+                        meta[HsqlProperties.indexName]) || HsqlDatabaseProperties
+                            .hsqldb_files_readonly.equals(
+                                meta[HsqlProperties.indexName])) {}
+                else {
+                    continue;
+                }
+            } else if (propType != HsqlDatabaseProperties.SQL_PROPERTY) {
+                continue;
+            }
+
+            row                 = t.getEmptyRowData();
+
+            Object def = meta[HsqlProperties.indexDefaultValue];
+
+            row[iname]          = meta[HsqlProperties.indexName];
+            row[imax_len]       = ValuePool.getInt(8);
+            row[idefault_value] = def == null ? null : def.toString();
+            row[idescription]   = "see HyperSQL guide";
+
+            t.insertSys(store, row);
         }
 
         return t;

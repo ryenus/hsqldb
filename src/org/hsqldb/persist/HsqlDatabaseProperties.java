@@ -129,9 +129,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     }
 
     // accessibility
-    private static final int SYSTEM_PROPERTY = 0;
-    private static final int FILE_PROPERTY   = 1;
-    private static final int SQL_PROPERTY    = 2;
+    public static final int SYSTEM_PROPERTY = 0;
+    public static final int FILE_PROPERTY   = 1;
+    public static final int SQL_PROPERTY    = 2;
 
     // db files modified
     public static final int     FILES_NOT_MODIFIED = 0;
@@ -293,7 +293,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         // string defaults for user defined props
         dbMeta.put(hsqldb_tx,
-                   HsqlProperties.getMeta(hsqldb_tx, SQL_PROPERTY, null));
+                   HsqlProperties.getMeta(hsqldb_tx, SQL_PROPERTY, "LOCKS"));
         dbMeta.put(hsqldb_temp_directory,
                    HsqlProperties.getMeta(hsqldb_temp_directory, SQL_PROPERTY,
                                           null));
@@ -546,7 +546,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         Object[] row = (Object[]) dbMeta.get(key);
 
-        return row != null && row[HsqlProperties.indexClass].equals("boolean")
+        return row != null && row[HsqlProperties.indexClass].equals("Boolean")
                && ((Integer) row[HsqlProperties.indexType]).intValue()
                   == SQL_PROPERTY;
     }
@@ -555,7 +555,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         Object[] row = (Object[]) dbMeta.get(key);
 
-        return row != null && row[HsqlProperties.indexClass].equals("int")
+        return row != null && row[HsqlProperties.indexClass].equals("Integer")
                && ((Integer) row[HsqlProperties.indexType]).intValue()
                   == SQL_PROPERTY;
     }
@@ -565,7 +565,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] row = (Object[]) dbMeta.get(key);
 
         return row != null
-               && row[HsqlProperties.indexClass].equals("java.lang.String")
+               && row[HsqlProperties.indexClass].equals("String")
                && ((Integer) row[HsqlProperties.indexType]).intValue()
                   == SQL_PROPERTY;
     }
@@ -718,4 +718,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         return value;
     }
+
+    public static Iterator getPropertiesMetaIterator() {
+        return dbMeta.values().iterator();
+    }
+
 }

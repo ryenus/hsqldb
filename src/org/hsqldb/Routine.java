@@ -547,7 +547,7 @@ public class Routine implements SchemaObject {
                 continue;
             }
 
-            Type methodReturnType = Type.getDefaultType(
+            Type methodReturnType = Type.getDefaultTypeWithSize(
                 Types.getParameterSQLTypeNumber(methods[i].getReturnType()));
 
             if (methodReturnType == null) {
