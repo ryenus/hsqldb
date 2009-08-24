@@ -36,14 +36,14 @@ import java.util.Arrays;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  * Test of class org.hsqldb.jdbc.jdbcRowId.
  *
  * @author boucherb@users
  */
-public class JDBCRowIdTest extends BaseTestCase {
+public class JDBCRowIdTest extends BaseJdbcTestCase {
 
     public JDBCRowIdTest(String testName) {
         super(testName);

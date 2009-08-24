@@ -35,13 +35,13 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCConnectionPrepareCallTest extends BaseTestCase {
+public class JDBCConnectionPrepareCallTest extends BaseJdbcTestCase {
     protected static String computeTestName(
             int typeIndex,
             int concurrencyIndex) {

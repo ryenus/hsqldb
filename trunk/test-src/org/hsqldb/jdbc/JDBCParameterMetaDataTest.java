@@ -35,13 +35,13 @@ import java.sql.ParameterMetaData;
 import java.sql.Types;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCParameterMetaDataTest extends BaseTestCase {
+public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
 
     public JDBCParameterMetaDataTest(String testName) {
         super(testName);

@@ -48,14 +48,14 @@ import java.sql.Savepoint;
 import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  * Test of interface java.sql.Connection.
  *
  * @author boucherb@users
  */
-public class JDBCConnectionTest extends BaseTestCase {
+public class JDBCConnectionTest extends BaseJdbcTestCase {
 
     public JDBCConnectionTest(String testName) {
         super(testName);

@@ -37,13 +37,13 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCDataSourceFactoryTest extends BaseTestCase {
+public class JDBCDataSourceFactoryTest extends BaseJdbcTestCase {
 
     public JDBCDataSourceFactoryTest(String testName) {
         super(testName);

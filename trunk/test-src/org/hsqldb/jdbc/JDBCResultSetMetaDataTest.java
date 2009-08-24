@@ -34,13 +34,13 @@ package org.hsqldb.jdbc;
 import java.sql.ResultSetMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCResultSetMetaDataTest extends BaseTestCase {
+public class JDBCResultSetMetaDataTest extends BaseJdbcTestCase {
 
     public JDBCResultSetMetaDataTest(String testName) {
         super(testName);

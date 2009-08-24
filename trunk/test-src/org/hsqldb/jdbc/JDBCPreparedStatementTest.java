@@ -56,13 +56,13 @@ import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCPreparedStatementTest extends BaseTestCase {
+public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
 
     private List<PreparedStatement> m_statementList;
 

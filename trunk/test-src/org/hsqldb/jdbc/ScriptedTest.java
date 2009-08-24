@@ -33,7 +33,7 @@ import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
-import org.hsqldb.jdbc.testbase.BaseScriptedTestCase;
+import org.hsqldb.testbase.BaseScriptedTestCase;
 
 /**
  *

@@ -38,14 +38,14 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  * Test of interface java.sql.Blob.
  *
  * @author boucherb@users
  */
-public class JDBCBlobTest extends BaseTestCase {
+public class JDBCBlobTest extends BaseJdbcTestCase {
 
     public JDBCBlobTest(String testName) {
         super(testName);

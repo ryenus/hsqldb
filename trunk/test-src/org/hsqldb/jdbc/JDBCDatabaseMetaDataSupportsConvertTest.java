@@ -33,7 +33,7 @@ package org.hsqldb.jdbc;
 import java.sql.DatabaseMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  * Exhautively tests the supportsConvert(int,int) method of
@@ -42,7 +42,7 @@ import org.hsqldb.jdbc.testbase.BaseTestCase;
  * @author boucherb@users
  */
 public class JDBCDatabaseMetaDataSupportsConvertTest
-        extends BaseTestCase {
+        extends BaseJdbcTestCase {
 
     /**
      *  in type_name_value array

@@ -38,13 +38,13 @@ import java.sql.Connection;
 import javax.sql.DataSource;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCDataSourceTest extends BaseTestCase {
+public class JDBCDataSourceTest extends BaseJdbcTestCase {
 
     public JDBCDataSourceTest(String testName) {
         super(testName);
