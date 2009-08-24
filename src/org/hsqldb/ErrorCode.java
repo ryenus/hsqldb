@@ -40,9 +40,6 @@ package org.hsqldb;
  */
 public interface ErrorCode {
 
-    //
-    int LAST_ERROR_HANDLE = 300;                          // temporary, used in JDBC tests only
-
     // neutral placeholder strings
     int TOKEN_REQUIRED = 1;                               // $$ required: $$
     int CONSTRAINT     = 2;                               // $$ table: $$
