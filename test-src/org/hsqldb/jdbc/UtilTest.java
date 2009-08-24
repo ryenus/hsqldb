@@ -85,25 +85,19 @@ public class UtilTest extends BaseTestCase {
     private static final Object[][] m_exceptions = new Object[][] {
         {
             SQLTransientConnectionException.class, new int[] {
-/*
-                ErrorCode.SOCKET_ERROR,
-                ErrorCode.DATABASE_LOCK_ACQUISITION_FAILURE,
-*/
-                ErrorCode.LOCK_FILE_ACQUISITION_FAILURE,
-                ErrorCode.DATABASE_NOT_EXISTS,
+                ErrorCode.X_08000,
+                ErrorCode.X_08001,
+                ErrorCode.X_08002,
+                ErrorCode.X_08004,
+                ErrorCode.X_08006,
+                ErrorCode.X_08007,
+                ErrorCode.X_08501,
+                ErrorCode.X_08502,
             }
         }, {
             SQLNonTransientConnectionException.class, new int[] {
-                ErrorCode.X_08001,
-                ErrorCode.X_08002,
                 ErrorCode.X_08003,
-                ErrorCode.X_08004,
-                ErrorCode.X_08006,
-                ErrorCode.X_08007
-/*
-                ErrorCode.DATABASE_IS_SHUTDOWN,
-                ErrorCode.UNEXPECTED_EXCEPTION // when setting up TLS
-*/
+                ErrorCode.X_08503
             }
         }, {
             SQLIntegrityConstraintViolationException.class, new int[]{
@@ -173,6 +167,7 @@ public class UtilTest extends BaseTestCase {
                 ErrorCode.X_42507,
                 ErrorCode.X_42508,
                 ErrorCode.X_42509,
+                ErrorCode.X_42510,
                 ErrorCode.X_42511,
                 ErrorCode.X_42512,
                 ErrorCode.X_42513,
@@ -193,6 +188,8 @@ public class UtilTest extends BaseTestCase {
                 ErrorCode.X_42535,
                 ErrorCode.X_42536,
                 ErrorCode.X_42537,
+                ErrorCode.X_42538,
+                ErrorCode.X_42539,
                 ErrorCode.X_42541,
                 ErrorCode.X_42542,
                 ErrorCode.X_42543,
@@ -201,6 +198,7 @@ public class UtilTest extends BaseTestCase {
                 ErrorCode.X_42546,
                 ErrorCode.X_42547,
                 ErrorCode.X_42548,
+                ErrorCode.X_42549,
                 ErrorCode.X_42551,
                 ErrorCode.X_42561,
                 ErrorCode.X_42562,
@@ -211,6 +209,7 @@ public class UtilTest extends BaseTestCase {
                 ErrorCode.X_42567,
                 ErrorCode.X_42568,
                 ErrorCode.X_42569,
+                ErrorCode.X_42570,
                 ErrorCode.X_42571,
                 ErrorCode.X_42572,
                 ErrorCode.X_42573,
@@ -220,6 +219,7 @@ public class UtilTest extends BaseTestCase {
                 ErrorCode.X_42577,
                 ErrorCode.X_42578,
                 ErrorCode.X_42579,
+                ErrorCode.X_42580,
                 ErrorCode.X_42581,
                 ErrorCode.X_42582,
                 ErrorCode.X_42583,
@@ -229,6 +229,7 @@ public class UtilTest extends BaseTestCase {
                 ErrorCode.X_42587,
                 ErrorCode.X_42588,
                 ErrorCode.X_42589,
+                ErrorCode.X_42590,
                 ErrorCode.X_42591,
                 ErrorCode.X_42592,
                 ErrorCode.X_42593,
@@ -237,9 +238,14 @@ public class UtilTest extends BaseTestCase {
                 ErrorCode.X_42596,
                 ErrorCode.X_42597,
                 ErrorCode.X_42598,
+                ErrorCode.X_42599,
                 ErrorCode.X_42601,
                 ErrorCode.X_42602,
                 ErrorCode.X_42603,
+                ErrorCode.X_42604,
+                ErrorCode.X_42605,
+                ErrorCode.X_42606,
+                ErrorCode.X_42607,
             }
         }, {
             SQLTransactionRollbackException.class, new int[]{
@@ -283,7 +289,9 @@ public class UtilTest extends BaseTestCase {
     static {
         List list = new ArrayList();
 
-        for (int i = 1; i < ErrorCode.LAST_ERROR_HANDLE; i++) {
+        int last_error_handle = 7000;
+
+        for (int i = 0; i < last_error_handle; i++) {
             for (int j = 0; j < m_exceptions.length - 1; j++) {
                 int[]   codes = (int[]) m_exceptions[j][1];
                 boolean found = false;
@@ -337,7 +345,7 @@ public class UtilTest extends BaseTestCase {
         String sqlState = se.getSQLState();
 
         if (sqlState.startsWith("08")) {
-            if (sqlState.endsWith("003")) {
+            if (sqlState.endsWith("3")) {
                 assertTrue("se instanceof SQLNonTransientConnectionException",
                            se instanceof SQLNonTransientConnectionException);
                 checkErrorCode(se, SQLNonTransientConnectionException.class);

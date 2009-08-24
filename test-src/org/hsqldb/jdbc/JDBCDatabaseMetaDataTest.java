@@ -1470,7 +1470,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
         DatabaseMetaData dbmd = getMetaData();
 
         boolean expResult = getBooleanProperty(
-                "dbmd.open.cursors.across.rollback",
+                "dbmd.supports.open.cursors.across.rollback",
                 false);
         boolean result = dbmd.supportsOpenCursorsAcrossRollback();
         assertEquals(expResult, result);
@@ -2728,13 +2728,38 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
      */
     public void testUpdatesAreDetected() throws Exception {
         println("updatesAreDetected");
-
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        
         DatabaseMetaData dbmd = getMetaData();
-
-        boolean expResult = true;
+        //--
+        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        boolean expResult = getBooleanProperty(
+                "dbmd.updates.are.detected.type.forward.only",
+                false);
         boolean result = dbmd.updatesAreDetected(type);
-        assertEquals("TODO:", expResult, result);
+        assertEquals(
+                "UpdatesAreDetected - TYPE_FORWARD_ONLY",
+                expResult,
+                result);
+        //--
+        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        expResult = getBooleanProperty(
+                "dbmd.updates.are.detected.type.scroll.insensitive",
+                false);
+        result = dbmd.updatesAreDetected(type);
+        assertEquals(
+                "UpdatesAreDetected - TYPE_SCROLL_INSENSITIVE",
+                expResult,
+                result);
+        //--
+        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        expResult = getBooleanProperty(
+                "dbmd.updates.are.detected.type.scroll.sensitive",
+                false);
+        result = dbmd.updatesAreDetected(type);
+        assertEquals(
+                "UpdatesAreDetected - TYPE_SCROLL_SENSITIVE",
+                expResult,
+                result);
     }
 
     /**
@@ -2743,26 +2768,74 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
     public void testDeletesAreDetected() throws Exception {
         println("deletesAreDetected");
 
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
-
-        boolean expResult = true;
+        //--
+        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        boolean expResult = getBooleanProperty(
+                "dbmd.deletes.are.detected.type.forward.only",
+                false);
         boolean result = dbmd.deletesAreDetected(type);
-        assertEquals("TODO:", expResult, result);
+        assertEquals(
+                "DeletesAreDetected - TYPE_FORWARD_ONLY",
+                expResult,
+                result);
+        //--
+        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        expResult = getBooleanProperty(
+                "dbmd.deletes.are.detected.type.scroll.insensitive",
+                false);
+        result =dbmd.deletesAreDetected(type);
+        assertEquals(
+                "DeletesAreDetected - TYPE_SCROLL_INSENSITIVE",
+                expResult,
+                result);
+        //--
+        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        expResult = getBooleanProperty(
+                "dbmd.deletes.are.detected.type.scroll.sensitive",
+                false);
+        result = dbmd.deletesAreDetected(type);
+        assertEquals(
+                "DeletesAreDetected - TYPE_SCROLL_SENSITIVE",
+                expResult,
+                result);
     }
 
     /**
      * Test of insertsAreDetected method, of interface java.sql.DatabaseMetaData.
      */
     public void testInsertsAreDetected() throws Exception {
-        println("insertsAreDetected");
-
-        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
         DatabaseMetaData dbmd = getMetaData();
-
-        boolean expResult = true;
+        //--
+        int type = JDBCResultSet.TYPE_FORWARD_ONLY;
+        boolean expResult = getBooleanProperty(
+                "dbmd.inserts.are.detected.type.forward.only",
+                false);
         boolean result = dbmd.insertsAreDetected(type);
-        assertEquals("TODO:", expResult, result);
+        assertEquals(
+                "InsertsAreDetected - TYPE_FORWARD_ONLY",
+                expResult,
+                result);
+        //--
+        type = JDBCResultSet.TYPE_SCROLL_INSENSITIVE;
+        expResult = getBooleanProperty(
+                "dbmd.inserts.are.detected.type.scroll.insensitive",
+                false);
+        result =dbmd.insertsAreDetected(type);
+        assertEquals(
+                "InsertsAreDetected - TYPE_SCROLL_INSENSITIVE",
+                expResult,
+                result);
+        //--
+        type = JDBCResultSet.TYPE_SCROLL_SENSITIVE;
+        expResult = getBooleanProperty(
+                "dbmd.inserts.are.detected.type.scroll.sensitive",
+                false);
+        result = dbmd.insertsAreDetected(type);
+        assertEquals(
+                "InsertsAreDetected - TYPE_SCROLL_SENSITIVE",
+                expResult,
+                result);
     }
 
     /**
@@ -3138,7 +3211,7 @@ public class JDBCDatabaseMetaDataTest extends BaseTestCase {
         try {
             ResultSet result = dbmd.getClientInfoProperties();
         } catch (Exception e) {
-            fail(e.getMessage());
+            fail("TODO: " + e.getMessage());
         }
     }
 
