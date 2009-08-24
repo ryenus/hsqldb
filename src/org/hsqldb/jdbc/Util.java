@@ -249,8 +249,7 @@ public class Util {
             int code, Throwable cause) {
 
         if (sqlstate.startsWith("08")) {
-            if (!sqlstate.endsWith("003")) {
-
+            if (!sqlstate.endsWith("3")) {
                 // then, e.g. - the database may spuriously cease to be "in use"
                 //              upon retry
                 //            - the network configuration, server availability
@@ -259,7 +258,6 @@ public class Util {
                 return new SQLTransientConnectionException(msg, sqlstate,
                         code, cause);
             } else {
-
                 // the database is (permanently) shut down or the connection is
                 // (permanently) closed or broken
                 return new SQLNonTransientConnectionException(msg, sqlstate,
