@@ -173,6 +173,10 @@ public final class BooleanType extends Type {
 
                 break;
             }
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                return NumberType.isZero(a) ? Boolean.FALSE: Boolean.TRUE;
+
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER :

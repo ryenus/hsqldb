@@ -1144,8 +1144,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         }
 
 //#endif JAVA6
-        Type from = Type.getDefaultType(Type.getHSQLDBTypeCode(fromType));
-        Type to   = Type.getDefaultType(Type.getHSQLDBTypeCode(toType));
+        Type from = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(fromType));
+        Type to   = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(toType));
 
         if (from == null || to == null) {
             return false;
@@ -2116,9 +2116,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports keeping cursors open across rollbacks in specific
-     * situations.
-     * This method always returns <code>true</code>.
+     * HSQLDB 1.9.0 closes open cursors at rollback.
+     * This method always returns <code>false</code>.
      * </div>
      * <!-- end release-specific documentation -->
      * @return <code>true</code> if cursors always remain open;
@@ -2126,7 +2125,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsOpenCursorsAcrossRollback() throws SQLException {
-        return true;
+        return false;
     }
 
     /**
@@ -5579,7 +5578,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
 //#ifdef JAVA6
     public ResultSet getClientInfoProperties() throws SQLException {
-        throw Util.notSupported();
+        String s = "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_CONNECTION_PROPERTIES";
+        return execute(s);
+
     }
 
 //#endif JAVA6

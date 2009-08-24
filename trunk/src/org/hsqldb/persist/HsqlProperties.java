@@ -402,7 +402,7 @@ public class HsqlProperties {
 
         row[indexName]         = name;
         row[indexType]         = ValuePool.getInt(type);
-        row[indexClass]        = "java.lang.String";
+        row[indexClass]        = "String";
         row[indexDefaultValue] = defaultValue;
 
         return row;
@@ -415,7 +415,7 @@ public class HsqlProperties {
 
         row[indexName]         = name;
         row[indexType]         = ValuePool.getInt(type);
-        row[indexClass]        = "boolean";
+        row[indexClass]        = "Boolean";
         row[indexDefaultValue] = defaultValue ? Boolean.TRUE
                                               : Boolean.FALSE;
 
@@ -429,7 +429,7 @@ public class HsqlProperties {
 
         row[indexName]         = name;
         row[indexType]         = ValuePool.getInt(type);
-        row[indexClass]        = "int";
+        row[indexClass]        = "Integer";
         row[indexDefaultValue] = ValuePool.getInt(defaultValue);
         row[indexValues]       = values;
 
@@ -443,7 +443,7 @@ public class HsqlProperties {
 
         row[indexName]         = name;
         row[indexType]         = ValuePool.getInt(type);
-        row[indexClass]        = "int";
+        row[indexClass]        = "Integer";
         row[indexDefaultValue] = ValuePool.getInt(defaultValue);
         row[indexIsRange]      = Boolean.TRUE;
         row[indexRangeLow]     = ValuePool.getInt(rangeLow);
@@ -458,7 +458,7 @@ public class HsqlProperties {
     public static String validateProperty(String key, String value,
                                           Object[] meta) {
 
-        if (meta[indexClass].equals("boolean")) {
+        if (meta[indexClass].equals("Boolean")) {
             value = value.toLowerCase();
 
             if (value.equals("true") || value.equals("false")) {
@@ -468,11 +468,11 @@ public class HsqlProperties {
             return "invalid boolean value for property: " + key;
         }
 
-        if (meta[indexClass].equals("string")) {
+        if (meta[indexClass].equals("String")) {
             return null;
         }
 
-        if (meta[indexClass].equals("int")) {
+        if (meta[indexClass].equals("Integer")) {
             int number = Integer.parseInt(value);
 
             if (Boolean.TRUE.equals(meta[indexIsRange])) {

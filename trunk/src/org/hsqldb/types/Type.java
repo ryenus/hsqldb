@@ -469,6 +469,9 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final ClobType SQL_CLOB = new ClobType();
     public static final CharacterType VARCHAR_IGNORECASE =
         new CharacterType(Types.VARCHAR_IGNORECASE, 0);
+    public static final CharacterType VARCHAR_IGNORECASE_DEFAULT =
+        new CharacterType(Types.VARCHAR_IGNORECASE,
+                          CharacterType.defaultCharPrecision);
 
     // binary types
     public static final BitType SQL_BIT = new BitType(Types.SQL_BIT, 1);
@@ -633,7 +636,7 @@ public abstract class Type implements SchemaObject, Cloneable {
                 return SQL_VARCHAR_DEFAULT;
 
             case Types.VARCHAR_IGNORECASE :
-                return VARCHAR_IGNORECASE;
+                return VARCHAR_IGNORECASE_DEFAULT;
 
             case Types.SQL_CLOB :
                 return SQL_CLOB;

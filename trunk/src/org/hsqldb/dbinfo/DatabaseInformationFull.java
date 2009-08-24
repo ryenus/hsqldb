@@ -1003,7 +1003,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     .LIST_SCRIPT_FORMATS[database.logger.getScriptType()];
         } catch (Exception e) {}
 
-        row[iclass] = "java.lang.String";
+        row[iclass] = "String";
 
         t.insertSys(store, row);
 
@@ -1013,7 +1013,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row[ins]    = nameSpace;
         row[iname]  = "WRITE DELAY";
         row[ivalue] = "" + database.logger.getWriteDelay();
-        row[iclass] = "int";
+        row[iclass] = "Integer";
 
         t.insertSys(store, row);
 
@@ -1024,7 +1024,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row[iname]  = "IGNORECASE";
         row[ivalue] = database.isIgnoreCase() ? "true"
                                               : "false";
-        row[iclass] = "boolean";
+        row[iclass] = "Boolean";
 
         t.insertSys(store, row);
 
@@ -1035,7 +1035,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row[iname]  = "REFERENTIAL INTEGRITY";
         row[ivalue] = database.isReferentialIntegrity() ? "true"
                                                         : "false";
-        row[iclass] = "boolean";
+        row[iclass] = "Boolean";
 
         t.insertSys(store, row);
 

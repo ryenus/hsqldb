@@ -111,7 +111,6 @@ public final class BitType extends BinaryType {
         return maxBitPrecision;
     }
 
-
     public boolean requiresPrecision() {
         return typeCode == Types.SQL_BIT_VARYING;
     }
@@ -402,8 +401,8 @@ public final class BitType extends BinaryType {
         return otherType.typeCode == Types.SQL_ALL_TYPES
                || otherType.isBinaryType()
                || (precision == 1
-                   && (otherType.isIntegralType()
-                       || otherType.isBooleanType()));
+                   && (otherType.isIntegralType() || otherType
+                       .isBooleanType()) || otherType.isCharacterType());
     }
 
     /** @todo - implement */
