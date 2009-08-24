@@ -35,7 +35,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.hsqldb.lib.IntKeyIntValueHashMap;
+import org.hsqldb.lib.StringConverter;
+import org.hsqldb.persist.Crypto;
+import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.DTIType;
@@ -47,8 +51,6 @@ import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.persist.Crypto;
-import org.hsqldb.lib.StringConverter;
 
 /**
  * Implementation of calls to HSQLDB functions with reserved names or functions
@@ -1039,22 +1041,38 @@ public class FunctionCustom extends FunctionSQL {
                             return ValuePool.getInt((int) v);
 
                         case Types.SQL_SMALLINT :
-                            v = (short) v;
-
-                            return ValuePool.getInt((int) v);
+                            return ValuePool.getInt((int) v & 0xffff);
 
                         case Types.TINYINT :
-                            v = (byte) v;
-
-                            return ValuePool.getInt((int) v);
+                            return ValuePool.getInt((int) v & 0xff);
 
                         default :
                             throw Error.error(ErrorCode.X_42561);
                     }
                 } else {
+                    byte[] a = ((BinaryData) data[0]).getBytes();
+                    byte[] b = ((BinaryData) data[1]).getBytes();
+                    byte[] v;
 
-                    /** @todo - for binary */
-                    return null;
+                    switch (funcType) {
+
+                        case FUNC_BITAND :
+                            v = BitMap.and(a, b);
+                            break;
+
+                        case FUNC_BITOR :
+                            v = BitMap.or(a, b);
+                            break;
+
+                        case FUNC_BITXOR :
+                            v = BitMap.xor(a, b);
+                            break;
+
+                        default :
+                            throw Error.error(ErrorCode.X_42561);
+                    }
+
+                    return new BinaryData(v, dataType.precision);
                 }
             }
             case FUNC_DIFFERENCE : {
@@ -1537,7 +1555,7 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 dataType =
-                    nodes[0].dataType.getAggregateType(nodes[0].dataType);
+                    nodes[0].dataType.getAggregateType(nodes[1].dataType);
 
                 switch (dataType.typeCode) {
 
@@ -1545,6 +1563,10 @@ public class FunctionCustom extends FunctionSQL {
                     case Types.SQL_INTEGER :
                     case Types.SQL_SMALLINT :
                     case Types.TINYINT :
+                        break;
+
+                    case Types.SQL_BIT :
+                    case Types.SQL_BIT_VARYING :
                         break;
 
                     default :
