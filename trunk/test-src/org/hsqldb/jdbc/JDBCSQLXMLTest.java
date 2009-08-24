@@ -32,26 +32,31 @@ package org.hsqldb.jdbc;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.sql.SQLXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stax.StAXResult;
+import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.lib.StringConverter;
-import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -184,6 +189,27 @@ public class JDBCSQLXMLTest extends BaseTestCase {
         else if (n2Children == null)
         {
             assertNull("n1Children", n1Children);
+        }
+    }
+    
+    private static Transformer transformer;
+    private static TransformerFactory transformerFactory;
+
+    protected void identityTransform(Source source, Result result) {
+        if (transformer == null) {
+            if (transformerFactory == null) {
+                transformerFactory = TransformerFactory.newInstance();
+            }
+            try {
+                transformer = transformerFactory.newTransformer();
+            } catch (TransformerConfigurationException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        try {
+            transformer.transform(source, result);
+        } catch (TransformerException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -354,7 +380,17 @@ public class JDBCSQLXMLTest extends BaseTestCase {
     public void testGetDOMSource() throws Exception {
         println("getDOMSource");
 
-        fail("TODO: testGetDOMSource()");
+        String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
+
+        JDBCSQLXML instance = new JDBCSQLXML(expected);
+
+        DOMSource source = instance.getSource(DOMSource.class);
+
+        JDBCSQLXML instance2 = new JDBCSQLXML(source);
+
+        DOMSource source2 = instance2.getSource(DOMSource.class);
+
+        this.assertXmlEquals(source, source2);
     }
 
     /**
@@ -363,7 +399,17 @@ public class JDBCSQLXMLTest extends BaseTestCase {
     public void testGetSAXSource() throws Exception {
         println("getSAXSource");
 
-        fail("TODO: testGetSAXSource()");
+        String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
+
+        JDBCSQLXML instance = new JDBCSQLXML(expected);
+
+        DOMSource source = instance.getSource(DOMSource.class);
+
+        JDBCSQLXML instance2 = new JDBCSQLXML(source);
+
+        SAXSource source2 = instance2.getSource(SAXSource.class);
+
+        this.assertXmlEquals(source, source2);
     }
 
     /**
@@ -372,7 +418,17 @@ public class JDBCSQLXMLTest extends BaseTestCase {
     public void testGetStAXSource() throws Exception {
         println("getStAXSource");
 
-        fail("TODO: testGetStAXSource()");
+        String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
+
+        JDBCSQLXML instance = new JDBCSQLXML(expected);
+
+        DOMSource source = instance.getSource(DOMSource.class);
+
+        JDBCSQLXML instance2 = new JDBCSQLXML(source);
+
+        StAXSource source2 = instance2.getSource(StAXSource.class);
+
+        this.assertXmlEquals(source, source2);
     }
 
     /**
@@ -381,7 +437,17 @@ public class JDBCSQLXMLTest extends BaseTestCase {
     public void testGetStreamSource() throws Exception {
         println("getStreamSource");
 
-         fail("TODO: testGetStreamSource()");
+        String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
+
+        JDBCSQLXML instance = new JDBCSQLXML(expected);
+
+        DOMSource source = instance.getSource(DOMSource.class);
+
+        JDBCSQLXML instance2 = new JDBCSQLXML(source);
+
+        StreamSource source2 = instance2.getSource(StreamSource.class);
+
+        this.assertXmlEquals(source, source2);
     }
 
     /**
@@ -390,7 +456,20 @@ public class JDBCSQLXMLTest extends BaseTestCase {
     public void testSetDOMResult() throws Exception {
         println("setDOMResult");
 
-        fail("TODO: testSetDOMResult()");
+        String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
+
+        DOMSource source = (new JDBCSQLXML(expected)).getSource(DOMSource.class);
+
+        JDBCSQLXML instance = new JDBCSQLXML();
+
+        DOMResult result = instance.setResult(DOMResult.class);
+
+        result.setNode(source.getNode());
+        result.setSystemId(source.getSystemId());
+
+        StreamSource streamSource = instance.getSource(StreamSource.class);
+
+        this.assertXmlEquals(source, streamSource);
     }
 
     /**
@@ -399,7 +478,19 @@ public class JDBCSQLXMLTest extends BaseTestCase {
     public void testSetSAXResult() throws Exception {
         println("setSAXResult");
 
-        fail("TODO: testSetSAXResult()");
+        String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
+
+        DOMSource source = (new JDBCSQLXML(expected)).getSource(DOMSource.class);
+
+        JDBCSQLXML instance = new JDBCSQLXML();
+
+        SAXResult result = instance.setResult(SAXResult.class);
+
+        identityTransform(source,result);
+
+        StreamSource streamSource = instance.getSource(StreamSource.class);
+
+        this.assertXmlEquals(source, streamSource);
     }
 
     /**
@@ -408,7 +499,21 @@ public class JDBCSQLXMLTest extends BaseTestCase {
     public void testSetStAXResult() throws Exception {
         println("setStAXResult");
 
-        fail("TODO: testSetStAXResult()");
+        String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
+
+        DOMSource source = (new JDBCSQLXML(expected)).getSource(DOMSource.class);
+
+        JDBCSQLXML instance = new JDBCSQLXML();
+
+        StAXResult result = instance.setResult(StAXResult.class);
+
+        identityTransform(source,result);
+
+        result.getXMLStreamWriter().close();
+
+        StreamSource streamSource = instance.getSource(StreamSource.class);
+
+        this.assertXmlEquals(source, streamSource);
     }
 
     /**
@@ -416,8 +521,21 @@ public class JDBCSQLXMLTest extends BaseTestCase {
      */
     public void testSetStreamResult() throws Exception {
         println("setStreamResult");
+        String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
-        fail("TODO: testSetStreamResult()");
+        DOMSource source = (new JDBCSQLXML(expected)).getSource(DOMSource.class);
+
+        JDBCSQLXML instance = new JDBCSQLXML();
+
+        StreamResult result = instance.setResult(StreamResult.class);
+
+        identityTransform(source,result);
+
+        result.getOutputStream().close();
+
+        DOMSource domSource = instance.getSource(DOMSource.class);
+
+        this.assertXmlEquals(source, domSource);
     }
 
     public static void main(java.lang.String[] argList) {

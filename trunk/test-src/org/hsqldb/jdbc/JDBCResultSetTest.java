@@ -281,6 +281,7 @@ public class JDBCResultSetTest extends BaseTestCase {
                             "Info - Pass: " + columnName + "(" + typeName + ")");
                 }
             } catch (Exception e) {
+
                 Throwable t = e;
 
                 while (t instanceof InvocationTargetException) {
@@ -303,6 +304,12 @@ public class JDBCResultSetTest extends BaseTestCase {
                                 "Info - Pass: " + columnName + "(" + typeName + ") : " + ex);
                     }
                 } else {
+                    t.fillInStackTrace().printStackTrace();
+                    //t.printStackTrace();
+                    Throwable t2 = t.getCause();
+                    if (t2 != null) {
+                        t2.printStackTrace();
+                    }
                     fail(
                             columnName + "(" + typeName + ") : " + t);
                 }
@@ -1703,7 +1710,7 @@ public class JDBCResultSetTest extends BaseTestCase {
 
         ResultSet rs = newFOROJdbcResultSet();
 
-        int expResult = 1;
+        int expResult = 0;
         int result = rs.getFetchSize();
         assertEquals("fetch size", expResult, result);
 
@@ -2609,7 +2616,7 @@ public class JDBCResultSetTest extends BaseTestCase {
         } catch (SQLException ex) {
             assertEquals(
                     "error code",
-                    -ErrorCode.X_24501,
+                    getResultSetClosedErrorCode(),
                     ex.getErrorCode());
         }
     }
@@ -2712,8 +2719,8 @@ public class JDBCResultSetTest extends BaseTestCase {
         } catch (SQLException ex) {
             assertEquals(
                     "error code",
-                    ex.getErrorCode(),
-                    -ErrorCode.N_02000); // NO_DATA_IS_AVAILABLE
+                    getResultSetBeforeFirstErrorCode(),
+                    ex.getErrorCode());
         }
     }
 
@@ -2734,8 +2741,8 @@ public class JDBCResultSetTest extends BaseTestCase {
         } catch (SQLException ex) {
             assertEquals(
                     "error code",
-                    ex.getErrorCode(),
-                    -ErrorCode.N_02000); // NO_DATA_IS_AVAILABLE
+                    getResultSetAfterLastErrorCode(),
+                    ex.getErrorCode());
         }
     }
 
@@ -2759,8 +2766,8 @@ public class JDBCResultSetTest extends BaseTestCase {
         } catch (SQLException ex) {
             assertEquals(
                     "error code",
-                    ex.getErrorCode(),
-                    -ErrorCode.X_24501);
+                    getResultSetClosedErrorCode(),
+                    ex.getErrorCode());
         }
     }
 
@@ -2840,8 +2847,8 @@ public class JDBCResultSetTest extends BaseTestCase {
         } catch (SQLException ex) {
             assertEquals(
                     "error code",
-                    ex.getErrorCode(),
-                    -ErrorCode.X_24501);
+                    getResultSetClosedErrorCode(),
+                    ex.getErrorCode());
         }
     }
 
@@ -2973,8 +2980,8 @@ public class JDBCResultSetTest extends BaseTestCase {
         } catch (SQLException ex) {
             assertEquals(
                     "error code",
-                    ex.getErrorCode(),
-                    -ErrorCode.X_24501);
+                    getResultSetClosedErrorCode(),
+                    ex.getErrorCode());
         }
     }
 

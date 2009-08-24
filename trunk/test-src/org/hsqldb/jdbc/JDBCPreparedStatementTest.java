@@ -672,6 +672,7 @@ public class JDBCPreparedStatementTest extends BaseTestCase {
 
         stmt.setString(1, "addBatch");
         stmt.setInt(2, 1);
+        stmt.addBatch();
         stmt.executeBatch();
 
         stmt = queryBy("id");
