@@ -106,9 +106,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         return null;
     }
 
-    public CachedObject getNewCachedObject(Session session,
-                                           Object object)
-                                           {
+    public CachedObject getNewCachedObject(Session session, Object object) {
 
         Row row = new RowAVL(table, (Object[]) object);
 
@@ -116,10 +114,12 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
             RowAction.addAction(session, RowAction.ACTION_INSERT, table, row);
         }
 
-        int id = rowIdSequence++;
+        synchronized (this) {
+            int id = rowIdSequence++;
 
-        row.setPos(id);
-        rowIdMap.put(id, row);
+            row.setPos(id);
+            rowIdMap.put(id, row);
+        }
 
         return row;
     }
@@ -208,8 +208,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         return null;
     }
 
-    void dropIndexFromRows(Index primaryIndex,
-                           Index oldIndex) {
+    void dropIndexFromRows(Index primaryIndex, Index oldIndex) {
 
         RowIterator it       = primaryIndex.firstRow(this);
         int         position = oldIndex.getPosition() - 1;
@@ -227,8 +226,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         }
     }
 
-    boolean insertIndexNodes(Index primaryIndex,
-                             Index newIndex) {
+    boolean insertIndexNodes(Index primaryIndex, Index newIndex) {
 
         int           position = newIndex.getPosition();
         RowIterator   it       = primaryIndex.firstRow(this);

@@ -1011,9 +1011,9 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (nodes[0].dataType.isIntegralType()) {
-                    int v = 0;
-                    int a = ((Number) data[0]).intValue();
-                    int b = ((Number) data[1]).intValue();
+                    long v = 0;
+                    long a = ((Number) data[0]).longValue();
+                    long b = ((Number) data[1]).longValue();
 
                     switch (funcType) {
 
@@ -1030,7 +1030,27 @@ public class FunctionCustom extends FunctionSQL {
                             break;
                     }
 
-                    return ValuePool.getInt(v);
+                    switch (dataType.typeCode) {
+
+                        case Types.SQL_BIGINT :
+                            return ValuePool.getLong(v);
+
+                        case Types.SQL_INTEGER :
+                            return ValuePool.getInt((int) v);
+
+                        case Types.SQL_SMALLINT :
+                            v = (short) v;
+
+                            return ValuePool.getInt((int) v);
+
+                        case Types.TINYINT :
+                            v = (byte) v;
+
+                            return ValuePool.getInt((int) v);
+
+                        default :
+                            throw Error.error(ErrorCode.X_42561);
+                    }
                 } else {
 
                     /** @todo - for binary */
@@ -1502,16 +1522,34 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_BITAND :
             case FUNC_BITOR :
             case FUNC_BITXOR : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = nodes[1].dataType;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = nodes[0].dataType;
+                }
+
                 for (int i = 0; i < nodes.length; i++) {
                     if (nodes[i].dataType == null) {
                         nodes[i].dataType = Type.SQL_INTEGER;
-                    } else if (nodes[i].dataType.typeCode
-                               != Types.SQL_INTEGER) {
-                        throw Error.error(ErrorCode.X_42561);
                     }
                 }
 
-                dataType = Type.SQL_INTEGER;
+                dataType =
+                    nodes[0].dataType.getAggregateType(nodes[0].dataType);
+
+                switch (dataType.typeCode) {
+
+                    case Types.SQL_BIGINT :
+                    case Types.SQL_INTEGER :
+                    case Types.SQL_SMALLINT :
+                    case Types.TINYINT :
+                        break;
+
+                    default :
+                        throw Error.error(ErrorCode.X_42561);
+                }
 
                 break;
             }

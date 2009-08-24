@@ -689,6 +689,16 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            object = cache.get(pos);
+
+            if (object != null) {
+                if (keep) {
+                    object.keepInMemory(true);
+                }
+
+                return object;
+            }
+
             for (int j = 0; j < 5; j++) {
                 outOfMemory = false;
 
@@ -739,7 +749,14 @@ public class DataFileCache {
     }
 
     RowInputInterface getRaw(int i) {
-        return readObject(i);
+
+        writeLock.lock();
+
+        try {
+            return readObject(i);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     protected int readSize(int pos) {
@@ -759,8 +776,6 @@ public class DataFileCache {
 
     protected RowInputInterface readObject(int pos) {
 
-        writeLock.lock();
-
         try {
             dataFile.seek((long) pos * cacheFileScale);
 
@@ -772,8 +787,6 @@ public class DataFileCache {
             return rowIn;
         } catch (IOException e) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
-        } finally {
-            writeLock.unlock();
         }
     }
 

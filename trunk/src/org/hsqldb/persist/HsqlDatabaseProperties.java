@@ -191,7 +191,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_default_table_type =
         "hsqldb.default_table_type";
     public static final String hsqldb_defrag_limit   = "hsqldb.defrag_limit";
-    public static final String hsqldb_files_readonly = "hsqldb.files_readonly";
+    public static final String hsqldb_files_readonly = "files_readonly";
     public static final String hsqldb_lock_file      = "hsqldb.lock_file";
     public static final String hsqldb_log_size       = "hsqldb.log_size";
     public static final String hsqldb_nio_data_file  = "hsqldb.nio_data_file";

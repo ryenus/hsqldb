@@ -1649,7 +1649,20 @@ implements ActionListener, WindowListener, KeyListener {
             int r = sStatement.getUpdateCount();
 
             if (r == -1) {
-                formatResultSet(sStatement.getResultSet());
+                ResultSet rs = sStatement.getResultSet();
+                try {
+                    formatResultSet(rs);
+                } catch (Throwable t) {
+                    g[0]  = "Error displaying the ResultSet";
+
+                    gResult.setHead(g);
+
+                    String s = t.getMessage();
+
+                    g[0] = s;
+
+                    gResult.addRow(g);
+                }
             } else {
                 g[0] = "update count";
 
