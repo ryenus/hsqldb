@@ -1144,10 +1144,33 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         }
 
 //#endif JAVA6
-        Type from = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(fromType));
-        Type to   = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(toType));
+        Type from = null;
+        Type to   = null;
 
-        if (from == null || to == null) {
+        // NOTE:  java.sql.Types does not cover all
+        //        vendor types, and not all JDBC impls
+        //        support all types, so this method should
+        //        not throw, as it is impossible to always
+        //        do the right thing for the client.
+        //
+        //        Instead, just return false if an 'invalid' type
+        //        code (or a valid JDBC type code that corresponds to
+        //        a type that this database does not support) is submitted.
+        try
+        {
+            from = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(fromType));
+        } catch (Exception ex){}
+
+        if (from == null) {
+            return false;
+        }
+
+        try
+        {
+            to = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(toType));
+        } catch (Exception ex){}
+
+        if (to == null) {
             return false;
         }
 
