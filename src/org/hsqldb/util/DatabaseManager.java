@@ -129,7 +129,7 @@ implements ActionListener, WindowListener, KeyListener {
                            + "To enable the Tools menu, add 'transfer.jar' to your class path."));
     ;
     private static final String ABOUT_TEXT =
-        "$Revision$ of DatabaseManagerSwing\n\n"
+        "$Revision$ of DatabaseManager\n\n"
         + "Copyright (c) 1995-2000, The Hypersonic SQL Group.\n"
         + "Copyright (c) 2001-2009, The HSQL Development Group.\n"
         + "http://hsqldb.org  (User Guide available at this site).\n\n\n"
@@ -824,10 +824,11 @@ implements ActionListener, WindowListener, KeyListener {
             int r = sStatement.getUpdateCount();
 
             if (r == -1) {
+                ResultSet rs = sStatement.getResultSet();
                 try {
-                    formatResultSet(sStatement.getResultSet());
+                    formatResultSet(rs);
                 } catch (Throwable t) {
-                    g[0]  = "General Error";
+                    g[0]  = "Error displaying the ResultSet";
 
                     gResult.setHead(g);
 
