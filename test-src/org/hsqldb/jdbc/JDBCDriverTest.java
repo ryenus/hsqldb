@@ -30,7 +30,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 import java.sql.Driver;
 import java.sql.DriverPropertyInfo;
 import java.util.Properties;
@@ -41,7 +41,7 @@ import junit.framework.TestSuite;
  *
  * @author boucherb@users
  */
-public class JDBCDriverTest extends BaseTestCase {
+public class JDBCDriverTest extends BaseJdbcTestCase {
 
     public JDBCDriverTest(String testName) {
         super(testName);

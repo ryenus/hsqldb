@@ -37,13 +37,13 @@ import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCDatabaseMetaDataTest extends BaseTestCase {
+public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
     public static final int StandardMaxIdentifierLength = 128;
     public static final int DefaultJDBCMajorVersion = 4;

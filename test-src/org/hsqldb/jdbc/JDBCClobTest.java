@@ -39,14 +39,14 @@ import java.io.Reader;
 import java.io.Writer;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  * Test of class org.hsqldb.jdbc.jdbcClob.
  *
  * @author boucherb@users
  */
-public class JDBCClobTest extends BaseTestCase {
+public class JDBCClobTest extends BaseJdbcTestCase {
 
     public JDBCClobTest(String testName) {
         super(testName);

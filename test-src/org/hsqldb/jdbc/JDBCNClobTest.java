@@ -39,13 +39,13 @@ import java.io.StringReader;
 import java.io.Writer;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCNClobTest extends BaseTestCase {
+public class JDBCNClobTest extends BaseJdbcTestCase {
 
     public JDBCNClobTest(String testName) {
         super(testName);

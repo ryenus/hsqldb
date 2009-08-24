@@ -48,7 +48,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import junit.framework.TestSuite;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 // TODO:  See if this can be done reflectively.
 
@@ -56,7 +56,7 @@ import org.hsqldb.jdbc.testbase.BaseTestCase;
  *
  * @author boucherb@users
  */
-public class JDBCCallableStatementWhileClosedTest extends BaseTestCase {
+public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     public JDBCCallableStatementWhileClosedTest(String testName) {
         super(testName);

@@ -45,14 +45,14 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  * Test of class org.hsqldb.jdbc.JDBCCallableStatement.
  *
  * @author boucherb@users
  */
-public class JDBCCallableStatementTest extends BaseTestCase {
+public class JDBCCallableStatementTest extends BaseJdbcTestCase {
 
     public JDBCCallableStatementTest(String testName) {
         super(testName);

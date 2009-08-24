@@ -60,13 +60,13 @@ import org.hsqldb.lib.StringConverter;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCSQLXMLTest extends BaseTestCase {
+public class JDBCSQLXMLTest extends BaseJdbcTestCase {
 
     public JDBCSQLXMLTest(String testName) {
         super(testName);

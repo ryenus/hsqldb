@@ -41,13 +41,13 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.ErrorCode;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
  * @author boucherb@users
  */
-public class JDBCResultSetTest extends BaseTestCase {
+public class JDBCResultSetTest extends BaseJdbcTestCase {
 
     public static final int DEFAULT_RESULT_SET_CLOSED_ERROR_CODE = -ErrorCode.X_24501;
     public static final int DEFAULT_RESULT_SET_BEFORE_FIRST_ERROR_CODE = -ErrorCode.X_24504;

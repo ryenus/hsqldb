@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb.jdbc.testbase;
+package org.hsqldb.testbase;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

@@ -27,7 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.testbase;
 
 import java.io.File;
@@ -43,12 +42,11 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
-import org.hsqldb.jdbc.testbase.ConnectionFactory;
-import org.hsqldb.jdbc.testbase.ScriptIterator;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.resources.BundleHandler;
@@ -61,6 +59,7 @@ import org.hsqldb.resources.BundleHandler;
  * @since 1.9.0
  */
 public abstract class BaseTestCase extends junit.framework.TestCase {
+
     public static final String DEFAULT_DRIVER = "org.hsqldb.jdbcDriver";
     public static final String DEFAULT_PASSWORD = "";
     public static final String DEFAULT_URL = "jdbc:hsqldb:mem:testcase";
@@ -73,9 +72,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     public static final int testBundleHandle;
     public static final int testConvertBundleHandle;
 
-    static
-    {
-        testBundleHandle        = BundleHandler.getBundleHandle("test", null);
+    static {
+        testBundleHandle = BundleHandler.getBundleHandle("test", null);
         testConvertBundleHandle = BundleHandler.getBundleHandle("test-dbmd-convert", null);
     }
 
@@ -121,100 +119,88 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      */
     protected static void assertJavaArrayEquals(Object expected, Object actual) throws Exception {
         switch (getComponentDescriptor(expected)) {
-            case 'X':
-                {
-                    if (actual != null) {
-                        fail(arraysNotEqualMessage(expected, actual));
-                    }
-                    break;
+            case 'X': {
+                if (actual != null) {
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
-            case 'B':
-                {
-                    if (!Arrays.equals((byte[]) expected, (byte[]) actual)) {
-                        fail(arraysNotEqualMessage(expected, actual));
-                    }
-                    break;
+                break;
+            }
+            case 'B': {
+                if (!Arrays.equals((byte[]) expected, (byte[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
-            case 'C':
-                {
-                    if (!Arrays.equals((char[]) expected, (char[]) actual)) {
-                        fail(arraysNotEqualMessage(expected, actual));
-                    }
-                    break;
+                break;
+            }
+            case 'C': {
+                if (!Arrays.equals((char[]) expected, (char[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
-            case 'D':
-                {
-                    if (!Arrays.equals((double[]) expected, (double[]) actual)) {
-                        fail(arraysNotEqualMessage(expected, actual));
-                    }
-                    break;
+                break;
+            }
+            case 'D': {
+                if (!Arrays.equals((double[]) expected, (double[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
-            case 'F':
-                {
-                    if (!Arrays.equals((float[]) expected, (float[]) actual)) {
-                        fail(arraysNotEqualMessage(expected, actual));
-                    }
-                    break;
+                break;
+            }
+            case 'F': {
+                if (!Arrays.equals((float[]) expected, (float[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
-            case 'I':
-                {
-                    if (!Arrays.equals((int[]) expected, (int[]) actual)) {
-                        fail(arraysNotEqualMessage(expected, actual));
-                    }
-                    break;
+                break;
+            }
+            case 'I': {
+                if (!Arrays.equals((int[]) expected, (int[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
-            case 'J':
-                {
-                    if (!Arrays.equals((long[]) expected, (long[]) actual)) {
-                        fail(arraysNotEqualMessage(expected, actual));
-                    }
-                    break;
+                break;
+            }
+            case 'J': {
+                if (!Arrays.equals((long[]) expected, (long[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
                 }
-            case 'L':
-                {
+                break;
+            }
+            case 'L': {
+                if (!Arrays.deepEquals((Object[]) expected, (Object[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
+                break;
+            }
+            case 'S': {
+                if (!Arrays.equals((short[]) expected, (short[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
+                break;
+            }
+            case 'Z': {
+                if (!Arrays.equals((boolean[]) expected, (boolean[]) actual)) {
+                    fail(arraysNotEqualMessage(expected, actual));
+                }
+                break;
+            }
+            case 'N': {
+                if (actual == null) {
+                    fail("expected:<" + arrayToString(expected) + "> but was:<null>");
+                } else if (Object[].class.isAssignableFrom(expected.getClass()) && Object[].class.isAssignableFrom(actual.getClass())) {
                     if (!Arrays.deepEquals((Object[]) expected, (Object[]) actual)) {
                         fail(arraysNotEqualMessage(expected, actual));
                     }
-                    break;
-                }
-            case 'S':
-                {
-                    if (!Arrays.equals((short[]) expected, (short[]) actual)) {
-                        fail(arraysNotEqualMessage(expected, actual));
+                } else {
+                    assertEquals("Array Class", expected.getClass(), actual.getClass());
+                    assertEquals("Array Length", Array.getLength(expected), Array.getLength(actual));
+                    int len = Array.getLength(expected);
+                    for (int i = 0; i < len; i++) {
+                        assertJavaArrayEquals(Array.get(expected, i), Array.get(actual, i));
                     }
-                    break;
                 }
-            case 'Z':
-                {
-                    if (!Arrays.equals((boolean[]) expected, (boolean[]) actual)) {
-                        fail(arraysNotEqualMessage(expected, actual));
-                    }
-                    break;
-                }
-            case 'N':
-                {
-                    if (actual == null) {
-                        fail("expected:<" + arrayToString(expected) + "> but was:<null>");
-                    } else if (Object[].class.isAssignableFrom(expected.getClass()) && Object[].class.isAssignableFrom(actual.getClass())) {
-                        if (!Arrays.deepEquals((Object[]) expected, (Object[]) actual)) {
-                            fail(arraysNotEqualMessage(expected, actual));
-                        }
-                    } else {
-                        assertEquals("Array Class", expected.getClass(), actual.getClass());
-                        assertEquals("Array Length", Array.getLength(expected), Array.getLength(actual));
-                        int len = Array.getLength(expected);
-                        for (int i = 0; i < len; i++) {
-                            assertJavaArrayEquals(Array.get(expected, i), Array.get(actual, i));
-                        }
-                    }
-                    break;
-                }
+                break;
+            }
             case '0':
-            default:
-                {
-                    assertEquals(expected, actual);
-                    break;
-                }
+            default: {
+                assertEquals(expected, actual);
+                break;
+            }
         }
     }
 
@@ -432,6 +418,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         return names;
     }
     private ConnectionFactory m_connectionFactory;
+
     /**
      * Constructs a new TestCase.
      *
@@ -471,17 +458,32 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             throw new RuntimeException("No such resource on CLASSPATH: [" + fullResource + "]");
         }
         ScriptIterator it = new ScriptIterator(url);
-        Connection conn = newConnection();
-        Statement stmt = conn.createStatement();
-        while (it.hasNext()) {
-            String sql = (String) it.next();
-            //System.out.println("sql:");
-            //System.out.println(sql);
-            stmt.execute(sql);
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = newConnection();
+            stmt = conn.createStatement();
+            while (it.hasNext()) {
+                String sql = (String) it.next();
+                //System.out.println("sql:");
+                //System.out.println(sql);
+                stmt.execute(sql);
+            }
+            conn.commit();
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException se) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException se) {
+                }
+            }
         }
-        conn.commit();
-        stmt.close();
-        conn.close();
     }
 
     /**
@@ -543,11 +545,21 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * @return the matching value.
      */
     public int getIntProperty(final String key, final int defaultValue) {
-        try {
-            return Integer.getInteger(translatePropertyKey(key), defaultValue);
-        } catch (SecurityException se) {
-            return defaultValue;
+        String propertyValue = this.getProperty(key, null);
+        int rval = defaultValue;
+
+        if (propertyValue != null) {
+            propertyValue = propertyValue.trim();
+
+            if (propertyValue.length() > 0) {
+                try {
+                    rval = Integer.parseInt(propertyValue);
+                } catch (Exception ex) {
+                }
+            }
         }
+
+        return rval;
     }
 
     /**

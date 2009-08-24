@@ -38,14 +38,14 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.jdbc.testbase.BaseTestCase;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  * Test of interface java.sql.Statement.
  *
  * @author boucherb@users
  */
-public class JDBCStatementTest extends BaseTestCase {
+public class JDBCStatementTest extends BaseJdbcTestCase {
 
     public JDBCStatementTest(String testName) {
         super(testName);
