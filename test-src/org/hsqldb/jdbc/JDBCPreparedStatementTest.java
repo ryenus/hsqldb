@@ -544,7 +544,7 @@ public class JDBCPreparedStatementTest extends BaseTestCase {
         byte[]            xval   = sval.getBytes("US-ASCII");
         InputStream       x      = new ByteArrayInputStream(xval);
         int               length = xval.length;
-        PreparedStatement stmt   = updateColumnWhere("c_binary", "id");
+        PreparedStatement stmt   = updateColumnWhere("c_varbinary", "id");
 
         stmt.setBinaryStream(1, x, length);
         stmt.setInt(2, 1);
@@ -559,7 +559,7 @@ public class JDBCPreparedStatementTest extends BaseTestCase {
 
         assertEquals("rs.next()", true, rs.next());
 
-        byte[] result = rs.getBytes("c_binary");
+        byte[] result = rs.getBytes("c_varbinary");
 
         assertJavaArrayEquals(xval, result);
     }
