@@ -27,15 +27,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.store;
 
-public class BitMapTest {
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-    public static void main(String[] args) {
+public class BitMapTest extends TestCase {
 
-        byte[] map = new byte[] {
+    public void testBitMap() {
+
+        byte[] map = new byte[]{
             0, 0, (byte) 255, (byte) 255, 0, 0
         };
 
@@ -52,5 +54,15 @@ public class BitMapTest {
         BitMap.and(map, 24, (byte) 0, 1);
         BitMap.and(map, 8, (byte) 0, 1);
         BitMap.and(map, 12, (byte) 0, 8);
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(BitMapTest.class);
+
+        return suite;
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
     }
 }

@@ -27,69 +27,86 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.lib;
 
-public class HsqlArrayHeapTest {
-   public static void main(String[] args) {
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-       ObjectComparator oc = new ObjectComparator() {
+public class HsqlArrayHeapTest extends TestCase {
 
-           public int compare(Object a, Object b) {
+    public HsqlArrayHeapTest(String name) {
+        super(name);
+    }
 
-               if (a == b) {
-                   return 0;
-               }
+    public void testHsqlArrayHeap() {
 
-               // null==null and smaller than any value
-               if (a == null) {
-                   if (b == null) {
-                       return 0;
-                   }
+        ObjectComparator oc = new ObjectComparator() {
 
-                   return -1;
-               }
+            public int compare(Object a, Object b) {
 
-               if (b == null) {
-                   return 1;
-               }
+                if (a == b) {
+                    return 0;
+                }
 
-               return ((Integer) a).intValue() - ((Integer) b).intValue();
-           }
-       };
-       HsqlHeap ah = new HsqlArrayHeap(6, oc);
+                // null==null and smaller than any value
+                if (a == null) {
+                    if (b == null) {
+                        return 0;
+                    }
 
-       System.out.println("isEmpty() : " + ah.isEmpty());
+                    return -1;
+                }
 
-       int[] ai    = new int[] {
-           3, 99, 7, 9, -42, 2, 1, 23, -7
-       };
-       int   least = Integer.MIN_VALUE;
+                if (b == null) {
+                    return 1;
+                }
 
-       for (int i = 0; i < ai.length; i++) {
-           System.out.println("add()     : new Integer(" + ai[i] + ")");
-           ah.add(new Integer(ai[i]));
-           System.out.println("size()    : " + ah.size());
-       }
+                return ((Integer) a).intValue() - ((Integer) b).intValue();
+            }
+        };
+        HsqlHeap ah = new HsqlArrayHeap(6, oc);
 
-       while (ah.size() > 0) {
-           int current = ((Integer) ah.remove()).intValue();
+        System.out.println("isEmpty() : " + ah.isEmpty());
 
-           if (current < least) {
-               throw new RuntimeException("bad heap invariant");
-           }
+        int[] ai = new int[]{
+            3, 99, 7, 9, -42, 2, 1, 23, -7
+        };
+        int least = Integer.MIN_VALUE;
 
-           least = current;
+        for (int i = 0; i < ai.length; i++) {
+            System.out.println("add()     : new Integer(" + ai[i] + ")");
+            ah.add(new Integer(ai[i]));
+            System.out.println("size()    : " + ah.size());
+        }
 
-           System.out.println("remove()  : " + current);
-           System.out.println("size()    : " + ah.size());
-       }
+        while (ah.size() > 0) {
+            int current = ((Integer) ah.remove()).intValue();
 
-       System.out.println("peak() : " + ah.peek());
-       System.out.println("isEmpty() : " + ah.isEmpty());
-       System.out.println("remove()  : " + ah.remove());
-       System.out.println("size()    : " + ah.size());
-       System.out.println("isEmpty() : " + ah.isEmpty());
-   }
+            if (current < least) {
+                throw new RuntimeException("bad heap invariant");
+            }
+
+            least = current;
+
+            System.out.println("remove()  : " + current);
+            System.out.println("size()    : " + ah.size());
+        }
+
+        System.out.println("peak() : " + ah.peek());
+        System.out.println("isEmpty() : " + ah.isEmpty());
+        System.out.println("remove()  : " + ah.remove());
+        System.out.println("size()    : " + ah.size());
+        System.out.println("isEmpty() : " + ah.isEmpty());
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(HsqlArrayHeapTest.class);
+
+        return suite;
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 }

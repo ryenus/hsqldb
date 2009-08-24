@@ -27,17 +27,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.lib;
 
-public class ArrayUtilTest {
-    public static void main(String[] args) {
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-        int[] a = new int[] {
+public class ArrayUtilTest extends TestCase {
+
+    public void testArrayUtil() {
+
+        int[] a = new int[]{
             23, 11, 37, 7, 1, 5
         };
-        int[] b = new int[] {
+        int[] b = new int[]{
             1, 3, 7, 11, 13, 17, 19, 3, 1
         };
         int[] c = ArrayUtil.toAdjustedColumnArray(a, 7, -1);
@@ -56,7 +59,16 @@ public class ArrayUtilTest {
         boolean y = ArrayUtil.haveEqualSets(b, f, b.length);
 
         System.out.println("test passed: ");
-        System.out.println(x == true && y == true && c.length == a.length - 1
-                         && d.length == b.length);
+        System.out.println(x == true && y == true && c.length == a.length - 1 && d.length == b.length);
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(ArrayUtilTest.class);
+
+        return suite;
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
     }
 }

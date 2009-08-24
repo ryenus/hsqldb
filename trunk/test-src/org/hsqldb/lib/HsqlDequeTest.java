@@ -27,12 +27,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.lib;
 
-public class HsqlDequeTest {
-    public static void main(String[] args) {
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+public class HsqlDequeTest extends TestCase {
+
+    public HsqlDequeTest(String name) {
+        super(name);
+    }
+
+    public void testHsqlDeque() {
 
         HsqlDeque d = new HsqlDeque();
 
@@ -79,8 +86,18 @@ public class HsqlDequeTest {
 
         Iterator it = d.iterator();
 
-        for (; it.hasNext(); ) {
+        for (; it.hasNext();) {
             System.out.println(it.next());
         }
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(HsqlDequeTest.class);
+
+        return suite;
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
     }
 }

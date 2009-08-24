@@ -31,7 +31,11 @@
 
 package org.hsqldb.lib;
 
-public class HsqlTimerTest {
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+public class HsqlTimerTest extends TestCase {
     /**
      * Computes the system-specific average {@link java.io.FileDescriptor#sync()
      * sync} time.
@@ -283,7 +287,7 @@ public class HsqlTimerTest {
      * Runs the HsqlTimer tests.
      * @param args Currently unused
      */
-    public static void main(String[] args) {
+    public void testHsqlTimer() {
         // number of tasks to queue
         int    taskCount         = 10;
         // period, as a multiple of computed system-specific avg. sync time
@@ -319,7 +323,7 @@ public class HsqlTimerTest {
         System.out.println("Computing system-specific avg. sync time.");
         System.out.println("Please wait...");
 
-        double avgSyncTime   = avgSyncTime(500, new byte[256]);
+        double avgSyncTime   = avgSyncTime(500, new byte[100*1024]);
         double minAvgPeriod = (taskCount * avgSyncTime);
         long   period        = Math.round(avgSyncTime * periodMultiplier);
 
@@ -552,5 +556,16 @@ public class HsqlTimerTest {
         System.out.println("Geometric mean          : " + runsGMean);
         System.out.println("Stddev                  : " + runsStddev);
         System.out.println("Range/Stddev            : " + runsStddevR);
+    }
+
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(HsqlTimerTest.class);
+
+        return suite;
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
     }
 }
