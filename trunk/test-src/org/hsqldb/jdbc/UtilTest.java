@@ -40,6 +40,7 @@ import java.sql.SQLTransactionRollbackException;
 import java.sql.SQLTransientConnectionException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -54,34 +55,6 @@ import org.hsqldb.ErrorCode;
  */
 public class UtilTest extends BaseJdbcTestCase {
 
-// SQL 2003 Table 32 - SQLSTATE class and subclass values
-//
-//  connection exception 08 (no subclass)                     000
-//
-//                          SQL-client unable to establish    001
-//                          SQL-connection
-//
-//                          connection name in use            002
-//
-//                          connection does not exist         003
-//
-//                          SQL-server rejected establishment 004
-//                          of SQL-connection
-//
-//                          connection failure                006
-//
-//                          transaction resolution unknown    007
-// org.hsqldb.Trace - sql-error-messages
-//
-// 080=08000 socket creation error                             - better 08001 ?
-// 085=08000 Unexpected exception when setting up TLS
-//
-// 001=08001 The database is already in use by another process - better 08002 ?
-//
-// 002=08003 Connection is closed
-// 003=08003 Connection is broken
-// 004=08003 The database is shutdown
-// 094=08003 Database does not exists                          - better 08001 ?
     private static final Object[][] m_exceptions = new Object[][] {
         {
             SQLTransientConnectionException.class, new int[] {
@@ -113,7 +86,7 @@ public class UtilTest extends BaseJdbcTestCase {
         }, {
             SQLSyntaxErrorException.class, new int[] {
 
-                // TODO:
+                // NOTES:
                 //
                 // First, the overview section of java.sql.SQLSyntaxErrorException
                 // appears to be inaccurate or not in sync with the SQL 2003 standard:
@@ -143,20 +116,6 @@ public class UtilTest extends BaseJdbcTestCase {
                 // Strangely, SQLSTATE "37000" and 2A000" are not mentioned
                 // anywhere else in any of the SQL 2003 parts and are
                 // conspicuously missing from 02 - Foundation, Table 32.
-                //
-                //  -----------------------------------
-                ///
-                // Our only Access Violation SQLSTATE so far is:
-                //
-                // ErrorCode.NOT_AUTHORIZED 255=42000 User not authorized for action '$$'
-                //
-                // our syntax exceptions are apparently all sqlstate "37000"
-                //
-                // Clearly, we should differentiate between DIRECT and DYNAMIC
-                // SQL forms.  And clearly, our current "37000" is possible
-                // not correct, in that we do not actually support dynamic
-                // SQL syntax, but rather only implement similar behaviour
-                // through JDBC Prepared and Callable statements.
                 ErrorCode.X_42000,
                 ErrorCode.X_42501,
                 ErrorCode.X_42502,
@@ -249,31 +208,6 @@ public class UtilTest extends BaseJdbcTestCase {
             }
         }, {
             SQLTransactionRollbackException.class, new int[]{
-
-                // TODO: our 40xxx exceptions are not currently used (correctly)
-                //       for transaction rollback exceptions:
-                //
-                //       018=40001 Serialization failure
-                //
-                //       - currently used to indicate Java object serialization
-                //         failures, which is just plain wrong.
-                //
-                //       019=40001 Transfer corrupted
-                //
-                //        - currently used to indicate IOExceptions related to
-                //          PreparedStatement XXXStreamYYY operations and Result
-                //          construction using RowInputBinary (e.g. when reading
-                //          a result transmitted over the network), which is
-                //          probably also just plain wrong.
-                //
-                // SQL 2003 02 - Foundation, Table 32 states:
-                //
-                // 40000  transaction rollback  - no subclass
-                // 40001  transaction rollback  - (transaction) serialization failure
-                // 40002  transaction rollback  - integrity constraint violation
-                // 40003  transaction rollback  - statement completion unknown
-                // 40004  transaction rollback  - triggered action exception
-                //
                 ErrorCode.X_40000, ErrorCode.X_40001, ErrorCode.X_40002,
                 ErrorCode.X_40003, ErrorCode.X_40004
             }
@@ -286,34 +220,41 @@ public class UtilTest extends BaseJdbcTestCase {
     };
     private static final Map m_classMap = new HashMap();
 
+    static List<Integer> getErrorCodes()
+    {
+        List<Integer> list = new ArrayList<Integer>();
+
+        Field[] fields = ErrorCode.class.getFields();
+
+        for(int i = 0; i < fields.length; i++)
+        {
+            Field field = fields[i];
+
+            try {
+                int val = field.getInt(null);
+
+                list.add(new Integer(val));
+            } catch (Exception e){}
+        }
+
+        return list;
+    }
+
     static {
-        List list = new ArrayList();
+        List<Integer> list = getErrorCodes();
 
-        int last_error_handle = 7000;
+        for (int j = 0; j < m_exceptions.length - 1; j++) {
+            int[]   codes = (int[]) m_exceptions[j][1];
 
-        for (int i = 0; i < last_error_handle; i++) {
-            for (int j = 0; j < m_exceptions.length - 1; j++) {
-                int[]   codes = (int[]) m_exceptions[j][1];
-                boolean found = false;
-
-                for (int k = 0; k < codes.length; k++) {
-                    if (i == codes[k]) {
-                        found = true;
-
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    list.add(new Integer(i));
-                }
+            for(int k = 0; k < codes.length; k++) {
+                list.remove(new Integer(codes[k]));
             }
         }
 
         int[] nontransientcodes = new int[list.size()];
 
         for (int i = 0; i < list.size(); i++) {
-            nontransientcodes[i] = ((Integer) list.get(i)).intValue();
+            nontransientcodes[i] = list.get(i).intValue();
         }
 
         m_exceptions[m_exceptions.length - 1][1] = nontransientcodes;
@@ -409,7 +350,7 @@ public class UtilTest extends BaseJdbcTestCase {
         TestSuite suite  = new TestSuite("UtilTest Suite");
         Field[]   fields = ErrorCode.class.getFields();
 
-        for (int i = 0; i < fields.length - 1; i++) {
+        for (int i = 0; i < fields.length; i++) {
             if (int.class != fields[i].getType()) {
                 continue;
             }
