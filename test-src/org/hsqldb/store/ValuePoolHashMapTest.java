@@ -27,20 +27,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.store;
 
-public class ValuePoolHashMapTest {
-    public static void main(String[] argv) {
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
-        int                      BIGRANGE   = 100000;
-        int                      SMALLRANGE = 50000;
-        int                      POOLSIZE   = 100000;
-        java.util.Random         randomgen  = new java.util.Random();
-        org.hsqldb.lib.StopWatch sw         = new org.hsqldb.lib.StopWatch();
+public class ValuePoolHashMapTest extends TestCase {
+
+    public void testValuePoolHashMap() {
+
+        int BIGRANGE = 100000;
+        int SMALLRANGE = 50000;
+        int POOLSIZE = 100000;
+        java.util.Random randomgen = new java.util.Random();
+        org.hsqldb.lib.StopWatch sw = new org.hsqldb.lib.StopWatch();
         ValuePoolHashMap map = new ValuePoolHashMap(POOLSIZE, POOLSIZE,
-            BaseHashMap.PURGE_HALF);
+                BaseHashMap.PURGE_HALF);
         int maxCount = 5000000;
 
         try {
@@ -49,9 +52,9 @@ public class ValuePoolHashMapTest {
 
                 // timing for ValuePool retreival
                 for (int i = 0; i < maxCount; i++) {
-                    boolean bigrange  = (i % 2) == 0;
-                    int     intValue  = randomgen.nextInt(bigrange ? BIGRANGE
-                                                                   : SMALLRANGE);
+                    boolean bigrange = (i % 2) == 0;
+                    int intValue = randomgen.nextInt(bigrange ? BIGRANGE
+                            : SMALLRANGE);
                     Integer intObject = map.getOrAddInteger(intValue);
 
                     if (intObject.intValue() != intValue) {
@@ -62,15 +65,14 @@ public class ValuePoolHashMapTest {
                     //                    System.out.print(' ');
                 }
 
-                System.out.println("Count " + maxCount + " "
-                                   + sw.elapsedTime());
+                System.out.println("Count " + maxCount + " " + sw.elapsedTime());
                 sw.zero();
 
                 // timing for Integer creation
                 for (int i = 0; i < maxCount; i++) {
-                    boolean bigrange  = (i % 2) == 0;
-                    int     intValue  = randomgen.nextInt(bigrange ? BIGRANGE
-                                                                   : SMALLRANGE);
+                    boolean bigrange = (i % 2) == 0;
+                    int intValue = randomgen.nextInt(bigrange ? BIGRANGE
+                            : SMALLRANGE);
                     Integer intObject = new Integer(intValue);
 
                     if (intObject.intValue() != intValue) {
@@ -78,11 +80,20 @@ public class ValuePoolHashMapTest {
                     }
                 }
 
-                System.out.println("Count new Integer() " + maxCount + " "
-                                   + sw.elapsedTime());
+                System.out.println("Count new Integer() " + maxCount + " " + sw.elapsedTime());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite(ValuePoolHashMapTest.class);
+
+        return suite;
+    }
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(suite());
     }
 }

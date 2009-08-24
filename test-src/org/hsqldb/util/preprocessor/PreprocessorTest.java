@@ -38,6 +38,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.net.URLDecoder;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -82,7 +83,7 @@ public class PreprocessorTest extends TestCase {
     public void testPreprocessBatch() throws Exception {
         System.out.println("preprocessBatch");
 
-        String srcpath      = getClass().getResource("ATest.src").getFile();
+        String srcpath      = URLDecoder.decode(getClass().getResource("ATest.src").getFile());
         File      srcfile   = new File(srcpath);
         File      sourceDir = srcfile.getParentFile();
         File      targetDir = sourceDir;
