@@ -158,20 +158,23 @@ public class JDBCConnectionPrepareStatementTest extends BaseJdbcTestCase {
 
         SQLWarning warning = conn.getWarnings();
 
+        int rsType = stmt.getResultSetType();
+        int rsConcurrency = stmt.getResultSetConcurrency();
+        int rsHoldability = stmt.getResultSetHoldability();
         if(warning == null) {
             assertEquals(
                     "ResultSet Type",
-                    type,
-                    stmt.getResultSetType());
+                    type, rsType
+                    );
             assertEquals(
                     "ResultSet Concurrency",
                     concurrency,
-                    stmt.getResultSetConcurrency());
+                    rsConcurrency );
             if(m_holdabilitySpecified) {
                 assertEquals(
                         "ResultSet Holdability",
                         holdability,
-                        stmt.getResultSetHoldability());
+                        rsHoldability);
             }
         } else {
             while(warning != null) {
