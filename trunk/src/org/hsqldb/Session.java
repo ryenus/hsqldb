@@ -319,6 +319,7 @@ public class Session implements SessionInterface {
     public Grantee getRole() {
         return role;
     }
+
     /**
      * Sets this Session's User object to the one specified by the
      * user argument.
@@ -904,7 +905,8 @@ public class Session implements SessionInterface {
 
                 Result result = Result.newPrepareResponse(cs);
 
-                if (cs.getType() == StatementTypes.SELECT_CURSOR) {
+                if (cs.getType() == StatementTypes.SELECT_CURSOR
+                        || cs.getType() == StatementTypes.CALL) {
                     sessionData.setResultSetProperties(cmd, result);
                 }
 
@@ -1505,6 +1507,10 @@ public class Session implements SessionInterface {
 
     public int getZoneSeconds() {
         return timeZoneSeconds;
+    }
+
+    public void setZoneSeconds(int seconds) {
+        timeZoneSeconds = seconds;
     }
 
     private Result getAttributesResult(int id) {

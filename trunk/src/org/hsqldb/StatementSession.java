@@ -342,7 +342,7 @@ public class StatementSession extends Statement {
                 if (expressions[0].getType() == OpTypes.VALUE
                         && expressions[0].getConstantValueNoCheck(session)
                            == null) {
-                    session.timeZoneSeconds = session.sessionTimeZoneSeconds;
+                    session.setZoneSeconds(session.sessionTimeZoneSeconds);
 
                     return Result.updateZeroResult;
                 }
@@ -384,7 +384,7 @@ public class StatementSession extends Statement {
 
                 if (-DTIType.timezoneSecondsLimit <= seconds
                         && seconds <= DTIType.timezoneSecondsLimit) {
-                    session.timeZoneSeconds = (int) seconds;
+                    session.setZoneSeconds((int) seconds);
 
                     return Result.updateZeroResult;
                 }

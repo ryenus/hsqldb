@@ -135,15 +135,19 @@ public class SessionData {
             result.setDataResultConcurrency(ResultConstants.CONCUR_READ_ONLY);
             result.setDataResultHoldability(command.rsHoldability);
         } else {
-            if (result.rsConcurrency == ResultConstants.CONCUR_READ_ONLY) {
+            if (result.rsConcurrency == ResultConstants.CONCUR_UPDATABLE) {
+                result.setDataResultHoldability(
+                    ResultConstants.CLOSE_CURSORS_AT_COMMIT);
+            } else {
+                result.setDataResultConcurrency(
+                    ResultConstants.CONCUR_READ_ONLY);
                 result.setDataResultHoldability(command.rsHoldability);
 
                 // add warning for concurrency conflict
-            } else {
-                result.setDataResultHoldability(
-                    ResultConstants.CLOSE_CURSORS_AT_COMMIT);
             }
         }
+
+        result.setDataResultScrollability(command.rsScrollability);
     }
 
     Result getDataResultHead(Result command, Result result,
