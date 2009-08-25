@@ -191,8 +191,6 @@ class DatabaseInformationMain extends DatabaseInformation {
     };
 
     /** Provides naming support. */
-    protected DINameSpace ns;
-
     static {
         nonCachedTablesSet = new HashSet();
         sysTableHsqlNames  = new HsqlName[sysTableNames.length];
@@ -395,8 +393,6 @@ class DatabaseInformationMain extends DatabaseInformation {
      *
      */
     protected final void init() {
-
-        ns = new DINameSpace(database);
 
         // flag the Session-dependent cached tables
         Table t;
@@ -1591,13 +1587,14 @@ class DatabaseInformationMain extends DatabaseInformation {
                 continue;
             }
 
-            row                 = t.getEmptyRowData();
+            row = t.getEmptyRowData();
 
             Object def = meta[HsqlProperties.indexDefaultValue];
 
             row[iname]          = meta[HsqlProperties.indexName];
             row[imax_len]       = ValuePool.getInt(8);
-            row[idefault_value] = def == null ? null : def.toString();
+            row[idefault_value] = def == null ? null
+                                              : def.toString();
             row[idescription]   = "see HyperSQL guide";
 
             t.insertSys(store, row);

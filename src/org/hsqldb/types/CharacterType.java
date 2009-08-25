@@ -675,8 +675,7 @@ public class CharacterType extends Type {
     }
 
     public boolean canConvertFrom(Type otherType) {
-        return otherType.typeCode == Types.SQL_ALL_TYPES
-               || (!otherType.isBinaryType() && !otherType.isObjectType());
+        return !otherType.isObjectType();
     }
 
     public Collation getCollation() {

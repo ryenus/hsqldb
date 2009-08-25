@@ -1230,7 +1230,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Object[]  row;
 
         // Initialisation
-        sessions = ns.listVisibleSessions(session);
+        sessions = database.sessionManager.getVisibleSessions(session);
 
         // Do it.
         for (int i = 0; i < sessions.length; i++) {

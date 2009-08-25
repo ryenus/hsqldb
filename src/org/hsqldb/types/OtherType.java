@@ -167,12 +167,7 @@ public final class OtherType extends Type {
             return true;
         }
 
-        if (otherType.typeCode == Types.SQL_CHAR
-                || otherType.typeCode == Types.SQL_VARCHAR) {
-            return true;
-        }
-
-        if (otherType.isNumberType()) {
+        if (otherType.typeCode == Types.SQL_ALL_TYPES ) {
             return true;
         }
 

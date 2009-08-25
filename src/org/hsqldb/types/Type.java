@@ -740,7 +740,7 @@ public abstract class Type implements SchemaObject, Cloneable {
                 return OTHER;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+                return null;
         }
     }
 

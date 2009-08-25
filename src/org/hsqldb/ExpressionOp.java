@@ -507,13 +507,13 @@ public class ExpressionOp extends Expression {
                 }
 
                 long zoneSeconds = nodes[RIGHT] == null
-                                   ? session.timeZoneSeconds
+                                   ? session.getZoneSeconds()
                                    : ((IntervalType) nodes[RIGHT].dataType)
                                        .getSeconds(rightValue);
 
                 return ((DateTimeType) dataType).changeZone(leftValue,
                         nodes[LEFT].dataType, (int) zoneSeconds,
-                        session.timeZoneSeconds);
+                        session.getZoneSeconds());
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
