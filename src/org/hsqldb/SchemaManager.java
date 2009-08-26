@@ -1692,6 +1692,30 @@ public class SchemaManager {
         return array;
     }
 
+    public String[] getTextTableSQL(boolean withHeader) {
+
+        HsqlArrayList tableList = getAllTables();
+        HsqlArrayList list      = new HsqlArrayList();
+
+        for (int i = 0; i < tableList.size(); i++) {
+            Table t = (Table) tableList.get(i);
+
+            if (!t.isText()) {
+                continue;
+            }
+
+            String[] ddl = t.getSQLForTextSource(withHeader);
+
+            list.addAll(ddl);
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
     public String[] getIndexRootsSQL() {
 
         Session       sysSession = database.sessionManager.getSysSession();

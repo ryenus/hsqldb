@@ -70,7 +70,10 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
         this.cache        = cache;
-        rowOut            = cache.rowOut.clone();
+
+        if (cache != null) {
+            rowOut = cache.rowOut.clone();
+        }
 
         manager.setStore(table, this);
 

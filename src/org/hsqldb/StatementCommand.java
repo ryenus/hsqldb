@@ -200,24 +200,6 @@ public class StatementCommand extends Statement {
                 boolean script     = ((Boolean) parameters[2]).booleanValue();
                 boolean compressed = ((Boolean) parameters[3]).booleanValue();
 
-                if (!blocking) {
-
-                    // SHOULD NEVER GET HERE.  Parser requires this option
-                    // for v. 1.9.
-                    return Result.newErrorResult(
-                        Error.error(ErrorCode.X_0A000),
-                        "'BLOCKING' required in: " + sql);
-                }
-
-                if (script) {    // Dev assertion
-
-                    // SHOULD NEVER GET HERE.  Parser prohibits this option
-                    // for v. 1.9.
-                    return Result.newErrorResult(
-                        Error.error(ErrorCode.X_0A000),
-                        "'SCRIPT' unsupported in: " + sql);
-                }
-
                 try {
                     session.checkAdmin();
 
@@ -344,12 +326,7 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_FILES_LOCK : {
                 try {
-                    boolean value = ((Boolean) parameters[0]).booleanValue();
-
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-                    session.database.logger.setFileLock(value);
-
+                    // no-op - to remove from release version
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);

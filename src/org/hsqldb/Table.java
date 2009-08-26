@@ -371,8 +371,29 @@ public class Table extends TableBase implements SchemaObject {
 
         list.add(getSQL());
 
+        if (!isTemp && hasIdentityColumn()) {
+            list.add(NumberSequence.getRestartSQL(this));
+        }
+
+        for (int i = 0; i < indexList.length; i++) {
+            if (!indexList[i].isConstraint()) {
+                list.add(indexList[i].getSQL());
+            }
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
+    String[] getSQLForTextSource(boolean withHeader) {
+
         // readonly for TEXT tables only
         if (isText()) {
+            HsqlArrayList list = new HsqlArrayList();
+
             if (((TextTable) this).isConnected() && isDataReadOnly()) {
                 StringBuffer sb = new StringBuffer(64);
 
@@ -394,26 +415,18 @@ public class Table extends TableBase implements SchemaObject {
             // header
             String header = ((TextTable) this).getDataSourceHeader();
 
-            if (header != null) {
+            if (withHeader && header != null) {
                 list.add(header);
             }
+
+            String[] array = new String[list.size()];
+
+            list.toArray(array);
+
+            return array;
+        } else {
+            return null;
         }
-
-        if (!isTemp && hasIdentityColumn()) {
-            list.add(NumberSequence.getRestartSQL(this));
-        }
-
-        for (int i = 0; i < indexList.length; i++) {
-            if (!indexList[i].isConstraint()) {
-                list.add(indexList[i].getSQL());
-            }
-        }
-
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
     }
 
     String[] getTriggerSQL() {
@@ -652,25 +665,7 @@ public class Table extends TableBase implements SchemaObject {
         fkPath = new Constraint[list.size()];
 
         list.toArray(fkPath);
-
-        for (int i = 0; i < fkPath.length; i++) {
-            Constraint c         = fkPath[i];
-            HsqlName   tableName = c.getMain().getName();
-
-            if (c.getMain()
-                    != database.schemaManager.getUserTable(null, tableName)) {
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "table constraint");
-            }
-
-            tableName = c.getRef().getName();
-
-            if (c.getRef()
-                    != database.schemaManager.getUserTable(null, tableName)) {
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "table constraint");
-            }
-        }
+        verifyConstraintsIntegrity();
     }
 
     void updateConstraintLists() {
@@ -734,6 +729,33 @@ public class Table extends TableBase implements SchemaObject {
 
                     checkCount++;
                     break;
+            }
+        }
+    }
+
+    void verifyConstraintsIntegrity() {
+
+        for (int i = 0; i < constraintList.length; i++) {
+            Constraint c = constraintList[i];
+
+            if (c.getConstraintType() == SchemaObject.ConstraintTypes.CHECK) {
+                continue;
+            }
+
+            if (c.getMain() != null
+                    && c.getMain()
+                       != database.schemaManager.getUserTable(null,
+                           c.getMain().getName())) {
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "table constraint");
+            }
+
+            if (c.getRef() != null
+                    && c.getRef()
+                       != database.schemaManager.getUserTable(null,
+                           c.getRef().getName())) {
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "table constraint");
             }
         }
     }
