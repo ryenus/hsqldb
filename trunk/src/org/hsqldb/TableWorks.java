@@ -837,7 +837,6 @@ public class TableWorks {
                 OrderedHashSet constraints = new OrderedHashSet();
                 Table          mainTable   = constraint.getMain();
                 HsqlName       mainName    = constraint.getMainName();
-                boolean        isSelf      = mainTable == table;
 
                 constraints.add(mainName);
                 constraints.add(constraint.getRefName());
@@ -857,10 +856,9 @@ public class TableWorks {
                     constraint.getName());
                 setNewTableInSchema(tn);
 
-                if (!isSelf) {
-                    mainTable.removeConstraint(mainName.name);
-                }
-
+                // if constraint references same table, nothing changes
+                mainTable.removeConstraint(mainName.name);
+                updateConstraints(tn, emptySet);
                 database.persistentStoreCollection.releaseStore(table);
                 database.schemaManager.recompileDependentObjects(table);
 

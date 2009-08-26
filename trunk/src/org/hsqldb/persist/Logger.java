@@ -89,10 +89,8 @@ public class Logger {
     //
     boolean        propFilesReadOnly;
     boolean        propDatabaseReadOnly;
-    boolean        propUseLockFile;
     boolean        propIncrementBackup;
     boolean        propNioDataFile;
-    boolean        propLockFileEnabled;
     int            propMaxFreeBlocks;
     int            propCacheMaxRows;
     int            propCacheMaxSize;
@@ -348,8 +346,6 @@ public class Logger {
             HsqlDatabaseProperties.hsqldb_files_readonly);
         propDatabaseReadOnly = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_readonly);
-        propUseLockFile = database.databaseProperties.isPropertyTrue(
-            HsqlDatabaseProperties.hsqldb_lock_file);
         propIncrementBackup = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_inc_backup);
         propNioDataFile = database.databaseProperties.isPropertyTrue(
@@ -866,10 +862,6 @@ public class Logger {
     }
 
     // properties
-    public void setFileLock(boolean value) {
-        propLockFileEnabled = true;
-    }
-
     public void setNioDataFile(boolean value) {
         propNioDataFile = value;
     }
@@ -1034,14 +1026,6 @@ public class Logger {
 
             list.add(sb.toString());
             sb.setLength(0);
-
-            if (propUseLockFile) {
-                sb.append("SET FILES ").append(Tokens.T_LOCK);
-                sb.append(' ').append(Tokens.T_TRUE);
-                list.add(sb.toString());
-                sb.setLength(0);
-            }
-
             sb.append("SET FILES ").append(Tokens.T_BACKUP);
             sb.append(' ').append(Tokens.T_INCREMENT).append(' ');
             sb.append(propIncrementBackup ? Tokens.T_TRUE

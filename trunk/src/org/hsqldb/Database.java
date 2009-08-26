@@ -324,7 +324,6 @@ public class Database {
     }
 
     public void setUniqueName(String name) {
-
         databaseUniqueName = name;
     }
 
@@ -703,6 +702,11 @@ public class Database {
 
             addRows(r, list);
         }
+
+        // text headers
+        list = schemaManager.getTextTableSQL(!indexRoots);
+
+        addRows(r, list);
 
         return r;
     }
