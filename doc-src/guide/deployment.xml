@@ -160,6 +160,26 @@
         </listitem>
       </itemizedlist>
     </section>
+
+    <section>
+      <title>Readonly Databases</title>
+
+      <para>A file: catalog can be made readonly premanently, or it can be
+      opened as readonly. To make the database readonly, the property, value
+      pair, readonly=true can be added to the .properties file of the
+      database.</para>
+
+      <para>It is also possible to open a normal database as readonly. For
+      this, the property can be included in the URL of the first connection to
+      the database.</para>
+
+      <para>There is another option which allows MEMORY tables to be writable,
+      but without persisting the changes at SHUTDOWN. This option is activated
+      with the property, value pair, files_readonly= true, which can be added
+      to the .properties file of the database, or included in the URL of the
+      first connection to the database. This option is useful for running
+      application tests which operate on a predefined dataset.</para>
+    </section>
   </section>
 
   <section xml:id="deployment_mem_disk-sect">
@@ -352,6 +372,12 @@
     creating and dropping JDBC Connections too frequently. Failure to observe
     this will result in unsuccessful connection attempts when the application
     is under heavy load.</para>
+
+    <para>A repeated error in load-test simulations is to use a single client
+    to open and close thousands of connections to a HyperSQL server instance.
+    The connection attempts will fail after a few thousand because of OS
+    restrictions on opening sockets and the delay that is built into the OS in
+    closing them.</para>
   </section>
 
   <section xml:id="deployment_upgrade-sect">
@@ -602,6 +628,33 @@
       in the tar file (and which you can see as described in the preceding
       section).</para>
     </section>
+  </section>
+
+  <section>
+    <title>Encrypted Databases</title>
+
+    <para>HyperSQL supports encrypted databases. Encryption services use the
+    Java Cryptography Extensions (JCE) and can therefore use the ciphers
+    supplied with the JRE, or third party ciphers that are installed with the
+    JRE.</para>
+
+    <para>Three elements are involved in specifying the encryption method and
+    key. A cipher, together with its configuation is identified by a string
+    which includes the name of the cipher and optional parameters. A provider
+    is the fully qualified class name of the cipher provider. A key is
+    represented as a hexadecimal string.</para>
+
+    <para>First, a key must be created for the desired cipher and
+    configuration. This is done by calling the function CRYPT_KEY(&lt;cipher
+    spec&gt;, &lt;provider&gt;). If the default provider (the built-in JVM
+    ciphers) is used, then NULL should be specified as the provider. The
+    CRYPT_KEY function returns a hexadecimal key. This key can be used to
+    create an encrypted database.</para>
+
+    <para>The three elements are specified in the URL or in connection
+    properties.</para>
+
+    <para></para>
   </section>
 
   <section>
@@ -1108,24 +1161,6 @@
 
     <simpara>The default is 0, which indicates no DEFRAG. Useful values are
     between 10 to 50</simpara>
-
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES LOCK</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET FILES LOCK</emphasis></simpara>
-
-    <simpara><emphasis>set files lock statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set files lock statement&gt; ::= SET FILES LOCK {
-    TRUE | FLASE }</literal></simpara>
-
-    <simpara>The .lck file is created by default. This command allows the
-    creation of the lock file to be disabled or enabled. The setting . Only a
-    user with the DBA role can execute this statement.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
