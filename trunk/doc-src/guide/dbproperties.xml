@@ -355,6 +355,12 @@
 
     <programlisting>    jdbc:hsqldb:file:enrollments;hsqldb.cache_rows=10000;hsqldb.nio_data_file=false</programlisting>
 
+    <para>In the table below, database properties that can be used as part of
+    the URL below are given. For each property that can also be set with an
+    SQL statement, the statement is also given. These statements are described
+    in the <link endterm="deployment-title"
+    xlink:href="#deployment-chapt"></link> chapter.</para>
+
     <table frame="all" pgwide="1" tocentry="1">
       <title>Database-specific Property File Properties</title>
 
@@ -385,10 +391,11 @@
           </row>
 
           <row>
-            <entry nameend="c3" namest="c1">This property is a special
+            <entry nameend="c3" namest="c1"><para>This property is a special
             property that can be added manually to the .properties file, or
             included in the URL or connection properties. When this property
-            is true, the database becomes readonly.</entry>
+            is true, the database becomes
+            readonly.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
 
           <row>
@@ -400,10 +407,11 @@
           </row>
 
           <row>
-            <entry nameend="c3" namest="c1">This property is used similarly to
-            the hsqldb.read_only property. When this property is true, CACHED
-            and TEXT tables are readonly but memory files are not. Any change
-            to the data is not persisted to database files.</entry>
+            <entry nameend="c3" namest="c1"><para>This property is used
+            similarly to the hsqldb.read_only property. When this property is
+            true, CACHED and TEXT tables are readonly but memory files are
+            not. Any change to the data is not persisted to database
+            files.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
 
           <row>
@@ -493,10 +501,10 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>The CREATE TABLE command
-            results in a MEMORY table by default. Setting the value "cached"
-            for this property will result in a cached table by default. The
-            qualified forms such as CREATE MEMORY TABLE or CREATE CACHED TABLE
-            are not affected at all by this
+            results in a MEMORY table by default. Setting the value
+            <emphasis>cached</emphasis> for this property will result in a
+            cached table by default. The qualified forms such as CREATE MEMORY
+            TABLE or CREATE CACHED TABLE are not affected at all by this
             property.</para><para><programlisting>SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY }</programlisting></para></entry>
           </row>
 
@@ -553,7 +561,8 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>Indicates the trasaction
-            control mode for the database.</para><para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</programlisting></para></entry>
+            control mode for the database. The values, locks, mvlocks and mvcc
+            are allowed.</para><para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</programlisting></para></entry>
           </row>
 
           <row>
@@ -599,6 +608,27 @@
             The default is 5,000, representing 5,000 kilobytes. If the value
             is set via SET FILES then it becomes effective after the next
             database SHUTDOWN or CHECKPOINT.</para><para><programlisting>SET FILES CACHE SIZE &lt;numeric value&gt;</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.lock_file</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>use of lock file</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>By default, a lock file is
+            created for each file database that is opened for read and write.
+            This property can be specified with the value false to prevent the
+            lock file from being created. This usage is not recommended but
+            may be desirable when flash type storage is
+            used.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
 
           <row>

@@ -991,11 +991,15 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
 
       <simpara>A CHECK constraint consists of a <literal>&lt;search
       condition&gt;</literal> that must not be false (can be unknown) for each
-      row of the table. A simple form of check constraint is the NOT NULL
-      constraint, which applies to a single column. The <literal>&lt;search
-      condition&gt;</literal> can reference all the columns of the current
-      row, and if it contains a <literal>&lt;subquery&gt;</literal>, other
-      tables and views in the database (excluding its own table).</simpara>
+      row of the table. The <literal>&lt;search condition&gt;</literal> can
+      reference all the columns of the current row, and if it contains a
+      <literal>&lt;subquery&gt;</literal>, other tables and views in the
+      database (excluding its own table).</simpara>
+
+      <simpara><emphasis role="bold">NOT NULL</emphasis></simpara>
+
+      <simpara>A simple form of check constraint is the NOT NULL constraint,
+      which applies to a single column. </simpara>
 
       <simpara><emphasis role="bold">UNIQUE</emphasis></simpara>
 
@@ -1183,137 +1187,157 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
   <section>
     <title>Statements for Schema Definition and Manipulation</title>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CASCADE or RESTRICT</primary>
-    </indexterm>
+    <simpara>Schemas and schema objects can be created, modified and dropped.
+    The SQL Standard defines a range of statements for this purpose. HyperSQL
+    supports many additional statements, especially for changing the
+    properties of existing schema objects.</simpara>
 
-    <simpara><emphasis role="bold">CASCADE or RESTRICT</emphasis></simpara>
+    <section>
+      <title>Common Elements and Statements</title>
 
-    <simpara><emphasis>drop behavior</emphasis></simpara>
+      <simpara>These elements and statements are used for different types of
+      object. They are described here, before the statements that can use
+      them.</simpara>
 
-    <simpara><literal>&lt;drop behavior&gt; ::= CASCADE |
-    RESTRICT</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CASCADE or RESTRICT</primary>
+      </indexterm>
 
-    <simpara>The <literal>&lt;drop behavior&gt;</literal> is a required
-    element of statements that drop a SCHEMA or a schema object. If
-    <literal>&lt;drop behavior&gt;</literal> is not specified then
-    <literal>RESTRICT</literal> is implicit. It determines the effect of the
-    statement if there are other objects in the catalog that reference the
-    SCHEMA or the schema object. If RESTRICT is specified, the statement fails
-    if there are referencing objects. If CASCADE is specified, all the
-    referencing objects are modified or dropped with cascading effect. Whether
-    a referencing object is modified or dropped, depends on the kind of schema
-    object that is dropped.</simpara>
+      <simpara><emphasis role="bold">CASCADE or RESTRICT</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>IF EXISTS</primary>
-    </indexterm>
+      <simpara><emphasis>drop behavior</emphasis></simpara>
 
-    <simpara><emphasis role="bold">IF EXISTS</emphasis></simpara>
+      <simpara><literal>&lt;drop behavior&gt; ::= CASCADE |
+      RESTRICT</literal></simpara>
 
-    <simpara><emphasis>drop condition (HyperSQL)</emphasis></simpara>
+      <simpara>The <literal>&lt;drop behavior&gt;</literal> is a required
+      element of statements that drop a SCHEMA or a schema object. If
+      <literal>&lt;drop behavior&gt;</literal> is not specified then
+      <literal>RESTRICT</literal> is implicit. It determines the effect of the
+      statement if there are other objects in the catalog that reference the
+      SCHEMA or the schema object. If RESTRICT is specified, the statement
+      fails if there are referencing objects. If CASCADE is specified, all the
+      referencing objects are modified or dropped with cascading effect.
+      Whether a referencing object is modified or dropped, depends on the kind
+      of schema object that is dropped.</simpara>
 
-    <simpara><literal>&lt;if exists clause&gt; ::= IF
-    EXISTS</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>IF EXISTS</primary>
+      </indexterm>
 
-    <simpara>This clause is not part of the SQL standard and is a HyperSQL
-    extension to some commands that drop objects (schemas, tables, views,
-    sequences and indexes). If it is specified, then the statement does not
-    return an error if the drop statement is issued on a non-existent
-    object.</simpara>
+      <simpara><emphasis role="bold">IF EXISTS</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SPECIFIC</primary>
-    </indexterm>
+      <simpara><emphasis>drop condition (HyperSQL)</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SPECIFIC</emphasis></simpara>
+      <simpara><literal>&lt;if exists clause&gt; ::= IF
+      EXISTS</literal></simpara>
 
-    <simpara><emphasis>specific routine designator</emphasis></simpara>
+      <simpara>This clause is not part of the SQL standard and is a HyperSQL
+      extension to some commands that drop objects (schemas, tables, views,
+      sequences and indexes). If it is specified, then the statement does not
+      return an error if the drop statement is issued on a non-existent
+      object.</simpara>
 
-    <simpara><literal>&lt;specific routine designator&gt; ::= SPECIFIC
-    &lt;routine type&gt; &lt;specific name&gt; </literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SPECIFIC</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;routine type&gt; ::= ROUTINE | FUNCTION |
-    PROCEDURE</literal></simpara>
+      <simpara><emphasis role="bold">SPECIFIC</emphasis></simpara>
 
-    <simpara>This clause is used in statements that need to specify one of the
-    multiple versions of an overloaded routine. The <literal>&lt;specific
-    name&gt;</literal> is the one specified in the <literal>&lt;routine
-    definition&gt;</literal> statement.</simpara>
+      <simpara><emphasis>specific routine designator</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>RENAME</primary>
-    </indexterm>
+      <simpara><literal>&lt;specific routine designator&gt; ::= SPECIFIC
+      &lt;routine type&gt; &lt;specific name&gt; </literal></simpara>
 
-    <simpara><emphasis role="bold">RENAME</emphasis></simpara>
+      <simpara><literal>&lt;routine type&gt; ::= ROUTINE | FUNCTION |
+      PROCEDURE</literal></simpara>
 
-    <simpara><emphasis>rename statement (HyperSQL)</emphasis></simpara>
+      <simpara>This clause is used in statements that need to specify one of
+      the multiple versions of an overloaded routine. The
+      <literal>&lt;specific name&gt;</literal> is the one specified in the
+      <literal>&lt;routine definition&gt;</literal> statement.</simpara>
 
-    <simpara><literal>&lt;rename statement&gt; ::= ALTER &lt;object type&gt;
-    &lt;name&gt; RENAME TO &lt;new name&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>RENAME</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;object type&gt; ::= CATALOG | SCHEMA | DOMAIN | TYPE
-    | TABLE | CONSTRAINT | INDEX | ROUTINE | SPECIFIC
-    ROUTINE</literal></simpara>
+      <simpara><emphasis role="bold">RENAME</emphasis></simpara>
 
-    <simpara><literal>&lt;column rename statement&gt; ::= ALTER TABLE
-    &lt;table name&gt; ALTER COLUMN &lt;name&gt; RENAME TO &lt;new
-    name&gt;</literal></simpara>
+      <simpara><emphasis>rename statement (HyperSQL)</emphasis></simpara>
 
-    <simpara>This command is not part of the SQL Standard and is a HyperSQL
-    extension. The specified <literal>&lt;name&gt;</literal> is the existing
-    name, which can be qualified with a schema name, while the
-    <literal>&lt;new name&gt;</literal> is the new name for the
-    object.</simpara>
+      <simpara><literal>&lt;rename statement&gt; ::= ALTER &lt;object type&gt;
+      &lt;name&gt; RENAME TO &lt;new name&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE SCHEMA</primary>
-    </indexterm>
+      <simpara><literal>&lt;object type&gt; ::= CATALOG | SCHEMA | DOMAIN |
+      TYPE | TABLE | CONSTRAINT | INDEX | ROUTINE | SPECIFIC
+      ROUTINE</literal></simpara>
 
-    <simpara><emphasis role="bold">CREATE SCHEMA</emphasis></simpara>
+      <simpara><literal>&lt;column rename statement&gt; ::= ALTER TABLE
+      &lt;table name&gt; ALTER COLUMN &lt;name&gt; RENAME TO &lt;new
+      name&gt;</literal></simpara>
 
-    <simpara><emphasis>schema definition</emphasis></simpara>
+      <simpara>This command is not part of the SQL Standard and is a HyperSQL
+      extension. The specified <literal>&lt;name&gt;</literal> is the existing
+      name, which can be qualified with a schema name, while the
+      <literal>&lt;new name&gt;</literal> is the new name for the
+      object.</simpara>
+    </section>
 
-    <para>The CREATE_SCHEMA or DBA role is required in order to create a
-    schema. A schema can be created with or without schema objects. Schema
-    objects can always be added after creating the schema, or existing ones
-    can be dropped. Within the <literal>&lt;schema definition&gt;</literal>
-    statement, all schema object creation takes place inside the newly created
-    schema. Therefore, if a schema name is specified for the schema objects,
-    the name must match that of the new schema. In addition to statements for
-    creating schema objects, the statement can include instances of
-    <literal>&lt;grant statement&gt;</literal> and <literal>&lt;role
-    definition&gt;</literal>. This is a curious aspect of the SQL standard, as
-    these elements do not really belong to schema creation.</para>
+    <section>
+      <title>Schema Creation</title>
 
-    <simpara><literal>&lt;schema definition&gt; ::= CREATE SCHEMA &lt;schema
-    name clause&gt; [ &lt;schema character set specification&gt; ] [
-    &lt;schema element&gt;... ]</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE SCHEMA</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;schema name clause&gt; ::= &lt;schema name&gt; |
-    AUTHORIZATION &lt;authorization identifier&gt; | &lt;schema name&gt;
-    AUTHORIZATION &lt;authorization identifier&gt;</literal></simpara>
+      <simpara><emphasis role="bold">CREATE SCHEMA</emphasis></simpara>
 
-    <para>If the name of the schema is specified simply as <literal>&lt;schema
-    name&gt;</literal>, then the AUTHORIZATION is the current user. Otherwise,
-    the specified <literal>&lt;authorization identifier&gt;</literal> is used
-    as the AUTHORIZATION for the schema. If <literal>&lt;schema
-    name&gt;</literal> is omitted, then the name of the schema is the same as
-    the specified <literal>&lt;authorization identifier&gt;</literal>.</para>
+      <simpara><emphasis>schema definition</emphasis></simpara>
 
-    <simpara><literal>&lt;schema element&gt; ::= &lt;table definition&gt; |
-    &lt;view definition&gt; | &lt;domain definition&gt; | &lt;character set
-    definition&gt; | &lt;collation definition&gt; | &lt;transliteration
-    definition&gt; | &lt;assertion definition&gt; | &lt;trigger definition&gt;
-    | &lt;user-defined type definition&gt; | &lt;user-defined cast
-    definition&gt; | &lt;user-defined ordering definition&gt; | &lt;transform
-    definition&gt; | &lt;schema routine&gt; | &lt;sequence generator
-    definition&gt; | &lt;grant statement&gt; | &lt;role
-    definition&gt;</literal></simpara>
+      <para>The CREATE_SCHEMA or DBA role is required in order to create a
+      schema. A schema can be created with or without schema objects. Schema
+      objects can always be added after creating the schema, or existing ones
+      can be dropped. Within the <literal>&lt;schema definition&gt;</literal>
+      statement, all schema object creation takes place inside the newly
+      created schema. Therefore, if a schema name is specified for the schema
+      objects, the name must match that of the new schema. In addition to
+      statements for creating schema objects, the statement can include
+      instances of <literal>&lt;grant statement&gt;</literal> and
+      <literal>&lt;role definition&gt;</literal>. This is a curious aspect of
+      the SQL standard, as these elements do not really belong to schema
+      creation.</para>
 
-    <simpara>An example of the command is given below:</simpara>
+      <simpara><literal>&lt;schema definition&gt; ::= CREATE SCHEMA &lt;schema
+      name clause&gt; [ &lt;schema character set specification&gt; ] [
+      &lt;schema element&gt;... ]</literal></simpara>
 
-    <programlisting>    CREATE SCHEMA ACCOUNTS AUTHORIZATION DBA
+      <simpara><literal>&lt;schema name clause&gt; ::= &lt;schema name&gt; |
+      AUTHORIZATION &lt;authorization identifier&gt; | &lt;schema name&gt;
+      AUTHORIZATION &lt;authorization identifier&gt;</literal></simpara>
+
+      <para>If the name of the schema is specified simply as
+      <literal>&lt;schema name&gt;</literal>, then the AUTHORIZATION is the
+      current user. Otherwise, the specified <literal>&lt;authorization
+      identifier&gt;</literal> is used as the AUTHORIZATION for the schema. If
+      <literal>&lt;schema name&gt;</literal> is omitted, then the name of the
+      schema is the same as the specified <literal>&lt;authorization
+      identifier&gt;</literal>.</para>
+
+      <simpara><literal>&lt;schema element&gt; ::= &lt;table definition&gt; |
+      &lt;view definition&gt; | &lt;domain definition&gt; | &lt;character set
+      definition&gt; | &lt;collation definition&gt; | &lt;transliteration
+      definition&gt; | &lt;assertion definition&gt; | &lt;trigger
+      definition&gt; | &lt;user-defined type definition&gt; | &lt;user-defined
+      cast definition&gt; | &lt;user-defined ordering definition&gt; |
+      &lt;transform definition&gt; | &lt;schema routine&gt; | &lt;sequence
+      generator definition&gt; | &lt;grant statement&gt; | &lt;role
+      definition&gt;</literal></simpara>
+
+      <simpara>An example of the command is given below. Note that a single
+      semicolon appears at the end, there should be no semicolon between the
+      statements:</simpara>
+
+      <programlisting>    CREATE SCHEMA ACCOUNTS AUTHORIZATION DBA
         CREATE TABLE AB(A INTEGER, ...)
         CREATE TABLE CD(C CHAR, ...)
         CREATE VIEW VI AS SELECT ...
@@ -1321,1740 +1345,1827 @@ GRANT EXECUTE ON ROUTINE aroutine TO approle
         GRANT SELECT ON CD TO JOE;
 </programlisting>
 
-    <simpara>More..</simpara>
+      <simpara>More..</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP SCHEMA</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP SCHEMA</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DROP SCHEMA</emphasis></simpara>
+      <simpara><emphasis role="bold">DROP SCHEMA</emphasis></simpara>
 
-    <simpara><emphasis>drop schema statement</emphasis></simpara>
+      <simpara><emphasis>drop schema statement</emphasis></simpara>
 
-    <simpara><literal>&lt;drop schema statement&gt; ::= DROP SCHEMA [ IF
-    EXISTS ] &lt;schema name&gt; [ IF EXISTS ] &lt;drop behavior&gt;
-    </literal></simpara>
+      <simpara><literal>&lt;drop schema statement&gt; ::= DROP SCHEMA [ IF
+      EXISTS ] &lt;schema name&gt; [ IF EXISTS ] &lt;drop behavior&gt;
+      </literal></simpara>
 
-    <simpara>This command destroys an existing schema. If <literal>&lt;drop
-    behavior&gt;</literal> is <literal>RESTRICT</literal>, the schema must be
-    empty, otherwise an error is raised. If <literal>CASCADE</literal> is
-    specified, then all the objects contained in the schema are destroyed with
-    a CASCADE option.</simpara>
+      <simpara>This command destroys an existing schema. If <literal>&lt;drop
+      behavior&gt;</literal> is <literal>RESTRICT</literal>, the schema must
+      be empty, otherwise an error is raised. If <literal>CASCADE</literal> is
+      specified, then all the objects contained in the schema are destroyed
+      with a CASCADE option.</simpara>
+    </section>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE TABLE</primary>
-    </indexterm>
+    <section>
+      <title>Table Creation and Manipulation</title>
 
-    <simpara><emphasis role="bold">CREATE TABLE</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE TABLE</primary>
+      </indexterm>
 
-    <simpara><emphasis>table definition</emphasis></simpara>
+      <simpara><emphasis role="bold">CREATE TABLE</emphasis></simpara>
 
-    <simpara><literal>&lt;table definition&gt; ::= CREATE [ { &lt;table
-    scope&gt; | &lt;table type&gt; } ] TABLE &lt;table name&gt; &lt;table
-    contents source&gt; [ ON COMMIT { PRESERVE | DELETE } ROWS
-    ]</literal></simpara>
+      <simpara><emphasis>table definition</emphasis></simpara>
 
-    <simpara><literal>&lt;table scope&gt; ::= { GLOBAL | LOCAL }
-    TEMPORARY</literal></simpara>
+      <simpara><literal>&lt;table definition&gt; ::= CREATE [ { &lt;table
+      scope&gt; | &lt;table type&gt; } ] TABLE &lt;table name&gt; &lt;table
+      contents source&gt; [ ON COMMIT { PRESERVE | DELETE } ROWS
+      ]</literal></simpara>
 
-    <simpara><literal>&lt;table type&gt; :: = MEMORY |
-    CACHED</literal></simpara>
+      <simpara><literal>&lt;table scope&gt; ::= { GLOBAL | LOCAL }
+      TEMPORARY</literal></simpara>
 
-    <simpara><literal>&lt;table contents source&gt; ::= &lt;table element
-    list&gt; | &lt;as subquery clause&gt;</literal></simpara>
+      <simpara><literal>&lt;table type&gt; :: = MEMORY |
+      CACHED</literal></simpara>
 
-    <simpara><literal>&lt;table element list&gt; ::= &lt;left paren&gt;
-    &lt;table element&gt; [ { &lt;comma&gt; &lt;table element&gt; }... ]
-    &lt;right paren&gt;</literal></simpara>
+      <simpara><literal>&lt;table contents source&gt; ::= &lt;table element
+      list&gt; | &lt;as subquery clause&gt;</literal></simpara>
 
-    <simpara><literal>&lt;table element&gt; ::= &lt;column definition&gt; |
-    &lt;table constraint definition&gt; | &lt;like
-    clause&gt;</literal></simpara>
+      <simpara><literal>&lt;table element list&gt; ::= &lt;left paren&gt;
+      &lt;table element&gt; [ { &lt;comma&gt; &lt;table element&gt; }... ]
+      &lt;right paren&gt;</literal></simpara>
 
-    <simpara><emphasis>like clause</emphasis></simpara>
+      <simpara><literal>&lt;table element&gt; ::= &lt;column definition&gt; |
+      &lt;table constraint definition&gt; | &lt;like
+      clause&gt;</literal></simpara>
 
-    <simpara>A <literal>&lt;like clause&gt;</literal> copies all column
-    definitions from another table into the newly created table. Its three
-    options indicate if the <literal>&lt;default clause&gt;</literal>,
-    <literal>&lt;identity column specification&gt;</literal> and
-    <literal>&lt;generation clause&gt;</literal> associated with the column
-    definitions are copied or not. The <literal>&lt;like clause&gt;</literal>
-    can be used multiple times, allowing the new table to have copies of the
-    column definitions of one or more other tables. If an option is not
-    specified, it defaults to <literal>EXCLUDING</literal>.</simpara>
+      <simpara><emphasis>like clause</emphasis></simpara>
 
-    <informalexample>
-      <programlisting>CREATE TABLE t (id INTEGER PRIMARY KEY, LIKE atable INCLUDING DEFAULTS EXCLUDING IDENTITY)
+      <simpara>A <literal>&lt;like clause&gt;</literal> copies all column
+      definitions from another table into the newly created table. Its three
+      options indicate if the <literal>&lt;default clause&gt;</literal>,
+      <literal>&lt;identity column specification&gt;</literal> and
+      <literal>&lt;generation clause&gt;</literal> associated with the column
+      definitions are copied or not. The <literal>&lt;like
+      clause&gt;</literal> can be used multiple times, allowing the new table
+      to have copies of the column definitions of one or more other tables. If
+      an option is not specified, it defaults to
+      <literal>EXCLUDING</literal>.</simpara>
+
+      <informalexample>
+        <programlisting>CREATE TABLE t (id INTEGER PRIMARY KEY, LIKE atable INCLUDING DEFAULTS EXCLUDING IDENTITY)
 </programlisting>
-    </informalexample>
+      </informalexample>
 
-    <simpara><literal>&lt;like clause&gt; ::= LIKE &lt;table name&gt; [
-    &lt;like options&gt; ]</literal></simpara>
+      <simpara><literal>&lt;like clause&gt; ::= LIKE &lt;table name&gt; [
+      &lt;like options&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;like options&gt; ::= &lt;like
-    option&gt;...</literal></simpara>
+      <simpara><literal>&lt;like options&gt; ::= &lt;like
+      option&gt;...</literal></simpara>
 
-    <simpara><literal>&lt;like option&gt; ::= &lt;identity option&gt; |
-    &lt;column default option&gt; | &lt;generation
-    option&gt;</literal></simpara>
+      <simpara><literal>&lt;like option&gt; ::= &lt;identity option&gt; |
+      &lt;column default option&gt; | &lt;generation
+      option&gt;</literal></simpara>
 
-    <simpara><literal>&lt;identity option&gt; ::= INCLUDING IDENTITY |
-    EXCLUDING IDENTITY</literal></simpara>
+      <simpara><literal>&lt;identity option&gt; ::= INCLUDING IDENTITY |
+      EXCLUDING IDENTITY</literal></simpara>
 
-    <simpara><literal>&lt;column default option&gt; ::= INCLUDING DEFAULTS |
-    EXCLUDING DEFAULTS</literal></simpara>
+      <simpara><literal>&lt;column default option&gt; ::= INCLUDING DEFAULTS |
+      EXCLUDING DEFAULTS</literal></simpara>
 
-    <simpara><literal>&lt;generation option&gt; ::= INCLUDING GENERATED |
-    EXCLUDING GENERATED</literal></simpara>
+      <simpara><literal>&lt;generation option&gt; ::= INCLUDING GENERATED |
+      EXCLUDING GENERATED</literal></simpara>
 
-    <simpara><emphasis>as subquery clause</emphasis></simpara>
+      <simpara><emphasis>as subquery clause</emphasis></simpara>
 
-    <simpara><literal>&lt;as subquery clause&gt; ::= [ &lt;left paren&gt;
-    &lt;column name list&gt; &lt;right paren&gt; ] AS &lt;table subquery&gt; {
-    WITH NO DATA | WITH DATA }</literal></simpara>
+      <simpara><literal>&lt;as subquery clause&gt; ::= [ &lt;left paren&gt;
+      &lt;column name list&gt; &lt;right paren&gt; ] AS &lt;table subquery&gt;
+      { WITH NO DATA | WITH DATA }</literal></simpara>
 
-    <simpara>An <literal>&lt;as subquery clause&gt;</literal> used in table
-    definition creates a table based on a <literal>&lt;table
-    subquery&gt;</literal>. This kind of table definition is similar to a view
-    definition. If <literal>WITH DATA</literal> is specified, then the new
-    table will contain the rows of data returned by the <literal>&lt;table
-    subquery&gt;</literal>.</simpara>
+      <simpara>An <literal>&lt;as subquery clause&gt;</literal> used in table
+      definition creates a table based on a <literal>&lt;table
+      subquery&gt;</literal>. This kind of table definition is similar to a
+      view definition. If <literal>WITH DATA</literal> is specified, then the
+      new table will contain the rows of data returned by the
+      <literal>&lt;table subquery&gt;</literal>.</simpara>
 
-    <informalexample>
-      <programlisting>CREATE TABLE t (a, b, c) AS (SELECT * FROM atable) WITH DATA
+      <informalexample>
+        <programlisting>CREATE TABLE t (a, b, c) AS (SELECT * FROM atable) WITH DATA
 </programlisting>
-    </informalexample>
+      </informalexample>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>column definition</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>column definition</primary>
+      </indexterm>
 
-    <simpara><emphasis>column definition</emphasis></simpara>
+      <simpara><emphasis>column definition</emphasis></simpara>
 
-    <simpara>A column definition consists of a <literal>&lt;column
-    name&gt;</literal> and in most cases a <literal>&lt;data
-    type&gt;</literal> or <literal>&lt;domain name&gt;</literal> as minimum.
-    The other elements of <literal>&lt;column definition&gt;</literal> are
-    optional. Each <literal>&lt;column name&gt;</literal> in a table is
-    unique.</simpara>
+      <simpara>A column definition consists of a <literal>&lt;column
+      name&gt;</literal> and in most cases a <literal>&lt;data
+      type&gt;</literal> or <literal>&lt;domain name&gt;</literal> as minimum.
+      The other elements of <literal>&lt;column definition&gt;</literal> are
+      optional. Each <literal>&lt;column name&gt;</literal> in a table is
+      unique.</simpara>
 
-    <simpara><literal>&lt;column definition&gt; ::= &lt;column name&gt; [
-    &lt;data type or domain name&gt; ] [ &lt;default clause&gt; | &lt;identity
-    column specification&gt; | &lt;generation clause&gt; ] [ &lt;column
-    constraint definition&gt;... ] [ &lt;collate clause&gt;
-    ]</literal></simpara>
+      <simpara><literal>&lt;column definition&gt; ::= &lt;column name&gt; [
+      &lt;data type or domain name&gt; ] [ &lt;default clause&gt; |
+      &lt;identity column specification&gt; | &lt;generation clause&gt; ] [
+      &lt;column constraint definition&gt;... ] [ &lt;collate clause&gt;
+      ]</literal></simpara>
 
-    <simpara><literal>&lt;data type or domain name&gt; ::= &lt;data type&gt; |
-    &lt;domain name&gt;</literal></simpara>
+      <simpara><literal>&lt;data type or domain name&gt; ::= &lt;data type&gt;
+      | &lt;domain name&gt;</literal></simpara>
 
-    <simpara><literal>&lt;column constraint definition&gt; ::= [
-    &lt;constraint name definition&gt; ] &lt;column constraint&gt; [
-    &lt;constraint characteristics&gt; ]</literal></simpara>
+      <simpara><literal>&lt;column constraint definition&gt; ::= [
+      &lt;constraint name definition&gt; ] &lt;column constraint&gt; [
+      &lt;constraint characteristics&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;column constraint&gt; ::= NOT NULL | &lt;unique
-    specification&gt; | &lt;references specification&gt; | &lt;check
-    constraint definition&gt;</literal></simpara>
+      <simpara><literal>&lt;column constraint&gt; ::= NOT NULL | &lt;unique
+      specification&gt; | &lt;references specification&gt; | &lt;check
+      constraint definition&gt;</literal></simpara>
 
-    <simpara><literal>&lt;identity column specification&gt; ::= GENERATED {
-    ALWAYS | BY DEFAULT } AS IDENTITY [ &lt;left paren&gt; &lt;common sequence
-    generator options&gt; &lt;right paren&gt; ]</literal></simpara>
+      <simpara><literal>&lt;identity column specification&gt; ::= GENERATED {
+      ALWAYS | BY DEFAULT } AS IDENTITY [ &lt;left paren&gt; &lt;common
+      sequence generator options&gt; &lt;right paren&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;generation clause&gt; ::= GENERATED ALWAYS AS
-    &lt;generation expression&gt;</literal></simpara>
+      <simpara><literal>&lt;generation clause&gt; ::= GENERATED ALWAYS AS
+      &lt;generation expression&gt;</literal></simpara>
 
-    <simpara><literal>&lt;generation expression&gt; ::= &lt;left paren&gt;
-    &lt;value expression&gt; &lt;right paren&gt;</literal></simpara>
+      <simpara><literal>&lt;generation expression&gt; ::= &lt;left paren&gt;
+      &lt;value expression&gt; &lt;right paren&gt;</literal></simpara>
 
-    <simpara>The <literal>&lt;identity column specification&gt;</literal> can
-    be specified for only a single column of the table.</simpara>
+      <simpara>The <literal>&lt;identity column specification&gt;</literal>
+      can be specified for only a single column of the table.</simpara>
 
-    <simpara>A <literal>&lt;column constraint definition&gt;</literal> is a
-    shortcut for a <literal>&lt;table constraint definition&gt;</literal>. A
-    constraint that is defined in this way is automatically turned into a
-    table constraint. A name is automatically generated for the constraint and
-    assigned to it.</simpara>
+      <simpara>A <literal>&lt;column constraint definition&gt;</literal> is a
+      shortcut for a <literal>&lt;table constraint definition&gt;</literal>. A
+      constraint that is defined in this way is automatically turned into a
+      table constraint. A name is automatically generated for the constraint
+      and assigned to it.</simpara>
 
-    <simpara>The <literal>&lt;identity column specification&gt;</literal> is
-    used for special columns which represent values based on unnamed sequence
-    generators. It is possible to insert a row into the able without
-    specifying a value for the column. The value is then generated by the
-    sequence generators according to its rules. An identity column may or may
-    not be the primary key. Example below:</simpara>
+      <simpara>The <literal>&lt;identity column specification&gt;</literal> is
+      used for special columns which represent values based on unnamed
+      sequence generators. It is possible to insert a row into the able
+      without specifying a value for the column. The value is then generated
+      by the sequence generators according to its rules. An identity column
+      may or may not be the primary key. Example below:</simpara>
 
-    <informalexample>
-      <programlisting>CREATE TABLE t (a VARCHAR(20) PRIMARY KEY, id INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 100))
+      <informalexample>
+        <programlisting>CREATE TABLE t (a VARCHAR(20) PRIMARY KEY, id INTEGER GENERATED ALWAYS AS IDENTITY(START WITH 100))
 </programlisting>
-    </informalexample>
+      </informalexample>
 
-    <simpara>The <literal>&lt;generation clause&gt;</literal> is used for
-    special columns which represent values based on the values held in other
-    columns in the same row. The <literal>&lt;value expression&gt;</literal>
-    must reference only other, non-generated, columns of the table in the same
-    row. Therefore, any function used in the expression may not access
-    SQL-data, and no <literal>&lt;query expression&gt;</literal> is allowed.
-    When <literal>&lt;generation clause&gt;</literal> is used,
-    <literal>&lt;data type&gt;</literal> or <literal>&lt;domain
-    name&gt;</literal> may be omitted.</simpara>
+      <simpara>The <literal>&lt;generation clause&gt;</literal> is used for
+      special columns which represent values based on the values held in other
+      columns in the same row. The <literal>&lt;value expression&gt;</literal>
+      must reference only other, non-generated, columns of the table in the
+      same row. Therefore, any function used in the expression may not access
+      SQL-data, and no <literal>&lt;query expression&gt;</literal> is allowed.
+      When <literal>&lt;generation clause&gt;</literal> is used,
+      <literal>&lt;data type&gt;</literal> or <literal>&lt;domain
+      name&gt;</literal> may be omitted.</simpara>
 
-    <simpara>A generated column can be part of a foreign key or unique
-    constraints or a column of an index. This capability is the main reason
-    for using generated columns. A generated column may contain a formula that
-    computes a value based on the values of other columns. Fast searches of
-    the computed value can be performed when an index is declared on the
-    generated column. Or the computed values can be declared to be unique,
-    using a UNIQUE constraint on the table.</simpara>
+      <simpara>A generated column can be part of a foreign key or unique
+      constraints or a column of an index. This capability is the main reason
+      for using generated columns. A generated column may contain a formula
+      that computes a value based on the values of other columns. Fast
+      searches of the computed value can be performed when an index is
+      declared on the generated column. Or the computed values can be declared
+      to be unique, using a UNIQUE constraint on the table.</simpara>
 
-    <simpara>When a row is inserted into a table, or an existing row is
-    updated, no value can be specified for a generated column. In the example
-    below, data is inserted into the non-generated columns and the generated
-    column will contain 'Felix the Cat'.</simpara>
+      <simpara>When a row is inserted into a table, or an existing row is
+      updated, no value can be specified for a generated column. In the
+      example below, data is inserted into the non-generated columns and the
+      generated column will contain 'Felix the Cat'.</simpara>
 
-    <informalexample>
-      <programlisting>CREATE TABLE t (id INTEGER PRIMARY KEY, 
+      <informalexample>
+        <programlisting>CREATE TABLE t (id INTEGER PRIMARY KEY, 
    firstname VARCHAR(20),
    lastname VARCHAR(20), 
    fullname GENERATED ALWAYS AS (firstname || ' ' || lastname)) 
 INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
 </programlisting>
-    </informalexample>
+      </informalexample>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DEFAULT clause</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>DEFAULT clause</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DEFAULT</emphasis></simpara>
+      <simpara><emphasis role="bold">DEFAULT</emphasis></simpara>
 
-    <simpara><emphasis>default clause</emphasis></simpara>
+      <simpara><emphasis>default clause</emphasis></simpara>
 
-    <simpara>A default clause can be used if GENERATED is not specified. If a
-    column has a <literal>&lt;default clause&gt;</literal> then it is possible
-    to insert a row into the table without specifying a value for the
-    column.</simpara>
+      <simpara>A default clause can be used if GENERATED is not specified. If
+      a column has a <literal>&lt;default clause&gt;</literal> then it is
+      possible to insert a row into the table without specifying a value for
+      the column.</simpara>
 
-    <simpara><literal>&lt;default clause&gt; ::= DEFAULT &lt;default
-    option&gt;</literal></simpara>
+      <simpara><literal>&lt;default clause&gt; ::= DEFAULT &lt;default
+      option&gt;</literal></simpara>
 
-    <simpara><literal>&lt;default option&gt; ::= &lt;literal&gt; |
-    &lt;datetime value function&gt; | USER | CURRENT_USER | CURRENT_ROLE |
-    SESSION_USER | SYSTEM_USER | CURRENT_CATALOG | CURRENT_SCHEMA |
-    CURRENT_PATH | NULL</literal></simpara>
+      <simpara><literal>&lt;default option&gt; ::= &lt;literal&gt; |
+      &lt;datetime value function&gt; | USER | CURRENT_USER | CURRENT_ROLE |
+      SESSION_USER | SYSTEM_USER | CURRENT_CATALOG | CURRENT_SCHEMA |
+      CURRENT_PATH | NULL</literal></simpara>
 
-    <simpara>The type of the <literal>&lt;default option&gt;</literal> must
-    match the type of the column.</simpara>
+      <simpara>The type of the <literal>&lt;default option&gt;</literal> must
+      match the type of the column.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CONSTRAINT name and characteristics</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT name and characteristics</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
+      <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
 
-    <simpara><emphasis>constraint name and
-    characteristics</emphasis></simpara>
+      <simpara><emphasis>constraint name and
+      characteristics</emphasis></simpara>
 
-    <simpara><literal>&lt;constraint name definition&gt; ::= CONSTRAINT
-    &lt;constraint name&gt;</literal></simpara>
+      <simpara><literal>&lt;constraint name definition&gt; ::= CONSTRAINT
+      &lt;constraint name&gt;</literal></simpara>
 
-    <simpara><literal>&lt;constraint characteristics&gt; ::= &lt;constraint
-    check time&gt; [ [ NOT ] DEFERRABLE [ &lt;constraint check time&gt; ]
-    ]</literal></simpara>
+      <simpara><literal>&lt;constraint characteristics&gt; ::= &lt;constraint
+      check time&gt; [ [ NOT ] DEFERRABLE [ &lt;constraint check time&gt; ]
+      ]</literal></simpara>
 
-    <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
-    INITIALLY IMMEDIATE</literal></simpara>
+      <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
+      INITIALLY IMMEDIATE</literal></simpara>
 
-    <simpara>Specify the name of a constraint and its characteristics. By
-    default the constraint is <literal>NOT DEFERRABLE</literal> and
-    <literal>INITIALLY IMMEDIATE</literal>. This means the constraint is
-    enforced as soon as a data change statement is executed. If
-    <literal>INITIALLY DEFERRED</literal> is specified, then the constraint is
-    enforced when the session commits. The characteristics must be compatible.
-    The constraint check time can be changed temporarily for an SQL session.
-    HyperSQL does not support deferring constraint enforcement. This feature
-    of the SQL Standard has been criticised because it allows a session to
-    read uncommitted data that violates database integrity constraints but has
-    not yet been checked.</simpara>
+      <simpara>Specify the name of a constraint and its characteristics. By
+      default the constraint is <literal>NOT DEFERRABLE</literal> and
+      <literal>INITIALLY IMMEDIATE</literal>. This means the constraint is
+      enforced as soon as a data change statement is executed. If
+      <literal>INITIALLY DEFERRED</literal> is specified, then the constraint
+      is enforced when the session commits. The characteristics must be
+      compatible. The constraint check time can be changed temporarily for an
+      SQL session. HyperSQL does not support deferring constraint enforcement.
+      This feature of the SQL Standard has been criticised because it allows a
+      session to read uncommitted data that violates database integrity
+      constraints but has not yet been checked.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CONSTRAINT (table constraint)</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT (table constraint)</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
+      <simpara><emphasis role="bold">CONSTRAINT</emphasis></simpara>
 
-    <simpara><emphasis>table constraint definition</emphasis></simpara>
+      <simpara><emphasis>table constraint definition</emphasis></simpara>
 
-    <simpara><literal>&lt;table constraint definition&gt; ::= [ &lt;constraint
-    name definition&gt; ] &lt;table constraint&gt; [ &lt;constraint
-    characteristics&gt; ]</literal></simpara>
+      <simpara><literal>&lt;table constraint definition&gt; ::= [
+      &lt;constraint name definition&gt; ] &lt;table constraint&gt; [
+      &lt;constraint characteristics&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;table constraint&gt; ::= &lt;unique constraint
-    definition&gt; | &lt;referential constraint definition&gt; | &lt;check
-    constraint definition&gt;</literal></simpara>
+      <simpara><literal>&lt;table constraint&gt; ::= &lt;unique constraint
+      definition&gt; | &lt;referential constraint definition&gt; | &lt;check
+      constraint definition&gt;</literal></simpara>
 
-    <simpara>Three kinds of constraint can be defined on a table: UNIQUE
-    (including PRIMARY KEY), FOREIGN KEY and CHECK. Each kind has its own
-    rules to limit the values that can be specified for different columns in
-    each row of the table.</simpara>
+      <simpara>Three kinds of constraint can be defined on a table: UNIQUE
+      (including PRIMARY KEY), FOREIGN KEY and CHECK. Each kind has its own
+      rules to limit the values that can be specified for different columns in
+      each row of the table.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>UNIQUE constraint</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>UNIQUE constraint</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>PRIMARY KEY constraint</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>PRIMARY KEY constraint</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">UNIQUE</emphasis></simpara>
+      <simpara><emphasis role="bold">UNIQUE</emphasis></simpara>
 
-    <simpara><emphasis>unique constraint definition</emphasis></simpara>
+      <simpara><emphasis>unique constraint definition</emphasis></simpara>
 
-    <simpara><literal>&lt;unique constraint definition&gt; ::= &lt;unique
-    specification&gt; &lt;left paren&gt; &lt;unique column list&gt; &lt;right
-    paren&gt; | UNIQUE ( VALUE )</literal></simpara>
+      <simpara><literal>&lt;unique constraint definition&gt; ::= &lt;unique
+      specification&gt; &lt;left paren&gt; &lt;unique column list&gt;
+      &lt;right paren&gt; | UNIQUE ( VALUE )</literal></simpara>
 
-    <simpara><literal>&lt;unique specification&gt; ::= UNIQUE | PRIMARY
-    KEY</literal></simpara>
+      <simpara><literal>&lt;unique specification&gt; ::= UNIQUE | PRIMARY
+      KEY</literal></simpara>
 
-    <simpara><literal>&lt;unique column list&gt; ::= &lt;column name
-    list&gt;</literal></simpara>
+      <simpara><literal>&lt;unique column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
 
-    <simpara>A unique constraint is specified on a single column or on
-    multiple columns. On each set of columns taken together, only one UNIQUE
-    constraint can be specified. Each column of a PRIMARY KEY constraint has
-    an implicit NOT NULL constraint.</simpara>
+      <simpara>A unique constraint is specified on a single column or on
+      multiple columns. On each set of columns taken together, only one UNIQUE
+      constraint can be specified. Each column of a PRIMARY KEY constraint has
+      an implicit NOT NULL constraint.</simpara>
 
-    <simpara>If <literal>UNIQUE( VALUE )</literal> is specified, the
-    constraint created on all columns of the table.</simpara>
+      <simpara>If <literal>UNIQUE( VALUE )</literal> is specified, the
+      constraint created on all columns of the table.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>FOREIGN KEY constraint</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>FOREIGN KEY constraint</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">FOREIGN KEY</emphasis></simpara>
+      <simpara><emphasis role="bold">FOREIGN KEY</emphasis></simpara>
 
-    <simpara><emphasis>referential constraint definition</emphasis></simpara>
+      <simpara><emphasis>referential constraint
+      definition</emphasis></simpara>
 
-    <simpara><literal>&lt;referential constraint definition&gt; ::= FOREIGN
-    KEY &lt;left paren&gt; &lt;referencing columns&gt; &lt;right paren&gt;
-    &lt;references specification&gt;</literal></simpara>
+      <simpara><literal>&lt;referential constraint definition&gt; ::= FOREIGN
+      KEY &lt;left paren&gt; &lt;referencing columns&gt; &lt;right paren&gt;
+      &lt;references specification&gt;</literal></simpara>
 
-    <simpara><literal>&lt;references specification&gt; ::= REFERENCES
-    &lt;referenced table and columns&gt; [ MATCH &lt;match type&gt; ] [
-    &lt;referential triggered action&gt; ]</literal></simpara>
+      <simpara><literal>&lt;references specification&gt; ::= REFERENCES
+      &lt;referenced table and columns&gt; [ MATCH &lt;match type&gt; ] [
+      &lt;referential triggered action&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;match type&gt; ::= FULL | PARTIAL |
-    SIMPLE</literal></simpara>
+      <simpara><literal>&lt;match type&gt; ::= FULL | PARTIAL |
+      SIMPLE</literal></simpara>
 
-    <simpara><literal>&lt;referencing columns&gt; ::= &lt;reference column
-    list&gt;</literal></simpara>
+      <simpara><literal>&lt;referencing columns&gt; ::= &lt;reference column
+      list&gt;</literal></simpara>
 
-    <simpara><literal>&lt;referenced table and columns&gt; ::= &lt;table
-    name&gt; [ &lt;left paren&gt; &lt;reference column list&gt; &lt;right
-    paren&gt; ]</literal></simpara>
+      <simpara><literal>&lt;referenced table and columns&gt; ::= &lt;table
+      name&gt; [ &lt;left paren&gt; &lt;reference column list&gt; &lt;right
+      paren&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;reference column list&gt; ::= &lt;column name
-    list&gt;</literal></simpara>
+      <simpara><literal>&lt;reference column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
 
-    <simpara><literal>&lt;referential triggered action&gt; ::= &lt;update
-    rule&gt; [ &lt;delete rule&gt; ] | &lt;delete rule&gt; [ &lt;update
-    rule&gt; ]</literal></simpara>
+      <simpara><literal>&lt;referential triggered action&gt; ::= &lt;update
+      rule&gt; [ &lt;delete rule&gt; ] | &lt;delete rule&gt; [ &lt;update
+      rule&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;update rule&gt; ::= ON UPDATE &lt;referential
-    action&gt;</literal></simpara>
+      <simpara><literal>&lt;update rule&gt; ::= ON UPDATE &lt;referential
+      action&gt;</literal></simpara>
 
-    <simpara><literal>&lt;delete rule&gt; ::= ON DELETE &lt;referential
-    action&gt;</literal></simpara>
+      <simpara><literal>&lt;delete rule&gt; ::= ON DELETE &lt;referential
+      action&gt;</literal></simpara>
 
-    <simpara><literal>&lt;referential action&gt; ::= CASCADE | SET NULL | SET
-    DEFAULT | RESTRICT | NO ACTION</literal></simpara>
+      <simpara><literal>&lt;referential action&gt; ::= CASCADE | SET NULL |
+      SET DEFAULT | RESTRICT | NO ACTION</literal></simpara>
 
-    <simpara>A referential constraint allows links to be established between
-    the rows of two tables. The specified list of <literal>&lt;referencing
-    columns&gt;</literal> corresponds one by one to the columns of the
-    specified list of <literal>&lt;referenced columns&gt;</literal> in another
-    table (or sometimes in the same table). For each row in the table, a row
-    must exist in the referenced table with equivalent values in the two
-    column lists. There must exist a single unique constraint in the
-    referenced table on all the <literal>&lt;referenced
-    columns&gt;</literal>.</simpara>
+      <simpara>A referential constraint allows links to be established between
+      the rows of two tables. The specified list of <literal>&lt;referencing
+      columns&gt;</literal> corresponds one by one to the columns of the
+      specified list of <literal>&lt;referenced columns&gt;</literal> in
+      another table (or sometimes in the same table). For each row in the
+      table, a row must exist in the referenced table with equivalent values
+      in the two column lists. There must exist a single unique constraint in
+      the referenced table on all the <literal>&lt;referenced
+      columns&gt;</literal>.</simpara>
 
-    <simpara>The <literal>[ MATCH match type ]</literal> clause is optional
-    and has an effect only on multi-column foreign keys and only on rows
-    containing at least a NULL in one of the <literal>&lt;referencing
-    columns&gt;</literal>. If the clause is not specified, MATCH SIMPLE is the
-    default. If <literal>MATCH SIMPLE</literal> is specified, then any NULL
-    means the row can exist (without a corresponding row in the referenced
-    table). If <literal>MATCH FULL</literal> is specified then either all the
-    column values must be NULL or none of them. <literal>MATCH
-    PARTIAL</literal> allows any NULL but the non NULL values must match those
-    of a row in the referenced table. HyperSQL does not support <literal>MATCH
-    PARTIAL</literal>.</simpara>
+      <simpara>The <literal>[ MATCH match type ]</literal> clause is optional
+      and has an effect only on multi-column foreign keys and only on rows
+      containing at least a NULL in one of the <literal>&lt;referencing
+      columns&gt;</literal>. If the clause is not specified, MATCH SIMPLE is
+      the default. If <literal>MATCH SIMPLE</literal> is specified, then any
+      NULL means the row can exist (without a corresponding row in the
+      referenced table). If <literal>MATCH FULL</literal> is specified then
+      either all the column values must be NULL or none of them.
+      <literal>MATCH PARTIAL</literal> allows any NULL but the non NULL values
+      must match those of a row in the referenced table. HyperSQL does not
+      support <literal>MATCH PARTIAL</literal>.</simpara>
 
-    <simpara>Referential actions are specified with ON UPDATE and ON DELETE
-    clauses. These actions take place when a row in the referenced table (the
-    parent table) has referencing rows in the referencing table and it is
-    deleted or modified with any SQL statement. The default is NO ACTION. This
-    means the SQL statement that causes the DELETE or UPDATE is terminated
-    with an exception. The RESTRICT option is similar and works exactly the
-    same without deferable constraints (which are not allowed by HyperSQL).
-    The other three options, CASCADE, SET NULL and SET DEFAULT all allow the
-    DELETE or UPDATE statement to complete. With DELETE statements the CASCALE
-    option results in the referencing rows to be deleted. With UPDATE
-    statments, the changes to the values of the referenced columns are copied
-    to the referencing rows. With both DELETE or UPDATE statement, the SET
-    NULL option results in the columns of the referencing rows to be set to
-    NULL. Similarly, the SET DEFAULT option results in the columns of the
-    referending rows to be set to their default values.</simpara>
+      <simpara>Referential actions are specified with ON UPDATE and ON DELETE
+      clauses. These actions take place when a row in the referenced table
+      (the parent table) has referencing rows in the referencing table and it
+      is deleted or modified with any SQL statement. The default is NO ACTION.
+      This means the SQL statement that causes the DELETE or UPDATE is
+      terminated with an exception. The RESTRICT option is similar and works
+      exactly the same without deferable constraints (which are not allowed by
+      HyperSQL). The other three options, CASCADE, SET NULL and SET DEFAULT
+      all allow the DELETE or UPDATE statement to complete. With DELETE
+      statements the CASCALE option results in the referencing rows to be
+      deleted. With UPDATE statments, the changes to the values of the
+      referenced columns are copied to the referencing rows. With both DELETE
+      or UPDATE statement, the SET NULL option results in the columns of the
+      referencing rows to be set to NULL. Similarly, the SET DEFAULT option
+      results in the columns of the referending rows to be set to their
+      default values.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CHECK constraint</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>CHECK constraint</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">CHECK</emphasis></simpara>
+      <simpara><emphasis role="bold">CHECK</emphasis></simpara>
 
-    <simpara><emphasis>check constraint definition</emphasis></simpara>
+      <simpara><emphasis>check constraint definition</emphasis></simpara>
 
-    <simpara><literal>&lt;check constraint definition&gt; ::= CHECK &lt;left
-    paren&gt; &lt;search condition&gt; &lt;right paren&gt;</literal></simpara>
+      <simpara><literal>&lt;check constraint definition&gt; ::= CHECK &lt;left
+      paren&gt; &lt;search condition&gt; &lt;right
+      paren&gt;</literal></simpara>
 
-    <simpara>A CHECK constraint can exist for a TABLE or for a DOMAIN. The
-    <literal>&lt;search condition&gt;</literal> evaluates to an SQL BOOLEAN
-    value for each row of the table. Within the <literal>&lt;search
-    condition&gt;</literal> all columns of the table row can be referenced.
-    For all rows of the table, the <literal>&lt;search condition&gt;</literal>
-    evaluates to TRUE or UNKNOWN. When a new row is inserted, or an existing
-    row is updated, the <literal>&lt;search condition&gt;</literal> is
-    evaluated and if it is FALSE, the insert or update fails.</simpara>
+      <simpara>A CHECK constraint can exist for a TABLE or for a DOMAIN. The
+      <literal>&lt;search condition&gt;</literal> evaluates to an SQL BOOLEAN
+      value for each row of the table. Within the <literal>&lt;search
+      condition&gt;</literal> all columns of the table row can be referenced.
+      For all rows of the table, the <literal>&lt;search
+      condition&gt;</literal> evaluates to TRUE or UNKNOWN. When a new row is
+      inserted, or an existing row is updated, the <literal>&lt;search
+      condition&gt;</literal> is evaluated and if it is FALSE, the insert or
+      update fails.</simpara>
 
-    <simpara>A CHECK constraint for a DOMAIN is similar. In its
-    <literal>&lt;search condition&gt;</literal>, the term VALUE is used to
-    represents the value to which the DOMAIN applies.</simpara>
+      <simpara>A CHECK constraint for a DOMAIN is similar. In its
+      <literal>&lt;search condition&gt;</literal>, the term VALUE is used to
+      represents the value to which the DOMAIN applies.</simpara>
 
-    <informalexample>
-      <programlisting>CREATE TABLE t (a VARCHAR(20) CHECK (a IS NOT NULL AND CHARACTER_LENGTH(a) &gt; 2))
+      <informalexample>
+        <programlisting>CREATE TABLE t (a VARCHAR(20) CHECK (a IS NOT NULL AND CHARACTER_LENGTH(a) &gt; 2))
 </programlisting>
-    </informalexample>
+      </informalexample>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET TABLE read-write property</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE read-write property</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">SET TABLE writeability</emphasis></simpara>
+      <simpara><emphasis role="bold">SET TABLE
+      writeability</emphasis></simpara>
 
-    <simpara><emphasis>set table write property
-    (HyperSQL)</emphasis></simpara>
+      <simpara><emphasis>set table write property
+      (HyperSQL)</emphasis></simpara>
 
-    <simpara><literal>&lt;set table read only statement&gt; ::= SET TABLE
-    &lt;table name&gt; { READ ONLY | READ WRITE }</literal></simpara>
+      <simpara><literal>&lt;set table read only statement&gt; ::= SET TABLE
+      &lt;table name&gt; { READ ONLY | READ WRITE }</literal></simpara>
 
-    <simpara>Set the writabality property of a table. Tables are writable by
-    default. This statement can be used to change the property between
-    <literal>READ ONLY</literal> and <literal>READ WRITE</literal>. This is a
-    feature of HyperSQL.</simpara>
+      <simpara>Set the writabality property of a table. Tables are writable by
+      default. This statement can be used to change the property between
+      <literal>READ ONLY</literal> and <literal>READ WRITE</literal>. This is
+      a feature of HyperSQL.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET TABLE SOURCE</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">SET TABLE SOURCE</emphasis></simpara>
+      <simpara><emphasis role="bold">SET TABLE SOURCE</emphasis></simpara>
 
-    <simpara><emphasis>set table source statement</emphasis></simpara>
+      <simpara><emphasis>set table source statement</emphasis></simpara>
 
-    <simpara><literal>&lt;set table source statement&gt; ::= SET TABLE
-    &lt;table name&gt; SOURCE &lt;file and options&gt;
-    [DESC]</literal></simpara>
+      <simpara><literal>&lt;set table source statement&gt; ::= SET TABLE
+      &lt;table name&gt; SOURCE &lt;file and options&gt;
+      [DESC]</literal></simpara>
 
-    <simpara><literal>&lt;file and options&gt;::= &lt;doublequote&gt; &lt;file
-    path&gt; [&lt;semicolon&gt; &lt;&gt;...] &lt;doublequote&gt;
-    </literal></simpara>
+      <simpara><literal>&lt;file and options&gt;::= &lt;doublequote&gt;
+      &lt;file path&gt; [&lt;semicolon&gt; &lt;&gt;...] &lt;doublequote&gt;
+      </literal></simpara>
 
-    <simpara>Set the text source for a text table. This statement cannot be
-    used for tables that are not defined as TEXT TABLE.</simpara>
+      <simpara>Set the text source for a text table. This statement cannot be
+      used for tables that are not defined as TEXT TABLE.</simpara>
 
-    <variablelist>
-      <title>Supported Properties</title>
+      <variablelist>
+        <title>Supported Properties</title>
 
-      <varlistentry>
-        <term>quoted = { true | false }</term>
+        <varlistentry>
+          <term>quoted = { true | false }</term>
 
-        <listitem>
-          <para>default is true. If false, treats double quotes as normal
-          characters</para>
-        </listitem>
-      </varlistentry>
+          <listitem>
+            <para>default is true. If false, treats double quotes as normal
+            characters</para>
+          </listitem>
+        </varlistentry>
 
-      <varlistentry>
-        <term>all_quoted = { true | false }</term>
+        <varlistentry>
+          <term>all_quoted = { true | false }</term>
 
-        <listitem>
-          <para>default is false. If true, adds double quotes around all
-          fields.</para>
-        </listitem>
-      </varlistentry>
+          <listitem>
+            <para>default is false. If true, adds double quotes around all
+            fields.</para>
+          </listitem>
+        </varlistentry>
 
-      <varlistentry>
-        <term>encoding = &lt;encoding name&gt;</term>
+        <varlistentry>
+          <term>encoding = &lt;encoding name&gt;</term>
 
-        <listitem>
-          <para>character encoding for text and character fields, for example,
-          encoding=UTF-8</para>
-        </listitem>
-      </varlistentry>
+          <listitem>
+            <para>character encoding for text and character fields, for
+            example, encoding=UTF-8</para>
+          </listitem>
+        </varlistentry>
 
-      <varlistentry>
-        <term>ignore_first = { true | false }</term>
+        <varlistentry>
+          <term>ignore_first = { true | false }</term>
 
-        <listitem>
-          <para>default is false. If true ignores the first line of the
-          file</para>
-        </listitem>
-      </varlistentry>
+          <listitem>
+            <para>default is false. If true ignores the first line of the
+            file</para>
+          </listitem>
+        </varlistentry>
 
-      <varlistentry>
-        <term>cache_scale= &lt;numeric value&gt;</term>
+        <varlistentry>
+          <term>cache_scale= &lt;numeric value&gt;</term>
 
-        <listitem>
-          <para>exponent to calculate rows of the text file in cache. Default
-          is 8, equivalent to nearly 800 rows</para>
-        </listitem>
-      </varlistentry>
+          <listitem>
+            <para>exponent to calculate rows of the text file in cache.
+            Default is 8, equivalent to nearly 800 rows</para>
+          </listitem>
+        </varlistentry>
 
-      <varlistentry>
-        <term>cache_size_scale = &lt;numeric value&gt;r</term>
+        <varlistentry>
+          <term>cache_size_scale = &lt;numeric value&gt;r</term>
 
-        <listitem>
-          <para>exponent to calculate average size of each row in cache.
-          Default is 8, equivalent to 256 bytes per row.</para>
-        </listitem>
-      </varlistentry>
+          <listitem>
+            <para>exponent to calculate average size of each row in cache.
+            Default is 8, equivalent to 256 bytes per row.</para>
+          </listitem>
+        </varlistentry>
 
-      <varlistentry>
-        <term>fs = &lt;unquoted character&gt;</term>
+        <varlistentry>
+          <term>fs = &lt;unquoted character&gt;</term>
 
-        <listitem>
-          <para>field separator</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>vs = &lt;unquoted character&gt;</term>
-
-        <listitem>
-          <para>varchar separator</para>
-        </listitem>
-      </varlistentry>
+          <listitem>
+            <para>field separator</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>vs = &lt;unquoted character&gt;</term>
+
+          <listitem>
+            <para>varchar separator</para>
+          </listitem>
+        </varlistentry>
 
-      <varlistentry>
-        <term>lvs = &lt;unquoted character&gt;</term>
+        <varlistentry>
+          <term>lvs = &lt;unquoted character&gt;</term>
 
-        <listitem>
-          <para>long varchar separator</para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
+          <listitem>
+            <para>long varchar separator</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
 
-    <variablelist>
-      <title>Special indicators for HyperSQL Text Table separators</title>
+      <variablelist>
+        <title>Special indicators for HyperSQL Text Table separators</title>
 
-      <varlistentry>
-        <term>\semi</term>
+        <varlistentry>
+          <term>\semi</term>
+
+          <listitem>
+            <para>semicolon</para>
+          </listitem>
+        </varlistentry>
 
-        <listitem>
-          <para>semicolon</para>
-        </listitem>
-      </varlistentry>
+        <varlistentry>
+          <term>\quote</term>
 
-      <varlistentry>
-        <term>\quote</term>
+          <listitem>
+            <para>quote</para>
+          </listitem>
+        </varlistentry>
 
-        <listitem>
-          <para>quote</para>
-        </listitem>
-      </varlistentry>
+        <varlistentry>
+          <term>\space</term>
 
-      <varlistentry>
-        <term>\space</term>
+          <listitem>
+            <para>space character</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\apos</term>
+
+          <listitem>
+            <para>apostrophe</para>
+          </listitem>
+        </varlistentry>
 
-        <listitem>
-          <para>space character</para>
-        </listitem>
-      </varlistentry>
+        <varlistentry>
+          <term>\n</term>
 
-      <varlistentry>
-        <term>\apos</term>
+          <listitem>
+            <para>newline - Used as an end anchor (like $ in regular
+            expressions)</para>
+          </listitem>
+        </varlistentry>
 
-        <listitem>
-          <para>apostrophe</para>
-        </listitem>
-      </varlistentry>
+        <varlistentry>
+          <term>\r</term>
 
-      <varlistentry>
-        <term>\n</term>
+          <listitem>
+            <para>carriage return</para>
+          </listitem>
+        </varlistentry>
 
-        <listitem>
-          <para>newline - Used as an end anchor (like $ in regular
-          expressions)</para>
-        </listitem>
-      </varlistentry>
+        <varlistentry>
+          <term>\t</term>
 
-      <varlistentry>
-        <term>\r</term>
+          <listitem>
+            <para>tab</para>
+          </listitem>
+        </varlistentry>
 
-        <listitem>
-          <para>carriage return</para>
-        </listitem>
-      </varlistentry>
+        <varlistentry>
+          <term>\\</term>
 
-      <varlistentry>
-        <term>\t</term>
+          <listitem>
+            <para>backslash</para>
+          </listitem>
+        </varlistentry>
 
-        <listitem>
-          <para>tab</para>
-        </listitem>
-      </varlistentry>
+        <varlistentry>
+          <term>\u####</term>
 
-      <varlistentry>
-        <term>\\</term>
+          <listitem>
+            <para>a Unicode character specified in hexadecimal</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
 
-        <listitem>
-          <para>backslash</para>
-        </listitem>
-      </varlistentry>
+      <simpara>In the example below, the text source of the table is set to
+      "myfile", the field separator to the pipe symbol, and the long varchar
+      separator to the tilde symbol.</simpara>
 
-      <varlistentry>
-        <term>\u####</term>
+      <programlisting>    SET TABLE mytable SOURCE 'myfile;fs=|;vs=.;lvs=~'</programlisting>
 
-        <listitem>
-          <para>a Unicode character specified in hexadecimal</para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>In the example below, the text source of the table is set to
-    "myfile", the field separator to the pipe symbol, and the long varchar
-    separator to the tilde symbol.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE HEADER</primary>
+      </indexterm>
 
-    <programlisting>    SET TABLE mytable SOURCE 'myfile;fs=|;vs=.;lvs=~'</programlisting>
+      <simpara><emphasis role="bold">SET TABLE SOURCE
+      HEADER</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis>set table source header
+      statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET TABLE SOURCE HEADER</primary>
-    </indexterm>
+      <simpara><literal>&lt;set table source header statement&gt; ::= SET
+      TABLE &lt;table name&gt; SOURCE HEADER &lt;header
+      string&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">SET TABLE SOURCE
-    HEADER</emphasis></simpara>
+      <simpara>Set the header for the text source for a text table. If this
+      command is used, the <literal>&lt;header string&gt;</literal> is used as
+      the first line of the source file of the text table. This line is not
+      part of the table data. Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><emphasis>set table source header statement</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE SOURCE on-off</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set table source header statement&gt; ::= SET TABLE
-    &lt;table name&gt; SOURCE HEADER &lt;header string&gt;</literal></simpara>
+      <simpara><emphasis role="bold">SET TABLE SOURCE
+      on-off</emphasis></simpara>
 
-    <simpara>Set the header for the text source for a text table. If this
-    command is used, the <literal>&lt;header string&gt;</literal> is used as
-    the first line of the source file of the text table. This line is not part
-    of the table data. Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis>set table source on-off
+      statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET TABLE SOURCE on-off</primary>
-    </indexterm>
+      <simpara><literal>&lt;set table source on-off statement&gt; ::= SET
+      TABLE &lt;table name&gt; SOURCE { ON | OFF } </literal></simpara>
 
-    <simpara><emphasis role="bold">SET TABLE SOURCE
-    on-off</emphasis></simpara>
+      <simpara>Attach or detach a text table from its text source. This
+      command does not change the properties or the name of the file that is
+      the source of a text table. When OFF is specified, the command detaches
+      the table from its source and closes the file for the source. In this
+      state, it is not possible to read or write to the table. This allows the
+      user to replace the file with a different file, or delete it. When ON is
+      specified, the source file is read. Only a user with the DBA role can
+      execute this statement</simpara>
 
-    <simpara><emphasis>set table source on-off statement</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER TABLE</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set table source on-off statement&gt; ::= SET TABLE
-    &lt;table name&gt; SOURCE { ON | OFF } </literal></simpara>
+      <simpara><emphasis role="bold">ALTER TABLE</emphasis></simpara>
 
-    <simpara>Attach or detach a text table from its text source. This command
-    does not change the properties or the name of the file that is the source
-    of a text table. When OFF is specified, the command detaches the table
-    from its source and closes the file for the source. In this state, it is
-    not possible to read or write to the table. This allows the user to
-    replace the file with a different file, or delete it. When ON is
-    specified, the source file is read. Only a user with the DBA role can
-    execute this statement</simpara>
+      <simpara><emphasis>alter table statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>ALTER TABLE</primary>
-    </indexterm>
+      <simpara><literal>&lt;alter table statement&gt; ::= ALTER TABLE
+      &lt;table name&gt; &lt;alter table action&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">ALTER TABLE</emphasis></simpara>
+      <simpara><literal>&lt;alter table action&gt; ::= &lt;add column
+      definition&gt; | &lt;alter column definition&gt; | &lt;drop column
+      definition&gt; | &lt;add table constraint definition&gt; | &lt;drop
+      table constraint definition&gt;</literal></simpara>
 
-    <simpara><emphasis>alter table statement</emphasis></simpara>
+      <simpara>Change the definition of a table. Specific types of this
+      statement are covered below.</simpara>
 
-    <simpara><literal>&lt;alter table statement&gt; ::= ALTER TABLE &lt;table
-    name&gt; &lt;alter table action&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>ADD COLUMN</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;alter table action&gt; ::= &lt;add column
-    definition&gt; | &lt;alter column definition&gt; | &lt;drop column
-    definition&gt; | &lt;add table constraint definition&gt; | &lt;drop table
-    constraint definition&gt;</literal></simpara>
+      <simpara><emphasis role="bold">ADD COLUMN</emphasis></simpara>
 
-    <simpara>Change the definition of a table. Specific types of this
-    statement are covered below.</simpara>
+      <simpara><emphasis>add column definition</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>ADD COLUMN</primary>
-    </indexterm>
+      <simpara><literal>&lt;add column definition&gt; ::= ADD [ COLUMN ]
+      &lt;column definition&gt; [ BEFORE &lt;other column name&gt;
+      ]</literal></simpara>
 
-    <simpara><emphasis role="bold">ADD COLUMN</emphasis></simpara>
+      <simpara>Add a column to an existing table. The <literal>&lt;column
+      definition&gt;</literal> is specified the same way as it is used in
+      <literal>&lt;table definition&gt;</literal>. HyperSQL allows the use of
+      <literal>[ BEFORE &lt;other column name&gt; ]</literal> to specify at
+      which position the new column is added to the table.</simpara>
 
-    <simpara><emphasis>add column definition</emphasis></simpara>
+      <simpara>If the table contains rows, the new column must have a
+      <literal>&lt;default clause&gt;</literal> or use one of the forms of
+      GENERATED. The column values for each row is then filled with the result
+      of the <literal>&lt;default clause&gt;</literal> or the generated
+      value.</simpara>
 
-    <simpara><literal>&lt;add column definition&gt; ::= ADD [ COLUMN ]
-    &lt;column definition&gt; [ BEFORE &lt;other column name&gt;
-    ]</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER COLUMN</primary>
+      </indexterm>
 
-    <simpara>Add a column to an existing table. The <literal>&lt;column
-    definition&gt;</literal> is specified the same way as it is used in
-    <literal>&lt;table definition&gt;</literal>. HyperSQL allows the use of
-    <literal>[ BEFORE &lt;other column name&gt; ]</literal> to specify at
-    which position the new column is added to the table.</simpara>
+      <simpara><emphasis role="bold">ALTER COLUMN</emphasis></simpara>
 
-    <simpara>If the table contains rows, the new column must have a
-    <literal>&lt;default clause&gt;</literal> or use one of the forms of
-    GENERATED. The column values for each row is then filled with the result
-    of the <literal>&lt;default clause&gt;</literal> or the generated
-    value.</simpara>
+      <simpara><emphasis>alter column definition</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>ALTER COLUMN</primary>
-    </indexterm>
+      <simpara><literal>&lt;alter column definition&gt; ::= ALTER [ COLUMN ]
+      &lt;column name&gt; &lt;alter column action&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">ALTER COLUMN</emphasis></simpara>
+      <simpara><literal>&lt;alter column action&gt; ::= &lt;set column default
+      clause&gt; | &lt;drop column default clause&gt; | &lt;alter column data
+      type clause&gt; | &lt;alter identity column specification&gt; |
+      &lt;alter column nullability&gt; | &lt;alter column
+      name&gt;</literal></simpara>
 
-    <simpara><emphasis>alter column definition</emphasis></simpara>
+      <simpara>Change a column and its definition. Specific types of this
+      statement are covered below. See also the RENAME statement
+      above.</simpara>
 
-    <simpara><literal>&lt;alter column definition&gt; ::= ALTER [ COLUMN ]
-    &lt;column name&gt; &lt;alter column action&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DEFAULT</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;alter column action&gt; ::= &lt;set column default
-    clause&gt; | &lt;drop column default clause&gt; | &lt;alter column data
-    type clause&gt; | &lt;alter identity column
-    specification&gt;</literal></simpara>
+      <simpara><emphasis role="bold">SET DEFAULT</emphasis></simpara>
 
-    <simpara>Change a column and its definition. Specific types of this
-    statement are covered below.</simpara>
+      <simpara><emphasis>set column default clause</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DEFAULT</primary>
-    </indexterm>
+      <simpara><literal>&lt;set column default clause&gt; ::= SET &lt;default
+      clause&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">SET DEFAULT</emphasis></simpara>
+      <simpara>Set the default clause for a column. This can be used if the
+      column is not defined as GENERATED.</simpara>
 
-    <simpara><emphasis>set column default clause</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP DEFAULT (table)</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set column default clause&gt; ::= SET &lt;default
-    clause&gt;</literal></simpara>
+      <simpara><emphasis role="bold">DROP DEFAULT</emphasis></simpara>
 
-    <simpara>Set the default clause for a column. This can be used if the
-    column is not defined as GENERATED.</simpara>
+      <simpara><emphasis>drop column default clause</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP DEFAULT (table)</primary>
-    </indexterm>
+      <simpara><literal>&lt;drop column default clause&gt; ::= DROP
+      DEFAULT</literal></simpara>
 
-    <simpara><emphasis role="bold">DROP DEFAULT</emphasis></simpara>
+      <simpara>Drop the default clause from a column.</simpara>
 
-    <simpara><emphasis>drop column default clause</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATA TYPE</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;drop column default clause&gt; ::= DROP
-    DEFAULT</literal></simpara>
+      <simpara><emphasis role="bold">SET DATA TYPE</emphasis></simpara>
 
-    <simpara>Drop the default clause from a column.</simpara>
+      <simpara><emphasis>alter column data type clause</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATA TYPE</primary>
-    </indexterm>
+      <simpara><literal>&lt;alter column data type clause&gt; ::= SET DATA
+      TYPE &lt;data type&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">SET DATA TYPE</emphasis></simpara>
+      <simpara>Change the declared type of a column. The (proposed) SQL
+      Standard allows only changes to type properties such as maximum length,
+      precision, or scale, and only changes that cause the property to
+      enlarge. HyperSQL allows changing the type if all the existing values
+      can be cast into the new type without string truncation or loss of
+      significant digits.</simpara>
 
-    <simpara><emphasis>alter column data type clause</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>alter identity column</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;alter column data type clause&gt; ::= SET DATA TYPE
-    &lt;data type&gt;</literal></simpara>
+      <simpara><emphasis role="bold">alter identity
+      column</emphasis></simpara>
 
-    <simpara>Change the declared type of a column. The (proposed) SQL Standard
-    allows only changes to type properties such as maximum length, precision,
-    or scale, and only changes that cause the property to enlarge. HyperSQL
-    allows changing the type if all the existing values can be cast into the
-    new type without string truncation or loss of significant
-    digits.</simpara>
+      <simpara><emphasis>alter identity column
+      specification</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>alter identity column</primary>
-    </indexterm>
+      <simpara><literal>&lt;alter identity column specification&gt; ::=
+      &lt;alter identity column option&gt;...</literal></simpara>
 
-    <simpara><emphasis role="bold">alter identity column</emphasis></simpara>
+      <simpara><literal>&lt;alter identity column option&gt; ::= &lt;alter
+      sequence generator restart option&gt; | SET &lt;basic sequence generator
+      option&gt;</literal></simpara>
 
-    <simpara><emphasis>alter identity column
-    specification</emphasis></simpara>
+      <simpara>Change the properties of an identity column. This command is
+      similar to the commands used for changing the properties of named
+      SEQUENCE objects discussed in this section.</simpara>
 
-    <simpara><literal>&lt;alter identity column specification&gt; ::=
-    &lt;alter identity column option&gt;...</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>alter column nullability</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;alter identity column option&gt; ::= &lt;alter
-    sequence generator restart option&gt; | SET &lt;basic sequence generator
-    option&gt;</literal></simpara>
+      <simpara><emphasis role="bold">SET NULL</emphasis></simpara>
 
-    <simpara>Change the properties of an identity column. This command is
-    similar to the commands used for changing the properties of named SEQUENCE
-    objects discussed in this section.</simpara>
+      <simpara><emphasis>alter column nullability</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP COLUMN</primary>
-    </indexterm>
+      <simpara><literal>&lt;alter column nullability&gt; ::= SET
+      NULL</literal></simpara>
 
-    <simpara><emphasis role="bold">DROP COLUMN</emphasis></simpara>
+      <simpara>Removes a NOT NULL constraint from a column. This option is
+      specific to HyperSQL</simpara>
 
-    <simpara><emphasis>drop column definition</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP COLUMN</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;drop column definition&gt; ::= DROP [ COLUMN ]
-    &lt;column name&gt; &lt;drop behavior&gt;</literal></simpara>
+      <simpara><emphasis role="bold">DROP COLUMN</emphasis></simpara>
 
-    <simpara>Destroy a column of a base table. The <literal>&lt;drop
-    behavior&gt;</literal> is either <literal>RESTRICT</literal> or
-    <literal>CASCADE</literal>. If the column is referenced in a table
-    constraint that references other columns as well as this column, or if the
-    column is referenced in a VIEW, or the column is referenced in a TRIGGER,
-    then the statement will fail if <literal>RESTRICT</literal> is specified.
-    If <literal>CASCADE</literal> is specified, then any CONSTRAINT, VIEW or
-    TRIGGER object that references the column is dropped with a cascading
-    effect.</simpara>
+      <simpara><emphasis>drop column definition</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>ADD CONSTRAINT</primary>
-    </indexterm>
+      <simpara><literal>&lt;drop column definition&gt; ::= DROP [ COLUMN ]
+      &lt;column name&gt; &lt;drop behavior&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">ADD CONSTRAINT</emphasis></simpara>
+      <simpara>Destroy a column of a base table. The <literal>&lt;drop
+      behavior&gt;</literal> is either <literal>RESTRICT</literal> or
+      <literal>CASCADE</literal>. If the column is referenced in a table
+      constraint that references other columns as well as this column, or if
+      the column is referenced in a VIEW, or the column is referenced in a
+      TRIGGER, then the statement will fail if <literal>RESTRICT</literal> is
+      specified. If <literal>CASCADE</literal> is specified, then any
+      CONSTRAINT, VIEW or TRIGGER object that references the column is dropped
+      with a cascading effect.</simpara>
 
-    <simpara><emphasis>add table constraint definition</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>ADD CONSTRAINT</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;add table constraint definition&gt; ::= ADD
-    &lt;table constraint definition&gt;</literal></simpara>
+      <simpara><emphasis role="bold">ADD CONSTRAINT</emphasis></simpara>
 
-    <simpara>Add a constraint to a table. The existing rows of the table must
-    conform to the added constraint, otherwise the statement will not
-    succeed.</simpara>
+      <simpara><emphasis>add table constraint definition</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP CONSTRAINT</primary>
-    </indexterm>
+      <simpara><literal>&lt;add table constraint definition&gt; ::= ADD
+      &lt;table constraint definition&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">DROP CONSTRAINT</emphasis></simpara>
+      <simpara>Add a constraint to a table. The existing rows of the table
+      must conform to the added constraint, otherwise the statement will not
+      succeed.</simpara>
 
-    <simpara><emphasis>drop table constraint definition</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP CONSTRAINT</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;drop table constraint definition&gt; ::= DROP
-    CONSTRAINT &lt;constraint name&gt; &lt;drop
-    behavior&gt;</literal></simpara>
+      <simpara><emphasis role="bold">DROP CONSTRAINT</emphasis></simpara>
 
-    <simpara>Destroy a constraint on a table. The <literal>&lt;drop
-    behavior&gt;</literal> has an effect only on UNIQUE and PRIMARY KEY
-    constraints. If such a constraint is referenced by a FOREIGN KEY
-    constraint, the FOREIGN KEY constraint will be dropped if
-    <literal>CASCADE</literal> is specified. If the columns of such a
-    constraint are used in a GROUP BY clause in the query expression of a VIEW
-    or another kind of schema object, and a functional dependency relationship
-    exists between these columns and the other columns in that query
-    expression, then the VIEW or other schema object will be dropped when
-    <literal>CASCADE</literal> is specified.</simpara>
+      <simpara><emphasis>drop table constraint definition</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP TABLE</primary>
-    </indexterm>
+      <simpara><literal>&lt;drop table constraint definition&gt; ::= DROP
+      CONSTRAINT &lt;constraint name&gt; &lt;drop
+      behavior&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">DROP TABLE</emphasis></simpara>
+      <simpara>Destroy a constraint on a table. The <literal>&lt;drop
+      behavior&gt;</literal> has an effect only on UNIQUE and PRIMARY KEY
+      constraints. If such a constraint is referenced by a FOREIGN KEY
+      constraint, the FOREIGN KEY constraint will be dropped if
+      <literal>CASCADE</literal> is specified. If the columns of such a
+      constraint are used in a GROUP BY clause in the query expression of a
+      VIEW or another kind of schema object, and a functional dependency
+      relationship exists between these columns and the other columns in that
+      query expression, then the VIEW or other schema object will be dropped
+      when <literal>CASCADE</literal> is specified.</simpara>
 
-    <simpara><emphasis>drop table statement</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP TABLE</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;drop table statement&gt; ::= DROP TABLE [ IF EXISTS
-    ] &lt;table name&gt; [ IF EXISTS ] &lt;drop
-    behavior&gt;</literal></simpara>
+      <simpara><emphasis role="bold">DROP TABLE</emphasis></simpara>
 
-    <simpara>Destroy a table. If <literal>&lt;drop behavior&gt;</literal> is
-    <literal>CASCADE</literal>, it causes all schema objects that reference
-    the table to drop. In the case of constraints that reference the table,
-    the constraint is dropped, rather than the TABLE or DOMAIN that contains
-    it.</simpara>
+      <simpara><emphasis>drop table statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE VIEW</primary>
-    </indexterm>
+      <simpara><literal>&lt;drop table statement&gt; ::= DROP TABLE [ IF
+      EXISTS ] &lt;table name&gt; [ IF EXISTS ] &lt;drop
+      behavior&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">CREATE VIEW</emphasis></simpara>
+      <simpara>Destroy a table. The default drop behaviour is RESTRICT and
+      will cause the statement to fail if there is any view or foreign key
+      constraint that references the table. If <literal>&lt;drop
+      behavior&gt;</literal> is <literal>CASCADE</literal>, it causes all
+      schema objects that reference the table to drop. Referencing views are
+      dropped. In the case of foreign key constraints that reference the
+      table, the constraint is dropped, rather than the TABLE or DOMAIN that
+      contains it.</simpara>
+    </section>
 
-    <simpara><emphasis>view definition</emphasis></simpara>
+    <section>
+      <title>View Creation</title>
 
-    <simpara><literal>&lt;view definition&gt; ::= CREATE [ RECURSIVE ] VIEW
-    &lt;table name&gt; &lt;view specification&gt; AS &lt;query expression&gt;
-    [ WITH [ CASCADED | LOCAL ] CHECK OPTION ]</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE VIEW</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;view specification&gt; ::= [ &lt;left paren&gt;
-    &lt;view column list&gt; &lt;right paren&gt; ]</literal></simpara>
+      <simpara><emphasis role="bold">CREATE VIEW</emphasis></simpara>
 
-    <simpara><literal>&lt;view column list&gt; ::= &lt;column name
-    list&gt;</literal></simpara>
+      <simpara><emphasis>view definition</emphasis></simpara>
 
-    <simpara>Define a view. The <literal>&lt;query expression&gt;</literal> is
-    a SELECT or similar statement. The <literal>&lt;view column
-    list&gt;</literal> is list of unique names for the columns of the view.
-    The number of columns in the <literal>&lt;view column list&gt;</literal>
-    must match the number of columns returned by the <literal>&lt;query
-    expression&gt;</literal>. If <literal>&lt;view column list&gt;</literal>
-    is not specified, then the columns of the <literal>&lt;query
-    expression&gt;</literal> should have unique names.</simpara>
+      <simpara><literal>&lt;view definition&gt; ::= CREATE [ RECURSIVE ] VIEW
+      &lt;table name&gt; &lt;view specification&gt; AS &lt;query
+      expression&gt; [ WITH [ CASCADED | LOCAL ] CHECK OPTION
+      ]</literal></simpara>
 
-    <simpara>Some views are updatable. For updatable views, the optional
-    <literal>CHECK OPTION</literal> clause can be specified. If this option is
-    specified, then if a row of the view is updated or a new row is inserted
-    into the view, then it should contain such values that the row would be
-    included in the view after the change. If <literal>WITH CASCADED CHECK
-    OPTION</literal> is specified, then if the <literal>&lt;query
-    expression&gt;</literal> of the view references another view, then the
-    search condition of the underlying view should also be satisfied by the
-    update or insert operation.</simpara>
+      <simpara><literal>&lt;view specification&gt; ::= [ &lt;left paren&gt;
+      &lt;view column list&gt; &lt;right paren&gt; ]</literal></simpara>
 
-    <simpara>More on recursive...</simpara>
+      <simpara><literal>&lt;view column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP VIEW</primary>
-    </indexterm>
+      <simpara>Define a view. The <literal>&lt;query expression&gt;</literal>
+      is a SELECT or similar statement. The <literal>&lt;view column
+      list&gt;</literal> is list of unique names for the columns of the view.
+      The number of columns in the <literal>&lt;view column list&gt;</literal>
+      must match the number of columns returned by the <literal>&lt;query
+      expression&gt;</literal>. If <literal>&lt;view column list&gt;</literal>
+      is not specified, then the columns of the <literal>&lt;query
+      expression&gt;</literal> should have unique names.</simpara>
 
-    <simpara><emphasis role="bold">DROP VIEW</emphasis></simpara>
+      <simpara>Some views are updatable. For updatable views, the optional
+      <literal>CHECK OPTION</literal> clause can be specified. If this option
+      is specified, then if a row of the view is updated or a new row is
+      inserted into the view, then it should contain such values that the row
+      would be included in the view after the change. If <literal>WITH
+      CASCADED CHECK OPTION</literal> is specified, then if the
+      <literal>&lt;query expression&gt;</literal> of the view references
+      another view, then the search condition of the underlying view should
+      also be satisfied by the update or insert operation.</simpara>
 
-    <simpara><emphasis>drop view statement</emphasis></simpara>
+      <simpara>More on recursive...</simpara>
 
-    <simpara><literal>&lt;drop view statement&gt; ::= DROP VIEW [ IF EXISTS ]
-    &lt;table name&gt; [ IF EXISTS ] &lt;drop behavior&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP VIEW</primary>
+      </indexterm>
 
-    <simpara>Destroy a view. The <literal>&lt;drop behavior&gt;</literal> is
-    similar to dropping a table.</simpara>
+      <simpara><emphasis role="bold">DROP VIEW</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE DOMAIN</primary>
-    </indexterm>
+      <simpara><emphasis>drop view statement</emphasis></simpara>
 
-    <simpara><emphasis role="bold">CREATE DOMAIN</emphasis></simpara>
+      <simpara><literal>&lt;drop view statement&gt; ::= DROP VIEW [ IF EXISTS
+      ] &lt;table name&gt; [ IF EXISTS ] &lt;drop
+      behavior&gt;</literal></simpara>
 
-    <simpara><emphasis>domain definition</emphasis></simpara>
+      <simpara>Destroy a view. The <literal>&lt;drop behavior&gt;</literal> is
+      similar to dropping a table.</simpara>
+    </section>
 
-    <simpara><literal>&lt;domain definition&gt; ::= CREATE DOMAIN &lt;domain
-    name&gt; [ AS ] &lt;predefined type&gt; [ &lt;default clause&gt; ] [
-    &lt;domain constraint&gt;... ] [ &lt;collate clause&gt;
-    ]</literal></simpara>
+    <section>
+      <title>Domain Creation and Manipulation</title>
 
-    <simpara><literal>&lt;domain constraint&gt; ::= [ &lt;constraint name
-    definition&gt; ] &lt;check constraint definition&gt; [ &lt;constraint
-    characteristics&gt; ]</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE DOMAIN</primary>
+      </indexterm>
 
-    <simpara>Define a domain. Although a DOMAIN is not strictly a type in the
-    SQL Standard, it can be informally considered as a type. A DOMAIN is based
-    on a <literal>&lt;predefined type&gt;</literal>, which is a base type
-    defined by the Standard. It can have a <literal>&lt;default
-    clause&gt;</literal>, similar to a column default clause. It can also have
-    one or more CHECK constraints which limit the values that can be assigned
-    to a column or variable that has the DOMAIN as its type.</simpara>
+      <simpara><emphasis role="bold">CREATE DOMAIN</emphasis></simpara>
 
-    <informalexample>
-      <programlisting>CREATE DOMAIN valid_string AS VARCHAR(20) DEFAULT '  ' CHECK (value IS NOT NULL AND CHARACTER_LENGTH(value) &gt; 2) 
+      <simpara><emphasis>domain definition</emphasis></simpara>
+
+      <simpara><literal>&lt;domain definition&gt; ::= CREATE DOMAIN &lt;domain
+      name&gt; [ AS ] &lt;predefined type&gt; [ &lt;default clause&gt; ] [
+      &lt;domain constraint&gt;... ] [ &lt;collate clause&gt;
+      ]</literal></simpara>
+
+      <simpara><literal>&lt;domain constraint&gt; ::= [ &lt;constraint name
+      definition&gt; ] &lt;check constraint definition&gt; [ &lt;constraint
+      characteristics&gt; ]</literal></simpara>
+
+      <simpara>Define a domain. Although a DOMAIN is not strictly a type in
+      the SQL Standard, it can be informally considered as a type. A DOMAIN is
+      based on a <literal>&lt;predefined type&gt;</literal>, which is a base
+      type defined by the Standard. It can have a <literal>&lt;default
+      clause&gt;</literal>, similar to a column default clause. It can also
+      have one or more CHECK constraints which limit the values that can be
+      assigned to a column or variable that has the DOMAIN as its
+      type.</simpara>
+
+      <informalexample>
+        <programlisting>CREATE DOMAIN valid_string AS VARCHAR(20) DEFAULT '  ' CHECK (value IS NOT NULL AND CHARACTER_LENGTH(value) &gt; 2) 
 </programlisting>
-    </informalexample>
+      </informalexample>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>ALTER DOMAIN</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER DOMAIN</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">ALTER DOMAIN</emphasis></simpara>
+      <simpara><emphasis role="bold">ALTER DOMAIN</emphasis></simpara>
 
-    <simpara><emphasis>alter domain statement</emphasis></simpara>
+      <simpara><emphasis>alter domain statement</emphasis></simpara>
 
-    <simpara><literal>&lt;alter domain statement&gt; ::= ALTER DOMAIN
-    &lt;domain name&gt; &lt;alter domain action&gt;</literal></simpara>
+      <simpara><literal>&lt;alter domain statement&gt; ::= ALTER DOMAIN
+      &lt;domain name&gt; &lt;alter domain action&gt;</literal></simpara>
 
-    <simpara><literal>&lt;alter domain action&gt; ::= &lt;set domain default
-    clause&gt; | &lt;drop domain default clause&gt; | &lt;add domain
-    constraint definition&gt; | &lt;drop domain constraint
-    definition&gt;</literal></simpara>
+      <simpara><literal>&lt;alter domain action&gt; ::= &lt;set domain default
+      clause&gt; | &lt;drop domain default clause&gt; | &lt;add domain
+      constraint definition&gt; | &lt;drop domain constraint
+      definition&gt;</literal></simpara>
 
-    <simpara>Change a domain and its definition.</simpara>
+      <simpara>Change a domain and its definition.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DOMAIN DEFAULT</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DOMAIN DEFAULT</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">SET DEFAULT</emphasis></simpara>
+      <simpara><emphasis role="bold">SET DEFAULT</emphasis></simpara>
 
-    <simpara><emphasis>set domain default clause</emphasis></simpara>
+      <simpara><emphasis>set domain default clause</emphasis></simpara>
 
-    <simpara><literal>&lt;set domain default clause&gt; ::= SET &lt;default
-    clause&gt;</literal></simpara>
+      <simpara><literal>&lt;set domain default clause&gt; ::= SET &lt;default
+      clause&gt;</literal></simpara>
 
-    <simpara>Set the default value in a domain.</simpara>
+      <simpara>Set the default value in a domain.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP DOMAIN DEFAULT</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP DOMAIN DEFAULT</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DROP DEFAULT</emphasis></simpara>
+      <simpara><emphasis role="bold">DROP DEFAULT</emphasis></simpara>
 
-    <simpara><emphasis>drop domain default clause</emphasis></simpara>
+      <simpara><emphasis>drop domain default clause</emphasis></simpara>
 
-    <simpara><literal>&lt;drop domain default clause&gt; ::= DROP
-    DEFAULT</literal></simpara>
+      <simpara><literal>&lt;drop domain default clause&gt; ::= DROP
+      DEFAULT</literal></simpara>
 
-    <simpara>Remove the default clause of a domain.</simpara>
+      <simpara>Remove the default clause of a domain.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>ADD DOMAIN CONSTRAINT</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>ADD DOMAIN CONSTRAINT</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">ADD CONSTRAINT</emphasis></simpara>
+      <simpara><emphasis role="bold">ADD CONSTRAINT</emphasis></simpara>
 
-    <simpara><emphasis>add domain constraint definition</emphasis></simpara>
+      <simpara><emphasis>add domain constraint definition</emphasis></simpara>
 
-    <simpara><literal>&lt;add domain constraint definition&gt; ::= ADD
-    &lt;domain constraint&gt;</literal></simpara>
+      <simpara><literal>&lt;add domain constraint definition&gt; ::= ADD
+      &lt;domain constraint&gt;</literal></simpara>
 
-    <simpara>Add a constraint to a domain.</simpara>
+      <simpara>Add a constraint to a domain.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP DOMAIN CONSTRAINT</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP DOMAIN CONSTRAINT</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DROP CONSTRAINT</emphasis></simpara>
+      <simpara><emphasis role="bold">DROP CONSTRAINT</emphasis></simpara>
 
-    <simpara><emphasis>drop domain constraint definition</emphasis></simpara>
+      <simpara><emphasis>drop domain constraint
+      definition</emphasis></simpara>
 
-    <simpara><literal>&lt;drop domain constraint definition&gt; ::= DROP
-    CONSTRAINT &lt;constraint name&gt;</literal></simpara>
+      <simpara><literal>&lt;drop domain constraint definition&gt; ::= DROP
+      CONSTRAINT &lt;constraint name&gt;</literal></simpara>
 
-    <simpara>Destroy a constraint on a domain. If the <literal>&lt;drop
-    behavior&gt;</literal> is <literal>CASCADE</literal>, and the constraint
-    is a UNIQUE constraint which is referenced by a FOREIGN KEY constraint on
-    another table, then the FOREIGN KEY constraint is also dropped.</simpara>
+      <simpara>Destroy a constraint on a domain. If the <literal>&lt;drop
+      behavior&gt;</literal> is <literal>CASCADE</literal>, and the constraint
+      is a UNIQUE constraint which is referenced by a FOREIGN KEY constraint
+      on another table, then the FOREIGN KEY constraint is also
+      dropped.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP DOMAIN</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP DOMAIN</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DROP DOMAIN</emphasis></simpara>
+      <simpara><emphasis role="bold">DROP DOMAIN</emphasis></simpara>
 
-    <simpara><emphasis>drop domain statement</emphasis></simpara>
+      <simpara><emphasis>drop domain statement</emphasis></simpara>
 
-    <simpara><literal>&lt;drop domain statement&gt; ::= DROP DOMAIN &lt;domain
-    name&gt; &lt;drop behavior&gt;</literal></simpara>
+      <simpara><literal>&lt;drop domain statement&gt; ::= DROP DOMAIN
+      &lt;domain name&gt; &lt;drop behavior&gt;</literal></simpara>
 
-    <simpara>Destroy a domain. If <literal>&lt;drop behavior&gt;</literal> is
-    <literal>CASCADE</literal>, it works differently from most other objects.
-    If a table features a column of the specified DOMAIN, the column survives
-    and inherits the DEFAULT CLAUSE, and the CHECK CONSTRAINT of the
-    DOMAIN.</simpara>
+      <simpara>Destroy a domain. If <literal>&lt;drop behavior&gt;</literal>
+      is <literal>CASCADE</literal>, it works differently from most other
+      objects. If a table features a column of the specified DOMAIN, the
+      column survives and inherits the DEFAULT CLAUSE, and the CHECK
+      CONSTRAINT of the DOMAIN.</simpara>
+    </section>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE CHARACTER SET</primary>
-    </indexterm>
+    <section>
+      <title>Trigger Creation</title>
 
-    <simpara><emphasis role="bold">CREATE CHARACTER SET</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE TRIGGER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE TRIGGER</emphasis></simpara>
+
+      <simpara><emphasis>trigger definition</emphasis></simpara>
+
+      <simpara><literal>&lt;trigger definition&gt; ::= CREATE TRIGGER
+      &lt;trigger name&gt; &lt;trigger action time&gt; &lt;trigger event&gt;
+      ON &lt;table name&gt; [ REFERENCING &lt;transition table or variable
+      list&gt; ] &lt;triggered action&gt;</literal></simpara>
+
+      <simpara><literal>&lt;trigger action time&gt; ::= BEFORE | AFTER |
+      INSTEAD OF</literal></simpara>
+
+      <simpara><literal>&lt;trigger event&gt; ::= INSERT | DELETE | UPDATE [
+      OF &lt;trigger column list&gt; ]</literal></simpara>
 
-    <simpara><emphasis>character set definition</emphasis></simpara>
+      <simpara><literal>&lt;trigger column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
 
-    <simpara><literal>&lt;character set definition&gt; ::= CREATE CHARACTER
-    SET &lt;character set name&gt; [ AS ] &lt;character set source&gt; [
-    &lt;collate clause&gt; ]</literal></simpara>
+      <simpara><literal>&lt;triggered action&gt; ::= [ FOR EACH { ROW |
+      STATEMENT } ] [ &lt;triggered when clause&gt; ] &lt;triggered SQL
+      statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;character set source&gt; ::= GET &lt;character set
-    specification&gt;</literal></simpara>
+      <simpara><literal>&lt;triggered when clause&gt; ::= WHEN &lt;left
+      paren&gt; &lt;search condition&gt; &lt;right
+      paren&gt;</literal></simpara>
 
-    <simpara>Define a character set. A new CHARACTER SET is based on an
-    existing CHARACTER SET. The optional <literal>&lt;collate
-    clause&gt;</literal> specifies the collation to be used, otherwise the
-    collation is inherited from the default collation for the source CHARACTER
-    SET.</simpara>
+      <simpara><literal>&lt;triggered SQL statement&gt; ::= &lt;SQL procedure
+      statement&gt; | BEGIN ATOMIC { &lt;SQL procedure statement&gt;
+      &lt;semicolon&gt; }... END | CALL &lt;HSQLDB trigger class
+      FQN&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP CHARACTER SET</primary>
-    </indexterm>
+      <simpara><literal>&lt;transition table or variable list&gt; ::=
+      &lt;transition table or variable&gt;...</literal></simpara>
 
-    <simpara><emphasis role="bold">DROP CHARACTER SET</emphasis></simpara>
+      <simpara><literal>&lt;transition table or variable&gt; ::= OLD [ ROW ] [
+      AS ] &lt;old transition variable name&gt; | NEW [ ROW ] [ AS ] &lt;new
+      transition variable name&gt; | OLD TABLE [ AS ] &lt;old transition table
+      name&gt; | NEW TABLE [ AS ] &lt;new transition table
+      name&gt;</literal></simpara>
 
-    <simpara><emphasis>drop character set statement</emphasis></simpara>
+      <simpara><literal>&lt;old transition table name&gt; ::= &lt;transition
+      table name&gt;</literal></simpara>
 
-    <simpara><literal>&lt;drop character set statement&gt; ::= DROP CHARACTER
-    SET &lt;character set name&gt;</literal></simpara>
+      <simpara><literal>&lt;new transition table name&gt; ::= &lt;transition
+      table name&gt;</literal></simpara>
 
-    <simpara>Destroy a character set. If the character set name is referenced
-    in any database object, the command fails. Note that
-    <literal>CASCADE</literal> or <literal>RESTRICT</literal> cannot be
-    specified for this command.</simpara>
+      <simpara><literal>&lt;transition table name&gt; ::=
+      &lt;identifier&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE COLLATION</primary>
-    </indexterm>
+      <simpara><literal>&lt;old transition variable name&gt; ::=
+      &lt;correlation name&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">CREATE COLLATION</emphasis></simpara>
+      <simpara><literal>&lt;new transition variable name&gt; ::=
+      &lt;correlation name&gt;</literal></simpara>
 
-    <simpara><emphasis>collation definition</emphasis></simpara>
+      <simpara>Trigger definition is a relatively complex statement. The
+      combination of <literal>&lt;trigger action time&gt;</literal> and
+      <literal>&lt;trigger event&gt;</literal> determines the type of the
+      trigger. Examples include BEFORE DELETE, AFTER UPDATE, INSTEAD OF
+      INSERT. If the optional <literal>[ OF &lt;trigger column list&gt;
+      ]</literal> is specified for an UPDATE trigger, then the trigger is
+      activated only if one of the columns that is in the <literal>&lt;trigger
+      column list&gt;</literal> is specified in the UPDATE statement that
+      activates the trigger.</simpara>
 
-    <simpara><literal>&lt;collation definition&gt; ::= CREATE COLLATION
-    &lt;collation name&gt; FOR &lt;character set specification&gt; FROM
-    &lt;existing collation name&gt; [ &lt;pad characteristic&gt;
-    ]</literal></simpara>
+      <simpara>If a trigger is <literal>FOR EACH ROW</literal>, which is the
+      default option, then the trigger is activated for each row of the table
+      that is affected by the execution of an SQL statement. Otherwise, it is
+      activated once only per statement execution. In the first case, there is
+      a before and after state for each row. For UPDATE triggers, both before
+      and after states exist, representing the row before the update, and
+      after the update. For DELETE, triggers, there is only a before state.
+      For INSERT triggers, there is only an after state. If a trigger is
+      <literal>FOR EACH STATEMENT</literal>, then a transient table is created
+      containing all the rows for the before state and another transient table
+      is created for the after state.</simpara>
 
-    <simpara><literal>&lt;existing collation name&gt; ::= &lt;collation
-    name&gt;</literal></simpara>
+      <simpara>The <literal>[ REFERENCING &lt;transition table or variable&gt;
+      ]</literal> is used to give a name to the before and after data row or
+      table. This name can be referenced in the <literal>&lt;SQL procedure
+      statement&gt;</literal> to access the data.</simpara>
 
-    <simpara><literal>&lt;pad characteristic&gt; ::= NO PAD | PAD
-    SPACE</literal></simpara>
+      <simpara>The optional <literal>&lt;triggered when clause&gt;</literal>
+      is a search condition, similar to the search condition of a DELETE or
+      UPDATE statement. If the search condition is not TRUE for a row, then
+      the trigger is not activated for that row.</simpara>
 
-    <simpara>Define a collation. A new collation is based on an existing
-    COLLATION and applies to an existing CHARACTER SET. The <literal>&lt;pad
-    characteristic&gt;</literal> specifies whether strings are padded with
-    spaces for comparison.</simpara>
+      <simpara>The <literal>&lt;SQL procedure statement&gt;</literal> is
+      limited to INSERT, DELETE, UPDATE and MERGE statements.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP COLLATION</primary>
-    </indexterm>
+      <simpara>The <literal>&lt;HSQLDB trigger class FQN&gt;</literal> is a
+      delimited identifer that contains the fully qualified name of a Java
+      class that implements the <classname>org.hsqldb.Trigger</classname>
+      interface.</simpara>
 
-    <simpara><emphasis role="bold">DROP COLLATION</emphasis></simpara>
+      <simpara>HyperSQL version 1.9 may not support statement level triggers
+      and therefore not allow use of OLD TABLE or NEW TABLE.</simpara>
 
-    <simpara><emphasis>drop collation statement</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP TRIGGER</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;drop collation statement&gt; ::= DROP COLLATION
-    &lt;collation name&gt; &lt;drop behavior&gt;</literal></simpara>
+      <simpara><emphasis role="bold">DROP TRIGGER</emphasis></simpara>
 
-    <simpara>Destroy a collation. If the <literal>&lt;drop
-    behavior&gt;</literal> is <literal>CASCADE</literal>, then all references
-    to the collation revert to the default collation that would be in force if
-    the dropped collation was not specified.</simpara>
+      <simpara><emphasis>drop trigger statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE TRANSLATION</primary>
-    </indexterm>
+      <simpara><literal>&lt;drop trigger statement&gt; ::= DROP TRIGGER
+      &lt;trigger name&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">CREATE TRANSLATION</emphasis></simpara>
+      <simpara>Destroy a trigger.</simpara>
+    </section>
 
-    <simpara><emphasis>transliteration definition</emphasis></simpara>
+    <section>
+      <title>Routine Creation</title>
 
-    <simpara><literal>&lt;transliteration definition&gt; ::= CREATE
-    TRANSLATION &lt;transliteration name&gt; FOR &lt;source character set
-    specification&gt; TO &lt;target character set specification&gt; FROM
-    &lt;transliteration source&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>schema routine</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;source character set specification&gt; ::=
-    &lt;character set specification&gt;</literal></simpara>
+      <simpara><emphasis role="bold">schema routine</emphasis></simpara>
 
-    <simpara><literal>&lt;target character set specification&gt; ::=
-    &lt;character set specification&gt;</literal></simpara>
+      <simpara><emphasis>SQL-invoked routine</emphasis></simpara>
 
-    <simpara><literal>&lt;transliteration source&gt; ::= &lt;existing
-    transliteration name&gt; | &lt;transliteration
-    routine&gt;</literal></simpara>
+      <simpara><literal>&lt;SQL-invoked routine&gt; ::= &lt;schema
+      routine&gt;</literal></simpara>
 
-    <simpara><literal>&lt;existing transliteration name&gt; ::=
-    &lt;transliteration name&gt;</literal></simpara>
+      <simpara><literal>&lt;schema routine&gt; ::= &lt;schema procedure&gt; |
+      &lt;schema function&gt;</literal></simpara>
 
-    <simpara><literal>&lt;transliteration routine&gt; ::= &lt;specific routine
-    designator&gt;</literal></simpara>
+      <simpara><literal>&lt;schema procedure&gt; ::= CREATE &lt;SQL-invoked
+      procedure&gt;</literal></simpara>
 
-    <simpara>Define a character transliteration. This feature may be supported
-    in a future versions of HyperSQL.</simpara>
+      <simpara><literal>&lt;schema function&gt; ::= CREATE &lt;SQL-invoked
+      function&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP TRANSLATION</primary>
-    </indexterm>
+      <simpara><literal>&lt;SQL-invoked procedure&gt; ::= PROCEDURE &lt;schema
+      qualified routine name&gt; &lt;SQL parameter declaration list&gt;
+      &lt;routine characteristics&gt; &lt;routine body&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">DROP TRANSLATION</emphasis></simpara>
+      <simpara><literal>&lt;SQL-invoked function&gt; ::= { &lt;function
+      specification&gt; | &lt;method specification designator&gt; }
+      &lt;routine body&gt;</literal></simpara>
 
-    <simpara><emphasis>drop transliteration statement</emphasis></simpara>
+      <simpara><literal>&lt;SQL parameter declaration list&gt; ::= &lt;left
+      paren&gt; [ &lt;SQL parameter declaration&gt; [ { &lt;comma&gt; &lt;SQL
+      parameter declaration&gt; }... ] ] &lt;right
+      paren&gt;</literal></simpara>
 
-    <simpara><literal>&lt;drop transliteration statement&gt; ::= DROP
-    TRANSLATION &lt;transliteration name&gt;</literal></simpara>
+      <simpara><literal>&lt;SQL parameter declaration&gt; ::= [ &lt;parameter
+      mode&gt; ] [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt; [
+      RESULT ]</literal></simpara>
 
-    <simpara>Destroy a character transliteration.</simpara>
+      <simpara><literal>&lt;parameter mode&gt; ::= IN | OUT |
+      INOUT</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE ASSERTION</primary>
-    </indexterm>
+      <simpara><literal>&lt;parameter type&gt; ::= &lt;data
+      type&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">CREATE ASSERTION</emphasis></simpara>
+      <simpara><literal>&lt;function specification&gt; ::= FUNCTION &lt;schema
+      qualified routine name&gt; &lt;SQL parameter declaration list&gt;
+      &lt;returns clause&gt; &lt;routine characteristics&gt; [ &lt;dispatch
+      clause&gt; ]</literal></simpara>
 
-    <simpara><emphasis>assertion definition</emphasis></simpara>
+      <simpara><literal>&lt;method specification designator&gt; ::= SPECIFIC
+      METHOD &lt;specific method name&gt; | [ INSTANCE | STATIC | CONSTRUCTOR
+      ] METHOD &lt;method name&gt; &lt;SQL parameter declaration list&gt; [
+      &lt;returns clause&gt; ] FOR &lt;schema-resolved user-defined type
+      name&gt;</literal></simpara>
 
-    <simpara><literal>&lt;assertion definition&gt; ::= CREATE ASSERTION
-    &lt;constraint name&gt; CHECK &lt;left paren&gt; &lt;search condition&gt;
-    &lt;right paren&gt; [ &lt;constraint characteristics&gt;
-    ]</literal></simpara>
+      <simpara><literal>&lt;routine characteristics&gt; ::= [ &lt;routine
+      characteristic&gt;... ]</literal></simpara>
 
-    <simpara>Specify an integrity constraint.</simpara>
+      <simpara><literal>&lt;routine characteristic&gt; ::= &lt;language
+      clause&gt; | &lt;parameter style clause&gt; | SPECIFIC &lt;specific
+      name&gt; | &lt;deterministic characteristic&gt; | &lt;SQL-data access
+      indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
+      characteristic&gt; | &lt;savepoint level
+      indication&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP ASSERTION</primary>
-    </indexterm>
+      <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
+      LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
 
-    <simpara><emphasis role="bold">DROP ASSERTION</emphasis></simpara>
+      <simpara><literal>&lt;returned result sets characteristic&gt; ::=
+      DYNAMIC RESULT SETS &lt;maximum returned result
+      sets&gt;</literal></simpara>
 
-    <simpara><emphasis>drop assertion statement</emphasis></simpara>
+      <simpara><literal>&lt;parameter style clause&gt; ::= PARAMETER STYLE
+      &lt;parameter style&gt;</literal></simpara>
 
-    <simpara><literal>&lt;drop assertion statement&gt; ::= DROP ASSERTION
-    &lt;constraint name&gt; [ &lt;drop behavior&gt; ]</literal></simpara>
+      <simpara><literal>&lt;dispatch clause&gt; ::= STATIC
+      DISPATCH</literal></simpara>
 
-    <simpara>Destroy an assertion.</simpara>
+      <simpara><literal>&lt;returns clause&gt; ::= RETURNS &lt;returns
+      type&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE TRIGGER</primary>
-    </indexterm>
+      <simpara><literal>&lt;returns type&gt; ::= &lt;returns data type&gt; [
+      &lt;result cast&gt; ] | &lt;returns table type&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">CREATE TRIGGER</emphasis></simpara>
+      <simpara><literal>&lt;returns table type&gt; ::= TABLE &lt;table
+      function column list&gt;</literal></simpara>
 
-    <simpara><emphasis>trigger definition</emphasis></simpara>
+      <simpara><literal>&lt;table function column list&gt; ::= &lt;left
+      paren&gt; &lt;table function column list element&gt; [ { &lt;comma&gt;
+      &lt;table function column list element&gt; }... ] &lt;right
+      paren&gt;</literal></simpara>
 
-    <simpara><literal>&lt;trigger definition&gt; ::= CREATE TRIGGER
-    &lt;trigger name&gt; &lt;trigger action time&gt; &lt;trigger event&gt; ON
-    &lt;table name&gt; [ REFERENCING &lt;transition table or variable list&gt;
-    ] &lt;triggered action&gt;</literal></simpara>
+      <simpara><literal>&lt;table function column list element&gt; ::=
+      &lt;column name&gt; &lt;data type&gt;</literal></simpara>
 
-    <simpara><literal>&lt;trigger action time&gt; ::= BEFORE | AFTER | INSTEAD
-    OF</literal></simpara>
+      <simpara><literal>&lt;result cast&gt; ::= CAST FROM &lt;result cast from
+      type&gt;</literal></simpara>
 
-    <simpara><literal>&lt;trigger event&gt; ::= INSERT | DELETE | UPDATE [ OF
-    &lt;trigger column list&gt; ]</literal></simpara>
+      <simpara><literal>&lt;result cast from type&gt; ::= &lt;data type&gt; [
+      &lt;locator indication&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;trigger column list&gt; ::= &lt;column name
-    list&gt;</literal></simpara>
+      <simpara><literal>&lt;returns data type&gt; ::= &lt;data type&gt; [
+      &lt;locator indication&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;triggered action&gt; ::= [ FOR EACH { ROW |
-    STATEMENT } ] [ &lt;triggered when clause&gt; ] &lt;triggered SQL
-    statement&gt;</literal></simpara>
+      <simpara><literal>&lt;routine body&gt; ::= &lt;SQL routine spec&gt; |
+      &lt;external body reference&gt;</literal></simpara>
 
-    <simpara><literal>&lt;triggered when clause&gt; ::= WHEN &lt;left
-    paren&gt; &lt;search condition&gt; &lt;right paren&gt;</literal></simpara>
+      <simpara><literal>&lt;SQL routine spec&gt; ::= [ &lt;rights clause&gt; ]
+      &lt;SQL routine body&gt;</literal></simpara>
 
-    <simpara><literal>&lt;triggered SQL statement&gt; ::= &lt;SQL procedure
-    statement&gt; | BEGIN ATOMIC { &lt;SQL procedure statement&gt;
-    &lt;semicolon&gt; }... END | CALL &lt;HSQLDB trigger class
-    FQN&gt;</literal></simpara>
+      <simpara><literal>&lt;rights clause&gt; ::= SQL SECURITY INVOKER | SQL
+      SECURITY DEFINER</literal></simpara>
 
-    <simpara><literal>&lt;transition table or variable list&gt; ::=
-    &lt;transition table or variable&gt;...</literal></simpara>
+      <simpara><literal>&lt;SQL routine body&gt; ::= &lt;SQL procedure
+      statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;transition table or variable&gt; ::= OLD [ ROW ] [
-    AS ] &lt;old transition variable name&gt; | NEW [ ROW ] [ AS ] &lt;new
-    transition variable name&gt; | OLD TABLE [ AS ] &lt;old transition table
-    name&gt; | NEW TABLE [ AS ] &lt;new transition table
-    name&gt;</literal></simpara>
+      <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL [ NAME
+      &lt;external routine name&gt; ] [ &lt;parameter style clause&gt;
+      ]</literal></simpara>
 
-    <simpara><literal>&lt;old transition table name&gt; ::= &lt;transition
-    table name&gt;</literal></simpara>
+      <simpara><literal>&lt;parameter style&gt; ::= SQL |
+      GENERAL</literal></simpara>
 
-    <simpara><literal>&lt;new transition table name&gt; ::= &lt;transition
-    table name&gt;</literal></simpara>
+      <simpara><literal>&lt;deterministic characteristic&gt; ::= DETERMINISTIC
+      | NOT DETERMINISTIC</literal></simpara>
 
-    <simpara><literal>&lt;transition table name&gt; ::=
-    &lt;identifier&gt;</literal></simpara>
+      <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL |
+      CONTAINS SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
 
-    <simpara><literal>&lt;old transition variable name&gt; ::= &lt;correlation
-    name&gt;</literal></simpara>
+      <simpara><literal>&lt;null-call clause&gt; ::= RETURNS NULL ON NULL
+      INPUT | CALLED ON NULL INPUT</literal></simpara>
 
-    <simpara><literal>&lt;new transition variable name&gt; ::= &lt;correlation
-    name&gt;</literal></simpara>
+      <simpara><literal>&lt;maximum returned result sets&gt; ::= &lt;unsigned
+      integer&gt;</literal></simpara>
 
-    <simpara>Trigger definition is a relatively complex statement. The
-    combination of <literal>&lt;trigger action time&gt;</literal> and
-    <literal>&lt;trigger event&gt;</literal> determines the type of the
-    trigger. Examples include BEFORE DELETE, AFTER UPDATE, INSTEAD OF INSERT.
-    If the optional <literal>[ OF &lt;trigger column list&gt; ]</literal> is
-    specified for an UPDATE trigger, then the trigger is activated only if one
-    of the columns that is in the <literal>&lt;trigger column
-    list&gt;</literal> is specified in the UPDATE statement that activates the
-    trigger.</simpara>
+      <simpara>Define an SQL-invoked routine.</simpara>
 
-    <simpara>If a trigger is <literal>FOR EACH ROW</literal>, which is the
-    default option, then the trigger is activated for each row of the table
-    that is affected by the execution of an SQL statement. Otherwise, it is
-    activated once only per statement execution. In the first case, there is a
-    before and after state for each row. For UPDATE triggers, both before and
-    after states exist, representing the row before the update, and after the
-    update. For DELETE, triggers, there is only a before state. For INSERT
-    triggers, there is only an after state. If a trigger is <literal>FOR EACH
-    STATEMENT</literal>, then a transient table is created containing all the
-    rows for the before state and another transient table is created for the
-    after state.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER routine</primary>
+      </indexterm>
 
-    <simpara>The <literal>[ REFERENCING &lt;transition table or variable&gt;
-    ]</literal> is used to give a name to the before and after data row or
-    table. This name can be referenced in the <literal>&lt;SQL procedure
-    statement&gt;</literal> to access the data.</simpara>
+      <simpara><emphasis role="bold">ALTER routine</emphasis></simpara>
 
-    <simpara>The optional <literal>&lt;triggered when clause&gt;</literal> is
-    a search condition, similar to the search condition of a DELETE or UPDATE
-    statement. If the search condition is not TRUE for a row, then the trigger
-    is not activated for that row.</simpara>
+      <simpara><emphasis>alter routine statement</emphasis></simpara>
 
-    <simpara>The <literal>&lt;SQL procedure statement&gt;</literal> is limited
-    to INSERT, DELETE, UPDATE and MERGE statements.</simpara>
+      <simpara><literal>&lt;alter routine statement&gt; ::= ALTER &lt;specific
+      routine designator&gt; &lt;alter routine characteristics&gt; &lt;alter
+      routine behavior&gt;</literal></simpara>
 
-    <simpara>The <literal>&lt;HSQLDB trigger class FQN&gt;</literal> is a
-    delimited identifer that contains the fully qualified name of a Java class
-    that implements the <classname>org.hsqldb.Trigger</classname>
-    interface.</simpara>
+      <simpara><literal>&lt;alter routine characteristics&gt; ::= &lt;alter
+      routine characteristic&gt;...</literal></simpara>
 
-    <simpara>HyperSQL version 1.9 may not support statement level triggers and
-    therefore not allow use of OLD TABLE or NEW TABLE.</simpara>
+      <simpara><literal>&lt;alter routine characteristic&gt; ::= &lt;language
+      clause&gt; | &lt;parameter style clause&gt; | &lt;SQL-data access
+      indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
+      characteristic&gt; | NAME &lt;external routine
+      name&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP TRIGGER</primary>
-    </indexterm>
+      <simpara><literal>&lt;alter routine behavior&gt; ::=
+      RESTRICT</literal></simpara>
 
-    <simpara><emphasis role="bold">DROP TRIGGER</emphasis></simpara>
+      <simpara>Alter a characteristic of an SQL-invoked routine.</simpara>
 
-    <simpara><emphasis>drop trigger statement</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP routine</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;drop trigger statement&gt; ::= DROP TRIGGER
-    &lt;trigger name&gt;</literal></simpara>
+      <simpara><emphasis role="bold">DROP</emphasis></simpara>
 
-    <simpara>Destroy a trigger.</simpara>
+      <simpara><emphasis>drop routine statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE TYPE</primary>
-    </indexterm>
+      <simpara><literal>&lt;drop routine statement&gt; ::= DROP &lt;specific
+      routine designator&gt; &lt;drop behavior&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">CREATE TYPE</emphasis></simpara>
+      <simpara>Destroy an SQL-invoked routine.</simpara>
+    </section>
 
-    <simpara><emphasis>user-defined type definition</emphasis></simpara>
+    <section>
+      <title>Sequence Creation</title>
 
-    <simpara><literal>&lt;user-defined type definition&gt; ::= CREATE TYPE
-    &lt;user-defined type body&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE SEQUENCE</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;user-defined type body&gt; ::= &lt;schema-resolved
-    user-defined type name&gt; [ AS &lt;representation&gt;
-    ]</literal></simpara>
+      <simpara><emphasis role="bold">CREATE SEQUENCE</emphasis></simpara>
 
-    <simpara><literal>&lt;representation&gt; ::= &lt;predefined
-    type&gt;</literal></simpara>
+      <simpara><emphasis>sequence generator definition</emphasis></simpara>
 
-    <simpara>Define a user-defined type. Currently only simple distinct types
-    can be defined without further attributes.</simpara>
+      <simpara><literal>&lt;sequence generator definition&gt; ::= CREATE
+      SEQUENCE &lt;sequence generator name&gt; [ &lt;sequence generator
+      options&gt; ]</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>schema routine</primary>
-    </indexterm>
+      <simpara><literal>&lt;sequence generator options&gt; ::= &lt;sequence
+      generator option&gt; ...</literal></simpara>
 
-    <simpara><emphasis role="bold">schema routine</emphasis></simpara>
+      <simpara><literal>&lt;sequence generator option&gt; ::= &lt;sequence
+      generator data type option&gt; | &lt;common sequence generator
+      options&gt;</literal></simpara>
 
-    <simpara><emphasis>SQL-invoked routine</emphasis></simpara>
+      <simpara><literal>&lt;common sequence generator options&gt; ::=
+      &lt;common sequence generator option&gt; ...</literal></simpara>
 
-    <simpara><literal>&lt;SQL-invoked routine&gt; ::= &lt;schema
-    routine&gt;</literal></simpara>
+      <simpara><literal>&lt;common sequence generator option&gt; ::=
+      &lt;sequence generator start with option&gt; | &lt;basic sequence
+      generator option&gt;</literal></simpara>
 
-    <simpara><literal>&lt;schema routine&gt; ::= &lt;schema procedure&gt; |
-    &lt;schema function&gt;</literal></simpara>
+      <simpara><literal>&lt;basic sequence generator option&gt; ::=
+      &lt;sequence generator increment by option&gt; | &lt;sequence generator
+      maxvalue option&gt; | &lt;sequence generator minvalue option&gt; |
+      &lt;sequence generator cycle option&gt;</literal></simpara>
 
-    <simpara><literal>&lt;schema procedure&gt; ::= CREATE &lt;SQL-invoked
-    procedure&gt;</literal></simpara>
+      <simpara><literal>&lt;sequence generator data type option&gt; ::= AS
+      &lt;data type&gt;</literal></simpara>
 
-    <simpara><literal>&lt;schema function&gt; ::= CREATE &lt;SQL-invoked
-    function&gt;</literal></simpara>
+      <simpara><literal>&lt;sequence generator start with option&gt; ::= START
+      WITH &lt;sequence generator start value&gt;</literal></simpara>
 
-    <simpara><literal>&lt;SQL-invoked procedure&gt; ::= PROCEDURE &lt;schema
-    qualified routine name&gt; &lt;SQL parameter declaration list&gt;
-    &lt;routine characteristics&gt; &lt;routine body&gt;</literal></simpara>
+      <simpara><literal>&lt;sequence generator start value&gt; ::= &lt;signed
+      numeric literal&gt;</literal></simpara>
 
-    <simpara><literal>&lt;SQL-invoked function&gt; ::= { &lt;function
-    specification&gt; | &lt;method specification designator&gt; } &lt;routine
-    body&gt;</literal></simpara>
+      <simpara><literal>&lt;sequence generator increment by option&gt; ::=
+      INCREMENT BY &lt;sequence generator increment&gt;</literal></simpara>
 
-    <simpara><literal>&lt;SQL parameter declaration list&gt; ::= &lt;left
-    paren&gt; [ &lt;SQL parameter declaration&gt; [ { &lt;comma&gt; &lt;SQL
-    parameter declaration&gt; }... ] ] &lt;right paren&gt;</literal></simpara>
+      <simpara><literal>&lt;sequence generator increment&gt; ::= &lt;signed
+      numeric literal&gt;</literal></simpara>
 
-    <simpara><literal>&lt;SQL parameter declaration&gt; ::= [ &lt;parameter
-    mode&gt; ] [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt; [ RESULT
-    ]</literal></simpara>
+      <simpara><literal>&lt;sequence generator maxvalue option&gt; ::=
+      MAXVALUE &lt;sequence generator max value&gt; | NO
+      MAXVALUE</literal></simpara>
 
-    <simpara><literal>&lt;parameter mode&gt; ::= IN | OUT |
-    INOUT</literal></simpara>
+      <simpara><literal>&lt;sequence generator max value&gt; ::= &lt;signed
+      numeric literal&gt;</literal></simpara>
 
-    <simpara><literal>&lt;parameter type&gt; ::= &lt;data
-    type&gt;</literal></simpara>
+      <simpara><literal>&lt;sequence generator minvalue option&gt; ::=
+      MINVALUE &lt;sequence generator min value&gt; | NO
+      MINVALUE</literal></simpara>
 
-    <simpara><literal>&lt;function specification&gt; ::= FUNCTION &lt;schema
-    qualified routine name&gt; &lt;SQL parameter declaration list&gt;
-    &lt;returns clause&gt; &lt;routine characteristics&gt; [ &lt;dispatch
-    clause&gt; ]</literal></simpara>
+      <simpara><literal>&lt;sequence generator min value&gt; ::= &lt;signed
+      numeric literal&gt;</literal></simpara>
 
-    <simpara><literal>&lt;method specification designator&gt; ::= SPECIFIC
-    METHOD &lt;specific method name&gt; | [ INSTANCE | STATIC | CONSTRUCTOR ]
-    METHOD &lt;method name&gt; &lt;SQL parameter declaration list&gt; [
-    &lt;returns clause&gt; ] FOR &lt;schema-resolved user-defined type
-    name&gt;</literal></simpara>
+      <simpara><literal>&lt;sequence generator cycle option&gt; ::= CYCLE | NO
+      CYCLE</literal></simpara>
 
-    <simpara><literal>&lt;routine characteristics&gt; ::= [ &lt;routine
-    characteristic&gt;... ]</literal></simpara>
+      <simpara>Define a named sequence generator. A SEQUENCE object generates
+      a sequence of integers according to the specified rules. The simple
+      definition without the options defines a sequence of numbers in INTEGER
+      type starting at 1 and incrementing by 1. By default the
+      <literal>CYCLE</literal> property is set and the minimum and maximum
+      limits are the minimum and maximum limits of the type of returned
+      values. There are self-explanatory options for changing various
+      properties of the sequence. The <literal>MAXVALUE</literal> and
+      <literal>MINVALUE</literal> specify the upper and lower limits. If
+      <literal>CYCLE</literal> is specified, after the sequence returns the
+      highest or lowest value in range, the next value will respectively be
+      the lowest or highest value in range. If <literal>NO CYCLE</literal> is
+      specified, the use of the sequence generator results in an error once
+      the limit has been reached.</simpara>
 
-    <simpara><literal>&lt;routine characteristic&gt; ::= &lt;language
-    clause&gt; | &lt;parameter style clause&gt; | SPECIFIC &lt;specific
-    name&gt; | &lt;deterministic characteristic&gt; | &lt;SQL-data access
-    indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
-    characteristic&gt; | &lt;savepoint level
-    indication&gt;</literal></simpara>
+      <simpara>The integer types: SMALLINT, INTEGER, BIGINT, DECIMAL and
+      NUMERIC can be used as the type of the sequence. DECIMAL and NUMERIC
+      types must be used with a scale of 0 and a precision not exceeding
+      18.</simpara>
 
-    <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
-    LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER SEQUENCE</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;returned result sets characteristic&gt; ::= DYNAMIC
-    RESULT SETS &lt;maximum returned result sets&gt;</literal></simpara>
+      <simpara><emphasis role="bold">ALTER SEQUENCE</emphasis></simpara>
 
-    <simpara><literal>&lt;parameter style clause&gt; ::= PARAMETER STYLE
-    &lt;parameter style&gt;</literal></simpara>
+      <simpara><emphasis>alter sequence generator
+      statement</emphasis></simpara>
 
-    <simpara><literal>&lt;dispatch clause&gt; ::= STATIC
-    DISPATCH</literal></simpara>
+      <simpara><literal>&lt;alter sequence generator statement&gt; ::= ALTER
+      SEQUENCE &lt;sequence generator name&gt; &lt;alter sequence generator
+      options&gt;</literal></simpara>
 
-    <simpara><literal>&lt;returns clause&gt; ::= RETURNS &lt;returns
-    type&gt;</literal></simpara>
+      <simpara><literal>&lt;alter sequence generator options&gt; ::= &lt;alter
+      sequence generator option&gt;...</literal></simpara>
 
-    <simpara><literal>&lt;returns type&gt; ::= &lt;returns data type&gt; [
-    &lt;result cast&gt; ] | &lt;returns table type&gt;</literal></simpara>
+      <simpara><literal>&lt;alter sequence generator option&gt; ::= &lt;alter
+      sequence generator restart option&gt; | &lt;basic sequence generator
+      option&gt;</literal></simpara>
 
-    <simpara><literal>&lt;returns table type&gt; ::= TABLE &lt;table function
-    column list&gt;</literal></simpara>
+      <simpara><literal>&lt;alter sequence generator restart option&gt; ::=
+      RESTART [ WITH &lt;sequence generator restart value&gt;
+      ]</literal></simpara>
 
-    <simpara><literal>&lt;table function column list&gt; ::= &lt;left
-    paren&gt; &lt;table function column list element&gt; [ { &lt;comma&gt;
-    &lt;table function column list element&gt; }... ] &lt;right
-    paren&gt;</literal></simpara>
+      <simpara><literal>&lt;sequence generator restart value&gt; ::=
+      &lt;signed numeric literal&gt;</literal></simpara>
 
-    <simpara><literal>&lt;table function column list element&gt; ::=
-    &lt;column name&gt; &lt;data type&gt;</literal></simpara>
+      <simpara>Change the definition of a named sequence generator. The same
+      options that are used in the definition of the SEQUENCE can be used to
+      alter it. The exception is the option for the start value which is
+      <literal>RESTART WITH</literal> for the ALTER SEQUENCE
+      statement..</simpara>
 
-    <simpara><literal>&lt;result cast&gt; ::= CAST FROM &lt;result cast from
-    type&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP SEQUENCE</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;result cast from type&gt; ::= &lt;data type&gt; [
-    &lt;locator indication&gt; ]</literal></simpara>
+      <simpara><emphasis role="bold">DROP SEQUENCE</emphasis></simpara>
 
-    <simpara><literal>&lt;returns data type&gt; ::= &lt;data type&gt; [
-    &lt;locator indication&gt; ]</literal></simpara>
+      <simpara><emphasis>drop sequence generator
+      statement</emphasis></simpara>
 
-    <simpara><literal>&lt;routine body&gt; ::= &lt;SQL routine spec&gt; |
-    &lt;external body reference&gt;</literal></simpara>
+      <simpara><literal>&lt;drop sequence generator statement&gt; ::= DROP
+      SEQUENCE [ IF EXISTS ] &lt;sequence generator name&gt; [ IF EXISTS ]
+      &lt;drop behavior&gt;</literal></simpara>
 
-    <simpara><literal>&lt;SQL routine spec&gt; ::= [ &lt;rights clause&gt; ]
-    &lt;SQL routine body&gt;</literal></simpara>
+      <simpara>Destroy an external sequence generator. If the
+      <literal>&lt;drop behavior&gt;</literal> is <literal>CASCADE</literal>,
+      then all objects that reference the sequence are dropped. These objects
+      can be VIEW, ROUTINE or TRIGGER objects.</simpara>
 
-    <simpara><literal>&lt;rights clause&gt; ::= SQL SECURITY INVOKER | SQL
-    SECURITY DEFINER</literal></simpara>
+      <!-- From Foundation chapt. 13 -->
+    </section>
 
-    <simpara><literal>&lt;SQL routine body&gt; ::= &lt;SQL procedure
-    statement&gt;</literal></simpara>
+    <section>
+      <title>SQL Procedure Statement</title>
 
-    <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL [ NAME
-    &lt;external routine name&gt; ] [ &lt;parameter style clause&gt;
-    ]</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL procedure statement</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;parameter style&gt; ::= SQL |
-    GENERAL</literal></simpara>
+      <simpara><emphasis role="bold">SQL procedure
+      statement</emphasis></simpara>
 
-    <simpara><literal>&lt;deterministic characteristic&gt; ::= DETERMINISTIC |
-    NOT DETERMINISTIC</literal></simpara>
+      <simpara><emphasis>SQL procedure statement</emphasis></simpara>
 
-    <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL | CONTAINS
-    SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
+      <simpara>The definition of CREATE TRIGGER and CREATE PROCEDURE
+      statements refers to &lt;SQL procedure statement&gt;. The definition of
+      this element is given below. However, only a subset of these statements
+      are allowed in trigger or routine definition.</simpara>
 
-    <simpara><literal>&lt;null-call clause&gt; ::= RETURNS NULL ON NULL INPUT
-    | CALLED ON NULL INPUT</literal></simpara>
+      <simpara><literal>&lt;SQL procedure statement&gt; ::= &lt;SQL executable
+      statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;maximum returned result sets&gt; ::= &lt;unsigned
-    integer&gt;</literal></simpara>
+      <simpara><literal>&lt;SQL executable statement&gt; ::= &lt;SQL schema
+      statement&gt; | &lt;SQL data statement&gt; | &lt;SQL control
+      statement&gt; | &lt;SQL transaction statement&gt; | &lt;SQL connection
+      statement&gt; | &lt;SQL session statement&gt; | &lt;SQL diagnostics
+      statement&gt; | &lt;SQL dynamic statement&gt;</literal></simpara>
 
-    <simpara>Define an SQL-invoked routine.</simpara>
+      <simpara><literal>&lt;SQL schema statement&gt; ::= &lt;SQL schema
+      definition statement&gt; | &lt;SQL schema manipulation
+      statement&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>ALTER routine</primary>
-    </indexterm>
+      <simpara><literal>&lt;SQL schema definition statement&gt; ::= &lt;schema
+      definition&gt; | &lt;table definition&gt; | &lt;view definition&gt; |
+      &lt;SQL-invoked routine&gt; | &lt;grant statement&gt; | &lt;role
+      definition&gt; | &lt;domain definition&gt; | &lt;character set
+      definition&gt; | &lt;collation definition&gt; | &lt;transliteration
+      definition&gt; | &lt;assertion definition&gt; | &lt;trigger
+      definition&gt; | &lt;user-defined type definition&gt; | &lt;user-defined
+      cast definition&gt; | &lt;user-defined ordering definition&gt; |
+      &lt;transform definition&gt; | &lt;sequence generator
+      definition&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">ALTER routine</emphasis></simpara>
+      <simpara><literal>&lt;SQL schema manipulation statement&gt; ::= &lt;drop
+      schema statement&gt; | &lt;alter table statement&gt; | &lt;drop table
+      statement&gt; | &lt;drop view statement&gt; | &lt;alter routine
+      statement&gt; | &lt;drop routine statement&gt; | &lt;drop user-defined
+      cast statement&gt; | &lt;revoke statement&gt; | &lt;drop role
+      statement&gt; | &lt;alter domain statement&gt; | &lt;drop domain
+      statement&gt; | &lt;drop character set statement&gt; | &lt;drop
+      collation statement&gt; | &lt;drop transliteration statement&gt; |
+      &lt;drop assertion statement&gt; | &lt;drop trigger statement&gt; |
+      &lt;alter type statement&gt; | &lt;drop data type statement&gt; |
+      &lt;alter sequence generator statement&gt; | &lt;drop sequence generator
+      statement&gt;</literal></simpara>
+    </section>
 
-    <simpara><emphasis>alter routine statement</emphasis></simpara>
+    <section>
+      <title>Other Schema Object Creation</title>
 
-    <simpara><literal>&lt;alter routine statement&gt; ::= ALTER &lt;specific
-    routine designator&gt; &lt;alter routine characteristics&gt; &lt;alter
-    routine behavior&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE INDEX</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;alter routine characteristics&gt; ::= &lt;alter
-    routine characteristic&gt;...</literal></simpara>
+      <simpara><emphasis role="bold">CREATE INDEX</emphasis></simpara>
 
-    <simpara><literal>&lt;alter routine characteristic&gt; ::= &lt;language
-    clause&gt; | &lt;parameter style clause&gt; | &lt;SQL-data access
-    indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
-    characteristic&gt; | NAME &lt;external routine
-    name&gt;</literal></simpara>
+      <simpara><emphasis>create index statement</emphasis></simpara>
 
-    <simpara><literal>&lt;alter routine behavior&gt; ::=
-    RESTRICT</literal></simpara>
+      <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX
+      &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt; {&lt;column
+      name&gt; [ASC | DESC]}, ... &lt;left paren&gt;</literal></simpara>
 
-    <simpara>Alter a characteristic of an SQL-invoked routine.</simpara>
+      <simpara>Creates an index on a group of columns of a table. The optional
+      [ASC | DESC] specifies if the column is indexed in the ascending or
+      descending order, but has no effect on how the index is
+      created.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP routine</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP INDEX</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DROP</emphasis></simpara>
+      <simpara><emphasis role="bold">DROP INDEX</emphasis></simpara>
 
-    <simpara><emphasis>drop routine statement</emphasis></simpara>
+      <simpara><emphasis>drop index statement</emphasis></simpara>
 
-    <simpara><literal>&lt;drop routine statement&gt; ::= DROP &lt;specific
-    routine designator&gt; &lt;drop behavior&gt;</literal></simpara>
+      <simpara><literal>&lt;drop index statement&gt; ::= DROP INDEX [ IF
+      EXISTS ] &lt;index name&gt; [ IF EXISTS ]</literal></simpara>
 
-    <simpara>Destroy an SQL-invoked routine.</simpara>
+      <simpara>Destroy an index.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE CAST</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE TYPE</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">CREATE CAST</emphasis></simpara>
+      <simpara><emphasis role="bold">CREATE TYPE</emphasis></simpara>
 
-    <simpara><emphasis>user-defined cast definition</emphasis></simpara>
+      <simpara><emphasis>user-defined type definition</emphasis></simpara>
 
-    <simpara><literal>&lt;user-defined cast definition&gt; ::= CREATE CAST
-    &lt;left paren&gt; &lt;source data type&gt; AS &lt;target data type&gt;
-    &lt;right paren&gt; WITH &lt;cast function&gt; [ AS ASSIGNMENT
-    ]</literal></simpara>
+      <simpara><literal>&lt;user-defined type definition&gt; ::= CREATE TYPE
+      &lt;user-defined type body&gt;</literal></simpara>
 
-    <simpara><literal>&lt;cast function&gt; ::= &lt;specific routine
-    designator&gt;</literal></simpara>
+      <simpara><literal>&lt;user-defined type body&gt; ::= &lt;schema-resolved
+      user-defined type name&gt; [ AS &lt;representation&gt;
+      ]</literal></simpara>
 
-    <simpara><literal>&lt;source data type&gt; ::= &lt;data
-    type&gt;</literal></simpara>
+      <simpara><literal>&lt;representation&gt; ::= &lt;predefined
+      type&gt;</literal></simpara>
 
-    <simpara><literal>&lt;target data type&gt; ::= &lt;data
-    type&gt;</literal></simpara>
+      <simpara>Define a user-defined type. Currently only simple distinct
+      types can be defined without further attributes.</simpara>
 
-    <simpara>Define a user-defined cast. This feature may be supported in a
-    future versions of HyperSQL.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE CAST</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP CAST</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">CREATE CAST</emphasis></simpara>
 
-    <simpara><emphasis role="bold">DROP CAST</emphasis></simpara>
+      <simpara><emphasis>user-defined cast definition</emphasis></simpara>
 
-    <simpara><emphasis>drop user-defined cast statement</emphasis></simpara>
+      <simpara><literal>&lt;user-defined cast definition&gt; ::= CREATE CAST
+      &lt;left paren&gt; &lt;source data type&gt; AS &lt;target data type&gt;
+      &lt;right paren&gt; WITH &lt;cast function&gt; [ AS ASSIGNMENT
+      ]</literal></simpara>
 
-    <simpara><literal>&lt;drop user-defined cast statement&gt; ::= DROP CAST
-    &lt;left paren&gt; &lt;source data type&gt; AS &lt;target data type&gt;
-    &lt;right paren&gt; &lt;drop behavior&gt;</literal></simpara>
+      <simpara><literal>&lt;cast function&gt; ::= &lt;specific routine
+      designator&gt;</literal></simpara>
 
-    <simpara>Destroy a user-defined cast.</simpara>
+      <simpara><literal>&lt;source data type&gt; ::= &lt;data
+      type&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE SEQUENCE</primary>
-    </indexterm>
+      <simpara><literal>&lt;target data type&gt; ::= &lt;data
+      type&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">CREATE SEQUENCE</emphasis></simpara>
+      <simpara>Define a user-defined cast. This feature may be supported in a
+      future versions of HyperSQL.</simpara>
 
-    <simpara><emphasis>sequence generator definition</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP CAST</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;sequence generator definition&gt; ::= CREATE
-    SEQUENCE &lt;sequence generator name&gt; [ &lt;sequence generator
-    options&gt; ]</literal></simpara>
+      <simpara><emphasis role="bold">DROP CAST</emphasis></simpara>
 
-    <simpara><literal>&lt;sequence generator options&gt; ::= &lt;sequence
-    generator option&gt; ...</literal></simpara>
+      <simpara><emphasis>drop user-defined cast statement</emphasis></simpara>
 
-    <simpara><literal>&lt;sequence generator option&gt; ::= &lt;sequence
-    generator data type option&gt; | &lt;common sequence generator
-    options&gt;</literal></simpara>
+      <simpara><literal>&lt;drop user-defined cast statement&gt; ::= DROP CAST
+      &lt;left paren&gt; &lt;source data type&gt; AS &lt;target data type&gt;
+      &lt;right paren&gt; &lt;drop behavior&gt;</literal></simpara>
 
-    <simpara><literal>&lt;common sequence generator options&gt; ::= &lt;common
-    sequence generator option&gt; ...</literal></simpara>
+      <simpara>Destroy a user-defined cast. This feature may be supported in a
+      future versions of HyperSQL.</simpara>
 
-    <simpara><literal>&lt;common sequence generator option&gt; ::=
-    &lt;sequence generator start with option&gt; | &lt;basic sequence
-    generator option&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE CHARACTER SET</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;basic sequence generator option&gt; ::= &lt;sequence
-    generator increment by option&gt; | &lt;sequence generator maxvalue
-    option&gt; | &lt;sequence generator minvalue option&gt; | &lt;sequence
-    generator cycle option&gt;</literal></simpara>
+      <simpara><emphasis role="bold">CREATE CHARACTER SET</emphasis></simpara>
 
-    <simpara><literal>&lt;sequence generator data type option&gt; ::= AS
-    &lt;data type&gt;</literal></simpara>
+      <simpara><emphasis>character set definition</emphasis></simpara>
 
-    <simpara><literal>&lt;sequence generator start with option&gt; ::= START
-    WITH &lt;sequence generator start value&gt;</literal></simpara>
+      <simpara><literal>&lt;character set definition&gt; ::= CREATE CHARACTER
+      SET &lt;character set name&gt; [ AS ] &lt;character set source&gt; [
+      &lt;collate clause&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;sequence generator start value&gt; ::= &lt;signed
-    numeric literal&gt;</literal></simpara>
+      <simpara><literal>&lt;character set source&gt; ::= GET &lt;character set
+      specification&gt;</literal></simpara>
 
-    <simpara><literal>&lt;sequence generator increment by option&gt; ::=
-    INCREMENT BY &lt;sequence generator increment&gt;</literal></simpara>
+      <simpara>Define a character set. A new CHARACTER SET is based on an
+      existing CHARACTER SET. The optional <literal>&lt;collate
+      clause&gt;</literal> specifies the collation to be used, otherwise the
+      collation is inherited from the default collation for the source
+      CHARACTER SET.</simpara>
 
-    <simpara><literal>&lt;sequence generator increment&gt; ::= &lt;signed
-    numeric literal&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP CHARACTER SET</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;sequence generator maxvalue option&gt; ::= MAXVALUE
-    &lt;sequence generator max value&gt; | NO MAXVALUE</literal></simpara>
+      <simpara><emphasis role="bold">DROP CHARACTER SET</emphasis></simpara>
 
-    <simpara><literal>&lt;sequence generator max value&gt; ::= &lt;signed
-    numeric literal&gt;</literal></simpara>
+      <simpara><emphasis>drop character set statement</emphasis></simpara>
 
-    <simpara><literal>&lt;sequence generator minvalue option&gt; ::= MINVALUE
-    &lt;sequence generator min value&gt; | NO MINVALUE</literal></simpara>
+      <simpara><literal>&lt;drop character set statement&gt; ::= DROP
+      CHARACTER SET &lt;character set name&gt;</literal></simpara>
 
-    <simpara><literal>&lt;sequence generator min value&gt; ::= &lt;signed
-    numeric literal&gt;</literal></simpara>
+      <simpara>Destroy a character set. If the character set name is
+      referenced in any database object, the command fails. Note that
+      <literal>CASCADE</literal> or <literal>RESTRICT</literal> cannot be
+      specified for this command.</simpara>
 
-    <simpara><literal>&lt;sequence generator cycle option&gt; ::= CYCLE | NO
-    CYCLE</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE COLLATION</primary>
+      </indexterm>
 
-    <simpara>Define a named sequence generator. A SEQUENCE object generates a
-    sequence of integers according to the specified rules. The simple
-    definition without the options defines a sequence of numbers in INTEGER
-    type starting at 1 and incrementing by 1. By default the
-    <literal>CYCLE</literal> property is set and the minimum and maximum
-    limits are the minimum and maximum limits of the type of returned values.
-    There are self-explanatory options for changing various properties of the
-    sequence. The <literal>MAXVALUE</literal> and <literal>MINVALUE</literal>
-    specify the upper and lower limits. If <literal>CYCLE</literal> is
-    specified, after the sequence returns the highest or lowest value in
-    range, the next value will respectively be the lowest or highest value in
-    range. If <literal>NO CYCLE</literal> is specified, the use of the
-    sequence generator results in an error once the limit has been
-    reached.</simpara>
+      <simpara><emphasis role="bold">CREATE COLLATION</emphasis></simpara>
 
-    <simpara>The integer types: SMALLINT, INTEGER, BIGINT, DECIMAL and NUMERIC
-    can be used as the type of the sequence. DECIMAL and NUMERIC types must be
-    used with a scale of 0 and a precision not exceeding 18.</simpara>
+      <simpara><emphasis>collation definition</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>ALTER SEQUENCE</primary>
-    </indexterm>
+      <simpara><literal>&lt;collation definition&gt; ::= CREATE COLLATION
+      &lt;collation name&gt; FOR &lt;character set specification&gt; FROM
+      &lt;existing collation name&gt; [ &lt;pad characteristic&gt;
+      ]</literal></simpara>
 
-    <simpara><emphasis role="bold">ALTER SEQUENCE</emphasis></simpara>
+      <simpara><literal>&lt;existing collation name&gt; ::= &lt;collation
+      name&gt;</literal></simpara>
 
-    <simpara><emphasis>alter sequence generator statement</emphasis></simpara>
+      <simpara><literal>&lt;pad characteristic&gt; ::= NO PAD | PAD
+      SPACE</literal></simpara>
 
-    <simpara><literal>&lt;alter sequence generator statement&gt; ::= ALTER
-    SEQUENCE &lt;sequence generator name&gt; &lt;alter sequence generator
-    options&gt;</literal></simpara>
+      <simpara>Define a collation. A new collation is based on an existing
+      COLLATION and applies to an existing CHARACTER SET. The <literal>&lt;pad
+      characteristic&gt;</literal> specifies whether strings are padded with
+      spaces for comparison. This feature may be supported in a future
+      versions of HyperSQL.</simpara>
 
-    <simpara><literal>&lt;alter sequence generator options&gt; ::= &lt;alter
-    sequence generator option&gt;...</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP COLLATION</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;alter sequence generator option&gt; ::= &lt;alter
-    sequence generator restart option&gt; | &lt;basic sequence generator
-    option&gt;</literal></simpara>
+      <simpara><emphasis role="bold">DROP COLLATION</emphasis></simpara>
 
-    <simpara><literal>&lt;alter sequence generator restart option&gt; ::=
-    RESTART [ WITH &lt;sequence generator restart value&gt;
-    ]</literal></simpara>
+      <simpara><emphasis>drop collation statement</emphasis></simpara>
 
-    <simpara><literal>&lt;sequence generator restart value&gt; ::= &lt;signed
-    numeric literal&gt;</literal></simpara>
+      <simpara><literal>&lt;drop collation statement&gt; ::= DROP COLLATION
+      &lt;collation name&gt; &lt;drop behavior&gt;</literal></simpara>
 
-    <simpara>Change the definition of a named sequence generator. The same
-    options that are used in the definition of the SEQUENCE can be used to
-    alter it. The exception is the option for the start value which is
-    <literal>RESTART WITH</literal> for the ALTER SEQUENCE
-    statement..</simpara>
+      <simpara>Destroy a collation. If the <literal>&lt;drop
+      behavior&gt;</literal> is <literal>CASCADE</literal>, then all
+      references to the collation revert to the default collation that would
+      be in force if the dropped collation was not specified. This feature may
+      be supported in a future versions of HyperSQL.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP SEQUENCE</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE TRANSLATION</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DROP SEQUENCE</emphasis></simpara>
+      <simpara><emphasis role="bold">CREATE TRANSLATION</emphasis></simpara>
 
-    <simpara><emphasis>drop sequence generator statement</emphasis></simpara>
+      <simpara><emphasis>transliteration definition</emphasis></simpara>
 
-    <simpara><literal>&lt;drop sequence generator statement&gt; ::= DROP
-    SEQUENCE [ IF EXISTS ] &lt;sequence generator name&gt; [ IF EXISTS ]
-    &lt;drop behavior&gt;</literal></simpara>
+      <simpara><literal>&lt;transliteration definition&gt; ::= CREATE
+      TRANSLATION &lt;transliteration name&gt; FOR &lt;source character set
+      specification&gt; TO &lt;target character set specification&gt; FROM
+      &lt;transliteration source&gt;</literal></simpara>
 
-    <simpara>Destroy an external sequence generator. If the <literal>&lt;drop
-    behavior&gt;</literal> is <literal>CASCADE</literal>, then all objects
-    that reference the sequence are dropped. These objects can be VIEW,
-    ROUTINE or TRIGGER objects.</simpara>
+      <simpara><literal>&lt;source character set specification&gt; ::=
+      &lt;character set specification&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE INDEX</primary>
-    </indexterm>
+      <simpara><literal>&lt;target character set specification&gt; ::=
+      &lt;character set specification&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">CREATE INDEX</emphasis></simpara>
+      <simpara><literal>&lt;transliteration source&gt; ::= &lt;existing
+      transliteration name&gt; | &lt;transliteration
+      routine&gt;</literal></simpara>
 
-    <simpara><emphasis>create index statement</emphasis></simpara>
+      <simpara><literal>&lt;existing transliteration name&gt; ::=
+      &lt;transliteration name&gt; </literal></simpara>
 
-    <simpara><literal>&lt;create index statement&gt; ::= CREATE INDEX
-    &lt;index name&gt; ON &lt;table name&gt; &lt;left paren&gt; {&lt;column
-    name&gt; [ASC | DESC]}, ... &lt;left paren&gt;</literal></simpara>
+      <simpara><literal>&lt;transliteration routine&gt; ::= &lt;specific
+      routine designator&gt;</literal></simpara>
 
-    <simpara>Creates an index on a group of columns of a table. The optional
-    [ASC | DESC] specifies if the column is indexed in the ascending or
-    descending order, but has no effect on how the index is created.</simpara>
+      <simpara>Define a character transliteration. This feature may be
+      supported in a future versions of HyperSQL.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DROP INDEX</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP TRANSLATION</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DROP INDEX</emphasis></simpara>
+      <simpara><emphasis role="bold">DROP TRANSLATION</emphasis></simpara>
 
-    <simpara><emphasis>drop index statement</emphasis></simpara>
+      <simpara><emphasis>drop transliteration statement</emphasis></simpara>
 
-    <simpara><literal>&lt;drop index statement&gt; ::= DROP INDEX [ IF EXISTS
-    ] &lt;index name&gt; [ IF EXISTS ]</literal></simpara>
+      <simpara><literal>&lt;drop transliteration statement&gt; ::= DROP
+      TRANSLATION &lt;transliteration name&gt;</literal></simpara>
 
-    <simpara>Destroy an index.</simpara>
+      <simpara>Destroy a character transliteration. This feature may be
+      supported in a future versions of HyperSQL.</simpara>
 
-    <!-- From Foundation chapt. 13 -->
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE ASSERTION</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SQL executable statement</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">CREATE ASSERTION</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SQL executable
-    statement</emphasis></simpara>
+      <simpara><emphasis>assertion definition</emphasis></simpara>
 
-    <simpara><emphasis>SQL procedure statement</emphasis></simpara>
+      <simpara><literal>&lt;assertion definition&gt; ::= CREATE ASSERTION
+      &lt;constraint name&gt; CHECK &lt;left paren&gt; &lt;search
+      condition&gt; &lt;right paren&gt; [ &lt;constraint characteristics&gt;
+      ]</literal></simpara>
 
-    <simpara><literal>&lt;SQL procedure statement&gt; ::= &lt;SQL executable
-    statement&gt;</literal></simpara>
+      <simpara>Specify an integrity constraint. This feature may be supported
+      in a future versions of HyperSQL.</simpara>
 
-    <simpara><literal>&lt;SQL executable statement&gt; ::= &lt;SQL schema
-    statement&gt; | &lt;SQL data statement&gt; | &lt;SQL control statement&gt;
-    | &lt;SQL transaction statement&gt; | &lt;SQL connection statement&gt; |
-    &lt;SQL session statement&gt; | &lt;SQL diagnostics statement&gt; |
-    &lt;SQL dynamic statement&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DROP ASSERTION</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;SQL schema statement&gt; ::= &lt;SQL schema
-    definition statement&gt; | &lt;SQL schema manipulation
-    statement&gt;</literal></simpara>
+      <simpara><emphasis role="bold">DROP ASSERTION</emphasis></simpara>
 
-    <simpara><literal>&lt;SQL schema definition statement&gt; ::= &lt;schema
-    definition&gt; | &lt;table definition&gt; | &lt;view definition&gt; |
-    &lt;SQL-invoked routine&gt; | &lt;grant statement&gt; | &lt;role
-    definition&gt; | &lt;domain definition&gt; | &lt;character set
-    definition&gt; | &lt;collation definition&gt; | &lt;transliteration
-    definition&gt; | &lt;assertion definition&gt; | &lt;trigger definition&gt;
-    | &lt;user-defined type definition&gt; | &lt;user-defined cast
-    definition&gt; | &lt;user-defined ordering definition&gt; | &lt;transform
-    definition&gt; | &lt;sequence generator definition&gt;</literal></simpara>
+      <simpara><emphasis>drop assertion statement</emphasis></simpara>
 
-    <simpara><literal>&lt;SQL schema manipulation statement&gt; ::= &lt;drop
-    schema statement&gt; | &lt;alter table statement&gt; | &lt;drop table
-    statement&gt; | &lt;drop view statement&gt; | &lt;alter routine
-    statement&gt; | &lt;drop routine statement&gt; | &lt;drop user-defined
-    cast statement&gt; | &lt;revoke statement&gt; | &lt;drop role
-    statement&gt; | &lt;alter domain statement&gt; | &lt;drop domain
-    statement&gt; | &lt;drop character set statement&gt; | &lt;drop collation
-    statement&gt; | &lt;drop transliteration statement&gt; | &lt;drop
-    assertion statement&gt; | &lt;drop trigger statement&gt; | &lt;alter type
-    statement&gt; | &lt;drop data type statement&gt; | &lt;drop user-defined
-    ordering statement&gt; | &lt;alter transform statement&gt; | &lt;drop
-    transform statement&gt; | &lt;alter sequence generator statement&gt; |
-    &lt;drop sequence generator statement&gt;</literal></simpara>
+      <simpara><literal>&lt;drop assertion statement&gt; ::= DROP ASSERTION
+      &lt;constraint name&gt; [ &lt;drop behavior&gt; ]</literal></simpara>
+
+      <simpara>Destroy an assertion. This feature may be supported in a future
+      versions of HyperSQL.</simpara>
+    </section>
   </section>
 
   <section>
