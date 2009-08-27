@@ -136,18 +136,13 @@ public final class BundleHandler {
             bundleHandle = (Integer) bundleHandleMap.get(bundleKey);
 
             if (bundleHandle == null) {
-                try {
-                    bundle = getBundle(bundleName, locale, cl);
+                bundle = getBundle(bundleName, locale, cl);
 
-                    bundleList.add(bundle);
+                bundleList.add(bundle);
 
-                    bundleHandle = new Integer(bundleList.size() - 1);
+                bundleHandle = new Integer(bundleList.size() - 1);
 
-                    bundleHandleMap.put(bundleKey, bundleHandle);
-                } catch (Exception e) {
-
-                    //e.printStackTrace();
-                }
+                bundleHandleMap.put(bundleKey, bundleHandle);
             }
         }
 

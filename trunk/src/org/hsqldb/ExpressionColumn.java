@@ -239,18 +239,30 @@ public class ExpressionColumn extends Expression {
 
     void collectObjectNames(Set set) {
 
-        if (opType == OpTypes.SEQUENCE) {
-            HsqlName name = ((NumberSequence) valueData).getName();
 
-            set.add(name);
+        switch (opType) {
 
-            return;
-        }
+            case OpTypes.SEQUENCE:
+                HsqlName name = ((NumberSequence) valueData).getName();
 
-        set.add(column.getName());
+                set.add(name);
 
-        if (column.getName().parent != null) {
-            set.add(column.getName().parent);
+                return;
+            case OpTypes.MULTICOLUMN:
+            case OpTypes.DYNAMIC_PARAM:
+            case OpTypes.ASTERISK:
+            case OpTypes.SIMPLE_COLUMN:
+            case OpTypes.COALESCE:
+                break;
+
+            case OpTypes.PARAMETER:
+            case OpTypes.VARIABLE:
+            case OpTypes.COLUMN:
+                set.add(column.getName());
+                if (column.getName().parent != null) {
+                    set.add(column.getName().parent);
+                }
+                return;
         }
     }
 

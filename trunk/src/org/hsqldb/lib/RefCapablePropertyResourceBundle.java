@@ -219,6 +219,7 @@ public class RefCapablePropertyResourceBundle {
                             + s + ").");
                 case EMPTYSTRING_BEHAVIOR:
                     varValue = "";
+                    break;
                 case NOOP_BEHAVIOR:
                     break;
                 default:
@@ -267,6 +268,7 @@ public class RefCapablePropertyResourceBundle {
                             + "contains (" + matcher.group() + ").");
                 case EMPTYSTRING_BEHAVIOR:
                     varValue = "";
+                    break;
                 case NOOP_BEHAVIOR:
                     break;
                 default:

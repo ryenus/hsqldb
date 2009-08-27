@@ -373,7 +373,7 @@ public class LobManager {
         Object[] data = getLobHeader(session, lobID);
 
         if (data == null) {
-            Result.newErrorResult(Error.error(ErrorCode.X_0F502));
+            return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
         }
 
         long   newLobID = getNewLobID(session);
