@@ -546,11 +546,6 @@ examples:
          <exclude name="org/hsqldb/server/ServerConfiguration.class"/>
          <exclude name="org/hsqldb/server/WebServer.class"/>
          <exclude name="org/hsqldb/server/WebServerConnection.class"/>
-         <exclude name="org/hsqldb/jdbc/Array.class"/>
-         <exclude name="org/hsqldb/jdbc/Blob.class"/>
-         <exclude name="org/hsqldb/jdbc/Clob.class"/>
-         <exclude name="org/hsqldb/jdbc/Ref.class"/>
-         <exclude name="org/hsqldb/jdbc/Map.class"/>
          <exclude name="org/hsqldb/jdbc/pool/*.class"/>
        </jar>
     </target>
@@ -573,11 +568,6 @@ examples:
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/sample/*"/>
-         <exclude name="org/hsqldb/jdbc/Array.class"/>
-         <exclude name="org/hsqldb/jdbc/Blob.class"/>
-         <exclude name="org/hsqldb/jdbc/Clob.class"/>
-         <exclude name="org/hsqldb/jdbc/Ref.class"/>
-         <exclude name="org/hsqldb/jdbc/Map.class"/>
       </jar>
     </target>
 
@@ -605,15 +595,10 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
-         <exclude name="org/hsqldb/util/*"/>
-         <exclude name="org/hsqldb/cmdline/*"/>
-         <exclude name="org/hsqldb/test/*"/>
-         <exclude name="org/hsqldb/sample/*"/>
-         <exclude name="org/hsqldb/jdbc/Array.class"/>
-         <exclude name="org/hsqldb/jdbc/Blob.class"/>
-         <exclude name="org/hsqldb/jdbc/Clob.class"/>
-         <exclude name="org/hsqldb/jdbc/Ref.class"/>
-         <exclude name="org/hsqldb/jdbc/Map.class"/>
+         <exclude name="org/hsqldb/util/**"/>
+         <exclude name="org/hsqldb/cmdline/**"/>
+         <exclude name="org/hsqldb/test/**"/>
+         <exclude name="org/hsqldb/sample/**"/>
       </jar>
     </target>
 
@@ -637,15 +622,12 @@ examples:
               include nothing in the jar -->
          <include name="**/*"/>
          <!-- -->
-         <exclude name="org/hsqldb/jdbc/Array.class"/>
-         <exclude name="org/hsqldb/jdbc/Ref.class"/>
-         <exclude name="org/hsqldb/jdbc/Map.class"/>
-         <exclude name="org/hsqldb/jdbc/pool/*"/>
+         <exclude name="org/hsqldb/jdbc/pool/**"/>
          <exclude name="org/hsqldb/jmx/**"/>
-         <exclude name="org/hsqldb/util/*"/>
-         <exclude name="org/hsqldb/cmdline/*"/>
-         <exclude name="org/hsqldb/test/*"/>
-         <exclude name="org/hsqldb/sample/*"/>
+         <exclude name="org/hsqldb/util/**"/>
+         <exclude name="org/hsqldb/cmdline/**"/>
+         <exclude name="org/hsqldb/test/**"/>
+         <exclude name="org/hsqldb/sample/**"/>
          <exclude name="**/*.properties"/>
          <include name="org/hsqldb/resources/sql-error-messages.properties"/>
          <exclude name="hsqlServlet.class"/>
@@ -702,11 +684,6 @@ examples:
          <exclude name="org/hsqldb/util/Zaurus*"/>
          <exclude name="org/hsqldb/test/*.class"/>
          <exclude name="org/hsqldb/sample/*.class"/>
-         <exclude name="org/hsqldb/jdbc/Array.class"/>
-         <exclude name="org/hsqldb/jdbc/Blob.class"/>
-         <exclude name="org/hsqldb/jdbc/Clob.class"/>
-         <exclude name="org/hsqldb/jdbc/Ref.class"/>
-         <exclude name="org/hsqldb/jdbc/Map.class"/>
       </jar>
     </target>
 
