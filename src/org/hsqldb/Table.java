@@ -1997,9 +1997,7 @@ public class Table extends TableBase implements SchemaObject {
                     Constraint c = getNotNullConstraintForColumn(i);
 
                     if (c == null) {
-                        if (getColumn(i).isPrimaryKey()) {
-                            c = this.getPrimaryConstraint();
-                        }
+                        c = this.getPrimaryConstraint();
                     }
 
                     String[] info = new String[] {

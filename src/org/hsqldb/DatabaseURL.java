@@ -105,8 +105,8 @@ public class DatabaseURL {
      * (slash) with path elements appended apart from servlet path which is
      * (slash) plus the name of the servlet
      *
-     * <p> database: database name. For memory, resource and networked modes,
-     * this is returned in lowercase, for file databases the original case of
+     * <p> database: database name. For memory, networked modes,
+     * this is returned in lowercase, for file: and res: databases the original case of
      * characters is preserved. Returns empty string if name is not present in
      * the url.
      *
@@ -158,12 +158,12 @@ public class DatabaseURL {
         int semiPos = url.indexOf(';', pos);
 
         if (semiPos > -1) {
-            arguments  = urlImage.substring(semiPos + 1, urlImage.length());
+            arguments  = url.substring(semiPos + 1, urlImage.length());
             postUrlPos = semiPos;
             extraProps = HsqlProperties.delimitedArgPairsToProps(arguments,
                     "=", ";", null);
 
-            /** @todo 1.9.0 - check if properties have valid names / values */
+            // validity checks are performed by engine
             props.addProperties(extraProps);
         }
 
@@ -317,13 +317,13 @@ public class DatabaseURL {
                 }
             }
         } else {
-            if (type == S_MEM || type == S_RES) {
-                database = urlImage.substring(pos, postUrlPos).toLowerCase();
+            if (type == S_MEM) {
+                database = urlImage.substring(pos, postUrlPos);
+            } else if (type == S_RES) {
+                database = url.substring(pos, postUrlPos);
 
-                if (type == S_RES) {
-                    if (database.indexOf('/') != 0) {
-                        database = '/' + database;
-                    }
+                if (database.indexOf('/') != 0) {
+                    database = '/' + database;
                 }
             } else {
                 database = url.substring(pos, postUrlPos);

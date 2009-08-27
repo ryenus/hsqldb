@@ -865,7 +865,7 @@ public final class Constraint implements SchemaObject {
     void checkReferencedRows(Session session, Table table, int[] rowColArray) {
 
         Index           mainIndex = getMainIndex();
-        PersistentStore store     = session.sessionData.getRowStore(table);
+        PersistentStore mainStore = session.sessionData.getRowStore(getMain());
         RowIterator     it        = table.rowIterator(session);
 
         while (true) {
@@ -881,7 +881,7 @@ public final class Constraint implements SchemaObject {
                 if (core.matchType == OpTypes.MATCH_SIMPLE) {
                     continue;
                 }
-            } else if (mainIndex.exists(session, store, rowData,
+            } else if (mainIndex.exists(session, mainStore, rowData,
                                         rowColArray)) {
                 continue;
             }
