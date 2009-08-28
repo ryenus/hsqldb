@@ -101,6 +101,10 @@
 
   <xi:include href="databaseobjects.xml" />
 
+  <xi:include href="texttables.xml" />
+
+  <xi:include href="accesscontrol.xml" />
+
   <xi:include href="dataaccess.xml" />
 
   <xi:include href="sqlroutines.xml" />
@@ -114,8 +118,6 @@
   <xi:include href="listeners.xml" />
 
   <xi:include href="unix.xml" />
-
-  <xi:include href="texttables.xml" />
 
   <xi:include href="lists-app.xml" />
 

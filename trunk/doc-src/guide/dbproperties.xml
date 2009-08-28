@@ -315,7 +315,8 @@
               applications where it is not easy to configure the environment
               to shutdown the database. Examples reported by users include web
               application servers, where the closing of the last connection
-              coincides with the web app being shut down.</para></entry>
+              coincides with the web app being shut
+              down.</para><programlisting>    jdbc:hsqldb:file:enrollments;shutdown=true</programlisting></entry>
             </row>
           </tbody>
         </tgroup>
@@ -684,7 +685,7 @@
           <row>
             <entry><property>hsqldb.write_delay</property></entry>
 
-            <entry><literal>10</literal></entry>
+            <entry><literal>true</literal></entry>
 
             <entry>write delay for writing log file entries</entry>
           </row>

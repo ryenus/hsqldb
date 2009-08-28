@@ -864,6 +864,8 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       of the return value is the type of the first <literal>&lt;value
       expression&gt;</literal>.</simpara>
 
+      <programlisting>SELECT i, NULLIF(n, 'not defined') FROM t</programlisting>
+
       <indexterm significance="preferred" type="sql">
         <primary>case expression</primary>
       </indexterm>
@@ -1889,7 +1891,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
     but multisets of rows.</para>
 
     <para>Result tables are formed by performing the following operations on
-    base tables and views:</para>
+    base tables and views. These operations are loosely based on Relational
+    Algebra.</para>
 
     <para><glossterm>JOIN</glossterm> operations</para>
 
@@ -1904,12 +1907,29 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
     <para><glossterm>COLUMN NAMING</glossterm></para>
 
-    <para><glossterm>GROUPING and AGGREGATION</glossterm></para>
+    <para><glossterm>GROUPING</glossterm> and
+    <glossterm>AGGREGATION</glossterm></para>
 
     <para><glossterm>SET and MULTISET (COLLECTION)
     OPERATIONS</glossterm></para>
 
     <para><glossterm>ORDERING</glossterm></para>
+
+    <para><glossterm>SLICING</glossterm></para>
+
+    <para>Conceptually, the operations are performed one by one in the above
+    order if they apply to the given data access statement. In the example
+    below a simple select statement is made more complex by adding various
+    operations.</para>
+
+    <para><programlisting>CREATE TABLE t (a INT, b INT, c INT, d INT, e INT, f INT);
+/* in the next SELECT, no join is performed and no further operation takes place */
+SELECT * FROM atable
+/* in the next SELECT, selection is performed by the WHERE clause, with no further action */
+SELECT * FROM atable WHERE a + b = c
+/* in the next SELECT, projection is performed after the other operations */
+SELECT d, e, f FROM atable WHERE a + b = c
+</programlisting>The next sections discuss various operations.</para>
 
     <section>
       <title>Joined Table</title>
@@ -2041,13 +2061,14 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <title>Selection</title>
 
       <para>Despite the name, selection has nothing to do with the list of
-      columns in a SELECT statement. It in fact refers to the search condition
-      used to limit the rows that from a result table (selection of rows, not
-      columns). In SQL, simple selection is expressed with a WHERE condition
-      appended to a single table or a joined table. In some cases, this method
-      of selection is the only method available. But when it is possible to
-      perform the selection with join conditions, this is the better method,
-      as it results in a clearer expression of the query.</para>
+      columns in a SELECT statement. In fact, it refers to the search
+      condition used to limit the rows that from a result table (selection of
+      rows, not columns). In SQL, simple selection is expressed with a WHERE
+      condition appended to a single table or a joined table. In some cases,
+      this method of selection is the only method available. But when it is
+      possible to perform the selection with join conditions, this is the
+      better method, as it results in a clearer expression of the
+      query.</para>
 
       <para>A different form of selection can also be performed on the result
       table after it has been formed according to all the other operations
@@ -2245,6 +2266,19 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       BY clause is used to specify the columns used for ordering, and whether
       ascending or descending ordering is used. It can also specify whether
       NULL values are returned first or last.</para>
+
+      <programlisting>SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum, yzsum</programlisting>
+    </section>
+
+    <section>
+      <title>Slicing</title>
+
+      <para>A slicing operation takes the result set that has been already
+      processed and optionally ordered, then discards the specified number of
+      rows from the start of the result set and returns the specified number
+      of rows after the discarded rows.</para>
+
+      <programlisting>SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY </programlisting>
     </section>
   </section>
 
