@@ -308,6 +308,18 @@ public class StatementSchema extends Statement {
                     } catch (HsqlException e) {
                         return Result.newErrorResult(e, sql);
                     }
+                } else if (name.type == SchemaObject.SCHEMA) {
+
+                    /**
+                     * @todo 1.9.0 - review for schemas referenced in
+                     *  external view or trigger definitions
+                     */
+                    checkSchemaUpdateAuthorisation(session, name);
+                    session.database.schemaManager.checkSchemaNameCanChange(
+                        name);
+                    session.database.schemaManager.renameSchema(name, newName);
+
+                    break;
                 }
 
                 try {
@@ -357,16 +369,6 @@ public class StatementSchema extends Statement {
                                     session, parent);
 
                             table.renameColumn((ColumnSchema) object, newName);
-                            break;
-
-                        case SchemaObject.SCHEMA :
-
-                            /**
-                             * @todo 1.9.0 - review for schemas referenced in
-                             *  external view or trigger definitions
-                             */
-                            session.database.schemaManager.renameSchema(name,
-                                    newName);
                             break;
 
                         default :

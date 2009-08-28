@@ -181,10 +181,13 @@ public class SchemaManager {
             throw Error.error(ErrorCode.X_42504, newName.name);
         }
 
+        SqlInvariants.checkSchemaNameNotSystem(name.name);
         SqlInvariants.checkSchemaNameNotSystem(newName.name);
+
+        int index = schemaMap.getIndex(name.name);
+
         schema.name.rename(newName);
 
-        int index = schemaMap.getIndex(name);
 
         schemaMap.set(index, newName.name, schema);
     }
@@ -1323,8 +1326,44 @@ public class SchemaManager {
         for (int i = 0; i < set.size(); i++) {
             refName = (HsqlName) set.get(i);
 
+            // except columns of same table
             if (refName.parent != name) {
                 break;
+            }
+
+            refName = null;
+        }
+
+        if (refName == null) {
+            return;
+        }
+
+        throw Error.error(ErrorCode.X_42502,
+                          refName.getSchemaQualifiedStatementName());
+    }
+
+    void checkSchemaNameCanChange(HsqlName name) {
+
+        Iterator it      = referenceMap.values().iterator();
+        HsqlName refName = null;
+
+        mainLoop:
+        while (it.hasNext()) {
+            refName = (HsqlName) it.next();
+
+            switch (refName.type) {
+
+                case SchemaObject.VIEW :
+                case SchemaObject.ROUTINE :
+                case SchemaObject.FUNCTION :
+                case SchemaObject.PROCEDURE :
+                    if (refName.schema == name) {
+                        break mainLoop;
+                    }
+                    break;
+
+                default :
+                    break;
             }
 
             refName = null;
