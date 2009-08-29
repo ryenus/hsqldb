@@ -531,7 +531,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
 
         checkClosed();
 
-        return null;
+        return rootWarning;
     }
 
     /**
@@ -558,6 +558,9 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      */
     public synchronized void clearWarnings() throws SQLException {
         checkClosed();
+
+        rootWarning = null;
+
     }
 
     /** @todo 1.9.0 - implement */
@@ -1070,7 +1073,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
     public synchronized int[] executeBatch() throws SQLException {
 
         checkClosed();
-        connection.clearWarningsNoCheck();
 
         generatedResult = null;
 
@@ -1785,7 +1787,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
                              String[] generatedNames) throws SQLException {
 
         checkClosed();
-        connection.clearWarningsNoCheck();
         closeResultData();
 
         if (isEscapeProcessing) {

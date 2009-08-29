@@ -44,6 +44,7 @@ import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CountUpDownLatch;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.navigator.RowSetNavigator;
@@ -910,6 +911,8 @@ public class Session implements SessionInterface {
                     sessionData.setResultSetProperties(cmd, result);
                 }
 
+                result = performPostExecute(cmd, result);
+
                 return result;
             }
             case ResultConstants.CLOSE_RESULT : {
@@ -919,6 +922,8 @@ public class Session implements SessionInterface {
             }
             case ResultConstants.UPDATE_RESULT : {
                 Result result = this.executeResultUpdate(cmd);
+
+                result = performPostExecute(cmd, result);
 
                 return result;
             }
@@ -1022,6 +1027,12 @@ public class Session implements SessionInterface {
 
         if (result.isData()) {
             result = sessionData.getDataResultHead(command, result, isNetwork);
+        }
+
+        if (sqlWarnings != null && sqlWarnings.size() > 0) {
+            HsqlException[] warnings = getAndClearWarnings();
+
+            result.addWarnings(warnings);
         }
 
         return result;
@@ -1816,12 +1827,16 @@ public class Session implements SessionInterface {
     }
 
     // warnings
-    HsqlArrayList sqlWarnings;
+    HsqlDeque sqlWarnings;
 
     public void addWarning(HsqlException warning) {
 
         if (sqlWarnings == null) {
-            sqlWarnings = new HsqlArrayList(true);
+            sqlWarnings = new HsqlDeque();
+        }
+
+        if (sqlWarnings.size() > 9) {
+            sqlWarnings.removeFirst();
         }
 
         sqlWarnings.add(warning);
@@ -1830,7 +1845,7 @@ public class Session implements SessionInterface {
     public HsqlException[] getAndClearWarnings() {
 
         if (sqlWarnings == null) {
-            return new HsqlException[0];
+            return HsqlException.emptyArray;
         }
 
         HsqlException[] array = new HsqlException[sqlWarnings.size()];
@@ -1841,13 +1856,13 @@ public class Session implements SessionInterface {
         return array;
     }
 
-    public HsqlException getLastWarnings() {
+    public HsqlException getLastWarning() {
 
         if (sqlWarnings == null || sqlWarnings.size() == 0) {
             return null;
         }
 
-        return (HsqlException) sqlWarnings.get(sqlWarnings.size() - 1);
+        return (HsqlException) sqlWarnings.getLast();
     }
 
     public void clearWarnings() {

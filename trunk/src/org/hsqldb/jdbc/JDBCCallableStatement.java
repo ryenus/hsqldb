@@ -1129,7 +1129,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
     public synchronized Blob getBlob(int parameterIndex) throws SQLException {
 		checkGetParameterIndex(parameterIndex);
-		
+
         Type sourceType = resultMetaData.columnTypes[parameterIndex - 1];
 
         Object o = getColumnInType(parameterIndex, sourceType);
@@ -1176,7 +1176,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
     public synchronized Clob getClob(int parameterIndex) throws SQLException {
 		checkGetParameterIndex(parameterIndex);
-		
+
         Type sourceType = resultMetaData.columnTypes[parameterIndex - 1];
 
         Object o = getColumnInType(parameterIndex, sourceType);
@@ -4271,7 +4271,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 //#ifdef JAVA6
     public synchronized void setAsciiStream(String parameterName,
             java.io.InputStream x, long length) throws SQLException {
-        
+
         if (length > Integer.MAX_VALUE) {
             String msg = "Maximum ASCII input octet length exceeded: "
                          + length;    // NOI18N
@@ -4575,7 +4575,6 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     /** parameter name => parameter index */
     private IntValueHashMap  parameterNameMap;
     private boolean          wasNullValue;
-    private SessionInterface session;
 
     /** parameter index => registered OUT type */
 
@@ -4596,11 +4595,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             int resultSetConcurrency,
             int resultSetHoldability) throws HsqlException, SQLException {
 
-        super(c, sql, resultSetType, JDBCResultSet.CONCUR_READ_ONLY,
-              JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
+        super(c, sql, resultSetType, resultSetConcurrency,
+              resultSetHoldability,
               ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
 
-        session = c.sessionProxy;
 
         String[] names;
         String   name;
@@ -4723,7 +4721,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     private Object getColumnInType(int columnIndex,
                                    Type targetType) throws SQLException {
         checkGetParameterIndex(columnIndex);
-        
+
 		Type   sourceType;
         Object value;
 

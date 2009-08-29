@@ -218,7 +218,10 @@ public abstract class StatementDMQL extends Statement {
     abstract void collectTableNamesForRead(OrderedHashSet set);
 
     /**
-     * For the creation of the statement
+     * @todo - fredt - this does not work with different prepare calls
+     * with the same SQL statement, but different generated column requests
+     * To fix, add comment encapsulating the generated column list to SQL
+     * to differentiate between the two invocations
      */
     public void setGeneratedColumnInfo(int generate, ResultMetaData meta) {
 

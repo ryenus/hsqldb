@@ -332,8 +332,8 @@ public class StatementCompound extends Statement {
 
         if (result.isError()) {
             sqlState = result.getSubString();
-        } else if (session.getLastWarnings() != null) {
-            sqlState = session.getLastWarnings().getSQLState();
+        } else if (session.getLastWarning() != null) {
+            sqlState = session.getLastWarning().getSQLState();
         } else {
             return result;
         }
