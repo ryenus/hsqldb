@@ -2614,10 +2614,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             fail("Allowed getRef after close()");
         } catch (SQLException ex) {
-            assertEquals(
-                    "error code",
-                    getResultSetClosedErrorCode(),
-                    ex.getErrorCode());
+            boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
+                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+            assertTrue("error code", test);
         }
     }
 
@@ -2695,10 +2694,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             fail("Allowed getArray(int) after close");
         } catch (SQLException ex) {
-            assertEquals(
-                    "error code",
-                    this.getResultSetClosedErrorCode(),
-                    ex.getErrorCode());
+            boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
+                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+            assertTrue("error code", test);
         }
     }
 
@@ -2717,10 +2715,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             fail("Allowed getArray(int) while before first");
         } catch (SQLException ex) {
-            assertEquals(
-                    "error code",
-                    getResultSetBeforeFirstErrorCode(),
-                    ex.getErrorCode());
+            boolean test = getResultSetBeforeFirstErrorCode() == ex.getErrorCode()
+                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+            assertTrue("error code", test);
         }
     }
 
@@ -2739,10 +2736,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             fail("Allowed getArray(int) while after last");
         } catch (SQLException ex) {
-            assertEquals(
-                    "error code",
-                    getResultSetAfterLastErrorCode(),
-                    ex.getErrorCode());
+            boolean test = getResultSetAfterLastErrorCode() == ex.getErrorCode()
+                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+            assertTrue("error code", test);
         }
     }
 
@@ -2764,10 +2760,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             fail("Allowed getURL after close()");
         } catch (SQLException ex) {
-            assertEquals(
-                    "error code",
-                    getResultSetClosedErrorCode(),
-                    ex.getErrorCode());
+            boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
+                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+            assertTrue("error code", test);
         }
     }
 
@@ -2845,10 +2840,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             fail("Allowed getRowId after close()");
         } catch (SQLException ex) {
-            assertEquals(
-                    "error code",
-                    getResultSetClosedErrorCode(),
-                    ex.getErrorCode());
+            boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
+                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+            assertTrue("error code", test);
         }
     }
 
@@ -2978,10 +2972,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             fail("Allowed getSQLXML after close()");
         } catch (SQLException ex) {
-            assertEquals(
-                    "error code",
-                    getResultSetClosedErrorCode(),
-                    ex.getErrorCode());
+            boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
+                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+            assertTrue("error code", test);
         }
     }
 

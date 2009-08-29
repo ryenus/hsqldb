@@ -940,8 +940,11 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             conn.setClientInfo(name, value);
         } catch (SQLException ex) {
-            fail(ex.getMessage());
+            return;
         }
+
+        fail("no exception was thrown");
+
     }
 
     /**
