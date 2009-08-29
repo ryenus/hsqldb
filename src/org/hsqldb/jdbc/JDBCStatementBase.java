@@ -187,6 +187,8 @@ class JDBCStatementBase {
             }
         }
 
+        connection.setWarnings(rootWarning);
+
         if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection.sessionProxy,
                     this, resultIn, resultIn.metaData,

@@ -350,6 +350,7 @@ public class JDBCResultSet implements ResultSet {
 
         checkClosed();
 
+        rootWarning = null;
         return navigator.next();
     }
 
@@ -1391,7 +1392,7 @@ public class JDBCResultSet implements ResultSet {
 
         checkClosed();
 
-        return null;
+        return rootWarning;
     }
 
     /**
@@ -1417,6 +1418,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public void clearWarnings() throws SQLException {
         checkClosed();
+
+        rootWarning = null;
     }
 
     /**
@@ -2325,6 +2328,7 @@ public class JDBCResultSet implements ResultSet {
             throw Util.sqlExceptionSQL(ErrorCode.X_24513);
         }
 
+        rootWarning = null;
         return navigator.previous();
     }
 
@@ -6888,6 +6892,11 @@ public class JDBCResultSet implements ResultSet {
 
     /** Accelerates findColumn; Map<columnName, columnIndex> */
     private IntValueHashMap columnMap;
+
+    /** The first warning in the chain. Null if there are no warnings. */
+    protected SQLWarning rootWarning;
+
+    /** The underlying result. */
     private Result          result;
 
     //-------------------------- Package Attributes ----------------------------
@@ -7184,7 +7193,8 @@ public class JDBCResultSet implements ResultSet {
             ResultConstants.UPDATE_CURSOR);
         preparedStatement.fetchResult();
         preparedStatement.clearParameters();
-
+        rootWarning = preparedStatement.getWarnings();
+        preparedStatement.clearWarnings();
         isRowUpdated = false;
     }
 
@@ -7206,6 +7216,8 @@ public class JDBCResultSet implements ResultSet {
             ResultConstants.INSERT_CURSOR);
         preparedStatement.fetchResult();
         preparedStatement.clearParameters();
+        rootWarning = preparedStatement.getWarnings();
+        preparedStatement.clearWarnings();
     }
 
     private void performDelete() throws SQLException {
@@ -7221,6 +7233,8 @@ public class JDBCResultSet implements ResultSet {
             ResultConstants.DELETE_CURSOR);
         preparedStatement.fetchResult();
         preparedStatement.clearParameters();
+        rootWarning = preparedStatement.getWarnings();
+        preparedStatement.clearWarnings();
     }
 
     //-------------------------- Other Methods --------------------------------

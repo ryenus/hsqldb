@@ -1033,6 +1033,17 @@ public class Result {
         return result;
     }
 
+    public static Result newWarningResult(HsqlException w) {
+
+        Result result = newResult(ResultConstants.WARNING);
+
+        result.mainString = w.getMessage();
+        result.subString  = w.getSQLState();
+        result.errorCode  = w.getErrorCode();
+
+        return result;
+    }
+
     public static Result newErrorResult(Throwable t) {
         return newErrorResult(t, null);
     }
@@ -1064,10 +1075,11 @@ public class Result {
             result.subString  = result.exception.getSQLState();
             result.errorCode  = result.exception.getErrorCode();
         } else {
-            result.exception  = Error.error(ErrorCode.GENERAL_ERROR, t);
-            result.mainString = result.exception.getMessage() + " " + t;
-            result.subString  = result.exception.getSQLState();
-            result.errorCode  = result.exception.getErrorCode();
+            result.exception = Error.error(ErrorCode.GENERAL_ERROR, t);
+            result.mainString = result.exception.getMessage() + " "
+                                + t.getMessage();
+            result.subString = result.exception.getSQLState();
+            result.errorCode = result.exception.getErrorCode();
 
             if (statement != null) {
                 result.mainString += " in statement [" + statement + "]";
@@ -1328,6 +1340,10 @@ public class Result {
         return mode == ResultConstants.ERROR;
     }
 
+    public boolean isWarning() {
+        return mode == ResultConstants.WARNING;
+    }
+
     public boolean isUpdateCount() {
         return mode == ResultConstants.UPDATECOUNT;
     }
@@ -1532,6 +1548,15 @@ public class Result {
         }
 
         current.chainedResult = result;
+    }
+
+    public void addWarnings(HsqlException[] warnings) {
+
+        for (int i = 0; i < warnings.length; i++) {
+            Result warning = newWarningResult(warnings[i]);
+
+            addChainedResult(warning);
+        }
     }
 
     public int getLobCount() {

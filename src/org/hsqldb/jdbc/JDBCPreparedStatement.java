@@ -69,6 +69,7 @@ import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
+import org.hsqldb.SessionInterface;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.Types;
 import org.hsqldb.lib.ArrayUtil;
@@ -1091,7 +1092,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void addBatch() throws SQLException {
 
         checkClosed();
-        connection.clearWarningsNoCheck();
         checkParametersSet();
 
         if (!isBatch) {
@@ -1563,7 +1563,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         long millis     = x.getTime();
         int  zoneOffset = 0;
 
-        Calendar calendar = cal == null ? connection.sessionProxy.getCalendar()
+        Calendar calendar = cal == null ? session.getCalendar()
                                         : cal;
 
         millis = HsqlDateTime.convertMillisFromCalendar(calendar, millis);
@@ -1638,7 +1638,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         long millis     = x.getTime();
         int  zoneOffset = 0;
 
-        Calendar calendar = cal == null ? connection.sessionProxy.getCalendar()
+        Calendar calendar = cal == null ? session.getCalendar()
                                         : cal;
 
         millis = HsqlDateTime.convertMillisFromCalendar(calendar, millis);
@@ -1804,7 +1804,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized int[] executeBatch() throws SQLException {
 
         checkClosed();
-        connection.clearWarningsNoCheck();
         checkStatementType(StatementTypes.RETURN_COUNT);
 
         if (!isBatch) {
@@ -1817,7 +1816,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         resultIn = null;
 
         try {
-            resultIn = connection.sessionProxy.execute(resultOut);
+            resultIn = session.execute(resultOut);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         } finally {
@@ -1945,8 +1944,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             // need to free the prepared statements on the server - it is done
             // by Connection.close()
             if (!connection.isClosed) {
-                connection.sessionProxy.execute(
-                    Result.newFreeStmtRequest(statementID));
+                session.execute(Result.newFreeStmtRequest(statementID));
             }
         } catch (HsqlException e) {
             he = e;
@@ -3060,8 +3058,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, HSQLDB never produces Statement warnings;
-     * this method always returns null.
+     * From 1.9 HSQLDB, produces Statement warnings.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3074,7 +3071,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         checkClosed();
 
-        return null;
+        return rootWarning;
     }
 
     /**
@@ -3090,7 +3087,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in HSQLDB 1.9.0.1.
+     * Supported in HSQLDB 1.9.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3621,6 +3618,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         isResult   = false;
         connection = c;
+        session    = c.sessionProxy;
         sql        = c.nativeSQL(sql);
 
         int[] keyIndexes = null;
@@ -3638,11 +3636,30 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 resultSetType, resultSetConcurrency, resultSetHoldability,
                 generatedKeys, generatedIndexes, generatedNames);
 
-        Result in = connection.sessionProxy.execute(resultOut);
+        Result in = session.execute(resultOut);
 
         if (in.isError()) {
             throw Util.sqlException(in);
         }
+
+        Result current = in;
+        while (current.getChainedResult() != null) {
+            current = current.getUnlinkChainedResult();
+
+            if (current.isWarning()) {
+                SQLWarning w = Util.sqlWarning(current);
+
+                if (rootWarning == null) {
+                    rootWarning = w;
+                } else {
+                    rootWarning.setNextWarning(w);
+                }
+            }
+        }
+
+        connection.setWarnings(rootWarning);
+
+
         statementID       = in.getStatementID();
         statementRetType  = in.getStatementType();
         resultMetaData    = in.metaData;
@@ -3688,6 +3705,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         isResult   = true;
         connection = c;
+        session    = c.sessionProxy;
 
         int paramCount = result.metaData.getExtendedColumnCount();
 
@@ -3878,26 +3896,22 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_BIT_VARYING :
                 try {
                     if (o instanceof Boolean) {
-                        o = outType.convertToDefaultType(
-                            connection.sessionProxy, o);
+                        o = outType.convertToDefaultType(session, o);
                         break;
                     }
                     if (o instanceof Integer) {
-                        o = outType.convertToDefaultType(
-                            connection.sessionProxy, o);
+                        o = outType.convertToDefaultType(session, o);
 
                         break;
                     }
                     if (o instanceof byte[]) {
-                        o = outType.convertToDefaultType(
-                            connection.sessionProxy, o);
+                        o = outType.convertToDefaultType(session, o);
 
                         break;
                     }
 
                     if (o instanceof String) {
-                        o = outType.convertToDefaultType(
-                            connection.sessionProxy, o);
+                        o = outType.convertToDefaultType(session, o);
 
                         break;
                     }
@@ -3917,8 +3931,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 try {
                     if (o instanceof String) {
-                        o = outType.convertToDefaultType(
-                            connection.sessionProxy, o);
+                        o = outType.convertToDefaultType(session, o);
 
                         break;
                     }
@@ -3943,12 +3956,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_TIMESTAMP : {
                 try {
                     if (o instanceof String) {
-                        o = outType.convertToType(connection.sessionProxy, o,
-                                Type.SQL_VARCHAR);
+                        o = outType.convertToType(session, o,
+                            Type.SQL_VARCHAR);
 
                         break;
                     }
-                    o = outType.convertJavaToSQL(connection.sessionProxy, o);
+                    o = outType.convertJavaToSQL(session, o);
 
                     break;
                 } catch (HsqlException e) {
@@ -3968,13 +3981,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_DECIMAL :
                 try {
                     if (o instanceof String) {
-                        o = outType.convertToType(connection.sessionProxy, o,
+                        o = outType.convertToType(session, o,
                                 Type.SQL_VARCHAR);
 
                         break;
                     }
-                    o = outType.convertToDefaultType(connection.sessionProxy,
-                            o);
+                    o = outType.convertToDefaultType(session, o);
 
                     break;
                 } catch (HsqlException e) {
@@ -3984,8 +3996,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             // fall through
             default :
                 try {
-                    o = outType.convertToDefaultType(connection.sessionProxy,
-                            o);
+                    o = outType.convertToDefaultType(session, o);
 
                     break;
                 } catch (HsqlException e) {
@@ -4147,26 +4158,26 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } else if (value instanceof Blob) {
                     long length = ((Blob) value).length();
 
-                    blob = connection.sessionProxy.createBlob(length);
+                    blob = session.createBlob(length);
                     id   = blob.getId();
 
                     InputStream stream = ((Blob) value).getBinaryStream();
                     ResultLob resultLob = ResultLob.newLobCreateBlobRequest(
-                        connection.sessionProxy.getId(), id, stream, length);
+                        session.getId(), id, stream, length);
 
-                    connection.sessionProxy.allocateResultLob(resultLob, null);
+                    session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
                 } else if (value instanceof InputStream) {
                     long length = streamLengths[i];
 
-                    blob = connection.sessionProxy.createBlob(length);
+                    blob = session.createBlob(length);
                     id   = blob.getId();
 
                     InputStream stream = (InputStream) value;
                     ResultLob resultLob = ResultLob.newLobCreateBlobRequest(
-                        connection.sessionProxy.getId(), id, stream, length);
+                        session.getId(), id, stream, length);
 
-                    connection.sessionProxy.allocateResultLob(resultLob, null);
+                    session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
                 }
                 parameterValues[i] = blob;
@@ -4183,25 +4194,25 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     long   length = ((Clob) value).length();
                     Reader reader = ((Clob) value).getCharacterStream();
 
-                    clob = connection.sessionProxy.createClob(length);
+                    clob = session.createClob(length);
                     id   = clob.getId();
 
                     ResultLob resultLob = ResultLob.newLobCreateClobRequest(
-                        connection.sessionProxy.getId(), id, reader, length);
+                        session.getId(), id, reader, length);
 
-                    connection.sessionProxy.allocateResultLob(resultLob, null);
+                    session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
                 } else if (value instanceof Reader) {
                     long length = streamLengths[i];
 
-                    clob = connection.sessionProxy.createClob(length);
+                    clob = session.createClob(length);
                     id   = clob.getId();
 
                     Reader reader = (Reader) value;
                     ResultLob resultLob = ResultLob.newLobCreateClobRequest(
-                        connection.sessionProxy.getId(), id, reader, length);
+                        session.getId(), id, reader, length);
 
-                    connection.sessionProxy.allocateResultLob(resultLob, null);
+                    session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
                 }
                 parameterValues[i] = clob;
@@ -4218,7 +4229,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     void fetchResult() throws SQLException {
 
         checkClosed();
-        connection.clearWarningsNoCheck();
         closeResultData();
         checkParametersSet();
 
@@ -4237,7 +4247,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         try {
             performPreExecute();
 
-            resultIn = connection.sessionProxy.execute(resultOut);
+            resultIn = session.execute(resultOut);
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         } finally {
@@ -4312,4 +4322,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /** Is part of a Result. */
     protected final boolean isResult;
+
+    /** The session attribute of the connection */
+    protected SessionInterface session;
+
 }

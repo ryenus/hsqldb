@@ -125,12 +125,6 @@ public class SessionData {
     // result
     void setResultSetProperties(Result command, Result result) {
 
-        /**
-         * @todo - fredt - this does not work with different prepare calls
-         * with the same SQL statement, but different generated column requests
-         * To fix, add comment encapsulating the generated column list to SQL
-         * to differentiate between the two invocations
-         */
         if (command.rsConcurrency == ResultConstants.CONCUR_READ_ONLY) {
             result.setDataResultConcurrency(ResultConstants.CONCUR_READ_ONLY);
             result.setDataResultHoldability(command.rsHoldability);
@@ -138,13 +132,21 @@ public class SessionData {
             if (result.rsConcurrency == ResultConstants.CONCUR_UPDATABLE) {
                 result.setDataResultHoldability(
                     ResultConstants.CLOSE_CURSORS_AT_COMMIT);
+
+                if (command.rsHoldability
+                        != ResultConstants.CLOSE_CURSORS_AT_COMMIT) {
+                    session.addWarning(Error.error(ErrorCode.W_36503));
+                }
             } else {
                 result.setDataResultConcurrency(
                     ResultConstants.CONCUR_READ_ONLY);
                 result.setDataResultHoldability(command.rsHoldability);
-
-                // add warning for concurrency conflict
+                session.addWarning(Error.error(ErrorCode.W_36502));
             }
+        }
+
+        if (command.rsScrollability == ResultConstants.TYPE_SCROLL_SENSITIVE) {
+            session.addWarning(Error.error(ErrorCode.W_36501));
         }
 
         result.setDataResultScrollability(command.rsScrollability);

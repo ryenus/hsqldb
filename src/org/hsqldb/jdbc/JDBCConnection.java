@@ -1454,6 +1454,10 @@ public class JDBCConnection implements Connection {
      * Other warnings are typically raised during the execution of data change
      * and query statements.<p>
      *
+     * Only the warnings caused by the last operation on this connection are
+     * returned by this method. A single operation may return up to 10 chained
+     * warnings.
+     *
      * </div> <!-- end release-specific documentation -->
      * @return the first <code>SQLWarning</code> object or <code>null</code>
      *         if there are none
@@ -1465,9 +1469,8 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        synchronized (rootWarning_mutex) {
-            return rootWarning;
-        }
+        return rootWarning;
+
     }
 
     /**
@@ -1495,9 +1498,7 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        synchronized (rootWarning_mutex) {
-            rootWarning = null;
-        }
+        rootWarning = null;
     }
 
     //--------------------------JDBC 2.0-----------------------------
@@ -2866,6 +2867,15 @@ public class JDBCConnection implements Connection {
      *                                                  using the connection is running on.</li>
      * </ul>
      * <p>
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * HSQLDB 1.9.0, throws an SQLClientInfoException when this method is
+     * called.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param name              The name of the client info property to set
      * @param value             The value to set the client info property to.  If the
      *                                  value is null, the current value of the specified
@@ -2881,6 +2891,10 @@ public class JDBCConnection implements Connection {
     public void setClientInfo(String name,
                               String value) throws SQLClientInfoException {
 
+        SQLClientInfoException ex = new SQLClientInfoException();
+        ex.initCause(Util.notSupported());
+        throw ex;
+/*
         try {
             checkClosed();
         } catch (SQLException ex) {
@@ -2897,6 +2911,7 @@ public class JDBCConnection implements Connection {
 
         warning.initCause(Util.notSupported());
         addWarning(warning);
+*/
     }
 
 //#endif JAVA6
@@ -3348,12 +3363,12 @@ public class JDBCConnection implements Connection {
     }
 
     /**
-     * Clears the warning chain without checking if this Connection is closed.
+     * Sets the warning chain
      */
-    void clearWarningsNoCheck() {
+    void setWarnings(SQLWarning w) {
 
         synchronized (rootWarning_mutex) {
-            rootWarning = null;
+            rootWarning = w;
         }
     }
 

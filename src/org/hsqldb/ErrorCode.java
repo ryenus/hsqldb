@@ -446,8 +446,13 @@ public interface ErrorCode {
     int X_36001 = 4701;                                   // cursor sensitivity exception: request rejected
     int X_36002 = 4702;                                   // cursor sensitivity exception: request failed
 
+    // cursor compatibility warnings
+    int W_36501 = 4711;                                   // cursor sensitivity mismatch
+    int W_36502 = 4712;                                   // cursor updatability mismatch
+    int W_36503 = 4713;                                   // cursor holdability mismatch
+
     // syntax error or access rule violation in dynamic statement - xxxx
-    int X_37000 = 4710;                                   // syntax error or access rule violation in dynamic statement
+    int X_37000 = 4790;                                   // syntax error or access rule violation in dynamic statement
 
     // external routine exception - 2003
     int X_38000 = 4800;                                   // external routine exception
