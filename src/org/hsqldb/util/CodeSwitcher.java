@@ -82,6 +82,7 @@ import java.util.Vector;
 // fredt@users 20021118 - patch 1.7.2 - no-change, no-save fix
 // if the file contents do not change, do not save a new version of file
 // fredt@users 20040322 - removed unused profiling code
+// fredt@users 20080315 - added ifndef switch
 
 /**
  * Modifies the source code to support different JDK or profile settings. <p>
@@ -360,6 +361,32 @@ public class CodeSwitcher {
                             working   = true;
                             switchoff = false;
                         } else if (vSwitchOff.indexOf(s) != -1) {
+                            working = true;
+
+                            v.insertElementAt("/*", ++i);
+
+                            switchoff = true;
+                        }
+
+                        if (vSwitches.indexOf(s) == -1) {
+                            vSwitches.addElement(s);
+                        }
+                    } else if (line.startsWith("//#ifndef ")) {
+                        if (state != 0) {
+                            printError(
+                                "'#ifndef' not allowed inside '#ifdef'");
+
+                            return false;
+                        }
+
+                        state = 1;
+
+                        String s = line.substring(10);
+
+                        if (vSwitchOff.indexOf(s) != -1) {
+                            working   = true;
+                            switchoff = false;
+                        } else if (vSwitchOn.indexOf(s) != -1) {
                             working = true;
 
                             v.insertElementAt("/*", ++i);

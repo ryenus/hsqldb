@@ -46,7 +46,7 @@ import org.hsqldb.lib.HsqlByteArrayInputStream;
  * A proof-of-concept prototype was first contributed by winfriedthom@users.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  1.8.0
+ * @version  1.9.0
  * @since  1.8.0
  */
 final class ScaledRAFileInJar implements ScaledRAInterface {
@@ -67,10 +67,7 @@ final class ScaledRAFileInJar implements ScaledRAInterface {
 
         fileName = name;
 
-        resetStream();
-        file.skip(DataFileCache.LONG_FREE_POS_POS);
-
-        fileLength = file.readLong();
+        fileLength = getLength();
 
         resetStream();
     }
@@ -206,6 +203,23 @@ final class ScaledRAFileInJar implements ScaledRAInterface {
         return false;
     }
 
+    private long getLength() throws IOException {
+
+        int count = 0;
+        resetStream();
+
+
+        while(true) {
+            if (file.read() < 1) {
+                break;
+            }
+
+            count++;
+
+        }
+
+        return count;
+    }
     private void resetStream() throws IOException {
 
         if (file != null) {

@@ -164,7 +164,7 @@ public class Database {
 
     // session related objects
     public SessionManager              sessionManager;
-    public TransactionManagerInterface txManager;
+    public TransactionManager txManager;
     public StatementManager            compiledStatementManager;
 
     // schema objects
@@ -285,6 +285,8 @@ public class Database {
             if (!(e instanceof HsqlException)) {
                 e = Error.error(ErrorCode.GENERAL_ERROR, e);
             }
+
+            logger.logSevereEvent("could not reopen database", e);
 
             throw (HsqlException) e;
         }

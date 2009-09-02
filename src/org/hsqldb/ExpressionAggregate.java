@@ -277,6 +277,6 @@ public class ExpressionAggregate extends Expression {
                                            : null;
         }
 
-        return ((SetFunction) currValue).getValue();
+        return ((SetFunction) currValue).getValue(session);
     }
 }

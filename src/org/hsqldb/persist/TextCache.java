@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import org.hsqldb.Database;
+import org.hsqldb.DatabaseURL;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
@@ -310,8 +311,12 @@ public class TextCache extends DataFileCache {
         fileFreePosition = 0;
 
         try {
+            int type = database.getType() == DatabaseURL.S_RES
+                       ? ScaledRAFile.DATA_FILE_JAR
+                       : ScaledRAFile.DATA_FILE_RAF;
+
             dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
-                    readonly, ScaledRAFile.DATA_FILE_RAF, null, null);
+                    readonly, type, null, null);
             fileFreePosition = dataFile.length();
 
             if (fileFreePosition > Integer.MAX_VALUE) {

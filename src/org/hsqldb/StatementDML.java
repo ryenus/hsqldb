@@ -62,7 +62,7 @@ import org.hsqldb.types.Type;
 // support for MERGE statement by Justin Spadea (jzs9783@users dot sourceforge.net)
 public class StatementDML extends StatementDMQL {
 
-    StatementDML(int type, int group, HsqlName schemaName) {
+    public StatementDML(int type, int group, HsqlName schemaName) {
         super(type, group, schemaName);
     }
 

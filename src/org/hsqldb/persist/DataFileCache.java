@@ -324,7 +324,9 @@ public class DataFileCache {
             dataFile.seek(FLAGS_POS);
             dataFile.writeInt(flags);
             dataFile.synch();
-        } catch (Throwable t) {}
+        } catch (Throwable t) {
+            database.logger.logSevereEvent("backupFile failed", t);
+        }
         finally {
             writeLock.unlock();
         }

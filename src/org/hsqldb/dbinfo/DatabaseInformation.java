@@ -305,7 +305,9 @@ public class DatabaseInformation {
         } catch (Exception e) {
             try {
                 c = Class.forName("org.hsqldb.dbinfo.DatabaseInformationMain");
-            } catch (Exception e2) {}
+            } catch (Exception e2) {
+                c = DatabaseInformation.class;
+            }
         }
 
         try {

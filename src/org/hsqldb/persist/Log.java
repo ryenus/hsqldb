@@ -70,6 +70,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.hsqldb.Database;
+import org.hsqldb.DatabaseURL;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
@@ -899,7 +900,9 @@ public class Log {
 
         closeTextCache(table);
 
-        if (!database.logger.propTextAllowFullPath) {
+        if (database.getType() != DatabaseURL.S_RES
+                && !properties.isPropertyTrue(
+                    HsqlDatabaseProperties.textdb_allow_full_path)) {
             if (source.indexOf("..") != -1) {
                 throw (Error.error(ErrorCode.ACCESS_IS_DENIED, source));
             }

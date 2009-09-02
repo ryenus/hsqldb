@@ -74,6 +74,8 @@ import java.lang.reflect.Method;
  * ...
  *   logger.finer("Doing something log-worthy");
  * </PRE> </CODE>
+ *
+ * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 public class FrameworkLogger {
 

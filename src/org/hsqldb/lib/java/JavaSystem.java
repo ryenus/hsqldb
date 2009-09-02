@@ -49,7 +49,7 @@ import java.io.RandomAccessFile;
  * Handles the differences between JDK 1.1.x and 1.2.x and above
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  */
 public class JavaSystem {
 

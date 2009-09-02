@@ -563,7 +563,7 @@ public class StringConverter {
     /**
      * Writes a string to the specified DataOutput using UTF-8 encoding in a
      * machine-independent manner.
-     *
+     * <p>
      * @param      str   a string to be written.
      * @param      out   destination to write to
      * @return     The number of bytes written out.

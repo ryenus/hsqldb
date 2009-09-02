@@ -175,10 +175,10 @@ final class DataFileDefrag {
             }
 
             complete = true;
-        } catch (IOException e1) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, e1);
-        } catch (OutOfMemoryError e2) {
-            throw Error.error(ErrorCode.OUT_OF_MEMORY, e2);
+        } catch (IOException e) {
+            throw Error.error(ErrorCode.FILE_IO_ERROR, e);
+        } catch (OutOfMemoryError e) {
+            throw Error.error(ErrorCode.OUT_OF_MEMORY, e);
         } catch (Throwable t) {
             throw Error.error(ErrorCode.GENERAL_ERROR, t);
         } finally {
@@ -190,7 +190,9 @@ final class DataFileDefrag {
                 if (dest != null) {
                     dest.close();
                 }
-            } catch (Throwable e) {}
+            } catch (Throwable t) {
+                database.logger.logSevereEvent("backupFile failed", t);
+            }
 
             if (!complete) {
                 database.logger.getFileAccess().removeElement(dataFileName

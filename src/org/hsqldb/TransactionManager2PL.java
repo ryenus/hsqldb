@@ -52,7 +52,7 @@ import org.hsqldb.store.ValuePool;
  * @version 2.0.0
  * @since 2.0.0
  */
-public class TransactionManager2PL implements TransactionManagerInterface {
+public class TransactionManager2PL implements TransactionManager {
 
     Database database;
 
@@ -90,10 +90,9 @@ public class TransactionManager2PL implements TransactionManagerInterface {
         try {
             switch (mode) {
 
-                case Database.MVCC :
-                case Database.MVLOCKS :
-                    TransactionManager manager =
-                        new TransactionManager(database, mode);
+                case Database.MVCC : {
+                    TransactionManagerMVCC manager =
+                        new TransactionManagerMVCC(database);
 
                     manager.globalChangeTimestamp.set(
                         globalChangeTimestamp.get());
@@ -101,8 +100,22 @@ public class TransactionManager2PL implements TransactionManagerInterface {
                         session.transactionTimestamp);
 
                     database.txManager = manager;
-                    break;
 
+                    break;
+                }
+                case Database.MVLOCKS : {
+                    TransactionManagerMV2PL manager =
+                        new TransactionManagerMV2PL(database);
+
+                    manager.globalChangeTimestamp.set(
+                        globalChangeTimestamp.get());
+                    manager.liveTransactionTimestamps.addLast(
+                        session.transactionTimestamp);
+
+                    database.txManager = manager;
+
+                    break;
+                }
                 case Database.LOCKS :
                     break;
             }
@@ -115,14 +128,13 @@ public class TransactionManager2PL implements TransactionManagerInterface {
 
     public void completeActions(Session session) {
 
-        Object[] list        = session.rowActionList.getArray();
-        int      limit       = session.rowActionList.size();
-        boolean  canComplete = true;
+        Object[] list  = session.rowActionList.getArray();
+        int      limit = session.rowActionList.size();
 
         for (int i = session.actionIndex; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];
 
-            rowact.complete(session, session.tempSet);
+            rowact.complete(session, null);
         }
     }
 
@@ -213,17 +225,26 @@ public class TransactionManager2PL implements TransactionManagerInterface {
                 Object[] data = row.getData();
 
                 try {
-                    if (type == RowActionBase.ACTION_INSERT) {
-                        database.logger.writeInsertStatement(session,
-                                                             action.table,
-                                                             data);
-                    } else if (type == RowActionBase.ACTION_DELETE) {
-                        database.logger.writeDeleteStatement(session,
-                                                             action.table,
-                                                             data);
-                        store.remove(action.getPos());
-                    } else if (type == RowActionBase.ACTION_NONE) {
-                        store.remove(action.getPos());
+                    switch (type) {
+
+                        case RowActionBase.ACTION_DELETE :
+                            database.logger.writeDeleteStatement(session,
+                                                                 action.table,
+                                                                 data);
+                            store.remove(action.getPos());
+                            break;
+
+                        case RowActionBase.ACTION_INSERT :
+                            database.logger.writeInsertStatement(session,
+                                                                 action.table,
+                                                                 data);
+                            break;
+
+                        case RowActionBase.ACTION_NONE :
+
+                            // ????
+                            store.remove(action.getPos());
+                            break;
                     }
 
                     action.setAsNoOp(row);
@@ -460,11 +481,13 @@ public class TransactionManager2PL implements TransactionManagerInterface {
 
         unlockTablesTPL(session);
 
-        if (session.waitingSessions.isEmpty()) {
+        final int waitingCount = session.waitingSessions.size();
+
+        if (waitingCount == 0) {
             return;
         }
 
-        for (int i = 0; i < session.waitingSessions.size(); i++) {
+        for (int i = 0; i < waitingCount; i++) {
             Session current = (Session) session.waitingSessions.get(i);
 
             current.tempUnlocked = false;
@@ -489,24 +512,31 @@ public class TransactionManager2PL implements TransactionManagerInterface {
             }
         }
 
-        if (unlockedCount > 0) {
-            for (int i = 0; i < session.waitingSessions.size(); i++) {
-                Session current = (Session) session.waitingSessions.get(i);
+        for (int i = 0; i < waitingCount; i++) {
+            Session current = (Session) session.waitingSessions.get(i);
 
-                if (!current.tempUnlocked) {
-                    boolean canProceed = setWaitedSessionsTPL(current,
-                        current.currentStatement);
+            if (!current.tempUnlocked) {
 
-                    // this can introduce additional waits for the sessions
-                    if (!canProceed) {
-                        current.abortTransaction = true;
-                    }
+                // this can introduce additional waits for the sessions
+                boolean canProceed = setWaitedSessionsTPL(current,
+                    current.currentStatement);
+
+                if (!canProceed) {
+                    current.abortTransaction = true;
                 }
             }
         }
 
-        for (int i = 0; i < session.waitingSessions.size(); i++) {
+        for (int i = 0; i < waitingCount; i++) {
             Session current = (Session) session.waitingSessions.get(i);
+
+            if (current.tempSet.isEmpty()) {
+                boolean hasLocks = hasLocks(current, current.currentStatement);
+
+                if (!hasLocks) {
+                    System.out.println("trouble");
+                }
+            }
 
             setWaitingSessionTPL(current);
         }
@@ -673,6 +703,65 @@ public class TransactionManager2PL implements TransactionManagerInterface {
      */
     void endTransaction(Session session) {
         session.isTransaction = false;
+    }
+
+
+
+    public boolean hasLocks(Session session, Statement cs) {
+
+        if (cs == null) {
+            return true;
+        }
+
+        writeLock.lock();
+
+        try {
+            HsqlName[] nameList = cs.getTableNamesForWrite();
+
+            for (int i = 0; i < nameList.length; i++) {
+                HsqlName name = nameList[i];
+
+                if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                    continue;
+                }
+
+                Session holder = (Session) tableWriteLocks.get(name);
+
+                if (holder != null && holder != session) {
+                    return false;
+                }
+
+                Iterator it = tableReadLocks.get(name);
+
+                while (it.hasNext()) {
+                    holder = (Session) it.next();
+
+                    if (holder != session) {
+                        return false;
+                    }
+                }
+            }
+
+            nameList = cs.getTableNamesForRead();
+
+            for (int i = 0; i < nameList.length; i++) {
+                HsqlName name = nameList[i];
+
+                if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                    continue;
+                }
+
+                Session holder = (Session) tableWriteLocks.get(name);
+
+                if (holder != null && holder != session) {
+                    return false;
+                }
+            }
+
+            return true;
+        } finally {
+            writeLock.unlock();
+        }
     }
 
 // functional unit - list actions and translate id's

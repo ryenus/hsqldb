@@ -1196,7 +1196,8 @@ public class Session implements SessionInterface {
             } catch (Exception e) {
                 currentStatement = null;
 
-                return Result.newErrorResult(Error.error(ErrorCode.X_40001));
+                return Result.newErrorResult(Error.error(ErrorCode.X_40001,
+                        e));
             }
         }
 
