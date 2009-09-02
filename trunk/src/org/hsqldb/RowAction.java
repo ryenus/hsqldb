@@ -322,7 +322,10 @@ public class RowAction extends RowActionBase {
                         result = false;
                     } else if (action.commitTimestamp == 0
                                && action.actionTimestamp != 0) {
-                        set.add(action.session);
+
+                        if (set != null) {
+                            set.add(action.session);
+                        }
 
                         result = false;
                     }

@@ -41,7 +41,7 @@ import org.hsqldb.RowAVLDisk;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.TransactionManagerInterface;
+import org.hsqldb.TransactionManager;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
@@ -60,7 +60,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     DataFileCache               cache;
     RowOutputInterface          rowOut;
     Table                       table;
-    TransactionManagerInterface txManager;
+    TransactionManager txManager;
 
     public RowStoreAVLDisk(PersistentStoreCollection manager,
                            DataFileCache cache, Table table) {

@@ -61,10 +61,6 @@ public class RAShadowFile {
     HsqlByteArrayOutputStream byteArrayOutputStream =
         new HsqlByteArrayOutputStream(new byte[]{});
 
-    // We are using persist.Logger-instance-specific FrameworkLogger
-    // because it is Database-instance specific.
-    // If add any static level logging, should instantiate a standard,
-    // context-agnostic FrameworkLogger for that purpose.
     RAShadowFile(Database database, Storage source, String pathName,
                  long maxSize, int pageSize) {
 

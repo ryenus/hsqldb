@@ -150,20 +150,15 @@ class DatabaseManagerCommon {
 
         "SET AUTOCOMMIT { TRUE | FALSE }\n"
         + "SET DATABASE COLLATION \"<collationname>\"\n"
-        + "SET CHECKPOINT DEFRAG <size>\n"
-        + "SET IGNORECASE { TRUE | FALSE }\n"
-        + "SET INITIAL SCHEMA <schemaname>\n"                             //
-        + "SET LOGSIZE <size>\n"                                          //
+        + "SET FILES CHECKPOINT DEFRAG <size>\n"
+        + "SET DATABASE INITIAL SCHEMA <schemaname>\n"                             //
+        + "SET FILES LOG SIZE <size>\n"                                          //
         + "SET MAXROWS maxrows\n"                                         //
         + "SET PASSWORD <password>\n"                                     //
-        + "SET PROPERTY \"<propname>\" <propvalue>\n"
-        + "SET READONLY { TRUE | FALSE }\n"
-        + "SET DATABASE REFERENTIAL_INTEGRITY { TRUE | FALSE }\n"
+        + "SET FILES READONLY { TRUE | FALSE }\n"
         + "SET SCHEMA <schemaname>\n"
-        + "SET DATABASE SCRIPTFORMAT { TEXT | BINARY | COMPRESSED }\n"
         + "SET TABLE <tablename> READONLY { TRUE | FALSE }\n"
         + "SET TABLE <tablename> SOURCE \"<file>\" [DESC]\n"
-        + "SET WRITE_DELAY { TRUE | FALSE | <seconds> | <ms> MILLIS }"    //
         + "\n\n"                                                          //
         + "(HSQLDB SQL only)"
     };

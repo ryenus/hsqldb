@@ -216,7 +216,13 @@ class ServerConnection implements Runnable {
 
         // fredt@user - closing the socket is to stop this thread
         try {
-            socket.close();
+            synchronized (this) {
+                if (socket != null) {
+                    socket.close();
+
+                    socket = null;
+                }
+            }
         } catch (IOException e) {}
 
         synchronized (server.serverConnSet) {

@@ -48,7 +48,7 @@ import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.Tokens;
-import org.hsqldb.TransactionManager;
+import org.hsqldb.TransactionManagerMV2PL;
 import org.hsqldb.TransactionManager2PL;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
@@ -58,6 +58,7 @@ import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
+import org.hsqldb.TransactionManagerMVCC;
 
 // boucherb@users 20030510 - patch 1.7.2 - added cooperative file locking
 
@@ -322,9 +323,11 @@ public class Logger {
                 break;
 
             case Database.MVLOCKS :
+                database.txManager = new TransactionManagerMV2PL(database);
+                break;
+
             case Database.MVCC :
-                database.txManager = new TransactionManager(database,
-                        propTxMode);
+                database.txManager = new TransactionManagerMVCC(database);
                 break;
         }
 

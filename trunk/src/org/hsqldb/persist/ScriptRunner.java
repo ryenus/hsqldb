@@ -37,6 +37,9 @@ import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.Session;
+import org.hsqldb.Statement;
+import org.hsqldb.StatementDML;
+import org.hsqldb.StatementTypes;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.result.Result;
@@ -70,6 +73,9 @@ public class ScriptRunner {
         ScriptReaderBase scr = null;
         String           statement;
         int              statementType;
+        Statement dummy = new StatementDML(StatementTypes.UPDATE_CURSOR,
+                                           StatementTypes.X_SQL_DATA_CHANGE,
+                                           null);
 
         try {
             StopWatch sw = new StopWatch();
@@ -123,7 +129,7 @@ public class ScriptRunner {
                         break;
 
                     case ScriptReaderBase.INSERT_STATEMENT : {
-                        current.beginAction(null);
+                        current.beginAction(dummy);
 
                         Object[] data = scr.getData();
 
@@ -134,7 +140,7 @@ public class ScriptRunner {
                         break;
                     }
                     case ScriptReaderBase.DELETE_STATEMENT : {
-                        current.beginAction(null);
+                        current.beginAction(dummy);
 
                         Object[] data = scr.getData();
 

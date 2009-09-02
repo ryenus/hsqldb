@@ -305,7 +305,6 @@ public class TestDataStructures extends TestCase {
             this.printListCommandsCalled(listCommandsCalled);
             System.out.flush();
             fail("test failed");
-            System.exit(0);
         }
     }
 

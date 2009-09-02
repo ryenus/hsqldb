@@ -48,8 +48,6 @@ import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HsqlTimer;
 import org.hsqldb.lib.StringConverter;
 
-// patch fredt@users    20090720 - patch by Frank Behrens
-
 /**
  * Base cooperative file locking implementation and <tt>LockFile</tt>
  * factory. <p>
@@ -218,7 +216,7 @@ import org.hsqldb.lib.StringConverter;
  *
  * In particular, if {@link #USE_NIO_FILELOCK_PROPERTY} is true and the required
  * classes are available at static initialization, then <tt>newLockFile()</tt>
- * produces {@link NIOLockFile NIOLockFile} instances.<p>
+ * produces {@link org.hsqldb.persist.NIOLockFile NIOLockFile} instances.<p>
  *
  * When <tt>NIOLockFile</tt> instances are produced, then it is possible that
  * true kernel-enforced advisory or manditory file locking is used to protect
@@ -355,7 +353,7 @@ import org.hsqldb.lib.StringConverter;
  * present. <p>
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
- * @version 1.8.0.3
+ * @version 1.8.1
  * @since 1.7.2
  */
 public class LockFile {

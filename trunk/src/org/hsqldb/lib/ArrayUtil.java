@@ -655,6 +655,25 @@ public class ArrayUtil {
         }
     }
 
+    /**
+     * Return array of indexes of boolean elements that are true.
+     */
+    public static int countStartIntIndexesInBooleanArray(int[] arra,
+            boolean[] arrb) {
+
+        int k = 0;
+
+        for (int i = 0; i < arra.length; i++) {
+            if (arrb[arra[i]]) {
+                k++;
+            } else {
+                break;
+            }
+        }
+
+        return k;
+    }
+
     public static void orBooleanArray(boolean[] source, boolean[] dest) {
 
         for (int i = 0; i < dest.length; i++) {

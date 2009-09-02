@@ -106,8 +106,6 @@ public class SetFunction implements Serializable {
         if (item == null) {
             hasNull = true;
 
-            session.addWarning(Error.error(ErrorCode.W_01003));
-
             return;
         }
 
@@ -236,7 +234,12 @@ public class SetFunction implements Serializable {
         }
     }
 
-    Object getValue() {
+    Object getValue(Session session) {
+
+        if (hasNull) {
+            session.addWarning(Error.error(ErrorCode.W_01003));
+        }
+
 
         if (setType == OpTypes.COUNT) {
             return ValuePool.getInt(count);

@@ -481,12 +481,13 @@ public final class HsqlTimer implements ObjectComparator, ThreadFactory {
     /** Sets the background thread to null. */
     protected synchronized void clearThread() {
 
+//#ifdef JAVA2FULL
         try {
             taskRunnerThread.setContextClassLoader(null);
         } catch (Throwable t) {}
-        finally {
-            taskRunnerThread = null;
-        }
+
+//#endif JAVA2FULL
+        taskRunnerThread = null;
     }
 
     /**
