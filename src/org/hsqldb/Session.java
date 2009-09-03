@@ -1114,7 +1114,9 @@ public class Session implements SessionInterface {
 
                 /** special autocommit for backward compatibility */
                 commit(false);
-            } catch (HsqlException e) {}
+            } catch (HsqlException e) {
+                database.logger.logInfoEvent("Exception at commit");
+            }
         }
 
         if (!cs.isTransactionStatement()) {

@@ -2894,24 +2894,6 @@ public class JDBCConnection implements Connection {
         SQLClientInfoException ex = new SQLClientInfoException();
         ex.initCause(Util.notSupported());
         throw ex;
-/*
-        try {
-            checkClosed();
-        } catch (SQLException ex) {
-            SQLClientInfoException e =
-                new SQLClientInfoException(ex.getMessage(), null);
-
-            e.initCause(ex);
-
-            throw e;
-        }
-
-        SQLWarning warning = new SQLWarning("ClientInfo name not recognized: "
-            + name);
-
-        warning.initCause(Util.notSupported());
-        addWarning(warning);
-*/
     }
 
 //#endif JAVA6

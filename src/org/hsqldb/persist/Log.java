@@ -87,6 +87,8 @@ import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.scriptio.ScriptWriterText;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptWriterEncode;
+import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.navigator.RowIterator;
 
 // fredt@users 20020215 - patch 1.7.0 by fredt
 // to move operations on the database.properties files to new
@@ -533,6 +535,7 @@ public class Log {
             }
 
             cache.close(true);
+            cache.cache.clear();
 
             if (!database.logger.propIncrementBackup) {
                 FileArchiver.archive(fileName + ".data.new",
@@ -580,7 +583,7 @@ public class Log {
                 Table t     = (Table) allTables.get(i);
                 int   count = 0;
 
-                if (t.getTableType() == TableBase.CACHED_TABLE) {
+                if (t.getTableType() == Table.CACHED_TABLE) {
                     RowIterator it = t.rowIterator(session);
 
                     for (; it.hasNext(); count++) {
