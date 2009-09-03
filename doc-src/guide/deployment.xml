@@ -1202,6 +1202,15 @@
     <simpara>This specifies the method for internal backup operation. The
     default is true.</simpara>
 
+    <simpara>During updates, the contents of the .data file is modified. When
+    this property is true, the modified contents are backed up gradually. This
+    causes a marginal slowdown in operations, but allows fast checkpoint and
+    shutdown with large .data files.</simpara>
+
+    <simpara>When the property is false, the .data file is backed up entirely
+    at the time of checkpoint and shutdown. Up to version 1.8.0, HSQLDB
+    supported only full backup.</simpara>
+
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
 
