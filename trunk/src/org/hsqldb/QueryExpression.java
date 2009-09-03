@@ -170,7 +170,8 @@ public class QueryExpression {
         resolveTypes(session);
     }
 
-    public void resolve(Session session, RangeVariable[] outerRanges) {
+    public void resolve(Session session, RangeVariable[] outerRanges,
+                        Type[] targetTypes) {
 
         resolveReferences(session);
 
@@ -182,6 +183,8 @@ public class QueryExpression {
                 ExpressionColumn.checkColumnsResolved(list);
             }
         }
+
+        unionColumnTypes = targetTypes;
 
         resolveTypes(session);
     }
