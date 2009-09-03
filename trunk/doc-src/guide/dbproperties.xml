@@ -616,6 +616,29 @@
           </row>
 
           <row>
+            <entry><property>hsqldb.inc_backup</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>incremental backup of data file</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>During updates, the contents
+            of the .data file is modified. When this property is true, the
+            modified contents are backed up gradually. This causes a marginal
+            slowdown in operations, but allows fast checkpoint and
+            shutdown.</para><para>When the property is false, the .data file
+            is backed up entirely at the time of checkpoint and shutdown. Up
+            to version 1.8, HSQLDB supported only full
+            backup.</para><para><programlisting>SET FILES INCREMENT BACKUP { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><property>hsqldb.lock_file</property></entry>
 
             <entry><literal>true</literal></entry>
@@ -692,7 +715,9 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>Set the WRITE DELAY property
-            of the database in seconds.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS}</programlisting></para></entry>
+            of the database as 0 or 10 seconds. The SQL command for this
+            property allows more precise control over the the
+            property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
           </row>
 
           <row>
