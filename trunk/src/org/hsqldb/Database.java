@@ -163,9 +163,9 @@ public class Database {
     public HsqlNameManager nameManager;
 
     // session related objects
-    public SessionManager              sessionManager;
+    public SessionManager     sessionManager;
     public TransactionManager txManager;
-    public StatementManager            compiledStatementManager;
+    public StatementManager   compiledStatementManager;
 
     // schema objects
     public SchemaManager schemaManager;
