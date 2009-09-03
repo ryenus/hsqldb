@@ -272,15 +272,6 @@ public class ParserDML extends ParserDQL {
 
         columnCheckList = table.getColumnCheckList(columnMap);
 
-        QueryExpression queryExpression = XreadQueryExpression();
-
-        queryExpression.setAsTopLevel();
-        queryExpression.resolve(session, outerRanges);
-
-        if (colCount != queryExpression.getColumnCount()) {
-            throw Error.error(ErrorCode.X_42546);
-        }
-
         if (table != baseTable) {
             int[] baseColumnMap = table.getBaseTableColumnMap();
             int[] newColumnMap  = new int[columnMap.length];
@@ -308,6 +299,19 @@ public class ParserDML extends ParserDQL {
             }
         } else if (overridingUser || overridingSystem) {
             unexpectedTokenRequire(Tokens.T_OVERRIDING);
+        }
+
+        Type[] types = new Type[columnMap.length];
+
+        ArrayUtil.projectRow(baseTable.getColumnTypes(), columnMap, types);
+
+        QueryExpression queryExpression = XreadQueryExpression();
+
+        queryExpression.setAsTopLevel();
+        queryExpression.resolve(session, outerRanges, types);
+
+        if (colCount != queryExpression.getColumnCount()) {
+            throw Error.error(ErrorCode.X_42546);
         }
 
         StatementDMQL cs = new StatementInsert(session, table, columnMap,

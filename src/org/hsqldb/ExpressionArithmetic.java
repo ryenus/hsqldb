@@ -211,13 +211,13 @@ public class ExpressionArithmetic extends Expression {
         }
 
         if (nodes[LEFT] != null) {
-            sb.append(" arg1=[");
+            sb.append(" arg_left=[");
             sb.append(nodes[LEFT].describe(session, blanks + 1));
             sb.append(']');
         }
 
         if (nodes[RIGHT] != null) {
-            sb.append(" arg2=[");
+            sb.append(" arg_right=[");
             sb.append(nodes[RIGHT].describe(session, blanks + 1));
             sb.append(']');
         }

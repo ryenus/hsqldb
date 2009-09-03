@@ -67,7 +67,6 @@ public class QuerySpecification extends QueryExpression {
     public boolean        isDistinctSelect;
     public boolean        isAggregated;
     public boolean        isGrouped;
-    private HashSet       groupColumnNames;
     RangeVariable[]       rangeVariables;
     private HsqlArrayList rangeVariableList;
     Expression            queryCondition;
@@ -1492,10 +1491,7 @@ public class QuerySpecification extends QueryExpression {
         sb.append("isAggregated=[").append(isAggregated).append("]\n");
         sb.append("columns=[");
 
-        int columns = indexLimitVisible + groupByColumnCount
-                      + havingColumnCount;
-
-        for (int i = 0; i < columns; i++) {
+        for (int i = 0; i < indexLimitVisible; i++) {
             int index = i;
 
             if (exprColumns[i].getType() == OpTypes.SIMPLE_COLUMN) {
@@ -1521,11 +1517,25 @@ public class QuerySpecification extends QueryExpression {
 
         sb.append("queryCondition=[").append(temp).append("]\n");
 
+        sb.append("groupColumns=[");
+
+        for (int i = indexLimitRowId; i < indexLimitRowId + groupByColumnCount;
+                i++) {
+            int index = i;
+
+            if (exprColumns[i].getType() == OpTypes.SIMPLE_COLUMN) {
+                index = exprColumns[i].columnIndex;
+            }
+
+            sb.append(exprColumns[index].describe(session));
+        }
+
+        sb.append("]\n");
+
         temp = havingCondition == null ? "null"
                                        : havingCondition.describe(session);
 
         sb.append("havingCondition=[").append(temp).append("]\n");
-        sb.append("groupColumns=[").append(groupColumnNames).append("]\n");
 
         return sb.toString();
     }
