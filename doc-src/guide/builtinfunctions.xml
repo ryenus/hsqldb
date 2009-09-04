@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
-         xml:id="builtinfunctions-chapt"
-         xmlns:xi="http://www.w3.org/2001/XInclude"
+<chapter version="5.0" xml:id="builtinfunctions-chapt"
+         xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
@@ -45,7 +45,8 @@
     <title>Overview</title>
 
     <para>HyperSQL supports a wide range of built-in functions and allows
-    user-defined functions written in SQL and Java languages.</para>
+    user-defined functions written in SQL and Java languages. User defined
+    functions are covered in a separate chapter.</para>
 
     <para>The built-in functions fall into three groups:</para>
 
@@ -87,12 +88,10 @@
         <listitem>
           <para>HyperSQL Built-In Functions</para>
 
-          <para>A few additional built-in functions are available for some
+          <para>Several additional built-in functions are available for some
           useful operations.</para>
         </listitem>
       </itemizedlist></para>
-
-    <para>User defined functions are covered in a separate chapter.</para>
 
     <para>In the BNF specification used here, words in capital letters are
     actual tokens. Syntactic elements such as expressions are enclosed in
@@ -314,6 +313,17 @@
     1&gt;</literal> where each occurrence of <literal>&lt;char value expr
     2&gt;</literal> has been replaced with a copy of <literal>&lt;char value
     expr 3&gt;</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REVERSE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REVERSE</emphasis></simpara>
+
+    <para><literal>REVERSE ( &lt;char value expr&gt; )</literal></para>
+
+    <para>Returns a character string based on <literal>&lt;char value
+    expr&gt;</literal> with characters in the reverse order. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>RIGHT function</primary>
@@ -602,15 +612,6 @@
     DOUBLE type. (JDBC and Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>BITOR function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">BITOR</emphasis></simpara>
-
-    <para><literal>BITOR ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
-    )</literal></para>
-
-    <indexterm significance="preferred" type="sql">
       <primary>BITAND function</primary>
     </indexterm>
 
@@ -619,11 +620,39 @@
     <para><literal>BITAND ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
     )</literal></para>
 
+    <para><literal>BITAND ( &lt;bit value expr 1&gt;, &lt;bit value expr 2&gt;
+    )</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>BITOR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BITOR</emphasis></simpara>
+
+    <para><literal>BITOR ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
+    )</literal></para>
+
+    <para><literal>BITOR ( &lt;bit value expr 1&gt;, &lt;bit value expr 2&gt;
+    )</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>BITXOR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BITXOR</emphasis></simpara>
+
     <para><literal>BITXOR ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
     )</literal></para>
 
+    <para><literal>BITXOR ( &lt;bit value expr 1&gt;, &lt;bit value expr 2&gt;
+    )</literal></para>
+
     <para>These three functions perform the bit operations: OR, AND, XOR, on
-    two integer values. The result is an integer value. (HyperSQL)</para>
+    two values. The values are either integer values, or bit strings. The
+    result is an integer value of the same type as the arguments, or a bit
+    string of the same length as the argument. Each bit of the result is
+    formed by performing the operation on corresponding bits of the arguments.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>COS function</primary>
@@ -1156,8 +1185,8 @@
 
     <simpara><emphasis role="bold">TIMESTAMPADD</emphasis></simpara>
 
-    <para><literal>TIMESTAMPADD ( &lt;datetime value expr&gt;, &lt;numeric
-    value expression&gt;, &lt;tsi datetime field&gt; )</literal></para>
+    <para><literal>TIMESTAMPADD ( &lt;tsi datetime field&gt;, &lt;datetime
+    value expr&gt;, &lt;numeric value expression&gt; )</literal></para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TIMESTAMPDIFF function</primary>
@@ -1165,8 +1194,8 @@
 
     <simpara><emphasis role="bold">TIMESTAMPDIFF</emphasis></simpara>
 
-    <para><literal>TIMESTAMPDIFF ( &lt;datetime value expr 1&gt;, &lt;datetime
-    value expr 2&gt;, &lt;tsi datetime field&gt; )</literal></para>
+    <para><literal>TIMESTAMPDIFF ( &lt;tsi datetime field&gt;, &lt;datetime
+    value expr 1&gt;, &lt;datetime value expr 2&gt;)</literal></para>
 
     <para><literal>&lt;tsi datetime field&gt; ::= SQL_TSI_FRAC_SECOND |
     SQL_TSI_SECOND | SQL_TSI_MINUTE | SQL_TSI_HOUR | SQL_TSI_DAY |
@@ -1200,8 +1229,8 @@
 
     <simpara><emphasis role="bold">DATEADD</emphasis></simpara>
 
-    <para><literal>DATEADD ( &lt;datetime value expr&gt;, &lt;numeric value
-    expr&gt;, &lt;field&gt; )</literal></para>
+    <para><literal>DATEADD ( &lt;field&gt;, &lt;datetime value expr&gt;,
+    &lt;numeric value expr&gt; )</literal></para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DATEDIFF function</primary>
@@ -1209,13 +1238,13 @@
 
     <simpara><emphasis role="bold">DATEDIFF</emphasis></simpara>
 
-    <para><literal>DATEDIFF ( &lt;datetime value expr 1&gt;, datetime value
-    expr 2&gt;, &lt;field&gt; )</literal></para>
+    <para><literal>DATEDIFF ( &lt;field&gt;, &lt;datetime value expr 1&gt;,
+    datetime value expr 2&gt; )</literal></para>
 
     <para><literal>&lt;field&gt; ::= 'yy' | 'mm' | 'dd' | 'hh' | 'mi' | 'ss' |
     'ms'</literal></para>
 
-    <para>The DATEADD and DATEDIFF function are alternatives to TIMESTAMPADD
+    <para>The DATEADD and DATEDIFF functions are alternatives to TIMESTAMPADD
     and TIMESTAMPDIFF, with fewer available field options. The fields
     translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
     (HyperSQL}</para>
@@ -1403,6 +1432,19 @@
 
   <section xml:id="builtin_functions_sysfunc-sect">
     <title>System Functions</title>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>COALESCE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">COALESCE</emphasis></simpara>
+
+    <para><literal>COALESCE( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
+    otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of
+    both arguments must be the same. (Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DATABASE function</primary>
@@ -1601,5 +1643,19 @@
     <para>Returns TRUE if the database is a read only files database. In this
     kind of database, it is possible to modify the data, but the changes are
     not persisted to the database files.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>NULLIF function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">NULLIF</emphasis></simpara>
+
+    <para><literal>NULLIF( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not equal
+    to <literal>&lt;value expr 2&gt;</literal>, otherwise returns null. The
+    type of both arguments must be the same. This function is a shorthand for
+    a specific CASE expression. (Foundation)</para>
   </section>
 </chapter>

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
+<chapter version="5.0" xml:id="texttables-chapt"
+         xmlns="http://docbook.org/ns/docbook"
          xmlns:ns6="http://www.w3.org/1999/xlink"
          xmlns:ns5="http://www.w3.org/1999/xhtml"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
          xmlns:ns3="http://www.w3.org/2000/svg"
-         xmlns:ns="http://docbook.org/ns/docbook" xml:id="texttables-chapt">
-
+         xmlns:ns="http://docbook.org/ns/docbook">
   <info>
     <title xml:id="texttables-title">Text Tables</title>
+
     <subtitle>Text Tables as a Standard Feature of Hsqldb</subtitle>
 
     <author>
@@ -18,6 +19,7 @@
         <orgname>The HSQL Development Group</orgname>
       </affiliation>
     </author>
+
     <author>
       <personname><firstname>Fred</firstname>
       <surname>Toussi</surname></personname>
@@ -43,419 +45,410 @@
       <keyword>Tables</keyword>
     </keywordset>
 
-      <legalnotice>
-        <para>Copyright 2002-2009 Bob Preston and Fred Toussi. Permission is
-        granted to distribute this document without any alteration under the
-        terms of the HSQLDB license. Additional permission is granted to the
-        HSQL Development Group to distribute this document with or without
-        alterations under the terms of the HSQLDB license.</para>
-      </legalnotice>
+    <legalnotice>
+      <para>Copyright 2002-2009 Bob Preston and Fred Toussi. Permission is
+      granted to distribute this document without any alteration under the
+      terms of the HSQLDB license. Additional permission is granted to the
+      HSQL Development Group to distribute this document with or without
+      alterations under the terms of the HSQLDB license.</para>
+    </legalnotice>
   </info>
 
-    <para>Text Table support for HSQLDB was originally developed by Bob
-    Preston independently from the Project. Subsequently Bob joined the
-    Project and incorporated this feature into version 1.7.0, with a number of
-    enhancements, especially the use of conventional SQL commands for
-    specifying the files used for Text Tables.</para>
+  <para>Text Table support for HSQLDB was originally developed by Bob Preston
+  independently from the Project. Subsequently Bob joined the Project and
+  incorporated this feature into version 1.7.0, with a number of enhancements,
+  especially the use of conventional SQL commands for specifying the files
+  used for Text Tables.</para>
 
-    <para>In a nutshell, Text Tables are CSV or other delimited files treated
-    as SQL tables. Any ordinary CSV or other delimited file can be used. The
-    full range of SQL queries can be performed on these files, including
-    SELECT, INSERT, UPDATE and DELETE. Indexes and unique constraints can be
-    set up, and foreign key constraints can be used to enforce referential
-    integrity between Text Tables themselves or with conventional
-    tables.</para>
+  <para>In a nutshell, Text Tables are CSV or other delimited files treated as
+  SQL tables. Any ordinary CSV or other delimited file can be used. The full
+  range of SQL queries can be performed on these files, including SELECT,
+  INSERT, UPDATE and DELETE. Indexes and unique constraints can be set up, and
+  foreign key constraints can be used to enforce referential integrity between
+  Text Tables themselves or with conventional tables.</para>
 
-    <para>HyperSQL with Text Table support is the only comprehensive solution
-    that employs the power of SQL and the universal reach of JDBC to handle
-    data stored in text files and will have wide-ranging use way beyond the
-    currently established Java realm of HSQLDB.</para>
+  <para>The delimited file can be created by the engine, or an existing file
+  can be used.</para>
 
-    <section xml:id="texttables_impl-sect">
-      <title>The Implementation</title>
+  <para>HyperSQL with Text Table support is the only comprehensive solution
+  that employs the power of SQL and the universal reach of JDBC to handle data
+  stored in text files.</para>
 
-      <section>
-        <title>Definition of Tables</title>
+  <section xml:id="texttables_impl-sect">
+    <title>The Implementation</title>
 
-        <para>Text Tables are defined similarly to conventional tables with
-        the added TEXT keyword:</para>
+    <section>
+      <title>Definition of Tables</title>
 
-        <programlisting>    CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
+      <para>Text Tables are defined similarly to conventional tables with the
+      added TEXT keyword:</para>
 
-        <para>In addition, a SET command specifies the file and the separator
-        character that the Text table uses:</para>
+      <programlisting>    CREATE TEXT TABLE &lt;tablename&gt; (&lt;column definition&gt; [&lt;constraint definition&gt;])</programlisting>
 
-        <programlisting>   SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
+      <para>The table is at first empty and cannot be written to. An
+      additional SET command specifies the file and the separator character
+      that the Text table uses:</para>
 
-        <para>Text Tables cannot be created in <glossterm>mem:</glossterm>
-        (all-in-memory) databases (databases that have no script file).</para>
-      </section>
+      <programlisting>   SET TABLE &lt;tablename&gt; SOURCE &lt;quoted_filename_and_options&gt; [DESC]</programlisting>
 
-      <section>
-        <title>Scope and Reassignment</title>
-
-        <itemizedlist>
-          <listitem>
-            <para>A Text table without a file assigned to it is READ ONLY and
-            EMPTY.</para>
-          </listitem>
-
-          <listitem>
-            <para>A Temporary Text table has the scope and the lifetime of the
-            SQL session (a JDBC Connection). **todo** (consider current lack
-            of support)</para>
-          </listitem>
-
-          <listitem>
-            <para>Reassigning a Text Table definition to a new file has
-            implications in the following areas:</para>
-
-            <orderedlist>
-              <listitem>
-                <para>The user is required to be an administrator.</para>
-              </listitem>
-
-              <listitem>
-                <para>Existing transactions are committed at this
-                point.</para>
-              </listitem>
-
-              <listitem>
-                <para>Constraints, including foreign keys referencing this
-                table, are kept intact. It is the responsibility of the
-                administrator to ensure their integrity.</para>
-              </listitem>
-            </orderedlist>
-
-            <para>The new source file is scanned and indexes are built when it
-            is assigned to the table. At this point any violation of NOT NULL,
-            UNIQUE or PRIMARY KEY constraints are caught and the assignment is
-            aborted. However, foreign key constraints are not checked at the
-            time of assignment or reassignment of the source file.</para>
-          </listitem>
-        </itemizedlist>
-      </section>
-
-      <section>
-        <title>Null Values in Columns of Text Tables</title>
-
-        <itemizedlist>
-          <listitem>
-            <para>Empty fields are treated as NULL. These are fields where
-            there is nothing or just spaces between the separators.</para>
-          </listitem>
-
-          <listitem>
-            <para>Quoted empty strings are treated as empty strings.</para>
-          </listitem>
-        </itemizedlist>
-      </section>
-
-      <section>
-        <title>Configuration</title>
-
-        <para>The default field separator is a comma (,). A different field
-        separator can be specified within the SET TABLE SOURCE statement. For
-        example, to change the field separator for the table mytable to a
-        vertical bar, place the following in the SET TABLE SOURCE statement,
-        for example:</para>
-
-        <informalexample>
-          <programlisting>    SET TABLE mytable SOURCE "myfile;fs=|"</programlisting>
-        </informalexample>
-
-        <para>Since HSQLDB treats CHAR's, VARCHARs, and LONGVARCHARs the same,
-        the ability to assign different separators to the latter two is
-        provided. When a different separator is assigned to a VARCHAR or
-        LONGVARCHAR field, it will terminate any CSV field of that type. For
-        example, if the first field is CHAR, and the second field LONGVARCHAR,
-        and the separator fs has been defined as the pipe (|) and vs as the
-        period (.) then the data in the CSV file for a row will look
-        like:</para>
-
-        <screen>    First field data|Second field data.Third field data</screen>
-
-        <para>The following example shows how to change the default separator
-        to the pipe (|), VARCHAR separator to the period (.) and the
-        LONGVARCHAR separator to the tilde (~). Place the following within the
-        SET TABLE SOURCE statement, for example:</para>
-
-        <informalexample>
-          <programlisting>    SET TABLE mytable SOURCE "myfile;fs=|;vs=.;lvs=~"</programlisting>
-        </informalexample>
-
-        <para>HSQLDB also recognises the following special indicators for
-        separators:</para>
-
-        <variablelist>
-          <title>special indicators for separators</title>
-
-          <varlistentry>
-            <term>\semi</term>
-
-            <listitem>
-              <para>semicolon</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>\quote</term>
-
-            <listitem>
-              <para>single-quote</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>\space</term>
-
-            <listitem>
-              <para>space character</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>\apos</term>
-
-            <listitem>
-              <para>apostrophe</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>\n</term>
-
-            <listitem>
-              <para>newline - Used as an end anchor (like $ in regular
-              expressions)</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>\r</term>
-
-            <listitem>
-              <para>carriage return</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>\t</term>
-
-            <listitem>
-              <para>tab</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>\\</term>
-
-            <listitem>
-              <para>backslash</para>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>\u####</term>
-
-            <listitem>
-              <para>a Unicode character specified in hexadecimal</para>
-            </listitem>
-          </varlistentry>
-        </variablelist>
-
-        <para>Furthermore, HSQLDB provides csv file support with three
-        additional boolean options: <varname>ignore_first</varname>,
-        <varname>quoted</varname> and <varname>all_quoted</varname>. The
-        <varname>ignore_first</varname> option (default false) tells HSQLDB to
-        ignore the first line in a file. This option is used when the first
-        line of the file contains column headings. The
-        <varname>all_quoted</varname> option (default false) tells the program
-        that it should use quotes around all character fields when writing to
-        the source file. The <varname>quoted</varname> option (default true)
-        uses quotes only when necessary to distinguish a field that contains
-        the separator character. It can be set to false to prevent the use of
-        quoting altogether and treat quote characters as normal characters.
-        These options may be specified within the <literal>SET TABLE
-        SOURCE</literal> statement:</para>
-
-        <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true"</programlisting>
-
-        <para>When the default options <literal>all_quoted=</literal>
-        <literal>false</literal> and <literal>quoted=true</literal> are in
-        force, fields that are written to a line of the csv file will be
-        quoted only if they contain the separator or the quote character. The
-        quote character is doubled when used inside a string. When
-        <literal>all_quoted=false</literal> and
-        <literal>quoted=false</literal> the quote character is not doubled.
-        With this option, it is not possible to insert any string containing
-        the separator into the table, as it would become impossible to
-        distinguish from a separator. While reading an existing data source
-        file, the program treats each individual field separately. It
-        determines that a field is quoted only if the first character is the
-        quote character. It interprets the rest of the field on this
-        basis.</para>
-
-        <para>The character encoding for the source file is<literal> ASCII
-        </literal>by default. To support UNICODE or source files prepared with
-        different encodings this can be changed to <literal>UTF-8</literal> or
-        any other encoding. The default is <literal>encoding=ASCII
-        </literal>and the option <literal>encoding=UTF-8</literal> or other
-        supported encodings can be used.</para>
-
-        <para>Finally, HSQLDB provides the ability to read a text file from
-        the bottom up and make it READ ONLY, by placing the keyword "DESC" at
-        the end of the SET TABLE SOURCE statement: *** not supported now
-        **</para>
-
-        <programlisting>    SET TABLE mytable SOURCE "myfile" DESC</programlisting>
-
-        <para>This feature provides functionality similar to the Unix tail
-        command, by re-reading the file each time a select is executed. Using
-        this feature sets the table to read-only mode. Afterwards, it will no
-        longer be possible to change the read-only status with <literal>SET
-        TABLE &lt;tablename&gt; READONLY TRUE</literal>.</para>
-
-        <para>Text table source files are cached in memory. The maximum number
-        of rows of data that are in memory at any time is controlled by the
-        <varname>textdb.cache_scale</varname> property. The default value for
-        <varname>textdb.cache_scale</varname> is 10 and can be changed by
-        setting the property in the .properties file for the database. The
-        number of rows in memory is calculated as 3*(2**scale), which
-        translates to 3072 rows for the default textdb.cache_scale setting
-        (10). The property can also be set for individual text tables:</para>
-
-        <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_scale=12"</programlisting>
-      </section>
-
-      <section xml:id="disconnecting_text_tables">
-        <title>Disconnecting Text Tables</title>
-
-        <para>Text tables may be <glossterm>disconnected</glossterm> from
-        their underlying data source, i.e. the text file.</para>
-
-        <para>You can explicitly disconnect a text table from its file by
-        issuing the following statement: <programlisting>    SET TABLE mytable SOURCE OFF</programlisting></para>
-
-        <para>Subsequently, <literal>mytable</literal> will be empty and
-        read-only. However, the data source description will be preserved, and
-        the table can be re-connected to it with <programlisting>    SET TABLE mytable SOURCE ON</programlisting></para>
-
-        <para>When a database is opened, if the source file for an existing
-        text table is missing the table remains disconnected from its data
-        source, but the source description is preserved. This allows the
-        missing source file to be added to the directory and the table
-        re-connected to it with the above command.</para>
-      </section>
+      <para>Text Tables cannot be created in <glossterm>mem:</glossterm>
+      (all-in-memory) databases (databases that have no script file).</para>
     </section>
 
-    <section xml:id="texttables_issues-sect">
+    <section>
+      <title>Scope and Reassignment</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>A Text table without a file assigned to it is READ ONLY and
+          EMPTY.</para>
+        </listitem>
+
+        <listitem>
+          <para>Reassigning a Text Table definition to a new file has
+          implications in the following areas:</para>
+
+          <orderedlist>
+            <listitem>
+              <para>The user is required to be an administrator.</para>
+            </listitem>
+
+            <listitem>
+              <para>Existing transactions are committed at this point.</para>
+            </listitem>
+
+            <listitem>
+              <para>Constraints, including foreign keys referencing this
+              table, are kept intact. It is the responsibility of the
+              administrator to ensure their integrity.</para>
+            </listitem>
+          </orderedlist>
+
+          <para>The new source file is scanned and indexes are built when it
+          is assigned to the table. At this point any violation of NOT NULL,
+          UNIQUE or PRIMARY KEY constraints are caught and the assignment is
+          aborted. However, foreign key constraints are not checked at the
+          time of assignment or reassignment of the source file.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Null Values in Columns of Text Tables</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>Empty fields are treated as NULL. These are fields where there
+          is nothing or just spaces between the separators.</para>
+        </listitem>
+
+        <listitem>
+          <para>Quoted empty strings are treated as empty strings.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Configuration</title>
+
+      <para>The default field separator is a comma (,). A different field
+      separator can be specified within the SET TABLE SOURCE statement. For
+      example, to change the field separator for the table mytable to a
+      vertical bar, place the following in the SET TABLE SOURCE statement, for
+      example:</para>
+
+      <informalexample>
+        <programlisting>    SET TABLE mytable SOURCE "myfile;fs=|"</programlisting>
+      </informalexample>
+
+      <para>Since HSQLDB treats CHAR and VARCHAR strings the same, the ability
+      to assign a different separator to the latter is provided. When a
+      different separator is assigned to a VARCHAR, it will terminate any CSV
+      field of that type. For example, if the first field is CHAR, and the
+      second field VARCHAR, and the separator fs has been defined as the pipe
+      (|) and vs as the period (.) then the data in the CSV file for a row
+      will look like:</para>
+
+      <screen>    First field data|Second field data.Third field data</screen>
+
+      <para>This facitity in effect offers an extra, special separator which
+      can be used in addition to the global separator. The following example
+      shows how to change the default separator to the pipe (|), VARCHAR
+      separator to the period (.) within a SET TABLE SOURCE statement:</para>
+
+      <informalexample>
+        <programlisting>    SET TABLE mytable SOURCE "myfile;fs=|;vs=."</programlisting>
+      </informalexample>
+
+      <para>HSQLDB also recognises the following special indicators for
+      separators:</para>
+
+      <variablelist>
+        <title>special indicators for separators</title>
+
+        <varlistentry>
+          <term>\semi</term>
+
+          <listitem>
+            <para>semicolon</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\quote</term>
+
+          <listitem>
+            <para>single-quote</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\space</term>
+
+          <listitem>
+            <para>space character</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\apos</term>
+
+          <listitem>
+            <para>apostrophe</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\n</term>
+
+          <listitem>
+            <para>newline - Used as an end anchor (like $ in regular
+            expressions)</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\r</term>
+
+          <listitem>
+            <para>carriage return</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\t</term>
+
+          <listitem>
+            <para>tab</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\\</term>
+
+          <listitem>
+            <para>backslash</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>\u####</term>
+
+          <listitem>
+            <para>a Unicode character specified in hexadecimal</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>Furthermore, HSQLDB provides csv file support with three
+      additional boolean options: <varname>ignore_first</varname>,
+      <varname>quoted</varname> and <varname>all_quoted</varname>. The
+      <varname>ignore_first</varname> option (default false) tells HSQLDB to
+      ignore the first line in a file. This option is used when the first line
+      of the file contains column headings. The <varname>all_quoted</varname>
+      option (default false) tells the program that it should use quotes
+      around all character fields when writing to the source file. The
+      <varname>quoted</varname> option (default true) uses quotes only when
+      necessary to distinguish a field that contains the separator character.
+      It can be set to false to prevent the use of quoting altogether and
+      treat quote characters as normal characters. These options may be
+      specified within the <literal>SET TABLE SOURCE</literal>
+      statement:</para>
+
+      <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true"</programlisting>
+
+      <para>When the default options <literal>all_quoted=</literal>
+      <literal>false</literal> and <literal>quoted=true</literal> are in
+      force, fields that are written to a line of the csv file will be quoted
+      only if they contain the separator or the quote character. The quote
+      character is doubled when used inside a string. When
+      <literal>all_quoted=false</literal> and <literal>quoted=false</literal>
+      the quote character is not doubled. With this option, it is not possible
+      to insert any string containing the separator into the table, as it
+      would become impossible to distinguish from a separator. While reading
+      an existing data source file, the program treats each individual field
+      separately. It determines that a field is quoted only if the first
+      character is the quote character. It interprets the rest of the field on
+      this basis.</para>
+
+      <para>The character encoding for the source file is<literal> ASCII
+      </literal>by default. To support UNICODE or source files prepared with
+      different encodings this can be changed to <literal>UTF-8</literal> or
+      any other encoding. The default is <literal>encoding=ASCII </literal>and
+      the option <literal>encoding=UTF-8</literal> or other supported
+      encodings can be used.</para>
+
+      <para>Finally, HSQLDB provides the ability to read a text file as READ
+      ONLY, by placing the keyword "DESC" at the end of the SET TABLE SOURCE
+      statement:</para>
+
+      <programlisting>    SET TABLE mytable SOURCE "myfile" DESC</programlisting>
+
+      <para>Text table source files are cached in memory. The maximum number
+      of rows of data that are in memory at any time is controlled by the
+      <varname>textdb.cache_scale</varname> property. The default value for
+      <varname>textdb.cache_scale</varname> is 10 and can be changed by
+      setting the property in the .properties file for the database. The
+      number of rows in memory is calculated as 3*(2**scale), which translates
+      to 3072 rows for the default textdb.cache_scale setting (10). The
+      property can also be set for individual text tables:</para>
+
+      <programlisting>    SET TABLE mytable SOURCE "myfile;ignore_first=true;all_quoted=true;cache_scale=12"</programlisting>
+    </section>
+
+    <section xml:id="disconnecting_text_tables">
+      <title>Disconnecting Text Tables</title>
+
+      <para>Text tables may be <glossterm>disconnected</glossterm> from their
+      underlying data source, i.e. the text file.</para>
+
+      <para>You can explicitly disconnect a text table from its file by
+      issuing the following statement: <programlisting>    SET TABLE mytable SOURCE OFF</programlisting></para>
+
+      <para>Subsequently, <literal>mytable</literal> will be empty and
+      read-only. However, the data source description will be preserved, and
+      the table can be re-connected to it with <programlisting>    SET TABLE mytable SOURCE ON</programlisting></para>
+
+      <para>When a database is opened, if the source file for an existing text
+      table is missing the table remains disconnected from its data source,
+      but the source description is preserved. This allows the missing source
+      file to be added to the directory and the table re-connected to it with
+      the above command.</para>
+    </section>
+  </section>
+
+  <section xml:id="texttables_issues-sect">
+    <title>Text File Usage</title>
+
+    <para>The text file source of a text table canText tables may be
+    <glossterm>disconnected</glossterm> from their underlying data source,
+    i.e. the text file.</para>
+
+    <itemizedlist>
       <title>Text File Issues</title>
 
-      <itemizedlist>
-        <title>Text File Issues</title>
+      <listitem>
+        <para>File locations are restricted to below the directory that
+        contains the database, unless the
+        <varname>textdb.allow_full_path</varname> property is set true as a
+        Java system property. This feature is for security, otherwise an admin
+        database user may be able to open random files.</para>
+      </listitem>
 
-        <listitem>
-          <para>File locations are restricted to below the directory that
-          contains the database, unless the
-          <varname>textdb.allow_full_path</varname> property is set true in
-          the database properties file.</para>
-        </listitem>
+      <listitem>
+        <para>Blank lines are allowed anywhere in the text file, and are
+        ignored.</para>
+      </listitem>
 
-        <listitem>
-          <para>Blank lines are allowed anywhere in the text file, and are
-          ignored.</para>
-        </listitem>
+      <listitem>
+        <para>The file location for a text table created with ** not supported
+        now **</para>
 
-        <listitem>
-          <para>The file location for a text table created with ** not
-          supported now **</para>
+        <programlisting>    SELECT &lt;select list&gt; INTO TEXT &lt;tablename&gt; FROM</programlisting>
 
-          <programlisting>    SELECT &lt;select list&gt; INTO TEXT &lt;tablename&gt; FROM</programlisting>
+        <para>is the directory that contains the database and the file name is
+        based on the table name. The table name is converted into the file
+        name by replacing all the non-alphanumeric characters with the
+        underscore character, conversion into lowercase, and adding the ".csv"
+        suffix.</para>
+      </listitem>
 
-          <para>is the directory that contains the database and the file name
-          is based on the table name. The table name is converted into the
-          file name by replacing all the non-alphanumeric characters with the
-          underscore character, conversion into lowercase, and adding the
-          ".csv" suffix.</para>
-        </listitem>
+      <listitem>
+        <para>It is possible to define a primary key or identity column for
+        text tables.</para>
+      </listitem>
 
-        <listitem>
-          <para>It is possible to define a primary key or identity column for
-          text tables.</para>
-        </listitem>
+      <listitem>
+        <para>When a table source file is used with the<literal>
+        ignore_first=true </literal>option, the first, ignored line is
+        replaced with a blank line after a SHUTDOWN COMPACT.</para>
+      </listitem>
 
-        <listitem>
-          <para>When a table source file is used with the<literal>
-          ignore_first=true </literal>option, the first, ignored line is
-          replaced with a blank line after a SHUTDOWN COMPACT.</para>
-        </listitem>
+      <listitem>
+        <para>An existing table source file may include CHARACTER fields that
+        do not begin with the quote character but contain instances of the
+        quote character. These fields are read as literal strings.
+        Alternatively, if any field begins with the quote character, then it
+        is interpreted as a quoted string that should end with the quote
+        character and any instances of the quote character within the string
+        is doubled. When any field containing the quote character or the
+        separator is written out to the source file by the program, the field
+        is enclosed in quote character and any instance of the quote character
+        inside the field is doubled.</para>
+      </listitem>
 
-        <listitem>
-          <para>An existing table source file may include CHARACTER fields
-          that do not begin with the quote character but contain instances of
-          the quote character. These fields are read as literal strings.
-          Alternatively, if any field begins with the quote character, then it
-          is interpreted as a quoted string that should end with the quote
-          character and any instances of the quote character within the string
-          is doubled. When any field containing the quote character or the
-          separator is written out to the source file by the program, the
-          field is enclosed in quote character and any instance of the quote
-          character inside the field is doubled.</para>
-        </listitem>
+      <listitem>
+        <para>Inserts or updates of CHARACTER type field values are allowed
+        with strings that contains the linefeed or the carriage return
+        character. This feature is disabled when both quoted and all_quoted
+        properties are false.</para>
+      </listitem>
 
-        <listitem>
-          <para>Inserts or updates of CHARACTER type field values are allowed
-          with strings that contains the linefeed or the carriage return
-          character. This feature is disabled when both quoted and all_quoted
-          properties are false.</para>
-        </listitem>
+      <listitem>
+        <para>ALTER TABLE commands that add or drop columns are not supported
+        with non-empty text tables.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
 
-        <listitem>
-          <para>ALTER TABLE commands that add or drop columns are not
-          supported with non-empty text tables.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
+  <section xml:id="texttables_globalprops-sect">
+    <title>Text File Global Properties</title>
 
-    <section xml:id="texttables_globalprops-sect">
-      <title>Text File Global Properties</title>
+    <itemizedlist>
+      <title>Complete list of supported global properties in *.properties
+      files</title>
 
-      <itemizedlist>
-        <title>Complete list of supported global properties in *.properties
-        files</title>
+      <listitem>
+        <para><varname>textdb.fs</varname></para>
+      </listitem>
 
-        <listitem>
-          <para><varname>textdb.fs</varname></para>
-        </listitem>
+      <listitem>
+        <para><varname>textdb.vs</varname></para>
+      </listitem>
 
-        <listitem>
-          <para><varname>textdb.lvs</varname></para>
-        </listitem>
+      <listitem>
+        <para><varname>textdb.quoted</varname></para>
+      </listitem>
 
-        <listitem>
-          <para><varname>textdb.quoted</varname></para>
-        </listitem>
+      <listitem>
+        <para><varname>textdb.all_quoted</varname></para>
+      </listitem>
 
-        <listitem>
-          <para><varname>textdb.all_quoted</varname></para>
-        </listitem>
+      <listitem>
+        <para><varname>textdb.ignore_first</varname></para>
+      </listitem>
 
-        <listitem>
-          <para><varname>textdb.ignore_first</varname></para>
-        </listitem>
+      <listitem>
+        <para><varname>textdb.encoding</varname></para>
+      </listitem>
 
-        <listitem>
-          <para><varname>textdb.encoding</varname></para>
-        </listitem>
+      <listitem>
+        <para><varname>textdb.cache_scale</varname></para>
+      </listitem>
 
-        <listitem>
-          <para><varname>textdb.cache_scale</varname></para>
-        </listitem>
-
-        <listitem>
-          <para><varname>textdb.allow_full_path</varname></para>
-        </listitem>
-      </itemizedlist>
-    </section>
+      <listitem>
+        <para><varname>textdb.allow_full_path</varname></para>
+      </listitem>
+    </itemizedlist>
+  </section>
 </chapter>
