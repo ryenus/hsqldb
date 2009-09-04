@@ -625,7 +625,7 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>During updates, the contents
-            of the .data file is modified. When this property is true, the
+            of the .data file are modified. When this property is true, the
             modified contents are backed up gradually. This causes a marginal
             slowdown in operations, but allows fast checkpoint and
             shutdown.</para><para>When the property is false, the .data file
