@@ -144,7 +144,7 @@ public class Log {
     private String                 fileName;
     private Database               database;
     private FileAccess             fa;
-    private ScriptWriterBase       dbLogWriter;
+    ScriptWriterBase               dbLogWriter;
     private String                 scriptFileName;
     private String                 logFileName;
     private boolean                filesReadOnly;
@@ -526,43 +526,7 @@ public class Log {
 */
 
 //
-            DataFileDefrag dfd;
-
-            try {
-                dfd = cache.defrag();
-            } catch (Throwable t) {
-                return;
-            }
-
-            cache.close(true);
-            cache.cache.clear();
-
-            if (!database.logger.propIncrementBackup) {
-                FileArchiver.archive(fileName + ".data.new",
-                                     cache.backupFileName + ".new",
-                                     database.logger.getFileAccess(),
-                                     FileArchiver.COMPRESSION_ZIP);
-            }
-
-            database.schemaManager.setTempIndexRoots(dfd.getIndexRoots());
-            writeScript(false);
-            properties.setDBModified(HsqlDatabaseProperties.FILES_NEW);
-            closeLog();
-            deleteLog();
-            renameNewScript();
-            cache.renameDataFile();
-            cache.renameBackupFile();
-            properties.setDBModified(
-                HsqlDatabaseProperties.FILES_NOT_MODIFIED);
-            cache.open(false);
-            dfd.updateTransactionRowIDs();
-            database.schemaManager.setIndexRoots(dfd.getIndexRoots());
-
-            if (dbLogWriter != null) {
-                openLog();
-            }
-
-            properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED);
+            DataFileDefrag dfd = cache.defrag();
         } catch (HsqlException e) {
             database.logger.logSevereEvent("defrag failure", e);
 
@@ -747,15 +711,23 @@ public class Log {
      * Wrappers for openning-starting / stoping-closing the log file and
      * writer.
      */
-    private void openLog() {
+    void openLog() {
 
         if (filesReadOnly) {
             return;
         }
 
+        Crypto crypto = database.logger.getCrypto();
+
         try {
-            dbLogWriter = new ScriptWriterText(database, logFileName, false,
-                                               false, false);
+            if (crypto == null) {
+                dbLogWriter = new ScriptWriterText(database, logFileName,
+                                                   false, false, false);
+            } else {
+                dbLogWriter = new ScriptWriterEncode(database,
+                                                     logFileName,
+                                                     crypto);
+            }
 
             dbLogWriter.setWriteDelay(writeDelay);
             dbLogWriter.start();
@@ -764,7 +736,7 @@ public class Log {
         }
     }
 
-    private synchronized void closeLog() {
+    synchronized void closeLog() {
 
         if (dbLogWriter != null) {
             dbLogWriter.close();
@@ -774,7 +746,7 @@ public class Log {
     /**
      * Write the .script file as .script.new.
      */
-    private void writeScript(boolean full) {
+    void writeScript(boolean full) {
 
         deleteNewScript();
 

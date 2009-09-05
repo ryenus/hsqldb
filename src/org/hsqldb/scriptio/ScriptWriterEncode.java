@@ -37,6 +37,7 @@ import java.util.zip.GZIPOutputStream;
 import org.hsqldb.Database;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
+import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.persist.Crypto;
 
 /**
@@ -47,7 +48,8 @@ import org.hsqldb.persist.Crypto;
  */
 public class ScriptWriterEncode extends ScriptWriterText {
 
-    private static final int bufferSize = 1 << 15;
+    Crypto                    crypto;
+    HsqlByteArrayOutputStream byteOut;
 
     public ScriptWriterEncode(Database db, String file, boolean includeCached,
                               Crypto crypto) {
@@ -65,17 +67,40 @@ public class ScriptWriterEncode extends ScriptWriterText {
         }
     }
 
-    /**
-     * Override the underlying method with no operation.
-     */
-    public void sync() {}
+    public ScriptWriterEncode(Database db, String file, Crypto crypto) {
 
-    /**
-     * This may not really be necessary, unless we add implementations where
-     * non-compressed data is added to the end of the copressed part.
-     */
+        super(db, file, false, true, false);
+
+        this.crypto = crypto;
+        byteOut     = new HsqlByteArrayOutputStream();
+    }
+
     protected void finishStream() throws IOException {
-        ((GZIPOutputStream) fileStreamOut).finish();
+
+        if (fileStreamOut instanceof GZIPOutputStream) {
+            ((GZIPOutputStream) fileStreamOut).finish();
+        }
+
         fileStreamOut.flush();
+    }
+
+    void writeRowOutToFile() throws IOException {
+
+        synchronized (fileStreamOut) {
+            if (byteOut == null) {
+                super.writeRowOutToFile();
+
+                return;
+            }
+
+            int count = crypto.getEncodedSize(rowOut.size());
+            byteOut.ensureRoom(count + 4);
+
+            count = crypto.encode(rowOut.getBuffer(), 0, rowOut.size(),
+                                      byteOut.getBuffer(), 4);
+            byteOut.setPosition(0);
+            byteOut.writeInt(count);
+            fileStreamOut.write(byteOut.getBuffer(), 0, count + 4);
+        }
     }
 }

@@ -57,7 +57,7 @@ import org.hsqldb.types.Type;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 1.8.0
+ *  @version 1.9.0
  *  @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
@@ -67,18 +67,13 @@ public class ScriptReaderText extends ScriptReaderBase {
     RowInputTextLog rowIn;
     boolean         isInsert;
 
-    // We are using persist.Logger-instance-specific FrameworkLogger
-    // because it is Database-instance specific.
-    // If add any static level logging, should instantiate a standard,
-    // context-agnostic FrameworkLogger for that purpose.
-    public ScriptReaderText(Database db, String file) throws IOException {
-
-        super(db, file);
-
-        rowIn = new RowInputTextLog();
+    public ScriptReaderText(Database db) {
+        super(db);
     }
 
-    protected void openFile() throws IOException {
+    public ScriptReaderText(Database db, String fileName) throws IOException {
+
+        super(db);
 
         InputStream d = database.isFilesInJar()
                         ? getClass().getResourceAsStream(fileName)
@@ -87,6 +82,8 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         dataStreamIn = new BufferedReader(
             new InputStreamReader(new BufferedInputStream(d)));
+
+        rowIn = new RowInputTextLog();
     }
 
     protected void readDDL(Session session) throws IOException {
@@ -180,8 +177,8 @@ public class ScriptReaderText extends ScriptReaderBase {
             throw Error.error(
                 t, ErrorCode.ERROR_IN_SCRIPT_FILE,
                 ErrorCode.M_DatabaseScriptReader_readExistingData,
-                new Object[] {t.getMessage(),
-                new Integer(lineCount)
+                new Object[] {
+                t.getMessage(), new Integer(lineCount)
             });
         }
     }
@@ -205,7 +202,7 @@ public class ScriptReaderText extends ScriptReaderBase {
         return true;
     }
 
-    private void processStatement(Session session) throws IOException {
+    void processStatement(Session session) throws IOException {
 
         try {
             if (statement.startsWith("/*C")) {

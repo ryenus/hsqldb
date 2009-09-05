@@ -44,6 +44,7 @@ import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.result.Result;
 import org.hsqldb.scriptio.ScriptReaderBase;
+import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
 
 /**
@@ -80,8 +81,14 @@ public class ScriptRunner {
         try {
             StopWatch sw = new StopWatch();
 
-            scr = new ScriptReaderText(database, logFilename);
+            Crypto crypto = database.logger.getCrypto();
 
+            if (crypto == null) {
+                scr = new ScriptReaderText(database, logFilename);
+            } else {
+                scr = new ScriptReaderDecode(database, logFilename,
+                                             crypto, true);
+            }
             while (scr.readLoggedStatement(current)) {
                 int sessionId = scr.getSessionNumber();
 

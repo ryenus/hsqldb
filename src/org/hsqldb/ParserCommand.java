@@ -104,7 +104,6 @@ public class ParserCommand extends ParserDDL {
         Statement cs;
 
         compileContext.reset();
-
         setParsePosition(getPosition());
 
         if (token.tokenType == Tokens.X_STARTPARSE) {
@@ -292,7 +291,8 @@ public class ParserCommand extends ParserDDL {
         Object[] args = new Object[]{ name };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_SCRIPT,
                                             args, null, null);
-        HsqlName[] names = database.schemaManager.getBaseTableNames();
+        HsqlName[] names =
+            database.schemaManager.getCatalogAndBaseTableNames();
 
         cs.readTableNames = names;
 
@@ -952,8 +952,9 @@ public class ParserCommand extends ParserDDL {
                     throw Error.error(ErrorCode.X_42511);
                 }
 
-                if (!Charset.isInSet(name, Charset.unquotedIdentifier) ||
-                    !Charset.startsWith(name, Charset.uppercaseLetters)) {
+                if (!Charset.isInSet(name, Charset.unquotedIdentifier)
+                        || !Charset.startsWith(name,
+                                               Charset.uppercaseLetters)) {
                     throw Error.error(ErrorCode.X_42501);
                 }
 
@@ -1646,10 +1647,16 @@ public class ParserCommand extends ParserDDL {
             compression = Boolean.TRUE;
         }
 
-        return new StatementCommand(StatementTypes.DATABASE_BACKUP,
-                                    new Object[] {
+        Statement cs = new StatementCommand(StatementTypes.DATABASE_BACKUP,
+                                            new Object[] {
             path, blockingMode, scriptMode, compression,
         }, null, null);
+        HsqlName[] names =
+            database.schemaManager.getCatalogAndBaseTableNames();
+
+        cs.writeTableNames = names;
+
+        return cs;
     }
 
     private Statement compileCheckpoint() {
@@ -1683,7 +1690,8 @@ public class ParserCommand extends ParserDDL {
         Object[] args = new Object[]{ Boolean.valueOf(defrag) };
         Statement cs = new StatementCommand(StatementTypes.DATABASE_CHECKPOINT,
                                             args, null, null);
-        HsqlName[] names = database.schemaManager.getBaseTableNames();
+        HsqlName[] names =
+            database.schemaManager.getCatalogAndBaseTableNames();
 
         cs.writeTableNames = names;
 

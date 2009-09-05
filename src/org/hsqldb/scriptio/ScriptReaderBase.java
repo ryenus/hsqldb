@@ -43,7 +43,7 @@ import org.hsqldb.persist.PersistentStore;
  * Base class for all script readers.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.2
  */
 public abstract class ScriptReaderBase {
@@ -57,18 +57,9 @@ public abstract class ScriptReaderBase {
     Database                database;
     int                     lineCount;
 
-//    int         byteCount;
-    String fileName;
-
-    ScriptReaderBase(Database db, String file) throws IOException {
-
+    ScriptReaderBase(Database db) {
         this.database = db;
-        fileName      = file;
-
-        openFile();
     }
-
-    protected abstract void openFile() throws IOException;
 
     public void readAll(Session session) throws IOException {
         readDDL(session);

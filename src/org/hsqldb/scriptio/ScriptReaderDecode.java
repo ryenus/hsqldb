@@ -32,16 +32,18 @@
 package org.hsqldb.scriptio;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
 import org.hsqldb.Database;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
+import org.hsqldb.Session;
+import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.Crypto;
+import org.hsqldb.rowio.RowInputTextLog;
 
 /**
  *
@@ -51,10 +53,14 @@ import org.hsqldb.persist.Crypto;
  */
 public class ScriptReaderDecode extends ScriptReaderText {
 
-    public ScriptReaderDecode(Database db, String file,
+    DataInputStream dataInput;
+    Crypto          crypto;
+    byte[]          buffer = new byte[256];
+
+    public ScriptReaderDecode(Database db, String fileName,
                               Crypto crypto) throws IOException {
 
-        super(db, file);
+        super(db);
 
         InputStream d = database.isFilesInJar()
                         ? getClass().getResourceAsStream(fileName)
@@ -64,7 +70,71 @@ public class ScriptReaderDecode extends ScriptReaderText {
 
         stream       = new GZIPInputStream(stream);
         dataStreamIn = new BufferedReader(new InputStreamReader(stream));
+        rowIn        = new RowInputTextLog();
     }
 
-    protected void openFile() throws IOException {}
+    public ScriptReaderDecode(Database db, String fileName, Crypto crypto,
+                              boolean forLog) throws IOException {
+
+        super(db);
+
+        this.crypto = crypto;
+
+        InputStream d =
+            database.logger.getFileAccess().openInputStreamElement(fileName);
+
+        dataInput = new DataInputStream(new BufferedInputStream(d));
+        rowIn        = new RowInputTextLog();
+    }
+
+    public boolean readLoggedStatement(Session session) throws IOException {
+
+        if (dataInput == null) {
+            return super.readLoggedStatement(session);
+        }
+
+        int count;
+
+        try {
+            count = dataInput.readInt();
+
+            if (count * 2 > buffer.length) {
+                buffer = new byte[count * 2];
+            }
+
+            dataInput.readFully(buffer, 0, count);
+        } catch (Throwable t) {
+            return false;
+        }
+
+        count = crypto.decode(buffer, 0, count, buffer, 0);
+
+        String s = new String(buffer, 0, count, "ISO-8859-1");
+
+        lineCount++;
+
+//        System.out.println(lineCount);
+        statement = StringConverter.unicodeStringToString(s);
+
+        if (statement == null) {
+            return false;
+        }
+
+        processStatement(session);
+
+        return true;
+    }
+
+    public void close() {
+
+        try {
+            if (dataStreamIn != null) {
+                dataStreamIn.close();
+            }
+
+            if (dataInput != null) {
+                dataInput.close();
+            }
+        } catch (Exception e) {}
+    }
 }

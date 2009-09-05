@@ -1263,7 +1263,9 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (nodes[2].dataType.typeCode != Types.SQL_DATE
-                        && nodes[2].dataType.typeCode != Types.SQL_TIMESTAMP) {
+                        && nodes[2].dataType.typeCode != Types.SQL_TIMESTAMP
+                        && nodes[2].dataType.typeCode
+                           != Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
@@ -1299,7 +1301,8 @@ public class FunctionCustom extends FunctionSQL {
                         (String) nodes[0].valueData)) {
                     part = Tokens.SQL_TSI_FRAC_SECOND;
                 } else {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_22511,
+                                      (String) nodes[0].valueData);
                 }
 
                 nodes[0].valueData = ValuePool.getInt(part);
