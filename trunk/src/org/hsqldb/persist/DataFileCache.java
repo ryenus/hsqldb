@@ -326,8 +326,7 @@ public class DataFileCache {
             dataFile.synch();
         } catch (Throwable t) {
             database.logger.logSevereEvent("backupFile failed", t);
-        }
-        finally {
+        } finally {
             writeLock.unlock();
         }
     }
@@ -450,6 +449,12 @@ public class DataFileCache {
                 Error.printSystemOut("close: " + sw.elapsedTime());
             }
 
+            if (shadowFile != null) {
+                shadowFile.close();
+
+                shadowFile = null;
+            }
+
             boolean empty = fileFreePosition == INITIAL_FREE_POS;
 
             if (empty) {
@@ -500,6 +505,30 @@ public class DataFileCache {
                 dataFileName);
 
             dfd.process();
+            close(false);
+            cache.clear();
+            backupFile();
+            database.schemaManager.setTempIndexRoots(dfd.getIndexRoots());
+            database.logger.log.writeScript(false);
+            database.getProperties().setDBModified(
+                HsqlDatabaseProperties.FILES_NEW);
+            database.logger.log.closeLog();
+            database.logger.log.deleteLog();
+            database.logger.log.renameNewScript();
+            renameDataFile();
+            renameBackupFile();
+            database.getProperties().setDBModified(
+                HsqlDatabaseProperties.FILES_NOT_MODIFIED);
+            open(false);
+            dfd.updateTransactionRowIDs();
+            database.schemaManager.setIndexRoots(dfd.getIndexRoots());
+
+            if (database.logger.log.dbLogWriter != null) {
+                database.logger.log.openLog();
+            }
+
+            database.getProperties().setDBModified(
+                HsqlDatabaseProperties.FILES_MODIFIED);
 
             return dfd;
         } finally {

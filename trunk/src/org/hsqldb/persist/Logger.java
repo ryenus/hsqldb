@@ -77,7 +77,7 @@ import org.hsqldb.lib.tar.TarMalformatException;
 public class Logger {
 
     public SimpleLog appLog;
-    private Log      log;
+    Log              log;
     private Database database;
     private LockFile lockFile;
     public boolean   checkpointRequired;

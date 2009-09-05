@@ -73,6 +73,7 @@ public class TransactionManagerMV2PL implements TransactionManager {
     LongDeque committedTransactionTimestamps = new LongDeque();
 
     // functional unit - cached table transactions
+    HsqlName[] catalogNameList;
 
     /** Map : rowID -> RowAction */
     public IntKeyHashMapConcurrent rowActionMap =
@@ -84,7 +85,8 @@ public class TransactionManagerMV2PL implements TransactionManager {
     MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
 
     public TransactionManagerMV2PL(Database db) {
-        database = db;
+        database        = db;
+        catalogNameList = new HsqlName[]{ database.getCatalogName() };
     }
 
     public boolean isMVRows() {
@@ -776,10 +778,6 @@ public class TransactionManagerMV2PL implements TransactionManager {
             }
         }
 
-        if (session.isReadOnly()) {
-            return;
-        }
-
         if (session.hasLocks()) {
             return;
         }
@@ -800,10 +798,6 @@ public class TransactionManagerMV2PL implements TransactionManager {
     void endTransactionTPL(Session session) {
 
         int unlockedCount = 0;
-
-        if (session.isReadOnly()) {
-            return;
-        }
 
         unlockTablesTPL(session);
 
@@ -865,10 +859,6 @@ public class TransactionManagerMV2PL implements TransactionManager {
 
     boolean beginActionTPL(Session session, Statement cs) {
 
-        if (session.isReadOnly()) {
-            return true;
-        }
-
         boolean canProceed = setWaitedSessionsTPL(session, cs);
 
         if (canProceed) {
@@ -921,6 +911,10 @@ public class TransactionManagerMV2PL implements TransactionManager {
         }
 
         nameList = cs.getTableNamesForRead();
+
+        if (session.isReadOnly()) {
+            nameList = catalogNameList;
+        }
 
         for (int i = 0; i < nameList.length; i++) {
             HsqlName name = nameList[i];

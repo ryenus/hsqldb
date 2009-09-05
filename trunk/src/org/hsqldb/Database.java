@@ -650,7 +650,7 @@ public class Database {
             list.add("ALTER CATALOG PUBLIC RENAME TO " + name);
         }
 
-        if (collation.name != null) {
+        if (collation.collator != null) {
             String name = collation.getName().statementName;
 
             list.add("SET DATABASE COLLATION " + name);

@@ -187,8 +187,6 @@ public class SchemaManager {
         int index = schemaMap.getIndex(name.name);
 
         schema.name.rename(newName);
-
-
         schemaMap.set(index, newName.name, schema);
     }
 
@@ -403,7 +401,7 @@ public class SchemaManager {
         return temp.tableList;
     }
 
-    public HsqlName[] getBaseTableNames() {
+    public HsqlName[] getCatalogAndBaseTableNames() {
 
         OrderedHashSet names  = new OrderedHashSet();
         HsqlArrayList  tables = getAllTables();
@@ -415,6 +413,8 @@ public class SchemaManager {
                 names.add(table.getName());
             }
         }
+
+        names.add(database.getCatalogName());
 
         HsqlName[] array = new HsqlName[names.size()];
 

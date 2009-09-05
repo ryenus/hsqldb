@@ -62,7 +62,7 @@ import org.hsqldb.rowio.RowOutputTextLog;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.7.2
  */
 public class ScriptWriterText extends ScriptWriterBase {
@@ -289,7 +289,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         sync();
     }
 
-    private void writeRowOutToFile() throws IOException {
+    void writeRowOutToFile() throws IOException {
 
         synchronized (fileStreamOut) {
             fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
