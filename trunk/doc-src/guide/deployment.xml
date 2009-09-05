@@ -635,8 +635,8 @@
 
     <para>HyperSQL supports encrypted databases. Encryption services use the
     Java Cryptography Extensions (JCE) and can therefore use the ciphers
-    supplied with the JRE, or third party ciphers that are installed with the
-    JRE.</para>
+    supplied with the JRE as well as third party ciphers that are installed
+    with the JRE.</para>
 
     <para>Three elements are involved in specifying the encryption method and
     key. A cipher, together with its configuation is identified by a string
@@ -644,17 +644,79 @@
     is the fully qualified class name of the cipher provider. A key is
     represented as a hexadecimal string.</para>
 
-    <para>First, a key must be created for the desired cipher and
-    configuration. This is done by calling the function CRYPT_KEY(&lt;cipher
-    spec&gt;, &lt;provider&gt;). If the default provider (the built-in JVM
-    ciphers) is used, then NULL should be specified as the provider. The
-    CRYPT_KEY function returns a hexadecimal key. This key can be used to
-    create an encrypted database.</para>
+    <section>
+      <title>Creating and Accessing an Encrypted Database</title>
 
-    <para>The three elements are specified in the URL or in connection
-    properties.</para>
+      <para>First, a key must be created for the desired cipher and
+      configuration. This is done by calling the function CRYPT_KEY(&lt;cipher
+      spec&gt;, &lt;provider&gt;). If the default provider (the built-in JVM
+      ciphers) is used, then NULL should be specified as the provider. The
+      CRYPT_KEY function returns a hexadecimal key. The function call can be
+      made in any HyperSQL database, so long as the provider class is on the
+      classpath. This key can be used to create a new encrypted database.
+      Calls to this function always return different keys, based on a
+      generated random values.</para>
 
-    <para></para>
+      <para>As an example, a call to CRYPT_KEY('Blowfish', null) returned the
+      string, '604a6105889da65326bf35790a923932'. To create a new database,
+      the URL below is used:</para>
+
+      <para><literal>jdbc:hsqldb:file:&lt;database
+      path&gt;;crypt_key=604a6105889da65326bf35790a923932;crypt_type=blowfish</literal></para>
+
+      <para>The third propery name is crypt_provider. This is specified only
+      when the provider is not the default provider.</para>
+
+      <para>HyperSQL works with any symmetric cipher that may be available
+      from the JVM. This includes both padded and unpadded ciphers.</para>
+
+      <para>The files that are encrypted include the .script, .data, .backup
+      and .log files. The .lobs file is not encrypted by default. The property
+      crypt_lobs=true must be specified to encrypt the .lobs file.</para>
+    </section>
+
+    <section>
+      <title>Speed Considerations</title>
+
+      <para>General operations on an encrypted database are performed the same
+      as with any database. However, some operations are significantly slower
+      than with the equivalent cleartext database. With MEMORY tables, there
+      is no difference to the speed of SELECT statements, but data change
+      statements are slower. With CACHED tables, the speed of all statements
+      is slower.</para>
+    </section>
+
+    <section>
+      <title>Security Considerations</title>
+
+      <para>Security considerations for encrypted databases have been
+      discussed at length in HSQLDB discussion groups. Development team
+      members have commented that encryption is not a panacea for all security
+      needs. The following issues should be taken to account:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>Encrypted files are relatively safe in transport, but
+            because databases contain many repeated values and words,
+            especially known tokens such as CREATE, INSERT, etc., breaking the
+            encryption of a database may be simpler than an unknown
+            file.</para>
+          </listitem>
+
+          <listitem>
+            <para>Only the files are encrypted, not the memory image. Poking
+            into computer memory, while the database is open, will expose the
+            contents of the database.</para>
+          </listitem>
+
+          <listitem>
+            <para>HyperSQL is open source. Someone who has the key, can
+            compile and use a modified version of the program that saves a
+            full cleartext dump of an encrypted database</para>
+          </listitem>
+        </itemizedlist>Therefore encryption is generally effective only when
+      the users who have access to the crypt key are trusted.</para>
+    </section>
   </section>
 
   <section>
@@ -668,7 +730,8 @@
 
       <para>Statement level monitoring allows you to gather statistics about
       executed statements. HyperSQL is supported by the monitoring tool JAMon
-      (Java Application Monitor).</para>
+      (Java Application Monitor). JAMon is currently developed as the
+      SourceForge project, jamonapi.</para>
 
       <para>JAMon works at the JDBC level. It can monitor and gather
       statistics on different types of executed statements or other JDBC
@@ -693,9 +756,9 @@
       other method is specific to JVM and is managed by a logging
       framework.</para>
 
-      <para>The individual log for the database can be enabled with the SET
-      DATABASE EVENT LOG LEVEL statement, described in the next
-      section.</para>
+      <para>The internally-generated, individual log for the database can be
+      enabled with the SET DATABASE EVENT LOG LEVEL statement, described in
+      the next section.</para>
 
       <para>HyperSQL also supports log4J and JDK logging. The same event
       information that is passed to the internal log, is passed to external
@@ -834,6 +897,22 @@
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CRYPT_KEY</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CRYPT_KEY</emphasis></simpara>
+
+    <simpara><emphasis>crypt_key function</emphasis></simpara>
+
+    <simpara><literal>&lt;crypt_key function&gt; ::= CRYPT_KEY ( &lt;cipher
+    spec&gt;, &lt;provider&gt; )</literal></simpara>
+
+    <simpara>The statement, CALL CRYPT_KEY( &lt;cipher spec&gt;,
+    &lt;provider&gt; ) returns a binary string representing a valid key for
+    the giver cipher and provider. The &lt;provider&gt; argument is specified
+    as NULL for the default provider.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SCRIPT</primary>
