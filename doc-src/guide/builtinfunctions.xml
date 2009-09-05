@@ -1657,5 +1657,21 @@
     to <literal>&lt;value expr 2&gt;</literal>, otherwise returns null. The
     type of both arguments must be the same. This function is a shorthand for
     a specific CASE expression. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CRYPT_KEY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CRYPT_KEY</emphasis></simpara>
+
+    <para><literal>CRYPT_KEY( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns a binary string representation of a cryptography key for the
+    given cipher and cyptography provider. The cipher specification is
+    specified by <literal>&lt;value expr 1&gt;</literal> and the provider by
+    <literal>&lt;value expr 2&gt;</literal>. To use the default provider,
+    specify null for <literal>&lt;value expr 2&gt;</literal>.
+    (HyperSQL)</para>
   </section>
 </chapter>

@@ -384,6 +384,76 @@
 
         <tbody valign="top">
           <row>
+            <entry><property>crypt_lobs</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>encryption of lobs</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>If the property is true, the
+            contents of the .lobs file is encrypted as
+            well.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>crypt_key</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>encryption</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The cipher key for an
+            encrypted database</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>crypt_provider</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>encryption</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The fully-qualified class
+            name of the cryptography provider. This property is not used for
+            the default security provider.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>crypt_type</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>encryption</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The cipher
+            specification.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><property>hsqldb.read_only</property></entry>
 
             <entry><literal>false</literal></entry>
