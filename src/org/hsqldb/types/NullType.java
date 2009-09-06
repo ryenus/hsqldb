@@ -33,6 +33,7 @@ package org.hsqldb.types;
 
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
+import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.Types;
@@ -80,7 +81,7 @@ public final class NullType extends Type {
         return other;
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
         throw Error.runtimeError(ErrorCode.U_S0500, "NullType");
     }
 

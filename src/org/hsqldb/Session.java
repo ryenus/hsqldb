@@ -1842,6 +1842,10 @@ public class Session implements SessionInterface {
             sqlWarnings.removeFirst();
         }
 
+        if (sqlWarnings.contains(warning)) {
+            return;
+        }
+
         sqlWarnings.add(warning);
     }
 
@@ -1875,25 +1879,8 @@ public class Session implements SessionInterface {
         }
     }
 
-    // services
-    Scanner          secondaryScanner;
-    SimpleDateFormat simpleDateFormat;
-    SimpleDateFormat simpleDateFormatGMT;
-    Random           randomGenerator = new Random();
-
-    //
+    // session zone
     Calendar calendar;
-
-    public double random(long seed) {
-
-        randomGenerator.setSeed(seed);
-
-        return randomGenerator.nextDouble();
-    }
-
-    public double random() {
-        return randomGenerator.nextDouble();
-    }
 
     public Calendar getCalendar() {
 
@@ -1908,6 +1895,24 @@ public class Session implements SessionInterface {
         }
 
         return calendar;
+    }
+
+    // services
+    Scanner          secondaryScanner;
+    SimpleDateFormat simpleDateFormat;
+    SimpleDateFormat simpleDateFormatGMT;
+    Random           randomGenerator = new Random();
+
+    //
+    public double random(long seed) {
+
+        randomGenerator.setSeed(seed);
+
+        return randomGenerator.nextDouble();
+    }
+
+    public double random() {
+        return randomGenerator.nextDouble();
     }
 
     public Scanner getScanner() {

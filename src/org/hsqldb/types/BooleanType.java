@@ -34,6 +34,7 @@ package org.hsqldb.types;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.OpTypes;
+import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.Types;
@@ -104,7 +105,7 @@ public final class BooleanType extends Type {
         throw Error.error(ErrorCode.X_42562);
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
 
         if (a == b) {
             return 0;
@@ -175,7 +176,8 @@ public final class BooleanType extends Type {
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
-                return NumberType.isZero(a) ? Boolean.FALSE: Boolean.TRUE;
+                return NumberType.isZero(a) ? Boolean.FALSE
+                                            : Boolean.TRUE;
 
             case Types.TINYINT :
             case Types.SQL_SMALLINT :

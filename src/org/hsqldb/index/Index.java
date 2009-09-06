@@ -118,14 +118,12 @@ public interface Index extends SchemaObject {
     /**
      * Insert a node into the index
      */
-    public void insert(Session session, PersistentStore store,
-                       Row row);
+    public void insert(Session session, PersistentStore store, Row row);
 
     public void delete(PersistentStore store, Row row);
 
     public boolean exists(Session session, PersistentStore store,
-                          Object[] rowdata,
-                          int[] rowColMap);
+                          Object[] rowdata, int[] rowColMap);
 
     /**
      * Return the first node equal to the indexdata object. The rowdata has
@@ -138,8 +136,7 @@ public interface Index extends SchemaObject {
      * @return iterator
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata,
-                                    int match);
+                                    Object[] rowdata, int match);
 
     /**
      * Return the first node equal to the rowdata object.
@@ -163,8 +160,7 @@ public interface Index extends SchemaObject {
      * @return iterator
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata,
-                                    int[] rowColMap);
+                                    Object[] rowdata, int[] rowColMap);
 
     /**
      * Finds the first node that is larger or equal to the given one based
@@ -178,8 +174,7 @@ public interface Index extends SchemaObject {
      * @return iterator
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object value,
-                                    int compare);
+                                    Object value, int compare);
 
     /**
      * Finds the first node where the data is not null.
@@ -187,8 +182,7 @@ public interface Index extends SchemaObject {
      * @return iterator
      */
     public RowIterator findFirstRowNotNull(Session session,
-                                           PersistentStore store)
-                                          ;
+                                           PersistentStore store);
 
     public RowIterator firstRow(PersistentStore store);
 
@@ -197,16 +191,14 @@ public interface Index extends SchemaObject {
      *
      * @return Iterator for first row
      */
-    public RowIterator firstRow(Session session,
-                                PersistentStore store);
+    public RowIterator firstRow(Session session, PersistentStore store);
 
     /**
      * Returns the row for the last node of the index
      *
      * @return last row
      */
-    public Row lastRow(Session session,
-                       PersistentStore store);
+    public Row lastRow(Session session, PersistentStore store);
 
     /**
      * Compares two table rows based on the columns of this index. The rowColMap
@@ -220,15 +212,16 @@ public interface Index extends SchemaObject {
      *
      * @return comparison result, -1,0,+1
      */
-    public int compareRowNonUnique(Object[] a, int[] rowColMap,
-                                   Object[] b);
+    public int compareRowNonUnique(Session session, Object[] a,
+                                   int[] rowColMap, Object[] b);
 
-    public int compareRowNonUnique(Object[] a, int[] rowColMap, Object[] b,
+    public int compareRowNonUnique(Session session, Object[] a,
+                                   int[] rowColMap, Object[] b,
                                    int fieldCount);
 
     /**
      * As above but use the index column data
      */
-    public int compareRowNonUnique(Object[] a, Object[] b,
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
                                    int fieldcount);
 }

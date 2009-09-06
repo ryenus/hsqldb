@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -42,8 +43,6 @@ import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
-
-import java.io.Serializable;
 
 /**
  * Implementation of SQL set functions (currently only aggregate functions).
@@ -184,7 +183,7 @@ public class SetFunction implements Serializable {
                     return;
                 }
 
-                if (type.compare(currentValue, item) > 0) {
+                if (type.compare(session, currentValue, item) > 0) {
                     currentValue = item;
                 }
 
@@ -197,7 +196,7 @@ public class SetFunction implements Serializable {
                     return;
                 }
 
-                if (type.compare(currentValue, item) < 0) {
+                if (type.compare(session, currentValue, item) < 0) {
                     currentValue = item;
                 }
 
@@ -239,7 +238,6 @@ public class SetFunction implements Serializable {
         if (hasNull) {
             session.addWarning(Error.error(ErrorCode.W_01003));
         }
-
 
         if (setType == OpTypes.COUNT) {
             return ValuePool.getInt(count);

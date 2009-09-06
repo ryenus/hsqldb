@@ -2519,7 +2519,7 @@ public class Table extends TableBase implements SchemaObject {
                 }
 
                 if (IndexAVL.compareRows(
-                        row.getData(), data, defaultColumnMap,
+                        session, row.getData(), data, defaultColumnMap,
                         colTypes) == 0) {
                     break;
                 }
@@ -2538,14 +2538,15 @@ public class Table extends TableBase implements SchemaObject {
 
                 // reached end of range
                 if (bestIndex.compareRowNonUnique(
-                        data, bestIndex.getColumns(), rowdata) != 0) {
+                        session, data, bestIndex.getColumns(), rowdata) != 0) {
                     row = null;
 
                     break;
                 }
 
                 if (IndexAVL.compareRows(
-                        rowdata, data, defaultColumnMap, colTypes) == 0) {
+                        session, rowdata, data, defaultColumnMap,
+                        colTypes) == 0) {
                     break;
                 }
             }

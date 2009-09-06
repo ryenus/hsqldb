@@ -111,7 +111,8 @@ public class TableBase {
     TableBase() {}
 
     //
-    public TableBase(Database database, int scope, int type, Type[] colTypes) {
+    public TableBase(Session session, Database database, int scope, int type,
+                     Type[] colTypes) {
 
         tableType        = type;
         persistenceScope = scope;
@@ -469,10 +470,10 @@ public class TableBase {
     /**
      *  Create new memory-resident index. For MEMORY and TEXT tables.
      */
-    public final Index createIndex(PersistentStore store, HsqlName name,
-                                   int[] columns, boolean[] descending,
-                                   boolean[] nullsLast, boolean unique,
-                                   boolean constraint, boolean forward) {
+    public final Index createIndex(HsqlName name, int[] columns,
+                                   boolean[] descending, boolean[] nullsLast,
+                                   boolean unique, boolean constraint,
+                                   boolean forward) {
 
         Index newIndex = createAndAddIndexStructure(name, columns, descending,
             nullsLast, unique, constraint, forward);

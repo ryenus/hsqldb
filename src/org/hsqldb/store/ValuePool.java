@@ -75,9 +75,6 @@ public class ValuePool {
     static int maxStringLength;
 
     //
-    static String[] spaceStrings;
-
-    //
     static {
         initPool();
     }
@@ -101,8 +98,6 @@ public class ValuePool {
 
         int[] sizeArray  = defaultPoolLookupSize;
         int   sizeFactor = defaultSizeFactor;
-
-        spaceStrings = new String[SPACE_STRING_SIZE + 1];
 
         synchronized (ValuePool.class) {
             maxStringLength = defaultMaxStringLength;
@@ -129,10 +124,6 @@ public class ValuePool {
             }
 
             String s = new String(c);
-
-            for (int i = 0; i <= SPACE_STRING_SIZE; i++) {
-                spaceStrings[i] = s.substring(0, i);
-            }
         }
     }
 
@@ -164,25 +155,6 @@ public class ValuePool {
                 poolList[i].clear();
             }
         }
-    }
-
-    public static String getSpaces(int length) {
-
-        if (length < SPACE_STRING_SIZE) {
-            return spaceStrings[length];
-        }
-
-        int          times = length / SPACE_STRING_SIZE;
-        int          add   = length % SPACE_STRING_SIZE;
-        StringBuffer sb    = new StringBuffer(length);
-
-        for (int i = 0; i < times; i++) {
-            sb.append(spaceStrings[SPACE_STRING_SIZE]);
-        }
-
-        sb.append(spaceStrings[add]);
-
-        return sb.toString();
     }
 
     public static Integer getInt(int val) {

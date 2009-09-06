@@ -226,6 +226,10 @@ public class HsqlDeque extends BaseList implements HsqlList {
             if (list[index] == value) {
                 return i;
             }
+
+            if (value != null && value.equals(list[index])) {
+                return i;
+            }
         }
 
         return -1;
@@ -313,6 +317,7 @@ public class HsqlDeque extends BaseList implements HsqlList {
     }
 
     public void toArray(Object[] array) {
+
         int tempCount = list.length - firstindex;
 
         if (tempCount > elementCount) {
@@ -326,6 +331,5 @@ public class HsqlDeque extends BaseList implements HsqlList {
 
             endindex = list.length + endindex;
         }
-
     }
 }

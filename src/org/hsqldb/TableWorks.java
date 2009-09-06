@@ -493,8 +493,8 @@ public class TableWorks {
         if (table.isEmpty(session) || table.isIndexingMutable()) {
             PersistentStore store = session.sessionData.getRowStore(table);
 
-            newindex = table.createIndex(store, name, col, null, null, unique,
-                                         false, false);
+            newindex = table.createIndex(name, col, null, null, unique, false,
+                                         false);
         } else {
             newindex = table.createIndexStructure(name, col, null, null,
                                                   unique, false, false);

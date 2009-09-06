@@ -286,7 +286,7 @@ public class BinaryType extends Type {
         return getBinaryType(newType.typeCode, newPrecision);
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
 
         if (a == b) {
             return 0;

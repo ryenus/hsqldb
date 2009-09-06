@@ -41,10 +41,10 @@ import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.Types;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Type subclass for CHARACTER, VARCHAR, etc.<p>
@@ -346,7 +346,7 @@ public class CharacterType extends Type {
         return getCharacterType(newType.typeCode, precision + other.precision);
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
 
         if (a == b) {
             return 0;
@@ -360,32 +360,26 @@ public class CharacterType extends Type {
             return 1;
         }
 
-        String as          = (String) a;
-        String bs          = (String) b;
-        int    la          = as.length();
-        int    lb          = bs.length();
-        int    shortLength = la > lb ? lb
-                                     : la;
-        int    result;
+        String as = (String) a;
+        String bs = (String) b;
+        int    la = as.length();
+        int    lb = bs.length();
 
-        if (typeCode == Types.VARCHAR_IGNORECASE) {
-            result = collation.compareIgnoreCase(as.substring(0, shortLength),
-                                                 bs.substring(0, shortLength));
+        if (la == lb) {}
+        else if (la > lb) {
+            char[] buffer = new char[la];
+
+            bs.getChars(0, lb, buffer, 0);
+            ArrayUtil.fillArray(buffer, lb, ' ');
+
+            bs = String.valueOf(buffer);
         } else {
-            result = collation.compare(as.substring(0, shortLength),
-                                       bs.substring(0, shortLength));
-        }
+            char[] buffer = new char[lb];
 
-        if (la == lb || result != 0) {
-            return result;
-        }
+            as.getChars(0, la, buffer, 0);
+            ArrayUtil.fillArray(buffer, la, ' ');
 
-        if (la > lb) {
-            as = as.substring(shortLength, la);
-            bs = ValuePool.getSpaces(la - shortLength);
-        } else {
-            as = ValuePool.getSpaces(lb - shortLength);
-            bs = bs.substring(shortLength, lb);
+            as = String.valueOf(buffer);
         }
 
         if (typeCode == Types.VARCHAR_IGNORECASE) {

@@ -194,9 +194,9 @@ public final class BitType extends BinaryType {
         return getBitType(newType.typeCode, newPrecision);
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
 
-        int i = super.compare(a, b);
+        int i = super.compare(session, a, b);
 
         if (i == 0) {
             if (((BinaryData) a).bitLength(null)
