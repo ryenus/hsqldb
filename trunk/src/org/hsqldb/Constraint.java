@@ -731,8 +731,8 @@ public final class Constraint implements SchemaObject {
                 } else if (core.mainTable == core.refTable) {
 
                     // special case: self referencing table and self referencing row
-                    int compare = core.mainIndex.compareRowNonUnique(row,
-                        core.refCols, row);
+                    int compare = core.mainIndex.compareRowNonUnique(session,
+                        row, core.refCols, row);
 
                     if (compare == 0) {
                         return;

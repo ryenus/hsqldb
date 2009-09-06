@@ -330,7 +330,7 @@ public final class DateTimeType extends DTIType {
         throw Error.error(ErrorCode.X_42562);
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
 
         long diff;
 
@@ -711,9 +711,7 @@ public final class DateTimeType extends DTIType {
                     long millis;
 
                     millis = HsqlDateTime.convertMillisFromCalendar(
-                    session.getCalendar(),
-                            ((java.util.Date) a).getTime());
-
+                        session.getCalendar(), ((java.util.Date) a).getTime());
                     millis = HsqlDateTime.getNormalisedDate(millis);
 
                     return new TimestampData(millis / 1000);
@@ -747,7 +745,7 @@ public final class DateTimeType extends DTIType {
                     }
 
                     return new TimestampData(millis / 1000, nanos,
-                                        zoneSeconds);
+                                             zoneSeconds);
                 }
 
                 break;
@@ -805,6 +803,7 @@ public final class DateTimeType extends DTIType {
                     ((TimeData) a).getSeconds() * 1000);
 
                 millis = HsqlDateTime.getNormalisedTime(cal, millis);
+
                 java.sql.Time value = new java.sql.Time(millis);
 
                 return value;
@@ -824,8 +823,6 @@ public final class DateTimeType extends DTIType {
 
                 return value;
             }
-
-
             case Types.SQL_TIMESTAMP : {
                 Calendar cal = session.getCalendar();
                 long millis = HsqlDateTime.convertMillisToCalendar(cal,
@@ -1373,28 +1370,28 @@ public final class DateTimeType extends DTIType {
             b[1] = commonType.castToType(session, b[1], tb[1]);
         }
 
-        if (commonType.compare(a[0], a[1]) > 0) {
+        if (commonType.compare(session, a[0], a[1]) > 0) {
             Object temp = a[0];
 
             a[0] = a[1];
             a[1] = temp;
         }
 
-        if (commonType.compare(b[0], b[1]) > 0) {
+        if (commonType.compare(session, b[0], b[1]) > 0) {
             Object temp = b[0];
 
             b[0] = b[1];
             b[1] = temp;
         }
 
-        if (commonType.compare(a[0], b[0]) > 0) {
+        if (commonType.compare(session, a[0], b[0]) > 0) {
             Object[] temp = a;
 
             a = b;
             b = temp;
         }
 
-        if (commonType.compare(a[1], b[0]) > 0) {
+        if (commonType.compare(session, a[1], b[0]) > 0) {
             return Boolean.TRUE;
         }
 

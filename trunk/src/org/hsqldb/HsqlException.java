@@ -135,4 +135,33 @@ public class HsqlException extends RuntimeException {
     public static class HsqlRuntimeMemoryError extends OutOfMemoryError {
         HsqlRuntimeMemoryError() {}
     }
+
+    public int hashCode() {
+        return code;
+    }
+
+    public boolean equals(Object other) {
+
+        if (other instanceof HsqlException) {
+            HsqlException o = (HsqlException) other;
+
+            return code == o.code && equals(state, o.state)
+                   && equals(message, o.message);
+        }
+
+        return false;
+    }
+
+    private static boolean equals(Object a, Object b) {
+
+        if (a == b) {
+            return true;
+        }
+
+        if (a == null || b == null) {
+            return false;
+        }
+
+        return a.equals(b);
+    }
 }

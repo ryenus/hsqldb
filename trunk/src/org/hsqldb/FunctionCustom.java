@@ -34,6 +34,7 @@ package org.hsqldb;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.Crypto;
@@ -1152,9 +1153,12 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                int count = ((Number) data[0]).intValue();
+                int    count = ((Number) data[0]).intValue();
+                char[] array = new char[count];
 
-                return ValuePool.getSpaces(count);
+                ArrayUtil.fillArray(array, 0, ' ');
+
+                return String.valueOf(array);
             }
             case FUNC_REVERSE : {
                 if (data[0] == null) {

@@ -37,6 +37,7 @@ import java.math.BigInteger;
 import org.hsqldb.Error;
 import org.hsqldb.ErrorCode;
 import org.hsqldb.OpTypes;
+import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.Types;
@@ -569,7 +570,7 @@ public final class NumberType extends Type {
                              newScale);
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
 
         if (a == b) {
             return 0;

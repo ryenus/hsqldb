@@ -218,7 +218,7 @@ public class Collation implements SchemaObject {
      * characters for the current collation, e.g. English language.
      */
     public boolean isEqualAlwaysIdentical() {
-        return false;
+        return collator == null;
     }
 
     /**
