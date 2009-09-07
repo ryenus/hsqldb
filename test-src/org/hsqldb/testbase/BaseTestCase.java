@@ -419,6 +419,11 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
     private ConnectionFactory m_connectionFactory;
 
+    // for subclasses
+    protected BaseTestCase(){
+        super();
+    }
+
     /**
      * Constructs a new TestCase.
      *
