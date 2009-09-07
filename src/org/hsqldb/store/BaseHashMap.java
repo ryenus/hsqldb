@@ -143,13 +143,13 @@ public class BaseHashMap {
             throw new IllegalArgumentException();
         }
 
+        if (initialCapacity < 3) {
+            initialCapacity = 3;
+        }
+
         this.loadFactor      = 1;    // can use any value if necessary
         this.initialCapacity = initialCapacity;
         threshold            = initialCapacity;
-
-        if (threshold < 3) {
-            threshold = 3;
-        }
 
         int hashtablesize = (int) (initialCapacity * loadFactor);
 

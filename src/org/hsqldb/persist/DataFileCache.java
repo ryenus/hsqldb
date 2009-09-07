@@ -46,6 +46,7 @@ import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.Storage;
+import org.hsqldb.lib.StringUtil;
 import org.hsqldb.rowio.RowInputBinary180;
 import org.hsqldb.rowio.RowInputBinaryDecode;
 import org.hsqldb.rowio.RowInputInterface;
@@ -997,21 +998,43 @@ public class DataFileCache {
                 fa.removeElement(dataFileName);
 
                 if (fa.isStreamElement(dataFileName)) {
-                    if (fa.isStreamElement(dataFileName + ".old")) {
-                        String oldName = dataFileName + "."
-                                         + database.logger.newUniqueName()
-                                         + ".old";
 
-                        fa.renameElement(dataFileName + ".old", oldName);
+//#ifdef JAVA2FULL
+                    File   file = new File(dataFileName);
+                    File[] list = file.getParentFile().listFiles();
 
-                        File oldFile = new File(oldName);
-
-                        FileUtil.getDefaultInstance().deleteOnExit(oldFile);
+                    for (int i = 0; i < list.length; i++) {
+                        if (list[i].getName().endsWith(".old")
+                                && list[i].getName().startsWith(
+                                    file.getName())) {
+                            list[i].delete();
+                        }
                     }
 
-                    fa.renameElement(dataFileName, dataFileName + ".old");
+//#endif JAVA2FULL
+                    String oldName = dataFileName + ".old";
 
-                    File oldfile = new File(dataFileName + ".old");
+                    fa.removeElement(oldName);
+
+                    if (fa.isStreamElement(oldName)) {
+                        String timestamp = StringUtil.toPaddedString(
+                            Integer.toHexString(
+                                (int) System.currentTimeMillis()), 8, '0',
+                                    true);
+                        String discardName = dataFileName + "." + timestamp
+                                             + ".old";
+
+                        fa.renameElement(oldName, discardName);
+
+                        File discardFile = new File(discardName);
+
+                        FileUtil.getDefaultInstance().deleteOnExit(
+                            discardFile);
+                    }
+
+                    fa.renameElement(dataFileName, oldName);
+
+                    File oldfile = new File(oldName);
 
                     FileUtil.getDefaultInstance().deleteOnExit(oldfile);
                 }

@@ -115,7 +115,7 @@ public class StringUtil {
     public static String toLowerSubset(String source, char substitute) {
 
         int          len = source.length();
-        StringBuffer sb = new StringBuffer(len);
+        StringBuffer sb  = new StringBuffer(len);
         char         ch;
 
         for (int i = 0; i < len; i++) {
@@ -180,7 +180,7 @@ public class StringUtil {
     public static String getList(String[] s, String separator, String quote) {
 
         int          len = s.length;
-        StringBuffer sb   = new StringBuffer(len * 16);
+        StringBuffer sb  = new StringBuffer(len * 16);
 
         for (int i = 0; i < len; i++) {
             sb.append(quote);
@@ -214,7 +214,7 @@ public class StringUtil {
     public static String getList(int[] s, String separator, String quote) {
 
         int          len = s.length;
-        StringBuffer sb   = new StringBuffer(len * 8);
+        StringBuffer sb  = new StringBuffer(len * 8);
 
         for (int i = 0; i < len; i++) {
             sb.append(quote);
@@ -252,7 +252,7 @@ public class StringUtil {
                                  String quote) {
 
         int          len = s.length;
-        StringBuffer sb   = new StringBuffer(len * 16);
+        StringBuffer sb  = new StringBuffer(len * 16);
 
         for (int i = 0; i < len; i++) {
             sb.append(quote);

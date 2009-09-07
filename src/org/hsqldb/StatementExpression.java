@@ -31,10 +31,9 @@
 
 package org.hsqldb;
 
-import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.result.Result;
-import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.result.Result;
 
 /**
  * Implementation of Statement for PSM statements with expressions.
