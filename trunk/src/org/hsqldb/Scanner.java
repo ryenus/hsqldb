@@ -2361,8 +2361,8 @@ public class Scanner {
     }
 
     // should perform range checks etc.
-    public synchronized Object convertToDatetimeInterval(String s,
-            DTIType type) {
+    public synchronized Object convertToDatetimeInterval(
+            SessionInterface session, String s, DTIType type) {
 
         Object       value;
         IntervalType intervalType  = null;
@@ -2410,20 +2410,24 @@ public class Scanner {
 
         switch (type.typeCode) {
 
-            case Types.SQL_DATE :
+            case Types.SQL_DATE : {
                 if (dateTimeToken != -1 && dateTimeToken != Tokens.DATE) {
                     throw Error.error(errorCode);
                 }
 
-                return newDate(s);
+                value = newDate(s);
 
+                return type.convertToType(session, value, Type.SQL_DATE);
+            }
             case Types.SQL_TIME :
             case Types.SQL_TIME_WITH_TIME_ZONE : {
                 if (dateTimeToken != -1 && dateTimeToken != Tokens.TIME) {
                     throw Error.error(errorCode);
                 }
 
-                return newTime(s);
+                Object o = newTime(s);
+
+                return type.convertToType(session, o, dateTimeType);
             }
             case Types.SQL_TIMESTAMP :
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE : {
@@ -2431,7 +2435,9 @@ public class Scanner {
                     throw Error.error(errorCode);
                 }
 
-                return newTimestamp(s);
+                value = newTimestamp(s);
+
+                return type.convertToType(session, value, dateTimeType);
             }
             default :
                 if (dateTimeToken != -1 && dateTimeToken != Tokens.INTERVAL) {
@@ -2449,7 +2455,7 @@ public class Scanner {
                         }
                     }
 
-                    return value;
+                    return type.convertToType(session, value, dateTimeType);
                 }
 
                 throw Error.runtimeError(ErrorCode.U_S0500, "Scanner");

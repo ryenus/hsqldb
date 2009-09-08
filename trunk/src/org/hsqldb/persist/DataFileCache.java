@@ -1000,16 +1000,18 @@ public class DataFileCache {
                 if (fa.isStreamElement(dataFileName)) {
 
 //#ifdef JAVA2FULL
-                    File   file = new File(dataFileName);
-                    File[] list = file.getParentFile().listFiles();
+                    try {
+                        File   file = new File(database.getCanonicalPath());
+                        File[] list = file.getParentFile().listFiles();
 
-                    for (int i = 0; i < list.length; i++) {
-                        if (list[i].getName().endsWith(".old")
-                                && list[i].getName().startsWith(
-                                    file.getName())) {
-                            list[i].delete();
+                        for (int i = 0; i < list.length; i++) {
+                            if (list[i].getName().endsWith(".old")
+                                    && list[i].getName().startsWith(
+                                        file.getName())) {
+                                list[i].delete();
+                            }
                         }
-                    }
+                    } catch (Throwable t) {}
 
 //#endif JAVA2FULL
                     String oldName = dataFileName + ".old";

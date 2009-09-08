@@ -285,7 +285,7 @@ public class DatabaseManager {
         db = (Database) databaseMap.get(key);
 
         if (db == null) {
-            db            = new Database(type, path, type + key, props);
+            db            = new Database(type, path, key, props);
             db.databaseID = dbIDCounter;
 
             databaseIDMap.put(dbIDCounter, db);

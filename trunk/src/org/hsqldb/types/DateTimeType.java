@@ -456,10 +456,8 @@ public final class DateTimeType extends DTIType {
                     case Types.SQL_TIME :
                     case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                     case Types.SQL_TIMESTAMP : {
-                        a = session.getScanner().convertToDatetimeInterval(
-                            (String) a, this);
-
-                        return convertToTypeLimits(session, a);
+                        return session.getScanner().convertToDatetimeInterval(
+                            session, (String) a, this);
                     }
                 }
                 break;

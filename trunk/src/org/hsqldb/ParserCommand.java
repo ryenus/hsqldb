@@ -1487,7 +1487,7 @@ public class ParserCommand extends ParserDDL {
         if (token.tokenType == Tokens.LOCAL) {
             read();
 
-            e = new ExpressionValue(null, Type.SQL_VARCHAR);
+            e = new ExpressionValue(null, Type.SQL_INTERVAL_HOUR_TO_MINUTE);
         } else {
             e = XreadIntervalValueExpression();
 

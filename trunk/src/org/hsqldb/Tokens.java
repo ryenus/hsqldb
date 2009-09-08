@@ -736,7 +736,7 @@ public class Tokens {
     public static final String T_DAY_OF_YEAR         = "DAY_OF_YEAR";
     public static final String T_WEEK_OF_YEAR        = "WEEK_OF_YEAR";
     static final String        T_DAYNAME             = "DAYNAME";
-    static final String        T_NONTHNAME           = "NONTHNAME";
+    static final String        T_MONTHNAME           = "MONTHNAME";
     static final String        T_DAYOFMONTH          = "DAYOFMONTH";
     static final String        T_DAYOFWEEK           = "DAYOFWEEK";
     static final String        T_DAYOFYEAR           = "DAYOFYEAR";
@@ -2076,7 +2076,12 @@ public class Tokens {
         commandSet.put(T_DAY_OF_MONTH, DAY_OF_MONTH);
         commandSet.put(T_DAY_OF_WEEK, DAY_OF_WEEK);
         commandSet.put(T_DAY_OF_YEAR, DAY_OF_YEAR);
+        commandSet.put(T_DAYNAME, DAYNAME);
         commandSet.put(T_DAYOFMONTH, DAYOFMONTH);
+        commandSet.put(T_DAYOFWEEK, DAYOFWEEK);
+        commandSet.put(T_DAYOFYEAR, DAYOFYEAR);
+        commandSet.put(T_MONTHNAME, MONTHNAME);
+        commandSet.put(T_WEEK, WEEK);
         commandSet.put(T_DEGREES, DEGREES);
         commandSet.put(T_DIFFERENCE, DIFFERENCE);
         commandSet.put(T_DMOD, DMOD);
