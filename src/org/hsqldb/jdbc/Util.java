@@ -45,9 +45,9 @@ import java.sql.SQLTransactionRollbackException;
 import java.sql.SQLTransientConnectionException;
 
 //#endif JAVA6
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.result.Result;
 
 /* $Id$ */

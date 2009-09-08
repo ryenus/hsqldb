@@ -31,10 +31,13 @@
 
 package org.hsqldb;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Set;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Implementation of LIKE operations

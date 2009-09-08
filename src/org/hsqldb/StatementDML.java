@@ -34,6 +34,8 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.ArrayUtil;
@@ -238,7 +240,7 @@ public class StatementDML extends StatementDMQL {
                     continue;
                 default :
                     throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "StatementDML");
+                                              "StatementDML");
             }
 
             for (int j = 0; j < td.statements.length; j++) {
@@ -787,7 +789,7 @@ public class StatementDML extends StatementDMQL {
                     };
 
                     throw Error.error(null, errorCode, ErrorCode.CONSTRAINT,
-                                      info);
+                                       info);
                 }
 
                 Table reftable = c.getRef();
@@ -1058,7 +1060,7 @@ public class StatementDML extends StatementDMQL {
                     };
 
                     throw Error.error(null, errorCode, ErrorCode.CONSTRAINT,
-                                      info);
+                                       info);
                 }
             } else {
 

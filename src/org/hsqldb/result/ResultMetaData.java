@@ -34,8 +34,8 @@ package org.hsqldb.result;
 import java.io.IOException;
 
 import org.hsqldb.ColumnBase;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputInterface;

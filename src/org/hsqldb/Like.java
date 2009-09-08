@@ -66,11 +66,13 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.StringUtil;
-import org.hsqldb.types.Type;
-import org.hsqldb.types.CharacterType;
-import org.hsqldb.types.BinaryData;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
+import org.hsqldb.lib.StringUtil;
+import org.hsqldb.types.BinaryData;
+import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.Type;
 
 /**
  * Reusable object for processing LIKE queries.

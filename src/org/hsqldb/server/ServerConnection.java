@@ -76,10 +76,10 @@ import java.net.SocketException;
 
 import org.hsqldb.ClientConnection;
 import org.hsqldb.DatabaseManager;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.result.Result;

@@ -43,7 +43,6 @@ import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
-import org.hsqldb.Types;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
@@ -61,6 +60,7 @@ import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /* $Id$ */
 

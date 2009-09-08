@@ -32,6 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
@@ -87,7 +89,7 @@ public class StatementCompound extends Statement {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatementCompound");
+                                          "StatementCompound");
         }
     }
 
@@ -280,7 +282,7 @@ public class StatementCompound extends Statement {
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatementCompound");
+                                          "StatementCompound");
         }
 
         if (result.isError()) {

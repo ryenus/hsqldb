@@ -32,6 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
@@ -154,7 +156,7 @@ public class StatementCommand extends Statement {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatementCommand");
+                                          "StatementCommand");
         }
     }
 
@@ -326,6 +328,7 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_FILES_LOCK : {
                 try {
+
                     // no-op - to remove from release version
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -537,7 +540,7 @@ public class StatementCommand extends Statement {
 
                         if (props.getErrorKeys().length > 0) {
                             throw Error.error(ErrorCode.TEXT_TABLE_SOURCE,
-                                              props.getErrorKeys()[0]);
+                                               props.getErrorKeys()[0]);
                         }
                     }
 
@@ -668,7 +671,7 @@ public class StatementCommand extends Statement {
                 } catch (Throwable e) {
                     if (!(e instanceof HsqlException)) {
                         e = Error.error(ErrorCode.GENERAL_IO_ERROR,
-                                        e.getMessage());
+                                         e.getMessage());
                     }
 
                     if (session.isProcessingLog()
@@ -757,7 +760,8 @@ public class StatementCommand extends Statement {
                 }
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "StatemntCommand");
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                          "StatemntCommand");
         }
     }
 

@@ -32,6 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 
@@ -177,7 +179,5 @@ public class StatementExpression extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForRead(OrderedHashSet set) {
-
-    }
+    void collectTableNamesForRead(OrderedHashSet set) {}
 }

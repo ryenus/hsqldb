@@ -71,24 +71,22 @@ import java.io.IOException;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.scriptio.ScriptReaderBase;
+import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
 import org.hsqldb.scriptio.ScriptWriterBase;
-import org.hsqldb.scriptio.ScriptWriterText;
-import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptWriterEncode;
-import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.navigator.RowIterator;
+import org.hsqldb.scriptio.ScriptWriterText;
 
 // fredt@users 20020215 - patch 1.7.0 by fredt
 // to move operations on the database.properties files to new

@@ -34,10 +34,10 @@ package org.hsqldb.rowio;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.Row;
 import org.hsqldb.Tokens;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;

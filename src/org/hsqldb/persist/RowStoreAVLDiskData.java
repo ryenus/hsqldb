@@ -39,10 +39,10 @@ import org.hsqldb.RowAVLDiskData;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.ErrorCode;
-import org.hsqldb.Error;
 
 /*
  * Implementation of PersistentStore for TEXT tables.

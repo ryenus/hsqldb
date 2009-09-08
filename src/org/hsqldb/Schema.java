@@ -31,13 +31,15 @@
 
 package org.hsqldb;
 
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.rights.Grantee;
-import org.hsqldb.lib.Iterator;
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.WrapperIterator;
+import org.hsqldb.rights.Grantee;
 
 public final class Schema implements SchemaObject {
 

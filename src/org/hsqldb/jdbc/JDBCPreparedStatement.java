@@ -64,14 +64,13 @@ import java.sql.RowId;
 import java.sql.SQLXML;
 
 //#endif JAVA6
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.StatementTypes;
-import org.hsqldb.Types;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.CountdownInputStream;
@@ -88,6 +87,7 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /* $Id$ */
 

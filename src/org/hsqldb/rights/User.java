@@ -31,10 +31,10 @@
 
 package org.hsqldb.rights;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Tokens;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 
 /**
@@ -60,6 +60,7 @@ public class User extends Grantee {
      * Constructor
      */
     User(HsqlName name, GranteeManager manager) {
+
         super(name, manager);
 
         if (manager != null) {
@@ -82,6 +83,7 @@ public class User extends Grantee {
     public void setPassword(String password) {
 
         /** @todo - introduce complexity interface */
+
         // checkComplexity(password);
         // requires: UserManager.createSAUser(), UserManager.createPublicUser()
         this.password = password;

@@ -39,13 +39,14 @@ import java.io.LineNumberReader;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
+import org.hsqldb.SqlInvariants;
 import org.hsqldb.Statement;
 import org.hsqldb.Table;
-import org.hsqldb.Types;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
@@ -58,9 +59,7 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
-import org.hsqldb.Schema;
-import org.hsqldb.SqlInvariants;
-import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)

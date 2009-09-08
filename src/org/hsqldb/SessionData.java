@@ -34,6 +34,8 @@ package org.hsqldb;
 import java.io.InputStream;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.CountdownInputStream;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.Iterator;

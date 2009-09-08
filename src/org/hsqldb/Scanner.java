@@ -34,6 +34,8 @@ package org.hsqldb;
 import java.math.BigDecimal;
 import java.util.Locale;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CharArrayWriter;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
@@ -54,6 +56,7 @@ import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Scans for SQL tokens.

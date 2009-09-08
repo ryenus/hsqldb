@@ -31,6 +31,9 @@
 
 package org.hsqldb;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
+
 /**
  * Implementation of ORDER BY operations
  *

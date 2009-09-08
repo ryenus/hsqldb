@@ -33,8 +33,8 @@ package org.hsqldb.rowio;
 
 import java.io.IOException;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
 /**
  * Fields in the source file need not be quoted. Methods in this class unquote

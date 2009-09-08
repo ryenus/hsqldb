@@ -31,9 +31,8 @@
 
 package org.hsqldb.types;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
-import org.hsqldb.Types;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
 /**
  * Implementation of data item for INTERVAL MONTH.<p>

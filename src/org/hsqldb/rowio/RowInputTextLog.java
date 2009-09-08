@@ -34,11 +34,11 @@ package org.hsqldb.rowio;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Scanner;
 import org.hsqldb.Tokens;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;

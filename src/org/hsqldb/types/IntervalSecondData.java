@@ -31,8 +31,8 @@
 
 package org.hsqldb.types;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
 /**
  * Implementation of data item for INTERVAL SECOND.<p>

@@ -34,9 +34,9 @@ package org.hsqldb.rowio;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
-import org.hsqldb.Types;
+import org.hsqldb.Row;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.TextCache;
 import org.hsqldb.types.BinaryData;
@@ -48,7 +48,7 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.Row;
+import org.hsqldb.types.Types;
 
 /**
  *  Class for writing the data for a database row in text table format.

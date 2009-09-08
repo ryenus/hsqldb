@@ -35,8 +35,8 @@ import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
 import org.hsqldb.Database;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.persist.Crypto;
 

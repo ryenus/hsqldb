@@ -74,6 +74,7 @@ import org.hsqldb.cmdline.sqltool.Token;
 import org.hsqldb.cmdline.sqltool.TokenList;
 import org.hsqldb.cmdline.sqltool.TokenSource;
 import org.hsqldb.cmdline.sqltool.SqlFileScanner;
+import org.hsqldb.types.Types;
 
 /* $Id$ */
 
@@ -558,7 +559,7 @@ public class SqlFile {
         }
     }
 
-    
+
     /**
      * Returns normalized nesting command String, like "if" or "foreach".
      * If command is not a nesting command, returns null;
@@ -3110,8 +3111,8 @@ public class SqlFile {
                              * implement it for their custom TIMESTAMP type.
                              */
                             switch (dataType[insi]) {
-                                case org.hsqldb.Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
-                                case org.hsqldb.Types.SQL_TIME_WITH_TIME_ZONE:
+                                case org.hsqldb.types.Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
+                                case org.hsqldb.types.Types.SQL_TIME_WITH_TIME_ZONE:
                                 case java.sql.Types.TIMESTAMP:
                                 case java.sql.Types.DATE:
                                 case java.sql.Types.TIME:
@@ -3124,7 +3125,7 @@ public class SqlFile {
                                     if (dataType[insi]
                                             != java.sql.Types.TIMESTAMP
                                             && dataType[insi]
-                                            != org.hsqldb.Types.SQL_TIMESTAMP_WITH_TIME_ZONE
+                                            != org.hsqldb.types.Types.SQL_TIMESTAMP_WITH_TIME_ZONE
                                             && val != null) {
                                         dotAt = val.lastIndexOf('.');
                                         for (int z = dotAt + 1;
@@ -4119,10 +4120,10 @@ public class SqlFile {
             case java.sql.Types.VARCHAR :
                 return "VARCHAR";
 
-            case org.hsqldb.Types.SQL_TIME_WITH_TIME_ZONE :
+            case org.hsqldb.types.Types.SQL_TIME_WITH_TIME_ZONE :
                 return "SQL_TIME_WITH_TIME_ZONE";
 
-            case org.hsqldb.Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+            case org.hsqldb.types.Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 return "SQL_TIMESTAMP_WITH_TIME_ZONE";
         }
 
@@ -4557,8 +4558,8 @@ public class SqlFile {
                     case java.sql.Types.DATE:
                     case java.sql.Types.TIME:
                     case java.sql.Types.TIMESTAMP:
-                    case org.hsqldb.Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
-                    case org.hsqldb.Types.SQL_TIME_WITH_TIME_ZONE:
+                    case org.hsqldb.types.Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
+                    case org.hsqldb.types.Types.SQL_TIME_WITH_TIME_ZONE:
                         parseDate[i] = true;
                 }
             }

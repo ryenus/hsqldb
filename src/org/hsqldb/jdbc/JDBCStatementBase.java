@@ -35,7 +35,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 

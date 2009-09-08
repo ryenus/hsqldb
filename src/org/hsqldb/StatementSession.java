@@ -32,12 +32,13 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalSecondData;
-import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Type;
 
 /**

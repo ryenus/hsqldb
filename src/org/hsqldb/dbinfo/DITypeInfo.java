@@ -33,10 +33,10 @@ package org.hsqldb.dbinfo;
 
 import java.util.Locale;
 
-import org.hsqldb.Types;
 import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 // boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
 

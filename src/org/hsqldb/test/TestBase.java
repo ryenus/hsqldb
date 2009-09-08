@@ -31,17 +31,14 @@
 
 package org.hsqldb.test;
 
+import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import org.hsqldb.server.Server;
 import org.hsqldb.server.WebServer;
-
 import junit.framework.TestCase;
-
-import java.lang.reflect.Constructor;
-
 import junit.framework.TestResult;
 
 /**

@@ -40,6 +40,8 @@ import java.util.Random;
 import java.util.TimeZone;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CountUpDownLatch;

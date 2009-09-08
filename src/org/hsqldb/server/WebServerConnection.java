@@ -38,14 +38,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 
 import org.hsqldb.DatabaseManager;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.lib.InOutUtil;
@@ -55,8 +56,6 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputBinary;
-
-import java.io.UnsupportedEncodingException;
 
 // fredt@users 20021002 - patch 1.7.1 - changed notification method
 // unsaved@users 20021113 - patch 1.7.2 - SSL support

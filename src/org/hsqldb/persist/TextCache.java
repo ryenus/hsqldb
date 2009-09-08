@@ -36,8 +36,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Table;
 import org.hsqldb.lib.FileUtil;
