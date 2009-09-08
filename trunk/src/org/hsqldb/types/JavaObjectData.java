@@ -33,8 +33,8 @@ package org.hsqldb.types;
 
 import java.io.Serializable;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.InOutUtil;
 
 /**

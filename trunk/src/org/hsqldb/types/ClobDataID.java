@@ -33,8 +33,8 @@ package org.hsqldb.types;
 
 import java.io.Reader;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.Result;

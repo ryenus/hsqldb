@@ -39,7 +39,7 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
-import org.hsqldb.Error;
+import org.hsqldb.error.Error;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.Storage;
 

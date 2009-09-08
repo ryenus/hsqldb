@@ -32,6 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.RangeVariable.RangeIteratorBase;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;

@@ -34,6 +34,8 @@ package org.hsqldb;
 import java.lang.reflect.Method;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;

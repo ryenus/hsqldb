@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import org.hsqldb.Types;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
@@ -51,6 +50,7 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  *  Provides methods for reading the data for a row from a

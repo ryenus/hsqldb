@@ -33,8 +33,8 @@ package org.hsqldb.server;
 
 import java.sql.SQLException;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.jdbc.Util;
 import org.hsqldb.persist.HsqlProperties;

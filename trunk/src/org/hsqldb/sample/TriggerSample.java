@@ -40,8 +40,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.Trigger;
 import org.hsqldb.lib.StringUtil;
 

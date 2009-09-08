@@ -31,11 +31,13 @@
 
 package org.hsqldb;
 
-import org.hsqldb.types.Type;
+import java.lang.reflect.InvocationTargetException;
+
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.result.Result;
 import org.hsqldb.store.ValuePool;
-
-import java.lang.reflect.InvocationTargetException;
+import org.hsqldb.types.Type;
 
 /**
  * Implementation of SQL-invoked user-defined function calls - PSM and JRT

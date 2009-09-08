@@ -33,6 +33,8 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
@@ -444,7 +446,7 @@ public abstract class StatementDMQL extends Statement {
             if (targetTable.getOwner().isSystem()) {
                 if (!session.getUser().isSystem()) {
                     throw Error.error(ErrorCode.X_42501,
-                                      targetTable.getName().name);
+                                       targetTable.getName().name);
                 }
             }
 

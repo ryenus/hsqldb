@@ -32,8 +32,8 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.Database;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileUtil;
 
 /**

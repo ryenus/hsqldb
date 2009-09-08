@@ -36,6 +36,8 @@ import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.RangeVariable.RangeIteratorMain;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.ArrayUtil;
@@ -52,6 +54,7 @@ import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Implementation of an SQL query specification, including SELECT.
@@ -1516,7 +1519,6 @@ public class QuerySpecification extends QueryExpression {
                                       : queryCondition.describe(session);
 
         sb.append("queryCondition=[").append(temp).append("]\n");
-
         sb.append("groupColumns=[");
 
         for (int i = indexLimitRowId; i < indexLimitRowId + groupByColumnCount;

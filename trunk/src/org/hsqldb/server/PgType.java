@@ -36,19 +36,20 @@
 package org.hsqldb.server;
 
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.BooleanType;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.Session;
-import org.hsqldb.Types;
+import org.hsqldb.types.Types;
 import java.sql.SQLException;
 import java.io.Serializable;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.HsqlException;
 import org.hsqldb.types.BinaryData;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.Util;
 
 public class PgType {
@@ -390,15 +391,15 @@ public class PgType {
     public String valueString(Object datum) {
         String dataString = hType.convertToString(datum);
         switch (hType.typeCode) {
-            case (org.hsqldb.Types.SQL_BOOLEAN) :
+            case Types.SQL_BOOLEAN :
                 return String.valueOf(((Boolean) datum).booleanValue()
                     ? 't' : 'f');
                 // Default would probably work fine, since the Driver looks at
                 // only the first byte, but this why send an extra 3 or 4 bytes
                 // with every data, plus there could be some dependency upon
                 // single-character in the driver code somewhere.
-            case org.hsqldb.Types.SQL_VARBINARY :
-            case org.hsqldb.Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
+            case Types.SQL_BINARY :
                 dataString = OdbcUtil.hexCharsToOctalOctets(dataString);
                 break;
         }

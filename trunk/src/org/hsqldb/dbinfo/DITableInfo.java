@@ -35,11 +35,11 @@ import java.util.Locale;
 
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Table;
-import org.hsqldb.Types;
-import org.hsqldb.resources.BundleHandler;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.TableBase;
 import org.hsqldb.TextTable;
+import org.hsqldb.resources.BundleHandler;
+import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.Types;
 
 /**
  * Provides extended information about HSQLDB tables and their

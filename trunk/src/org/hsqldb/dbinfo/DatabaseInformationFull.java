@@ -34,7 +34,6 @@ package org.hsqldb.dbinfo;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.lang.reflect.Method;
 
 import org.hsqldb.Collation;
 import org.hsqldb.ColumnSchema;
@@ -56,7 +55,6 @@ import org.hsqldb.Table;
 import org.hsqldb.TextTable;
 import org.hsqldb.Tokens;
 import org.hsqldb.TriggerDef;
-import org.hsqldb.Types;
 import org.hsqldb.View;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileUtil;
@@ -83,6 +81,7 @@ import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 // fredt@users - 1.7.2 - structural modifications to allow inheritance
 // boucherb@users - 1.7.2 - 20020225

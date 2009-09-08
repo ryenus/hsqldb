@@ -39,7 +39,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
 

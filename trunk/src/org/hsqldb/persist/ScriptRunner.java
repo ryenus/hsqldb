@@ -34,12 +34,12 @@ package org.hsqldb.persist;
 import java.io.EOFException;
 
 import org.hsqldb.Database;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.Session;
 import org.hsqldb.Statement;
 import org.hsqldb.StatementDML;
 import org.hsqldb.StatementTypes;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.result.Result;

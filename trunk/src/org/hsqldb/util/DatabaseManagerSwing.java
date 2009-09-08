@@ -135,8 +135,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.lib.RCData;
+import org.hsqldb.lib.java.JavaSystem;
 
 //dmarshall@users - 20020101 - original swing port of DatabaseManager
 //sqlbob@users 20020401 - patch 537501 by ulrivo - commandline arguments

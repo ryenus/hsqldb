@@ -37,7 +37,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 import org.hsqldb.Database;
-import org.hsqldb.Error;
+import org.hsqldb.error.Error;
 
 /**
  * New NIO version of ScaledRAFile. This class is used only for storing a CACHED

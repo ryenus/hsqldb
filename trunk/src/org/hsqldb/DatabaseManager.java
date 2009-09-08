@@ -33,6 +33,8 @@ package org.hsqldb;
 
 import java.util.Vector;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;

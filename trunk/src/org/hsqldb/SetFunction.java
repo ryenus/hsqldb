@@ -35,6 +35,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.DTIType;
@@ -43,6 +45,7 @@ import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Implementation of SQL set functions (currently only aggregate functions).

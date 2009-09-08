@@ -35,11 +35,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.hsqldb.Database;
-import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.Storage;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.store.BitMap;
-import org.hsqldb.lib.HsqlByteArrayOutputStream;
 
 /*
  * Wrapper for random access file for incremental backup of the .data file.

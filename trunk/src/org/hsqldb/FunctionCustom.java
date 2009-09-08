@@ -34,6 +34,8 @@ package org.hsqldb;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.StringConverter;
@@ -52,6 +54,7 @@ import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Implementation of calls to HSQLDB functions with reserved names or functions

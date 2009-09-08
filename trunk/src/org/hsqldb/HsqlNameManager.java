@@ -33,6 +33,8 @@ package org.hsqldb;
 
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
 /**
  * Provides Name Management for SQL objects. <p>
@@ -438,7 +440,6 @@ public final class HsqlNameManager {
             this.name          = name;
             this.statementName = name;
             this.isNameQuoted  = isquoted;
-
 
             if (isNameQuoted) {
                 statementName = StringConverter.toQuotedString(name, '"',

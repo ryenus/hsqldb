@@ -36,11 +36,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.hsqldb.Database;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StopWatch;

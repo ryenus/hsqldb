@@ -33,8 +33,8 @@ package org.hsqldb.navigator;
 
 import java.io.IOException;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.Row;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.result.ResultMetaData;

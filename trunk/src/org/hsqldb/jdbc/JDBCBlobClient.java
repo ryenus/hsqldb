@@ -36,9 +36,9 @@ import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.types.BlobDataID;
 
 /**

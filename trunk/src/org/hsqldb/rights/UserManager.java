@@ -32,8 +32,8 @@
 package org.hsqldb.rights;
 
 import org.hsqldb.Database;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
 import org.hsqldb.lib.HashMappedList;

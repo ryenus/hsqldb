@@ -34,13 +34,12 @@ package org.hsqldb.jdbc;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.hsqldb.ColumnBase;
-import org.hsqldb.ErrorCode;
-import org.hsqldb.Types;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.types.Type;
 import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /* $Id$ */
 

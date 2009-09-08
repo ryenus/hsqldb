@@ -36,9 +36,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 
 /**

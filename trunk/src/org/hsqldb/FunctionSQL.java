@@ -32,6 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
@@ -42,6 +44,7 @@ import org.hsqldb.types.DTIType;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Implementation of SQL standard function calls

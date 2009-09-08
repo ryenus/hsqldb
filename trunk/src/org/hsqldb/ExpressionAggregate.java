@@ -31,9 +31,10 @@
 
 package org.hsqldb;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlList;
-import org.hsqldb.types.NumberType;
 import org.hsqldb.store.ValuePool;
 
 /**

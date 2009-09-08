@@ -38,6 +38,8 @@ import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
 // fredt@users 20020414 - patch 828957 by tjcrowder@users - JDK 1.3 compatibility
 

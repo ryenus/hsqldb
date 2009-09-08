@@ -33,10 +33,10 @@ package org.hsqldb.rowio;
 
 import java.io.IOException;
 
-import org.hsqldb.Types;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)

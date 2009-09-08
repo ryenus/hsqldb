@@ -38,13 +38,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.hsqldb.Database;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
 import org.hsqldb.Statement;
 import org.hsqldb.StatementTypes;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.result.Result;
 import org.hsqldb.rowio.RowInputTextLog;

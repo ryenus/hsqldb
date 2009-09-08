@@ -33,8 +33,6 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.RowAVLDisk;
@@ -42,6 +40,8 @@ import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TransactionManager;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;

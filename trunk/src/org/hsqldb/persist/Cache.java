@@ -31,7 +31,7 @@
 
 package org.hsqldb.persist;
 
-import org.hsqldb.Error;
+import org.hsqldb.error.Error;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.Sort;

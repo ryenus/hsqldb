@@ -33,6 +33,8 @@ package org.hsqldb;
 
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.PersistentStore;
@@ -219,6 +221,7 @@ public class StatementInsert extends StatementDML {
                     if (baseTable.colDefaults[colIndex] != null) {
                         data[colIndex] =
                             baseTable.colDefaults[colIndex].getValue(session);
+
                         continue;
                     }
 

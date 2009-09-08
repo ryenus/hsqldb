@@ -34,11 +34,10 @@ package org.hsqldb.rowio;
 import java.io.IOException;
 import java.math.BigDecimal;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.Scanner;
 import org.hsqldb.Tokens;
-import org.hsqldb.Types;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
@@ -51,6 +50,7 @@ import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Class for reading the data for a database row in text table format.

@@ -35,8 +35,8 @@ import java.util.Enumeration;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;

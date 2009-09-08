@@ -35,11 +35,13 @@ import java.text.Collator;
 import java.util.Locale;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMap;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.rights.Grantee;
-import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Implementation of collation support for CHAR and VARCHAR data.

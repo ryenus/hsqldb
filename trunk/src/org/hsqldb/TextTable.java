@@ -31,12 +31,13 @@
 
 package org.hsqldb;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.persist.TextCache;
 import org.hsqldb.persist.DataFileCache;
-import org.hsqldb.index.Index;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.persist.TextCache;
 
 // tony_lai@users 20020820 - patch 595099 - user define PK name
 

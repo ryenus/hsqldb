@@ -35,7 +35,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.ErrorCode;
 
 import junit.framework.AssertionFailedError;
 

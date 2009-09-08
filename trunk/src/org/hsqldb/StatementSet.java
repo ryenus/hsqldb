@@ -31,13 +31,15 @@
 
 package org.hsqldb;
 
-import org.hsqldb.result.Result;
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
-import org.hsqldb.types.Type;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.result.Result;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.Type;
 
 /**
  * Implementation of Statement for PSM and trigger assignment.

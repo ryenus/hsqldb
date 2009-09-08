@@ -33,12 +33,11 @@ package org.hsqldb.types;
 
 import java.math.BigDecimal;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
-import org.hsqldb.Tokens;
-import org.hsqldb.Types;
-import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.Session;
+import org.hsqldb.Tokens;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.IntKeyIntValueHashMap;
 
 /**
  * Common elements for Type instances for DATETIME and INTERVAL.<p>

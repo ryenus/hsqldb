@@ -36,8 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.hsqldb.Database;
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)

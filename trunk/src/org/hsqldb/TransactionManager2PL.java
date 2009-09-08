@@ -39,7 +39,6 @@ import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;

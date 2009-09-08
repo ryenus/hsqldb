@@ -34,10 +34,10 @@ package org.hsqldb.types;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
+import org.hsqldb.SqlInvariants;
+import org.hsqldb.Tokens;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
-import org.hsqldb.Tokens;
-import org.hsqldb.SqlInvariants;
 
 /**
  * Implementation of CHARACTER SET objects.<p>

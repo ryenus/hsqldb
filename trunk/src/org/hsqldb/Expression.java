@@ -34,6 +34,8 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
@@ -1285,7 +1287,7 @@ public class Expression {
     }
 
     static void resolveGenerationExpression(Session session, Table t,
-                                        Expression e) {
+            Expression e) {
 
         HsqlList unresolved = e.resolveColumnReferences(t.defaultRanges, null);
 

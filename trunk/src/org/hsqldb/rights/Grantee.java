@@ -31,8 +31,6 @@
 
 package org.hsqldb.rights;
 
-import org.hsqldb.Error;
-import org.hsqldb.ErrorCode;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Routine;
@@ -40,6 +38,8 @@ import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.Tokens;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
