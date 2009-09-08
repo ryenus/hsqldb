@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb;
+package org.hsqldb.error;
 
 /**
  * SQL error codes.

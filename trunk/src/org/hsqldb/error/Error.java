@@ -29,8 +29,9 @@
  */
 
 
-package org.hsqldb;
+package org.hsqldb.error;
 
+import org.hsqldb.HsqlException;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.result.Result;

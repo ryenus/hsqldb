@@ -31,7 +31,7 @@
 
 package org.hsqldb.jdbc;
 
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 
 import java.io.IOException;

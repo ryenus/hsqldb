@@ -84,7 +84,7 @@ import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ClosableByteArrayOutputStream;
 import org.hsqldb.lib.StringConverter;
 import org.w3c.dom.DOMException;
@@ -1558,7 +1558,7 @@ public class JDBCSQLXML implements SQLXML {
         } catch (TransformerException ex) {
             throw Exceptions.transformFailed(ex);
         }
-        
+
         source.setNode(result.getNode());
         source.setSystemId(result.getSystemId());
 
@@ -1756,7 +1756,7 @@ public class JDBCSQLXML implements SQLXML {
             T result = (resultClass == null)
                     ? ((T) new DOMResult())
                     : resultClass.newInstance();
-            
+
             this.domResult = (DOMResult) result;
 
             return result;
@@ -1799,7 +1799,7 @@ public class JDBCSQLXML implements SQLXML {
             throw Exceptions.resultInstantiation(ex);
         }
 
-        
+
         SAX2DOMBuilder handler = null;
 
         try {
@@ -1830,7 +1830,7 @@ public class JDBCSQLXML implements SQLXML {
             Class<T> resultClass) throws SQLException {
 
         StAXResult result = null;
-        
+
         try {
             this.domResult = new DOMResult((new SAX2DOMBuilder()).getDocument());
             XMLOutputFactory factory = XMLOutputFactory.newInstance();
