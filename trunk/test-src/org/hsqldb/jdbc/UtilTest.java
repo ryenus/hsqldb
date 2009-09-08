@@ -40,13 +40,12 @@ import java.sql.SQLTransactionRollbackException;
 import java.sql.SQLTransientConnectionException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestSuite;
 
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.ErrorCode;
 
 /**
  * Test of class org.hsqldb.jdbc.Util.

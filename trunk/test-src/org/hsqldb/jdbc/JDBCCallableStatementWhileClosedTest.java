@@ -47,7 +47,7 @@ import java.sql.SQLXML;
 import java.util.Calendar;
 import java.util.HashMap;
 import junit.framework.TestSuite;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 // TODO:  See if this can be done reflectively.

@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 public class ScannerTest extends TestCase {
 

@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.hsqldb.ErrorCode;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
