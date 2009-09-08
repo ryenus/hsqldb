@@ -29,14 +29,16 @@
  */
 package org.hsqldb;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 public class ScannerTest extends TestCase {
+
+    // todo - fredt - needs to use a session from a database instance
 
     // HACK!!
     // TODO:  Fix
@@ -109,7 +111,7 @@ public class ScannerTest extends TestCase {
                 m_precision,
                 m_fractionalPrecision);
         Scanner scanner = new Scanner();
-        Object i = scanner.convertToDatetimeInterval(m_toScan, t);
+        Object i = scanner.convertToDatetimeInterval(null, m_toScan, t);
     }
 
     /**
