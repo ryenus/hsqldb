@@ -1439,7 +1439,7 @@ public class Session implements SessionInterface {
 
         if (currentDate == null) {
             currentDate = (TimestampData) Type.SQL_DATE.getValue(currentMillis
-                    / 1000, 0, timeZoneSeconds);
+                    / 1000, 0, getZoneSeconds());
         }
 
         return currentDate;
@@ -1460,7 +1460,7 @@ public class Session implements SessionInterface {
                     / 1000;
                 int nanos = (int) (currentMillis % 1000) * 1000000;
 
-                currentTime = new TimeData(seconds, nanos, timeZoneSeconds);
+                currentTime = new TimeData(seconds, nanos, getZoneSeconds());
             }
 
             return currentTime;
@@ -1468,7 +1468,7 @@ public class Session implements SessionInterface {
             if (localTime == null) {
                 int seconds =
                     (int) (HsqlDateTime.getNormalisedTime(
-                        currentMillis + +timeZoneSeconds * 1000)) / 1000;
+                        currentMillis + getZoneSeconds() * 1000)) / 1000;
                 int nanos = (int) (currentMillis % 1000) * 1000000;
 
                 localTime = new TimeData(seconds, nanos, 0);
@@ -1491,7 +1491,7 @@ public class Session implements SessionInterface {
                 int nanos = (int) (currentMillis % 1000) * 1000000;
 
                 currentTimestamp = new TimestampData((currentMillis / 1000),
-                                                     nanos, timeZoneSeconds);
+                                                     nanos, getZoneSeconds());
             }
 
             return currentTimestamp;
@@ -1500,7 +1500,7 @@ public class Session implements SessionInterface {
                 int nanos = (int) (currentMillis % 1000) * 1000000;
 
                 localTimestamp = new TimestampData(currentMillis / 1000
-                                                   + timeZoneSeconds, nanos,
+                                                   + getZoneSeconds(), nanos,
                                                        0);
             }
 
@@ -1526,7 +1526,17 @@ public class Session implements SessionInterface {
     }
 
     public void setZoneSeconds(int seconds) {
-        timeZoneSeconds = seconds;
+
+        if (seconds == sessionTimeZoneSeconds) {
+            calendar = null;
+        } else {
+            TimeZone zone = TimeZone.getDefault();
+
+            zone.setRawOffset(seconds * 1000);
+
+            calendar        = new GregorianCalendar(zone);
+            timeZoneSeconds = seconds;
+        }
     }
 
     private Result getAttributesResult(int id) {

@@ -129,7 +129,7 @@ public class Database {
     int                  databaseID;
     String               databaseUniqueName;
     String               databaseType;
-    private final String name;
+    private final String canonicalPath;
 
 // loosecannon1@users 1.7.2 patch properties on the JDBC URL
     public HsqlProperties urlProperties;
@@ -199,19 +199,20 @@ public class Database {
      *
      * @param type is the type of the database: "mem:", "file:", "res:"
      * @param path is the given path to the database files
-     * @param name is the combination of type and canonical path
+     * @param canonicalPath is the canonical path
      * @param props property overrides placed on the connect URL
      * @exception  HsqlException if the specified name and path
      *      combination is illegal or unavailable, or the database files the
      *      name and path resolves to are in use by another process
      */
-    Database(String type, String path, String name, HsqlProperties props) {
+    Database(String type, String path, String canonicalPath,
+             HsqlProperties props) {
 
         setState(Database.DATABASE_SHUTDOWN);
 
         this.databaseType  = type;
         this.path          = path;
-        this.name          = name;
+        this.canonicalPath = canonicalPath;
         this.urlProperties = props;
 
         if (databaseType == DatabaseURL.S_RES) {
@@ -739,7 +740,11 @@ public class Database {
      * @return the uri portion of this object's in-process JDBC url
      */
     public String getURI() {
-        return name;
+        return databaseType + canonicalPath;
+    }
+
+    public String getCanonicalPath() {
+        return canonicalPath;
     }
 
 // oj@openoffice.org - changed to file access api

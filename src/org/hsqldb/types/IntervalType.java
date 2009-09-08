@@ -476,8 +476,8 @@ public final class IntervalType extends DTIType {
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE : {
-                return session.getScanner().convertToDatetimeInterval(
-                    (String) a, this);
+                return session.getScanner().convertToDatetimeInterval(session,
+                        (String) a, this);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
