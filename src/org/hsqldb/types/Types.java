@@ -29,7 +29,7 @@
  */
 
 
-package org.hsqldb;
+package org.hsqldb.types;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -636,7 +636,7 @@ public class Types {
      * @return java.sql.Types int value
      * @throws  HsqlException
      */
-    static int getParameterSQLTypeNumber(Class c) {
+    public static int getParameterSQLTypeNumber(Class c) {
 
         String name;
         int    type;
