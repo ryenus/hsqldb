@@ -550,7 +550,7 @@ public class IndexAVL implements Index {
                 }
             }
 
-            x = set(store, x, isleft, ((RowAVL) row).getNode(position));
+            x = x.set(store, isleft, ((RowAVL) row).getNode(position));
 
             balance(store, x, isleft);
         } finally {
@@ -670,7 +670,7 @@ public class IndexAVL implements Index {
 
             boolean isleft = x.isFromLeft(store);
 
-            replace(store, x, n);
+            x.replace(store, this, n);
 
             n = x.getParent(store);
 
@@ -698,11 +698,10 @@ public class IndexAVL implements Index {
                         int     b = r.getBalance(store);
 
                         if (b * sign >= 0) {
-                            replace(store, x, r);
+                            x.replace(store, this, r);
 
-                            x = set(store, x, !isleft,
-                                    child(store, r, isleft));
-                            r = set(store, r, isleft, x);
+                            x = x.set(store, !isleft, child(store, r, isleft));
+                            r = r.set(store, isleft, x);
 
                             if (b == 0) {
                                 x = x.setBalance(store, sign);
@@ -717,15 +716,13 @@ public class IndexAVL implements Index {
                         } else {
                             NodeAVL l = child(store, r, isleft);
 
-                            replace(store, x, l);
+                            x.replace(store, this, l);
 
                             b = l.getBalance(store);
-                            r = set(store, r, isleft,
-                                    child(store, l, !isleft));
-                            l = set(store, l, !isleft, r);
-                            x = set(store, x, !isleft,
-                                    child(store, l, isleft));
-                            l = set(store, l, isleft, x);
+                            r = r.set(store, isleft, child(store, l, !isleft));
+                            l = l.set(store, !isleft, r);
+                            x = x.set(store, !isleft, child(store, l, isleft));
+                            l = l.set(store, isleft, x);
                             x = x.setBalance(store, (b == sign) ? -sign
                                                                 : 0);
                             r = r.setBalance(store, (b == -sign) ? sign
@@ -1215,7 +1212,7 @@ public class IndexAVL implements Index {
 
             store.setAccessor(this, n);
         } else {
-            set(store, x.getParent(store), x.isFromLeft(store), n);
+            x.getParent(store).set(store, x.isFromLeft(store), n);
         }
     }
 
@@ -1465,21 +1462,21 @@ public class IndexAVL implements Index {
                     NodeAVL l = child(store, x, isleft);
 
                     if (l.getBalance(store) == -sign) {
-                        replace(store, x, l);
+                        x.replace(store, this, l);
 
-                        x = set(store, x, isleft, child(store, l, !isleft));
-                        l = set(store, l, !isleft, x);
+                        x = x.set(store, isleft, child(store, l, !isleft));
+                        l = l.set(store, !isleft, x);
                         x = x.setBalance(store, 0);
                         l = l.setBalance(store, 0);
                     } else {
                         NodeAVL r = child(store, l, !isleft);
 
-                        replace(store, x, r);
+                        x.replace(store, this, r);
 
-                        l = set(store, l, !isleft, child(store, r, isleft));
-                        r = set(store, r, isleft, l);
-                        x = set(store, x, isleft, child(store, r, !isleft));
-                        r = set(store, r, !isleft, x);
+                        l = l.set(store, !isleft, child(store, r, isleft));
+                        r = r.set(store, isleft, l);
+                        x = x.set(store, isleft, child(store, r, !isleft));
+                        r = r.set(store, !isleft, x);
 
                         int rb = r.getBalance(store);
 

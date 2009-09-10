@@ -1414,37 +1414,48 @@ public class FunctionCustom extends FunctionSQL {
                 return;
             }
             case FUNC_TIMESTAMP : {
-                boolean unary = nodes[1] == null;
+                Type argType = nodes[0].dataType;
 
-                if (unary) {
-                    if (nodes[0].dataType == null) {
-                        nodes[0].dataType = Type.SQL_TIMESTAMP;
+                if (nodes[1] == null) {
+                    if (argType == null) {
+                        argType = nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                     }
 
-                    if (nodes[0].dataType.isCharacterType()) {}
+                    if (argType.isCharacterType()
+                            || argType.typeCode == Types.SQL_TIMESTAMP
+                            || argType.typeCode
+                               == Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {}
                     else {
-                        if (nodes[0].dataType.typeCode != Types.SQL_TIMESTAMP
-                                && nodes[0].dataType.typeCode
-                                   != Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
-                            throw Error.error(ErrorCode.X_42561);
-                        }
+                        throw Error.error(ErrorCode.X_42561);
                     }
                 } else {
-                    if (nodes[0].dataType == null) {
-                        nodes[0].dataType = Type.SQL_DATE;
+                    if (argType == null) {
+                        if (nodes[1].dataType == null) {
+                            argType = nodes[0].dataType = nodes[1].dataType =
+                                Type.SQL_VARCHAR_DEFAULT;
+                        } else {
+                            if (nodes[1].dataType.isCharacterType()) {
+                                argType = nodes[0].dataType =
+                                    Type.SQL_VARCHAR_DEFAULT;
+                            } else {
+                                argType = nodes[0].dataType = Type.SQL_DATE;
+                            }
+                        }
                     }
 
                     if (nodes[1].dataType == null) {
-                        nodes[1].dataType = Type.SQL_TIME;
+                        if (argType.isCharacterType()) {
+                            nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
+                        } else if (argType.typeCode == Types.SQL_DATE) {
+                            nodes[1].dataType = Type.SQL_TIME;
+                        }
                     }
 
-                    if (nodes[0].dataType.typeCode != Types.SQL_DATE
-                            && nodes[0].dataType.isCharacterType()) {
-                        throw Error.error(ErrorCode.X_42561);
-                    }
-
-                    if (nodes[1].dataType.typeCode != Types.SQL_TIME
-                            && nodes[1].dataType.isCharacterType()) {
+                    if ((argType.typeCode == Types.SQL_DATE && nodes[1]
+                            .dataType.typeCode == Types.SQL_TIME) || argType
+                                .isCharacterType() && nodes[1].dataType
+                                .isCharacterType()) {}
+                    else {
                         throw Error.error(ErrorCode.X_42561);
                     }
                 }

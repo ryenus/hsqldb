@@ -687,7 +687,7 @@ public class ParserDDL extends ParserRoutine {
 
                         read();
 
-                        SchemaObject object = readDependentSchemaObjectName(
+                        SchemaObject object = readSchemaObjectName(
                             t.getName(), SchemaObject.CONSTRAINT);
 
                         if (token.tokenType == Tokens.RESTRICT) {
@@ -894,7 +894,7 @@ public class ParserDDL extends ParserRoutine {
     private Statement compileAlterTableDropConstraint(Table t) {
 
         boolean cascade = false;
-        SchemaObject object = readDependentSchemaObjectName(t.getName(),
+        SchemaObject object = readSchemaObjectName(t.getSchemaName(),
             SchemaObject.CONSTRAINT);
 
         if (token.tokenType == Tokens.RESTRICT) {

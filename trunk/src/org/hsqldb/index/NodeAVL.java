@@ -66,12 +66,12 @@
 
 package org.hsqldb.index;
 
-import org.hsqldb.RowAVLDisk;
 import org.hsqldb.Row;
+import org.hsqldb.RowAVLDisk;
+import org.hsqldb.lib.IntLookup;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.lib.IntLookup;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
 // fredt@users 20020920 - path 1.7.1 - refactoring to cut mamory footprint
@@ -147,6 +147,10 @@ public abstract class NodeAVL implements CachedObject {
     abstract boolean isRoot(PersistentStore store);
 
     abstract boolean isFromLeft(PersistentStore store);
+
+    abstract NodeAVL set(PersistentStore store, boolean isLeft, NodeAVL n);
+
+    abstract void replace(PersistentStore store, Index index, NodeAVL n);
 
     abstract boolean equals(NodeAVL n);
 

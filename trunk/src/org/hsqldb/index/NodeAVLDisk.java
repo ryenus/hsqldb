@@ -276,6 +276,7 @@ public class NodeAVLDisk extends NodeAVL {
     }
 
     int getBalance(PersistentStore store) {
+
         NodeAVLDisk node = this;
         RowAVLDisk  row  = this.row;
 
@@ -288,6 +289,7 @@ public class NodeAVLDisk extends NodeAVL {
     }
 
     boolean isRoot(PersistentStore store) {
+
         NodeAVLDisk node = this;
         RowAVLDisk  row  = this.row;
 
@@ -309,7 +311,7 @@ public class NodeAVLDisk extends NodeAVL {
             node = (NodeAVLDisk) row.getNode(iId);
         }
 
-        if ( node.iParent == NO_POS) {
+        if (node.iParent == NO_POS) {
             return true;
         }
 
@@ -431,6 +433,36 @@ public class NodeAVLDisk extends NodeAVL {
         row.keepInMemory(false);
 
         return node;
+    }
+
+    public NodeAVL set(PersistentStore store, boolean isLeft, NodeAVL n) {
+
+        NodeAVL x;
+
+        if (isLeft) {
+            x = setLeft(store, n);
+        } else {
+            x = setRight(store, n);
+        }
+
+        if (n != null) {
+            n.setParent(store, this);
+        }
+
+        return x;
+    }
+
+    public void replace(PersistentStore store, Index index, NodeAVL n) {
+
+        if (isRoot(store)) {
+            if (n != null) {
+                n = n.setParent(store, null);
+            }
+
+            store.setAccessor(index, n);
+        } else {
+            getParent(store).set(store, isFromLeft(store), n);
+        }
     }
 
     boolean equals(NodeAVL n) {
