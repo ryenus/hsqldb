@@ -1203,6 +1203,10 @@ public class ParserCommand extends ParserDDL {
      */
     private boolean processTrueOrFalse() {
 
+        if (token.namePrefix != null) {
+            throw unexpectedToken();
+        }
+
         if (token.tokenType == Tokens.TRUE) {
             read();
 
@@ -1217,6 +1221,10 @@ public class ParserCommand extends ParserDDL {
     }
 
     private Boolean processTrueOrFalseObject() {
+
+        if (token.namePrefix != null) {
+            throw unexpectedToken();
+        }
 
         if (token.tokenType == Tokens.TRUE) {
             read();

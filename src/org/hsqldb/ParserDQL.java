@@ -4337,23 +4337,24 @@ public class ParserDQL extends ParserBase {
         return object;
     }
 
-    SchemaObject readDependentSchemaObjectName(HsqlName parentName, int type) {
+    SchemaObject readSchemaObjectName(HsqlName schemaName, int type) {
 
         checkIsSchemaObjectName();
 
         SchemaObject object =
             database.schemaManager.getSchemaObject(token.tokenString,
-                parentName.schema.name, type);
+                schemaName.name, type);
 
         if (token.namePrefix != null) {
-            if (!token.namePrefix.equals(parentName.name)) {
+            if (!token.namePrefix.equals(schemaName.name)) {
 
                 // todo - better error message
                 throw Error.error(ErrorCode.X_42505, token.namePrefix);
             }
 
             if (token.namePrePrefix != null) {
-                if (!token.namePrePrefix.equals(parentName.schema.name)) {
+                if (!token.namePrePrefix.equals(
+                        database.getCatalogName().name)) {
 
                     // todo - better error message
                     throw Error.error(ErrorCode.X_42505, token.namePrefix);

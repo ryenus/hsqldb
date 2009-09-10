@@ -655,6 +655,8 @@ public class RangeVariableResolver {
                                                      newRangeVar, right);
 
                 rangeVar.addIndexCondition(e, index, flags[i]);
+
+                rangeVar.addCondition(in, true);
             }
         }
     }

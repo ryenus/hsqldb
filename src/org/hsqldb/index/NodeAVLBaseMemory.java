@@ -66,10 +66,8 @@
 
 package org.hsqldb.index;
 
-import java.io.IOException;
-
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.persist.*;
 
 /**
  *  Common MEMORY and TEXT table node implementation. Nodes are always in
@@ -158,6 +156,34 @@ abstract class NodeAVLBaseMemory extends NodeAVL {
         NodeAVL parent = getParent(store);
 
         return equals(parent.getLeft(store));
+    }
+
+    public NodeAVL set(PersistentStore store, boolean isLeft, NodeAVL n) {
+
+        if (isLeft) {
+            nLeft = n;
+        } else {
+            nRight = n;
+        }
+
+        if (n != null) {
+            ((NodeAVLBaseMemory) n).nParent = this;
+        }
+
+        return this;
+    }
+
+    public void replace(PersistentStore store, Index index, NodeAVL n) {
+
+        if (nParent == null) {
+            if (n != null) {
+                n = n.setParent(store, null);
+            }
+
+            store.setAccessor(index, n);
+        } else {
+            getParent(store).set(store, isFromLeft(store), n);
+        }
     }
 
     boolean equals(NodeAVL n) {
