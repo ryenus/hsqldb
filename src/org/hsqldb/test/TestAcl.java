@@ -244,15 +244,11 @@ public class TestAcl extends junit.framework.TestCase {
      * unit tests, and without dealing with Ant or unrelated test suites.
      */
     static public void main(String[] sa) {
-        if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(TestAcl.class);
-        } else {
             junit.textui.TestRunner runner = new junit.textui.TestRunner();
             junit.framework.TestResult result =
                 runner.run(runner.getTest(TestAcl.class.getName()));
 
             System.exit(result.wasSuccessful() ? 0 : 1);
-        }
     }
 
     public void testDefaultWithNames() {

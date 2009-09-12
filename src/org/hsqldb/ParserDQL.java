@@ -1499,6 +1499,10 @@ public class ParserDQL extends ParserBase {
                         throw unexpectedToken();
                     }
 
+                    if (all || distinct) {
+                        throw unexpectedToken();
+                    }
+
                     e.opType = OpTypes.ASTERISK;
 
                     break;

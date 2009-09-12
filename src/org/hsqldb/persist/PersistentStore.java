@@ -116,4 +116,8 @@ public interface PersistentStore {
     void setAccessor(Index key, int accessor);
 
     void resetAccessorKeys(Index[] keys);
+
+    void lock();
+
+    void unlock();
 }

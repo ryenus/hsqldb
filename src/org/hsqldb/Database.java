@@ -167,7 +167,6 @@ public class Database {
     // session related objects
     public SessionManager     sessionManager;
     public TransactionManager txManager;
-    public StatementManager   compiledStatementManager;
 
     // schema objects
     public SchemaManager schemaManager;
@@ -223,8 +222,7 @@ public class Database {
         logger = new Logger(this);
         shutdownOnNoConnection =
             urlProperties.isPropertyTrue(HsqlDatabaseProperties.url_shutdown);
-        compiledStatementManager = new StatementManager(this);
-        lobManager               = new LobManager(this);
+        lobManager = new LobManager(this);
     }
 
     /**
@@ -251,8 +249,6 @@ public class Database {
         setState(DATABASE_OPENING);
 
         try {
-            compiledStatementManager.reset();
-
             nameManager    = new HsqlNameManager(this);
             granteeManager = new GranteeManager(this);
             userManager    = new UserManager(this);
@@ -263,6 +259,7 @@ public class Database {
             sessionManager         = new SessionManager(this);
             collation              = collation.getDefaultInstance();
             dbInfo = DatabaseInformation.newDatabaseInformation(this);
+            txManager              = new TransactionManager2PL(this);
 
             lobManager.createSchema();
             logger.openPersistence();
@@ -604,10 +601,6 @@ public class Database {
 
         if (dbInfo != null) {
             dbInfo.setDirty();
-        }
-
-        if (resetPrepared) {
-            compiledStatementManager.resetStatements();
         }
     }
 

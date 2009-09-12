@@ -70,7 +70,7 @@ public class Cache extends BaseHashMap {
 
         super(dfc.capacity(), BaseHashMap.intKeyOrValue,
               BaseHashMap.objectKeyOrValue, true);
-
+        maxCapacity      = dfc.capacity();
         dataFileCache    = dfc;
         capacity         = dfc.capacity();
         bytesCapacity    = dfc.bytesCapacity();

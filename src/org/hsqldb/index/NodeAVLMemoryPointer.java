@@ -86,4 +86,8 @@ public class NodeAVLMemoryPointer extends NodeAVLBaseMemory {
 
         return row;
     }
+
+    Object[] getData(PersistentStore store) {
+        return getRow(store).getData();
+    }
 }

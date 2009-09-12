@@ -76,6 +76,9 @@ public abstract class Statement {
     /** id in StatementManager */
     long id;
 
+    /** compileTimestamp **/
+    long compileTimestamp;
+
     /** table names read - for concurrency control */
     HsqlName[] readTableNames = HsqlName.emptyArray;
 
@@ -107,6 +110,14 @@ public abstract class Statement {
 
     public boolean isAutoCommitStatement() {
         return false;
+    }
+
+    public void setCompileTimestamp(long ts) {
+        compileTimestamp = ts;
+    }
+
+    public long getCompileTimestamp() {
+        return compileTimestamp;
     }
 
     public final void setSQL(String sql) {

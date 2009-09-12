@@ -41,7 +41,7 @@ import org.hsqldb.result.Result;
 
 /**
  * This class manages the reuse of Statement objects for prepared
- * statements for a Database instance.<p>
+ * statements for a Session instance.<p>
  *
  * A compiled statement is registered by a session to be managed. Once
  * registered, it is linked with one or more sessions.<p>
@@ -93,12 +93,6 @@ public final class StatementManager {
     /** Map: Compiled statment id (int) => CompiledStatement object. */
     private LongKeyHashMap csidMap;
 
-    /** Map: Session id (long) => {Map: compiled statement id (long) => use count in session} */
-    private LongKeyHashMap sessionUseMap;
-
-    /** Map: Compiled statment id (int) => number of sessions that use the statement */
-    private LongKeyIntValueHashMap useMap;
-
     /**
      * Monotonically increasing counter used to assign unique ids to compiled
      * statements.
@@ -117,8 +111,6 @@ public final class StatementManager {
         schemaMap     = new IntKeyHashMap();
         sqlLookup     = new LongKeyHashMap();
         csidMap       = new LongKeyHashMap();
-        sessionUseMap = new LongKeyHashMap();
-        useMap        = new LongKeyIntValueHashMap();
         next_cs_id    = 0;
     }
 
@@ -130,26 +122,8 @@ public final class StatementManager {
         schemaMap.clear();
         sqlLookup.clear();
         csidMap.clear();
-        sessionUseMap.clear();
-        useMap.clear();
 
         next_cs_id = 0;
-    }
-
-    /**
-     * Used after a DDL change that could impact the compiled statements.
-     * Clears references to CompiledStatement objects while keeping the counts
-     * and references to the sql strings.
-     */
-    synchronized void resetStatements() {
-
-        Iterator it = csidMap.values().iterator();
-
-        while (it.hasNext()) {
-            Statement cs = (Statement) it.next();
-
-            cs.clearVariables();
-        }
     }
 
     /**
@@ -203,56 +177,33 @@ public final class StatementManager {
             return null;
         }
 
-        if (!cs.isValid()) {
-            String sql = (String) sqlLookup.get(csid);
+        if (cs.getCompileTimestamp()
+                < database.schemaManager.getSchemaChangeTimestamp()) {
+            String   sql       = (String) sqlLookup.get(csid);
+            HsqlName oldSchema = session.getCurrentSchemaHsqlName();
 
             // revalidate with the original schema
             try {
-                Session sys = database.sessionManager.getSysSession(
-                    session.currentSchema.name, session.getUser());
-                sys.setRole(session.getRole());
+                HsqlName schema = cs.getSchemalName();
 
-                cs = sys.compileStatement(sql);
+                session.setSchema(schema.name);
 
+                cs = session.compileStatement(sql);
+
+                session.setSchema(oldSchema.name);
                 cs.setID(csid);
+                cs.setCompileTimestamp(
+                    database.txManager.getGlobalChangeTimestamp());
                 csidMap.put(csid, cs);
             } catch (Throwable t) {
-                freeStatement(csid, session.getId(), true);
+                freeStatement(csid);
+                session.setSchema(oldSchema.name);
 
                 return null;
             }
         }
 
         return cs;
-    }
-
-    /**
-     * Links a session with a registered compiled statement. If this session has
-     * not already been linked with the given statement, then the statement use
-     * count is incremented.
-     *
-     * @param csid the compiled statement identifier
-     * @param sessionID the session identifier
-     */
-    private void linkSession(long csid, long sessionID) {
-
-        LongKeyIntValueHashMap scsMap;
-
-        scsMap = (LongKeyIntValueHashMap) sessionUseMap.get(sessionID);
-
-        if (scsMap == null) {
-            scsMap = new LongKeyIntValueHashMap();
-
-            sessionUseMap.put(sessionID, scsMap);
-        }
-
-        int count = scsMap.get(csid, 0);
-
-        scsMap.put(csid, count + 1);
-
-        if (count == 0) {
-            useMap.put(csid, useMap.get(csid, 0) + 1);
-        }
     }
 
     /**
@@ -287,6 +238,7 @@ public final class StatementManager {
         }
 
         cs.setID(csid);
+        cs.setCompileTimestamp(database.txManager.getGlobalChangeTimestamp());
         csidMap.put(csid, cs);
 
         return csid;
@@ -301,8 +253,7 @@ public final class StatementManager {
      * @param sessionID the session identifier
      * @param freeAll if true, remove all links to the session
      */
-    synchronized void freeStatement(long csid, long sessionID,
-                                    boolean freeAll) {
+    synchronized void freeStatement(long csid) {
 
         if (csid == -1) {
 
@@ -310,91 +261,15 @@ public final class StatementManager {
             return;
         }
 
-        LongKeyIntValueHashMap scsMap =
-            (LongKeyIntValueHashMap) sessionUseMap.get(sessionID);
+        Statement cs = (Statement) csidMap.remove(csid);
 
-        if (scsMap == null) {
+        if (cs != null) {
+            int schemaid = cs.getSchemalName().hashCode();
+            LongValueHashMap sqlMap =
+                (LongValueHashMap) schemaMap.get(schemaid);
+            String sql = (String) sqlLookup.remove(csid);
 
-            // statement already removed due to invalidation
-            return;
-        }
-
-        int sessionUseCount = scsMap.get(csid, 0);
-
-        if (sessionUseCount == 0) {
-
-            // statement already removed due to invalidation
-        } else if (sessionUseCount == 1 || freeAll) {
-            scsMap.remove(csid);
-
-            int usecount = useMap.get(csid, 0);
-
-            if (usecount == 0) {
-
-                // statement already removed due to invalidation
-            } else if (usecount == 1) {
-                Statement cs = (Statement) csidMap.remove(csid);
-
-                if (cs != null) {
-                    int schemaid = cs.getSchemalName().hashCode();
-                    LongValueHashMap sqlMap =
-                        (LongValueHashMap) schemaMap.get(schemaid);
-                    String sql = (String) sqlLookup.remove(csid);
-
-                    sqlMap.remove(sql);
-                }
-
-                useMap.remove(csid);
-            } else {
-                useMap.put(csid, usecount - 1);
-            }
-        } else {
-            scsMap.put(csid, sessionUseCount - 1);
-        }
-    }
-
-    /**
-     * Releases the link betwen the session and all compiled statement objects
-     * it is linked to. If any such statement is not linked with any other
-     * session, it is removed from management.
-     *
-     * @param sessionID the session identifier
-     */
-    synchronized void removeSession(long sessionID) {
-
-        LongKeyIntValueHashMap scsMap;
-        long                   csid;
-        Iterator               i;
-
-        scsMap = (LongKeyIntValueHashMap) sessionUseMap.remove(sessionID);
-
-        if (scsMap == null) {
-            return;
-        }
-
-        i = scsMap.keySet().iterator();
-
-        while (i.hasNext()) {
-            csid = i.nextLong();
-
-            int usecount = useMap.get(csid, 1) - 1;
-
-            if (usecount == 0) {
-                Statement cs = (Statement) csidMap.remove(csid);
-
-                if (cs != null) {
-                    int schemaid = cs.getSchemalName().hashCode();
-                    LongValueHashMap sqlMap =
-                        (LongValueHashMap) schemaMap.get(schemaid);
-                    String sql = (String) sqlLookup.remove(csid);
-
-                    sqlMap.remove(sql);
-                }
-
-                useMap.remove(csid);
-            } else {
-                useMap.put(csid, usecount);
-            }
+            sqlMap.remove(sql);
         }
     }
 
@@ -412,16 +287,10 @@ public final class StatementManager {
         long      csid = getStatementID(session.currentSchema, sql);
         Statement cs   = (Statement) csidMap.get(csid);
 
-        if (cs == null || !cs.isValid() || !session.isAdmin()) {
-            Session sys = database.sessionManager.getSysSession(
-                session.currentSchema.name, session.getUser());
-            sys.setRole(session.getRole());
-
-            cs   = sys.compileStatement(sql);
+        if (cs == null || !cs.isValid()) {
+            cs   = session.compileStatement(sql);
             csid = registerStatement(csid, cs);
         }
-
-        linkSession(csid, session.getId());
 
         return cs;
     }

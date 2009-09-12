@@ -121,6 +121,7 @@ public abstract class NodeAVL implements CachedObject {
      */
     abstract Row getRow(PersistentStore store);
 
+    abstract Object[] getData(PersistentStore store);
     /**
      *  Getters and setters for AVL index operations.
      */

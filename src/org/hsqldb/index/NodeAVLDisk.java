@@ -155,6 +155,8 @@ public class NodeAVLDisk extends NodeAVL {
         nRight   = null;
         nParent  = null;
         iBalance = 0;
+
+        row.setNodesChanged();
     }
 
     public boolean isInMemory() {
@@ -178,6 +180,10 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         return row;
+    }
+
+    Object[] getData(PersistentStore store) {
+        return row.getData();
     }
 
     private NodeAVLDisk findNode(PersistentStore store, int pos) {
@@ -461,7 +467,9 @@ public class NodeAVLDisk extends NodeAVL {
 
             store.setAccessor(index, n);
         } else {
-            getParent(store).set(store, isFromLeft(store), n);
+            boolean isFromLeft = isFromLeft(store);
+
+            getParent(store).set(store, isFromLeft, n);
         }
     }
 

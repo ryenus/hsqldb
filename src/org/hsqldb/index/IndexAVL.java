@@ -520,7 +520,7 @@ public class IndexAVL implements Index {
         int     compare = -1;
 
         writeLock.lock();
-
+        store.lock();
         try {
             n = getAccessor(store);
             x = n;
@@ -554,6 +554,7 @@ public class IndexAVL implements Index {
 
             balance(store, x, isleft);
         } finally {
+            store.unlock();
             writeLock.unlock();
         }
     }
@@ -578,6 +579,7 @@ public class IndexAVL implements Index {
         NodeAVL n;
 
         writeLock.lock();
+        store.lock();
 
         try {
             if (x.getLeft(store) == null) {
@@ -700,7 +702,9 @@ public class IndexAVL implements Index {
                         if (b * sign >= 0) {
                             x.replace(store, this, r);
 
-                            x = x.set(store, !isleft, child(store, r, isleft));
+                            NodeAVL child = child(store, r, isleft);
+
+                            x = x.set(store, !isleft, child);
                             r = r.set(store, isleft, x);
 
                             if (b == 0) {
@@ -736,6 +740,7 @@ public class IndexAVL implements Index {
                 n      = x.getParent(store);
             }
         } finally {
+            store.unlock();
             writeLock.unlock();
         }
     }
@@ -846,8 +851,7 @@ public class IndexAVL implements Index {
 
             while (x != null) {
                 boolean t = colTypes[0].compare(
-                    session, value, x.getRow(
-                        store).getData()[colIndex[0]]) >= iTest;
+                    session, value, x.getData(store)[colIndex[0]]) >= iTest;
 
                 if (t) {
                     NodeAVL r = x.getRight(store);
@@ -876,7 +880,7 @@ public class IndexAVL implements Index {
         }
 */
             while (x != null) {
-                Object colvalue = x.getRow(store).getData()[colIndex[0]];
+                Object colvalue = x.getData(store)[colIndex[0]];
                 int    result = colTypes[0].compare(session, value, colvalue);
 
                 if (result >= iTest) {
@@ -942,8 +946,7 @@ public class IndexAVL implements Index {
 
             while (x != null) {
                 boolean t = colTypes[0].compare(
-                    session, null, x.getRow(
-                        store).getData()[colIndex[0]]) >= 0;
+                    session, null, x.getData(store)[colIndex[0]]) >= 0;
 
                 if (t) {
                     NodeAVL r = x.getRight(store);
@@ -965,7 +968,7 @@ public class IndexAVL implements Index {
             }
 
             while (x != null) {
-                Object colvalue = x.getRow(store).getData()[colIndex[0]];
+                Object colvalue = x.getData(store)[colIndex[0]];
 
                 if (colvalue == null) {
                     x = next(store, x);
@@ -1390,7 +1393,7 @@ public class IndexAVL implements Index {
 
             while (x != null) {
                 int i = this.compareRowNonUnique(session, rowdata, rowColMap,
-                                                 x.getRow(store).getData(),
+                                                 x.getData(store),
                                                  fieldCount);
 
                 if (i == 0) {
@@ -1566,10 +1569,6 @@ public class IndexAVL implements Index {
             lastrow  = nextnode.getRow(store);
             nextnode = single ? null
                               : index.next(session, store, nextnode);
-
-            if (nextnode == null) {
-                release();
-            }
 
             return lastrow;
         }

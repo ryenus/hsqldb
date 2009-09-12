@@ -74,6 +74,10 @@ public class TransactionManager2PL implements TransactionManager {
         database = db;
     }
 
+    public long getGlobalChangeTimestamp() {
+        return globalChangeTimestamp.get();
+    }
+
     public boolean isMVRows() {
         return false;
     }

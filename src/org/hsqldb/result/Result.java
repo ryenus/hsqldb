@@ -481,7 +481,7 @@ public class Result {
                 result.queryTimeout    = in.readShort();
 
                 Statement statement =
-                    session.database.compiledStatementManager.getStatement(
+                    session.statementManager.getStatement(
                         session, result.statementID);
 
                 result.statement = statement;

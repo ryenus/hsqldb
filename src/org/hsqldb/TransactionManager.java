@@ -35,6 +35,9 @@ import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.persist.CachedObject;
 
 public interface TransactionManager {
+
+    public long getGlobalChangeTimestamp();
+
     public RowAction addDeleteAction(Session session, Table table, Row row);
 
     public void addInsertAction(Session session, Table table, Row row);
