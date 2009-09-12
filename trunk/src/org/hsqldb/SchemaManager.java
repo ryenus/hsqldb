@@ -57,6 +57,7 @@ public class SchemaManager {
     HashMappedList    schemaMap        = new HashMappedList();
     MultiValueHashMap referenceMap     = new MultiValueHashMap();
     int               defaultTableType = TableBase.MEMORY_TABLE;
+    long              schemaChangeTimestamp;
 
     SchemaManager(Database database) {
 
@@ -79,6 +80,14 @@ public class SchemaManager {
             schema.charsetLookup.add(SqlInvariants.SQL_IDENTIFIER_CHARSET);
             schema.charsetLookup.add(SqlInvariants.SQL_CHARACTER);
         } catch (HsqlException e) {}
+    }
+
+    public void setSchemaChangeTimestamp() {
+        schemaChangeTimestamp = database.txManager.getGlobalChangeTimestamp();
+    }
+
+    public long getSchemaChangeTimestamp() {
+        return schemaChangeTimestamp;
     }
 
     // pre-defined

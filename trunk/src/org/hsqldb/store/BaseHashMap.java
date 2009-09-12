@@ -115,7 +115,7 @@ public class BaseHashMap {
     final float       loadFactor;
     final int         initialCapacity;
     int               threshold;
-    int               maxCapacity;
+    protected int     maxCapacity;
     protected int     purgePolicy = NO_PURGE;
     protected boolean minimizeOnEmpty;
 

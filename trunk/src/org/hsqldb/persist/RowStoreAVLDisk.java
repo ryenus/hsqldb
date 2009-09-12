@@ -57,9 +57,9 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public class RowStoreAVLDisk extends RowStoreAVL {
 
-    DataFileCache               cache;
-    RowOutputInterface          rowOut;
-    Table                       table;
+    DataFileCache      cache;
+    RowOutputInterface rowOut;
+    Table              table;
     TransactionManager txManager;
 
     public RowStoreAVLDisk(PersistentStoreCollection manager,
@@ -243,5 +243,13 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public CachedObject getNewInstance(int size) {
         return null;
+    }
+
+    public void lock() {
+        cache.writeLock.lock();
+    }
+
+    public void unlock() {
+        cache.writeLock.unlock();
     }
 }

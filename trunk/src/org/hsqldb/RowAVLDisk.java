@@ -151,6 +151,8 @@ public class RowAVLDisk extends RowAVL {
     public RowAVLDisk(TableBase t, RowInputInterface in) throws IOException {
 
         table      = t;
+        tableId = table.getId();
+
         position    = in.getPos();
         storageSize = in.getSize();
 

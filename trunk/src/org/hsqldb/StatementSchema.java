@@ -273,6 +273,9 @@ public class StatementSchema extends Statement {
             return result;
         }
 
+        session.database.setMetaDirty(true);
+        session.database.schemaManager.setSchemaChangeTimestamp();
+
         try {
             if (isLogged) {
                 session.database.logger.writeToLog(session, sql);
@@ -290,8 +293,6 @@ public class StatementSchema extends Statement {
             return Result.newSingleColumnStringResult("OPERATION",
                     describe(session));
         }
-
-        session.database.setMetaDirty(true);
 
         switch (type) {
 

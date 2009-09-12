@@ -91,6 +91,10 @@ public class TransactionManagerMVCC implements TransactionManager {
         mvcc     = true;
     }
 
+    public long getGlobalChangeTimestamp() {
+        return globalChangeTimestamp.get();
+    }
+
     public boolean isMVRows() {
         return true;
     }

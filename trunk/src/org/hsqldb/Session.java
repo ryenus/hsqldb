@@ -131,6 +131,9 @@ public class Session implements SessionInterface {
     //
     public SessionData sessionData;
 
+    //
+    public StatementManager statementManager;
+
     /** @todo 1.9.0 fredt - clarify in which circumstances Session has to disconnect */
     Session getSession() {
         return this;
@@ -166,7 +169,8 @@ public class Session implements SessionInterface {
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
         resetSchema();
 
-        sessionData = new SessionData(database, this);
+        sessionData      = new SessionData(database, this);
+        statementManager = new StatementManager(database);
     }
 
     void resetSchema() {
@@ -201,7 +205,7 @@ public class Session implements SessionInterface {
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.clearAllTables();
         sessionData.closeResultCache();
-        database.compiledStatementManager.removeSession(sessionId);
+        statementManager.reset();
         database.sessionManager.removeSession(this);
         database.closeIfLast();
 
@@ -891,7 +895,7 @@ public class Session implements SessionInterface {
                 Statement cs;
 
                 try {
-                    cs = database.compiledStatementManager.compile(this, cmd);
+                    cs = statementManager.compile(this, cmd);
                 } catch (Throwable t) {
                     String errorString = cmd.getMainString();
 
@@ -930,8 +934,7 @@ public class Session implements SessionInterface {
                 return result;
             }
             case ResultConstants.FREESTMT : {
-                database.compiledStatementManager.freeStatement(
-                    cmd.getStatementID(), sessionId, false);
+                statementManager.freeStatement(cmd.getStatementID());
 
                 return Result.updateZeroResult;
             }
@@ -1218,7 +1221,7 @@ public class Session implements SessionInterface {
         int       count;
 
         csid = cmd.getStatementID();
-        cs   = database.compiledStatementManager.getStatement(this, csid);
+        cs   = statementManager.getStatement(this, csid);
 
         if (cs == null) {
 
@@ -1359,10 +1362,11 @@ public class Session implements SessionInterface {
 
         Statement cs = cmd.getStatement();
 
-        if (!cs.isValid()) {
+        if (cs.getCompileTimestamp()
+                < database.schemaManager.getSchemaChangeTimestamp()) {
             long csid = cmd.getStatementID();
 
-            cs = database.compiledStatementManager.getStatement(this, csid);
+            cs = statementManager.getStatement(this, csid);
 
             if (cs == null) {
 

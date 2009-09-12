@@ -171,4 +171,9 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         return indexList[0].firstRow(this);
     }
+
+    public void lock() {}
+
+    public void unlock(){}
+
 }

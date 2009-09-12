@@ -91,6 +91,10 @@ public class TransactionManagerMV2PL implements TransactionManager {
         catalogNameList = new HsqlName[]{ database.getCatalogName() };
     }
 
+    public long getGlobalChangeTimestamp() {
+        return globalChangeTimestamp.get();
+    }
+
     public boolean isMVRows() {
         return true;
     }

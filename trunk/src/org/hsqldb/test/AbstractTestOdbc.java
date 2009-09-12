@@ -213,15 +213,11 @@ public abstract class AbstractTestOdbc extends junit.framework.TestCase {
      * <CODE>TestOdbcService</CODE>
      */
     static public void staticRunner(Class c, String[] sa) {
-        if (sa.length > 0 && sa[0].startsWith("-g")) {
-            junit.swingui.TestRunner.run(c);
-        } else {
             junit.textui.TestRunner runner = new junit.textui.TestRunner();
             junit.framework.TestResult result =
                 runner.run(runner.getTest(c.getName()));
 
             System.exit(result.wasSuccessful() ? 0 : 1);
-        }
     }
 
     abstract protected void populate(Statement st) throws SQLException;
