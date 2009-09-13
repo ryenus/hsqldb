@@ -722,8 +722,7 @@ public class Log {
                 dbLogWriter = new ScriptWriterText(database, logFileName,
                                                    false, false, false);
             } else {
-                dbLogWriter = new ScriptWriterEncode(database,
-                                                     logFileName,
+                dbLogWriter = new ScriptWriterEncode(database, logFileName,
                                                      crypto);
             }
 

@@ -169,8 +169,9 @@ public class Logger {
 
         database.databaseProperties = new HsqlDatabaseProperties(database);
         isNewDatabase = !isFile
-                        || !fileaccess.isStreamElement(database.getPath()
-                            + ".script");
+                        || (!database.isFilesInJar()
+                            && !fileaccess.isStreamElement(database.getPath()
+                                + ".script"));
 
         if (isNewDatabase) {
             String name = newUniqueName();
@@ -522,7 +523,9 @@ public class Logger {
             fwLogger.severe(message, t);
         }
 
-        appLog.logContext(t, message);
+        if (appLog != null) {
+            appLog.logContext(t, message);
+        }
     }
 
     public void logWarningEvent(String message, Throwable t) {

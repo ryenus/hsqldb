@@ -390,10 +390,6 @@ public class Session implements SessionInterface {
         if (isProcessingScript || isProcessingLog) {
             return;
         }
-
-        if (database.isFilesReadOnly()) {
-            throw Error.error(ErrorCode.DATABASE_IS_READONLY);
-        }
     }
 
     public long getActionTimestamp() {
