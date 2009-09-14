@@ -54,6 +54,8 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
      */
     protected final int m_fromIndex;
 
+    protected static final String hsqldb_types_fqn = "org.hsqldb.types.Types";
+
     /**
      * to test.
      */
@@ -91,25 +93,25 @@ public class JDBCDatabaseMetaDataSupportsConvertTest
         {"struct", "java.sql.Types.STRUCT"},
         {"time", "java.sql.Types.TIME"},
         {"timestamp", "java.sql.Types.TIMESTAMP"},
-        {"time_with_time_zone", "org.hsqldb.Types.SQL_TIME_WITH_TIME_ZONE"},
-        {"timestamp_with_time_zone", "org.hsqldb.Types.SQL_TIMESTAMP_WITH_TIME_ZONE"},
+        {"time_with_time_zone", hsqldb_types_fqn + ".SQL_TIME_WITH_TIME_ZONE"},
+        {"timestamp_with_time_zone", hsqldb_types_fqn + ".SQL_TIMESTAMP_WITH_TIME_ZONE"},
         {"tinyint", "java.sql.Types.TINYINT"},
         {"varbinary", "java.sql.Types.VARBINARY"},
         {"varchar", "java.sql.Types.VARCHAR"},
-        {"varchar_ignorecase", "org.hsqldb.Types.VARCHAR_IGNORECASE"},
-        {"interval_year", "org.hsqldb.Types.SQL_INTERVAL_YEAR"},
-        {"interval_month", "org.hsqldb.Types.SQL_INTERVAL_MONTH"},
-        {"interval_day", "org.hsqldb.Types.SQL_INTERVAL_DAY"},
-        {"interval_hour", "org.hsqldb.Types.SQL_INTERVAL_HOUR"},
-        {"interval_minute", "org.hsqldb.Types.SQL_INTERVAL_MINUTE"},
-        {"interval_second", "org.hsqldb.Types.SQL_INTERVAL_SECOND"},
-        {"interval_year_to_month", "org.hsqldb.Types.SQL_INTERVAL_YEAR_TO_MONTH"},
-        {"interval_day_to_hour", "org.hsqldb.Types.SQL_INTERVAL_DAY_TO_HOUR"},
-        {"interval_day_to_minute", "org.hsqldb.Types.SQL_INTERVAL_DAY_TO_MINUTE"},
-        {"interval_day_to_second", "org.hsqldb.Types.SQL_INTERVAL_DAY_TO_SECOND"},
-        {"interval_hour_to_minute", "org.hsqldb.Types.SQL_INTERVAL_HOUR_TO_MINUTE"},
-        {"interval_hour_to_second", "org.hsqldb.Types.SQL_INTERVAL_HOUR_TO_SECOND"},
-        {"interval_minute_to_second", "org.hsqldb.Types.SQL_INTERVAL_MINUTE_TO_SECOND"}
+        {"varchar_ignorecase", hsqldb_types_fqn + ".VARCHAR_IGNORECASE"},
+        {"interval_year", hsqldb_types_fqn + ".SQL_INTERVAL_YEAR"},
+        {"interval_month", hsqldb_types_fqn + ".SQL_INTERVAL_MONTH"},
+        {"interval_day", hsqldb_types_fqn + ".SQL_INTERVAL_DAY"},
+        {"interval_hour",hsqldb_types_fqn + ".SQL_INTERVAL_HOUR"},
+        {"interval_minute", hsqldb_types_fqn + ".SQL_INTERVAL_MINUTE"},
+        {"interval_second",hsqldb_types_fqn + ".SQL_INTERVAL_SECOND"},
+        {"interval_year_to_month", hsqldb_types_fqn + ".SQL_INTERVAL_YEAR_TO_MONTH"},
+        {"interval_day_to_hour", hsqldb_types_fqn + ".SQL_INTERVAL_DAY_TO_HOUR"},
+        {"interval_day_to_minute", hsqldb_types_fqn + ".SQL_INTERVAL_DAY_TO_MINUTE"},
+        {"interval_day_to_second", hsqldb_types_fqn + ".SQL_INTERVAL_DAY_TO_SECOND"},
+        {"interval_hour_to_minute", hsqldb_types_fqn + ".SQL_INTERVAL_HOUR_TO_MINUTE"},
+        {"interval_hour_to_second", hsqldb_types_fqn + ".SQL_INTERVAL_HOUR_TO_SECOND"},
+        {"interval_minute_to_second", hsqldb_types_fqn + ".SQL_INTERVAL_MINUTE_TO_SECOND"}
     };
 
     /**
