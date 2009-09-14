@@ -71,7 +71,7 @@
 
     <simpara>A trigger can modify the values that are inserted into the
     database, instead of rejecting them. For example, a badly formatted string
-    can be cleaned up by a trigger before INSERT. </simpara>
+    can be cleaned up by a trigger before INSERT.</simpara>
 
     <simpara>Triggers can also perform additional data changes, for example
     inserting an additional row into a different table for data
@@ -136,16 +136,24 @@
       <title>Granularity</title>
 
       <para>A statement level trigger is performed once for the executed SQL
-      statement and is declared as FOR EACH STATEMENT. A row level trigger is
-      performed once for each row that is modified during the execution of an
-      SQL statement and is declared as FOR EACH ROW. Note that an SQL
-      statement can INSERT, UPDATE or DELETE zero or more rows. A trigger that
-      is FOR EACH STATEMENT will run once regardless of how many rows are
-      modified (or no row at all).</para>
+      statement and is declared as FOR EACH STATEMENT. </para>
 
-      <para>A trigger that is performed once for each row, is declared as FOR
-      EACH ROW. If a statement does not apply to any row, then the trigger is
-      not executed.</para>
+      <para>A row level trigger is performed once for each row that is
+      modified during the execution of an SQL statement and is declared as FOR
+      EACH ROW. Note that an SQL statement can INSERT, UPDATE or DELETE zero
+      or more rows.</para>
+
+      <para>If a statement does not apply to any row, then the trigger is not
+      executed.</para>
+
+      <para>If FOR EACH ROW or FOR EACH STATEMENT is not specified, then the
+      default is FOR EACH STATEMENT.</para>
+
+      <para>The granularity dictates whether the REFERENCING clause can
+      specify OLD ROW, NEW ROW, or OLD TABLE, NEW TABLE.</para>
+
+      <para>A trigger declared as FOR EACH STATEMENT can only be an AFTER
+      trigger.</para>
     </section>
 
     <section>
@@ -161,19 +169,22 @@
       <para>BEFORE or AFTER triggers are executed just before or just after
       the execution of the event. For example, just before a row is inserted
       into a table, the BEFORE trigger is activated, and just after the row is
-      inserted, the AFTER trigger is executed. </para>
+      inserted, the AFTER trigger is executed.</para>
 
       <para>BEFORE triggers can modify the row that is being inserted or
-      updated. AFTER triggers are usually used to perform additional
-      operations, such as inserting rows into other tables.</para>
+      updated. AFTER triggers cannot modify rows. They are usually used to
+      perform additional operations, such as inserting rows into other
+      tables.</para>
+
+      <para>A trigger declared as FOR EACH STATEMENT can only be an AFTER
+      trigger.</para>
     </section>
 
     <section>
       <title>Trigger Action in SQL</title>
 
       <para>The trigger action specifies what the trigger does when it is
-      activated. This is usually written as one or more SQL statements.
-      </para>
+      activated. This is usually written as one or more SQL statements.</para>
 
       <para>When a row level trigger is activated, there is an OLD ROW, or a
       NEW ROW, or both. An INSERT statement supplies a NEW ROW row to be
@@ -196,9 +207,16 @@
       argument). The row1 argument is null for row level INSERT triggers. The
       row2 argument argument is null for row level DELETE triggers. For table
       level triggers, both arguments are null (that is, there is no access to
-      the data).</para>
+      the data). The triggerType argument is one of the constants in the
+      org.hsqldb.Trigger interface which indicate the type of trigger, for
+      example, INSERT_BEFORE_ROW or UPDATE_AFTER_ROW.</para>
 
-      <programlisting>    fire (String name, String table, Object row1[], Object row2[])
+      <para>The Java class for the trigger can be reused for several triggers
+      on different tables. The method code can distinguish between the
+      different tables and triggers using the supplied arguments and take
+      appropriate action.</para>
+
+      <programlisting>    fire (int triggerType, String name, String table, Object row1[], Object row2[])
 </programlisting>
 
       <para>The Java method for a synchronous trigger (see below) can modify
