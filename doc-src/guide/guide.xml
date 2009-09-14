@@ -109,6 +109,8 @@
 
   <xi:include href="sqlroutines.xml" />
 
+  <xi:include href="triggers.xml" />
+
   <xi:include href="builtinfunctions.xml" />
 
   <xi:include href="deployment.xml" />

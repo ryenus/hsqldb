@@ -498,63 +498,13 @@
       <simpara>A TRIGGER is a child schema object that always belongs to a
       TABLE or a VIEW.</simpara>
 
-      <simpara>Trigger functionality first appeared in SQL:1999. Triggers
-      embody the <emphasis>live database</emphasis> concept, where changes in
-      SQL data can be monitored and acted upon. SQL Standard triggers are
-      <glossterm>imperative</glossterm> while the
-      <glossterm>relational</glossterm> aspects of SQL are
-      <glossterm>declarative</glossterm>. Triggers allow performing an
-      arbitrary transformation of data that is being updated or inserted, or
-      to prevent deletes, or to perform additional operations.</simpara>
+      <simpara>Each time a DELETE, UPDATE or INSERT is performed on the table
+      or view, additional actions are taken by the triggers that have been
+      declared on the table or view.</simpara>
 
-      <simpara>Some bad examples of SQL triggers in effect enforce an
-      “integrity constraint” which would better be expressed as a CHECK
-      constraint. A trigger that causes an exception if the value inserted in
-      a column is negative is such an example. A check constraint that
-      declares <literal>CHECK VALUE &gt;= 0</literal> (declarative) is a
-      better way of expressing an integrity constraint than a trigger that
-      throws an exception if the same condition is false.</simpara>
-
-      <simpara>Some constraints cannot be expressed by SQL’s constraint
-      statements. Triggers can overcome some of the limitations. For example,
-      it is possible to write a check constraint that prevents data from being
-      added to a table on weekends. But it is not possible to write a check
-      constraint that prevents existing data from being modified or deleted on
-      weekends. A trigger can enforce this second kind of
-      constraint.</simpara>
-
-      <simpara>Triggers can have different roles beyond constraints. For
-      example, a trigger can modify the values that are inserted into the
-      database, instead of rejecting them. Triggers can also perform
-      additional data changes, for example inserting an additional row into a
-      different table.</simpara>
-
-      <simpara>A trigger is declared to activate when an UPDATE, INSERT or
-      DELETE action is performed on a table. These actions may be direct or
-      indirect. Indirect actions may arise from CASCADE actions of FOREIGN KEY
-      constraints, or from data change statements performed on a VIEW that is
-      based on the table that in.</simpara>
-
-      <simpara>It is possible to declare multiple triggers on a single table.
-      The triggers activate one by one according to the order in which they
-      were defined.</simpara>
-
-      <simpara>A row level trigger allows access to the deleted or inserted
-      rows. For UPDATE actions there is both an old and new version of each
-      row. A trigger can be specified to activate before or after the action
-      has been performed. Triggers that are performed after the action cannot
-      modify the rows that have been modified. These triggers can perform
-      other actions, such as inserting rows into other tables. Triggers that
-      are performed before the action can modify the inserted or updated rows
-      but not the deleted rows.</simpara>
-
-      <simpara>A TRIGGER that is declared on a VIEW, is an INSTEAD OF trigger.
-      This term means when an INSERT, UPDATE or DELETE statement is executed,
-      the trigger action is all that is performed, and no further data change
-      takes place on the VIEW. The trigger action can include all the
-      statements that are necessary to change the data in the tables that
-      underlie the VIEW. With the use of INSTEAD OF triggers a read-only view
-      can effectively become updatable or insertable-into.</simpara>
+      <simpara>Triggers are discussed in detail in chapter <link
+      endterm="triggers-title" os="" xlink:href="#triggers-chapt"></link>
+      .</simpara>
     </section>
 
     <section>
@@ -579,7 +529,7 @@
       <glossterm>specific name</glossterm>. This allows the user to drop one
       of the signatures while keeping the other.</simpara>
 
-      <simpara>Routines are discussed in detail in a separate chapter <link
+      <simpara>Routines are discussed in detail in chapter <link
       endterm="sqlroutines-title" os=""
       xlink:href="#sqlroutines-chapt"></link> .</simpara>
     </section>
@@ -1257,8 +1207,8 @@ INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
       [DESC]</literal></simpara>
 
       <simpara><literal>&lt;file and options&gt;::= &lt;doublequote&gt;
-      &lt;file path&gt; [&lt;semicolon&gt; &lt;&gt;...] &lt;doublequote&gt;
-      </literal></simpara>
+      &lt;file path&gt; [&lt;semicolon&gt; &lt;property&gt;...]
+      &lt;doublequote&gt; </literal></simpara>
 
       <simpara>Set the text source for a text table. This statement cannot be
       used for tables that are not defined as TEXT TABLE.</simpara>
@@ -1333,14 +1283,6 @@ INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
 
           <listitem>
             <para>varchar separator</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>lvs = &lt;unquoted character&gt;</term>
-
-          <listitem>
-            <para>long varchar separator</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -1919,8 +1861,8 @@ INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
 
       <simpara><literal>&lt;triggered SQL statement&gt; ::= &lt;SQL procedure
       statement&gt; | BEGIN ATOMIC { &lt;SQL procedure statement&gt;
-      &lt;semicolon&gt; }... END | CALL &lt;HSQLDB trigger class
-      FQN&gt;</literal></simpara>
+      &lt;semicolon&gt; }... END | [QUEUE &lt;integer literal&gt;] [NOWAIT]
+      CALL &lt;HSQLDB trigger class FQN&gt;</literal></simpara>
 
       <simpara><literal>&lt;transition table or variable list&gt; ::=
       &lt;transition table or variable&gt;...</literal></simpara>
