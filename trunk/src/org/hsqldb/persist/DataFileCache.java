@@ -1030,15 +1030,14 @@ public class DataFileCache {
 
                         File discardFile = new File(discardName);
 
-                        FileUtil.getDefaultInstance().deleteOnExit(
-                            discardFile);
+                        FileUtil.getFileUtil().deleteOnExit(discardFile);
                     }
 
                     fa.renameElement(dataFileName, oldName);
 
                     File oldfile = new File(oldName);
 
-                    FileUtil.getDefaultInstance().deleteOnExit(oldfile);
+                    FileUtil.getFileUtil().deleteOnExit(oldfile);
                 }
             }
         } finally {

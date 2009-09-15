@@ -506,9 +506,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (caches.hasNext()) {
             cache = (DataFileCache) caches.next();
             row   = t.getEmptyRowData();
-            row[icache_file] =
-                FileUtil.getDefaultInstance().canonicalOrAbsolutePath(
-                    cache.getFileName());
+            row[icache_file] = FileUtil.getFileUtil().canonicalOrAbsolutePath(
+                cache.getFileName());
             row[imax_cache_sz]    = ValuePool.getInt(cache.capacity());
             row[imax_cache_bytes] = ValuePool.getLong(cache.bytesCapacity());
             row[icache_size] = ValuePool.getInt(cache.getCachedObjectCount());
@@ -1363,7 +1362,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             if (cache != null) {
                 row[ifile_path] =
-                    FileUtil.getDefaultInstance().canonicalOrAbsolutePath(
+                    FileUtil.getFileUtil().canonicalOrAbsolutePath(
                         cache.getFileName());
                 row[ifile_enc] = cache.stringEncoding;
                 row[ifs]       = cache.fs;

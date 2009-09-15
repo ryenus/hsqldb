@@ -240,7 +240,7 @@ public class StatementDML extends StatementDMQL {
                     continue;
                 default :
                     throw Error.runtimeError(ErrorCode.U_S0500,
-                                              "StatementDML");
+                                             "StatementDML");
             }
 
             for (int j = 0; j < td.statements.length; j++) {
@@ -308,6 +308,8 @@ public class StatementDML extends StatementDMQL {
 
 //* debug 190 */
         count = update(session, baseTable, rowset);
+
+        baseTable.fireTriggers(session, Trigger.UPDATE_AFTER, rowset);
 
         return Result.getUpdateCountResult(count);
     }
@@ -471,26 +473,32 @@ public class StatementDML extends StatementDMQL {
         // update any matched rows
         if (updateRowSet.size() > 0) {
             count = update(session, baseTable, updateRowSet);
+
+            baseTable.fireTriggers(session, Trigger.UPDATE_AFTER,
+                                   updateRowSet);
         }
 
         // insert any non-matched rows
-        newData.beforeFirst();
+        if (newData.getSize() > 0) {
+            newData.beforeFirst();
 
-        while (newData.hasNext()) {
-            Object[] data = (Object[]) newData.getNext();
+            while (newData.hasNext()) {
+                Object[] data = (Object[]) newData.getNext();
 
-            baseTable.insertRow(session, store, data);
+                baseTable.insertRow(session, store, data);
 
-            if (generatedNavigator != null) {
-                Object[] generatedValues = getGeneratedColumns(data);
+                if (generatedNavigator != null) {
+                    Object[] generatedValues = getGeneratedColumns(data);
 
-                generatedNavigator.add(generatedValues);
+                    generatedNavigator.add(generatedValues);
+                }
             }
+
+            newData.beforeFirst();
+            baseTable.fireTriggers(session, Trigger.INSERT_AFTER, newData);
+
+            count += newData.getSize();
         }
-
-        baseTable.fireAfterTriggers(session, Trigger.INSERT_AFTER, newData);
-
-        count += newData.getSize();
 
         if (resultOut == null) {
             return Result.getUpdateCountResult(count);
@@ -543,12 +551,8 @@ public class StatementDML extends StatementDMQL {
              * creation of a new identity value
              */
             table.setIdentityColumn(session, data);
-
-            if (table.triggerLists[Trigger.UPDATE_BEFORE].length != 0) {
-                table.fireBeforeTriggers(session, Trigger.UPDATE_BEFORE,
-                                         row.getData(), data, updateColumnMap);
-            }
-
+            table.fireTriggers(session, Trigger.UPDATE_BEFORE_ROW,
+                               row.getData(), data, updateColumnMap);
             table.setGeneratedColumns(session, data);
             table.enforceRowConstraints(session, data);
         }
@@ -595,6 +599,9 @@ public class StatementDML extends StatementDMQL {
         }
 
         table.updateRowSet(session, updateList, updateColumnMap, false);
+
+        baseTable.fireTriggers(session, Trigger.UPDATE_AFTER_ROW, updateList);
+
         path.clear();
 
         return updateList.size();
@@ -640,11 +647,7 @@ public class StatementDML extends StatementDMQL {
         if (table.fkMainConstraints.length == 0) {
             deleteRows(session, table, oldRows);
             oldRows.beforeFirst();
-
-            if (table.hasTrigger(Trigger.DELETE_AFTER)) {
-                table.fireAfterTriggers(session, Trigger.DELETE_AFTER,
-                                        oldRows);
-            }
+            table.fireTriggers(session, Trigger.DELETE_AFTER, oldRows);
 
             return oldRows.getSize();
         }
@@ -705,11 +708,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         oldRows.beforeFirst();
-
-        if (table.hasTrigger(Trigger.DELETE_AFTER)) {
-            table.fireAfterTriggers(session, Trigger.DELETE_AFTER, oldRows);
-        }
-
+        table.fireTriggers(session, Trigger.DELETE_AFTER, oldRows);
         path.clear();
 
         return oldRows.getSize();
@@ -789,7 +788,7 @@ public class StatementDML extends StatementDMQL {
                     };
 
                     throw Error.error(null, errorCode, ErrorCode.CONSTRAINT,
-                                       info);
+                                      info);
                 }
 
                 Table reftable = c.getRef();
@@ -1060,7 +1059,7 @@ public class StatementDML extends StatementDMQL {
                     };
 
                     throw Error.error(null, errorCode, ErrorCode.CONSTRAINT,
-                                       info);
+                                      info);
                 }
             } else {
 

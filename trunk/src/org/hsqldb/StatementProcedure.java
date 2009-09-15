@@ -172,9 +172,12 @@ public class StatementProcedure extends StatementDMQL {
 
     Result getExpressionResult(Session session) {
 
-        Expression e = expression;             // representing CALL
-        Object     o = e.getValue(session);    // expression return value
-        Result     r;
+        Object o;    // expression return value
+        Result r;
+
+        session.sessionData.startRowProcessing();
+
+        o = expression.getValue(session);
 
         if (o instanceof Result) {
             return (Result) o;

@@ -960,7 +960,7 @@ public class TestCacheSize {
 
     static void deleteDatabase(String path) {
 
-        FileUtil fileUtil = FileUtil.getDefaultInstance();
+        FileUtil fileUtil = FileUtil.getFileUtil();
 
         fileUtil.delete(path + ".backup");
         fileUtil.delete(path + ".properties");

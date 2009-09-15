@@ -222,8 +222,7 @@ public class TextTable extends org.hsqldb.Table {
 
         dataSourceNew = dataSourceNew.trim();
 
-        if (createFile
-                && FileUtil.getDefaultInstance().exists(dataSourceNew)) {
+        if (createFile && FileUtil.getFileUtil().exists(dataSourceNew)) {
             throw Error.error(ErrorCode.TEXT_SOURCE_EXISTS, dataSourceNew);
         }
 

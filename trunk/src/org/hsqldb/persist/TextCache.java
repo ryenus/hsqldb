@@ -111,7 +111,7 @@ public class TextCache extends DataFileCache {
 
         this.dataFileName = dataFileName;
         this.database     = database;
-        fa                = FileUtil.getDefaultInstance();
+        fa                = FileUtil.getFileUtil();
 
         HsqlProperties tableprops =
             HsqlProperties.delimitedArgPairsToProps(baseFileName, "=", ";",
@@ -360,7 +360,7 @@ public class TextCache extends DataFileCache {
             dataFile = null;
 
             if (empty && !cacheReadonly) {
-                FileUtil.getDefaultInstance().delete(dataFileName);
+                FileUtil.getFileUtil().delete(dataFileName);
             }
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
@@ -388,7 +388,7 @@ public class TextCache extends DataFileCache {
                     dataFile = null;
                 }
 
-                FileUtil.getDefaultInstance().delete(dataFileName);
+                FileUtil.getFileUtil().delete(dataFileName);
             }
         } catch (Throwable t) {
             throw Error.error(null, ErrorCode.FILE_IO_ERROR,

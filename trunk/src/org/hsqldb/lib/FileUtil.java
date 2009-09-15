@@ -41,7 +41,7 @@ import java.util.Random;
 import org.hsqldb.lib.java.JavaSystem;
 
 /**
- * A collection of static file management methods.<p>
+ * A collection of file management methods.<p>
  * Also provides the default FileAccess implementation
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
@@ -52,13 +52,19 @@ import org.hsqldb.lib.java.JavaSystem;
  */
 public class FileUtil implements FileAccess {
 
-    private static FileUtil fileUtil = new FileUtil();
+    private static FileUtil      fileUtil      = new FileUtil();
+    private static FileAccessRes fileAccessRes = new FileAccessRes();
 
     /** Creates a new instance of FileUtil */
     FileUtil() {}
 
-    public static FileUtil getDefaultInstance() {
+    public static FileUtil getFileUtil() {
         return fileUtil;
+    }
+
+    public static FileAccess getFileAccess(boolean isResource) {
+        return isResource ? fileAccessRes
+                          : fileUtil;
     }
 
     public boolean isStreamElement(java.lang.String elementName) {
@@ -156,7 +162,7 @@ public class FileUtil implements FileAccess {
         }
 
         return resource ? null != cla.getResource(fileName)
-                        : FileUtil.getDefaultInstance().exists(fileName);
+                        : FileUtil.getFileUtil().exists(fileName);
     }
 
     /**
@@ -284,6 +290,11 @@ public class FileUtil implements FileAccess {
         }
     }
 
+    public FileAccess.FileSync getFileSync(java.io.OutputStream os)
+    throws java.io.IOException {
+        return new FileSync((FileOutputStream) os);
+    }
+
     public static class FileSync implements FileAccess.FileSync {
 
         FileDescriptor outDescriptor;
@@ -297,15 +308,37 @@ public class FileUtil implements FileAccess {
         }
     }
 
-    public FileAccess.FileSync getFileSync(java.io.OutputStream os)
-    throws java.io.IOException {
-        return new FileSync((FileOutputStream) os);
-    }
+    public static class FileAccessRes implements FileAccess {
 
-    public static String getParentDirectory(String path) {
+        public boolean isStreamElement(java.lang.String elementName) {
+            return getClass().getResource(elementName) != null;
+        }
 
-        File file = new File(path);
+        public java.io.InputStream openInputStreamElement(
+                java.lang.String streamName) throws java.io.IOException {
 
-        return file.getParent();
+            try {
+                return getClass().getResourceAsStream(streamName);
+            } catch (Throwable e) {
+                throw JavaSystem.toIOException(e);
+            }
+        }
+
+        public void createParentDirs(java.lang.String filename) {}
+
+        public void removeElement(java.lang.String filename) {}
+
+        public void renameElement(java.lang.String oldName,
+                                  java.lang.String newName) {}
+
+        public java.io.OutputStream openOutputStreamElement(
+                java.lang.String streamName) throws java.io.IOException {
+            throw new IOException();
+        }
+
+        public FileAccess.FileSync getFileSync(java.io.OutputStream os)
+        throws java.io.IOException {
+            throw new IOException();
+        }
     }
 }

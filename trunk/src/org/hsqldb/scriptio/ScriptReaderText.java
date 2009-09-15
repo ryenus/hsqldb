@@ -75,14 +75,11 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         super(db);
 
-        InputStream d = database.isFilesInJar()
-                        ? getClass().getResourceAsStream(fileName)
-                        : database.logger.getFileAccess()
-                            .openInputStreamElement(fileName);
+        InputStream d =
+            database.logger.getFileAccess().openInputStreamElement(fileName);
 
         dataStreamIn = new BufferedReader(
             new InputStreamReader(new BufferedInputStream(d)));
-
         rowIn = new RowInputTextLog();
     }
 

@@ -770,8 +770,7 @@ public class Log {
         ScriptReaderBase scr = null;
 
         try {
-            if (database.isFilesInJar()
-                    || fa.isStreamElement(scriptFileName)) {
+            if (fa.isStreamElement(scriptFileName)) {
                 Crypto crypto = database.logger.getCrypto();
 
                 if (crypto == null) {
@@ -817,7 +816,7 @@ public class Log {
      */
     private void processLog() {
 
-        if (!database.isFilesInJar() && fa.isStreamElement(logFileName)) {
+        if (fa.isStreamElement(logFileName)) {
             ScriptRunner.runScript(database, logFileName);
         }
     }

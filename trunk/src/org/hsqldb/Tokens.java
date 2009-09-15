@@ -2036,6 +2036,7 @@ public class Tokens {
         commandSet.put(T_SQL_TSI_SECOND, SQL_TSI_SECOND);
         commandSet.put(T_SQL_TSI_WEEK, SQL_TSI_WEEK);
         commandSet.put(T_SQL_TSI_YEAR, SQL_TSI_YEAR);
+        commandSet.put(T_STATEMENT, STATEMENT);
         commandSet.put(T_STYLE, STYLE);
         commandSet.put(T_T_FACTOR, T);
         commandSet.put(T_TEMP, TEMP);

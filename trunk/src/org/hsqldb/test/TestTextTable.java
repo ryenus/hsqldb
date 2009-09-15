@@ -110,7 +110,7 @@ public class TestTextTable extends TestBase {
                 String completeFileName = m_name + ".csv";
 
                 textFile = new PrintStream(
-                    FileUtil.getDefaultInstance().openOutputStreamElement(
+                    FileUtil.getFileUtil().openOutputStreamElement(
                         completeFileName));
 
                 new java.io.File(completeFileName).deleteOnExit();
@@ -487,8 +487,7 @@ public class TestTextTable extends TestBase {
             // create a malformed file
             String fileName = "malformed.csv";
             PrintStream textFile = new PrintStream(
-                FileUtil.getDefaultInstance().openOutputStreamElement(
-                    fileName));
+                FileUtil.getFileUtil().openOutputStreamElement(fileName));
 
             textFile.println("not a number;some text");
             textFile.close();
@@ -501,7 +500,7 @@ public class TestTextTable extends TestBase {
                 m_statement.execute(sqlSetTable + " SOURCE \""
                                     + newDataSourceSpec + "\"");
                 fail("a malformed data source was accepted silently.");
-            } catch (java.sql.SQLException es) { /* that's expected here */
+            } catch (java.sql.SQLException es) {    /* that's expected here */
             }
 
 /*
@@ -515,6 +514,7 @@ public class TestTextTable extends TestBase {
                 "A data source which cannot be set should nonetheless be remembered.",
                 newDataSourceSpec, getDataSourceSpec(m_products.getName()));
 */
+
             // the data source spec should even survive a shutdown
             executeStatement("SHUTDOWN");
 
@@ -528,10 +528,10 @@ public class TestTextTable extends TestBase {
                 "After shutdown and DB-reconnect, the table with a malformed source should be read-only, again.",
                 isReadOnly(m_products.getName()));
 */
+
             // reconnect after fixing the file
             textFile = new PrintStream(
-                FileUtil.getDefaultInstance().openOutputStreamElement(
-                    fileName));
+                FileUtil.getFileUtil().openOutputStreamElement(fileName));
 
             textFile.println("1;some text");
             textFile.close();

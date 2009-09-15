@@ -473,7 +473,7 @@ public class DatabaseManager {
     private static String filePathToKey(String path) {
 
         try {
-            return FileUtil.getDefaultInstance().canonicalPath(path);
+            return FileUtil.getFileUtil().canonicalPath(path);
         } catch (Exception e) {
             return path;
         }

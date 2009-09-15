@@ -687,8 +687,8 @@ public class ParserDDL extends ParserRoutine {
 
                         read();
 
-                        SchemaObject object = readSchemaObjectName(
-                            t.getName(), SchemaObject.CONSTRAINT);
+                        SchemaObject object = readSchemaObjectName(t.getName(),
+                            SchemaObject.CONSTRAINT);
 
                         if (token.tokenType == Tokens.RESTRICT) {
                             read();
@@ -1918,7 +1918,7 @@ public class ParserDDL extends ParserRoutine {
         boolean        isForEachRow = false;
         boolean        isNowait     = false;
         boolean        hasQueueSize = false;
-        int            queueSize    = TriggerDef.defaultQueueSize;
+        int            queueSize    = 0;
         String         beforeOrAfter;
         int            beforeOrAfterType;
         String         operation;
@@ -2194,7 +2194,6 @@ public class ParserDDL extends ParserRoutine {
             throw unexpectedToken();
         }
 
-        // "FOR EACH ROW" or "CALL"
         if (token.tokenType == Tokens.FOR) {
             read();
             readThis(Tokens.EACH);
@@ -2202,7 +2201,7 @@ public class ParserDDL extends ParserRoutine {
             if (token.tokenType == Tokens.ROW) {
                 isForEachRow = true;
             } else if (token.tokenType == Tokens.STATEMENT) {
-                if (isForEachRow) {
+                if (isForEachRow || beforeOrAfterType == Tokens.BEFORE) {
                     throw unexpectedToken();
                 }
             } else {
@@ -2218,15 +2217,17 @@ public class ParserDDL extends ParserRoutine {
         if (rangeVars[TriggerDef.NEW_TABLE] != null) {}
 
         //
-        if (Tokens.T_NOWAIT.equals(token.tokenString)) {
-            read();
-
-            isNowait = true;
-        } else if (Tokens.T_QUEUE.equals(token.tokenString)) {
+        if (Tokens.T_QUEUE.equals(token.tokenString)) {
             read();
 
             queueSize    = readInteger();
             hasQueueSize = true;
+        }
+
+        if (Tokens.T_NOWAIT.equals(token.tokenString)) {
+            read();
+
+            isNowait = true;
         }
 
         if (token.tokenType == Tokens.WHEN
@@ -2278,12 +2279,12 @@ public class ParserDDL extends ParserRoutine {
         }
 
         //
-        if (isNowait) {
-            throw unexpectedToken(Tokens.T_NOWAIT);
-        }
-
         if (hasQueueSize) {
             throw unexpectedToken(Tokens.T_QUEUE);
+        }
+
+        if (isNowait) {
+            throw unexpectedToken(Tokens.T_NOWAIT);
         }
 
         // procedure

@@ -1029,17 +1029,17 @@ public class LockFile {
 
         // Should at least be absolutized for reporting purposes, just in case
         // a security or canonicalization exception gets thrown.
-        path = FileUtil.getDefaultInstance().canonicalOrAbsolutePath(path);
+        path      = FileUtil.getFileUtil().canonicalOrAbsolutePath(path);
         this.file = new File(path);
 
         try {
-            FileUtil.getDefaultInstance().makeParentDirectories(this.file);
+            FileUtil.getFileUtil().makeParentDirectories(this.file);
         } catch (SecurityException ex) {
             throw new FileSecurityException(this, "setPath", ex);
         }
 
         try {
-            this.file = FileUtil.getDefaultInstance().canonicalFile(path);
+            this.file = FileUtil.getFileUtil().canonicalFile(path);
         } catch (SecurityException ex) {
             throw new FileSecurityException(this, "setPath", ex);
         } catch (IOException ex) {
@@ -1758,7 +1758,7 @@ public class LockFile {
             // store...
             writeMagic();
             writeHeartbeat();
-            FileUtil.getDefaultInstance().deleteOnExit(file);
+            FileUtil.getFileUtil().deleteOnExit(file);
 
             this.locked = true;
 
