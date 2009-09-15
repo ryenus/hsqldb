@@ -32,7 +32,6 @@
 package org.hsqldb.persist;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
@@ -43,9 +42,9 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
+import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.lib.HashMap;
 
 /**
  * Wrapper for java.util.Properties to limit values to Specific types and
@@ -76,7 +75,7 @@ public class HsqlProperties {
 
         stringProps   = new Properties();
         this.fileName = fileName;
-        fa            = FileUtil.getDefaultInstance();
+        fa            = FileUtil.getFileUtil();
     }
 
     public HsqlProperties(HashMap meta, String fileName, FileAccess accessor,
@@ -84,7 +83,6 @@ public class HsqlProperties {
 
         stringProps   = new Properties();
         this.fileName = fileName;
-        resource      = b;
         fa            = accessor;
         metaData      = meta;
     }
@@ -208,8 +206,7 @@ public class HsqlProperties {
 
 // oj@openoffice.org
         try {
-            fis = resource ? getClass().getResourceAsStream(propsFilename)
-                           : fa.openInputStreamElement(propsFilename);
+            fis = fa.openInputStreamElement(propsFilename);
 
             stringProps.load(fis);
         } finally {

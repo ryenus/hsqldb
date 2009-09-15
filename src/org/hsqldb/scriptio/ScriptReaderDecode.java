@@ -62,10 +62,8 @@ public class ScriptReaderDecode extends ScriptReaderText {
 
         super(db);
 
-        InputStream d = database.isFilesInJar()
-                        ? getClass().getResourceAsStream(fileName)
-                        : database.logger.getFileAccess()
-                            .openInputStreamElement(fileName);
+        InputStream d =
+            database.logger.getFileAccess().openInputStreamElement(fileName);
         InputStream stream = crypto.getInputStream(d);
 
         stream       = new GZIPInputStream(stream);
@@ -84,7 +82,7 @@ public class ScriptReaderDecode extends ScriptReaderText {
             database.logger.getFileAccess().openInputStreamElement(fileName);
 
         dataInput = new DataInputStream(new BufferedInputStream(d));
-        rowIn        = new RowInputTextLog();
+        rowIn     = new RowInputTextLog();
     }
 
     public boolean readLoggedStatement(Session session) throws IOException {

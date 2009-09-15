@@ -108,7 +108,7 @@ public class Logger {
 
     //
     private Crypto    crypto;
-    public FileAccess fileaccess;
+    public FileAccess fileAccess;
     public boolean    isStoredFileAccess;
     String            tempDirectoryPath;
 
@@ -116,39 +116,7 @@ public class Logger {
     public boolean isNewDatabase;
 
     public Logger(Database database) {
-
         this.database = database;
-
-        // oj@openoffice.org - changed to file access api
-        String fileaccess_class_name =
-            (String) database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_fileaccess_class_name);
-
-        if (fileaccess_class_name != null) {
-            String storagekey = database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_storage_key);
-
-            try {
-                Class zclass = Class.forName(fileaccess_class_name);
-                Constructor constructor = zclass.getConstructor(new Class[]{
-                    Object.class });
-
-                fileaccess =
-                    (FileAccess) constructor.newInstance(new Object[]{
-                        storagekey });
-                isStoredFileAccess = true;
-            } catch (java.lang.ClassNotFoundException e) {
-                System.out.println("ClassNotFoundException");
-            } catch (java.lang.InstantiationException e) {
-                System.out.println("InstantiationException");
-            } catch (java.lang.IllegalAccessException e) {
-                System.out.println("IllegalAccessException");
-            } catch (Exception e) {
-                System.out.println("Exception");
-            }
-        } else {
-            fileaccess = FileUtil.getDefaultInstance();
-        }
     }
 
     /**
@@ -164,22 +132,55 @@ public class Logger {
      */
     public void openPersistence() {
 
+        // oj@openoffice.org - changed to file access api
+        String fileaccess_class_name =
+            (String) database.getURLProperties().getProperty(
+                HsqlDatabaseProperties.url_fileaccess_class_name);
+
+        if (fileaccess_class_name != null) {
+            String storagekey = database.getURLProperties().getProperty(
+                HsqlDatabaseProperties.url_storage_key);
+
+            try {
+                Class zclass = Class.forName(fileaccess_class_name);
+                Constructor constructor = zclass.getConstructor(new Class[]{
+                    Object.class });
+
+                fileAccess =
+                    (FileAccess) constructor.newInstance(new Object[]{
+                        storagekey });
+                isStoredFileAccess = true;
+            } catch (java.lang.ClassNotFoundException e) {
+                System.out.println("ClassNotFoundException");
+            } catch (java.lang.InstantiationException e) {
+                System.out.println("InstantiationException");
+            } catch (java.lang.IllegalAccessException e) {
+                System.out.println("IllegalAccessException");
+            } catch (Exception e) {
+                System.out.println("Exception");
+            }
+        } else {
+            fileAccess = FileUtil.getFileAccess(database.isFilesInJar());
+        }
+
         boolean isFile =
             DatabaseURL.isFileBasedDatabaseType(database.getType());
 
         database.databaseProperties = new HsqlDatabaseProperties(database);
         isNewDatabase = !isFile
-                        || (!database.isFilesInJar()
-                            && !fileaccess.isStreamElement(database.getPath()
-                                + ".script"));
+                        || !fileAccess.isStreamElement(database.getPath()
+                            + ".script");
 
         if (isNewDatabase) {
             String name = newUniqueName();
 
             database.setUniqueName(name);
 
-            if (database.urlProperties.isPropertyTrue(
-                    HsqlDatabaseProperties.url_ifexists)) {
+            boolean checkExists = database.isFilesInJar()
+                                  || database.urlProperties.isPropertyTrue(
+                                      HsqlDatabaseProperties.url_ifexists);
+
+            if (checkExists) {
                 throw Error.error(ErrorCode.DATABASE_NOT_EXISTS,
                                   database.getPath());
             }
@@ -873,7 +874,7 @@ public class Logger {
     }
 
     public FileAccess getFileAccess() {
-        return fileaccess;
+        return fileAccess;
     }
 
     public boolean isStoredFileAccess() {
@@ -882,17 +883,6 @@ public class Logger {
 
     public String getTempDirectoryPath() {
         return tempDirectoryPath;
-    }
-
-    public boolean isExistingDatabase() {
-
-        if (!DatabaseURL.isFileBasedDatabaseType(database.getType())) {
-            return false;
-        }
-
-        HsqlDatabaseProperties props = new HsqlDatabaseProperties(database);
-
-        return props.propertiesFileExists();
     }
 
     public PersistentStore newStore(Session session,

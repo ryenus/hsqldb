@@ -89,7 +89,7 @@ public class SimpleLog {
     private void setupLog(File file) {
 
         try {
-            FileUtil.getDefaultInstance().makeParentDirectories(file);
+            FileUtil.getFileUtil().makeParentDirectories(file);
 
             writer = new PrintWriter(new FileWriter(file.getPath(), true),
                                      true);

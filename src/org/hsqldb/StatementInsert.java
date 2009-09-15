@@ -93,7 +93,7 @@ public class StatementInsert extends StatementDML {
     }
 
     /**
-     * Executes an INSERT_SELECT statement.  It is assumed that the argument
+     * Executes an INSERT_SELECT or INSERT_VALUESstatement.  It is assumed that the argument
      * is of the correct type.
      *
      * @return the result of executing the statement
@@ -152,8 +152,7 @@ public class StatementInsert extends StatementDML {
         }
 
         newDataNavigator.beforeFirst();
-        table.fireAfterTriggers(session, Trigger.INSERT_AFTER,
-                                newDataNavigator);
+        table.fireTriggers(session, Trigger.INSERT_AFTER, newDataNavigator);
 
         if (resultOut == null) {
             resultOut =

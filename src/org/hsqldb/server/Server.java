@@ -864,7 +864,7 @@ public class Server implements HsqlSocketRequestHandler {
             throw new RuntimeException();
         }
 
-        path = FileUtil.getDefaultInstance().canonicalOrAbsolutePath(path);
+        path = FileUtil.getFileUtil().canonicalOrAbsolutePath(path);
 
         HsqlProperties p = ServerConfiguration.getPropertiesFromFile(
             ServerConstants.SC_PROTOCOL_HSQL, path);
@@ -2331,7 +2331,7 @@ public class Server implements HsqlSocketRequestHandler {
     public static void main(String[] args) {
 
         String propsPath =
-            FileUtil.getDefaultInstance().canonicalOrAbsolutePath("server");
+            FileUtil.getFileUtil().canonicalOrAbsolutePath("server");
         ServerProperties fileProps = ServerConfiguration.getPropertiesFromFile(
             ServerConstants.SC_PROTOCOL_HSQL, propsPath);
         ServerProperties props =

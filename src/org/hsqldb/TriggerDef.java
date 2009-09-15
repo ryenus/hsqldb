@@ -69,9 +69,8 @@ public class TriggerDef implements Runnable, SchemaObject {
     static final int NEW_TABLE = 3;
 
     //
-    static final int NUM_TRIGGER_OPS  = 3;                      // {ins,del,upd}
-    static final int NUM_TRIGS        = NUM_TRIGGER_OPS * 2;    // {b, a},{fer, fes}
-    static final int defaultQueueSize = 1024;
+    static final int NUM_TRIGGER_OPS = 3;                          // {ins,del,upd}
+    static final int NUM_TRIGS       = NUM_TRIGGER_OPS * 3;    // {b}{fer}, {a},{fer, fes}
 
     //
     static final TriggerDef[] emptyArray = new TriggerDef[]{};
@@ -91,19 +90,18 @@ public class TriggerDef implements Runnable, SchemaObject {
     String   eventTimingString;
     int      operationPrivilegeType;
     boolean  forEachRow;
-    boolean  nowait;                                            // block or overwrite if queue full
-    int      maxRowsQueued;                                     // max size of queue of pending triggers
+    boolean  nowait;                                               // block or overwrite if queue full
+    int      maxRowsQueued;                                        // max size of queue of pending triggers
     Table    table;
     Trigger  trigger;
     String   triggerClassName;
     int      triggerType;
-    int      vectorIndex;                                       // index into TriggerDef[][]
     Thread   thread;
 
     //protected boolean busy;               // firing trigger in progress
-    protected HsqlDeque        pendingQueue;                    // row triggers pending
-    protected int              rowsQueued;                      // rows in pendingQueue
-    protected boolean          valid     = true;                // parsing valid
+    protected HsqlDeque        pendingQueue;                       // row triggers pending
+    protected int              rowsQueued;                         // rows in pendingQueue
+    protected boolean          valid     = true;                   // parsing valid
     protected volatile boolean keepGoing = true;
 
     TriggerDef() {}
@@ -241,13 +239,13 @@ public class TriggerDef implements Runnable, SchemaObject {
             sb.append(Tokens.T_ROW).append(' ');
         }
 
-        if (nowait) {
-            sb.append(Tokens.T_NOWAIT).append(' ');
-        }
-
-        if (maxRowsQueued != defaultQueueSize) {
+        if (maxRowsQueued != 0) {
             sb.append(Tokens.T_QUEUE).append(' ');
             sb.append(maxRowsQueued).append(' ');
+
+            if (nowait) {
+                sb.append(Tokens.T_NOWAIT).append(' ');
+            }
         }
 
         sb.append(Tokens.T_CALL).append(' ');
@@ -327,30 +325,29 @@ public class TriggerDef implements Runnable, SchemaObject {
      */
     void setUpIndexesAndTypes() {
 
-        vectorIndex = 0;
+        triggerType = 0;
 
         if (eventTimingString.equals(Tokens.T_INSERT)) {
-            vectorIndex            = Trigger.INSERT_AFTER;
+            triggerType            = Trigger.INSERT_AFTER;
             operationPrivilegeType = GrantConstants.INSERT;
         } else if (eventTimingString.equals(Tokens.T_DELETE)) {
             operationPrivilegeType = GrantConstants.DELETE;
-            vectorIndex            = Trigger.DELETE_AFTER;
+            triggerType            = Trigger.DELETE_AFTER;
         } else if (eventTimingString.equals(Tokens.T_UPDATE)) {
             operationPrivilegeType = GrantConstants.UPDATE;
-            vectorIndex            = Trigger.UPDATE_AFTER;
+            triggerType            = Trigger.UPDATE_AFTER;
         } else {
             throw Error.runtimeError(ErrorCode.U_S0500, "TriggerDef");
         }
 
-        if (actionTimingString.equals(Tokens.T_BEFORE)
-                || actionTimingString.equals(Tokens.T_INSERT)) {
-            vectorIndex += NUM_TRIGGER_OPS;    // number of operations
+        if (actionTimingString.equals(Tokens.T_BEFORE)) {
+            triggerType += NUM_TRIGGER_OPS;    // number of operations
         }
 
-        triggerType = vectorIndex;
+        triggerType = triggerType;
 
         if (forEachRow) {
-            triggerType += 2 * NUM_TRIGGER_OPS;
+            triggerType += NUM_TRIGGER_OPS;
         }
     }
 
@@ -372,7 +369,7 @@ public class TriggerDef implements Runnable, SchemaObject {
 
             if (triggerData != null) {
                 if (triggerData.username != null) {
-                    trigger.fire(this.vectorIndex, name.name,
+                    trigger.fire(this.triggerType, name.name,
                                  table.getName().name, triggerData.oldRow,
                                  triggerData.newRow);
                 }

@@ -62,7 +62,7 @@ public class DataFileCacheSession extends DataFileCache {
 
         this.dataFileName = baseFileName + ".data.tmp";
         this.database     = database;
-        fa                = FileUtil.getDefaultInstance();
+        fa                = FileUtil.getFileUtil();
 
         int cacheSizeScale = 10;
 

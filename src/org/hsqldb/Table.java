@@ -1629,7 +1629,7 @@ public class Table extends TableBase implements SchemaObject {
         triggerList = (TriggerDef[]) ArrayUtil.toAdjustedArray(triggerList,
                 td, index, 1);
 
-        TriggerDef[] list = triggerLists[td.vectorIndex];
+        TriggerDef[] list = triggerLists[td.triggerType];
 
         index = list.length;
 
@@ -1646,7 +1646,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         list = (TriggerDef[]) ArrayUtil.toAdjustedArray(list, td, index, 1);
-        triggerLists[td.vectorIndex] = list;
+        triggerLists[td.triggerType] = list;
     }
 
     /**
@@ -1699,9 +1699,9 @@ public class Table extends TableBase implements SchemaObject {
             return;
         }
 
-        int index = td.vectorIndex;
+        int index = td.triggerType;
 
-        // look in each trigger list of each type of trigger
+        // look in each trigger in list
         for (int j = 0; j < triggerLists[index].length; j++) {
             td = triggerLists[index][j];
 
@@ -1877,8 +1877,42 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    void fireAfterTriggers(Session session, int trigVecIndex,
-                           RowSetNavigator rowSet) {
+    void fireTriggers(Session session, int trigVecIndex,
+                      HashMappedList rowSet) {
+
+        TriggerDef[] trigVec = triggerLists[trigVecIndex];
+
+        for (int i = 0, size = trigVec.length; i < size; i++) {
+            TriggerDef td         = trigVec[i];
+            boolean    sqlTrigger = td instanceof TriggerDefSQL;
+
+            if (td.isForEachRow()) {
+                for (int j = 0; j < rowSet.size(); j++) {
+                    Object[] oldData = ((Row) rowSet.getKey(j)).getData();
+                    Object[] newData = (Object[]) rowSet.get(j);
+
+                    switch (td.triggerType) {
+
+                        case Trigger.UPDATE_AFTER_ROW :
+                            if (!sqlTrigger) {
+                                oldData = (Object[]) ArrayUtil.duplicateArray(
+                                    oldData);
+                                newData = (Object[]) ArrayUtil.duplicateArray(
+                                    newData);
+                            }
+                            break;
+                    }
+
+                    td.pushPair(session, oldData, newData);
+                }
+            } else {
+                td.pushPair(session, null, null);
+            }
+        }
+    }
+
+    void fireTriggers(Session session, int trigVecIndex,
+                      RowSetNavigator rowSet) {
 
         if (!database.isReferentialIntegrity()) {
             return;
@@ -1902,6 +1936,7 @@ public class Table extends TableBase implements SchemaObject {
 
                     switch (td.triggerType) {
 
+                        case Trigger.DELETE_BEFORE_ROW :
                         case Trigger.DELETE_AFTER_ROW :
                             oldData = rowSet.getNext();
 
@@ -1911,6 +1946,7 @@ public class Table extends TableBase implements SchemaObject {
                             }
                             break;
 
+                        case Trigger.INSERT_BEFORE_ROW :
                         case Trigger.INSERT_AFTER_ROW :
                             newData = rowSet.getNext();
 
@@ -1935,8 +1971,8 @@ public class Table extends TableBase implements SchemaObject {
      *  Fires all row-level triggers of the given set (trigger type)
      *
      */
-    void fireBeforeTriggers(Session session, int trigVecIndex,
-                            Object[] oldData, Object[] newData, int[] cols) {
+    void fireTriggers(Session session, int trigVecIndex, Object[] oldData,
+                      Object[] newData, int[] cols) {
 
         if (!database.isReferentialIntegrity()) {
             return;
@@ -1957,8 +1993,28 @@ public class Table extends TableBase implements SchemaObject {
             if (td.isForEachRow()) {
                 switch (td.triggerType) {
 
+                    case Trigger.INSERT_BEFORE_ROW :
+                        break;
+
+                    case Trigger.INSERT_AFTER_ROW :
+                        if (!sqlTrigger) {
+                            newData =
+                                (Object[]) ArrayUtil.duplicateArray(newData);
+                        }
+                        break;
+
+                    case Trigger.UPDATE_AFTER_ROW :
+                        if (!sqlTrigger) {
+                            oldData =
+                                (Object[]) ArrayUtil.duplicateArray(oldData);
+                            newData =
+                                (Object[]) ArrayUtil.duplicateArray(newData);
+                        }
+                        break;
+
                     case Trigger.UPDATE_BEFORE_ROW :
                     case Trigger.DELETE_BEFORE_ROW :
+                    case Trigger.DELETE_AFTER_ROW :
                         if (!sqlTrigger) {
                             oldData =
                                 (Object[]) ArrayUtil.duplicateArray(oldData);
@@ -2258,12 +2314,7 @@ public class Table extends TableBase implements SchemaObject {
     void insertRow(Session session, PersistentStore store, Object[] data) {
 
         setIdentityColumn(session, data);
-
-        if (triggerLists[Trigger.INSERT_BEFORE].length != 0) {
-            fireBeforeTriggers(session, Trigger.INSERT_BEFORE, null, data,
-                               null);
-        }
-
+        fireTriggers(session, Trigger.INSERT_BEFORE_ROW, null, data, null);
         setGeneratedColumns(session, data);
 
         if (isView) {
@@ -2279,6 +2330,7 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         insertNoCheck(session, store, data);
+        fireTriggers(session, Trigger.INSERT_AFTER_ROW, null, data, null);
     }
 
     /**
@@ -2475,7 +2527,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Object[] data = row.getData();
 
-        fireBeforeTriggers(session, Trigger.DELETE_BEFORE, data, null, null);
+        fireTriggers(session, Trigger.DELETE_BEFORE_ROW, data, null, null);
 
         if (isView) {
             return;
@@ -2564,7 +2616,6 @@ public class Table extends TableBase implements SchemaObject {
     void updateRowSet(Session session, HashMappedList rowSet, int[] cols,
                       boolean isTriggeredSet) {
 
-        boolean         hasLob = false;
         PersistentStore store  = session.sessionData.getRowStore(this);
 
         for (int i = 0; i < rowSet.size(); i++) {
