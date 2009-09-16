@@ -225,19 +225,20 @@
       are ignored by the engine.</para>
 
       <para>A Java trigger that uses an instance of org.hsqldb.Trigger has two
-      forms, synchronous, or asynchronous (immediate or queued). When QUEUE 0
-      is specified, the action is performed immediately by calling the Java
-      method. This is similar to SQL trigger actions. When QUEUE n is
-      specified with n larger than 0, the engine uses a separate thread to
-      execute the java method, using a queue with the size n. For certain
-      applications, such as real-time systems this allows asynchronous
+      forms, synchronous, or asynchronous (immediate or queued). By default,
+      or when QUEUE 0 is specified, the action is performed immediately by
+      calling the Java method. This is similar to SQL trigger actions. When
+      QUEUE n is specified with n larger than 0, the engine uses a separate
+      thread to execute the java method, using a queue with the size n. For
+      certain applications, such as real-time systems this allows asynchronous
       notifications to be sent by the trigger event, without introducing
       delays in the engine. With asynchronous triggers, an extra parameter,
       NOWAIT can be used in trigger definition. This overcomes the queue full
       condition. In this mode, old calls that are still in the queue are
       discarded one by one and replaced with new calls.</para>
 
-      <para></para>
+      <para>Java triggers should not be used for modifying the database, apart
+      from modifications to the row data.</para>
 
       <para></para>
     </section>
