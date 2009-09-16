@@ -80,6 +80,7 @@ import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
+import org.hsqldb.types.NumberType;
 
 /* $Id$ */
 
@@ -709,13 +710,11 @@ public class JDBCResultSet implements ResultSet {
             throw Util.outOfRangeArgument();
         }
 
-        // boucherb@users 20020502 - added conversion
-        BigDecimal bd = (BigDecimal) getColumnInType(columnIndex,
-            Type.SQL_DECIMAL);
+        Type targetType = NumberType.getNumberType(Types.SQL_DECIMAL,
+            NumberType.defaultNumericPrecision, scale);
 
-        if (bd != null) {
-            bd = bd.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
-        }
+        BigDecimal bd = (BigDecimal) getColumnInType(columnIndex,
+            targetType);
 
         return bd;
     }
@@ -1893,7 +1892,14 @@ public class JDBCResultSet implements ResultSet {
      *    JDBCResultSet)
      */
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        return (BigDecimal) getColumnInType(columnIndex, Type.SQL_DECIMAL);
+        Type targetType =
+        resultMetaData.columnTypes[columnIndex - 1];
+
+        if( targetType.typeCode != Types.SQL_NUMERIC &&
+            targetType.typeCode != Types.SQL_DECIMAL) {
+            targetType = Type.SQL_DECIMAL_DEFAULT;
+        }
+        return (BigDecimal) getColumnInType(columnIndex, targetType);
     }
 
     /**

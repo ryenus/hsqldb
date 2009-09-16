@@ -352,7 +352,7 @@ public class ParserDQL extends ParserBase {
             case Types.SQL_NUMERIC :
                 if (!hasLength && !hasScale && !database.sqlEnforceSize) {
                     length = NumberType.defaultNumericPrecision;
-                    scale  = NumberType.legacyNumericScale;
+                    scale  = NumberType.defaultNumericScale;
                 }
                 break;
         }
