@@ -716,6 +716,10 @@ public class JDBCResultSet implements ResultSet {
         BigDecimal bd = (BigDecimal) getColumnInType(columnIndex,
             targetType);
 
+        if (bd != null) {
+            bd = bd.setScale(scale, BigDecimal.ROUND_DOWN);
+        }
+
         return bd;
     }
 
