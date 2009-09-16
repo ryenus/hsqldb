@@ -907,15 +907,18 @@ public class Log {
         }
     }
 
-    private void closeAllTextCaches(boolean compact) {
+    private void closeAllTextCaches(boolean script) {
 
         Iterator it = textCacheList.values().iterator();
 
         while (it.hasNext()) {
-            if (compact) {
-                ((TextCache) it.next()).purge();
+            TextCache textCache = ((TextCache) it.next());
+
+            // use textCache.table to cover both cach and table readonly
+            if (script && !textCache.table.isDataReadOnly()) {
+                textCache.purge();
             } else {
-                ((TextCache) it.next()).close(true);
+                textCache.close(true);
             }
         }
     }

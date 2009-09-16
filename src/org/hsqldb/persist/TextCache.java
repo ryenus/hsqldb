@@ -587,6 +587,10 @@ public class TextCache extends DataFileCache {
                     wasCR     = false;
             }
 
+            if (wasCR || complete) {
+                continue;
+            }
+
             buffer.append(c);
         }
 

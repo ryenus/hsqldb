@@ -69,8 +69,6 @@ package org.hsqldb.index;
 import org.hsqldb.Row;
 import org.hsqldb.persist.PersistentStore;
 
-// fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
-
 /**
  *  Memory table node implementation.
  *

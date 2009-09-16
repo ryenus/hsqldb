@@ -394,16 +394,17 @@ public class Table extends TableBase implements SchemaObject {
 
         // readonly for TEXT tables only
         if (isText()) {
-            HsqlArrayList list = new HsqlArrayList();
+            HsqlArrayList list     = new HsqlArrayList();
+            boolean       readonly = isDataReadOnly();
 
-            if (((TextTable) this).isConnected() && isDataReadOnly()) {
+            if (readonly) {
                 StringBuffer sb = new StringBuffer(64);
 
                 sb.append(Tokens.T_SET).append(' ').append(
                     Tokens.T_TABLE).append(' ');
                 sb.append(getName().getSchemaQualifiedStatementName());
-                sb.append(' ').append(Tokens.T_READONLY).append(' ');
-                sb.append(Tokens.T_TRUE);
+                sb.append(' ').append(Tokens.T_READ).append(' ');
+                sb.append(Tokens.T_ONLY);
                 list.add(sb.toString());
             }
 
@@ -417,7 +418,7 @@ public class Table extends TableBase implements SchemaObject {
             // header
             String header = ((TextTable) this).getDataSourceHeader();
 
-            if (withHeader && header != null) {
+            if (withHeader && header != null && !readonly) {
                 list.add(header);
             }
 
@@ -1544,7 +1545,7 @@ public class Table extends TableBase implements SchemaObject {
         OrderedHashSet set = new OrderedHashSet();
 
         for (int i = 0; i < columnIndexes.length; i++) {
-            set.add(columnList.get(i));
+            set.add(((ColumnSchema) columnList.get(i)).getName());
         }
 
         return set;
@@ -2616,7 +2617,7 @@ public class Table extends TableBase implements SchemaObject {
     void updateRowSet(Session session, HashMappedList rowSet, int[] cols,
                       boolean isTriggeredSet) {
 
-        PersistentStore store  = session.sessionData.getRowStore(this);
+        PersistentStore store = session.sessionData.getRowStore(this);
 
         for (int i = 0; i < rowSet.size(); i++) {
             Row row = (Row) rowSet.getKey(i);

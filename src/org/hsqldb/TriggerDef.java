@@ -69,7 +69,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     static final int NEW_TABLE = 3;
 
     //
-    static final int NUM_TRIGGER_OPS = 3;                          // {ins,del,upd}
+    static final int NUM_TRIGGER_OPS = 3;                      // {ins,del,upd}
     static final int NUM_TRIGS       = NUM_TRIGGER_OPS * 3;    // {b}{fer}, {a},{fer, fes}
 
     //
@@ -90,8 +90,8 @@ public class TriggerDef implements Runnable, SchemaObject {
     String   eventTimingString;
     int      operationPrivilegeType;
     boolean  forEachRow;
-    boolean  nowait;                                               // block or overwrite if queue full
-    int      maxRowsQueued;                                        // max size of queue of pending triggers
+    boolean  nowait;                                           // block or overwrite if queue full
+    int      maxRowsQueued;                                    // max size of queue of pending triggers
     Table    table;
     Trigger  trigger;
     String   triggerClassName;
@@ -99,9 +99,9 @@ public class TriggerDef implements Runnable, SchemaObject {
     Thread   thread;
 
     //protected boolean busy;               // firing trigger in progress
-    protected HsqlDeque        pendingQueue;                       // row triggers pending
-    protected int              rowsQueued;                         // rows in pendingQueue
-    protected boolean          valid     = true;                   // parsing valid
+    protected HsqlDeque        pendingQueue;                   // row triggers pending
+    protected int              rowsQueued;                     // rows in pendingQueue
+    protected boolean          valid     = true;               // parsing valid
     protected volatile boolean keepGoing = true;
 
     TriggerDef() {}
@@ -141,24 +141,14 @@ public class TriggerDef implements Runnable, SchemaObject {
                       int[] updateColumns, String triggerClassName,
                       boolean noWait, int queueSize) {
 
-        this.name               = name;
-        this.actionTimingString = when;
-        this.eventTimingString  = operation;
-        this.forEachRow         = forEach;
-        this.table              = table;
-        this.transitions        = transitions;
-        this.rangeVars          = rangeVars;
-        this.condition          = condition == null ? Expression.EXPR_TRUE
-                                                    : condition;
-        this.conditionSQL       = conditionSQL;
-        this.updateColumns      = updateColumns;
-        this.triggerClassName   = triggerClassName;
-        this.nowait             = noWait;
-        this.maxRowsQueued      = queueSize;
-        rowsQueued              = 0;
-        pendingQueue            = new HsqlDeque();
+        this(name, when, operation, forEach, table, transitions, rangeVars,
+             condition, conditionSQL, updateColumns);
 
-        setUpIndexesAndTypes();
+        this.triggerClassName = triggerClassName;
+        this.nowait           = noWait;
+        this.maxRowsQueued    = queueSize;
+        rowsQueued            = 0;
+        pendingQueue          = new HsqlDeque();
 
         Class cl;
 
@@ -177,6 +167,31 @@ public class TriggerDef implements Runnable, SchemaObject {
             valid   = false;
             trigger = new DefaultTrigger();
         }
+    }
+
+    public TriggerDef(HsqlNameManager.HsqlName name, String when,
+                      String operation, boolean forEachRow, Table table,
+                      Table[] transitions, RangeVariable[] rangeVars,
+                      Expression condition, String conditionSQL,
+                      int[] updateColumns) {
+
+        this.name               = name;
+        this.actionTimingString = when;
+        this.eventTimingString  = operation;
+        this.forEachRow         = forEachRow;
+        this.table              = table;
+        this.transitions        = transitions;
+        this.rangeVars          = rangeVars;
+        this.condition          = condition == null ? Expression.EXPR_TRUE
+                                                    : condition;
+        this.updateColumns      = updateColumns;
+        this.conditionSQL       = conditionSQL;
+        hasTransitionRanges = transitions[OLD_ROW] != null
+                              || transitions[NEW_ROW] != null;
+        hasTransitionTables = transitions[OLD_TABLE] != null
+                              || transitions[NEW_TABLE] != null;
+
+        setUpIndexesAndTypes();
     }
 
     public boolean isValid() {
@@ -222,22 +237,7 @@ public class TriggerDef implements Runnable, SchemaObject {
      */
     public String getSQL() {
 
-        StringBuffer sb = new StringBuffer(256);
-
-        sb.append(Tokens.T_CREATE).append(' ');
-        sb.append(Tokens.T_TRIGGER).append(' ');
-        sb.append(name.getSchemaQualifiedStatementName()).append(' ');
-        sb.append(actionTimingString).append(' ');
-        sb.append(eventTimingString).append(' ');
-        sb.append(Tokens.T_ON).append(' ');
-        sb.append(table.getName().getSchemaQualifiedStatementName());
-        sb.append(' ');
-
-        if (forEachRow) {
-            sb.append(Tokens.T_FOR).append(' ');
-            sb.append(Tokens.T_EACH).append(' ');
-            sb.append(Tokens.T_ROW).append(' ');
-        }
+        StringBuffer sb = getSQLMain();
 
         if (maxRowsQueued != 0) {
             sb.append(Tokens.T_QUEUE).append(' ');
@@ -253,6 +253,91 @@ public class TriggerDef implements Runnable, SchemaObject {
                 false));
 
         return sb.toString();
+    }
+
+    public StringBuffer getSQLMain() {
+
+        StringBuffer sb = new StringBuffer(256);
+
+        sb.append(Tokens.T_CREATE).append(' ');
+        sb.append(Tokens.T_TRIGGER).append(' ');
+        sb.append(name.getSchemaQualifiedStatementName()).append(' ');
+        sb.append(actionTimingString).append(' ');
+        sb.append(eventTimingString).append(' ');
+
+        if (updateColumns != null) {
+            sb.append(Tokens.T_OF).append(' ');
+
+            for (int i = 0; i < updateColumns.length; i++) {
+                if (i != 0) {
+                    sb.append(',');
+                }
+
+                HsqlName name = table.getColumn(updateColumns[i]).getName();
+
+                sb.append(name.statementName);
+            }
+
+            sb.append(' ');
+        }
+
+        sb.append(Tokens.T_ON).append(' ');
+        sb.append(table.getName().getSchemaQualifiedStatementName()).append(' ');
+
+        if (hasTransitionRanges || hasTransitionTables) {
+            sb.append(Tokens.T_REFERENCING).append(' ');
+
+            String separator = "";
+
+            if (transitions[OLD_ROW] != null) {
+                sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_ROW);
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(transitions[OLD_ROW].getName().statementName);
+
+                separator = Tokens.T_COMMA;
+            }
+
+            if (transitions[NEW_ROW] != null) {
+                sb.append(separator);
+                sb.append(Tokens.T_NEW).append(' ').append(Tokens.T_ROW);
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(transitions[NEW_ROW].getName().statementName);
+
+                separator = Tokens.T_COMMA;
+            }
+
+            if (transitions[OLD_TABLE] != null) {
+                sb.append(separator);
+                sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_TABLE);
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(transitions[OLD_TABLE].getName().statementName);
+
+                separator = Tokens.T_COMMA;
+            }
+
+            if (transitions[NEW_TABLE] != null) {
+                sb.append(separator);
+                sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_TABLE);
+                sb.append(' ').append(Tokens.T_AS).append(' ');
+                sb.append(transitions[NEW_TABLE].getName().statementName);
+            }
+
+            sb.append(' ');
+        }
+
+        if (forEachRow) {
+            sb.append(Tokens.T_FOR).append(' ');
+            sb.append(Tokens.T_EACH).append(' ');
+            sb.append(Tokens.T_ROW).append(' ');
+        }
+
+        if (condition != Expression.EXPR_TRUE) {
+            sb.append(Tokens.T_WHEN).append(' ');
+            sb.append(Tokens.T_OPENBRACKET).append(conditionSQL);
+            sb.append(Tokens.T_CLOSEBRACKET).append(' ');
+        }
+
+        return sb;
     }
 
     public String getClassName() {

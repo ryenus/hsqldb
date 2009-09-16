@@ -119,6 +119,8 @@ public class StatementCommand extends Statement {
                 this.isTransactionStatement = true;
                 break;
 
+            case StatementTypes.SET_TABLE_SOURCE_HEADER :
+                isLogged = false;
             case StatementTypes.SET_TABLE_SOURCE :
                 metaDataImpact              = Statement.META_RESET_VIEWS;
                 group = StatementTypes.X_HSQLDB_OPERATION;
@@ -156,7 +158,7 @@ public class StatementCommand extends Statement {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                          "StatementCommand");
+                                         "StatementCommand");
         }
     }
 
@@ -540,7 +542,7 @@ public class StatementCommand extends Statement {
 
                         if (props.getErrorKeys().length > 0) {
                             throw Error.error(ErrorCode.TEXT_TABLE_SOURCE,
-                                               props.getErrorKeys()[0]);
+                                              props.getErrorKeys()[0]);
                         }
                     }
 
@@ -627,7 +629,8 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-            case StatementTypes.SET_TABLE_SOURCE : {
+            case StatementTypes.SET_TABLE_SOURCE :
+            case StatementTypes.SET_TABLE_SOURCE_HEADER : {
                 try {
                     HsqlName name = (HsqlName) parameters[0];
                     Table table =
@@ -671,14 +674,14 @@ public class StatementCommand extends Statement {
                 } catch (Throwable e) {
                     if (!(e instanceof HsqlException)) {
                         e = Error.error(ErrorCode.GENERAL_IO_ERROR,
-                                         e.getMessage());
+                                        e.getMessage());
                     }
 
                     if (session.isProcessingLog()
                             || session.isProcessingScript()) {
                         session.addWarning((HsqlException) e);
                         session.database.logger.logWarningEvent(
-                            "Problem processing SET TABLE SOURE", e);
+                            "Problem processing SET TABLE SOURCE", e);
 
                         return Result.updateZeroResult;
                     } else {
@@ -760,8 +763,7 @@ public class StatementCommand extends Statement {
                 }
             }
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                          "StatemntCommand");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatemntCommand");
         }
     }
 

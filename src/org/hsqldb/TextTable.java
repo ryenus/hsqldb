@@ -269,7 +269,7 @@ public class TextTable extends org.hsqldb.Table {
                                          : cache.getHeader();
 
         return header == null ? null
-                              : StringConverter.toQuotedString(header, '\"',
+                              : StringConverter.toQuotedString(header, '\'',
                               true);
     }
 
@@ -289,7 +289,8 @@ public class TextTable extends org.hsqldb.Table {
     }
 
     public boolean isDataReadOnly() {
-        return !isConnected() || super.isDataReadOnly();
+        return !isConnected() || super.isDataReadOnly() ||
+            store.getCache().isDataReadOnly();
     }
 
     public void setDataReadOnly(boolean value) {
@@ -329,9 +330,9 @@ public class TextTable extends org.hsqldb.Table {
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());
-        sb.append(' ').append(Tokens.T_SOURCE).append(' ').append('"');
+        sb.append(' ').append(Tokens.T_SOURCE).append(' ').append('\'');
         sb.append(dataSource);
-        sb.append('"');
+        sb.append('\'');
 
         if (isDesc) {
             sb.append(' ').append(Tokens.T_DESC);

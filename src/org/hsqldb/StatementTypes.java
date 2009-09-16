@@ -201,20 +201,21 @@ public interface StatementTypes {
     int ROLLBACK_SAVEPOINT             = 1048;
 
     // hsqldb schema
-    int CREATE_ALIAS       = 1051;
-    int CREATE_INDEX       = 1052;
-    int CREATE_USER        = 1053;
-    int DECLARE_VARIABLE   = 1056;
-    int DROP_COLUMN        = 1057;
-    int DROP_INDEX         = 1058;
-    int DROP_CONSTRAINT    = 1059;
-    int DROP_USER          = 1062;
-    int EXPLAIN_PLAN       = 1063;
-    int RENAME_OBJECT      = 1064;
-    int SET_TABLE_INDEX    = 1067;
-    int SET_TABLE_READONLY = 1068;
-    int SET_TABLE_SOURCE   = 1069;
-    int SET_TABLE_TYPE     = 1070;
+    int CREATE_ALIAS            = 1051;
+    int CREATE_INDEX            = 1052;
+    int CREATE_USER             = 1053;
+    int DECLARE_VARIABLE        = 1056;
+    int DROP_COLUMN             = 1057;
+    int DROP_INDEX              = 1058;
+    int DROP_CONSTRAINT         = 1059;
+    int DROP_USER               = 1062;
+    int EXPLAIN_PLAN            = 1063;
+    int RENAME_OBJECT           = 1064;
+    int SET_TABLE_INDEX         = 1067;
+    int SET_TABLE_READONLY      = 1068;
+    int SET_TABLE_SOURCE        = 1069;
+    int SET_TABLE_SOURCE_HEADER = 1070;
+    int SET_TABLE_TYPE          = 1071;
 
     // hsqldb sql implementation
     int CONDITION = 1101;                         // element of IF
