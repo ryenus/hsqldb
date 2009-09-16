@@ -223,35 +223,37 @@ public class TransactionManager2PL implements TransactionManager {
 
                         default :
                     }
-                }
-
-                Object[] data = row.getData();
-
-                try {
-                    switch (type) {
-
-                        case RowActionBase.ACTION_DELETE :
-                            database.logger.writeDeleteStatement(session,
-                                                                 action.table,
-                                                                 data);
-                            store.remove(action.getPos());
-                            break;
-
-                        case RowActionBase.ACTION_INSERT :
-                            database.logger.writeInsertStatement(session,
-                                                                 action.table,
-                                                                 data);
-                            break;
-
-                        case RowActionBase.ACTION_NONE :
-
-                            // ????
-                            store.remove(action.getPos());
-                            break;
-                    }
 
                     action.setAsNoOp(row);
-                } catch (HsqlException e) {}
+                } else {
+                    Object[] data = row.getData();
+
+                    try {
+                        switch (type) {
+
+                            case RowActionBase.ACTION_DELETE :
+                                database.logger.writeDeleteStatement(
+                                    session, action.table, data);
+                                store.remove(action.getPos());
+                                break;
+
+                            case RowActionBase.ACTION_INSERT :
+                                database.logger.writeInsertStatement(
+                                    session, action.table, data);
+                                break;
+
+                            case RowActionBase.ACTION_NONE :
+
+                                // ????
+                                store.remove(action.getPos());
+                                break;
+                        }
+
+                        action.setAsNoOp(row);
+                    } catch (HsqlException e) {
+                        database.logger.logWarningEvent("logging problem", e);
+                    }
+                }
             }
 
             try {
@@ -707,8 +709,6 @@ public class TransactionManager2PL implements TransactionManager {
     void endTransaction(Session session) {
         session.isTransaction = false;
     }
-
-
 
     public boolean hasLocks(Session session, Statement cs) {
 

@@ -1168,4 +1168,8 @@ public class DataFileCache {
             writeLock.unlock();
         }
     }
+
+    public boolean isDataReadOnly() {
+        return this.cacheReadonly;
+    }
 }

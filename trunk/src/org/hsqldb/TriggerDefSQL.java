@@ -52,28 +52,12 @@ public class TriggerDefSQL extends TriggerDef {
                          StatementDMQL[] compiledStatements,
                          String procedureSQL, OrderedHashSet references) {
 
-        this.name               = name;
-        this.actionTimingString = when;
-        this.eventTimingString  = operation;
-        this.forEachRow         = forEachRow;
-        this.table              = table;
-        this.transitions        = transitions;
-        this.rangeVars          = rangeVars;
-        this.condition          = condition == null ? Expression.EXPR_TRUE
-                                                    : condition;
-        this.updateColumns      = updateColumns;
-        this.statements         = compiledStatements;
-        this.conditionSQL       = conditionSQL;
-        this.procedureSQL       = procedureSQL;
-        this.references         = references;
-        hasTransitionRanges = transitions[OLD_ROW] != null
-                              || transitions[NEW_ROW] != null;
-        hasTransitionTables = transitions[OLD_TABLE] != null
-                              || transitions[NEW_TABLE] != null;
+        super(name, when, operation, forEachRow, table, transitions,
+              rangeVars, condition, conditionSQL, updateColumns);
 
-        setUpIndexesAndTypes();
-
-        //
+        this.statements   = compiledStatements;
+        this.procedureSQL = procedureSQL;
+        this.references   = references;
     }
 
     public OrderedHashSet getReferences() {
@@ -121,68 +105,7 @@ public class TriggerDefSQL extends TriggerDef {
     public String getSQL() {
 
         boolean      isBlock = statements.length > 1;
-        StringBuffer sb      = new StringBuffer(256);
-
-        sb.append(Tokens.T_CREATE).append(' ');
-        sb.append(Tokens.T_TRIGGER).append(' ');
-        sb.append(name.statementName).append(' ');
-        sb.append(actionTimingString).append(' ');
-        sb.append(eventTimingString).append(' ');
-        sb.append(Tokens.T_ON).append(' ');
-        sb.append(table.getName().statementName).append(' ');
-
-        if (hasTransitionRanges || hasTransitionTables) {
-            sb.append(Tokens.T_REFERENCING).append(' ');
-
-            String separator = "";
-
-            if (transitions[OLD_ROW] != null) {
-                sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_ROW);
-                sb.append(' ').append(Tokens.T_AS).append(' ');
-                sb.append(transitions[OLD_ROW].getName().statementName);
-
-                separator = Tokens.T_COMMA;
-            }
-
-            if (transitions[NEW_ROW] != null) {
-                sb.append(separator);
-                sb.append(Tokens.T_NEW).append(' ').append(Tokens.T_ROW);
-                sb.append(' ').append(Tokens.T_AS).append(' ');
-                sb.append(transitions[NEW_ROW].getName().statementName);
-
-                separator = Tokens.T_COMMA;
-            }
-
-            if (transitions[OLD_TABLE] != null) {
-                sb.append(separator);
-                sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_TABLE);
-                sb.append(' ').append(Tokens.T_AS).append(' ');
-                sb.append(transitions[OLD_TABLE].getName().statementName);
-
-                separator = Tokens.T_COMMA;
-            }
-
-            if (transitions[NEW_TABLE] != null) {
-                sb.append(separator);
-                sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_TABLE);
-                sb.append(' ').append(Tokens.T_AS).append(' ');
-                sb.append(transitions[NEW_TABLE].getName().statementName);
-            }
-
-            sb.append(' ');
-        }
-
-        if (forEachRow) {
-            sb.append(Tokens.T_FOR).append(' ');
-            sb.append(Tokens.T_EACH).append(' ');
-            sb.append(Tokens.T_ROW).append(' ');
-        }
-
-        if (condition != Expression.EXPR_TRUE) {
-            sb.append(Tokens.T_WHEN).append(' ');
-            sb.append(Tokens.T_OPENBRACKET).append(conditionSQL);
-            sb.append(Tokens.T_CLOSEBRACKET).append(' ');
-        }
+        StringBuffer sb      = getSQLMain();
 
         if (isBlock) {
             sb.append(Tokens.T_BEGIN).append(' ').append(Tokens.T_ATOMIC);

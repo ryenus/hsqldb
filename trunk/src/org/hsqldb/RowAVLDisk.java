@@ -89,12 +89,13 @@ import org.hsqldb.rowio.RowOutputInterface;
  *  A CachedRow is normally part of a circular double linked list which
  *  contains all of the Rows currently in the Cache for the database. It is
  *  unlinked from this list when it is freed from the Cache to make way for
- *  other rows.
+ *  other rows.<p>
  *
- *  New class from the Hypersonic Original
+ *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
+ * @author Fred Toussi (fredt@users dot sourceforge dot net)
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.8.0
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
 public class RowAVLDisk extends RowAVL {

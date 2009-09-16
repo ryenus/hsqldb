@@ -1976,7 +1976,7 @@ public class ParserDDL extends ParserRoutine {
                         && beforeOrAfterType != Tokens.INSTEAD) {
                     read();
 
-                    columns = readColumnNames(false);
+                    columns = readColumnNameList(null, false);
                 }
                 break;
 

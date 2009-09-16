@@ -1797,7 +1797,9 @@ public class ParserCommand extends ParserDDL {
         args[3] = Boolean.valueOf(isDesc);
         args[4] = Boolean.valueOf(isSourceHeader);
 
-        return new StatementCommand(StatementTypes.SET_TABLE_SOURCE, args,
-                                    null, t.getName());
+        int type = isSourceHeader ? StatementTypes.SET_TABLE_SOURCE_HEADER
+                                  : StatementTypes.SET_TABLE_SOURCE;
+
+        return new StatementCommand(type, args, null, t.getName());
     }
 }
