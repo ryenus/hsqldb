@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xml:id="sessions-chapt"
+         xmlns="http://docbook.org/ns/docbook">
+  <title xml:id="sessions-title">Sessions and Transactions</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>$Date$</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
+      this document without any alteration under the terms of the HSQLDB
+      license. Additional permission is granted to the HSQL Development Group
+      to distribute this document with or without alterations under the terms
+      of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section>
+    <title>Overview</title>
+
+    <para>All SQL statements are executed in sessions. When a connection is
+    established to the database, a session is started. The authorization of
+    the session is the name of the user that started the session. A session
+    has several properties. These properties are set by default at the start
+    according to database settings.</para>
+
+    <para>SQL Statements are generally transactional statements. When a
+    transactional statement is executed, it starts a transaction if no
+    transaction is in progress. If SQL Data is modified during a transaction,
+    the change can be undone with a ROLLBACK statement. When a COMMIT
+    statement is executed, the transaction is ended. If a single statement
+    fails, the transaction is not normally terminated. However, some failures
+    are caused by execution of statements that are in conflict with statements
+    executed in other concurrent sessions. Such failures result in an implicit
+    ROLLBACK, in addition to the exception that is raised.</para>
+
+    <para>Schema definition and manipulation statements are also transactional
+    according to the SQL Standard. HyperSQL 1.9 performs automatic commits
+    before and after the execution of such transactions. Therefore,
+    schema-related statements cannot be rolled back. This is likely to change
+    in future versions.</para>
+
+    <para>Some statements are not transactional. Most of these statements are
+    used to change the properties of the session. These statements begin with
+    the SET keyword.</para>
+
+    <para>If the AUTOCOMMIT property of a session is TRUE, then each
+    transactional statement is followed by an implicit COMMIT.</para>
+
+    <simpara>The default isolation level for a session is READ COMMITTED. This
+    can be changed using the JDBC <classname>java.sql.Connection</classname>
+    object and its <methodname>setTransactionIsolation(int level)</methodname>
+    method. The session can be put in read-only mode using the
+    <methodname>setReadOnly(boolean readOnly)</methodname> method. Both
+    methods can be invoked only after a commit or a rollback.</simpara>
+
+    <simpara>The isolation level and / or the read only mode of a transaction
+    can be modified using an SQL statement. You can use the statement to
+    change only the isolation mode, only the read-only mode, or both at the
+    same time. This command can be issued only after a commit or
+    rollback.</simpara>
+
+    <simpara><literal>SET TRANSACTION &lt;transaction characteristic&gt; [
+    &lt;comma&gt; &lt;transaction characteristic&gt; ]</literal></simpara>
+
+    <para>Details of the statement is described later in this chapter.</para>
+  </section>
+
+  <section>
+    <title>Session Attributes and Variables</title>
+
+    <para>Each session has several properties. Some of these properties, like
+    the transaction mode, can be changed but cannot be explicitly read. Other
+    attributes have names and can be referenced in queries. They can be
+    returned using the <literal>VALUES &lt;attribute name&gt;, ...</literal>
+    statement.</para>
+
+    <para>The named properties such as CURRENT_USER, CURRENT_SCHEMA, etc. are
+    listed in the Built In Functions section. Other properties of the session,
+    such as auto-commit read-only modes can be read using other built-in
+    functions.</para>
+
+    <para>The properties for default session time zone, current session time
+    zone, current default transaction isolation mode cannot be read.</para>
+
+    <section>
+      <title>Session Variables</title>
+
+      <para>Session variables are user-defined variables created the same way
+      as the variables for stored procedures and functions. Currently, these
+      variables cannot be used in general SQL statements. They can be assigned
+      to IN, INOUT and OUT arguments of stored procedures. This allows calling
+      stored procedures which have INOUT or OUT arguments. See the example in
+      the SQL Invoked Routines Chapter, under Formal Parameters.</para>
+
+      <example>
+        <title>User-defined Session Variables</title>
+
+        <screen>    DECLARE counter INTEGER DEFAULT 3;
+    DECLARE result VARCHAR(20) DEFAULT NULL;
+    SET counter=15;
+    CALL myroutine(counter, result)
+</screen>
+      </example>
+    </section>
+  </section>
+
+  <section xml:id="sqlgeneral_trans_cc-sect">
+    <title>Transactions and Concurrency Control</title>
+
+    <para>Before version 1.9, HSQLDB supported READ UNCOMMITTED transaction
+    isolation. At this isolation level, uncommitted changes made to the data
+    by a session are visible to other, concurrent sessions. This is called the
+    "dirty read" phenomenon.</para>
+
+    <para>HyperSQL 2.0 supports 4 levels of transaction isolation: READ
+    UNCOMMITTED, READ COMMITTED, REPEATABLE READ and SERIALIZABLE. It also
+    supports two concurrency control modes, two-phase-locking (2PL) and
+    multiversion concurrency control (MVCC). The isolation level is a property
+    of each SQL session, so different sessions can have different isolation
+    levels. The concurrency control strategy governs all the sessions and is
+    set for the database, as opposed for individual sessions. Isolation levels
+    above READ UNCOMMITTED avoid the "dirty read" phenomenon and do not read
+    uncommitted changes made to rows by other transactions. HyperSQL 1.9
+    supports only two-phase-locking (2PL).</para>
+
+    <section>
+      <title>Two Phased Locking</title>
+
+      <para>In the 2PL mode, each table that is read by a transaction is
+      locked with a shared lock, and each table that is written to is locked
+      with an exclusive lock. If two sessions read and modify different tables
+      then both go through simultaneously. If one session tries to lock a
+      table that has been exclusively locked by the other, the engine will put
+      it in wait, or it will invalidate the action it is attempting to
+      perform, depending on the current locks. This avoids any
+      deadlock.</para>
+
+      <para>HyperSQL also supports explicit locking of a group of tables for
+      the duration of the current transaction. Use of this command blocks
+      access to the locked tables by other sessions and ensures the current
+      session can complete the intended reads and writes on the locked
+      tables.</para>
+
+      <para>If a table is read-only, it will not be locked by any
+      transaction.</para>
+
+      <para>The 2PL mode has two sub-modes. The default is 2PL without
+      multi-version rows. This mode is identified as LOCKS. The other mode is
+      2PL with multiversion rows. This mode is identified as MVLOCKS. In the
+      MVLOCKS mode, when a transaction is running in read-only mode (or the
+      session is in read-only mode), then it will not lock the tables and will
+      go ahead and complete regardless of what other transactions may
+      do.</para>
+
+      <para>The READ UNCOMMITTED isolation level can be used in 2PL modes for
+      read-only operations.</para>
+    </section>
+
+    <section>
+      <title>Lock Contention in 2PL</title>
+
+      <para>When multiple connections are used to access the database, the
+      transaction manager controls their activities. When each transaction
+      performs only reads or writes on a single table, there is no contention.
+      Each transaction waits until it can obtain a lock then performs the
+      operation and commits. All contentions occur when transactions perform
+      reads and writes on more than one table, or perform a read, followed by
+      a write, on the same table.</para>
+
+      <para>For example, when multiple connections first read from a table in
+      order to check if a row exists, then insert a row into the same table
+      when it doesn't exist, there will be regular contention. Transaction A
+      reads from the table, then does Transaction B. Now if either Transaction
+      A or B attempts to insert a row, it will have to be terminated as the
+      other transaction holds a shared lock. If instead of two operations, a
+      single MERGE statement is performed to perform the read and write, no
+      contention occurs because both locks are obtained at the same
+      time.</para>
+
+      <para>Alternatively, there is the option of obtaining the necessary
+      locks with an explicit LOCK TABLE statement. This statement should be
+      executed before other statements and should include the names of all the
+      tables and the locks needed. After this statement, all the other
+      statements in the transaction can be executed and the transaction
+      committed. The commit will remove all the locks.</para>
+
+      <para>HyperSQL is fully multithreaded. It therefore allows different
+      transactions to execute concurrently so long as they are not modifying
+      the same table.</para>
+    </section>
+
+    <section>
+      <title>MVCC</title>
+
+      <para>In MVCC mode, there are no shared, read locks. Exclusive locks are
+      used on individual rows, but their use is different. Transactions can
+      read and modify the same table simultaneously, generally without waiting
+      for other transactions.</para>
+
+      <para>When transactions are running in READ COMMITTED mode, no conflict
+      will occur. If a transaction that runs in this mode wants to modify a
+      row that has been modified by another uncommitted transaction, then the
+      engine puts the transaction in wait, until the other transaction has
+      committed. The transaction then continues automatically.</para>
+
+      <para>When transactions are running in REPEATABLE READ or SERIALIZABLE
+      isolation modes, conflict can happen. There is no difference in
+      operation between these two isolation modes. If a transaction that runs
+      in this mode wants to modify a row that has been modified by another
+      uncommitted transaction, the engine allows it to go ahead despite the
+      conflict. When one of the conflicting sessions commits, the commit goes
+      through. But when committing, the engine will invalidate the other,
+      conflicting transaction and roll back all its changes.</para>
+
+      <para>In this mode, READ UNCOMMITTED is promoted to READ COMMITTED, as
+      the new architecture is based on multi-version rows for uncommitted data
+      and more than one version may exist for some rows.</para>
+
+      <para>With MVCC, when a transaction only reads data, then it will go
+      ahead and complete regardless of what other transactions may do. This
+      does not depend on the transaction being read-only or the isolation
+      modes.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Session and Transaction Control Statements</title>
+
+    <!-- From Foundation chapt. 17 -->
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET AUTOCOMMIT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET AUTOCOMMIT</emphasis></simpara>
+
+    <simpara><emphasis>set autocommit command</emphasis></simpara>
+
+    <simpara><literal>&lt;set autocommit statement&gt; ::= SET AUTOCOMMIT {
+    TRUE | FALSE }</literal></simpara>
+
+    <simpara>When an SQL session is started by creating a JDBC connection, it
+    is in AUTOCOMMIT mode. In this mode, after each SQL statement a COMMIT is
+    performed automatically. This statement changes mode. It is equivalent to
+    using the <methodname>setAutoCommit( boolean autoCommit)</methodname>
+    method of the JDBC <classname>Connection</classname> object.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>START TRANSACTION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">START TRANSACTION</emphasis></simpara>
+
+    <simpara><emphasis>start transaction statement</emphasis></simpara>
+
+    <simpara><literal>&lt;start transaction statement&gt; ::= START
+    TRANSACTION [ &lt;transaction characteristics&gt; ]</literal></simpara>
+
+    <simpara>Start an SQL transaction and set its characteristics. All
+    transactional SQL statements start a transaction automatically, therefore
+    using this statement is not necessary. If the statement is called in the
+    middle of a transaction, an exception is thrown.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE TRANSACTION CONTROL</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE TRANSACTION
+    CONTROL</emphasis></simpara>
+
+    <simpara><emphasis>set database transaction control</emphasis></simpara>
+
+    <simpara><literal>&lt;set database transaction control statement&gt; ::=
+    SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
+    }</literal></simpara>
+
+    <simpara>Set the concurrency control system for the database. It can be
+    issued only when all sessions have been committed or rolled back. The
+    default is LOCKS. The MVCC option is not available in version
+    1.9.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET TRANSACTION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET TRANSACTION</emphasis></simpara>
+
+    <simpara><emphasis>set next transaction
+    characteristics</emphasis></simpara>
+
+    <simpara><literal>&lt;set transaction statement&gt; ::= SET [ LOCAL ]
+    TRANSACTION &lt;transaction characteristics&gt;</literal></simpara>
+
+    <simpara>Set the characteristics of the next transaction in the current
+    session. This statement has an effect only on the next transactions and
+    has no effect on the future transactions after the next.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>transaction characteristics</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">transaction
+    characteristics</emphasis></simpara>
+
+    <simpara><emphasis>transaction characteristics</emphasis></simpara>
+
+    <simpara><literal>&lt;transaction characteristics&gt; ::= [
+    &lt;transaction mode&gt; [ { &lt;comma&gt; &lt;transaction mode&gt; }... ]
+    ]</literal></simpara>
+
+    <simpara><literal>&lt;transaction mode&gt; ::= &lt;isolation level&gt; |
+    &lt;transaction access mode&gt; | &lt;diagnostics
+    size&gt;</literal></simpara>
+
+    <simpara><literal>&lt;transaction access mode&gt; ::= READ ONLY | READ
+    WRITE</literal></simpara>
+
+    <simpara><literal>&lt;isolation level&gt; ::= ISOLATION LEVEL &lt;level of
+    isolation&gt;</literal></simpara>
+
+    <simpara><literal>&lt;level of isolation&gt; ::= READ UNCOMMITTED | READ
+    COMMITTED | REPEATABLE READ | SERIALIZABLE</literal></simpara>
+
+    <simpara><literal>&lt;diagnostics size&gt; ::= DIAGNOSTICS SIZE &lt;number
+    of conditions&gt;</literal></simpara>
+
+    <simpara><literal>&lt;number of conditions&gt; ::= &lt;simple value
+    specification&gt;</literal></simpara>
+
+    <simpara>Specify transaction characteristics.</simpara>
+
+    <example>
+      <title>Setting Transaction Characteristics</title>
+
+      <screen>    SET TRANSACTION READ ONLY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+    SET TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
+</screen>
+    </example>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET CONSTRAINTS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET CONSTRAINTS</emphasis></simpara>
+
+    <simpara><emphasis>set constraints mode statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set constraints mode statement&gt; ::= SET
+    CONSTRAINTS &lt;constraint name list&gt; { DEFERRED | IMMEDIATE
+    }</literal></simpara>
+
+    <simpara><literal>&lt;constraint name list&gt; ::= ALL | &lt;constraint
+    name&gt; [ { &lt;comma&gt; &lt;constraint name&gt; }...
+    ]</literal></simpara>
+
+    <simpara>If the statement is issued during a transaction, it applies to
+    the rest of the current transaction. If the statement is issued when a
+    transaction is not active then it applies only to the next transaction in
+    the current session. HyperSQL does not yet support this feature.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LOCK TABLE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOCK TABLE</emphasis></simpara>
+
+    <simpara><emphasis>lock table statement</emphasis></simpara>
+
+    <simpara><literal>&lt;lock table statement&gt; ::= LOCK TABLE &lt;table
+    name&gt; { READ | WRITE} [, &lt;table name&gt; { READ | WRITE}
+    ...]}</literal></simpara>
+
+    <simpara>In some cirsumstance, where multiple simultaneous transactions
+    are in progress, it may be necessary to ensure a transaction consisting of
+    several statements is completed, without being terminated due to possible
+    deadlock. When this statement is executed, it waits until it can obtain
+    all the listed locks, then returns. The SQL statements following this
+    statements use the locks already obtained (and obtain new locks if
+    necessary) and can proceed without waiting. All the locks are released
+    when a COMMIT or ROLLBACK statement is issued.</simpara>
+
+    <example>
+      <title>Locking Tables</title>
+
+      <screen>    LOCK TABLE table_a WRITE, table_b READ</screen>
+    </example>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SAVEPOINT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SAVEPOINT</emphasis></simpara>
+
+    <simpara><emphasis>savepoint statement</emphasis></simpara>
+
+    <simpara><literal>&lt;savepoint statement&gt; ::= SAVEPOINT &lt;savepoint
+    specifier&gt;</literal></simpara>
+
+    <simpara><literal>&lt;savepoint specifier&gt; ::= &lt;savepoint
+    name&gt;</literal></simpara>
+
+    <simpara>Establish a savepoint. This command is used during an SQL
+    transaction. It establishes a milestone for the current transaction. The
+    SAVEPOINT can be used at a later point in the transaction to rollback the
+    transaction to the milestone.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RELEASE SAVEPOINT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RELEASE SAVEPOINT</emphasis></simpara>
+
+    <simpara><emphasis>release savepoint statement</emphasis></simpara>
+
+    <simpara><literal>&lt;release savepoint statement&gt; ::= RELEASE
+    SAVEPOINT &lt;savepoint specifier&gt;</literal></simpara>
+
+    <simpara>Destroy a savepoint. This command is rarely used as it is not
+    very useful. It removes a SAVEPOINT that has already been
+    defined.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>COMMIT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">COMMIT</emphasis></simpara>
+
+    <simpara><emphasis>commit statement</emphasis></simpara>
+
+    <simpara><literal>&lt;commit statement&gt; ::= COMMIT [ WORK ] [ AND [ NO
+    ] CHAIN ]</literal></simpara>
+
+    <simpara>Terminate the current SQL-transaction with commit.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ROLLBACK</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ROLLBACK</emphasis></simpara>
+
+    <simpara><emphasis>rollback statement</emphasis></simpara>
+
+    <simpara><literal>&lt;rollback statement&gt; ::= ROLLBACK [ WORK ] [ AND [
+    NO ] CHAIN ]</literal></simpara>
+
+    <simpara>Rollback the current SQL transaction and terminate it. The
+    statment rolls back all the actions performed during the transaction. If
+    NO CHAIN is specified, a new SQL transaction is started just after the
+    rollback. The new transaction inherits the properties of the old
+    transaction.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ROLLBACK TO SAVEPOINT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ROLLBACK TO SAVEPOINT</emphasis></simpara>
+
+    <simpara><emphasis>rollback statement</emphasis></simpara>
+
+    <simpara><literal>&lt;rollback statement&gt; ::= ROLLBACK [ WORK ] TO
+    SAVEPOINT &lt;savepoint specifier&gt;</literal></simpara>
+
+    <simpara>Rollback part of the current SQL transaction and continue the
+    transaction. The statement rolls back all the action performed after the
+    specified SAVEPOINT was created. The same effect can be achieved with the
+    <literal>rollback( Savepoint savepoint)</literal> method of the JDBC
+    <classname>Connection</classname> object.</simpara>
+
+    <!-- From Foundation chapt. 18 -->
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DISCONNECT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DISCONNECT</emphasis></simpara>
+
+    <simpara><emphasis>disconnect statement</emphasis></simpara>
+
+    <simpara><literal>&lt;disconnect statement&gt; ::=
+    DISCONNECT</literal></simpara>
+
+    <simpara>Terminate the current SQL session. Closing a JDBC connection has
+    the same effect as this command.</simpara>
+
+    <!-- From Foundation chapt. 19 -->
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET SESSION CHARACTERISTICS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET SESSION
+    CHARACTERISTICS</emphasis></simpara>
+
+    <simpara><emphasis>set session characteristics
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set session characteristics statement&gt; ::= SET
+    SESSION CHARACTERISTICS AS &lt;session characteristic
+    list&gt;</literal></simpara>
+
+    <simpara><literal>&lt;session characteristic list&gt; ::= &lt;session
+    characteristic&gt; [ { &lt;comma&gt; &lt;session characteristic&gt; }...
+    ]</literal></simpara>
+
+    <simpara><literal>&lt;session characteristic&gt; ::= &lt;session
+    transaction characteristics&gt;</literal></simpara>
+
+    <simpara><literal>&lt;session transaction characteristics&gt; ::=
+    TRANSACTION &lt;transaction mode&gt; [ { &lt;comma&gt; &lt;transaction
+    mode&gt; }... ]</literal></simpara>
+
+    <simpara>Set one or more characteristics for the current SQL-session. This
+    command is used to set the transaction mode for the session. This endures
+    for all transactions until the session is closed or the next use of this
+    command. The current read-only mode can be accessed with the ISREADONLY()
+    function.</simpara>
+
+    <example>
+      <title>Setting Session Characteristics</title>
+
+      <screen>    SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY
+    SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
+    SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
+</screen>
+    </example>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET SESSION AUTHORIZATION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET SESSION
+    AUTHORIZATION</emphasis></simpara>
+
+    <simpara><emphasis>set session user identifier
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set session user identifier statement&gt; ::= SET
+    SESSION AUTHORIZATION &lt;value specification&gt;</literal></simpara>
+
+    <simpara>Set the SQL-session user identifier. This statement changes the
+    current user. The user that executes this command must have the
+    CHANGE_AUTHORIZATION role, or the DBA role. After this statement is
+    executed, all SQL statements are executed with the privileges of the new
+    user. The current authorisation can be accessed with the CURRENT_USER and
+    SESSION_USER functions.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET ROLE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET ROLE</emphasis></simpara>
+
+    <simpara><emphasis>set role statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set role statement&gt; ::= SET ROLE &lt;role
+    specification&gt;</literal></simpara>
+
+    <simpara><literal>&lt;role specification&gt; ::= &lt;value
+    specification&gt; | NONE</literal></simpara>
+
+    <simpara>Set the SQL-session role name and the current role name for the
+    current SQL-session context. The user that executes this command must have
+    the specifid role. If NONE is specified, then the previous CURRENT_ROLE is
+    elminated. The effect of this lasts for the lifetime of the session. The
+    current role can be accessed with the CURRENT_ROLE function.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET TIME ZONE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET TIME ZONE</emphasis></simpara>
+
+    <simpara><emphasis>set local time zone statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set local time zone statement&gt; ::= SET TIME ZONE
+    &lt;set time zone value&gt;</literal></simpara>
+
+    <simpara><literal>&lt;set time zone value&gt; ::= &lt;interval value
+    expression&gt; | LOCAL</literal></simpara>
+
+    <simpara>Set the current default time zone displacement for the current
+    SQL-session. When the session starts, the time zone displacement is set to
+    the time zone of the client. This command changes the time zone
+    displacement. The effect of this lasts for the lifetime of the
+    session.</simpara>
+
+    <example>
+      <title>Setting Session Time Zone</title>
+
+      <screen>    SET TIME ZONE LOCAL
+    SET TIME ZONE INTERVAL '+6:00' HOUR TO MINUTE
+</screen>
+    </example>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET CATALOG</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET CATALOG</emphasis></simpara>
+
+    <simpara><emphasis>set catalog statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set catalog statement&gt; ::= SET &lt;catalog name
+    characteristic&gt;</literal></simpara>
+
+    <simpara><literal>&lt;catalog name characteristic&gt; ::= CATALOG
+    &lt;value specification&gt;</literal></simpara>
+
+    <simpara>Set the default schema name for unqualified names used in SQL
+    statements that are prepared or executed directly in the current sessions.
+    As there is only one catalog in the database, only the name of this
+    catalog can be used. The current catalog can be accessed with the
+    CURRENT_CATALOG function.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET SCHEMA</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET SCHEMA</emphasis></simpara>
+
+    <simpara><emphasis>set schema statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set schema statement&gt; ::= SET &lt;schema name
+    characteristic&gt;</literal></simpara>
+
+    <simpara><literal>&lt;schema name characteristic&gt; ::= SCHEMA &lt;value
+    specification&gt; | &lt;schema name&gt;</literal></simpara>
+
+    <simpara>Set the default schema name for unqualified names used in SQL
+    statements that are prepared or executed directly in the current sessions.
+    The effect of this lasts for the lifetime of the session. The SQL Standard
+    form requires the schema name as a single-quoted string. HyperSQL also
+    allows the use of the identifier for the schema. The current schema can be
+    accessed with the CURRENT_SCHEMA function.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET PATH</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET PATH</emphasis></simpara>
+
+    <simpara><emphasis>set path statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set path statement&gt; ::= SET &lt;SQL-path
+    characteristic&gt;</literal></simpara>
+
+    <simpara><literal>&lt;SQL-path characteristic&gt; ::= PATH &lt;value
+    specification&gt;</literal></simpara>
+
+    <simpara>Set the SQL-path used to determine the subject routine of routine
+    invocations with unqualified routine names used in SQL statements that are
+    prepared or executed directly in the current sessions. The effect of this
+    lasts for the lifetime of the session.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET MAXROWS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET MAXROWS</emphasis></simpara>
+
+    <simpara><emphasis>set max rows statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set max rows statement&gt; ::= SET MAXROWS
+    &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>The normal operation of the session has no limit on the number of
+    rows returned from a SELECT statement. This command set the maximum number
+    of rows of each result returned by executing queries. This statement has a
+    similar effect to the <methodname>setMaxRows(int max)</methodname> method
+    of the JDBC <classname>Statement</classname> interface, but it affects all
+    the results returned in the lifetime of the session. Only zero or positive
+    values can be used with this command. The value overrides any value
+    specified with <methodname>setMaxRows(int max)</methodname> method of a
+    JDBC statement. If <literal>SET MAXROWS 0</literal> is specified, normal
+    operation is restored.</simpara>
+
+    <simpara>This command is not recommended for general use. The only
+    legitimate use of this command is for checking and testing queries that
+    may return very larg numbers of rows.</simpara>
+  </section>
+</chapter>
