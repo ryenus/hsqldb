@@ -65,6 +65,7 @@ import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.JavaObjectData;
+import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
@@ -739,9 +740,11 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             throw Util.outOfRangeArgument();
         }
 
-        // boucherb@users 20020502 - added conversion
+        Type targetType = NumberType.getNumberType(Types.SQL_DECIMAL,
+            NumberType.defaultNumericPrecision, scale);
+
         BigDecimal bd = (BigDecimal) getColumnInType(parameterIndex,
-            Type.SQL_DECIMAL);
+            targetType);
 
         if (bd != null) {
             bd = bd.setScale(scale, BigDecimal.ROUND_DOWN);
@@ -1006,7 +1009,14 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      */
     public synchronized BigDecimal getBigDecimal(
             int parameterIndex) throws SQLException {
-        return (BigDecimal) getColumnInType(parameterIndex, Type.SQL_DECIMAL);
+        Type targetType =
+        resultMetaData.columnTypes[parameterIndex - 1];
+
+        if( targetType.typeCode != Types.SQL_NUMERIC &&
+            targetType.typeCode != Types.SQL_DECIMAL) {
+            targetType = Type.SQL_DECIMAL_DEFAULT;
+        }
+        return (BigDecimal) getColumnInType(parameterIndex, targetType);
     }
 
     /**
