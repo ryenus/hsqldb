@@ -158,5 +158,5 @@ insert into tident values (12, default);
 
 -- SHUTDOWN is necessary for test1
 
-SHUTDOWN;
+SHUTDOWN IMMEDIATELY;
 

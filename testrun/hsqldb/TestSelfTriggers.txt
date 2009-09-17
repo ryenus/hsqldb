@@ -1,12 +1,13 @@
-drop table test if exists;
-drop table log if exists;
-create cached table test(id integer, data varchar(20));
-create cached table log(id integer, data varchar(20), op varchar(10));
-create trigger trig after insert on test referencing new row as newrow
+drop table testtrig if exists;
+drop table triglog if exists;
+create cached table testtrig(id integer, data varchar(20));
+create cached table triglog(id integer, data varchar(20), op varchar(10));
+create trigger trig after insert on testtrig referencing new row as newrow
  for each row when (newrow.id >1)
- insert into log values (newrow.id, newrow.data, 'inserted')
-insert into test values(1,'one');
-insert into test values(2,'two');
-alter table test drop column id cascade;
-drop table test;
+ insert into triglog values (newrow.id, newrow.data, 'inserted')
+insert into testtrig values(1,'one');
+insert into testtrig values(2,'two');
+/*r2,two,inserted*/select * from triglog
+alter table testtrig drop column id cascade;
+drop table testtrig;
 

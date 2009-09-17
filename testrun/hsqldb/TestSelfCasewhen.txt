@@ -37,7 +37,7 @@ select case when a.sel=1 then a.name2 else a.name1 end as name,
  count(a.name1) as counter from test a group by case when a.sel=1
  then a.name2 else a.name1 end
  -- nested expressions
-create table single (c char);
+create table single (c char(1));
 insert into single values('X');
 /*r1*/select case c when 'X' then 1 else 2 end from single;
 insert into single values(null);

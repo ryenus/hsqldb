@@ -37,3 +37,26 @@ insert into trees (id, name) values (1, 'apple');
 insert into fruits (id, name, tree_id) values(1, 'pippin', 1);
 insert into fruits (id, name, tree_id) values(2, 'granny smith', 1);
 /*c2*/select id from fruits where tree_id in(select id from trees where name = 'apple');
+
+drop table table1 if exists;
+drop table table2 if exists;
+CREATE TABLE TABLE1 (COL1 INTEGER, COL2 CHAR(1))
+CREATE TABLE TABLE2 (COL1 INTEGER)
+insert into table1 values 1, 'X'
+insert into table2 values 1
+/*r1*/SELECT T1.COL1 FROM TABLE1 T1 INNER JOIN
+ (SELECT COL1 FROM TABLE2) T2 ON T1.COL1 = T2.COL1
+ WHERE T1.COL2 = 'X'
+
+/*r
+ null,4
+ 5,6
+*/select * from (
+ select null as aaaaaaa, 4 as b from table2
+ union select 5 as aaaaaaa, 6 as b from table2
+ ) baz
+
+
+
+drop table table1
+drop table table2
