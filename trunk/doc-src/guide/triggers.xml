@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xml:id="triggers-chapt"
          xmlns="http://docbook.org/ns/docbook"
-         xmlns:xi="http://www.w3.org/2001/XInclude">
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1999/xhtml"
+         xmlns:ns4="http://www.w3.org/2000/svg"
+         xmlns:ns3="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns2="http://www.w3.org/1999/xlink"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <title xml:id="triggers-title">Triggers</title>
 
   <info>
@@ -131,7 +136,7 @@
       <title>Granularity</title>
 
       <para>A statement level trigger is performed once for the executed SQL
-      statement and is declared as FOR EACH STATEMENT. </para>
+      statement and is declared as FOR EACH STATEMENT.</para>
 
       <para>A row level trigger is performed once for each row that is
       modified during the execution of an SQL statement and is declared as FOR
@@ -176,6 +181,32 @@
     </section>
 
     <section>
+      <title>References to Rows</title>
+
+      <para>If the old rows or new rows are referenced in the SQL statements
+      in the trigger action, they must have names. The REFERENCING clause is
+      used to give names to the old and new rows. The clause, REFERENCING OLD
+      | NEW TABLE is used for statement level triggers. The clause,
+      REFERENCING OLD | NEW ROW is used for row level triggers. If the old
+      rows or new rows are referenced in the SQL statements in the trigger
+      action, they must have names. In the SQL statements, the columns of the
+      old or new rows are qualified with the specified names.</para>
+    </section>
+
+    <section>
+      <title>Trigger Condition</title>
+
+      <para>The WHEN clause can specify a condition for the columns of the row
+      that is being changed. Using this clause you can simply avoid
+      unnecessary trigger activation for rows that do not need it.</para>
+
+      <para>For UPDATE trigger, you can specify a list of columns of the
+      table. If a list of columns is spedified, then if the UPDATE statement
+      does not change the columns with SET clauses, then the trigger is not
+      activated at all.</para>
+    </section>
+
+    <section>
       <title>Trigger Action in SQL</title>
 
       <para>The trigger action specifies what the trigger does when it is
@@ -188,6 +219,17 @@
       represent the updated rows before and after the update. The REFERENCING
       clause gives names to these rows, so that the rows can be referenced in
       the trigger action.</para>
+
+      <para>In the example below, a name is given to the NEW ROW and it is
+      used both in the WHEN clause and in the trigger action SQL to insert a
+      row into a triglog table after each row insert into the testtrig
+      table.</para>
+
+      <programlisting>create trigger trig after insert on testtrig 
+   referencing new row as newrow
+   for each row when (newrow.id &gt; 1)
+   insert into triglog values (newrow.id, newrow.data, 'inserted')
+</programlisting>
     </section>
 
     <section>
@@ -219,23 +261,37 @@
       in the row that is being inserted or updated. Any other modifications
       are ignored by the engine.</para>
 
-      <para>A Java trigger that uses an instance of org.hsqldb.Trigger has two
-      forms, synchronous, or asynchronous (immediate or queued). By default,
-      or when QUEUE 0 is specified, the action is performed immediately by
-      calling the Java method. This is similar to SQL trigger actions. When
-      QUEUE n is specified with n larger than 0, the engine uses a separate
-      thread to execute the java method, using a queue with the size n. For
-      certain applications, such as real-time systems this allows asynchronous
+      <para>A Java trigger that uses an instance of
+      <classname>org.hsqldb.Trigger</classname> has two forms, synchronous, or
+      asynchronous (immediate or queued). By default, or when QUEUE 0 is
+      specified, the action is performed immediately by calling the Java
+      method. This is similar to SQL trigger actions. When QUEUE n is
+      specified with n larger than 0, the engine uses a separate thread to
+      execute the java method, using a queue with the size n. For certain
+      applications, such as real-time systems this allows asynchronous
       notifications to be sent by the trigger event, without introducing
       delays in the engine. With asynchronous triggers, an extra parameter,
       NOWAIT can be used in trigger definition. This overcomes the queue full
       condition. In this mode, old calls that are still in the queue are
       discarded one by one and replaced with new calls.</para>
 
-      <para>Java triggers should not be used for modifying the database, apart
-      from modifications to the row data.</para>
+      <para>Java triggers can modify the row data. They should not be used to
+      modify the database, e.g. insert new rows, etc.</para>
 
-      <para></para>
+      <para>For sample trigger classes and test code see,
+      org.hsqldb.sample.TriggerSample, org.hsqldb.test.TestTriggers,
+      org.hsqldb.test.TriggerClass and the associated text script
+      TestTriggers.txt in /testrun/hsqldb/ directory. In the example below,
+      the trigger is activated only if the update statement includes SET
+      clauses that modify any of the specified columns. Furthermore, the
+      trigger is not activated if the c2 column in the updated row is
+      null.</para>
+
+      <programlisting>create trigger trigbur before update of c1, c2, c3 on testtrig 
+   referencing new row as newrow
+   for each row when (newro.c2 is not null)
+   call "org.hsqldb.test.TriggerClass"
+</programlisting>
     </section>
   </section>
 
@@ -361,7 +417,10 @@
     table.</simpara>
 
     <simpara>The second form is enclosed in a BEGIN ... END block and can
-    include one or more SQL procedure statements.</simpara>
+    include one or more SQL procedure statements. In BEFORE triggers, you can
+    include SET statements to modify the inserted or updated rows. In AFTER
+    triggers, you can include INSERT, DELETE and UPDATE statements to change
+    the data in other database tables.</simpara>
 
     <simpara>The third form specifies a call to a Java method.</simpara>
 
