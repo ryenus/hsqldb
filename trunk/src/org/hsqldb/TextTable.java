@@ -38,6 +38,7 @@ import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.DataFileCache;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TextCache;
+import org.hsqldb.navigator.RowIterator;
 
 // tony_lai@users 20020820 - patch 595099 - user define PK name
 
@@ -52,9 +53,9 @@ import org.hsqldb.persist.TextCache;
  */
 public class TextTable extends org.hsqldb.Table {
 
-    private String  dataSource  = "";
-    private boolean isReversed  = false;
-    private boolean isConnected = false;
+    String  dataSource  = "";
+    boolean isReversed  = false;
+    boolean isConnected = false;
 
 //    TextCache cache;
 
@@ -289,8 +290,8 @@ public class TextTable extends org.hsqldb.Table {
     }
 
     public boolean isDataReadOnly() {
-        return !isConnected() || super.isDataReadOnly() ||
-            store.getCache().isDataReadOnly();
+        return !isConnected() || super.isDataReadOnly()
+               || store.getCache().isDataReadOnly();
     }
 
     public void setDataReadOnly(boolean value) {
@@ -302,6 +303,11 @@ public class TextTable extends org.hsqldb.Table {
 
             if (database.isFilesReadOnly()) {
                 throw Error.error(ErrorCode.DATABASE_IS_READONLY);
+            }
+
+            if (isConnected()) {
+                store.getCache().close(true);
+                store.getCache().open(value);
             }
         }
 
@@ -362,6 +368,31 @@ public class TextTable extends org.hsqldb.Table {
         sb.append(header);
 
         return sb.toString();
+    }
+
+    void moveData(Session session, Table from, int colindex, int adjust) {
+
+        PersistentStore store = session.sessionData.getRowStore(this);
+
+        store.setCache(from.store.getCache());
+
+        RowIterator it = from.rowIterator(session);
+
+        try {
+            while (it.hasNext()) {
+                Row row = it.getNextRow();
+
+                store.indexRow(session, row);
+            }
+        } catch (Throwable t) {
+            store.release();
+
+            if (t instanceof HsqlException) {
+                throw (HsqlException) t;
+            }
+
+            throw new HsqlException(t, "", 0);
+        }
     }
 
     /**

@@ -646,8 +646,9 @@ public class ParserCommand extends ParserDDL {
 
                         boolean readonly = false;
 
-                        if (token.tokenType == Tokens.WRITE) {}
-                        else {
+                        if (token.tokenType == Tokens.WRITE) {
+                            read();
+                        } else {
                             readThis(Tokens.ONLY);
 
                             readonly = true;

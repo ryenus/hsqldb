@@ -202,8 +202,8 @@ public class TransactionManager2PL implements TransactionManager {
                     switch (type) {
 
                         case RowActionBase.ACTION_INSERT :
-                            action.table.addLobUsageCount(session,
-                                                          row.getData());
+                            session.sessionData.addLobUsageCount(
+                                action.table, row.getData());
                             break;
 
                         default :
@@ -233,13 +233,13 @@ public class TransactionManager2PL implements TransactionManager {
 
                             case RowActionBase.ACTION_DELETE :
                                 database.logger.writeDeleteStatement(
-                                    session, action.table, data);
+                                    session, (Table) action.table, data);
                                 store.remove(action.getPos());
                                 break;
 
                             case RowActionBase.ACTION_INSERT :
                                 database.logger.writeInsertStatement(
-                                    session, action.table, data);
+                                    session, (Table) action.table, data);
                                 break;
 
                             case RowActionBase.ACTION_NONE :

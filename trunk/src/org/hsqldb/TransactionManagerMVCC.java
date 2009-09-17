@@ -140,6 +140,7 @@ public class TransactionManagerMVCC implements TransactionManager {
                                 globalChangeTimestamp.get());
 
                             database.txManager = manager;
+
                             break;
                         }
                     }
@@ -204,13 +205,11 @@ public class TransactionManagerMVCC implements TransactionManager {
                         action.getActionType(session.actionTimestamp);
 
                     if (actionType == RowActionBase.ACTION_INSERT) {
-                        database.logger.writeInsertStatement(session,
-                                                             action.table,
-                                                             data);
+                        database.logger.writeInsertStatement(
+                            session, (Table) action.table, data);
                     } else if (actionType == RowActionBase.ACTION_DELETE) {
-                        database.logger.writeDeleteStatement(session,
-                                                             action.table,
-                                                             data);
+                        database.logger.writeDeleteStatement(
+                            session, (Table) action.table, data);
                     } else if (actionType == RowActionBase.ACTION_NONE) {
 
                         // no logging
@@ -368,8 +367,8 @@ public class TransactionManagerMVCC implements TransactionManager {
                                 row = (Row) store.get(action.getPos(), false);
                             }
 
-                            action.table.addLobUsageCount(session,
-                                                          row.getData());
+                            session.sessionData.addLobUsageCount(
+                                action.table, row.getData());
                             break;
 
                         default :
@@ -449,8 +448,8 @@ public class TransactionManagerMVCC implements TransactionManager {
         rollbackPartial(session, 0, session.transactionTimestamp);
         endTransaction(session);
 
-
         if (mvcc) {
+
             //
         } else {
             try {
@@ -595,6 +594,7 @@ public class TransactionManagerMVCC implements TransactionManager {
         return action == null ? true
                               : action.canRead(session);
     }
+
     /**
      *  todo - can remove a row that has previously inserted by the same transaction
      */
@@ -640,7 +640,8 @@ public class TransactionManagerMVCC implements TransactionManager {
                     if (commit && rowact.table.hasLobColumn) {
                         Object[] data = row.getData();
 
-                        rowact.table.removeLobUsageCount(rowact.session, data);
+                        rowact.session.sessionData.removeLobUsageCount(
+                            rowact.table, data);
                     }
 
                     store.delete(row);

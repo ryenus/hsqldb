@@ -117,6 +117,9 @@ public interface PersistentStore {
 
     void resetAccessorKeys(Index[] keys);
 
+    void moveData(Session session, PersistentStore other, int colindex,
+                  int adjust);
+
     void lock();
 
     void unlock();

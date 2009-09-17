@@ -45,13 +45,13 @@ import org.hsqldb.lib.OrderedHashSet;
 public class RowAction extends RowActionBase {
 
     //
-    final Table table;
-    Row         memoryRow;
-    int         rowId;
-    boolean     isMemory;
+    final TableBase table;
+    Row             memoryRow;
+    int             rowId;
+    boolean         isMemory;
 
-    public static RowAction addAction(Session session, byte type, Table table,
-                                      Row row) {
+    public static RowAction addAction(Session session, byte type,
+                                      TableBase table, Row row) {
 
         RowAction action = row.rowAction;
 
@@ -94,7 +94,7 @@ public class RowAction extends RowActionBase {
      * @param session
      * @param type type of action
      */
-    RowAction(Session session, Table table, byte type) {
+    RowAction(Session session, TableBase table, byte type) {
 
         super(session, type);
 
@@ -324,7 +324,6 @@ public class RowAction extends RowActionBase {
                         result = false;
                     } else if (action.commitTimestamp == 0
                                && action.actionTimestamp != 0) {
-
                         if (set != null) {
                             set.add(action.session);
                         }

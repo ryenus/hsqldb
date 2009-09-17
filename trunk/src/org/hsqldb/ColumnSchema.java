@@ -257,7 +257,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     /**
      *  Returns default value in the session context.
      */
-    Object getDefaultValue(Session session) {
+    public Object getDefaultValue(Session session) {
 
         return defaultExpression == null ? null
                                          : defaultExpression.getValue(session,
@@ -267,7 +267,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     /**
      *  Returns generated value in the session context.
      */
-    Object getGeneratedValue(Session session) {
+    public Object getGeneratedValue(Session session) {
 
         return generatingExpression == null ? null
                                             : generatingExpression.getValue(

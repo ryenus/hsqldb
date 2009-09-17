@@ -321,7 +321,6 @@ public class Logger {
         switch (propTxMode) {
 
             case Database.LOCKS :
-                database.txManager = new TransactionManager2PL(database);
                 break;
 
             case Database.MVLOCKS :

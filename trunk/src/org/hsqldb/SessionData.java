@@ -55,6 +55,7 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
+import org.hsqldb.types.LobData;
 
 /*
  * Session semi-persistent data structures
@@ -426,6 +427,45 @@ public class SessionData {
         hasLobOps = true;
 
         lobUsageCount.put(lobID, count - 1);
+    }
+
+    void addLobUsageCount(TableBase table, Object[] data) {
+
+        if (!table.hasLobColumn) {
+            return;
+        }
+
+        for (int j = 0; j < table.columnCount; j++) {
+            if (table.colTypes[j].isLobType()) {
+                Object value = data[j];
+
+                if (value == null) {
+                    continue;
+                }
+
+                addLobUsageCount(((LobData) value).getId());
+            }
+        }
+    }
+
+    void removeLobUsageCount(TableBase table, Object[] data) {
+
+        if (!table.hasLobColumn) {
+            return;
+        }
+
+        for (int j = 0; j < table.columnCount; j++) {
+            if (table.colTypes[j].isLobType()) {
+                Object value = data[j];
+
+                if (value == null) {
+                    continue;
+                }
+
+                session.sessionData.removeUsageCount(
+                    ((LobData) value).getId());
+            }
+        }
     }
 
     /**

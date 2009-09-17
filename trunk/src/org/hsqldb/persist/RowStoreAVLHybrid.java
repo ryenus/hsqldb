@@ -58,7 +58,6 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
-    final TableBase                 table;
     final Session                   session;
     DataFileCacheSession            cache;
     private int                     maxMemoryRowCount;
@@ -209,6 +208,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         return null;
     }
 
+    public CachedObject getNewInstance(int size) {
+        return null;
+    }
+
     public CachedObject getNewCachedObject(Session session, Object object) {
 
         if (isCached) {
@@ -251,10 +254,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void removeAll() {
 
-        if (!isCached) {
-            if (rowIdMap != null) {
-                rowIdMap.clear();
-            }
+        if (rowIdMap != null) {
+            rowIdMap.clear();
         }
 
         ArrayUtil.fillArray(accessorList, null);
@@ -360,9 +361,5 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
 
         maxMemoryRowCount = Integer.MAX_VALUE;
-    }
-
-    public CachedObject getNewInstance(int size) {
-        return null;
     }
 }
