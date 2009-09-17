@@ -28,4 +28,5 @@ CONNECT USER MATT PASSWORD MATT
 -- There are two rows in the table but the select should only return the row
 -- associated with the connected user i.e. one row
 /*c1*/ SELECT COUNT(*) FROM USER_SECURITY_PROFILE_VIEW
+SHUTDOWN
 
