@@ -1,28 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xml:id="texttables-chapt"
-         xmlns="http://docbook.org/ns/docbook">
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1999/xhtml"
+         xmlns:ns4="http://www.w3.org/2000/svg"
+         xmlns:ns3="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns2="http://www.w3.org/1999/xlink"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title xml:id="texttables-title">Text Tables</title>
+
+  <subtitle>Text Tables as a Standard Feature of Hsqldb</subtitle>
+
   <info>
-    <title xml:id="texttables-title">Text Tables</title>
+    <authorgroup>
+      <author>
+        <personname><firstname>Bob</firstname>
+        <surname>Preston</surname></personname>
 
-    <subtitle>Text Tables as a Standard Feature of Hsqldb</subtitle>
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
 
-    <author>
-      <personname><firstname>Bob</firstname>
-      <surname>Preston</surname></personname>
+      <author>
+        <personname><firstname>Fred</firstname>
+        <surname>Toussi</surname></personname>
 
-      <affiliation>
-        <orgname>The HSQL Development Group</orgname>
-      </affiliation>
-    </author>
-
-    <author>
-      <personname><firstname>Fred</firstname>
-      <surname>Toussi</surname></personname>
-
-      <affiliation>
-        <orgname>The HSQL Development Group</orgname>
-      </affiliation>
-    </author>
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
 
     <releaseinfo>$Revision$</releaseinfo>
 
@@ -49,25 +57,30 @@
     </legalnotice>
   </info>
 
-  <para>Text Table support for HSQLDB was originally developed by Bob Preston
-  independently from the Project. Subsequently Bob joined the Project and
-  incorporated this feature into version 1.7.0, with a number of enhancements,
-  especially the use of conventional SQL commands for specifying the files
-  used for Text Tables.</para>
+  <section xml:id="texttables_overview-sect">
+    <title>Overview</title>
 
-  <para>In a nutshell, Text Tables are CSV or other delimited files treated as
-  SQL tables. Any ordinary CSV or other delimited file can be used. The full
-  range of SQL queries can be performed on these files, including SELECT,
-  INSERT, UPDATE and DELETE. Indexes and unique constraints can be set up, and
-  foreign key constraints can be used to enforce referential integrity between
-  Text Tables themselves or with conventional tables.</para>
+    <para>Text Table support for HSQLDB was originally developed by Bob
+    Preston independently from the Project. Subsequently Bob joined the
+    Project and incorporated this feature into version 1.7.0, with a number of
+    enhancements, especially the use of conventional SQL commands for
+    specifying the files used for Text Tables.</para>
 
-  <para>The delimited file can be created by the engine, or an existing file
-  can be used.</para>
+    <para>In a nutshell, Text Tables are CSV or other delimited files treated
+    as SQL tables. Any ordinary CSV or other delimited file can be used. The
+    full range of SQL queries can be performed on these files, including
+    SELECT, INSERT, UPDATE and DELETE. Indexes and unique constraints can be
+    set up, and foreign key constraints can be used to enforce referential
+    integrity between Text Tables themselves or with conventional
+    tables.</para>
 
-  <para>HyperSQL with Text Table support is the only comprehensive solution
-  that employs the power of SQL and the universal reach of JDBC to handle data
-  stored in text files.</para>
+    <para>The delimited file can be created by the engine, or an existing file
+    can be used.</para>
+
+    <para>HyperSQL with Text Table support is the only comprehensive solution
+    that employs the power of SQL and the universal reach of JDBC to handle
+    data stored in text files.</para>
+  </section>
 
   <section xml:id="texttables_impl-sect">
     <title>The Implementation</title>
@@ -356,27 +369,15 @@
       </listitem>
 
       <listitem>
-        <para>The file location for a text table created with ** not supported
-        now **</para>
-
-        <programlisting>    SELECT &lt;select list&gt; INTO TEXT &lt;tablename&gt; FROM</programlisting>
-
-        <para>is the directory that contains the database and the file name is
-        based on the table name. The table name is converted into the file
-        name by replacing all the non-alphanumeric characters with the
-        underscore character, conversion into lowercase, and adding the ".csv"
-        suffix.</para>
-      </listitem>
-
-      <listitem>
-        <para>It is possible to define a primary key or identity column for
-        text tables.</para>
+        <para>It is possible to define a primary key, identity column, unique,
+        foreign key and check constraints for text tables.</para>
       </listitem>
 
       <listitem>
         <para>When a table source file is used with the<literal>
         ignore_first=true </literal>option, the first, ignored line is
-        replaced with a blank line after a SHUTDOWN COMPACT.</para>
+        replaced with a blank line after a SHUTDOWN COMPACT, unless the SOURCE
+        HEADER statement has been used.</para>
       </listitem>
 
       <listitem>
@@ -400,8 +401,10 @@
       </listitem>
 
       <listitem>
-        <para>ALTER TABLE commands that add or drop columns are not supported
-        with non-empty text tables.</para>
+        <para>ALTER TABLE commands that add or drop columns or constraints
+        (apart from check constraints) are not supported with text tables that
+        are connected to a source. First use the SET TABLE &lt;name&gt; SOURCE
+        OFF, make the changes, then turn the source ON.</para>
       </listitem>
     </itemizedlist>
   </section>
