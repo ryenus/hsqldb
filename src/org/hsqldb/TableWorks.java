@@ -164,6 +164,7 @@ public class TableWorks {
      */
     void addForeignKey(Constraint c) {
 
+        checkModifyTable();
         checkCreateForeignKey(c);
 
         Constraint uniqueConstraint =
@@ -201,8 +202,12 @@ public class TableWorks {
 
         Table tn = table.moveDefinition(session, table.tableType, null, c,
                                         refIndex, -1, 0, emptySet, emptySet);
+        PersistentStore oldStore =
+            database.persistentStoreCollection.getStore(table);
+        PersistentStore newStore =
+            database.persistentStoreCollection.getStore(tn);
 
-        tn.moveData(session, table, -1, 0);
+        newStore.moveData(session, oldStore, -1, 0);
         c.core.mainTable.addConstraint(new Constraint(mainName, c));
         database.schemaManager.addSchemaObject(c);
         database.persistentStoreCollection.releaseStore(table);
@@ -220,6 +225,8 @@ public class TableWorks {
      * @param col the Column to add to the Table, t
      */
     void checkAddColumn(ColumnSchema col) {
+
+        checkModifyTable();
 
         if (table.isText() && !table.isEmpty(session)) {
             throw Error.error(ErrorCode.X_S0521);
@@ -383,7 +390,12 @@ public class TableWorks {
             }
         }
 
-        table.moveData(session, originalTable, colIndex, 1);
+        PersistentStore oldStore =
+            database.persistentStoreCollection.getStore(originalTable);
+        PersistentStore newStore =
+            database.persistentStoreCollection.getStore(table);
+
+        newStore.moveData(session, oldStore, colIndex, 1);
 
         if (mainConstraint != null) {
             mainConstraint.getMain().addConstraint(mainConstraint);
@@ -468,7 +480,12 @@ public class TableWorks {
             return;
         }
 
-        tn.moveData(session, table, -1, 0);
+        PersistentStore oldStore =
+            database.persistentStoreCollection.getStore(table);
+        PersistentStore newStore =
+            database.persistentStoreCollection.getStore(tn);
+
+        newStore.moveData(session, oldStore, -1, 0);
         database.persistentStoreCollection.releaseStore(table);
 
         table = tn;
@@ -493,6 +510,8 @@ public class TableWorks {
 
         Index newindex;
 
+        checkModifyTable();
+
         if (table.isEmpty(session) || table.isIndexingMutable()) {
             PersistentStore store = session.sessionData.getRowStore(table);
 
@@ -507,7 +526,12 @@ public class TableWorks {
                                             emptySet);
 
             // for all sessions move the data
-            tn.moveData(session, table, -1, 0);
+            PersistentStore oldStore =
+                database.persistentStoreCollection.getStore(table);
+            PersistentStore newStore =
+                database.persistentStoreCollection.getStore(tn);
+
+            newStore.moveData(session, oldStore, -1, 0);
             database.persistentStoreCollection.releaseStore(table);
 
             table = tn;
@@ -524,6 +548,8 @@ public class TableWorks {
 
     void addPrimaryKey(Constraint constraint, HsqlName name) {
 
+        checkModifyTable();
+
         if (table.hasPrimaryKey()) {
             throw Error.error(ErrorCode.X_42532);
         }
@@ -533,8 +559,12 @@ public class TableWorks {
         Table tn = table.moveDefinition(session, table.tableType, null,
                                         constraint, null, -1, 0, emptySet,
                                         emptySet);
+        PersistentStore oldStore =
+            database.persistentStoreCollection.getStore(table);
+        PersistentStore newStore =
+            database.persistentStoreCollection.getStore(tn);
 
-        tn.moveData(session, table, -1, 0);
+        newStore.moveData(session, oldStore, -1, 0);
         database.persistentStoreCollection.releaseStore(table);
 
         table = tn;
@@ -558,6 +588,7 @@ public class TableWorks {
      */
     void addUniqueConstraint(int[] cols, HsqlName name) {
 
+        checkModifyTable();
         database.schemaManager.checkSchemaObjectNotExists(name);
 
         if (table.getUniqueConstraintForColumns(cols) != null) {
@@ -576,8 +607,12 @@ public class TableWorks {
         Table tn = table.moveDefinition(session, table.tableType, null,
                                         constraint, index, -1, 0, emptySet,
                                         emptySet);
+        PersistentStore oldStore =
+            database.persistentStoreCollection.getStore(table);
+        PersistentStore newStore =
+            database.persistentStoreCollection.getStore(tn);
 
-        tn.moveData(session, table, -1, 0);
+        newStore.moveData(session, oldStore, -1, 0);
         database.persistentStoreCollection.releaseStore(table);
 
         table = tn;
@@ -619,10 +654,12 @@ public class TableWorks {
 
         Index index;
 
+        checkModifyTable();
+
         index = table.getIndex(indexName);
 
         if (table.isIndexingMutable()) {
-            table.dropIndex(session, indexName);
+            table.dropIndex(index.getPosition());
         } else {
             OrderedHashSet indexSet = new OrderedHashSet();
 
@@ -631,8 +668,12 @@ public class TableWorks {
             Table tn = table.moveDefinition(session, table.tableType, null,
                                             null, null, -1, 0, emptySet,
                                             indexSet);
+            PersistentStore oldStore =
+                database.persistentStoreCollection.getStore(table);
+            PersistentStore newStore =
+                database.persistentStoreCollection.getStore(tn);
 
-            tn.moveData(session, table, -1, 0);
+            newStore.moveData(session, oldStore, -1, 0);
             updateConstraints(tn, emptySet);
             setNewTableInSchema(tn);
             database.persistentStoreCollection.releaseStore(table);
@@ -660,9 +701,7 @@ public class TableWorks {
             database.schemaManager.getReferencingObjects(table.getName(),
                 columnName);
 
-        if (table.isText() && !table.isEmpty(session)) {
-            throw Error.error(ErrorCode.X_S0521);
-        }
+        checkModifyTable();
 
         if (!cascade) {
             if (!cascadingConstraints.isEmpty()) {
@@ -713,8 +752,12 @@ public class TableWorks {
         Table tn = table.moveDefinition(session, table.tableType, null, null,
                                         null, colIndex, -1, constraintNameSet,
                                         indexNameSet);
+        PersistentStore oldStore =
+            database.persistentStoreCollection.getStore(table);
+        PersistentStore newStore =
+            database.persistentStoreCollection.getStore(tn);
 
-        tn.moveData(session, table, colIndex, -1);
+        newStore.moveData(session, oldStore, colIndex, -1);
 
         //
         database.schemaManager.removeSchemaObjects(referencingObjects);
@@ -759,6 +802,8 @@ public class TableWorks {
                 throw Error.error(ErrorCode.X_28502);
             case SchemaObject.ConstraintTypes.PRIMARY_KEY :
             case SchemaObject.ConstraintTypes.UNIQUE : {
+                checkModifyTable();
+
                 OrderedHashSet dependentConstraints =
                     table.getDependentConstraints(constraint);
 
@@ -805,8 +850,12 @@ public class TableWorks {
                                                 null, null, null, -1, 0,
                                                 constraintNameSet,
                                                 indexNameSet);
+                PersistentStore oldStore =
+                    database.persistentStoreCollection.getStore(table);
+                PersistentStore newStore =
+                    database.persistentStoreCollection.getStore(tn);
 
-                tn.moveData(session, table, -1, 0);
+                newStore.moveData(session, oldStore, -1, 0);
 
                 tableSet = makeNewTables(tableSet, constraintNameSet,
                                          indexNameSet);
@@ -837,6 +886,8 @@ public class TableWorks {
                 break;
             }
             case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
+                checkModifyTable();
+
                 OrderedHashSet constraints = new OrderedHashSet();
                 Table          mainTable   = constraint.getMain();
                 HsqlName       mainName    = constraint.getMainName();
@@ -851,8 +902,12 @@ public class TableWorks {
                 Table tn = table.moveDefinition(session, table.tableType,
                                                 null, null, null, -1, 0,
                                                 constraints, indexes);
+                PersistentStore oldStore =
+                    database.persistentStoreCollection.getStore(table);
+                PersistentStore newStore =
+                    database.persistentStoreCollection.getStore(tn);
 
-                tn.moveData(session, table, -1, 0);
+                newStore.moveData(session, oldStore, -1, 0);
 
                 //
                 database.schemaManager.removeSchemaObject(
@@ -895,6 +950,8 @@ public class TableWorks {
         boolean allowed = true;
         int     oldType = oldCol.getDataType().typeCode;
         int     newType = newCol.getDataType().typeCode;
+
+        checkModifyTable();
 
         if (!table.isEmpty(session) && oldType != newType) {
             allowed =
@@ -998,17 +1055,17 @@ public class TableWorks {
      * @param column Column
      * @param colIndex int
      */
-    void retypeColumn(ColumnSchema column, int colIndex) {
-
-        if (table.isText() && !table.isEmpty(session)) {
-            throw Error.error(ErrorCode.X_S0521);
-        }
+    private void retypeColumn(ColumnSchema column, int colIndex) {
 
         Table tn = table.moveDefinition(session, table.tableType, column,
                                         null, null, colIndex, 0, emptySet,
                                         emptySet);
+        PersistentStore oldStore =
+            database.persistentStoreCollection.getStore(table);
+        PersistentStore newStore =
+            database.persistentStoreCollection.getStore(tn);
 
-        tn.moveData(session, table, colIndex, 0);
+        newStore.moveData(session, oldStore, colIndex, 0);
         updateConstraints(tn, emptySet);
         setNewTableInSchema(tn);
         database.persistentStoreCollection.releaseStore(table);
@@ -1106,7 +1163,12 @@ public class TableWorks {
             tn = table.moveDefinition(session, newType, null, null, null, -1,
                                       0, emptySet, emptySet);
 
-            tn.moveData(session, table, -1, 0);
+            PersistentStore oldStore =
+                database.persistentStoreCollection.getStore(table);
+            PersistentStore newStore =
+                database.persistentStoreCollection.getStore(tn);
+
+            newStore.moveData(session, oldStore, -1, 0);
             updateConstraints(tn, emptySet);
         } catch (HsqlException e) {
             return false;
@@ -1156,5 +1218,16 @@ public class TableWorks {
 
         column.setNullable(true);
         table.setColumnTypeVars(colIndex);
+    }
+
+    private void checkModifyTable() {
+
+        if (database.isFilesReadOnly() || table.isReadOnly()) {
+            throw Error.error(ErrorCode.DATA_IS_READONLY);
+        }
+
+        if (table.isText() && table.isConnected()) {
+            throw Error.error(ErrorCode.X_S0521);
+        }
     }
 }

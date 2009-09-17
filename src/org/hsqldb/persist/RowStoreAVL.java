@@ -40,15 +40,22 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.index.NodeAVL;
+import org.hsqldb.Table;
+import org.hsqldb.TableBase;
+import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.types.Type;
+import org.hsqldb.ColumnSchema;
 
 public abstract class RowStoreAVL implements PersistentStore {
 
     PersistentStoreCollection manager;
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;
+    TableBase                 table;
 
     // for result tables
-    long                      timestamp;
+    long timestamp;
 
     public boolean isMemory() {
         return false;
@@ -66,8 +73,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     public abstract void add(CachedObject object);
 
-    public abstract CachedObject get(RowInputInterface in)
-    ;
+    public abstract CachedObject get(RowInputInterface in);
 
     public abstract CachedObject getNewInstance(int size);
 
@@ -104,12 +110,6 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         return accessorList[position];
     }
-
-    public abstract void setAccessor(Index key, CachedObject accessor);
-
-    public abstract void setAccessor(Index key, int accessor);
-
-    public abstract void resetAccessorKeys(Index[] keys);
 
     /**
      * Basic delete with no logging or referential checks.
@@ -172,8 +172,154 @@ public abstract class RowStoreAVL implements PersistentStore {
         return indexList[0].firstRow(this);
     }
 
+    public abstract void setAccessor(Index key, CachedObject accessor);
+
+    public abstract void setAccessor(Index key, int accessor);
+
+    public abstract void resetAccessorKeys(Index[] keys);
+
+    /**
+     * Moves the data from an old store to new after changes to table
+     * The colindex argument is the index of the column that was
+     * added or removed. The adjust argument is {-1 | 0 | +1}
+     */
+    public void moveData(Session session, PersistentStore other,
+        int colindex, int adjust
+        ) {
+
+        Object       colvalue = null;
+        Type         oldtype  = null;
+        Type         newtype  = null;
+
+        if (adjust >= 0 && colindex != -1) {
+            ColumnSchema column   = ((Table) table).getColumn(colindex);
+            colvalue = column.getDefaultValue(session);
+
+            if (adjust == 0) {
+                oldtype = ((Table) ((RowStoreAVL) other).table).getColumnTypes()[colindex];
+                newtype = ((Table) table).getColumnTypes()[colindex];
+            }
+        }
+
+
+        RowIterator it    = other.rowIterator();
+        Table       table = (Table) this.table;
+
+        try {
+            while (it.hasNext()) {
+                Row row = it.getNextRow();
+
+                Object[] o    = row.getData();
+                Object[] data = table.getEmptyRowData();
+
+
+                if (adjust == 0 && colindex != -1) {
+                    colvalue = newtype.convertToType(session, o[colindex],
+                                                     oldtype);
+                }
+
+                ArrayUtil.copyAdjustArray(o, data, colvalue, colindex, adjust);
+
+
+                table.systemSetIdentityColumn(session, data);
+                table.enforceRowConstraints(session, data);
+
+                // get object without RowAction
+                Row newrow = (Row) getNewCachedObject(null, data);
+
+                if (row.rowAction != null) {
+                    newrow.rowAction =
+                        row.rowAction.duplicate(newrow.getPos());
+                }
+
+                indexRow(null, newrow);
+            }
+        } catch (java.lang.OutOfMemoryError e) {
+            throw Error.error(ErrorCode.OUT_OF_MEMORY);
+        }
+    }
+
     public void lock() {}
 
-    public void unlock(){}
+    public void unlock() {}
 
+    void dropIndexFromRows(Index primaryIndex, Index oldIndex) {
+
+        RowIterator it       = primaryIndex.firstRow(this);
+        int         position = oldIndex.getPosition() - 1;
+
+        while (it.hasNext()) {
+            Row     row      = it.getNextRow();
+            int     i        = position - 1;
+            NodeAVL backnode = ((RowAVL) row).getNode(0);
+
+            while (i-- > 0) {
+                backnode = backnode.nNext;
+            }
+
+            backnode.nNext = backnode.nNext.nNext;
+        }
+    }
+
+    boolean insertIndexNodes(Index primaryIndex, Index newIndex) {
+
+        int           position = newIndex.getPosition();
+        RowIterator   it       = primaryIndex.firstRow(this);
+        int           rowCount = 0;
+        HsqlException error    = null;
+
+        try {
+            while (it.hasNext()) {
+                Row row = it.getNextRow();
+
+                ((RowAVL) row).insertNode(position);
+
+                // count before inserting
+                rowCount++;
+
+                newIndex.insert(null, this, row);
+            }
+
+            return true;
+        } catch (java.lang.OutOfMemoryError e) {
+            error = Error.error(ErrorCode.OUT_OF_MEMORY);
+        } catch (HsqlException e) {
+            error = e;
+        }
+
+        // backtrack on error
+        // rowCount rows have been modified
+        it = primaryIndex.firstRow(this);
+
+        for (int i = 0; i < rowCount; i++) {
+            Row     row      = it.getNextRow();
+            NodeAVL backnode = ((RowAVL) row).getNode(0);
+            int     j        = position;
+
+            while (--j > 0) {
+                backnode = backnode.nNext;
+            }
+
+            backnode.nNext = backnode.nNext.nNext;
+        }
+
+        throw error;
+    }
+
+    /**
+     * for result tables
+     */
+    void reindex(Session session, Index index) {
+
+        setAccessor(index, null);
+
+        RowIterator it = table.rowIterator(session);
+
+        while (it.hasNext()) {
+            Row row = it.getNextRow();
+
+            // may need to clear the node before insert
+            index.insert(session, this, row);
+        }
+    }
 }

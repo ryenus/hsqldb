@@ -93,8 +93,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
     }
 
     public void removeAll() {
-
-        // does not yet clear the storage
+        ArrayUtil.fillArray(accessorList, null);
     }
 
     public void remove(int i) {

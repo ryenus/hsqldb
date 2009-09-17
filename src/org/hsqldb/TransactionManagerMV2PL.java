@@ -203,13 +203,11 @@ public class TransactionManagerMV2PL implements TransactionManager {
                         action.getActionType(session.actionTimestamp);
 
                     if (actionType == RowActionBase.ACTION_INSERT) {
-                        database.logger.writeInsertStatement(session,
-                                                             action.table,
-                                                             data);
+                        database.logger.writeInsertStatement(
+                            session, (Table) action.table, data);
                     } else if (actionType == RowActionBase.ACTION_DELETE) {
-                        database.logger.writeDeleteStatement(session,
-                                                             action.table,
-                                                             data);
+                        database.logger.writeDeleteStatement(
+                            session, (Table) action.table, data);
                     } else if (actionType == RowActionBase.ACTION_NONE) {
 
                         // no logging
@@ -346,8 +344,8 @@ public class TransactionManagerMV2PL implements TransactionManager {
                     switch (type) {
 
                         case RowActionBase.ACTION_INSERT :
-                            action.table.addLobUsageCount(session,
-                                                          row.getData());
+                            session.sessionData.addLobUsageCount(
+                                action.table, row.getData());
                             break;
 
                         default :
@@ -590,7 +588,8 @@ public class TransactionManagerMV2PL implements TransactionManager {
                     if (commit && rowact.table.hasLobColumn) {
                         Object[] data = row.getData();
 
-                        rowact.table.removeLobUsageCount(rowact.session, data);
+                        rowact.session.sessionData.removeLobUsageCount(
+                            rowact.table, data);
                     }
 
                     store.delete(row);

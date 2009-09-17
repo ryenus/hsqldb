@@ -422,6 +422,28 @@ public class TableBase {
         return newIndex;
     }
 
+    /**
+     *  Performs Table structure modification and changes to the index nodes
+     *  to remove a given index from a MEMORY or TEXT table. Not for PK index.
+     *
+     */
+    public void dropIndex(int todrop) {
+
+        indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, null,
+                todrop, -1);
+
+        for (int i = 0; i < indexList.length; i++) {
+            indexList[i].setPosition(i);
+        }
+
+        setBestRowIdentifiers();
+
+        if (store != null) {
+            store.resetAccessorKeys(indexList);
+        }
+    }
+
+
     final void addIndex(Index index) {
 
         int i = 0;

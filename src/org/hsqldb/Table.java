@@ -355,6 +355,10 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
+    public boolean isConnected() {
+        return true;
+    }
+
     String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
 
         for (int i = 0; i < constraintList.length; i++) {
@@ -1023,7 +1027,16 @@ public class Table extends TableBase implements SchemaObject {
             newPK = true;
         }
 
-        Table tn = new Table(database, tableName, newType);
+        Table tn;
+
+        if (isText) {
+            tn = new TextTable(database, tableName, newType);
+            ((TextTable) tn).dataSource  = ((TextTable) this).dataSource;
+            ((TextTable) tn).isReversed  = ((TextTable) this).isReversed;
+            ((TextTable) tn).isConnected = ((TextTable) this).isConnected;
+        } else {
+            tn = new Table(database, tableName, newType);
+        }
 
         if (tableType == TEMP_TABLE) {
             tn.persistenceScope = persistenceScope;
@@ -2034,7 +2047,7 @@ public class Table extends TableBase implements SchemaObject {
      *  Enforce max field sizes according to SQL column definition.
      *  SQL92 13.8
      */
-    void enforceRowConstraints(Session session, Object[] data) {
+    public void enforceRowConstraints(Session session, Object[] data) {
 
         for (int i = 0; i < defaultColumnMap.length; i++) {
             Type type = colTypes[i];
@@ -2227,88 +2240,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Performs Table structure modification and changes to the index nodes
-     *  to remove a given index from a MEMORY or TEXT table. Not for PK index.
-     *
-     */
-    public void dropIndex(Session session, String indexname) {
-
-        // find the array index for indexname and remove
-        int todrop = getIndexIndex(indexname);
-
-        indexList = (Index[]) ArrayUtil.toAdjustedArray(indexList, null,
-                todrop, -1);
-
-        for (int i = 0; i < indexList.length; i++) {
-            indexList[i].setPosition(i);
-        }
-
-        setBestRowIdentifiers();
-
-        if (store != null) {
-            store.resetAccessorKeys(indexList);
-        }
-    }
-
-    /**
-     * Moves the data from table to table.
-     * The colindex argument is the index of the column that was
-     * added or removed. The adjust argument is {-1 | 0 | +1}
-     */
-    void moveData(Session session, Table from, int colindex, int adjust) {
-
-        Object       colvalue = null;
-        ColumnSchema column   = null;
-
-        if (adjust >= 0 && colindex != -1) {
-            column   = getColumn(colindex);
-            colvalue = column.getDefaultValue(session);
-        }
-
-        PersistentStore store = session.sessionData.getRowStore(this);
-
-        try {
-            RowIterator it = from.rowIterator(session);
-
-            while (it.hasNext()) {
-                Row      row  = it.getNextRow();
-                Object[] o    = row.getData();
-                Object[] data = getEmptyRowData();
-
-                if (adjust == 0 && colindex != -1) {
-                    colvalue = column.getDataType().convertToType(session,
-                            o[colindex],
-                            from.getColumn(colindex).getDataType());
-                }
-
-                ArrayUtil.copyAdjustArray(o, data, colvalue, colindex, adjust);
-                systemSetIdentityColumn(session, data);
-                enforceRowConstraints(session, data);
-
-                // get object without RowAction
-                Row newrow = (Row) store.getNewCachedObject(null, data);
-
-                if (row.rowAction != null) {
-                    newrow.rowAction =
-                        row.rowAction.duplicate(newrow.getPos());
-                }
-
-                store.indexRow(null, newrow);
-            }
-        } catch (Throwable t) {
-            store.release();
-
-            if (t instanceof HsqlException) {
-                throw (HsqlException) t;
-            }
-
-            throw new HsqlException(t, "", 0);
-        }
-    }
-
-    //
-
-    /**
      *  Mid level method for inserting rows. Performs constraint checks and
      *  fires row level triggers.
      */
@@ -2484,7 +2415,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    protected void systemSetIdentityColumn(Session session, Object[] data) {
+    public void systemSetIdentityColumn(Session session, Object[] data) {
 
         if (identityColumn != -1) {
             Number id = (Number) data[identityColumn];
@@ -2647,46 +2578,6 @@ public class Table extends TableBase implements SchemaObject {
             Object[] data = (Object[]) rowSet.get(i);
 
             insertNoCheck(session, store, data);
-        }
-    }
-
-    void addLobUsageCount(Session session, Object[] data) {
-
-        if (!hasLobColumn) {
-            return;
-        }
-
-        for (int j = 0; j < columnCount; j++) {
-            if (colTypes[j].isLobType()) {
-                Object value = data[j];
-
-                if (value == null) {
-                    continue;
-                }
-
-                session.sessionData.addLobUsageCount(
-                    ((LobData) value).getId());
-            }
-        }
-    }
-
-    void removeLobUsageCount(Session session, Object[] data) {
-
-        if (!hasLobColumn) {
-            return;
-        }
-
-        for (int j = 0; j < columnCount; j++) {
-            if (colTypes[j].isLobType()) {
-                Object value = data[j];
-
-                if (value == null) {
-                    continue;
-                }
-
-                session.sessionData.removeUsageCount(
-                    ((LobData) value).getId());
-            }
         }
     }
 

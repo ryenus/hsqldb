@@ -55,7 +55,6 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
-    Table                           table;
     private IntKeyHashMapConcurrent rowIdMap;
     int                             rowIdSequence = 0;
 
@@ -103,6 +102,10 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     public void add(CachedObject object) {}
 
     public CachedObject get(RowInputInterface in) {
+        return null;
+    }
+
+    public CachedObject getNewInstance(int size) {
         return null;
     }
 
@@ -201,90 +204,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
             indexList    = oldIndexList;
 
             throw e;
-        }
-    }
-
-    public CachedObject getNewInstance(int size) {
-        return null;
-    }
-
-    void dropIndexFromRows(Index primaryIndex, Index oldIndex) {
-
-        RowIterator it       = primaryIndex.firstRow(this);
-        int         position = oldIndex.getPosition() - 1;
-
-        while (it.hasNext()) {
-            Row     row      = it.getNextRow();
-            int     i        = position - 1;
-            NodeAVL backnode = ((RowAVL) row).getNode(0);
-
-            while (i-- > 0) {
-                backnode = backnode.nNext;
-            }
-
-            backnode.nNext = backnode.nNext.nNext;
-        }
-    }
-
-    boolean insertIndexNodes(Index primaryIndex, Index newIndex) {
-
-        int           position = newIndex.getPosition();
-        RowIterator   it       = primaryIndex.firstRow(this);
-        int           rowCount = 0;
-        HsqlException error    = null;
-
-        try {
-            while (it.hasNext()) {
-                Row row = it.getNextRow();
-
-                ((RowAVL) row).insertNode(position);
-
-                // count before inserting
-                rowCount++;
-
-                newIndex.insert(null, this, row);
-            }
-
-            return true;
-        } catch (java.lang.OutOfMemoryError e) {
-            error = Error.error(ErrorCode.OUT_OF_MEMORY);
-        } catch (HsqlException e) {
-            error = e;
-        }
-
-        // backtrack on error
-        // rowCount rows have been modified
-        it = primaryIndex.firstRow(this);
-
-        for (int i = 0; i < rowCount; i++) {
-            Row     row      = it.getNextRow();
-            NodeAVL backnode = ((RowAVL) row).getNode(0);
-            int     j        = position;
-
-            while (--j > 0) {
-                backnode = backnode.nNext;
-            }
-
-            backnode.nNext = backnode.nNext.nNext;
-        }
-
-        throw error;
-    }
-
-    /**
-     * for result tables
-     */
-    void reindex(Session session, Index index) {
-
-        setAccessor(index, null);
-
-        RowIterator it = table.rowIterator(session);
-
-        while (it.hasNext()) {
-            Row row = it.getNextRow();
-
-            // may need to clear the node before insert
-            index.insert(session, this, row);
         }
     }
 }
