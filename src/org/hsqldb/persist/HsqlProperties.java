@@ -164,7 +164,7 @@ public class HsqlProperties {
             return;
         }
 
-        Enumeration keys = props.keys();
+        Enumeration keys = props.propertyNames();
 
         while (keys.hasMoreElements()) {
             Object key = keys.nextElement();
