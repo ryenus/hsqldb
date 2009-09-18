@@ -154,6 +154,8 @@ public class TestTextTables extends TestBase {
 
         st = conn.createStatement();
 
+        st.execute("create memory table tmsingle (c1 int primary key)");
+
         st.execute("truncate table tident restart identity");
 
         st.execute("truncate table tsingle restart identity");
@@ -163,13 +165,13 @@ public class TestTextTables extends TestBase {
 
         st.execute("alter table tsingle add unique(c1)");
 
-        st.execute("alter table tident add foreign key (c1) references tsingle(c1)");
+        st.execute("alter table tident add foreign key (c1) references tmsingle(c1)");
 
         st.execute("set table tident source on");
         st.execute("set table tsingle source on");
 
         PreparedStatement ps =
-            conn.prepareStatement("insert into tsingle(c1) values ?");
+            conn.prepareStatement("insert into tmsingle(c1) values ?");
 
         for (int i = 0; i < 20; i++) {
             ps.setInt(1, i);
@@ -193,7 +195,7 @@ public class TestTextTables extends TestBase {
         conn = newConnection();
         st   = conn.createStatement();
 
-        ResultSet rs = st.executeQuery("select count(*) from tsingle");
+        ResultSet rs = st.executeQuery("select count(*) from tmsingle");
 
         assertTrue(rs.next());
         assertEquals(20, rs.getInt(1));

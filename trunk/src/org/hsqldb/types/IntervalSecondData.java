@@ -165,6 +165,7 @@ public class IntervalSecondData {
     }
 
     public String toString() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "IntervalSecondData");
+        return Type.SQL_INTERVAL_SECOND_MAX_FRACTION_MAX_PRECISION
+            .convertToString(this);
     }
 }
