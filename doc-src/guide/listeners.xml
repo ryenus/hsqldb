@@ -227,6 +227,14 @@
 
             <entry>JDBC trace messages displayed on console</entry>
           </row>
+
+          <row>
+            <entry><property>server.address</property></entry>
+
+            <entry><literal>NO DEFAULT</literal></entry>
+
+            <entry>IP address of server</entry>
+          </row>
         </tbody>
       </tgroup>
     </table>
