@@ -144,7 +144,7 @@ public class StatementHandler extends Statement {
         if (statement != null) {
             return statement.execute(session);
         } else {
-            return Result.updateZeroResult;
+            return Result.newUpdateZeroResult();
         }
     }
 

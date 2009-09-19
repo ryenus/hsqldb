@@ -366,8 +366,7 @@ class TestBench {
 //
             Stmt.execute("SET WRITE_DELAY 1000 MILLIS;");
 
-//            Stmt.execute("SET PROPERTY \"hsqldb.cache_scale\" 10;");
-            Stmt.execute("SET DATABASE DEFAULT TABLE TYPE CACHED");
+//            Stmt.execute("SET DATABASE DEFAULT TABLE TYPE CACHED");
 
 //
             Query = "SELECT count(*) ";

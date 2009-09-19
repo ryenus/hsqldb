@@ -103,7 +103,8 @@ public class StatementSet extends StatementDMQL {
     }
 
     StatementSet(Session session, CompileContext compileContext,
-                 ColumnSchema[] variables, QueryExpression query, int[] indexes) {
+                 ColumnSchema[] variables, QueryExpression query,
+                 int[] indexes) {
 
         super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_CONTROL, null);
 
@@ -131,7 +132,7 @@ public class StatementSet extends StatementDMQL {
                 Object[] values = queryExpression.getSingleRowValues(session);
 
                 if (values == null) {
-                    result = Result.updateZeroResult;
+                    result = Result.newUpdateZeroResult();
 
                     break;
                 }
@@ -144,7 +145,7 @@ public class StatementSet extends StatementDMQL {
                 Object[] values = getExpressionValues(session);
 
                 if (values == null) {
-                    result = Result.updateZeroResult;
+                    result = Result.newUpdateZeroResult();
 
                     break;
                 }
@@ -247,7 +248,7 @@ public class StatementSet extends StatementDMQL {
 
         ArrayUtil.copyArray(data, oldData, data.length);
 
-        return Result.updateOneResult;
+        return Result.newUpdateCountResult(1);
     }
 
     // this fk references -> other  :  other read lock
@@ -322,6 +323,6 @@ public class StatementSet extends StatementDMQL {
                     values[j]);
         }
 
-        return Result.updateZeroResult;
+        return Result.newUpdateZeroResult();
     }
 }

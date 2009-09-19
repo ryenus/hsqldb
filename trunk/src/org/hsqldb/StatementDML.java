@@ -311,7 +311,7 @@ public class StatementDML extends StatementDMQL {
 
         baseTable.fireTriggers(session, Trigger.UPDATE_AFTER, rowset);
 
-        return Result.getUpdateCountResult(count);
+        return Result.newUpdateCountResult(count);
     }
 
     static Object[] getUpdatedData(Session session, Table targetTable,
@@ -501,7 +501,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         if (resultOut == null) {
-            return Result.getUpdateCountResult(count);
+            return Result.newUpdateCountResult(count);
         } else {
             resultOut.setUpdateCount(count);
 
@@ -635,7 +635,7 @@ public class StatementDML extends StatementDMQL {
             targetTable.identitySequence.reset();
         }
 
-        return Result.getUpdateCountResult(count);
+        return Result.newUpdateCountResult(count);
     }
 
     /**

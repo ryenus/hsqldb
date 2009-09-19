@@ -234,7 +234,7 @@ public class StatementCommand extends Statement {
                                                    script, blocking,
                                                    compressed);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -245,7 +245,7 @@ public class StatementCommand extends Statement {
                 try {
                     session.database.logger.checkpoint(defrag);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -258,7 +258,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setIncrementBackup(mode);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -271,7 +271,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setCacheMaxRows(value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -284,7 +284,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setCacheSize(value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -297,7 +297,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setCacheFileScale(value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -310,7 +310,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setDefagLimit(value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -323,7 +323,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setEventLogLevel(value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -332,7 +332,7 @@ public class StatementCommand extends Statement {
                 try {
 
                     // no-op - to remove from release version
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -345,7 +345,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setNioDataFile(value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -358,7 +358,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setLogSize(value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -371,7 +371,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
 
                     // no action
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -385,7 +385,7 @@ public class StatementCommand extends Statement {
                     session.database.setMetaDirty(false);
                     session.database.logger.setWriteDelay(value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -400,7 +400,7 @@ public class StatementCommand extends Statement {
                     session.database.collation.setCollation(name);
                     session.database.setMetaDirty(false);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -413,7 +413,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.setIgnoreCase(mode);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -423,21 +423,21 @@ public class StatementCommand extends Statement {
 
                 session.database.setReferentialIntegrity(mode);
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES : {
                 boolean mode = ((Boolean) parameters[0]).booleanValue();
 
                 session.database.setStrictNames(mode);
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE : {
                 boolean mode = ((Boolean) parameters[0]).booleanValue();
 
                 session.database.setStrictColumnSize(mode);
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA : {
                 HsqlName schema = (HsqlName) parameters[0];
@@ -448,7 +448,7 @@ public class StatementCommand extends Statement {
                 session.database.setMetaDirty(true);
 
                 //
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE : {
                 Integer type = (Integer) parameters[0];
@@ -458,7 +458,7 @@ public class StatementCommand extends Statement {
                     type.intValue());
 
                 //
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.SET_DATABASE_SCRIPT_FORMAT : {
                 try {
@@ -468,7 +468,7 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.logger.setScriptType(value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -482,7 +482,7 @@ public class StatementCommand extends Statement {
                     session.database.txManager.setTransactionControl(session,
                             mode);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -495,7 +495,7 @@ public class StatementCommand extends Statement {
 
                     JavaSystem.gcFrequency = count;
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -516,7 +516,7 @@ public class StatementCommand extends Statement {
                     p.setDatabaseProperty(property,
                                           value.toString().toLowerCase());
                     */
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -529,7 +529,7 @@ public class StatementCommand extends Statement {
                     size);
                 session.database.setResultMaxMemoryRows(size);
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.SET_DATABASE_TEXT_SOURCE : {
                 try {
@@ -549,7 +549,7 @@ public class StatementCommand extends Statement {
                     session.database.logger.setDefaultTextTableProperties(
                         source, props);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -560,7 +560,7 @@ public class StatementCommand extends Statement {
 
                     session.database.setUniqueName(name);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -582,7 +582,7 @@ public class StatementCommand extends Statement {
                         return Result.newErrorResult(e, sql);
                     }
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 }
             }
             case StatementTypes.DATABASE_SHUTDOWN : {
@@ -591,7 +591,7 @@ public class StatementCommand extends Statement {
 
                     session.database.close(mode);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -606,7 +606,7 @@ public class StatementCommand extends Statement {
 
                     table.setIndexRoots(session, value);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -624,7 +624,7 @@ public class StatementCommand extends Statement {
                     table.setDataReadOnly(mode);
                     session.database.setMetaDirty(false);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -655,7 +655,7 @@ public class StatementCommand extends Statement {
 
                         session.database.setMetaDirty(false);
 
-                        return Result.updateZeroResult;
+                        return Result.newUpdateZeroResult();
                     }
 
                     String  source = (String) parameters[2];
@@ -670,7 +670,7 @@ public class StatementCommand extends Statement {
                                                           isDesc, false);
                     }
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (Throwable e) {
                     if (!(e instanceof HsqlException)) {
                         e = Error.error(ErrorCode.GENERAL_IO_ERROR,
@@ -683,7 +683,7 @@ public class StatementCommand extends Statement {
                         session.database.logger.logWarningEvent(
                             "Problem processing SET TABLE SOURCE", e);
 
-                        return Result.updateZeroResult;
+                        return Result.newUpdateZeroResult();
                     } else {
                         return Result.newErrorResult(e, sql);
                     }
@@ -709,7 +709,7 @@ public class StatementCommand extends Statement {
                     tw.setTableType(session, type);
                     session.database.setMetaDirty(false);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -742,7 +742,7 @@ public class StatementCommand extends Statement {
                     session.database.setMetaDirty(false);
 
                     //
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -757,7 +757,7 @@ public class StatementCommand extends Statement {
                     session.setScripting(true);
                     user.setPassword(password);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
