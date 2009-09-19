@@ -105,7 +105,7 @@ public final class OtherType extends Type {
         return this;
     }
 
-    public int compare(Session session, Object a, Object b) {
+    public int compare(Object a, Object b) {
 
         if (a == null) {
             return -1;

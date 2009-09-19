@@ -508,13 +508,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row   = t.getEmptyRowData();
             row[icache_file] = FileUtil.getFileUtil().canonicalOrAbsolutePath(
                 cache.getFileName());
-            row[imax_cache_sz]    = ValuePool.getInt(cache.capacity());
+            row[imax_cache_sz]    = ValuePool.getLong(cache.capacity());
             row[imax_cache_bytes] = ValuePool.getLong(cache.bytesCapacity());
-            row[icache_size] = ValuePool.getInt(cache.getCachedObjectCount());
+            row[icache_size] = ValuePool.getLong(cache.getCachedObjectCount());
             row[icache_length] =
                 ValuePool.getLong(cache.getTotalCachedBlockSize());
-            row[ifree_bytes] = ValuePool.getInt(cache.getTotalFreeBlockSize());
-            row[ifree_count] = ValuePool.getInt(cache.getFreeBlockCount());
+            row[ifree_bytes] = ValuePool.getLong(cache.getTotalFreeBlockSize());
+            row[ifree_count] = ValuePool.getLong(cache.getFreeBlockCount());
             row[ifree_pos]   = ValuePool.getLong(cache.getFileFreePos());
 
             t.insertSys(store, row);
@@ -1240,10 +1240,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[iis_admin] = ValuePool.getBoolean(s.isAdmin());
             row[iautocmt]  = ValuePool.getBoolean(s.isAutoCommit());
             row[ireadonly] = ValuePool.getBoolean(s.isReadOnlyDefault());
-            row[imaxrows]  = ValuePool.getInt(s.getSQLMaxRows());
+            row[imaxrows]  = ValuePool.getLong(s.getSQLMaxRows());
             row[ilast_id] =
                 ValuePool.getLong(((Number) s.getLastIdentity()).longValue());
-            row[it_size]   = ValuePool.getInt(s.getTransactionSize());
+            row[it_size]   = ValuePool.getLong(s.getTransactionSize());
             row[it_schema] = s.getCurrentSchemaHsqlName().name;
 
             t.insertSys(store, row);
@@ -2577,7 +2577,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[table_schem]      = table.getSchemaName().name;
                 row[table_name]       = table.getName().name;
                 row[column_name]      = column.getName().name;
-                row[ordinal_position] = ValuePool.getInt(i + 1);
+                row[ordinal_position] = ValuePool.getLong(i + 1);
                 row[column_default]   = column.getDefaultSQL();
                 row[is_nullable]      = column.isNullable() ? "YES"
                                                             : "NO";
@@ -3622,7 +3622,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         row[table_name]         = tableName;
                         row[column_name] =
                             table.getColumn(cols[j]).getName().name;
-                        row[ordinal_position] = ValuePool.getInt(j + 1);
+                        row[ordinal_position] = ValuePool.getLong(j + 1);
 
                         if (constraint.getConstraintType()
                                 == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
@@ -3802,7 +3802,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[specific_schem]   = routine.getSchemaName().name;
                     row[specific_name]    = routine.getSpecificName().name;
                     row[parameter_name]   = column.getName().name;
-                    row[ordinal_position] = ValuePool.getInt(j + 1);
+                    row[ordinal_position] = ValuePool.getLong(j + 1);
 
                     switch (column.getParameterMode()) {
 
@@ -6100,7 +6100,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "EVENT_OBJECT_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "EVENT_OBJECT_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "EVENT_OBJECT_TABLE", SQL_IDENTIFIER);
-            addColumn(t, "ACTION_ORDER", CHARACTER_DATA);
+            addColumn(t, "ACTION_ORDER", CARDINAL_NUMBER);
             addColumn(t, "ACTION_CONDITION", CHARACTER_DATA);
             addColumn(t, "ACTION_STATEMENT", CHARACTER_DATA);
             addColumn(t, "ACTION_ORIENTATION", CHARACTER_DATA);
@@ -6166,7 +6166,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             int order =
                 trigger.getTable().getTriggerIndex(trigger.getName().name);
 
-            row[action_order]       = ValuePool.getInt(order);
+            row[action_order]       = ValuePool.getLong(order);
             row[action_condition]   = trigger.getConditionSQL();
             row[action_statement]   = trigger.getProcedureSQL();
             row[action_orientation] = trigger.getActionOrientationString();

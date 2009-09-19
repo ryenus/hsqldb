@@ -329,7 +329,7 @@ public final class DateTimeType extends DTIType {
         throw Error.error(ErrorCode.X_42562);
     }
 
-    public int compare(Session session, Object a, Object b) {
+    public int compare(Object a, Object b) {
 
         long diff;
 
@@ -1367,28 +1367,28 @@ public final class DateTimeType extends DTIType {
             b[1] = commonType.castToType(session, b[1], tb[1]);
         }
 
-        if (commonType.compare(session, a[0], a[1]) > 0) {
+        if (commonType.compare(a[0], a[1]) > 0) {
             Object temp = a[0];
 
             a[0] = a[1];
             a[1] = temp;
         }
 
-        if (commonType.compare(session, b[0], b[1]) > 0) {
+        if (commonType.compare(b[0], b[1]) > 0) {
             Object temp = b[0];
 
             b[0] = b[1];
             b[1] = temp;
         }
 
-        if (commonType.compare(session, a[0], b[0]) > 0) {
+        if (commonType.compare(a[0], b[0]) > 0) {
             Object[] temp = a;
 
             a = b;
             b = temp;
         }
 
-        if (commonType.compare(session, a[1], b[0]) > 0) {
+        if (commonType.compare(a[1], b[0]) > 0) {
             return Boolean.TRUE;
         }
 

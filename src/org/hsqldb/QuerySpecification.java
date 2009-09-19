@@ -194,7 +194,6 @@ public class QuerySpecification extends QueryExpression {
 
         havingCondition   = e;
         havingColumnCount = 1;
-        isGrouped         = true;
     }
 
     void addSortAndSlice(SortAndSlice sortAndSlice) {

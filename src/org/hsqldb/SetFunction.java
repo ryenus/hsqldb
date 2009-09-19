@@ -186,7 +186,7 @@ public class SetFunction implements Serializable {
                     return;
                 }
 
-                if (type.compare(session, currentValue, item) > 0) {
+                if (type.compare(currentValue, item) > 0) {
                     currentValue = item;
                 }
 
@@ -199,7 +199,7 @@ public class SetFunction implements Serializable {
                     return;
                 }
 
-                if (type.compare(session, currentValue, item) < 0) {
+                if (type.compare(currentValue, item) < 0) {
                     currentValue = item;
                 }
 

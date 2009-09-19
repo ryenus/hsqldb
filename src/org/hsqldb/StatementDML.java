@@ -599,9 +599,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         table.updateRowSet(session, updateList, updateColumnMap, false);
-
         baseTable.fireTriggers(session, Trigger.UPDATE_AFTER_ROW, updateList);
-
         path.clear();
 
         return updateList.size();
@@ -830,8 +828,7 @@ public class StatementDML extends StatementDMQL {
 
                     if (refrow == null || refrow.isDeleted(session)
                             || refindex.compareRowNonUnique(
-                                session, mdata, m_columns,
-                                refrow.getData()) != 0) {
+                                mdata, m_columns, refrow.getData()) != 0) {
                         break;
                     }
 
@@ -1088,7 +1085,7 @@ public class StatementDML extends StatementDMQL {
                     refrow = refiterator.getNextRow()) {
                 if (refrow == null
                         || refindex.compareRowNonUnique(
-                            session, orow.getData(), m_columns,
+                            orow.getData(), m_columns,
                             refrow.getData()) != 0) {
                     break;
                 }

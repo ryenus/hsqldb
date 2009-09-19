@@ -2524,7 +2524,7 @@ public class Table extends TableBase implements SchemaObject {
 
                 // reached end of range
                 if (bestIndex.compareRowNonUnique(
-                        session, data, bestIndex.getColumns(), rowdata) != 0) {
+                        data, bestIndex.getColumns(), rowdata) != 0) {
                     row = null;
 
                     break;

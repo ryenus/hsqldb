@@ -183,35 +183,34 @@ public abstract class RowStoreAVL implements PersistentStore {
      * The colindex argument is the index of the column that was
      * added or removed. The adjust argument is {-1 | 0 | +1}
      */
-    public void moveData(Session session, PersistentStore other,
-        int colindex, int adjust
-        ) {
+    public void moveData(Session session, PersistentStore other, int colindex,
+                         int adjust) {
 
-        Object       colvalue = null;
-        Type         oldtype  = null;
-        Type         newtype  = null;
+        Object colvalue = null;
+        Type   oldtype  = null;
+        Type   newtype  = null;
 
         if (adjust >= 0 && colindex != -1) {
-            ColumnSchema column   = ((Table) table).getColumn(colindex);
+            ColumnSchema column = ((Table) table).getColumn(colindex);
+
             colvalue = column.getDefaultValue(session);
 
             if (adjust == 0) {
-                oldtype = ((Table) ((RowStoreAVL) other).table).getColumnTypes()[colindex];
+                oldtype =
+                    ((Table) ((RowStoreAVL) other).table)
+                        .getColumnTypes()[colindex];
                 newtype = ((Table) table).getColumnTypes()[colindex];
             }
         }
-
 
         RowIterator it    = other.rowIterator();
         Table       table = (Table) this.table;
 
         try {
             while (it.hasNext()) {
-                Row row = it.getNextRow();
-
+                Row      row  = it.getNextRow();
                 Object[] o    = row.getData();
                 Object[] data = table.getEmptyRowData();
-
 
                 if (adjust == 0 && colindex != -1) {
                     colvalue = newtype.convertToType(session, o[colindex],
@@ -219,8 +218,6 @@ public abstract class RowStoreAVL implements PersistentStore {
                 }
 
                 ArrayUtil.copyAdjustArray(o, data, colvalue, colindex, adjust);
-
-
                 table.systemSetIdentityColumn(session, data);
                 table.enforceRowConstraints(session, data);
 

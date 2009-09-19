@@ -394,7 +394,7 @@ public final class IntervalType extends DTIType {
         throw Error.error(ErrorCode.X_42562);
     }
 
-    public int compare(Session session, Object a, Object b) {
+    public int compare(Object a, Object b) {
 
         if (a == b) {
             return 0;

@@ -50,7 +50,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfCreate.txt";
 //    String path = "TestSelfConstraints.txt";
 //    String path = "TestSelfGrantees.txt";
-//    String path = "TestSelfGroupBy.txt";
+    String path = "TestSelfGroupBy.txt";
 //    String path = "TestSelfInsertDeleteQueries.txt";
 //    String path = "TestSelfInterval.txt";
 //    String path = "TestSelfInternalFunctions.txt";
@@ -70,7 +70,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfQueries.txt";
 //    String path = "TestSelfSchemaPersistB1.txt";
 //    String path = "TestSelfSeqRightsA.txt";
-    String path = "TestSelfSysTables.txt";
+//    String path = "TestSelfSysTables.txt";
 //    String path = "TestSelfTempTable1.txt";
 //      String path = "TestSelfTransaction.txt";
 //    String path = "TestSelfTriggers.txt";
