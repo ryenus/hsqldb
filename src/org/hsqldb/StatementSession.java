@@ -233,7 +233,7 @@ public class StatementSession extends Statement {
             // cursor
             case StatementTypes.ALLOCATE_CURSOR :
             case StatementTypes.ALLOCATE_DESCRIPTOR :
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
 
             //
             case StatementTypes.COMMIT_WORK : {
@@ -242,19 +242,19 @@ public class StatementSession extends Statement {
 
                     session.commit(chain);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
             case StatementTypes.DEALLOCATE_DESCRIPTOR :
             case StatementTypes.DEALLOCATE_PREPARE :
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
 
             case StatementTypes.DISCONNECT :
                 session.close();
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
 
             //
             case StatementTypes.DYNAMIC_CLOSE :
@@ -273,10 +273,10 @@ public class StatementSession extends Statement {
             case StatementTypes.PREPARABLE_DYNAMIC_DELETE_CURSOR :
             case StatementTypes.PREPARABLE_DYNAMIC_UPDATE_CURSOR :
             case StatementTypes.PREPARE :
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
 
             case StatementTypes.TRANSACTION_LOCK_TABLE : {
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.RELEASE_SAVEPOINT : {
                 String savepoint = (String) parameters[0];
@@ -284,7 +284,7 @@ public class StatementSession extends Statement {
                 try {
                     session.releaseSavepoint(savepoint);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -294,7 +294,7 @@ public class StatementSession extends Statement {
 
                 session.rollback(chain);
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.ROLLBACK_SAVEPOINT : {
                 String savepoint = (String) parameters[0];
@@ -302,7 +302,7 @@ public class StatementSession extends Statement {
                 try {
                     session.rollbackToSavepoint(savepoint);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -312,7 +312,7 @@ public class StatementSession extends Statement {
 
                 session.savepoint(savepoint);
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.SET_CATALOG : {
                 String name;
@@ -323,7 +323,7 @@ public class StatementSession extends Statement {
                                                           true, true);
 
                     if (session.database.getCatalogName().name.equals(name)) {
-                        return Result.updateZeroResult;
+                        return Result.newUpdateZeroResult();
                     }
 
                     return Result.newErrorResult(
@@ -335,7 +335,7 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_CONNECTION :
             case StatementTypes.SET_CONSTRAINT :
             case StatementTypes.SET_DESCRIPTOR :
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
 
             case StatementTypes.SET_TIME_ZONE : {
                 Object value = null;
@@ -345,7 +345,7 @@ public class StatementSession extends Statement {
                            == null) {
                     session.setZoneSeconds(session.sessionTimeZoneSeconds);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 }
 
                 try {
@@ -387,17 +387,17 @@ public class StatementSession extends Statement {
                         && seconds <= DTIType.timezoneSecondsLimit) {
                     session.setZoneSeconds((int) seconds);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 }
 
                 return Result.newErrorResult(Error.error(ErrorCode.X_22009),
                                              sql);
             }
             case StatementTypes.SET_NAMES :
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
 
             case StatementTypes.SET_PATH :
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
 
             case StatementTypes.SET_ROLE : {
                 String  name;
@@ -428,7 +428,7 @@ public class StatementSession extends Statement {
                 if (session.getGrantee().hasRole(role)) {
                     session.setRole(role);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } else {
                     return Result.newErrorResult(
                         Error.error(ErrorCode.X_0P000), sql);
@@ -452,7 +452,7 @@ public class StatementSession extends Statement {
 
                     session.setSchema(schema.name);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -492,7 +492,7 @@ public class StatementSession extends Statement {
                     sql = userObject.getConnectUserSQL();
 
                     if (userObject == session.getGrantee()) {
-                        return Result.updateZeroResult;
+                        return Result.newUpdateZeroResult();
                     }
 
                     if (session.getGrantee().canChangeAuthorisation()) {
@@ -500,7 +500,7 @@ public class StatementSession extends Statement {
                         session.setRole(null);
                         session.resetSchema();
 
-                        return Result.updateZeroResult;
+                        return Result.newUpdateZeroResult();
                     }
 
                     /** @todo may need different error code */
@@ -524,16 +524,16 @@ public class StatementSession extends Statement {
                         session.setIsolationDefault(level);
                     }
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
             }
             case StatementTypes.SET_COLLATION :
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
 
             case StatementTypes.SET_TRANSFORM_GROUP :
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
 
             case StatementTypes.START_TRANSACTION :
                 startTransaction = true;
@@ -558,7 +558,7 @@ public class StatementSession extends Statement {
                         session.startTransaction();
                     }
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -571,7 +571,7 @@ public class StatementSession extends Statement {
                 try {
                     session.setAutoCommit(mode);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -582,7 +582,7 @@ public class StatementSession extends Statement {
                 try {
                     session.sessionContext.addSessionVariable(variable);
 
-                    return Result.updateZeroResult;
+                    return Result.newUpdateZeroResult();
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -592,14 +592,14 @@ public class StatementSession extends Statement {
 
                 session.setSQLMaxRows(size);
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS : {
                 int size = ((Integer) parameters[0]).intValue();
 
                 session.setResultMemoryRowCount(size);
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,

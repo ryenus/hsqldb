@@ -72,18 +72,6 @@ import org.hsqldb.types.Type;
  */
 public class Result {
 
-    public static final Result updateZeroResult =
-        newResult(ResultConstants.UPDATECOUNT);
-    public static final Result updateOneResult =
-        newResult(ResultConstants.UPDATECOUNT);
-    public static final Result updateTwoResult =
-        newResult(ResultConstants.UPDATECOUNT);
-
-    static {
-        updateOneResult.setUpdateCount(1);
-        updateTwoResult.setUpdateCount(2);
-    }
-
     public static final ResultMetaData sessionAttributesMetaData =
         ResultMetaData.newResultMetaData(SessionInterface.INFO_LIMIT);
 
@@ -391,6 +379,7 @@ public class Result {
                 break;
 
             case ResultConstants.ERROR :
+            case ResultConstants.WARNING :
                 result.mainString = in.readString();
                 result.subString  = in.readString();
                 result.errorCode  = in.readInt();
@@ -481,8 +470,8 @@ public class Result {
                 result.queryTimeout    = in.readShort();
 
                 Statement statement =
-                    session.statementManager.getStatement(
-                        session, result.statementID);
+                    session.statementManager.getStatement(session,
+                        result.statementID);
 
                 result.statement = statement;
                 result.metaData  = result.statement.getParametersMetaData();
@@ -757,21 +746,11 @@ public class Result {
         return result;
     }
 
-    public static Result getUpdateCountResult(int count) {
+    public static Result newUpdateZeroResult() {
+        return newResult(ResultConstants.UPDATECOUNT);
+    }
 
-        switch (count) {
-
-            case 0 :
-                return Result.updateZeroResult;
-
-            case 1 :
-                return Result.updateOneResult;
-
-            case 2 :
-                return Result.updateTwoResult;
-
-            default :
-        }
+    public static Result newUpdateCountResult(int count) {
 
         Result result = newResult(ResultConstants.UPDATECOUNT);
 
@@ -1161,6 +1140,7 @@ public class Result {
                 break;
 
             case ResultConstants.ERROR :
+            case ResultConstants.WARNING :
                 rowOut.writeString(mainString);
                 rowOut.writeString(subString);
                 rowOut.writeInt(errorCode);

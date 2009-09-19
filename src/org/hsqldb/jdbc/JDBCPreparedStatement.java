@@ -3642,6 +3642,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw Util.sqlException(in);
         }
 
+        rootWarning = null;
+
         Result current = in;
         while (current.getChainedResult() != null) {
             current = current.getUnlinkChainedResult();

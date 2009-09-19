@@ -89,7 +89,7 @@ public class StatementCompound extends Statement {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                          "StatementCompound");
+                                         "StatementCompound");
         }
     }
 
@@ -282,7 +282,7 @@ public class StatementCompound extends Statement {
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                          "StatementCompound");
+                                         "StatementCompound");
         }
 
         if (result.isError()) {
@@ -294,7 +294,7 @@ public class StatementCompound extends Statement {
 
     private Result executeBlock(Session session) {
 
-        Result result = Result.updateZeroResult;
+        Result result = Result.newUpdateZeroResult();
         int    i      = 0;
 
         session.sessionContext.push();
@@ -315,10 +315,10 @@ public class StatementCompound extends Statement {
         if (result.getType() == ResultConstants.VALUE) {
             if (result.getErrorCode() == StatementTypes.LEAVE) {
                 if (result.getMainString() == null) {
-                    result = Result.updateZeroResult;
+                    result = Result.newUpdateZeroResult();
                 } else if (label != null
                            && label.name.equals(result.getMainString())) {
-                    result = Result.updateZeroResult;
+                    result = Result.newUpdateZeroResult();
                 }
             }
         }
@@ -358,7 +358,7 @@ public class StatementCompound extends Statement {
                     switch (handler.handlerType) {
 
                         case StatementHandler.CONTINUE :
-                            result = Result.updateZeroResult;
+                            result = Result.newUpdateZeroResult();
                             break;
 
                         case StatementHandler.UNDO :
@@ -398,7 +398,7 @@ public class StatementCompound extends Statement {
 
     private Result executeLoop(Session session) {
 
-        Result result = Result.updateZeroResult;
+        Result result = Result.newUpdateZeroResult();
 
         while (true) {
             if (type == StatementTypes.WHILE) {
@@ -409,7 +409,7 @@ public class StatementCompound extends Statement {
                 }
 
                 if (!Boolean.TRUE.equals(result.getValueObject())) {
-                    result = Result.updateZeroResult;
+                    result = Result.newUpdateZeroResult();
 
                     break;
                 }
@@ -447,12 +447,12 @@ public class StatementCompound extends Statement {
 
                 if (result.getErrorCode() == StatementTypes.LEAVE) {
                     if (result.getMainString() == null) {
-                        result = Result.updateZeroResult;
+                        result = Result.newUpdateZeroResult();
                     }
 
                     if (label != null
                             && label.name.equals(result.getMainString())) {
-                        result = Result.updateZeroResult;
+                        result = Result.newUpdateZeroResult();
                     }
 
                     break;
@@ -471,7 +471,7 @@ public class StatementCompound extends Statement {
                 }
 
                 if (Boolean.TRUE.equals(result.getValueObject())) {
-                    result = Result.updateZeroResult;
+                    result = Result.newUpdateZeroResult();
 
                     break;
                 }
@@ -483,7 +483,7 @@ public class StatementCompound extends Statement {
 
     private Result executeIf(Session session) {
 
-        Result  result  = Result.updateZeroResult;
+        Result  result  = Result.newUpdateZeroResult();
         boolean execute = false;
 
         for (int i = 0; i < statements.length; i++) {
@@ -505,7 +505,7 @@ public class StatementCompound extends Statement {
                 i++;
             }
 
-            result = Result.updateZeroResult;
+            result = Result.newUpdateZeroResult();
 
             if (!execute) {
                 continue;

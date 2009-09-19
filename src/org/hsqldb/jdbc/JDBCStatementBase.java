@@ -167,6 +167,8 @@ class JDBCStatementBase {
             return;
         }
 
+        rootWarning    = null;
+
         Result current = resultIn;
 
         while (current.getChainedResult() != null) {

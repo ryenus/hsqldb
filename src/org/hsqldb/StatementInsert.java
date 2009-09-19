@@ -156,7 +156,7 @@ public class StatementInsert extends StatementDML {
 
         if (resultOut == null) {
             resultOut =
-                Result.getUpdateCountResult(newDataNavigator.getSize());
+                Result.newUpdateCountResult(newDataNavigator.getSize());
         } else {
             resultOut.setUpdateCount(newDataNavigator.getSize());
         }

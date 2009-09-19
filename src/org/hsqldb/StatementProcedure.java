@@ -128,7 +128,7 @@ public class StatementProcedure extends StatementDMQL {
 
 //        session.sessionContext.dynamicArguments = args;
         if (!result.isError()) {
-            result = Result.updateZeroResult;
+            result = Result.newUpdateZeroResult();
         }
 
         Object[] callArguments = session.sessionContext.routineArguments;

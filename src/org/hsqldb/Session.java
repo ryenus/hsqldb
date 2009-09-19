@@ -920,7 +920,7 @@ public class Session implements SessionInterface {
             case ResultConstants.CLOSE_RESULT : {
                 closeNavigator(cmd.getResultId());
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case ResultConstants.UPDATE_RESULT : {
                 Result result = this.executeResultUpdate(cmd);
@@ -932,7 +932,7 @@ public class Session implements SessionInterface {
             case ResultConstants.FREESTMT : {
                 statementManager.freeStatement(cmd.getStatementID());
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case ResultConstants.GETSESSIONATTR : {
                 int id = cmd.getStatementType();
@@ -988,7 +988,7 @@ public class Session implements SessionInterface {
                         break;
                 }
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case ResultConstants.SETCONNECTATTR : {
                 switch (cmd.getConnectionAttrType()) {
@@ -1005,7 +1005,7 @@ public class Session implements SessionInterface {
                     // default: throw - case never happens
                 }
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             case ResultConstants.REQUESTDATA : {
                 return sessionData.getDataResultSlice(cmd.getResultId(),
@@ -1015,7 +1015,7 @@ public class Session implements SessionInterface {
             case ResultConstants.DISCONNECT : {
                 close();
 
-                return Result.updateZeroResult;
+                return Result.newUpdateZeroResult();
             }
             default : {
                 return Result.newErrorResult(
@@ -1529,6 +1529,7 @@ public class Session implements SessionInterface {
 
         if (seconds == sessionTimeZoneSeconds) {
             calendar = null;
+            timeZoneSeconds = sessionTimeZoneSeconds;
         } else {
             TimeZone zone = TimeZone.getDefault();
 
@@ -1618,7 +1619,7 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(e);
         }
 
-        return Result.updateZeroResult;
+        return Result.newUpdateZeroResult();
     }
 
     public synchronized Object getAttribute(int id) {
@@ -1854,8 +1855,10 @@ public class Session implements SessionInterface {
             sqlWarnings.removeFirst();
         }
 
-        if (sqlWarnings.contains(warning)) {
-            return;
+        int index = sqlWarnings.indexOf(warning);
+
+        if (index >=0 ) {
+            sqlWarnings.remove(index);
         }
 
         sqlWarnings.add(warning);

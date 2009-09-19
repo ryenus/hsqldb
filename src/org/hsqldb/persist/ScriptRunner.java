@@ -142,7 +142,7 @@ public class ScriptRunner {
 
                         scr.getCurrentTable().insertNoCheckFromLog(current,
                                 data);
-                        current.endAction(Result.updateOneResult);
+                        current.endAction(Result.newUpdateCountResult(1));
 
                         break;
                     }
@@ -153,7 +153,7 @@ public class ScriptRunner {
 
                         scr.getCurrentTable().deleteNoCheckFromLog(current,
                                 data);
-                        current.endAction(Result.updateOneResult);
+                        current.endAction(Result.newUpdateCountResult(1));
 
                         break;
                     }

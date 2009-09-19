@@ -121,7 +121,7 @@ public class StatementResultUpdate extends StatementDML {
             }
         }
 
-        return Result.updateOneResult;
+        return Result.newUpdateCountResult(1);
     }
 
     void setRowActionProperties(int action, Table table, Type[] types,
@@ -190,7 +190,7 @@ public class StatementResultUpdate extends StatementDML {
         case ResultConstants.INSERT_CURSOR :
     }
 
-    return Result.updateZeroResult;
+    return Result.newUpdateZeroResult();
 */
     void checkAccessRights(Session session) {
 
