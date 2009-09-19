@@ -973,7 +973,7 @@ public class ExpressionLogical extends Expression {
             return null;
         }
 
-        result = nodes[LEFT].dataType.compare(session, left, right);
+        result = nodes[LEFT].dataType.compare(left, right);
 
         switch (opType) {
 
@@ -1042,7 +1042,7 @@ public class ExpressionLogical extends Expression {
             Object rightValue = rightList[i];
             Type[] types      = nodes[LEFT].nodeDataTypes;
 
-            result = types[i].compare(session, leftValue, rightValue);
+            result = types[i].compare(leftValue, rightValue);
 
             if (result != 0) {
                 break;

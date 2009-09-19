@@ -368,8 +368,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
             boolean newGroup =
                 compareData == null
                 || fullIndex.compareRowNonUnique(
-                    session, currentData, compareData,
-                    fullIndex.getColumnCount()) != 0;
+                    currentData, compareData, fullIndex.getColumnCount()) != 0;
 
             if (newGroup) {
                 compareData = currentData;
@@ -383,7 +382,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
 
             if (otherData != null
                     && fullIndex.compareRowNonUnique(
-                        session, currentData, otherData,
+                        currentData, otherData,
                         fullIndex.getColumnCount()) == 0) {
                 continue;
             }
@@ -435,8 +434,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
             boolean newGroup =
                 compareData == null
                 || fullIndex.compareRowNonUnique(
-                    session, currentData, compareData,
-                    fullIndex.getColumnCount()) != 0;
+                    currentData, compareData, fullIndex.getColumnCount()) != 0;
 
             if (newGroup) {
                 compareData = currentData;
@@ -450,7 +448,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
 
             if (otherData != null
                     && fullIndex.compareRowNonUnique(
-                        session, currentData, otherData,
+                        currentData, otherData,
                         fullIndex.getColumnCount()) == 0) {
                 remove();
             }
@@ -558,7 +556,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         Type[] types = table.getColumnTypes();
 
         for (int i = 0; i < visibleColumnCount; i++) {
-            if (types[i].compare(session, data1[i], data2[i]) != 0) {
+            if (types[i].compare(data1[i], data2[i]) != 0) {
                 return false;
             }
         }

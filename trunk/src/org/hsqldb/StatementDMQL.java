@@ -181,21 +181,11 @@ public abstract class StatementDMQL extends Statement {
 
     public Result execute(Session session) {
 
-        Result result = getAccessRightsResult(session);
-
-        if (result != null) {
-            return result;
-        }
+        Result result;
 
         if (this.isExplain) {
             return Result.newSingleColumnStringResult("OPERATION",
                     describe(session));
-        }
-
-        if (session.sessionContext.dynamicArguments.length
-                != parameters.length) {
-
-//            return Result.newErrorResult(Error.error(ErrorCode.X_42575));
         }
 
         try {
@@ -446,7 +436,7 @@ public abstract class StatementDMQL extends Statement {
             if (targetTable.getOwner().isSystem()) {
                 if (!session.getUser().isSystem()) {
                     throw Error.error(ErrorCode.X_42501,
-                                       targetTable.getName().name);
+                                      targetTable.getName().name);
                 }
             }
 
@@ -516,17 +506,6 @@ public abstract class StatementDMQL extends Statement {
                 break;
             }
         }
-    }
-
-    Result getAccessRightsResult(Session session) {
-
-        try {
-            checkAccessRights(session);
-        } catch (HsqlException e) {
-            return Result.newErrorResult(e);
-        }
-
-        return null;
     }
 
     /**

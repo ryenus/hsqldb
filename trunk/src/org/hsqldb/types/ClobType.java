@@ -117,7 +117,7 @@ public final class ClobType extends CharacterType {
     }
 
     /** @todo implement comparison */
-    public int compare(Session session, Object a, Object b) {
+    public int compare(Object a, Object b) {
 
         if (a == b) {
             return 0;
