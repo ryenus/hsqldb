@@ -2569,6 +2569,11 @@ public class ParserDQL extends ParserBase {
             Expression a = e;
 
             e = XreadBooleanFactorOrNull();
+
+            if (e == null) {
+                throw unexpectedToken();
+            }
+
             e = new ExpressionLogical(type, a, e);
         }
 

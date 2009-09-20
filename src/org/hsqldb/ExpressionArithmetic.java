@@ -379,6 +379,7 @@ public class ExpressionArithmetic extends Expression {
         }
 
         // conversion of right argument to character for backward compatibility
+
         if (nodes[LEFT].dataType.isCharacterType()
                 && !nodes[RIGHT].dataType.isCharacterType()) {
             Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
@@ -386,6 +387,15 @@ public class ExpressionArithmetic extends Expression {
 
             nodes[RIGHT] = ExpressionOp.getCastExpression(session,
                     nodes[RIGHT], newType);
+        }
+
+        if (nodes[RIGHT].dataType.isCharacterType()
+                && !nodes[LEFT].dataType.isCharacterType()) {
+            Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                nodes[LEFT].dataType.displaySize());
+
+            nodes[LEFT] = ExpressionOp.getCastExpression(session,
+                    nodes[LEFT], newType);
         }
 
         dataType = nodes[LEFT].dataType.getCombinedType(nodes[RIGHT].dataType,
