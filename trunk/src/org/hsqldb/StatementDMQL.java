@@ -181,7 +181,11 @@ public abstract class StatementDMQL extends Statement {
 
     public Result execute(Session session) {
 
-        Result result;
+        Result result = getWriteAccessResult(session);
+
+        if (result != null) {
+            return result;
+        }
 
         if (this.isExplain) {
             return Result.newSingleColumnStringResult("OPERATION",
@@ -506,6 +510,19 @@ public abstract class StatementDMQL extends Statement {
                 break;
             }
         }
+    }
+
+    Result getWriteAccessResult(Session session) {
+
+        try {
+            if (targetTable != null && !targetTable.isTemp()) {
+                session.checkReadWrite();
+            }
+        } catch (HsqlException e) {
+            return Result.newErrorResult(e);
+        }
+
+        return null;
     }
 
     /**
