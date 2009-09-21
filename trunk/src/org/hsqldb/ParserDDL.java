@@ -758,10 +758,6 @@ public class ParserDDL extends ParserRoutine {
         Table t = database.schemaManager.getUserTable(session, tableName,
             schema.name);
 
-        if (t.isView()) {
-            throw Error.error(ErrorCode.X_42501, tableName);
-        }
-
         read();
 
         switch (token.tokenType) {

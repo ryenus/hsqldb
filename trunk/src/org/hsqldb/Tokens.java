@@ -781,7 +781,6 @@ public class Tokens {
     static final String        T_SIGN             = "SIGN";
     static final String        T_SIN              = "SIN";
     static final String        T_SOUNDEX          = "SOUNDEX";
-    static final String        T_SPACE_WORD       = "SPACE_WORD";
     static final String        T_SUBSTR           = "SUBSTR";
     static final String        T_SYSDATE          = "SYSDATE";
     static final String        T_TAN              = "TAN";
@@ -2111,7 +2110,7 @@ public class Tokens {
         commandSet.put(T_SIGN, SIGN);
         commandSet.put(T_SIN, SIN);
         commandSet.put(T_SOUNDEX, SOUNDEX);
-        commandSet.put(T_SPACE_WORD, SPACE_WORD);
+        commandSet.put(T_SPACE, SPACE);
         commandSet.put(T_SUBSTR, SUBSTR);
         commandSet.put(T_SYSDATE, SYSDATE);
         commandSet.put(T_TAN, TAN);

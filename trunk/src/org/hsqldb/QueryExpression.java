@@ -435,7 +435,7 @@ public class QueryExpression {
     Result getResult(Session session, int maxRows) {
 
         int    currentMaxRows = unionType == UNION_ALL ? maxRows
-                                                       : Integer.MAX_VALUE;
+                                                       : 0;
         Result first = leftQueryExpression.getResult(session, currentMaxRows);
         RowSetNavigatorData navigator =
             (RowSetNavigatorData) first.getNavigator();
