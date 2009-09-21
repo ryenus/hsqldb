@@ -407,7 +407,6 @@ public class DataFileCache {
 
             if (write) {
                 cache.saveAll();
-                Error.printSystemOut("saveAll: " + sw.elapsedTime());
                 database.logger.logInfoEvent(
                     "DataFileCache.close() : save data");
 
@@ -437,7 +436,6 @@ public class DataFileCache {
                     dataFile.seek(fileFreePosition);
                     database.logger.logInfoEvent(
                         "DataFileCache.close() : seek end");
-                    Error.printSystemOut("pos and flags: " + sw.elapsedTime());
                 }
             }
 
@@ -446,8 +444,6 @@ public class DataFileCache {
                 database.logger.logInfoEvent("DataFileCache.close() : close");
 
                 dataFile = null;
-
-                Error.printSystemOut("close: " + sw.elapsedTime());
             }
 
             if (shadowFile != null) {
@@ -716,7 +712,6 @@ public class DataFileCache {
                                      boolean keep) {
 
         CachedObject object      = null;
-        boolean      outOfMemory = false;
 
         writeLock.lock();
 
@@ -731,9 +726,7 @@ public class DataFileCache {
                 return object;
             }
 
-            for (int j = 0; j < 5; j++) {
-                outOfMemory = false;
-
+            for (int j = 0; j < 2; j++) {
                 try {
                     RowInputInterface rowInput = readObject(pos);
 
@@ -745,16 +738,13 @@ public class DataFileCache {
 
                     break;
                 } catch (OutOfMemoryError err) {
-                    cache.cleanUp();
+                    cache.forceCleanUp();
+                    System.gc();
 
-                    outOfMemory = true;
-
-                    database.logger.logSevereEvent("OOME in getFromFile", err);
+                    if ( j > 0) {
+                        throw err;
+                    }
                 }
-            }
-
-            if (outOfMemory) {
-                throw Error.error(ErrorCode.OUT_OF_MEMORY);
             }
 
             // for text tables with empty rows at the beginning,

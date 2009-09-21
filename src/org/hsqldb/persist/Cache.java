@@ -70,6 +70,7 @@ public class Cache extends BaseHashMap {
 
         super(dfc.capacity(), BaseHashMap.intKeyOrValue,
               BaseHashMap.objectKeyOrValue, true);
+
         maxCapacity      = dfc.capacity();
         dataFileCache    = dfc;
         capacity         = dfc.capacity();
@@ -208,30 +209,26 @@ public class Cache extends BaseHashMap {
             }
         }
 
-        if (removeCount > 50) {
-            it = new BaseHashIterator();
+        super.setAccessCountFloor(accessTarget);
+        saveRows(savecount);
+    }
 
-            for (; removeCount >= 0 && it.hasNext(); ) {
-                CachedObject r = (CachedObject) it.next();
+    synchronized void forceCleanUp() {
 
-                if (!r.isKeepInMemory()) {
-                    r.setInMemory(false);
+        BaseHashMap.BaseHashIterator it          = new BaseHashIterator();
 
-                    if (r.hasChanged()) {
-                        rowTable[savecount++] = r;
-                    }
+        for (; it.hasNext(); ) {
+            CachedObject row = (CachedObject) it.next();
 
+            synchronized (row) {
+                if (!row.isKeepInMemory()) {
+                    row.setInMemory(false);
                     it.remove();
 
-                    cacheBytesLength -= r.getStorageSize();
-
-                    removeCount--;
+                    cacheBytesLength -= row.getStorageSize();
                 }
             }
         }
-
-        super.setAccessCountFloor(accessTarget);
-        saveRows(savecount);
     }
 
     private synchronized void saveRows(int count) {
@@ -275,6 +272,11 @@ public class Cache extends BaseHashMap {
         }
 
         saveRows(savecount);
+
+        if (savecount == 0) {
+            return;
+        }
+
         Error.printSystemOut(
             saveAllTimer.elapsedTimeToMessage(
                 "Cache.saveRows() total row save time"));

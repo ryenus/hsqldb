@@ -474,7 +474,6 @@ final class ScaledRAFile implements ScaledRAInterface {
     }
 
     public void close() throws IOException {
-        Error.printSystemOut("cache hit " + cacheHit);
         file.close();
     }
 
