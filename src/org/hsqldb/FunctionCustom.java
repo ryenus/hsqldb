@@ -1252,6 +1252,7 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 nodes[0].valueData = ValuePool.getInt(part);
+                nodes[0].dataType  = Type.SQL_INTEGER;
                 funcType           = FUNC_TIMESTAMPADD;
             }
 
@@ -1313,6 +1314,7 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 nodes[0].valueData = ValuePool.getInt(part);
+                nodes[0].dataType  = Type.SQL_INTEGER;
                 funcType           = FUNC_TIMESTAMPDIFF;
             }
 
