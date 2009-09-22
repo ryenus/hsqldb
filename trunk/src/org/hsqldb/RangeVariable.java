@@ -180,6 +180,10 @@ final class RangeVariable {
         return rangeTable;
     }
 
+    Index getIndex() {
+        return rangeIndex;
+    }
+
     public OrderedHashSet getColumnNames() {
 
         if (columnNames == null) {

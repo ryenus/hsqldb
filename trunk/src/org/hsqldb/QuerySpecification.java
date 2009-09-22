@@ -89,7 +89,7 @@ public class QuerySpecification extends QueryExpression {
 
     //
     public boolean  isUniqueResultRows;
-    private boolean simpleLimit;                 // true if maxrows can be uses as is
+    private boolean simpleLimit = true;          // true if maxrows can be uses as is
     private boolean acceptsSequences;
 
     //
@@ -129,7 +129,6 @@ public class QuerySpecification extends QueryExpression {
 
         addRangeVariable(range);
         resolveReferences(session);
-        resolveTypes(session);
         resolveTypes(session);
 
         sortAndSlice = SortAndSlice.noSort;
@@ -426,8 +425,8 @@ public class QuerySpecification extends QueryExpression {
             }
 
             // resolve and allocate to throw exception
-            resolveColumnReferencesAndAllocate(expression, rangeVariables.length,
-                                               false);
+            resolveColumnReferencesAndAllocate(expression,
+                                               rangeVariables.length, false);
         }
 
         return expression;
@@ -757,6 +756,8 @@ public class QuerySpecification extends QueryExpression {
         if (isUpdatable) {
             getMergedSelect();
         }
+
+        sortAndSlice.setSortRange(this);
     }
 
     private void resolveGroups() {
@@ -886,8 +887,9 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        simpleLimit = (!isDistinctSelect && !isGrouped
-                       && !sortAndSlice.hasOrder());
+        if (isDistinctSelect || isGrouped) {
+            simpleLimit = false;
+        }
 
         if (!isAggregated) {
             return;
@@ -1044,7 +1046,8 @@ public class QuerySpecification extends QueryExpression {
         int limitStart = getLimitStart(session);
         int limitCount = getLimitCount(session, rowCount);
 
-        if (simpleLimit) {
+        if (simpleLimit
+                && (!sortAndSlice.hasLimit() || sortAndSlice.skipFullResult)) {
             if (rowCount == 0) {
                 rowCount = limitCount;
             }
@@ -1338,7 +1341,7 @@ public class QuerySpecification extends QueryExpression {
 
         mainIndex = resultTable.getPrimaryIndex();
 
-        if (sortAndSlice.hasOrder()) {
+        if (sortAndSlice.hasOrder() && !sortAndSlice.skipSort) {
             orderIndex = resultTable.createAndAddIndexStructure(null,
                     sortAndSlice.sortOrder, sortAndSlice.sortDescending,
                     sortAndSlice.sortNullsLast, false, false, false);
