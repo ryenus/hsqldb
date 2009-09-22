@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 
 /*
@@ -52,7 +53,10 @@ public final class SortAndSlice {
     boolean                   sortUnion;
     HsqlArrayList             exprList = new HsqlArrayList();
     Expression                limitCondition;
-    public Index              index;
+    public boolean            skipSort       = false;    // true when result can be used as is
+    public boolean            skipFullResult = false;    // true when result can be sliced as is
+    int[]        columnIndexes;
+    public Index index;
 
     SortAndSlice() {}
 
@@ -78,17 +82,18 @@ public final class SortAndSlice {
 
     public void prepare(QuerySpecification select) {
 
-        int orderByColumnCount = exprList.size();
+        int     columnCount  = exprList.size();
+        boolean hasQualifier = false;
 
-        if (orderByColumnCount == 0) {
+        if (columnCount == 0) {
             return;
         }
 
-        sortOrder      = new int[orderByColumnCount];
-        sortDescending = new boolean[orderByColumnCount];
-        sortNullsLast  = new boolean[orderByColumnCount];
+        sortOrder      = new int[columnCount];
+        sortDescending = new boolean[columnCount];
+        sortNullsLast  = new boolean[columnCount];
 
-        for (int i = 0; i < orderByColumnCount; i++) {
+        for (int i = 0; i < columnCount; i++) {
             ExpressionOrderBy sort = (ExpressionOrderBy) exprList.get(i);
 
             if (sort.getLeftNode().queryTableColumnIndex == -1) {
@@ -99,6 +104,58 @@ public final class SortAndSlice {
 
             sortDescending[i] = sort.isDescending();
             sortNullsLast[i]  = sort.isNullsLast();
+            hasQualifier      |= sortDescending[i];
+            hasQualifier      |= sortNullsLast[i];
+        }
+
+        if (select == null || hasQualifier) {
+            return;
+        }
+
+        if (select.isDistinctSelect || select.isGrouped) {
+            return;
+        }
+
+        int[] colIndexes = new int[columnCount];
+
+        for (int i = 0; i < columnCount; i++) {
+            Expression e = ((Expression) exprList.get(i)).getLeftNode();
+
+            if (e.getType() != OpTypes.COLUMN) {
+                return;
+            }
+
+            if (((ExpressionColumn) e).getRangeVariable()
+                    != select.rangeVariables[0]) {
+                return;
+            }
+
+            colIndexes[i] = e.columnIndex;
+        }
+
+        this.columnIndexes = colIndexes;
+    }
+
+    void setSortRange(QuerySpecification select) {
+
+        int[] colIndexes = select.rangeVariables[0].getIndex().getColumns();
+
+        if (columnIndexes == null) {
+            if (!hasOrder()) {
+                if (select.isDistinctSelect || select.isGrouped) {
+                    return;
+                }
+
+                skipFullResult = true;
+            }
+
+            return;
+        }
+
+        if (ArrayUtil.haveEqualArrays(columnIndexes, colIndexes,
+                                      columnIndexes.length)) {
+            skipSort       = true;
+            skipFullResult = true;
         }
     }
 
