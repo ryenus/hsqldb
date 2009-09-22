@@ -666,7 +666,7 @@ public class FunctionCustom extends FunctionSQL {
 
                     case Tokens.SQL_TSI_YEAR :
                         t = Type.SQL_INTERVAL_YEAR;
-                        o = IntervalMonthData.newIntervalMonth(units, t);
+                        o = IntervalMonthData.newIntervalMonth(units * 12, t);
 
                         return dataType.add(source, o, t);
 
