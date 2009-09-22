@@ -2,7 +2,11 @@
 <chapter version="5.0" xml:id="builtinfunctions-chapt"
          xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
-         xmlns:xi="http://www.w3.org/2001/XInclude">
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1999/xhtml"
+         xmlns:ns4="http://www.w3.org/2000/svg"
+         xmlns:ns3="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <title xml:id="builtinfunctions-title">Built In Functions</title>
 
   <info>
@@ -1181,8 +1185,8 @@
 
     <simpara><emphasis role="bold">TIMESTAMPADD</emphasis></simpara>
 
-    <para><literal>TIMESTAMPADD ( &lt;tsi datetime field&gt;, &lt;datetime
-    value expr&gt;, &lt;numeric value expression&gt; )</literal></para>
+    <para><literal>TIMESTAMPADD ( &lt;tsi datetime field&gt;, &lt;numeric
+    value expression&gt;, &lt;datetime value expr&gt;)</literal></para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TIMESTAMPDIFF function</primary>
@@ -1225,8 +1229,8 @@
 
     <simpara><emphasis role="bold">DATEADD</emphasis></simpara>
 
-    <para><literal>DATEADD ( &lt;field&gt;, &lt;datetime value expr&gt;,
-    &lt;numeric value expr&gt; )</literal></para>
+    <para><literal>DATEADD ( &lt;field&gt;, &lt;numeric value expr&gt;,
+    &lt;datetime value expr&gt; )</literal></para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DATEDIFF function</primary>
