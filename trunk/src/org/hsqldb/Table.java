@@ -2113,7 +2113,7 @@ public class Table extends TableBase implements SchemaObject {
      * Finds an existing index for a column set or create one for temporary
      * tables
      */
-    Index getIndexForColumns(OrderedIntHashSet set) {
+    Index getIndexForColumns(OrderedIntHashSet set, boolean ordered) {
 
         int   maxMatchCount = 0;
         Index selected      = null;
@@ -2125,7 +2125,8 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0, count = indexList.length; i < count; i++) {
             Index currentindex = getIndex(i);
             int[] indexcols    = currentindex.getColumns();
-            int   matchCount   = set.getOrderedMatchCount(indexcols);
+            int matchCount = ordered ? set.getOrderedStartMatchCount(indexcols)
+                                     : set.getStartMatchCount(indexcols);
 
             if (matchCount == 0) {
                 continue;

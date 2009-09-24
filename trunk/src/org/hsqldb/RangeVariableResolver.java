@@ -195,11 +195,13 @@ public class RangeVariableResolver {
 
         int lastOuterIndex = -1;
         int lastRightIndex = -1;
+
         for (int i = 0; i < rangeVariables.length; i++) {
             if (rangeVariables[i].isLeftJoin) {
                 lastOuterIndex = i;
             }
-            if(rangeVariables[i].isRightJoin) {
+
+            if (rangeVariables[i].isRightJoin) {
                 lastOuterIndex = i;
                 lastRightIndex = i;
             }
@@ -245,7 +247,6 @@ public class RangeVariableResolver {
 
                 case OpTypes.COLUMN :
                 case OpTypes.EQUAL :
-
             }
         }
 
@@ -484,11 +485,13 @@ public class RangeVariableResolver {
         }
 
         boolean isEqual = true;
-        Index   idx = rangeVar.rangeTable.getIndexForColumns(colIndexSetEqual);
+        Index idx = rangeVar.rangeTable.getIndexForColumns(colIndexSetEqual,
+            false);
 
         if (idx == null) {
             isEqual = false;
-            idx     = rangeVar.rangeTable.getIndexForColumns(colIndexSetOther);
+            idx = rangeVar.rangeTable.getIndexForColumns(colIndexSetOther,
+                    false);
         }
 
         // different procedure for subquery tables
@@ -615,7 +618,7 @@ public class RangeVariableResolver {
             }
 
             if (isIndexed) {
-                rangeVar.addIndexCondition(e, idx, isJoin);
+                rangeVar.addIndexCondition(new Expression[]{ e }, idx, isJoin);
             } else {
                 rangeVar.addCondition(e, isJoin);
             }
@@ -634,8 +637,23 @@ public class RangeVariableResolver {
             Expression    in       = inExpressions[i];
 
             if (in != null) {
-                Index index = rangeVar.rangeTable.getIndexForColumn(
-                    in.getLeftNode().nodes[0].getColumnIndex());
+                OrderedIntHashSet set = new OrderedIntHashSet();
+
+                for (int j = 0; j < in.getLeftNode().nodes.length; j++) {
+                    set.add(in.getLeftNode().nodes[j].getColumnIndex());
+                }
+
+                // to do - support any order of match
+                Index index = rangeVar.rangeTable.getIndexForColumns(set,
+                    true);
+                int colCount = 0;
+
+                for (int j = 0; j < index.getColumnCount(); j++) {
+                    if (set.contains(index.getColumns()[j])) {
+                        colCount++;
+                    }
+                }
+
                 RangeVariable newRangeVar =
                     new RangeVariable(in.getRightNode().subQuery.getTable(),
                                       null, null, null, compileContext);
@@ -648,14 +666,22 @@ public class RangeVariableResolver {
                 rangeVariables = newList;
 
                 // make two columns as arg
-                ColumnSchema left = rangeVar.rangeTable.getColumn(
-                    in.getLeftNode().nodes[0].getColumnIndex());
-                ColumnSchema right = newRangeVar.rangeTable.getColumn(0);
-                Expression e = new ExpressionLogical(rangeVar, left,
-                                                     newRangeVar, right);
+                Expression[] exprList = new Expression[colCount];
 
-                rangeVar.addIndexCondition(e, index, flags[i]);
+                for (int j = 0; j < colCount; j++) {
+                    ColumnSchema left =
+                        rangeVar.rangeTable.getColumn(index.getColumns()[j]);
+                    int rightIndex = set.getIndex(index.getColumns()[j]);
+                    ColumnSchema right =
+                        newRangeVar.rangeTable.getColumn(rightIndex);
+                    Expression e = new ExpressionLogical(rangeVar, left,
+                                                         newRangeVar, right);
 
+                    exprList[j] = e;
+                }
+
+                rangeVar.addIndexCondition(exprList, index, exprList.length,
+                                           flags[i]);
                 rangeVar.addCondition(in, true);
             }
         }

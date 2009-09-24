@@ -66,6 +66,11 @@ import org.hsqldb.types.Types;
  */
 public class QuerySpecification extends QueryExpression {
 
+    private final static int[] defaultLimits = new int[] {
+        0, Integer.MAX_VALUE, Integer.MAX_VALUE
+    };
+
+    //
     private int           resultRangePosition;
     public boolean        isDistinctSelect;
     public boolean        isAggregated;
@@ -1014,12 +1019,25 @@ public class QuerySpecification extends QueryExpression {
         return 0;
     }
 
-    private int getLimitCount(Session session, int rowCount) {
+    int[] getLimits(Session session, int maxRows) {
 
-        int limitCount = Integer.MAX_VALUE;
+        int     skipRows   = 0;
+        int     limitRows  = Integer.MAX_VALUE;
+        int     limitFetch = Integer.MAX_VALUE;
+        boolean hasLimits  = false;
 
-        if (sortAndSlice.limitCondition != null) {
+        if (sortAndSlice.hasLimit()) {
             Integer limit =
+                (Integer) sortAndSlice.limitCondition.getLeftNode().getValue(
+                    session);
+
+            if (limit == null || limit.intValue() < 0) {
+                throw Error.error(ErrorCode.X_2201X);
+            }
+
+            skipRows  = limit.intValue();
+            hasLimits = skipRows != 0;
+            limit =
                 (Integer) sortAndSlice.limitCondition.getRightNode().getValue(
                     session);
 
@@ -1027,41 +1045,31 @@ public class QuerySpecification extends QueryExpression {
                 throw Error.error(ErrorCode.X_2201W);
             }
 
-            limitCount = limit.intValue();
-        }
-
-        if (rowCount != 0 && rowCount < limitCount) {
-            limitCount = rowCount;
-        }
-
-        return limitCount;
-    }
-
-    /**
-     * translate the rowCount into total number of rows needed from query,
-     * including any rows skipped at the beginning
-     */
-    private int getMaxRowCount(Session session, int rowCount) {
-
-        int limitStart = getLimitStart(session);
-        int limitCount = getLimitCount(session, rowCount);
-
-        if (simpleLimit
-                && (!sortAndSlice.hasLimit() || sortAndSlice.skipFullResult)) {
-            if (rowCount == 0) {
-                rowCount = limitCount;
-            }
-
-            if (rowCount == 0 || rowCount > Integer.MAX_VALUE - limitStart) {
-                rowCount = Integer.MAX_VALUE;
+            if (limit == 0) {
+                limitRows = Integer.MAX_VALUE;
             } else {
-                rowCount += limitStart;
+                limitRows = limit.intValue();
+                hasLimits = true;
             }
-        } else {
-            rowCount = Integer.MAX_VALUE;
         }
 
-        return rowCount;
+        if (maxRows != 0) {
+            if (maxRows < limitRows) {
+                limitRows = maxRows;
+            }
+
+            hasLimits = true;
+        }
+
+        if (simpleLimit && (!sortAndSlice.hasOrder() || sortAndSlice.skipSort)
+                && (!sortAndSlice.hasLimit() || sortAndSlice.skipFullResult)) {
+            limitFetch = limitRows;
+        }
+
+        return hasLimits ? new int[] {
+            skipRows, limitRows, limitFetch
+        }
+                         : defaultLimits;
     }
 
     /**
@@ -1073,9 +1081,7 @@ public class QuerySpecification extends QueryExpression {
      */
     Result getResult(Session session, int maxrows) {
 
-        Result r;
-
-        r = getSingleResult(session, maxrows);
+        Result r = getSingleResult(session, maxrows);
 
         // fredt - now there is no need for the sort and group columns
 //        r.setColumnCount(indexLimitVisible);
@@ -1084,10 +1090,10 @@ public class QuerySpecification extends QueryExpression {
         return r;
     }
 
-    private Result getSingleResult(Session session, int rowCount) {
+    private Result getSingleResult(Session session, int maxRows) {
 
-        int                 maxRows   = getMaxRowCount(session, rowCount);
-        Result              r         = buildResult(session, maxRows);
+        int[]               limits    = getLimits(session, maxRows);
+        Result              r         = buildResult(session, limits[2]);
         RowSetNavigatorData navigator = (RowSetNavigatorData) r.getNavigator();
 
         if (isDistinctSelect) {
@@ -1095,8 +1101,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         navigator.sortOrder();
-        navigator.trim(getLimitStart(session),
-                       getLimitCount(session, rowCount));
+        navigator.trim(limits[0], limits[1]);
 
         return r;
     }

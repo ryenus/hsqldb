@@ -973,8 +973,12 @@ public class FunctionCustom extends FunctionSQL {
 
                 int arg = ((Number) data[0]).intValue();
 
-                return String.valueOf(arg);
+                if (Character.isValidCodePoint(arg)
+                        && Character.isValidCodePoint((char) arg)) {
+                    return String.valueOf((char) arg);
+                }
 
+                throw Error.error(ErrorCode.X_22511);
             case FUNC_ROUND : {
                 if (data[0] == null || data[1] == null) {
                     return null;

@@ -74,21 +74,20 @@ final class RangeVariable {
     boolean[]              updatedColumns;
 
     // index conditions
-    Expression indexCondition;
-    Expression indexEndCondition;
-    boolean    isJoinIndex;
+    Expression[] indexCondition;
+    Expression   indexEndCondition;
+    boolean      isJoinIndex;
 
     // non-index consitions
     Expression nonIndexJoinCondition;
     Expression nonIndexWhereCondition;
 
     //
-    boolean              isLeftJoin;              // table joined with LEFT / FULL OUTER JOIN
-    boolean              isRightJoin;             // table joined with RIGHT / FULL OUTER JOIN
-    boolean              isMultiFindFirst;        // findFirst() uses multi-column index
-    private Expression[] findFirstExpressions;    // expressions for column values
-    private int          multiColumnCount;
-    int                  level;
+    boolean     isLeftJoin;          // table joined with LEFT / FULL OUTER JOIN
+    boolean     isRightJoin;         // table joined with RIGHT / FULL OUTER JOIN
+    boolean     isMultiFindFirst;    // findFirst() uses multi-column index
+    private int multiColumnCount;
+    int         level;
 
     //
     int rangePosition;
@@ -425,47 +424,6 @@ final class RangeVariable {
 
     /**
      *
-     * @param e condition
-     * @param index Index object
-     * @param isJoin whether a join or not
-     */
-    void addIndexCondition(Expression e, Index index, boolean isJoin) {
-
-        rangeIndex  = index;
-        isJoinIndex = isJoin;
-
-        switch (e.getType()) {
-
-            case OpTypes.NOT :
-                indexCondition = e;
-                break;
-
-            case OpTypes.IS_NULL :
-                indexEndCondition = e;
-                break;
-
-            case OpTypes.EQUAL :
-                indexCondition    = e;
-                indexEndCondition = indexCondition;
-                break;
-
-            case OpTypes.GREATER :
-            case OpTypes.GREATER_EQUAL :
-                indexCondition = e;
-                break;
-
-            case OpTypes.SMALLER :
-            case OpTypes.SMALLER_EQUAL :
-                indexEndCondition = e;
-                break;
-
-            default :
-                Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
-        }
-    }
-
-    /**
-     *
      * @param e a join condition
      */
     void addJoinCondition(Expression e) {
@@ -492,6 +450,48 @@ final class RangeVariable {
     }
 
     /**
+     *
+     * @param e condition
+     * @param index Index object
+     * @param isJoin whether a join or not
+     */
+    void addIndexCondition(Expression[] exprList, Index index,
+                           boolean isJoin) {
+
+        rangeIndex  = index;
+        isJoinIndex = isJoin;
+
+        switch (exprList[0].getType()) {
+
+            case OpTypes.NOT :
+                indexCondition = exprList;
+                break;
+
+            case OpTypes.IS_NULL :
+                indexEndCondition = exprList[0];
+                break;
+
+            case OpTypes.EQUAL :
+                indexCondition    = exprList;
+                indexEndCondition = exprList[0];
+                break;
+
+            case OpTypes.GREATER :
+            case OpTypes.GREATER_EQUAL :
+                indexCondition = exprList;
+                break;
+
+            case OpTypes.SMALLER :
+            case OpTypes.SMALLER_EQUAL :
+                indexEndCondition = exprList[0];
+                break;
+
+            default :
+                Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
+        }
+    }
+
+    /**
      * Only multiple EQUAL conditions are used
      *
      * @param exprList list of expressions
@@ -511,12 +511,11 @@ final class RangeVariable {
                 ExpressionLogical.andExpressions(indexEndCondition, e);
         }
 
-        if (colCount == 1) {
-            indexCondition = exprList[0];
-        } else {
-            findFirstExpressions = exprList;
-            isMultiFindFirst     = true;
-            multiColumnCount     = colCount;
+        indexCondition = exprList;
+
+        if (colCount > 1) {
+            isMultiFindFirst = true;
+            multiColumnCount = colCount;
         }
     }
 
@@ -589,14 +588,13 @@ final class RangeVariable {
 
         sb.append("joinType=[").append(temp).append("]\n");
 
-        temp = indexCondition == null ? "null"
-                                      : indexCondition.describe(session);
-
-        if (findFirstExpressions != null) {
+        if (indexCondition != null) {
             StringBuffer sbt = new StringBuffer();
 
             for (int i = 0; i < multiColumnCount; i++) {
-                sbt.append(findFirstExpressions[i].describe(session));
+                if (indexCondition[i] != null) {
+                    sbt.append(indexCondition[i].describe(session));
+                }
             }
 
             temp = sbt.toString();
@@ -817,7 +815,8 @@ final class RangeVariable {
                 if (!rangeVar.isJoinIndex) {
                     hasOuterRow = false;
                 }
-            } else if (rangeVar.indexCondition == null) {
+            } else if (rangeVar.indexCondition == null
+                       || rangeVar.indexCondition[0] == null) {
                 if (rangeVar.indexEndCondition == null
                         || rangeVar.indexEndCondition.getType()
                            == OpTypes.IS_NULL) {
@@ -829,7 +828,7 @@ final class RangeVariable {
             } else {
 
                 // only NOT NULL
-                if (rangeVar.indexCondition.getType() == OpTypes.NOT) {
+                if (rangeVar.indexCondition[0].getType() == OpTypes.NOT) {
                     it = rangeVar.rangeIndex.findFirstRowNotNull(session,
                             store);
                 } else {
@@ -847,12 +846,12 @@ final class RangeVariable {
         private void getFirstRow() {
 
             Object value =
-                rangeVar.indexCondition.getRightNode().getValue(session);
+                rangeVar.indexCondition[0].getRightNode().getValue(session);
             Type valueType =
-                rangeVar.indexCondition.getRightNode().getDataType();
+                rangeVar.indexCondition[0].getRightNode().getDataType();
             Type targetType =
-                rangeVar.indexCondition.getLeftNode().getDataType();
-            int exprType = rangeVar.indexCondition.getType();
+                rangeVar.indexCondition[0].getLeftNode().getDataType();
+            int exprType = rangeVar.indexCondition[0].getType();
             int range    = 0;
 
             if (targetType != valueType) {
@@ -903,13 +902,11 @@ final class RangeVariable {
 
             for (int i = 0; i < rangeVar.multiColumnCount; i++) {
                 Type valueType =
-                    rangeVar.findFirstExpressions[i].getRightNode()
-                        .getDataType();
+                    rangeVar.indexCondition[i].getRightNode().getDataType();
                 Type targetType =
-                    rangeVar.findFirstExpressions[i].getLeftNode()
-                        .getDataType();
+                    rangeVar.indexCondition[i].getLeftNode().getDataType();
                 Object value =
-                    rangeVar.findFirstExpressions[i].getRightNode().getValue(
+                    rangeVar.indexCondition[i].getRightNode().getValue(
                         session);
 
                 if (targetType.compareToTypeRange(value) != 0) {
