@@ -94,12 +94,29 @@ public class OrderedIntHashSet extends BaseHashMap {
         return intKeyTable[index];
     }
 
-    public int getOrderedMatchCount(int[] array) {
+    public int getIndex(int value) {
+        return getLookup(value);
+    }
+
+    public int getStartMatchCount(int[] array) {
 
         int i = 0;
 
         for (; i < array.length; i++) {
             if (!super.containsKey(array[i])) {
+                break;
+            }
+        }
+
+        return i;
+    }
+
+    public int getOrderedStartMatchCount(int[] array) {
+
+        int i = 0;
+
+        for (; i < array.length; i++) {
+            if (i >= size() || get(i) != array[i]) {
                 break;
             }
         }

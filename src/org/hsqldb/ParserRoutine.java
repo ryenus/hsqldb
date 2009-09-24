@@ -780,7 +780,7 @@ public class ParserRoutine extends ParserDML {
         String sqlState = token.tokenString;
 
         if (token.tokenString.length() != 5) {
-            throw Error.error(ErrorCode.X_07000);
+            throw Error.error(ErrorCode.X_42607);
         }
 
         read();
