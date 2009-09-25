@@ -74,8 +74,10 @@ final class RangeVariable {
     boolean[]              updatedColumns;
 
     // index conditions
-    Expression[] indexCondition;
+    Expression[] indexConditions;
     Expression   indexEndCondition;
+    boolean      isFindFirstRowArg;    // findFirst() uses multi-column index
+    private int  indexedColumnCount;
     boolean      isJoinIndex;
 
     // non-index consitions
@@ -83,11 +85,9 @@ final class RangeVariable {
     Expression nonIndexWhereCondition;
 
     //
-    boolean     isLeftJoin;          // table joined with LEFT / FULL OUTER JOIN
-    boolean     isRightJoin;         // table joined with RIGHT / FULL OUTER JOIN
-    boolean     isMultiFindFirst;    // findFirst() uses multi-column index
-    private int multiColumnCount;
-    int         level;
+    boolean isLeftJoin;                // table joined with LEFT / FULL OUTER JOIN
+    boolean isRightJoin;               // table joined with RIGHT / FULL OUTER JOIN
+    int     level;
 
     //
     int rangePosition;
@@ -451,51 +451,9 @@ final class RangeVariable {
 
     /**
      *
-     * @param e condition
-     * @param index Index object
-     * @param isJoin whether a join or not
-     */
-    void addIndexCondition(Expression[] exprList, Index index,
-                           boolean isJoin) {
-
-        rangeIndex  = index;
-        isJoinIndex = isJoin;
-
-        switch (exprList[0].getType()) {
-
-            case OpTypes.NOT :
-                indexCondition = exprList;
-                break;
-
-            case OpTypes.IS_NULL :
-                indexEndCondition = exprList[0];
-                break;
-
-            case OpTypes.EQUAL :
-                indexCondition    = exprList;
-                indexEndCondition = exprList[0];
-                break;
-
-            case OpTypes.GREATER :
-            case OpTypes.GREATER_EQUAL :
-                indexCondition = exprList;
-                break;
-
-            case OpTypes.SMALLER :
-            case OpTypes.SMALLER_EQUAL :
-                indexEndCondition = exprList[0];
-                break;
-
-            default :
-                Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
-        }
-    }
-
-    /**
-     * Only multiple EQUAL conditions are used
-     *
      * @param exprList list of expressions
      * @param index Index to use
+     * @param colCount number of columns searched
      * @param isJoin whether a join or not
      */
     void addIndexCondition(Expression[] exprList, Index index, int colCount,
@@ -504,23 +462,54 @@ final class RangeVariable {
         rangeIndex  = index;
         isJoinIndex = isJoin;
 
-        for (int i = 0; i < colCount; i++) {
-            Expression e = exprList[i];
+        switch (exprList[0].getType()) {
+            case OpTypes.NOT :
+                indexConditions = exprList;
+                break;
 
-            indexEndCondition =
-                ExpressionLogical.andExpressions(indexEndCondition, e);
+            case OpTypes.GREATER :
+            case OpTypes.GREATER_EQUAL :
+                indexConditions = exprList;
+                break;
+
+            case OpTypes.SMALLER :
+            case OpTypes.SMALLER_EQUAL :
+                indexEndCondition = exprList[0];
+                break;
+
+            case OpTypes.IS_NULL :
+                for (int i = 0; i < colCount; i++) {
+                    Expression e = exprList[i];
+
+                    indexEndCondition =
+                        ExpressionLogical.andExpressions(indexEndCondition, e);
+                }
+
+                indexConditions = exprList;
+                isFindFirstRowArg  = true;
+                break;
+
+            case OpTypes.EQUAL :
+                for (int i = 0; i < colCount; i++) {
+                    Expression e = exprList[i];
+
+                    indexEndCondition =
+                        ExpressionLogical.andExpressions(indexEndCondition, e);
+                }
+
+                indexConditions = exprList;
+                isFindFirstRowArg  = true;
+                break;
+
+            default :
+                Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
         }
 
-        indexCondition = exprList;
-
-        if (colCount > 1) {
-            isMultiFindFirst = true;
-            multiColumnCount = colCount;
-        }
+        indexedColumnCount = colCount;
     }
 
     boolean hasIndexCondition() {
-        return isMultiFindFirst || indexCondition != null;
+        return indexedColumnCount > 0;
     }
 
     /**
@@ -546,7 +535,7 @@ final class RangeVariable {
         primaryIndex = rangeTable.getPrimaryIndex();
         primaryKey   = rangeTable.getPrimaryKey();
         hidden       = false;
-        fullScan     = (indexCondition == null && indexEndCondition == null);
+        fullScan     = (indexConditions == null && indexEndCondition == null);
 
         if (index == null) {
             index = primaryIndex;
@@ -588,12 +577,12 @@ final class RangeVariable {
 
         sb.append("joinType=[").append(temp).append("]\n");
 
-        if (indexCondition != null) {
+        if (indexConditions != null) {
             StringBuffer sbt = new StringBuffer();
 
-            for (int i = 0; i < multiColumnCount; i++) {
-                if (indexCondition[i] != null) {
-                    sbt.append(indexCondition[i].describe(session));
+            for (int i = 0; i < indexedColumnCount; i++) {
+                if (indexConditions[i] != null) {
+                    sbt.append(indexConditions[i].describe(session));
                 }
             }
 
@@ -809,26 +798,23 @@ final class RangeVariable {
 
             hasOuterRow = rangeVar.isLeftJoin;
 
-            if (rangeVar.isMultiFindFirst) {
-                getFirstRowMulti();
-
-                if (!rangeVar.isJoinIndex) {
-                    hasOuterRow = false;
-                }
-            } else if (rangeVar.indexCondition == null
-                       || rangeVar.indexCondition[0] == null) {
-                if (rangeVar.indexEndCondition == null
-                        || rangeVar.indexEndCondition.getType()
-                           == OpTypes.IS_NULL) {
+            if (rangeVar.indexConditions == null) {
+                if (rangeVar.indexEndCondition == null) {
                     it = rangeVar.rangeIndex.firstRow(session, store);
                 } else {
                     it = rangeVar.rangeIndex.findFirstRowNotNull(session,
                             store);
                 }
+            } else if (rangeVar.isFindFirstRowArg) {
+                getFirstRow();
+
+                if (!rangeVar.isJoinIndex) {
+                    hasOuterRow = false;
+                }
             } else {
 
                 // only NOT NULL
-                if (rangeVar.indexCondition[0].getType() == OpTypes.NOT) {
+                if (rangeVar.indexConditions[0].getType() == OpTypes.NOT) {
                     it = rangeVar.rangeIndex.findFirstRowNotNull(session,
                             store);
                 } else {
@@ -841,88 +827,50 @@ final class RangeVariable {
             }
         }
 
-        /**
-         */
         private void getFirstRow() {
 
-            Object value =
-                rangeVar.indexCondition[0].getRightNode().getValue(session);
-            Type valueType =
-                rangeVar.indexCondition[0].getRightNode().getDataType();
-            Type targetType =
-                rangeVar.indexCondition[0].getLeftNode().getDataType();
-            int exprType = rangeVar.indexCondition[0].getType();
-            int range    = 0;
+            Object[] currentJoinData = null;
 
-            if (targetType != valueType) {
-                range = targetType.compareToTypeRange(value);
+            if (rangeVar.isFindFirstRowArg) {
+                currentJoinData =
+                    new Object[rangeVar.rangeIndex.getVisibleColumns()];
             }
 
-            if (range == 0) {
-                value = targetType.convertToType(session, value, valueType);
-                it = rangeVar.rangeIndex.findFirstRow(session, store, value,
-                                                      exprType);
-            } else if (range < 0) {
-                switch (exprType) {
-
-                    case OpTypes.GREATER_EQUAL :
-                    case OpTypes.GREATER :
-                        it = rangeVar.rangeIndex.findFirstRowNotNull(session,
-                                store);
-                        break;
-
-                    default :
-                        it = rangeVar.rangeIndex.emptyIterator();
+            for (int i = 0; i < rangeVar.indexedColumnCount; i++) {
+                if (rangeVar.indexConditions[i].getType() == OpTypes.IS_NULL) {
+                    continue;
                 }
-            } else {
-                switch (exprType) {
 
-                    case OpTypes.SMALLER_EQUAL :
-                    case OpTypes.SMALLER :
-                        it = rangeVar.rangeIndex.findFirstRowNotNull(session,
-                                store);
-                        break;
-
-                    default :
-                        it = rangeVar.rangeIndex.emptyIterator();
-                }
-            }
-
-            return;
-        }
-
-        /**
-         * Uses multiple EQUAL expressions
-         */
-        private void getFirstRowMulti() {
-
-            boolean convertible = true;
-            Object[] currentJoinData =
-                new Object[rangeVar.rangeIndex.getVisibleColumns()];
-
-            for (int i = 0; i < rangeVar.multiColumnCount; i++) {
                 Type valueType =
-                    rangeVar.indexCondition[i].getRightNode().getDataType();
-                Type targetType =
-                    rangeVar.indexCondition[i].getLeftNode().getDataType();
+                    rangeVar.indexConditions[i].getRightNode().getDataType();
                 Object value =
-                    rangeVar.indexCondition[i].getRightNode().getValue(
+                    rangeVar.indexConditions[i].getRightNode().getValue(
                         session);
+                Type targetType =
+                    rangeVar.indexConditions[i].getLeftNode().getDataType();
 
-                if (targetType.compareToTypeRange(value) != 0) {
-                    convertible = false;
-
-                    break;
+                if (targetType != valueType) {
+                    value = targetType.convertToType(session, value,
+                                                     valueType);
                 }
 
-                currentJoinData[i] = targetType.convertToType(session, value,
-                        valueType);
+                if (rangeVar.indexedColumnCount == 1) {
+                    int exprType = rangeVar.indexConditions[0].getType();
+
+                    it = rangeVar.rangeIndex.findFirstRow(session, store,
+                                                          value, exprType);
+
+                    return;
+                }
+
+                currentJoinData[i] = value;
             }
 
-            it = convertible
-                 ? rangeVar.rangeIndex.findFirstRow(session, store,
-                     currentJoinData, rangeVar.multiColumnCount)
-                 : rangeVar.rangeIndex.emptyIterator();
+            if (rangeVar.isFindFirstRowArg) {
+                it = rangeVar.rangeIndex.findFirstRow(
+                    session, store, currentJoinData,
+                    rangeVar.indexedColumnCount);
+            }
         }
 
         /**

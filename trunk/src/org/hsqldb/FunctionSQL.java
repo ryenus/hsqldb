@@ -327,7 +327,7 @@ public class FunctionSQL extends Expression {
 
             case FUNC_MOD :
                 name      = Tokens.T_MOD;
-                parseList = singleParamList;
+                parseList = doubleParamList;
                 break;
 
             case FUNC_LN :
@@ -685,19 +685,9 @@ public class FunctionSQL extends Expression {
                     return null;
                 }
 
-                // non-integral arguments are accepted with conversion
-
-                /** @todo - check if widening has an effect */
-                Object value =
-                    ((NumberType) nodes[0].dataType).divide(nodes[0],
-                        nodes[1]);
-
-                value = ((NumberType) nodes[0].dataType).subtract(nodes[0],
-                        value, nodes[1].dataType);
-
                 // result type is the same as argList[1]
-                return ((NumberType) dataType).convertToTypeLimits(session,
-                        value);
+                return ((NumberType) dataType).modulo(data[0], data[1],
+                                                      nodes[0].dataType);
             }
             case FUNC_LN : {
                 if (data[0] == null) {

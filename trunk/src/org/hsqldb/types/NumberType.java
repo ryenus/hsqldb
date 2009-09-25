@@ -1396,6 +1396,21 @@ public final class NumberType extends Type {
         }
     }
 
+    public Object modulo(Object a, Object b, Type otherType) {
+
+        if (!otherType.isNumberType()) {
+            throw Error.error(ErrorCode.X_42561);
+        }
+
+        Object temp = divide(a, b);
+
+        temp = multiply(temp, b);
+        temp = convertToDefaultType(null, temp);
+        temp = subtract(a, temp, this);
+
+        return temp;
+    }
+
     public Object absolute(Object a) {
         return isNegative(a) ? negate(a)
                              : a;

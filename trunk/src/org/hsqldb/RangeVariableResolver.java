@@ -437,20 +437,17 @@ public class RangeVariableResolver {
 
             switch (type) {
 
-                default : {
-                    int colIndex = e.getLeftNode().getColumnIndex();
-
-                    colIndexSetOther.add(colIndex);
-
-                    break;
-                }
-                case OpTypes.EQUAL :
+                case OpTypes.EQUAL : {
                     if (e.exprSubType == OpTypes.ANY_QUANTIFIED) {
-                        Index index = rangeVar.rangeTable.getIndexForColumn(
-                            e.getLeftNode().nodes[0].getColumnIndex());
+                        OrderedIntHashSet set = new OrderedIntHashSet();
 
-// code to disable IN optimisation
-//                        index = null;
+                        ((ExpressionLogical) e).addLeftColumnsForAllAny(set);
+
+                        Index index =
+                            rangeVar.rangeTable.getIndexForColumns(set, false);
+
+                        // code to disable IN optimisation
+                        //                        index = null;
                         if (index != null
                                 && inExpressions[rangeVarIndex] == null) {
                             inExpressions[rangeVarIndex] = e;
@@ -465,7 +462,12 @@ public class RangeVariableResolver {
                         continue;
                     }
 
-                // fall through
+                    int colIndex = e.getLeftNode().getColumnIndex();
+
+                    colIndexSetEqual.add(colIndex);
+
+                    break;
+                }
                 case OpTypes.IS_NULL : {
                     int colIndex = e.getLeftNode().getColumnIndex();
 
@@ -476,6 +478,13 @@ public class RangeVariableResolver {
                 case OpTypes.NOT : {
                     int colIndex =
                         e.getLeftNode().getLeftNode().getColumnIndex();
+
+                    colIndexSetOther.add(colIndex);
+
+                    break;
+                }
+                default : {
+                    int colIndex = e.getLeftNode().getColumnIndex();
 
                     colIndexSetOther.add(colIndex);
 
@@ -526,7 +535,7 @@ public class RangeVariableResolver {
         int[] cols     = idx.getColumns();
         int   colCount = cols.length;
 
-        if (isEqual && colCount > 1) {
+        if (isEqual) {
             Expression[] firstRowExpressions = new Expression[cols.length];
 
             for (int j = 0; j < exprList.size(); j++) {
@@ -538,7 +547,7 @@ public class RangeVariableResolver {
 
                 int type = e.getType();
 
-                if (type == OpTypes.EQUAL) {
+                if (type == OpTypes.EQUAL || type == OpTypes.IS_NULL) {
                     int offset =
                         ArrayUtil.find(cols, e.getLeftNode().getColumnIndex());
 
@@ -618,7 +627,8 @@ public class RangeVariableResolver {
             }
 
             if (isIndexed) {
-                rangeVar.addIndexCondition(new Expression[]{ e }, idx, isJoin);
+                rangeVar.addIndexCondition(new Expression[]{ e }, idx, 1,
+                                           isJoin);
             } else {
                 rangeVar.addCondition(e, isJoin);
             }
@@ -633,19 +643,16 @@ public class RangeVariableResolver {
     void setInConditionsAsTables() {
 
         for (int i = rangeVariables.length - 1; i >= 0; i--) {
-            RangeVariable rangeVar = rangeVariables[i];
-            Expression    in       = inExpressions[i];
+            RangeVariable     rangeVar = rangeVariables[i];
+            ExpressionLogical in       = (ExpressionLogical) inExpressions[i];
 
             if (in != null) {
                 OrderedIntHashSet set = new OrderedIntHashSet();
 
-                for (int j = 0; j < in.getLeftNode().nodes.length; j++) {
-                    set.add(in.getLeftNode().nodes[j].getColumnIndex());
-                }
+                in.addLeftColumnsForAllAny(set);
 
-                // to do - support any order of match
                 Index index = rangeVar.rangeTable.getIndexForColumns(set,
-                    true);
+                    false);
                 int colCount = 0;
 
                 for (int j = 0; j < index.getColumnCount(); j++) {
