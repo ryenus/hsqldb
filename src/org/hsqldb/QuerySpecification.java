@@ -1762,7 +1762,7 @@ public class QuerySpecification extends QueryExpression {
         queryCondition = ExpressionLogical.andExpressions(baseQueryCondition,
                 localQueryCondition);
 
-        if (queryCondition != null) {
+        if (queryCondition != null && (isUpdatable || isInsertable)) {
             tempSet.clear();
             Expression.collectAllExpressions(tempSet, queryCondition,
                                              Expression.subqueryExpressionSet,
@@ -1803,7 +1803,9 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
-        setRangeVariableConditions();
+        if (table instanceof TableDerived) {
+            setRangeVariableConditions();
+        }
     }
 
     /**

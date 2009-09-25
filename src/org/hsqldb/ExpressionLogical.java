@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.DTIType;
@@ -209,6 +210,21 @@ public class ExpressionLogical extends Expression {
         }
 
         return new ExpressionLogical(OpTypes.AND, e1, e2);
+    }
+
+    public void addLeftColumnsForAllAny(OrderedIntHashSet set) {
+
+        if (nodes.length == 0) {
+            return;
+        }
+
+        for (int j = 0; j < nodes[LEFT].nodes.length; j++) {
+            int index = nodes[LEFT].nodes[j].getColumnIndex();
+
+            if (index >= 0) {
+                set.add(index);
+            }
+        }
     }
 
     public String getSQL() {
@@ -1531,18 +1547,19 @@ public class ExpressionLogical extends Expression {
                     return this;
                 }
 
+                if (nodes[LEFT].hasReference(rangeVar)) {
+                    return null;
+                }
+
                 if (nodes[RIGHT].opType == OpTypes.COLUMN
                         && nodes[RIGHT].getRangeVariable() == rangeVar) {
                     swapCondition();
 
-                    if (nodes[RIGHT].hasReference(rangeVar)) {
-                        return null;
-                    }
-
                     return this;
                 }
 
-            // fall through
+                return null;
+
             default :
                 return null;
         }

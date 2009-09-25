@@ -457,7 +457,6 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_ACOS :
             case FUNC_ASIN :
             case FUNC_ATAN :
-            case FUNC_ATAN2 :
             case FUNC_COS :
             case FUNC_COT :
             case FUNC_DEGREES :
@@ -477,6 +476,7 @@ public class FunctionCustom extends FunctionSQL {
                 parseList = singleParamList;
                 break;
 
+            case FUNC_ATAN2 :
             case FUNC_ROUND :
             case FUNC_BITAND :
             case FUNC_BITOR :

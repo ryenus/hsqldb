@@ -574,7 +574,7 @@ public class TestSql extends TestBase {
             assertEquals(0, count);
 
             pstmt =
-                connection.prepareStatement("select limit ? 1  id from test");
+                connection.prepareStatement("select limit ? 2  id from test");
 
             pstmt.setInt(1, 0);
 
