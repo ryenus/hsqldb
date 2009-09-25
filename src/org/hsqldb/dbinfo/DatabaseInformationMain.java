@@ -58,6 +58,7 @@ import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -999,14 +1000,14 @@ class DatabaseInformationMain extends DatabaseInformation {
                     int size = (int) column.getDataType().displaySize();
 
                     row[icolumn_size] = ValuePool.getInt(size);
+                    row[isql_datetime_sub] = ValuePool.getInt(
+                        ((DateTimeType) type).getSqlDateTimeSub());
                 }
 
-                row[inum_prec_radix]   = ti.getColPrecRadix(i);
                 row[inullable] = ValuePool.getInt(column.getNullability());
                 row[iremark]           = ti.getColRemarks(i);
                 row[icolumn_def]       = column.getDefaultSQL();
                 row[isql_data_type]    = ValuePool.getInt(type.typeCode);
-                row[isql_datetime_sub] = ti.getColSqlDateTimeSub(i);
                 row[iordinal_position] = ValuePool.getInt(i + 1);
                 row[iis_nullable]      = column.isNullable() ? "YES"
                                                              : "NO";
@@ -2010,7 +2011,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[itable_type]  = ti.getJDBCStandardType();
             row[iremark]      = ti.getRemark();
             row[ihsqldb_type] = ti.getHsqlType();
-            row[iread_only]   = ti.isReadOnly();
+            row[iread_only]   = table.isDataReadOnly() ? Boolean.TRUE
+                                                       : Boolean.FALSE;
             row[icommit_action] = table.isTemp()
                                   ? (table.onCommitPreserve() ? "PRESERVE"
                                                               : "DELETE")
@@ -2209,9 +2211,6 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int       iinterval_precision = 18;
         PersistentStore store = database.persistentStoreCollection.getStore(t);
         Object[]        row;
-        DITypeInfo      ti;
-
-        ti = new DITypeInfo();
 
         Iterator it = Type.typeNames.keySet().iterator();
 
@@ -2279,7 +2278,9 @@ class DatabaseInformationMain extends DatabaseInformation {
             row[inum_prec_radix] = ValuePool.getInt(type.getPrecisionRadix());
 
             //------------------------------------------
-            row[iinterval_precision] = ti.getIntervalPrecision();
+            if (type.isIntervalType()) {
+                row[iinterval_precision] = null;
+            }
 
             t.insertSys(store, row);
         }
