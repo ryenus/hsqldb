@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$ -->
+
+<!DOCTYPE book [
+  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+]>
+
+<appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="openoffice-app"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <!-- We declare the default namespace + those for prefixes xlink: and xi: in
+       the root element, so we can use them anywhere in this file. -->
+
+  <info>
+    <title xml:id="openoffice-title">Integration with OpenOffice</title>
+    <subtitle>A more descriptive description</subtitle>
+
+    <author>
+      <personname>
+        <firstname>Fred</firstname>
+
+        <surname>Toussi</surname>
+      </personname>
+
+      <affiliation>
+        <orgname>The HSQL Development Group</orgname>
+      </affiliation>
+    </author>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>$Date$</pubdate>
+
+    <keywordset>
+      <keyword>HSQLDB</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>OpenOffice</keyword>
+
+      <keyword>OpenOfficeOrg</keyword>
+    </keywordset>
+  </info>
+
+  <section>
+    <title>Purpose</title>
+
+    <simpara>
+      If you want to summarize the purpose...
+    </simpara>
+  </section>
+</appendix>

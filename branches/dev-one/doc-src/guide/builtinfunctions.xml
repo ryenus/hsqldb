@@ -1,0 +1,1677 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xml:id="builtinfunctions-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1999/xhtml"
+         xmlns:ns4="http://www.w3.org/2000/svg"
+         xmlns:ns3="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title xml:id="builtinfunctions-title">Built In Functions</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>$Date$</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
+      this document without any alteration under the terms of the HSQLDB
+      license. Additional permission is granted to the HSQL Development Group
+      to distribute this document with or without alterations under the terms
+      of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section xml:id="builtin_functions_intro-sect">
+    <title>Overview</title>
+
+    <para>HyperSQL supports a wide range of built-in functions and allows
+    user-defined functions written in SQL and Java languages. User defined
+    functions are covered in a separate chapter.</para>
+
+    <para>The built-in functions fall into three groups:</para>
+
+    <para><itemizedlist>
+        <listitem>
+          <para>SQL Standard Functions</para>
+
+          <para>A wide rang of functions defined by SQL/Foundation are
+          supported. SQL/Foundation functions that have no parameter are
+          called without empty parentheses. Functions with multiple parameters
+          often use keywords instead of commas to separate the parameters.
+          Many functions are overloaded. Among these, some have one or more
+          optional parameters that can be omitted, while the return type of
+          some functions is dependent upon the type of one of the
+          parameters.</para>
+        </listitem>
+
+        <listitem>
+          <para>JDBC Open Group CLI Functions</para>
+
+          <para>These functions were defined as an extension to the CLI
+          standard, which is the basis for ODBC and JDBC and supported by many
+          database products. JDBC supports an escape mechanism to specify
+          function calls in SQL statements in a manner that is independent of
+          the function names supported by the target database engine. For
+          example <literal>SELECT {fn DAYOFMONTH (dateColumn)} FROM
+          myTable</literal> can be used in JDBC and is translated to Standard
+          SQL as <literal>SELECT EXTRACT (DAY_OF_MONTH FROM dateColumn) FROM
+          myTable</literal> if a database engine supports the Standard syntax.
+          If a database engine does not support Standard SQL, then the
+          translation will be different. HyperSQL supports all the function
+          names specified in the JDBC specifications as native functions.
+          Therefore, there is no need to use the <literal>{fn FUNC_NAME ( ...
+          ) }</literal> escape with HyperSQL. If a JDBC function is supported
+          by the SQL Standard in a different form, the SQL Standard form is
+          the preferred form to use.</para>
+        </listitem>
+
+        <listitem>
+          <para>HyperSQL Built-In Functions</para>
+
+          <para>Several additional built-in functions are available for some
+          useful operations.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>In the BNF specification used here, words in capital letters are
+    actual tokens. Syntactic elements such as expressions are enclosed in
+    angle brackets. The <literal>&lt;left paren&gt;</literal> and
+    <literal>&lt;right paren&gt;</literal> tokens are represented with the
+    actual symbol. Optional elements are enclosed with square brackets (
+    <literal>&lt;left bracket&gt;</literal> and <literal>&lt;right
+    bracket&gt;</literal> ). Multiple options for a required element are
+    enclosed with braces (<literal> &lt;left brace&gt;</literal> and
+    <literal>&lt;right brace&gt;</literal> )<literal>.</literal> Alternative
+    tokens are separated with the vertical bar ( <literal>&lt;vertical
+    bar&gt;</literal> ). At the end of each function definition, the standard
+    which specifies the function is noted in parentheses as SQL/Foundation,
+    JDBC or HyperSQL.</para>
+  </section>
+
+  <section xml:id="builtin_functions_string-sect">
+    <title>String and Binary String Functions</title>
+
+    <para>In SQL, there are three kinds of string: character, binary and bit.
+    The units are respectively characters, octets, and bits. Each kind of
+    string can be in different data types. CHAR, VARCHAR and CLOB are the
+    character data types. BINARY, VARBINARY and BLOB are the binary data
+    types. BIT and BIT VARYING are the bit string types. In all string
+    functions, the position of a unit of the string within the whole string is
+    specified from 1 to the length of the whole string. In the BNF,
+    <literal>&lt;char value expr&gt; </literal>indicates any valid SQL
+    expression that evaluates to a character type. Likewise,
+    <literal>&lt;binary value expr&gt; </literal>indicates a binary type
+    and<literal> &lt;num value expr&gt; </literal>indicates a numeric
+    type.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ASCII function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ASCII</emphasis></simpara>
+
+    <para><literal>ASCII ( &lt;char value expr&gt; )</literal></para>
+
+    <para>Returns an INTEGER equal to the ASCII code value of the first
+    character of <literal>&lt;char value expr&gt;</literal>. (JDBC)</para>
+
+    <para><literal>CHAR ( &lt;UNICODE code&gt; ) </literal></para>
+
+    <para>The argument is an INTEGER. Returns a character string containing a
+    single character that has the specified<literal> &lt;UNICODE
+    code&gt;</literal>, which is an integer. ASCII codes are a subset of the
+    allowed values for <literal>&lt;UNICODE code&gt;</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CONCAT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CONCAT</emphasis></simpara>
+
+    <para><literal>CONCAT ( &lt;char value expr 1&gt;, &lt;char value expr
+    2&gt; )</literal></para>
+
+    <para><literal>CONCAT ( &lt;binary value expr 1&gt;, &lt;binary value expr
+    2&gt; )</literal></para>
+
+    <para>The arguments are character strings or binary strings. Returns a
+    string formed by concatenation of the arguments. Equivalent to the SQL
+    concatenation expression <literal>&lt;value expr 1&gt; || &lt;value expr
+    2&gt;</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DIFFERENCE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DIFFERENCE</emphasis></simpara>
+
+    <para><literal>DIFFERENCE ( &lt;char value expr 1&gt;, &lt;char value expr
+    2&gt; )</literal></para>
+
+    <para>The arguments are character strings. Converts the arguments into
+    SOUNDEX codes, and returns an INTEGER between 0-3 which indicates how many
+    letters of the two SOUNDEX value are different. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>INSERT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">INSERT</emphasis></simpara>
+
+    <para><literal>INSERT ( &lt;char value expr 1&gt;, &lt;offset&gt;,
+    &lt;length&gt;, &lt;char value expr 2&gt; )</literal></para>
+
+    <para>Returns a character string based on <literal>&lt;char value expr
+    1&gt;</literal> in which <literal>&lt;length&gt;</literal> characters have
+    been removed from the <literal>&lt;offset&gt;</literal> position and in
+    their place, the whole <literal>&lt;char value expr 2&gt;</literal> is
+    copied. Equivalent to SQL/Foundation <literal>OVERLAY( &lt;char value
+    expr1&gt; PLACING &lt; char value expr2&gt; FROM &lt;offset&gt; FOR
+    &lt;length&gt; )</literal> . (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>HEXTORAW function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">HEXTORAW</emphasis></simpara>
+
+    <para><literal>HEXTORAW( &lt;char value expr&gt; )</literal></para>
+
+    <para>Returns a BINARY string formed by translation of hexadecimal digits
+    and letters in the &lt;<literal>char value expr&gt;</literal>. Each
+    character of the <literal>&lt;char value expr&gt;</literal> must be a
+    digit or a letter in the A | B | C | D | E | F set. Each byte of the
+    retured binary string is formed by translating two hex digits into one
+    byte. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LCASE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LCASE</emphasis></simpara>
+
+    <para><literal>LCASE ( &lt;char value expr&gt; ) </literal></para>
+
+    <para>Returns a character string that is the lower case version of the
+    <literal>&lt;char value expr&gt;</literal>. Equivalent to SQL/Foundation
+    <literal>LOWER (&lt;char value expr&gt;)</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LEFT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LEFT</emphasis></simpara>
+
+    <para><literal>LEFT ( &lt;char value expr&gt;, &lt;length&gt; )
+    </literal></para>
+
+    <para>Returns a character string consisting of the first
+    <literal>&lt;length&gt;</literal> characters of <literal>&lt;char value
+    expr&gt;</literal>. Equivalent to SQL/Foundation<literal>
+    SUBSTRING(&lt;char value expr&gt; FROM 0 FOR &lt;length&gt;)</literal>.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LENGTH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LENGTH</emphasis></simpara>
+
+    <para><literal>LENGTH ( &lt;char value expr&gt; ) </literal></para>
+
+    <para>Returns as a BIGINT value the number of characters in
+    <literal>&lt;char value expr&gt;</literal>. Equivalent to SQL/Foundation
+    <literal>CHAR_LENGTH(&lt;char value expr&gt;)</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LOCATE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOCATE</emphasis></simpara>
+
+    <para><literal>LOCATE ( &lt;char value expr 1&gt;, &lt;char value expr
+    2&gt; [ , &lt;offset&gt; ] ) </literal></para>
+
+    <para>Returns as a BIGINT value the starting position of the first
+    occurrence of <literal>&lt;char value expr 1&gt;</literal> within
+    <literal>&lt;char value expr 2&gt;</literal>. If
+    <literal>&lt;offset</literal>&gt; is specified, the search begins with the
+    position indicated by <literal>&lt;offset&gt;</literal>. If the search is
+    not successful, 0 is returned. Equivalent to SQL/Foundation
+    <literal>POSITION(&lt;char value expr 1&gt; IN &lt;char value expr
+    2&gt;)</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LTRIM function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LTRIM</emphasis></simpara>
+
+    <para><literal>LTRIM ( &lt;char value expr&gt; ) </literal></para>
+
+    <para>Returns a character string based on <literal>&lt;char value
+    expr&gt;</literal> with the leading space characters removed. Equivalent
+    to SQL/Foundation <literal>TRIM( LEADING ' ' FROM &lt;char value expr&gt;
+    )</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RAWTOHEX function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RAWTOHEX</emphasis></simpara>
+
+    <para><literal>RAWTOHEX( &lt;binary value expr&gt; )</literal></para>
+
+    <para>Returns a character string composed of hexadecimal digits
+    representing the bytes in the <literal>&lt;binary value
+    expr&gt;</literal>. Each byte of the <literal>&lt;binary value
+    expr&gt;</literal> is translated into two hex digits. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REPEAT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REPEAT</emphasis></simpara>
+
+    <para><literal>REPEAT ( &lt;char value expr&gt;, &lt;count&gt; )
+    </literal></para>
+
+    <para>Returns a character string based on<literal> &lt;char value
+    expr&gt;</literal>, repeated <literal>&lt;count&gt;</literal> times.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REPLACE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REPLACE</emphasis></simpara>
+
+    <para><literal>REPLACE ( &lt;char value expr 1&gt;, &lt;char value expr
+    2&gt;, &lt;char value expr 3&gt; )</literal></para>
+
+    <para>Returns a character string based on <literal>&lt;char value expr
+    1&gt;</literal> where each occurrence of <literal>&lt;char value expr
+    2&gt;</literal> has been replaced with a copy of <literal>&lt;char value
+    expr 3&gt;</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REVERSE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REVERSE</emphasis></simpara>
+
+    <para><literal>REVERSE ( &lt;char value expr&gt; )</literal></para>
+
+    <para>Returns a character string based on <literal>&lt;char value
+    expr&gt;</literal> with characters in the reverse order. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RIGHT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RIGHT</emphasis></simpara>
+
+    <para><literal>RIGHT ( &lt;char value expr&gt;, &lt;count&gt; )
+    </literal></para>
+
+    <para>Returns a character string consisting of the last
+    <literal>&lt;count&gt;</literal> characters of <literal>&lt;char value
+    expr&gt;</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RTRIM function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RTRIM</emphasis></simpara>
+
+    <para><literal>RTRIM ( &lt;char value expr&gt; ) </literal></para>
+
+    <para>Returns a character string based on <literal>&lt;char value
+    expr&gt;</literal> with the trailing space characters removed. Equivalent
+    to SQL/Foundation <literal>TRIM(TRAILING ' ' FROM &lt;character
+    string&gt;)</literal>. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SOUNDEX function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SOUNDEX</emphasis></simpara>
+
+    <para><literal>SOUNDEX ( &lt;char value expr&gt; ) </literal></para>
+
+    <para>Returns a four character code representing the sound of
+    <literal>&lt;char value expr&gt;</literal>. The US census algorithm is
+    used. For example the soundex value for Washington is W252. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SPACE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SPACE</emphasis></simpara>
+
+    <para><literal>SPACE ( &lt;count&gt; ) </literal></para>
+
+    <para>Returns a character string consisting of <literal>&lt;count&gt;
+    </literal>spaces. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SUBSTR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SUBSTR</emphasis></simpara>
+
+    <para><literal>{ SUBSTR | SUBSTRING } ( &lt;char value expr&gt;,
+    &lt;offset&gt;, &lt;length&gt; )</literal></para>
+
+    <para>The JDBC version of SQL/Foundation <literal>SUBSTRING</literal>
+    returns a character string that consists of
+    <literal>&lt;length&gt;</literal> characters from <literal>&lt;char value
+    expr&gt; </literal>starting at the <literal>&lt;offset&gt;</literal>
+    position. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>UCASE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">UCASE</emphasis></simpara>
+
+    <para><literal>UCASE ( &lt;char value expr&gt; ) </literal></para>
+
+    <para>Returns a character string that is the lower case version of the
+    <literal>&lt;char value expr&gt;</literal>. Equivalent to SQL/Foundation
+    <literal>UPPER( &lt;char value expr&gt; )</literal> . (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CHARACTER_LENGTH</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CHARACTER_LENGTH</emphasis></simpara>
+
+    <para><literal>{ CHAR_LENGTH | CHARACTER_LENGTH } ( &lt;char value
+    expression&gt; [ USING { CHARACTERS | OCTETS } ] )</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>OCTET_LENGTH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">OCTET_LENGTH</emphasis></simpara>
+
+    <para><literal>OCTET_LENGTH ( &lt;string value expression&gt;
+    )</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>BIT_LENGTH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BIT_LENGTH</emphasis></simpara>
+
+    <para><literal>BIT_LENGTH ( &lt;string value expression&gt;
+    )</literal></para>
+
+    <para>The CHAR_LENGTH or CHARACTER_LENGTH function can be used with
+    character strings, while OCTET_LENGTH can be used with character or binary
+    strings and BIT_LENGTH can be used with character, binary and bit
+    strings.</para>
+
+    <para>All functions return a BIGINT value that measures the length of the
+    string in the given unit. CHAR_LENGTH counts characters, OCTET_LENGTH
+    counts octets and BIT_LENGTH counts bits in the string. For CHAR_LENGTH,
+    if <literal>[ USING OCTETS ] </literal>is specified, the octet count is
+    returned. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>OVERLAY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">OVERLAY</emphasis></simpara>
+
+    <para><literal>OVERLAY ( &lt;char value expr 1&gt; PLACING &lt;char value
+    expr 2&gt;</literal></para>
+
+    <para><literal>FROM &lt;start position&gt; [ FOR &lt;string length&gt; ] [
+    USING CHARACTERS ] )</literal></para>
+
+    <para><literal>OVERLAY ( &lt;binary value expr 1&gt; PLACING &lt;binary
+    value expr 2&gt;</literal></para>
+
+    <para><literal>FROM &lt;start position&gt; [ FOR &lt;string length&gt; ]
+    )</literal></para>
+
+    <para>The character version of OVERLAY returns a character string based on
+    <literal>&lt;char value expr 1&gt;</literal> in which <literal>&lt;string
+    length&gt;</literal> characters have been removed from the
+    <literal>&lt;start position&gt;</literal> and in their place, the whole
+    <literal>&lt;char value expr 2&gt;</literal> is copied.</para>
+
+    <para>The binary version of OVERLAY returns a binary string formed in the
+    same manner as the character version. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>POSITION function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">POSITION</emphasis></simpara>
+
+    <para><literal>POSITION ( &lt;char value expr 1&gt; IN &lt;char value expr
+    2&gt; [ USING CHARACTERS ] )</literal></para>
+
+    <para><literal>POSITION ( &lt;binary value expr 1&gt; IN &lt;binary value
+    expr 2&gt; )</literal></para>
+
+    <para>The character and binary versions of POSITION search the string
+    value of the second argument for the first occurrence of the first
+    argument string. If the search is successful, the position in the string
+    is returned as a BIGINT. Otherwise zero is returned.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SUBSTRING function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SUBSTRING</emphasis></simpara>
+
+    <para><literal>SUBSTRING ( &lt;char value expr&gt; FROM &lt;start
+    position&gt; [ FOR &lt;string length&gt; ] [ USING CHARACTERS ]
+    )</literal></para>
+
+    <para><literal>SUBSTRING ( &lt;binary value expr&gt; FROM &lt;start
+    position&gt; [ FOR &lt;string length&gt; ] )</literal></para>
+
+    <para>The character version of SUBSTRING returns a character string that
+    consists of the characters of the <literal>&lt;char value expr&gt;
+    </literal>from <literal>&lt;start position&gt;</literal>. If the
+    optional<literal> &lt;string length&gt;</literal> is specified, only
+    <literal>&lt;string length&gt; </literal>characters are returned.</para>
+
+    <para>The binary version of SUBSTRING returns a binary string in the same
+    manner. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRIM function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRIM</emphasis></simpara>
+
+    <para><literal>TRIM ([ [ LEADING | TRAILING | BOTH ] [ &lt;trim
+    character&gt; ] FROM ] &lt;char value expr&gt; )</literal></para>
+
+    <para><literal>TRIM ([ [ LEADING | TRAILING | BOTH ] [ &lt;trim octet&gt;
+    ] FROM ] &lt;binary value expr&gt; )</literal></para>
+
+    <para>The character version of TRIM returns a character string based on
+    <literal>&lt;char value expr&gt;</literal>. Consecutive instances of
+    <literal>&lt;trim character&gt; </literal>are removed from the beginning,
+    the end or both ends of the<literal>&lt;char value expr&gt;
+    </literal>depending on the value of the optional first qualifier
+    <literal>[ LEADING | TRAILING | BOTH ]</literal>. If no qualifier is
+    specified, <literal>BOTH </literal>is used as default. If <literal>[
+    &lt;trim character&gt; ]</literal> is not specified, the space character
+    is used as default.</para>
+
+    <para>The binary version of TRIM returns a binary string based on
+    <literal>&lt;binary value expr&gt;</literal>. Consecutive instances of
+    <literal>&lt;trim octet&gt; </literal>are removed in the same manner as in
+    the character version. If<literal> [ &lt;trim octet&gt; ]</literal> is not
+    specified, the 0 octet is used as default. (Foundation)</para>
+  </section>
+
+  <section xml:id="builtin_functions_numeric-sect">
+    <title>Numeric Functions</title>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ABS function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ABS</emphasis></simpara>
+
+    <para><literal>ABS ( &lt;num value expr&gt; | &lt;interval value expr&gt;
+    ) </literal></para>
+
+    <para>Returns the absolute value of the argument as a value of the same
+    type. (JDBC and Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ACOS function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ACOS</emphasis></simpara>
+
+    <para><literal>ACOS ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the arc-cosine of the argument in radians as a value of
+    DOUBLE type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ASIN function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ASIN</emphasis></simpara>
+
+    <para><literal>ASIN ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the arc-sine of the argument in radians as a value of DOUBLE
+    type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ATAN function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ATAN</emphasis></simpara>
+
+    <para><literal>ATAN ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the arc-tangent of the argument in radians as a value of
+    DOUBLE type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ATAN2 function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ATAN2</emphasis></simpara>
+
+    <para><literal>ATAN2 ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
+    ) </literal></para>
+
+    <para>The <literal>&lt;num value expr 1&gt;</literal> and <literal>&lt;num
+    value expr 2&gt;</literal> express the <varname>x</varname> and
+    <varname>y</varname> coordinates of a point. Returns the angle, in
+    radians, representing the angle coordinate of the point in polar
+    coordinates, as a value of DOUBLE type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CEIL function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CEILING</emphasis></simpara>
+
+    <para><literal>{ CEIL | CEILING } ( &lt;num value expr&gt; )
+    </literal></para>
+
+    <para>Returns the smallest integer greater than or equal to the argument.
+    If the argument is exact numeric then the result is exact numeric with a
+    scale of 0. If the argument is approximate numeric, then the result is of
+    DOUBLE type. (JDBC and Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>BITAND function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BITAND</emphasis></simpara>
+
+    <para><literal>BITAND ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
+    )</literal></para>
+
+    <para><literal>BITAND ( &lt;bit value expr 1&gt;, &lt;bit value expr 2&gt;
+    )</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>BITOR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BITOR</emphasis></simpara>
+
+    <para><literal>BITOR ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
+    )</literal></para>
+
+    <para><literal>BITOR ( &lt;bit value expr 1&gt;, &lt;bit value expr 2&gt;
+    )</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>BITXOR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BITXOR</emphasis></simpara>
+
+    <para><literal>BITXOR ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
+    )</literal></para>
+
+    <para><literal>BITXOR ( &lt;bit value expr 1&gt;, &lt;bit value expr 2&gt;
+    )</literal></para>
+
+    <para>These three functions perform the bit operations: OR, AND, XOR, on
+    two values. The values are either integer values, or bit strings. The
+    result is an integer value of the same type as the arguments, or a bit
+    string of the same length as the argument. Each bit of the result is
+    formed by performing the operation on corresponding bits of the arguments.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>COS function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">COS</emphasis></simpara>
+
+    <para><literal>COS ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the cosine of the argument (an angle expressed in radians)
+    as a value of DOUBLE type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>COT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">COT</emphasis></simpara>
+
+    <para><literal>COT ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the cotangent of the argument as a value of DOUBLE type. The
+    <literal>&lt;num value expr&gt;</literal> represents an angle expressed in
+    radians. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DEGREES function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DEGREES</emphasis></simpara>
+
+    <para><literal>DEGREES ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Converts the argument (an angle expressed in<literal>
+    radians</literal>) into degrees and returns the value in the DOUBLE type.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>EXP function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">EXP</emphasis></simpara>
+
+    <para><literal>EXP ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the exponential value of the argument as a value of DOUBLE
+    type. (JDBC and Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>FLOOR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">FLOOR</emphasis></simpara>
+
+    <para><literal>FLOOR ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the largest integer that is less than or equal to the
+    argument. If the argument is exact numeric then the result is exact
+    numeric with a scale of 0. If the argument is approximate numeric, then
+    the result is of DOUBLE type. (JDBC and Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LN function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LN</emphasis></simpara>
+
+    <para><literal>LN ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the natural logarithm of the argument, as a value of DOUBLE
+    type. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LOG function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOG</emphasis></simpara>
+
+    <para><literal>LOG ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the natural logarithm of the argument, as a value of DOUBLE
+    type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LOG10 function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOG10</emphasis></simpara>
+
+    <para><literal>LOG10 ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the base 10 logarithm of the argument as a value of DOUBLE
+    type. (JDBC)</para>
+
+    <para><literal>MOD ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt; )
+    </literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>MOD function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">MOD</emphasis></simpara>
+
+    <para>Returns the remainder (modulus) of <literal>&lt;num value expr
+    1&gt;</literal> divided by <literal>&lt;num value expr 2&gt;.</literal>
+    The data type of the returned value is the same as the second argument.
+    (JDBC and Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>PI function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">PI</emphasis></simpara>
+
+    <para><literal>PI () </literal></para>
+
+    <para>Returns the constant pi as a value of DOUBLE type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>POWER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">POWER</emphasis></simpara>
+
+    <para><literal>POWER ( &lt;num value expr 1&gt;, &lt;num value expr 2&gt;
+    ) </literal></para>
+
+    <para>Returns the value of <literal>&lt;num value expr 1&gt;</literal>
+    raised to the power of <literal>&lt;int value expr 2&gt;</literal> as a
+    value of DOUBLE type. (JDBC and Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RADIANS function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RADIANS</emphasis></simpara>
+
+    <para><literal>RADIANS ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Converts the argument (an angle expressed in<literal>
+    degrees</literal>) into radians and returns the value in the DOUBLE type.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RAND function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RAND</emphasis></simpara>
+
+    <para><literal>RAND ( [ &lt;int value expr&gt; ] ) </literal></para>
+
+    <para>Returns a random value in the DOUBLE type. The optional <literal>[
+    &lt;int value expr&gt; ]</literal> is used as seed value. In HyperSQL each
+    session has a separate random number generator. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ROUND function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ROUND</emphasis></simpara>
+
+    <para><literal>ROUND ( &lt;num value expr&gt;, &lt;int value expr&gt; )
+    </literal></para>
+
+    <para>The <literal>&lt;num value expr&gt; </literal>is of the DOUBLE type.
+    The function returns a DOUBLE value which is the value of the argument
+    rounded to <literal>&lt;int value expr&gt;</literal> places right of the
+    decimal point. If <literal>&lt;int value expr&gt;</literal> is negative,
+    the first argument is rounded to <literal>&lt;int value expr&gt;</literal>
+    places to the left of the decimal point. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SIGN function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SIGN</emphasis></simpara>
+
+    <para><literal>SIGN ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns an INTEGER, indicating the sign of the argument. If the
+    argument is negative then -1 is returned. If it is equal to zero then 0 is
+    returned. If the argument is positive then 1 is returned. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SIN function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SIN</emphasis></simpara>
+
+    <para><literal>SIN ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the sine of the argument (an angle expressed in radians) as
+    a value of DOUBLE type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SQRT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SQRT</emphasis></simpara>
+
+    <para><literal>SQRT ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the square root of the argument as a value of DOUBLE type.
+    (JDBC and Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TAN function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TAN</emphasis></simpara>
+
+    <para><literal>TAN ( &lt;num value expr&gt; ) </literal></para>
+
+    <para>Returns the tangent of the argument (an angle expressed in radians)
+    as a value of DOUBLE type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRUNCATE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRUNCATE</emphasis></simpara>
+
+    <para><literal>TRUNCATE ( &lt;num value expr&gt;, &lt;int value expr&gt; )
+    </literal></para>
+
+    <para>Returns a value in the same type as <literal>&lt;num value
+    expr&gt;</literal>. The value is rounded by replacing digits with zeros
+    from <literal>&lt;int value expr&gt;</literal> places right of the decimal
+    point to the end. If <literal>&lt;int value expr&gt;</literal> is
+    negative, <literal>ABS( &lt;int value expr&gt; )</literal> digits to left
+    of the decimal point and all digits to the right of the decimal points are
+    replaced with zeros. Results of calling TRUNCATE with 12345.6789 with (-2,
+    0, 2, 4) are (12300.0000, 12345.0000, 12345.6700, 12345.6789).
+    (JDBC)</para>
+  </section>
+
+  <section xml:id="builtin_functions_datetime-sect">
+    <title>Date Time and Interval Functions</title>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>EXTRACT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">EXTRACT</emphasis></simpara>
+
+    <para><literal>EXTRACT ( &lt;extract field&gt; FROM &lt;extract source&gt;
+    )</literal></para>
+
+    <para><literal>&lt;extract field&gt; ::= YEAR | MONTH | DAY | HOUR |
+    MINUTE | DAY_OF_WEEK | WEEK_OF_YEAR | QUARTER | DAY_OF_YEAR | DAY_OF_MONTH
+    |</literal></para>
+
+    <para><literal>TIMEZONE_HOUR | TIMEZONE_MINUTE | SECOND | SECONDS_MIDNIGHT
+    |</literal></para>
+
+    <para><literal>DAY_NAME | MONTH_NAME</literal></para>
+
+    <para><literal>&lt;extract source&gt; ::= &lt;datatime value expr&gt; |
+    &lt;interval value expr&gt;</literal></para>
+
+    <para>The EXTRACT function returns a field or element of the
+    <literal>&lt;extract source&gt;</literal>. The <literal>&lt;extract
+    source&gt;</literal> is a datetime or interval expression. The type of the
+    return value is BIGINT for most of the<literal> &lt;extract
+    field&gt;</literal> options, except for <literal>SECOND </literal>where a
+    DECIMAL value is returned and <literal>DAY_NAME </literal>or<literal>
+    MONTH_NAME </literal>where a character string is returned. When
+    <literal>MONTH_NAME</literal> is specified, a string in the range January
+    - December is returned. When <literal>DAY_NAME </literal>is specified, a
+    string in the range Sunday -Saturday is returned.</para>
+
+    <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
+    &lt;datatime value expr&gt;</literal>, different groups of
+    <literal>&lt;extract source&gt;</literal> can be used depending on the
+    data type of the expression. The <literal>TIMEZONE_HOUR |
+    TIMEZONE_MINUTE</literal> options are valid only for TIME WITH TIMEZONE
+    and TIMESTAMP WITH TIMEZONE data types. The <literal>HOUR | MINUTE |
+    SECOND | SECONDS_MIDNIGHT</literal> options, are valid for TIME and
+    TIMESTAMP types. The rest of the fields are valid for DATE and TIMESTAMP
+    types.</para>
+
+    <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
+    &lt;interval value expr&gt;</literal>, the <literal>&lt;extract
+    field&gt;</literal> must be one of the fields of the INTERVAL type of the
+    expressions. The <literal>YEAR | MONTH</literal> options may be valid for
+    INTERVAL types based on months. The<literal>DAY | HOUR | MINUTE | SECOND |
+    SECONDS_MIDNIGHT</literal> options may be valid for INTERVAL types based
+    on seconds. For example,<literal> DAY | HOUR | MINUTE</literal> are the
+    only valid fields for the INTERVAL DAY TO MINUTE data type. (Foundation
+    with HyperSQL extensions)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CURRENT_DATE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CURRENT_DATE</emphasis></simpara>
+
+    <para><literal>CURRENT_DATE</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CURRENT_TIME function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CURRENT_TIME</emphasis></simpara>
+
+    <para><literal>CURRENT_TIME [ ( &lt;time precision&gt; )
+    ]</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LOCALTIME function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOCALTIME</emphasis></simpara>
+
+    <para><literal>LOCALTIME [ ( &lt;time precision&gt; ) ]</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CURRENT_TIMESTAMP function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CURRENT_TIMESTAMP</emphasis></simpara>
+
+    <para><literal>CURRENT_TIMESTAMP [ ( &lt;timestamp precision&gt; )
+    ]</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LOCALTIMESTAMP function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOCALTIMESTAMP</emphasis></simpara>
+
+    <para><literal>LOCALTIMESTAMP [ ( &lt;timestamp precision&gt; )
+    ]</literal></para>
+
+    <para>These datetime functions return the datetime value representing the
+    moment the function is called. CURRENT_DATE returns a value of DATE type.
+    CURRENT_TIME returns a value of TIME WITH TIME ZONE type. LOCALTIME
+    returns a value of TIME type. CURRENT_TIMESTAMP returns a value of
+    TIMESTAMP WITH TIME ZONE type. LOCALTIMESTAMP returns a value of TIMESTAMP
+    type. If the optional <literal>[ ( &lt;time precision&gt; ) ]</literal>
+    or<literal> [ ( &lt;timestamp precision&gt; ) ]</literal> is used, then
+    the returned value has the specified fraction of the second precision.
+    (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CURDATE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CURDATE</emphasis></simpara>
+
+    <para><literal>CURDATE ()</literal></para>
+
+    <para>This function is equivalent to<literal> CURRENT_DATE.
+    </literal>(JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CURTIME function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CURTIME</emphasis></simpara>
+
+    <para><literal>CURTIME ()</literal></para>
+
+    <para>This function is equivalent to<literal> LOCALTIME</literal>.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DAYNAME function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DAYNAME</emphasis></simpara>
+
+    <para><literal>DAYNAME ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to<literal> EXTRACT ( DAY_NAME FROM ...
+    ) </literal>Returns a string in the range of Sunday - Saturday.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DAYOFMONTH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DAYOFMONTH</emphasis></simpara>
+
+    <para><literal>DAYOFMONTH ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to<literal> EXTRACT ( DAY_OF_MONTH FROM
+    ... ) </literal>Returns an integer value in the range of 1-31.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DAYOFWEEK function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DAYOFWEEK</emphasis></simpara>
+
+    <para><literal>DAYOFWEEK ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to <literal>EXTRACT ( DAY_OF_WEEK FROM
+    ... ) </literal>Returns an integer value in the range of 1-7. The first
+    day of the week is Sunday. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DAYOFYEAR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DAYOFYEAR</emphasis></simpara>
+
+    <para><literal>DAYOFYEAR ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to <literal>EXTRACT ( DAY_OF_YEAR FROM
+    ... ) </literal>Returns an integer value in the range of 1-366.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>HOUR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">HOUR</emphasis></simpara>
+
+    <para><literal>HOUR ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to <literal>EXTRACT ( HOUR FROM ... )
+    </literal>Returns an integer value in the range of 0-23. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>MINUTE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">MINUTE</emphasis></simpara>
+
+    <para><literal>MINUTE ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to<literal> EXTRACT ( MINUTE FROM ... )
+    </literal>Returns an integer value in the range of 0 - 59. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>MONTH function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">MONTH</emphasis></simpara>
+
+    <para><literal>MONTH ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to <literal>EXTRACT ( MONTH FROM ... )
+    </literal>Returns an integer value in the range of 1-12. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>MONTHNAME function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">MONTHNAME</emphasis></simpara>
+
+    <para><literal>MONTHNAME ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to <literal>EXTRACT ( NAME_OF_MONTH FROM
+    ... ) </literal>Returns a string in the range of January - December.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>NOW function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">NOW</emphasis></simpara>
+
+    <para><literal>NOW ()</literal></para>
+
+    <para>This function is equivalent to
+    <literal>LOCAL_TIMESTAMP.</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>QUARTER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">QUARTER</emphasis></simpara>
+
+    <para><literal>QUARTER ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to <literal>EXTRACT ( QUARTER FROM ... )
+    </literal>Returns an integer in the range of 1 - 4. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SECOND function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SECOND</emphasis></simpara>
+
+    <para><literal>SECOND ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equivalent to <literal>EXTRACT ( SECOND FROM ... )
+    </literal>Returns an integer in the range of 0 - 59. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SECONDS_SINCE_MIDNIGHT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SECONDS_SINCE_MIDNIGHT</emphasis></simpara>
+
+    <para><literal>SECONDS_SINCE_MIDNIGHT ( &lt;datatime value expr&gt;
+    )</literal></para>
+
+    <para>This function is equvalent to<literal> EXTRACT (
+    SECONDS_SINCE_MIDNIGHT FROM ... ) </literal>Returns an integer in the
+    range of 0 - 86399. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>WEEK function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">WEEK</emphasis></simpara>
+
+    <para><literal>WEEK ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equvalent to<literal> EXTRACT ( WEEK_OF_YEAR FROM
+    ... ) </literal>Returns an integer in the range of 1 - 54. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>YEAR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">YEAR</emphasis></simpara>
+
+    <para><literal>YEAR ( &lt;datatime value expr&gt; )</literal></para>
+
+    <para>This function is equvalent to<literal> EXTRACT ( YEAR FROM ... )
+    </literal>Returns an integer in the range of 1 - 9999. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TIMESTAMPADD function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TIMESTAMPADD</emphasis></simpara>
+
+    <para><literal>TIMESTAMPADD ( &lt;tsi datetime field&gt;, &lt;numeric
+    value expression&gt;, &lt;datetime value expr&gt;)</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TIMESTAMPDIFF function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TIMESTAMPDIFF</emphasis></simpara>
+
+    <para><literal>TIMESTAMPDIFF ( &lt;tsi datetime field&gt;, &lt;datetime
+    value expr 1&gt;, &lt;datetime value expr 2&gt;)</literal></para>
+
+    <para><literal>&lt;tsi datetime field&gt; ::= SQL_TSI_FRAC_SECOND |
+    SQL_TSI_SECOND | SQL_TSI_MINUTE | SQL_TSI_HOUR | SQL_TSI_DAY |
+    SQL_TSI_WEEK | SQL_TSI_MONTH | SQL_TSI_QUARTER |
+    SQL_TSI_YEAR</literal></para>
+
+    <para>HyperSQL supports full SQL Standard dateteime features. It supports
+    adding integers representing units of time directly to datetime values
+    using the arithmetic plus operator. It also supports subtracting one
+    <literal>&lt;datetime value expr&gt;</literal> from another in the given
+    units of days using the minus operator. An example of
+    <literal>&lt;datetime value expr&gt; + &lt;numeric value expression&gt;
+    &lt;datetime field&gt; </literal>is <literal>LOCAL_TIMESTAMP + 5
+    DAY</literal>. An example of <literal>( &lt;datetime value expr&gt; -
+    &lt;numeric value expression&gt; ) &lt;datetime field&gt; </literal>is
+    <literal>(CURRENT_DATE - DATE '2008-08-8') MONTH </literal>which returns
+    the number of calendar months between the two dates.</para>
+
+    <para>The two JDBC functions, <literal>TIMESTAMPADD </literal>and
+    <literal>TIMESTAMPDIFF</literal> perform the same function as above SQL
+    expressions. The field names are different from those used in the EXTRACT
+    functions. These names are valid for use only when calling these two
+    functions. The return value for TIMESTAMPADD is of the same type as the
+    datetime argument used. The return type for TIMESTAMPDIFF is always
+    BIGINT, regardless of the type of arguments. The two datetime arguments of
+    TIMESTAMPDIFF should be of the same type. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATEADD function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DATEADD</emphasis></simpara>
+
+    <para><literal>DATEADD ( &lt;field&gt;, &lt;numeric value expr&gt;,
+    &lt;datetime value expr&gt; )</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATEDIFF function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DATEDIFF</emphasis></simpara>
+
+    <para><literal>DATEDIFF ( &lt;field&gt;, &lt;datetime value expr 1&gt;,
+    datetime value expr 2&gt; )</literal></para>
+
+    <para><literal>&lt;field&gt; ::= 'yy' | 'mm' | 'dd' | 'hh' | 'mi' | 'ss' |
+    'ms'</literal></para>
+
+    <para>The DATEADD and DATEDIFF functions are alternatives to TIMESTAMPADD
+    and TIMESTAMPDIFF, with fewer available field options. The fields
+    translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
+    (HyperSQL}</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TO_CHAR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TO_CHAR</emphasis></simpara>
+
+    <para><literal>TO_CHAR( &lt;datetime value expr&gt;, &lt;char value
+    expr&gt; )</literal></para>
+
+    <para>This function formats a datetime or numeric value to the format
+    specified by the pattern given in the second argument. The pattern can
+    contain pattern elements from the list given below, plus punctuation and
+    space characters. An example, including the result, is given below:</para>
+
+    <programlisting>TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH')
+
+2008 AD February, Friday 8
+</programlisting>
+
+    <para>The format is internally translated to a
+    <classname>java.text.SimpleDateFormat</classname> format string. Any
+    character sequences not listed below are included in the Java format
+    string and may cause unexpected results or errors. The supported format
+    components are as follows:</para>
+
+    <table colsep="1" frame="all" pgwide="0">
+      <title>TO CHAR Values</title>
+
+      <tgroup cols="2">
+        <colspec colwidth="5cm" />
+
+        <colspec />
+
+        <tbody>
+          <row>
+            <entry><literal>BC | B.C. | AD | A.D.</literal></entry>
+
+            <entry>Returns <literal>AD</literal> for common era and
+            <literal>BC</literal> for before common era</entry>
+          </row>
+
+          <row>
+            <entry><literal>RRRR</literal></entry>
+
+            <entry><para>4-digit year</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>YYYY</literal></entry>
+
+            <entry><para>4-digit year</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>IYYY</literal></entry>
+
+            <entry><para>4-digit year</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>YY</literal></entry>
+
+            <entry><para>2 digit year</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>IY</literal></entry>
+
+            <entry><para>2 digit year</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>IYYY</literal></entry>
+
+            <entry><para>4-digit year</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>MM</literal></entry>
+
+            <entry><para>Month (01-12)</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>MON</literal></entry>
+
+            <entry><para>Short three-letter name of month</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>MONTH</literal></entry>
+
+            <entry><para>Name of month</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>WW</literal></entry>
+
+            <entry><para>Week of year (1-53) where week 1 starts on the first
+            day of the year and continues to the seventh day of the
+            year.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>W</literal></entry>
+
+            <entry><para>Week of month (1-5) where week 1 starts on the first
+            day of the month and ends on the seventh.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>IW</literal></entry>
+
+            <entry><para>Week of year (1-52 or 1-53) based on the ISO
+            standard.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>DAY</literal></entry>
+
+            <entry><para>Name of day.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>DD</literal></entry>
+
+            <entry><para>Day of month (1-31).</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>DDD</literal></entry>
+
+            <entry><para>Day of year (1-366).</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>DY</literal></entry>
+
+            <entry><para>Short three-letter name of day.</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>HH</literal></entry>
+
+            <entry><para>Hour of day (0-11).</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>HH12</literal></entry>
+
+            <entry><para>Hour of day (0-11).</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>HH24</literal></entry>
+
+            <entry><para>Hour of day (0-23).</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>MI</literal></entry>
+
+            <entry><para>Minute (0-59).</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>SS</literal></entry>
+
+            <entry><para>Second (0-59).</para></entry>
+          </row>
+
+          <row>
+            <entry><literal>FF</literal></entry>
+
+            <entry><para>Fractional seconds.</para></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section xml:id="builtin_functions_sysfunc-sect">
+    <title>System Functions</title>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>COALESCE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">COALESCE</emphasis></simpara>
+
+    <para><literal>COALESCE( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
+    otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of
+    both arguments must be the same. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATABASE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DATABASE</emphasis></simpara>
+
+    <para><literal>DATABASE ()</literal></para>
+
+    <para>Returns the file name (without directory information) of the
+    database. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>IDENTITY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">IDENTITY</emphasis></simpara>
+
+    <para><literal>IDENTITY()</literal></para>
+
+    <para>Returns the last IDENTITY value inserted into a row by the current
+    session. The statement, CALL IDENTITY() can be made after an INSERT
+    statement that inserts a row into a table with an IDENTITY column. The
+    CALL IDENTITY() statement returns the last IDENTITY value that was
+    inserted into a table by the current session. Each session manages this
+    function call separetly and is not affected by inserts in other sessions.
+    The statement can be executed as a direct statement or a prepared
+    statement. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>IFNULL function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">IFNULL</emphasis></simpara>
+
+    <para><literal>IFNULL( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
+    otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of
+    both arguments must be the same. Equivalent to SQL Standard
+    <literal>COALESCE(&lt;value expr 1&gt;, &lt;value expr 2&gt;)</literal>
+    function. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>USER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">USER</emphasis></simpara>
+
+    <para><literal>USER ()</literal></para>
+
+    <para>Equivalent to the SQL function <literal>CURRENT_USER</literal>.
+    (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CONVERT functionGr</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CONVERT</emphasis></simpara>
+
+    <para><literal>CONVERT ( &lt;value expr&gt; , &lt;data type&gt;
+    )</literal></para>
+
+    <para><literal>&lt;data type&gt; ::= { SQL_BIGINT | SQL_BINARY | SQL_BIT
+    |SQL_BLOB | SQL_BOOLEAN | SQL_CHAR | SQL_CLOB | SQL_DATE | SQL_DECIMAL |
+    SQL_DATALINK |SQL_DOUBLE | SQL_FLOAT | SQL_INTEGER | SQL_LONGVARBINARY |
+    SQL_LONGNVARCHAR | SQL_LONGVARCHAR | SQL_NCHAR | SQL_NCLOB | SQL_NUMERIC |
+    SQL_NVARCHAR | SQL_REAL | SQL_ROWID | SQL_SQLXML | SQL_SMALLINT | SQL_TIME
+    | SQL_TIMESTAMP | SQL_TINYINT | SQL_VARBINARY | SQL_VARCHAR} [ (
+    &lt;precision, length or scale parameters&gt; ) ]</literal></para>
+
+    <para>The CONVERT function is a JDBC escape function, equivalent to the
+    SQL standard CAST expression. It converts the <literal>&lt;value
+    expr&gt;</literal> into the given <literal>&lt;data type&gt;</literal> and
+    returns the value. The <literal>&lt;data type&gt;</literal> options are
+    synthetic names made by prefixing type names with <literal>SQL_</literal>.
+    Some of the <literal>&lt;data type&gt;</literal> options represent valid
+    SQL types, but some are are based on non-standard type names, namely
+    <literal>{ SQL_LONGNVARCHAR | SQL_LONGVARBINARY |SQL_LONGVARCHAR |
+    SQL_TINYINT }</literal>. None of the synthetic names can be used in any
+    other context than the CONVERT function.</para>
+
+    <para>The definition of CONVERT in the JDBC Standard does not allow the
+    precision, scale or length to be specified. This is required by the SQL
+    standard for BINARY, BIT, BLOB, CHAR, CLOB, VARBINARY and VARCHAR types
+    and is often needed for DECIMAL and NUMERIC. Therefore, HyperSQL allows
+    the use of precision, scale or length for the type definition when they
+    are valid for the type definition. HyperSQL also allows the use of real
+    type names (without the <literal>SQL_</literal> prefix). (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CURRENT_USER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CURRENT_USER</emphasis></simpara>
+
+    <para><literal>CURRENT_USER</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CURRENT_ROLE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CURRENT_ROLE</emphasis></simpara>
+
+    <para><literal>CURRENT_ROLE</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SESSION_USER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SESSION_USER</emphasis></simpara>
+
+    <para><literal>SESSION_USER</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SYSTEM_USER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SYSTEM_USER</emphasis></simpara>
+
+    <para><literal>SYSTEM_USER</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CURRENT_SCHEMA function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CURRENT_SCHEMA</emphasis></simpara>
+
+    <para><literal>CURRENT_SCHEMA</literal></para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CURRENT_CATALOG function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CURRENT_CATALOG</emphasis></simpara>
+
+    <para><literal>CURRENT_CATALOG</literal></para>
+
+    <para>These functions return the named current session attribute. They are
+    all SQL Standard functions.</para>
+
+    <para>The CURRENT_USER is the user that connected to the database, or a
+    user subsequently set by the SET AUTHORIZATION statement.</para>
+
+    <para>SESSION_USER is the same as CURRENT_USER</para>
+
+    <para>SYSTEM_USER is the user that connected to the database. It is not
+    changed with any command until the session is closed.</para>
+
+    <para>CURRENT_SCHEMA is default schema of the user, or a schema
+    subsequently set by the SET SCHEMA command.</para>
+
+    <para>CURRENT_CATALOG is always the same within a given HyperSQL database
+    and indicates the name of the catalog.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ISAUTOCOMMIT function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ISAUTOCOMMIT</emphasis></simpara>
+
+    <para><literal>ISAUTOCOMMIT()</literal></para>
+
+    <para>Returns TRUE if the session is in autocommit mode.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ISREADONLYSESSION function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ISREADONLYSESSION</emphasis></simpara>
+
+    <para><literal>ISREADONLYSESSION()</literal></para>
+
+    <para>Returns TRUE if the session is in read only mode.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ISREADONLYDATABASE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ISREADONLYDATABASE</emphasis></simpara>
+
+    <para><literal>ISREADONLYDATABASE()</literal></para>
+
+    <para>Returns TRUE if the database is a read only database.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ISREADONLYDATABASEFILES function</primary>
+    </indexterm>
+
+    <simpara><emphasis
+    role="bold">ISREADONLYDATABASEFILES</emphasis></simpara>
+
+    <para><literal>ISREADONLYDATABASEFILES()</literal></para>
+
+    <para>Returns TRUE if the database is a read only files database. In this
+    kind of database, it is possible to modify the data, but the changes are
+    not persisted to the database files.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>NULLIF function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">NULLIF</emphasis></simpara>
+
+    <para><literal>NULLIF( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not equal
+    to <literal>&lt;value expr 2&gt;</literal>, otherwise returns null. The
+    type of both arguments must be the same. This function is a shorthand for
+    a specific CASE expression. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CRYPT_KEY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CRYPT_KEY</emphasis></simpara>
+
+    <para><literal>CRYPT_KEY( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns a binary string representation of a cryptography key for the
+    given cipher and cyptography provider. The cipher specification is
+    specified by <literal>&lt;value expr 1&gt;</literal> and the provider by
+    <literal>&lt;value expr 2&gt;</literal>. To use the default provider,
+    specify null for <literal>&lt;value expr 2&gt;</literal>.
+    (HyperSQL)</para>
+  </section>
+</chapter>

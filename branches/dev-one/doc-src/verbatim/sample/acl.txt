@@ -1,0 +1,31 @@
+# $Id$
+
+# Sample HyperSQL Network Listener ACL file.
+# Specify "allow" and "deny" rules
+# For address specifications, individual addresses, host names, and
+# network addresses with /bit suffix are allowed, but read the caveat about
+# host names below, under the sample "localhost" rule.
+
+# Blank lines ignored.
+   # Lines with # as the first non-whitespace character are ignored.
+
+
+allow 2001:db8::/32
+# Allow this 32-bit ipv4 subnet
+
+allow localhost
+# You should use numerical addresses in ACL files, unless you are certain that
+# the name will always be known to your network address resolution system
+# (assume that you will lose Internet connectivity at some time).
+# With a default name resolution setup on UNIX, you are safe to use names
+# defined in your /etc/hosts file.
+
+deny 192.168.101.253
+# Deny a single IP address.
+# In our example, 192.168.101.0/24 is our local, organizational network.
+# 192.168.101.253 is the IP address of our Intern's PC.
+# The Intern does not have permission to access our databases directly.
+
+allow 192.168.101.0/24
+
+# Any ipv4 or ipv6 candidate address not matched above will be denied
