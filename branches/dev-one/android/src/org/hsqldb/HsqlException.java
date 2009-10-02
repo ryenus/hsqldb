@@ -48,8 +48,21 @@ public class HsqlException extends RuntimeException {
 
     //
     public final static HsqlException[] emptyArray = new HsqlException[]{};
-    public final static HsqlException noDataCondition =
-        Error.error(ErrorCode.N_02000);
+    public final static HsqlException noDataCondition;
+    
+    static {
+    	HsqlException tmp=new HsqlException(new Throwable(),"","",ErrorCode.N_02000);
+    	try
+    	{
+    	 tmp= Error.error(ErrorCode.N_02000);
+    	}
+    	catch (Throwable t)
+    	{
+    		t.printStackTrace();
+    	}
+    	noDataCondition=tmp;
+    }
+        
 
     //
     private String message;

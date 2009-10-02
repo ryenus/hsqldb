@@ -31,7 +31,11 @@
 
 package org.hsqldb.jdbc;
 
+//#ifdef JAVA6
+
 import java.sql.NClob;
+
+//#endif JAVA6
 
 /**
  * The mapping in the Java<sup><font size=-2>TM</font></sup> programming language
@@ -71,7 +75,15 @@ import java.sql.NClob;
  * @see JDBCClob
  * @see JDBCClobClient
  */
-public class JDBCNClob extends JDBCClob implements NClob {
+public class JDBCNClob extends JDBCClob 
+
+//#ifdef JAVA6
+
+implements NClob 
+
+//#endif JAVA6
+
+{
 
     protected JDBCNClob() {
         super();

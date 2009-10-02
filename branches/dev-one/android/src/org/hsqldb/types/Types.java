@@ -433,7 +433,12 @@ public class Types {
      *
      * @since JDK 1.6, HSQLDB 1.8.x
      */
+
+//#ifdef JAVA6
+
     public static final int NCLOB = 2007;
+
+//#endif JAVA6
 
     /**
      * The constant in the Java programming language, sometimes referred to
@@ -499,8 +504,14 @@ public class Types {
             JAVA_OBJECT, TYPE_SUB_DEFAULT
         }, {
             SQL_NCHAR, TYPE_SUB_DEFAULT
+
+//#ifdef JAVA6
+
         }, {
             NCLOB, TYPE_SUB_DEFAULT
+
+//#endif JAVA6
+
         }, {
             SQL_ALL_TYPES, TYPE_SUB_DEFAULT
         }, {
@@ -724,7 +735,13 @@ public class Types {
             case Types.SQL_CHAR :
             case Types.SQL_NCHAR :
             case Types.SQL_CLOB :
+
+//#ifdef JAVA6
+
             case Types.NCLOB :
+
+//#endif JAVA6
+
             case Types.SQL_VARBINARY :
             case Types.SQL_VARCHAR :
             case Types.SQL_NVARCHAR :
@@ -798,8 +815,12 @@ public class Types {
             case Types.SQL_CLOB :
                 return "CLOB";
 
+//#ifdef JAVA6
+
             case Types.NCLOB :
                 return "NCLOB";
+
+//#endif JAVA6
 
             case Types.SQL_DATALINK :
                 return "DATALINK";
@@ -999,7 +1020,13 @@ public class Types {
             case Types.SQL_ARRAY :
             case Types.SQL_BLOB :
             case Types.SQL_CLOB :
+
+//#ifdef JAVA6
+
             case Types.NCLOB :
+
+//#endif JAVA6
+
             case Types.JAVA_OBJECT :
             case Types.STRUCT :
             case Types.OTHER :
@@ -1018,7 +1045,13 @@ public class Types {
             case Types.SQL_ARRAY :
             case Types.SQL_BLOB :
             case Types.SQL_CLOB :
+
+//#ifdef JAVA6
+
             case Types.NCLOB :
+
+//#endif JAVA6
+
             case Types.DISTINCT :
             case Types.JAVA_OBJECT :
             case Types.SQL_ALL_TYPES :
