@@ -57,6 +57,9 @@ import org.hsqldb.lib.HsqlArrayList;
  */
 public final class BundleHandler {
 
+    /** Used to disable/enable resource loading */
+    public static boolean RESOURCELOADINGALLOWED=true;
+
     /** Used to synchronize access */
     private static final Object mutex = new Object();
 
@@ -163,6 +166,8 @@ public final class BundleHandler {
      * @return The String value correspoding to the specified handle and key.
      */
     public static String getString(int handle, String key) {
+
+        if (!RESOURCELOADINGALLOWED) return key;
 
         ResourceBundle bundle;
         String         s;
