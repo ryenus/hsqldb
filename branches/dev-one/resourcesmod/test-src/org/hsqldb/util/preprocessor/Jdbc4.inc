@@ -1,0 +1,1 @@
+String msg4 = "I was included because jdbc_version was GTE 4";
