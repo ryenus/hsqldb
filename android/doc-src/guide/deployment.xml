@@ -1,0 +1,1379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0" xml:id="deployment-chapt"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xlink="http://www.w3.org/1999/xlink"
+         xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title xml:id="deployment-title">System Management and Deployment
+  Issues</title>
+
+  <info>
+    <authorgroup>
+      <author>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
+
+        <affiliation>
+          <orgname>The HSQL Development Group</orgname>
+        </affiliation>
+      </author>
+    </authorgroup>
+
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>$Date$</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>HyperSQL</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQL Development
+      Group to distribute this document with or without alterations under the
+      terms of the HSQLDB license.</para>
+    </legalnotice>
+  </info>
+
+  <section xml:id="deploymen_modes-sect">
+    <title>Mode of Operation and Tables</title>
+
+    <para>HyperSQL has many modes of operation and features that allow it to
+    be used in very different scenarios. Levels of memory usage, speed and
+    accessibility by different applications are influenced by how HyperSQL is
+    deployed.</para>
+
+    <section>
+      <title>Mode of Operation</title>
+
+      <para>The decision to run HyperSQL as a separate server process or as an
+      <glossterm>in-process</glossterm> database should be based on the
+      following:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>When HyperSQL is run as a server on a separate machine, it
+            is isolated from hardware failures and crashes on the hosts
+            running the application.</para>
+          </listitem>
+
+          <listitem>
+            <para>When HyperSQL is run as a server on the same machine, it is
+            isolated from application crashes and memory leaks.</para>
+          </listitem>
+
+          <listitem>
+            <para>Server connections are slower than
+            <glossterm>in-process</glossterm> connections due to the overhead
+            of streaming the data for each JDBC call.</para>
+          </listitem>
+        </itemizedlist></para>
+    </section>
+
+    <section>
+      <title>Tables</title>
+
+      <para>TEXT tables are designed for special applications where the data
+      has to be in an interchangeable format, such as CSV. TEXT tables should
+      not be used for routine storage of data.</para>
+
+      <para>MEMORY tables and CACHED tables are generally used for data
+      storage. The difference between the two is as follows:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>The data for all MEMORY tables is read from the *.script
+            file when the database is started and stored in memory. In
+            contrast the data for cached tables is not read into memory until
+            the table is accessed. Furthermore, only part of the data for each
+            CACHED table is held in memory, allowing tables with more data
+            than can be held in memory.</para>
+          </listitem>
+
+          <listitem>
+            <para>When the database is shutdown in the normal way, all the
+            data for MEMORY tables is written out to the disk. In comparison,
+            the data in CACHED tables that has changed is written out at
+            shutdown, plus a compressed backup of all the data in all cached
+            tables.</para>
+          </listitem>
+
+          <listitem>
+            <para>The size and capacity of the data cache for all the CACHED
+            tables is configurable. This makes it possible to allow all the
+            data in CACHED tables to be cached in memory. In this case, speed
+            of access is good, but slightly slower than MEMORY tables.</para>
+          </listitem>
+
+          <listitem>
+            <para>For normal applications it is recommended that MEMORY tables
+            are used for small amounts of data, leaving CACHED tables for
+            large data sets. For special applications in which speed is
+            paramount and a large amount of free memory is available, MEMORY
+            tables can be used for large tables as well.</para>
+          </listitem>
+        </itemizedlist></para>
+    </section>
+
+    <section>
+      <title>Large Objects</title>
+
+      <para>HyperSQL 2.0 supports decicated storage and access to BLOB and
+      CLOB objects. These objects can have huge sizes. BLOB or CLOB is
+      specified as the type of a column of the table. Afterwards, rows can be
+      inserted into the table using a PreparedStatement for efficient transfer
+      of large BLOB of CLOB data to the database. In mem: catalogs, CLOB and
+      BLOB data is stored in memory. In file: catalogs, this data is stored in
+      a single separate file which has the extension *.lobs. The size of this
+      file can grow to huge, terabyte figures.</para>
+    </section>
+
+    <section>
+      <title>Deployment context</title>
+
+      <para>The files used for storing HyperSQL database data are all in the
+      same directory. New files are always created and deleted by the database
+      engine. Two simple principles must be observed:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>The Java process running HyperSQL must have full privileges on
+          the directory where the files are stored. This include create and
+          delete privileges.</para>
+        </listitem>
+
+        <listitem>
+          <para>The file system must have enough spare room both for the
+          'permanent' and 'temporary' files. The default maximum size of the
+          *.log file is 50MB. The *.data file can grow to up to 16GB. The
+          .backup file can be up to the size of the *.data file. The *.lobs
+          file can grow to several terabytes. The temporary files created at
+          the time of a SHUTDOWN can be equal in size to the *.script file and
+          the .data file.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Readonly Databases</title>
+
+      <para>A file: catalog can be made readonly premanently, or it can be
+      opened as readonly. To make the database readonly, the property, value
+      pair, readonly=true can be added to the .properties file of the
+      database.</para>
+
+      <para>It is also possible to open a normal database as readonly. For
+      this, the property can be included in the URL of the first connection to
+      the database.</para>
+
+      <para>There is another option which allows MEMORY tables to be writable,
+      but without persisting the changes at SHUTDOWN. This option is activated
+      with the property, value pair, files_readonly= true, which can be added
+      to the .properties file of the database, or included in the URL of the
+      first connection to the database. This option is useful for running
+      application tests which operate on a predefined dataset.</para>
+    </section>
+  </section>
+
+  <section xml:id="deployment_mem_disk-sect">
+    <title>Memory and Disk Use</title>
+
+    <indexterm significance="preferred">
+      <primary>memory use</primary>
+    </indexterm>
+
+    <para>Memory used by the program can be thought of as two distinct pools:
+    memory used for table data which is not released unless the data is
+    deleted and memory that can be released or is released automatically,
+    including memory used for caching, building result sets and other internal
+    operations such as storing the information needed for a rollback a
+    transaction.</para>
+
+    <para>Most JVM implementations allocate up to a maximum amount of memory
+    (usually 64 MB by default). This amount is generally not adequate when
+    large memory tables are used, or when the average size of rows in cached
+    tables is larger than a few hundred bytes. The maximum amount of allocated
+    memory can be set on the java command line that is used for running
+    HyperSQL. For example, with Sun JVM version 1.3.0 the parameter -Xmx256m
+    increases the amount to 256 MB.</para>
+
+    <section>
+      <title>Table Memory Allocation</title>
+
+      <para>The memory used for a MEMORY table is the sum of memory used by
+      each row. Each MEMORY table row is a Java object that has 2 int or
+      reference variables. It contains an array of objects for the fields in
+      the row. Each field is an object such as <classname>Integer</classname>,
+      <classname>Long</classname>, <classname>String</classname>, etc. In
+      addition each index on the table adds a node object to the row. Each
+      node object has 6 int or reference variables. As a result, a table with
+      just one column of type INTEGER will have four objects per row, with a
+      total of 10 variables of 4 bytes each - currently taking up 80 bytes per
+      row. Beyond this, each extra column in the table adds at least a few
+      bytes to the size of each row.</para>
+    </section>
+
+    <section>
+      <title>Result Set Memory Allocation</title>
+
+      <para>By default, all the rows in the result set are built in memory, so
+      very large result sets may not be possible. In server mode databases, by
+      default, the result set memory is released from the server once the
+      database server has returned the result set.
+      <glossterm>in-process</glossterm> databases release the memory when the
+      application program releases the
+      <classname>java.sql.ResultSet</classname> object. Server modes require
+      additional memory for returning result sets, as they convert the full
+      result set into an array of bytes which is then transmitted to the
+      client.</para>
+
+      <para>HyperSQL 2.0 supports disk-based result sets. The commands,
+      <literal>SET RESULT MEMORY ROWS &lt;integer&gt;</literal> and
+      <literal>SET DATABASE DEFAULT RESULT MEMORY ROWS
+      &lt;integer&gt;</literal> specify a threshold for the number of rows.
+      Results with row counts above the threshold are stored on disk. When the
+      setFetchSize() method of the Statement interface is used to limit the
+      number rows fetched, the whole result is held by the engine and is
+      returnd to the JDBC ResultSet in blocks of rows of the specified fetch
+      size.</para>
+    </section>
+
+    <section>
+      <title>Temporary Memory Use During Operations</title>
+
+      <para>When UPDATE and DELETE queries are performed on CACHED tables, the
+      full set of rows that are affected, including those affected due to ON
+      UPDATE actions, is held in memory for the duration of the operation.
+      This means it may not be possible to perform deletes or updates
+      involving very large numbers of rows of CACHED tables. Such operations
+      should be performed in smaller sets.</para>
+
+      <para>When transactions support is enabled with SET AUTOCOMMIT FALSE,
+      lists of all insert, delete or update operations are stored in memory so
+      that they can be undone when ROLLBACK is issued. Transactions that span
+      hundreds of modification to data will take up a lot of memory until the
+      next COMMIT or ROLLBACK clears the list.</para>
+
+      <para>When subquries or views are used in SELECT and other statements,
+      transient tables are created and populated by the engine. If the SET
+      RESULT MEMORY ROWS has been used.</para>
+    </section>
+
+    <section>
+      <title>Data Cache Memory Allocation</title>
+
+      <para>With CACHED tables, the data is stored on disk and only up to a
+      maximum number of rows are held in memory at any time. The default is up
+      to 50,000 rows. The SET FILES CACHE ROWS command or the
+      <property>hsqldb.cache_rows</property> connection property can be set to
+      alter this amount. As any random subset of the rows in any of the CACHED
+      tables can be held in the cache, the amount of memory needed by cached
+      rows can reach the sum of the rows containing the largest field data.
+      For example if a table with 100,000 rows contains 40,000 rows with 1,000
+      bytes of data in each row and 60,000 rows with 100 bytes in each, the
+      cache can grow to contain 50,000 of the smaller rows, but as explained
+      further, only 10,000 or the large rows.</para>
+
+      <para>An additional property, <property>hsqldb.cache_size</property> is
+      used in conjunction with the <property>hsqldb.cache_rows</property>
+      property. This puts a limit in bytes on the total size of rows that are
+      cached. The default values is 10,000KB. (This is the size of binary
+      images of the rows and indexes. It translates to more actual memory,
+      typically 2-4 times, used for the cache because the data is represented
+      by Java objects.)</para>
+
+      <para>If memory is limited, the <property>hsqldb.cache_rows</property>
+      or <property>hsqldb.cache_size</property> database properties can be
+      reduced. In the example above, if the
+      <property>hsqldb.cache_size</property> is reduced from 10,000 to 5,000,
+      it will allow the number of cached rows to reach 50,000 small rows, but
+      only 5,000 of the larger rows.</para>
+
+      <para>Data for CLOB and BLOB columns is not cached and does not affect
+      the CACHED table memory cache.</para>
+    </section>
+
+    <section>
+      <title>Object Pool Memory Allocation</title>
+
+      <para>HyperSQL uses a set of fast pools for immutable objects such as
+      Integer, Long and short String objects that are stored in the database.
+      In most circumstances, this reduces the memory footprint still further
+      as fewer copies of the most frequently-used objects are kept in memory.
+      The object pools are shared among all databases in the JVM. The size of
+      each pool can be modified only by altering and recompiling the
+      <literal>org.hsqldb.store.ValuePool</literal> class.</para>
+    </section>
+  </section>
+
+  <section xml:id="deployment_conns-sect">
+    <title>Managing Database Connections</title>
+
+    <para>In all running modes (server or <glossterm>in-process</glossterm>)
+    multiple connections to the database engine are supported.
+    <glossterm>in-process</glossterm> (standalone) mode supports connections
+    from the client in the same Java Virtual Machine, while server modes
+    support connections over the network from several different
+    clients.</para>
+
+    <para>Connection pooling software can be used to connect to the database
+    but it is not generally necessary. With other database engines, connection
+    pools are used for reasons that may not apply to HyperSQL.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>To allow new queries to be performed while a time-consuming
+        query is being performed in the background. In HyperSQL, if a session
+        is in readonly mode, its queries are never blocked. If the session is
+        in read-write mode, blocking depends on the transaction model and the
+        current activity by other sessions.</para>
+      </listitem>
+
+      <listitem>
+        <para>To limit the maximum number of simultaneous connections to the
+        database for performance reasons. With HSQLDB this can be useful if
+        your application is designed in a way that opens and closes
+        connections for each small task.</para>
+      </listitem>
+
+      <listitem>
+        <para>To control transactions in a multi-threaded application. This
+        can be useful with HSQLDB as well. For example, in a web application,
+        a transaction may involve some processing between the queries or user
+        action across web pages. A separate connection should be used for each
+        HTTP session so that the work can be committed when completed or
+        rolled back otherwise. Although this usage cannot be applied to most
+        other database engines, HyperSQL is perfectly capable of handling over
+        100 simultaneous HTTP sessions as individual JDBC connections.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>An application that is not both multi-threaded and transactional,
+    such as an application for recording user login and logout actions, does
+    not need more than one connection. The connection can stay open
+    indefinitely and reopened only when it is dropped due to network
+    problems.</para>
+
+    <para>When using an <glossterm>in-process</glossterm> database, when the
+    last connection to the database is closed, the database still remains
+    open. An explicit SHUTDOWN command, with or without an argument, is
+    required to close the database. A connection property can be used to
+    shutdown the database when the last connection is closed.</para>
+
+    <para>When using a server database (and to some extent, an
+    <glossterm>in-process</glossterm> database), care must be taken to avoid
+    creating and dropping JDBC Connections too frequently. Failure to observe
+    this will result in unsuccessful connection attempts when the application
+    is under heavy load.</para>
+
+    <para>A repeated error in load-test simulations is to use a single client
+    to open and close thousands of connections to a HyperSQL server instance.
+    The connection attempts will fail after a few thousand because of OS
+    restrictions on opening sockets and the delay that is built into the OS in
+    closing them.</para>
+  </section>
+
+  <section xml:id="deployment_upgrade-sect">
+    <title>Upgrading Databases</title>
+
+    <indexterm significance="preferred">
+      <primary>upgrading</primary>
+    </indexterm>
+
+    <para>Any database that is not produced with the release version of
+    HyperSQL 2.0 or 1.9 must be upgraded to this version. Some catalogs
+    created with 1.8.0 can be upgraded simply by opening with HyperSQL 2.0.
+    When this is not possible due to errors, the rest of the procedures below
+    should be followed.</para>
+
+    <para>Once a database is upgraded to 2.0, it can no longer be used with
+    previous versions of HyperSQL.</para>
+
+    <section xml:id="upgrade_via_script-sect">
+      <title xml:id="upgrade_via_script-title">Upgrading From Older
+      Versions</title>
+
+      <para>To upgrade from the more recent version 1.8.0 simply open the
+      database with 1.9. With version 1.8.0 files which have database script
+      format set to BINARY or COMPRESSED (ZIPPED) you must issue the SET
+      SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with the old version,
+      then open with the new version of the engine. The upgrade is then
+      complete.</para>
+
+      <para>To upgrade from older version database files (1.7.1 and older)
+      that contain CACHED tables, use the SCRIPT procedure below. In all
+      versions of HyperSQL, the <literal>SCRIPT 'filename'</literal> command
+      (used as an SQL statement) allows you to save a full record of your
+      database, including database object definitions and data, to a file of
+      your choice. You can export a script file using the old version of the
+      database engine and open the script as a database with 2.0.</para>
+
+      <procedure>
+        <title>Upgrade Using the SCRIPT Procedure for Old Versions</title>
+
+        <step>
+          <para>Open the original database in the old version of
+          DatabaseManager</para>
+        </step>
+
+        <step>
+          <para>Issue the SCRIPT command, for example <literal>SCRIPT
+          'newversion.script'</literal> to create a script file containing a
+          copy of the database.</para>
+        </step>
+
+        <step>
+          <para>SHUTDOWN this database.</para>
+        </step>
+
+        <step>
+          <para>Copy the original <literal>*.properties</literal> file into
+          <filename>newversion.properties</filename> in the same directory as
+          <filename>newversion.script</filename></para>
+        </step>
+
+        <step>
+          <para>Try to open the new database <filename>newversion</filename>
+          using DatabaseManager.</para>
+        </step>
+
+        <step>
+          <para>If there is any inconsistency in the data, the script line
+          number is reported on the console and the opening process is
+          aborted. Edit and correct any problems in the
+          <filename>newversion.script</filename> before attempting to open
+          again. Use the guidelines in the next section (Manual Changes to the
+          <literal>.script</literal> File). Use a programming editor that is
+          capable of handling very large files and does not wrap long lines of
+          text.</para>
+        </step>
+      </procedure>
+    </section>
+
+    <section>
+      <title>Manual Changes to the *.script File</title>
+
+      <para>In HyperSQL 2.0 the full range of ALTER TABLE commands is
+      available to change the data structures and their names. However, if an
+      old database cannot be opened due to data inconsistencies, or the use of
+      index or column names that are not compatible with 2.0, manual editing
+      of the <literal>*.script</literal> file can be performed.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Version 2.0 does not accept duplicate names for indexes that
+          were allowed before 1.7.2.</para>
+        </listitem>
+
+        <listitem>
+          <para>Version 2.0 does not accept some table or column names that
+          are SQL reserved keywords without double quoting.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Other manual changes are also possible. Note that the
+      <literal>*.script</literal> file must be the result of a SHUTDOWN SCRIPT
+      and must contain the full data for the database.The following changes
+      can be applied so long as they do not affect the integrity of existing
+      data.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Names of tables, columns and indexes can be changed. These
+          changes must be consistent regarding foreign key constraints.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>NOT NULL</literal></para>
+
+          <para>A not-null constraint can always be removed.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>PRIMARY KEY</literal></para>
+
+          <para>A primary key constraint can be removed. It cannot be removed
+          if there is a foreign key referencing the column(s).</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>UNIQUE</literal></para>
+
+          <para>A UNIQUE constraint can be removed if there is no foreign key
+          referencing the column(s).</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>FOREIGN KEY</literal></para>
+
+          <para>A FOREIGN KEY constraint can always be removed.</para>
+        </listitem>
+
+        <listitem>
+          <para><literal>COLUMN TYPES</literal></para>
+
+          <para>Some changes to column types are possible. For example an
+          INTEGER column can be changed to BIGINT.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>After completing the changes and saving the modified
+      <literal>.script</literal> file, you can open the database as
+      normal.</para>
+    </section>
+  </section>
+
+  <section xml:id="deployment_backup-sect">
+    <title>Backing Up Database Catalogs</title>
+
+    <indexterm significance="preferred">
+      <primary>backup</primary>
+    </indexterm>
+
+    <para>The database engine saves the files containing all the data in a
+    file catalog when a shutdown takes place. It automatically recovers from
+    an abnormal termination and preserves the data when the catalog is opened
+    next time. In an ideal operating environment, where there is no OS crash,
+    disk failure, bugs in code, etc. there would be no need regularly to
+    backup a database. This is meant to say, the engine performs the routine
+    shutdown procedure internally, therefore backing up catalogs is an
+    insurance policy against all sorts of misadventure that are not under the
+    control of the database engine.</para>
+
+    <para>The data for each catalog consists of up to 5 files in the same
+    directory with the endings such as <literal>*.properties</literal>,
+    <literal>*.script</literal>, etc., as detailed in previous
+    chapters.</para>
+
+    <simpara>HyperSQL 2.0 includes commands to backup the database files into
+    a single <literal>.tar</literal> or <literal>.tar.gz</literal> file
+    archive. The backup can be performed by a command given in a JDBC session
+    if the target database catalog is running, or on the command-line if the
+    target catalog has been shutdown.</simpara>
+
+    <section>
+      <title>Making Online Backups</title>
+
+      <simpara>To back up a running catalog, obtain a JDBC connection and
+      issue a <literal>BACKUP DATABASE</literal> command in SQL. In its most
+      simple form, the command format below will backup the database as a
+      single <literal>.tar.gz</literal> file to the given directory.</simpara>
+
+      <programlisting>BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
+
+      <simpara>See the next section under Statements for details about the
+      command and its options. See the sections below about restoring a
+      backup.</simpara>
+    </section>
+
+    <section>
+      <title>Making Offline Backups</title>
+
+      <para>To back up an offline catalog, the catalog must be in shut down
+      state. You will run a Java command like this <example>
+          <title>Offline Backup Example</title>
+
+          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
+    tar/path.tar db/base/path</screen>
+        </example>where <filename>tar/path.tar</filename> is a file path to
+      the <literal>*.tar</literal> or <literal>*.tar.gz</literal> file to be
+      created, and <filename>db/base/path</filename> is the file path to the
+      catalog file base name (in same fashion as in
+      <varname>server.database.*</varname> settings and JDBC URLs with catalog
+      type <glossterm>file:</glossterm>.</para>
+    </section>
+
+    <section>
+      <title>Examining Backups</title>
+
+      <para>You can list the contents of backup tar files with
+      <classname>DbBackup</classname> on your operating system command line,
+      or with any Pax-compliant tar or pax client (this includes GNU tar),
+      <example>
+          <title>Listing a Backup with DbBackup</title>
+
+          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
+        </example>You can also give regular expressions at the end of the
+      command line if you are only interested in some of the file entries in
+      the backup. Note that these are real regular expressions, not shell
+      globbing patterns, so you would use <literal>.+script</literal> to match
+      entries ending in "script", not <literal>*script</literal>.</para>
+
+      <simpara>You can examine the contents of the backup in their entirety by
+      restoring the backup, as explained in the following section, to a
+      temporary directory.</simpara>
+    </section>
+
+    <section>
+      <title>Restoring a Backup</title>
+
+      <para>You use <classname>DbBackup</classname> on your operating system
+      command line to restore a catalog from a backup. <example>
+          <title>Restoring a Backup with DbBackup</title>
+
+          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
+    tar/path.tar db/dir</screen>
+        </example>where <filename>tar/path.tar</filename> is a file path to
+      the *.tar or *.tar.gz file to be read, and <filename>db/dir</filename>
+      is the target directory to extract the catalog files into. Note that
+      <filename>db/dir</filename> specifies a directory path, without the
+      catalog file base name. The files will be created with the names stored
+      in the tar file (and which you can see as described in the preceding
+      section).</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Encrypted Databases</title>
+
+    <para>HyperSQL supports encrypted databases. Encryption services use the
+    Java Cryptography Extensions (JCE) and can therefore use the ciphers
+    supplied with the JRE as well as third party ciphers that are installed
+    with the JRE.</para>
+
+    <para>Three elements are involved in specifying the encryption method and
+    key. A cipher, together with its configuation is identified by a string
+    which includes the name of the cipher and optional parameters. A provider
+    is the fully qualified class name of the cipher provider. A key is
+    represented as a hexadecimal string.</para>
+
+    <section>
+      <title>Creating and Accessing an Encrypted Database</title>
+
+      <para>First, a key must be created for the desired cipher and
+      configuration. This is done by calling the function CRYPT_KEY(&lt;cipher
+      spec&gt;, &lt;provider&gt;). If the default provider (the built-in JVM
+      ciphers) is used, then NULL should be specified as the provider. The
+      CRYPT_KEY function returns a hexadecimal key. The function call can be
+      made in any HyperSQL database, so long as the provider class is on the
+      classpath. This key can be used to create a new encrypted database.
+      Calls to this function always return different keys, based on a
+      generated random values.</para>
+
+      <para>As an example, a call to CRYPT_KEY('Blowfish', null) returned the
+      string, '604a6105889da65326bf35790a923932'. To create a new database,
+      the URL below is used:</para>
+
+      <para><literal>jdbc:hsqldb:file:&lt;database
+      path&gt;;crypt_key=604a6105889da65326bf35790a923932;crypt_type=blowfish</literal></para>
+
+      <para>The third propery name is crypt_provider. This is specified only
+      when the provider is not the default provider.</para>
+
+      <para>HyperSQL works with any symmetric cipher that may be available
+      from the JVM. This includes both padded and unpadded ciphers.</para>
+
+      <para>The files that are encrypted include the .script, .data, .backup
+      and .log files. The .lobs file is not encrypted by default. The property
+      crypt_lobs=true must be specified to encrypt the .lobs file.</para>
+    </section>
+
+    <section>
+      <title>Speed Considerations</title>
+
+      <para>General operations on an encrypted database are performed the same
+      as with any database. However, some operations are significantly slower
+      than with the equivalent cleartext database. With MEMORY tables, there
+      is no difference to the speed of SELECT statements, but data change
+      statements are slower. With CACHED tables, the speed of all statements
+      is slower.</para>
+    </section>
+
+    <section>
+      <title>Security Considerations</title>
+
+      <para>Security considerations for encrypted databases have been
+      discussed at length in HSQLDB discussion groups. Development team
+      members have commented that encryption is not a panacea for all security
+      needs. The following issues should be taken to account:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>Encrypted files are relatively safe in transport, but
+            because databases contain many repeated values and words,
+            especially known tokens such as CREATE, INSERT, etc., breaking the
+            encryption of a database may be simpler than an unknown
+            file.</para>
+          </listitem>
+
+          <listitem>
+            <para>Only the files are encrypted, not the memory image. Poking
+            into computer memory, while the database is open, will expose the
+            contents of the database.</para>
+          </listitem>
+
+          <listitem>
+            <para>HyperSQL is open source. Someone who has the key, can
+            compile and use a modified version of the program that saves a
+            full cleartext dump of an encrypted database</para>
+          </listitem>
+        </itemizedlist>Therefore encryption is generally effective only when
+      the users who have access to the crypt key are trusted.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Monitoring Database Operations</title>
+
+    <para>Database operations can be monitored at different levels using
+    internal HyperSQL capabilities or add-ons.</para>
+
+    <section>
+      <title>Statement Level Monitoring</title>
+
+      <para>Statement level monitoring allows you to gather statistics about
+      executed statements. HyperSQL is supported by the monitoring tool JAMon
+      (Java Application Monitor). JAMon is currently developed as the
+      SourceForge project, jamonapi.</para>
+
+      <para>JAMon works at the JDBC level. It can monitor and gather
+      statistics on different types of executed statements or other JDBC
+      calls.</para>
+
+      <para>Early versions of JAMon were developed with HSQLDB and had to be
+      integrated into HSQLDB at code level. The latest versions can be added
+      on as a proxy in a much simpler fashion.</para>
+    </section>
+
+    <section>
+      <title>Internal Event Monitoring</title>
+
+      <para>HyperSQL can log important internal events of the engine. These
+      events occur during the operation of the engine, and are not always
+      coupled with the exact type of statement being executed. Normal events
+      such as opening and closing of files, or errors such as OutOfMemory
+      conditions are examples of logged events.</para>
+
+      <para>HyperSQL supports two methods of logging. One method is specific
+      to the individual database and is mangaged internally by HyperSQL. The
+      other method is specific to JVM and is managed by a logging
+      framework.</para>
+
+      <para>The internally-generated, individual log for the database can be
+      enabled with the SET DATABASE EVENT LOG LEVEL statement, described in
+      the next section.</para>
+
+      <para>HyperSQL also supports log4J and JDK logging. The same event
+      information that is passed to the internal log, is passed to external
+      logging frameworks. These frameworks are configured outside
+      HyperSQL.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Statements</title>
+
+    <para>System level statements are listed in this section. Statements that
+    begin with SET DATABASE or SET FILES are for properties that have an
+    effect on the normal operation of HyperSQL. The effects of these
+    statements are also discussed in different chapters.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SHUTDOWN</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SHUTDOWN</emphasis></simpara>
+
+    <simpara><emphasis>shutdown statement</emphasis></simpara>
+
+    <simpara><literal>&lt;shutdown statement&gt; ::= SHUTDOWN [IMMEDIATELY |
+    COMPACT | SCRIPT]</literal></simpara>
+
+    <simpara>Shutdown the database. If the optional qualifier is not used, a
+    normal SHUTDOWN is performed.</simpara>
+
+    <variablelist>
+      <varlistentry>
+        <term>SHUTDOWN IMMEDIATELY</term>
+
+        <listitem>
+          <para>Saves the *.log file and closes the database files. This is
+          the quickest form of shutdown. This command should not be used as
+          the routine method of closing the database, because when the
+          database is accessed next time, it may take a long time to
+          start.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>SHUTDOWN COMPACT</term>
+
+        <listitem>
+          <para>This is similar to normal SHUTDOWN, but reduces the *.data
+          file to its minimum size. It takes longer than normal
+          SHUTDOWN.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>SHUTDOWN SCRIPT</term>
+
+        <listitem>
+          <para>This is similar to SHUTDOWN COMPACT, but it does not rewrite
+          the <literal>*.data</literal> and text table files. After SHUTDOWN
+          SCRIPT, only the <literal>*.script</literal> and
+          <literal>*.properties</literal> files remain. At the next startup,
+          these files are processed and the <literal>*.data</literal> and
+          <literal>*.backup</literal> files are created. This command in
+          effect performs part of the job of SHUTDOWN COMPACT, leaving the
+          other part to be performed automatically at the next startup.</para>
+
+          <para>This command produces a full script of the database which can
+          be edited for special purposes prior to the next startup.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>BACKUP DATABASE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">BACKUP DATABASE</emphasis></simpara>
+
+    <simpara><emphasis>backup database statement</emphasis></simpara>
+
+    <simpara><literal>&lt;backup database statement&gt; ::= BACKUP DATABASE TO
+    &lt;file path&gt; {SCRIPT | [NOT] COMPRESSED} BLOCKING</literal></simpara>
+
+    <simpara>Backup the database to specified <literal>&lt;file
+    path&gt;</literal> for archiving purposes.</simpara>
+
+    <simpara>The <literal>&lt;file path&gt;</literal> can be in two forms. If
+    the <literal>&lt;file path&gt;</literal> ends with a forward slash, it
+    specifies a directory. In this case, an automatic name for the archive is
+    generated that includes the date, time and the base name of the database.
+    The database is backed up to this archive file in the specified directory.
+    If the <literal>&lt;file path&gt;</literal> does not end with a forward
+    slash, it specifies a user-defined file name for the backup archive. The
+    archive is in tar, gzip format depending on whether it is compressed or
+    not.</simpara>
+
+    <simpara>The SCRIPT option is not currently supported. If SCRIPT is
+    specified, the backup will consist of two files, a
+    <literal>*.properties</literal> file and a <literal>*.script</literal>
+    file, which contain all the data and settings of the database. These files
+    are not compressed.</simpara>
+
+    <simpara>If COMPRESSED or NOT COMPRESSED is specified, the backup consists
+    of the current snapshot of database files. During backup, a CHECKPOINT
+    command is silently executed.</simpara>
+
+    <simpara>The qualifier, BLOCKING, means all database operations are
+    suspended during backup.</simpara>
+
+    <simpara>The HyperSQL jar also contains a program that creates an archive
+    of an offline database. It also contains a program to expand an archive
+    into database files. These programs are documented in ***todo Backing up
+    Database Catalog section of Deployment Chapter.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CHECKPOINT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CHECKPOINT</emphasis></simpara>
+
+    <simpara><emphasis>checkpoint statement</emphasis></simpara>
+
+    <simpara><literal>&lt;checkpoint statement&gt; ::= CHECKPOINT
+    [DEFRAG]</literal></simpara>
+
+    <simpara>Closes the database files, rewrites the script file, deletes the
+    log file and opens the database. If <literal>DEFRAG</literal> is
+    specified, also shrinks the <literal>*.data</literal> file to its minumum
+    size. Only a user with the DBA role can execute this statement.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CRYPT_KEY</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CRYPT_KEY</emphasis></simpara>
+
+    <simpara><emphasis>crypt_key function</emphasis></simpara>
+
+    <simpara><literal>&lt;crypt_key function&gt; ::= CRYPT_KEY ( &lt;cipher
+    spec&gt;, &lt;provider&gt; )</literal></simpara>
+
+    <simpara>The statement, CALL CRYPT_KEY( &lt;cipher spec&gt;,
+    &lt;provider&gt; ) returns a binary string representing a valid key for
+    the giver cipher and provider. The &lt;provider&gt; argument is specified
+    as NULL for the default provider.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SCRIPT</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SCRIPT</emphasis></simpara>
+
+    <simpara><emphasis>script statement</emphasis></simpara>
+
+    <simpara><literal>&lt;script statement&gt; ::= SCRIPT [&lt;file
+    name&gt;]</literal></simpara>
+
+    <simpara>Returns a script containing SQL statments that define the
+    database, its users, and its schema objects. If <literal>&lt;file
+    name&gt;</literal> is not specified, the statements are returned in a
+    ResultSet, with each row containing an SQL statement. No data statements
+    are included in this form. The optional file name is a single-quoted
+    string. If <literal>&lt;file name&gt;</literal> is specified, then the
+    script is written to the named file. In this case, all the data in all
+    tables of the database is included in the script as INSERT
+    statements.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES BACKUP INCREMENT</primary>
+    </indexterm>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE COLLATION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE COLLATION</emphasis></simpara>
+
+    <simpara><emphasis>set database collation statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database collation statement&gt; ::= SET
+    DATABASE COLLATION &lt;collation name&gt;</literal></simpara>
+
+    <simpara>Each database can have its own collation. Sets the collation from
+    the set of collations supported by HyperSQL. Once this command has been
+    issued, the database can be opened in any JVM and will retain its
+    collation. Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE DEFAULT TABLE TYPE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE DEFAULT TABLE
+    TYPE</emphasis></simpara>
+
+    <simpara><emphasis>set database default table type
+    statement</emphasis><literal> </literal></simpara>
+
+    <simpara><literal>&lt;set database default table type&gt; ::= SET DATABASE
+    DEFAULT TABLE TYPE { CACHED | MEMORY }</literal></simpara>
+
+    <simpara>Sets the type of table created when the next CREATE TABLE
+    statement is executed. The default is MEMORY.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE DEFAULT RESULT MEMORY ROWS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE DEFAULT RESULT MEMORY
+    ROWS</emphasis></simpara>
+
+    <simpara><emphasis>set database default result memory rows
+    statement</emphasis><literal> </literal></simpara>
+
+    <simpara><literal>&lt;set database default result memory rows&gt; ::= SET
+    DATABASE DEFAULT RESULT MEMORY ROWS &lt;unsigned integer
+    literal&gt;</literal></simpara>
+
+    <simpara>Sets the maximum number of rows of each result set and other
+    internal temporary table that is held in memory. This setting applies to
+    all sessions. Individual sessions can change the value with the
+    <literal>SET RESULT MEMORY ROWS</literal> command. The default is 0,
+    meaning all result sets are held in memory.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE EVENT LOG LEVEL</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE EVENT LOG
+    LEVEL</emphasis></simpara>
+
+    <simpara><emphasis>set database event log level
+    statement*</emphasis><literal> </literal></simpara>
+
+    <simpara><literal>&lt;set database event log level&gt; ::= SET DATABASE
+    EVENT LOG LEVEL { 0 | 1 | 2 }</literal></simpara>
+
+    <simpara>Sets the amount of information logged in the internal,
+    database-specific event log. Level 0 means no log. Level 1 means only
+    important (error) events. Level 2 means more events, including both
+    important and less important (normal) events. For readonly and mem:
+    databases, if the level is set above 0, the log messages are directed to
+    stderr.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE GC</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE GC</emphasis></simpara>
+
+    <simpara><emphasis>set database gc statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database gc statement&gt; ::= SET DATABASE GC
+    &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>An optional property which forces calls to System.gc() after the
+    specified number of row operations. The default value for this property is
+    0, which means no System.gc() calls. Usual values for this property range
+    from 10000 depending on the system and the memory allocation. This
+    property may be useful in some in-process deployments, expecially with
+    older JVM implementations.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE SQL SIZE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE SQL SIZE</emphasis></simpara>
+
+    <simpara><emphasis>set database sql size statement</emphasis><literal>
+    </literal></simpara>
+
+    <simpara><literal>&lt;set database sql size statement&gt; ::= SET DATABASE
+    SQL SIZE { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This command can enable or disable enforcement of column sizes
+    for CHAR and VARCHAR columns. The default is TRUE, meaning
+    enable.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE SQL NAMES</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE SQL NAMES</emphasis></simpara>
+
+    <simpara><emphasis>set database sql names statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database sql names statement&gt; ::= SET
+    DATABASE SQL NAMES { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This command can enable or disable full enforcement of the rule
+    that prevents SQL keywords being used for database object names such as
+    columns and tables. The default is FALSE, meaning disable.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET REFERENTIAL INTEGRITY</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE REFERENTIAL
+    INTEGRITY</emphasis></simpara>
+
+    <simpara><emphasis>set database referential integrity
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database referential integrity statement&gt; ::=
+    SET DATABASE REFERENTIAL INTEGRITY { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This commands enables or disables the enforcement of referential
+    integrity constraints (foreign key constraints), check constraints apart
+    from NOT NULL and triggers. By default, referential integrity constraints
+    are checked.</simpara>
+
+    <simpara>The only legitimate use of this statement is before importing
+    large amounts of external data into tables that have existing FOREIGN KEY
+    constraints. After import, the statement must be used again to enable
+    constraint enforcement.</simpara>
+
+    <simpara>If you are not sure the data conforms to the constraints, run
+    queries to verify all rows conform to the FOREIGN KEY constraints and take
+    appropriate actions for the rows that do not conform.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE UNIQUE NAME*</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE UNIQUE
+    NAME</emphasis></simpara>
+
+    <simpara><emphasis>set database unique name</emphasis><literal>
+    </literal></simpara>
+
+    <simpara>&lt;set database unique name statement&gt; ::= SET DATABASE
+    UNIQUE NAME &lt;identifier&gt;</simpara>
+
+    <simpara>Each HyperSQL catalog (database) has an engine-generated internal
+    name. This name is based on the time of creation of the database and is
+    exactly 16 characters. The name is used for in log events sent to external
+    logging frameworks. This name can be changed by an administrator. The new
+    name must be exactly 16 characters long.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE TRANSACTION CONTROL</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE TRANSACTION
+    CONTROL</emphasis></simpara>
+
+    <simpara><emphasis>set database transaction control
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database transaction control statement&gt; ::=
+    SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
+    }</literal></simpara>
+
+    <simpara>Set the concurrency control system for the database. It can be
+    issued only when all sessions have been committed or rolled back. This
+    command and its modes is discussed in the <link endterm="sessions-title"
+    xlink:href="#sessions-chapt"></link> chapter.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <simpara><emphasis role="bold">SET FILES BACKUP INCREMENT
+    </emphasis></simpara>
+
+    <simpara><emphasis>set files backup increment
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database backup increment statement&gt; ::= SET
+    FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
+
+    <simpara>Older versions of HSQLDB perform a backup of the .data file
+    before its contents are modified and the whole .data file is saved in a
+    compressed form when a CHECKPOINT or SHUTDOWN is performed. This takes a
+    long time when the size of the database exceeds 100 MB or so.</simpara>
+
+    <simpara>The alternative is backup in increments, just before some part of
+    the .data file is modified. In this this mode, no backup is performed at
+    CHECKPIONT or SHUTDOWN. This mode is prefered for large databases which
+    are opened and closed frequently.</simpara>
+
+    <simpara>The default mode is TRUE. If the old method of backup is
+    required, the mode can be set FALSE.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES CACHE ROWS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES CACHE ROWS</emphasis></simpara>
+
+    <simpara><emphasis>set files cache rows statement</emphasis><literal>
+    </literal></simpara>
+
+    <simpara><literal>&lt;set files cache rows statement&gt; ::= SET FILES
+    CACHE ROWS &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Sets the maximum number of rows (of CACHED tables) held in the
+    memory cache.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES CACHE SIZE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES CACHE SIZE</emphasis></simpara>
+
+    <simpara><emphasis>set files cache size statement</emphasis><literal>
+    </literal></simpara>
+
+    <simpara><literal>&lt;set files cache size statement&gt; ::= SET FILES
+    CACHE SIZE &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Sets maximum amount of data (of CACHED tables) in kilobytes held
+    in the memory cache.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES DEFRAG</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES DEFRAG</emphasis></simpara>
+
+    <simpara><emphasis>set files defrag statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files defrag statement&gt; ::= SET FILES DEFRAG
+    &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Sets the threshold for perfoming a DEFRAG during a checkpoint.
+    The <literal>&lt;unsigned integer literal&gt;</literal> is the percentage
+    of abandoned space in the <literal>*.data</literal> file. When a
+    CHECKPOINT is performed either as a result of the <literal>.log</literal>
+    file reaching the limit set by <literal>SET FILES LOG SIZE m</literal>, or
+    by the user issuing a CHECKPOINT command, the amount of space abandoned
+    since the database was opened is checked and if it is larger than
+    specified percentage, a CHECKPOINT DEFRAG is performed instead of a
+    CHECKPOINT.</simpara>
+
+    <simpara>The default is 0, which indicates no DEFRAG. Useful values are
+    between 10 to 50</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES LOG SIZE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES LOG SIZE</emphasis></simpara>
+
+    <simpara><emphasis>set files log size statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files log size statement&gt; ::= SET FILES LOG
+    SIZE &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Sets the maximum size in MB of the <literal>*.log</literal> file
+    to the specified value. The default maximum size is 50 MB. If the value is
+    zero, no limit is used for the size of the file. When the size of the file
+    reaches this value, a CHECKPOINT is performed and the the
+    <literal>*.log</literal> file is cleared to size 0. Only a user with the
+    DBA role can execute this statement.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES INCREMENT BACKUP</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES INCREMENT
+    BACKUP</emphasis></simpara>
+
+    <simpara><emphasis>set files increment backup
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files increment backup statement&gt; ::= SET
+    FILES INCREMENT BACKUP { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This specifies the method for internal backup operation. The
+    default is true.</simpara>
+
+    <simpara>During updates, the contents of the .data file is modified. When
+    this property is true, the modified contents are backed up gradually. This
+    causes a marginal slowdown in operations, but allows fast checkpoint and
+    shutdown with large .data files.</simpara>
+
+    <simpara>When the property is false, the .data file is backed up entirely
+    at the time of checkpoint and shutdown. Up to version 1.8.0, HSQLDB
+    supported only full backup.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES NIO</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES NIO</emphasis></simpara>
+
+    <simpara><emphasis>set files nio</emphasis></simpara>
+
+    <simpara><literal>&lt;set files nio statement&gt; ::= SET FILES NIO { TRUE
+    | FALSE }</literal></simpara>
+
+    <simpara>Changes the access method of the .data file. The default is TRUE
+    and uses the Java nio classes to access the file.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES WRITE DELAY</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES WRITE DELAY</emphasis></simpara>
+
+    <simpara><emphasis>set files write delay statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files write delay statement&gt; ::= SET FILES
+    WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds
+    value&gt; MILLIS}</literal></simpara>
+
+    <para>Set the WRITE DELAY property of the database. The WRITE DELAY
+    controls the frequency of file sync for the log file. When WRITE_DELAY is
+    set to FALSE or 0, the sync takes place immediately at each COMMIT. WRITE
+    DELAY TRUE performs the sync once every 10 seconds (which is the default).
+    A numeric value can be specified instead.</para>
+
+    <para>The purpose of this command is to control the amount of data loss in
+    case of a total system crash. A delay of 1 second means at most the data
+    written to disk during the last second before the crash is lost. All data
+    written prior to this has been synced and should be recoverable.</para>
+
+    <para>A write delay of 0 impacts performance in high load situations, as
+    the engine has to wait for the file system to catch up.</para>
+
+    <para>To avoid this, you can set write delay down to 10
+    milliseconds.</para>
+
+    <para>Each time the SET FILES WRITE DELAY statement is executed with any
+    value, a sync is immediately performed. Only a user with the DBA role can
+    execute this statement.</para>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET IGNORECASE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET IGNORECASE</emphasis></simpara>
+
+    <simpara><emphasis>set ignore case statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set ignore case statement&gt; ::= SET IGNORECASE {
+    TRUE | FALSE }</literal></simpara>
+
+    <simpara>Sets the type used for new VARCHAR table columns. By default,
+    character columns in new databases are case sensitive. If <literal>SET
+    IGNORECASE TRUE</literal> is used, all VARCHAR columns in new tables are
+    set to <literal>VARCHAR_IGNORECASE</literal>. It is possible to specify
+    the <literal>VARCHAR_IGNORECASE</literal> type for the definition of
+    individual columns. So it is possible to have some columns case sensitive
+    and some not, even in the same table. This statement must be switched
+    before creating tables. Existing tables and their data are not
+    affected.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this statement. This
+    setting is not saved with the database.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>*</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">*</emphasis></simpara>
+
+    <simpara><emphasis>*</emphasis><literal> </literal></simpara>
+
+    <simpara>**.</simpara>
+  </section>
+</chapter>

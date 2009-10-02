@@ -1,0 +1,10 @@
+/*
+ * $Id$
+ *
+ * Test of \q with arg from nested script.
+ */
+
+\i nq-arg1.isql
+\p Should not have returned from nested script which ran \q.
+/* Following line exits with success status to fail the .nsql unit test.
+\q
