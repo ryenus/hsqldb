@@ -2,6 +2,7 @@
 # This eliminates the need for CodeSwitcher to scan all source files.
 
 org/hsqldb/HsqlDateTime.java
+org/hsqldb/dbinfo/DITypeInfo.java
 org/hsqldb/lib/tar/TarFileOutputStream.java
 org/hsqldb/lib/tar/TarGenerator.java
 org/hsqldb/lib/tar/TarReader.java
@@ -27,4 +28,5 @@ org/hsqldb/lib/SimpleLog.java
 org/hsqldb/lib/StringConverter.java
 org/hsqldb/server/PgType.java
 org/hsqldb/test/TestBug778213.java
+org/hsqldb/types/Types.java
 org/hsqldb/util/ConnectionDialogCommon.java

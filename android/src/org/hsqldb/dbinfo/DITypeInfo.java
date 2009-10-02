@@ -112,7 +112,13 @@ final class DITypeInfo {
                 return ValuePool.getLong(2L * Integer.MAX_VALUE);
 
             case Types.SQL_CLOB :
+
+//#ifdef JAVA6
+
             case Types.NCLOB :
+
+//#endif JAVA6
+
                 return ValuePool.getLong(Long.MAX_VALUE);
 
             default :
@@ -159,7 +165,13 @@ final class DITypeInfo {
             case Types.SQL_CHAR :
             case Types.SQL_NCHAR :
             case Types.SQL_CLOB :
+
+//#ifdef JAVA6
+
             case Types.NCLOB :
+
+//#endif JAVA6
+
             case Types.SQL_VARBINARY :
             case Types.SQL_VARCHAR :
             case Types.SQL_NVARCHAR :
@@ -221,8 +233,12 @@ final class DITypeInfo {
             case Types.SQL_CLOB :
                 return "org.hsqldb.jdbc.JDBCClob";
 
+//#ifdef JAVA6
+
             case Types.NCLOB :
                 return "org.hsqldb.jdbc.JDBCNClob";
+
+//#endif JAVA6
 
             case Types.DISTINCT :
                 return "org.hsqldb.jdbc.JDBCDistinct";
@@ -416,7 +432,13 @@ final class DITypeInfo {
             case Types.SQL_CHAR :
             case Types.SQL_NCHAR :
             case Types.SQL_CLOB :
+
+//#ifdef JAVA6
+
             case Types.NCLOB :
+
+//#endif JAVA6
+
             case Types.SQL_LONGVARBINARY :
             case Types.SQL_VARBINARY :
             case Types.SQL_VARCHAR :
@@ -692,8 +714,12 @@ final class DITypeInfo {
             case Types.SQL_CLOB :
                 return ValuePool.getInt(Types.SQL_CLOB);            // SQL_CLOB
 
+//#ifdef JAVA6
+
             case Types.NCLOB :
                 return ValuePool.getInt(Types.SQL_CLOB);            // N/A : SQL_CLOB
+
+//#endif JAVA6
 
             case Types.SQL_DATALINK :
                 return ValuePool.getInt(Types.SQL_DATALINK);        // SQL_DATALINK
@@ -863,8 +889,13 @@ final class DITypeInfo {
             case Types.SQL_CLOB :
                 return "java.sql.Clob";
 
+
+//#ifdef JAVA6
+
             case Types.NCLOB :
                 return "java.sql.NClob";
+
+//#endif JAVA6
 
             case Types.SQL_DATALINK :
                 return "java.net.URL";
@@ -1096,6 +1127,9 @@ final class DITypeInfo {
 
                 break;
             }
+
+//#ifdef JAVA6
+
             case Types.NCLOB : {
                 try {
                     Class.forName("java.sql.NClob");
@@ -1107,6 +1141,9 @@ final class DITypeInfo {
 
                 break;
             }
+
+//#endif JAVA6
+
             case Types.DISTINCT : {
                 isSup = false;
 
