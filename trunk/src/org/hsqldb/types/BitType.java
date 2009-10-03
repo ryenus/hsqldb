@@ -391,8 +391,9 @@ public final class BitType extends BinaryType {
             return Tokens.T_NULL;
         }
 
-        return StringConverter.byteArrayToSQLHexString(
-            ((BinaryData) a).getBytes());
+        return StringConverter.byteArrayToSQLBitString(
+            ((BinaryData) a).getBytes(),
+            (int) ((BinaryData) a).bitLength(null));
     }
 
     public boolean canConvertFrom(Type otherType) {

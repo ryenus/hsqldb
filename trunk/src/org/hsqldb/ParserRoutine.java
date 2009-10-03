@@ -140,19 +140,17 @@ public class ParserRoutine extends ParserDML {
             }
 
             if (token.tokenType == Tokens.X_VALUE) {
-                e = new ExpressionValue(token.tokenValue, token.dataType);
-
-                if (minus) {
-                    e = new ExpressionArithmetic(OpTypes.NEGATE, e);
-
-                    e.resolveTypes(session, null);
-                }
+                Object value = dataType.convertToType(session,
+                                                      token.tokenValue,
+                                                      token.dataType);
 
                 read();
 
-                Object defaultValue = e.getValue(session, dataType);
+                if (minus) {
+                    value = dataType.negate(value);
+                }
 
-                return new ExpressionValue(defaultValue, dataType);
+                return new ExpressionValue(value, dataType);
             } else {
                 throw unexpectedToken();
             }
@@ -177,7 +175,7 @@ public class ParserRoutine extends ParserDML {
         readColumnNamesForSelectInto(variableNames, rangeVars);
         XreadTableExpression(select);
         select.setAsTopLevel();
-        select.resolve(session, rangeVars, new Type[variableNames.size()] );
+        select.resolve(session, rangeVars, new Type[variableNames.size()]);
 
         int[]          indexes   = new int[variableNames.size()];
         ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
