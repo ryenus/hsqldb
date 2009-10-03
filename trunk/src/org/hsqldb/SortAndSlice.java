@@ -138,7 +138,14 @@ public final class SortAndSlice {
 
     void setSortRange(QuerySpecification select) {
 
-        int[] colIndexes = select.rangeVariables[0].getIndex().getColumns();
+        int[] colIndexes;
+        Index rangeIndex = select.rangeVariables[0].getIndex();
+
+        if (rangeIndex == null) {
+            return;
+        }
+
+        colIndexes = rangeIndex.getColumns();
 
         if (columnIndexes == null) {
             if (!hasOrder()) {

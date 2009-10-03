@@ -64,7 +64,7 @@ public class Expression {
 
     //
     //
-    static final Expression[] emptyExpressionArray = new Expression[]{};
+    static final Expression[] emptyArray = new Expression[]{};
 
     //
     static final Expression EXPR_TRUE  = new ExpressionLogical(true);
@@ -171,7 +171,7 @@ public class Expression {
 
     Expression(int type) {
         opType = type;
-        nodes  = emptyExpressionArray;
+        nodes  = emptyArray;
     }
 
     // IN condition optimisation
@@ -641,7 +641,7 @@ public class Expression {
         if (index != -1) {
             Expression e = (Expression) replacements.get(index);
 
-            nodes         = emptyExpressionArray;
+            nodes         = emptyArray;
             opType        = OpTypes.SIMPLE_COLUMN;
             columnIndex   = e.columnIndex;
             rangePosition = e.rangePosition;
@@ -990,14 +990,14 @@ public class Expression {
 
         valueData = getConstantValue(session);
         opType    = OpTypes.VALUE;
-        nodes     = emptyExpressionArray;
+        nodes     = emptyArray;
     }
 
     void setAsConstantValue(Object value) {
 
         valueData = value;
         opType    = OpTypes.VALUE;
-        nodes     = emptyExpressionArray;
+        nodes     = emptyArray;
     }
 
     void prepareTable(Session session, Expression row, int degree) {
@@ -1238,6 +1238,10 @@ public class Expression {
         }
 
         return nulls;
+    }
+
+    public boolean isIndexable(RangeVariable range) {
+        return false;
     }
 
     static void convertToType(Session session, Object[] data, Type[] dataType,

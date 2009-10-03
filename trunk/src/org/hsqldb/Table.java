@@ -2083,6 +2083,26 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
+    boolean canGetIndexForColumn(int col) {
+
+        int i = bestIndexForColumn[col];
+
+        if (i > -1) {
+            return true;
+        }
+
+        switch (tableType) {
+
+            case TableBase.SYSTEM_SUBQUERY:
+            case TableBase.SYSTEM_TABLE:
+            case TableBase.VIEW_TABLE:
+            case TableBase.TEMP_TABLE: {
+
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      *  Finds an existing index for a column group
      */

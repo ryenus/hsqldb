@@ -92,7 +92,7 @@ public class ExpressionColumn extends Expression {
         setAttributesAsColumn(rangeVar, columnIndex);
     }
 
-    ExpressionColumn(RangeVariable rangeVar, ColumnSchema column, int index) {
+    ExpressionColumn(RangeVariable rangeVar, int index) {
 
         super(OpTypes.COLUMN);
 
@@ -241,29 +241,31 @@ public class ExpressionColumn extends Expression {
 
     void collectObjectNames(Set set) {
 
-
         switch (opType) {
 
-            case OpTypes.SEQUENCE:
+            case OpTypes.SEQUENCE :
                 HsqlName name = ((NumberSequence) valueData).getName();
 
                 set.add(name);
 
                 return;
-            case OpTypes.MULTICOLUMN:
-            case OpTypes.DYNAMIC_PARAM:
-            case OpTypes.ASTERISK:
-            case OpTypes.SIMPLE_COLUMN:
-            case OpTypes.COALESCE:
+
+            case OpTypes.MULTICOLUMN :
+            case OpTypes.DYNAMIC_PARAM :
+            case OpTypes.ASTERISK :
+            case OpTypes.SIMPLE_COLUMN :
+            case OpTypes.COALESCE :
                 break;
 
-            case OpTypes.PARAMETER:
-            case OpTypes.VARIABLE:
-            case OpTypes.COLUMN:
+            case OpTypes.PARAMETER :
+            case OpTypes.VARIABLE :
+            case OpTypes.COLUMN :
                 set.add(column.getName());
+
                 if (column.getName().parent != null) {
                     set.add(column.getName().parent);
                 }
+
                 return;
         }
     }
@@ -687,6 +689,7 @@ public class ExpressionColumn extends Expression {
             for (int i = 0; i < rangeVariables.length; i++) {
                 if (rangeVariables[i] == rangeVariable) {
                     set.add(rangeVariables[i]);
+
                     break;
                 }
             }
@@ -818,5 +821,16 @@ public class ExpressionColumn extends Expression {
             default :
                 return false;
         }
+    }
+
+    public boolean isIndexable(RangeVariable range) {
+
+        if (opType == OpTypes.COLUMN) {
+            return rangeVariable == range
+                   && rangeVariable.rangeTable.canGetIndexForColumn(
+                       columnIndex);
+        }
+
+        return false;
     }
 }

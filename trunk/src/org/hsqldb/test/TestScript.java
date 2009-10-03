@@ -35,11 +35,7 @@ import java.sql.Connection;
 
 public class TestScript extends TestBase {
 
-//    String path = "TestSelf01Function.txt";
-
-//    String path = "TestSelf01Procedure.txt";
-//    String path = "TestSelf02UpdatableViews.txt";
-//    String path = "TestSelf04UnionCorresponding.txt";
+    String path = "TestAny.txt";
 //    String path = "TestSelf.txt";
 //    String path = "TestSelf3PartNames.txt";
 //    String path = "TestSelfArithmetic.txt";
@@ -50,7 +46,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfCreate.txt";
 //    String path = "TestSelfConstraints.txt";
 //    String path = "TestSelfGrantees.txt";
-    String path = "TestSelfGroupBy.txt";
+//    String path = "TestSelfGroupBy.txt";
 //    String path = "TestSelfInsertDeleteQueries.txt";
 //    String path = "TestSelfInterval.txt";
 //    String path = "TestSelfInternalFunctions.txt";
@@ -66,6 +62,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfInPredicateReferencing.txt";
 //    String path = "TestSelfMultiGrants.txt";
 //    String path = "TestSelfNot.txt";
+//    String path = "TestSelfOrderLimits.txt";
 //    String path = "TestSelfRoleNesting.txt";
 //    String path = "TestSelfQueries.txt";
 //    String path = "TestSelfSchemaPersistB1.txt";

@@ -265,7 +265,7 @@ public class StatementDML extends StatementDMQL {
         Expression[]   colExpressions = updateExpressions;
         HashMappedList rowset         = new HashMappedList();
         Type[]         colTypes       = baseTable.getColumnTypes();
-        RangeIteratorBase it = RangeVariable.getIterator(session,
+        RangeIterator it = RangeVariable.getIterator(session,
             targetRangeVariables);
         Expression checkCondition = null;
 
@@ -285,7 +285,7 @@ public class StatementDML extends StatementDMQL {
                                               colTypes, data);
 
             if (checkCondition != null) {
-                it.currentData = newData;
+                it.setCurrent(newData);
 
                 boolean check = checkCondition.testCondition(session);
 
