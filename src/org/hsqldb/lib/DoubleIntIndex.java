@@ -511,7 +511,7 @@ public class DoubleIntIndex implements IntLookup {
 
     private void quickSort(int l, int r) {
 
-        int M = 4;
+        int M = 16;
         int i;
         int j;
         int v;
