@@ -78,15 +78,15 @@ public class ExpressionLogical extends Expression {
      * Create an equality expressions using existing columns and
      * range variables. The expression is fully resolved in constructor.
      */
-    ExpressionLogical(RangeVariable leftRangeVar, ColumnSchema left,
-                      RangeVariable rightRangeVar, ColumnSchema right) {
+    ExpressionLogical(RangeVariable leftRangeVar, int colIndexLeft,
+                      RangeVariable rightRangeVar, int colIndexRight) {
 
         super(OpTypes.EQUAL);
 
         ExpressionColumn leftExpression = new ExpressionColumn(leftRangeVar,
-            left);
+            colIndexLeft);
         ExpressionColumn rightExpression = new ExpressionColumn(rightRangeVar,
-            right);
+            colIndexRight);
 
         nodes        = new Expression[BINARY];
         dataType     = Type.SQL_BOOLEAN;
@@ -210,6 +210,19 @@ public class ExpressionLogical extends Expression {
         }
 
         return new ExpressionLogical(OpTypes.AND, e1, e2);
+    }
+
+    static Expression orExpressions(Expression e1, Expression e2) {
+
+        if (e1 == null) {
+            return e2;
+        }
+
+        if (e2 == null) {
+            return e1;
+        }
+
+        return new ExpressionLogical(OpTypes.OR, e1, e2);
     }
 
     public void addLeftColumnsForAllAny(OrderedIntHashSet set) {
@@ -670,6 +683,12 @@ public class ExpressionLogical extends Expression {
                 nodes[RIGHT].dataType = nodes[LEFT].dataType;
             }
 
+            if (nodes[LEFT].dataType == null) {
+                nodes[LEFT].dataType = nodes[RIGHT].dataType;
+            } else if (nodes[RIGHT].dataType == null) {
+                nodes[RIGHT].dataType = nodes[LEFT].dataType;
+            }
+
             if (nodes[LEFT].dataType == null
                     || nodes[RIGHT].dataType == null) {
                 throw Error.error(ErrorCode.X_42567);
@@ -715,6 +734,16 @@ public class ExpressionLogical extends Expression {
         for (int i = 0; i < nodes[LEFT].nodeDataTypes.length; i++) {
             Type leftType  = nodes[LEFT].nodeDataTypes[i];
             Type rightType = nodes[RIGHT].nodeDataTypes[i];
+
+            if (leftType == null) {
+                leftType = nodes[LEFT].nodeDataTypes[i] = rightType;
+            } else if (nodes[RIGHT].dataType == null) {
+                rightType = nodes[RIGHT].nodeDataTypes[i] = leftType;
+            }
+
+            if (leftType == null || rightType == null) {
+                throw Error.error(ErrorCode.X_42567);
+            }
 
             if (leftType.typeComparisonGroup
                     != rightType.typeComparisonGroup) {
@@ -1500,21 +1529,49 @@ public class ExpressionLogical extends Expression {
         ((ExpressionLogical) nodes[RIGHT]).distributeOr();
     }
 
+    /**
+     *
+     */
+    public boolean isIndexable(RangeVariable rangeVar) {
+
+        boolean result;
+
+        switch (opType) {
+
+            case OpTypes.AND : {
+                result = nodes[LEFT].isIndexable(rangeVar)
+                         || nodes[RIGHT].isIndexable(rangeVar);
+
+                return result;
+            }
+            case OpTypes.OR : {
+                result = nodes[LEFT].isIndexable(rangeVar)
+                         && nodes[RIGHT].isIndexable(rangeVar);
+
+                return result;
+            }
+            default : {
+                Expression temp = getIndexableExpression(rangeVar);
+
+                return temp != null;
+            }
+        }
+    }
+
     Expression getIndexableExpression(RangeVariable rangeVar) {
 
         switch (opType) {
 
             case OpTypes.IS_NULL :
                 return nodes[LEFT].opType == OpTypes.COLUMN
-                       && nodes[LEFT].getRangeVariable() == rangeVar ? this
-                                                                     : null;
+                       && nodes[LEFT].isIndexable(rangeVar) ? this
+                                                            : null;
 
             case OpTypes.NOT :
                 return nodes[LEFT].opType == OpTypes.IS_NULL
                        && nodes[LEFT].nodes[LEFT].opType == OpTypes.COLUMN
-                       && nodes[LEFT].nodes[LEFT].getRangeVariable()
-                          == rangeVar ? this
-                                      : null;
+                       && nodes[LEFT].nodes[LEFT].isIndexable(rangeVar) ? this
+                                                                        : null;
 
             case OpTypes.EQUAL :
                 if (exprSubType == OpTypes.ANY_QUANTIFIED) {
@@ -1522,10 +1579,16 @@ public class ExpressionLogical extends Expression {
                         return null;
                     }
 
-                    return nodes[LEFT].nodes[0].opType == OpTypes.COLUMN
-                           && nodes[LEFT].nodes[0].getRangeVariable()
-                              == rangeVar ? this
-                                          : null;
+                    for (int node = 0; node < nodes[LEFT].nodes.length;
+                            node++) {
+                        if (nodes[LEFT].nodes[node].opType == OpTypes.COLUMN
+                                && nodes[LEFT].nodes[node].isIndexable(
+                                    rangeVar)) {
+                            return this;
+                        }
+                    }
+
+                    return null;
                 }
 
             // fall through
@@ -1537,9 +1600,8 @@ public class ExpressionLogical extends Expression {
                     return null;
                 }
 
-//                reorderComparison();
                 if (nodes[LEFT].opType == OpTypes.COLUMN
-                        && nodes[LEFT].getRangeVariable() == rangeVar) {
+                        && nodes[LEFT].isIndexable(rangeVar)) {
                     if (nodes[RIGHT].hasReference(rangeVar)) {
                         return null;
                     }
@@ -1552,9 +1614,16 @@ public class ExpressionLogical extends Expression {
                 }
 
                 if (nodes[RIGHT].opType == OpTypes.COLUMN
-                        && nodes[RIGHT].getRangeVariable() == rangeVar) {
+                        && nodes[RIGHT].isIndexable(rangeVar)) {
                     swapCondition();
 
+                    return this;
+                }
+
+                return null;
+
+            case OpTypes.OR :
+                if (isIndexable(rangeVar)) {
                     return this;
                 }
 

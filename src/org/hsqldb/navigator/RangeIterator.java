@@ -31,6 +31,7 @@
 
 package org.hsqldb.navigator;
 
+import org.hsqldb.RangeVariable;
 import org.hsqldb.Row;
 
 /**
@@ -48,6 +49,8 @@ public interface RangeIterator {
 
     Object[] getCurrent();
 
+    void setCurrent(Object[] data);
+
     long getRowid();
 
     Object getRowidObject();
@@ -57,4 +60,6 @@ public interface RangeIterator {
     void reset();
 
     int getRangePosition();
+
+    RangeVariable getRange();
 }

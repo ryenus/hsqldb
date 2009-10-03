@@ -257,7 +257,7 @@ public class FunctionSQL extends Expression {
 
         super(OpTypes.SQL_FUNCTION);
 
-        nodes = Expression.emptyExpressionArray;
+        nodes = Expression.emptyArray;
     }
 
     protected FunctionSQL(int id) {

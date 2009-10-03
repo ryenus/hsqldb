@@ -52,7 +52,7 @@ public class ExpressionValue extends Expression {
 
         super(OpTypes.VALUE);
 
-        nodes     = Expression.emptyExpressionArray;
+        nodes     = Expression.emptyArray;
         dataType  = datatype;
         valueData = o;
     }

@@ -32,9 +32,9 @@
 package org.hsqldb;
 
 import org.hsqldb.ParserDQL.CompileContext;
-import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.PersistentStore;
@@ -114,8 +114,8 @@ public class StatementInsert extends StatementDML {
         RowSetNavigator newDataNavigator = queryExpression == null
                                            ? getInsertValuesNavigator(session)
                                            : getInsertSelectNavigator(session);
-        Expression        checkCondition = null;
-        RangeIteratorBase checkIterator  = null;
+        Expression    checkCondition = null;
+        RangeIterator checkIterator  = null;
 
         if (targetTable != baseTable) {
             QuerySpecification select =
@@ -133,7 +133,7 @@ public class StatementInsert extends StatementDML {
             Object[] data = newDataNavigator.getNext();
 
             if (checkCondition != null) {
-                checkIterator.currentData = data;
+                checkIterator.setCurrent(data);
 
                 boolean check = checkCondition.testCondition(session);
 

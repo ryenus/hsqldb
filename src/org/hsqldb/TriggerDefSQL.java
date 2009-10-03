@@ -86,11 +86,11 @@ public class TriggerDefSQL extends TriggerDef {
                                Object[] newData) {
 
         if (transitions[OLD_ROW] != null) {
-            rangeVars[OLD_ROW].getIterator(session).currentData = oldData;
+            rangeVars[OLD_ROW].getIterator(session).setCurrent(oldData);
         }
 
         if (transitions[NEW_ROW] != null) {
-            rangeVars[NEW_ROW].getIterator(session).currentData = newData;
+            rangeVars[NEW_ROW].getIterator(session).setCurrent(newData);
         }
 
         if (!condition.testCondition(session)) {

@@ -33,10 +33,11 @@ package org.hsqldb.navigator;
 
 import java.io.IOException;
 
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
+import org.hsqldb.RangeVariable;
 import org.hsqldb.Row;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -79,6 +80,8 @@ public abstract class RowSetNavigator implements RangeIterator {
      * Returns the current row object. Type of object is implementation defined.
      */
     public abstract Object[] getCurrent();
+
+    public void setCurrent(Object[] data) {}
 
     public long getRowid() {
         return 0;
@@ -303,5 +306,9 @@ public abstract class RowSetNavigator implements RangeIterator {
 
     public int getRangePosition() {
         return 0;
+    }
+
+    public RangeVariable getRange() {
+        return null;
     }
 }

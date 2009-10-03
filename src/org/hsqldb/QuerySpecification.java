@@ -35,7 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeIteratorBase;
-import org.hsqldb.RangeVariable.RangeIteratorMain;
+import org.hsqldb.RangeVariable.RangeIteratorRight;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -229,7 +229,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            Expression e = rangeVariables[i].nonIndexJoinCondition;
+            Expression e = rangeVariables[i].getJoinCondition();
 
             if (e == null) {
                 continue;
@@ -485,11 +485,12 @@ public class QuerySpecification extends QueryExpression {
 
                 joinColumnNames.add(name);
 
-                int position = rightRange.rangeTable.getColumnIndex(name);
-                ColumnSchema rightColumn =
-                    rightRange.rangeTable.getColumn(position);
-                Expression e = new ExpressionLogical(range, column,
-                                                     rightRange, rightColumn);
+                int leftPosition =
+                    range.rangeTable.getColumnIndex(column.getNameString());
+                int rightPosition = rightRange.rangeTable.getColumnIndex(name);
+                Expression e = new ExpressionLogical(range, leftPosition,
+                                                     rightRange,
+                                                     rightPosition);
 
                 result = ExpressionLogical.andExpressions(result, e);
 
@@ -627,7 +628,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
-            Expression e = rangeVariables[i].nonIndexJoinCondition;
+            Expression e = rangeVariables[i].getJoinCondition();
 
             if (e != null) {
                 e.resolveTypes(session, null);
@@ -1131,11 +1132,12 @@ public class QuerySpecification extends QueryExpression {
                 for (int i = fullJoinIndex + 1; i < rangeVariables.length;
                         i++) {
                     if (rangeVariables[i].isRightJoin) {
-                        rangeIterators[i] = rangeVariables[i].getFullIterator(
-                            session, (RangeIteratorMain) rangeIterators[i]);
                         fullJoinIndex = i;
                         currentIndex  = i;
                         end           = false;
+
+                        ((RangeIteratorRight) rangeIterators[i])
+                            .setOnOuterRows();
 
                         break;
                     }
@@ -1555,7 +1557,6 @@ public class QuerySpecification extends QueryExpression {
         temp = queryCondition == null ? "null"
                                       : queryCondition.describe(session);
 
-        sb.append("queryCondition=[").append(temp).append("]\n");
         sb.append("groupColumns=[");
 
         for (int i = indexLimitRowId; i < indexLimitRowId + groupByColumnCount;
