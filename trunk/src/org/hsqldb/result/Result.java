@@ -173,11 +173,19 @@ public class Result {
     //
     Statement statement;
 
+    Result(int mode) {
+        this.mode = (byte) mode;
+    }
+
+    public Result(int mode, int count) {
+        this.mode   = (byte) mode;
+        updateCount = count;
+    }
+
     public static Result newResult(RowSetNavigator nav) {
 
-        Result result = new Result();
+        Result result = new Result(ResultConstants.DATA);
 
-        result.mode      = ResultConstants.DATA;
         result.navigator = nav;
 
         return result;
@@ -223,8 +231,7 @@ public class Result {
             default :
         }
 
-        result           = new Result();
-        result.mode      = (byte) type;
+        result           = new Result(type);
         result.navigator = navigator;
 
         return result;
@@ -747,22 +754,11 @@ public class Result {
     }
 
     public static Result newUpdateZeroResult() {
-
-        Result result = new Result();
-
-        result.mode = ResultConstants.UPDATECOUNT;
-
-        return result;
+        return new Result(ResultConstants.UPDATECOUNT, 0);
     }
 
     public static Result newUpdateCountResult(int count) {
-
-        Result result = new Result();
-
-        result.mode        = ResultConstants.UPDATECOUNT;
-        result.updateCount = count;
-
-        return result;
+        return new Result(ResultConstants.UPDATECOUNT, count);
     }
 
     public static Result newUpdateCountResult(ResultMetaData meta, int count) {

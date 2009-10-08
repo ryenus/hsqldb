@@ -85,7 +85,7 @@ public final class ResultLob extends Result {
     InputStream stream;
 
     private ResultLob() {
-        mode = ResultConstants.LARGE_OBJECT_OP;
+        super(ResultConstants.LARGE_OBJECT_OP);
     }
 
     public static ResultLob newLobGetLengthRequest(long id) {
