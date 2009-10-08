@@ -897,7 +897,7 @@ public final class Constraint implements SchemaObject {
             for (int i = 0; i < rowColArray.length; i++) {
                 Object o = rowData[rowColArray[i]];
 
-                sb.append(table.getColumnTypes()[i].convertToString(o));
+                sb.append(table.getColumnTypes()[rowColArray[i]].convertToString(o));
                 sb.append(',');
             }
 

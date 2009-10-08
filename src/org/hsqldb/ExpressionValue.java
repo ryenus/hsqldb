@@ -96,6 +96,15 @@ public class ExpressionValue extends Expression {
         }
     }
 
+    Object getValue(Session session, Type type) {
+
+        if (dataType == type || valueData == null) {
+            return valueData;
+        }
+
+        return type.convertToType(session, valueData, dataType);
+    }
+
     public Object getValue(Session session) {
         return valueData;
     }

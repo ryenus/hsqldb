@@ -747,13 +747,19 @@ public class Result {
     }
 
     public static Result newUpdateZeroResult() {
-        return newResult(ResultConstants.UPDATECOUNT);
+
+        Result result = new Result();
+
+        result.mode = ResultConstants.UPDATECOUNT;
+
+        return result;
     }
 
     public static Result newUpdateCountResult(int count) {
 
-        Result result = newResult(ResultConstants.UPDATECOUNT);
+        Result result = new Result();
 
+        result.mode        = ResultConstants.UPDATECOUNT;
         result.updateCount = count;
 
         return result;

@@ -413,6 +413,21 @@ public class ExpressionColumn extends Expression {
         }
     }
 
+    Object getValue(Session session, Type type) {
+
+        if (dataType == type) {
+            return getValue(session);
+        }
+
+        Object o = getValue(session);
+
+        if (o == null) {
+            return o;
+        }
+
+        return type.convertToType(session, o, dataType);
+    }
+
     public Object getValue(Session session) {
 
         switch (opType) {
@@ -432,10 +447,9 @@ public class ExpressionColumn extends Expression {
                         .rangeIterators[rangeVariable.rangePosition]
                         .getCurrent();
                 Object value   = data[columnIndex];
-                Type   colType = column.getDataType();
 
-                if (!dataType.equals(colType)) {
-                    value = dataType.convertToType(session, value, colType);
+                if (dataType != column.dataType) {
+                    value = dataType.convertToType(session, value, column.dataType);
                 }
 
                 return value;
@@ -826,9 +840,7 @@ public class ExpressionColumn extends Expression {
     public boolean isIndexable(RangeVariable range) {
 
         if (opType == OpTypes.COLUMN) {
-            return rangeVariable == range
-                   && rangeVariable.rangeTable.canGetIndexForColumn(
-                       columnIndex);
+            return rangeVariable == range;
         }
 
         return false;
