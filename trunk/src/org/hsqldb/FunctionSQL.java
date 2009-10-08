@@ -1331,7 +1331,7 @@ public class FunctionSQL extends Expression {
             case FUNC_FOLD_LOWER :
             case FUNC_FOLD_UPPER :
                 if (nodes[0].dataType == null) {
-                    throw Error.error(ErrorCode.X_42567);
+                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
 
                 dataType = nodes[0].dataType;
