@@ -467,6 +467,9 @@ public class Expression {
         return true;
     }
 
+    /**
+     * For GROUP only.
+     */
     boolean isComposedOf(Expression exprList[], int start, int end,
                          OrderedIntHashSet excludeSet) {
 
@@ -528,10 +531,14 @@ public class Expression {
         return result;
     }
 
+    /**
+     * For HAVING only.
+     */
     boolean isComposedOf(OrderedHashSet expressions,
                          OrderedIntHashSet excludeSet) {
 
-        if (opType == OpTypes.VALUE) {
+        if (opType == OpTypes.VALUE || opType == OpTypes.DYNAMIC_PARAM
+                || opType == OpTypes.PARAMETER || opType == OpTypes.VARIABLE) {
             return true;
         }
 

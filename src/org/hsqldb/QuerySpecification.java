@@ -885,7 +885,7 @@ public class QuerySpecification extends QueryExpression {
                     continue;
                 }
 
-                if (!e.isComposedOf(exprColumns, 0,
+                if (!e.isAggregate && !e.isComposedOf(exprColumns, 0,
                                     indexLimitVisible + groupByColumnCount,
                                     Expression.emptyExpressionSet)) {
                     throw Error.error(ErrorCode.X_42576);
@@ -1064,7 +1064,11 @@ public class QuerySpecification extends QueryExpression {
 
         if (simpleLimit && (!sortAndSlice.hasOrder() || sortAndSlice.skipSort)
                 && (!sortAndSlice.hasLimit() || sortAndSlice.skipFullResult)) {
-            limitFetch = limitRows;
+            limitFetch = Integer.MAX_VALUE;
+
+            if (limitFetch - skipRows > limitRows) {
+                limitFetch = skipRows + limitRows;
+            }
         }
 
         return hasLimits ? new int[] {
