@@ -80,6 +80,7 @@ import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
@@ -4084,14 +4085,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER : {
-                Object o = new Integer(value);
+                Object o = ValuePool.getInt(value);
 
                 parameterValues[i - 1] = o;
 
                 break;
             }
             case Types.SQL_BIGINT : {
-                Object o = new Long(value);
+                Object o = ValuePool.getLong(value);
 
                 parameterValues[i - 1] = o;
 

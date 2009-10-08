@@ -191,19 +191,18 @@ public class SessionContext {
         for (int i = 0; i < count; i++) {
             if (rangeIterators[i] != null) {
                 rangeIterators[i].reset();
+
                 rangeIterators[i] = null;
             }
         }
     }
 
     public RangeIteratorBase getCheckIterator(RangeVariable rangeVariable) {
+
         RangeIterator it = rangeIterators[1];
 
-
-
         if (it == null) {
-            it = rangeVariable.getIterator(session);
-
+            it                = rangeVariable.getIterator(session);
             rangeIterators[1] = it;
         }
 

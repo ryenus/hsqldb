@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.navigator.RowSetNavigator;
@@ -78,6 +80,11 @@ public class StatementResultUpdate extends StatementDML {
                 PersistentStore store =
                     session.sessionData.getRowStore(baseTable);
                 Row row = (Row) store.get((int) id.longValue(), false);
+
+                if (row == null || row.isDeleted(session)) {
+                    HsqlException e = Error.error(ErrorCode.X_24521);
+                }
+
                 HashMappedList list = new HashMappedList();
                 Object[] data =
                     (Object[]) ArrayUtil.duplicateArray(row.getData());
@@ -100,6 +107,11 @@ public class StatementResultUpdate extends StatementDML {
                 PersistentStore store =
                     session.sessionData.getRowStore(baseTable);
                 Row row = (Row) store.get((int) id.longValue(), false);
+
+                if (row == null || row.isDeleted(session)) {
+                    HsqlException e = Error.error(ErrorCode.X_24521);
+                }
+
                 RowSetNavigator navigator = new RowSetNavigatorLinkedList();
 
                 navigator.add(row);

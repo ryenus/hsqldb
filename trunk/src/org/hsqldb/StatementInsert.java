@@ -111,9 +111,6 @@ public class StatementInsert extends StatementDML {
             generatedNavigator = resultOut.getChainedResult().getNavigator();
         }
 
-        RowSetNavigator newDataNavigator = queryExpression == null
-                                           ? getInsertValuesNavigator(session)
-                                           : getInsertSelectNavigator(session);
         Expression    checkCondition = null;
         RangeIterator checkIterator  = null;
 
@@ -128,6 +125,10 @@ public class StatementInsert extends StatementDML {
                 checkIterator = select.rangeVariables[0].getIterator(session);
             }
         }
+
+        RowSetNavigator newDataNavigator = queryExpression == null
+                                           ? getInsertValuesNavigator(session)
+                                           : getInsertSelectNavigator(session);
 
         while (newDataNavigator.hasNext()) {
             Object[] data = newDataNavigator.getNext();

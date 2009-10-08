@@ -398,7 +398,15 @@ public class RangeVariableResolver {
         int index = idx1 > idx2 ? idx1
                                 : idx2;
 
-        array[index].add(new ExpressionLogical(e1, e2));
+        Expression e = new ExpressionLogical(e1, e2);
+
+        for (int i = 0; i < array[index].size(); i++) {
+            if (e.equals(array[index].get(i)) ){
+                return;
+            }
+        }
+
+        array[index].add(e);
     }
 
     /**

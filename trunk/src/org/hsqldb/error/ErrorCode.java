@@ -377,6 +377,7 @@ public interface ErrorCode {
     int X_24513 = 3604;                                   // invalid cursor state: cannot FETCH NEXT, PRIOR, CURRENT, or RELATIVE, cursor position is unknown
     int X_24514 = 3605;                                   // invalid cursor state: cursor disabled by previous error
     int X_24515 = 3606;                                   // invalid cursor state: all column must be set before insert
+    int X_24521 = 3621;                                   // invalid cursor state: row has been modified outside the cursor
 
     // invalid transaction state - 200x
     int X_25000 = 3700;                                   // invalid transaction state
