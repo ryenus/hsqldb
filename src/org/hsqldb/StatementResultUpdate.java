@@ -133,7 +133,7 @@ public class StatementResultUpdate extends StatementDML {
             }
         }
 
-        return Result.newUpdateCountResult(1);
+        return new Result(ResultConstants.UPDATECOUNT, 1);
     }
 
     void setRowActionProperties(int action, Table table, Type[] types,

@@ -39,6 +39,7 @@ import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultConstants;
 import org.hsqldb.types.Type;
 
 /**
@@ -156,8 +157,8 @@ public class StatementInsert extends StatementDML {
         table.fireTriggers(session, Trigger.INSERT_AFTER, newDataNavigator);
 
         if (resultOut == null) {
-            resultOut =
-                Result.newUpdateCountResult(newDataNavigator.getSize());
+            resultOut = new Result(ResultConstants.UPDATECOUNT,
+                                   newDataNavigator.getSize());
         } else {
             resultOut.setUpdateCount(newDataNavigator.getSize());
         }

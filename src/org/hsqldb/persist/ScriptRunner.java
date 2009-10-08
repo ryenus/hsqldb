@@ -43,6 +43,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultConstants;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
@@ -79,16 +80,16 @@ public class ScriptRunner {
                                            null);
 
         try {
-            StopWatch sw = new StopWatch();
-
-            Crypto crypto = database.logger.getCrypto();
+            StopWatch sw     = new StopWatch();
+            Crypto    crypto = database.logger.getCrypto();
 
             if (crypto == null) {
                 scr = new ScriptReaderText(database, logFilename);
             } else {
-                scr = new ScriptReaderDecode(database, logFilename,
-                                             crypto, true);
+                scr = new ScriptReaderDecode(database, logFilename, crypto,
+                                             true);
             }
+
             while (scr.readLoggedStatement(current)) {
                 int sessionId = scr.getSessionNumber();
 
@@ -142,7 +143,8 @@ public class ScriptRunner {
 
                         scr.getCurrentTable().insertNoCheckFromLog(current,
                                 data);
-                        current.endAction(Result.newUpdateCountResult(1));
+                        current.endAction(
+                            new Result(ResultConstants.UPDATECOUNT, 1));
 
                         break;
                     }
@@ -153,7 +155,8 @@ public class ScriptRunner {
 
                         scr.getCurrentTable().deleteNoCheckFromLog(current,
                                 data);
-                        current.endAction(Result.newUpdateCountResult(1));
+                        current.endAction(
+                            new Result(ResultConstants.UPDATECOUNT, 1));
 
                         break;
                     }
