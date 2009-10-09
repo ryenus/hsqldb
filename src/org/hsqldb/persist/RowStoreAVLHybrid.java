@@ -234,7 +234,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 return getNewCachedObject(session, object);
             }
 
-            Row row = new RowAVL(table, (Object[]) object);
+            Row row = new RowAVL(table, indexList.length, (Object[]) object);
             int id  = rowIdSequence++;
 
             row.setPos(id);

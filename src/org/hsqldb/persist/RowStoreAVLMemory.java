@@ -107,7 +107,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
     public CachedObject getNewCachedObject(Session session, Object object) {
 
-        Row row = new RowAVL(table, (Object[]) object);
+        Row row = new RowAVL(table, indexList.length, (Object[]) object);
 
         if (session != null) {
             RowAction.addAction(session, RowAction.ACTION_INSERT, table, row);

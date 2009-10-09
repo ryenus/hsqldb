@@ -105,11 +105,13 @@ public class StatementInsert extends StatementDML {
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
         PersistentStore store = session.sessionData.getRowStore(baseTable);
+        boolean         isSimple           = true;
 
         if (generatedIndexes != null) {
             resultOut = Result.newUpdateCountResult(generatedResultMetaData,
                     0);
             generatedNavigator = resultOut.getChainedResult().getNavigator();
+            isSimple           = false;
         }
 
         Expression    checkCondition = null;
@@ -125,6 +127,16 @@ public class StatementInsert extends StatementDML {
             if (checkCondition != null) {
                 checkIterator = select.rangeVariables[0].getIterator(session);
             }
+
+            isSimple = false;
+        }
+
+        if (insertExpression == null || insertExpression.nodes.length > 1) {
+            isSimple = false;
+        }
+
+        if (isSimple) {
+            return getSimpleResult(session, table, store);
         }
 
         RowSetNavigator newDataNavigator = queryExpression == null
@@ -166,6 +178,21 @@ public class StatementInsert extends StatementDML {
         return resultOut;
     }
 
+    Result getSimpleResult(Session session, Table table,
+                           PersistentStore store) {
+
+        Type[] colTypes = baseTable.getColumnTypes();
+        Object[] data = getInsertData(session, colTypes,
+                                      insertExpression.nodes[0].nodes);
+
+        table.insertRow(session, store, data);
+        table.fireTriggers(session, Trigger.INSERT_AFTER, null, data, null);
+
+        Result resultOut = new Result(ResultConstants.UPDATECOUNT, 1);
+
+        return resultOut;
+    }
+
     RowSetNavigator getInsertSelectNavigator(Session session) {
 
         Type[] colTypes  = baseTable.getColumnTypes();
@@ -197,8 +224,7 @@ public class StatementInsert extends StatementDML {
 
     RowSetNavigator getInsertValuesNavigator(Session session) {
 
-        Type[] colTypes  = baseTable.getColumnTypes();
-        int[]  columnMap = insertColumnMap;
+        Type[] colTypes = baseTable.getColumnTypes();
 
         //
         Expression[]          list    = insertExpression.nodes;
@@ -206,32 +232,7 @@ public class StatementInsert extends StatementDML {
 
         for (int j = 0; j < list.length; j++) {
             Expression[] rowArgs = list[j].nodes;
-            Object[]     data    = baseTable.getNewRowData(session);
-
-            session.sessionData.startRowProcessing();
-
-            for (int i = 0; i < rowArgs.length; i++) {
-                Expression e        = rowArgs[i];
-                int        colIndex = columnMap[i];
-
-                if (e.getType() == OpTypes.DEFAULT) {
-                    if (baseTable.identityColumn == colIndex) {
-                        continue;
-                    }
-
-                    if (baseTable.colDefaults[colIndex] != null) {
-                        data[colIndex] =
-                            baseTable.colDefaults[colIndex].getValue(session);
-
-                        continue;
-                    }
-
-                    continue;
-                }
-
-                data[colIndex] = colTypes[colIndex].convertToType(session,
-                        e.getValue(session), e.getDataType());
-            }
+            Object[]     data    = getInsertData(session, colTypes, rowArgs);
 
             newData.add(data);
         }

@@ -865,6 +865,7 @@ public class TableWorks {
                     int[] cols = constraint.getMainColumns();
 
                     for (int i = 0; i < cols.length; i++) {
+                        // todo - check if table arrays relect the not-null correctly
                         tn.getColumn(cols[i]).setPrimaryKey(false);
                         tn.setColumnTypeVars(cols[i]);
                     }

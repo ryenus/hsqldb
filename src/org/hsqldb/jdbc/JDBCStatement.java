@@ -466,7 +466,6 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
         if (seconds < 0 || seconds > Short.MAX_VALUE) {
             throw Util.outOfRangeArgument();
         }
-
         queryTimeout = seconds;
     }
 
@@ -557,10 +556,10 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * this method is called on a closed <code>Statement</code>
      */
     public synchronized void clearWarnings() throws SQLException {
+
         checkClosed();
 
         rootWarning = null;
-
     }
 
     /** @todo 1.9.0 - implement */
@@ -1794,8 +1793,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
         }
         resultOut.setPrepareOrExecuteProperties(sql, maxRows, fetchSize,
                 statementRetType, queryTimeout, rsScrollability,
-                rsConcurrency, rsHoldability, generatedKeys,
-                generatedIndexes, generatedNames);
+                rsConcurrency, rsHoldability, generatedKeys, generatedIndexes,
+                generatedNames);
 
         try {
             resultIn = connection.sessionProxy.execute(resultOut);

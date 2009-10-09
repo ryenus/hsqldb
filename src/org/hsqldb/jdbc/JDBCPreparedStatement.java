@@ -78,6 +78,7 @@ import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.store.ValuePool;
@@ -398,6 +399,15 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setShort(int parameterIndex,
                                       short x) throws SQLException {
+
+        if (parameterTypes[parameterIndex - 1].typeCode
+                == Types.SQL_SMALLINT) {
+            checkSetParameterIndex(parameterIndex, false);
+
+            parameterValues[--parameterIndex] = ValuePool.getInt(x);
+
+            return;
+        }
         setIntParameter(parameterIndex, x);
     }
 
@@ -415,6 +425,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setInt(int parameterIndex,
                                     int x) throws SQLException {
+
+        if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_INTEGER) {
+            checkSetParameterIndex(parameterIndex, false);
+
+            parameterValues[--parameterIndex] = ValuePool.getInt(x);
+
+            return;
+        }
         setIntParameter(parameterIndex, x);
     }
 
@@ -432,6 +450,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setLong(int parameterIndex,
                                      long x) throws SQLException {
+
+        if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BIGINT) {
+            checkSetParameterIndex(parameterIndex, false);
+
+            parameterValues[--parameterIndex] = ValuePool.getLong(x);
+
+            return;
+        }
         setLongParameter(parameterIndex, x);
     }
 
@@ -854,7 +880,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void clearParameters() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
         ArrayUtil.fillArray(parameterValues, null);
         ArrayUtil.clearArray(ArrayUtil.CLASS_CODE_BOOLEAN, parameterSet, 0,
                              parameterSet.length);
@@ -1092,7 +1120,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void addBatch() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
         checkParametersSet();
 
         if (!isBatch) {
@@ -1440,7 +1470,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized ResultSetMetaData getMetaData() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (statementRetType != StatementTypes.RETURN_RESULT) {
             return null;
@@ -1560,12 +1592,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return;
         }
 
-        Type outType    = parameterTypes[i];
-        long millis     = x.getTime();
-        int  zoneOffset = 0;
-
-        Calendar calendar = cal == null ? session.getCalendar()
-                                        : cal;
+        Type     outType    = parameterTypes[i];
+        long     millis     = x.getTime();
+        int      zoneOffset = 0;
+        Calendar calendar   = cal == null ? session.getCalendar()
+                : cal;
 
         millis = HsqlDateTime.convertMillisFromCalendar(calendar, millis);
         millis = HsqlDateTime.convertToNormalisedTime(millis);
@@ -1573,10 +1604,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         switch (outType.typeCode) {
 
             case Types.SQL_TIME :
-
                 break;
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
+
                 break;
             default :
                 throw Util.sqlException(ErrorCode.X_42561);
@@ -1634,44 +1665,38 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             return;
         }
 
-
-        Type outType    = parameterTypes[i];
-        long millis     = x.getTime();
-        int  zoneOffset = 0;
-
-        Calendar calendar = cal == null ? session.getCalendar()
-                                        : cal;
+        Type     outType    = parameterTypes[i];
+        long     millis     = x.getTime();
+        int      zoneOffset = 0;
+        Calendar calendar   = cal == null ? session.getCalendar()
+                : cal;
 
         millis = HsqlDateTime.convertMillisFromCalendar(calendar, millis);
 
         switch (outType.typeCode) {
 
             case Types.SQL_TIMESTAMP :
-
                 break;
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
                 zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
-                break;
 
+                break;
             case Types.SQL_TIME :
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), 0);
-                break;
 
+                break;
             case Types.SQL_TIME_WITH_TIME_ZONE :
                 zoneOffset = HsqlDateTime.getZoneMillis(calendar, millis);
                 parameterValues[i] = new TimeData((int) (millis / 1000),
                         x.getNanos(), zoneOffset / 1000);
-                break;
 
+                break;
             default :
                 throw Util.sqlException(ErrorCode.X_42561);
         }
-
-        parameterValues[i] = new TimestampData(millis / 1000,
-                x.getNanos(), zoneOffset / 1000);
-
-
+        parameterValues[i] = new TimestampData(millis / 1000, x.getNanos(),
+                zoneOffset / 1000);
     }
 
     /**
@@ -1804,7 +1829,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized int[] executeBatch() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
         checkStatementType(StatementTypes.RETURN_COUNT);
 
         if (!isBatch) {
@@ -1827,7 +1854,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             isBatch = false;
         }
 
-        if (resultIn.isError()) {
+        if (resultIn.mode == ResultConstants.ERROR) {
             throw Util.sqlException(resultIn);
         }
 
@@ -2232,7 +2259,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 //#ifdef JAVA4
     public synchronized int getResultSetHoldability() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return rsHoldability;
     }
@@ -2839,7 +2868,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized int getMaxFieldSize() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return 0;
     }
@@ -2886,7 +2917,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setMaxFieldSize(int max) throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (max < 0) {
             throw Util.outOfRangeArgument();
@@ -2910,7 +2943,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized int getMaxRows() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return maxRows;
     }
@@ -2933,7 +2968,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setMaxRows(int max) throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (max < 0) {
             throw Util.outOfRangeArgument();
@@ -2966,7 +3003,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized int getQueryTimeout() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return 0;
     }
@@ -3003,12 +3042,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setQueryTimeout(int seconds) throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (seconds < 0 || seconds > Short.MAX_VALUE) {
             throw Util.outOfRangeArgument();
         }
-
         queryTimeout = seconds;
     }
 
@@ -3070,7 +3110,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized SQLWarning getWarnings() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return rootWarning;
     }
@@ -3097,8 +3139,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void clearWarnings() throws SQLException {
 
-        checkClosed();
-
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
         rootWarning = null;
     }
 
@@ -3252,7 +3295,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setFetchDirection(
             int direction) throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (direction != JDBCResultSet.FETCH_FORWARD
                 && direction != JDBCResultSet.FETCH_REVERSE
@@ -3295,7 +3340,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized int getFetchDirection() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return fetchDirection;
     }
@@ -3330,7 +3377,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setFetchSize(int rows) throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (rows < 0) {
             throw Util.outOfRangeArgument();
@@ -3366,7 +3415,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized int getFetchSize() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return fetchSize;
     }
@@ -3395,7 +3446,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized int getResultSetConcurrency() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return rsConcurrency;
     }
@@ -3427,7 +3480,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
 // fredt - omit checkClosed() in order to be able to handle the result of a
 // SHUTDOWN query
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return rsScrollability;
     }
@@ -3458,7 +3513,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void clearBatch() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (isBatch) {
             resultOut.getNavigator().clear();
@@ -3479,7 +3536,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized Connection getConnection() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return connection;
     }
@@ -3513,8 +3572,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setPoolable(
             boolean poolable) throws SQLException {
 
-        checkClosed();
-
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
         this.poolable = poolable;
     }
 
@@ -3533,7 +3593,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized boolean isPoolable() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         return this.poolable;
     }
@@ -3639,13 +3701,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         Result in = session.execute(resultOut);
 
-        if (in.isError()) {
+        if (in.mode == ResultConstants.ERROR) {
             throw Util.sqlException(in);
         }
-
         rootWarning = null;
 
         Result current = in;
+
         while (current.getChainedResult() != null) {
             current = current.getUnlinkChainedResult();
 
@@ -3659,9 +3721,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 }
             }
         }
-
         connection.setWarnings(rootWarning);
-
 
         statementID       = in.getStatementID();
         statementRetType  = in.getStatementType();
@@ -3766,7 +3826,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         String msg;
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (i < 1 || i > parameterValues.length) {
             msg = "parameter index out of range: " + i;
@@ -3782,19 +3844,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             parameterSet[i - 1]    = true;
         }
 
-        int mode = parameterModes[i - 1];
+        if (parameterModes[i - 1] == SchemaObject.ParameterModes.PARAM_OUT) {
+            msg = "Not IN or INOUT mode for parameter: " + i;
 
-        switch (mode) {
-
-            case SchemaObject.ParameterModes.PARAM_UNKNOWN :
-            case SchemaObject.ParameterModes.PARAM_IN :
-            case SchemaObject.ParameterModes.PARAM_INOUT :
-                break;
-            case SchemaObject.ParameterModes.PARAM_OUT :
-            default :
-                msg = "Not IN or INOUT mode: " + mode + " for parameter: " + i;
-
-                throw Util.invalidArgument(msg);
+            throw Util.invalidArgument(msg);
         }
     }
 
@@ -3809,7 +3862,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         String msg;
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (i < 1 || i > parameterValues.length) {
             msg = "parameter index out of range: " + i;
@@ -3900,13 +3955,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 try {
                     if (o instanceof Boolean) {
                         o = outType.convertToDefaultType(session, o);
+
                         break;
                     }
+
                     if (o instanceof Integer) {
                         o = outType.convertToDefaultType(session, o);
 
                         break;
                     }
+
                     if (o instanceof byte[]) {
                         o = outType.convertToDefaultType(session, o);
 
@@ -3960,7 +4018,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 try {
                     if (o instanceof String) {
                         o = outType.convertToType(session, o,
-                            Type.SQL_VARCHAR);
+                                Type.SQL_VARCHAR);
 
                         break;
                     }
@@ -4020,7 +4078,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (o instanceof JDBCClobClient) {
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
-                                        "invalid Clob");
+                                    "invalid Clob");
         } else if (o instanceof Clob) {
             parameterValues[i - 1] = o;
             parameterSet[i - 1]    = true;
@@ -4165,8 +4223,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     id   = blob.getId();
 
                     InputStream stream = ((Blob) value).getBinaryStream();
-                    ResultLob resultLob = ResultLob.newLobCreateBlobRequest(
-                        session.getId(), id, stream, length);
+                    ResultLob resultLob =
+                        ResultLob.newLobCreateBlobRequest(session.getId(), id,
+                            stream, length);
 
                     session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
@@ -4177,8 +4236,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     id   = blob.getId();
 
                     InputStream stream = (InputStream) value;
-                    ResultLob resultLob = ResultLob.newLobCreateBlobRequest(
-                        session.getId(), id, stream, length);
+                    ResultLob resultLob =
+                        ResultLob.newLobCreateBlobRequest(session.getId(), id,
+                            stream, length);
 
                     session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
@@ -4200,8 +4260,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     clob = session.createClob(length);
                     id   = clob.getId();
 
-                    ResultLob resultLob = ResultLob.newLobCreateClobRequest(
-                        session.getId(), id, reader, length);
+                    ResultLob resultLob =
+                        ResultLob.newLobCreateClobRequest(session.getId(), id,
+                            reader, length);
 
                     session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
@@ -4212,8 +4273,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     id   = clob.getId();
 
                     Reader reader = (Reader) value;
-                    ResultLob resultLob = ResultLob.newLobCreateClobRequest(
-                        session.getId(), id, reader, length);
+                    ResultLob resultLob =
+                        ResultLob.newLobCreateClobRequest(session.getId(), id,
+                            reader, length);
 
                     session.allocateResultLob(resultLob, null);
                     resultOut.addLobResult(resultLob);
@@ -4231,7 +4293,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     void fetchResult() throws SQLException {
 
-        checkClosed();
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
         closeResultData();
         checkParametersSet();
 
@@ -4257,7 +4321,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             performPostExecute();
         }
 
-        if (resultIn.isError()) {
+        if (resultIn.mode == ResultConstants.ERROR) {
             throw Util.sqlException(resultIn);
         }
     }
@@ -4328,5 +4392,4 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
     /** The session attribute of the connection */
     protected SessionInterface session;
-
 }

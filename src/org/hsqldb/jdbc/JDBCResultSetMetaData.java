@@ -434,7 +434,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         String label = resultMetaData.columnLabels[column];
 
-        if( label != null && label.length() > 0) {
+        if (label != null && label.length() > 0) {
             return label;
         }
 
@@ -478,7 +478,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
         if (useColumnName) {
             String name = resultMetaData.columns[column].getNameString();
 
-            if( name != null && name.length() > 0) {
+            if (name != null && name.length() > 0) {
                 return name;
             }
         }

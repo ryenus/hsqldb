@@ -47,7 +47,7 @@ public class Row implements CachedObject {
 
     int                       tableId;
     int                       position;
-    protected Object[]        rowData;
+    public Object[]        rowData;
     public volatile RowAction rowAction;
     public volatile boolean   hasAction;
 

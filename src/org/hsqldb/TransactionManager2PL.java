@@ -131,11 +131,14 @@ public class TransactionManager2PL implements TransactionManager {
 
     public void completeActions(Session session) {
 
-        Object[] list  = session.rowActionList.getArray();
-        int      limit = session.rowActionList.size();
+        Object[] list = session.rowActionList.getArray();
 
-        for (int i = session.actionIndex; i < limit; i++) {
+        for (int i = session.actionIndex; i < list.length; i++) {
             RowAction rowact = (RowAction) list[i];
+
+            if (rowact == null) {
+                break;
+            }
 
             rowact.complete(session, null);
         }
@@ -470,9 +473,17 @@ public class TransactionManager2PL implements TransactionManager {
         try {
             writeLock.lock();
 
-            boolean canProceed = beginActionTPL(session, cs);
+            boolean canProceed = setWaitedSessionsTPL(session, cs);
 
-            if (!canProceed) {
+            if (canProceed) {
+                if (session.tempSet.isEmpty()) {
+                    lockTablesTPL(session, cs);
+
+                    // we dont set other sessions that would now be waiting for this one too
+                } else {
+                    setWaitingSessionTPL(session);
+                }
+            } else {
                 session.abortTransaction = true;
             }
         } finally {
@@ -548,25 +559,6 @@ public class TransactionManager2PL implements TransactionManager {
 
         session.tempSet.clear();
         session.waitingSessions.clear();
-    }
-
-    boolean beginActionTPL(Session session, Statement cs) {
-
-        boolean canProceed = setWaitedSessionsTPL(session, cs);
-
-        if (canProceed) {
-            if (session.tempSet.isEmpty()) {
-                lockTablesTPL(session, cs);
-
-                // we dont set other sessions that would now be waiting for this one too
-            } else {
-                setWaitingSessionTPL(session);
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     boolean setWaitedSessionsTPL(Session session, Statement cs) {

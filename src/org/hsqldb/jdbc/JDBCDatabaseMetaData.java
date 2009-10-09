@@ -859,7 +859,6 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public String getSQLKeywords() throws SQLException {
-
         return "";
     }
 
@@ -1104,8 +1103,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
     public boolean supportsConvert(int fromType,
                                    int toType) throws SQLException {
 
-        Type from = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(fromType));
-        Type to   = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(toType));
+        Type from =
+            Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(fromType));
+        Type to = Type.getDefaultTypeWithSize(Type.getHSQLDBTypeCode(toType));
 
         if (from == null || to == null) {
             return false;
@@ -1675,6 +1675,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsSchemasInProcedureCalls() throws SQLException {
+
         // false for OOo client server compatibility
         // otherwise schema name is used by OOo in column references
         return !useSchemaDefault;
@@ -1696,6 +1697,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsSchemasInTableDefinitions() throws SQLException {
+
         // false for OOo client server compatibility
         // otherwise schema name is used by OOo in column references
         return !useSchemaDefault;
@@ -1717,6 +1719,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsSchemasInIndexDefinitions() throws SQLException {
+
         // false for OOo client server compatibility
         // otherwise schema name is used by OOo in column references
         return !useSchemaDefault;
@@ -1738,6 +1741,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsSchemasInPrivilegeDefinitions() throws SQLException {
+
         // false for OOo client server compatibility
         // otherwise schema name is used by OOo in column references
         return !useSchemaDefault;
@@ -1758,6 +1762,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsCatalogsInDataManipulation() throws SQLException {
+
         // false for OOo client server compatibility
         // otherwise catalog name is used by OOo in column references
         return !useSchemaDefault;
@@ -1778,6 +1783,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsCatalogsInProcedureCalls() throws SQLException {
+
         // false for OOo client server compatibility
         // otherwise catalog name is used by OOo in column references
         return !useSchemaDefault;
@@ -1798,6 +1804,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsCatalogsInTableDefinitions() throws SQLException {
+
         // false for OOo client server compatibility
         // otherwise catalog name is used by OOo in column references
         return !useSchemaDefault;
@@ -1818,6 +1825,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsCatalogsInIndexDefinitions() throws SQLException {
+
         // false for OOo client server compatibility
         // otherwise catalog name is used by OOo in column references
         return !useSchemaDefault;
@@ -1838,6 +1846,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean supportsCatalogsInPrivilegeDefinitions() throws SQLException {
+
         // false for OOo client server compatibility
         // otherwise catalog name is used by OOo in column references
         return !useSchemaDefault;
@@ -2858,8 +2867,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         if (wantsIsNull(procedureNamePattern)) {
             return executeSelect("SYSTEM_PROCEDURES", "0=1");
         }
-
-        catalog = translateCatalog(catalog);
+        catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
         StringBuffer select =
@@ -3033,7 +3041,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                 || wantsIsNull(columnNamePattern)) {
             return executeSelect("SYSTEM_PROCEDURECOLUMNS", "0=1");
         }
-        catalog = translateCatalog(catalog);
+        catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
         StringBuffer select = toQueryPrefix("SYSTEM_PROCEDURECOLUMNS").append(
@@ -3128,7 +3136,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                 || (types != null && types.length == 0)) {
             return executeSelect("SYSTEM_TABLES", "0=1");
         }
-        catalog = translateCatalog(catalog);
+        catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
         StringBuffer select =
@@ -3402,7 +3410,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         if (wantsIsNull(tableNamePattern) || wantsIsNull(columnNamePattern)) {
             return executeSelect("SYSTEM_COLUMNS", "0=1");
         }
-        catalog = translateCatalog(catalog);
+        catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
         StringBuffer select = toQueryPrefix("SYSTEM_COLUMNS").append(
@@ -3485,14 +3493,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         }
 */
         catalog = translateCatalog(catalog);
-        schema = translateSchema(schema);
+        schema  = translateSchema(schema);
 
         String sql =
             "SELECT TABLE_CATALOG TABLE_CAT, TABLE_SCHEMA TABLE_SCHEM,"
             + "TABLE_NAME, COLUMN_NAME, GRANTOR, GRANTEE, PRIVILEGE_TYPE PRIVILEGE, IS_GRANTABLE "
             + "FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES WHERE TRUE "
-            + and("TABLE_CATALOG", "=", catalog) + and("TABLE_SCHEMA", "=", schema)
-            + and("TABLE_NAME", "=", table)
+            + and("TABLE_CATALOG", "=", catalog)
+            + and("TABLE_SCHEMA", "=", schema) + and("TABLE_NAME", "=", table)
             + and("COLUMN_NAME", "LIKE", columnNamePattern)
         ;
 
@@ -3564,7 +3572,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             String catalog, String schemaPattern,
             String tableNamePattern) throws SQLException {
 
-        catalog = translateCatalog(catalog);
+        catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
         String sql =
@@ -3691,7 +3699,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                 throw Util.invalidArgument("scope");
         }
         catalog = translateCatalog(catalog);
-        schema = translateSchema(schema);
+        schema  = translateSchema(schema);
 
         Integer Nullable = (nullable) ? null
                                       : INT_COLUMNS_NO_NULLS;
@@ -3787,7 +3795,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             throw Util.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
-        schema = translateSchema(schema);
+        schema  = translateSchema(schema);
 
         StringBuffer select =
             toQueryPrefix("SYSTEM_VERSIONCOLUMNS").append(and("TABLE_CAT",
@@ -3857,7 +3865,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             throw Util.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
-        schema = translateSchema(schema);
+        schema  = translateSchema(schema);
 
         StringBuffer select =
             toQueryPrefix("SYSTEM_PRIMARYKEYS").append(and("TABLE_CAT", "=",
@@ -3974,7 +3982,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             throw Util.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
-        schema = translateSchema(schema);
+        schema  = translateSchema(schema);
 
         StringBuffer select = toQueryPrefix("SYSTEM_CROSSREFERENCE").append(
             and("FKTABLE_CAT", "=", catalog)).append(
@@ -4091,7 +4099,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             throw Util.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
-        schema = translateSchema(schema);
+        schema  = translateSchema(schema);
 
         StringBuffer select =
             toQueryPrefix("SYSTEM_CROSSREFERENCE").append(and("PKTABLE_CAT",
@@ -4222,10 +4230,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         if (foreignTable == null) {
             throw Util.nullArgument("foreignTable");
         }
-        parentCatalog = translateCatalog(parentCatalog);
+        parentCatalog  = translateCatalog(parentCatalog);
         foreignCatalog = translateCatalog(foreignCatalog);
-        parentSchema  = translateSchema(parentSchema);
-        foreignSchema = translateSchema(foreignSchema);
+        parentSchema   = translateSchema(parentSchema);
+        foreignSchema  = translateSchema(foreignSchema);
 
         StringBuffer select =
             toQueryPrefix("SYSTEM_CROSSREFERENCE").append(and("PKTABLE_CAT",
@@ -4412,7 +4420,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             throw Util.nullArgument("table");
         }
         catalog = translateCatalog(catalog);
-        schema = translateSchema(schema);
+        schema  = translateSchema(schema);
 
         Boolean nu = (unique) ? Boolean.FALSE
                               : null;
@@ -4801,7 +4809,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
                 || (types != null && types.length == 0)) {
             executeSelect("SYSTEM_UDTS", "0=1");
         }
-        catalog = translateCatalog(catalog);
+        catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
         StringBuffer select =
@@ -4815,7 +4823,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             // do not use to narrow search
         } else {
             select.append(" AND DATA_TYPE IN (").append(
-                StringUtil.getList(types, ",","")).append(')');
+                StringUtil.getList(types, ",", "")).append(')');
         }
 
         // By default, the query already returns a result ordered by
@@ -5015,7 +5023,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         if (wantsIsNull(typeNamePattern)) {
             return executeSelect("SYSTEM_SUPERTYPES", "0=1");
         }
-        catalog = translateCatalog(catalog);
+        catalog       = translateCatalog(catalog);
         schemaPattern = translateSchema(schemaPattern);
 
         StringBuffer select = toQueryPrefixNoSelect(
@@ -5573,9 +5581,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
 //#ifdef JAVA6
     public ResultSet getClientInfoProperties() throws SQLException {
-        String s = "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_CONNECTION_PROPERTIES";
-        return execute(s);
 
+        String s =
+            "SELECT * FROM INFORMATION_SCHEMA.SYSTEM_CONNECTION_PROPERTIES";
+
+        return execute(s);
     }
 
 //#endif JAVA6
@@ -6091,8 +6101,10 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
         final int concur = JDBCResultSet.CONCUR_READ_ONLY;
         JDBCStatement st = (JDBCStatement) connection.createStatement(scroll,
             concur);
+
         st.maxRows = -1;
-        ResultSet r =st.executeQuery(sql);
+
+        ResultSet r = st.executeQuery(sql);
 
         ((JDBCResultSet) r).autoClose = true;
 
@@ -6187,6 +6199,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         return schemaName;
     }
+
     /**
      * For compatibility, when the connection property "default_schema=true"
      * is present, any DatabaseMetaData call with an empty string as the
@@ -6201,7 +6214,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
             if (rs.next()) {
                 return rs.getString(2);
             }
-}
+        }
 
         return catalogName;
     }

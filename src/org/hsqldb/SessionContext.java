@@ -154,6 +154,10 @@ public class SessionContext {
         dynamicArguments = args;
     }
 
+    public void setDynamicArguments(Object[] args) {
+        dynamicArguments = args;
+    }
+
     public void popDynamicArguments() {
         dynamicArguments = (Object[]) stack.remove(stack.size() - 1);
     }

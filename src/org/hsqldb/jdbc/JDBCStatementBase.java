@@ -189,7 +189,9 @@ class JDBCStatementBase {
             }
         }
 
-        connection.setWarnings(rootWarning);
+        if (rootWarning != null) {
+            connection.setWarnings(rootWarning);
+        }
 
         if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection.sessionProxy,

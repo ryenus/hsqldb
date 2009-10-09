@@ -186,7 +186,6 @@ public class JDBCBlob implements Blob {
         if (pos < MIN_POS || pos > MIN_POS + dlen) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-
         pos--;
 
         if (length < 0 || length > dlen - pos) {
@@ -530,7 +529,6 @@ public class JDBCBlob implements Blob {
         if (pos < MIN_POS || pos > 1L + (Integer.MAX_VALUE - len)) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-
         pos--;
 
         byte[] ldata = this.data;
@@ -547,7 +545,6 @@ public class JDBCBlob implements Blob {
             ldata = temp;
             temp  = null;
         }
-
         System.arraycopy(bytes, offset, ldata, (int) pos, len);
 
         // paranoia, in case somone free'd us during the array copies.
@@ -638,7 +635,6 @@ public class JDBCBlob implements Blob {
         if (pos < MIN_POS || pos > MAX_POS) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-
         checkValid(this.data);
 
         return new java.io.ByteArrayOutputStream() {
@@ -767,7 +763,6 @@ public class JDBCBlob implements Blob {
         if (pos < MIN_POS || pos > dlen) {
             throw Util.outOfRangeArgument("pos: " + pos);
         }
-
         pos--;
 
         if (length < 0 || length > dlen - pos) {
@@ -859,7 +854,6 @@ public class JDBCBlob implements Blob {
         if (data == null) {
             throw Util.nullArgument();
         }
-
         this.data = data;    // (byte[]) data.clone();
     }
 

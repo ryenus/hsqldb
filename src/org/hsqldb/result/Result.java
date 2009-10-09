@@ -98,7 +98,7 @@ public class Result {
         Result.newDataResult(emptyMeta);
 
     // type of result
-    byte mode;
+    public byte mode;
 
     // database ID
     int databaseID;
