@@ -454,12 +454,12 @@ public class Session implements SessionInterface {
 //        tempActionHistory.add("beginAction ends " + actionTimestamp);
     }
 
-    public void endAction(Result r) {
+    public void endAction(Result result) {
 
 //        tempActionHistory.add("endAction " + actionTimestamp);
         sessionData.persistentStoreCollection.clearStatementTables();
 
-        if (r.isError()) {
+        if (result.mode == ResultConstants.ERROR) {
             sessionData.persistentStoreCollection.clearResultTables(
                 actionTimestamp);
             database.txManager.rollbackAction(this);
@@ -831,12 +831,12 @@ public class Session implements SessionInterface {
      */
     public synchronized Result execute(Result cmd) {
 
+        int type    = cmd.getType();
+        int maxRows = cmd.getUpdateCount();
+
         if (isClosed) {
             return Result.newErrorResult(Error.error(ErrorCode.X_08503));
         }
-
-        int type    = cmd.getType();
-        int maxRows = cmd.getUpdateCount();
 
         currentMaxRows = sessionMaxRows;
 
@@ -854,7 +854,24 @@ public class Session implements SessionInterface {
                     currentMaxRows = maxRows;
                 }
 
-                Result result = executeCompiledStatement(cmd);
+                Statement cs = cmd.getStatement();
+
+                if (cs.compileTimestamp
+                        < database.schemaManager.schemaChangeTimestamp) {
+                    long csid = cmd.getStatementID();
+
+                    cs = statementManager.getStatement(this, csid);
+
+                    if (cs == null) {
+
+                        // invalid sql has been removed already
+                        return Result.newErrorResult(
+                            Error.error(ErrorCode.X_07502));
+                    }
+                }
+
+                Object[] pvals  = cmd.getParameterData();
+                Result   result = executeCompiledStatement(cs, pvals);
 
                 result = performPostExecute(cmd, result);
 
@@ -868,12 +885,6 @@ public class Session implements SessionInterface {
                 return result;
             }
             case ResultConstants.EXECDIRECT : {
-                if (maxRows == -1) {
-                    currentMaxRows = 0;
-                } else if (sessionMaxRows == 0) {
-                    currentMaxRows = maxRows;
-                }
-
                 Result result = executeDirectStatement(cmd);
 
                 result = performPostExecute(cmd, result);
@@ -1052,6 +1063,13 @@ public class Session implements SessionInterface {
 
         String        sql = cmd.getMainString();
         HsqlArrayList list;
+        int           maxRows = cmd.getUpdateCount();
+
+        if (maxRows == -1) {
+            currentMaxRows = 0;
+        } else if (sessionMaxRows == 0) {
+            currentMaxRows = maxRows;
+        }
 
         try {
             list = parser.compileStatements(sql, cmd.getStatementType());
@@ -1069,7 +1087,7 @@ public class Session implements SessionInterface {
 
             result = executeCompiledStatement(cs, ValuePool.emptyObjectArray);
 
-            if (result.isError()) {
+            if (result.mode == ResultConstants.ERROR) {
                 break;
             }
         }
@@ -1154,12 +1172,9 @@ public class Session implements SessionInterface {
             }
 
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
-            sessionContext.pushDynamicArguments(pvals);
+            sessionContext.setDynamicArguments(pvals);
 
-            r = cs.execute(this);
-
-            sessionContext.popDynamicArguments();
-
+            r             = cs.execute(this);
             lockStatement = currentStatement;
 
             //        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
@@ -1191,7 +1206,7 @@ public class Session implements SessionInterface {
         if (sessionContext.depth == 0
                 && (isAutoCommit || cs.isAutoCommitStatement())) {
             try {
-                if (r.isError()) {
+                if (r.mode == ResultConstants.ERROR) {
                     rollback(false);
                 } else {
                     commit(false);
@@ -1270,7 +1285,7 @@ public class Session implements SessionInterface {
                 // void return type and select statements with
                 // a single row/column containg null
                 updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
-            } else if (in.isError()) {
+            } else if (in.mode == ResultConstants.ERROR) {
                 updateCounts = ArrayUtil.arraySlice(updateCounts, 0, count);
                 error        = in;
 
@@ -1331,7 +1346,7 @@ public class Session implements SessionInterface {
                 // void return type and select statements with
                 // a single row/column containg null
                 updateCounts[count++] = ResultConstants.SUCCESS_NO_INFO;
-            } else if (in.isError()) {
+            } else if (in.mode == ResultConstants.ERROR) {
                 updateCounts = ArrayUtil.arraySlice(updateCounts, 0, count);
                 error        = in;
 
@@ -1346,34 +1361,6 @@ public class Session implements SessionInterface {
         sessionData.updateLobUsageForBatch();
 
         return Result.newBatchedExecuteResponse(updateCounts, null, error);
-    }
-
-    /**
-     * Retrieves the result of executing the prepared statement whose csid
-     * and parameter values/types are encapsulated by the cmd argument.
-     *
-     * @return the result of executing the statement
-     */
-    private Result executeCompiledStatement(Result cmd) {
-
-        Statement cs = cmd.getStatement();
-
-        if (cs.getCompileTimestamp()
-                < database.schemaManager.getSchemaChangeTimestamp()) {
-            long csid = cmd.getStatementID();
-
-            cs = statementManager.getStatement(this, csid);
-
-            if (cs == null) {
-
-                // invalid sql has been removed already
-                return Result.newErrorResult(Error.error(ErrorCode.X_07502));
-            }
-        }
-
-        Object[] pvals = cmd.getParameterData();
-
-        return executeCompiledStatement(cs, pvals);
     }
 
     /**
@@ -1528,7 +1515,7 @@ public class Session implements SessionInterface {
     public void setZoneSeconds(int seconds) {
 
         if (seconds == sessionTimeZoneSeconds) {
-            calendar = null;
+            calendar        = null;
             timeZoneSeconds = sessionTimeZoneSeconds;
         } else {
             TimeZone zone = TimeZone.getDefault();
@@ -1857,7 +1844,7 @@ public class Session implements SessionInterface {
 
         int index = sqlWarnings.indexOf(warning);
 
-        if (index >=0 ) {
+        if (index >= 0) {
             sqlWarnings.remove(index);
         }
 

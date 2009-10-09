@@ -66,6 +66,7 @@ class RowActionBase {
     //
     long tempMergeTimestamp;
 
+    RowActionBase(){}
     /**
      * constructor, used for delete actions only
      */

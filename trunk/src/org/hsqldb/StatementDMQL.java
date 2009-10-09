@@ -181,10 +181,13 @@ public abstract class StatementDMQL extends Statement {
 
     public Result execute(Session session) {
 
-        Result result = getWriteAccessResult(session);
+        Result result;
 
-        if (result != null) {
-            return result;
+        if (targetTable != null && session.isReadOnly()
+                && !targetTable.isTemp()) {
+            HsqlException e = Error.error(ErrorCode.X_25006);
+
+            return Result.newErrorResult(e);
         }
 
         if (this.isExplain) {

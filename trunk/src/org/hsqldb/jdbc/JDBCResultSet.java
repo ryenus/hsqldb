@@ -352,6 +352,7 @@ public class JDBCResultSet implements ResultSet {
         checkClosed();
 
         rootWarning = null;
+
         return navigator.next();
     }
 
@@ -712,9 +713,7 @@ public class JDBCResultSet implements ResultSet {
 
         Type targetType = NumberType.getNumberType(Types.SQL_DECIMAL,
             NumberType.defaultNumericPrecision, scale);
-
-        BigDecimal bd = (BigDecimal) getColumnInType(columnIndex,
-            targetType);
+        BigDecimal bd = (BigDecimal) getColumnInType(columnIndex, targetType);
 
         if (bd != null) {
             bd = bd.setScale(scale, BigDecimal.ROUND_DOWN);
@@ -1420,6 +1419,7 @@ public class JDBCResultSet implements ResultSet {
      *            called on a closed result set
      */
     public void clearWarnings() throws SQLException {
+
         checkClosed();
 
         rootWarning = null;
@@ -1896,13 +1896,14 @@ public class JDBCResultSet implements ResultSet {
      *    JDBCResultSet)
      */
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        Type targetType =
-        resultMetaData.columnTypes[columnIndex - 1];
 
-        if( targetType.typeCode != Types.SQL_NUMERIC &&
-            targetType.typeCode != Types.SQL_DECIMAL) {
+        Type targetType = resultMetaData.columnTypes[columnIndex - 1];
+
+        if (targetType.typeCode != Types.SQL_NUMERIC
+                && targetType.typeCode != Types.SQL_DECIMAL) {
             targetType = Type.SQL_DECIMAL_DEFAULT;
         }
+
         return (BigDecimal) getColumnInType(columnIndex, targetType);
     }
 
@@ -2337,8 +2338,8 @@ public class JDBCResultSet implements ResultSet {
         if (isOnInsertRow || isRowUpdated) {
             throw Util.sqlExceptionSQL(ErrorCode.X_24513);
         }
-
         rootWarning = null;
+
         return navigator.previous();
     }
 
@@ -4306,9 +4307,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public Blob getBlob(int columnIndex) throws SQLException {
 
-        Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
-
-        Object o = getColumnInType(columnIndex, sourceType);
+        Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+        Object o          = getColumnInType(columnIndex, sourceType);
 
         if (o == null) {
             return null;
@@ -4357,9 +4357,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public Clob getClob(int columnIndex) throws SQLException {
 
-        Type sourceType = resultMetaData.columnTypes[columnIndex - 1];
-
-        Object o = getColumnInType(columnIndex, sourceType);
+        Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+        Object o          = getColumnInType(columnIndex, sourceType);
 
         if (o == null) {
             return null;
@@ -4683,15 +4682,12 @@ public class JDBCResultSet implements ResultSet {
 
         if (!resultMetaData.columnTypes[--columnIndex]
                 .isDateTimeTypeWithZone()) {
-
             Calendar calendar = cal == null ? session.getCalendar()
-                                            : cal;
+                    : cal;
 
-            millis = HsqlDateTime.convertMillisToCalendar(
-                                  calendar, millis);
+            millis = HsqlDateTime.convertMillisToCalendar(calendar, millis);
             millis = HsqlDateTime.getNormalisedTime(millis);
         }
-
 
         return new Time(millis);
     }
@@ -4793,13 +4789,12 @@ public class JDBCResultSet implements ResultSet {
 
         if (!resultMetaData.columnTypes[--columnIndex]
                 .isDateTimeTypeWithZone()) {
-
             Calendar calendar = cal == null ? session.getCalendar()
-                                            : cal;
+                    : cal;
 
             if (cal != null) {
-                millis = HsqlDateTime.convertMillisToCalendar(
-                                  calendar, millis);
+                millis = HsqlDateTime.convertMillisToCalendar(calendar,
+                        millis);
             }
         }
 
@@ -6907,7 +6902,7 @@ public class JDBCResultSet implements ResultSet {
     protected SQLWarning rootWarning;
 
     /** The underlying result. */
-    private Result          result;
+    private Result result;
 
     //-------------------------- Package Attributes ----------------------------
 
@@ -7146,7 +7141,7 @@ public class JDBCResultSet implements ResultSet {
             throw Util.notUpdatableColumn();
         }
 
-        if (!resultMetaData.columns[columnIndex].isWriteable() ) {
+        if (!resultMetaData.columns[columnIndex].isWriteable()) {
             throw Util.notUpdatableColumn();
         }
     }
@@ -7203,8 +7198,11 @@ public class JDBCResultSet implements ResultSet {
             ResultConstants.UPDATE_CURSOR);
         preparedStatement.fetchResult();
         preparedStatement.clearParameters();
+
         rootWarning = preparedStatement.getWarnings();
+
         preparedStatement.clearWarnings();
+
         isRowUpdated = false;
     }
 
@@ -7226,7 +7224,9 @@ public class JDBCResultSet implements ResultSet {
             ResultConstants.INSERT_CURSOR);
         preparedStatement.fetchResult();
         preparedStatement.clearParameters();
+
         rootWarning = preparedStatement.getWarnings();
+
         preparedStatement.clearWarnings();
     }
 
@@ -7243,7 +7243,9 @@ public class JDBCResultSet implements ResultSet {
             ResultConstants.DELETE_CURSOR);
         preparedStatement.fetchResult();
         preparedStatement.clearParameters();
+
         rootWarning = preparedStatement.getWarnings();
+
         preparedStatement.clearWarnings();
     }
 

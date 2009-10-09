@@ -123,6 +123,7 @@ public class IndexAVL implements Index {
     private final Type[]    colTypes;
     private final boolean[] colDesc;
     private final boolean[] nullsLast;
+    private boolean         isSimpleOrder;
     private final int[]     pkCols;
     private final Type[]    pkTypes;
     private final boolean   isUnique;    // DDL uniqueness
@@ -266,6 +267,14 @@ public class IndexAVL implements Index {
         defaultColMap = new int[columns.length];
 
         ArrayUtil.fillSequence(defaultColMap);
+
+        isSimpleOrder = true;
+
+        for (int i = 0; i < colDesc.length; i++) {
+            if (this.colDesc[i] || this.nullsLast[i]) {
+                isSimpleOrder = false;
+            }
+        }
     }
 
     // SchemaObject implementation
@@ -912,7 +921,7 @@ public class IndexAVL implements Index {
 
                 if (compare == OpTypes.EQUAL
                         && colTypes[0].compare(
-                            value, row.getData()[colIndex[0]]) != 0) {
+                            value, row.rowData[colIndex[0]]) != 0) {
                     x = null;
 
                     break;
@@ -1290,18 +1299,22 @@ public class IndexAVL implements Index {
     private int compareRowForInsertOrDelete(Session session, Row newRow,
             Row existingRow) {
 
-        Object[] a       = newRow.getData();
-        Object[] b       = existingRow.getData();
+        Object[] a       = newRow.rowData;
+        Object[] b       = existingRow.rowData;
         int      j       = 0;
         boolean  hasNull = false;
 
         for (; j < colIndex.length; j++) {
-            Object  currentvalue = a[colIndex[j]];
-            Object  othervalue   = b[colIndex[j]];
-            int     i = colTypes[j].compare(currentvalue, othervalue);
-            boolean nulls        = currentvalue == null || othervalue == null;
+            int i = colTypes[j].compare(a[colIndex[j]], b[colIndex[j]]);
+
+            if (isSimpleOrder && i != 0) {
+                return i;
+            }
 
             if (i != 0) {
+                boolean nulls = a[colIndex[j]] == null
+                                || b[colIndex[j]] == null;
+
                 if (colDesc[j] && !nulls) {
                     i = -i;
                 }
@@ -1313,7 +1326,7 @@ public class IndexAVL implements Index {
                 return i;
             }
 
-            if (currentvalue == null) {
+            if (a[colIndex[j]] == null) {
                 hasNull = true;
             }
         }
@@ -1418,7 +1431,7 @@ public class IndexAVL implements Index {
                 Row row = result.getRow(store);
 
                 if (compareRowNonUnique(
-                        rowdata, rowColMap, row.getData(), fieldCount) != 0) {
+                        rowdata, rowColMap, row.rowData, fieldCount) != 0) {
                     result = null;
 
                     break;

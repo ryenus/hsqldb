@@ -200,7 +200,6 @@ public class JDBCClob implements Clob {
         if (pos < MIN_POS || pos > dlen) {
             Util.outOfRangeArgument("pos: " + pos);
         }
-
         pos--;
 
         if (length < 0 || length > dlen - pos) {
@@ -208,8 +207,7 @@ public class JDBCClob implements Clob {
         }
 
         return (pos == 0 && length == dlen) ? ldata
-                                            : ldata.substring((int) pos,
-                                            (int) pos + length);
+                : ldata.substring((int) pos, (int) pos + length);
     }
 
     /**
@@ -550,7 +548,6 @@ public class JDBCClob implements Clob {
             for (int i = ipos, j = 0; j < len; i++, j++) {
                 sb.setCharAt(i, str.charAt(offset + j));
             }
-
             str = null;
         }
 
@@ -631,15 +628,14 @@ public class JDBCClob implements Clob {
      * @since JDK 1.4, HSQLDB 1.7.2
      * @revised JDK 1.6, HSQLDB 1.9.0
      */
-    public java.io.OutputStream setAsciiStream(final long pos)
-    throws SQLException {
+    public java.io.OutputStream setAsciiStream(
+            final long pos) throws SQLException {
 
         if (!this.createdByConnection) {
 
             /** @todo - Better error message */
             throw Util.notSupported();
         }
-
         checkValid(this.data);
 
         if (pos < MIN_POS || pos > MAX_POS) {
@@ -652,8 +648,7 @@ public class JDBCClob implements Clob {
 
                 try {
                     JDBCClob.this.setString(pos,
-                                            new String(toByteArray(),
-                                                       "US-ASCII"));
+                            new String(toByteArray(), "US-ASCII"));
                 } catch (SQLException se) {
                     throw JavaSystem.toIOException(se);
                 } finally {
@@ -733,15 +728,14 @@ public class JDBCClob implements Clob {
      * @since JDK 1.4, HSQLDB 1.7.2
      * @revised JDK 1.6, HSQLDB 1.9.0
      */
-    public java.io.Writer setCharacterStream(final long pos)
-    throws SQLException {
+    public java.io.Writer setCharacterStream(
+            final long pos) throws SQLException {
 
         if (!this.createdByConnection) {
 
             /** @todo - better error message */
             throw Util.notSupported();
         }
-
         checkValid(this.data);
 
         if (pos < MIN_POS || pos > MAX_POS) {
@@ -917,7 +911,6 @@ public class JDBCClob implements Clob {
         if (data == null) {
             throw Util.nullArgument("data");
         }
-
         this.data = data;
     }
 

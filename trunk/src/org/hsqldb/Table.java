@@ -86,7 +86,6 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.types.LobData;
 import org.hsqldb.types.Type;
 
 // fredt@users 20020130 - patch 491987 by jimbag@users - made optional
@@ -145,9 +144,11 @@ public class Table extends TableBase implements SchemaObject {
     TriggerDef[]    triggerList;
     TriggerDef[][]  triggerLists;              // array of trigger lists
     Expression[]    colDefaults;               // fredt - expressions of DEFAULT values
-    boolean[]       colGenerated;              // fredt - expressions of DEFAULT values
-    protected int[] defaultColumnMap;          // fred - holding 0,1,2,3,...
     private boolean hasDefaultValues;          //fredt - shortcut for above
+    boolean[]       colGenerated;              // fredt - expressions of DEFAULT values
+    private boolean hasGeneratedValues;        //fredt - shortcut for above
+    private boolean hasDomainColumns;          //fredt - shortcut
+    protected int[] defaultColumnMap;          // fred - holding 0,1,2,3,...
     RangeVariable[] defaultRanges;
 
     //
@@ -468,11 +469,10 @@ public class Table extends TableBase implements SchemaObject {
         sb.append(getName().getSchemaQualifiedStatementName());
         sb.append('(');
 
-        int        columns = getColumnCount();
         int[]      pk      = getPrimaryKey();
         Constraint pkConst = getPrimaryConstraint();
 
-        for (int j = 0; j < columns; j++) {
+        for (int j = 0; j < columnCount; j++) {
             ColumnSchema column  = getColumn(j);
             String       colname = column.getName().statementName;
             Type         type    = column.getDataType();
@@ -949,7 +949,7 @@ public class Table extends TableBase implements SchemaObject {
                 throw Error.error(ErrorCode.X_42525, name);
             }
 
-            identityColumn   = getColumnCount();
+            identityColumn   = columnCount;
             identitySequence = column.getIdentitySequence();
         }
 
@@ -1042,7 +1042,7 @@ public class Table extends TableBase implements SchemaObject {
             tn.persistenceScope = persistenceScope;
         }
 
-        for (int i = 0; i < getColumnCount(); i++) {
+        for (int i = 0; i < columnCount; i++) {
             ColumnSchema col = (ColumnSchema) columnList.get(i);
 
             if (i == colIndex) {
@@ -1058,7 +1058,7 @@ public class Table extends TableBase implements SchemaObject {
             tn.addColumn(col);
         }
 
-        if (getColumnCount() == colIndex) {
+        if (columnCount == colIndex) {
             tn.addColumn(column);
         }
 
@@ -1342,7 +1342,13 @@ public class Table extends TableBase implements SchemaObject {
         hasDefaultValues = false;
 
         for (int i = 0; i < colDefaults.length; i++) {
-            hasDefaultValues = hasDefaultValues || colDefaults[i] != null;
+            hasDefaultValues |= colDefaults[i] != null;
+        }
+
+        hasGeneratedValues = false;
+
+        for (int i = 0; i < colGenerated.length; i++) {
+            hasGeneratedValues |= colGenerated[i];
         }
     }
 
@@ -1464,6 +1470,7 @@ public class Table extends TableBase implements SchemaObject {
         colNotNull       = new boolean[columnCount];
         colGenerated     = new boolean[columnCount];
         defaultColumnMap = new int[columnCount];
+        hasDomainColumns = false;
 
         for (int i = 0; i < columnCount; i++) {
             setColumnTypeVars(i);
@@ -1476,9 +1483,14 @@ public class Table extends TableBase implements SchemaObject {
 
     void setColumnTypeVars(int i) {
 
-        ColumnSchema column = getColumn(i);
+        ColumnSchema column   = getColumn(i);
+        Type         dataType = column.getDataType();
 
-        colTypes[i]         = column.getDataType();
+        if (dataType.isDomainType()) {
+            hasDomainColumns = true;
+        }
+
+        colTypes[i]         = dataType;
         colNotNull[i]       = column.isPrimaryKey() || !column.isNullable();
         defaultColumnMap[i] = i;
 
@@ -1506,12 +1518,12 @@ public class Table extends TableBase implements SchemaObject {
      * Returns empty mapping array.
      */
     int[] getNewColumnMap() {
-        return new int[getColumnCount()];
+        return new int[columnCount];
     }
 
     boolean[] getColumnCheckList(int[] columnIndexes) {
 
-        boolean[] columnCheckList = new boolean[getColumnCount()];
+        boolean[] columnCheckList = new boolean[columnCount];
 
         for (int i = 0; i < columnIndexes.length; i++) {
             int index = columnIndexes[i];
@@ -1590,7 +1602,7 @@ public class Table extends TableBase implements SchemaObject {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        for (int i = 0; i < getColumnCount(); i++) {
+        for (int i = 0; i < columnCount; i++) {
             set.add(((ColumnSchema) columnList.get(i)).getName());
         }
 
@@ -1605,11 +1617,11 @@ public class Table extends TableBase implements SchemaObject {
      */
     Object[] getNewRowData(Session session) {
 
-        Object[] data = new Object[getColumnCount()];
+        Object[] data = new Object[columnCount];
         int      i;
 
         if (hasDefaultValues) {
-            for (i = 0; i < getColumnCount(); i++) {
+            for (i = 0; i < columnCount; i++) {
                 Expression def = colDefaults[i];
 
                 if (def != null) {
@@ -2049,12 +2061,10 @@ public class Table extends TableBase implements SchemaObject {
      */
     public void enforceRowConstraints(Session session, Object[] data) {
 
-        for (int i = 0; i < defaultColumnMap.length; i++) {
+        for (int i = 0; i < columnCount; i++) {
             Type type = colTypes[i];
 
-            data[i] = type.convertToTypeLimits(session, data[i]);
-
-            if (type.isDomainType()) {
+            if (hasDomainColumns && type.isDomainType()) {
                 Constraint[] constraints =
                     type.userTypeModifier.getConstraints();
 
@@ -2064,22 +2074,27 @@ public class Table extends TableBase implements SchemaObject {
                 }
             }
 
-            if (data[i] == null) {
-                if (colNotNull[i]) {
-                    Constraint c = getNotNullConstraintForColumn(i);
+            if (colNotNull[i] && data[i] == null) {
+                Constraint c = getNotNullConstraintForColumn(i);
 
-                    if (c == null) {
-                        c = this.getPrimaryConstraint();
-                    }
-
-                    String[] info = new String[] {
-                        c.getName().name, tableName.name
-                    };
-
-                    throw Error.error(null, ErrorCode.X_23502,
-                                      ErrorCode.CONSTRAINT, info);
+                if (c == null) {
+                    c = this.getPrimaryConstraint();
                 }
+
+                String[] info = new String[] {
+                    c.getName().name, tableName.name
+                };
+
+                throw Error.error(null, ErrorCode.X_23502,
+                                  ErrorCode.CONSTRAINT, info);
             }
+        }
+    }
+
+    public void enforceTypeLimits(Session session, Object[] data) {
+
+        for (int i = 0; i < columnCount; i++) {
+            data[i] = colTypes[i].convertToTypeLimits(session, data[i]);
         }
     }
 
@@ -2093,16 +2108,17 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
-            case TableBase.SYSTEM_SUBQUERY:
-            case TableBase.SYSTEM_TABLE:
-            case TableBase.VIEW_TABLE:
-            case TableBase.TEMP_TABLE: {
-
+            case TableBase.SYSTEM_SUBQUERY :
+            case TableBase.SYSTEM_TABLE :
+            case TableBase.VIEW_TABLE :
+            case TableBase.TEMP_TABLE : {
                 return true;
             }
         }
+
         return false;
     }
+
     /**
      *  Finds an existing index for a column group
      */
@@ -2277,9 +2293,13 @@ public class Table extends TableBase implements SchemaObject {
         enforceRowConstraints(session, data);
 
         if (database.isReferentialIntegrity()) {
-            for (int i = 0, size = constraintList.length; i < size; i++) {
-                constraintList[i].checkInsert(session, this, data);
+            for (int i = 0, size = fkConstraints.length; i < size; i++) {
+                fkConstraints[i].checkInsert(session, this, data);
             }
+        }
+
+        for (int i = 0, size = checkConstraints.length; i < size; i++) {
+            checkConstraints[i].checkInsert(session, this, data);
         }
 
         insertNoCheck(session, store, data);
@@ -2297,8 +2317,7 @@ public class Table extends TableBase implements SchemaObject {
         while (nav.hasNext()) {
             Object[] data = (Object[]) nav.getNext();
             Object[] newData =
-                (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
-                    getColumnCount());
+                (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
             insertData(store, newData);
         }
@@ -2363,8 +2382,7 @@ public class Table extends TableBase implements SchemaObject {
         while (nav.hasNext()) {
             Object[] data = (Object[]) nav.getNext();
             Object[] newData =
-                (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
-                    getColumnCount());
+                (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
             insertData(store, newData);
         }
@@ -2424,14 +2442,17 @@ public class Table extends TableBase implements SchemaObject {
 
     protected void setGeneratedColumns(Session session, Object[] data) {
 
-        for (int i = 0; i < colGenerated.length; i++) {
-            if (colGenerated[i]) {
-                Expression e = getColumn(i).getGeneratingExpression();
-                RangeIteratorBase range =
-                    session.sessionContext.getCheckIterator(defaultRanges[0]);
+        if (hasGeneratedValues) {
+            for (int i = 0; i < colGenerated.length; i++) {
+                if (colGenerated[i]) {
+                    Expression e = getColumn(i).getGeneratingExpression();
+                    RangeIteratorBase range =
+                        session.sessionContext.getCheckIterator(
+                            defaultRanges[0]);
 
-                range.currentData = data;
-                data[i]           = e.getValue(session, colTypes[i]);
+                    range.currentData = data;
+                    data[i]           = e.getValue(session, colTypes[i]);
+                }
             }
         }
     }

@@ -33,7 +33,6 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
-import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -49,6 +48,7 @@ import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.navigator.RowSetNavigatorLinkedList;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultConstants;
 import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.types.Type;
 
@@ -311,7 +311,7 @@ public class StatementDML extends StatementDMQL {
 
         baseTable.fireTriggers(session, Trigger.UPDATE_AFTER, rowset);
 
-        return Result.newUpdateCountResult(count);
+        return new Result(ResultConstants.UPDATECOUNT, count);
     }
 
     static Object[] getUpdatedData(Session session, Table targetTable,
@@ -441,8 +441,12 @@ public class StatementDML extends StatementDMQL {
                     continue;
                 }
             } else {
-                if (currentIndex == 1 && beforeFirst) {
-                    Object[] data = getMergeInsertData(session);
+                if (currentIndex == 1 && beforeFirst
+                        && insertExpression != null) {
+                    Type[] colTypes = baseTable.getColumnTypes();
+                    Object[] data =
+                        getInsertData(session, colTypes,
+                                      insertExpression.nodes[0].nodes);
 
                     if (data != null) {
                         newData.add(data);
@@ -501,7 +505,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         if (resultOut == null) {
-            return Result.newUpdateCountResult(count);
+            return new Result(ResultConstants.UPDATECOUNT, count);
         } else {
             resultOut.setUpdateCount(count);
 
@@ -633,7 +637,7 @@ public class StatementDML extends StatementDMQL {
             targetTable.identitySequence.reset();
         }
 
-        return Result.newUpdateCountResult(count);
+        return new Result(ResultConstants.UPDATECOUNT, count);
     }
 
     /**
@@ -904,42 +908,33 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
-    Object[] getMergeInsertData(Session session) {
+    Object[] getInsertData(Session session, Type[] colTypes,
+                           Expression[] rowArgs) {
 
-        if (insertExpression == null) {
-            return null;
-        }
+        Object[] data = baseTable.getNewRowData(session);
 
         session.sessionData.startRowProcessing();
-
-        Object[]     data     = targetTable.getNewRowData(session);
-        Type[]       colTypes = targetTable.getColumnTypes();
-        Expression[] rowArgs  = insertExpression.nodes[0].nodes;
 
         for (int i = 0; i < rowArgs.length; i++) {
             Expression e        = rowArgs[i];
             int        colIndex = insertColumnMap[i];
 
-            // transitional - still supporting null for identity generation
-            if (targetTable.identityColumn == colIndex) {
-                if (e.getType() == OpTypes.VALUE && e.valueData == null) {
-                    continue;
-                }
-            }
-
             if (e.getType() == OpTypes.DEFAULT) {
-                if (targetTable.identityColumn == colIndex) {
+                if (baseTable.identityColumn == colIndex) {
                     continue;
                 }
 
-                data[colIndex] =
-                    targetTable.colDefaults[colIndex].getValue(session);
+                if (baseTable.colDefaults[colIndex] != null) {
+                    data[colIndex] =
+                        baseTable.colDefaults[colIndex].getValue(session);
+
+                    continue;
+                }
 
                 continue;
             }
 
-            data[colIndex] = colTypes[colIndex].convertToType(session,
-                    e.getValue(session), e.getDataType());
+            data[colIndex] = e.getValue(session, colTypes[colIndex]);
         }
 
         return data;

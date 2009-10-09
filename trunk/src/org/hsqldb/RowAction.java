@@ -96,7 +96,9 @@ public class RowAction extends RowActionBase {
      */
     RowAction(Session session, TableBase table, byte type) {
 
-        super(session, type);
+        this.session    = session;
+        this.type       = type;
+        changeTimestamp = session.actionTimestamp;
 
         this.table = table;
     }

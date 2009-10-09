@@ -1470,7 +1470,6 @@ public class JDBCConnection implements Connection {
         checkClosed();
 
         return rootWarning;
-
     }
 
     /**
@@ -2892,7 +2891,9 @@ public class JDBCConnection implements Connection {
                               String value) throws SQLClientInfoException {
 
         SQLClientInfoException ex = new SQLClientInfoException();
+
         ex.initCause(Util.notSupported());
+
         throw ex;
     }
 

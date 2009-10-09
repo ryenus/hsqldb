@@ -295,7 +295,7 @@ public class StatementSet extends StatementDMQL {
         } else {
             values = new Object[1];
             values[0] = expression.getValue(session,
-                                            variables[0].getDataType());
+                                            variables[0].dataType);
         }
 
         return values;
@@ -320,7 +320,7 @@ public class StatementSet extends StatementDMQL {
             int colIndex = variableIndexes[j];
 
             data[colIndex] =
-                variables[j].getDataType().convertToDefaultType(session,
+                variables[j].dataType.convertToDefaultType(session,
                     values[j]);
         }
 
