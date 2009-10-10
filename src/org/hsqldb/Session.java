@@ -1386,8 +1386,8 @@ public class Session implements SessionInterface {
         Table           baseTable = qe.getBaseTable();
         int[]           columnMap = qe.getBaseTableColumnMap();
 
-        sessionContext.rowUpdateStatement.setRowActionProperties(actionType,
-                baseTable, types, columnMap);
+        sessionContext.rowUpdateStatement.setRowActionProperties(result,
+                actionType, baseTable, types, columnMap);
 
         Result resultOut =
             executeCompiledStatement(sessionContext.rowUpdateStatement, pvals);

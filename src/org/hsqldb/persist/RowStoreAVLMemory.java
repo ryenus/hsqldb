@@ -37,9 +37,10 @@ import org.hsqldb.RowAVL;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.rowio.RowInputInterface;
 
 /*
@@ -51,8 +52,7 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
-    private IntKeyHashMapConcurrent rowIdMap;
-    int                             rowIdSequence = 0;
+    int rowIdSequence = 0;
 
     public RowStoreAVLMemory(PersistentStoreCollection manager, Table table) {
 
@@ -60,7 +60,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         this.table        = table;
         this.indexList    = table.getIndexList();
         this.accessorList = new CachedObject[indexList.length];
-        rowIdMap          = new IntKeyHashMapConcurrent();
 
         manager.setStore(table, this);
     }
@@ -76,19 +75,19 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     public void set(CachedObject object) {}
 
     public CachedObject get(int i) {
-        return (CachedObject) rowIdMap.get(i);
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVMemory");
     }
 
     public CachedObject getKeep(int i) {
-        return (CachedObject) rowIdMap.get(i);
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLMemory");
     }
 
     public CachedObject get(int i, boolean keep) {
-        return (CachedObject) rowIdMap.get(i);
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLMemory");
     }
 
     public CachedObject get(CachedObject object, boolean keep) {
-        return (CachedObject) rowIdMap.get(object.getPos());
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLMemory");
     }
 
     public int getStorageSize(int i) {
@@ -117,20 +116,16 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
             int id = rowIdSequence++;
 
             row.setPos(id);
-            rowIdMap.put(id, row);
         }
 
         return row;
     }
 
     public void removeAll() {
-        rowIdMap.clear();
         ArrayUtil.fillArray(accessorList, null);
     }
 
-    public void remove(int i) {
-        rowIdMap.remove(i);
-    }
+    public void remove(int i) {}
 
     public void removePersistence(int i) {}
 
@@ -146,7 +141,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
     public void release() {
         ArrayUtil.fillArray(accessorList, null);
-        rowIdMap.clear();
     }
 
     public void setAccessor(Index key, CachedObject accessor) {

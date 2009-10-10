@@ -190,8 +190,8 @@ implements RowOutputInterface {
             switch (t.typeCode) {
 
                 case Types.SQL_ALL_TYPES :
-                    throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "RowOutputBase");
+                    break;
+
                 case Types.SQL_CHAR :
                 case Types.SQL_VARCHAR :
                 case Types.VARCHAR_IGNORECASE :

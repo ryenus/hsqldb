@@ -114,7 +114,7 @@ public class QueryExpression {
     public Index     mainIndex;
     public Index     fullIndex;
     public Index     orderIndex;
-
+    public Index     idIndex;
     //
     CompileContext compileContext;
 

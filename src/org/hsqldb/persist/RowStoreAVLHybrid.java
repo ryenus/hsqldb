@@ -45,7 +45,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 
@@ -58,15 +57,14 @@ import org.hsqldb.rowio.RowInputInterface;
  */
 public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
-    final Session                   session;
-    DataFileCacheSession            cache;
-    private int                     maxMemoryRowCount;
-    private int                     memoryRowCount;
-    private boolean                 useCache;
-    private boolean                 isCached;
-    private final boolean           isTempTable;
-    private IntKeyHashMapConcurrent rowIdMap;
-    int                             rowIdSequence = 0;
+    final Session         session;
+    DataFileCacheSession  cache;
+    private int           maxMemoryRowCount;
+    private int           memoryRowCount;
+    private boolean       useCache;
+    private boolean       isCached;
+    private final boolean isTempTable;
+    int                   rowIdSequence = 0;
 
     public RowStoreAVLHybrid(Session session,
                              PersistentStoreCollection manager,
@@ -78,10 +76,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
         this.isTempTable       = table.getTableType() == TableBase.TEMP_TABLE;
         this.useCache          = useCache;
-
-        if (isTempTable) {
-            this.rowIdMap = new IntKeyHashMapConcurrent();
-        }
 
         if (table.getTableType() == TableBase.RESULT_TABLE) {
             timestamp = session.getActionTimestamp();
@@ -122,7 +116,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             if (isCached) {
                 return cache.get(i, this, false);
             } else {
-                return (CachedObject) rowIdMap.get(i);
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "RowStoreAVLHybrid");
             }
         } catch (HsqlException e) {
             return null;
@@ -135,7 +130,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             if (isCached) {
                 return cache.get(i, this, true);
             } else {
-                return (CachedObject) rowIdMap.get(i);
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "RowStoreAVLHybrid");
             }
         } catch (HsqlException e) {
             return null;
@@ -148,7 +144,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             if (isCached) {
                 return cache.get(i, this, keep);
             } else {
-                return (CachedObject) rowIdMap.get(i);
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "RowStoreAVLHybrid");
             }
         } catch (HsqlException e) {
             return null;
@@ -239,10 +236,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             row.setPos(id);
 
-            if (rowIdMap != null) {
-                rowIdMap.put(id, row);
-            }
-
             if (isTempTable) {
                 RowAction.addAction(session, RowAction.ACTION_INSERT,
                                     (Table) table, row);
@@ -253,11 +246,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     }
 
     public void removeAll() {
-
-        if (rowIdMap != null) {
-            rowIdMap.clear();
-        }
-
         ArrayUtil.fillArray(accessorList, null);
     }
 
@@ -265,10 +253,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
         if (isCached) {
             cache.remove(i, this);
-        } else {
-            if (rowIdMap != null) {
-                rowIdMap.remove(i);
-            }
         }
     }
 
@@ -304,10 +288,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             cache    = null;
             isCached = false;
-        } else {
-            if (rowIdMap != null) {
-                rowIdMap.clear();
-            }
         }
 
         manager.setStore(table, null);
@@ -353,10 +333,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 Row newRow = (Row) getNewCachedObject(session, row.getData());
 
                 indexRow(null, newRow);
-            }
-
-            if (rowIdMap != null) {
-                rowIdMap.clear();
             }
         }
 
