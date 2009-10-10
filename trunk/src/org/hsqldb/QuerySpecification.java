@@ -885,9 +885,11 @@ public class QuerySpecification extends QueryExpression {
                     continue;
                 }
 
-                if (!e.isAggregate && !e.isComposedOf(exprColumns, 0,
-                                    indexLimitVisible + groupByColumnCount,
-                                    Expression.emptyExpressionSet)) {
+                if (!e.isAggregate
+                        && !e.isComposedOf(
+                            exprColumns, 0,
+                            indexLimitVisible + groupByColumnCount,
+                            Expression.emptyExpressionSet)) {
                     throw Error.error(ErrorCode.X_42576);
                 }
             }
@@ -1181,7 +1183,11 @@ public class QuerySpecification extends QueryExpression {
             }
 
             for (int i = indexLimitVisible; i < indexLimitRowId; i++) {
-                data[i] = it.getRowidObject();
+                if (i == indexLimitVisible) {
+                    data[i] = it.getRowidObject();
+                } else {
+                    data[i] = it.getCurrentRow();
+                }
             }
 
             Object[] groupData = null;
@@ -1309,7 +1315,11 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = indexLimitVisible; i < indexLimitRowId; i++) {
-            columnTypes[i] = Type.SQL_BIGINT;
+            if (i == indexLimitVisible) {
+                columnTypes[i] = Type.SQL_BIGINT;
+            } else {
+                columnTypes[i] = Type.SQL_ALL_TYPES;
+            }
         }
 
         for (int i = indexLimitRowId; i < indexLimitData; i++) {
@@ -1379,6 +1389,13 @@ public class QuerySpecification extends QueryExpression {
                     groupCols, null, null, false, false, false);
         } else if (isAggregated) {
             groupIndex = mainIndex;
+        }
+
+        if (isUpdatable) {
+            int[] idCols = new int[]{ indexLimitVisible };
+
+            idIndex = resultTable.createAndAddIndexStructure(null, idCols,
+                    null, null, false, false, false);
         }
     }
 
@@ -1690,6 +1707,10 @@ public class QuerySpecification extends QueryExpression {
             }
 
             indexLimitRowId++;
+
+            if (!baseTable.isFileBased()) {
+                indexLimitRowId++;
+            }
 
             indexLimitData = indexLimitRowId;
         }

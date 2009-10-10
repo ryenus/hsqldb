@@ -166,6 +166,8 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
             switch (type.typeCode) {
 
                 case Types.SQL_ALL_TYPES :
+                    break;
+
                 case Types.SQL_CHAR :
                 case Types.SQL_VARCHAR :
                 case Types.VARCHAR_IGNORECASE :

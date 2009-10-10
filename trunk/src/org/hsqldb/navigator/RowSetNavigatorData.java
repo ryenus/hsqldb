@@ -34,6 +34,7 @@ package org.hsqldb.navigator;
 import java.io.IOException;
 
 import org.hsqldb.HsqlException;
+import org.hsqldb.OpTypes;
 import org.hsqldb.QueryExpression;
 import org.hsqldb.QuerySpecification;
 import org.hsqldb.Row;
@@ -77,6 +78,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
     private Index fullIndex;
     private Index orderIndex;
     private Index groupIndex;
+    private Index idIndex;
 
     public RowSetNavigatorData(Session session, QuerySpecification select) {
 
@@ -93,6 +95,7 @@ public class RowSetNavigatorData extends RowSetNavigator {
         fullIndex         = select.fullIndex;
         orderIndex        = select.orderIndex;
         groupIndex        = select.groupIndex;
+        idIndex           = select.idIndex;
     }
 
     public RowSetNavigatorData(Session session,
@@ -202,6 +205,10 @@ public class RowSetNavigatorData extends RowSetNavigator {
         reset();
     }
 
+    public boolean absolute(int position) {
+        return super.absolute(position);
+    }
+
     public Object[] getCurrent() {
         return currentRow.getData();
     }
@@ -274,6 +281,14 @@ public class RowSetNavigatorData extends RowSetNavigator {
         }
 
         reset();
+    }
+
+    public Row getRow(Long rowId) {
+
+        RowIterator it = idIndex.findFirstRow(session, store, rowId,
+                                              OpTypes.EQUAL);
+
+        return it.getNextRow();
     }
 
     public void copy(RowSetNavigatorData other, int[] rightColumnIndexes) {

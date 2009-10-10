@@ -358,10 +358,6 @@ class ServerConnection implements Runnable {
 
         resultOut.write(dataOutput, rowOut);
 
-        if (resultOut.getNavigator() != null) {
-            resultOut.getNavigator().close();
-        }
-
         rowOut.setBuffer(mainBuffer);
         rowIn.resetRow(mainBuffer.length);
     }
