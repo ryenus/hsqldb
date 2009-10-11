@@ -99,6 +99,10 @@ public abstract class NodeAVL implements CachedObject {
     public int       iBalance;
     public NodeAVL   nNext;    // node of next index (nNext==null || nNext.iId=iId+1)
 
+    //
+    protected NodeAVL nLeft;
+    protected NodeAVL nRight;
+    protected NodeAVL nParent;
     /**
      *  This method unlinks the Node from the other Nodes in the same Index
      *  and from the Row.
@@ -150,6 +154,8 @@ public abstract class NodeAVL implements CachedObject {
     abstract boolean isFromLeft(PersistentStore store);
 
     abstract NodeAVL set(PersistentStore store, boolean isLeft, NodeAVL n);
+
+    abstract NodeAVL child(PersistentStore store, boolean isLeft);
 
     abstract void replace(PersistentStore store, Index index, NodeAVL n);
 

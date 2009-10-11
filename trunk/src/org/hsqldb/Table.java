@@ -562,6 +562,51 @@ public class Table extends TableBase implements SchemaObject {
         return sb.toString();
     }
 
+    public String getColumnListSQL(int[] col, int len) {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append('(');
+
+        for (int i = 0; i < len; i++) {
+            sb.append(getColumn(col[i]).getName().statementName);
+
+            if (i < len - 1) {
+                sb.append(',');
+            }
+        }
+
+        sb.append(')');
+
+        return sb.toString();
+    }
+
+    /**
+     * compares two full table rows based on a set of columns
+     *
+     * @param a a full row
+     * @param b a full row
+     * @param cols array of column indexes to compare
+     * @param coltypes array of column types for the full row
+     *
+     * @return comparison result, -1,0,+1
+     */
+    public static int compareRows(Object[] a, Object[] b, int[] cols,
+                                  Type[] coltypes) {
+
+        int fieldcount = cols.length;
+
+        for (int j = 0; j < fieldcount; j++) {
+            int i = coltypes[cols[j]].compare(a[cols[j]], b[cols[j]]);
+
+            if (i != 0) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
     /**
      * Used to create row id's
      */
@@ -2546,8 +2591,8 @@ public class Table extends TableBase implements SchemaObject {
                     break;
                 }
 
-                if (IndexAVL.compareRows(
-                        session, row.getData(), data, defaultColumnMap,
+                if (Table.compareRows(
+                        row.getData(), data, defaultColumnMap,
                         colTypes) == 0) {
                     break;
                 }
@@ -2572,9 +2617,8 @@ public class Table extends TableBase implements SchemaObject {
                     break;
                 }
 
-                if (IndexAVL.compareRows(
-                        session, rowdata, data, defaultColumnMap,
-                        colTypes) == 0) {
+                if (Table.compareRows(
+                        rowdata, data, defaultColumnMap, colTypes) == 0) {
                     break;
                 }
             }

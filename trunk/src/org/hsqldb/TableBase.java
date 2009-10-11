@@ -35,7 +35,6 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
@@ -358,12 +357,13 @@ public class TableBase {
             }
         }
 
-        // remove rowID column from bestRowIdentiferCols
-        bestRowIdentifierCols = briCols == null
-                                || briColsCount == briCols.length ? briCols
-                                                                  : ArrayUtil
-                                                                  .arraySlice(briCols,
-                                                                      0, briColsCount);
+        if (briCols == null || briColsCount == briCols.length) {
+            bestRowIdentifierCols = briCols;
+        } else {
+            bestRowIdentifierCols = ArrayUtil.arraySlice(briCols, 0,
+                    briColsCount);
+        }
+
         bestRowIdentifierStrict = isStrict;
 
         if (indexList[0].getColumnCount() > 0) {
@@ -375,11 +375,11 @@ public class TableBase {
                                          HsqlName name) {
 
         long id = database.persistentStoreCollection.getNextId();
-        Index newindex = new IndexAVL(name, id, this, pkcols, null, null,
-                                      pktypes, true, true, true, false);
+        Index newIndex = database.logger.newIndex(name, id, this, pkcols,
+            null, null, pktypes, true, true, true, false);
 
         try {
-            addIndex(newindex);
+            addIndex(newIndex);
         } catch (HsqlException e) {}
     }
 
@@ -415,9 +415,8 @@ public class TableBase {
         }
 
         long id = database.persistentStoreCollection.getNextId();
-        Index newIndex = new IndexAVL(name, id, this, cols, descending,
-                                      nullsLast, types, false, unique,
-                                      constraint, forward);
+        Index newIndex = database.logger.newIndex(name, id, this, cols,
+            descending, nullsLast, types, false, unique, constraint, forward);
 
         return newIndex;
     }
@@ -442,7 +441,6 @@ public class TableBase {
             store.resetAccessorKeys(indexList);
         }
     }
-
 
     final void addIndex(Index index) {
 

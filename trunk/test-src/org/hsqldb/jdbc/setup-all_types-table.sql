@@ -23,7 +23,8 @@ create table all_types(
      c_tinyint            tinyint,
      c_varbinary          varbinary(255),
      c_varchar            varchar(255),
-     c_varchar_ignorecase varchar_ignorecase(255)
+     c_varchar_ignorecase varchar_ignorecase(255),
+     c_clob               clob(16)
 );
 
 insert into all_types(
@@ -47,7 +48,8 @@ insert into all_types(
      c_tinyint,
      c_varbinary,
      c_varchar,
-     c_varchar_ignorecase
+     c_varchar_ignorecase,
+     c_clob
 ) values (
     1,
     123456789,
@@ -69,5 +71,6 @@ insert into all_types(
     123,
     X'0123456789ABCDEF',
     'VARCHAR',
-    'VARCHAR_IGNORECASE'
+    'VARCHAR_IGNORECASE',
+    NULL
 );

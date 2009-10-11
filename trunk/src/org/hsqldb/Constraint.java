@@ -281,8 +281,9 @@ public final class Constraint implements SchemaObject {
 
                     sb.append(Tokens.T_PRIMARY).append(' ').append(
                         Tokens.T_KEY);
-                    getColumnList(getMain(), getMainColumns(),
-                                  getMainColumns().length, sb);
+                    sb.append(
+                        getMain().getColumnListSQL(
+                            getMainColumns(), getMainColumns().length));
                 }
                 break;
 
@@ -297,7 +298,7 @@ public final class Constraint implements SchemaObject {
 
                 int[] col = getMainColumns();
 
-                getColumnList(getMain(), col, col.length, sb);
+                sb.append(getMain().getColumnListSQL(col, col.length));
                 break;
 
             case SchemaObject.ConstraintTypes.FOREIGN_KEY :
@@ -337,56 +338,37 @@ public final class Constraint implements SchemaObject {
     /**
      * Generates the foreign key declaration for a given Constraint object.
      */
-    private void getFKStatement(StringBuffer a) {
+    private void getFKStatement(StringBuffer sb) {
 
         if (!getName().isReservedName()) {
-            a.append(Tokens.T_CONSTRAINT).append(' ');
-            a.append(getName().statementName);
-            a.append(' ');
+            sb.append(Tokens.T_CONSTRAINT).append(' ');
+            sb.append(getName().statementName);
+            sb.append(' ');
         }
 
-        a.append(Tokens.T_FOREIGN).append(' ').append(Tokens.T_KEY);
+        sb.append(Tokens.T_FOREIGN).append(' ').append(Tokens.T_KEY);
 
         int[] col = getRefColumns();
 
-        getColumnList(getRef(), col, col.length, a);
-        a.append(' ').append(Tokens.T_REFERENCES).append(' ');
-        a.append(getMain().getName().getSchemaQualifiedStatementName());
+        sb.append(getRef().getColumnListSQL(col, col.length));
+        sb.append(' ').append(Tokens.T_REFERENCES).append(' ');
+        sb.append(getMain().getName().getSchemaQualifiedStatementName());
 
         col = getMainColumns();
 
-        getColumnList(getMain(), col, col.length, a);
+        sb.append(getMain().getColumnListSQL(col, col.length));
 
         if (getDeleteAction() != SchemaObject.ReferentialAction.NO_ACTION) {
-            a.append(' ').append(Tokens.T_ON).append(' ').append(
+            sb.append(' ').append(Tokens.T_ON).append(' ').append(
                 Tokens.T_DELETE).append(' ');
-            a.append(getDeleteActionString());
+            sb.append(getDeleteActionString());
         }
 
         if (getUpdateAction() != SchemaObject.ReferentialAction.NO_ACTION) {
-            a.append(' ').append(Tokens.T_ON).append(' ').append(
+            sb.append(' ').append(Tokens.T_ON).append(' ').append(
                 Tokens.T_UPDATE).append(' ');
-            a.append(getUpdateActionString());
+            sb.append(getUpdateActionString());
         }
-    }
-
-    /**
-     * Generates the column definitions for a table.
-     */
-    private static void getColumnList(Table t, int[] col, int len,
-                                      StringBuffer a) {
-
-        a.append('(');
-
-        for (int i = 0; i < len; i++) {
-            a.append(t.getColumn(col[i]).getName().statementName);
-
-            if (i < len - 1) {
-                a.append(',');
-            }
-        }
-
-        a.append(')');
     }
 
     public HsqlName getMainTableName() {
@@ -897,7 +879,8 @@ public final class Constraint implements SchemaObject {
             for (int i = 0; i < rowColArray.length; i++) {
                 Object o = rowData[rowColArray[i]];
 
-                sb.append(table.getColumnTypes()[rowColArray[i]].convertToString(o));
+                sb.append(
+                    table.getColumnTypes()[rowColArray[i]].convertToString(o));
                 sb.append(',');
             }
 
