@@ -854,7 +854,7 @@ public class TransactionManagerMVCC implements TransactionManager {
         }
 
         if (!mvcc) {
-            if (session.hasLocks()) {
+            if (session.hasLocks(cs)) {
                 return;
             }
 

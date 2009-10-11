@@ -70,8 +70,7 @@ public class RowAVLDiskData extends RowAVLDisk {
                           RowInputInterface in)
                           throws IOException {
 
-        table         = t;
-        tableId        = t.getId();
+        table          = t;
         position       = in.getPos();
         storageSize    = in.getSize();
         rowData        = in.readData(table.getColumnTypes());

@@ -56,15 +56,8 @@ public class RowAction extends RowActionBase {
         RowAction action = row.rowAction;
 
         if (action == null) {
-            action = new RowAction(session, table, type);
-
-            if (row.isMemory()) {
-                action.isMemory = true;
-            }
-
-            action.memoryRow = row;
-            action.rowId     = row.getPos();
-            row.rowAction    = action;
+            action = new RowAction(session, table, type, row.isMemory(), row);
+            row.rowAction = action;
         } else {
             if (action.type == ACTION_DELETE_FINAL) {
                 throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
@@ -94,13 +87,16 @@ public class RowAction extends RowActionBase {
      * @param session
      * @param type type of action
      */
-    RowAction(Session session, TableBase table, byte type) {
+    public RowAction(Session session, TableBase table, byte type, boolean isMemory,
+              Row row) {
 
         this.session    = session;
         this.type       = type;
         changeTimestamp = session.actionTimestamp;
-
-        this.table = table;
+        this.table      = table;
+        this.isMemory   = isMemory;
+        this.memoryRow  = row;
+        rowId           = row.getPos();
     }
 
     public synchronized RowAction duplicate(int newRowId) {
@@ -114,13 +110,12 @@ public class RowAction extends RowActionBase {
 
     synchronized RowAction duplicate() {
 
-        RowAction action = new RowAction(session, table, type);
+        RowAction action = new RowAction(session, table, type, isMemory,
+                                         memoryRow);
 
         action.setAsAction(this);
 
-        action.memoryRow = memoryRow;
-        action.rowId     = rowId;
-        action.isMemory  = isMemory;
+        action.rowId = rowId;
 
         return action;
     }

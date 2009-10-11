@@ -466,7 +466,7 @@ public class TransactionManager2PL implements TransactionManager {
             session.isTransaction        = true;
         }
 
-        if (session.hasLocks()) {
+        if (session.hasLocks(cs)) {
             return;
         }
 

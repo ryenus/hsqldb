@@ -783,7 +783,7 @@ public class TransactionManagerMV2PL implements TransactionManager {
             }
         }
 
-        if (session.hasLocks()) {
+        if (session.hasLocks(cs)) {
             return;
         }
 

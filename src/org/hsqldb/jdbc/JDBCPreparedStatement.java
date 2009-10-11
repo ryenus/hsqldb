@@ -84,6 +84,7 @@ import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
@@ -4090,6 +4091,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         } else if (o instanceof Reader) {
             parameterValues[i - 1] = o;
             parameterStream[i - 1] = true;
+
+            return;
+        } else if ( o instanceof String ){
+            ClobData clob =session.createClob(((String) o).length());
+            clob.setString(session, 0, (String) o);
+            parameterValues[i - 1] = clob;
+			parameterStream[i - 1] = true;
 
             return;
         }

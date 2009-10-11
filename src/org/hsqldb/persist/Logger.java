@@ -53,6 +53,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.index.IndexAVL;
+import org.hsqldb.index.IndexAVLMemory;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
@@ -949,7 +950,7 @@ public class Logger {
         switch (table.getTableType()) {
 
             case TableBase.MEMORY_TABLE :
-                return new IndexAVL(name, id, table, columns, descending,
+                return new IndexAVLMemory(name, id, table, columns, descending,
                                     nullsLast, colTypes, pk, unique,
                                     constraint, forward);
 

@@ -93,7 +93,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * @version 1.9.0
  * @since Hypersonic SQL
  */
-public abstract class NodeAVL implements CachedObject {
+public class NodeAVL implements CachedObject {
 
     static final int NO_POS = RowAVLDisk.NO_POS;
     public int       iBalance;
@@ -103,63 +103,141 @@ public abstract class NodeAVL implements CachedObject {
     protected NodeAVL nLeft;
     protected NodeAVL nRight;
     protected NodeAVL nParent;
-    /**
-     *  This method unlinks the Node from the other Nodes in the same Index
-     *  and from the Row.
-     *
-     *  It must keep the links between the Nodes in different Indexes.
-     */
-    abstract public void delete();
+    protected final Row row;
 
-    public boolean isMemory() {
-        return true;
+    NodeAVL() {
+        row = null;
     }
 
-    /**
-     *  File offset of Node. Used with CachedRow objects only
-     */
-    abstract public int getPos();
+    public NodeAVL(Row r) {
+        row = r;
+    }
 
-    /**
-     *  Return the Row Object that is linked to this Node.
-     */
-    abstract Row getRow(PersistentStore store);
+    public void delete() {
+        iBalance = 0;
+        nLeft    = nRight = nParent = null;
+    }
 
-    abstract Object[] getData(PersistentStore store);
-    /**
-     *  Getters and setters for AVL index operations.
-     */
-    abstract boolean isLeft(NodeAVL node);
+    NodeAVL getLeft(PersistentStore store) {
+        return nLeft;
+    }
 
-    abstract boolean isRight(NodeAVL node);
+    NodeAVL setLeft(PersistentStore persistentStore, NodeAVL n) {
 
-    abstract NodeAVL getLeft(PersistentStore store);
+        nLeft = n;
 
-    abstract NodeAVL setLeft(PersistentStore store, NodeAVL n);
+        return this;
+    }
 
-    abstract NodeAVL getRight(PersistentStore store);
+    public int getBalance(PersistentStore store) {
+        return iBalance;
+    }
 
-    abstract NodeAVL setRight(PersistentStore store, NodeAVL n);
+    boolean isLeft(NodeAVL node) {
+        return nLeft == node;
+    }
 
-    abstract NodeAVL getParent(PersistentStore store);
+    boolean isRight(NodeAVL node) {
+        return nRight == node;
+    }
 
-    abstract NodeAVL setParent(PersistentStore store, NodeAVL n);
+    NodeAVL getRight(PersistentStore persistentStore) {
+        return nRight;
+    }
 
-    abstract int getBalance(PersistentStore store);
+    NodeAVL setRight(PersistentStore persistentStore, NodeAVL n) {
 
-    abstract public NodeAVL setBalance(PersistentStore store, int b);
+        nRight = n;
 
-    abstract boolean isRoot(PersistentStore store);
+        return this;
+    }
 
-    abstract boolean isFromLeft(PersistentStore store);
+    NodeAVL getParent(PersistentStore store) {
+        return nParent;
+    }
 
-    abstract NodeAVL set(PersistentStore store, boolean isLeft, NodeAVL n);
+    boolean isRoot(PersistentStore store) {
+        return nParent == null;
+    }
 
-    abstract NodeAVL child(PersistentStore store, boolean isLeft);
+    NodeAVL setParent(PersistentStore persistentStore, NodeAVL n) {
 
-    abstract void replace(PersistentStore store, Index index, NodeAVL n);
+        nParent = n;
 
-    abstract boolean equals(NodeAVL n);
+        return this;
+    }
+
+    public NodeAVL setBalance(PersistentStore store, int b) {
+
+        iBalance = b;
+
+        return this;
+    }
+
+    boolean isFromLeft(PersistentStore store) {
+
+        if (nParent == null) {
+            return true;
+        }
+
+        return this == nParent.nLeft;
+    }
+
+    public NodeAVL child(PersistentStore store, boolean isleft) {
+        return isleft ? getLeft(store)
+            : getRight(store);
+    }
+
+    public NodeAVL set(PersistentStore store, boolean isLeft, NodeAVL n) {
+
+        if (isLeft) {
+            nLeft = n;
+        } else {
+            nRight = n;
+        }
+
+        if (n != null) {
+            n.nParent = this;
+        }
+
+        return this;
+    }
+
+    public void replace(PersistentStore store, Index index, NodeAVL n) {
+
+        if (nParent == null) {
+            if (n != null) {
+                n = n.setParent(store, null);
+            }
+
+            store.setAccessor(index, n);
+        } else {
+            nParent.set(store, isFromLeft(store), n);
+        }
+    }
+
+    boolean equals(NodeAVL n) {
+        return n == this;
+    }
+
+    public void setInMemory(boolean in) {}
+
+    public void write(RowOutputInterface out) {}
+
+    public void write(RowOutputInterface out, IntLookup lookup) {}
+
+    public int getPos() {
+        return 0;
+    }
+
+    protected Row getRow(PersistentStore store) {
+        return row;
+    }
+
+    protected Object[] getData(PersistentStore store) {
+        return row.getData();
+    }
+
 
     public void updateAccessCount(int count) {}
 
@@ -192,8 +270,6 @@ public abstract class NodeAVL implements CachedObject {
         return false;
     }
 
-    abstract public void setInMemory(boolean in);
-
     public void restore() {}
 
     public void destroy() {}
@@ -202,7 +278,8 @@ public abstract class NodeAVL implements CachedObject {
         return 0;
     }
 
-    abstract public void write(RowOutputInterface out);
+    public boolean isMemory() {
+        return true;
+    }
 
-    public void write(RowOutputInterface out, IntLookup lookup) {}
 }
