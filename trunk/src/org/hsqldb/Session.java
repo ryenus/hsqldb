@@ -470,8 +470,8 @@ public class Session implements SessionInterface {
 //        tempActionHistory.add("endAction ends " + actionTimestamp);
     }
 
-    public boolean hasLocks() {
-        return false;
+    public boolean hasLocks(Statement statement) {
+        return lockStatement == statement;
     }
 
     public void startTransaction() {

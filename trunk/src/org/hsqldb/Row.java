@@ -45,7 +45,6 @@ import org.hsqldb.store.ValuePool;
  */
 public class Row implements CachedObject {
 
-    int                       tableId;
     int                       position;
     public Object[]           rowData;
     public volatile RowAction rowAction;
@@ -85,14 +84,6 @@ public class Row implements CachedObject {
 
     public int getStorageSize() {
         return 0;
-    }
-
-    public long getId() {
-        return ((long) tableId << 32) + ((long) position);
-    }
-
-    public Object getRowidObject() {
-        return ValuePool.getLong(getId());
     }
 
     public boolean isMemory() {

@@ -112,7 +112,7 @@ public class NodeAVLDisk extends NodeAVL {
     public NodeAVLDisk(RowAVLDisk r, RowInputInterface in,
                        int id) throws IOException {
 
-        row      = r;
+        row = r;
         iId      = id;
         iData    = r.getPos();
         iBalance = in.readInt();
@@ -137,7 +137,7 @@ public class NodeAVLDisk extends NodeAVL {
 
     public NodeAVLDisk(RowAVLDisk r, int id) {
 
-        row   = r;
+        row = r;
         iId   = id;
         iData = r.getPos();
     }
@@ -167,7 +167,7 @@ public class NodeAVLDisk extends NodeAVL {
         return iData;
     }
 
-    Row getRow(PersistentStore store) {
+    public Row getRow(PersistentStore store) {
 
         if (!row.isInMemory()) {
             return (RowAVLDisk) store.get(this.row, false);
@@ -178,7 +178,7 @@ public class NodeAVLDisk extends NodeAVL {
         return row;
     }
 
-    Object[] getData(PersistentStore store) {
+    public Object[] getData(PersistentStore store) {
         return row.getData();
     }
 
@@ -277,7 +277,7 @@ public class NodeAVLDisk extends NodeAVL {
         return node.nParent;
     }
 
-    int getBalance(PersistentStore store) {
+    public int getBalance(PersistentStore store) {
 
         NodeAVLDisk node = this;
         RowAVLDisk  row  = this.row;
@@ -518,7 +518,7 @@ public class NodeAVLDisk extends NodeAVL {
                                          : iParent);
     }
 
-    public void writeTranslate(RowOutputInterface out, IntLookup lookup) {
+    public void write(RowOutputInterface out, IntLookup lookup) {
 
         out.writeInt(iBalance);
         writeTranslatePointer(iLeft, out, lookup);
@@ -536,5 +536,40 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         out.writeInt(newPointer);
+    }
+
+    public void restore() {
+    }
+
+    public void destroy() {
+    }
+
+    public void updateAccessCount(int count) {
+    }
+
+    public int getAccessCount() {
+        return 0;
+    }
+
+    public void setStorageSize(int size) {
+    }
+
+    public int getStorageSize() {
+        return 0;
+    }
+
+    public void setPos(int pos) {
+    }
+
+    public boolean hasChanged() {
+        return false;
+    }
+
+    public boolean isKeepInMemory() {
+        return false;
+    }
+
+    public boolean keepInMemory(boolean keep) {
+        return false;
     }
 }

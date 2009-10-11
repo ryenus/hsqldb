@@ -67,7 +67,6 @@
 package org.hsqldb;
 
 import org.hsqldb.index.NodeAVL;
-import org.hsqldb.index.NodeAVLMemory;
 import org.hsqldb.lib.java.JavaSystem;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
@@ -104,19 +103,19 @@ public class RowAVL extends Row {
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that
      *  are not yet linked with other Nodes in the AVL indexes.
      */
-    public RowAVL(TableBase t, int indexCount, Object[] o) {
+    public RowAVL(int indexCount, Object[] o, int rowId) {
 
-        nPrimaryNode = new NodeAVLMemory(this);
+        nPrimaryNode = new NodeAVL(this);
 
         NodeAVL n = nPrimaryNode;
 
         for (int i = 1; i < indexCount; i++) {
-            n.nNext = new NodeAVLMemory(this);
+            n.nNext = new NodeAVL(this);
             n       = n.nNext;
         }
 
-        tableId = t.getId();
-        rowData = o;
+        rowData  = o;
+        position = rowId;
     }
 
     /**
@@ -152,7 +151,7 @@ public class RowAVL extends Row {
     public NodeAVL insertNode(int index) {
 
         NodeAVL backnode = getNode(index - 1);
-        NodeAVL newnode  = new NodeAVLMemory(this);
+        NodeAVL newnode  = new NodeAVL(this);
 
         newnode.nNext  = backnode.nNext;
         backnode.nNext = newnode;

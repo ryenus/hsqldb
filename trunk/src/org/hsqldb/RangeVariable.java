@@ -614,13 +614,15 @@ public final class RangeVariable {
         }
 
         public long getRowid() {
+
             return currentRow == null ? 0
-                                      : currentRow.getId();
+                                      : ((long) rangeVar.rangeTable.getId() << 32)
+                                        + ((long) currentRow.getPos());
         }
 
         public Object getRowidObject() {
             return currentRow == null ? null
-                                      : Long.valueOf(currentRow.getId());
+                                      : Long.valueOf(getRowid());
         }
 
         public void remove() {}
@@ -1252,7 +1254,6 @@ public final class RangeVariable {
                 "]\n");
 
             if (hasIndexCondition()) {
-
                 if (indexedColumnCount > 0) {
                     sb.append("start conditions=[");
 
@@ -1264,6 +1265,7 @@ public final class RangeVariable {
 
                     sb.append("]\n");
                 }
+
                 if (indexEndCondition != null) {
                     String temp = indexEndCondition.describe(session);
 

@@ -134,7 +134,6 @@ public class RowAVLDisk extends RowAVL {
     public RowAVLDisk(TableBase t, Object[] o) {
 
         table  = t;
-        tableId = table.getId();
 
         setNewNodes();
 
@@ -152,7 +151,6 @@ public class RowAVLDisk extends RowAVL {
     public RowAVLDisk(TableBase t, RowInputInterface in) throws IOException {
 
         table      = t;
-        tableId = table.getId();
 
         position    = in.getPos();
         storageSize = in.getSize();
@@ -366,7 +364,7 @@ public class RowAVLDisk extends RowAVL {
         NodeAVL rownode = nPrimaryNode;
 
         while (rownode != null) {
-            ((NodeAVLDisk) rownode).writeTranslate(out, lookup);
+            ((NodeAVLDisk) rownode).write(out, lookup);
 
             rownode = rownode.nNext;
         }

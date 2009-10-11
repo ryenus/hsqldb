@@ -211,6 +211,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public CachedObject getNewCachedObject(Session session, Object object) {
 
+        int id  = rowIdSequence++;
+
         if (isCached) {
             Row row = new RowAVLDisk(table, (Object[]) object);
 
@@ -231,14 +233,14 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 return getNewCachedObject(session, object);
             }
 
-            Row row = new RowAVL(table, indexList.length, (Object[]) object);
-            int id  = rowIdSequence++;
-
-            row.setPos(id);
+            Row row = new RowAVL(indexList.length, (Object[]) object, id);
 
             if (isTempTable) {
-                RowAction.addAction(session, RowAction.ACTION_INSERT,
-                                    (Table) table, row);
+                RowAction action = new RowAction(session, table,
+                                                 RowAction.ACTION_INSERT, true,
+                                                 row);
+
+                row.rowAction = action;
             }
 
             return row;

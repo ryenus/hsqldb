@@ -54,13 +54,13 @@ import org.hsqldb.persist.PersistentStore;
  * @version 1.9.0
  * @since 1.7.1
  */
-public class NodeAVLMemoryPointer extends NodeAVLBaseMemory {
+public class NodeAVLMemoryPointer extends NodeAVL {
 
     public int      iData = NO_POS;
     private NodeAVL nPrimary;    // node of key / primary index for this row
 
     public NodeAVLMemoryPointer(RowAVLDisk r) {
-
+        super(r);
         iData    = r.getPos();
         nPrimary = r.nPrimaryNode == null ? this
                                           : r.nPrimaryNode;
@@ -74,7 +74,7 @@ public class NodeAVLMemoryPointer extends NodeAVLBaseMemory {
         return iData;
     }
 
-    Row getRow(PersistentStore store) {
+    public Row getRow(PersistentStore store) {
 
         if (iData == NO_POS) {
             return null;
@@ -87,7 +87,7 @@ public class NodeAVLMemoryPointer extends NodeAVLBaseMemory {
         return row;
     }
 
-    Object[] getData(PersistentStore store) {
+    public Object[] getData(PersistentStore store) {
         return getRow(store).getData();
     }
 }
