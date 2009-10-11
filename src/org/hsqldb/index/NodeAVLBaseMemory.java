@@ -82,10 +82,6 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 abstract class NodeAVLBaseMemory extends NodeAVL {
 
-    protected NodeAVL nLeft;
-    protected NodeAVL nRight;
-    protected NodeAVL nParent;
-
     public void delete() {
         iBalance = 0;
         nLeft    = nRight = nParent = null;
@@ -149,13 +145,16 @@ abstract class NodeAVLBaseMemory extends NodeAVL {
 
     boolean isFromLeft(PersistentStore store) {
 
-        if (this.isRoot(store)) {
+        if (nParent == null) {
             return true;
         }
 
-        NodeAVL parent = getParent(store);
+        return this == nParent.nLeft;
+    }
 
-        return equals(parent.getLeft(store));
+    public NodeAVL child(PersistentStore store, boolean isleft) {
+        return isleft ? getLeft(store)
+            : getRight(store);
     }
 
     public NodeAVL set(PersistentStore store, boolean isLeft, NodeAVL n) {
@@ -182,7 +181,7 @@ abstract class NodeAVLBaseMemory extends NodeAVL {
 
             store.setAccessor(index, n);
         } else {
-            getParent(store).set(store, isFromLeft(store), n);
+            nParent.set(store, isFromLeft(store), n);
         }
     }
 

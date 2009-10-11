@@ -763,6 +763,17 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         stmt.setClob(1, x);
         stmt.executeQuery();
     }
+    public void testSetClobClob() throws Exception {
+        println("setClobClob");
+
+        String            xval = "setClob";
+//        Clob              x    = new JDBCClob(xval);
+        PreparedStatement stmt = queryBy("c_clob");
+
+        // stmt.setClob(1, x);
+        stmt.setString(1, xval);
+        stmt.executeQuery();
+    }
 
     /**
      * Test of setArray method, of interface java.sql.PreparedStatement.
@@ -793,7 +804,7 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
     public void testGetMetaData() throws Exception {
         println("getMetaData");
 
-        int expColCount = 21;
+        int expColCount = 22;
         PreparedStatement stmt = queryBy("id");
         ResultSetMetaData rsmd = stmt.getMetaData();
 

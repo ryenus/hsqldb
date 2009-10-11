@@ -102,11 +102,6 @@ public class NodeAVLDisk extends NodeAVL {
     final RowAVLDisk row;
 
     //
-    protected NodeAVLDisk nLeft;
-    protected NodeAVLDisk nRight;
-    protected NodeAVLDisk nParent;
-
-    //
     public int              iData;
     private int             iLeft   = NO_POS;
     private int             iRight  = NO_POS;
@@ -205,7 +200,7 @@ public class NodeAVLDisk extends NodeAVL {
             return iLeft == NO_POS;
         }
 
-        return iLeft == ((NodeAVLDisk) n).getPos();
+        return iLeft == ((NodeAVLDisk) n).iData;
     }
 
     boolean isRight(NodeAVL n) {
@@ -214,7 +209,7 @@ public class NodeAVLDisk extends NodeAVL {
             return iRight == NO_POS;
         }
 
-        return iRight == ((NodeAVLDisk) n).getPos();
+        return iRight == ((NodeAVLDisk) n).iData;
     }
 
     NodeAVL getLeft(PersistentStore store) {
@@ -326,8 +321,14 @@ public class NodeAVLDisk extends NodeAVL {
             node.nParent = findNode(store, iParent);
         }
 
-        return getPos() == node.nParent.iLeft;
+        return getPos() == ((NodeAVLDisk) node.nParent).iLeft;
     }
+
+    public NodeAVL child(PersistentStore store, boolean isleft) {
+        return isleft ? getLeft(store)
+            : getRight(store);
+    }
+
 
     NodeAVL setParent(PersistentStore store, NodeAVL n) {
 
@@ -495,7 +496,7 @@ public class NodeAVLDisk extends NodeAVL {
             }
 
             if (nParent != null) {
-                if (iData == nParent.iLeft) {
+                if (iData == ((NodeAVLDisk) nParent).iLeft) {
                     nParent.nLeft = null;
                 } else {
                     nParent.nRight = null;

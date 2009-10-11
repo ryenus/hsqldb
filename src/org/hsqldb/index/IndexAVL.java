@@ -118,12 +118,12 @@ public class IndexAVL implements Index {
     private final long      persistenceId;
     private final HsqlName  name;
     private final boolean[] colCheck;
-    private final int[]     colIndex;
+    final int[]             colIndex;
     private final int[]     defaultColMap;
-    private final Type[]    colTypes;
+    final Type[]            colTypes;
     private final boolean[] colDesc;
     private final boolean[] nullsLast;
-    private boolean         isSimpleOrder;
+    boolean                 isSimpleOrder;
     private final int[]     pkCols;
     private final Type[]    pkTypes;
     private final boolean   isUnique;    // DDL uniqueness
@@ -134,96 +134,12 @@ public class IndexAVL implements Index {
     private static final IndexRowIterator emptyIterator =
         new IndexRowIterator(null, (PersistentStore) null, null, null, false);
     private final TableBase table;
-    private int             position;
+    int                     position;
 
     //
     ReadWriteLock lock      = new ReentrantReadWriteLock();
     Lock          readLock  = lock.readLock();
     Lock          writeLock = lock.writeLock();
-
-    //
-    public static final Index[] emptyArray = new Index[]{};
-
-    /**
-     * Set a node as child of another
-     *
-     * @param x parent node
-     * @param isleft boolean
-     * @param n child node
-     *
-     */
-    private static NodeAVL set(PersistentStore store, NodeAVL x,
-                               boolean isleft, NodeAVL n) {
-
-        if (isleft) {
-            x = x.setLeft(store, n);
-        } else {
-            x = x.setRight(store, n);
-        }
-
-        if (n != null) {
-            n.setParent(store, x);
-        }
-
-        return x;
-    }
-
-    /**
-     * Returns either child node
-     *
-     * @param x node
-     * @param isleft boolean
-     *
-     * @return child node
-     *
-     */
-    private static NodeAVL child(PersistentStore store, NodeAVL x,
-                                 boolean isleft) {
-        return isleft ? x.getLeft(store)
-                      : x.getRight(store);
-    }
-
-    private static void getColumnList(Table t, int[] col, int len,
-                                      StringBuffer a) {
-
-        a.append('(');
-
-        for (int i = 0; i < len; i++) {
-            a.append(t.getColumn(col[i]).getName().statementName);
-
-            if (i < len - 1) {
-                a.append(',');
-            }
-        }
-
-        a.append(')');
-    }
-
-    /**
-     * compares two full table rows based on a set of columns
-     *
-     * @param a a full row
-     * @param b a full row
-     * @param cols array of column indexes to compare
-     * @param coltypes array of column types for the full row
-     *
-     * @return comparison result, -1,0,+1
-     */
-    public static int compareRows(Session session, Object[] a, Object[] b,
-                                  int[] cols, Type[] coltypes) {
-
-        int fieldcount = cols.length;
-
-        for (int j = 0; j < fieldcount; j++) {
-            int i = coltypes[cols[j]].compare(a[cols[j]], b[cols[j]]);
-
-            if (i != 0) {
-                return i;
-            }
-        }
-
-        return 0;
-    }
 
     /**
      * Constructor declaration
@@ -268,7 +184,7 @@ public class IndexAVL implements Index {
 
         ArrayUtil.fillSequence(defaultColMap);
 
-        isSimpleOrder = true;
+        isSimpleOrder = colIndex.length > 0;
 
         for (int i = 0; i < colDesc.length; i++) {
             if (this.colDesc[i] || this.nullsLast[i]) {
@@ -328,7 +244,7 @@ public class IndexAVL implements Index {
         int[] col = getColumns();
         int   len = getVisibleColumns();
 
-        getColumnList(((Table) table), col, len, sb);
+        sb.append(((Table) table).getColumnListSQL(col, len));
 
         return sb.toString();
     }
@@ -553,7 +469,7 @@ public class IndexAVL implements Index {
 
                 isleft = compare < 0;
                 x      = n;
-                n      = child(store, x, isleft);
+                n      = x.child(store, isleft);
 
                 if (n == null) {
                     break;
@@ -706,13 +622,13 @@ public class IndexAVL implements Index {
                         return;
 
                     case 1 :
-                        NodeAVL r = child(store, x, !isleft);
+                        NodeAVL r = x.child(store, !isleft);
                         int     b = r.getBalance(store);
 
                         if (b * sign >= 0) {
                             x.replace(store, this, r);
 
-                            NodeAVL child = child(store, r, isleft);
+                            NodeAVL child = r.child(store, isleft);
 
                             x = x.set(store, !isleft, child);
                             r = r.set(store, isleft, x);
@@ -728,14 +644,14 @@ public class IndexAVL implements Index {
                             r = r.setBalance(store, 0);
                             x = r;
                         } else {
-                            NodeAVL l = child(store, r, isleft);
+                            NodeAVL l = r.child(store, isleft);
 
                             x.replace(store, this, l);
 
                             b = l.getBalance(store);
-                            r = r.set(store, isleft, child(store, l, !isleft));
+                            r = r.set(store, isleft, l.child(store, !isleft));
                             l = l.set(store, !isleft, r);
-                            x = x.set(store, !isleft, child(store, l, isleft));
+                            x = x.set(store, !isleft, l.child(store, isleft));
                             l = l.set(store, isleft, x);
                             x = x.setBalance(store, (b == sign) ? -sign
                                                                 : 0);
@@ -920,8 +836,8 @@ public class IndexAVL implements Index {
                 Row row = x.getRow(store);
 
                 if (compare == OpTypes.EQUAL
-                        && colTypes[0].compare(
-                            value, row.rowData[colIndex[0]]) != 0) {
+                        && colTypes[0].compare(value, row.rowData[colIndex[0]])
+                           != 0) {
                     x = null;
 
                     break;
@@ -1296,8 +1212,8 @@ public class IndexAVL implements Index {
      * @param existingRow data
      * @return comparison result, -1,0,+1
      */
-    private int compareRowForInsertOrDelete(Session session, Row newRow,
-            Row existingRow) {
+    int compareRowForInsertOrDelete(Session session, Row newRow,
+                                    Row existingRow) {
 
         Object[] a       = newRow.rowData;
         Object[] b       = existingRow.rowData;
@@ -1471,23 +1387,23 @@ public class IndexAVL implements Index {
                     break;
 
                 case -1 :
-                    NodeAVL l = child(store, x, isleft);
+                    NodeAVL l = x.child(store, isleft);
 
                     if (l.getBalance(store) == -sign) {
                         x.replace(store, this, l);
 
-                        x = x.set(store, isleft, child(store, l, !isleft));
+                        x = x.set(store, isleft, l.child(store, !isleft));
                         l = l.set(store, !isleft, x);
                         x = x.setBalance(store, 0);
                         l = l.setBalance(store, 0);
                     } else {
-                        NodeAVL r = child(store, l, !isleft);
+                        NodeAVL r = l.child(store, !isleft);
 
                         x.replace(store, this, r);
 
-                        l = l.set(store, !isleft, child(store, r, isleft));
+                        l = l.set(store, !isleft, r.child(store, isleft));
                         r = r.set(store, isleft, l);
-                        x = x.set(store, isleft, child(store, r, !isleft));
+                        x = x.set(store, isleft, r.child(store, !isleft));
                         r = r.set(store, !isleft, x);
 
                         int rb = r.getBalance(store);
@@ -1511,16 +1427,15 @@ public class IndexAVL implements Index {
         }
     }
 
-    private NodeAVL getAccessor(PersistentStore store) {
+    NodeAVL getAccessor(PersistentStore store) {
 
         NodeAVL node = (NodeAVL) store.getAccessor(this);
 
         return node;
     }
 
-    private IndexRowIterator getIterator(Session session,
-                                         PersistentStore store, NodeAVL x,
-                                         boolean single) {
+    IndexRowIterator getIterator(Session session, PersistentStore store,
+                                 NodeAVL x, boolean single) {
 
         if (x == null) {
             return emptyIterator;

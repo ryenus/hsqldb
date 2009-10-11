@@ -39,6 +39,7 @@ import java.util.Locale;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
+import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
@@ -46,11 +47,12 @@ import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.Tokens;
-import org.hsqldb.TransactionManager2PL;
 import org.hsqldb.TransactionManagerMV2PL;
 import org.hsqldb.TransactionManagerMVCC;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.index.Index;
+import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileUtil;
 import org.hsqldb.lib.FrameworkLogger;
@@ -59,6 +61,7 @@ import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
+import org.hsqldb.types.Type;
 
 // boucherb@users 20030510 - patch 1.7.2 - added cooperative file locking
 
@@ -932,6 +935,35 @@ public class Logger {
                         return new RowStoreAVLHybrid(session, collection,
                                                      table, diskBased);
                 }
+        }
+
+        throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
+    }
+
+    public Index newIndex(HsqlName name, long id, TableBase table,
+                          int[] columns, boolean[] descending,
+                          boolean[] nullsLast, Type[] colTypes, boolean pk,
+                          boolean unique, boolean constraint,
+                          boolean forward) {
+
+        switch (table.getTableType()) {
+
+            case TableBase.MEMORY_TABLE :
+                return new IndexAVL(name, id, table, columns, descending,
+                                    nullsLast, colTypes, pk, unique,
+                                    constraint, forward);
+
+            case TableBase.CACHED_TABLE :
+            case TableBase.SYSTEM_TABLE :
+            case TableBase.TEXT_TABLE :
+            case TableBase.TEMP_TABLE :
+            case TableBase.RESULT_TABLE :
+            case TableBase.SYSTEM_SUBQUERY :
+            case TableBase.VIEW_TABLE :
+            case TableBase.TRANSITION_TABLE :
+                return new IndexAVL(name, id, table, columns, descending,
+                                    nullsLast, colTypes, pk, unique,
+                                    constraint, forward);
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");

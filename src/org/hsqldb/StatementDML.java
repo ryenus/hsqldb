@@ -1167,11 +1167,8 @@ public class StatementDML extends StatementDMQL {
         Object[] data = (Object[]) rowSet.get(row);
 
         if (data != null) {
-            if (IndexAVL.compareRows(
-                    session, row
-                        .getData(), newData, cols, colTypes) != 0 && IndexAVL
-                            .compareRows(
-                                session, newData, data, cols, colTypes) != 0) {
+            if (Table.compareRows(row.getData(), newData, cols, colTypes) != 0
+                    && Table.compareRows(newData, data, cols, colTypes) != 0) {
                 return false;
             }
 
