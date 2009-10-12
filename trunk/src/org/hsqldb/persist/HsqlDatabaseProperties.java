@@ -178,6 +178,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     //
     public static final String url_ifexists       = "ifexists";
     public static final String url_default_schema = "default_schema";
+    public static final String url_strict         = "strict";
 
     //
     public static final String hsqldb_tx     = "hsqldb.tx";
@@ -201,8 +202,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_result_max_memory_rows =
         "hsqldb.result_max_memory_rows";
     public static final String hsqldb_write_delay = "hsqldb.write_delay";
+    public static final String hsqldb_write_delay_millis =
+        "hsqldb.write_delay_millis";
 
     //
+    public static final String sql_ref_integrity     = "sql.ref_integrity";
     public static final String sql_compare_in_locale = "sql.compare_in_locale";
     public static final String sql_enforce_size      = "sql.enforce_size";
     public static final String sql_enforce_strict_size =
@@ -313,6 +317,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           true));
 
         // char padding to size and exception if data is too long
+        dbMeta.put(sql_ref_integrity,
+                   HsqlProperties.getMeta(sql_ref_integrity, SQL_PROPERTY,
+                                          true));
         dbMeta.put(sql_enforce_size,
                    HsqlProperties.getMeta(sql_enforce_size, SQL_PROPERTY,
                                           true));
@@ -330,6 +337,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_write_delay,
                    HsqlProperties.getMeta(hsqldb_write_delay, SQL_PROPERTY,
                                           true));
+        dbMeta.put(hsqldb_write_delay_millis,
+                   HsqlProperties.getMeta(hsqldb_write_delay_millis, SQL_PROPERTY,
+                                          2000, 10, 10000));
 
         // integral defaults for user-defined set props
         dbMeta.put(hsqldb_applog,
@@ -393,6 +403,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             setProperty(hsqldb_log_size, 10);
             setProperty(sql_enforce_size, true);
             setProperty(hsqldb_nio_data_file, false);
+            setProperty(hsqldb_lock_file, true);
         }
 
         // OOo end
@@ -500,18 +511,39 @@ public class HsqlDatabaseProperties extends HsqlProperties {
      */
     public void setURLProperties(HsqlProperties p) {
 
+        boolean strict = false;
+
         if (p == null) {
             return;
         }
 
         for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
+            String propertyName = (String) e.nextElement();
+
+            if (url_strict.equals(propertyName)) {
+                strict = true;
+
+                break;
+            }
+        }
+
+        for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
             String   propertyName = (String) e.nextElement();
             Object[] row          = (Object[]) dbMeta.get(propertyName);
+            boolean  valid        = false;
 
             if (row != null
                     && ((Integer) row[HsqlProperties.indexType]).intValue()
                        == SQL_PROPERTY) {
-                setDatabaseProperty(propertyName, p.getProperty(propertyName));
+                valid = setDatabaseProperty(propertyName,
+                                            p.getProperty(propertyName));
+            }
+
+            if (!valid && propertyName.startsWith("sql.")
+                    || propertyName.startsWith("hsqldb.")
+                    || propertyName.startsWith("textdb.")) {
+                throw Error.error(ErrorCode.X_42511,
+                                  propertyName);
             }
         }
     }
@@ -564,8 +596,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         Object[] row = (Object[]) dbMeta.get(key);
 
-        return row != null
-               && row[HsqlProperties.indexClass].equals("String")
+        return row != null && row[HsqlProperties.indexClass].equals("String")
                && ((Integer) row[HsqlProperties.indexType]).intValue()
                   == SQL_PROPERTY;
     }
@@ -643,7 +674,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] metaData = (Object[]) dbMeta.get(key);
 
         if (metaData == null) {
-            throw Error.error(ErrorCode.X_42511);
+            throw Error.error(ErrorCode.X_42511, key);
         }
 
         return stringProps.getProperty(key);
@@ -655,7 +686,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] metaData = (Object[]) dbMeta.get(key);
 
         if (metaData == null) {
-            throw Error.error(ErrorCode.X_42511);
+            throw Error.error(ErrorCode.X_42511, key);
         }
 
         value = (Boolean) metaData[HsqlProperties.indexDefaultValue];
@@ -682,7 +713,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] metaData = (Object[]) dbMeta.get(key);
 
         if (metaData == null) {
-            throw Error.error(ErrorCode.X_42511);
+            throw Error.error(ErrorCode.X_42511, key);
         }
 
         value = (String) metaData[HsqlProperties.indexDefaultValue];
@@ -702,7 +733,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] metaData = (Object[]) dbMeta.get(key);
 
         if (metaData == null) {
-            throw Error.error(ErrorCode.X_42511);
+            throw Error.error(ErrorCode.X_42511, key);
         }
 
         value =
@@ -722,5 +753,4 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static Iterator getPropertiesMetaIterator() {
         return dbMeta.values().iterator();
     }
-
 }

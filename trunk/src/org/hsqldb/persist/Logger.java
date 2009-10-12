@@ -109,6 +109,7 @@ public class Logger {
     int            propEventLogLevel;
     int            propGC;
     int            propTxMode = Database.LOCKS;
+    boolean        propRefIntegrity;
 
     //
     private Crypto    crypto;
@@ -217,6 +218,8 @@ public class Logger {
         }
 
         this.appLog = new SimpleLog(logPath, propEventLogLevel);
+
+        database.setReferentialIntegrity(propRefIntegrity);
 
         if (!isFile) {
             return;
@@ -372,14 +375,20 @@ public class Logger {
         propMaxFreeBlocks = 1 << propMaxFreeBlocks;
         propTextAllowFullPath = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.textdb_allow_full_path);
-        propWriteDelay =
-            database.databaseProperties.isPropertyTrue(
-                HsqlDatabaseProperties.hsqldb_write_delay) ? 10000
-                                                           : 0;
+        propWriteDelay = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_write_delay_millis);
+
+        if (!database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_write_delay)) {
+            propWriteDelay = 0;
+        }
+
         propLogSize = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_log_size);
         propGC = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.runtime_gc_interval);
+        propRefIntegrity = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_ref_integrity);
 
         database.setMetaDirty(false);
     }
@@ -950,9 +959,9 @@ public class Logger {
         switch (table.getTableType()) {
 
             case TableBase.MEMORY_TABLE :
-                return new IndexAVLMemory(name, id, table, columns, descending,
-                                    nullsLast, colTypes, pk, unique,
-                                    constraint, forward);
+                return new IndexAVLMemory(name, id, table, columns,
+                                          descending, nullsLast, colTypes, pk,
+                                          unique, constraint, forward);
 
             case TableBase.CACHED_TABLE :
             case TableBase.SYSTEM_TABLE :

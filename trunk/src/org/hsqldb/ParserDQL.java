@@ -189,7 +189,7 @@ public class ParserDQL extends ParserBase {
 
         if (Types.requiresPrecision(typeNumber)
                 && token.tokenType != Tokens.OPENBRACKET
-                && database.sqlEnforceSize) {
+                && database.sqlEnforceSize && !session.isProcessingScript) {
             throw Error.error(ErrorCode.X_42599,
                               Type.getDefaultType(typeNumber).getNameString());
         }
@@ -343,14 +343,16 @@ public class ParserDQL extends ParserBase {
             }
             case Types.SQL_CHAR :
             case Types.SQL_VARCHAR :
-                if (!hasLength && !database.sqlEnforceSize) {
+            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
+                if (!hasLength) {
                     length = 32 * 1024;
                 }
                 break;
 
             case Types.SQL_DECIMAL :
             case Types.SQL_NUMERIC :
-                if (!hasLength && !hasScale && !database.sqlEnforceSize) {
+                if (!hasLength && !hasScale) {
                     length = NumberType.defaultNumericPrecision;
                     scale  = NumberType.defaultNumericScale;
                 }
