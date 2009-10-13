@@ -539,9 +539,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                             p.getProperty(propertyName));
             }
 
-            if (!valid && propertyName.startsWith("sql.")
+            if (strict && !valid && (propertyName.startsWith("sql.")
                     || propertyName.startsWith("hsqldb.")
-                    || propertyName.startsWith("textdb.")) {
+                    || propertyName.startsWith("textdb."))) {
                 throw Error.error(ErrorCode.X_42511,
                                   propertyName);
             }
