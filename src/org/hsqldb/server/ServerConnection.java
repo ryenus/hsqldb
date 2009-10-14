@@ -92,6 +92,7 @@ import org.hsqldb.rowio.RowOutputInterface;
 // fredt@users 20020424 - patch 1.7.0 by fredt - shutdown without exit
 // fredt@users 20021002 - patch 1.7.1 by fredt - changed notification method
 // fredt@users 20030618 - patch 1.7.2 by fredt - changed read/write methods
+// fredt@users 20091013 - move set session to null suggested by Otto Joyner
 
 /**
  *  All ServerConnection objects are listed in a Set in server
@@ -210,20 +211,20 @@ class ServerConnection implements Runnable {
 
         if (session != null) {
             session.close();
-        }
 
-        session = null;
+            session = null;
+        }
 
         // fredt@user - closing the socket is to stop this thread
         try {
             synchronized (this) {
                 if (socket != null) {
                     socket.close();
-
-                    socket = null;
                 }
             }
         } catch (IOException e) {}
+
+        socket = null;
 
         synchronized (server.serverConnSet) {
             server.serverConnSet.remove(this);
@@ -357,7 +358,6 @@ class ServerConnection implements Runnable {
         }
 
         resultOut.write(dataOutput, rowOut);
-
         rowOut.setBuffer(mainBuffer);
         rowIn.resetRow(mainBuffer.length);
     }

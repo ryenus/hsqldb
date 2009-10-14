@@ -294,7 +294,7 @@ public class StatementCompound extends Statement {
 
     private Result executeBlock(Session session) {
 
-        Result result = Result.newUpdateZeroResult();
+        Result result = Result.updateZeroResult;
         int    i      = 0;
 
         session.sessionContext.push();
@@ -315,10 +315,10 @@ public class StatementCompound extends Statement {
         if (result.getType() == ResultConstants.VALUE) {
             if (result.getErrorCode() == StatementTypes.LEAVE) {
                 if (result.getMainString() == null) {
-                    result = Result.newUpdateZeroResult();
+                    result = Result.updateZeroResult;
                 } else if (label != null
                            && label.name.equals(result.getMainString())) {
-                    result = Result.newUpdateZeroResult();
+                    result = Result.updateZeroResult;
                 }
             }
         }
@@ -358,7 +358,7 @@ public class StatementCompound extends Statement {
                     switch (handler.handlerType) {
 
                         case StatementHandler.CONTINUE :
-                            result = Result.newUpdateZeroResult();
+                            result = Result.updateZeroResult;
                             break;
 
                         case StatementHandler.UNDO :
@@ -398,7 +398,7 @@ public class StatementCompound extends Statement {
 
     private Result executeLoop(Session session) {
 
-        Result result = Result.newUpdateZeroResult();
+        Result result = Result.updateZeroResult;
 
         while (true) {
             if (type == StatementTypes.WHILE) {
@@ -409,7 +409,7 @@ public class StatementCompound extends Statement {
                 }
 
                 if (!Boolean.TRUE.equals(result.getValueObject())) {
-                    result = Result.newUpdateZeroResult();
+                    result = Result.updateZeroResult;
 
                     break;
                 }
@@ -447,12 +447,12 @@ public class StatementCompound extends Statement {
 
                 if (result.getErrorCode() == StatementTypes.LEAVE) {
                     if (result.getMainString() == null) {
-                        result = Result.newUpdateZeroResult();
+                        result = Result.updateZeroResult;
                     }
 
                     if (label != null
                             && label.name.equals(result.getMainString())) {
-                        result = Result.newUpdateZeroResult();
+                        result = Result.updateZeroResult;
                     }
 
                     break;
@@ -471,7 +471,7 @@ public class StatementCompound extends Statement {
                 }
 
                 if (Boolean.TRUE.equals(result.getValueObject())) {
-                    result = Result.newUpdateZeroResult();
+                    result = Result.updateZeroResult;
 
                     break;
                 }
@@ -483,7 +483,7 @@ public class StatementCompound extends Statement {
 
     private Result executeIf(Session session) {
 
-        Result  result  = Result.newUpdateZeroResult();
+        Result  result  = Result.updateZeroResult;
         boolean execute = false;
 
         for (int i = 0; i < statements.length; i++) {
@@ -505,7 +505,7 @@ public class StatementCompound extends Statement {
                 i++;
             }
 
-            result = Result.newUpdateZeroResult();
+            result = Result.updateZeroResult;
 
             if (!execute) {
                 continue;

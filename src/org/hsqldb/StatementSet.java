@@ -133,7 +133,7 @@ public class StatementSet extends StatementDMQL {
                 Object[] values = queryExpression.getSingleRowValues(session);
 
                 if (values == null) {
-                    result = Result.newUpdateZeroResult();
+                    result = Result.updateZeroResult;
 
                     break;
                 }
@@ -146,7 +146,7 @@ public class StatementSet extends StatementDMQL {
                 Object[] values = getExpressionValues(session);
 
                 if (values == null) {
-                    result = Result.newUpdateZeroResult();
+                    result = Result.updateZeroResult;
 
                     break;
                 }
@@ -216,7 +216,9 @@ public class StatementSet extends StatementDMQL {
         Result result;
 
         try {
-            materializeSubQueries(session);
+            if (subqueries.length > 0) {
+                materializeSubQueries(session);
+            }
 
             result = getResult(session);
         } catch (Throwable t) {
@@ -249,7 +251,7 @@ public class StatementSet extends StatementDMQL {
 
         ArrayUtil.copyArray(data, oldData, data.length);
 
-        return new Result(ResultConstants.UPDATECOUNT, 1);
+        return Result.updateOneResult;
     }
 
     // this fk references -> other  :  other read lock
@@ -293,9 +295,8 @@ public class StatementSet extends StatementDMQL {
                 return null;
             }
         } else {
-            values = new Object[1];
-            values[0] = expression.getValue(session,
-                                            variables[0].dataType);
+            values    = new Object[1];
+            values[0] = expression.getValue(session, variables[0].dataType);
         }
 
         return values;
@@ -320,10 +321,9 @@ public class StatementSet extends StatementDMQL {
             int colIndex = variableIndexes[j];
 
             data[colIndex] =
-                variables[j].dataType.convertToDefaultType(session,
-                    values[j]);
+                variables[j].dataType.convertToDefaultType(session, values[j]);
         }
 
-        return Result.newUpdateZeroResult();
+        return Result.updateZeroResult;
     }
 }

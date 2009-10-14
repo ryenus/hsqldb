@@ -201,6 +201,10 @@ public class View extends TableDerived {
         return queryExpression.getBaseTableColumnMap();
     }
 
+    public long getChangeTimestamp() {
+        return changeTimestamp;
+    }
+
     public int getCheckOption() {
         return check;
     }

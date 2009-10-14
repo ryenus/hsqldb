@@ -249,6 +249,10 @@ public class Routine implements SchemaObject {
         return sb.toString();
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     public void addParameter(ColumnSchema param) {
 
         HsqlName name = param.getName();

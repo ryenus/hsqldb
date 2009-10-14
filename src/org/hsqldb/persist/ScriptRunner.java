@@ -144,7 +144,7 @@ public class ScriptRunner {
                         scr.getCurrentTable().insertNoCheckFromLog(current,
                                 data);
                         current.endAction(
-                            new Result(ResultConstants.UPDATECOUNT, 1));
+                            Result.updateOneResult);
 
                         break;
                     }
@@ -156,7 +156,7 @@ public class ScriptRunner {
                         scr.getCurrentTable().deleteNoCheckFromLog(current,
                                 data);
                         current.endAction(
-                            new Result(ResultConstants.UPDATECOUNT, 1));
+                            Result.updateOneResult);
 
                         break;
                     }

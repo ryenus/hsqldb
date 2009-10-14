@@ -249,6 +249,10 @@ public class IndexAVL implements Index {
         return sb.toString();
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     // IndexInterface
     public RowIterator emptyIterator() {
         return emptyIterator;

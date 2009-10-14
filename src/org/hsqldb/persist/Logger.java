@@ -1088,7 +1088,8 @@ public class Logger {
             list.add(sb.toString());
             sb.setLength(0);
             sb.append("SET FILES ").append(Tokens.T_NIO);
-            sb.append(' ').append(Tokens.T_TRUE);
+            sb.append(' ').append(propNioDataFile ? Tokens.T_TRUE
+                                          : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
             sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');

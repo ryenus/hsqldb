@@ -186,9 +186,13 @@ public class StatementInsert extends StatementDML {
                                       insertExpression.nodes[0].nodes);
 
         table.insertRow(session, store, data);
-        table.fireTriggers(session, Trigger.INSERT_AFTER, null, data, null);
 
-        Result resultOut = new Result(ResultConstants.UPDATECOUNT, 1);
+        if (table.triggerList.length > 0) {
+            table.fireTriggers(session, Trigger.INSERT_AFTER, null, data,
+                               null);
+        }
+
+        Result resultOut = Result.updateOneResult;
 
         return resultOut;
     }

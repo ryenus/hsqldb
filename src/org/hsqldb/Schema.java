@@ -59,6 +59,7 @@ public final class Schema implements SchemaObject {
     HashMappedList  tableList;
     HashMappedList  sequenceList;
     Grantee         owner;
+    long            changeTimestamp;
 
     Schema(HsqlName name, Grantee owner) {
 
@@ -110,6 +111,10 @@ public final class Schema implements SchemaObject {
     }
 
     public void compile(Session session, SchemaObject parentObject) {}
+
+    public long getChangeTimestamp() {
+        return changeTimestamp;
+    }
 
     public String getSQL() {
 

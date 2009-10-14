@@ -86,6 +86,7 @@ public class TriggerDef implements Runnable, SchemaObject {
 
     // other variables
     HsqlName name;
+    long     changeTimestamp;
     String   actionTimingString;
     String   eventTimingString;
     int      operationPrivilegeType;
@@ -253,6 +254,10 @@ public class TriggerDef implements Runnable, SchemaObject {
                 false));
 
         return sb.toString();
+    }
+
+    public long getChangeTimestamp() {
+        return changeTimestamp;
     }
 
     public StringBuffer getSQLMain() {

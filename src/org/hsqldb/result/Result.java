@@ -96,6 +96,8 @@ public class Result {
         ResultMetaData.newResultMetaData(0);
     public static final Result emptyGeneratedResult =
         Result.newDataResult(emptyMeta);
+    public static final Result updateZeroResult = newUpdateCountResult(0);
+    public static final Result updateOneResult  = newUpdateCountResult(1);
 
     // type of result
     public byte mode;
@@ -135,7 +137,7 @@ public class Result {
     // update count (in)
     // fetch part result count (in)
     // time zone seconds (connect)
-    private int updateCount;
+    public int updateCount;
 
     // fetch size (in)
     private int fetchSize;
@@ -167,11 +169,11 @@ public class Result {
     //
     int generateKeys;
 
-    // simple value for PSM
-    Object valueData;
+    // simple value for PSM, or parameter array
+    public Object valueData;
 
     //
-    Statement statement;
+    public Statement statement;
 
     Result(int mode) {
         this.mode = (byte) mode;
@@ -200,11 +202,7 @@ public class Result {
 
             case ResultConstants.CALL_RESPONSE :
             case ResultConstants.EXECUTE :
-                navigator = new RowSetNavigatorClient(1);
-                break;
-
             case ResultConstants.UPDATE_RESULT :
-                navigator = new RowSetNavigatorClient(1);
                 break;
 
             case ResultConstants.BATCHEXECUTE :
@@ -463,8 +461,7 @@ public class Result {
                 result.rsConcurrency   = in.readShort();
                 result.rsHoldability   = in.readShort();
                 result.metaData        = new ResultMetaData(in);
-
-                result.navigator.readSimple(in, result.metaData);
+                result.valueData       = readSimple(in, result.metaData);
                 break;
 
             case ResultConstants.EXECUTE :
@@ -482,8 +479,7 @@ public class Result {
 
                 result.statement = statement;
                 result.metaData  = result.statement.getParametersMetaData();
-
-                result.navigator.readSimple(in, result.metaData);
+                result.valueData = readSimple(in, result.metaData);
                 break;
 
             case ResultConstants.UPDATE_RESULT : {
@@ -493,9 +489,8 @@ public class Result {
 
                 result.setActionType(type);
 
-                result.metaData = new ResultMetaData(in);
-
-                result.navigator.read(in, result.metaData);
+                result.metaData  = new ResultMetaData(in);
+                result.valueData = readSimple(in, result.metaData);
 
                 break;
             }
@@ -591,8 +586,7 @@ public class Result {
 
         result.metaData    = ResultMetaData.newSimpleResultMetaData(types);
         result.statementID = statementId;
-
-        result.navigator.add(ValuePool.emptyObjectArray);
+        result.valueData   = ValuePool.emptyObjectArray;
 
         return result;
     }
@@ -608,8 +602,7 @@ public class Result {
 
         result.metaData    = ResultMetaData.newSimpleResultMetaData(types);
         result.statementID = statementId;
-
-        result.navigator.add(values);
+        result.valueData   = values;
 
         return result;
     }
@@ -622,10 +615,9 @@ public class Result {
 
         Result result = newResult(ResultConstants.UPDATE_RESULT);
 
-        result.metaData = ResultMetaData.newUpdateResultMetaData(types);
-        result.id       = id;
-
-        result.navigator.add(new Object[]{});
+        result.metaData  = ResultMetaData.newUpdateResultMetaData(types);
+        result.id        = id;
+        result.valueData = new Object[]{};
 
         return result;
     }
@@ -635,13 +627,7 @@ public class Result {
      * The parameters are set by this method as the Result is reused
      */
     public void setPreparedResultUpdateProperties(Object[] parameterValues) {
-
-        if (navigator.getSize() == 1) {
-            ((RowSetNavigatorClient) navigator).setData(0, parameterValues);
-        } else {
-            navigator.clear();
-            navigator.add(parameterValues);
-        }
+        valueData = parameterValues;
     }
 
     /**
@@ -651,15 +637,8 @@ public class Result {
     public void setPreparedExecuteProperties(Object[] parameterValues,
             int maxRows, int fetchSize) {
 
-        mode = ResultConstants.EXECUTE;
-
-        if (navigator.getSize() == 1) {
-            ((RowSetNavigatorClient) navigator).setData(0, parameterValues);
-        } else {
-            navigator.clear();
-            navigator.add(parameterValues);
-        }
-
+        mode           = ResultConstants.EXECUTE;
+        valueData      = parameterValues;
         updateCount    = maxRows;
         this.fetchSize = fetchSize;
     }
@@ -671,7 +650,11 @@ public class Result {
 
         mode = ResultConstants.BATCHEXECUTE;
 
-        ((RowSetNavigatorClient) navigator).clear();
+        if (navigator == null) {
+            navigator = new RowSetNavigatorClient(4);
+        } else {
+            ((RowSetNavigatorClient) navigator).clear();
+        }
 
         updateCount    = 0;
         this.fetchSize = 0;
@@ -1199,7 +1182,7 @@ public class Result {
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
                 metaData.write(rowOut);
-                navigator.writeSimple(rowOut, metaData);
+                writeSimple(rowOut, metaData, (Object[]) valueData);
                 break;
 
             case ResultConstants.EXECUTE :
@@ -1210,14 +1193,14 @@ public class Result {
                 rowOut.writeShort(rsConcurrency);
                 rowOut.writeShort(rsHoldability);
                 rowOut.writeShort(queryTimeout);
-                navigator.writeSimple(rowOut, metaData);
+                writeSimple(rowOut, metaData, (Object[]) valueData);
                 break;
 
             case ResultConstants.UPDATE_RESULT :
                 rowOut.writeLong(id);
                 rowOut.writeInt(getActionType());
                 metaData.write(rowOut);
-                navigator.write(rowOut, metaData);
+                writeSimple(rowOut, metaData, (Object[]) valueData);
                 break;
 
             case ResultConstants.BATCHEXECRESPONSE :
@@ -1481,7 +1464,7 @@ public class Result {
     }
 
     public Object[] getParameterData() {
-        return ((RowSetNavigatorClient) navigator).getData(0);
+        return (Object[]) valueData;
     }
 
     public Object[] getSessionAttributes() {
@@ -1567,8 +1550,26 @@ public class Result {
         lobCount   = 0;
     }
 
+    private static Object[] readSimple(RowInputBinary in,
+                                       ResultMetaData meta)
+                                       throws IOException {
+
+        int size = in.readInt();
+
+        return in.readData(meta.columnTypes);
+    }
+
+    private static void writeSimple(RowOutputInterface out,
+                                    ResultMetaData meta,
+                                    Object[] data) throws IOException {
+
+        out.writeInt(1);
+        out.writeData(meta.getColumnCount(), meta.columnTypes, data, null,
+                      null);
+    }
+
 //----------- Navigation
-    RowSetNavigator navigator;
+    public RowSetNavigator navigator;
 
     public RowSetNavigator getNavigator() {
         return navigator;
@@ -1585,8 +1586,6 @@ public class Result {
             case ResultConstants.BATCHEXECUTE :
             case ResultConstants.BATCHEXECDIRECT :
             case ResultConstants.BATCHEXECRESPONSE :
-            case ResultConstants.EXECUTE :
-            case ResultConstants.UPDATE_RESULT :
             case ResultConstants.SETSESSIONATTR :
             case ResultConstants.PARAM_METADATA :
                 navigator.beforeFirst();

@@ -293,4 +293,8 @@ public class Collation implements SchemaObject {
     public String getSQL() {
         return "";
     }
+
+    public long getChangeTimestamp() {
+        return 0;
+    }
 }

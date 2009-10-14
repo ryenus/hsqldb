@@ -339,7 +339,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           true));
         dbMeta.put(hsqldb_write_delay_millis,
                    HsqlProperties.getMeta(hsqldb_write_delay_millis, SQL_PROPERTY,
-                                          2000, 10, 10000));
+                                          2000, 20, 10000));
 
         // integral defaults for user-defined set props
         dbMeta.put(hsqldb_applog,

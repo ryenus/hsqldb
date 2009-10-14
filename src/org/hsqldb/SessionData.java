@@ -538,26 +538,36 @@ public class SessionData {
 
         RowSetNavigator navigator = result.getNavigator();
 
-        while (navigator.next()) {
-            Object[] data = navigator.getCurrent();
+        if (navigator == null) {
+            registerLobsForRow((Object[]) result.valueData);
+        } else {
+            while (navigator.next()) {
+                Object[] data = navigator.getCurrent();
 
-            for (int i = 0; i < data.length; i++) {
-                if (data[i] instanceof BlobData) {
-                    BlobData blob = (BlobData) data[i];
-                    long     id   = resultLobs.get(blob.getId());
-
-                    data[i] = database.lobManager.getBlob(session, id);
-                } else if (data[i] instanceof ClobData) {
-                    ClobData clob = (ClobData) data[i];
-                    long     id   = resultLobs.get(clob.getId());
-
-                    data[i] = database.lobManager.getClob(session, id);
-                }
+                registerLobsForRow(data);
             }
+
+            navigator.reset();
         }
 
         resultLobs.clear();
-        navigator.reset();
+    }
+
+    private void registerLobsForRow(Object[] data) {
+
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] instanceof BlobData) {
+                BlobData blob = (BlobData) data[i];
+                long     id   = resultLobs.get(blob.getId());
+
+                data[i] = database.lobManager.getBlob(session, id);
+            } else if (data[i] instanceof ClobData) {
+                ClobData clob = (ClobData) data[i];
+                long     id   = resultLobs.get(clob.getId());
+
+                data[i] = database.lobManager.getClob(session, id);
+            }
+        }
     }
 
     //

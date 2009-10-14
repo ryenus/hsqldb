@@ -129,6 +129,7 @@ public class Table extends TableBase implements SchemaObject {
 
     // main properties
     protected HsqlName tableName;
+    protected long     changeTimestamp;
 
     //
     public HashMappedList columnList;          // columns in table
@@ -148,6 +149,7 @@ public class Table extends TableBase implements SchemaObject {
     boolean[]       colGenerated;              // fredt - expressions of DEFAULT values
     private boolean hasGeneratedValues;        //fredt - shortcut for above
     private boolean hasDomainColumns;          //fredt - shortcut
+    private boolean hasNotNullColumns;         //fredt - shortcut
     protected int[] defaultColumnMap;          // fred - holding 0,1,2,3,...
     RangeVariable[] defaultRanges;
 
@@ -356,98 +358,6 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    public boolean isConnected() {
-        return true;
-    }
-
-    String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
-
-        for (int i = 0; i < constraintList.length; i++) {
-            Constraint c = constraintList[i];
-
-            if (c.isForward) {
-                unresolved.add(c);
-            } else if (c.getConstraintType() == SchemaObject.ConstraintTypes
-                    .UNIQUE || c.getConstraintType() == SchemaObject
-                    .ConstraintTypes.PRIMARY_KEY) {
-                resolved.add(c.getName());
-            }
-        }
-
-        HsqlArrayList list = new HsqlArrayList();
-
-        list.add(getSQL());
-
-        if (!isTemp && !isText && hasIdentityColumn()) {
-            list.add(NumberSequence.getRestartSQL(this));
-        }
-
-        for (int i = 0; i < indexList.length; i++) {
-            if (!indexList[i].isConstraint()) {
-                list.add(indexList[i].getSQL());
-            }
-        }
-
-        String[] array = new String[list.size()];
-
-        list.toArray(array);
-
-        return array;
-    }
-
-    String[] getSQLForTextSource(boolean withHeader) {
-
-        // readonly for TEXT tables only
-        if (isText()) {
-            HsqlArrayList list     = new HsqlArrayList();
-            boolean       readonly = isDataReadOnly();
-
-            if (readonly) {
-                StringBuffer sb = new StringBuffer(64);
-
-                sb.append(Tokens.T_SET).append(' ').append(
-                    Tokens.T_TABLE).append(' ');
-                sb.append(getName().getSchemaQualifiedStatementName());
-                sb.append(' ').append(Tokens.T_READ).append(' ');
-                sb.append(Tokens.T_ONLY);
-                list.add(sb.toString());
-            }
-
-            // data source
-            String dataSource = ((TextTable) this).getDataSourceDDL();
-
-            if (dataSource != null) {
-                list.add(dataSource);
-            }
-
-            // header
-            String header = ((TextTable) this).getDataSourceHeader();
-
-            if (withHeader && header != null && !readonly) {
-                list.add(header);
-            }
-
-            String[] array = new String[list.size()];
-
-            list.toArray(array);
-
-            return array;
-        } else {
-            return null;
-        }
-    }
-
-    String[] getTriggerSQL() {
-
-        String[] array = new String[triggerList.length];
-
-        for (int i = 0; i < triggerList.length; i++) {
-            array[i] = triggerList[i].getSQL();
-        }
-
-        return array;
-    }
-
     public String getSQL() {
 
         StringBuffer sb = new StringBuffer();
@@ -547,6 +457,102 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         return sb.toString();
+    }
+
+    public long getChangeTimestamp() {
+        return changeTimestamp;
+    }
+
+    public boolean isConnected() {
+        return true;
+    }
+
+    String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
+
+        for (int i = 0; i < constraintList.length; i++) {
+            Constraint c = constraintList[i];
+
+            if (c.isForward) {
+                unresolved.add(c);
+            } else if (c.getConstraintType() == SchemaObject.ConstraintTypes
+                    .UNIQUE || c.getConstraintType() == SchemaObject
+                    .ConstraintTypes.PRIMARY_KEY) {
+                resolved.add(c.getName());
+            }
+        }
+
+        HsqlArrayList list = new HsqlArrayList();
+
+        list.add(getSQL());
+
+        if (!isTemp && !isText && hasIdentityColumn()) {
+            list.add(NumberSequence.getRestartSQL(this));
+        }
+
+        for (int i = 0; i < indexList.length; i++) {
+            if (!indexList[i].isConstraint()) {
+                list.add(indexList[i].getSQL());
+            }
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
+    String[] getSQLForTextSource(boolean withHeader) {
+
+        // readonly for TEXT tables only
+        if (isText()) {
+            HsqlArrayList list     = new HsqlArrayList();
+            boolean       readonly = isDataReadOnly();
+
+            if (readonly) {
+                StringBuffer sb = new StringBuffer(64);
+
+                sb.append(Tokens.T_SET).append(' ').append(
+                    Tokens.T_TABLE).append(' ');
+                sb.append(getName().getSchemaQualifiedStatementName());
+                sb.append(' ').append(Tokens.T_READ).append(' ');
+                sb.append(Tokens.T_ONLY);
+                list.add(sb.toString());
+            }
+
+            // data source
+            String dataSource = ((TextTable) this).getDataSourceDDL();
+
+            if (dataSource != null) {
+                list.add(dataSource);
+            }
+
+            // header
+            String header = ((TextTable) this).getDataSourceHeader();
+
+            if (withHeader && header != null && !readonly) {
+                list.add(header);
+            }
+
+            String[] array = new String[list.size()];
+
+            list.toArray(array);
+
+            return array;
+        } else {
+            return null;
+        }
+    }
+
+    String[] getTriggerSQL() {
+
+        String[] array = new String[triggerList.length];
+
+        for (int i = 0; i < triggerList.length; i++) {
+            array[i] = triggerList[i].getSQL();
+        }
+
+        return array;
     }
 
     public String getIndexRootsSQL(int[] roots) {
@@ -1394,6 +1400,12 @@ public class Table extends TableBase implements SchemaObject {
 
         for (int i = 0; i < colGenerated.length; i++) {
             hasGeneratedValues |= colGenerated[i];
+        }
+
+        hasNotNullColumns = false;
+
+        for (int i = 0; i < colNotNull.length; i++) {
+            hasNotNullColumns |= colNotNull[i];
         }
     }
 
@@ -2327,15 +2339,25 @@ public class Table extends TableBase implements SchemaObject {
      */
     void insertRow(Session session, PersistentStore store, Object[] data) {
 
-        setIdentityColumn(session, data);
-        fireTriggers(session, Trigger.INSERT_BEFORE_ROW, null, data, null);
-        setGeneratedColumns(session, data);
+        if (identityColumn != -1) {
+            setIdentityColumn(session, data);
+        }
+
+        if (triggerList.length > 0) {
+            fireTriggers(session, Trigger.INSERT_BEFORE_ROW, null, data, null);
+        }
+
+        if (hasGeneratedValues) {
+            setGeneratedColumns(session, data);
+        }
 
         if (isView) {
             return;
         }
 
-        enforceRowConstraints(session, data);
+        if (hasDomainColumns || hasNotNullColumns) {
+            enforceRowConstraints(session, data);
+        }
 
         if (database.isReferentialIntegrity()) {
             for (int i = 0, size = fkConstraints.length; i < size; i++) {
@@ -2348,7 +2370,10 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         insertNoCheck(session, store, data);
-        fireTriggers(session, Trigger.INSERT_AFTER_ROW, null, data, null);
+
+        if (triggerList.length > 0) {
+            fireTriggers(session, Trigger.INSERT_AFTER_ROW, null, data, null);
+        }
     }
 
     /**
@@ -2546,7 +2571,9 @@ public class Table extends TableBase implements SchemaObject {
 
         Object[] data = row.getData();
 
-        fireTriggers(session, Trigger.DELETE_BEFORE_ROW, data, null, null);
+        if (triggerList.length > 0) {
+            fireTriggers(session, Trigger.DELETE_BEFORE_ROW, data, null, null);
+        }
 
         if (isView) {
             return;

@@ -131,6 +131,10 @@ public class Charset implements SchemaObject {
         return sb.toString();
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     public static boolean isInSet(String value, int[][] ranges) {
 
         int length = value.length();

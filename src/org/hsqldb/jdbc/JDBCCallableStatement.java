@@ -33,6 +33,7 @@ package org.hsqldb.jdbc;
 
 import java.io.Reader;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
@@ -4197,7 +4198,22 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         checkGetParameterIndex(parameterIndex);
 
-        throw Util.notSupported();
+        Type   sourceType = resultMetaData.columnTypes[parameterIndex - 1];
+        Object o          = getColumnInType(parameterIndex, sourceType);
+
+        if (o == null) {
+            return null;
+        }
+
+        if (o instanceof ClobDataID) {
+            return ((ClobDataID) o).getCharacterStream(session);
+        } else if (o instanceof Clob) {
+            return ((Clob) o).getCharacterStream();
+        } else if (o instanceof String) {
+            return new StringReader((String) o);
+        }
+
+        throw Util.sqlException(ErrorCode.X_42561);
     }
 
 //#endif JAVA6
