@@ -504,7 +504,7 @@ public interface ErrorCode {
     int X_42511 = 5511;                                   // invalid property name
 
     // generated columns
-    int X_42512 = 5512;                                   // generating expression reference not allowed
+    int X_42512 = 5512;                                   // invalid expression in CHECK or GENERATED clause
     int X_42513 = 5513;                                   // assignment to generated column
 
     // constraint defintition issues

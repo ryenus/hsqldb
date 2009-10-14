@@ -246,7 +246,6 @@ public class FunctionSQL extends Expression {
             function.dataType = context.currentDomain;
         } else {
             function.isSQLValueFunction = isValueFunction;
-            function.isDeterministic = !isValueFunction;
         }
 
         return function;
@@ -263,7 +262,8 @@ public class FunctionSQL extends Expression {
 
         this();
 
-        this.funcType = id;
+        this.funcType   = id;
+        isDeterministic = !nonDeterministicFuncSet.contains(id);
 
         switch (id) {
 
@@ -1862,6 +1862,7 @@ public class FunctionSQL extends Expression {
     public boolean isDeterministic() {
         return isDeterministic;
     }
+
     public boolean isValueFunction() {
         return isSQLValueFunction;
     }

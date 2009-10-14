@@ -35,6 +35,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.Set;
 import org.hsqldb.result.Result;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
@@ -192,11 +193,19 @@ public class FunctionSQLInvoked extends Expression {
         return returnValue;
     }
 
+    void collectObjectNames(Set set) {
+        set.add(routine.getName());
+    }
+
     public String getSQL() {
         return Tokens.T_FUNCTION;
     }
 
     public String describe(Session session) {
         return super.describe(session);
+    }
+
+    public boolean isDeterministic() {
+        return routine.isDeterministic();
     }
 }

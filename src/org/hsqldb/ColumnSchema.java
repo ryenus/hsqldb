@@ -129,8 +129,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
             return;
         }
 
-        Expression.resolveGenerationExpression(session, (Table) table,
-                                               generatingExpression);
+        generatingExpression.resolveCheckOrGenExpression(session,
+                ((Table) table).defaultRanges, false);
 
         if (dataType.typeComparisonGroup
                 != generatingExpression.getDataType().typeComparisonGroup) {

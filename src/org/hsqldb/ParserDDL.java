@@ -2546,7 +2546,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         if (isGenerated) {
-            readThis(Tokens.CLOSEBRACKET);
+            readThis(Tokens.OPENBRACKET);
 
             generateExpr = XreadValueExpression();
 
