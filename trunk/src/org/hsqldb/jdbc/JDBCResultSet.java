@@ -990,10 +990,26 @@ public class JDBCResultSet implements ResultSet {
     public java.io.InputStream getBinaryStream(
             int columnIndex) throws SQLException {
 
-        byte[] b = getBytes(columnIndex);
+        checkColumn(columnIndex);
 
-        return wasNull() ? null
-                         : new ByteArrayInputStream(b);
+        Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+        Object o          = getColumnInType(columnIndex, sourceType);
+
+        if (o == null) {
+            return null;
+        }
+
+        if (o instanceof BlobDataID) {
+            return ((BlobDataID) o).getBinaryStream(session);
+        } else if (o instanceof Blob) {
+            return ((Blob) o).getBinaryStream();
+        } else if (o instanceof BinaryData) {
+            byte[] b = getBytes(columnIndex);
+
+            return new ByteArrayInputStream(b);
+        }
+
+        throw Util.sqlException(ErrorCode.X_42561);
     }
 
     //======================================================================
@@ -1842,13 +1858,24 @@ public class JDBCResultSet implements ResultSet {
     public java.io.Reader getCharacterStream(
             int columnIndex) throws SQLException {
 
-        String s = getString(columnIndex);
+        checkColumn(columnIndex);
 
-        if (s == null) {
+        Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+        Object o          = getColumnInType(columnIndex, sourceType);
+
+        if (o == null) {
             return null;
         }
 
-        return new StringReader(s);
+        if (o instanceof ClobDataID) {
+            return ((ClobDataID) o).getCharacterStream(session);
+        } else if (o instanceof Clob) {
+            return ((Clob) o).getCharacterStream();
+        } else if (o instanceof String) {
+            return new StringReader((String) o);
+        }
+
+        throw Util.sqlException(ErrorCode.X_42561);
     }
 
     /**
@@ -1896,6 +1923,8 @@ public class JDBCResultSet implements ResultSet {
      *    JDBCResultSet)
      */
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
+
+        checkColumn(columnIndex);
 
         Type targetType = resultMetaData.columnTypes[columnIndex - 1];
 
@@ -4307,6 +4336,8 @@ public class JDBCResultSet implements ResultSet {
      */
     public Blob getBlob(int columnIndex) throws SQLException {
 
+        checkColumn(columnIndex);
+
         Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
         Object o          = getColumnInType(columnIndex, sourceType);
 
@@ -4356,6 +4387,8 @@ public class JDBCResultSet implements ResultSet {
      * @since JDK 1.2
      */
     public Clob getClob(int columnIndex) throws SQLException {
+
+        checkColumn(columnIndex);
 
         Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
         Object o          = getColumnInType(columnIndex, sourceType);

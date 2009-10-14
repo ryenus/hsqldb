@@ -80,6 +80,10 @@ public class User extends Grantee {
         return sb.toString();
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     public void setPassword(String password) {
 
         /** @todo - introduce complexity interface */

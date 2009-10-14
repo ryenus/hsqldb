@@ -287,7 +287,7 @@ public class ParserDQL extends ParserBase {
                 length = BlobType.defaultBlobSize;
             } else if (database.sqlEnforceSize) {
 
-                // BIT is always BIT(1), regardless of sqlEnforceStringSize
+                // BIT is always BIT(1), regardless of sqlEnforceSize
                 if (typeNumber == Types.SQL_CHAR
                         || typeNumber == Types.SQL_BINARY) {
                     length = 1;
@@ -342,8 +342,10 @@ public class ParserDQL extends ParserBase {
                 break;
             }
             case Types.SQL_CHAR :
-            case Types.SQL_VARCHAR :
             case Types.SQL_BINARY :
+	            break;
+
+            case Types.SQL_VARCHAR :
             case Types.SQL_VARBINARY :
                 if (!hasLength) {
                     length = 32 * 1024;
@@ -352,7 +354,7 @@ public class ParserDQL extends ParserBase {
 
             case Types.SQL_DECIMAL :
             case Types.SQL_NUMERIC :
-                if (!hasLength && !hasScale) {
+                if (!hasLength && !hasScale && !database.sqlEnforceSize) {
                     length = NumberType.defaultNumericPrecision;
                     scale  = NumberType.defaultNumericScale;
                 }

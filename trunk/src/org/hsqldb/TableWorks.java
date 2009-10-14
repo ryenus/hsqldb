@@ -101,7 +101,7 @@ public class TableWorks {
                 || c.core.deleteAction
                    == SchemaObject.ReferentialAction.SET_NULL;
 
-        if (check) {
+        if (check && !session.isProcessingScript) {
             for (int i = 0; i < c.core.refCols.length; i++) {
                 ColumnSchema col = table.getColumn(c.core.refCols[i]);
 

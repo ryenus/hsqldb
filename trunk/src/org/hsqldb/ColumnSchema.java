@@ -167,6 +167,10 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         return sb.toString();
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     public void setType(Type type) {
         this.dataType = type;
     }

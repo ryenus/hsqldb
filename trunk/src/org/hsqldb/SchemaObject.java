@@ -90,6 +90,8 @@ public interface SchemaObject {
 
     String getSQL();
 
+    long getChangeTimestamp();
+
     interface ConstraintTypes {
 
         int FOREIGN_KEY = 0;

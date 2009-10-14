@@ -159,6 +159,10 @@ public abstract class Type implements SchemaObject, Cloneable {
         return userTypeModifier.getSQL();
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     public Type duplicate() {
 
         try {

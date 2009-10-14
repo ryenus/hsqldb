@@ -190,13 +190,15 @@ public abstract class StatementDMQL extends Statement {
             return Result.newErrorResult(e);
         }
 
-        if (this.isExplain) {
+        if (isExplain) {
             return Result.newSingleColumnStringResult("OPERATION",
                     describe(session));
         }
 
         try {
-            materializeSubQueries(session);
+            if (subqueries.length > 0) {
+                materializeSubQueries(session);
+            }
 
             result = getResult(session);
         } catch (Throwable t) {
@@ -336,10 +338,6 @@ public abstract class StatementDMQL extends Statement {
     }
 
     void materializeSubQueries(Session session) {
-
-        if (subqueries.length == 0) {
-            return;
-        }
 
         HashSet subqueryPopFlags = new HashSet();
 

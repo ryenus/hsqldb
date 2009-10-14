@@ -178,6 +178,10 @@ public class Grantee implements SchemaObject {
         return sb.toString();
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     public String getNameString() {
         return granteeName.name;
     }

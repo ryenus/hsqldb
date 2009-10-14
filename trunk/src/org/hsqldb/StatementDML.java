@@ -311,6 +311,10 @@ public class StatementDML extends StatementDMQL {
 
         baseTable.fireTriggers(session, Trigger.UPDATE_AFTER, rowset);
 
+        if (count == 1) {
+            return Result.updateOneResult;
+        }
+
         return new Result(ResultConstants.UPDATECOUNT, count);
     }
 
@@ -505,6 +509,10 @@ public class StatementDML extends StatementDMQL {
         }
 
         if (resultOut == null) {
+            if (count == 1) {
+                return Result.updateOneResult;
+            }
+
             return new Result(ResultConstants.UPDATECOUNT, count);
         } else {
             resultOut.setUpdateCount(count);
@@ -555,8 +563,12 @@ public class StatementDML extends StatementDMQL {
              * creation of a new identity value
              */
             table.setIdentityColumn(session, data);
-            table.fireTriggers(session, Trigger.UPDATE_BEFORE_ROW,
-                               row.getData(), data, updateColumnMap);
+
+            if (table.triggerList.length > 0) {
+                table.fireTriggers(session, Trigger.UPDATE_BEFORE_ROW,
+                                   row.getData(), data, updateColumnMap);
+            }
+
             table.setGeneratedColumns(session, data);
             table.enforceRowConstraints(session, data);
         }
@@ -635,6 +647,10 @@ public class StatementDML extends StatementDMQL {
 
         if (restartIdentity && targetTable.identitySequence != null) {
             targetTable.identitySequence.reset();
+        }
+
+        if (count == 1) {
+            return Result.updateOneResult;
         }
 
         return new Result(ResultConstants.UPDATECOUNT, count);
@@ -919,7 +935,7 @@ public class StatementDML extends StatementDMQL {
             Expression e        = rowArgs[i];
             int        colIndex = insertColumnMap[i];
 
-            if (e.getType() == OpTypes.DEFAULT) {
+            if (e.opType == OpTypes.DEFAULT) {
                 if (baseTable.identityColumn == colIndex) {
                     continue;
                 }
@@ -934,7 +950,14 @@ public class StatementDML extends StatementDMQL {
                 continue;
             }
 
-            data[colIndex] = e.getValue(session, colTypes[colIndex]);
+            Object value = e.getValue(session);
+            Type   type  = colTypes[colIndex];
+
+            if (colTypes[colIndex] != e.dataType) {
+                value = type.convertToType(session, value, e.dataType);
+            }
+
+            data[colIndex] = value;
         }
 
         return data;

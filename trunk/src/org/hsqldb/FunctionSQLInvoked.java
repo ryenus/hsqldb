@@ -161,7 +161,7 @@ public class FunctionSQLInvoked extends Expression {
                             returnValue);
                 }
 
-                result = Result.newUpdateZeroResult();
+                result = Result.updateZeroResult;
             } catch (InvocationTargetException e) {
                 result = Result.newErrorResult(
                     Error.error(ErrorCode.X_46000, routine.getName().name),

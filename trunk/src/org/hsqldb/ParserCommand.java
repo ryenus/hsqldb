@@ -84,6 +84,10 @@ public class ParserCommand extends ParserDDL {
 
             cs = compilePart();
 
+            if (cs.getParametersMetaData().getColumnCount() > 0) {
+                throw Error.error(ErrorCode.X_42575);
+            }
+
             list.add(cs);
         }
 

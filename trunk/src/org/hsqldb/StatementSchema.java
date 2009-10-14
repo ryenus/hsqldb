@@ -480,7 +480,7 @@ public class StatementSchema extends Statement {
                             if (!session.database.schemaManager.schemaExists(
                                     name.name)) {
                                 if (ifExists) {
-                                    return Result.newUpdateZeroResult();
+                                    return Result.updateZeroResult;
                                 }
                             }
                             break;
@@ -493,7 +493,7 @@ public class StatementSchema extends Statement {
                                 if (!session.database.schemaManager
                                         .schemaExists(name.schema.name)) {
                                     if (ifExists) {
-                                        return Result.newUpdateZeroResult();
+                                        return Result.updateZeroResult;
                                     }
                                 }
                             }
@@ -511,7 +511,7 @@ public class StatementSchema extends Statement {
 
                             if (object == null) {
                                 if (ifExists) {
-                                    return Result.newUpdateZeroResult();
+                                    return Result.updateZeroResult;
                                 }
 
                                 throw Error.error(ErrorCode.X_42501,
@@ -702,7 +702,7 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.CREATE_ASSERTION : {
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
             }
             case StatementTypes.CREATE_CHARACTER_SET : {
                 Charset charset = (Charset) arguments[0];
@@ -718,7 +718,7 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.CREATE_COLLATION : {
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
             }
             case StatementTypes.CREATE_ROLE : {
                 try {
@@ -885,7 +885,7 @@ public class StatementSchema extends Statement {
                         table.insertIntoTable(session, result);
                     }
 
-                    return Result.newUpdateZeroResult();
+                    return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     session.database.schemaManager.removeExportedKeys(table);
                     session.database.schemaManager.removeDependentObjects(
@@ -895,10 +895,10 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.CREATE_TRANSFORM :
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
 
             case StatementTypes.CREATE_TRANSLATION :
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
 
             case StatementTypes.CREATE_TRIGGER : {
                 TriggerDef trigger   = (TriggerDef) arguments[0];
@@ -927,7 +927,7 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.CREATE_CAST :
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
 
             case StatementTypes.CREATE_TYPE : {
                 Type type = (Type) arguments[0];
@@ -942,7 +942,7 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.CREATE_ORDERING :
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
 
             case StatementTypes.CREATE_VIEW : {
                 try {
@@ -966,7 +966,7 @@ public class StatementSchema extends Statement {
                     session.database.schemaManager.addSchemaObject(view);
                     session.database.logger.writeToLog(session, sql);
 
-                    return Result.newUpdateZeroResult();
+                    return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
@@ -1011,7 +1011,7 @@ public class StatementSchema extends Statement {
                                          "CompiledStateemntSchema");
         }
 
-        return Result.newUpdateZeroResult();
+        return Result.updateZeroResult;
     }
 
     private void dropType(Session session, HsqlName name, boolean cascade) {

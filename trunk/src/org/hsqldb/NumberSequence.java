@@ -226,6 +226,10 @@ public final class NumberSequence implements SchemaObject {
         return sb.toString();
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     public String getRestartSQL() {
 
         StringBuffer sb = new StringBuffer(128);

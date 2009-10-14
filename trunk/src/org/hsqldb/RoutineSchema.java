@@ -105,6 +105,10 @@ public class RoutineSchema implements SchemaObject {
         return null;
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     public String[] getSQLArray() {
 
         HsqlArrayList list = new HsqlArrayList();

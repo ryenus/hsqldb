@@ -275,7 +275,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized ResultSet executeQuery() throws SQLException {
 
-        checkStatementType(StatementTypes.RETURN_RESULT);
+        if (statementRetType != StatementTypes.RETURN_RESULT) {
+            checkStatementType(StatementTypes.RETURN_RESULT);
+        }
+
         fetchResult();
 
         return getResultSet();
@@ -299,7 +302,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized int executeUpdate() throws SQLException {
 
-        checkStatementType(StatementTypes.RETURN_COUNT);
+        if (statementRetType != StatementTypes.RETURN_COUNT) {
+            checkStatementType(StatementTypes.RETURN_COUNT);
+        }
+
         fetchResult();
 
         return resultIn.getUpdateCount();
@@ -3825,31 +3831,33 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     protected void checkSetParameterIndex(int i,
             boolean isStream) throws SQLException {
 
-        String msg;
-
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
 
         if (i < 1 || i > parameterValues.length) {
-            msg = "parameter index out of range: " + i;
+            String msg = "parameter index out of range: " + i;
 
             throw Util.outOfRangeArgument(msg);
         }
 
-        if (isStream) {
-            parameterStream[i - 1] = true;
-            parameterSet[i - 1]    = false;
-        } else {
-            parameterStream[i - 1] = false;
-            parameterSet[i - 1]    = true;
-        }
+        i--;
 
-        if (parameterModes[i - 1] == SchemaObject.ParameterModes.PARAM_OUT) {
-            msg = "Not IN or INOUT mode for parameter: " + i;
+        if (parameterModes[i] == SchemaObject.ParameterModes.PARAM_OUT) {
+            i++;
+            String msg = "Not IN or INOUT mode for parameter: " + i;
 
             throw Util.invalidArgument(msg);
         }
+
+        if (isStream) {
+            parameterStream[i] = true;
+            parameterSet[i]    = false;
+        } else {
+            parameterStream[i] = false;
+            parameterSet[i]    = true;
+        }
+
     }
 
     /**

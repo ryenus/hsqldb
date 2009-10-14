@@ -1550,11 +1550,6 @@ public class Server implements HsqlSocketRequestHandler {
             }
             case ResultConstants.EXECUTE : {
                 sb.append("SQLCLI:SQLEXECUTE:");
-
-                if (r.getNavigator().getSize() > 1) {
-                    sb.append("BATCHMODE:");
-                }
-
                 sb.append(r.getStatementID());
 
 /**
@@ -1568,6 +1563,12 @@ public class Server implements HsqlSocketRequestHandler {
 */
                 break;
             }
+            case ResultConstants.BATCHEXECUTE :
+                sb.append("SQLCLI:SQLEXECUTE:");
+                sb.append("BATCHMODE:");
+                sb.append(r.getStatementID());
+                break;
+
             case ResultConstants.UPDATE_RESULT : {
                 sb.append("SQLCLI:RESULTUPDATE:");
                 sb.append(r.getStatementID());

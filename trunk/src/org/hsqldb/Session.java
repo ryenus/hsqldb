@@ -450,8 +450,6 @@ public class Session implements SessionInterface {
         actionIndex = rowActionList.size();
 
         database.txManager.beginAction(this, cs);
-
-//        tempActionHistory.add("beginAction ends " + actionTimestamp);
     }
 
     public void endAction(Result result) {
@@ -831,9 +829,6 @@ public class Session implements SessionInterface {
      */
     public synchronized Result execute(Result cmd) {
 
-        int type    = cmd.getType();
-        int maxRows = cmd.getUpdateCount();
-
         if (isClosed) {
             return Result.newErrorResult(Error.error(ErrorCode.X_08503));
         }
@@ -842,24 +837,27 @@ public class Session implements SessionInterface {
 
         JavaSystem.gc();
 
-        switch (type) {
+        switch (cmd.mode) {
 
             case ResultConstants.LARGE_OBJECT_OP : {
                 return performLOBOperation((ResultLob) cmd);
             }
             case ResultConstants.EXECUTE : {
+                int maxRows = cmd.updateCount;
+
                 if (maxRows == -1) {
                     currentMaxRows = 0;
                 } else if (sessionMaxRows == 0) {
                     currentMaxRows = maxRows;
                 }
 
-                Statement cs = cmd.getStatement();
+                Statement cs = cmd.statement;
 
                 if (cs.compileTimestamp
                         < database.schemaManager.schemaChangeTimestamp) {
                     long csid = cmd.getStatementID();
 
+                    // todo - use compileTimestamp with schema object changeTimestamp to invalidate
                     cs = statementManager.getStatement(this, csid);
 
                     if (cs == null) {
@@ -870,7 +868,7 @@ public class Session implements SessionInterface {
                     }
                 }
 
-                Object[] pvals  = cmd.getParameterData();
+                Object[] pvals  = (Object[]) cmd.valueData;
                 Result   result = executeCompiledStatement(cs, pvals);
 
                 result = performPostExecute(cmd, result);
@@ -931,7 +929,7 @@ public class Session implements SessionInterface {
             case ResultConstants.CLOSE_RESULT : {
                 closeNavigator(cmd.getResultId());
 
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
             }
             case ResultConstants.UPDATE_RESULT : {
                 Result result = this.executeResultUpdate(cmd);
@@ -943,7 +941,7 @@ public class Session implements SessionInterface {
             case ResultConstants.FREESTMT : {
                 statementManager.freeStatement(cmd.getStatementID());
 
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
             }
             case ResultConstants.GETSESSIONATTR : {
                 int id = cmd.getStatementType();
@@ -999,7 +997,7 @@ public class Session implements SessionInterface {
                         break;
                 }
 
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
             }
             case ResultConstants.SETCONNECTATTR : {
                 switch (cmd.getConnectionAttrType()) {
@@ -1016,7 +1014,7 @@ public class Session implements SessionInterface {
                     // default: throw - case never happens
                 }
 
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
             }
             case ResultConstants.REQUESTDATA : {
                 return sessionData.getDataResultSlice(cmd.getResultId(),
@@ -1026,7 +1024,7 @@ public class Session implements SessionInterface {
             case ResultConstants.DISCONNECT : {
                 close();
 
-                return Result.newUpdateZeroResult();
+                return Result.updateZeroResult;
             }
             default : {
                 return Result.newErrorResult(
@@ -1037,11 +1035,16 @@ public class Session implements SessionInterface {
 
     private Result performPostExecute(Result command, Result result) {
 
-        if (result.isData()) {
+        if (result.mode == ResultConstants.DATA) {
             result = sessionData.getDataResultHead(command, result, isNetwork);
         }
 
         if (sqlWarnings != null && sqlWarnings.size() > 0) {
+            if (result.mode == ResultConstants.UPDATECOUNT) {
+                result = new Result(ResultConstants.UPDATECOUNT,
+                                    result.updateCount);
+            }
+
             HsqlException[] warnings = getAndClearWarnings();
 
             result.addWarnings(warnings);
@@ -1146,7 +1149,9 @@ public class Session implements SessionInterface {
         }
 
         while (true) {
-            beginAction(cs);
+            actionIndex = rowActionList.size();
+
+            database.txManager.beginAction(this, cs);
 
             if (abortTransaction) {
                 rollback(false);
@@ -1379,7 +1384,7 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(Error.error(ErrorCode.X_24501));
         }
 
-        Object[]        pvals     = cmd.getParameterData();
+        Object[]        pvals     = (Object[]) cmd.valueData;
         Type[]          types     = cmd.metaData.columnTypes;
         StatementQuery  statement = (StatementQuery) result.getStatement();
         QueryExpression qe        = statement.queryExpression;
@@ -1606,7 +1611,7 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(e);
         }
 
-        return Result.newUpdateZeroResult();
+        return Result.updateZeroResult;
     }
 
     public synchronized Object getAttribute(int id) {

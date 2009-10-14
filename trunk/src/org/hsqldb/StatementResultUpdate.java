@@ -131,7 +131,7 @@ public class StatementResultUpdate extends StatementDML {
             }
         }
 
-        return new Result(ResultConstants.UPDATECOUNT, 1);
+        return Result.updateOneResult;
     }
 
     Row getRow(Session session, Object[] args) {

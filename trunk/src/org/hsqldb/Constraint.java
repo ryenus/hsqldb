@@ -335,6 +335,10 @@ public final class Constraint implements SchemaObject {
         return sb.toString();
     }
 
+    public long getChangeTimestamp() {
+        return 0;
+    }
+
     /**
      * Generates the foreign key declaration for a given Constraint object.
      */
