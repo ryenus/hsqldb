@@ -124,6 +124,14 @@ public class Expression {
         subqueryAggregateExpressionSet.add(OpTypes.ROW_SUBQUERY);
     }
 
+    static final OrderedIntHashSet functionExpressionSet =
+        new OrderedIntHashSet();
+
+    static {
+        functionExpressionSet.add(OpTypes.SQL_FUNCTION);
+        functionExpressionSet.add(OpTypes.FUNCTION);
+    }
+
     static final OrderedIntHashSet emptyExpressionSet =
         new OrderedIntHashSet();
 
@@ -1268,20 +1276,14 @@ public class Expression {
 
         CompileContext     compileContext = new CompileContext(session);
         QuerySpecification s = new QuerySpecification(compileContext);
+        RangeVariable[] ranges = new RangeVariable[]{
+            new RangeVariable(t, null, null, null, compileContext) };
+
+        e.resolveCheckOrGenExpression(session, ranges, true);
 
         s.exprColumns    = new Expression[1];
         s.exprColumns[0] = EXPR_TRUE;
-
-        RangeVariable range = new RangeVariable(t, null, null, null,
-            compileContext);
-
-        s.rangeVariables = new RangeVariable[]{ range };
-
-        HsqlList unresolved = e.resolveColumnReferences(s.rangeVariables,
-            null);
-
-        ExpressionColumn.checkColumnsResolved(unresolved);
-        e.resolveTypes(session, null);
+        s.rangeVariables = ranges;
 
         if (Type.SQL_BOOLEAN != e.getDataType()) {
             throw Error.error(ErrorCode.X_42568);
@@ -1297,17 +1299,133 @@ public class Expression {
         return s;
     }
 
-    static void resolveGenerationExpression(Session session, Table t,
-            Expression e) {
+    public void resolveCheckOrGenExpression(Session session,
+            RangeVariable[] ranges, boolean isCheck) {
 
-        HsqlList unresolved = e.resolveColumnReferences(t.defaultRanges, null);
+        boolean        nonDeterministic = false;
+        OrderedHashSet set              = new OrderedHashSet();
+        HsqlList       unresolved = resolveColumnReferences(ranges, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
-        e.resolveTypes(session, null);
+        resolveTypes(session, null);
+        Expression.collectAllExpressions(
+            set, this, Expression.subqueryAggregateExpressionSet,
+            Expression.emptyExpressionSet);
 
-        OrderedHashSet set = new OrderedHashSet();
+        if (!set.isEmpty()) {
+            throw Error.error(ErrorCode.X_42512);
+        }
 
-        e.collectObjectNames(set);
+        Expression.collectAllExpressions(set, this,
+                                         Expression.functionExpressionSet,
+                                         Expression.emptyExpressionSet);
+
+        for (int i = 0; i < set.size(); i++) {
+            Expression current = (Expression) set.get(i);
+
+            if (current.opType == OpTypes.FUNCTION) {
+                if (!((FunctionSQLInvoked) current).isDeterministic()) {
+                    throw Error.error(ErrorCode.X_42512);
+                }
+            }
+
+            if (current.opType == OpTypes.SQL_FUNCTION) {
+                if (!((FunctionSQL) current).isDeterministic()) {
+                    if (isCheck) {
+                        nonDeterministic = true;
+
+                        continue;
+                    }
+
+                    throw Error.error(ErrorCode.X_42512);
+                }
+            }
+        }
+
+        if (isCheck && nonDeterministic) {
+            HsqlArrayList list = new HsqlArrayList();
+
+            RangeVariableResolver.decomposeAndConditions(this, list);
+
+            for (int i = 0; i < list.size(); i++) {
+                nonDeterministic = true;
+
+                Expression e = (Expression) list.get(i);
+                Expression e1;
+
+                if (e instanceof ExpressionLogical) {
+                    boolean b = ((ExpressionLogical) e).convertToSmaller();
+
+                    if (!b) {
+                        break;
+                    }
+
+                    e1 = e.getRightNode();
+                    e  = e.getLeftNode();
+
+                    if (!e.dataType.isDateTimeType()) {
+                        nonDeterministic = true;
+
+                        break;
+                    }
+
+                    if (e.hasNonDeterministicFunction()) {
+                        nonDeterministic = true;
+
+                        break;
+                    }
+
+                    // both sides are actually consistent regarding timeZone
+                    // e.dataType.isDateTimeTypeWithZone();
+                    if (e1 instanceof ExpressionArithmetic) {
+                        if (opType == OpTypes.ADD) {
+                            if (e1.getRightNode()
+                                    .hasNonDeterministicFunction()) {
+                                e1.swapLeftAndRightNodes();
+                            }
+                        } else if (opType == OpTypes.SUBTRACT) {}
+                        else {
+                            break;
+                        }
+
+                        if (e1.getRightNode().hasNonDeterministicFunction()) {
+                            break;
+                        }
+
+                        e1 = e1.getLeftNode();
+                    }
+
+                    if (e1.opType == OpTypes.SQL_FUNCTION) {
+                        FunctionSQL function = (FunctionSQL) e1;
+
+                        switch (function.funcType) {
+
+                            case FunctionSQL.FUNC_CURRENT_DATE :
+                            case FunctionSQL.FUNC_CURRENT_TIMESTAMP :
+                            case FunctionSQL.FUNC_LOCALTIMESTAMP :
+                                nonDeterministic = false;
+
+                                continue;
+                            default :
+                                break;
+                        }
+
+                        break;
+                    }
+
+                    break;
+                } else {
+                    break;
+                }
+            }
+
+            if (nonDeterministic) {
+                throw Error.error(ErrorCode.X_42512);
+            }
+        }
+
+        set.clear();
+        collectObjectNames(set);
 
         for (int i = 0; i < set.size(); i++) {
             HsqlName name = (HsqlName) set.get(i);
@@ -1315,8 +1433,13 @@ public class Expression {
             switch (name.type) {
 
                 case SchemaObject.COLUMN : {
-                    int          colIndex = t.findColumn(name.name);
-                    ColumnSchema column   = t.getColumn(colIndex);
+                    if (isCheck) {
+                        break;
+                    }
+
+                    int colIndex = ranges[0].rangeTable.findColumn(name.name);
+                    ColumnSchema column =
+                        ranges[0].rangeTable.getColumn(colIndex);
 
                     if (column.isGenerated()) {
                         throw Error.error(ErrorCode.X_42512);
@@ -1327,34 +1450,62 @@ public class Expression {
                 case SchemaObject.SEQUENCE : {
                     throw Error.error(ErrorCode.X_42512);
                 }
-                case SchemaObject.ROUTINE : {
-                    throw Error.error(ErrorCode.X_42512);
+                case SchemaObject.SPECIFIC_ROUTINE : {
+                    Routine routine =
+                        (Routine) session.database.schemaManager
+                            .getSchemaObject(name);
+
+                    if (!routine.isDeterministic()) {
+                        throw Error.error(ErrorCode.X_42512);
+                    }
+
+                    int impact = routine.getDataImpact();
+
+                    if (impact == Routine.READS_SQL
+                            || impact == Routine.MODIFIES_SQL) {
+                        throw Error.error(ErrorCode.X_42512);
+                    }
                 }
             }
         }
 
         set.clear();
-        Expression.collectAllExpressions(set, e,
-                                         Expression.emptyExpressionSet,
-                                         Expression.emptyExpressionSet);
-
-        for (int i = 0; i < set.size(); i++) {
-            Expression current = (Expression) set.get(i);
-
-            if (current.opType == OpTypes.FUNCTION) {
-                if (!((FunctionSQL) current).isDeterministic()) {
-                    throw Error.error(ErrorCode.X_42512);
-                }
-            }
-
-            if (current.opType == OpTypes.TABLE_SUBQUERY) {
-                throw Error.error(ErrorCode.X_42512);
-            }
-        }
     }
 
     boolean isParam() {
         return isParam;
+    }
+
+    boolean hasNonDeterministicFunction() {
+
+        HsqlArrayList list = new HsqlArrayList();
+
+        collectAllExpressions(list, this, Expression.emptyExpressionSet,
+                              Expression.emptyExpressionSet);
+
+        for (int j = 0; j < list.size(); j++) {
+            Expression current = (Expression) list.get(j);
+
+            if (current.opType == OpTypes.FUNCTION) {
+                if (!((FunctionSQLInvoked) current).isDeterministic()) {
+                    return true;
+                }
+            } else if (current.opType == OpTypes.SQL_FUNCTION) {
+                if (!((FunctionSQL) current).isDeterministic()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    void swapLeftAndRightNodes() {
+
+        Expression temp = nodes[LEFT];
+
+        nodes[LEFT]  = nodes[RIGHT];
+        nodes[RIGHT] = temp;
     }
 
     void setAttributesAsColumn(ColumnSchema column, boolean isWritable) {

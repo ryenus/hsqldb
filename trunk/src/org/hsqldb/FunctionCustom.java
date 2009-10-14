@@ -280,7 +280,7 @@ public class FunctionCustom extends FunctionSQL {
 
         switch (tokenType) {
 
-            case Tokens.LN :
+            case Tokens.LOG :
             case Tokens.LCASE :
             case Tokens.UCASE :
             case Tokens.LENGTH :
@@ -315,8 +315,6 @@ public class FunctionCustom extends FunctionSQL {
         }
 
         FunctionCustom function = new FunctionCustom(id);
-
-        function.isDeterministic = !nonDeterministicFuncSet.contains(id);
 
         if (id == FUNC_TRIM_CHAR) {
             switch (tokenType) {
@@ -378,7 +376,8 @@ public class FunctionCustom extends FunctionSQL {
 
         super();
 
-        this.funcType = id;
+        this.funcType   = id;
+        isDeterministic = !nonDeterministicFuncSet.contains(id);
 
         switch (id) {
 

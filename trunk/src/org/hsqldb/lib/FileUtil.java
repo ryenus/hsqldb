@@ -94,7 +94,7 @@ public class FileUtil implements FileAccess {
 
     public void renameElement(java.lang.String oldName,
                               java.lang.String newName) {
-        renameOverwrite(oldName, newName);
+        renameWithOverwrite(oldName, newName);
     }
 
     public java.io.OutputStream openOutputStreamElement(
@@ -172,17 +172,21 @@ public class FileUtil implements FileAccess {
      * If a file with oldname does not exist, no file will exist after the
      * operation.
      */
-    private boolean renameOverwrite(String oldname, String newname) {
+    private boolean renameWithOverwrite(String oldname, String newname) {
 
-        boolean deleted = delete(newname);
+        File file = new File(oldname);
+        boolean renamed = file.renameTo(new File(newname));
 
-        if (exists(oldname)) {
-            File file = new File(oldname);
+        if (renamed) {
+            return true;
+        }
+
+        if( delete(newname) ) {
 
             return file.renameTo(new File(newname));
         }
 
-        return deleted;
+        return false;
     }
 
     /**
