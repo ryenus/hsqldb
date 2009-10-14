@@ -1312,15 +1312,43 @@ public class Expression {
         for (int i = 0; i < set.size(); i++) {
             HsqlName name = (HsqlName) set.get(i);
 
-            if (name.type == SchemaObject.COLUMN) {
-                int          colIndex = t.findColumn(name.name);
-                ColumnSchema column   = t.getColumn(colIndex);
+            switch (name.type) {
 
-                if (column.isGenerated()) {
+                case SchemaObject.COLUMN : {
+                    int          colIndex = t.findColumn(name.name);
+                    ColumnSchema column   = t.getColumn(colIndex);
+
+                    if (column.isGenerated()) {
+                        throw Error.error(ErrorCode.X_42512);
+                    }
+
+                    break;
+                }
+                case SchemaObject.SEQUENCE : {
                     throw Error.error(ErrorCode.X_42512);
                 }
+                case SchemaObject.ROUTINE : {
+                    throw Error.error(ErrorCode.X_42512);
+                }
+            }
+        }
 
-                /** todo - deterministic, non-sql function */
+        set.clear();
+        Expression.collectAllExpressions(set, e,
+                                         Expression.emptyExpressionSet,
+                                         Expression.emptyExpressionSet);
+
+        for (int i = 0; i < set.size(); i++) {
+            Expression current = (Expression) set.get(i);
+
+            if (current.opType == OpTypes.FUNCTION) {
+                if (!((FunctionSQL) current).isDeterministic()) {
+                    throw Error.error(ErrorCode.X_42512);
+                }
+            }
+
+            if (current.opType == OpTypes.TABLE_SUBQUERY) {
+                throw Error.error(ErrorCode.X_42512);
             }
         }
     }
@@ -1339,13 +1367,6 @@ public class Expression {
                                      : dataType;
 
         return type.getJDBCClassName();
-    }
-
-    public void collectAllFunctionExpressions(HsqlList set) {
-
-        Expression.collectAllExpressions(set, this,
-                                         Expression.emptyExpressionSet,
-                                         Expression.emptyExpressionSet);
     }
 
     /**
@@ -1398,7 +1419,8 @@ public class Expression {
 
         HsqlArrayList set = new HsqlArrayList();
 
-        Expression.collectAllExpressions(set, this, subqueryExpressionSet,
+        Expression.collectAllExpressions(set, this,
+                                         subqueryAggregateExpressionSet,
                                          emptyExpressionSet);
 
         if (!set.isEmpty()) {

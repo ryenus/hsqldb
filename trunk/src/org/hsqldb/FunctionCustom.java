@@ -193,6 +193,11 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TIMESTAMP, FUNC_TIMESTAMP);
 
         //
+        nonDeterministicFuncSet.add(FUNC_IDENTITY);
+        nonDeterministicFuncSet.add(FUNC_TIMESTAMPADD);
+        nonDeterministicFuncSet.add(FUNC_TIMESTAMP);
+
+        //
         customRegularFuncMap.put(Tokens.LOCATE, FUNC_LOCATE);
         customRegularFuncMap.put(Tokens.INSERT, FUNC_OVERLAY_CHAR);
         customRegularFuncMap.put(Tokens.REVERSE, FUNC_REVERSE);
@@ -207,6 +212,13 @@ public class FunctionCustom extends FunctionSQL {
                                  FUNC_ISREADONLYDATABASE);
         customRegularFuncMap.put(Tokens.ISREADONLYDATABASEFILES,
                                  FUNC_ISREADONLYDATABASEFILES);
+
+        //
+        nonDeterministicFuncSet.add(FUNC_DATABASE);
+        nonDeterministicFuncSet.add(FUNC_ISAUTOCOMMIT);
+        nonDeterministicFuncSet.add(FUNC_ISREADONLYSESSION);
+        nonDeterministicFuncSet.add(FUNC_ISREADONLYDATABASE);
+        nonDeterministicFuncSet.add(FUNC_ISREADONLYDATABASEFILES);
 
         //
         customRegularFuncMap.put(Tokens.ACOS, FUNC_ACOS);
@@ -303,6 +315,8 @@ public class FunctionCustom extends FunctionSQL {
         }
 
         FunctionCustom function = new FunctionCustom(id);
+
+        function.isDeterministic = !nonDeterministicFuncSet.contains(id);
 
         if (id == FUNC_TRIM_CHAR) {
             switch (tokenType) {

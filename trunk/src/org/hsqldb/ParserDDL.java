@@ -2464,16 +2464,26 @@ public class ParserDDL extends ParserRoutine {
     ColumnSchema readColumnDefinitionOrNull(Table table, HsqlName hsqlName,
             HsqlArrayList constraintList) {
 
+        boolean        isGenerated     = false;
         boolean        isIdentity      = false;
         boolean        isPKIdentity    = false;
         boolean        generatedAlways = false;
         Expression     generateExpr    = null;
         boolean        isNullable      = true;
         Expression     defaultExpr     = null;
-        Type           typeObject;
-        NumberSequence sequence = null;
+        Type           typeObject      = null;
+        NumberSequence sequence        = null;
 
-        if (token.tokenType == Tokens.IDENTITY) {
+        if (token.tokenType == Tokens.GENERATED) {
+            read();
+            readThis(Tokens.ALWAYS);
+
+            isGenerated     = true;
+            generatedAlways = true;
+
+            // not yet
+            throw unexpectedToken(Tokens.T_GENERATED);
+        } else if (token.tokenType == Tokens.IDENTITY) {
             read();
 
             isIdentity   = true;
@@ -2487,7 +2497,7 @@ public class ParserDDL extends ParserRoutine {
             typeObject = readTypeDefinition(true);
         }
 
-        if (isIdentity) {}
+        if (isGenerated || isIdentity) {}
         else if (token.tokenType == Tokens.DEFAULT) {
             read();
 
@@ -2525,11 +2535,7 @@ public class ParserDDL extends ParserRoutine {
                     throw super.unexpectedTokenRequire(Tokens.T_ALWAYS);
                 }
 
-                read();
-
-                generateExpr = XreadValueExpression();
-
-                readThis(Tokens.CLOSEBRACKET);
+                isGenerated = true;
             }
         } else if (token.tokenType == Tokens.IDENTITY && !isIdentity) {
             read();
@@ -2537,6 +2543,14 @@ public class ParserDDL extends ParserRoutine {
             isIdentity   = true;
             isPKIdentity = true;
             sequence     = new NumberSequence(null, 0, 1, typeObject);
+        }
+
+        if (isGenerated) {
+            readThis(Tokens.CLOSEBRACKET);
+
+            generateExpr = XreadValueExpression();
+
+            readThis(Tokens.CLOSEBRACKET);
         }
 
         ColumnSchema column = new ColumnSchema(hsqlName, typeObject,
