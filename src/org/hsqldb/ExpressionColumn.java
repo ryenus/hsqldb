@@ -446,10 +446,11 @@ public class ExpressionColumn extends Expression {
                     (Object[]) session.sessionContext
                         .rangeIterators[rangeVariable.rangePosition]
                         .getCurrent();
-                Object value   = data[columnIndex];
+                Object value = data[columnIndex];
 
                 if (dataType != column.dataType) {
-                    value = dataType.convertToType(session, value, column.dataType);
+                    value = dataType.convertToType(session, value,
+                                                   column.dataType);
                 }
 
                 return value;
@@ -650,19 +651,25 @@ public class ExpressionColumn extends Expression {
     static void checkColumnsResolved(HsqlList set) {
 
         if (set != null && !set.isEmpty()) {
-            ExpressionColumn e  = (ExpressionColumn) set.get(0);
-            StringBuffer     sb = new StringBuffer();
+            StringBuffer sb = new StringBuffer();
+            Expression   e  = (Expression) set.get(0);
 
-            if (e.schema != null) {
-                sb.append(e.schema + '.');
+            if (e instanceof ExpressionColumn) {
+                ExpressionColumn c = (ExpressionColumn) e;
+
+                if (c.schema != null) {
+                    sb.append(c.schema + '.');
+                }
+
+                if (c.tableName != null) {
+                    sb.append(c.tableName + '.');
+                }
+
+                throw Error.error(ErrorCode.X_42501,
+                                  sb.toString() + c.getColumnName());
+            } else {
+                throw Error.error(ErrorCode.X_42501);
             }
-
-            if (e.tableName != null) {
-                sb.append(e.tableName + '.');
-            }
-
-            throw Error.error(ErrorCode.X_42501,
-                              sb.toString() + e.getColumnName());
         }
     }
 

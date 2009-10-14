@@ -124,6 +124,18 @@ public class OrderedIntHashSet extends BaseHashMap {
         return i;
     }
 
+    public boolean addAll(Collection col) {
+
+        int      oldSize = size();
+        Iterator it      = col.iterator();
+
+        while (it.hasNext()) {
+            add(it.nextInt());
+        }
+
+        return oldSize != size();
+    }
+
     public int[] toArray() {
 
         int   lookup = -1;

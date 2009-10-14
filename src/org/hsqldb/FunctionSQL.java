@@ -35,6 +35,7 @@ import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
+import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BinaryType;
@@ -134,8 +135,9 @@ public class FunctionSQL extends Expression {
     };
 
     //
-    static IntValueHashMap valueFuncMap   = new IntValueHashMap();
-    static IntValueHashMap regularFuncMap = new IntValueHashMap();
+    static IntValueHashMap   valueFuncMap            = new IntValueHashMap();
+    static IntValueHashMap   regularFuncMap          = new IntValueHashMap();
+    static OrderedIntHashSet nonDeterministicFuncSet = new OrderedIntHashSet();
 
     static {
         regularFuncMap.put(Tokens.T_POSITION, FUNC_POSITION_CHAR);
@@ -206,22 +208,28 @@ public class FunctionSQL extends Expression {
         valueFuncMap.put(Tokens.T_SYSTEM_USER, FUNC_SYSTEM_USER);
         valueFuncMap.put(Tokens.T_USER, FUNC_USER);
         valueFuncMap.put(Tokens.T_VALUE, FUNC_VALUE);
+
+        //
+        nonDeterministicFuncSet.addAll(valueFuncMap.values());
     }
 
     //
     int     funcType;
+    boolean isDeterministic;
     String  name;
     short[] parseList;
     short[] parseListAlt;
-    boolean isValueFunction;
+    boolean isSQLValueFunction;
 
     public static FunctionSQL newSQLFunction(String token,
             CompileContext context) {
 
-        int id = regularFuncMap.get(token, -1);
+        int     id              = regularFuncMap.get(token, -1);
+        boolean isValueFunction = false;
 
         if (id == -1) {
-            id = valueFuncMap.get(token, -1);
+            id              = valueFuncMap.get(token, -1);
+            isValueFunction = true;
         }
 
         if (id == -1) {
@@ -236,21 +244,12 @@ public class FunctionSQL extends Expression {
             }
 
             function.dataType = context.currentDomain;
+        } else {
+            function.isSQLValueFunction = isValueFunction;
+            function.isDeterministic = !isValueFunction;
         }
 
         return function;
-    }
-
-    public static boolean isFunction(String token) {
-        return isRegularFunction(token) || isValueFunction(token);
-    }
-
-    public static boolean isRegularFunction(String token) {
-        return regularFuncMap.containsKey(token);
-    }
-
-    public static boolean isValueFunction(String token) {
-        return valueFuncMap.containsKey(token);
     }
 
     protected FunctionSQL() {
@@ -436,9 +435,8 @@ public class FunctionSQL extends Expression {
                 break;
 
             case FUNC_CURRENT_CATALOG :
-                name            = Tokens.T_CURRENT_CATALOG;
-                parseList       = noParamList;
-                isValueFunction = true;
+                name      = Tokens.T_CURRENT_CATALOG;
+                parseList = noParamList;
                 break;
 
             /*
@@ -448,15 +446,13 @@ public class FunctionSQL extends Expression {
                 break;
             */
             case FUNC_CURRENT_ROLE :
-                name            = Tokens.T_CURRENT_ROLE;
-                parseList       = noParamList;
-                isValueFunction = true;
+                name      = Tokens.T_CURRENT_ROLE;
+                parseList = noParamList;
                 break;
 
             case FUNC_CURRENT_SCHEMA :
-                name            = Tokens.T_CURRENT_SCHEMA;
-                parseList       = noParamList;
-                isValueFunction = true;
+                name      = Tokens.T_CURRENT_SCHEMA;
+                parseList = noParamList;
                 break;
 
             /*
@@ -464,63 +460,53 @@ public class FunctionSQL extends Expression {
                 break;
             */
             case FUNC_CURRENT_USER :
-                name            = Tokens.T_CURRENT_USER;
-                parseList       = noParamList;
-                isValueFunction = true;
+                name      = Tokens.T_CURRENT_USER;
+                parseList = noParamList;
                 break;
 
             case FUNC_SESSION_USER :
-                name            = Tokens.T_SESSION_USER;
-                parseList       = noParamList;
-                isValueFunction = true;
+                name      = Tokens.T_SESSION_USER;
+                parseList = noParamList;
                 break;
 
             case FUNC_SYSTEM_USER :
-                name            = Tokens.T_SYSTEM_USER;
-                parseList       = noParamList;
-                isValueFunction = true;
+                name      = Tokens.T_SYSTEM_USER;
+                parseList = noParamList;
                 break;
 
             case FUNC_USER :
-                name            = Tokens.T_USER;
-                parseList       = optionalNoParamList;
-                isValueFunction = true;
+                name      = Tokens.T_USER;
+                parseList = optionalNoParamList;
                 break;
 
             case FUNC_VALUE :
-                name            = Tokens.T_VALUE;
-                parseList       = noParamList;
-                isValueFunction = false;
+                name      = Tokens.T_VALUE;
+                parseList = noParamList;
                 break;
 
             case FUNC_CURRENT_DATE :
-                name            = Tokens.T_CURRENT_DATE;
-                parseList       = noParamList;
-                isValueFunction = true;
+                name      = Tokens.T_CURRENT_DATE;
+                parseList = noParamList;
                 break;
 
             case FUNC_CURRENT_TIME :
-                name            = Tokens.T_CURRENT_TIME;
-                parseList       = optionalIntegerParamList;
-                isValueFunction = true;
+                name      = Tokens.T_CURRENT_TIME;
+                parseList = optionalIntegerParamList;
                 break;
 
             case FUNC_CURRENT_TIMESTAMP :
-                name            = Tokens.T_CURRENT_TIMESTAMP;
-                parseList       = optionalIntegerParamList;
-                isValueFunction = true;
+                name      = Tokens.T_CURRENT_TIMESTAMP;
+                parseList = optionalIntegerParamList;
                 break;
 
             case FUNC_LOCALTIME :
-                name            = Tokens.T_LOCALTIME;
-                parseList       = optionalIntegerParamList;
-                isValueFunction = true;
+                name      = Tokens.T_LOCALTIME;
+                parseList = optionalIntegerParamList;
                 break;
 
             case FUNC_LOCALTIMESTAMP :
-                name            = Tokens.T_LOCALTIMESTAMP;
-                parseList       = optionalIntegerParamList;
-                isValueFunction = true;
+                name      = Tokens.T_LOCALTIMESTAMP;
+                parseList = optionalIntegerParamList;
                 break;
 
             default :
@@ -1873,7 +1859,10 @@ public class FunctionSQL extends Expression {
         return sb.toString();
     }
 
+    public boolean isDeterministic() {
+        return isDeterministic;
+    }
     public boolean isValueFunction() {
-        return isValueFunction;
+        return isSQLValueFunction;
     }
 }
