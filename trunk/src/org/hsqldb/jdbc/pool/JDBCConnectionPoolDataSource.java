@@ -164,17 +164,24 @@ public class JDBCConnectionPoolDataSource implements ConnectionPoolDataSource {
     protected void validateSpecifiedUserAndPassword(String user,
             String password) throws SQLException {
 
-        String configuredUser     = connProperties.getProperty("user");
-        String configuredPassword = connProperties.getProperty("password");
+        String configUser     = connProperties.getProperty("user", "");
+        String configPassword = connProperties.getProperty("password", "");
 
-        if (((user == null && configuredUser != null) || (user != null && configuredUser == null))
-                || (user != null && !user.equals(configuredUser))
-                || ((password == null && configuredPassword != null) || (password != null && configuredPassword == null))
-                || (password != null
-                    && !password.equals(configuredPassword))) {
-            throw new SQLException("Given user name or password does not "
-                                   + "match those configured for this object");
+        if (user == null) {
+            user = "";
         }
+
+        if (password == null) {
+            password = "";
+        }
+
+        if (user.equals(configUser) && password.equals(configPassword)) {
+            return;
+        }
+
+        throw new SQLException("Given user name or password does not "
+                                   + "match those configured for this object");
+
     }
 
     /**
