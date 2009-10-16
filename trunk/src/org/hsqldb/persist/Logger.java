@@ -261,7 +261,7 @@ public class Logger {
         }
     }
 
-    public void setVariables() {
+    private void setVariables() {
 
         String cryptKey = database.urlProperties.getProperty(
             HsqlDatabaseProperties.url_crypt_key);
@@ -287,7 +287,7 @@ public class Logger {
 
         // handle invalid paths as well as access issues
         if (!database.isFilesReadOnly()) {
-            if (database.getType() == DatabaseURL.S_MEM) {
+            if (database.getType() == DatabaseURL.S_MEM || isStoredFileAccess) {
                 tempDirectoryPath = database.getProperties().getStringProperty(
                     HsqlDatabaseProperties.hsqldb_temp_directory);
             } else {
