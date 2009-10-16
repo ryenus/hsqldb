@@ -416,7 +416,7 @@ public class IndexAVL implements Index {
         }
     }
 
-    private void checkNodes(PersistentStore store, NodeAVL p) {
+    void checkNodes(PersistentStore store, NodeAVL p) {
 
         NodeAVL l = p.getLeft(store);
         NodeAVL r = p.getRight(store);
@@ -1033,7 +1033,7 @@ public class IndexAVL implements Index {
      *
      * @return next node
      */
-    private NodeAVL next(Session session, PersistentStore store, NodeAVL x) {
+    NodeAVL next(Session session, PersistentStore store, NodeAVL x) {
 
         if (x == null) {
             return null;
@@ -1064,7 +1064,7 @@ public class IndexAVL implements Index {
         }
     }
 
-    private NodeAVL next(PersistentStore store, NodeAVL x) {
+    NodeAVL next(PersistentStore store, NodeAVL x) {
 
         NodeAVL r = x.getRight(store);
 
@@ -1093,43 +1093,37 @@ public class IndexAVL implements Index {
         return x;
     }
 
-    private NodeAVL last(PersistentStore store, NodeAVL x) {
+    NodeAVL last(PersistentStore store, NodeAVL x) {
 
         if (x == null) {
             return null;
         }
 
-        readLock.lock();
+        NodeAVL left = x.getLeft(store);
 
-        try {
-            NodeAVL left = x.getLeft(store);
+        if (left != null) {
+            x = left;
 
-            if (left != null) {
-                x = left;
+            NodeAVL right = x.getRight(store);
 
-                NodeAVL right = x.getRight(store);
-
-                while (right != null) {
-                    x     = right;
-                    right = x.getRight(store);
-                }
-
-                return x;
-            }
-
-            NodeAVL ch = x;
-
-            x = x.getParent(store);
-
-            while (x != null && ch.equals(x.getLeft(store))) {
-                ch = x;
-                x  = x.getParent(store);
+            while (right != null) {
+                x     = right;
+                right = x.getRight(store);
             }
 
             return x;
-        } finally {
-            readLock.unlock();
         }
+
+        NodeAVL ch = x;
+
+        x = x.getParent(store);
+
+        while (x != null && ch.equals(x.getLeft(store))) {
+            ch = x;
+            x  = x.getParent(store);
+        }
+
+        return x;
     }
 
     /**
@@ -1138,7 +1132,7 @@ public class IndexAVL implements Index {
      * @param x node
      * @param n node
      */
-    private void replace(PersistentStore store, NodeAVL x, NodeAVL n) {
+    void replace(PersistentStore store, NodeAVL x, NodeAVL n) {
 
         if (x.isRoot(store)) {
             if (n != null) {
@@ -1311,7 +1305,7 @@ public class IndexAVL implements Index {
      * @param first true if the first matching node is required, false if any node
      * @return matching node or null
      */
-    private NodeAVL findNode(Session session, PersistentStore store,
+    NodeAVL findNode(Session session, PersistentStore store,
                              Object[] rowdata, int[] rowColMap,
                              int fieldCount) {
 
@@ -1373,7 +1367,7 @@ public class IndexAVL implements Index {
     /**
      * Balances part of the tree after an alteration to the index.
      */
-    private void balance(PersistentStore store, NodeAVL x, boolean isleft) {
+    void balance(PersistentStore store, NodeAVL x, boolean isleft) {
 
         while (true) {
             int sign = isleft ? 1
