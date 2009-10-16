@@ -172,6 +172,18 @@ public class Token {
             return sb.toString();
         }
 
+        if (namePrePrePrefix != null) {
+            if (isDelimitedPrePrePrefix) {
+                sb.append('"');
+                sb.append(namePrePrePrefix);
+                sb.append('"');
+            } else {
+                sb.append(namePrePrePrefix);
+            }
+
+            sb.append('.');
+        }
+
         if (namePrePrefix != null) {
             if (isDelimitedPrePrefix) {
                 sb.append('"');
@@ -200,6 +212,7 @@ public class Token {
             sb.append('"');
             sb.append(tokenString);
             sb.append('"');
+            sb.append(' ');
         } else {
             sb.append(tokenString);
         }

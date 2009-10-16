@@ -376,7 +376,7 @@ public class FunctionSQL extends Expression {
                 };
                 parseListAlt = new short[] {
                     Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.COMMA, Tokens.QUESTION,
+                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA, Tokens.QUESTION,
                     Tokens.CLOSEBRACKET
                 };
                 break;
