@@ -119,7 +119,7 @@ public class IndexAVLMemory extends IndexAVL {
         }
     }
 
-    private void checkNodes(PersistentStore store, NodeAVL p) {
+    void checkNodes(PersistentStore store, NodeAVL p) {
 
         NodeAVL l = p.nLeft;
         NodeAVL r = p.nRight;
@@ -146,11 +146,11 @@ public class IndexAVLMemory extends IndexAVL {
      */
     public void insert(Session session, PersistentStore store, Row row) {
 
-        NodeAVL  n;
-        NodeAVL  x;
-        boolean  isleft  = true;
-        int      compare = -1;
-        Object[] rowData = row.rowData;
+        NodeAVL        n;
+        NodeAVL        x;
+        boolean        isleft   = true;
+        int            compare  = -1;
+        final Object[] rowData  = row.rowData;
 
         writeLock.lock();
 
@@ -377,7 +377,7 @@ public class IndexAVLMemory extends IndexAVL {
         }
     }
 
-    private NodeAVL next(PersistentStore store, NodeAVL x) {
+    NodeAVL next(PersistentStore store, NodeAVL x) {
 
         NodeAVL r = x.nRight;
 
@@ -406,7 +406,7 @@ public class IndexAVLMemory extends IndexAVL {
         return x;
     }
 
-    private NodeAVL last(PersistentStore store, NodeAVL x) {
+    NodeAVL last(PersistentStore store, NodeAVL x) {
 
         if (x == null) {
             return null;
@@ -451,7 +451,7 @@ public class IndexAVLMemory extends IndexAVL {
      * @param x node
      * @param n node
      */
-    private void replace(PersistentStore store, NodeAVL x, NodeAVL n) {
+    void replace(PersistentStore store, NodeAVL x, NodeAVL n) {
 
         if (x.isRoot(store)) {
             if (n != null) {
@@ -472,7 +472,7 @@ public class IndexAVLMemory extends IndexAVL {
      * @param first true if the first matching node is required, false if any node
      * @return matching node or null
      */
-    private NodeAVL findNode(Session session, PersistentStore store,
+    NodeAVL findNode(Session session, PersistentStore store,
                              Object[] rowdata, int[] rowColMap,
                              int fieldCount) {
 
@@ -534,7 +534,7 @@ public class IndexAVLMemory extends IndexAVL {
     /**
      * Balances part of the tree after an alteration to the index.
      */
-    private void balance(PersistentStore store, NodeAVL x, boolean isleft) {
+    void balance(PersistentStore store, NodeAVL x, boolean isleft) {
 
         while (true) {
             int sign = isleft ? 1
