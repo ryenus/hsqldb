@@ -636,49 +636,49 @@ public class FunctionCustom extends FunctionSQL {
                         return dataType.add(source, o, t);
                     }
                     case Tokens.SQL_TSI_SECOND :
-                        t = Type.SQL_INTERVAL_SECOND;
+                        t = Type.SQL_INTERVAL_SECOND_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalSeconds(units, t);
 
                         return dataType.add(source, o, t);
 
                     case Tokens.SQL_TSI_MINUTE :
-                        t = Type.SQL_INTERVAL_MINUTE;
+                        t = Type.SQL_INTERVAL_MINUTE_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalMinute(units, t);
 
                         return dataType.add(source, o, t);
 
                     case Tokens.SQL_TSI_HOUR :
-                        t = Type.SQL_INTERVAL_HOUR;
+                        t = Type.SQL_INTERVAL_HOUR_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalHour(units, t);
 
                         return dataType.add(source, o, t);
 
                     case Tokens.SQL_TSI_DAY :
-                        t = Type.SQL_INTERVAL_DAY;
+                        t = Type.SQL_INTERVAL_DAY_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalDay(units, t);
 
                         return dataType.add(source, o, t);
 
                     case Tokens.SQL_TSI_WEEK :
-                        t = Type.SQL_INTERVAL_DAY;
+                        t = Type.SQL_INTERVAL_DAY_MAX_PRECISION;
                         o = IntervalSecondData.newIntervalDay(units * 7, t);
 
                         return dataType.add(source, o, t);
 
                     case Tokens.SQL_TSI_MONTH :
-                        t = Type.SQL_INTERVAL_MONTH;
+                        t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
                         o = IntervalMonthData.newIntervalMonth(units, t);
 
                         return dataType.add(source, o, t);
 
                     case Tokens.SQL_TSI_QUARTER :
-                        t = Type.SQL_INTERVAL_MONTH;
+                        t = Type.SQL_INTERVAL_MONTH_MAX_PRECISION;
                         o = IntervalMonthData.newIntervalMonth(units * 3, t);
 
                         return dataType.add(source, o, t);
 
                     case Tokens.SQL_TSI_YEAR :
-                        t = Type.SQL_INTERVAL_YEAR;
+                        t = Type.SQL_INTERVAL_YEAR_MAX_PRECISION;
                         o = IntervalMonthData.newIntervalMonth(units * 12, t);
 
                         return dataType.add(source, o, t);
