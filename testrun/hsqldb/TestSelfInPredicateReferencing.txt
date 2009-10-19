@@ -148,3 +148,12 @@ INSERT INTO T VALUES ('felix');
 /*c1*/SELECT * FROM T WHERE C IN ('felix', 'pink');
 DROP TABLE T;
 
+--
+create table t (c1 int, c2 int, primary key(c2, c1))
+insert into t values (10, 20), (11, 21), (21, 32)
+/*r
+ 11,21
+*/select * from t where (c1, c2) in ((11, 21))
+/*r
+ 11,21
+*/select * from t where (c2, c1) in ((21, 11))

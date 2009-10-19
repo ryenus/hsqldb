@@ -81,3 +81,6 @@ insert into single values(3);
 */select ':' || case c when in(0,10,10) then 'WRONG' when in(0,3,34)
  then 'OK' end || ':' from single order by 1
 
+CREATE TABLE BAB (SALES DOUBLE, COST DOUBLE);
+SELECT (SUM(BAB.SALES)-SUM(BAB.COST))/(CASE WHEN (ABS (SUM(BAB.SALES))) = 0
+ THEN NULL ELSE (ABS (SUM(BAB.SALES))) END) AS PROFITMARGIN FROM BAB
