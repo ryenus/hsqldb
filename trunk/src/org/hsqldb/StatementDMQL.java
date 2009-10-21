@@ -445,7 +445,10 @@ public abstract class StatementDMQL extends Statement {
                 }
             }
 
-            targetTable.checkDataReadOnly();
+            if (!session.isProcessingScript) {
+                targetTable.checkDataReadOnly();
+            }
+
             session.checkReadWrite();
         }
 

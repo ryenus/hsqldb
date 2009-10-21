@@ -308,13 +308,15 @@ public class ParserDDL extends ParserRoutine {
 */
     Statement compileDrop() {
 
-        int     objectTokenType;
-        int     objectType;
-        int     statementType;
-        boolean canCascade  = false;
-        boolean cascade     = false;
-        boolean useIfExists = false;
-        boolean ifExists    = false;
+        int      objectTokenType;
+        int      objectType;
+        int      statementType;
+        boolean  canCascade  = false;
+        boolean  cascade     = false;
+        boolean  useIfExists = false;
+        boolean  ifExists    = false;
+        HsqlName writeName   = null;
+        HsqlName catalogName = database.getCatalogName();
 
         read();
 
@@ -328,6 +330,7 @@ public class ParserDDL extends ParserRoutine {
                 statementType = StatementTypes.DROP_INDEX;
                 objectType    = SchemaObject.INDEX;
                 useIfExists   = true;
+                writeName     = catalogName;
 
                 break;
             }
@@ -357,6 +360,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_ROUTINE;
                 objectType    = SchemaObject.SPECIFIC_ROUTINE;
+                writeName     = catalogName;
                 canCascade    = true;
 
                 break;
@@ -366,6 +370,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_ROUTINE;
                 objectType    = SchemaObject.PROCEDURE;
+                writeName     = catalogName;
                 canCascade    = true;
 
                 break;
@@ -375,6 +380,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_ROUTINE;
                 objectType    = SchemaObject.FUNCTION;
+                writeName     = catalogName;
                 canCascade    = true;
 
                 break;
@@ -384,6 +390,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_SCHEMA;
                 objectType    = SchemaObject.SCHEMA;
+                writeName     = catalogName;
                 useIfExists   = true;
                 canCascade    = true;
 
@@ -394,6 +401,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_SEQUENCE;
                 objectType    = SchemaObject.SEQUENCE;
+                writeName     = catalogName;
                 canCascade    = true;
                 useIfExists   = true;
 
@@ -404,6 +412,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_TRIGGER;
                 objectType    = SchemaObject.TRIGGER;
+                writeName     = catalogName;
                 canCascade    = false;
 
                 break;
@@ -413,6 +422,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_USER;
                 objectType    = SchemaObject.GRANTEE;
+                writeName     = catalogName;
                 canCascade    = true;
 
                 break;
@@ -422,6 +432,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_ROLE;
                 objectType    = SchemaObject.GRANTEE;
+                writeName     = catalogName;
                 canCascade    = true;
 
                 break;
@@ -431,6 +442,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_DOMAIN;
                 objectType    = SchemaObject.DOMAIN;
+                writeName     = catalogName;
                 canCascade    = true;
                 break;
 
@@ -439,6 +451,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_TYPE;
                 objectType    = SchemaObject.TYPE;
+                writeName     = catalogName;
                 canCascade    = true;
                 break;
 
@@ -448,6 +461,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_CHARACTER_SET;
                 objectType    = SchemaObject.CHARSET;
+                writeName     = catalogName;
                 canCascade    = false;
                 break;
 
@@ -456,6 +470,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_VIEW;
                 objectType    = SchemaObject.VIEW;
+                writeName     = catalogName;
                 canCascade    = true;
                 useIfExists   = true;
                 break;
@@ -465,6 +480,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_TABLE;
                 objectType    = SchemaObject.TABLE;
+                writeName     = catalogName;
                 canCascade    = true;
                 useIfExists   = true;
                 break;
@@ -520,7 +536,8 @@ public class ParserDDL extends ParserRoutine {
                 break;
             }
             case Tokens.SCHEMA : {
-                name = readNewSchemaName();
+                name      = readNewSchemaName();
+                writeName = catalogName;
 
                 break;
             }
@@ -551,18 +568,8 @@ public class ParserDDL extends ParserRoutine {
         };
         String sql = getLastPart();
         Statement cs = new StatementSchema(sql, statementType, args, null,
-                                           null);
+                                           writeName);
 
-        switch (objectTokenType) {
-
-            case Tokens.INDEX :
-            case Tokens.SCHEMA :
-            case Tokens.TYPE :
-            case Tokens.TABLE :
-            case Tokens.CHARACTER :
-        }
-
-        /** @todo - lock tables and schemas to drop */
         return cs;
     }
 
@@ -1261,6 +1268,7 @@ public class ParserDDL extends ParserRoutine {
         if (withData) {
             statement = new StatementQuery(session, queryExpression,
                                            compileContext);
+            readName = statement.getTableNamesForRead()[0];
         }
 
         Object[] args = new Object[] {
@@ -1268,11 +1276,7 @@ public class ParserDDL extends ParserRoutine {
         };
         String   sql  = getLastPart();
         StatementSchema st = new StatementSchema(sql,
-            StatementTypes.CREATE_TABLE, args, null, null);
-
-        if (statement != null) {
-            st.readTableNames = statement.getTableNamesForRead();
-        }
+            StatementTypes.CREATE_TABLE, args, readName, null);
 
         return st;
     }
@@ -1911,7 +1915,7 @@ public class ParserDDL extends ParserRoutine {
     StatementSchema compileCreateTrigger() {
 
         Table          table;
-        boolean        isForEachRow = false;
+        Boolean        isForEachRow = null;
         boolean        isNowait     = false;
         boolean        hasQueueSize = false;
         int            queueSize    = 0;
@@ -2053,7 +2057,8 @@ public class ParserDDL extends ParserRoutine {
                     read();
 
                     if (token.tokenType == Tokens.TABLE) {
-                        if (oldTableName != null
+                        if (Boolean.TRUE.equals(isForEachRow)
+                                || oldTableName != null
                                 || beforeOrAfterType == Tokens.BEFORE) {
                             throw unexpectedToken();
                         }
@@ -2061,6 +2066,7 @@ public class ParserDDL extends ParserRoutine {
                         read();
                         readIfThis(Tokens.AS);
                         checkIsSimpleName();
+                        read();
 
                         oldTableName = token.tokenString;
 
@@ -2070,6 +2076,8 @@ public class ParserDDL extends ParserRoutine {
                                 || n.equals(newRowName)) {
                             throw unexpectedToken();
                         }
+
+                        isForEachRow = Boolean.FALSE;
 
                         HsqlName hsqlName = database.nameManager.newHsqlName(
                             table.getSchemaName(), n, isDelimitedIdentifier(),
@@ -2081,7 +2089,8 @@ public class ParserDDL extends ParserRoutine {
                         transitions[TriggerDef.OLD_TABLE] = transition;
                         rangeVars[TriggerDef.OLD_TABLE]   = range;
                     } else if (token.tokenType == Tokens.ROW) {
-                        if (oldRowName != null) {
+                        if (Boolean.FALSE.equals(isForEachRow)
+                                || oldRowName != null) {
                             throw unexpectedToken();
                         }
 
@@ -2091,6 +2100,8 @@ public class ParserDDL extends ParserRoutine {
 
                         oldRowName = token.tokenString;
 
+                        read();
+
                         String n = oldRowName;
 
                         if (n.equals(newTableName) || n.equals(oldTableName)
@@ -2098,7 +2109,7 @@ public class ParserDDL extends ParserRoutine {
                             throw unexpectedToken();
                         }
 
-                        isForEachRow = true;
+                        isForEachRow = Boolean.TRUE;
 
                         HsqlName hsqlName = database.nameManager.newHsqlName(
                             table.getSchemaName(), n, isDelimitedIdentifier(),
@@ -2120,7 +2131,8 @@ public class ParserDDL extends ParserRoutine {
                     read();
 
                     if (token.tokenType == Tokens.TABLE) {
-                        if (newTableName != null
+                        if (Boolean.TRUE.equals(isForEachRow)
+                                || newTableName != null
                                 || beforeOrAfterType == Tokens.BEFORE) {
                             throw unexpectedToken();
                         }
@@ -2130,6 +2142,10 @@ public class ParserDDL extends ParserRoutine {
                         checkIsSimpleName();
 
                         newTableName = token.tokenString;
+
+                        read();
+
+                        isForEachRow = Boolean.FALSE;
 
                         String n = newTableName;
 
@@ -2148,7 +2164,8 @@ public class ParserDDL extends ParserRoutine {
                         transitions[TriggerDef.NEW_TABLE] = transition;
                         rangeVars[TriggerDef.NEW_TABLE]   = range;
                     } else if (token.tokenType == Tokens.ROW) {
-                        if (newRowName != null) {
+                        if (Boolean.FALSE.equals(isForEachRow)
+                                || newRowName != null) {
                             throw unexpectedToken();
                         }
 
@@ -2156,8 +2173,11 @@ public class ParserDDL extends ParserRoutine {
                         readIfThis(Tokens.AS);
                         checkIsSimpleName();
 
-                        newRowName   = token.tokenString;
-                        isForEachRow = true;
+                        newRowName = token.tokenString;
+
+                        read();
+
+                        isForEachRow = Boolean.TRUE;
 
                         String n = newRowName;
 
@@ -2181,12 +2201,11 @@ public class ParserDDL extends ParserRoutine {
                 } else {
                     break;
                 }
-
-                read();
             }
         }
 
-        if (isForEachRow && token.tokenType != Tokens.FOR) {
+        if (Boolean.TRUE.equals(isForEachRow)
+                && token.tokenType != Tokens.FOR) {
             throw unexpectedToken();
         }
 
@@ -2195,11 +2214,18 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.EACH);
 
             if (token.tokenType == Tokens.ROW) {
-                isForEachRow = true;
-            } else if (token.tokenType == Tokens.STATEMENT) {
-                if (isForEachRow || beforeOrAfterType == Tokens.BEFORE) {
+                if (Boolean.FALSE.equals(isForEachRow)) {
                     throw unexpectedToken();
                 }
+
+                isForEachRow = Boolean.TRUE;
+            } else if (token.tokenType == Tokens.STATEMENT) {
+                if (Boolean.TRUE.equals(isForEachRow)
+                        || beforeOrAfterType == Tokens.BEFORE) {
+                    throw unexpectedToken();
+                }
+
+                isForEachRow = Boolean.FALSE;
             } else {
                 throw unexpectedToken();
             }
@@ -2249,6 +2275,10 @@ public class ParserDDL extends ParserRoutine {
             if (condition.getDataType() != Type.SQL_BOOLEAN) {
                 throw Error.error(ErrorCode.X_42568);
             }
+        }
+
+        if (isForEachRow == null) {
+            isForEachRow = Boolean.FALSE;
         }
 
         if (token.tokenType == Tokens.CALL) {

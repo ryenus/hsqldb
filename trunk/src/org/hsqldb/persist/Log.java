@@ -821,48 +821,6 @@ public class Log {
         }
     }
 
-    /**
-     * Restores a compressed backup or the .data file.
-     */
-    private void restoreBackup() {
-
-        if (database.logger.propIncrementBackup) {
-            restoreBackupIncremental();
-
-            return;
-        }
-
-        // in case data file cannot be deleted, reset it
-        DataFileCache.deleteOrResetFreePos(database, fileName + ".data");
-
-        try {
-            FileArchiver.unarchive(fileName + ".backup", fileName + ".data",
-                                   database.logger.getFileAccess(),
-                                   FileArchiver.COMPRESSION_ZIP);
-        } catch (Throwable t) {
-            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
-                              ErrorCode.M_Message_Pair, new Object[] {
-                t.getMessage(), fileName + ".backup"
-            });
-        }
-    }
-
-    /**
-     * Restores in from an incremental backup
-     */
-    private void restoreBackupIncremental() {
-
-        try {
-            if (fa.isStreamElement(fileName + ".backup")) {
-                RAShadowFile.restoreFile(fileName + ".backup",
-                                         fileName + ".data");
-                deleteBackup();
-            }
-        } catch (IOException e) {
-            throw Error.error(ErrorCode.FILE_IO_ERROR, fileName + ".backup");
-        }
-    }
-
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP) - text tables
     private HashMap textCacheList = new HashMap();
 

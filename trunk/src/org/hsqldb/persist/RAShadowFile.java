@@ -49,14 +49,14 @@ import org.hsqldb.store.BitMap;
  */
 public class RAShadowFile {
 
-    final Database   database;
-    final String     pathName;
-    final Storage    source;
-    RandomAccessFile dest;
-    final int        pageSize;
-    final long       maxSize;
-    final BitMap     bitMap;
-    boolean          zeroPageSet;
+    final Database database;
+    final String   pathName;
+    final Storage  source;
+    Storage        dest;
+    final int      pageSize;
+    final long     maxSize;
+    final BitMap   bitMap;
+    boolean        zeroPageSet;
     HsqlByteArrayOutputStream byteArrayOutputStream =
         new HsqlByteArrayOutputStream(new byte[]{});
 
@@ -132,7 +132,7 @@ public class RAShadowFile {
             source.seek(position);
             source.read(buffer, 12, readSize);
             dest.seek(writePos);
-            dest.write(buffer);
+            dest.write(buffer, 0, buffer.length);
         } catch (Throwable t) {
             bitMap.unset(pageOffset);
             close();
@@ -144,7 +144,13 @@ public class RAShadowFile {
     }
 
     private void open() throws IOException {
-        dest = new RandomAccessFile(pathName, "rws");
+
+        if (database.logger.isStoredFileAccess()) {
+            dest = ScaledRAFile.newScaledRAFile(database, pathName, false,
+                                                ScaledRAFile.DATA_FILE_STORED);
+        } else {
+            dest = new ScaledRAFileSimple(pathName, "rws");
+        }
     }
 
     /**
@@ -160,24 +166,37 @@ public class RAShadowFile {
         }
     }
 
+    private static Storage getStorage(Database database, String pathName,
+                                      String openMode) throws IOException {
+
+        if (database.logger.isStoredFileAccess()) {
+            return ScaledRAFile.newScaledRAFile(database, pathName,
+                                                openMode.equals("r"),
+                                                ScaledRAFile.DATA_FILE_STORED);
+        } else {
+            return new ScaledRAFileSimple(pathName, openMode);
+        }
+    }
+
     /** todo - take account of incomplete addition of block due to lack of disk */
 
     // buggy database files had size == position == 0 at the end
-    public static void restoreFile(String sourceName,
+    public static void restoreFile(Database database, String sourceName,
                                    String destName) throws IOException {
 
-        RandomAccessFile source = new RandomAccessFile(sourceName, "r");
-        RandomAccessFile dest   = new RandomAccessFile(destName, "rw");
+        Storage source = getStorage(database, sourceName, "r");
+        Storage dest   = getStorage(database, destName, "rw");
 
         while (source.getFilePointer() != source.length()) {
             int    size     = source.readInt();
             long   position = source.readLong();
             byte[] buffer   = new byte[size];
 
-            source.read(buffer);
+            source.read(buffer, 0, buffer.length);
             dest.seek(position);
-            dest.write(buffer);
+            dest.write(buffer, 0, buffer.length);
         }
+
         source.close();
         dest.close();
     }

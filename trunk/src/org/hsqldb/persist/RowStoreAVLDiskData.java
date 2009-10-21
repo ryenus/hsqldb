@@ -58,10 +58,6 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         super(manager, null, table);
     }
 
-    public boolean isMemory() {
-        return false;
-    }
-
     public void add(CachedObject object) {
 
         int size = object.getRealSize(cache.rowOut);

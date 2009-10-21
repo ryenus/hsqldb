@@ -39,7 +39,6 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
-import org.hsqldb.error.Error;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 import org.hsqldb.lib.Storage;
 
@@ -56,10 +55,11 @@ import org.hsqldb.lib.Storage;
  */
 final class ScaledRAFile implements ScaledRAInterface {
 
-    static final int  DATA_FILE_RAF  = 0;
-    static final int  DATA_FILE_NIO  = 1;
-    static final int  DATA_FILE_JAR  = 2;
-    static final long MAX_NIO_LENGTH = (1L << 28);
+    static final int  DATA_FILE_RAF    = 0;
+    static final int  DATA_FILE_NIO    = 1;
+    static final int  DATA_FILE_JAR    = 2;
+    static final int  DATA_FILE_STORED = 3;
+    static final long MAX_NIO_LENGTH   = (1L << 28);
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
@@ -86,20 +86,23 @@ final class ScaledRAFile implements ScaledRAInterface {
      * realPosition is the file position
      */
     static Storage newScaledRAFile(Database database, String name,
-                                   boolean readonly, int type,
-                                   String classname,
-                                   String key)
+                                   boolean readonly,
+                                   int type)
                                    throws FileNotFoundException, IOException {
 
-        if (classname != null) {
+        if (type == DATA_FILE_STORED) {
             try {
-                Class       zclass      = Class.forName(classname);
+                String cname = database.getURLProperties().getProperty(
+                    HsqlDatabaseProperties.url_storage_class_name);
+                String skey = database.getURLProperties().getProperty(
+                    HsqlDatabaseProperties.url_storage_key);
+                Class       zclass      = Class.forName(cname);
                 Constructor constructor = zclass.getConstructor(new Class[] {
                     String.class, Boolean.class, Object.class
                 });
 
                 return (Storage) constructor.newInstance(new Object[] {
-                    name, new Boolean(readonly), key
+                    name, new Boolean(readonly), skey
                 });
             } catch (ClassNotFoundException e) {
                 throw new IOException();
@@ -119,13 +122,11 @@ final class ScaledRAFile implements ScaledRAInterface {
         } else if (type == DATA_FILE_RAF) {
             return new ScaledRAFile(database, name, readonly);
         } else {
-            RandomAccessFile file = new RandomAccessFile(name, readonly ? "r"
-                                                                        : "rw");
+            java.io.File fi     = new java.io.File(name);
+            Long         length = fi.length();
 
-            if (file.length() > MAX_NIO_LENGTH) {
-                return new ScaledRAFile(database, name, file, readonly);
-            } else {
-                file.close();
+            if (length > MAX_NIO_LENGTH) {
+                return new ScaledRAFile(database, name, readonly);
             }
 
             try {
@@ -136,21 +137,6 @@ final class ScaledRAFile implements ScaledRAInterface {
                 return new ScaledRAFile(database, name, readonly);
             }
         }
-    }
-
-    ScaledRAFile(Database database, String name, RandomAccessFile file,
-                 boolean readonly) throws FileNotFoundException, IOException {
-
-        this.database = database;
-        this.readOnly = readonly;
-        this.fileName = name;
-        this.file     = file;
-
-        int bufferSize = 1 << 12;
-
-        buffer         = new byte[bufferSize];
-        ba             = new HsqlByteArrayInputStream(buffer);
-        fileDescriptor = file.getFD();
     }
 
     ScaledRAFile(Database database, String name,

@@ -1698,6 +1698,7 @@ public class SchemaManager {
                         list.addAll(((Table) object).getSQL(resolved,
                                                             unresolved));
                     } else {
+                        list.add(getSetSchemaSQL(object.getSchemaName()));
                         list.add(object.getSQL());
                         resolved.add(object.getName());
                     }
@@ -1721,7 +1722,13 @@ public class SchemaManager {
 //                continue;
             }
 
-            list.addAll(schema.getTriggerSQL());
+            String[] t = schema.getTriggerSQL();
+
+            if (t.length > 0) {
+                list.add(getSetSchemaSQL(schema.name));
+                list.addAll(schema.getTriggerSQL());
+            }
+
             list.addAll(schema.getSequenceRestartSQL());
         }
 
@@ -1740,6 +1747,17 @@ public class SchemaManager {
         list.toArray(array);
 
         return array;
+    }
+
+    private String getSetSchemaSQL(HsqlName schemaName) {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_SET).append(' ');
+        sb.append(Tokens.T_SCHEMA).append(' ');
+        sb.append(schemaName.statementName);
+
+        return sb.toString();
     }
 
     public String[] getTextTableSQL(boolean withHeader) {

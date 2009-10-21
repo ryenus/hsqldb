@@ -148,9 +148,11 @@ public class IndexAVLMemory extends IndexAVL {
 
         NodeAVL        n;
         NodeAVL        x;
-        boolean        isleft   = true;
-        int            compare  = -1;
-        final Object[] rowData  = row.rowData;
+        boolean        isleft       = true;
+        int            compare      = -1;
+        final Object[] rowData      = row.rowData;
+        boolean        compareRowId = !isUnique || hasNulls(rowData);
+        boolean compareSimple       = isSimple;
 
         writeLock.lock();
 
@@ -165,19 +167,31 @@ public class IndexAVLMemory extends IndexAVL {
             }
 
             while (true) {
-                Row      currentRow  = n.row;
-                Object[] currentData = currentRow.rowData;
+                Row currentRow = n.row;
 
                 compare = 0;
 
-                if (isSimpleOrder) {
-                    compare = colTypes[0].compare(rowData[colIndex[0]],
-                                                  currentData[colIndex[0]]);
+                if (compareSimple) {
+                    compare =
+                        colTypes[0].compare(rowData[colIndex[0]],
+                                            currentRow.rowData[colIndex[0]]);
+
+                    if (compare == 0) {
+                        compare = compareRowForInsertOrDelete(row, currentRow,
+                                                              compareRowId, 1);
+                    }
+                } else {
+                    compare = compareRowForInsertOrDelete(row, currentRow,
+                                                          compareRowId, 0);
                 }
 
-                if (compare == 0) {
-                    compare = compareRowForInsertOrDelete(session, row,
-                                                          currentRow);
+                if (compare == 0 && session != null
+                        && session.database.txManager.isMVRows()
+                        && !isEqualReadable(session, store, n)) {
+                    compareRowId = true;
+                    compare = compareRowForInsertOrDelete(row, currentRow,
+                                                          compareRowId,
+                                                          colIndex.length);
                 }
 
                 if (compare == 0) {
@@ -472,9 +486,8 @@ public class IndexAVLMemory extends IndexAVL {
      * @param first true if the first matching node is required, false if any node
      * @return matching node or null
      */
-    NodeAVL findNode(Session session, PersistentStore store,
-                             Object[] rowdata, int[] rowColMap,
-                             int fieldCount) {
+    NodeAVL findNode(Session session, PersistentStore store, Object[] rowdata,
+                     int[] rowColMap, int fieldCount) {
 
         readLock.lock();
 

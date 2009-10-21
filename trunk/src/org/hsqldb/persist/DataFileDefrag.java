@@ -136,14 +136,13 @@ final class DataFileDefrag {
             fileStreamOut = null;
 
             // write out the end of file position
-            dest = ScaledRAFile.newScaledRAFile(
-                database, dataFileName
-                + ".new", false, ScaledRAFile.DATA_FILE_RAF, database
-                    .getURLProperties().getProperty(
-                        HsqlDatabaseProperties
-                            .url_storage_class_name), database
-                                .getURLProperties().getProperty(
-                                    HsqlDatabaseProperties.url_storage_key));
+            int type = database.logger.isStoredFileAccess()
+                       ? ScaledRAFile.DATA_FILE_STORED
+                       : ScaledRAFile.DATA_FILE_RAF;
+
+            dest = ScaledRAFile.newScaledRAFile(database,
+                                                dataFileName + ".new", false,
+                                                type);
 
             dest.seek(DataFileCache.LONG_FREE_POS_POS);
             dest.writeLong(fileOffset);

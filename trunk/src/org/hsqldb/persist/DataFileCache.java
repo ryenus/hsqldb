@@ -180,22 +180,22 @@ public class DataFileCache {
         database.logger.logInfoEvent("open start");
 
         try {
-            boolean isNio    = database.logger.propNioDataFile;
-            int     fileType = isNio ? ScaledRAFile.DATA_FILE_NIO
-                                     : ScaledRAFile.DATA_FILE_RAF;
+            boolean isNio = database.logger.propNioDataFile;
+            int     fileType;
 
-            if (database.isFilesInJar()) {
+            if (database.logger.isStoredFileAccess()) {
+                fileType = ScaledRAFile.DATA_FILE_STORED;
+            } else if (database.isFilesInJar()) {
                 fileType = ScaledRAFile.DATA_FILE_JAR;
+            } else if (isNio) {
+                fileType = ScaledRAFile.DATA_FILE_NIO;
+            } else {
+                fileType = ScaledRAFile.DATA_FILE_RAF;
             }
-
-            String cname = database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_storage_class_name);
-            String skey = database.getURLProperties().getProperty(
-                HsqlDatabaseProperties.url_storage_key);
 
             if (readonly || database.isFilesInJar()) {
                 dataFile = ScaledRAFile.newScaledRAFile(database,
-                        dataFileName, readonly, fileType, cname, skey);
+                        dataFileName, readonly, fileType);
 
                 initBuffers();
 
@@ -210,7 +210,7 @@ public class DataFileCache {
             }
 
             dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
-                    readonly, fileType, cname, skey);
+                    readonly, fileType);
 
             if (preexists) {
                 dataFile.seek(FLAGS_POS);
@@ -240,7 +240,7 @@ public class DataFileCache {
                     }
 
                     dataFile = ScaledRAFile.newScaledRAFile(database,
-                            dataFileName, readonly, fileType, cname, skey);
+                            dataFileName, readonly, fileType);
 
                     if (!restored) {
                         initNewFile();
@@ -366,7 +366,8 @@ public class DataFileCache {
 
         try {
             if (fa.isStreamElement(backupFileName)) {
-                RAShadowFile.restoreFile(backupFileName, dataFileName);
+                RAShadowFile.restoreFile(database, backupFileName,
+                                         dataFileName);
                 deleteBackup();
 
                 return true;
@@ -711,7 +712,7 @@ public class DataFileCache {
     private CachedObject getFromFile(int pos, PersistentStore store,
                                      boolean keep) {
 
-        CachedObject object      = null;
+        CachedObject object = null;
 
         writeLock.lock();
 
@@ -741,7 +742,7 @@ public class DataFileCache {
                     cache.forceCleanUp();
                     System.gc();
 
-                    if ( j > 0) {
+                    if (j > 0) {
                         throw err;
                     }
                 }
@@ -1052,7 +1053,7 @@ public class DataFileCache {
      */
     static void deleteOrResetFreePos(Database database, String filename) {
 
-        ScaledRAFile raFile = null;
+        Storage raFile = null;
 
         database.logger.getFileAccess().removeElement(filename);
 
@@ -1067,7 +1068,7 @@ public class DataFileCache {
         }
 
         try {
-            raFile = new ScaledRAFile(database, filename, false);
+            raFile = new ScaledRAFileSimple(filename, "rw");
 
             raFile.seek(LONG_FREE_POS_POS);
             raFile.writeLong(INITIAL_FREE_POS);
