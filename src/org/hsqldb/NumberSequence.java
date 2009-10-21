@@ -98,6 +98,11 @@ public final class NumberSequence implements SchemaObject {
 
         switch (dataType.typeCode) {
 
+            case Types.TINYINT :
+                max = Byte.MAX_VALUE;
+                min = Byte.MIN_VALUE;
+                break;
+
             case Types.SQL_SMALLINT :
                 max = Short.MAX_VALUE;
                 min = Short.MIN_VALUE;
@@ -295,6 +300,11 @@ public final class NumberSequence implements SchemaObject {
 
         switch (dataType.typeCode) {
 
+            case Types.TINYINT :
+                max = Byte.MAX_VALUE;
+                min = Byte.MIN_VALUE;
+                break;
+
             case Types.SQL_SMALLINT :
                 max = Short.MAX_VALUE;
                 min = Short.MIN_VALUE;
@@ -420,6 +430,11 @@ public final class NumberSequence implements SchemaObject {
 
         switch (dataType.typeCode) {
 
+            case Types.TINYINT :
+                max = Byte.MAX_VALUE;
+                min = Byte.MIN_VALUE;
+                break;
+
             case Types.SQL_SMALLINT :
                 max = Short.MAX_VALUE;
                 min = Short.MIN_VALUE;
@@ -455,6 +470,11 @@ public final class NumberSequence implements SchemaObject {
         long max;
 
         switch (dataType.typeCode) {
+
+            case Types.TINYINT :
+                max = Byte.MAX_VALUE;
+                min = Byte.MIN_VALUE;
+                break;
 
             case Types.SQL_SMALLINT :
                 max = Short.MAX_VALUE;
