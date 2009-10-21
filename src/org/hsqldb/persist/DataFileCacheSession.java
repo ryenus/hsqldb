@@ -83,7 +83,7 @@ public class DataFileCacheSession extends DataFileCache {
 
         try {
             dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
-                    false, ScaledRAFile.DATA_FILE_RAF, null, null);
+                    false, ScaledRAFile.DATA_FILE_RAF);
             fileFreePosition = INITIAL_FREE_POS;
 
             initBuffers();

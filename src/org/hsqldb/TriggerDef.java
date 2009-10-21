@@ -287,47 +287,40 @@ public class TriggerDef implements Runnable, SchemaObject {
         }
 
         sb.append(Tokens.T_ON).append(' ');
-        sb.append(table.getName().getSchemaQualifiedStatementName()).append(' ');
+        sb.append(table.getName().getSchemaQualifiedStatementName());
+        sb.append(' ');
 
         if (hasTransitionRanges || hasTransitionTables) {
             sb.append(Tokens.T_REFERENCING).append(' ');
-
-            String separator = "";
 
             if (transitions[OLD_ROW] != null) {
                 sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_ROW);
                 sb.append(' ').append(Tokens.T_AS).append(' ');
                 sb.append(transitions[OLD_ROW].getName().statementName);
-
-                separator = Tokens.T_COMMA;
+                sb.append(' ');
             }
 
             if (transitions[NEW_ROW] != null) {
-                sb.append(separator);
                 sb.append(Tokens.T_NEW).append(' ').append(Tokens.T_ROW);
                 sb.append(' ').append(Tokens.T_AS).append(' ');
                 sb.append(transitions[NEW_ROW].getName().statementName);
-
-                separator = Tokens.T_COMMA;
+                sb.append(' ');
             }
 
             if (transitions[OLD_TABLE] != null) {
-                sb.append(separator);
                 sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_TABLE);
                 sb.append(' ').append(Tokens.T_AS).append(' ');
                 sb.append(transitions[OLD_TABLE].getName().statementName);
-
-                separator = Tokens.T_COMMA;
+                sb.append(' ');
             }
 
             if (transitions[NEW_TABLE] != null) {
-                sb.append(separator);
                 sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_TABLE);
                 sb.append(' ').append(Tokens.T_AS).append(' ');
                 sb.append(transitions[NEW_TABLE].getName().statementName);
+                sb.append(' ');
             }
 
-            sb.append(' ');
         }
 
         if (forEachRow) {

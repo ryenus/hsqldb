@@ -36,6 +36,7 @@ import java.io.RandomAccessFile;
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.Storage;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -44,9 +45,9 @@ import org.hsqldb.error.ErrorCode;
  */
 public class LobStoreRAFile implements LobStore {
 
-    int              lobBlockSize  = 1024 * 32;
-    RandomAccessFile file;
-    Database         database;
+    int      lobBlockSize = 1024 * 32;
+    Storage  file;
+    Database database;
 
     public LobStoreRAFile(Database database, int lobBlockSize) {
 
@@ -72,8 +73,13 @@ public class LobStoreRAFile implements LobStore {
             String  name     = database.getPath() + ".lobs";
             boolean readonly = database.isReadOnly();
 
-            file = new RandomAccessFile(name, readonly ? "r"
-                                                       : "rwd");
+            if (database.logger.isStoredFileAccess()) {
+                file = ScaledRAFile.newScaledRAFile(
+                    database, name, readonly, ScaledRAFile.DATA_FILE_STORED);
+            } else {
+                file = new ScaledRAFileSimple(name, readonly ? "r"
+                                                             : "rwd");
+            }
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
@@ -91,7 +97,7 @@ public class LobStoreRAFile implements LobStore {
             byte[] dataBytes = new byte[count];
 
             file.seek(address);
-            file.read(dataBytes);
+            file.read(dataBytes, 0, count);
 
             return dataBytes;
         } catch (Throwable t) {

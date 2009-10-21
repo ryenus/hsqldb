@@ -124,10 +124,9 @@ public class IndexAVL implements Index {
     private final boolean[] colDesc;
     private final boolean[] nullsLast;
     boolean                 isSimpleOrder;
-    private final int[]     pkCols;
-    private final Type[]    pkTypes;
-    private final boolean   isUnique;    // DDL uniqueness
-    private final boolean   useRowId;
+    boolean                 isSimple;
+    protected final boolean isPK;        // PK with or without columns
+    protected final boolean isUnique;    // DDL uniqueness
     private final boolean   isConstraint;
     private final boolean   isForward;
     private int             depth;
@@ -169,13 +168,11 @@ public class IndexAVL implements Index {
                                             : descending;
         this.nullsLast = nullsLast == null ? new boolean[columns.length]
                                            : nullsLast;
+        isPK           = pk;
         isUnique       = unique;
         isConstraint   = constraint;
         isForward      = forward;
         this.table     = table;
-        this.pkCols    = table.getPrimaryKey();
-        this.pkTypes   = table.getPrimaryKeyTypes();
-        useRowId = (!isUnique && pkCols.length == 0) || (colIndex.length == 0);
         colCheck       = table.getNewColumnCheckList();
 
         ArrayUtil.intIndexesToBooleanArray(colIndex, colCheck);
@@ -191,6 +188,8 @@ public class IndexAVL implements Index {
                 isSimpleOrder = false;
             }
         }
+
+        isSimple = isSimpleOrder && colIndex.length == 1;
     }
 
     // SchemaObject implementation
@@ -336,6 +335,10 @@ public class IndexAVL implements Index {
      */
     public int getIndexOrderValue() {
 
+        if (isPK) {
+            return 0;
+        }
+
         if (isConstraint) {
             return isForward ? 4
                              : isUnique ? 0
@@ -445,8 +448,9 @@ public class IndexAVL implements Index {
 
         NodeAVL n;
         NodeAVL x;
-        boolean isleft  = true;
-        int     compare = -1;
+        boolean isleft       = true;
+        int     compare      = -1;
+        boolean compareRowId = !isUnique || hasNulls(row.getData());
 
         writeLock.lock();
         store.lock();
@@ -464,8 +468,18 @@ public class IndexAVL implements Index {
             while (true) {
                 Row currentRow = n.getRow(store);
 
-                compare = compareRowForInsertOrDelete(session, row,
-                                                      currentRow);
+                compare = compareRowForInsertOrDelete(row, currentRow,
+                                                      compareRowId, 0);
+
+                // after the first match and check, all compares are with row id
+                if (compare == 0 && session != null
+                        && session.database.txManager.isMVRows()
+                        && !isEqualReadable(session, store, n)) {
+                    compareRowId = true;
+                    compare = compareRowForInsertOrDelete(row, currentRow,
+                                                          compareRowId,
+                                                          colIndex.length);
+                }
 
                 if (compare == 0) {
                     throw Error.error(ErrorCode.X_23505);
@@ -1126,6 +1140,64 @@ public class IndexAVL implements Index {
         return x;
     }
 
+    boolean isEqualReadable(Session session, PersistentStore store,
+                            NodeAVL node) {
+
+        NodeAVL  c = node;
+        Object[] data;
+        Object[] nodeData;
+
+        if (session.database.txManager.canRead(session, node.getRow(store))) {
+            return true;
+        }
+
+        data = node.getData(store);
+
+        while (true) {
+            c = last(store, c);
+
+            if (c == null) {
+                break;
+            }
+
+            nodeData = c.getData(store);
+
+            if (compareRow(data, nodeData) == 0) {
+                if (session.database.txManager.canRead(session,
+                                                       c.getRow(store))) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            break;
+        }
+
+        while (true) {
+            c = next(session, store, node);
+
+            if (c == null) {
+                break;
+            }
+
+            nodeData = c.getData(store);
+
+            if (compareRow(data, nodeData) == 0) {
+                if (session.database.txManager.canRead(session,
+                                                       c.getRow(store))) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            break;
+        }
+
+        return false;
+    }
+
     /**
      * Replace x with n
      *
@@ -1202,30 +1274,16 @@ public class IndexAVL implements Index {
         return 0;
     }
 
-    /**
-     * Compare two rows of the table for inserting rows into unique indexes
-     * Supports descending columns.
-     *
-     * @param newRow data
-     * @param existingRow data
-     * @return comparison result, -1,0,+1
-     */
-    int compareRowForInsertOrDelete(Session session, Row newRow,
-                                    Row existingRow) {
+    int compareRow(Object[] a, Object[] b) {
 
-        Object[] a       = newRow.rowData;
-        Object[] b       = existingRow.rowData;
-        int      j       = 0;
-        boolean  hasNull = false;
-
-        for (; j < colIndex.length; j++) {
+        for (int j = 0; j < colIndex.length; j++) {
             int i = colTypes[j].compare(a[colIndex[j]], b[colIndex[j]]);
 
-            if (isSimpleOrder && i != 0) {
-                return i;
-            }
-
             if (i != 0) {
+                if (isSimpleOrder) {
+                    return i;
+                }
+
                 boolean nulls = a[colIndex[j]] == null
                                 || b[colIndex[j]] == null;
 
@@ -1239,62 +1297,64 @@ public class IndexAVL implements Index {
 
                 return i;
             }
-
-            if (a[colIndex[j]] == null) {
-                hasNull = true;
-            }
         }
 
-        if (isUnique && !useRowId && !hasNull) {
-            if (session == null
-                    || session.database.txManager.canRead(session,
-                        existingRow)) {
+        return 0;
+    }
 
-                //* debug 190
-//                session.database.txManager.canRead(session, existingRow);
-                return 0;
-            } else {
-                int difference = newRow.getPos() - existingRow.getPos();
+    /**
+     * Compare two rows of the table for inserting rows into unique indexes
+     * Supports descending columns.
+     *
+     * @param newRow data
+     * @param existingRow data
+     * @return comparison result, -1,0,+1
+     */
+    int compareRowForInsertOrDelete(Row newRow, Row existingRow,
+                                    boolean useRowId, int start) {
 
-                return difference;
-            }
-        }
+        Object[] a = newRow.rowData;
+        Object[] b = existingRow.rowData;
 
-        for (j = 0; j < pkCols.length; j++) {
-            Object currentvalue = a[pkCols[j]];
-            int    i = pkTypes[j].compare(currentvalue, b[pkCols[j]]);
+        for (int j = start; j < colIndex.length; j++) {
+            int i = colTypes[j].compare(a[colIndex[j]], b[colIndex[j]]);
 
             if (i != 0) {
+                if (isSimpleOrder) {
+                    return i;
+                }
+
+                boolean nulls = a[colIndex[j]] == null
+                                || b[colIndex[j]] == null;
+
+                if (colDesc[j] && !nulls) {
+                    i = -i;
+                }
+
+                if (nullsLast[j] && nulls) {
+                    i = -i;
+                }
+
                 return i;
             }
         }
 
         if (useRowId) {
-            int difference = newRow.getPos() - existingRow.getPos();
-
-            if (difference < 0) {
-                difference = -1;
-            } else if (difference > 0) {
-                difference = 1;
-            }
-
-            return difference;
+            return newRow.getPos() - existingRow.getPos();
         }
 
-        if (session == null
-                || session.database.txManager.canRead(session, existingRow)) {
-            return 0;
-        } else {
-            int difference = newRow.getPos() - existingRow.getPos();
+        return 0;
+    }
 
-            if (difference < 0) {
-                difference = -1;
-            } else if (difference > 0) {
-                difference = 1;
+    boolean hasNulls(Object[] rowData) {
+
+        for (int j = 0; j < colIndex.length; j++) {
+            if (rowData[colIndex[j]] == null) {
+                return true;
             }
-
-            return difference;
         }
+
+        return false;
     }
 
     /**
@@ -1305,9 +1365,8 @@ public class IndexAVL implements Index {
      * @param first true if the first matching node is required, false if any node
      * @return matching node or null
      */
-    NodeAVL findNode(Session session, PersistentStore store,
-                             Object[] rowdata, int[] rowColMap,
-                             int fieldCount) {
+    NodeAVL findNode(Session session, PersistentStore store, Object[] rowdata,
+                     int[] rowColMap, int fieldCount) {
 
         readLock.lock();
 

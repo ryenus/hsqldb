@@ -376,7 +376,7 @@ public class TableBase {
 
         long id = database.persistentStoreCollection.getNextId();
         Index newIndex = database.logger.newIndex(name, id, this, pkcols,
-            null, null, pktypes, true, true, true, false);
+            null, null, pktypes, true, pkcols.length > 0, true, false);
 
         try {
             addIndex(newIndex);

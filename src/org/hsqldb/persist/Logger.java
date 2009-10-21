@@ -287,7 +287,8 @@ public class Logger {
 
         // handle invalid paths as well as access issues
         if (!database.isFilesReadOnly()) {
-            if (database.getType() == DatabaseURL.S_MEM || isStoredFileAccess) {
+            if (database.getType() == DatabaseURL.S_MEM
+                    || isStoredFileAccess) {
                 tempDirectoryPath = database.getProperties().getStringProperty(
                     HsqlDatabaseProperties.hsqldb_temp_directory);
             } else {
@@ -477,6 +478,16 @@ public class Logger {
      */
     public boolean hasPersistence() {
         return log != null;
+    }
+
+    /*
+     * Must return correct mode prior to initialisation
+     * @return  true if this object encapsulates a non-null Log instance,
+     *      else false
+     */
+    public boolean isLogged() {
+        return DatabaseURL.isFileBasedDatabaseType(database.getType())
+               && !database.isFilesReadOnly();
     }
 
     FrameworkLogger fwLogger;
@@ -1089,7 +1100,7 @@ public class Logger {
             sb.setLength(0);
             sb.append("SET FILES ").append(Tokens.T_NIO);
             sb.append(' ').append(propNioDataFile ? Tokens.T_TRUE
-                                          : Tokens.T_FALSE);
+                                                  : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
             sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');

@@ -74,7 +74,7 @@ public class ParserDML extends ParserDQL {
 
         int position = getPosition();
 
-        if (!table.isInsertable()) {
+        if (!table.isInsertable() && !session.isProcessingScript) {
             throw Error.error(ErrorCode.X_42545);
         }
 

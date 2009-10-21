@@ -391,7 +391,7 @@ public class TestViewAsterisks extends TestBase {
         // ................................................................
         checkViewTranslationAndContent(
             "C1", null, "SELECT *, A AS \"a2\" FROM ABC",
-            "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C ,A AS\"a2\"FROM ABC",
+            "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C ,A AS\"a2\" FROM ABC",
             new Object[][] {
             new Object[] {
                 new Integer(1), "a", "b", "c", "a"
@@ -403,7 +403,7 @@ public class TestViewAsterisks extends TestBase {
         // ................................................................
         checkViewTranslationAndContent(
             "C2", null, "SELECT B AS \"b2\", * FROM ABC",
-            "SELECT B AS\"b2\", PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC",
+            "SELECT B AS\"b2\" , PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC",
             new Object[][] {
             new Object[] {
                 "b", new Integer(1), "a", "b", "c"
