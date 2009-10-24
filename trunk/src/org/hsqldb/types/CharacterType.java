@@ -584,6 +584,10 @@ public class CharacterType extends Type {
             return a;
         }
 
+        if (otherType.isLobType() ) {
+            throw Error.error(ErrorCode.X_42561);
+        }
+
         return convertToType(session, a, otherType);
     }
 

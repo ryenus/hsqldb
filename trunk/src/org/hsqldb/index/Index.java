@@ -122,8 +122,9 @@ public interface Index extends SchemaObject {
 
     public void delete(PersistentStore store, Row row);
 
-    public boolean exists(Session session, PersistentStore store,
-                          Object[] rowdata, int[] rowColMap);
+    public boolean existsParent(Session session, PersistentStore store,
+                                Object[] rowdata, int[] rowColMap,
+                                boolean isNew);
 
     /**
      * Return the first node equal to the indexdata object. The rowdata has

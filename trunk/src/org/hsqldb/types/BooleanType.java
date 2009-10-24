@@ -209,6 +209,11 @@ public final class BooleanType extends Type {
                 return a;
 
             default :
+                if (otherType.isLobType() ) {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+
+
                 if (otherType.isCharacterType()) {
                     if ("0".equals(a)) {
                         return Boolean.TRUE;

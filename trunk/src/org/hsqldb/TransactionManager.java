@@ -36,6 +36,10 @@ import org.hsqldb.persist.CachedObject;
 
 public interface TransactionManager {
 
+    public int ACTION_READ = 0;
+    public int ACTION_DUP  = 1;
+    public int ACTION_REF  = 2;
+
     public long getGlobalChangeTimestamp();
 
     public RowAction addDeleteAction(Session session, Table table, Row row);
@@ -48,12 +52,14 @@ public interface TransactionManager {
      */
     public void beginAction(Session session, Statement cs);
 
+    public void beginActionResume(Session session);
+
     public void beginTransaction(Session session);
 
     // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row);
+    public boolean canRead(Session session, Row row, int mode);
 
-    public boolean canRead(Session session, int id);
+    public boolean canRead(Session session, int id, int mode);
 
     public boolean commitTransaction(Session session);
 

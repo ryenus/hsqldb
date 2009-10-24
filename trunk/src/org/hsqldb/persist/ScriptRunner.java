@@ -47,6 +47,7 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
+import org.hsqldb.HsqlNameManager.HsqlName;
 
 /**
  * Restores the state of a Database instance from an SQL log file. <p>
@@ -143,8 +144,7 @@ public class ScriptRunner {
 
                         scr.getCurrentTable().insertNoCheckFromLog(current,
                                 data);
-                        current.endAction(
-                            Result.updateOneResult);
+                        current.endAction(Result.updateOneResult);
 
                         break;
                     }
@@ -155,13 +155,21 @@ public class ScriptRunner {
 
                         scr.getCurrentTable().deleteNoCheckFromLog(current,
                                 data);
-                        current.endAction(
-                            Result.updateOneResult);
+                        current.endAction(Result.updateOneResult);
 
                         break;
                     }
                     case ScriptReaderBase.SET_SCHEMA_STATEMENT : {
-                        current.setSchema(scr.getCurrentSchema());
+                        HsqlName name =
+                            database.schemaManager.findSchemaHsqlName(
+                                scr.getCurrentSchema());
+
+                        current.setCurrentSchemaHsqlName(name);
+
+                        break;
+                    }
+                    case ScriptReaderBase.SESSION_ID : {
+                        break;
                     }
                 }
 

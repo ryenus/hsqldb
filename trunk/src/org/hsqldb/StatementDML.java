@@ -1013,7 +1013,7 @@ public class StatementDML extends StatementDMQL {
                     continue;
                 }
 
-                c.checkHasMainRef(session, nrow);
+                c.checkInsert(session, c.getMain(), nrow, true);
             }
         }
 

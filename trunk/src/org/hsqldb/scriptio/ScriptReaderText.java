@@ -182,16 +182,19 @@ public class ScriptReaderText extends ScriptReaderBase {
 
     public boolean readLoggedStatement(Session session) throws IOException {
 
-        //fredt temporary solution - should read bytes directly from buffer
-        String s = dataStreamIn.readLine();
+        if (!sessionChanged) {
 
-        lineCount++;
+            //fredt temporary solution - should read bytes directly from buffer
+            String s = dataStreamIn.readLine();
 
-//        System.out.println(lineCount);
-        statement = StringConverter.unicodeStringToString(s);
+            lineCount++;
 
-        if (statement == null) {
-            return false;
+            //        System.out.println(lineCount);
+            statement = StringConverter.unicodeStringToString(s);
+
+            if (statement == null) {
+                return false;
+            }
         }
 
         processStatement(session);
@@ -207,8 +210,14 @@ public class ScriptReaderText extends ScriptReaderBase {
 
                 sessionNumber = Integer.parseInt(statement.substring(3,
                         endid));
-                statement = statement.substring(endid + 2);
+                statement      = statement.substring(endid + 2);
+                sessionChanged = true;
+                statementType  = SESSION_ID;
+
+                return;
             }
+
+            sessionChanged = false;
 
             rowIn.setSource(statement);
 

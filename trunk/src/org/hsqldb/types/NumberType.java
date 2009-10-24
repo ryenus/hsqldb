@@ -831,6 +831,11 @@ public final class NumberType extends Type {
             return a;
         }
 
+        if (otherType.isLobType() ) {
+            throw Error.error(ErrorCode.X_42561);
+        }
+
+
         switch (otherType.typeCode) {
 
             case Types.SQL_BOOLEAN :

@@ -273,5 +273,7 @@ public class SessionManager {
 
             session.loggedSchema = null;
         }
+
+        this.sysLobSession.loggedSchema = null;
     }
 }

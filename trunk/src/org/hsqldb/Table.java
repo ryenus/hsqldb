@@ -2361,12 +2361,12 @@ public class Table extends TableBase implements SchemaObject {
 
         if (database.isReferentialIntegrity()) {
             for (int i = 0, size = fkConstraints.length; i < size; i++) {
-                fkConstraints[i].checkInsert(session, this, data);
+                fkConstraints[i].checkInsert(session, this, data, true);
             }
         }
 
         for (int i = 0, size = checkConstraints.length; i < size; i++) {
-            checkConstraints[i].checkInsert(session, this, data);
+            checkConstraints[i].checkInsert(session, this, data, true);
         }
 
         insertNoCheck(session, store, data);

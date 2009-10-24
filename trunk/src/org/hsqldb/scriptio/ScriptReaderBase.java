@@ -76,6 +76,7 @@ public abstract class ScriptReaderBase {
 
     int             statementType;
     int             sessionNumber;
+    boolean         sessionChanged;
     Object[]        rowData;
     long            sequenceValue;
     String          statement;

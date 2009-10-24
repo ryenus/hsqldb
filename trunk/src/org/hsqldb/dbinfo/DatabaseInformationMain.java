@@ -193,23 +193,25 @@ class DatabaseInformationMain extends DatabaseInformation {
 
     /** Provides naming support. */
     static {
-        nonCachedTablesSet = new HashSet();
-        sysTableHsqlNames  = new HsqlName[sysTableNames.length];
+        synchronized(DatabaseInformationMain.class) {
+            nonCachedTablesSet = new HashSet();
+            sysTableHsqlNames = new HsqlName[sysTableNames.length];
 
-        for (int i = 0; i < sysTableNames.length; i++) {
-            sysTableHsqlNames[i] =
-                HsqlNameManager.newInfoSchemaTableName(sysTableNames[i]);
-            sysTableHsqlNames[i].schema =
-                SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
-            sysTableSessionDependent[i] = true;
+            for (int i = 0; i < sysTableNames.length; i++) {
+                sysTableHsqlNames[i] =
+                    HsqlNameManager.newInfoSchemaTableName(sysTableNames[i]);
+                sysTableHsqlNames[i].schema =
+                    SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
+                sysTableSessionDependent[i] = true;
+            }
+
+            // build the set of non-cached tables
+            nonCachedTablesSet.add("SYSTEM_CACHEINFO");
+            nonCachedTablesSet.add("SYSTEM_SESSIONINFO");
+            nonCachedTablesSet.add("SYSTEM_SESSIONS");
+            nonCachedTablesSet.add("SYSTEM_PROPERTIES");
+            nonCachedTablesSet.add("SYSTEM_SEQUENCES");
         }
-
-        // build the set of non-cached tables
-        nonCachedTablesSet.add("SYSTEM_CACHEINFO");
-        nonCachedTablesSet.add("SYSTEM_SESSIONINFO");
-        nonCachedTablesSet.add("SYSTEM_SESSIONS");
-        nonCachedTablesSet.add("SYSTEM_PROPERTIES");
-        nonCachedTablesSet.add("SYSTEM_SEQUENCES");
     }
 
     /**

@@ -244,7 +244,7 @@ public class Logger {
         String version = database.databaseProperties.getStringProperty(
             HsqlDatabaseProperties.hsqldb_version);
 
-        if (version.substring(0, 5).equals("1.8.0")) {
+        if (version.substring(0, 4).equals("1.8.")) {
             HsqlName name = database.schemaManager.findSchemaHsqlName(
                 SqlInvariants.PUBLIC_SCHEMA);
 
