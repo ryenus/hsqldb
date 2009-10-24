@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
-
-<appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
-      xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="openoffice-app"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+<appendix version="5.0" xml:id="openoffice-app"
+          xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:ns5="http://www.w3.org/2000/svg"
+          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+          xmlns:ns3="http://www.w3.org/1999/xhtml"
+          xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
   <info>
-    <title xml:id="openoffice-title">Integration with OpenOffice</title>
-    <subtitle>A more descriptive description</subtitle>
+    <title xml:id="openoffice-title">HyperSQL with OpenOffice.org</title>
+
+    <subtitle>How to use HyperSQL with OpenOffice.org</subtitle>
 
     <author>
-      <personname>
-        <firstname>Fred</firstname>
-
-        <surname>Toussi</surname>
-      </personname>
+      <personname><firstname>Fred</firstname>
+      <surname>Toussi</surname></personname>
 
       <affiliation>
         <orgname>The HSQL Development Group</orgname>
@@ -43,10 +45,57 @@
   </info>
 
   <section>
-    <title>Purpose</title>
+    <title>HyperSQL with OpenOffice.org</title>
 
-    <simpara>
-      If you want to summarize the purpose...
-    </simpara>
+    <simpara>OpenOffice.org comes with HyperSQL and uses it for embedded
+    databases. Our collaboration with OpenOffice.org developers over the last
+    few years has benefited the development and maturity of HyperSQL. Before
+    integration into OOo, HSQLDB was intended solely for application-specific
+    database access. The application developer was expected to resolve any
+    integration issues. Because OpenOffice.org is used by a vast range of
+    users, from schoolchildren to corporate developers, a much higher level of
+    quality assurance has been required and we have achieved it with constant
+    help and feedback from OOo users and developers.</simpara>
+
+    <simpara>Apart from embedded use, you may want to use OpenOffic.org with a
+    HyperSQL server instance. The typical use for this is to allow multiple
+    office users accessing the same database. There is, however, a strong case
+    for using OOo to develop your database schema and application, even if the
+    database is intended for your own application.</simpara>
+  </section>
+
+  <section>
+    <title>Using OpenOffice.org as a Database Tool</title>
+
+    <simpara>OpenOffice.org is a very powerful database front end. If you want
+    to create schemas, edit tables, edit the database contents manually,
+    design and produce well-formatted reports, then OpenOffice.org is probably
+    the best open source tools currently available.</simpara>
+
+    <simpara>To connect from OpenOffice.org to your database, first run a
+    local server instance for the database. This is describes in the Network
+    Listeners chapter of this guide.</simpara>
+
+    <simpara>When you connect from OpenOffice.org, you must specify connection
+    to an external database and use the URL property "default_schema=true".
+    For example, the URL to connect the local database may be like</simpara>
+
+    <programlisting> jdbc;hsqldb:hsql://localhost/mydb;default_schema=true </programlisting>
+
+    <simpara>The only current limitation is that OpenOffice.org only works
+    with the PUBLIC schema. This limitation will hopefully removed in the
+    future versions of OOo.</simpara>
+  </section>
+
+  <section>
+    <title>Converting .odb files to use with HyperSQL Server</title>
+
+    <simpara>You may already have an OOo database file, which you want to use
+    outside OOo, or as a server database. The file is in fact in the standard
+    ZIP format and contains the normal HyperSQL database files. Just use a
+    utility such as 7Zip to expand the .odb file. In the /db directory, there
+    are files such as .script, .data, etc. Just rename these files into
+    mydb.script, mydb.data, etc. You can now open the mydb database directly
+    with HyperSQL as an embedded database or as a server instance.</simpara>
   </section>
 </appendix>

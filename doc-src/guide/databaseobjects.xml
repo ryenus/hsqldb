@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
-         xmlns:xi="http://www.w3.org/2001/XInclude">
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <title xml:id="databaseobjects-title">Schemas and Database Objects</title>
 
   <info>
@@ -178,8 +182,9 @@
       column must contain only characters from the specified character
       set.</simpara>
 
-      <simpara>HyperSQL version 1.9 may not enforce the CHARACTER SET that is
-      specified for a column and accept any character string.</simpara>
+      <simpara>Early releases of HyperSQL version 2.0 may not enforce the
+      CHARACTER SET that is specified for a column and accept any character
+      string.</simpara>
     </section>
 
     <section>
@@ -199,8 +204,8 @@
       <simpara>Collations for a large number of languages are supported by
       HyperSQL.</simpara>
 
-      <simpara>HyperSQL version 1.9 may only support a single collation for
-      the whole database.</simpara>
+      <simpara>Early releases of HyperSQL version 2.0 only support a single
+      collation for the whole database.</simpara>
     </section>
 
     <section>
@@ -1172,6 +1177,22 @@ INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
 </programlisting>
       </informalexample>
 
+      <simpara>The seach condition of a CHECK constraint cannot contain any
+      function that is not deterministic. A check constraint is a data
+      integrity constraint, therefore it must hold with respect to the rest of
+      the data in the database. It cannot use values that are temporal or
+      ephemeral. For example CURRENT_USER is a function that returns different
+      values depending on who is using the database, or CURRENT_DATE changes
+      day-to-day. Some temporal expressions are retrospectively deterministic
+      and are allowed in check constraints. For example, (CHECK VALUE &lt;
+      CURRENT_DATE) is valid, because CURRENT_DATE will not move backwards in
+      time, but (CHECK VALUE &gt; CURRENT_DATE) is not acceptable.</simpara>
+
+      <simpara>If you want to enforce the condition that a date value that is
+      inserted into the database belongs to the future (at the time of
+      insertion), or any similar constraint, then use a TRIGGER with the
+      desired condition.</simpara>
+
       <indexterm significance="preferred" type="sql">
         <primary>SET TABLE read-write property</primary>
       </indexterm>
@@ -1924,8 +1945,8 @@ INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
       class that implements the <classname>org.hsqldb.Trigger</classname>
       interface.</simpara>
 
-      <simpara>HyperSQL version 1.9 may not support statement level triggers
-      and therefore not allow use of OLD TABLE or NEW TABLE.</simpara>
+      <simpara>Early releases of HyperSQL version 2.0 do not allow the use of
+      OLD TABLE or NEW TABLE in statement level trigger definitions.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP TRIGGER</primary>
