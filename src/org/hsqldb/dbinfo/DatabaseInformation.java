@@ -258,10 +258,12 @@ public class DatabaseInformation {
     protected static final IntValueHashMap sysTableNamesMap;
 
     static {
-        sysTableNamesMap = new IntValueHashMap(91);
+        synchronized (DatabaseInformation.class) {
+            sysTableNamesMap = new IntValueHashMap(91);
 
-        for (int i = 0; i < sysTableNames.length; i++) {
-            sysTableNamesMap.put(sysTableNames[i], i);
+            for (int i = 0; i < sysTableNames.length; i++) {
+                sysTableNamesMap.put(sysTableNames[i], i);
+            }
         }
     }
 
@@ -354,7 +356,7 @@ public class DatabaseInformation {
      * @return a table corresponding to the name and session arguments, or
      *      <code>null</code> if there is no such table to be produced
      */
-    public Table getSystemTable(Session session, String name) {
+    public synchronized Table getSystemTable(Session session, String name) {
         return null;
     }
 
@@ -374,7 +376,7 @@ public class DatabaseInformation {
      * semantics similar to getSystemTable() and act accordingly (e.g.
      * clearing earlier than next invocation of getSystemTable()).
      */
-    public final void setDirty() {
+    public synchronized final void setDirty() {
         isDirty = true;
     }
 
@@ -385,7 +387,7 @@ public class DatabaseInformation {
      * @param withContent if true, then produce contentful tables, else
      *        produce emtpy (surrogate) tables
      */
-    public final void setWithContent(boolean withContent) {
+    public synchronized final void setWithContent(boolean withContent) {
         this.withContent = withContent;
     }
 }

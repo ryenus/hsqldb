@@ -37,26 +37,14 @@ import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.Session;
 import org.hsqldb.TableBase;
+import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.Type;
 
-// fredt@users 20020221 - patch 513005 by sqlbob@users - corrections
-// fredt@users 20020225 - patch 1.7.0 - changes to support cascading deletes
-// tony_lai@users 20020820 - patch 595052 - better error message
-// fredt@users 20021205 - patch 1.7.2 - changes to method signature
-// fredt@users - patch 1.8.0 - reworked the interface and comparison methods
-// fredt@users - patch 1.8.0 - improved reliability for cached indexes
-// fredt@users - patch 1.9.0 - iterators and concurrency
-
 /**
- * Implementation of an AVL tree with parent pointers in nodes. Subclasses
- * of Node implement the tree node objects for memory or disk storage. An
- * Index has a root Node that is linked with other nodes using Java Object
- * references or file pointers, depending on Node implementation.<p>
- * An Index object also holds information on table columns (in the form of int
- * indexes) that are covered by it.<p>
+ * Implementation of an AVL for memory tables.<p>
  *
  *  New class derived from Hypersonic SQL code and enhanced in HSQLDB. <p>
  *
@@ -77,6 +65,7 @@ public class IndexAVLMemory extends IndexAVL {
      * @param descending boolean[]
      * @param nullsLast boolean[]
      * @param colTypes array of column types
+     * @param pk if index is for a primary key
      * @param unique is this a unique index
      * @param constraint does this index belonging to a constraint
      * @param forward is this an auto-index for an FK that refers to a table
@@ -148,11 +137,11 @@ public class IndexAVLMemory extends IndexAVL {
 
         NodeAVL        n;
         NodeAVL        x;
-        boolean        isleft       = true;
-        int            compare      = -1;
-        final Object[] rowData      = row.rowData;
-        boolean        compareRowId = !isUnique || hasNulls(rowData);
-        boolean compareSimple       = isSimple;
+        boolean        isleft        = true;
+        int            compare       = -1;
+        final Object[] rowData       = row.rowData;
+        boolean        compareRowId  = !isUnique || hasNulls(rowData);
+        boolean        compareSimple = isSimple;
 
         writeLock.lock();
 
@@ -531,7 +520,8 @@ public class IndexAVLMemory extends IndexAVL {
                     break;
                 }
 
-                if (session.database.txManager.canRead(session, row)) {
+                if (session.database.txManager.canRead(
+                        session, row, TransactionManager.ACTION_READ)) {
                     break;
                 }
 
@@ -570,9 +560,7 @@ public class IndexAVLMemory extends IndexAVL {
 
                     if (l.iBalance == -sign) {
                         x.replace(store, this, l);
-
-                        x = x.set(store, isleft, l.child(store, !isleft));
-
+                        x.set(store, isleft, l.child(store, !isleft));
                         l.set(store, !isleft, x);
 
                         x.iBalance = 0;
@@ -582,11 +570,10 @@ public class IndexAVLMemory extends IndexAVL {
                                             : l.nRight;
 
                         x.replace(store, this, r);
-
-                        l = l.set(store, !isleft, r.child(store, isleft));
-                        r = r.set(store, isleft, l);
-                        x = x.set(store, isleft, r.child(store, !isleft));
-                        r = r.set(store, !isleft, x);
+                        l.set(store, !isleft, r.child(store, isleft));
+                        r.set(store, isleft, l);
+                        x.set(store, isleft, r.child(store, !isleft));
+                        r.set(store, !isleft, x);
 
                         int rb = r.iBalance;
 

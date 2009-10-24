@@ -4353,6 +4353,55 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         return false;
     }
 
+    /**
+     * processes chained warnings and any generated columns result set
+     */
+    void performPostExecute() throws SQLException {
+
+        if (this.hasLOBs) {
+            resultOut.clearLobResults();
+        }
+
+        generatedResult = null;
+
+        if (resultIn == null) {
+            return;
+        }
+
+        rootWarning    = null;
+
+        Result current = resultIn.getUnlinkChainedResult();
+
+        while (current != null) {
+            if (current.getType() == ResultConstants.WARNING) {
+                SQLWarning w = Util.sqlWarning(current);
+
+                if (rootWarning == null) {
+                    rootWarning = w;
+                } else {
+                    rootWarning.setNextWarning(w);
+                }
+            } else if (current.getType() == ResultConstants.ERROR) {
+                errorResult = current;
+            } else if (current.getType() == ResultConstants.DATA) {
+                generatedResult = current;
+            }
+
+            current = current.getUnlinkChainedResult();
+        }
+
+        if (rootWarning != null) {
+            connection.setWarnings(rootWarning);
+        }
+
+        if (statementRetType == StatementTypes.RETURN_RESULT
+                && resultIn.isData()) {
+            currentResultSet = new JDBCResultSet(connection.sessionProxy,
+                    this, resultIn, resultIn.metaData,
+                    connection.connProperties);
+        }
+    }
+
     /** The parameter values for the next non-batch execution. */
     protected Object[] parameterValues;
 

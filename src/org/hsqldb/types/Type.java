@@ -259,8 +259,13 @@ public abstract class Type implements SchemaObject, Cloneable {
      * SQL conversions supported by JDBC
      */
     public Object convertToTypeJDBC(SessionInterface session, Object a,
-                                    Type type) {
-        return convertToType(session, a, type);
+                                    Type otherType) {
+
+        if (otherType.isLobType()) {
+            throw Error.error(ErrorCode.X_42561);
+        }
+
+        return convertToType(session, a, otherType);
     }
 
     public Object convertJavaToSQL(SessionInterface session, Object a) {

@@ -172,7 +172,7 @@ public class TableWorks {
                 c.core.refCols);
         Index mainIndex = uniqueConstraint.getMainIndex();
 
-        uniqueConstraint.checkReferencedRows(session, table, c.core.refCols);
+        uniqueConstraint.checkReferencedRows(session, table);
 
         int offset = database.schemaManager.getTableIndex(table);
         boolean isForward = c.core.mainTable.getSchemaName()
@@ -390,6 +390,7 @@ public class TableWorks {
             }
         }
 
+        column.compile(session, table);
         PersistentStore oldStore =
             database.persistentStoreCollection.getStore(originalTable);
         PersistentStore newStore =

@@ -132,16 +132,13 @@ public class TransactionManager2PL implements TransactionManager {
 
     public void completeActions(Session session) {
 
-        Object[] list = session.rowActionList.getArray();
+        int      limit = session.rowActionList.size();
+        Object[] list  = session.rowActionList.getArray();
 
-        for (int i = session.actionIndex; i < list.length; i++) {
+        for (int i = session.actionIndex; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];
 
-            if (rowact == null) {
-                break;
-            }
-
-            rowact.complete(session, null);
+            rowact.complete(session);
         }
     }
 
@@ -191,7 +188,7 @@ public class TransactionManager2PL implements TransactionManager {
                     continue;
                 }
 
-                int type = action.getCommitType(session.actionTimestamp);
+                int type = action.getCommitTypeOn(session.actionTimestamp);
                 PersistentStore store =
                     session.sessionData.getRowStore(action.table);
                 Row row = action.memoryRow;
@@ -213,6 +210,7 @@ public class TransactionManager2PL implements TransactionManager {
                                 action.table, row.getData());
                             break;
 
+                        case RowActionBase.ACTION_INSERT_DELETE :
                         default :
                     }
                 }
@@ -228,6 +226,7 @@ public class TransactionManager2PL implements TransactionManager {
                             store.commitPersistence(row);
                             break;
 
+                        case RowActionBase.ACTION_INSERT_DELETE :
                         default :
                     }
 
@@ -239,7 +238,7 @@ public class TransactionManager2PL implements TransactionManager {
                         switch (type) {
 
                             case RowActionBase.ACTION_DELETE :
-                                if (hasPersistence && action.table.isLogged) {
+                                if (hasPersistence) {
                                     database.logger.writeDeleteStatement(
                                         session, (Table) action.table, data);
                                 }
@@ -248,13 +247,13 @@ public class TransactionManager2PL implements TransactionManager {
                                 break;
 
                             case RowActionBase.ACTION_INSERT :
-                                if (hasPersistence && action.table.isLogged) {
+                                if (hasPersistence) {
                                     database.logger.writeInsertStatement(
                                         session, (Table) action.table, data);
                                 }
                                 break;
 
-                            case RowActionBase.ACTION_NONE :
+                            case RowActionBase.ACTION_INSERT_DELETE :
 
                                 // INSERT + DELEETE
                                 store.remove(action.getPos());
@@ -350,16 +349,16 @@ public class TransactionManager2PL implements TransactionManager {
                 continue;
             }
 
-            action.rollback(session, timestamp);
+            int type = action.rollback(session, timestamp);
 
-            int type = action.getCommitType(session.actionTimestamp);
-
-            action.mergeRollback(row);
+            action.mergeRollback(session, timestamp, row);
 
             if (type == RowActionBase.ACTION_DELETE) {
                 store.indexRow(session, row);
             } else if (type == RowActionBase.ACTION_INSERT) {
                 store.delete(row);
+                store.remove(action.getPos());
+            } else if (type == RowActionBase.ACTION_INSERT_DELETE) {
                 store.remove(action.getPos());
             }
         }
@@ -397,26 +396,8 @@ public class TransactionManager2PL implements TransactionManager {
         session.rowActionList.add(action);
     }
 
-// functional unit - row comparison
-
-    /**
-     * Used for inserting rows into unique indexes
-     */
-
-    /** @todo test skips some equal rows because it relies on getPos() */
-    int compareRowForInsert(Row newRow, Row existingRow) {
-
-        // only allow new inserts over rows deleted by the same session
-        if (newRow.rowAction != null
-                && !canRead(newRow.rowAction.session, existingRow)) {
-            return newRow.getPos() - existingRow.getPos();
-        }
-
-        return 0;
-    }
-
 // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row) {
+    public boolean canRead(Session session, Row row, int mode) {
 
         RowAction action = row.rowAction;
 
@@ -438,7 +419,7 @@ public class TransactionManager2PL implements TransactionManager {
         return !action.canRead(session);
     }
 
-    public boolean canRead(Session session, int id) {
+    public boolean canRead(Session session, int id, int mode) {
         return true;
     }
 
@@ -468,13 +449,6 @@ public class TransactionManager2PL implements TransactionManager {
      */
     public void beginAction(Session session, Statement cs) {
 
-        session.actionTimestamp = nextChangeTimestamp();
-
-        if (!session.isTransaction) {
-            session.transactionTimestamp = session.actionTimestamp;
-            session.isTransaction        = true;
-        }
-
         if (session.hasLocks(cs)) {
             return;
         }
@@ -498,6 +472,18 @@ public class TransactionManager2PL implements TransactionManager {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    public void beginActionResume(Session session) {
+
+        session.actionTimestamp = nextChangeTimestamp();
+
+        if (!session.isTransaction) {
+            session.transactionTimestamp = session.actionTimestamp;
+            session.isTransaction        = true;
+        }
+
+        return;
     }
 
     void endTransactionTPL(Session session) {

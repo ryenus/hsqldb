@@ -684,13 +684,14 @@ public final class Constraint implements SchemaObject {
      * Checks for foreign key or check constraint violation when
      * inserting a row into the child table.
      */
-    void checkInsert(Session session, Table table, Object[] row) {
+    void checkInsert(Session session, Table table, Object[] data,
+                     boolean isNew) {
 
         switch (constType) {
 
             case SchemaObject.ConstraintTypes.CHECK :
                 if (!isNotNull) {
-                    checkCheckConstraint(session, table, row);
+                    checkCheckConstraint(session, table, data);
                 }
 
                 return;
@@ -699,7 +700,7 @@ public final class Constraint implements SchemaObject {
                 PersistentStore store =
                     session.sessionData.getRowStore(core.mainTable);
 
-                if (ArrayUtil.hasNull(row, core.refCols)) {
+                if (ArrayUtil.hasNull(data, core.refCols)) {
                     if (core.matchType == OpTypes.MATCH_SIMPLE) {
                         return;
                     }
@@ -708,27 +709,37 @@ public final class Constraint implements SchemaObject {
                         return;
                     }
 
-                    if (ArrayUtil.hasAllNull(row, core.refCols)) {
+                    if (ArrayUtil.hasAllNull(data, core.refCols)) {
                         return;
                     }
 
                     // core.matchType == OpTypes.MATCH_FULL
-                } else if (core.mainIndex.exists(session, store, row,
-                                                 core.refCols)) {
+                } else if (core.mainIndex.existsParent(session, store, data,
+                                                       core.refCols, isNew)) {
                     return;
                 } else if (core.mainTable == core.refTable) {
 
                     // special case: self referencing table and self referencing row
-                    int compare = core.mainIndex.compareRowNonUnique(row,
-                        core.refCols, row);
+                    int compare = core.mainIndex.compareRowNonUnique(data,
+                        core.refCols, data);
 
                     if (compare == 0) {
                         return;
                     }
                 }
 
+                StringBuffer sb = new StringBuffer();
+
+                for (int i = 0; i < core.refCols.length; i++) {
+                    Object o = data[core.refCols[i]];
+
+                    sb.append(core.refTable.getColumnTypes()[core.refCols[i]]
+                        .convertToString(o));
+                    sb.append(',');
+                }
+
                 String[] info = new String[] {
-                    core.refName.name, core.mainTable.getName().name
+                    getName().name, getMain().getName().name, sb.toString()
                 };
 
                 throw Error.error(null, ErrorCode.X_23503,
@@ -816,45 +827,13 @@ public final class Constraint implements SchemaObject {
     }
 
     /**
-     * For the candidate table row, finds any referring node in the main table.
-     * This is used to check referential integrity when updating a node. We
-     * have to make sure that the main table still holds a valid main record.
-     * returns true If a valid row is found, false if there are null in the data
-     * Otherwise a 'INTEGRITY VIOLATION' Exception gets thrown.
-     */
-    boolean checkHasMainRef(Session session, Object[] row) {
-
-        if (ArrayUtil.hasNull(row, core.refCols)) {
-            return false;
-        }
-
-        PersistentStore store =
-            session.sessionData.getRowStore(core.mainTable);
-        boolean exists = core.mainIndex.exists(session, store, row,
-                                               core.refCols);
-
-        if (!exists) {
-            String[] info = new String[] {
-                core.refName.name, core.mainTable.getName().name
-            };
-
-            throw Error.error(null, ErrorCode.X_23503, ErrorCode.CONSTRAINT,
-                              info);
-        }
-
-        return exists;
-    }
-
-    /**
      * Check used before creating a new foreign key cosntraint, this method
      * checks all rows of a table to ensure they all have a corresponding
      * row in the main table.
      */
-    void checkReferencedRows(Session session, Table table, int[] rowColArray) {
+    void checkReferencedRows(Session session, Table table) {
 
-        Index           mainIndex = getMainIndex();
-        PersistentStore mainStore = session.sessionData.getRowStore(getMain());
-        RowIterator     it        = table.rowIterator(session);
+        RowIterator it = table.rowIterator(session);
 
         while (true) {
             Row row = it.getNextRow();
@@ -865,35 +844,7 @@ public final class Constraint implements SchemaObject {
 
             Object[] rowData = row.getData();
 
-            if (ArrayUtil.hasNull(rowData, rowColArray)) {
-                if (core.matchType == OpTypes.MATCH_SIMPLE) {
-                    continue;
-                }
-            } else if (mainIndex.exists(session, mainStore, rowData,
-                                        rowColArray)) {
-                continue;
-            }
-
-            if (ArrayUtil.hasAllNull(rowData, rowColArray)) {
-                continue;
-            }
-
-            StringBuffer sb = new StringBuffer();
-
-            for (int i = 0; i < rowColArray.length; i++) {
-                Object o = rowData[rowColArray[i]];
-
-                sb.append(
-                    table.getColumnTypes()[rowColArray[i]].convertToString(o));
-                sb.append(',');
-            }
-
-            String[] info = new String[] {
-                getName().name, getMain().getName().name, sb.toString()
-            };
-
-            throw Error.error(null, ErrorCode.X_23503, ErrorCode.CONSTRAINT,
-                              info);
+            checkInsert(session, table, rowData, false);
         }
     }
 

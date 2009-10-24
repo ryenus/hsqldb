@@ -450,6 +450,7 @@ public class Session implements SessionInterface {
         actionIndex = rowActionList.size();
 
         database.txManager.beginAction(this, cs);
+        database.txManager.beginActionResume(this);
     }
 
     public void endAction(Result result) {
@@ -1175,6 +1176,8 @@ public class Session implements SessionInterface {
 
                 return Result.newErrorResult(Error.error(ErrorCode.X_40001));
             }
+
+            database.txManager.beginActionResume(this);
 
             //        tempActionHistory.add("sql execute " + cs.sql + " " + actionTimestamp + " " + rowActionList.size());
             sessionContext.setDynamicArguments(pvals);

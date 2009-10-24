@@ -85,11 +85,11 @@ public class LobManager {
     //
     Statement getLob;
     Statement getLobPart;
-    Statement deleteLob;
-    Statement deleteLobPart;
-    Statement divideLobPart;
+    Statement deleteLobCall;
+    Statement deleteLobPartCall;
+    Statement divideLobPartCall;
     Statement createLob;
-    Statement createLobPart;
+    Statement createLobPartCall;
     Statement setLobLength;
     Statement setLobUsage;
     Statement getNextLobId;
@@ -119,15 +119,15 @@ public class LobManager {
         "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND BLOCK_OFFSET + BLOCK_COUNT > ? AND BLOCK_OFFSET < ? ORDER BY BLOCK_OFFSET";
 
     // DELETE_BLOCKS(L_ID BIGINT, B_OFFSET INT, B_COUNT INT, TX_ID BIGINT)
-    private static String deleteLobPartSQL =
+    private static String deleteLobPartCallSQL =
         "CALL SYSTEM_LOBS.DELETE_BLOCKS(?,?,?,?)";
     private static String createLobSQL =
         "INSERT INTO SYSTEM_LOBS.LOB_IDS VALUES(?, ?, ?, ?)";
     private static String updateLobLengthSQL =
         "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_LENGTH = ? WHERE LOB_ID = ?";
-    private static String createLobPartSQL =
+    private static String createLobPartCallSQL =
         "CALL SYSTEM_LOBS.ALLOC_BLOCKS(?, ?, ?)";
-    private static String divideLobPartSQL =
+    private static String divideLobPartCallSQL =
         "CALL SYSTEM_LOBS.DIVIDE_BLOCK(?, ?)";
     private static String getSpanningBlockSQL =
         "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND ? > BLOCK_OFFSET AND ? < BLOCK_OFFSET + BLOCK_COUNT";
@@ -135,7 +135,8 @@ public class LobManager {
         "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_USAGE_COUNT = ? WHERE LOB_ID = ?";
     private static String getNextLobIdSQL =
         "VALUES NEXT VALUE FOR SYSTEM_LOBS.LOB_ID";
-    private static String deleteLobSQL = "CALL SYSTEM_LOBS.DELETE_LOB(?, ?)";
+    private static String deleteLobCallSQL =
+        "CALL SYSTEM_LOBS.DELETE_LOB(?, ?)";
 
     //    (OUT L_ADDR INT, IN B_COUNT INT, IN B_OFFSET INT, IN L_ID BIGINT, IN L_LENGTH BIGINT)
     public LobManager(Database database) {
@@ -163,22 +164,24 @@ public class LobManager {
         String    sql       = (String) map.get("/*lob_schema_definition*/");
         Statement statement = session.compileStatement(sql);
         Result    result    = statement.execute(session);
-        HsqlName name    = database.schemaManager.getSchemaHsqlName("SYSTEM_LOBS");
+        HsqlName name =
+            database.schemaManager.getSchemaHsqlName("SYSTEM_LOBS");
+
         name.owner = SqlInvariants.LOBS_SCHEMA_HSQLNAME.owner;
 
         Table table = database.schemaManager.getTable(session, "BLOCKS",
             "SYSTEM_LOBS");
 
-        getLob        = session.compileStatement(getLobSQL);
-        getLobPart    = session.compileStatement(getLobPartSQL);
-        createLob     = session.compileStatement(createLobSQL);
-        createLobPart = session.compileStatement(createLobPartSQL);
-        divideLobPart = session.compileStatement(divideLobPartSQL);
-        deleteLob     = session.compileStatement(deleteLobSQL);
-        deleteLobPart = session.compileStatement(deleteLobPartSQL);
-        setLobLength  = session.compileStatement(updateLobLengthSQL);
-        setLobUsage   = session.compileStatement(updateLobUsageSQL);
-        getNextLobId  = session.compileStatement(getNextLobIdSQL);
+        getLob            = session.compileStatement(getLobSQL);
+        getLobPart        = session.compileStatement(getLobPartSQL);
+        createLob         = session.compileStatement(createLobSQL);
+        createLobPartCall = session.compileStatement(createLobPartCallSQL);
+        divideLobPartCall = session.compileStatement(divideLobPartCallSQL);
+        deleteLobCall     = session.compileStatement(deleteLobCallSQL);
+        deleteLobPartCall = session.compileStatement(deleteLobPartCallSQL);
+        setLobLength      = session.compileStatement(updateLobLengthSQL);
+        setLobUsage       = session.compileStatement(updateLobUsageSQL);
+        getNextLobId      = session.compileStatement(getNextLobIdSQL);
     }
 
     public void initialiseLobSpace() {
@@ -241,7 +244,7 @@ public class LobManager {
 
         Result result = getLob.execute(session);
 
-        session.sessionContext.popDynamicArguments();
+        session.sessionContext.pop();
 
         if (result.isError()) {
             return null;
@@ -324,13 +327,14 @@ public class LobManager {
     public Result deleteLob(long lobID) {
 
         Session        session  = this.sysLobSession;
-        ResultMetaData meta     = deleteLob.getParametersMetaData();
+        ResultMetaData meta     = deleteLobCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[0] = Long.valueOf(lobID);
         params[1] = Long.valueOf(0);
 
-        Result result = session.executeCompiledStatement(deleteLob, params);
+        Result result = session.executeCompiledStatement(deleteLobCall,
+            params);
 
         return result;
     }
@@ -504,8 +508,8 @@ public class LobManager {
 
         //
         int i = 0;
-        int blockCount = blockAddresses[i][1] +
-                         blockAddresses[i][2] - blockOffset;
+        int blockCount = blockAddresses[i][1] + blockAddresses[i][2]
+                         - blockOffset;
 
         if (blockAddresses[i][1] + blockAddresses[i][2] > blockLimit) {
             blockCount -= (blockAddresses[i][1] + blockAddresses[i][2]
@@ -830,7 +834,7 @@ public class LobManager {
             blockLimit++;
         }
 
-        ResultMetaData meta     = deleteLobPart.getParametersMetaData();
+        ResultMetaData meta     = deleteLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[0] = Long.valueOf(lobID);
@@ -838,7 +842,7 @@ public class LobManager {
         params[2] = Integer.valueOf(blockLimit);
         params[3] = Long.valueOf(session.getTransactionTimestamp());
 
-        Result result = session.executeCompiledStatement(deleteLobPart,
+        Result result = session.executeCompiledStatement(deleteLobPartCall,
             params);
 
         setLength(session, lobID, offset);
@@ -894,7 +898,7 @@ public class LobManager {
 
         Result result = getLobPart.execute(session);
 
-        session.sessionContext.popDynamicArguments();
+        session.sessionContext.pop();
 
         RowSetNavigator navigator = result.getNavigator();
         int             size      = navigator.getSize();
@@ -918,40 +922,40 @@ public class LobManager {
     void deleteBlockAddresses(Session session, long lobID, int offset,
                               int count) {
 
-        ResultMetaData meta     = deleteLobPart.getParametersMetaData();
+        ResultMetaData meta     = deleteLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[0] = Long.valueOf(lobID);
         params[1] = Integer.valueOf(offset);
         params[2] = Integer.valueOf(count);
 
-        Result result = session.executeCompiledStatement(deleteLobPart,
+        Result result = session.executeCompiledStatement(deleteLobPartCall,
             params);
     }
 
     void divideBlockAddresses(Session session, long lobID, int offset) {
 
-        ResultMetaData meta     = divideLobPart.getParametersMetaData();
+        ResultMetaData meta     = divideLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[0] = Long.valueOf(lobID);
         params[1] = Integer.valueOf(offset);
 
-        Result result = session.executeCompiledStatement(divideLobPart,
+        Result result = session.executeCompiledStatement(divideLobPartCall,
             params);
     }
 
     void createBlockAddresses(Session session, long lobID, int offset,
                               int count) {
 
-        ResultMetaData meta     = createLobPart.getParametersMetaData();
+        ResultMetaData meta     = createLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
         params[ALLOC_BLOCKS.BLOCK_COUNT]  = Integer.valueOf(count);
         params[ALLOC_BLOCKS.BLOCK_OFFSET] = Integer.valueOf(offset);
         params[ALLOC_BLOCKS.LOB_ID]       = Long.valueOf(lobID);
 
-        Result result = session.executeCompiledStatement(createLobPart,
+        Result result = session.executeCompiledStatement(createLobPartCall,
             params);
     }
 }

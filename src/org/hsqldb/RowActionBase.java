@@ -52,7 +52,7 @@ class RowActionBase {
     public static final byte ACTION_INSERT           = 1;
     public static final byte ACTION_DELETE           = 2;
     public static final byte ACTION_DELETE_FINAL     = 3;
-    public static final byte ACTION_DELETE_COMMITTED = 4;
+    public static final byte ACTION_INSERT_DELETE    = 4;
     public static final byte ACTION_DEBUG            = 5;
     RowActionBase            next;
     Session                  session;
@@ -60,6 +60,8 @@ class RowActionBase {
     long                     actionTimestamp;
     long                     commitTimestamp;
     byte                     type;
+    boolean                  deleteFinal;
+    boolean                  deleteComplete;
     boolean                  rolledback;
     boolean                  prepared;
 
@@ -85,6 +87,8 @@ class RowActionBase {
         actionTimestamp = action.actionTimestamp;
         commitTimestamp = action.commitTimestamp;
         type            = action.type;
+        deleteFinal     = action.deleteFinal;
+        deleteComplete  = action.deleteComplete;
         rolledback      = action.rolledback;
         prepared        = action.prepared;
     }

@@ -435,6 +435,10 @@ public class SessionData {
             return;
         }
 
+        if (session.isProcessingLog || session.isProcessingScript) {
+            return;
+        }
+
         for (int j = 0; j < table.columnCount; j++) {
             if (table.colTypes[j].isLobType()) {
                 Object value = data[j];
@@ -451,6 +455,10 @@ public class SessionData {
     void removeLobUsageCount(TableBase table, Object[] data) {
 
         if (!table.hasLobColumn) {
+            return;
+        }
+
+        if (session.isProcessingLog || session.isProcessingScript) {
             return;
         }
 

@@ -404,6 +404,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             setProperty(sql_enforce_size, true);
             setProperty(hsqldb_nio_data_file, false);
             setProperty(hsqldb_lock_file, true);
+            setProperty(hsqldb_default_table_type, "cached");
         }
 
         // OOo end

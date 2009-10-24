@@ -1344,7 +1344,16 @@ public class ParserDDL extends ParserRoutine {
                     break;
                 }
                 case SchemaObject.ConstraintTypes.CHECK : {
-                    c.prepareCheckConstraint(session, table, false);
+
+                    try {
+                        c.prepareCheckConstraint(session, table, false);
+                    } catch (HsqlException e) {
+
+                        if (session.isProcessingScript()) {
+                            break;
+                        }
+                         throw e;
+                    }
                     table.addConstraint(c);
 
                     if (c.isNotNull()) {

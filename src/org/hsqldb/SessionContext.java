@@ -145,21 +145,13 @@ public class SessionContext {
 
     public void pushDynamicArguments(Object[] args) {
 
-        if (stack == null) {
-            stack = new HsqlArrayList(true);
-        }
-
-        stack.add(dynamicArguments);
+        push();
 
         dynamicArguments = args;
     }
 
     public void setDynamicArguments(Object[] args) {
         dynamicArguments = args;
-    }
-
-    public void popDynamicArguments() {
-        dynamicArguments = (Object[]) stack.remove(stack.size() - 1);
     }
 
     void clearStructures(StatementDMQL cs) {

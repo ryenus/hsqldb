@@ -117,23 +117,27 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     final static HashMappedList statementMap;
 
     static {
-        final String resourceFileName =
-            "/org/hsqldb/resources/information-schema.sql";
-        final String[] starters = new String[]{ "/*" };
-        InputStream fis =
-            DatabaseInformation.class.getResourceAsStream(resourceFileName);
-        InputStreamReader reader = null;
+        synchronized(DatabaseInformationFull.class) {
+            final String resourceFileName =
+                "/org/hsqldb/resources/information-schema.sql";
+            final String[] starters = new String[] {
+                "/*"};
+            InputStream fis =
+                DatabaseInformation.class.getResourceAsStream(resourceFileName);
+            InputStreamReader reader = null;
 
-        try {
-            reader = new InputStreamReader(fis, "ISO-8859-1");
-        } catch (Exception e) {}
+            try {
+                reader = new InputStreamReader(fis, "ISO-8859-1");
+            }
+            catch (Exception e) {}
 
-        LineNumberReader lineReader = new LineNumberReader(reader);
-        LineGroupReader  lg = new LineGroupReader(lineReader, starters);
+            LineNumberReader lineReader = new LineNumberReader(reader);
+            LineGroupReader lg = new LineGroupReader(lineReader, starters);
 
-        statementMap = lg.getAsMap();
+            statementMap = lg.getAsMap();
 
-        lg.close();
+            lg.close();
+        }
     }
 
     /**

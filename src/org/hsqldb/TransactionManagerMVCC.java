@@ -38,16 +38,14 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
-import org.hsqldb.lib.HashMap;
+import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
-import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Manages rows involved in transactions
@@ -58,8 +56,8 @@ import org.hsqldb.store.ValuePool;
  */
 public class TransactionManagerMVCC implements TransactionManager {
 
-    Database      database;
-    final boolean mvcc;
+    Database database;
+    boolean  hasPersistence;
 
     //
     ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
@@ -81,14 +79,16 @@ public class TransactionManagerMVCC implements TransactionManager {
     public IntKeyHashMapConcurrent rowActionMap =
         new IntKeyHashMapConcurrent(10000);
 
-    //
-    //
-    HashMap           tableWriteLocks = new HashMap();
-    MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
+    // locks
+    Session  catalogWriteSession;
+    HashSet  catalogReadSessions;
+    HsqlName catalogName;
 
     public TransactionManagerMVCC(Database db) {
-        database = db;
-        mvcc     = true;
+
+        database       = db;
+        hasPersistence = database.logger.isLogged();
+        catalogName    = database.getCatalogName();
     }
 
     public long getGlobalChangeTimestamp() {
@@ -100,8 +100,7 @@ public class TransactionManagerMVCC implements TransactionManager {
     }
 
     public int getTransactionControl() {
-        return mvcc ? Database.MVCC
-                    : Database.MVLOCKS;
+        return Database.MVCC;
     }
 
     public void setTransactionControl(Session session, int mode) {
@@ -109,43 +108,41 @@ public class TransactionManagerMVCC implements TransactionManager {
         writeLock.lock();
 
         try {
-            synchronized (liveTransactionTimestamps) {
 
-                // statement runs as transaction
-                if (liveTransactionTimestamps.size() == 1) {
-                    switch (mode) {
+            // statement runs as transaction
+            if (liveTransactionTimestamps.size() == 1) {
+                switch (mode) {
 
-                        case Database.MVCC :
-                            break;
+                    case Database.MVCC :
+                        break;
 
-                        case Database.MVLOCKS : {
-                            TransactionManagerMV2PL manager =
-                                new TransactionManagerMV2PL(database);
+                    case Database.MVLOCKS : {
+                        TransactionManagerMV2PL manager =
+                            new TransactionManagerMV2PL(database);
 
-                            manager.globalChangeTimestamp.set(
-                                globalChangeTimestamp.get());
-                            manager.liveTransactionTimestamps.addLast(
-                                session.transactionTimestamp);
+                        manager.globalChangeTimestamp.set(
+                            globalChangeTimestamp.get());
+                        manager.liveTransactionTimestamps.addLast(
+                            session.transactionTimestamp);
 
-                            database.txManager = manager;
+                        database.txManager = manager;
 
-                            break;
-                        }
-                        case Database.LOCKS : {
-                            TransactionManager2PL manager =
-                                new TransactionManager2PL(database);
-
-                            manager.globalChangeTimestamp.set(
-                                globalChangeTimestamp.get());
-
-                            database.txManager = manager;
-
-                            break;
-                        }
+                        break;
                     }
+                    case Database.LOCKS : {
+                        TransactionManager2PL manager =
+                            new TransactionManager2PL(database);
 
-                    return;
+                        manager.globalChangeTimestamp.set(
+                            globalChangeTimestamp.get());
+
+                        database.txManager = manager;
+
+                        break;
+                    }
                 }
+
+                return;
             }
         } finally {
             writeLock.unlock();
@@ -163,6 +160,8 @@ public class TransactionManagerMVCC implements TransactionManager {
         writeLock.lock();
 
         try {
+            session.tempSet.clear();
+
             for (int i = session.actionIndex; i < limit; i++) {
                 RowAction rowact = (RowAction) list[i];
 
@@ -181,45 +180,8 @@ public class TransactionManagerMVCC implements TransactionManager {
                 }
             }
 
-            for (int i = session.actionIndex; canComplete && i < limit; i++) {
-                RowAction action = (RowAction) list[i];
-
-                if (!action.table.isLogged) {
-                    continue;
-                }
-
-                Row row = action.memoryRow;
-
-                if (row == null) {
-                    PersistentStore store =
-                        session.sessionData.getRowStore(action.table);
-
-                    row = (Row) store.get(action.getPos(), false);
-                }
-
-                Object[] data = row.getData();
-
-                try {
-                    int actionType =
-                        action.getActionType(session.actionTimestamp);
-
-                    if (actionType == RowActionBase.ACTION_INSERT) {
-                        database.logger.writeInsertStatement(
-                            session, (Table) action.table, data);
-                    } else if (actionType == RowActionBase.ACTION_DELETE) {
-                        database.logger.writeDeleteStatement(
-                            session, (Table) action.table, data);
-                    } else if (actionType == RowActionBase.ACTION_NONE) {
-
-                        // no logging
-                    } else {
-                        throw Error.runtimeError(ErrorCode.U_S0500,
-                                                 "TransactionManager");
-                    }
-                } catch (HsqlException e) {
-
-                    // can put db in special state
-                }
+            if (canComplete) {
+                logActions(session, list, limit);
             }
 
             if (!canComplete && !session.abortTransaction) {
@@ -227,22 +189,69 @@ public class TransactionManagerMVCC implements TransactionManager {
 
                 rollbackAction(session);
 
-                if (!session.tempSet.isEmpty()) {
-                    session.latch.setCount(session.tempSet.size());
-
+                if (session.tempSet.isEmpty()) {}
+                else {
                     for (int i = 0; i < session.tempSet.size(); i++) {
                         Session current = (Session) session.tempSet.get(i);
 
-                        current.waitingSessions.add(session);
-
-                        // waitedSessions.put(current, session);
-                        // waitingSessions.put(session, current);
+                        if (current.isInMidTransaction()) {
+                            session.latch.countUp();
+                            current.waitingSessions.add(session);
+                        }
                     }
                 }
             }
         } finally {
             writeLock.unlock();
             session.tempSet.clear();
+        }
+    }
+
+    private void logActions(Session session, Object[] list,
+                            int limit) throws RuntimeException {
+
+        for (int i = session.actionIndex; i < limit; i++) {
+            RowAction action = (RowAction) list[i];
+
+            if (!hasPersistence || !action.table.isLogged) {
+                continue;
+            }
+
+            Row row = action.memoryRow;
+
+            if (row == null) {
+                PersistentStore store =
+                    session.sessionData.getRowStore(action.table);
+
+                row = (Row) store.get(action.getPos(), false);
+            }
+
+            Object[] data = row.getData();
+
+            try {
+                int actionType = action.getActionType(session.actionTimestamp);
+
+                switch (actionType) {
+
+                    case RowActionBase.ACTION_INSERT :
+                        database.logger.writeInsertStatement(
+                            session, (Table) action.table, data);
+                        break;
+
+                    case RowActionBase.ACTION_DELETE :
+                        database.logger.writeDeleteStatement(
+                            session, (Table) action.table, data);
+                        break;
+
+                    case RowActionBase.ACTION_INSERT_DELETE :
+
+                        // no logging
+                        break;
+                }
+            } catch (HsqlException e) {
+
+                // can put db in special state
+            }
         }
     }
 
@@ -257,9 +266,9 @@ public class TransactionManagerMVCC implements TransactionManager {
             return false;
         }
 
-        try {
-            writeLock.lock();
+        writeLock.lock();
 
+        try {
             for (int i = 0; i < limit; i++) {
                 RowAction rowact = (RowAction) list[i];
 
@@ -298,12 +307,11 @@ public class TransactionManagerMVCC implements TransactionManager {
         }
 
         int      limit = session.rowActionList.size();
-        Object[] list  = limit == 0 ? ValuePool.emptyObjectArray
-                                    : session.rowActionList.getArray();
+        Object[] list  = session.rowActionList.getArray();
+
+        writeLock.lock();
 
         try {
-            writeLock.lock();
-
             for (int i = 0; i < limit; i++) {
                 RowAction rowact = (RowAction) list[i];
 
@@ -317,16 +325,9 @@ public class TransactionManagerMVCC implements TransactionManager {
             endTransaction(session);
 
             if (limit == 0) {
-                if (!mvcc) {
-                    endTransactionTPL(session);
-                }
-
                 try {
                     session.logSequences();
-
-                    if (mvcc) {
-                        database.logger.writeCommitStatement(session);
-                    }
+                    database.logger.writeCommitStatement(session);
                 } catch (HsqlException e) {}
 
                 return true;
@@ -351,7 +352,7 @@ public class TransactionManagerMVCC implements TransactionManager {
                 RowAction action = (RowAction) list[i];
 
                 if (action.table.hasLobColumn) {
-                    int type = action.getCommitType(session.actionTimestamp);
+                    int type = action.getCommitTypeOn(session.actionTimestamp);
 
                     switch (type) {
 
@@ -377,7 +378,7 @@ public class TransactionManagerMVCC implements TransactionManager {
                 if (action.table.tableType == TableBase.TEXT_TABLE) {
                     PersistentStore store =
                         session.sessionData.getRowStore(action.table);
-                    int type = action.getCommitType(session.actionTimestamp);
+                    int type = action.getCommitTypeOn(session.actionTimestamp);
 
                     switch (type) {
 
@@ -413,11 +414,7 @@ public class TransactionManagerMVCC implements TransactionManager {
             } catch (HsqlException e) {}
 
             //
-            if (mvcc) {
-                countDownLatches(session);
-            } else {
-                endTransactionTPL(session);
-            }
+            countDownLatches(session);
 
             return true;
         } finally {
@@ -441,22 +438,16 @@ public class TransactionManagerMVCC implements TransactionManager {
 
     public void rollback(Session session) {
 
-        session.abortTransaction = false;
-        session.actionTimestamp  = nextChangeTimestamp();
+        writeLock.lock();
 
-        rollbackPartial(session, 0, session.transactionTimestamp);
-        endTransaction(session);
+        try {
+            session.abortTransaction = false;
+            session.actionTimestamp  = nextChangeTimestamp();
 
-        if (mvcc) {
-
-            //
-        } else {
-            try {
-                writeLock.lock();
-                endTransactionTPL(session);
-            } finally {
-                writeLock.unlock();
-            }
+            rollbackPartial(session, 0, session.transactionTimestamp);
+            endTransaction(session);
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -504,10 +495,8 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         // rolled back transactions can always be merged as they have never been
         // seen by other sessions
-        mergeRolledBackTransaction(session.rowActionList.getArray(), start,
-                                   limit);
-        rowActionMapRemoveTransaction(session.rowActionList.getArray(), start,
-                                      limit, false);
+        mergeRolledBackTransaction(session, timestamp, list, start, limit);
+        rowActionMapRemoveTransaction(list, start, limit, false);
         session.rowActionList.setSize(start);
     }
 
@@ -545,26 +534,8 @@ public class TransactionManagerMVCC implements TransactionManager {
         }
     }
 
-// functional unit - row comparison
-
-    /**
-     * Used for inserting rows into unique indexes
-     */
-
-    /** @todo test skips some equal rows because it relies on getPos() */
-    int compareRowForInsert(Row newRow, Row existingRow) {
-
-        // only allow new inserts over rows deleted by the same session
-        if (newRow.rowAction != null
-                && !canRead(newRow.rowAction.session, existingRow)) {
-            return newRow.getPos() - existingRow.getPos();
-        }
-
-        return 0;
-    }
-
-    // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row) {
+// functional unit - accessibility of rows
+    public boolean canRead(Session session, Row row, int mode) {
 
         RowAction action = row.rowAction;
 
@@ -586,7 +557,7 @@ public class TransactionManagerMVCC implements TransactionManager {
         return !action.canRead(session);
     }
 
-    public boolean canRead(Session session, int id) {
+    public boolean canRead(Session session, int id, int mode) {
 
         RowAction action = (RowAction) rowActionMap.get(id);
 
@@ -624,9 +595,10 @@ public class TransactionManagerMVCC implements TransactionManager {
         for (int i = start; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];
 
-            if (rowact.type == RowActionBase.ACTION_DELETE_FINAL) {
+            if (rowact.type == RowActionBase.ACTION_DELETE_FINAL
+                    && !rowact.deleteComplete) {
                 try {
-                    rowact.type = RowActionBase.ACTION_DELETE_COMMITTED;
+                    rowact.deleteComplete = true;
 
                     PersistentStore store =
                         rowact.session.sessionData.getRowStore(rowact.table);
@@ -673,25 +645,14 @@ public class TransactionManagerMVCC implements TransactionManager {
     /**
      * merge a given list of transaction rollback action with given timestamp
      */
-    void mergeRolledBackTransaction(Object[] list, int start, int limit) {
+    void mergeRolledBackTransaction(Session session, long timestamp,
+                                    Object[] list, int start, int limit) {
 
         for (int i = start; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];
-
-            if (rowact == null || rowact.type == RowActionBase.ACTION_NONE
-                    || rowact.type == RowActionBase.ACTION_DELETE_FINAL) {
-                continue;
-            }
-
-            Row row = rowact.memoryRow;
+            Row       row    = rowact.memoryRow;
 
             if (row == null) {
-                Session session = rowact.session;
-
-                if (session == null) {
-                    return;
-                }
-
                 PersistentStore store =
                     rowact.session.sessionData.getRowStore(rowact.table);
 
@@ -699,18 +660,16 @@ public class TransactionManagerMVCC implements TransactionManager {
             }
 
             if (row == null) {
+
+                // only if transaction has been merged
+                // shouldn't normally happen
                 continue;
             }
 
             synchronized (row) {
-                rowact.mergeRollback(row);
+                rowact.mergeRollback(session, timestamp, row);
             }
         }
-
-//        } catch (Throwable t) {
-//            System.out.println("throw in merge");
-//            t.printStackTrace();
-//        }
     }
 
     /**
@@ -808,7 +767,9 @@ public class TransactionManagerMVCC implements TransactionManager {
 
     public void beginTransaction(Session session) {
 
-        synchronized (liveTransactionTimestamps) {
+        writeLock.lock();
+
+        try {
             session.actionTimestamp      = nextChangeTimestamp();
             session.transactionTimestamp = session.actionTimestamp;
             session.isTransaction        = true;
@@ -816,11 +777,11 @@ public class TransactionManagerMVCC implements TransactionManager {
             liveTransactionTimestamps.addLast(session.transactionTimestamp);
 
             try {
-                if (mvcc) {
-                    database.logger.writeToLog(
-                        session, session.getStartTransactionSQL());
-                }
+                database.logger.writeToLog(session,
+                                           session.getStartTransactionSQL());
             } catch (HsqlException e) {}
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -828,9 +789,17 @@ public class TransactionManagerMVCC implements TransactionManager {
      * add session to the end of queue when a transaction starts
      * (depending on isolation mode)
      */
-    public void beginAction(Session session, Statement cs) {
+    public void beginAction(Session session, Statement cs) {}
 
-        synchronized (liveTransactionTimestamps) {
+    /**
+     * add session to the end of queue when a transaction starts
+     * (depending on isolation mode)
+     */
+    public void beginActionResume(Session session) {
+
+        writeLock.lock();
+
+        try {
             session.actionTimestamp = nextChangeTimestamp();
 
             if (!session.isTransaction) {
@@ -840,272 +809,12 @@ public class TransactionManagerMVCC implements TransactionManager {
                 liveTransactionTimestamps.addLast(session.actionTimestamp);
 
                 try {
-                    if (this.mvcc) {
-                        database.logger.writeToLog(
-                            session, session.getStartTransactionSQL());
-                    }
+                    database.logger.writeToLog(
+                        session, session.getStartTransactionSQL());
                 } catch (HsqlException e) {}
             }
-        }
-
-        if (session.isReadOnly()) {
-            return;
-        }
-
-        if (!mvcc) {
-            if (session.hasLocks(cs)) {
-                return;
-            }
-
-            try {
-                writeLock.lock();
-
-                boolean canProceed = beginActionTPL(session, cs);
-
-                if (!canProceed) {
-                    session.abortTransaction = true;
-                }
-/* debug 190
-                if (!canProceed) {
-                    System.out.println("******* cannot start");
-                }
-// debug 190 */
-            } finally {
-                writeLock.unlock();
-            }
-        }
-    }
-
-    void endTransactionTPL(Session session) {
-
-        int unlockedCount = 0;
-
-        if (session.isReadOnly()) {
-            return;
-        }
-
-        unlockTablesTPL(session);
-
-        final int waitingCount = session.waitingSessions.size();
-
-        if (waitingCount == 0) {
-            return;
-        }
-
-        for (int i = 0; i < waitingCount; i++) {
-            Session current = (Session) session.waitingSessions.get(i);
-
-            current.tempUnlocked = false;
-
-            long count = current.latch.getCount();
-
-            if (count == 1) {
-                boolean canProceed = setWaitedSessionsTPL(current,
-                    current.currentStatement);
-
-                if (!canProceed) {
-                    current.abortTransaction = true;
-                }
-
-                if (current.tempSet.isEmpty()) {
-                    lockTablesTPL(current, current.currentStatement);
-
-                    current.tempUnlocked = true;
-
-                    unlockedCount++;
-                }
-            }
-        }
-
-/* debug 190
-
-            if (unlockedCount > 1) {
-                System.out.println("*********** multiple unlocked");
-            }
-// debug 190 */
-        for (int i = 0; i < waitingCount; i++) {
-            Session current = (Session) session.waitingSessions.get(i);
-
-            if (!current.tempUnlocked) {
-
-                // this can introduce additional waits for the sessions
-                boolean canProceed = setWaitedSessionsTPL(current,
-                    current.currentStatement);
-
-                if (!canProceed) {
-                    current.abortTransaction = true;
-                }
-/* debug 190
-                    if (current.tempSet.isEmpty()) {
-                        System.out.println("*********** additional unlocked");
-
-                        // shouldn't get here
-                    }
-// debug 190 */
-            }
-        }
-
-        for (int i = 0; i < waitingCount; i++) {
-            Session current = (Session) session.waitingSessions.get(i);
-
-            setWaitingSessionTPL(current);
-        }
-
-        session.tempSet.clear();
-        session.waitingSessions.clear();
-    }
-
-    boolean beginActionTPL(Session session, Statement cs) {
-
-        if (session.isReadOnly()) {
-            return true;
-        }
-
-        boolean canProceed = setWaitedSessionsTPL(session, cs);
-
-        if (canProceed) {
-            if (session.tempSet.isEmpty()) {
-                lockTablesTPL(session, cs);
-
-                // we dont set other sessions that would now be waiting for this one too
-            } else {
-                setWaitingSessionTPL(session);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    boolean setWaitedSessionsTPL(Session session, Statement cs) {
-
-        session.tempSet.clear();
-
-        if (cs == null || session.abortTransaction) {
-            return true;
-        }
-
-        HsqlName[] nameList = cs.getTableNamesForWrite();
-
-        for (int i = 0; i < nameList.length; i++) {
-            HsqlName name = nameList[i];
-
-            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                continue;
-            }
-
-            Session holder = (Session) tableWriteLocks.get(name);
-
-            if (holder != null && holder != session) {
-                session.tempSet.add(holder);
-            }
-
-            Iterator it = tableReadLocks.get(name);
-
-            while (it.hasNext()) {
-                holder = (Session) it.next();
-
-                if (holder != session) {
-                    session.tempSet.add(holder);
-                }
-            }
-        }
-
-        nameList = cs.getTableNamesForRead();
-
-        for (int i = 0; i < nameList.length; i++) {
-            HsqlName name = nameList[i];
-
-            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                continue;
-            }
-
-            Session holder = (Session) tableWriteLocks.get(name);
-
-            if (holder != null && holder != session) {
-                session.tempSet.add(holder);
-            }
-        }
-
-        for (int i = 0; i < session.waitingSessions.size(); i++) {
-            Session current = (Session) session.waitingSessions.get(i);
-
-            if (session.tempSet.contains(current)) {
-                session.tempSet.clear();
-
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    void setWaitingSessionTPL(Session session) {
-
-        int count = session.tempSet.size();
-
-        for (int i = 0; i < count; i++) {
-            Session current = (Session) session.tempSet.get(i);
-
-            current.waitingSessions.add(session);
-        }
-
-        session.tempSet.clear();
-        session.latch.setCount(count);
-    }
-
-    void lockTablesTPL(Session session, Statement cs) {
-
-        if (cs == null || session.abortTransaction) {
-            return;
-        }
-
-        HsqlName[] nameList = cs.getTableNamesForWrite();
-
-        for (int i = 0; i < nameList.length; i++) {
-            HsqlName name = nameList[i];
-
-            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                continue;
-            }
-
-            tableWriteLocks.put(name, session);
-        }
-
-        nameList = cs.getTableNamesForRead();
-
-        for (int i = 0; i < nameList.length; i++) {
-            HsqlName name = nameList[i];
-
-            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                continue;
-            }
-
-            tableReadLocks.put(name, session);
-        }
-    }
-
-    void unlockTablesTPL(Session session) {
-
-        Iterator it = tableWriteLocks.values().iterator();
-
-        while (it.hasNext()) {
-            Session s = (Session) it.next();
-
-            if (s == session) {
-                it.setValue(null);
-            }
-        }
-
-        it = tableReadLocks.values().iterator();
-
-        while (it.hasNext()) {
-            Session s = (Session) it.next();
-
-            if (s == session) {
-                it.remove();
-            }
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -1117,34 +826,23 @@ public class TransactionManagerMVCC implements TransactionManager {
      */
     void endTransaction(Session session) {
 
-        try {
-            writeLock.lock();
+        long timestamp = session.transactionTimestamp;
 
-            long timestamp = session.transactionTimestamp;
+        session.isTransaction = false;
 
-            synchronized (liveTransactionTimestamps) {
-                session.isTransaction = false;
+        int index = liveTransactionTimestamps.indexOf(timestamp);
 
-                int index = liveTransactionTimestamps.indexOf(timestamp);
-
-                liveTransactionTimestamps.remove(index);
-            }
-
-            mergeExpiredTransactions(session);
-        } finally {
-            writeLock.unlock();
-        }
+        liveTransactionTimestamps.remove(index);
+        mergeExpiredTransactions(session);
     }
 
     long getFirstLiveTransactionTimestamp() {
 
-        synchronized (liveTransactionTimestamps) {
-            if (liveTransactionTimestamps.isEmpty()) {
-                return Long.MAX_VALUE;
-            }
-
-            return liveTransactionTimestamps.get(0);
+        if (liveTransactionTimestamps.isEmpty()) {
+            return Long.MAX_VALUE;
         }
+
+        return liveTransactionTimestamps.get(0);
     }
 
 // functional unit - list actions and translate id's
@@ -1154,9 +852,9 @@ public class TransactionManagerMVCC implements TransactionManager {
      */
     RowAction[] getRowActionList() {
 
-        try {
-            writeLock.lock();
+        writeLock.lock();
 
+        try {
             Session[]   sessions = database.sessionManager.getAllSessions();
             int[]       tIndex   = new int[sessions.length];
             RowAction[] rowActions;
@@ -1280,5 +978,122 @@ public class TransactionManagerMVCC implements TransactionManager {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    boolean setWaitedSessionsTPL(Session session, Statement cs) {
+
+        if (cs == null || session.abortTransaction) {
+            return true;
+        }
+
+        session.tempSet.clear();
+
+        HsqlName[] nameList       = cs.getTableNamesForWrite();
+        boolean    needsReadLock  = false;
+        boolean    needsWriteLock = false;
+
+        for (int i = 0; i < nameList.length; i++) {
+            if (nameList[i] == catalogName) {
+                needsWriteLock = true;
+
+                break;
+            }
+
+            needsReadLock = true;
+        }
+
+        if (!needsWriteLock && !needsReadLock) {
+            nameList = cs.getTableNamesForRead();
+
+            for (int i = 0; i < nameList.length; i++) {
+                HsqlName name = nameList[i];
+
+                if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                    continue;
+                }
+
+                needsReadLock = true;
+
+                break;
+            }
+        }
+
+        if (needsReadLock || needsWriteLock) {
+            if (catalogWriteSession != session
+                    && catalogWriteSession != null) {
+                session.tempSet.add(catalogWriteSession);
+            }
+        }
+
+        if (needsWriteLock) {
+            session.tempSet.addAll(catalogReadSessions);
+            session.tempSet.remove(session);
+        }
+
+        return true;
+    }
+
+    void setWaitingSessionTPL(Session session) {
+
+        int count = session.tempSet.size();
+
+        for (int i = 0; i < count; i++) {
+            Session current = (Session) session.tempSet.get(i);
+
+            current.waitingSessions.add(session);
+        }
+
+        session.tempSet.clear();
+        session.latch.setCount(count);
+    }
+
+    void lockTablesTPL(Session session, Statement cs) {
+
+        if (cs == null || session.abortTransaction) {
+            return;
+        }
+
+        HsqlName[] nameList       = cs.getTableNamesForWrite();
+        boolean    needsReadLock  = false;
+        boolean    needsWriteLock = false;
+
+        for (int i = 0; i < nameList.length; i++) {
+            if (nameList[i] == catalogName) {
+                needsWriteLock = true;
+
+                break;
+            }
+
+            needsReadLock = true;
+        }
+
+        if (!needsWriteLock && !needsReadLock) {
+            nameList = cs.getTableNamesForRead();
+
+            for (int i = 0; i < nameList.length; i++) {
+                HsqlName name = nameList[i];
+
+                if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                    continue;
+                }
+
+                needsReadLock = true;
+
+                break;
+            }
+        }
+
+        if (needsWriteLock) {
+            catalogWriteSession = session;
+        } else if (needsReadLock) {
+            catalogReadSessions.add(session);
+        }
+    }
+
+    void unlockTablesTPL(Session session) {
+
+        catalogWriteSession = null;
+
+        catalogReadSessions.remove(session);
     }
 }
