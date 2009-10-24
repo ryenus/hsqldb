@@ -42,7 +42,6 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Manages rows involved in transactions
@@ -54,6 +53,7 @@ import org.hsqldb.store.ValuePool;
 public class TransactionManager2PL implements TransactionManager {
 
     Database database;
+    boolean  hasPersistence;
 
     //
     ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
@@ -71,7 +71,8 @@ public class TransactionManager2PL implements TransactionManager {
     MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
 
     public TransactionManager2PL(Database db) {
-        database = db;
+        database       = db;
+        hasPersistence = database.logger.isLogged();
     }
 
     public long getGlobalChangeTimestamp() {
@@ -158,8 +159,7 @@ public class TransactionManager2PL implements TransactionManager {
         }
 
         int      limit = session.rowActionList.size();
-        Object[] list  = limit == 0 ? ValuePool.emptyObjectArray
-                                    : session.rowActionList.getArray();
+        Object[] list  = session.rowActionList.getArray();
 
         try {
             writeLock.lock();
@@ -176,7 +176,6 @@ public class TransactionManager2PL implements TransactionManager {
             }
 
             // new actionTimestamp used for commitTimestamp
-            // already set in prepareCommitActions();
             session.actionTimestamp = nextChangeTimestamp();
 
             for (int i = 0; i < limit; i++) {
@@ -209,6 +208,11 @@ public class TransactionManager2PL implements TransactionManager {
                                 action.table, row.getData());
                             break;
 
+                        case RowActionBase.ACTION_DELETE :
+                            session.sessionData.removeLobUsageCount(
+                                action.table, row.getData());
+                            break;
+
                         default :
                     }
                 }
@@ -235,19 +239,24 @@ public class TransactionManager2PL implements TransactionManager {
                         switch (type) {
 
                             case RowActionBase.ACTION_DELETE :
-                                database.logger.writeDeleteStatement(
-                                    session, (Table) action.table, data);
+                                if (hasPersistence && action.table.isLogged) {
+                                    database.logger.writeDeleteStatement(
+                                        session, (Table) action.table, data);
+                                }
+
                                 store.remove(action.getPos());
                                 break;
 
                             case RowActionBase.ACTION_INSERT :
-                                database.logger.writeInsertStatement(
-                                    session, (Table) action.table, data);
+                                if (hasPersistence && action.table.isLogged) {
+                                    database.logger.writeInsertStatement(
+                                        session, (Table) action.table, data);
+                                }
                                 break;
 
                             case RowActionBase.ACTION_NONE :
 
-                                // ????
+                                // INSERT + DELEETE
                                 store.remove(action.getPos());
                                 break;
                         }

@@ -58,8 +58,8 @@ import org.hsqldb.store.ValuePool;
  */
 public class TransactionManagerMVCC implements TransactionManager {
 
-    Database database;
-    boolean  mvcc = false;
+    Database      database;
+    final boolean mvcc;
 
     //
     ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
@@ -116,7 +116,6 @@ public class TransactionManagerMVCC implements TransactionManager {
                     switch (mode) {
 
                         case Database.MVCC :
-                            mvcc = true;
                             break;
 
                         case Database.MVLOCKS : {
