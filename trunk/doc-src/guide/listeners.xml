@@ -7,7 +7,11 @@
 <chapter version="5.0" xml:id="listeners-chapt"
          xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
-         xmlns:xi="http://www.w3.org/2001/XInclude">
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
@@ -239,9 +243,9 @@
       </tgroup>
     </table>
 
-    <para>In 1.9.0, each server can serve an unlimited number databases
-    simultaneously. The <property>server.database.0</property> property
-    defines the filename / path whereas the
+    <para>In HyperSQL version 2.0, each server can serve an unlimited number
+    databases simultaneously. The <property>server.database.0</property>
+    property defines the filename / path whereas the
     <property>server.dbname.0</property> defines the lowercase alias used by
     clients to connect to that database. The digit 0 is incremented for the
     second database and so on. Values for the
@@ -651,7 +655,7 @@
         <varname>avax.net.ssl.keyStore</varname> in the JSSE docs.</simpara>
 
         <note>
-          <simpara>Before version 1.9, HyperSQL depended on directly setting
+          <simpara>Before version 2.0, HyperSQL depended on directly setting
           the corresponding JSSE properties. The new idiom is more secure and
           easier to manage. If you have an old password in your config file,
           you should remove it.</simpara>

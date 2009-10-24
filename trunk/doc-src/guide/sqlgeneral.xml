@@ -7,7 +7,11 @@
 <chapter version="5.0" xml:id="sqlgeneral-chapt"
          xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
-         xmlns:xi="http://www.w3.org/2001/XInclude">
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
@@ -48,7 +52,7 @@
   <section xml:id="sqlgeneral_standards-sect">
     <title>Standards Support</title>
 
-    <para>HyperSQL 1.9.0 supports the dialect of SQL defined by SQL standards
+    <para>HyperSQL 2.0 supports the dialect of SQL defined by SQL standards
     92, 1999, 2003 and 2008. This means where a feature of the standard is
     supported, e.g. left outer join, the syntax is that specified by the
     standard text. Almost all syntactic features of SQL-92 up to Advanced
@@ -183,11 +187,12 @@
       <title>Lob Data</title>
 
       <para>Lobs are logically stored in columns of tables. Their physical
-      storage is a separate *.lobs file. In version 1.9 this file is created
+      storage is a separate *.lobs file. In version 2.0 this file is created
       as soon as a BLOB or CLOB is inserted into the database. The file will
-      grow as new lobs are inserted into the database. In version 1.9, the
+      grow as new lobs are inserted into the database. In version 2.0, the
       *.lobs file is never deleted even if all lobs are deleted from the
-      database.</para>
+      database (In this case you can delete the .lobs file after a
+      SHTUDOWN).</para>
     </section>
   </section>
 
@@ -644,11 +649,12 @@ BIT VARYING(2)
 
       <para>In HyperSQL 2.0, length, precision and scale qualifiers are always
       enforced. For backward compatibility, when older databases which had the
-      property hsqldb.enforce_strict_size=false are converted to version 1.9,
+      property hsqldb.enforce_strict_size=false are converted to version 2.0,
       this property is retained. However, this is a temporary measure. You
       should test your application to ensure the length, precision and scale
       that is used for column definitions is appropriate for the application
-      data.</para>
+      data. You can test with the default database setting, which enforces the
+      sizes.</para>
 
       <para>String types, including all BIT, BINARY and CHAR string types plus
       CLOB and BLOB, are generally defined with a length. If no length is

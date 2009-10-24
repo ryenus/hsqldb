@@ -396,8 +396,8 @@
     that implements the <classname>org.hsqldb.Trigger</classname>
     interface.</simpara>
 
-    <simpara>HyperSQL version 1.9 may not support SQL statement level triggers
-    and therefore not allow use of OLD TABLE or NEW TABLE.</simpara>
+    <simpara>Early releases of HyperSQL version 2.0 do not allow the use of
+    OLD TABLE or NEW TABLE in statement level triggers.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>TRIGGERED SQL STATEMENT</primary>

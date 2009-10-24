@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xml:id="sessions-chapt"
-         xmlns="http://docbook.org/ns/docbook">
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:ns6="http://www.w3.org/1999/xlink"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <title xml:id="sessions-title">Sessions and Transactions</title>
 
   <info>
@@ -128,10 +133,10 @@
   <section xml:id="sqlgeneral_trans_cc-sect">
     <title>Transactions and Concurrency Control</title>
 
-    <para>Before version 1.9, HSQLDB supported READ UNCOMMITTED transaction
-    isolation. At this isolation level, uncommitted changes made to the data
-    by a session are visible to other, concurrent sessions. This is called the
-    "dirty read" phenomenon.</para>
+    <para>HSQLDB 1.8.x supported READ UNCOMMITTED transaction isolation. At
+    this isolation level, uncommitted changes made to the data by a session
+    are visible to other, concurrent sessions. This is called the "dirty read"
+    phenomenon.</para>
 
     <para>HyperSQL 2.0 supports 4 levels of transaction isolation: READ
     UNCOMMITTED, READ COMMITTED, REPEATABLE READ and SERIALIZABLE. It also
@@ -141,8 +146,7 @@
     levels. The concurrency control strategy governs all the sessions and is
     set for the database, as opposed for individual sessions. Isolation levels
     above READ UNCOMMITTED avoid the "dirty read" phenomenon and do not read
-    uncommitted changes made to rows by other transactions. HyperSQL 1.9
-    supports only two-phase-locking (2PL).</para>
+    uncommitted changes made to rows by other transactions.</para>
 
     <section>
       <title>Two Phased Locking</title>
@@ -297,8 +301,7 @@
 
     <simpara>Set the concurrency control system for the database. It can be
     issued only when all sessions have been committed or rolled back. The
-    default is LOCKS. The MVCC option is not available in version
-    1.9.</simpara>
+    default is LOCKS.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET TRANSACTION</primary>

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xml:id="sqlroutines-chapt"
-         xmlns="http://docbook.org/ns/docbook">
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:ns6="http://www.w3.org/1999/xlink"
+         xmlns:ns5="http://www.w3.org/2000/svg"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <title xml:id="sqlroutines-title">SQL-Invoked Routines</title>
 
   <info>
@@ -962,10 +967,10 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     <simpara><emphasis>external body reference</emphasis></simpara>
 
     <para>External name specifies the qualified name of the Java method
-    associated with this routine. HyperSQL 1.9 only supports Java methods
-    within the classpath. The &lt;external Java reference string&gt; is a
-    quoted string which starts with CLASSPATH: and is followed by the java
-    package, class and method names seperated with dots.</para>
+    associated with this routine. Early releases of HyperSQL 2.0 only supports
+    Java methods within the classpath. The &lt;external Java reference
+    string&gt; is a quoted string which starts with CLASSPATH: and is followed
+    by the java package, class and method names seperated with dots.</para>
 
     <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL NAME
     &lt;external Java reference string&gt; ]</literal></simpara>

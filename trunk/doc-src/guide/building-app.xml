@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
-
 <!DOCTYPE book [
-  <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
 ]>
-
-<appendix version="5.0" xmlns="http://docbook.org/ns/docbook"
-      xmlns:xlink="http://www.w3.org/1999/xlink" xml:id="building-app"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+<appendix version="5.0" xml:id="building-app"
+          xmlns="http://docbook.org/ns/docbook"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:ns5="http://www.w3.org/2000/svg"
+          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+          xmlns:ns3="http://www.w3.org/1999/xhtml"
+          xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
   <info>
     <title xml:id="building-title">Building HyperSQL Jars</title>
+
     <subtitle>How to build customized or specialized jar files</subtitle>
 
     <author>
-      <personname>
-        <firstname>Fred</firstname>
-
-        <surname>Toussi</surname>
-      </personname>
+      <personname><firstname>Fred</firstname>
+      <surname>Toussi</surname></personname>
 
       <affiliation>
         <orgname>The HSQL Development Group</orgname>
@@ -45,23 +47,24 @@
   <section>
     <title>Purpose</title>
 
-    <simpara>From 1.9.0, the supplied <filename>hsqldb.jar</filename> file is
-      built with Java 1.6. If you want to run with a 1.5 or older JVM, or if
-      you want to use an alternative jar (<filename>hsqldb-min.jar</filename>,
-      etc.) you must build the desired jar with a Java JDK and Ant
-      version 1.7.</simpara>
+    <simpara>From 2.0, the supplied <filename>hsqldb.jar</filename> file is
+    built with Java 1.6. If you want to run with a 1.5 or older JVM, or if you
+    want to use an alternative jar (<filename>hsqldb-min.jar</filename>, etc.)
+    you must build the desired jar with a Java JDK and Ant version
+    1.7.</simpara>
   </section>
 
   <section xml:id="building-ant-sect">
     <title>Building with Ant, from the Apache Jakarta Project</title>
 
     <titleabbrev>Building with Ant</titleabbrev>
+
     <indexterm significance="preferred">
       <primary>Ant</primary>
     </indexterm>
 
-    <simpara>You should use version 1.7 of Ant (Another Neat Tool)
-      to do builds with HyperSQL.</simpara>
+    <simpara>You should use version 1.7 of Ant (Another Neat Tool) to do
+    builds with HyperSQL.</simpara>
 
     <section>
       <title>Obtaining Ant</title>
@@ -70,18 +73,16 @@
 
       <itemizedlist>
         <listitem>
-          <simpara>
-            <link xlink:href="http://ant.apache.org">Home of the Apache Ant
-            project</link>
-          </simpara>
+          <simpara><link xlink:href="http://ant.apache.org">Home of the Apache
+          Ant project</link></simpara>
         </listitem>
 
         <listitem>
           <simpara>The <link
           xlink:href="http://ant.apache.org/manual/install.html#installing">
-          Installing Ant</link> page of the
-        <link xlink:href="http://ant.apache.org/manual">Ant Manual</link>.
-          Follow the directions for your platform.</simpara>
+          Installing Ant</link> page of the <link
+          xlink:href="http://ant.apache.org/manual">Ant Manual</link>. Follow
+          the directions for your platform.</simpara>
         </listitem>
       </itemizedlist>
     </section>
@@ -100,8 +101,8 @@
         <screen> ant -projecthelp</screen>
       </informalexample>
 
-      <simpara>This displays the available ant targets, which you can supply as
-      command line arguments to ant. These include</simpara>
+      <simpara>This displays the available ant targets, which you can supply
+      as command line arguments to ant. These include</simpara>
 
       <variablelist>
         <varlistentry>
@@ -116,8 +117,8 @@
           <term>explainjars</term>
 
           <listitem>
-            <simpara>Lists all targets which build jar files, with an explanation
-            of the purposes of the different jars.</simpara>
+            <simpara>Lists all targets which build jar files, with an
+            explanation of the purposes of the different jars.</simpara>
           </listitem>
         </varlistentry>
 
@@ -125,7 +126,8 @@
           <term>clean</term>
 
           <listitem>
-            <simpara>to clean up the /classes directory that is created</simpara>
+            <simpara>to clean up the /classes directory that is
+            created</simpara>
           </listitem>
         </varlistentry>
 
@@ -169,9 +171,9 @@
           <term>hsqldbmin</term>
 
           <listitem>
-            <simpara>to build a small jar that supports HSQLDB URLs of the form
-            jdbc:hsqldb:mem:*, jdbc:hsqld:file*, jdbc:hsqldb:res:*; but not
-            network URLs like jdbc:hsql* or jdbc:http*.</simpara>
+            <simpara>to build a small jar that supports HSQLDB URLs of the
+            form jdbc:hsqldb:mem:*, jdbc:hsqld:file*, jdbc:hsqldb:res:*; but
+            not network URLs like jdbc:hsql* or jdbc:http*.</simpara>
           </listitem>
         </varlistentry>
 
@@ -179,35 +181,40 @@
           <term>hsqldbtest</term>
 
           <listitem>
-            <simpara>to build a larger jar for hsqldb that contains tests</simpara>
+            <simpara>to build a larger jar for hsqldb that contains
+            tests</simpara>
           </listitem>
         </varlistentry>
 
         <varlistentry>
           <term>...</term>
 
-          <listitem> <simpara>
-            Many more targets are available. Run <literal>ant -p</literal>
-            and <literal>ant explainjars</literal>.
-          </simpara> </listitem>
+          <listitem>
+            <simpara>Many more targets are available. Run <literal>ant
+            -p</literal> and <literal>ant explainjars</literal>.</simpara>
+          </listitem>
         </varlistentry>
       </variablelist>
 
-      <simpara>HSQLDB can be built in any combination of three JRE (Java Runtime
-      Environment) versions and many jar file sizes. The smallest jar
-      size(<filename>hsqljdbc.jar</filename>) contains only the HSQLDB JDBC
-      Driver client. The default size (<filename>hsqldb.jar</filename>) also
-      contains server mode support and the utilities. The largest size
+      <simpara>HSQLDB can be built in any combination of two JRE (Java Runtime
+      Environment) versions and many jar file sizes. </simpara>
+
+      <simpara>A jar built with an older JRE is compatible for use with a
+      newer JRE (you can compile with Java 1.5 and run with 1.6). But the
+      newer JDBC capabilities of the JRE will be be available.</simpara>
+
+      <simpara>The client jar (<filename>hsqljdbc.jar</filename>) contains
+      only the HSQLDB JDBC Driver client. The smallest engine jar
+      (<filename>hsqldbmin.jar</filename>) contains the engine and the HSQLDB
+      JDBC Driver client. The default size (<filename>hsqldb.jar</filename>)
+      also contains server mode support and the utilities. The largest size
       (<filename>hsqldbtest.jar</filename>)includes some test classes as well.
       Before building the <filename>hsqldbtest.jar</filename> package, you
-      should download the junit jar from
-      <link xlink:href="http://www.junit.org" />
-      and put it in the <filename>/lib</filename> directory, alongside
+      should download the junit jar from <link
+      xlink:href="http://www.junit.org"></link> and put it in the
+      <filename>/lib</filename> directory, alongside
       <filename>servlet.jar</filename>, which is included in the .zip
       package.</simpara>
-
-      <simpara>Just run <literal>ant explainjars</literal> for a concise list of
-      all available jar files.</simpara>
 
       <para>If you want your code built for debugging, as opposed to high
       performance, make a file named <filename>build.properties</filename> in
@@ -217,9 +224,10 @@
       slower, but exception stack traces will contain source code line
       numbers, which can be extremely useful for debugging.</para>
 
-      <simpara>The preferred method of rebuilding the jar is with Ant. After
-      installing Ant on your system use the following command from the
-      <filename>/build</filename> directory:</simpara>
+      <simpara>After installing Ant on your system use the following command
+      from the <filename>/build</filename> directory. Just run <literal>ant
+      explainjars</literal> for a concise list of all available jar
+      files.</simpara>
 
       <informalexample>
         <screen>ant explainjars</screen>
@@ -235,20 +243,21 @@
       </example>
 
       <simpara>The Ant method always builds a jar with the JDK that is used by
-      Ant and specified in its JAVA_HOME environment variable. Building with
-      JDK 1.4.x or 1.5.x will result in a jar that is not backward compatible.
-      </simpara>
+      Ant and specified in its JAVA_HOME environment variable.</simpara>
+    </section>
 
-      <para>From version 1.7.2, use of JDK 1.1.x is not recommended for
-      building the JAR, even for running under JDK 1.1.x -- use JDK 1.3.1 for
-      compatibility with 1.1.x. This is done in the following way. JDK 1.3.1
-      should be used as the JAVA_HOME for ant. You then issue the following
-      commands. The first command will make the sources compatible with JDK
-      1.3, the second command modifies the sources further so that the
-      compiled result can run under jdk 1.1 as well. The third command builds
-      the jar.<informalexample>
-          <screen>ant switchtojdk12
-ant switchtojava1target
+    <section>
+      <title>Building with older JDKs</title>
+
+      <para>HyperSQL version 2.0 cannot be directly compiled or used with JDK
+      1.4 or older. It may be possible to use the RetroTranslator tool to
+      achieve this. The suggested procedure is as follows: First use Ant and
+      the appropriate switchtojdkXX target for your target JDK (1.3 or 1.4).
+      Then translate the code using RetroTranslator. This translation should
+      cover the concurrency features that are specific to version 1.5 and
+      later.<informalexample>
+          <screen>ant switchtojdk14
+-- translate the code
 ant hsqldb
 </screen>
         </informalexample></para>
@@ -256,40 +265,31 @@ ant hsqldb
   </section>
 
   <section>
-    <title>Building with DOS Batch Files</title>
+    <title>Building with IDE's</title>
 
-    <simpara>UNIX users must use Ant to build hsqldb.</simpara>
-
-    <simpara>For DOS/Windows users, a set of MSDOS batch files is provided as an
-    example. These files produce only the default jar size. The path and
-    classpath variables for the JDK should of course be set before running any
-    of the batch files. These files are not currently maintained and will
-    probably need some additions and changes to work correctly. Please see the
-    build.xml file for up-to-date file</simpara>
-
-    <simpara>If you are compiling for JDK's other than 1.4.x, you should use the
-    appropriate <filename>switchToJDK11.bat</filename> or
-    <filename>switchToJDK12.bat</filename> to adapt the source files to the
-    target JDK before running the appropriate
-    <filename>buildJDK11.bat</filename> or <filename>buildJDK12.bat</filename>
-    JDK and JRE versions.</simpara>
+    <simpara>All HyperSQL source files are supplied ready to compile. There is
+    no complex pre-compile stage. It is therefore possible to compile the
+    sources with an IDE, without using ant. Only if compilation with Java 1.5
+    is required, you should first run the Ant code switcher task before
+    compiling and remove from the source directories a few source files that
+    are specific to Java 6 (these are listed in the build.xml file).</simpara>
   </section>
 
   <section>
     <title>Hsqldb CodeSwitcher</title>
 
     <simpara>CodeSwitcher is a tool to manage different version of Java source
-    code. It allows to compile HSQLDB for different JDKs. It is something like
-    a precompiler in C but it works directly on the source code and does not
-    create intermediate output or extra files.</simpara>
+    code. It allows to compile HyperSQL for different JDKs. It is something
+    like a precompiler in C but it works directly on the source code and does
+    not create intermediate output or extra files.</simpara>
 
-    <simpara>CodeSwitcher is used internally in HSQLDB build scripts. You do not
-    have to use it separately to compile HSQLDB.</simpara>
+    <simpara>CodeSwitcher is used internally in the Ant build. You do not have
+    to use it separately to compile HyperSQL.</simpara>
 
-    <simpara>CodeSwitcher reads the source code of a file, removes comments where
-    appropriate and comments out the blocks that are not used for a particular
-    version of the file. This operation is done for all files of a defined
-    directory, and all subdirectories.</simpara>
+    <simpara>CodeSwitcher reads the source code of a file, removes comments
+    where appropriate and comments out the blocks that are not used for a
+    particular version of the file. This operation is done for all files of a
+    defined directory, and all subdirectories.</simpara>
 
     <example>
       <title>Example source code before CodeSwitcher is run</title>
@@ -352,17 +352,15 @@ ant hsqldb
 
     <simpara>For detailed information on the command line options run
     <classname>java org.hsqldb.util.CodeSwitcher</classname>. Usage examples
-    can be found in the switchtojdk1*.bat files in the
-    <filename>/build</filename> directory.</simpara>
+    can be found in the build.xml file in the <filename>/build</filename>
+    directory.</simpara>
   </section>
 
   <section>
     <title>Building documentation</title>
 
-    <simpara>Run the Ant target <literal>gen-docs</literal>.
-      Instructions will be displayed.
-      See the file <filename>doc-src/readme-docauthors.txt</filename> for
-      tips.
-    </simpara>
+    <simpara>Run the Ant target <literal>gen-docs</literal>. Instructions will
+    be displayed. See the file
+    <filename>doc-src/readme-docauthors.txt</filename> for tips.</simpara>
   </section>
 </appendix>
