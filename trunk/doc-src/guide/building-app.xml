@@ -55,7 +55,7 @@
   </section>
 
   <section xml:id="building-ant-sect">
-    <title>Building with Ant, from the Apache Jakarta Project</title>
+    <title>Building with Apache Ant</title>
 
     <titleabbrev>Building with Ant</titleabbrev>
 
@@ -63,7 +63,7 @@
       <primary>Ant</primary>
     </indexterm>
 
-    <simpara>You should use version 1.7 of Ant (Another Neat Tool) to do
+    <simpara>You should use version 1.7.x of Ant (Another Neat Tool) to do
     builds with HyperSQL.</simpara>
 
     <section>
@@ -197,7 +197,7 @@
       </variablelist>
 
       <simpara>HSQLDB can be built in any combination of two JRE (Java Runtime
-      Environment) versions and many jar file sizes. </simpara>
+      Environment) versions and many jar file sizes.</simpara>
 
       <simpara>A jar built with an older JRE is compatible for use with a
       newer JRE (you can compile with Java 1.5 and run with 1.6). But the
@@ -359,8 +359,12 @@ ant hsqldb
   <section>
     <title>Building documentation</title>
 
-    <simpara>Run the Ant target <literal>gen-docs</literal>. Instructions will
-    be displayed. See the file
-    <filename>doc-src/readme-docauthors.txt</filename> for tips.</simpara>
+    <simpara>The JavaDoc can be built simply by invoking the javadoc
+    target.</simpara>
+
+    <simpara>The two Guides are in DocBook XML source format. To rebuild, run
+    the Ant target <literal>gen-docs</literal>. Instructions will be
+    displayed. See the file <filename>doc-src/readme-docauthors.txt</filename>
+    for tips.</simpara>
   </section>
 </appendix>
