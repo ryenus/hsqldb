@@ -1020,6 +1020,10 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
     public synchronized BigDecimal getBigDecimal(
             int parameterIndex) throws SQLException {
 
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
+
         Type targetType = resultMetaData.columnTypes[parameterIndex - 1];
 
         if (targetType.typeCode != Types.SQL_NUMERIC

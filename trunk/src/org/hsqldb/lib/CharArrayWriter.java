@@ -73,16 +73,35 @@ public class CharArrayWriter {
         }
     }
 
+    public CharArrayWriter(Reader reader) throws IOException {
+
+        buffer = new char[128];
+
+        for (;;) {
+            int read = reader.read(buffer, count, buffer.length - count);
+
+            if (read == -1) {
+                break;
+            }
+
+            count += read;
+
+            if (count == buffer.length) {
+                ensureRoom(128);
+            }
+        }
+    }
+
     public void write(int c) {
 
         if (count == buffer.length) {
-            ensureSize(count + 1);
+            ensureRoom(count + 1);
         }
 
         buffer[count++] = (char) c;
     }
 
-    void ensureSize(int size) {
+    void ensureRoom(int size) {
 
         if (size <= buffer.length) {
             return;
@@ -103,7 +122,7 @@ public class CharArrayWriter {
 
     public void write(String str, int off, int len) {
 
-        ensureSize(count + len);
+        ensureRoom(count + len);
         str.getChars(off, off + len, buffer, count);
 
         count += len;

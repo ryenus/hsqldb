@@ -343,7 +343,7 @@ public class ParserDQL extends ParserBase {
             }
             case Types.SQL_CHAR :
             case Types.SQL_BINARY :
-	            break;
+                break;
 
             case Types.SQL_VARCHAR :
             case Types.SQL_VARBINARY :
@@ -1431,7 +1431,8 @@ public class ParserDQL extends ParserBase {
                 columnNameQuoted = new BitMap(32);
                 columnList       = readColumnNames(columnNameQuoted, false);
             } else if (!hasAs && limit) {
-                if (token.tokenType == Tokens.QUESTION
+                if (token.tokenType == Tokens.COLON
+                        || token.tokenType == Tokens.QUESTION
                         || token.tokenType == Tokens.X_VALUE) {
                     alias = null;
 
@@ -1617,6 +1618,17 @@ public class ParserDQL extends ParserBase {
                     return null;
                 }
 
+                return null;
+
+            case Tokens.COLON :
+                read();
+
+                if (token.tokenType == Tokens.X_DELIMITED_IDENTIFIER
+                        || token.tokenType == Tokens.X_IDENTIFIER) {}
+                else {
+                    throw unexpectedToken(Tokens.T_COLON);
+                }
+
             // fall through
             case Tokens.QUESTION :
                 e = new ExpressionColumn(OpTypes.DYNAMIC_PARAM);
@@ -1670,6 +1682,15 @@ public class ParserDQL extends ParserBase {
 
                 return e;
 
+            case Tokens.COLON :
+                read();
+
+                if (token.tokenType == Tokens.X_DELIMITED_IDENTIFIER
+                        || token.tokenType == Tokens.X_IDENTIFIER) {}
+                else {
+                    throw unexpectedToken(Tokens.T_COLON);
+                }
+            // fall through
             case Tokens.QUESTION :
                 e = new ExpressionColumn(OpTypes.DYNAMIC_PARAM);
 
