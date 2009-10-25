@@ -788,6 +788,8 @@ public final class RangeVariable {
 
             for (int i = 0; i < conditions[conditionsIndex].indexedColumnCount;
                     i++) {
+                int range = 0;
+
                 if (conditions[conditionsIndex].indexConditions[i].getType()
                         == OpTypes.IS_NULL) {
                     continue;
@@ -804,8 +806,12 @@ public final class RangeVariable {
                         .getLeftNode().getDataType();
 
                 if (targetType != valueType) {
-                    value = targetType.convertToType(session, value,
-                                                     valueType);
+                    range = targetType.compareToTypeRange(value);
+
+                    if (range == 0) {
+                        value = targetType.convertToType(session, value,
+                                                         valueType);
+                    }
                 }
 
                 if (conditions[conditionsIndex].indexedColumnCount == 1) {
@@ -813,8 +819,36 @@ public final class RangeVariable {
                         conditions[conditionsIndex].indexConditions[0]
                             .getType();
 
-                    it = conditions[conditionsIndex].rangeIndex.findFirstRow(
-                        session, store, value, exprType);
+                    if (range == 0) {
+                        it = conditions[conditionsIndex].rangeIndex
+                            .findFirstRow(session, store, value, exprType);
+                    } else if (range < 0) {
+                        switch (exprType) {
+
+                            case OpTypes.GREATER_EQUAL :
+                            case OpTypes.GREATER :
+                                it = conditions[conditionsIndex].rangeIndex
+                                    .findFirstRowNotNull(session, store);
+                                break;
+
+                            default :
+                                it = conditions[conditionsIndex].rangeIndex
+                                    .emptyIterator();
+                        }
+                    } else {
+                        switch (exprType) {
+
+                            case OpTypes.SMALLER_EQUAL :
+                            case OpTypes.SMALLER :
+                                it = conditions[conditionsIndex].rangeIndex
+                                    .findFirstRowNotNull(session, store);
+                                break;
+
+                            default :
+                                it = conditions[conditionsIndex].rangeIndex
+                                    .emptyIterator();
+                        }
+                    }
 
                     return;
                 }

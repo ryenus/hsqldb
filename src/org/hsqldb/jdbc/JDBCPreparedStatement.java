@@ -407,6 +407,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setShort(int parameterIndex,
                                       short x) throws SQLException {
 
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
+
         if (parameterTypes[parameterIndex - 1].typeCode
                 == Types.SQL_SMALLINT) {
             checkSetParameterIndex(parameterIndex, false);
@@ -433,6 +437,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
     public synchronized void setInt(int parameterIndex,
                                     int x) throws SQLException {
 
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
+
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_INTEGER) {
             checkSetParameterIndex(parameterIndex, false);
 
@@ -457,6 +465,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setLong(int parameterIndex,
                                      long x) throws SQLException {
+
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BIGINT) {
             checkSetParameterIndex(parameterIndex, false);
@@ -706,8 +718,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0 this method uses the US-ASCII character encoding to convert bytes
+     * From HSQLDB 2.0 this method uses the US-ASCII character encoding to convert bytes
      * from the stream into the characters of a String.<p>
+     * This method does not use streaming to send the data,
+     * whether the target is a CLOB or other binary object.<p>
+     *
+     * For long streams (larger than a few megabytes) with CLOB targets,
+     * it is more efficient to use a version of setCharacterStream which takes
+     * the a length parameter.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -719,23 +737,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setAsciiStream(int parameterIndex,
             java.io.InputStream x, int length) throws SQLException {
-
-        checkSetParameterIndex(parameterIndex, true);
-
-        if (x == null) {
-            throw Util.nullArgument("x");
-        }
-
-        try {
-            String s = StringConverter.inputStreamToString(x, "US-ASCII");
-
-            if (s.length() > length) {
-                s = s.substring(0, length);
-            }
-            setParameter(parameterIndex, s);
-        } catch (IOException e) {
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR);
-        }
+        setAsciiStream(parameterIndex, x, (long) length);
     }
 
     /**
@@ -1172,6 +1174,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
+     * From HSQLDB 2.0 this method uses streaming to send data
+     * when the target is a CLOB.<p>
      * HSQLDB represents CHARACTER and related SQL types as UTF16 Unicode
      * internally, so this method does not perform any conversion.
      * </div>
@@ -2508,6 +2512,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * From HSQLDB 2.0 this method uses the US-ASCII character encoding to convert bytes
+     * from the stream into the characters of a String.<p>
+     * This method does not use streaming to send the data,
+     * whether the target is a CLOB or other binary object.<p>
+     *
+     * For long streams (larger than a few megabytes) with CLOB targets,
+     * it is more efficient to use a version of setCharacterStream which takes
+     * the a length parameter.
+     * </div>
+     * <!-- end release-specific documentation -->
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the Java input stream that contains the ASCII parameter value
      * @param length the number of bytes in the stream
@@ -2517,11 +2535,36 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setAsciiStream(int parameterIndex,
             java.io.InputStream x, long length) throws SQLException {
+        if (length < 0) {
+            throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
+                                    "length: " + length);
+        }
 
+        setAscStream(parameterIndex, x, (long) length);
+    }
+
+    void setAscStream(int parameterIndex,
+            java.io.InputStream x, long length) throws SQLException {
         if (length > Integer.MAX_VALUE) {
             Util.sqlException(ErrorCode.X_22001);
         }
-        setAsciiStream(parameterIndex, x, (int) length);
+
+        checkSetParameterIndex(parameterIndex, true);
+
+        if (x == null) {
+            throw Util.nullArgument("x");
+        }
+
+        try {
+            String s = StringConverter.inputStreamToString(x, "US-ASCII");
+
+            if (length >= 0 && s.length() > length) {
+                s = s.substring(0, (int) length);
+            }
+            setParameter(parameterIndex, s);
+        } catch (IOException e) {
+            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR);
+        }
     }
 
     /**
@@ -2563,9 +2606,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         setBinStream(parameterIndex, x, length);
     }
-   private void setBinStream(int parameterIndex,
-                java.io.InputStream x, long length) throws SQLException {
 
+    private void setBinStream(int parameterIndex, java.io.InputStream x,
+                              long length) throws SQLException {
 
         if (x instanceof BlobInputStream) {
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
@@ -2576,21 +2619,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BLOB) {
             try {
 
-            if (length < 0) {
-                HsqlByteArrayOutputStream output;
-               output = new HsqlByteArrayOutputStream(x);
+                if (length < 0) {
+                    HsqlByteArrayOutputStream output;
+                    output = new HsqlByteArrayOutputStream(x);
 
-               JDBCBlob blob = new JDBCBlob(output.toByteArray());
+                    JDBCBlob blob = new JDBCBlob(output.toByteArray());
 
-               setBlobParameter(parameterIndex, blob);
-                   return;
+                    setBlobParameter(parameterIndex, blob);
+                    return;
 
+                }
+            } catch (IOException e) {
+                throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
+                                        e.toString());
             }
-        } catch (IOException e) {
-            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
-                                    e.toString());
-        }
-
             streamLengths[parameterIndex - 1] = length;
 
             setParameter(parameterIndex, x);
@@ -2635,6 +2677,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * Java stream object or your own subclass that implements the
      * standard interface.
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * From HSQLDB 2.0 this method uses streaming to send data
+     * when the target is a CLOB.<p>
+     * </div>
+     * <!-- end release-specific documentation -->
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param reader the <code>java.io.Reader</code> object that contains the
      *        Unicode data
@@ -2651,6 +2701,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                                     "length: " + length);
         }
 
+        setCharStream(parameterIndex, reader, length);
+    }
+    private void setCharStream(int parameterIndex,
+                java.io.Reader reader, long length) throws SQLException {
         if (reader instanceof ClobInputStream) {
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "invalid Reader");
@@ -2658,6 +2712,24 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkSetParameterIndex(parameterIndex, true);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_CLOB) {
+
+            try {
+
+                if (length < 0) {
+                    CharArrayWriter output;
+                    output = new CharArrayWriter(reader);
+
+                    JDBCClob clob = new JDBCClob(output.toString());
+
+                    setClobParameter(parameterIndex, clob);
+                    return;
+
+                }
+            } catch (IOException e) {
+                throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
+                                        e.toString());
+            }
+
             streamLengths[parameterIndex - 1] = length;
 
             setParameter(parameterIndex, reader);
@@ -2672,7 +2744,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
             }
 
-            CharArrayWriter writer = new CharArrayWriter(reader, (int) length);
+            CharArrayWriter writer;
+
+            if (length < 0) {
+                writer = new CharArrayWriter(reader);
+            } else {
+                writer = new CharArrayWriter(reader, (int) length);
+            }
 
             setParameter(parameterIndex, writer.toString());
         } catch (IOException e) {
@@ -2698,6 +2776,18 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * it might be more efficient to use a version of
      * <code>setAsciiStream</code> which takes a length parameter.
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * In HSQLDB 2.0, this method does not use streaming to send the data,
+     * whether the target is a CLOB or other binary object.
+     *
+     * For long streams (larger than a few megabytes), it is more efficient to
+     * use a version of setCharacterStream which takes the a length parameter.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the Java input stream that contains the ASCII parameter value
      * @exception SQLException if parameterIndex does not correspond to a parameter
@@ -2708,7 +2798,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public void setAsciiStream(int parameterIndex,
                                java.io.InputStream x) throws SQLException {
-        throw Util.notSupported();
+        setAscStream(parameterIndex, x, -1);
     }
 
     /** @todo 1.9.0 - implement streaming and remove length limits */
@@ -2729,13 +2819,18 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      *
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * In HSQLDB 2.0, this method does not use streaming to send the data,
-     * whether the target is a BLOB or other binary object.
+     * From HSQLDB 2.0 this method uses the US-ASCII character encoding to convert bytes
+     * from the stream into the characters of a String.<p>
+     * This method does not use streaming to send the data,
+     * whether the target is a CLOB or other binary object.<p>
      *
-     * For long streams (larger than a few megabytes), it is more efficient to
-     * use the version of this method which takes the a length parameter.
+     * For long streams (larger than a few megabytes) with CLOB targets,
+     * it is more efficient to use a version of setCharacterStream which takes
+     * the a length parameter.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2770,6 +2865,18 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * it might be more efficient to use a version of
      * <code>setCharacterStream</code> which takes a length parameter.
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * In HSQLDB 2.0, this method does not use streaming to send the data,
+     * whether the target is a CLOB or other binary object.
+     *
+     * For long streams (larger than a few megabytes), it is more efficient to
+     * use a version of setCharacterStream which takes the a length parameter.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param reader the <code>java.io.Reader</code> object that contains the
      *        Unicode data
@@ -2781,7 +2888,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public void setCharacterStream(int parameterIndex,
                                    java.io.Reader reader) throws SQLException {
-        throw Util.notSupported();
+        setCharStream(parameterIndex, reader, -1);
     }
 
     /** @todo 1.9.0 - implement streaming and remove length limits */
