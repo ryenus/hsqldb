@@ -2408,6 +2408,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * sent to the server as a <code>BLOB</code>.  When the <code>setBinaryStream</code> method is used,
      * the driver may have to do extra work to determine whether the parameter
      * data should be send to the server as a <code>LONGVARBINARY</code> or a <code>BLOB</code>
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * In HSQLDB 2.0, this method uses streaming to send the data when the
+     * stream is assigned to a BLOB target. For other binary targets the
+     * stream is read on the client side and a byte array is sent.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param parameterIndex index of the first parameter is 1,
      * the second is 2, ...
      * @param inputStream An object that contains the data to set the parameter
@@ -2514,8 +2524,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         setAsciiStream(parameterIndex, x, (int) length);
     }
 
-    /** @todo 1.9.0 - implement streaming and remove length limits */
-
     /**
      * Sets the designated parameter to the given input stream, which will have
      * the specified number of bytes.
@@ -2527,6 +2535,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <P><B>Note:</B> This stream object can either be a standard
      * Java stream object or your own subclass that implements the
      * standard interface.
+     *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * In HSQLDB 2.0, this method uses streaming to send the data when the
+     * stream is assigned to a BLOB target. For other binary targets the
+     * stream is read on the client side and a byte array is sent.
+     * </div>
+     * <!-- end release-specific documentation -->
      *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the java input stream which contains the binary parameter value
@@ -2543,6 +2561,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                                     "length: " + length);
         }
 
+        setBinStream(parameterIndex, x, length);
+    }
+   private void setBinStream(int parameterIndex,
+                java.io.InputStream x, long length) throws SQLException {
+
+
         if (x instanceof BlobInputStream) {
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "invalid InputStream");
@@ -2550,6 +2574,23 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkSetParameterIndex(parameterIndex, true);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BLOB) {
+            try {
+
+            if (length < 0) {
+                HsqlByteArrayOutputStream output;
+               output = new HsqlByteArrayOutputStream(x);
+
+               JDBCBlob blob = new JDBCBlob(output.toByteArray());
+
+               setBlobParameter(parameterIndex, blob);
+                   return;
+
+            }
+        } catch (IOException e) {
+            throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
+                                    e.toString());
+        }
+
             streamLengths[parameterIndex - 1] = length;
 
             setParameter(parameterIndex, x);
@@ -2564,9 +2605,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR, msg);
             }
 
-            HsqlByteArrayOutputStream output =
-                new HsqlByteArrayOutputStream(x, (int) length);
+            HsqlByteArrayOutputStream output;
 
+            if (length < 0) {
+                output = new HsqlByteArrayOutputStream(x);
+            } else {
+                output =
+                    new HsqlByteArrayOutputStream(x, (int) length);
+            }
             setParameter(parameterIndex, output.toByteArray());
         } catch (IOException e) {
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
@@ -2681,6 +2727,18 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * it might be more efficient to use a version of
      * <code>setBinaryStream</code> which takes a length parameter.
      *
+     * <!-- start release-specific documentation -->
+     * <div class="ReleaseSpecificDocumentation">
+     * <h3>HSQLDB-Specific Information:</h3> <p>
+     *
+     * In HSQLDB 2.0, this method does not use streaming to send the data,
+     * whether the target is a BLOB or other binary object.
+     *
+     * For long streams (larger than a few megabytes), it is more efficient to
+     * use the version of this method which takes the a length parameter.
+     * </div>
+     * <!-- end release-specific documentation -->
+     *
      * @param parameterIndex the first parameter is 1, the second is 2, ...
      * @param x the java input stream which contains the binary parameter value
      * @exception SQLException if parameterIndex does not correspond to a parameter
@@ -2691,7 +2749,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setBinaryStream(int parameterIndex,
             java.io.InputStream x) throws SQLException {
-        throw Util.notSupported();
+        setBinStream(parameterIndex, x, -1);
     }
 
     /** @todo 1.9.0 - implement streaming and remove length limits */
