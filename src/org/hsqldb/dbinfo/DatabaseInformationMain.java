@@ -778,7 +778,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                 if (type.isIntervalType()
                         && database.getProperties().isPropertyTrue(
-                            HsqlDatabaseProperties.jdbc_interval_is_varchar)) {
+                            HsqlDatabaseProperties.jdbc_interval_as_varchar)) {
                     type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
                                                           type.displaySize());
                 }
@@ -963,7 +963,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                 if (type.isIntervalType()
                         && database.getProperties().isPropertyTrue(
-                            HsqlDatabaseProperties.jdbc_interval_is_varchar)) {
+                            HsqlDatabaseProperties.jdbc_interval_as_varchar)) {
                     type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
                                                           type.displaySize());
                 }
@@ -2232,7 +2232,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             if (type.isIntervalType()
                     && database.getProperties().isPropertyTrue(
-                        HsqlDatabaseProperties.jdbc_interval_is_varchar)) {
+                        HsqlDatabaseProperties.jdbc_interval_as_varchar)) {
                 continue;
             }
 

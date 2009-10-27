@@ -63,14 +63,16 @@ import org.hsqldb.types.Types;
 public class RowOutputBinary extends RowOutputBase {
 
     protected static final int INT_STORE_SIZE = 4;
-    int                      storageSize;
-    final int                scale;
+    int                        storageSize;
+    final int                  scale; // 2 to power n where n >= 0
+    final int                  mask;
 
     public RowOutputBinary(int initialSize, int scale) {
 
         super(initialSize);
 
         this.scale = scale;
+        this.mask  = ~(scale - 1);
     }
 
     /**
@@ -82,7 +84,8 @@ public class RowOutputBinary extends RowOutputBase {
 
         super(buffer);
 
-        scale = 1;
+        scale     = 1;
+        this.mask = ~(scale - 1);
     }
 
 // fredt@users - comment - methods for writing column type, name and data size
@@ -154,8 +157,7 @@ public class RowOutputBinary extends RowOutputBase {
     }
 
     public int getStorageSize(int size) {
-        return scale == 1 ? size
-                          : ((size + scale - 1) / scale) * scale;
+        return (size + scale - 1) & mask;
     }
 
     protected void writeFieldType(Type type) {
