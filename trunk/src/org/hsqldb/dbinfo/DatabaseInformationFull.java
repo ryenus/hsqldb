@@ -117,22 +117,20 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     final static HashMappedList statementMap;
 
     static {
-        synchronized(DatabaseInformationFull.class) {
+        synchronized (DatabaseInformationFull.class) {
             final String resourceFileName =
                 "/org/hsqldb/resources/information-schema.sql";
-            final String[] starters = new String[] {
-                "/*"};
-            InputStream fis =
-                DatabaseInformation.class.getResourceAsStream(resourceFileName);
+            final String[] starters = new String[]{ "/*" };
+            InputStream fis = DatabaseInformation.class.getResourceAsStream(
+                resourceFileName);
             InputStreamReader reader = null;
 
             try {
                 reader = new InputStreamReader(fis, "ISO-8859-1");
-            }
-            catch (Exception e) {}
+            } catch (Exception e) {}
 
             LineNumberReader lineReader = new LineNumberReader(reader);
-            LineGroupReader lg = new LineGroupReader(lineReader, starters);
+            LineGroupReader  lg = new LineGroupReader(lineReader, starters);
 
             statementMap = lg.getAsMap();
 
@@ -517,7 +515,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[icache_size] = ValuePool.getLong(cache.getCachedObjectCount());
             row[icache_length] =
                 ValuePool.getLong(cache.getTotalCachedBlockSize());
-            row[ifree_bytes] = ValuePool.getLong(cache.getTotalFreeBlockSize());
+            row[ifree_bytes] =
+                ValuePool.getLong(cache.getTotalFreeBlockSize());
             row[ifree_count] = ValuePool.getLong(cache.getFreeBlockCount());
             row[ifree_pos]   = ValuePool.getLong(cache.getFileFreePos());
 
@@ -702,8 +701,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 for (int j = 0; j < columnCount; j++) {
                     ColumnSchema column = routine.getParameter(j);
 
-                    type                  = column.getDataType();
-                    row                   = t.getEmptyRowData();
+                    row  = t.getEmptyRowData();
+                    type = column.getDataType();
+
+                    if (type.isIntervalType()
+                            && database.getProperties()
+                                .isPropertyTrue(HsqlDatabaseProperties
+                                    .jdbc_interval_is_varchar)) {
+                        type = CharacterType.getCharacterType(
+                            Types.SQL_VARCHAR, type.displaySize());
+                    }
+
                     row[specific_cat]     = database.getCatalogName().name;
                     row[specific_schem]   = routine.getSchemaName().name;
                     row[specific_name]    = routine.getSpecificName().name;
@@ -1462,14 +1470,21 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             }
 
             Object[] data = t.getEmptyRowData();
+            Type     type = distinct;
+
+            if (distinct.isIntervalType()
+                    && database.getProperties().isPropertyTrue(
+                        HsqlDatabaseProperties.jdbc_interval_is_varchar)) {
+                type = Type.SQL_VARCHAR;
+            }
 
             data[type_catalog] = database.getCatalogName().name;
             data[type_schema]  = distinct.getSchemaName().name;
             data[type_name]    = distinct.getName().name;
-            data[class_name]   = distinct.getJDBCClassName();
+            data[class_name]   = type.getJDBCClassName();
             data[data_type]    = ValuePool.getInt(Types.DISTINCT);
             data[remarks]      = null;
-            data[base_type]    = ValuePool.getInt(distinct.getJDBCTypeCode());
+            data[base_type]    = ValuePool.getInt(type.getJDBCTypeCode());
 
             t.insertSys(store, data);
         }

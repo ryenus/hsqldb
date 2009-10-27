@@ -196,7 +196,7 @@ class JDBCStatementBase {
         if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection.sessionProxy,
                     this, resultIn, resultIn.metaData,
-                    connection.connProperties);
+                    connection);
         }
     }
 
@@ -258,7 +258,7 @@ class JDBCStatementBase {
         }
         generatedResultSet = new JDBCResultSet(connection.sessionProxy, null,
                 generatedResult, generatedResult.metaData,
-                connection.connProperties);
+                connection);
 
         return generatedResultSet;
     }

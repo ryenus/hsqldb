@@ -38,6 +38,7 @@ import java.io.LineNumberReader;
 import java.io.StringReader;
 
 import org.hsqldb.ColumnBase;
+import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
@@ -393,6 +394,7 @@ public class Result {
             case ResultConstants.CONNECTACKNOWLEDGE :
                 result.databaseID = in.readInt();
                 result.sessionID  = in.readLong();
+                result.mainString = in.readString();
                 break;
 
             case ResultConstants.UPDATECOUNT :
@@ -725,13 +727,14 @@ public class Result {
         return result;
     }
 
-    public static Result newConnectionAcknowledgeResponse(long sessionID,
-            int databaseID) {
+    public static Result newConnectionAcknowledgeResponse(Database database,
+            long sessionID, int databaseID) {
 
         Result result = newResult(ResultConstants.CONNECTACKNOWLEDGE);
 
         result.sessionID  = sessionID;
         result.databaseID = databaseID;
+        result.mainString = database.getProperties().getClientPropertiesAsString();
 
         return result;
     }
@@ -1134,6 +1137,7 @@ public class Result {
             case ResultConstants.CONNECTACKNOWLEDGE :
                 rowOut.writeInt(databaseID);
                 rowOut.writeLong(sessionID);
+                rowOut.writeString(mainString);
                 break;
 
             case ResultConstants.UPDATECOUNT :

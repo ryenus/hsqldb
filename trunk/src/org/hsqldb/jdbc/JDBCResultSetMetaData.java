@@ -36,6 +36,7 @@ import java.sql.SQLException;
 
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Type;
@@ -188,7 +189,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        Type type = resultMetaData.columnTypes[--column];
+        Type type = translateType(resultMetaData.columnTypes[--column]);
 
         if (type.isCharacterType()) {
             return !((CharacterType) type).isCaseInsensitive();
@@ -248,7 +249,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        Type type = resultMetaData.columnTypes[--column];
+        Type type = translateType(resultMetaData.columnTypes[--column]);
 
         return (type.typeCode == Types.SQL_DECIMAL
                 || type.typeCode == Types.SQL_NUMERIC) && type.scale > 0;
@@ -314,7 +315,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        Type type = resultMetaData.columnTypes[--column];
+        Type type = translateType(resultMetaData.columnTypes[--column]);
 
         return type.isNumberType();
     }
@@ -394,7 +395,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        Type type = resultMetaData.columnTypes[--column];
+        Type type = translateType(resultMetaData.columnTypes[--column]);
 
         return type.displaySize();
     }
@@ -550,7 +551,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
         checkColumn(column);
 
         // type in columnTypes overrides column type
-        Type type      = resultMetaData.columnTypes[--column];
+        Type type      = translateType(resultMetaData.columnTypes[--column]);
         long precision = type.precision;
 
         if (type.isDateTimeType() || type.isIntervalType()) {
@@ -594,7 +595,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      */
     public int getScale(int column) throws SQLException {
 
-        Type type = resultMetaData.columnTypes[--column];
+        Type type = translateType(resultMetaData.columnTypes[--column]);
 
         return type.scale;
     }
@@ -685,7 +686,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        Type type = resultMetaData.columnTypes[--column];
+        Type type = translateType(resultMetaData.columnTypes[--column]);
 
         return type.getJDBCTypeCode();
     }
@@ -704,7 +705,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        Type type = resultMetaData.columnTypes[--column];
+        Type type = translateType(resultMetaData.columnTypes[--column]);
 
         return type.getNameString();
     }
@@ -825,7 +826,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         checkColumn(column);
 
-        Type type = resultMetaData.columnTypes[--column];
+        Type type = translateType(resultMetaData.columnTypes[--column]);
 
         return type.getJDBCClassName();
     }
@@ -893,6 +894,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * getColumnName().
      */
     private boolean useColumnName;
+    private boolean translateIntervalType;
     private int     columnCount;
 
     /**
@@ -907,8 +909,8 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      */
     JDBCResultSetMetaData(ResultMetaData meta, boolean isUpdatable,
                           boolean isInsertable,
-                          HsqlProperties props) throws SQLException {
-        init(meta, props);
+                          JDBCConnection conn) throws SQLException {
+        init(meta, conn);
     }
 
     /**
@@ -917,11 +919,10 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      *
      *  @param meta the ResultMetaData object from which to initialize this
      *         JDBCResultSetMetaData object
-     *  @param props the HsqlProperties object from which to initialize this
-     *         JDBCResultSetMetaData object
+     *  @param conn the JDBCConnection
      *  @throws SQLException if a database access error occurs
      */
-    void init(ResultMetaData meta, HsqlProperties props) throws SQLException {
+    void init(ResultMetaData meta, JDBCConnection conn) throws SQLException {
 
         resultMetaData = meta;
         columnCount    = resultMetaData.getColumnCount();
@@ -930,9 +931,17 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
         //          default behaviour in this case
         // JDBCDriver.getPropertyInfo says
         // default is true
-        useColumnName = (props == null) ? true
-                                        : props.isPropertyTrue(
-                                        "get_column_name", true);
+        useColumnName = true;
+
+        if (conn.connProperties != null) {
+            useColumnName = conn.connProperties.isPropertyTrue(
+                HsqlDatabaseProperties.url_get_column_name, true);
+        }
+
+        if (conn.clientProperties != null) {
+            translateIntervalType = conn.clientProperties.isPropertyTrue(
+                HsqlDatabaseProperties.jdbc_interval_is_varchar);
+        }
     }
 
     /**
@@ -948,6 +957,18 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
             throw Util.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
                                     String.valueOf(column));
         }
+    }
+
+    /**
+     * Translates an INTERVAL type to VARCHAR.
+     */
+    private Type translateType(Type type) {
+
+        if (this.translateIntervalType && type.isIntervalType()) {
+            type = new CharacterType(Types.SQL_VARCHAR, type.displaySize());
+        }
+
+        return type;
     }
 
     /**

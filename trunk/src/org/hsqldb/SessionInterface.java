@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.util.Calendar;
 
 import org.hsqldb.navigator.RowSetNavigatorClient;
+import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.types.BlobDataID;
@@ -118,19 +119,21 @@ public interface SessionInterface {
 
     String getInternalConnectionURL();
 
-    public BlobDataID createBlob(long length);
+    BlobDataID createBlob(long length);
 
-    public ClobDataID createClob(long length);
+    ClobDataID createClob(long length);
 
     void allocateResultLob(ResultLob result, InputStream dataInput);
 
     Scanner getScanner();
 
-    public Calendar getCalendar();
+    Calendar getCalendar();
 
     TimestampData getCurrentDate();
 
     int getZoneSeconds();
 
     int getStreamBlockSize();
+
+    HsqlProperties getClientProperties();
 }

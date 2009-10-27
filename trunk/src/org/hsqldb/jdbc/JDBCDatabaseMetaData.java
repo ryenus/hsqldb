@@ -3374,16 +3374,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Therefore, care must be taken to specify name arguments precisely
      * (including case) as they are stored in the database. <p>
      *
-     * Since 1.7.0, HSQLDB includes the new JDBC 3 columns SCOPE_CATLOG,
-     * SCOPE_SCHEMA, SCOPE_TABLE and SOURCE_DATA_TYPE in anticipation
-     * of JDBC 3 compliant tools.  However, these columns are never filled in;
-     * the engine does not support the related features. <p>
-     *
-     * Since 1.7.2, this feature is supported by default. If the jar is
+     * This feature is supported by default. If the jar is
      * compiled without org.hsqldb.DatabaseInformationFull or
      * org.hsqldb.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformation}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4774,13 +4769,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Therefore, care must be taken to specify name arguments precisely
      * (including case) as they are stored in the database. <p>
      *
-     * Up to and including 1.7.1, HSQLDB does not support UDTs and
-     * thus produces an empty result. <p>
-     *
-     * Starting with 1.7.2, there is an option to support this feature
-     * to greater or lesser degrees.  See the documentation specific to the
-     * selected system table provider implementation. The default implementation
-     * is org.hsqldb.DatabaseInformationFull.
+     * Starting with 2.0, DISTICT types are supported and are reported by this
+     * method.
      * </div>
      * <!-- end release-specific documentation -->
      * @param catalog a catalog name; must match the catalog name as it

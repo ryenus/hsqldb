@@ -76,7 +76,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.Types;
 
-import org.hsqldb.lib.Sort;
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.StringComparator;
 
 /**
@@ -168,10 +168,12 @@ class TestSelf extends TestUtil {
                 testPersistence();
                 deleteDatabase("test2");
                 test("jdbc:hsqldb:test2", "sa", "", true);
+
 //                testPerformance("jdbc:hsqldb:test2", "sa", "", max, true);
             }
 
             test("jdbc:hsqldb:mem:.", "sa", "", false);
+
 //            testPerformance("jdbc:hsqldb:mem:.", "sa", "", max, false);
         } catch (Exception e) {
             print("TestSelf error: " + e.getMessage());
@@ -234,8 +236,8 @@ class TestSelf extends TestUtil {
 
             filelist = new File(new File(absolute).getParent()).list();
 
-            Sort.sort((Object[]) filelist, new StringComparator(), 0,
-                      filelist.length - 1);
+            ArraySort.sort((Object[]) filelist, new StringComparator(), 0,
+                           filelist.length - 1);
 
             for (int i = 0; i < filelist.length; i++) {
                 String fname = filelist[i];

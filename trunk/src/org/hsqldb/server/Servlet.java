@@ -273,7 +273,7 @@ public class Servlet extends javax.servlet.http.HttpServlet {
                         resultIn.readAdditionalResults(null, inStream, rowIn);
 
                         resultOut = Result.newConnectionAcknowledgeResponse(
-                            session.getId(),
+                            session.getDatabase(), session.getId(),
                             session.getDatabase().getDatabaseID());
                     } catch (HsqlException e) {
                         resultOut = Result.newErrorResult(e);

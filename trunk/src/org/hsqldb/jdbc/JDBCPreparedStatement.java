@@ -278,7 +278,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (statementRetType != StatementTypes.RETURN_RESULT) {
             checkStatementType(StatementTypes.RETURN_RESULT);
         }
-
         fetchResult();
 
         return getResultSet();
@@ -305,7 +304,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (statementRetType != StatementTypes.RETURN_COUNT) {
             checkStatementType(StatementTypes.RETURN_COUNT);
         }
-
         fetchResult();
 
         return resultIn.getUpdateCount();
@@ -1503,7 +1501,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 }
             }
             resultSetMetaData = new JDBCResultSetMetaData(resultMetaData,
-                    isUpdatable, isInsertable, connection.connProperties);
+                    isUpdatable, isInsertable, connection);
         }
 
         return resultSetMetaData;
@@ -2115,7 +2113,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkClosed();
 
         if (pmd == null) {
-            pmd = new JDBCParameterMetaData(parameterMetaData);
+            pmd = new JDBCParameterMetaData(connection, parameterMetaData);
         }
 
         // NOTE:  pmd is declared as Object to avoid yet another #ifdef.
@@ -2535,20 +2533,20 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setAsciiStream(int parameterIndex,
             java.io.InputStream x, long length) throws SQLException {
+
         if (length < 0) {
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
-
         setAscStream(parameterIndex, x, (long) length);
     }
 
-    void setAscStream(int parameterIndex,
-            java.io.InputStream x, long length) throws SQLException {
+    void setAscStream(int parameterIndex, java.io.InputStream x,
+                      long length) throws SQLException {
+
         if (length > Integer.MAX_VALUE) {
             Util.sqlException(ErrorCode.X_22001);
         }
-
         checkSetParameterIndex(parameterIndex, true);
 
         if (x == null) {
@@ -2603,7 +2601,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
-
         setBinStream(parameterIndex, x, length);
     }
 
@@ -2618,16 +2615,16 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BLOB) {
             try {
-
                 if (length < 0) {
                     HsqlByteArrayOutputStream output;
+
                     output = new HsqlByteArrayOutputStream(x);
 
                     JDBCBlob blob = new JDBCBlob(output.toByteArray());
 
                     setBlobParameter(parameterIndex, blob);
-                    return;
 
+                    return;
                 }
             } catch (IOException e) {
                 throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
@@ -2652,8 +2649,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             if (length < 0) {
                 output = new HsqlByteArrayOutputStream(x);
             } else {
-                output =
-                    new HsqlByteArrayOutputStream(x, (int) length);
+                output = new HsqlByteArrayOutputStream(x, (int) length);
             }
             setParameter(parameterIndex, output.toByteArray());
         } catch (IOException e) {
@@ -2700,11 +2696,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "length: " + length);
         }
-
         setCharStream(parameterIndex, reader, length);
     }
-    private void setCharStream(int parameterIndex,
-                java.io.Reader reader, long length) throws SQLException {
+
+    private void setCharStream(int parameterIndex, java.io.Reader reader,
+                               long length) throws SQLException {
+
         if (reader instanceof ClobInputStream) {
             throw Util.sqlException(ErrorCode.JDBC_INVALID_ARGUMENT,
                                     "invalid Reader");
@@ -2712,24 +2709,22 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkSetParameterIndex(parameterIndex, true);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_CLOB) {
-
             try {
-
                 if (length < 0) {
                     CharArrayWriter output;
+
                     output = new CharArrayWriter(reader);
 
                     JDBCClob clob = new JDBCClob(output.toString());
 
                     setClobParameter(parameterIndex, clob);
-                    return;
 
+                    return;
                 }
             } catch (IOException e) {
                 throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
                                         e.toString());
             }
-
             streamLengths[parameterIndex - 1] = length;
 
             setParameter(parameterIndex, reader);
@@ -2751,7 +2746,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             } else {
                 writer = new CharArrayWriter(reader, (int) length);
             }
-
             setParameter(parameterIndex, writer.toString());
         } catch (IOException e) {
             throw Util.sqlException(ErrorCode.JDBC_INPUTSTREAM_ERROR,
@@ -4005,11 +3999,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             throw Util.outOfRangeArgument(msg);
         }
-
         i--;
 
         if (parameterModes[i] == SchemaObject.ParameterModes.PARAM_OUT) {
             i++;
+
             String msg = "Not IN or INOUT mode for parameter: " + i;
 
             throw Util.invalidArgument(msg);
@@ -4022,7 +4016,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             parameterStream[i] = false;
             parameterSet[i]    = true;
         }
-
     }
 
     /**
@@ -4266,11 +4259,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             parameterStream[i - 1] = true;
 
             return;
-        } else if ( o instanceof String ){
-            ClobData clob =session.createClob(((String) o).length());
+        } else if (o instanceof String) {
+            ClobData clob = session.createClob(((String) o).length());
+
             clob.setString(session, 0, (String) o);
+
             parameterValues[i - 1] = clob;
-			parameterStream[i - 1] = true;
+            parameterStream[i - 1] = true;
 
             return;
         }
@@ -4526,14 +4521,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (this.hasLOBs) {
             resultOut.clearLobResults();
         }
-
         generatedResult = null;
 
         if (resultIn == null) {
             return;
         }
-
-        rootWarning    = null;
+        rootWarning = null;
 
         Result current = resultIn.getUnlinkChainedResult();
 
@@ -4551,7 +4544,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             } else if (current.getType() == ResultConstants.DATA) {
                 generatedResult = current;
             }
-
             current = current.getUnlinkChainedResult();
         }
 
@@ -4562,8 +4554,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (statementRetType == StatementTypes.RETURN_RESULT
                 && resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection.sessionProxy,
-                    this, resultIn, resultIn.metaData,
-                    connection.connProperties);
+                    this, resultIn, resultIn.metaData, connection);
         }
     }
 

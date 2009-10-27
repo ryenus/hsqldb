@@ -38,6 +38,9 @@ import java.sql.SQLException;
 
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
+import org.hsqldb.types.CharacterType;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 
 /* $Id$ */
 
@@ -123,7 +126,9 @@ public class JDBCParameterMetaData
 
         checkRange(param);
 
-        return rmd.columnTypes[--param].isNumberType();
+        Type type = translateType(rmd.columnTypes[--param]);
+
+        return type.isNumberType();
     }
 
     /**
@@ -145,7 +150,7 @@ public class JDBCParameterMetaData
 
         checkRange(param);
 
-        Type type = rmd.columnTypes[--param];
+        Type type = translateType(rmd.columnTypes[--param]);
 
         if (type.isDateTimeType()) {
             return type.displaySize();
@@ -173,7 +178,9 @@ public class JDBCParameterMetaData
 
         checkRange(param);
 
-        return rmd.columnTypes[--param].scale;
+        Type type = translateType(rmd.columnTypes[--param]);
+
+        return type.scale;
     }
 
     /**
@@ -189,7 +196,9 @@ public class JDBCParameterMetaData
 
         checkRange(param);
 
-        return rmd.columnTypes[--param].getJDBCTypeCode();
+        Type type = translateType(rmd.columnTypes[--param]);
+
+        return type.getJDBCTypeCode();
     }
 
     /**
@@ -205,7 +214,9 @@ public class JDBCParameterMetaData
 
         checkRange(param);
 
-        return rmd.columnTypes[--param].getNameString();
+        Type type = translateType(rmd.columnTypes[--param]);
+
+        return type.getNameString();
     }
 
     /**
@@ -225,7 +236,9 @@ public class JDBCParameterMetaData
 
         checkRange(param);
 
-        return rmd.columnTypes[--param].getJDBCClassName();
+        Type type = translateType(rmd.columnTypes[--param]);
+
+        return type.getJDBCClassName();
     }
 
     /**
@@ -322,7 +335,8 @@ public class JDBCParameterMetaData
     String[] classNames;
 
     /** The number of parameters in the described statement */
-    int parameterCount;
+    int             parameterCount;
+    private boolean translateIntervalType;
 
     /**
      * Creates a new instance of JDBCParameterMetaData. <p>
@@ -330,9 +344,28 @@ public class JDBCParameterMetaData
      * @param metaData A ResultMetaData object describing the statement parameters
      * @throws SQLException never - reserved for future use
      */
-    JDBCParameterMetaData(ResultMetaData metaData) throws SQLException {
+    JDBCParameterMetaData(JDBCConnection conn,
+                          ResultMetaData metaData) throws SQLException {
+
         rmd            = metaData;
         parameterCount = rmd.getColumnCount();
+
+        if (conn.clientProperties != null) {
+            translateIntervalType = conn.clientProperties.isPropertyTrue(
+                HsqlDatabaseProperties.jdbc_interval_is_varchar);
+        }
+    }
+
+    /**
+     * Translates an INTERVAL type to VARCHAR.
+     */
+    private Type translateType(Type type) {
+
+        if (this.translateIntervalType && type.isIntervalType()) {
+            type = new CharacterType(Types.SQL_VARCHAR, type.displaySize());
+        }
+
+        return type;
     }
 
     /**

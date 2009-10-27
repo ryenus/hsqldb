@@ -3125,11 +3125,11 @@ public class JDBCConnection implements Connection {
     /** Initial holdability */
     int rsHoldability = JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
 
-    /**
-     * Properties for the connection
-     *
-     */
+    /** Properties for the connection */
     HsqlProperties connProperties;
+
+    /** Properties for the session */
+    HsqlProperties clientProperties;
 
     /**
      * This connection's interface to the corresponding Session
@@ -3229,7 +3229,8 @@ public class JDBCConnection implements Connection {
             } else {    // alias: type not yet implemented
                 throw Util.invalidArgument(connType);
             }
-            connProperties = props;
+            connProperties   = props;
+            clientProperties = sessionProxy.getClientProperties();
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }

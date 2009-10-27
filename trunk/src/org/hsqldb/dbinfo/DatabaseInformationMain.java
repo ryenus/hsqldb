@@ -58,6 +58,7 @@ import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
@@ -193,9 +194,9 @@ class DatabaseInformationMain extends DatabaseInformation {
 
     /** Provides naming support. */
     static {
-        synchronized(DatabaseInformationMain.class) {
+        synchronized (DatabaseInformationMain.class) {
             nonCachedTablesSet = new HashSet();
-            sysTableHsqlNames = new HsqlName[sysTableNames.length];
+            sysTableHsqlNames  = new HsqlName[sysTableNames.length];
 
             for (int i = 0; i < sysTableNames.length; i++) {
                 sysTableHsqlNames[i] =
@@ -773,16 +774,23 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             for (int i = 0; i < cols.length; i++) {
                 ColumnSchema column = table.getColumn(i);
+                Type         type   = types[i];
 
-                row               = t.getEmptyRowData();
-                row[iscope]       = scope;
-                row[icolumn_name] = column.getName().name;
-                row[idata_type] = ValuePool.getInt(types[i].getJDBCTypeCode());
-                row[itype_name]   = types[i].getNameString();
-                row[icolumn_size] =
-                    ValuePool.getInt(types[i].getJDBCPrecision());
+                if (type.isIntervalType()
+                        && database.getProperties().isPropertyTrue(
+                            HsqlDatabaseProperties.jdbc_interval_is_varchar)) {
+                    type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                                                          type.displaySize());
+                }
+
+                row                  = t.getEmptyRowData();
+                row[iscope]          = scope;
+                row[icolumn_name]    = column.getName().name;
+                row[idata_type] = ValuePool.getInt(type.getJDBCTypeCode());
+                row[itype_name]      = type.getNameString();
+                row[icolumn_size] = ValuePool.getInt(type.getJDBCPrecision());
                 row[ibuffer_length]  = null;
-                row[idecimal_digits] = types[i].getJDBCScale();
+                row[idecimal_digits] = type.getJDBCScale();
                 row[ipseudo_column]  = pseudo;
                 row[itable_cat]      = tableCatalog;
                 row[itable_schem]    = tableSchema;
@@ -872,11 +880,6 @@ class DatabaseInformationMain extends DatabaseInformation {
             // ----------------------------------------------------------------
             addColumn(t, "IS_AUTOINCREMENT", YES_OR_NO);            // 22
 
-            // ----------------------------------------------------------------
-            // HSQLDB-specific
-            // ----------------------------------------------------------------
-            addColumn(t, "TYPE_SUB", Type.SQL_INTEGER);             // 23
-
             // order: TABLE_SCHEM, TABLE_NAME, ORDINAL_POSITION
             // added for unique: TABLE_CAT
             // false PK, as TABLE_SCHEM and/or TABLE_CAT may be null
@@ -927,7 +930,6 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int iscope_cat         = 18;
         final int iscope_schem       = 19;
         final int iscope_table       = 20;
-        final int isrc_data_type     = 21;
 
         // JDBC 4.0
         final int iis_autoinc = 22;
@@ -958,6 +960,13 @@ class DatabaseInformationMain extends DatabaseInformation {
             for (int i = 0; i < columnCount; i++) {
                 ColumnSchema column = table.getColumn(i);
                 Type         type   = column.getDataType();
+
+                if (type.isIntervalType()
+                        && database.getProperties().isPropertyTrue(
+                            HsqlDatabaseProperties.jdbc_interval_is_varchar)) {
+                    type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                                                          type.displaySize());
+                }
 
                 row = t.getEmptyRowData();
 
@@ -1017,9 +1026,6 @@ class DatabaseInformationMain extends DatabaseInformation {
                 // JDBC 4.0
                 row[iis_autoinc] = column.isIdentity() ? "YES"
                                                        : "NO";
-
-                // HSQLDB-specific
-                row[itype_sub] = ti.getColDataTypeSub(i);
 
                 t.insertSys(store, row);
             }
@@ -2213,8 +2219,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int       iinterval_precision = 18;
         PersistentStore store = database.persistentStoreCollection.getStore(t);
         Object[]        row;
-
-        Iterator it = Type.typeNames.keySet().iterator();
+        Iterator        it = Type.typeNames.keySet().iterator();
 
         while (it.hasNext()) {
             String typeName = (String) it.next();
@@ -2222,6 +2227,12 @@ class DatabaseInformationMain extends DatabaseInformation {
             Type   type     = Type.getDefaultType(typeCode);
 
             if (type == null) {
+                continue;
+            }
+
+            if (type.isIntervalType()
+                    && database.getProperties().isPropertyTrue(
+                        HsqlDatabaseProperties.jdbc_interval_is_varchar)) {
                 continue;
             }
 

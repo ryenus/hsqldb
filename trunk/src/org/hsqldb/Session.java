@@ -52,6 +52,7 @@ import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.HsqlDatabaseProperties;
+import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
@@ -679,6 +680,10 @@ public class Session implements SessionInterface {
         }
     }
 
+    public boolean isInMidTransaction() {
+        return isTransaction;
+    }
+
     /**
      * sets READ ONLY for next transaction only
      *
@@ -734,10 +739,6 @@ public class Session implements SessionInterface {
 
     public synchronized int getStreamBlockSize() {
         return 512 * 1024;
-    }
-
-    public boolean isInMidTransaction() {
-        return isTransaction;
     }
 
     /**
@@ -1932,6 +1933,23 @@ public class Session implements SessionInterface {
         }
 
         return secondaryScanner;
+    }
+
+    // properties
+    HsqlProperties clientProperties;
+
+    public HsqlProperties getClientProperties() {
+
+        if (clientProperties == null) {
+            clientProperties = new HsqlProperties();
+
+            clientProperties.setProperty(
+                HsqlDatabaseProperties.jdbc_interval_is_varchar,
+                database.getProperties().isPropertyTrue(
+                    HsqlDatabaseProperties.jdbc_interval_is_varchar));
+        }
+
+        return clientProperties;
     }
 
     public SimpleDateFormat getSimpleDateFormatGMT() {

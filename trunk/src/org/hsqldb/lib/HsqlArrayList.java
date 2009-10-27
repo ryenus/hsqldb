@@ -382,7 +382,7 @@ public class HsqlArrayList extends BaseList implements HsqlList {
             return;
         }
 
-        Sort.sort(elementData, c, 0, elementCount - 1);
+        ArraySort.sort(elementData, c, 0, elementCount - 1);
     }
 
     public Object[] getArray() {
