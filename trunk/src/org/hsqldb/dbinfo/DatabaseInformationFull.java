@@ -707,7 +707,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     if (type.isIntervalType()
                             && database.getProperties()
                                 .isPropertyTrue(HsqlDatabaseProperties
-                                    .jdbc_interval_is_varchar)) {
+                                    .jdbc_interval_as_varchar)) {
                         type = CharacterType.getCharacterType(
                             Types.SQL_VARCHAR, type.displaySize());
                     }
@@ -1474,7 +1474,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             if (distinct.isIntervalType()
                     && database.getProperties().isPropertyTrue(
-                        HsqlDatabaseProperties.jdbc_interval_is_varchar)) {
+                        HsqlDatabaseProperties.jdbc_interval_as_varchar)) {
                 type = Type.SQL_VARCHAR;
             }
 

@@ -352,7 +352,7 @@ public class JDBCParameterMetaData
 
         if (conn.clientProperties != null) {
             translateIntervalType = conn.clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.jdbc_interval_is_varchar);
+                HsqlDatabaseProperties.jdbc_interval_as_varchar);
         }
     }
 
