@@ -1147,13 +1147,33 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_REPLACE : {
                 for (int i = 0; i < data.length; i++) {
-                    if (data[0] == null) {
+                    if (data[i] == null) {
                         return null;
                     }
                 }
 
-                return Library.replace((String) data[0], (String) data[1],
-                                       (String) data[2]);
+                String       string  = (String) data[0];
+                String       find    = (String) data[1];
+                String       replace = (String) data[2];
+                StringBuffer sb      = new StringBuffer();
+                int          start   = 0;
+
+                while (true) {
+                    int i = string.indexOf(find, start);
+
+                    if (i == -1) {
+                        sb.append(string.substring(start));
+
+                        break;
+                    }
+
+                    sb.append(string.substring(start, i));
+                    sb.append(replace);
+
+                    start = i + find.length();
+                }
+
+                return sb.toString();
             }
             case FUNC_LEFT :
             case FUNC_RIGHT : {

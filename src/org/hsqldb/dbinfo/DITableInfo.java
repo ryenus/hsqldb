@@ -133,21 +133,6 @@ final class DITableInfo {
     }
 
     /**
-     * Retrieves the HSQLDB data subtype code for the specified column. <p>
-     *
-     * @param i zero-based column index
-     * @return the HSQLDB data subtype code for the specified column
-     */
-    Integer getColDataTypeSub(int i) {
-
-        int type = table.getColumn(i).getDataType().getJDBCTypeCode();
-        int sub = type == Types.VARCHAR_IGNORECASE ? Types.TYPE_SUB_IGNORECASE
-                                                   : Types.TYPE_SUB_DEFAULT;
-
-        return ValuePool.getInt(sub);
-    }
-
-    /**
      * Retrieves the simple name of the specified column. <p>
      *
      * @param i zero-based column index

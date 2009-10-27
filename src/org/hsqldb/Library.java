@@ -75,12 +75,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * OpenGroup CLI functions as SQL functions, most previous methods have been
  * removed. The remaining methods are called when SQL functions are executed.
  *
- * For 1.9.0, several methods have been deleted. These methods are now supported
- * by other classes. All the deleted method signatures are still supported.
- *
- * Extensively rewritten and extended in successive versions of HSQLDB.
- *
- * @version 1.8.0
+ * @version 1.9.0
  * @since Hypersonic SQL
  */
 public class Library {
@@ -177,24 +172,6 @@ public class Library {
     // STRING FUNCTIONS
 
     /**
-     * Returns the character string corresponding to the given ASCII
-     * (or Unicode) value.
-     *
-     * <b>Note:</b> <p>
-     *
-     * In some SQL CLI
-     * implementations, a <code>null</code> is returned if the range is outside 0..255.
-     * In HSQLDB, the corresponding Unicode character is returned
-     * unchecked.
-     * @param code the character code for which to return a String
-     *      representation
-     * @return the String representation of the character
-     */
-    public static String character(int code) {
-        return String.valueOf((char) code);
-    }
-
-    /**
      * Returns a count of the characters that do not match when comparing
      * the 4 digit numeric SOUNDEX character sequences for the
      * given <code>String</code> objects.  If either <code>String</code> object is
@@ -285,49 +262,6 @@ public class Library {
         return sb.toString();
     }
 
-// fredt@users - 20020903 - patch 1.7.1 - bug fix to allow multiple replaces
-
-    /**
-     * Replaces all occurrences of <code>replace</code> in <code>s</code>
-     * with the <code>String</code> object: <code>with</code>
-     * @param s the target for replacement
-     * @param replace the substring(s), if any, in <code>s</code> to replace
-     * @param with the value to substitute for <code>replace</code>
-     * @return <code>s</code>, with all occurences of <code>replace</code>
-     *      replaced by <code>with</code>
-     */
-    public static String replace(String s, String replace, String with) {
-
-        if (s == null || replace == null) {
-            return s;
-        }
-
-        if (with == null) {
-            with = "";
-        }
-
-        StringBuffer b          = new StringBuffer();
-        int          start      = 0;
-        int          lenreplace = replace.length();
-
-        while (true) {
-            int i = s.indexOf(replace, start);
-
-            if (i == -1) {
-                b.append(s.substring(start));
-
-                break;
-            }
-
-            b.append(s.substring(start, i));
-            b.append(with);
-
-            start = i + lenreplace;
-        }
-
-        return b.toString();
-    }
-
 // fredt@users 20011010 - patch 460907 by fredt - soundex
 
     /**
@@ -397,42 +331,6 @@ public class Library {
 
         return new String(b, 0, 4);
     }
-
-    /**
-     * Returns the characters from the given <code>String</code>, starting at
-     * the indicated one-based <code>start</code> position and extending the
-     * (optional) indicated <code>length</code>. If <code>length</code> is not
-     * specified (is <code>null</code>), the remainder of <code>s</code> is
-     * implied.
-     *
-     * The rules for boundary conditions on s, start and length are,
-     * in order of precedence: <p>
-     *
-     * 1.) if s is null, return null
-     *
-     * 2.) If length is less than 1, return null.
-     *
-     * 3.) If start is 0, it is treated as 1.
-     *
-     * 4.) If start is positive, count from the beginning of s to find
-     *     the first character postion.
-     *
-     * 5.) If start is negative, count backwards from the end of s
-     *     to find the first character.
-     *
-     * 6.) If, after applying 2.) or 3.), the start position lies outside s,
-     *     then return null
-     *
-     * 7.) if length is ommited or is greated than the number of characters
-     *     from the start position to the end of s, return the remaineder of s,
-     *     starting with the start position.
-     *
-     * @param s the <code>String</code> from which to produce the indicated
-     *      substring
-     * @param start the starting position of the desired substring
-     * @param length the length of the desired substring
-     * @return the indicted substring of <code>s</code>.
-     */
 
     /**
      * Retrieves the full version number of this database product. <p>

@@ -78,10 +78,11 @@ import org.hsqldb.index.Index;
  * other table that shares a foreign key constraint with the modified
  * table.
  *
- * New class based on Hypersonic original
+ * New class partly based on Hypersonic code
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
- * @version 1.7.1
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
  * @since 1.7.1
  */
 class ConstraintCore {

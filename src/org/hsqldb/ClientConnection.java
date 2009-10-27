@@ -44,6 +44,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.navigator.RowSetNavigatorClient;
+import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
@@ -106,12 +107,14 @@ public class ClientConnection implements SessionInterface {
     private Calendar calendar;
 
     //
-    String  host;
-    int     port;
-    String  path;
-    String  database;
-    boolean isTLS;
-    int     databaseID;
+    String         host;
+    int            port;
+    String         path;
+    String         database;
+    boolean        isTLS;
+    int            databaseID;
+    String         clientPropertiesString;
+    HsqlProperties clientProperties;
 
     /**
      * Establishes a connection to the server.
@@ -141,8 +144,9 @@ public class ClientConnection implements SessionInterface {
             throw Error.error(resultIn);
         }
 
-        sessionID  = resultIn.getSessionId();
-        databaseID = resultIn.getDatabaseId();
+        sessionID              = resultIn.getSessionId();
+        databaseID             = resultIn.getDatabaseId();
+        clientPropertiesString = resultIn.getMainString();
     }
 
     /**
@@ -556,6 +560,20 @@ public class ClientConnection implements SessionInterface {
 
     public int getStreamBlockSize() {
         return 512 * 1024;
+    }
+
+    public HsqlProperties getClientProperties() {
+
+        if (clientProperties == null) {
+            if (clientPropertiesString.length() > 0) {
+                HsqlProperties.delimitedArgPairsToProps(clientPropertiesString,
+                        "=", ";", null);
+            } else {
+                clientProperties = new HsqlProperties();
+            }
+        }
+
+        return clientProperties;
     }
 
     /**

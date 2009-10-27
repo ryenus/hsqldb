@@ -659,6 +659,7 @@ class TestBench {
         int       bbalancesum;
         int       tbalancesum;
         int       abalancesum;
+        int       abalancecount;
         int       deltasum;
 
         try {
@@ -679,11 +680,13 @@ class TestBench {
 
             rs.close();
 
-            rs = st1.executeQuery("select sum(abalance) from accounts");
+            rs = st1.executeQuery(
+                "select sum(abalance), count(abalance) from accounts");
 
             rs.next();
 
-            abalancesum = rs.getInt(1);
+            abalancesum   = rs.getInt(1);
+            abalancecount = rs.getInt(2);
 
             rs.close();
 
@@ -710,8 +713,9 @@ class TestBench {
                 System.out.println("sums match!");
             }
 
-            System.out.println("A " + abalancesum + " B " + bbalancesum
-                               + " T " + tbalancesum + " H " + deltasum);
+            System.out.println("AC " + abalancecount + " A " + abalancesum
+                               + " B " + bbalancesum + " T " + tbalancesum
+                               + " H " + deltasum);
         } finally {
             if (st1 != null) {
                 st1.close();

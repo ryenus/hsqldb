@@ -176,9 +176,22 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String runtime_gc_interval = "runtime.gc_interval";
 
     //
-    public static final String url_ifexists       = "ifexists";
-    public static final String url_default_schema = "default_schema";
-    public static final String url_strict         = "strict";
+    public static final String url_ifexists        = "ifexists";
+    public static final String url_default_schema  = "default_schema";
+    public static final String url_check_props     = "check_props";
+    public static final String url_get_column_name = "get_column_name";
+
+    //
+    public static final String url_storage_class_name = "storage_class_name";
+    public static final String url_fileaccess_class_name =
+        "fileaccess_class_name";
+    public static final String url_storage_key = "storage_key";
+    public static final String url_shutdown    = "shutdown";
+
+    //
+    public static final String url_crypt_key      = "crypt_key";
+    public static final String url_crypt_type     = "crypt_type";
+    public static final String url_crypt_provider = "crypt_provider";
 
     //
     public static final String hsqldb_tx     = "hsqldb.tx";
@@ -212,6 +225,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_strict_size =
         "sql.enforce_strict_size";
     public static final String sql_enforce_names = "sql.enforce_names";
+    public static final String jdbc_interval_is_varchar =
+        "jdbc.interval_is_varchar";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
@@ -226,18 +241,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String textdb_fs           = "textdb.fs";
     public static final String textdb_vs           = "textdb.vs";
     public static final String textdb_lvs          = "textdb.lvs";
-
-    //
-    public static final String url_storage_class_name = "storage_class_name";
-    public static final String url_fileaccess_class_name =
-        "fileaccess_class_name";
-    public static final String url_storage_key = "storage_key";
-    public static final String url_shutdown    = "shutdown";
-
-    //
-    public static final String url_crypt_key      = "crypt_key";
-    public static final String url_crypt_type     = "crypt_type";
-    public static final String url_crypt_provider = "crypt_provider";
 
     static {
 
@@ -306,6 +309,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, "MEMORY"));
 
         // boolean defaults for user defined props
+        dbMeta.put(jdbc_interval_is_varchar,
+                   HsqlProperties.getMeta(jdbc_interval_is_varchar,
+                                          SQL_PROPERTY, false));
         dbMeta.put(hsqldb_inc_backup,
                    HsqlProperties.getMeta(hsqldb_inc_backup, SQL_PROPERTY,
                                           true));
@@ -338,8 +344,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(hsqldb_write_delay, SQL_PROPERTY,
                                           true));
         dbMeta.put(hsqldb_write_delay_millis,
-                   HsqlProperties.getMeta(hsqldb_write_delay_millis, SQL_PROPERTY,
-                                          2000, 20, 10000));
+                   HsqlProperties.getMeta(hsqldb_write_delay_millis,
+                                          SQL_PROPERTY, 2000, 20, 10000));
 
         // integral defaults for user-defined set props
         dbMeta.put(hsqldb_applog,
@@ -518,15 +524,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             return;
         }
 
-        for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
-            String propertyName = (String) e.nextElement();
-
-            if (url_strict.equals(propertyName)) {
-                strict = true;
-
-                break;
-            }
-        }
+        strict = p.isPropertyTrue(url_check_props, false);
 
         for (Enumeration e = p.propertyNames(); e.hasMoreElements(); ) {
             String   propertyName = (String) e.nextElement();
@@ -540,11 +538,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                             p.getProperty(propertyName));
             }
 
-            if (strict && !valid && (propertyName.startsWith("sql.")
-                    || propertyName.startsWith("hsqldb.")
-                    || propertyName.startsWith("textdb."))) {
-                throw Error.error(ErrorCode.X_42511,
-                                  propertyName);
+            if (strict && !valid
+                    && (propertyName.startsWith("sql.")
+                        || propertyName.startsWith("hsqldb.")
+                        || propertyName.startsWith("textdb."))) {
+                throw Error.error(ErrorCode.X_42511, propertyName);
             }
         }
     }
@@ -753,5 +751,16 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public static Iterator getPropertiesMetaIterator() {
         return dbMeta.values().iterator();
+    }
+
+    public String getClientPropertiesAsString() {
+
+        if (isPropertyTrue(jdbc_interval_is_varchar)) {
+            StringBuffer sb = new StringBuffer(jdbc_interval_is_varchar);
+
+            sb.append('=').append(true);
+        }
+
+        return "";
     }
 }

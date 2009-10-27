@@ -115,6 +115,19 @@ public class HashSet extends BaseHashMap implements Set {
         return changed;
     }
 
+    public boolean addAll(Object[] keys, int start, int limit) {
+
+        boolean changed = false;
+
+        for (int i = start; i < keys.length && i < limit; i++) {
+            if (add(keys[i])) {
+                changed = true;
+            }
+        }
+
+        return changed;
+    }
+
     public boolean remove(Object key) {
 
         int oldSize = size();

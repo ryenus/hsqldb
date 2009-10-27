@@ -34,7 +34,7 @@ package org.hsqldb.persist;
 import org.hsqldb.error.Error;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.ObjectComparator;
-import org.hsqldb.lib.Sort;
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.store.BaseHashMap;
 
@@ -239,7 +239,7 @@ public class Cache extends BaseHashMap {
 
         rowComparator.setType(CachedObjectComparator.COMPARE_POSITION);
         sortTimer.start();
-        Sort.sort(rowTable, rowComparator, 0, count - 1);
+        ArraySort.sort(rowTable, rowComparator, 0, count - 1);
         sortTimer.stop();
         saveAllTimer.start();
         dataFileCache.saveRows(rowTable, 0, count);

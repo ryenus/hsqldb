@@ -1551,7 +1551,7 @@ public class JDBCResultSet implements ResultSet {
             boolean isUpdatable = rsConcurrency == ResultSet.CONCUR_UPDATABLE;
 
             resultSetMetaData = new JDBCResultSetMetaData(resultMetaData,
-                    isUpdatable, rsInsertability, connProperties);
+                    isUpdatable, rsInsertability, connnection);
         }
 
         return resultSetMetaData;
@@ -6925,8 +6925,8 @@ public class JDBCResultSet implements ResultSet {
     /** The ResultSetMetaData object for this ResultSet */
     private ResultSetMetaData resultSetMetaData;
 
-    /** Properties of this ResultSet's parent Connection. */
-    private HsqlProperties connProperties;
+    /** JDBCConnection for this. */
+    private JDBCConnection connnection;
 
     /** Accelerates findColumn; Map<columnName, columnIndex> */
     private IntValueHashMap columnMap;
@@ -7310,18 +7310,18 @@ public class JDBCResultSet implements ResultSet {
      */
     JDBCResultSet(SessionInterface session, JDBCStatementBase s, Result r,
                   ResultMetaData metaData,
-                  HsqlProperties props) throws SQLException {
+                  JDBCConnection conn) throws SQLException {
 
-        this.session   = session;
-        this.statement = s;
-        this.result    = r;
-        connProperties = props;
-        rsScrollabilty = r.rsScrollability;
-        rsConcurrency  = r.rsConcurrency;
-        rsHoldability  = r.rsHoldability;
-        navigator      = r.getNavigator();
-        resultMetaData = metaData;
-        columnCount    = resultMetaData.getColumnCount();
+        this.session     = session;
+        this.statement   = s;
+        this.result      = r;
+        this.connnection = conn;
+        rsScrollabilty   = r.rsScrollability;
+        rsConcurrency    = r.rsConcurrency;
+        rsHoldability    = r.rsHoldability;
+        navigator        = r.getNavigator();
+        resultMetaData   = metaData;
+        columnCount      = resultMetaData.getColumnCount();
 
         if (rsConcurrency == ResultSet.CONCUR_UPDATABLE) {
             rsInsertability = true;

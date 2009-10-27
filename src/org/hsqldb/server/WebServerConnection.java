@@ -99,7 +99,7 @@ class WebServerConnection implements Runnable {
     static final int            BUFFER_SIZE      = 256;
     final byte[]                mainBuffer       = new byte[BUFFER_SIZE];
     private RowOutputBinary     rowOut = new RowOutputBinary(mainBuffer);
-    private RowInputBinary      rowIn = new RowInputBinary(rowOut);
+    private RowInputBinary      rowIn            = new RowInputBinary(rowOut);
 
     //
     static byte[] BYTES_GET;
@@ -349,7 +349,7 @@ class WebServerConnection implements Runnable {
                     resultIn.readAdditionalResults(session, dataIn, rowIn);
 
                     resultOut = Result.newConnectionAcknowledgeResponse(
-                        session.getId(), dbID);
+                        session.getDatabase(), session.getId(), dbID);
                 } catch (HsqlException e) {
                     resultOut = Result.newErrorResult(e);
                 } catch (RuntimeException e) {
