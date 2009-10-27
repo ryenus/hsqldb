@@ -1028,7 +1028,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_BITOR :
             case FUNC_BITXOR : {
                 for (int i = 0; i < data.length; i++) {
-                    if (data[0] == null) {
+                    if (data[i] == null) {
                         return null;
                     }
                 }
@@ -1098,7 +1098,7 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_DIFFERENCE : {
                 for (int i = 0; i < data.length; i++) {
-                    if (data[0] == null) {
+                    if (data[i] == null) {
                         return null;
                     }
                 }
@@ -1124,7 +1124,7 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_LOCATE : {
                 for (int i = 0; i < data.length; i++) {
-                    if (data[0] == null) {
+                    if (data[i] == null) {
                         return null;
                     }
                 }
@@ -1136,14 +1136,20 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_REPEAT : {
                 for (int i = 0; i < data.length; i++) {
-                    if (data[0] == null) {
+                    if (data[i] == null) {
                         return null;
                     }
                 }
 
-                return Library.repeat(
-                    (String) data[0],
-                    ValuePool.getInt(((Number) data[1]).intValue()));
+                String       string = (String) data[0];
+                int          i      = ((Number) data[1]).intValue();
+                StringBuffer sb     = new StringBuffer(string.length() * i);
+
+                while (i-- > 0) {
+                    sb.append(string);
+                }
+
+                return sb.toString();
             }
             case FUNC_REPLACE : {
                 for (int i = 0; i < data.length; i++) {
@@ -1178,7 +1184,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_LEFT :
             case FUNC_RIGHT : {
                 for (int i = 0; i < data.length; i++) {
-                    if (data[0] == null) {
+                    if (data[i] == null) {
                         return null;
                     }
                 }

@@ -238,30 +238,6 @@ public class Library {
                                          : i) + 1;
     }
 
-    /**
-     * Returns a <code>String</code> composed of the given <code>String</code>,
-     * repeated  <code>count</code> times.
-     *
-     * @param s the <code>String</code> to repeat
-     * @param count the number of repetitions
-     * @return the given <code>String</code>, repeated <code>count</code> times
-     */
-    public static String repeat(String s, Integer count) {
-
-        if (s == null || count == null || count.intValue() < 0) {
-            return null;
-        }
-
-        int          i  = count.intValue();
-        StringBuffer sb = new StringBuffer(s.length() * i);
-
-        while (i-- > 0) {
-            sb.append(s);
-        }
-
-        return sb.toString();
-    }
-
 // fredt@users 20011010 - patch 460907 by fredt - soundex
 
     /**
