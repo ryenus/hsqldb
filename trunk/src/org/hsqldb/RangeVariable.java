@@ -522,7 +522,7 @@ public final class RangeVariable {
         return sb.toString();
     }
 
-    public RangeIterator getIterator(Session session) {
+    public RangeIteratorMain getIterator(Session session) {
 
         RangeIteratorMain it;
 
@@ -544,7 +544,8 @@ public final class RangeVariable {
             return rangeVars[0].getIterator(session);
         }
 
-        RangeIterator[] iterators = new RangeIterator[rangeVars.length];
+        RangeIteratorMain[] iterators =
+            new RangeIteratorMain[rangeVars.length];
 
         for (int i = 0; i < rangeVars.length; i++) {
             iterators[i] = rangeVars[i].getIterator(session);
@@ -1052,14 +1053,14 @@ public final class RangeVariable {
         }
     }
 
-    public static class RangeIteratorJoined implements RangeIterator {
+    public static class RangeIteratorJoined extends RangeIteratorBase {
 
-        RangeIterator[] rangeIterators;
-        int             currentIndex  = 0;
-        boolean         isBeforeFirst = true;
+        RangeIteratorMain[] rangeIterators;
+        int                 currentIndex = 0;
 
-        public RangeIteratorJoined(RangeIterator[] rangeIterators) {
+        public RangeIteratorJoined(RangeIteratorMain[] rangeIterators) {
             this.rangeIterators = rangeIterators;
+            isBeforeFirst = true;
         }
 
         public boolean isBeforeFirst() {
@@ -1069,7 +1070,7 @@ public final class RangeVariable {
         public boolean next() {
 
             while (currentIndex >= 0) {
-                RangeIterator it = rangeIterators[currentIndex];
+                RangeIteratorMain it = rangeIterators[currentIndex];
 
                 if (it.next()) {
                     if (currentIndex < rangeIterators.length - 1) {
@@ -1077,6 +1078,9 @@ public final class RangeVariable {
 
                         continue;
                     }
+
+                    currentRow  = rangeIterators[currentIndex].currentRow;
+                    currentData = currentRow.getData();
 
                     return true;
                 } else {
@@ -1088,6 +1092,10 @@ public final class RangeVariable {
                 }
             }
 
+            currentData =
+                rangeIterators[rangeIterators.length - 1].rangeVar.emptyData;
+            currentRow = null;
+
             for (int i = 0; i < rangeIterators.length; i++) {
                 rangeIterators[i].reset();
             }
@@ -1095,28 +1103,14 @@ public final class RangeVariable {
             return false;
         }
 
-        public Row getCurrentRow() {
-            return null;
-        }
-
-        public Object[] getCurrent() {
-            return null;
-        }
-
-        public void setCurrent(Object[] data) {}
-
-        public long getRowid() {
-            return 0;
-        }
-
-        public Object getRowidObject() {
-            return null;
-        }
-
         public void remove() {}
 
         public void reset() {
-            isBeforeFirst = true;
+            super.reset();
+
+            for (int i = 0; i < rangeIterators.length; i++) {
+                rangeIterators[i].reset();
+            }
         }
 
         public int getRangePosition() {
