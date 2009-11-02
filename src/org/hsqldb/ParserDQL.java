@@ -1690,6 +1690,7 @@ public class ParserDQL extends ParserBase {
                 else {
                     throw unexpectedToken(Tokens.T_COLON);
                 }
+
             // fall through
             case Tokens.QUESTION :
                 e = new ExpressionColumn(OpTypes.DYNAMIC_PARAM);
@@ -3859,6 +3860,8 @@ public class ParserDQL extends ParserBase {
         String  prefix         = token.namePrefix;
         String  prePrefix      = token.namePrePrefix;
         String  prePrePrefix   = token.namePrePrePrefix;
+
+        checkIsIdentifier();
 
         if (isUndelimitedSimpleName()) {
             FunctionSQL function =

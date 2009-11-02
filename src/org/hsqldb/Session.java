@@ -1738,7 +1738,7 @@ public class Session implements SessionInterface {
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES :
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS :
             case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :
-            case ResultLob.LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION :{
+            case ResultLob.LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION : {
                 throw Error.error(ErrorCode.X_0A501);
             }
             default : {
@@ -1910,11 +1910,16 @@ public class Session implements SessionInterface {
     SimpleDateFormat simpleDateFormat;
     SimpleDateFormat simpleDateFormatGMT;
     Random           randomGenerator = new Random();
+    long             seed            = -1;
 
     //
     public double random(long seed) {
 
-        randomGenerator.setSeed(seed);
+        if (this.seed != seed) {
+            randomGenerator.setSeed(seed);
+
+            this.seed = seed;
+        }
 
         return randomGenerator.nextDouble();
     }
