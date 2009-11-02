@@ -94,7 +94,8 @@ public class FunctionSQLInvoked extends Expression {
                                                                 : 0;
         Object[] data        = ValuePool.emptyObjectArray;
         Object   returnValue = null;
-        boolean push = routine.isPSM() || routine.dataImpact != Routine.NO_SQL;
+        boolean push = true;
+
 
         if (extraArg + nodes.length > 0) {
             data = new Object[nodes.length + extraArg];
@@ -152,6 +153,12 @@ public class FunctionSQLInvoked extends Expression {
             }
         } else {
             try {
+                if (routine.dataImpact == Routine.NO_SQL) {
+                    session.sessionContext.isReadOnly = Boolean.TRUE;
+                    session.setNoSQL();
+                } else if (routine.dataImpact == Routine.READS_SQL) {
+                    session.sessionContext.isReadOnly = Boolean.TRUE;
+                }
                 returnValue = routine.javaMethod.invoke(null, data);
 
                 if (routine.returnsTable()) {

@@ -1137,13 +1137,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         t.insertSys(store, row);
 
-        // fredt - value set by SET MAXROWS in SQL, not Statement.setMaxRows()
-        row    = t.getEmptyRowData();
-        row[0] = "MAXROWS";
-        row[1] = String.valueOf(session.getSQLMaxRows());
-
-        t.insertSys(store, row);
-
         row    = t.getEmptyRowData();
         row[0] = "DATABASE";
         row[1] = database.getURI();
@@ -1173,15 +1166,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * Each row is a session state description with the following columns: <p>
      *
      * <pre class="SqlCodeExample">
-     * SESSION_ID         INTEGER   session identifier
+     * SESSION_ID         BIGINT    session identifier
      * CONNECTED          TIMESTAMP time at which session was created
      * USER_NAME          VARCHAR   db user name of current session user
      * IS_ADMIN           BOOLEAN   is session user an admin user?
      * AUTOCOMMIT         BOOLEAN   is session in autocommit mode?
      * READONLY           BOOLEAN   is session in read-only mode?
-     * MAXROWS            INTEGER   session's MAXROWS setting
-     * LAST_IDENTITY      INTEGER   last identity value used by this session
-     * TRANSACTION_SIZE   INTEGER   # of undo items in current transaction
+     * LAST_IDENTITY      BIGINT    last identity value used by this session
+     * TRANSACTION_SIZE   BIGINT   # of undo items in current transaction
      * SCHEMA             VARCHAR   current schema for session
      * </pre> <p>
      *
@@ -1201,7 +1193,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "IS_ADMIN", Type.SQL_BOOLEAN);
             addColumn(t, "AUTOCOMMIT", Type.SQL_BOOLEAN);
             addColumn(t, "READONLY", Type.SQL_BOOLEAN);
-            addColumn(t, "MAXROWS", CARDINAL_NUMBER);
 
             // Note: some sessions may have a NULL LAST_IDENTITY value
             addColumn(t, "LAST_IDENTITY", CARDINAL_NUMBER);
@@ -1226,10 +1217,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int iis_admin = 3;
         final int iautocmt  = 4;
         final int ireadonly = 5;
-        final int imaxrows  = 6;
-        final int ilast_id  = 7;
-        final int it_size   = 8;
-        final int it_schema = 9;
+        final int ilast_id  = 6;
+        final int it_size   = 7;
+        final int it_schema = 8;
 
         //
         PersistentStore store = database.persistentStoreCollection.getStore(t);
@@ -1252,7 +1242,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[iis_admin] = ValuePool.getBoolean(s.isAdmin());
             row[iautocmt]  = ValuePool.getBoolean(s.isAutoCommit());
             row[ireadonly] = ValuePool.getBoolean(s.isReadOnlyDefault());
-            row[imaxrows]  = ValuePool.getLong(s.getSQLMaxRows());
             row[ilast_id] =
                 ValuePool.getLong(((Number) s.getLastIdentity()).longValue());
             row[it_size]   = ValuePool.getLong(s.getTransactionSize());

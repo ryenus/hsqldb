@@ -54,6 +54,12 @@ public class SessionContext {
     Session session;
 
     //
+    Boolean isAutoCommit;
+    Boolean isReadOnly;
+    Boolean noSQL;
+    int     currentMaxRows;
+
+    //
     HashMappedList  sessionVariables;
     RangeVariable[] sessionVariablesRange;
 
@@ -103,6 +109,7 @@ public class SessionContext {
         sessionVariables         = new HashMappedList();
         sessionVariablesRange    = new RangeVariable[1];
         sessionVariablesRange[0] = new RangeVariable(sessionVariables, true);
+        isAutoCommit             = isReadOnly = noSQL = Boolean.FALSE;
     }
 
     public void push() {
@@ -117,10 +124,16 @@ public class SessionContext {
         stack.add(rangeIterators);
         stack.add(savepoints);
         stack.add(savepointTimestamps);
+        stack.add(isAutoCommit);
+        stack.add(isReadOnly);
+        stack.add(noSQL);
+        stack.add(ValuePool.getInt(currentMaxRows));
 
         rangeIterators      = new RangeIterator[4];
         savepoints          = new HashMappedList(4);
         savepointTimestamps = new LongDeque();
+        isAutoCommit        = Boolean.FALSE;
+        currentMaxRows      = 0;
 
         String name =
             HsqlNameManager.getAutoSavepointNameString(session.actionTimestamp,
@@ -133,6 +146,10 @@ public class SessionContext {
 
     public void pop() {
 
+        currentMaxRows = ((Integer) stack.remove(stack.size() - 1)).intValue();
+        noSQL               = (Boolean) stack.remove(stack.size() - 1);
+        isReadOnly          = (Boolean) stack.remove(stack.size() - 1);
+        isAutoCommit        = (Boolean) stack.remove(stack.size() - 1);
         savepointTimestamps = (LongDeque) stack.remove(stack.size() - 1);
         savepoints          = (HashMappedList) stack.remove(stack.size() - 1);
         rangeIterators      = (RangeIterator[]) stack.remove(stack.size() - 1);

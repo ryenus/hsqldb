@@ -354,8 +354,12 @@ public class TransactionManager2PL implements TransactionManager {
             action.mergeRollback(session, timestamp, row);
 
             if (type == RowActionBase.ACTION_DELETE) {
+                session.sessionData.addLobUsageCount(action.table,
+                                                     row.getData());
                 store.indexRow(session, row);
             } else if (type == RowActionBase.ACTION_INSERT) {
+                session.sessionData.removeLobUsageCount(action.table,
+                        row.getData());
                 store.delete(row);
                 store.remove(action.getPos());
             } else if (type == RowActionBase.ACTION_INSERT_DELETE) {
