@@ -106,12 +106,16 @@ public class FunctionSQL extends Expression {
     private final static int   FUNC_VALUE                            = 61;
 
     //
-    static final short[] noParamList              = new short[]{};
-    static final short[] emptyParamList           = new short[] {
+    static final short[] noParamList             = new short[]{};
+    static final short[] emptyParamList          = new short[] {
         Tokens.OPENBRACKET, Tokens.CLOSEBRACKET
     };
-    static final short[] optionalNoParamList      = new short[] {
+    static final short[] optionalNoParamList     = new short[] {
         Tokens.X_OPTION, 2, Tokens.OPENBRACKET, Tokens.CLOSEBRACKET
+    };
+    static final short[] optionalSingleParamList = new short[] {
+        Tokens.OPENBRACKET, Tokens.X_OPTION, 1, Tokens.QUESTION,
+        Tokens.CLOSEBRACKET
     };
     static final short[] singleParamList          = new short[] {
         Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.CLOSEBRACKET
@@ -376,8 +380,8 @@ public class FunctionSQL extends Expression {
                 };
                 parseListAlt = new short[] {
                     Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA, Tokens.QUESTION,
-                    Tokens.CLOSEBRACKET
+                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.CLOSEBRACKET
                 };
                 break;
 

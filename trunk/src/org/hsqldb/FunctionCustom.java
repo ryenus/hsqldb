@@ -464,7 +464,7 @@ public class FunctionCustom extends FunctionSQL {
                 break;
 
             case FUNC_RAND :
-                parseList = optionalIntegerParamList;
+                parseList = optionalSingleParamList;
                 break;
 
             case FUNC_ACOS :
@@ -843,8 +843,7 @@ public class FunctionCustom extends FunctionSQL {
                     return Double.valueOf(session.random());
                 } else {
                     long seed = ((Number) data[0]).longValue();
-
-                    return Double.valueOf(seed);
+                    return Double.valueOf(session.random(seed));
                 }
             }
             case FUNC_ACOS : {
@@ -1884,8 +1883,13 @@ public class FunctionCustom extends FunctionSQL {
             }
             case FUNC_PI :
             case FUNC_RAND : {
-                return new StringBuffer(name).append('(').append(
-                    ')').toString();
+                StringBuffer sb = new StringBuffer(name).append('(');
+
+                if (nodes[0] != null) {
+                    sb.append(nodes[0].getSQL());
+                }
+
+                sb.append(')').toString();
             }
             case FUNC_ACOS :
             case FUNC_ASIN :
