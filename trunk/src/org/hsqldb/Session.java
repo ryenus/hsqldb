@@ -84,32 +84,29 @@ public class Session implements SessionInterface {
     private Grantee role;
 
     // transaction support
-    private volatile boolean isAutoCommit;
-    private volatile boolean isReadOnly;
-    boolean                  isReadOnlyDefault;
-    int isolationModeDefault = SessionInterface.TX_READ_COMMITTED;
-    int isolationMode        = SessionInterface.TX_READ_COMMITTED;
-    int                      actionIndex;
-    long                     actionTimestamp;
-    long                     transactionTimestamp;
-    boolean                  isTransaction;
-    boolean                  isBatch;
-    volatile boolean         abortTransaction;
-    volatile boolean         redoAction;
-    HsqlArrayList            rowActionList;
-    volatile boolean         tempUnlocked;
-    OrderedHashSet           waitingSessions;
-    OrderedHashSet           tempSet;
-    CountUpDownLatch         latch = new CountUpDownLatch();
-    Statement                currentStatement;
-    Statement                lockStatement;
+    boolean          isReadOnlyDefault;
+    int              isolationModeDefault = SessionInterface.TX_READ_COMMITTED;
+    int              isolationMode        = SessionInterface.TX_READ_COMMITTED;
+    int              actionIndex;
+    long             actionTimestamp;
+    long             transactionTimestamp;
+    boolean          isTransaction;
+    boolean          isBatch;
+    volatile boolean abortTransaction;
+    volatile boolean redoAction;
+    HsqlArrayList    rowActionList;
+    volatile boolean tempUnlocked;
+    OrderedHashSet   waitingSessions;
+    OrderedHashSet   tempSet;
+    CountUpDownLatch latch = new CountUpDownLatch();
+    Statement        currentStatement;
+    Statement        lockStatement;
 
     // current settings
     final String       zoneString;
     final int          sessionTimeZoneSeconds;
     int                timeZoneSeconds;
     boolean            isNetwork;
-    private int        currentMaxRows;
     private int        sessionMaxRows;
     private Number     lastIdentity = ValuePool.INTEGER_0;
     private final long sessionId;
@@ -161,10 +158,10 @@ public class Session implements SessionInterface {
         rowActionList               = new HsqlArrayList(true);
         waitingSessions             = new OrderedHashSet();
         tempSet                     = new OrderedHashSet();
-        isAutoCommit                = autocommit;
-        isReadOnly                  = readonly;
         isolationMode               = isolationModeDefault;
         sessionContext              = new SessionContext(this);
+        sessionContext.isAutoCommit = ValuePool.getBoolean(autocommit);
+        sessionContext.isReadOnly   = ValuePool.getBoolean(readonly);
         parser                      = new ParserCommand(this, new Scanner());
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
@@ -258,7 +255,7 @@ public class Session implements SessionInterface {
         }
 
         if (level == SessionInterface.TX_READ_UNCOMMITTED) {
-            isReadOnly = true;
+            sessionContext.isReadOnly = Boolean.TRUE;
         }
 
         isolationMode = level;
@@ -343,22 +340,18 @@ public class Session implements SessionInterface {
     }
 
     int getMaxRows() {
-        return currentMaxRows;
-    }
-
-    public int getSQLMaxRows() {
-        return sessionMaxRows;
+        return sessionContext.currentMaxRows;
     }
 
     /**
      * The SQL command SET MAXROWS n will override the Statement.setMaxRows(n)
-     * until SET MAXROWS 0 is issued.
+     * for the next direct statement only
      *
      * NB this is dedicated to the SET MAXROWS sql statement and should not
      * otherwise be called. (fredt@users)
      */
     void setSQLMaxRows(int rows) {
-        currentMaxRows = sessionMaxRows = rows;
+        sessionMaxRows = rows;
     }
 
     /**
@@ -375,7 +368,7 @@ public class Session implements SessionInterface {
      */
     void checkReadWrite() {
 
-        if (isReadOnly) {
+        if (sessionContext.isReadOnly.booleanValue()) {
             throw Error.error(ErrorCode.X_25006);
         }
     }
@@ -439,10 +432,10 @@ public class Session implements SessionInterface {
             return;
         }
 
-        if (autocommit != isAutoCommit) {
+        if (sessionContext.isAutoCommit.booleanValue() != autocommit) {
             commit(false);
 
-            isAutoCommit = autocommit;
+            sessionContext.isAutoCommit = ValuePool.getBoolean(autocommit);
         }
     }
 
@@ -512,7 +505,8 @@ public class Session implements SessionInterface {
         }
 
         if (!isTransaction) {
-            isReadOnly    = isReadOnlyDefault;
+            sessionContext.isReadOnly =
+                ValuePool.getBoolean(isReadOnlyDefault);
             isolationMode = isolationModeDefault;
 
             return;
@@ -549,7 +543,8 @@ public class Session implements SessionInterface {
         }
 
         if (!isTransaction) {
-            isReadOnly    = isReadOnlyDefault;
+            sessionContext.isReadOnly =
+                ValuePool.getBoolean(isReadOnlyDefault);
             isolationMode = isolationModeDefault;
 
             return;
@@ -565,16 +560,15 @@ public class Session implements SessionInterface {
 
     private void endTransaction(boolean commit) {
 
-        sessionData.updateLobUsage(commit);
         sessionContext.savepoints.clear();
         sessionContext.savepointTimestamps.clear();
         rowActionList.clear();
         sessionData.persistentStoreCollection.clearTransactionTables();
         sessionData.closeAllTransactionNavigators();
 
-        isReadOnly    = isReadOnlyDefault;
-        isolationMode = isolationModeDefault;
-        lockStatement = null;
+        sessionContext.isReadOnly = ValuePool.getBoolean(isReadOnlyDefault);
+        isolationMode             = isolationModeDefault;
+        lockStatement             = null;
 /* debug 190
         tempActionHistory.add("commit ends " + actionTimestamp);
         tempActionHistory.clear();
@@ -684,8 +678,12 @@ public class Session implements SessionInterface {
         return isTransaction;
     }
 
+    public void setNoSQL() {
+        sessionContext.noSQL = Boolean.TRUE;
+    }
+
     /**
-     * sets READ ONLY for next transaction only
+     * sets READ ONLY for next transaction / subtransaction only
      *
      * @param  readonly the new value
      */
@@ -699,7 +697,7 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_25001);
         }
 
-        isReadOnly = readonly;
+        sessionContext.isReadOnly = ValuePool.getBoolean(readonly);
     }
 
     public synchronized void setReadOnlyDefault(boolean readonly) {
@@ -711,7 +709,8 @@ public class Session implements SessionInterface {
         isReadOnlyDefault = readonly;
 
         if (!isInMidTransaction()) {
-            isReadOnly = isReadOnlyDefault;
+            sessionContext.isReadOnly =
+                ValuePool.getBoolean(isReadOnlyDefault);
         }
     }
 
@@ -721,7 +720,7 @@ public class Session implements SessionInterface {
      * @return the current value
      */
     public boolean isReadOnly() {
-        return isReadOnly;
+        return sessionContext.isReadOnly.booleanValue();
     }
 
     public synchronized boolean isReadOnlyDefault() {
@@ -734,7 +733,7 @@ public class Session implements SessionInterface {
      * @return the current value
      */
     public synchronized boolean isAutoCommit() {
-        return isAutoCommit;
+        return sessionContext.isAutoCommit.booleanValue();
     }
 
     public synchronized int getStreamBlockSize() {
@@ -835,7 +834,8 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(Error.error(ErrorCode.X_08503));
         }
 
-        currentMaxRows = sessionMaxRows;
+        sessionContext.currentMaxRows = 0;
+        isBatch                       = false;
 
         JavaSystem.gc();
 
@@ -848,9 +848,9 @@ public class Session implements SessionInterface {
                 int maxRows = cmd.updateCount;
 
                 if (maxRows == -1) {
-                    currentMaxRows = 0;
-                } else if (sessionMaxRows == 0) {
-                    currentMaxRows = maxRows;
+                    sessionContext.currentMaxRows = 0;
+                } else {
+                    sessionContext.currentMaxRows = maxRows;
                 }
 
                 Statement cs = cmd.statement;
@@ -878,6 +878,8 @@ public class Session implements SessionInterface {
                 return result;
             }
             case ResultConstants.BATCHEXECUTE : {
+                isBatch = true;
+
                 Result result = executeCompiledBatchStatement(cmd);
 
                 result = performPostExecute(cmd, result);
@@ -892,6 +894,8 @@ public class Session implements SessionInterface {
                 return result;
             }
             case ResultConstants.BATCHEXECDIRECT : {
+                isBatch = true;
+
                 Result result = executeDirectBatchStatement(cmd);
 
                 result = performPostExecute(cmd, result);
@@ -1071,9 +1075,12 @@ public class Session implements SessionInterface {
         int           maxRows = cmd.getUpdateCount();
 
         if (maxRows == -1) {
-            currentMaxRows = 0;
+            sessionContext.currentMaxRows = 0;
         } else if (sessionMaxRows == 0) {
-            currentMaxRows = maxRows;
+            sessionContext.currentMaxRows = maxRows;
+        } else {
+            sessionContext.currentMaxRows = sessionMaxRows;
+            sessionMaxRows                = 0;
         }
 
         try {
@@ -1213,7 +1220,8 @@ public class Session implements SessionInterface {
         }
 
         if (sessionContext.depth == 0
-                && (isAutoCommit || cs.isAutoCommitStatement())) {
+                && (sessionContext.isAutoCommit.booleanValue()
+                    || cs.isAutoCommitStatement())) {
             try {
                 if (r.mode == ResultConstants.ERROR) {
                     rollback(false);
@@ -1264,8 +1272,6 @@ public class Session implements SessionInterface {
 
         Result error = null;
 
-        isBatch = true;
-
         while (nav.hasNext()) {
             Object[] pvals = (Object[]) nav.getNext();
             Result   in    = executeCompiledStatement(cs, pvals);
@@ -1304,10 +1310,6 @@ public class Session implements SessionInterface {
             }
         }
 
-        isBatch = false;
-
-        sessionData.updateLobUsageForBatch();
-
         return Result.newBatchedExecuteResponse(updateCounts, generatedResult,
                 error);
     }
@@ -1324,8 +1326,6 @@ public class Session implements SessionInterface {
         updateCounts = new int[nav.getSize()];
 
         Result error = null;
-
-        isBatch = true;
 
         while (nav.hasNext()) {
             Result   in;
@@ -1364,10 +1364,6 @@ public class Session implements SessionInterface {
                 throw Error.runtimeError(ErrorCode.U_S0500, "Session");
             }
         }
-
-        isBatch = false;
-
-        sessionData.updateLobUsageForBatch();
 
         return Result.newBatchedExecuteResponse(updateCounts, null, error);
     }
@@ -1552,12 +1548,12 @@ public class Session implements SessionInterface {
 
             case SessionInterface.INFO_AUTOCOMMIT :
                 data[SessionInterface.INFO_BOOLEAN] =
-                    ValuePool.getBoolean(isAutoCommit);
+                    sessionContext.isAutoCommit;
                 break;
 
             case SessionInterface.INFO_CONNECTION_READONLY :
                 data[SessionInterface.INFO_BOOLEAN] =
-                    ValuePool.getBoolean(isReadOnly);
+                    sessionContext.isReadOnly;
                 break;
 
             case SessionInterface.INFO_CATALOG :
@@ -1626,10 +1622,10 @@ public class Session implements SessionInterface {
                 return ValuePool.getInt(isolationMode);
 
             case SessionInterface.INFO_AUTOCOMMIT :
-                return ValuePool.getBoolean(isAutoCommit);
+                return sessionContext.isAutoCommit;
 
             case SessionInterface.INFO_CONNECTION_READONLY :
-                return ValuePool.getBoolean(isReadOnly);
+                return sessionContext.isReadOnly;
 
             case SessionInterface.INFO_CATALOG :
                 return database.getCatalogName().name;
@@ -1714,36 +1710,37 @@ public class Session implements SessionInterface {
         switch (operation) {
 
             case ResultLob.LobResultTypes.REQUEST_GET_LOB : {
-                return database.lobManager.getLob(this, id, cmd.getOffset(),
+                return database.lobManager.getLob(id, cmd.getOffset(),
                                                   cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_GET_LENGTH : {
-                return database.lobManager.getLength(this, id);
+                return database.lobManager.getLength(id);
             }
             case ResultLob.LobResultTypes.REQUEST_GET_BYTES : {
                 return database.lobManager.getBytes(
-                    this, id, cmd.getOffset(), (int) cmd.getBlockLength());
+                    id, cmd.getOffset(), (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_SET_BYTES : {
-                return database.lobManager.setBytes(this, id,
-                                                    cmd.getByteArray(),
+                return database.lobManager.setBytes(id, cmd.getByteArray(),
                                                     cmd.getOffset());
             }
             case ResultLob.LobResultTypes.REQUEST_GET_CHARS : {
                 return database.lobManager.getChars(
-                    this, id, cmd.getOffset(), (int) cmd.getBlockLength());
+                    id, cmd.getOffset(), (int) cmd.getBlockLength());
             }
             case ResultLob.LobResultTypes.REQUEST_SET_CHARS : {
-                return database.lobManager.setChars(this, id, cmd.getOffset(),
+                return database.lobManager.setChars(id, cmd.getOffset(),
                                                     cmd.getCharArray());
             }
             case ResultLob.LobResultTypes.REQUEST_TRUNCATE : {
-                return database.lobManager.truncate(this, id, cmd.getOffset());
+                throw Error.error(ErrorCode.X_0A501);
             }
             case ResultLob.LobResultTypes.REQUEST_CREATE_BYTES :
             case ResultLob.LobResultTypes.REQUEST_CREATE_CHARS :
             case ResultLob.LobResultTypes.REQUEST_GET_BYTE_PATTERN_POSITION :
-            case ResultLob.LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION :
+            case ResultLob.LobResultTypes.REQUEST_GET_CHAR_PATTERN_POSITION :{
+                throw Error.error(ErrorCode.X_0A501);
+            }
             default : {
                 throw Error.runtimeError(ErrorCode.U_S0500, "Session");
             }

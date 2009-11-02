@@ -152,6 +152,10 @@ public class JDBCBlobClient implements Blob {
     public synchronized long position(Blob pattern,
                                       long start) throws SQLException {
 
+        if (!isInLimits(Integer.MAX_VALUE, 0, pattern.length())) {
+            throw Util.outOfRangeArgument();
+        }
+
         byte[] bytePattern = pattern.getBytes(1, (int) pattern.length());
 
         return position(bytePattern, start);
@@ -174,6 +178,9 @@ public class JDBCBlobClient implements Blob {
     public synchronized int setBytes(long pos,
                                      byte[] bytes) throws SQLException {
 
+        throw Util.notSupported();
+
+/*
         if (!isInLimits(Long.MAX_VALUE, pos - 1, bytes.length)) {
             throw Util.outOfRangeArgument();
         }
@@ -183,6 +190,7 @@ public class JDBCBlobClient implements Blob {
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
+*/
     }
 
     /**
@@ -205,6 +213,8 @@ public class JDBCBlobClient implements Blob {
     public synchronized int setBytes(long pos, byte[] bytes, int offset,
                                      int len) throws SQLException {
 
+        throw Util.notSupported();
+/*
         if (!isInLimits(bytes.length, offset, len)) {
             throw Util.outOfRangeArgument();
         }
@@ -218,6 +228,7 @@ public class JDBCBlobClient implements Blob {
         }
 
         return setBytes(pos, bytes);
+*/
     }
 
     /**

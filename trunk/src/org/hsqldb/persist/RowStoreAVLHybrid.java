@@ -77,6 +77,10 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         this.isTempTable       = table.getTableType() == TableBase.TEMP_TABLE;
         this.useCache          = useCache;
 
+        if (maxMemoryRowCount == 0) {
+            this.useCache = false;
+        }
+
         if (table.getTableType() == TableBase.RESULT_TABLE) {
             timestamp = session.getActionTimestamp();
         }
@@ -211,7 +215,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public CachedObject getNewCachedObject(Session session, Object object) {
 
-        int id  = rowIdSequence++;
+        int id = rowIdSequence++;
 
         if (isCached) {
             Row row = new RowAVLDisk(table, (Object[]) object);
@@ -237,8 +241,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             if (isTempTable) {
                 RowAction action = new RowAction(session, table,
-                                                 RowAction.ACTION_INSERT, true,
-                                                 row);
+                                                 RowAction.ACTION_INSERT,
+                                                 true, row);
 
                 row.rowAction = action;
             }

@@ -42,7 +42,7 @@ package org.hsqldb.lib;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class OrderedHashSet extends HashSet implements HsqlList {
+public class OrderedHashSet extends HashSet implements HsqlList, Set {
 
     public OrderedHashSet() {
 
@@ -135,6 +135,19 @@ public class OrderedHashSet extends HashSet implements HsqlList {
         }
 
         return max;
+    }
+
+    public int getCommonElementCount(Set other) {
+
+        int count = 0;
+
+        for (int i = 0, size = size(); i < size; i++) {
+            if (other.contains(objectKeyTable[i])) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     private void checkRange(int i) {
