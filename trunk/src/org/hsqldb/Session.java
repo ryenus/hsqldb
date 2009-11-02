@@ -207,12 +207,13 @@ public class Session implements SessionInterface {
         database.sessionManager.removeSession(this);
         database.closeIfLast();
 
+        // keep sessionContext and sessionData
+
         database                  = null;
         user                      = null;
         rowActionList             = null;
         sessionContext.savepoints = null;
         intConnection             = null;
-        sessionContext            = null;
         lastIdentity              = null;
         isClosed                  = true;
     }
