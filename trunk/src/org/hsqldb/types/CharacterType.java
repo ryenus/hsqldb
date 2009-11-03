@@ -345,7 +345,7 @@ public class CharacterType extends Type {
         return getCharacterType(newType.typeCode, precision + other.precision);
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
 
         if (a == b) {
             return 0;

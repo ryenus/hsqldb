@@ -36,6 +36,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.types.Type;
 
 /*
  * Implementation of ORDER BY and LIMIT properties of query expressions.
@@ -163,6 +164,15 @@ public final class SortAndSlice {
                                       columnIndexes.length)) {
             skipSort       = true;
             skipFullResult = true;
+        }
+
+        for (int i = 0; i < exprList.size(); i++) {
+            ExpressionOrderBy sort     = (ExpressionOrderBy) exprList.get(i);
+            Type              dataType = sort.getLeftNode().getDataType();
+
+            if (dataType.isLobType()) {
+                throw Error.error(ErrorCode.X_42534);
+            }
         }
     }
 

@@ -231,7 +231,7 @@ public abstract class Type implements SchemaObject, Cloneable {
         return getName().getSchemaQualifiedStatementName();
     }
 
-    public abstract int compare(Object a, Object b);
+    public abstract int compare(Session session, Object a, Object b);
 
     public abstract Object convertToTypeLimits(SessionInterface session,
             Object a);
@@ -474,7 +474,8 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final CharacterType SQL_VARCHAR_DEFAULT =
         new CharacterType(Types.SQL_VARCHAR,
                           CharacterType.defaultCharPrecision);
-    public static final ClobType SQL_CLOB = new ClobType();
+    public static final ClobType SQL_CLOB =
+        new ClobType(ClobType.defaultClobSize);
     public static final CharacterType VARCHAR_IGNORECASE =
         new CharacterType(Types.VARCHAR_IGNORECASE, 0);
     public static final CharacterType VARCHAR_IGNORECASE_DEFAULT =
@@ -497,7 +498,8 @@ public abstract class Type implements SchemaObject, Cloneable {
         new BinaryType(Types.SQL_VARBINARY, 0);
     public static final BinaryType SQL_VARBINARY_DEFAULT =
         new BinaryType(Types.SQL_VARBINARY, 32 * 1024);
-    public static final BlobType SQL_BLOB = new BlobType();
+    public static final BlobType SQL_BLOB =
+        new BlobType(BlobType.defaultBlobSize);
 
     // other type
     public static final OtherType OTHER = OtherType.getOtherType();

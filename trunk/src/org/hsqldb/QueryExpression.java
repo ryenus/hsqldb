@@ -115,6 +115,7 @@ public class QueryExpression {
     public Index     fullIndex;
     public Index     orderIndex;
     public Index     idIndex;
+
     //
     CompileContext compileContext;
 
@@ -393,6 +394,16 @@ public class QueryExpression {
                 }
 
                 queryExpression = queryExpression.leftQueryExpression;
+            }
+        }
+
+        ResultMetaData meta = getMetaData();
+
+        for (int i = 0, count = meta.getColumnCount(); i < count; i++) {
+            Type dataType = meta.columnTypes[i];
+
+            if (dataType.isLobType()) {
+                throw Error.error(ErrorCode.X_42534);
             }
         }
     }

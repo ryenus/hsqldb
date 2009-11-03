@@ -77,6 +77,7 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.Type;
 
 // fredt@users 20020225 - patch 1.7.0 by boucherb@users - named constraints
 // fredt@users 20020320 - doc 1.7.0 - update
@@ -126,6 +127,14 @@ public final class Constraint implements SchemaObject {
         core.mainTable = t;
         core.mainIndex = index;
         core.mainCols  = index.getColumns();
+
+        for (int i = 0; i < core.mainCols.length; i++) {
+            Type dataType = t.getColumn(core.mainCols[i]).getDataType();
+
+            if (dataType.isLobType()) {
+                throw Error.error(ErrorCode.X_42534);
+            }
+        }
     }
 
     /**
@@ -720,8 +729,8 @@ public final class Constraint implements SchemaObject {
                 } else if (core.mainTable == core.refTable) {
 
                     // special case: self referencing table and self referencing row
-                    int compare = core.mainIndex.compareRowNonUnique(data,
-                        core.refCols, data);
+                    int compare = core.mainIndex.compareRowNonUnique(session,
+                        data, core.refCols, data);
 
                     if (compare == 0) {
                         return;

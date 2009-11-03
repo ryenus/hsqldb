@@ -162,25 +162,24 @@ public class IndexAVLMemory extends IndexAVL {
 
                 if (compareSimple) {
                     compare =
-                        colTypes[0].compare(rowData[colIndex[0]],
-                                            currentRow.rowData[colIndex[0]]);
+                        colTypes[0].compare(session, rowData[colIndex[0]], currentRow.rowData[colIndex[0]]);
 
                     if (compare == 0) {
-                        compare = compareRowForInsertOrDelete(row, currentRow,
-                                                              compareRowId, 1);
+                        compare = compareRowForInsertOrDelete(session, row,
+                                                              currentRow, compareRowId, 1);
                     }
                 } else {
-                    compare = compareRowForInsertOrDelete(row, currentRow,
-                                                          compareRowId, 0);
+                    compare = compareRowForInsertOrDelete(session, row,
+                                                          currentRow, compareRowId, 0);
                 }
 
                 if (compare == 0 && session != null
                         && session.database.txManager.isMVRows()
                         && !isEqualReadable(session, store, n)) {
                     compareRowId = true;
-                    compare = compareRowForInsertOrDelete(row, currentRow,
-                                                          compareRowId,
-                                                          colIndex.length);
+                    compare = compareRowForInsertOrDelete(session, row,
+                                                          currentRow,
+                                                          compareRowId, colIndex.length);
                 }
 
                 if (compare == 0) {
@@ -486,8 +485,8 @@ public class IndexAVLMemory extends IndexAVL {
             NodeAVL result = null;
 
             while (x != null) {
-                int i = this.compareRowNonUnique(rowdata, rowColMap,
-                                                 x.getData(store), fieldCount);
+                int i = this.compareRowNonUnique(session, rowdata,
+                                                 rowColMap, x.getData(store), fieldCount);
 
                 if (i == 0) {
                     result = x;
@@ -514,7 +513,7 @@ public class IndexAVLMemory extends IndexAVL {
                 Row row = result.row;
 
                 if (compareRowNonUnique(
-                        rowdata, rowColMap, row.rowData, fieldCount) != 0) {
+                        session, rowdata, rowColMap, row.rowData, fieldCount) != 0) {
                     result = null;
 
                     break;
