@@ -679,17 +679,10 @@ public class LobManager {
     public Result setBytesBA(long lobID, byte[] dataBytes, long offset,
                              int length) {
 
-        Object[] data = getLobHeader(lobID);
-
-        if (data == null) {
-            return Result.newErrorResult(Error.error(ErrorCode.X_0F502));
-        }
-
-        long oldLength       = ((Long) data[1]).longValue();
-        int  blockOffset     = (int) (offset / lobBlockSize);
-        int  byteBlockOffset = (int) (offset % lobBlockSize);
-        int  blockLimit      = (int) ((offset + length) / lobBlockSize);
-        int  byteLimitOffset = (int) ((offset + length) % lobBlockSize);
+        int blockOffset     = (int) (offset / lobBlockSize);
+        int byteBlockOffset = (int) (offset % lobBlockSize);
+        int blockLimit      = (int) ((offset + length) / lobBlockSize);
+        int byteLimitOffset = (int) ((offset + length) % lobBlockSize);
 
         if (byteLimitOffset == 0) {
             byteLimitOffset = lobBlockSize;
@@ -756,12 +749,6 @@ public class LobManager {
             }
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
-        }
-
-        if (offset + length > oldLength) {
-            oldLength = offset + length;
-
-            setLength(lobID, oldLength);
         }
 
         return ResultLob.newLobSetResponse(lobID, 0);
