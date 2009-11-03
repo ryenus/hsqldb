@@ -116,6 +116,8 @@ public final class Constraint implements SchemaObject {
     //
     final public static Constraint[] emptyArray = new Constraint[]{};
 
+    private Constraint() {}
+
     /**
      *  Constructor declaration for PK and UNIQUE
      */
@@ -145,25 +147,6 @@ public final class Constraint implements SchemaObject {
         this.name = name;
         constType = SchemaObject.ConstraintTypes.MAIN;
         core      = fkconstraint.core;
-    }
-
-    Constraint duplicate() {
-
-        Constraint copy = new Constraint();
-
-        copy.core      = core.duplicate();
-        copy.name      = name;
-        copy.constType = constType;
-        copy.isForward = isForward;
-
-        //
-        copy.check              = check;
-        copy.isNotNull          = isNotNull;
-        copy.notNullColumnIndex = notNullColumnIndex;
-        copy.rangeVariable      = rangeVariable;
-        copy.schemaObjectNames  = schemaObjectNames;
-
-        return copy;
     }
 
     /**
@@ -203,6 +186,25 @@ public final class Constraint implements SchemaObject {
         mainColSet = mainCols;
     }
 
+    Constraint duplicate() {
+
+        Constraint copy = new Constraint();
+
+        copy.core      = core.duplicate();
+        copy.name      = name;
+        copy.constType = constType;
+        copy.isForward = isForward;
+
+        //
+        copy.check              = check;
+        copy.isNotNull          = isNotNull;
+        copy.notNullColumnIndex = notNullColumnIndex;
+        copy.rangeVariable      = rangeVariable;
+        copy.schemaObjectNames  = schemaObjectNames;
+
+        return copy;
+    }
+
     void setColumnsIndexes(Table table) {
 
         if (constType == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
@@ -219,12 +221,27 @@ public final class Constraint implements SchemaObject {
             if (core.refCols == null) {
                 core.refCols = table.getColumnIndexes(refColSet);
             }
+
+            for (int i = 0; i < core.refCols.length; i++) {
+                Type dataType = table.getColumn(core.refCols[i]).getDataType();
+
+                if (dataType.isLobType()) {
+                    throw Error.error(ErrorCode.X_42534);
+                }
+            }
         } else if (mainColSet != null) {
             core.mainCols = table.getColumnIndexes(mainColSet);
+
+            for (int i = 0; i < core.mainCols.length; i++) {
+                Type dataType =
+                    table.getColumn(core.mainCols[i]).getDataType();
+
+                if (dataType.isLobType()) {
+                    throw Error.error(ErrorCode.X_42534);
+                }
+            }
         }
     }
-
-    private Constraint() {}
 
     public int getType() {
         return SchemaObject.CONSTRAINT;

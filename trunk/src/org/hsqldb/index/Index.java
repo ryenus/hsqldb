@@ -213,13 +213,16 @@ public interface Index extends SchemaObject {
      *
      * @return comparison result, -1,0,+1
      */
-    public int compareRowNonUnique(Session session, Object[] a, int[] rowColMap, Object[] b);
+    public int compareRowNonUnique(Session session, Object[] a,
+                                   int[] rowColMap, Object[] b);
 
-    public int compareRowNonUnique(Session session, Object[] a, int[] rowColMap,
-                                   Object[] b, int fieldCount);
+    public int compareRowNonUnique(Session session, Object[] a,
+                                   int[] rowColMap, Object[] b,
+                                   int fieldCount);
 
     /**
      * As above but use the index column data
      */
-    public int compareRowNonUnique(Session session, Object[] a, Object[] b, int fieldcount);
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                                   int fieldcount);
 }
