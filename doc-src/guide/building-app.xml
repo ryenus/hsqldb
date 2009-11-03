@@ -247,15 +247,15 @@
     </section>
 
     <section>
-      <title>Building with older JDKs</title>
+      <title>Building for Older JDKs</title>
 
       <para>HyperSQL version 2.0 cannot be directly compiled or used with JDK
       1.4. It may be possible to use the RetroTranslator tool to achieve this.
-      The suggested procedure is as follows: First use Ant and the appropriate
-      switchtojdkXX target for your target JDK (1.4). Then translate the code
-      using RetroTranslator with backport (which bundles replacement classes
-      for concurrency control). This translation should cover the concurrency
-      features that are specific to version 1.5 and later.<informalexample>
+      The suggested procedure is as follows: First use Ant with JDK 1.5 and
+      build the jar. Then translate the jar using RetroTranslator with
+      backport (which bundles replacement classes for concurrency control).
+      This translation should cover the concurrency features that are specific
+      to version 1.5 and later.<informalexample>
           <screen>ant switchtojdk14
 ant hsqldb
 -- translate the jar
