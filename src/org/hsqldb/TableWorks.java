@@ -267,6 +267,10 @@ public class TableWorks {
 
         if (c.getConstraintType()
                 == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
+            if (column.getDataType().isLobType()) {
+                throw Error.error(ErrorCode.X_42534);
+            }
+
             c.core.mainCols = new int[]{ colIndex };
 
             database.schemaManager.checkSchemaObjectNotExists(c.getName());
@@ -291,6 +295,10 @@ public class TableWorks {
                 case SchemaObject.ConstraintTypes.UNIQUE : {
                     if (addUnique) {
                         throw Error.error(ErrorCode.X_42522);
+                    }
+
+                    if (column.getDataType().isLobType()) {
+                        throw Error.error(ErrorCode.X_42534);
                     }
 
                     addUnique       = true;
@@ -391,6 +399,7 @@ public class TableWorks {
         }
 
         column.compile(session, table);
+
         PersistentStore oldStore =
             database.persistentStoreCollection.getStore(originalTable);
         PersistentStore newStore =
@@ -866,6 +875,7 @@ public class TableWorks {
                     int[] cols = constraint.getMainColumns();
 
                     for (int i = 0; i < cols.length; i++) {
+
                         // todo - check if table arrays relect the not-null correctly
                         tn.getColumn(cols[i]).setPrimaryKey(false);
                         tn.setColumnTypeVars(cols[i]);

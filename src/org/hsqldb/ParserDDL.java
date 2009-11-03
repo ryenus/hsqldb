@@ -1294,9 +1294,7 @@ public class ParserDDL extends ParserRoutine {
             namePart, table.getSchemaName(), table.getName(),
             SchemaObject.INDEX);
 
-        if (c.mainColSet != null) {
-            c.core.mainCols = table.getColumnIndexes(c.mainColSet);
-        }
+        c.setColumnsIndexes(table);
 
         table.createPrimaryKey(indexName, c.core.mainCols, true);
 
@@ -3648,13 +3646,12 @@ public class ParserDDL extends ParserRoutine {
                     SchemaObject.CONSTRAINT);
         }
 
-        int[] cols = readColumnList(table, false);
+        OrderedHashSet set = readColumnNames(false);
         Constraint constraint =
-            new Constraint(name, null,
+            new Constraint(name, set,
                            SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
-        constraint.core.mainCols = cols;
-
+        constraint.setColumnsIndexes(table);
         session.commit(false);
 
         TableWorks tableWorks = new TableWorks(session, table);
@@ -3670,12 +3667,11 @@ public class ParserDDL extends ParserRoutine {
                     SchemaObject.CONSTRAINT);
         }
 
-        int[] cols = readColumnList(table, false);
+        OrderedHashSet set = readColumnNames(false);
         Constraint constraint =
-            new Constraint(name, null,
+            new Constraint(name, set,
                            SchemaObject.ConstraintTypes.PRIMARY_KEY);
-
-        constraint.core.mainCols = cols;
+        constraint.setColumnsIndexes(table);
 
         String   sql  = getLastPart();
         Object[] args = new Object[]{ constraint };

@@ -155,8 +155,6 @@ public class LobManager {
         "SELECT * FROM SYSTEM_LOBS.LOB_IDS WHERE LOB_ID = ?";
     private static String getLobPartSQL =
         "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND BLOCK_OFFSET + BLOCK_COUNT > ? AND BLOCK_OFFSET < ? ORDER BY BLOCK_OFFSET";
-
-    // DELETE_BLOCKS(L_ID BIGINT, B_OFFSET INT, B_COUNT INT, TX_ID BIGINT)
     private static String deleteLobPartCallSQL =
         "CALL SYSTEM_LOBS.DELETE_BLOCKS(?,?,?,?)";
     private static String createLobSQL =
