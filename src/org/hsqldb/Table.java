@@ -597,13 +597,13 @@ public class Table extends TableBase implements SchemaObject {
      *
      * @return comparison result, -1,0,+1
      */
-    public static int compareRows(Object[] a, Object[] b, int[] cols,
-                                  Type[] coltypes) {
+    public static int compareRows(Session session, Object[] a, Object[] b,
+                                  int[] cols, Type[] coltypes) {
 
         int fieldcount = cols.length;
 
         for (int j = 0; j < fieldcount; j++) {
-            int i = coltypes[cols[j]].compare(a[cols[j]], b[cols[j]]);
+            int i = coltypes[cols[j]].compare(session, a[cols[j]], b[cols[j]]);
 
             if (i != 0) {
                 return i;
@@ -2619,7 +2619,7 @@ public class Table extends TableBase implements SchemaObject {
                 }
 
                 if (Table.compareRows(
-                        row.getData(), data, defaultColumnMap,
+                        session, row.getData(), data, defaultColumnMap,
                         colTypes) == 0) {
                     break;
                 }
@@ -2638,14 +2638,15 @@ public class Table extends TableBase implements SchemaObject {
 
                 // reached end of range
                 if (bestIndex.compareRowNonUnique(
-                        data, bestIndex.getColumns(), rowdata) != 0) {
+                        session, data, bestIndex.getColumns(), rowdata) != 0) {
                     row = null;
 
                     break;
                 }
 
                 if (Table.compareRows(
-                        rowdata, data, defaultColumnMap, colTypes) == 0) {
+                        session, rowdata, data, defaultColumnMap,
+                        colTypes) == 0) {
                     break;
                 }
             }

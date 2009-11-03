@@ -80,7 +80,7 @@ public final class NullType extends Type {
         return other;
     }
 
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
         throw Error.runtimeError(ErrorCode.U_S0500, "NullType");
     }
 

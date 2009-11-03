@@ -470,7 +470,8 @@ public class IndexAVL implements Index {
             while (true) {
                 Row currentRow = n.getRow(store);
 
-                compare = compareRowForInsertOrDelete(row, currentRow,
+                compare = compareRowForInsertOrDelete(session, row,
+                                                      currentRow,
                                                       compareRowId, 0);
 
                 // after the first match and check, all compares are with row id
@@ -478,7 +479,8 @@ public class IndexAVL implements Index {
                         && session.database.txManager.isMVRows()
                         && !isEqualReadable(session, store, n)) {
                     compareRowId = true;
-                    compare = compareRowForInsertOrDelete(row, currentRow,
+                    compare = compareRowForInsertOrDelete(session, row,
+                                                          currentRow,
                                                           compareRowId,
                                                           colIndex.length);
                 }
@@ -800,9 +802,8 @@ public class IndexAVL implements Index {
             }
 
             while (x != null) {
-                boolean t =
-                    colTypes[0].compare(value, x.getData(store)[colIndex[0]])
-                    >= iTest;
+                boolean t = colTypes[0].compare(
+                    session, value, x.getData(store)[colIndex[0]]) >= iTest;
 
                 if (t) {
                     NodeAVL r = x.getRight(store);
@@ -832,7 +833,7 @@ public class IndexAVL implements Index {
 */
             while (x != null) {
                 Object colvalue = x.getData(store)[colIndex[0]];
-                int    result   = colTypes[0].compare(value, colvalue);
+                int    result = colTypes[0].compare(session, value, colvalue);
 
                 if (result >= iTest) {
                     x = next(store, x);
@@ -860,8 +861,8 @@ public class IndexAVL implements Index {
                 Row row = x.getRow(store);
 
                 if (compare == OpTypes.EQUAL
-                        && colTypes[0].compare(value, row.rowData[colIndex[0]])
-                           != 0) {
+                        && colTypes[0].compare(
+                            session, value, row.rowData[colIndex[0]]) != 0) {
                     x = null;
 
                     break;
@@ -897,9 +898,8 @@ public class IndexAVL implements Index {
             NodeAVL x = getAccessor(store);
 
             while (x != null) {
-                boolean t =
-                    colTypes[0].compare(null, x.getData(store)[colIndex[0]])
-                    >= 0;
+                boolean t = colTypes[0].compare(
+                    session, null, x.getData(store)[colIndex[0]]) >= 0;
 
                 if (t) {
                     NodeAVL r = x.getRight(store);
@@ -1174,7 +1174,7 @@ public class IndexAVL implements Index {
 
             nodeData = c.getData(store);
 
-            if (compareRow(data, nodeData) == 0) {
+            if (compareRow(session, data, nodeData) == 0) {
                 Row row = c.getRow(store);
 
                 if (session.database.txManager.canRead(
@@ -1197,7 +1197,7 @@ public class IndexAVL implements Index {
 
             nodeData = c.getData(store);
 
-            if (compareRow(data, nodeData) == 0) {
+            if (compareRow(session, data, nodeData) == 0) {
                 Row row = c.getRow(store);
 
                 if (session.database.txManager.canRead(
@@ -1245,12 +1245,14 @@ public class IndexAVL implements Index {
      *
      * @return comparison result, -1,0,+1
      */
-    public int compareRowNonUnique(Object[] a, int[] rowColMap, Object[] b) {
+    public int compareRowNonUnique(Session session, Object[] a,
+                                   int[] rowColMap, Object[] b) {
 
         int fieldcount = rowColMap.length;
 
         for (int j = 0; j < fieldcount; j++) {
-            int i = colTypes[j].compare(a[rowColMap[j]], b[colIndex[j]]);
+            int i = colTypes[j].compare(session, a[rowColMap[j]],
+                                        b[colIndex[j]]);
 
             if (i != 0) {
                 return i;
@@ -1260,11 +1262,13 @@ public class IndexAVL implements Index {
         return 0;
     }
 
-    public int compareRowNonUnique(Object[] a, int[] rowColMap, Object[] b,
+    public int compareRowNonUnique(Session session, Object[] a,
+                                   int[] rowColMap, Object[] b,
                                    int fieldCount) {
 
         for (int j = 0; j < fieldCount; j++) {
-            int i = colTypes[j].compare(a[rowColMap[j]], b[colIndex[j]]);
+            int i = colTypes[j].compare(session, a[rowColMap[j]],
+                                        b[colIndex[j]]);
 
             if (i != 0) {
                 return i;
@@ -1277,10 +1281,11 @@ public class IndexAVL implements Index {
     /**
      * As above but use the index column data
      */
-    public int compareRowNonUnique(Object[] a, Object[] b, int fieldcount) {
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                                   int fieldcount) {
 
         for (int j = 0; j < fieldcount; j++) {
-            int i = colTypes[j].compare(a[j], b[colIndex[j]]);
+            int i = colTypes[j].compare(session, a[j], b[colIndex[j]]);
 
             if (i != 0) {
                 return i;
@@ -1290,10 +1295,11 @@ public class IndexAVL implements Index {
         return 0;
     }
 
-    int compareRow(Object[] a, Object[] b) {
+    int compareRow(Session session, Object[] a, Object[] b) {
 
         for (int j = 0; j < colIndex.length; j++) {
-            int i = colTypes[j].compare(a[colIndex[j]], b[colIndex[j]]);
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[colIndex[j]]);
 
             if (i != 0) {
                 if (isSimpleOrder) {
@@ -1326,14 +1332,16 @@ public class IndexAVL implements Index {
      * @param existingRow data
      * @return comparison result, -1,0,+1
      */
-    int compareRowForInsertOrDelete(Row newRow, Row existingRow,
-                                    boolean useRowId, int start) {
+    int compareRowForInsertOrDelete(Session session, Row newRow,
+                                    Row existingRow, boolean useRowId,
+                                    int start) {
 
         Object[] a = newRow.rowData;
         Object[] b = existingRow.rowData;
 
         for (int j = start; j < colIndex.length; j++) {
-            int i = colTypes[j].compare(a[colIndex[j]], b[colIndex[j]]);
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[colIndex[j]]);
 
             if (i != 0) {
                 if (isSimpleOrder) {
@@ -1392,7 +1400,7 @@ public class IndexAVL implements Index {
             NodeAVL result = null;
 
             while (x != null) {
-                int i = this.compareRowNonUnique(rowdata, rowColMap,
+                int i = this.compareRowNonUnique(session, rowdata, rowColMap,
                                                  x.getData(store), fieldCount);
 
                 if (i == 0) {
@@ -1420,7 +1428,8 @@ public class IndexAVL implements Index {
                 Row row = result.getRow(store);
 
                 if (compareRowNonUnique(
-                        rowdata, rowColMap, row.rowData, fieldCount) != 0) {
+                        session, rowdata, rowColMap, row.rowData,
+                        fieldCount) != 0) {
                     result = null;
 
                     break;

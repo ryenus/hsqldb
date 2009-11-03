@@ -50,10 +50,6 @@ public final class ClobType extends CharacterType {
     static final long maxClobPrecision = 1024L * 1024 * 1024 * 1024;
     static final int  defaultClobSize  = 1024 * 1024 * 16;
 
-    public ClobType() {
-        super(Types.SQL_CLOB, defaultClobSize);
-    }
-
     public ClobType(long precision) {
         super(Types.SQL_CLOB, precision);
     }
@@ -117,7 +113,7 @@ public final class ClobType extends CharacterType {
     }
 
     /** @todo implement comparison */
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
 
         if (a == b) {
             return 0;
@@ -133,6 +129,10 @@ public final class ClobType extends CharacterType {
 
         long aId = ((ClobData) a).getId();
         long bId = ((ClobData) b).getId();
+
+        if (aId == bId) {
+            return 0;
+        }
 
         return (aId > bId) ? 1
                            : (bId > aId ? -1

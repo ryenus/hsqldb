@@ -847,7 +847,7 @@ public class StatementDML extends StatementDMQL {
 
                     if (refrow == null || refrow.isDeleted(session)
                             || refindex.compareRowNonUnique(
-                                mdata, m_columns, refrow.getData()) != 0) {
+                                session, mdata, m_columns, refrow.getData()) != 0) {
                         break;
                     }
 
@@ -1102,8 +1102,8 @@ public class StatementDML extends StatementDMQL {
                     refrow = refiterator.getNextRow()) {
                 if (refrow == null
                         || refindex.compareRowNonUnique(
-                            orow.getData(), m_columns,
-                            refrow.getData()) != 0) {
+                            session, orow.getData(),
+                            m_columns, refrow.getData()) != 0) {
                     break;
                 }
 
@@ -1189,8 +1189,11 @@ public class StatementDML extends StatementDMQL {
         Object[] data = (Object[]) rowSet.get(row);
 
         if (data != null) {
-            if (Table.compareRows(row.getData(), newData, cols, colTypes) != 0
-                    && Table.compareRows(newData, data, cols, colTypes) != 0) {
+            if (Table.compareRows(
+                    session, row
+                        .getData(), newData, cols, colTypes) != 0 && Table
+                            .compareRows(
+                                session, newData, data, cols, colTypes) != 0) {
                 return false;
             }
 

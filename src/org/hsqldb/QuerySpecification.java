@@ -754,6 +754,7 @@ public class QuerySpecification extends QueryExpression {
             }
         }
 
+        checkLobUsage();
         setReferenceableColumns();
         setUpdatability();
         createResultMetaData();
@@ -764,6 +765,19 @@ public class QuerySpecification extends QueryExpression {
         }
 
         sortAndSlice.setSortRange(this);
+    }
+
+    void checkLobUsage() {
+
+        if (!isDistinctSelect && !isGrouped) {
+            return;
+        }
+
+        for (int i = 0; i < indexStartHaving; i++) {
+            if (exprColumns[i].dataType.isLobType()) {
+                throw Error.error(ErrorCode.X_42534);
+            }
+        }
     }
 
     private void resolveGroups() {

@@ -380,7 +380,14 @@ public class LobManager {
     public Result getLength(long lobID) {
 
         try {
-            long length = getLengthValue(lobID);
+            Object[] data = getLobHeader(lobID);
+
+            if (data == null) {
+                throw Error.error(ErrorCode.X_0F502);
+            }
+
+            long length = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+            int  type   = ((Integer) data[LOB_IDS.LOB_TYPE]).intValue();
 
             return ResultLob.newLobSetResponse(lobID, length);
         } catch (HsqlException e) {
@@ -388,17 +395,78 @@ public class LobManager {
         }
     }
 
-    public long getLengthValue(long lobID) {
+    public int compare(BlobData a, BlobData b) {
 
-        Object[] data = getLobHeader(lobID);
-
-        if (data == null) {
-            throw Error.error(ErrorCode.X_0F502);
+        if (a.getId() == b.getId()) {
+            return 0;
         }
 
-        long length = ((Long) data[1]).longValue();
+        Object[] data = getLobHeader(a.getId());
 
-        return length;
+        if (data == null) {
+            return 1;
+        }
+
+        long lengthA = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+
+        data = getLobHeader(a.getId());
+
+        if (data == null) {
+            return -1;
+        }
+
+        long lengthB = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+
+        if (lengthA > lengthB) {
+            return 1;
+        }
+
+        if (lengthB > lengthA) {
+            return -1;
+        }
+
+        return compareBytes(a.getId(), b.getId());
+    }
+
+    public int compare(ClobData a, ClobData b) {
+
+        if (a.getId() == b.getId()) {
+            return 0;
+        }
+
+        Object[] data = getLobHeader(a.getId());
+
+        if (data == null) {
+            return 1;
+        }
+
+        long lengthA = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+
+        data = getLobHeader(a.getId());
+
+        if (data == null) {
+            return -1;
+        }
+
+        long lengthB = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
+
+        if (lengthA > lengthB) {
+            return 1;
+        }
+
+        if (lengthB > lengthA) {
+            return -1;
+        }
+
+        return compareText(a.getId(), b.getId());
+    }
+
+    int compareBytes(long idA, long idB) {
+        return 0;
+    }
+
+    int compareText(long idA, long idB) {
+        return 0;
     }
 
     /**
@@ -818,7 +886,7 @@ public class LobManager {
         os.write(chars, 0, chars.length);
 
         Result result = setBytesBA(lobID, os.getBuffer(), offset * 2,
-                                   os.getBuffer().length);
+                                   os.size());
 
         if (result.isError()) {
             return result;

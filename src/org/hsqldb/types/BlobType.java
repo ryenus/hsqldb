@@ -43,10 +43,6 @@ public final class BlobType extends BinaryType {
     public static final long maxBlobPrecision = 1024L * 1024 * 1024 * 1024;
     public static final int  defaultBlobSize  = 1024 * 1024 * 16;
 
-    public BlobType() {
-        super(Types.SQL_BLOB, defaultBlobSize);
-    }
-
     public BlobType(long precision) {
         super(Types.SQL_BLOB, precision);
     }
@@ -124,7 +120,7 @@ public final class BlobType extends BinaryType {
     }
 
     /** @todo implement comparison */
-    public int compare(Object a, Object b) {
+    public int compare(Session session, Object a, Object b) {
 
         if (a == b) {
             return 0;
@@ -141,9 +137,11 @@ public final class BlobType extends BinaryType {
         long aId = ((BlobData) a).getId();
         long bId = ((BlobData) b).getId();
 
-        return (aId > bId) ? 1
-                           : (bId > aId ? -1
-                                        : 0);
+        if (aId == bId) {
+            return 0;
+        }
+
+        return session.database.lobManager.compare((BlobData) a, (BlobData) b);
     }
 
     /** @todo - implement */

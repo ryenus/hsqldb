@@ -229,6 +229,12 @@ public class ExpressionAggregate extends Expression {
             throw Error.error(ErrorCode.X_42567);
         }
 
+        if (isDistinctAggregate) {
+            if (nodes[LEFT].dataType.isLobType()) {
+                throw Error.error(ErrorCode.X_42534);
+            }
+        }
+
         dataType = SetFunction.getType(opType, nodes[LEFT].dataType);
     }
 

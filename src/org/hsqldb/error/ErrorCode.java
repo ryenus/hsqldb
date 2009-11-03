@@ -522,6 +522,7 @@ public interface ErrorCode {
     int X_42531 = 5531;                                   // default expression needed
     int X_42532 = 5532;                                   // primary key already exist
     int X_42533 = 5533;                                   // is referenced by FOREIGN KEY constraint
+    int X_42534 = 5534;                                   // column of LOB type cannot be used in operation
 
     // other definition issues
     int X_42535 = 5535;                                   // not an identity column
