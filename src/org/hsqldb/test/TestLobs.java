@@ -41,6 +41,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import javax.sql.rowset.serial.SerialBlob;
 
 import org.hsqldb.jdbc.JDBCBlob;
@@ -56,9 +57,8 @@ public class TestLobs extends TestBase {
     public TestLobs(String name) {
 
        super(name);
-
 //        super(name, "jdbc:hsqldb:file:test3", false, false);
-//       super(name, "jdbc:hsqldb:mem:test3", false, false);
+//        super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
     protected void setUp() {
@@ -188,9 +188,9 @@ public class TestLobs extends TestBase {
             }
 
 //            ba = rs.getBytes("b"); doesn't convert but throws ClassCast
-
             blob1 = rs.getBlob("b");
-            ba = blob1.getBytes(1,baR2.length);
+            ba    = blob1.getBytes(1, baR2.length);
+
             if (ba.length != baR2.length) {
                 assertTrue("row2 byte length differs", false);
             }
@@ -205,8 +205,8 @@ public class TestLobs extends TestBase {
             connection.rollback();
 
             // again with stream
-            ps.setBinaryStream(1, new HsqlByteArrayInputStream(baR1), baR1.length );
-
+            ps.setBinaryStream(1, new HsqlByteArrayInputStream(baR1),
+                               baR1.length);
             ps.executeUpdate();
 
             rs = st.executeQuery("SELECT b FROM blo WHERE id = 2");
@@ -221,6 +221,7 @@ public class TestLobs extends TestBase {
 
             //System.out.println("Value = (" + rs.getString("b") + ')');
             baOut = blob1.getBytes(1, (int) blob1.length());
+
             if (baOut.length != baR1.length) {
                 assertTrue("Expected array len " + baR1.length + ", got len "
                            + baOut.length, false);
@@ -234,7 +235,6 @@ public class TestLobs extends TestBase {
             }
 
             rs.close();
-
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -383,7 +383,9 @@ public class TestLobs extends TestBase {
             InputStreamReader reader = null;
 
             try {
-                InputStream fis = getClass().getResourceAsStream(resourceFileName);
+                InputStream fis =
+                    getClass().getResourceAsStream(resourceFileName);
+
                 reader = new InputStreamReader(fis, "ISO-8859-1");
             } catch (Exception e) {}
 
@@ -394,7 +396,9 @@ public class TestLobs extends TestBase {
             ps.executeUpdate();
 
             try {
-                InputStream fis = getClass().getResourceAsStream(resourceFileName);
+                InputStream fis =
+                    getClass().getResourceAsStream(resourceFileName);
+
                 fis    = getClass().getResourceAsStream(resourceFileName);
                 reader = new InputStreamReader(fis, "ISO-8859-1");
 
@@ -414,12 +418,14 @@ public class TestLobs extends TestBase {
             ps.setCharacterStream(3, reader, 100);
             ps.setString(4, "test-scope-3");
             ps.addBatch();
-            int[] results = ps.executeBatch();
 
+            int[] results = ps.executeBatch();
 
             //
             try {
-                InputStream fis = getClass().getResourceAsStream(resourceFileName);
+                InputStream fis =
+                    getClass().getResourceAsStream(resourceFileName);
+
                 fis    = getClass().getResourceAsStream(resourceFileName);
                 reader = new InputStreamReader(fis, "ISO-8859-1");
 
@@ -461,18 +467,20 @@ public class TestLobs extends TestBase {
                 "UPDATE VARIABLE SET value = ? WHERE stateid = ? AND "
                 + "varid = ? AND scalabilitypassivated = 'N' AND scopeguid = ?";
             PreparedStatement ps = connection.prepareStatement(dml0);
+
             connection.setAutoCommit(false);
+
             //
-            JDBCClob dataClob = new JDBCClob("the quick brown fox jumps on the lazy dog");
+            JDBCClob dataClob =
+                new JDBCClob("the quick brown fox jumps on the lazy dog");
+            Reader    reader = null;
+            StopWatch sw     = new StopWatch();
 
-            Reader reader = null;
-
-            StopWatch sw = new StopWatch();
             sw.start();
 
             for (int i = 0; i < 1000; i++) {
-
                 reader = dataClob.getCharacterStream();
+
                 ps.setString(1, "test-id-1" + i);
                 ps.setLong(2, 23456789123456L + i);
                 ps.setCharacterStream(3, reader, dataClob.length());
@@ -483,13 +491,15 @@ public class TestLobs extends TestBase {
 
             sw.stop();
             System.out.println(sw.elapsedTimeToMessage("Time for inserts"));
+
             ps = connection.prepareStatement(dml1);
 
             sw.zero();
             sw.start();
-            for (int i = 100; i < 200; i++) {
 
+            for (int i = 100; i < 200; i++) {
                 reader = dataClob.getCharacterStream();
+
                 ps.setCharacterStream(1, reader, dataClob.length());
                 ps.setString(2, "test-id-1" + i);
                 ps.setLong(3, 23456789123456L + i);
@@ -526,18 +536,20 @@ public class TestLobs extends TestBase {
                 "UPDATE VARIABLE SET varid = varid + 1 WHERE stateid = ? AND "
                 + "varid = ? AND scalabilitypassivated = 'N' AND scopeguid = ?";
             PreparedStatement ps = connection.prepareStatement(dml0);
+
             connection.setAutoCommit(false);
+
             //
-            JDBCClob dataClob = new JDBCClob("the quick brown fox jumps on the lazy dog");
+            JDBCClob dataClob =
+                new JDBCClob("the quick brown fox jumps on the lazy dog");
+            Reader    reader = null;
+            StopWatch sw     = new StopWatch();
 
-            Reader reader = null;
-
-            StopWatch sw = new StopWatch();
             sw.start();
 
             for (int i = 0; i < 100; i++) {
-
                 reader = dataClob.getCharacterStream();
+
                 ps.setString(1, "test-id-1" + i);
                 ps.setLong(2, 23456789123456L + i);
                 ps.setCharacterStream(3, reader, dataClob.length());
@@ -548,12 +560,13 @@ public class TestLobs extends TestBase {
 
             sw.stop();
             System.out.println(sw.elapsedTimeToMessage("Time for inserts"));
+
             ps = connection.prepareStatement(dml1);
 
             sw.zero();
             sw.start();
-            for (int i = 10; i < 20; i++) {
 
+            for (int i = 10; i < 20; i++) {
                 ps.setString(1, "test-id-1" + i);
                 ps.setLong(2, 23456789123456L + i);
                 ps.setString(3, "test-scope-1" + i);
@@ -562,8 +575,59 @@ public class TestLobs extends TestBase {
             }
 
             connection.commit();
+
+            ResultSet rs = statement.executeQuery("SELECT * FROM VARIABLE");
+
+            while (rs.next()) {
+                Clob clob       = rs.getClob(4);
+                long dataLength = dataClob.length();
+                long clobLength = clob.length();
+
+                assertTrue(dataLength == clobLength);
+                assertTrue(
+                    dataClob.getSubString(1, 30).equals(
+                        clob.getSubString(1, 30)));
+            }
+
             sw.stop();
             System.out.println(sw.elapsedTimeToMessage("Time for updates"));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            fail("test failure");
+        }
+    }
+
+    public void testClobF() {
+
+        try {
+            String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
+            String ddl1 =
+                "CREATE TABLE CLOBTEST(ID IDENTITY, CLOBFIELD CLOB(1000))";
+
+            statement.execute(ddl0);
+            statement.execute(ddl1);
+        } catch (SQLException e) {}
+
+        try {
+            String dml0 = "insert into clobtest(clobfield) values('";
+            String value = "0123456789";
+            dml0 = dml0 + value + "')";
+            String dql0 = "select CHARACTER_LENGTH(clobfield) from clobtest;";
+            PreparedStatement ps   = connection.prepareStatement(dml0);
+
+            //ps.setClob(1, clob);
+            ps.executeUpdate();
+            ps.close();
+
+            ps = connection.prepareStatement(dql0);
+
+            final ResultSet rs = ps.executeQuery();
+
+            rs.next();
+
+            final int length = rs.getInt(1);
+
+            assertTrue(value.length() == length);
         } catch (SQLException e) {
             e.printStackTrace();
             fail("test failure");

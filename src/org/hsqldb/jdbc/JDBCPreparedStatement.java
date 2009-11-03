@@ -4260,9 +4260,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
             return;
         } else if (o instanceof String) {
-            ClobData clob = session.createClob(((String) o).length());
-
-            clob.setString(session, 0, (String) o);
+            JDBCClob clob = new JDBCClob((String) o);
 
             parameterValues[i - 1] = clob;
             parameterStream[i - 1] = true;
@@ -4295,6 +4293,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         } else if (o instanceof InputStream) {
             parameterValues[i - 1] = o;
             parameterStream[i - 1] = true;
+
+            return;
+        } else if (o instanceof byte[]) {
+            JDBCBlob blob = new JDBCBlob((byte[]) o);
+
+            parameterValues[i - 1] = blob;
+            parameterSet[i - 1]    = true;
 
             return;
         }
@@ -4390,6 +4395,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 BlobDataID blob = null;
 
                 if (value instanceof JDBCBlobClient) {
+
+                    // check or fix id mismatch
                     blob = ((JDBCBlobClient) value).blob;
                     id   = blob.getId();
                 } else if (value instanceof Blob) {
@@ -4426,7 +4433,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
                 if (value instanceof JDBCClobClient) {
 
-                    // fix id mismatch
+                    // check or fix id mismatch
                     clob = ((JDBCClobClient) value).clob;
                     id   = clob.getId();
                 } else if (value instanceof Clob) {
