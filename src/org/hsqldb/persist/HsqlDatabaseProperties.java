@@ -194,8 +194,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_crypt_provider = "crypt_provider";
 
     //
-    public static final String hsqldb_tx     = "hsqldb.tx";
-    public static final String hsqldb_applog = "hsqldb.applog";
+    public static final String hsqldb_tx             = "hsqldb.tx";
+    public static final String hsqldb_applog         = "hsqldb.applog";
+    public static final String hsqldb_lob_file_scale = "hsqldb.lob_file_scale";
     public static final String hsqldb_cache_file_scale =
         "hsqldb.cache_file_scale";
     public static final String hsqldb_cache_free_count_scale =
@@ -291,11 +292,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           FILE_PROPERTY, false));
 
         // integral defaults for protected props
-        // this property is either 1 or 8 - only 8 for new databases
+        dbMeta.put(hsqldb_lob_file_scale,
+                   HsqlProperties.getMeta(hsqldb_lob_file_scale,
+                                          FILE_PROPERTY, 32, new int[] {
+            1, 2, 4, 8, 16, 32
+        }));
+
+        // this property is normally either 1 or 8 - 8 for new databases
         dbMeta.put(hsqldb_cache_file_scale,
                    HsqlProperties.getMeta(hsqldb_cache_file_scale,
                                           FILE_PROPERTY, 8, new int[] {
-            1, 8
+            1, 8, 16, 32, 64, 128
         }));
 
         // string defaults for user defined props
