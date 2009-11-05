@@ -46,7 +46,7 @@ import org.hsqldb.error.ErrorCode;
  */
 public class LobStoreInJar implements LobStore {
 
-    int             lobBlockSize = 1024 * 32;
+    final int       lobBlockSize;
     Database        database;
     DataInputStream file;
     final String    fileName;
@@ -90,6 +90,10 @@ public class LobStoreInJar implements LobStore {
 
     public void setBlockBytes(byte[] dataBytes, int blockAddress,
                               int blockCount) {}
+
+    public int getBlockSize() {
+        return lobBlockSize;
+    }
 
     public void close() {
 

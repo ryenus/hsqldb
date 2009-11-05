@@ -40,7 +40,7 @@ import org.hsqldb.lib.HsqlArrayList;
  */
 public class LobStoreMem implements LobStore {
 
-    int           lobBlockSize;
+    final int     lobBlockSize;
     int           blocksInLargeBlock = 128;
     int           largeBlockSize;
     HsqlArrayList byteStoreList;
@@ -113,6 +113,10 @@ public class LobStoreMem implements LobStore {
             dataBlockOffset += currentBlockCount;
             blockCount      -= currentBlockCount;
         }
+    }
+
+    public int getBlockSize() {
+        return lobBlockSize;
     }
 
     public void close() {

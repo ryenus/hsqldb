@@ -119,7 +119,6 @@ public final class BlobType extends BinaryType {
         return true;
     }
 
-    /** @todo implement comparison */
     public int compare(Session session, Object a, Object b) {
 
         if (a == b) {
@@ -134,11 +133,9 @@ public final class BlobType extends BinaryType {
             return 1;
         }
 
-        long aId = ((BlobData) a).getId();
-        long bId = ((BlobData) b).getId();
-
-        if (aId == bId) {
-            return 0;
+        if (b instanceof BinaryData) {
+            return session.database.lobManager.compare((BlobData) a,
+                    ((BlobData) b).getBytes());
         }
 
         return session.database.lobManager.compare((BlobData) a, (BlobData) b);

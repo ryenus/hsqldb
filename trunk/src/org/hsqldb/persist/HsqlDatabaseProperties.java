@@ -542,7 +542,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                     && (propertyName.startsWith("sql.")
                         || propertyName.startsWith("hsqldb.")
                         || propertyName.startsWith("textdb."))) {
-                throw Error.error(ErrorCode.X_42511, propertyName);
+                throw Error.error(ErrorCode.X_42555, propertyName);
             }
         }
     }
@@ -673,7 +673,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] metaData = (Object[]) dbMeta.get(key);
 
         if (metaData == null) {
-            throw Error.error(ErrorCode.X_42511, key);
+            throw Error.error(ErrorCode.X_42555, key);
         }
 
         return stringProps.getProperty(key);
@@ -685,7 +685,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] metaData = (Object[]) dbMeta.get(key);
 
         if (metaData == null) {
-            throw Error.error(ErrorCode.X_42511, key);
+            throw Error.error(ErrorCode.X_42555, key);
         }
 
         value = (Boolean) metaData[HsqlProperties.indexDefaultValue];
@@ -712,7 +712,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] metaData = (Object[]) dbMeta.get(key);
 
         if (metaData == null) {
-            throw Error.error(ErrorCode.X_42511, key);
+            throw Error.error(ErrorCode.X_42555, key);
         }
 
         value = (String) metaData[HsqlProperties.indexDefaultValue];
@@ -732,7 +732,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         Object[] metaData = (Object[]) dbMeta.get(key);
 
         if (metaData == null) {
-            throw Error.error(ErrorCode.X_42511, key);
+            throw Error.error(ErrorCode.X_42555, key);
         }
 
         value =

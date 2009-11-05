@@ -110,6 +110,7 @@ public class Logger {
     int            propGC;
     int            propTxMode = Database.LOCKS;
     boolean        propRefIntegrity;
+    int            propLobBlockSize = 32 * 1024;
 
     //
     private Crypto    crypto;
@@ -697,6 +698,7 @@ public class Logger {
 
         if (loggingEnabled) {
             logInfoEvent("Checkpoint start");
+            database.lobManager.removeUnusedLobs();
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
             logInfoEvent("Checkpoint end");
@@ -770,6 +772,10 @@ public class Logger {
         return propLogSize;
     }
 
+    public int getLobBlockSize() {
+        return propLobBlockSize;
+    }
+
     public int getScriptType() {
         return log != null ? log.getScriptType()
                            : 0;
@@ -809,11 +815,25 @@ public class Logger {
     }
 
     public void setCacheFileScale(int value) {
+
+        checkPower(value, 8);
+
         propCacheFileScale = value;
     }
 
     public int getCacheFileScale() {
         return propCacheFileScale;
+    }
+
+    public void setLobFileScale(int value) {
+
+        checkPower(value, 6);
+
+        propLobBlockSize = value * 1024;
+    }
+
+    public int getLobFileScale() {
+        return propLobBlockSize / 1024;
     }
 
     public void setDefagLimit(int value) {
@@ -828,6 +848,23 @@ public class Logger {
             HsqlProperties props) {
         this.propTextSourceDefault = source;
         this.propTextSourceProps   = props;
+    }
+
+    static void checkPower(int n, int limit) {
+
+        for (int i = 0; i < limit; i++) {
+            if ((n & 1) != 0) {
+                if ((n | 1) != 1) {
+                    throw Error.error(ErrorCode.X_42556);
+                }
+
+                return;
+            }
+
+            n >>= 1;
+        }
+
+        throw Error.error(ErrorCode.X_42556);
     }
 
     /**
@@ -1092,6 +1129,11 @@ public class Logger {
             sb.setLength(0);
             sb.append("SET FILES ").append(Tokens.T_SCALE);
             sb.append(' ').append(propCacheFileScale);
+            list.add(sb.toString());
+            sb.setLength(0);
+            sb.append("SET FILES ").append(Tokens.T_LOB).append(' ').append(
+                Tokens.T_SCALE);
+            sb.append(' ').append(getLobFileScale());
             list.add(sb.toString());
             sb.setLength(0);
             sb.append("SET FILES ").append(Tokens.T_DEFRAG);

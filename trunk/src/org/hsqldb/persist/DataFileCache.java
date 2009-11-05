@@ -86,7 +86,7 @@ public class DataFileCache {
     static final int LONG_FREE_POS_POS    = 12;    // where iFreePos is saved
     static final int LONG_EMPTY_INDEX_POS = 20;    // empty space index
     static final int FLAGS_POS            = 28;
-    static final int INITIAL_FREE_POS     = 32;
+    static final int MIN_INITIAL_FREE_POS = 32;
 
     //
     DataFileBlockManager     freeBlocks;
@@ -109,6 +109,7 @@ public class DataFileCache {
 
     //
     protected int     cachedRowPadding = 8;
+    protected int     initialFreePos   = MIN_INITIAL_FREE_POS;
     protected boolean hasRowInfo       = false;
 
     // reusable input / output streams
@@ -158,6 +159,10 @@ public class DataFileCache {
 
         if (cacheFileScale > 8) {
             cachedRowPadding = cacheFileScale;
+        }
+
+        if (initialFreePos < cacheFileScale) {
+            initialFreePos = cacheFileScale;
         }
 
         cacheReadonly   = database.logger.propFilesReadOnly;
@@ -255,12 +260,12 @@ public class DataFileCache {
 
                 fileFreePosition = dataFile.readLong();
 
-                if (fileFreePosition < INITIAL_FREE_POS) {
-                    fileFreePosition = INITIAL_FREE_POS;
+                if (fileFreePosition < initialFreePos) {
+                    fileFreePosition = initialFreePos;
                 }
 
                 if (database.logger.propIncrementBackup
-                        && fileFreePosition != INITIAL_FREE_POS) {
+                        && fileFreePosition != initialFreePos) {
                     shadowFile = new RAShadowFile(database, dataFile,
                                                   backupFileName,
                                                   fileFreePosition, 1 << 14);
@@ -289,10 +294,10 @@ public class DataFileCache {
 
     void initNewFile() throws IOException {
 
-        fileFreePosition = INITIAL_FREE_POS;
+        fileFreePosition = initialFreePos;
 
         dataFile.seek(LONG_FREE_POS_POS);
-        dataFile.writeLong(INITIAL_FREE_POS);
+        dataFile.writeLong(initialFreePos);
 
         // set shadowed flag;
         int flags = 0;
@@ -338,7 +343,7 @@ public class DataFileCache {
     private boolean restoreBackup() {
 
         // in case data file cannot be deleted, reset it
-        DataFileCache.deleteOrResetFreePos(database, dataFileName);
+        deleteOrResetFreePos();
 
         try {
             FileAccess fa = database.logger.getFileAccess();
@@ -453,7 +458,7 @@ public class DataFileCache {
                 shadowFile = null;
             }
 
-            boolean empty = fileFreePosition == INITIAL_FREE_POS;
+            boolean empty = fileFreePosition == initialFreePos;
 
             if (empty) {
                 fa.removeElement(dataFileName);
@@ -1051,11 +1056,11 @@ public class DataFileCache {
      * This method deletes a data file or resets its free position.
      * this is used only for nio files - not OOo files
      */
-    static void deleteOrResetFreePos(Database database, String filename) {
+    void deleteOrResetFreePos() {
 
         Storage raFile = null;
 
-        database.logger.getFileAccess().removeElement(filename);
+        database.logger.getFileAccess().removeElement(dataFileName);
 
         // OOo related code
         if (database.logger.isStoredFileAccess()) {
@@ -1063,15 +1068,15 @@ public class DataFileCache {
         }
 
         // OOo end
-        if (!database.logger.getFileAccess().isStreamElement(filename)) {
+        if (!database.logger.getFileAccess().isStreamElement(dataFileName)) {
             return;
         }
 
         try {
-            raFile = new ScaledRAFileSimple(filename, "rw");
+            raFile = new ScaledRAFileSimple(dataFileName, "rw");
 
             raFile.seek(LONG_FREE_POS_POS);
-            raFile.writeLong(INITIAL_FREE_POS);
+            raFile.writeLong(initialFreePos);
         } catch (IOException e) {
             database.logger.logSevereEvent("deleteOrResetFreePos failed", e);
         } finally {

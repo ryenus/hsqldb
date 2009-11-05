@@ -1071,7 +1071,7 @@ public class StatementSchema extends Statement {
                               schema.getName().statementName);
         }
 
-        session.database.schemaManager.dropSchemas(role, cascade);
+        session.database.schemaManager.dropSchemas(session, role, cascade);
         session.database.getGranteeManager().dropRole(name.name);
     }
 
@@ -1093,7 +1093,7 @@ public class StatementSchema extends Statement {
                               schema.getName().statementName);
         }
 
-        session.database.schemaManager.dropSchemas(grantee, cascade);
+        session.database.schemaManager.dropSchemas(session, grantee, cascade);
         session.database.getUserManager().dropUser(name.name);
     }
 
@@ -1103,7 +1103,7 @@ public class StatementSchema extends Statement {
             session.database.schemaManager.getUserSchemaHsqlName(name.name);
 
         checkSchemaUpdateAuthorisation(session, schema);
-        session.database.schemaManager.dropSchema(name.name, cascade);
+        session.database.schemaManager.dropSchema(session, name.name, cascade);
     }
 
     private void dropRoutine(Session session, HsqlName name, boolean cascade) {

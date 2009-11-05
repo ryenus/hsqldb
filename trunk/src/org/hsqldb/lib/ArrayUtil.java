@@ -757,7 +757,6 @@ public class ArrayUtil {
         return true;
     }
 
-
     /**
      * Returns true if arra from position start contains all elements of arrb
      * in sequential order.
@@ -1147,6 +1146,7 @@ public class ArrayUtil {
             for (int j = 0; j < mainMap.length; j++) {
                 if (subMap[i] == mainMap[j]) {
                     newSubMap[i] = j;
+
                     break;
                 }
             }
@@ -1158,5 +1158,30 @@ public class ArrayUtil {
         for (int i = 0; i < colindex.length; i++) {
             colindex[i] = i;
         }
+    }
+
+    public static char[] byteArrayToChars(byte[] bytes) {
+
+        char[] chars = new char[bytes.length / 2];
+
+        for (int i = 0, j = 0; j < chars.length; i += 2, j++) {
+            chars[j] = (char) ((bytes[i] << 8) + (bytes[i + 1] & 0xff));
+        }
+
+        return chars;
+    }
+
+    public static byte[] charArrayToBytes(char[] chars) {
+
+        byte[] bytes = new byte[chars.length * 2];
+
+        for (int i = 0, j = 0; j < chars.length; i += 2, j++) {
+            int c = chars[j];
+
+            bytes[i]     = (byte) (c >> 8);
+            bytes[i + 1] = (byte) c;
+        }
+
+        return bytes;
     }
 }

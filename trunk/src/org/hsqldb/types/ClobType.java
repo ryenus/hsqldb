@@ -112,7 +112,7 @@ public final class ClobType extends CharacterType {
         return true;
     }
 
-    /** @todo implement comparison */
+    /** collation comparison */
     public int compare(Session session, Object a, Object b) {
 
         if (a == b) {
@@ -127,16 +127,12 @@ public final class ClobType extends CharacterType {
             return 1;
         }
 
-        long aId = ((ClobData) a).getId();
-        long bId = ((ClobData) b).getId();
-
-        if (aId == bId) {
-            return 0;
+        if (b instanceof String) {
+            return session.database.lobManager.compare((ClobData) a,
+                    (String) b);
         }
 
-        return (aId > bId) ? 1
-                           : (bId > aId ? -1
-                                        : 0);
+        return session.database.lobManager.compare((ClobData) a, (ClobData) b);
     }
 
     public Object convertToDefaultType(SessionInterface session, Object a) {

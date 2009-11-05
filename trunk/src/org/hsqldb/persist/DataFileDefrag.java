@@ -109,11 +109,11 @@ final class DataFileDefrag {
 
             fileStreamOut = new BufferedOutputStream(fos, 1 << 12);
 
-            for (int i = 0; i < DataFileCache.INITIAL_FREE_POS; i++) {
+            for (int i = 0; i < cache.initialFreePos; i++) {
                 fileStreamOut.write(0);
             }
 
-            fileOffset = DataFileCache.INITIAL_FREE_POS;
+            fileOffset = cache.initialFreePos;
 
             for (int i = 0, tSize = allTables.size(); i < tSize; i++) {
                 Table t = (Table) allTables.get(i);

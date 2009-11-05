@@ -167,6 +167,7 @@ public class StatementSchemaDefinition extends StatementSchema {
                 }
             } catch (HsqlException e) {
                 result = Result.newErrorResult(e, statements[i].getSQL());
+                break;
             }
         }
 
@@ -187,8 +188,8 @@ public class StatementSchemaDefinition extends StatementSchema {
 
         if (result.isError()) {
             try {
-                session.database.schemaManager.dropSchema(schemaName.name,
-                        true);
+                session.database.schemaManager.dropSchema(session,
+                        schemaName.name, true);
                 session.database.logger.writeToLog(
                     session, getDropSchemaStatement(schemaName));
             } catch (HsqlException e) {}

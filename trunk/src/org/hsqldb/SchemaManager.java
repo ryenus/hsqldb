@@ -40,7 +40,9 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.WrapperIterator;
+import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.LobData;
 import org.hsqldb.types.Type;
 
 /**
@@ -120,7 +122,7 @@ public class SchemaManager {
         schemaMap.add(name.name, schema);
     }
 
-    void dropSchema(String name, boolean cascade) {
+    void dropSchema(Session session, String name, boolean cascade) {
 
         Schema schema = (Schema) schemaMap.get(name);
 
@@ -145,9 +147,7 @@ public class SchemaManager {
         while (tableIterator.hasNext()) {
             Table table = ((Table) tableIterator.next());
 
-            database.getGranteeManager().removeDbObject(table.getName());
-            table.releaseTriggers();
-            database.persistentStoreCollection.releaseStore(table);
+            removeTable(session, table);
         }
 
         Iterator sequenceIterator =
@@ -342,7 +342,7 @@ public class SchemaManager {
     /**
      * drop all schemas with the given authorisation
      */
-    void dropSchemas(Grantee grantee, boolean cascade) {
+    void dropSchemas(Session session, Grantee grantee, boolean cascade) {
 
         HsqlArrayList list = getSchemas(grantee);
         Iterator      it   = list.iterator();
@@ -350,7 +350,7 @@ public class SchemaManager {
         while (it.hasNext()) {
             Schema schema = (Schema) it.next();
 
-            dropSchema(schema.name.name, cascade);
+            dropSchema(session, schema.name.name, cascade);
         }
     }
 
@@ -692,13 +692,34 @@ public class SchemaManager {
         removeSchemaObjects(externalReferences);
         removeReferencedObject(table.getName());
         schema.tableList.remove(dropIndex);
-        database.getGranteeManager().removeDbObject(table.getName());
         schema.triggerLookup.removeParent(table.tableName);
         schema.indexLookup.removeParent(table.tableName);
         schema.constraintLookup.removeParent(table.tableName);
+        removeTable(session, table);
+        recompileDependentObjects(tableSet);
+    }
+
+    void removeTable(Session session, Table table) {
+
+        database.getGranteeManager().removeDbObject(table.getName());
         table.releaseTriggers();
         database.persistentStoreCollection.releaseStore(table);
-        recompileDependentObjects(tableSet);
+
+        if (table.hasLobColumn) {
+            RowIterator it = table.rowIterator(session);
+
+            while (it.hasNext()) {
+                Row      row  = it.getNextRow();
+                Object[] data = row.getData();
+
+                for (int i = 0; i < data.length; i++) {
+                    if (data[i] instanceof LobData) {
+                        database.lobManager.adjustUsageCount(
+                            ((LobData) data[i]).getId(), -1);
+                    }
+                }
+            }
+        }
     }
 
     void setTable(int index, Table table) {

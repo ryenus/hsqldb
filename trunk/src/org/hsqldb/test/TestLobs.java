@@ -56,8 +56,9 @@ public class TestLobs extends TestBase {
 
     public TestLobs(String name) {
 
-       super(name);
+        super(name);
 //        super(name, "jdbc:hsqldb:file:test3", false, false);
+
 //        super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
@@ -133,11 +134,13 @@ public class TestLobs extends TestBase {
         byte[]    ba;
         byte[]    baR1 = new byte[] {
             (byte) 0xF1, (byte) 0xF2, (byte) 0xF3, (byte) 0xF4, (byte) 0xF5,
-            (byte) 0xF6, (byte) 0xF7, (byte) 0xF8, (byte) 0xF9, (byte) 0xFA
+            (byte) 0xF6, (byte) 0xF7, (byte) 0xF8, (byte) 0xF9, (byte) 0xFA,
+            (byte) 0xFB
         };
         byte[] baR2 = new byte[] {
             (byte) 0xE1, (byte) 0xE2, (byte) 0xE3, (byte) 0xE4, (byte) 0xE5,
-            (byte) 0xE6, (byte) 0xE7, (byte) 0xE8, (byte) 0xE9, (byte) 0xEA
+            (byte) 0xE6, (byte) 0xE7, (byte) 0xE8, (byte) 0xE9, (byte) 0xEA,
+            (byte) 0xEB
         };
 
         try {
@@ -589,6 +592,16 @@ public class TestLobs extends TestBase {
                         clob.getSubString(1, 30)));
             }
 
+            rs = statement.executeQuery(
+                "SELECT CAST(SUBSTRING(VALUE FROM 19) AS VARCHAR(100)),STATEID,"
+                + "CHARACTER_LENGTH(VALUE),CAST(VALUE AS VARCHAR(100)) FROM "
+                + "VARIABLE WHERE VALUE='THE QUICK BROWN FOX JUMPS ON THE LAZY DOG'"
+                + "AND STATEID>'TEST-ID-197'");
+
+            while (rs.next()) {
+                assertTrue(rs.getString(1).equals("x jumps on the lazy dog"));
+            }
+
             sw.stop();
             System.out.println(sw.elapsedTimeToMessage("Time for updates"));
         } catch (SQLException e) {
@@ -609,11 +622,13 @@ public class TestLobs extends TestBase {
         } catch (SQLException e) {}
 
         try {
-            String dml0 = "insert into clobtest(clobfield) values('";
+            String dml0  = "insert into clobtest(clobfield) values('";
             String value = "0123456789";
+
             dml0 = dml0 + value + "')";
+
             String dql0 = "select CHARACTER_LENGTH(clobfield) from clobtest;";
-            PreparedStatement ps   = connection.prepareStatement(dml0);
+            PreparedStatement ps = connection.prepareStatement(dml0);
 
             //ps.setClob(1, clob);
             ps.executeUpdate();
@@ -639,7 +654,7 @@ public class TestLobs extends TestBase {
         try {
             statement = connection.createStatement();
 
-//            statement.execute("SHUTDOWN IMMEDIATELY");
+            statement.execute("SHUTDOWN");
             statement.close();
             connection.close();
         } catch (Exception e) {}
