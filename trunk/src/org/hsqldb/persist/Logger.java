@@ -368,8 +368,14 @@ public class Logger {
         propCacheMaxSize =
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_size) * 1024;
-        propCacheFileScale = database.databaseProperties.getIntegerProperty(
-            HsqlDatabaseProperties.hsqldb_cache_file_scale);
+
+        setLobFileScale(
+            database.databaseProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_lob_file_scale));
+        setCacheFileScale(
+            database.databaseProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_cache_file_scale));
+
         propCacheDefragLimit = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_defrag_limit);
         propMaxFreeBlocks = database.databaseProperties.getIntegerProperty(
@@ -814,9 +820,14 @@ public class Logger {
         return propCacheMaxSize;
     }
 
+    /** @todo - prevent setting for existing data or lobs file */
     public void setCacheFileScale(int value) {
 
         checkPower(value, 8);
+
+        if (1 < value && value < 8) {
+            throw Error.error(ErrorCode.X_42556);
+        }
 
         propCacheFileScale = value;
     }
