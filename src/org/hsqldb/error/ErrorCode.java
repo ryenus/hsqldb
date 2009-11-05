@@ -501,7 +501,6 @@ public interface ErrorCode {
     int X_42508 = 5508;                                   // label not found
     int X_42509 = 5509;                                   // type not found or user lacks privilege
     int X_42510 = 5510;                                   // name too long
-    int X_42511 = 5511;                                   // invalid property name
 
     // generated columns
     int X_42512 = 5512;                                   // invalid expression in CHECK or GENERATED clause
@@ -544,6 +543,8 @@ public interface ErrorCode {
 
     //
     int X_42551 = 5551;                                   // too many identifier parts
+    int X_42555 = 5555;                                   // invalid property name
+    int X_42556 = 5556;                                   // invalid property value
 
     // HSQLDB type conversion
     int X_42561 = 5561;                                   // incompatible data type in conversion

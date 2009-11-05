@@ -491,7 +491,7 @@ public class Log {
      */
     public void defrag() {
 
-        if (cache.fileFreePosition == DataFileCache.INITIAL_FREE_POS) {
+        if (cache.fileFreePosition == cache.initialFreePos) {
             return;
         }
 

@@ -38,11 +38,11 @@ package org.hsqldb.persist;
  */
 public interface LobStore {
 
-    byte[] getBlockBytes(int blockAddress,
-                         int blockCount);
+    byte[] getBlockBytes(int blockAddress, int blockCount);
 
-    void setBlockBytes(byte[] dataBytes, int blockAddress,
-                       int blockCount);
+    void setBlockBytes(byte[] dataBytes, int blockAddress, int blockCount);
+
+    int getBlockSize();
 
     void close();
 }

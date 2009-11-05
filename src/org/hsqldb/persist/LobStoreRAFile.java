@@ -43,9 +43,9 @@ import org.hsqldb.lib.Storage;
  */
 public class LobStoreRAFile implements LobStore {
 
-    int      lobBlockSize = 1024 * 32;
-    Storage  file;
-    Database database;
+    final int lobBlockSize;
+    Storage   file;
+    Database  database;
 
     public LobStoreRAFile(Database database, int lobBlockSize) {
 
@@ -119,6 +119,10 @@ public class LobStoreRAFile implements LobStore {
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
         }
+    }
+
+    public int getBlockSize() {
+        return lobBlockSize;
     }
 
     public void close() {

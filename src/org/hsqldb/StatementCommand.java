@@ -97,6 +97,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_SCALE :
             case StatementTypes.SET_DATABASE_FILES_DEFRAG :
             case StatementTypes.SET_DATABASE_FILES_EVENT_LOG :
+            case StatementTypes.SET_DATABASE_FILES_LOBS_SCALE :
             case StatementTypes.SET_DATABASE_FILES_LOCK :
             case StatementTypes.SET_DATABASE_FILES_LOG_SIZE :
             case StatementTypes.SET_DATABASE_FILES_NIO :
@@ -289,6 +290,20 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+            case StatementTypes.SET_DATABASE_FILES_LOBS_SCALE : {
+                try {
+                    int value = ((Integer) parameters[0]).intValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setLobFileScale(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+
             case StatementTypes.SET_DATABASE_FILES_SCALE : {
                 try {
                     int value = ((Integer) parameters[0]).intValue();

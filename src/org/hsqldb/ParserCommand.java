@@ -416,7 +416,7 @@ public class ParserCommand extends ParserDDL {
         boolean isstring   = props.isString(token.tokenString);
 
         if (!(isboolean || isintegral || isstring)) {
-            throw Error.error(ErrorCode.X_42511);
+            throw Error.error(ErrorCode.X_42555);
         }
 
         int typeCode = isboolean ? Types.SQL_BOOLEAN
@@ -957,7 +957,7 @@ public class ParserCommand extends ParserDDL {
 
                 /** @todo - only digits, letters and underscore */
                 if (name.length() != 16) {
-                    throw Error.error(ErrorCode.X_42511);
+                    throw Error.error(ErrorCode.X_42555);
                 }
 
                 if (!Charset.isInSet(name, Charset.unquotedIdentifier)
@@ -1014,6 +1014,14 @@ public class ParserCommand extends ParserDDL {
 
                 value = readIntegerObject();
                 type  = StatementTypes.SET_DATABASE_FILES_SCALE;
+
+                break;
+            }
+            case Tokens.LOB : {
+                read();
+                readThis(Tokens.SCALE);
+                value = readIntegerObject();
+                type  = StatementTypes.SET_DATABASE_FILES_LOBS_SCALE;
 
                 break;
             }

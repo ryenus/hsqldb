@@ -84,7 +84,7 @@ public class DataFileCacheSession extends DataFileCache {
         try {
             dataFile = ScaledRAFile.newScaledRAFile(database, dataFileName,
                     false, ScaledRAFile.DATA_FILE_RAF);
-            fileFreePosition = INITIAL_FREE_POS;
+            fileFreePosition = MIN_INITIAL_FREE_POS;
 
             initBuffers();
 
@@ -134,14 +134,14 @@ public class DataFileCacheSession extends DataFileCache {
 
         cache.clear();
 
-        fileFreePosition = INITIAL_FREE_POS;
+        fileFreePosition = MIN_INITIAL_FREE_POS;
     }
 
     public void deleteAll() {
 
         cache.clear();
 
-        fileFreePosition = INITIAL_FREE_POS;
+        fileFreePosition = MIN_INITIAL_FREE_POS;
 
         initBuffers();
     }

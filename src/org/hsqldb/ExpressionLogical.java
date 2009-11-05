@@ -663,6 +663,7 @@ public class ExpressionLogical extends Expression {
         if (exprSubType == OpTypes.ALL_QUANTIFIED
                 || exprSubType == OpTypes.ANY_QUANTIFIED) {
             resolveTypesForAllAny(session);
+            checkRowComparison();
 
             return;
         }
@@ -676,6 +677,9 @@ public class ExpressionLogical extends Expression {
             }
 
             resolveRowTypes();
+            checkRowComparison();
+
+            return;
         } else {
             if (nodes[LEFT].isParam) {
                 nodes[LEFT].dataType = nodes[RIGHT].dataType;
@@ -721,11 +725,20 @@ public class ExpressionLogical extends Expression {
                     nodes[LEFT] = new ExpressionOp(nodes[LEFT]);
                 }
             }
-        }
 
-        if (nodes[LEFT].opType == OpTypes.VALUE
-                && nodes[RIGHT].opType == OpTypes.VALUE) {
-            setAsConstantValue(session);
+            if (opType == OpTypes.EQUAL || opType == OpTypes.NOT_EQUAL) {}
+            else {
+                if (nodes[LEFT].dataType.isLobType()
+                        || nodes[RIGHT].dataType.isLobType()) {
+                    throw Error.error(ErrorCode.X_42534);
+                }
+            }
+
+            if (nodes[LEFT].opType == OpTypes.VALUE
+                    && nodes[RIGHT].opType == OpTypes.VALUE) {
+                setAsConstantValue(session);
+            }
+
         }
     }
 
@@ -756,6 +769,22 @@ public class ExpressionLogical extends Expression {
                     nodes[LEFT].nodeDataTypes[i] =
                         nodes[LEFT].nodes[i].dataType;
                 }
+            }
+        }
+    }
+
+    void checkRowComparison() {
+
+        if (opType == OpTypes.EQUAL || opType == OpTypes.NOT_EQUAL) {
+            return;
+        }
+
+        for (int i = 0; i < nodes[LEFT].nodeDataTypes.length; i++) {
+            Type leftType  = nodes[LEFT].nodeDataTypes[i];
+            Type rightType = nodes[RIGHT].nodeDataTypes[i];
+
+            if (leftType.isLobType() || rightType.isLobType()) {
+                throw Error.error(ErrorCode.X_42534);
             }
         }
     }
