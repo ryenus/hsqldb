@@ -1184,4 +1184,48 @@ public class ArrayUtil {
 
         return bytes;
     }
+
+    /**
+     * returns true if arra contains all elements of arrb
+     *
+     * @param arra Object[]
+     * @param arrb Object[]
+     */
+    public static boolean containsAll(Object[] arra, Object[] arrb) {
+
+        mainLoop:
+        for (int i = 0; i < arrb.length; i++) {
+            for (int j = 0; j < arra.length; j++) {
+                if (arrb[i] == arrb[j] || arrb[i].equals(arrb[j])) {
+                    continue mainLoop;
+                }
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * returns true if arra contains all elements of arrb
+     *
+     * @param arra int[]
+     * @param arrb int[]
+     */
+    public static boolean containsAll(int[] arra, int[] arrb) {
+
+        mainLoop:
+        for (int i = 0; i < arrb.length; i++) {
+            for (int j = 0; j < arra.length; j++) {
+                if (arrb[i] == arrb[j]) {
+                    continue mainLoop;
+                }
+            }
+
+            return false;
+        }
+
+        return true;
+    }
 }

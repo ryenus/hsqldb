@@ -74,7 +74,7 @@ public class StatementSchema extends Statement {
         group                  = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
         this.sql               = sql;
 
-        if (readName != null) {
+        if (readName != null && readName != writeName) {
             readTableNames = new HsqlName[]{ readName };
         }
 
@@ -92,7 +92,7 @@ public class StatementSchema extends Statement {
         this.sql               = sql;
         arguments              = args;
 
-        if (readName != null) {
+        if (readName != null && readName != writeName) {
             readTableNames = new HsqlName[]{ readName };
         }
 

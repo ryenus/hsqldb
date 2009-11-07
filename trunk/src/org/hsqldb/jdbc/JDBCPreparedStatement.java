@@ -409,10 +409,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             checkClosed();
         }
 
+        checkSetParameterIndex(parameterIndex, false);
+
         if (parameterTypes[parameterIndex - 1].typeCode
                 == Types.SQL_SMALLINT) {
-            checkSetParameterIndex(parameterIndex, false);
-
             parameterValues[--parameterIndex] = ValuePool.getInt(x);
 
             return;
@@ -439,9 +439,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             checkClosed();
         }
 
-        if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_INTEGER) {
-            checkSetParameterIndex(parameterIndex, false);
+        checkSetParameterIndex(parameterIndex, false);
 
+        if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_INTEGER) {
             parameterValues[--parameterIndex] = ValuePool.getInt(x);
 
             return;
@@ -468,8 +468,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             checkClosed();
         }
 
+        checkSetParameterIndex(parameterIndex, false);
+
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BIGINT) {
-            checkSetParameterIndex(parameterIndex, false);
 
             parameterValues[--parameterIndex] = ValuePool.getLong(x);
 

@@ -138,6 +138,8 @@ public class ScriptRunner {
                         break;
 
                     case ScriptReaderBase.INSERT_STATEMENT : {
+                        current.currentStatement = dummy;
+
                         current.beginAction(dummy);
 
                         Object[] data = scr.getData();
@@ -149,6 +151,8 @@ public class ScriptRunner {
                         break;
                     }
                     case ScriptReaderBase.DELETE_STATEMENT : {
+                        current.currentStatement = dummy;
+
                         current.beginAction(dummy);
 
                         Object[] data = scr.getData();
