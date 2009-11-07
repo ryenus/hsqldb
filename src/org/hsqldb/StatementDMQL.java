@@ -387,19 +387,6 @@ public abstract class StatementDMQL extends Statement {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        collectTableNamesForRead(set);
-
-        for (int i = 0; i < routines.length; i++) {
-            set.addAll(routines[i].getTableNamesForRead());
-        }
-
-        if (set.size() > 0) {
-            readTableNames = new HsqlName[set.size()];
-
-            set.toArray(readTableNames);
-            set.clear();
-        }
-
         // other fk references this :  if constraint trigger action  : other write lock
         if (baseTable != null) {
             if (baseTable.isTemp()) {
@@ -423,7 +410,24 @@ public abstract class StatementDMQL extends Statement {
             writeTableNames = new HsqlName[set.size()];
 
             set.toArray(writeTableNames);
+            set.clear();
         }
+
+        collectTableNamesForRead(set);
+
+        for (int i = 0; i < routines.length; i++) {
+            set.addAll(routines[i].getTableNamesForRead());
+        }
+
+
+        set.removeAll(writeTableNames);
+
+        if (set.size() > 0) {
+            readTableNames = new HsqlName[set.size()];
+
+            set.toArray(readTableNames);
+        }
+
 
         references = compileContext.getSchemaObjectNames();
     }

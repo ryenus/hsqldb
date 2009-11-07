@@ -61,7 +61,7 @@ public class StatementCommand extends Statement {
         this.isTransactionStatement = true;
         this.parameters             = args;
 
-        if (readName != null) {
+        if (readName != null && readName != writeName) {
             this.readTableNames = new HsqlName[]{ readName };
         }
 

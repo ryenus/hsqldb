@@ -99,7 +99,7 @@ public class Session implements SessionInterface {
     OrderedHashSet   waitingSessions;
     OrderedHashSet   tempSet;
     CountUpDownLatch latch = new CountUpDownLatch();
-    Statement        currentStatement;
+    public Statement currentStatement;
     Statement        lockStatement;
 
     // current settings
@@ -208,7 +208,6 @@ public class Session implements SessionInterface {
         database.closeIfLast();
 
         // keep sessionContext and sessionData
-
         database                  = null;
         user                      = null;
         rowActionList             = null;
@@ -1136,8 +1135,6 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(Error.error(ErrorCode.X_40001));
         }
 
-        currentStatement = cs;
-
         if (cs.isAutoCommitStatement()) {
             try {
                 if (isReadOnly()) {
@@ -1150,6 +1147,8 @@ public class Session implements SessionInterface {
                 database.logger.logInfoEvent("Exception at commit");
             }
         }
+
+        currentStatement = cs;
 
         if (!cs.isTransactionStatement()) {
             r                = cs.execute(this);

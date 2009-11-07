@@ -47,8 +47,8 @@ public class HashSet extends BaseHashMap implements Set {
     }
 
     public HashSet(int initialCapacity) throws IllegalArgumentException {
-        super(initialCapacity, BaseHashMap.objectKeyOrValue, BaseHashMap.noKeyOrValue,
-              false);
+        super(initialCapacity, BaseHashMap.objectKeyOrValue,
+              BaseHashMap.noKeyOrValue, false);
     }
 
     public boolean contains(Object key) {
@@ -81,6 +81,7 @@ public class HashSet extends BaseHashMap implements Set {
         }
     }
 
+    /** returns true if added */
     public boolean add(Object key) {
 
         int oldSize = size();
@@ -90,53 +91,52 @@ public class HashSet extends BaseHashMap implements Set {
         return oldSize != size();
     }
 
+    /** returns true if any added */
     public boolean addAll(Collection c) {
 
-        int      oldSize = size();
+        boolean  changed = false;
         Iterator it      = c.iterator();
 
         while (it.hasNext()) {
-            add(it.next());
+            changed |= add(it.next());
         }
 
-        return oldSize != size();
+        return changed;
     }
 
+    /** returns true if any added */
     public boolean addAll(Object[] keys) {
 
         boolean changed = false;
 
         for (int i = 0; i < keys.length; i++) {
-            if (add(keys[i])) {
-                changed = true;
-            }
+            changed |= add(keys[i]);
         }
 
         return changed;
     }
 
+    /** returns true if any added */
     public boolean addAll(Object[] keys, int start, int limit) {
 
         boolean changed = false;
 
         for (int i = start; i < keys.length && i < limit; i++) {
-            if (add(keys[i])) {
-                changed = true;
-            }
+            changed |= add(keys[i]);
         }
 
         return changed;
     }
 
+    /** returns true if removed */
     public boolean remove(Object key) {
 
         int oldSize = size();
 
-        super.removeObject(key, false);
-
-        return oldSize != size();
+        return super.removeObject(key, false) != null;
     }
 
+    /** returns true if all were removed */
     public boolean removeAll(Collection c) {
 
         Iterator it     = c.iterator();
@@ -144,6 +144,18 @@ public class HashSet extends BaseHashMap implements Set {
 
         while (it.hasNext()) {
             result &= remove(it.next());
+        }
+
+        return result;
+    }
+
+    /** returns true if all were removed */
+    public boolean removeAll(Object[] keys) {
+
+        boolean result = true;
+
+        for (int i = 0; i < keys.length; i++) {
+            result &= remove(keys[i]);
         }
 
         return result;

@@ -369,7 +369,7 @@ public class RowAction extends RowActionBase {
     /**
      * returns false if cannot complete
      * when READ COMMITTED, false result always means repeat action and adds
-     * set of sessions to wait on in the parameter (may be no wait)
+     * to set parameter the sessions to wait on (may be no wait)
      */
     synchronized boolean complete(Session session, OrderedHashSet set) {
 

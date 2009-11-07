@@ -1332,13 +1332,16 @@ public class ParserCommand extends ParserDDL {
             break outerloop;
         }
 
+        HsqlName[] writeTableNames = new HsqlName[writeSet.size()];
+
+        writeSet.toArray(writeTableNames);
+
+        readSet.removeAll(writeTableNames);
+
         HsqlName[] readTableNames = new HsqlName[readSet.size()];
 
         readSet.toArray(readTableNames);
 
-        HsqlName[] writeTableNames = new HsqlName[writeSet.size()];
-
-        writeSet.toArray(writeTableNames);
 
         Statement cs =
             new StatementSession(StatementTypes.TRANSACTION_LOCK_TABLE,

@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
@@ -155,58 +156,16 @@ public class TransactionManagerMV2PL implements TransactionManager {
 
     public void completeActions(Session session) {
 
-        Object[] list        = session.rowActionList.getArray();
-        int      limit       = session.rowActionList.size();
-        boolean  canComplete = true;
+        int      limit = session.rowActionList.size();
+        Object[] list  = session.rowActionList.getArray();
 
-        writeLock.lock();
+        for (int i = session.actionIndex; i < limit; i++) {
+            RowAction rowact = (RowAction) list[i];
 
-        try {
-            session.tempSet.clear();
-
-            for (int i = session.actionIndex; i < limit; i++) {
-                RowAction rowact = (RowAction) list[i];
-
-                if (rowact.complete(session, session.tempSet)) {
-                    continue;
-                } else {
-
-// debug
-//                    rowact.complete(session, new org.hsqldb.lib.OrderedHashSet());
-                }
-
-                canComplete = false;
-
-                if (session.isolationMode == SessionInterface
-                        .TX_REPEATABLE_READ || session
-                        .isolationMode == SessionInterface.TX_SERIALIZABLE) {
-                    session.abortTransaction = true;
-
-                    break;
-                }
-            }
-
-            if (!canComplete && !session.abortTransaction) {
-                session.redoAction = true;
-
-                rollbackAction(session);
-
-                if (session.tempSet.isEmpty()) {}
-                else {
-                    for (int i = 0; i < session.tempSet.size(); i++) {
-                        Session current = (Session) session.tempSet.get(i);
-
-                        if (current.isInMidTransaction()) {
-                            session.latch.countUp();
-                            current.waitingSessions.add(session);
-                        }
-                    }
-                }
-            }
-        } finally {
-            writeLock.unlock();
-            session.tempSet.clear();
+            rowact.complete(session);
         }
+
+        endActionTPL(session);
     }
 
     public boolean prepareCommitActions(Session session) {
@@ -395,6 +354,7 @@ public class TransactionManagerMV2PL implements TransactionManager {
 
     public void rollbackAction(Session session) {
         rollbackPartial(session, session.actionIndex, session.actionTimestamp);
+        endActionTPL(session);
     }
 
     /**
@@ -757,9 +717,61 @@ public class TransactionManagerMV2PL implements TransactionManager {
         }
     }
 
-    void endTransactionTPL(Session session) {
+    void endActionTPL(Session session) {
 
-        int unlockedCount = 0;
+        if (session.isolationMode == SessionInterface.TX_REPEATABLE_READ
+                || session.isolationMode == SessionInterface.TX_SERIALIZABLE) {
+            return;
+        }
+
+        HsqlName[] readLocks = session.currentStatement.getTableNamesForRead();
+
+        if (readLocks.length == 0) {
+            return;
+        }
+
+        for (int i = 0; i < readLocks.length; i++) {
+            if (tableWriteLocks.get(readLocks[i]) == session) {
+                return;
+            }
+        }
+
+        writeLock.lock();
+
+        try {
+            unlockReadTablesTPL(session);
+
+            final int waitingCount = session.waitingSessions.size();
+
+            if (waitingCount == 0) {
+                return;
+            }
+
+            boolean canUnlock = false;
+
+            for (int i = 0; i < waitingCount; i++) {
+                Session current = (Session) session.waitingSessions.get(i);
+
+                canUnlock = ArrayUtil.containsAll(
+                    readLocks,
+                    current.currentStatement.getTableNamesForWrite());
+
+                if (canUnlock) {
+                    break;
+                }
+            }
+
+            if (!canUnlock) {
+                return;
+            }
+
+            resetLocks(session);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    void endTransactionTPL(Session session) {
 
         unlockTablesTPL(session);
 
@@ -768,6 +780,14 @@ public class TransactionManagerMV2PL implements TransactionManager {
         if (waitingCount == 0) {
             return;
         }
+
+        resetLocks(session);
+    }
+
+    void resetLocks(Session session) {
+
+        final int waitingCount  = session.waitingSessions.size();
+        int       unlockedCount = 0;
 
         for (int i = 0; i < waitingCount; i++) {
             Session current = (Session) session.waitingSessions.get(i);
@@ -962,6 +982,24 @@ public class TransactionManagerMV2PL implements TransactionManager {
         }
     }
 
+    boolean unlockReadTablesTPL(Session session) {
+
+        Iterator it       = tableReadLocks.values().iterator();
+        boolean  unlocked = false;
+
+        while (it.hasNext()) {
+            Session s = (Session) it.next();
+
+            if (s == session) {
+                it.remove();
+
+                unlocked = true;
+            }
+        }
+
+        return unlocked;
+    }
+
     /**
      * remove session from queue when a transaction ends
      * and expire any committed transactions
@@ -989,61 +1027,55 @@ public class TransactionManagerMV2PL implements TransactionManager {
         return liveTransactionTimestamps.get(0);
     }
 
-    public boolean hasLocks(Session session, Statement cs) {
+    boolean hasLocks(Session session, Statement cs) {
 
         if (cs == null) {
             return true;
         }
 
-        writeLock.lock();
+        HsqlName[] nameList = cs.getTableNamesForWrite();
 
-        try {
-            HsqlName[] nameList = cs.getTableNamesForWrite();
+        for (int i = 0; i < nameList.length; i++) {
+            HsqlName name = nameList[i];
 
-            for (int i = 0; i < nameList.length; i++) {
-                HsqlName name = nameList[i];
-
-                if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                    continue;
-                }
-
-                Session holder = (Session) tableWriteLocks.get(name);
-
-                if (holder != null && holder != session) {
-                    return false;
-                }
-
-                Iterator it = tableReadLocks.get(name);
-
-                while (it.hasNext()) {
-                    holder = (Session) it.next();
-
-                    if (holder != session) {
-                        return false;
-                    }
-                }
+            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                continue;
             }
 
-            nameList = cs.getTableNamesForRead();
+            Session holder = (Session) tableWriteLocks.get(name);
 
-            for (int i = 0; i < nameList.length; i++) {
-                HsqlName name = nameList[i];
+            if (holder != null && holder != session) {
+                return false;
+            }
 
-                if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                    continue;
-                }
+            Iterator it = tableReadLocks.get(name);
 
-                Session holder = (Session) tableWriteLocks.get(name);
+            while (it.hasNext()) {
+                holder = (Session) it.next();
 
-                if (holder != null && holder != session) {
+                if (holder != session) {
                     return false;
                 }
             }
-
-            return true;
-        } finally {
-            writeLock.unlock();
         }
+
+        nameList = cs.getTableNamesForRead();
+
+        for (int i = 0; i < nameList.length; i++) {
+            HsqlName name = nameList[i];
+
+            if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
+                continue;
+            }
+
+            Session holder = (Session) tableWriteLocks.get(name);
+
+            if (holder != null && holder != session) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 // functional unit - list actions and translate id's
