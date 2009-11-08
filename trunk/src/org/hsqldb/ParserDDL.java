@@ -915,7 +915,7 @@ public class ParserDDL extends ParserRoutine {
         String sql = getLastPart();
         Statement cs = new StatementSchema(sql,
                                            StatementTypes.DROP_CONSTRAINT,
-                                           args, null, null);
+                                           args);
 
         cs.writeTableNames = getReferenceArray(t.getName(), cascade);
 
@@ -946,7 +946,7 @@ public class ParserDDL extends ParserRoutine {
         String sql = getLastPart();
         Statement cs = new StatementSchema(sql,
                                            StatementTypes.DROP_CONSTRAINT,
-                                           args, null, null);
+                                           args);
 
         cs.writeTableNames = getReferenceArray(t.getName(), cascade);
 
@@ -1111,8 +1111,7 @@ public class ParserDDL extends ParserRoutine {
         };
         String   sql  = getLastPart();
 
-        return new StatementSchema(sql, StatementTypes.CREATE_TABLE, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.CREATE_TABLE, args);
     }
 
     private ColumnSchema[] readLikeTable(Table table) {
@@ -1295,7 +1294,6 @@ public class ParserDDL extends ParserRoutine {
             SchemaObject.INDEX);
 
         c.setColumnsIndexes(table);
-
         table.createPrimaryKey(indexName, c.core.mainCols, true);
 
         if (c.core.mainCols != null) {
@@ -1342,16 +1340,16 @@ public class ParserDDL extends ParserRoutine {
                     break;
                 }
                 case SchemaObject.ConstraintTypes.CHECK : {
-
                     try {
                         c.prepareCheckConstraint(session, table, false);
                     } catch (HsqlException e) {
-
                         if (session.isProcessingScript()) {
                             break;
                         }
-                         throw e;
+
+                        throw e;
                     }
+
                     table.addConstraint(c);
 
                     if (c.isNotNull()) {
@@ -1711,7 +1709,7 @@ public class ParserDDL extends ParserRoutine {
         String   fullSQL = getLastPart();
         Object[] args    = new Object[]{ view };
         StatementSchema cs = new StatementSchema(fullSQL,
-            StatementTypes.CREATE_VIEW, args, null, null);
+            StatementTypes.CREATE_VIEW, args);
 
         /** @todo - should also lock subquery tables */
         OrderedHashSet set = new OrderedHashSet();
@@ -1745,8 +1743,7 @@ public class ParserDDL extends ParserRoutine {
         String   sql  = getLastPart();
         Object[] args = new Object[]{ sequence };
 
-        return new StatementSchema(sql, StatementTypes.CREATE_SEQUENCE, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.CREATE_SEQUENCE, args);
     }
 
     StatementSchema compileCreateDomain() {
@@ -1810,8 +1807,7 @@ public class ParserDDL extends ParserRoutine {
         String   sql  = getLastPart();
         Object[] args = new Object[]{ type };
 
-        return new StatementSchema(sql, StatementTypes.CREATE_DOMAIN, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.CREATE_DOMAIN, args);
     }
 
     StatementSchema compileCreateType() {
@@ -1834,8 +1830,7 @@ public class ParserDDL extends ParserRoutine {
         String   sql  = getLastPart();
         Object[] args = new Object[]{ type };
 
-        return new StatementSchema(sql, StatementTypes.CREATE_TYPE, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.CREATE_TYPE, args);
     }
 
     StatementSchema compileCreateCharacterSet() {
@@ -1869,7 +1864,7 @@ public class ParserDDL extends ParserRoutine {
         Object[] args = new Object[]{ charset };
 
         return new StatementSchema(sql, StatementTypes.CREATE_CHARACTER_SET,
-                                   args, null, null);
+                                   args);
     }
 
     StatementSchema compileCreateAlias() {
@@ -1915,8 +1910,7 @@ public class ParserDDL extends ParserRoutine {
             name, routines
         };
 
-        return new StatementSchema(sql, StatementTypes.CREATE_ALIAS, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.CREATE_ALIAS, args);
     }
 
     StatementSchema compileCreateTrigger() {
@@ -3219,8 +3213,7 @@ public class ParserDDL extends ParserRoutine {
                             statementType = StatementTypes.CREATE_INDEX;
                             sql = getStatement(position,
                                                endStatementTokensSchema);
-                            cs = new StatementSchema(sql, statementType, null,
-                                                     null, null);
+                            cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.SEQUENCE :
@@ -3237,8 +3230,7 @@ public class ParserDDL extends ParserRoutine {
                             statementType = StatementTypes.CREATE_DOMAIN;
                             sql = getStatement(position,
                                                endStatementTokensSchema);
-                            cs = new StatementSchema(sql, statementType, null,
-                                                     null, null);
+                            cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.TYPE :
@@ -3264,40 +3256,35 @@ public class ParserDDL extends ParserRoutine {
                             statementType = StatementTypes.CREATE_TABLE;
                             sql = getStatement(position,
                                                endStatementTokensSchema);
-                            cs = new StatementSchema(sql, statementType, null,
-                                                     null, null);
+                            cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.TRIGGER :
                             statementType = StatementTypes.CREATE_TRIGGER;
                             sql = getStatement(position,
                                                endStatementTokensSchema);
-                            cs = new StatementSchema(sql, statementType, null,
-                                                     null, null);
+                            cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.VIEW :
                             statementType = StatementTypes.CREATE_VIEW;
                             sql = getStatement(position,
                                                endStatementTokensSchema);
-                            cs = new StatementSchema(sql, statementType, null,
-                                                     null, null);
+                            cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.FUNCTION :
                             statementType = StatementTypes.CREATE_ROUTINE;
                             sql = getStatement(position,
                                                endStatementTokensSchema);
-                            cs = new StatementSchema(sql, statementType, null,
-                                                     null, null);
+                            cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.PROCEDURE :
                             statementType = StatementTypes.CREATE_ROUTINE;
                             sql = getStatement(position,
                                                endStatementTokensSchema);
-                            cs = new StatementSchema(sql, statementType, null,
-                                                     null, null);
+                            cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         default :
@@ -3340,8 +3327,7 @@ public class ParserDDL extends ParserRoutine {
         String   sql  = getLastPart();
         Object[] args = new Object[]{ name };
 
-        return new StatementSchema(sql, StatementTypes.CREATE_ROLE, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.CREATE_ROLE, args);
     }
 
     StatementSchema compileCreateUser() {
@@ -3372,8 +3358,7 @@ public class ParserDDL extends ParserRoutine {
             name, password, grantor, Boolean.valueOf(admin)
         };
 
-        return new StatementSchema(sql, StatementTypes.CREATE_USER, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.CREATE_USER, args);
     }
 
     HsqlName readNewUserIdentifier() {
@@ -3413,8 +3398,7 @@ public class ParserDDL extends ParserRoutine {
             name, newName
         };
 
-        return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args);
     }
 
     /**
@@ -3671,6 +3655,7 @@ public class ParserDDL extends ParserRoutine {
         Constraint constraint =
             new Constraint(name, set,
                            SchemaObject.ConstraintTypes.PRIMARY_KEY);
+
         constraint.setColumnsIndexes(table);
 
         String   sql  = getLastPart();
@@ -3966,8 +3951,8 @@ public class ParserDDL extends ParserRoutine {
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
 
-        return new StatementSchema(sql, StatementTypes.ALTER_TABLE,
-                                   table.getName(), null);
+        return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
+                                   table.getName());
     }
 
     private Statement compileAlterColumnSetNullability(Table table,
@@ -3976,8 +3961,8 @@ public class ParserDDL extends ParserRoutine {
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
 
-        return new StatementSchema(sql, StatementTypes.ALTER_TABLE,
-                                   table.getName(), null);
+        return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
+                                   table.getName());
     }
 
     private Statement compileAlterColumnSetDefault(Table table,
@@ -3986,8 +3971,8 @@ public class ParserDDL extends ParserRoutine {
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
 
-        return new StatementSchema(sql, StatementTypes.ALTER_TABLE,
-                                   table.getName(), null);
+        return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
+                                   table.getName());
     }
 
     private Statement compileAlterColumnDropGenerated(Table table,
@@ -3996,8 +3981,8 @@ public class ParserDDL extends ParserRoutine {
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
 
-        return new StatementSchema(sql, StatementTypes.ALTER_TABLE,
-                                   table.getName(), null);
+        return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
+                                   table.getName());
     }
 
     private Statement compileAlterColumnDropDefault(Table table,
@@ -4006,8 +3991,8 @@ public class ParserDDL extends ParserRoutine {
         String sql = super.getStatement(getParsePosition(),
                                         endStatementTokens);
 
-        return new StatementSchema(sql, StatementTypes.ALTER_TABLE,
-                                   table.getName(), null);
+        return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
+                                   table.getName());
     }
 
     Statement compileAlterSequence() {
@@ -4036,8 +4021,7 @@ public class ParserDDL extends ParserRoutine {
             sequence, copy
         };
 
-        return new StatementSchema(sql, StatementTypes.ALTER_SEQUENCE, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.ALTER_SEQUENCE, args);
     }
 
     void processAlterColumnSequenceOptions(ColumnSchema column) {
@@ -4259,8 +4243,7 @@ public class ParserDDL extends ParserRoutine {
             column.getName(), name
         };
 
-        return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args);
     }
 
     Statement compileAlterSchemaRename() {
@@ -4277,8 +4260,7 @@ public class ParserDDL extends ParserRoutine {
             name, newName
         };
 
-        return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args,
-                                   null, null);
+        return new StatementSchema(sql, StatementTypes.RENAME_OBJECT, args);
     }
 
     Statement compileAlterUser() {
@@ -4305,7 +4287,7 @@ public class ParserDDL extends ParserRoutine {
             };
 
             return new StatementCommand(StatementTypes.SET_USER_PASSWORD,
-                                        args, null, null);
+                                        args);
         } else if (token.tokenType == Tokens.INITIAL) {
             read();
             readThis(Tokens.SCHEMA);
@@ -4326,7 +4308,7 @@ public class ParserDDL extends ParserRoutine {
             };
 
             return new StatementCommand(StatementTypes.SET_USER_INITIAL_SCHEMA,
-                                        args, null, null);
+                                        args);
         } else {
             throw unexpectedToken();
         }
@@ -4863,7 +4845,7 @@ public class ParserDDL extends ParserRoutine {
             Boolean.valueOf(isGrantOption)
         };
         String          sql = getLastPart();
-        StatementSchema cs = new StatementSchema(sql, typee, args, null, null);
+        StatementSchema cs  = new StatementSchema(sql, typee, args);
 
         return cs;
     }
@@ -4962,7 +4944,7 @@ public class ParserDDL extends ParserRoutine {
             granteeList, roleList, grantor, Boolean.valueOf(cascade)
         };
         String          sql  = getLastPart();
-        StatementSchema cs = new StatementSchema(sql, type, args, null, null);
+        StatementSchema cs   = new StatementSchema(sql, type, args);
 
         return cs;
     }

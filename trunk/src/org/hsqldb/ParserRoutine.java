@@ -358,7 +358,7 @@ public class ParserRoutine extends ParserDML {
         Object[] args = new Object[]{ routine };
         String   sql  = getLastPart();
         StatementSchema cs = new StatementSchema(sql,
-            StatementTypes.CREATE_ROUTINE, args, null, null);
+            StatementTypes.CREATE_ROUTINE, args);
 
         return cs;
     }

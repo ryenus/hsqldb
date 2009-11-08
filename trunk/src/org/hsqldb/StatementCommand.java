@@ -53,6 +53,10 @@ public class StatementCommand extends Statement {
     Expression[] expressions;
     Object[]     parameters;
 
+    StatementCommand(int type, Object[] args) {
+        this(type, args, null, null);
+    }
+
     StatementCommand(int type, Object[] args, HsqlName readName,
                      HsqlName writeName) {
 
@@ -72,13 +76,13 @@ public class StatementCommand extends Statement {
         switch (type) {
 
             case StatementTypes.DATABASE_CHECKPOINT :
-                group    = StatementTypes.X_HSQLDB_OPERATION;
+                group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
                 break;
 
             case StatementTypes.DATABASE_BACKUP :
             case StatementTypes.DATABASE_SCRIPT :
-                group    = StatementTypes.X_HSQLDB_OPERATION;
+                group    = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 isLogged = false;
                 break;
 
@@ -124,24 +128,24 @@ public class StatementCommand extends Statement {
                 isLogged = false;
             case StatementTypes.SET_TABLE_SOURCE :
                 metaDataImpact              = Statement.META_RESET_VIEWS;
-                group = StatementTypes.X_HSQLDB_OPERATION;
+                group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 this.isTransactionStatement = true;
                 break;
 
             case StatementTypes.SET_TABLE_READONLY :
                 metaDataImpact              = Statement.META_RESET_VIEWS;
-                group                       = StatementTypes.X_HSQLDB_SETTING;
+                group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 this.isTransactionStatement = true;
                 break;
 
             case StatementTypes.DATABASE_SHUTDOWN :
                 isLogged                    = false;
-                group = StatementTypes.X_HSQLDB_OPERATION;
+                group = StatementTypes.X_HSQLDB_DATABASE_OPERATION;
                 this.isTransactionStatement = false;
                 break;
 
             case StatementTypes.SET_TABLE_TYPE :
-                group = StatementTypes.X_HSQLDB_OPERATION;
+                group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 this.isTransactionStatement = true;
                 break;
 
@@ -303,7 +307,6 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
-
             case StatementTypes.SET_DATABASE_FILES_SCALE : {
                 try {
                     int value = ((Integer) parameters[0]).intValue();

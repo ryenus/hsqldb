@@ -498,6 +498,11 @@ public class TransactionManager2PL implements TransactionManager {
             return;
         }
 
+        if (session.currentStatement == null) {
+            // after java function / proc with db access
+            return;
+        }
+
         HsqlName[] readLocks = session.currentStatement.getTableNamesForRead();
 
         if (readLocks.length == 0) {
