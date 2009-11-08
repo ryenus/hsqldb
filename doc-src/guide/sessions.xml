@@ -60,7 +60,7 @@
     ROLLBACK, in addition to the exception that is raised.</para>
 
     <para>Schema definition and manipulation statements are also transactional
-    according to the SQL Standard. HyperSQL 1.9 performs automatic commits
+    according to the SQL Standard. HyperSQL 2.0 performs automatic commits
     before and after the execution of such transactions. Therefore,
     schema-related statements cannot be rolled back. This is likely to change
     in future versions.</para>
@@ -77,9 +77,10 @@
     object and its <methodname>setTransactionIsolation(int level)</methodname>
     method. The session can be put in read-only mode using the
     <methodname>setReadOnly(boolean readOnly)</methodname> method. Both
-    methods can be invoked only after a commit or a rollback.</simpara>
+    methods can be invoked only after a commit or a rollback, but not during a
+    transaction.</simpara>
 
-    <simpara>The isolation level and / or the read only mode of a transaction
+    <simpara>The isolation level and / or the readonly mode of a transaction
     can be modified using an SQL statement. You can use the statement to
     change only the isolation mode, only the read-only mode, or both at the
     same time. This command can be issued only after a commit or
@@ -101,9 +102,9 @@
     statement.</para>
 
     <para>The named properties such as CURRENT_USER, CURRENT_SCHEMA, etc. are
-    listed in the Built In Functions section. Other properties of the session,
-    such as auto-commit read-only modes can be read using other built-in
-    functions.</para>
+    SQL Standard functions.Other properties of the session, such as
+    auto-commit read-only modes can be read using other built-in functions.
+    All these functions are listed in the Built-in Functions chapter.</para>
 
     <para>The properties for default session time zone, current session time
     zone, current default transaction isolation mode cannot be read.</para>
@@ -115,8 +116,9 @@
       as the variables for stored procedures and functions. Currently, these
       variables cannot be used in general SQL statements. They can be assigned
       to IN, INOUT and OUT arguments of stored procedures. This allows calling
-      stored procedures which have INOUT or OUT arguments. See the example in
-      the SQL Invoked Routines Chapter, under Formal Parameters.</para>
+      stored procedures which have INOUT or OUT arguments and is useful for
+      development and debugging. See the example in the SQL Invoked Routines
+      Chapter, under Formal Parameters.</para>
 
       <example>
         <title>User-defined Session Variables</title>
@@ -133,32 +135,42 @@
   <section xml:id="sqlgeneral_trans_cc-sect">
     <title>Transactions and Concurrency Control</title>
 
-    <para>HSQLDB 1.8.x supported READ UNCOMMITTED transaction isolation. At
-    this isolation level, uncommitted changes made to the data by a session
-    are visible to other, concurrent sessions. This is called the "dirty read"
-    phenomenon.</para>
+    <para>HyperSQL 2.0 has been fully redesigned to support different
+    transaction isolation models. It no longer supports the old 1.8.x model
+    with "dirty read". Although it is perfectly possible to add an
+    implementaion of the transation manager that supports the legacy model, we
+    thought this is no longer necessary. The new system allows you to select
+    the transaction isolation model even while the engine is running and
+    choose different isolation modes for different simultaneous
+    sessions.</para>
 
-    <para>HyperSQL 2.0 supports 4 levels of transaction isolation: READ
-    UNCOMMITTED, READ COMMITTED, REPEATABLE READ and SERIALIZABLE. It also
-    supports two concurrency control modes, two-phase-locking (2PL) and
-    multiversion concurrency control (MVCC). The isolation level is a property
-    of each SQL session, so different sessions can have different isolation
-    levels. The concurrency control strategy governs all the sessions and is
-    set for the database, as opposed for individual sessions. Isolation levels
-    above READ UNCOMMITTED avoid the "dirty read" phenomenon and do not read
-    uncommitted changes made to rows by other transactions.</para>
+    <para>HyperSQL 2.0 supports three concurrency control models,
+    two-phase-locking (2PL), multiversion concurrency control (MVCC) and a
+    hyprid model, which is 2PL plus multiversion rows. Within each model, it
+    supports some of 4 levels of transaction isolation: READ UNCOMMITTED, READ
+    COMMITTED, REPEATABLE READ and SERIALIZABLE. The isolation level is a
+    property of each SQL session, so different sessions can have different
+    isolation levels. The concurrency control model is a strategy that governs
+    all the sessions and is set for the database, as opposed for individual
+    sessions. In the new implementation, all isolation levels, even READ
+    UNCOMMITTED, avoid the "dirty read" phenomenon and do not read uncommitted
+    changes made to rows by other transactions.</para>
+
+    <para>HyperSQL is fully multithreaded in all transaction models. Sessions
+    continue to work simultanously and can fully utilise multi-core
+    processors.</para>
 
     <section>
       <title>Two Phased Locking</title>
 
-      <para>In the 2PL mode, each table that is read by a transaction is
-      locked with a shared lock, and each table that is written to is locked
-      with an exclusive lock. If two sessions read and modify different tables
-      then both go through simultaneously. If one session tries to lock a
-      table that has been exclusively locked by the other, the engine will put
-      it in wait, or it will invalidate the action it is attempting to
-      perform, depending on the current locks. This avoids any
-      deadlock.</para>
+      <para>The two-phased locking model is the default mode. It is refered to
+      by the keyword, LOCKS. In the 2PL model, each table that is read by a
+      transaction is locked with a shared lock, and each table that is written
+      to is locked with an exclusive lock. If two sessions read and modify
+      different tables then both go through simultaneously. If one session
+      tries to lock a table that has been exclusively locked by the other, the
+      engine will put it in wait, or it will invalidate the action it is
+      attempting to perform, if the action would result in deadlock.</para>
 
       <para>HyperSQL also supports explicit locking of a group of tables for
       the duration of the current transaction. Use of this command blocks
@@ -178,7 +190,37 @@
       do.</para>
 
       <para>The READ UNCOMMITTED isolation level can be used in 2PL modes for
-      read-only operations.</para>
+      read-only operations. It is the same as READ COMMITTED plus
+      readonly.</para>
+
+      <para>The READ COMMITTED isolation level is the default. It keeps write
+      locks on tables until commit, but releases the read locks after each
+      operation.</para>
+
+      <para>The REPEATABLE READ level is upgraded to SERIALIZABLE. These
+      levels keep both read and write locks on tables until commit.</para>
+
+      <para>It is possible to perform some critical operations at the
+      SERIALIZABLE level, while the rest of the operations are performed at
+      the READ COMMITTED level.</para>
+    </section>
+
+    <section>
+      <title>Two Phased Locking with Snapshot Isolation</title>
+
+      <para>This model is refered to as MVLOCKS. This mode works the same way
+      as normal 2PL as far as updates are concerned.</para>
+
+      <para>Snapshot isolation is a multiversion concurrency strategy which
+      uses the snapshot of the whole database at the time of the start of the
+      transaction. In this model, the snapshot is readonly. While other
+      sessions are busy changing the database, the readonly session sees a
+      consistent view of the database and can access all the tables even when
+      they are locked by other sessions during updates.</para>
+
+      <para>There are many applications for this mode of operation. In heavily
+      updated data sets, this mode allows constant read access to the
+      data.</para>
     </section>
 
     <section>
@@ -192,15 +234,15 @@
       reads and writes on more than one table, or perform a read, followed by
       a write, on the same table.</para>
 
-      <para>For example, when multiple connections first read from a table in
-      order to check if a row exists, then insert a row into the same table
-      when it doesn't exist, there will be regular contention. Transaction A
-      reads from the table, then does Transaction B. Now if either Transaction
-      A or B attempts to insert a row, it will have to be terminated as the
-      other transaction holds a shared lock. If instead of two operations, a
-      single MERGE statement is performed to perform the read and write, no
-      contention occurs because both locks are obtained at the same
-      time.</para>
+      <para>For example, when sessions are working at the SERIALIZABLE level,
+      when multiple sessions first read from a table in order to check if a
+      row exists, then insert a row into the same table when it doesn't exist,
+      there will be regular contention. Transaction A reads from the table,
+      then does Transaction B. Now if either Transaction A or B attempts to
+      insert a row, it will have to be terminated as the other transaction
+      holds a shared lock on the table. If instead of two operations, a single
+      MERGE statement is used to perform the read and write, no contention
+      occurs because both locks are obtained at the same time.</para>
 
       <para>Alternatively, there is the option of obtaining the necessary
       locks with an explicit LOCK TABLE statement. This statement should be
@@ -217,25 +259,30 @@
     <section>
       <title>MVCC</title>
 
-      <para>In MVCC mode, there are no shared, read locks. Exclusive locks are
-      used on individual rows, but their use is different. Transactions can
-      read and modify the same table simultaneously, generally without waiting
-      for other transactions.</para>
+      <para>In the MVCC mode, there are no shared, read locks. Exclusive locks
+      are used on individual rows, but their use is different. Transactions
+      can read and modify the same table simultaneously, generally without
+      waiting for other transactions.</para>
 
       <para>When transactions are running in READ COMMITTED mode, no conflict
-      will occur. If a transaction that runs in this mode wants to modify a
-      row that has been modified by another uncommitted transaction, then the
-      engine puts the transaction in wait, until the other transaction has
-      committed. The transaction then continues automatically.</para>
+      will normally occur. If a transaction that runs in this mode wants to
+      modify a row that has been modified by another uncommitted transaction,
+      then the engine puts the transaction in wait, until the other
+      transaction has committed. The transaction then continues automatically.
+      (Conflict is possible if each transaction is waiting for a different row
+      modified by the other transaction, in which case, one of the
+      transactions is terminated). This isolation level is called READ
+      CONSISTENCY.</para>
 
       <para>When transactions are running in REPEATABLE READ or SERIALIZABLE
-      isolation modes, conflict can happen. There is no difference in
-      operation between these two isolation modes. If a transaction that runs
-      in this mode wants to modify a row that has been modified by another
-      uncommitted transaction, the engine allows it to go ahead despite the
-      conflict. When one of the conflicting sessions commits, the commit goes
-      through. But when committing, the engine will invalidate the other,
-      conflicting transaction and roll back all its changes.</para>
+      isolation modes, conflict is more likely to happen. There is no
+      difference in operation between these two isolation modes. If a
+      transaction that runs in this mode wants to modify a row that has been
+      modified by another uncommitted transaction, the engine allows it to go
+      ahead despite the conflict. When one of the conflicting sessions
+      commits, the commit goes through. But when committing, the engine will
+      invalidate the other, conflicting transaction and roll back all its
+      changes. This isolation level is called SNAPSHOT ISOLATION.</para>
 
       <para>In this mode, READ UNCOMMITTED is promoted to READ COMMITTED, as
       the new architecture is based on multi-version rows for uncommitted data
@@ -245,6 +292,26 @@
       ahead and complete regardless of what other transactions may do. This
       does not depend on the transaction being read-only or the isolation
       modes.</para>
+    </section>
+
+    <section>
+      <title>Choosing the Transaction Model</title>
+
+      <para>All modes can be used with as many simultaneous connections as
+      required. The default 2PL mode is fine for applications with a single
+      connection, or applications that do not access the same tables heavily
+      for writes. With multiple simultanous connections, MVCC can be used for
+      most applications. Both READ CONSISTENCY and SNAPSHOT ISOLATION levels
+      are stronger than READ COMMITTED in the 2PL mode. Some applications
+      require SERIALIZABLE transactions for at least some of their operations.
+      For these applications, one of the 2PL modes can be used. It is possible
+      to switch the concurrency model while the database is operational.
+      Therefore, the model can be changed for the duration of some special
+      operations, such as synchronization with another data source.</para>
+
+      <para>All concurrency models are very fast in operation. When operating
+      mainly on the same tables, the MVCC model may be faster with multi-core
+      processors. </para>
     </section>
   </section>
 
@@ -266,8 +333,8 @@
 
     <simpara>When an SQL session is started by creating a JDBC connection, it
     is in AUTOCOMMIT mode. In this mode, after each SQL statement a COMMIT is
-    performed automatically. This statement changes mode. It is equivalent to
-    using the <methodname>setAutoCommit( boolean autoCommit)</methodname>
+    performed automatically. This statement changes the mode. It is equivalent
+    to using the <methodname>setAutoCommit( boolean autoCommit)</methodname>
     method of the JDBC <classname>Connection</classname> object.</simpara>
 
     <indexterm significance="preferred" type="sql">
@@ -299,9 +366,9 @@
     SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
     }</literal></simpara>
 
-    <simpara>Set the concurrency control system for the database. It can be
-    issued only when all sessions have been committed or rolled back. The
-    default is LOCKS.</simpara>
+    <simpara>Set the concurrency control system for the database. It will wait
+    until all sessions have been committed or rolled back. The default is
+    LOCKS.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET TRANSACTION</primary>
