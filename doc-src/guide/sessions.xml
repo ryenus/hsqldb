@@ -181,14 +181,6 @@
       <para>If a table is read-only, it will not be locked by any
       transaction.</para>
 
-      <para>The 2PL mode has two sub-modes. The default is 2PL without
-      multi-version rows. This mode is identified as LOCKS. The other mode is
-      2PL with multiversion rows. This mode is identified as MVLOCKS. In the
-      MVLOCKS mode, when a transaction is running in read-only mode (or the
-      session is in read-only mode), then it will not lock the tables and will
-      go ahead and complete regardless of what other transactions may
-      do.</para>
-
       <para>The READ UNCOMMITTED isolation level can be used in 2PL modes for
       read-only operations. It is the same as READ COMMITTED plus
       readonly.</para>
@@ -208,18 +200,19 @@
     <section>
       <title>Two Phased Locking with Snapshot Isolation</title>
 
-      <para>This model is refered to as MVLOCKS. This mode works the same way
-      as normal 2PL as far as updates are concerned.</para>
+      <para>This model is refered to as MVLOCKS. It works the same way as
+      normal 2PL as far as updates are concerned.</para>
 
-      <para>Snapshot isolation is a multiversion concurrency strategy which
+      <para>SNAPSHOT ISOLATION is a multiversion concurrency strategy which
       uses the snapshot of the whole database at the time of the start of the
-      transaction. In this model, the snapshot is readonly. While other
-      sessions are busy changing the database, the readonly session sees a
-      consistent view of the database and can access all the tables even when
-      they are locked by other sessions during updates.</para>
+      transaction. In this model, readonly transactions use SNAPSHOT
+      ISOLATION. While other sessions are busy changing the database, the
+      readonly session sees a consistent view of the database and can access
+      all the tables even when they are locked by other sessions during
+      updates.</para>
 
       <para>There are many applications for this mode of operation. In heavily
-      updated data sets, this mode allows constant read access to the
+      updated data sets, this mode allows uninterrupted read access to the
       data.</para>
     </section>
 
@@ -264,8 +257,8 @@
       Transactions can read and modify the same table simultaneously,
       generally without waiting for other transactions.</para>
 
-      <para>When transactions are running in READ COMMITTED mode, no conflict
-      will normally occur. If a transaction that runs in this mode wants to
+      <para>When transactions are running at READ COMMITTED level, no conflict
+      will normally occur. If a transaction that runs at this level wants to
       modify a row that has been modified by another uncommitted transaction,
       then the engine puts the transaction in wait, until the other
       transaction has committed. The transaction then continues automatically.
@@ -275,18 +268,18 @@
       CONSISTENCY.</para>
 
       <para>When transactions are running in REPEATABLE READ or SERIALIZABLE
-      isolation modes, conflict is more likely to happen. There is no
-      difference in operation between these two isolation modes. If a
-      transaction that runs in this mode wants to modify a row that has been
-      modified by another uncommitted transaction, the engine allows it to go
-      ahead despite the conflict. When one of the conflicting sessions
+      isolation levels, conflict is more likely to happen. There is no
+      difference in operation between these two isolation levels. If a
+      transaction that runs at these levels wants to modify a row that has
+      been modified by another uncommitted transaction, the engine allows it
+      to go ahead despite the conflict. When one of the conflicting sessions
       commits, the commit goes through. But when committing, the engine will
       invalidate the other, conflicting transaction and roll back all its
       changes. This isolation level is called SNAPSHOT ISOLATION.</para>
 
-      <para>In this mode, READ UNCOMMITTED is promoted to READ COMMITTED, as
-      the new architecture is based on multi-version rows for uncommitted data
-      and more than one version may exist for some rows.</para>
+      <para>In the MVCC model, READ UNCOMMITTED is promoted to READ COMMITTED,
+      as the new architecture is based on multi-version rows for uncommitted
+      data and more than one version may exist for some rows.</para>
 
       <para>With MVCC, when a transaction only reads data, then it will go
       ahead and complete regardless of what other transactions may do. This
@@ -298,7 +291,7 @@
       <title>Choosing the Transaction Model</title>
 
       <para>All modes can be used with as many simultaneous connections as
-      required. The default 2PL mode is fine for applications with a single
+      required. The default 2PL model is fine for applications with a single
       connection, or applications that do not access the same tables heavily
       for writes. With multiple simultanous connections, MVCC can be used for
       most applications. Both READ CONSISTENCY and SNAPSHOT ISOLATION levels
@@ -391,8 +384,8 @@
     SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
     }</literal></simpara>
 
-    <simpara>Set the concurrency control system for the database. It will wait
-    until all sessions have been committed or rolled back. The default is
+    <simpara>Set the concurrency control model for the whole database. It will
+    wait until all sessions have been committed or rolled back. The default is
     LOCKS.</simpara>
 
     <indexterm significance="preferred" type="sql">
