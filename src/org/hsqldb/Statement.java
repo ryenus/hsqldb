@@ -55,7 +55,7 @@ public abstract class Statement {
     final int type;
     int       group;
     boolean   isLogged = true;
-    boolean   isValid = true;
+    boolean   isValid  = true;
 
     /** the default schema name used to resolve names in the sql */
     HsqlName schemaName;
@@ -76,7 +76,7 @@ public abstract class Statement {
     /** id in StatementManager */
     long id;
 
-    /** compileTimestamp **/
+    /** compileTimestamp */
     long compileTimestamp;
 
     /** table names read - for concurrency control */
@@ -85,6 +85,7 @@ public abstract class Statement {
     /** table names written - for concurrency control */
     HsqlName[] writeTableNames = HsqlName.emptyArray;;
 
+    //
     OrderedHashSet references;
 
     public abstract Result execute(Session session);
@@ -184,6 +185,23 @@ public abstract class Statement {
 
     public final HsqlName[] getTableNamesForWrite() {
         return writeTableNames;
+    }
+
+    public boolean isCatalogChange() {
+
+        switch (group) {
+
+            case StatementTypes.X_SQL_SCHEMA_DEFINITION :
+            case StatementTypes.X_SQL_SCHEMA_MANIPULATION :
+            case StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION :
+                return true;
+
+            case StatementTypes.X_HSQLDB_DATABASE_OPERATION :
+                return true;
+
+            default :
+                return false;
+        }
     }
 
     public void setParent(StatementCompound statement) {

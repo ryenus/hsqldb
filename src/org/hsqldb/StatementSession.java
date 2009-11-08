@@ -614,4 +614,8 @@ public class StatementSession extends Statement {
     public String describe(Session session) {
         return sql;
     }
+
+    public boolean isCatalogChange() {
+        return false;
+    }
 }

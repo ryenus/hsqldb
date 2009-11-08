@@ -202,4 +202,8 @@ public class StatementSimple extends Statement {
     public String describe(Session session) {
         return "";
     }
+
+    public boolean isCatalogChange() {
+        return false;
+    }
 }

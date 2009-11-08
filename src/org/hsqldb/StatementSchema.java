@@ -40,6 +40,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Type;
 
@@ -53,7 +54,7 @@ import org.hsqldb.types.Type;
 public class StatementSchema extends Statement {
 
     int      order;
-    Object[] arguments;
+    Object[] arguments = ValuePool.emptyObjectArray;
     boolean  isSchemaDefinition;
     Token[]  statementTokens;
 
@@ -67,20 +68,11 @@ public class StatementSchema extends Statement {
 
     StatementSchema(String sql, int type, HsqlName readName,
                     HsqlName writeName) {
+        this(sql, type, null, readName, writeName);
+    }
 
-        super(type);
-
-        isTransactionStatement = true;
-        group                  = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
-        this.sql               = sql;
-
-        if (readName != null && readName != writeName) {
-            readTableNames = new HsqlName[]{ readName };
-        }
-
-        if (writeName != null) {
-            writeTableNames = new HsqlName[]{ writeName };
-        }
+    StatementSchema(String sql, int type, Object[] args) {
+        this(sql, type, args, null, null);
     }
 
     StatementSchema(String sql, int type, Object[] args, HsqlName readName,
@@ -90,7 +82,10 @@ public class StatementSchema extends Statement {
 
         isTransactionStatement = true;
         this.sql               = sql;
-        arguments              = args;
+
+        if (args != null) {
+            arguments = args;
+        }
 
         if (readName != null && readName != writeName) {
             readTableNames = new HsqlName[]{ readName };

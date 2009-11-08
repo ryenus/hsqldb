@@ -225,21 +225,22 @@ public interface StatementTypes {
     int CHECK     = 1104;
 
     // hsqldb groups
-    int X_SQL_SCHEMA_DEFINITION   = 2001;
-    int X_SQL_SCHEMA_MANIPULATION = 2002;
-    int X_SQL_DATA                = 2003;
-    int X_SQL_DATA_CHANGE         = 2004;
-    int X_SQL_TRANSACTION         = 2005;
-    int X_SQL_CONNECTION          = 2006;
-    int X_SQL_CONTROL             = 2007;
-    int X_SQL_SESSION             = 2008;
-    int X_SQL_DIAGNOSTICS         = 2009;
-    int X_SQL_DYNAMIC             = 2010;
-    int X_HSQLDB_SESSION          = 2011;
-    int X_HSQLDB_SETTING          = 2012;
-    int X_HSQLDB_OPERATION        = 2013;
-    int X_HSQLDB_TRANSACTION      = 2014;
-    int X_DYNAMIC                 = 2015;
+    int X_SQL_SCHEMA_DEFINITION      = 2001;
+    int X_SQL_SCHEMA_MANIPULATION    = 2002;
+    int X_SQL_DATA                   = 2003;
+    int X_SQL_DATA_CHANGE            = 2004;
+    int X_SQL_TRANSACTION            = 2005;
+    int X_SQL_CONNECTION             = 2006;
+    int X_SQL_CONTROL                = 2007;
+    int X_SQL_SESSION                = 2008;
+    int X_SQL_DIAGNOSTICS            = 2009;
+    int X_SQL_DYNAMIC                = 2010;
+    int X_HSQLDB_SESSION             = 2011;
+    int X_HSQLDB_SCHEMA_MANIPULATION = 2012;
+    int X_HSQLDB_SETTING             = 2013;
+    int X_HSQLDB_DATABASE_OPERATION  = 2014;
+    int X_HSQLDB_TRANSACTION         = 2015;
+    int X_DYNAMIC                    = 2016;
 
     // Expected types of Result returned for an SQL statement
     int RETURN_ANY    = 0;

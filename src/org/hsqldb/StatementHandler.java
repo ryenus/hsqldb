@@ -210,4 +210,8 @@ public class StatementHandler extends Statement {
 
         return sb.toString();
     }
+
+    public boolean isCatalogChange() {
+        return false;
+    }
 }
