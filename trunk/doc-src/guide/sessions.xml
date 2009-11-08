@@ -259,10 +259,10 @@
     <section>
       <title>MVCC</title>
 
-      <para>In the MVCC mode, there are no shared, read locks. Exclusive locks
-      are used on individual rows, but their use is different. Transactions
-      can read and modify the same table simultaneously, generally without
-      waiting for other transactions.</para>
+      <para>In the MVCC model, there are no shared, read locks. Exclusive
+      locks are used on individual rows, but their use is different.
+      Transactions can read and modify the same table simultaneously,
+      generally without waiting for other transactions.</para>
 
       <para>When transactions are running in READ COMMITTED mode, no conflict
       will normally occur. If a transaction that runs in this mode wants to
@@ -311,7 +311,32 @@
 
       <para>All concurrency models are very fast in operation. When operating
       mainly on the same tables, the MVCC model may be faster with multi-core
-      processors. </para>
+      processors.</para>
+    </section>
+
+    <section>
+      <title>Schema and Database Change</title>
+
+      <para>There are a few SQL statements that must access a consistent state
+      of the database during their executions. These statements, which include
+      CHECKPOINT and BACKUP, put an exclusive lock on all the tables of the
+      database when they start.</para>
+
+      <para>Some schema manipulation statements put an exclusive lock on one
+      or more tables. For example changing the columns of a table locks the
+      table exclusively.</para>
+
+      <para>In the MVCC model, all statements that need an exclusive lock on
+      one or more tables, put an exclusive lock on the database catalog until
+      they complete.</para>
+
+      <para>The effect of these exclusive locks is similar to the execution of
+      data manipulation statements with write locks. The session that is about
+      to execute the schema change statement waits until no other session is
+      holding a lock on any of the objects. At this point it starts its
+      operation and locks the objects to prevents any other session from
+      accessing the locked objects. As soon as the operation is complete, the
+      locks are all removed.</para>
     </section>
   </section>
 
@@ -757,17 +782,23 @@
 
     <simpara>The normal operation of the session has no limit on the number of
     rows returned from a SELECT statement. This command set the maximum number
-    of rows of each result returned by executing queries. This statement has a
-    similar effect to the <methodname>setMaxRows(int max)</methodname> method
-    of the JDBC <classname>Statement</classname> interface, but it affects all
-    the results returned in the lifetime of the session. Only zero or positive
-    values can be used with this command. The value overrides any value
-    specified with <methodname>setMaxRows(int max)</methodname> method of a
-    JDBC statement. If <literal>SET MAXROWS 0</literal> is specified, normal
-    operation is restored.</simpara>
+    of rows of the result returned by executing queries.</simpara>
 
-    <simpara>This command is not recommended for general use. The only
-    legitimate use of this command is for checking and testing queries that
-    may return very larg numbers of rows.</simpara>
+    <simpara>This statement has a similar effect to the
+    <methodname>setMaxRows(int max)</methodname> method of the JDBC
+    <classname>Statement</classname> interface, but it affects the results
+    returned from the next statement execution only. After the execution of
+    the next statement, the MAXROWS limit is removed.</simpara>
+
+    <simpara>Only zero or positive values can be used with this command. The
+    value overrides any value specified with <methodname>setMaxRows(int
+    max)</methodname> method of a JDBC statement. The statement <literal>SET
+    MAXROWS 0</literal> means no limit.</simpara>
+
+    <simpara>It is possible to limit the number of rows returned from SELECT
+    statements with the FETCH &lt;n&gt; ROWS ONLY, or its alternative, LIMIT
+    &lt;n&gt;. Therefore this command is not recommended for general use. The
+    only legitimate use of this command is for checking and testing queries
+    that may return very larg numbers of rows.</simpara>
   </section>
 </chapter>
