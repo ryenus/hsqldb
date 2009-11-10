@@ -493,12 +493,15 @@ public class TransactionManager2PL implements TransactionManager {
 
     void endActionTPL(Session session) {
 
-        if (session.isolationMode == SessionInterface.TX_REPEATABLE_READ
-                || session.isolationMode == SessionInterface.TX_SERIALIZABLE) {
+        if (session.isolationMode == SessionInterface
+                .TX_READ_COMMITTED || session.isolationMode == SessionInterface
+                .TX_REPEATABLE_READ || session
+                .isolationMode == SessionInterface.TX_SERIALIZABLE) {
             return;
         }
 
         if (session.currentStatement == null) {
+
             // after java function / proc with db access
             return;
         }
