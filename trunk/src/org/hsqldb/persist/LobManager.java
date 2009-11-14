@@ -233,13 +233,13 @@ public class LobManager {
 
         Statement statement =
             sysLobSession.compileStatement(initialiseBlocksSQL);
-        Object[] args = new Object[3];
+        Object[] params = new Object[3];
 
-        args[0] = Integer.valueOf(0);
-        args[1] = Integer.valueOf(totalBlockLimitCount);
-        args[2] = Long.valueOf(0);
+        params[0] = Integer.valueOf(0);
+        params[1] = Integer.valueOf(totalBlockLimitCount);
+        params[2] = Long.valueOf(0);
 
-        sysLobSession.executeCompiledStatement(statement, args);
+        sysLobSession.executeCompiledStatement(statement, params);
     }
 
     public void open() {

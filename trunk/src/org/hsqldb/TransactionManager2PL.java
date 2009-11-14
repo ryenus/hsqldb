@@ -403,25 +403,7 @@ public class TransactionManager2PL implements TransactionManager {
 
 // functional unit - accessibility of rows
     public boolean canRead(Session session, Row row, int mode) {
-
-        RowAction action = row.rowAction;
-
-        if (action == null) {
-            return true;
-        }
-
-        return action.canRead(session);
-    }
-
-    public boolean isDeleted(Session session, Row row) {
-
-        RowAction action = row.rowAction;
-
-        if (action == null) {
-            return false;
-        }
-
-        return !action.canRead(session);
+        return true;
     }
 
     public boolean canRead(Session session, int id, int mode) {
@@ -493,15 +475,12 @@ public class TransactionManager2PL implements TransactionManager {
 
     void endActionTPL(Session session) {
 
-        if (session.isolationMode == SessionInterface
-                .TX_READ_COMMITTED || session.isolationMode == SessionInterface
-                .TX_REPEATABLE_READ || session
-                .isolationMode == SessionInterface.TX_SERIALIZABLE) {
+        if (session.isolationMode == SessionInterface.TX_REPEATABLE_READ
+                || session.isolationMode == SessionInterface.TX_SERIALIZABLE) {
             return;
         }
 
         if (session.currentStatement == null) {
-
             // after java function / proc with db access
             return;
         }
@@ -568,8 +547,7 @@ public class TransactionManager2PL implements TransactionManager {
 
     void resetLocks(Session session) {
 
-        final int waitingCount  = session.waitingSessions.size();
-        int       unlockedCount = 0;
+        final int waitingCount = session.waitingSessions.size();
 
         for (int i = 0; i < waitingCount; i++) {
             Session current = (Session) session.waitingSessions.get(i);
@@ -590,8 +568,6 @@ public class TransactionManager2PL implements TransactionManager {
                     lockTablesTPL(current, current.currentStatement);
 
                     current.tempUnlocked = true;
-
-                    unlockedCount++;
                 }
             }
         }

@@ -1196,6 +1196,15 @@ public class ParserCommand extends ParserDDL {
 
                     break;
                 }
+                case Tokens.COMMA : {
+                    if (args[0] == null && args[1] == null) {
+                        throw unexpectedToken();
+                    }
+
+                    read();
+
+                    break;
+                }
                 default : {
                     break outerloop;
                 }
@@ -1434,6 +1443,7 @@ public class ParserCommand extends ParserDDL {
         if (token.tokenType == Tokens.CHARACTERISTICS) {
             read();
             readThis(Tokens.AS);
+            readThis(Tokens.TRANSACTION);
 
             Object[] args = processTransactionCharacteristics();
 

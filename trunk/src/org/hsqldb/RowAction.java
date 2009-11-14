@@ -130,7 +130,6 @@ public class RowAction extends RowActionBase {
         synchronized (row) {
             setAsNoOp();
 
-            row.hasAction = false;
             row.rowAction = null;
         }
     }
