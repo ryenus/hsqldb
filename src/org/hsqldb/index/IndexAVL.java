@@ -698,7 +698,8 @@ public class IndexAVL implements Index {
                                 boolean isNew) {
 
         NodeAVL node = findNode(session, store, rowdata, rowColMap,
-                                rowColMap.length);
+                                rowColMap.length,
+                                TransactionManager.ACTION_REF);
 
         return node != null;
     }
@@ -716,7 +717,8 @@ public class IndexAVL implements Index {
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata, int match) {
 
-        NodeAVL node = findNode(session, store, rowdata, defaultColMap, match);
+        NodeAVL node = findNode(session, store, rowdata, defaultColMap, match,
+                                TransactionManager.ACTION_READ);
 
         return getIterator(session, store, node, false);
     }
@@ -734,7 +736,8 @@ public class IndexAVL implements Index {
                                     Object[] rowdata) {
 
         NodeAVL node = findNode(session, store, rowdata, colIndex,
-                                colIndex.length);
+                                colIndex.length,
+                                TransactionManager.ACTION_READ);
 
         return getIterator(session, store, node, false);
     }
@@ -752,7 +755,8 @@ public class IndexAVL implements Index {
                                     Object[] rowdata, int[] rowColMap) {
 
         NodeAVL node = findNode(session, store, rowdata, rowColMap,
-                                rowColMap.length);
+                                rowColMap.length,
+                                TransactionManager.ACTION_READ);
 
         return getIterator(session, store, node, false);
     }
@@ -1215,25 +1219,6 @@ public class IndexAVL implements Index {
     }
 
     /**
-     * Replace x with n
-     *
-     * @param x node
-     * @param n node
-     */
-    void replace(PersistentStore store, NodeAVL x, NodeAVL n) {
-
-        if (x.isRoot(store)) {
-            if (n != null) {
-                n = n.setParent(store, null);
-            }
-
-            store.setAccessor(this, n);
-        } else {
-            x.getParent(store).set(store, x.isFromLeft(store), n);
-        }
-    }
-
-    /**
      * Compares two table rows based on the columns of this index. The rowColMap
      * parameter specifies which columns of the other table are to be compared
      * with the colIndex columns of this index. The rowColMap can cover all
@@ -1390,7 +1375,7 @@ public class IndexAVL implements Index {
      * @return matching node or null
      */
     NodeAVL findNode(Session session, PersistentStore store, Object[] rowdata,
-                     int[] rowColMap, int fieldCount) {
+                     int[] rowColMap, int fieldCount, int readMode) {
 
         readLock.lock();
 
@@ -1435,8 +1420,8 @@ public class IndexAVL implements Index {
                     break;
                 }
 
-                if (session.database.txManager.canRead(
-                        session, row, TransactionManager.ACTION_READ)) {
+                if (session.database.txManager.canRead(session, row,
+                                                       readMode)) {
                     break;
                 }
 

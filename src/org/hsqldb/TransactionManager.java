@@ -79,8 +79,6 @@ public interface TransactionManager {
 
     public int getTransactionControl();
 
-    public boolean isDeleted(Session session, Row row);
-
     public boolean isMVRows();
 
     public boolean prepareCommitActions(Session session);

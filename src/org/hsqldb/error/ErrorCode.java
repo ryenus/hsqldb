@@ -487,6 +487,9 @@ public interface ErrorCode {
     int X_40003 = 4863;                                   // statement completion unknown
     int X_40004 = 4864;                                   // triggered action exception
 
+    // HSQLDB internal tx management
+    int X_40501 = 4871;                                   // transaction
+
     // syntax error or access rule violation - xxxx
     int X_42000 = 5000;                                   // syntax error or access rule violation - generic - 200x
 

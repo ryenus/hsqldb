@@ -433,17 +433,6 @@ public class TransactionManagerMV2PL implements TransactionManager {
         return action.canRead(session);
     }
 
-    public boolean isDeleted(Session session, Row row) {
-
-        RowAction action = row.rowAction;
-
-        if (action == null) {
-            return false;
-        }
-
-        return !action.canRead(session);
-    }
-
     public boolean canRead(Session session, int id, int mode) {
 
         RowAction action = (RowAction) rowActionMap.get(id);

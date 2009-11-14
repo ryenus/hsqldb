@@ -526,7 +526,7 @@ public class Session implements SessionInterface {
             Statement checkpoint =
                 ParserCommand.getCheckpointStatement(database, false);
 
-            executeCompiledStatement(checkpoint, null);
+            executeCompiledStatement(checkpoint, ValuePool.emptyObjectArray);
         }
     }
 
