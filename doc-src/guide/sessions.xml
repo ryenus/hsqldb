@@ -168,9 +168,12 @@
       transaction is locked with a shared lock, and each table that is written
       to is locked with an exclusive lock. If two sessions read and modify
       different tables then both go through simultaneously. If one session
-      tries to lock a table that has been exclusively locked by the other, the
-      engine will put it in wait, or it will invalidate the action it is
-      attempting to perform, if the action would result in deadlock.</para>
+      tries to lock a table that has been locked by the other, if both locks
+      are shared locks, it will go ahead. If either of the locks is an
+      excusive lock, the engine will put the session in wait until the other
+      session commits or rolls back its transaction. In some cases the engine
+      will invalidate the transaction of the current session, if the action
+      would result in deadlock.</para>
 
       <para>HyperSQL also supports explicit locking of a group of tables for
       the duration of the current transaction. Use of this command blocks
@@ -271,11 +274,9 @@
       isolation levels, conflict is more likely to happen. There is no
       difference in operation between these two isolation levels. If a
       transaction that runs at these levels wants to modify a row that has
-      been modified by another uncommitted transaction, the engine allows it
-      to go ahead despite the conflict. When one of the conflicting sessions
-      commits, the commit goes through. But when committing, the engine will
-      invalidate the other, conflicting transaction and roll back all its
-      changes. This isolation level is called SNAPSHOT ISOLATION.</para>
+      been modified by another uncommitted transaction, the engine will
+      invalidate the current transaction and roll back all its changes. This
+      isolation level is called SNAPSHOT ISOLATION.</para>
 
       <para>In the MVCC model, READ UNCOMMITTED is promoted to READ COMMITTED,
       as the new architecture is based on multi-version rows for uncommitted
@@ -290,17 +291,52 @@
     <section>
       <title>Choosing the Transaction Model</title>
 
+      <para>The SQL Standard defines the isolation levels as modes of
+      operation that avoid the three unwanted phenomena, "dirty read", "fuzzy
+      read" and "phatom row". The "dirty read" phenomenon occurs when a
+      session can read a row that has been changed by another session. The
+      "fuzzy read" phenomenon occurs when a row that was read by a session is
+      modified by another session, then the first session reads the row again.
+      The "phantom row" phenomenon occurs when a session performs an operation
+      that affects several rows, for example, counts the rows or modifies them
+      using a search condition, then another session adds one or more rows
+      that fulfil the same search condition, then the first session performs
+      the operation again. According to the Standard, the SERIALIZABLE
+      isolation level avoids all three phenomena and also ensures that all the
+      changes performed during a transaction can be considered as a series of
+      uniterrupted chages to the database without any other transaction
+      changing the database at all for the duration of these actions. The
+      changes made by other transactions are considered to occur before the
+      SERIALIZABLE transaction starts, or after it ends. The READ COMMITTED
+      level avoids "dirty read" only, while the REPEATABLE READ level avoids
+      "dirty read" and "fuzzy read", but not "phatom row".</para>
+
+      <para>The Standard allows the engine to return a higher isolation level
+      than requested by the application. HyperSQL promotes a READ UNCOMMITTED
+      request to READ COMMITTED, while it promotes a REPEATABLE READ request
+      to SERIALIZABLE.</para>
+
+      <para>The MVCC model is not covered directly by the Standard. Research
+      has established that the READ CONSISTENCY level fulfills the
+      requirements of (and is stronger than) the READ COMMITTED level. The
+      SNAPSHOT ISOLATION level is stronger than the READ CONSISTENCY level. It
+      avoids the three anomalies defined by the Standard, and is therefore
+      stronger than the REPEATABLE READ level as defined by the Standard. When
+      operating with the MVCC model, HyperSQL treats a REPEATABLE READ or
+      SERIALIZABLE setting for a transaction as SNAPSHOT ISOLATION.</para>
+
       <para>All modes can be used with as many simultaneous connections as
       required. The default 2PL model is fine for applications with a single
       connection, or applications that do not access the same tables heavily
       for writes. With multiple simultanous connections, MVCC can be used for
       most applications. Both READ CONSISTENCY and SNAPSHOT ISOLATION levels
-      are stronger than READ COMMITTED in the 2PL mode. Some applications
-      require SERIALIZABLE transactions for at least some of their operations.
-      For these applications, one of the 2PL modes can be used. It is possible
-      to switch the concurrency model while the database is operational.
-      Therefore, the model can be changed for the duration of some special
-      operations, such as synchronization with another data source.</para>
+      are stronger than the corresponding READ COMMITTED level in the 2PL
+      mode. Some applications require SERIALIZABLE transactions for at least
+      some of their operations. For these applications, one of the 2PL modes
+      can be used. It is possible to switch the concurrency model while the
+      database is operational. Therefore, the model can be changed for the
+      duration of some special operations, such as synchronization with
+      another data source.</para>
 
       <para>All concurrency models are very fast in operation. When operating
       mainly on the same tables, the MVCC model may be faster with multi-core
@@ -630,7 +666,7 @@
 
       <screen>    SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY
     SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
-    SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
+    SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, TRANSACTION ISOLATION LEVEL READ COMMITTED
 </screen>
     </example>
 
