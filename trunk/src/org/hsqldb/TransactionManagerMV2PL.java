@@ -713,6 +713,12 @@ public class TransactionManagerMV2PL implements TransactionManager {
             return;
         }
 
+        if (session.currentStatement == null) {
+
+            // after java function / proc with db access
+            return;
+        }
+
         HsqlName[] readLocks = session.currentStatement.getTableNamesForRead();
 
         if (readLocks.length == 0) {
@@ -728,7 +734,7 @@ public class TransactionManagerMV2PL implements TransactionManager {
         writeLock.lock();
 
         try {
-            unlockReadTablesTPL(session);
+            unlockReadTablesTPL(session, readLocks);
 
             final int waitingCount = session.waitingSessions.size();
 
@@ -971,22 +977,11 @@ public class TransactionManagerMV2PL implements TransactionManager {
         }
     }
 
-    boolean unlockReadTablesTPL(Session session) {
+    void unlockReadTablesTPL(Session session, HsqlName[] locks) {
 
-        Iterator it       = tableReadLocks.values().iterator();
-        boolean  unlocked = false;
-
-        while (it.hasNext()) {
-            Session s = (Session) it.next();
-
-            if (s == session) {
-                it.remove();
-
-                unlocked = true;
-            }
+        for (int i = 0; i < locks.length; i++) {
+            tableReadLocks.remove(locks[i], session);
         }
-
-        return unlocked;
     }
 
     /**

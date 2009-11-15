@@ -2038,7 +2038,7 @@ public class Session implements SessionInterface {
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_SESSION);
         sb.append(' ').append(Tokens.T_CHARACTERISTICS).append(' ');
-        sb.append(Tokens.T_AS).append(' ');
+        sb.append(Tokens.T_AS).append(' ').append(Tokens.TRANSACTION).append(' ');
         appendIsolationSQL(sb, isolationModeDefault);
 
         return sb.toString();
