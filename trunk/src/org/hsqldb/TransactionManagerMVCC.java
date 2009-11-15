@@ -468,44 +468,37 @@ public class TransactionManagerMVCC implements TransactionManager {
             writeLock.lock();
 
             try {
-                if (row.rowAction.isDeleted()) {
-                    session.tempSet.clear();
-                    rollbackAction(session);
+                Session current = (Session) session.tempSet.get(0);
 
-                    session.redoAction = true;
+                session.tempSet.clear();
 
-                    throw Error.error(ErrorCode.X_40501);
-                } else {
-                    Session current = (Session) session.tempSet.get(0);
-
-                    session.tempSet.clear();
-
-                    if (session.isolationMode == SessionInterface
-                            .TX_REPEATABLE_READ || session
-                            .isolationMode == SessionInterface
-                            .TX_SERIALIZABLE) {
-                        session.abortTransaction = true;
-
-                        throw Error.error(ErrorCode.X_40501);
-                    }
-
-                    rollbackAction(session);
-
-                    session.redoAction = true;
-
-                    if (session.waitingSessions.contains(current)) {
-                        row.rowAction.isDeleted();
-
-                        session.redoAction = false;
-                    } else if (current.isInMidTransaction()) {
-                        session.latch.countUp();
-                        current.waitingSessions.add(session);
-                    }
-
-                    redoCount++;
+                if (session.isolationMode == SessionInterface
+                        .TX_REPEATABLE_READ || session
+                        .isolationMode == SessionInterface.TX_SERIALIZABLE) {
+                    session.abortTransaction = true;
 
                     throw Error.error(ErrorCode.X_40501);
                 }
+
+                rollbackAction(session);
+
+                session.redoAction = true;
+
+                if (row.rowAction.isDeleted()) {
+                    redoCount++;
+                    throw Error.error(ErrorCode.X_40501);
+                }
+
+                if (session.waitingSessions.contains(current)) {
+                    session.redoAction = false;
+                } else if (current.isInMidTransaction()) {
+                    session.latch.countUp();
+                    current.waitingSessions.add(session);
+                }
+
+                redoCount++;
+
+                throw Error.error(ErrorCode.X_40501);
             } finally {
                 writeLock.unlock();
             }
