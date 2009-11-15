@@ -1196,7 +1196,7 @@ public class ArrayUtil {
         mainLoop:
         for (int i = 0; i < arrb.length; i++) {
             for (int j = 0; j < arra.length; j++) {
-                if (arrb[i] == arrb[j] || arrb[i].equals(arrb[j])) {
+                if (arrb[i] == arra[j] || arrb[i].equals(arra[j])) {
                     continue mainLoop;
                 }
             }
@@ -1218,7 +1218,7 @@ public class ArrayUtil {
         mainLoop:
         for (int i = 0; i < arrb.length; i++) {
             for (int j = 0; j < arra.length; j++) {
-                if (arrb[i] == arrb[j]) {
+                if (arrb[i] == arra[j]) {
                     continue mainLoop;
                 }
             }

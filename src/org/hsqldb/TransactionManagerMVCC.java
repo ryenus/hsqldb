@@ -486,6 +486,7 @@ public class TransactionManagerMVCC implements TransactionManager {
 
                 if (row.rowAction.isDeleted()) {
                     redoCount++;
+
                     throw Error.error(ErrorCode.X_40501);
                 }
 
@@ -795,11 +796,6 @@ public class TransactionManagerMVCC implements TransactionManager {
             session.isTransaction        = true;
 
             liveTransactionTimestamps.addLast(session.transactionTimestamp);
-
-            try {
-                database.logger.writeToLog(session,
-                                           session.getStartTransactionSQL());
-            } catch (HsqlException e) {}
         } finally {
             writeLock.unlock();
         }
@@ -852,11 +848,6 @@ public class TransactionManagerMVCC implements TransactionManager {
                 session.isTransaction        = true;
 
                 liveTransactionTimestamps.addLast(session.actionTimestamp);
-
-                try {
-                    database.logger.writeToLog(
-                        session, session.getStartTransactionSQL());
-                } catch (HsqlException e) {}
             }
         } finally {
             writeLock.unlock();
