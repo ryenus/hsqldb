@@ -80,6 +80,7 @@ class RowActionBase {
         this.session    = session;
         this.type       = type;
         changeTimestamp = session.actionTimestamp;
+        actionTimestamp = session.actionTimestamp;
     }
 
     void setAsAction(RowActionBase action) {
