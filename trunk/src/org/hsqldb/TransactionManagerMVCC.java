@@ -81,9 +81,10 @@ public class TransactionManagerMVCC implements TransactionManager {
 
     // locks
     Session  catalogWriteSession;
-    HashSet  catalogReadSessions;
     HsqlName catalogName;
+    int      transactionCount = 0;
 
+    //
     public TransactionManagerMVCC(Database db) {
 
         database       = db;
@@ -151,60 +152,14 @@ public class TransactionManagerMVCC implements TransactionManager {
         throw Error.error(ErrorCode.X_25001);
     }
 
+    int redoCount = 0;
+
     public void completeActions(Session session) {
 
-        Object[] list        = session.rowActionList.getArray();
-        int      limit       = session.rowActionList.size();
-        boolean  canComplete = true;
+        Object[] list  = session.rowActionList.getArray();
+        int      limit = session.rowActionList.size();
 
-        writeLock.lock();
-
-        try {
-            session.tempSet.clear();
-
-            for (int i = session.actionIndex; i < limit; i++) {
-                RowAction rowact = (RowAction) list[i];
-
-                if (rowact.complete(session, session.tempSet)) {
-                    continue;
-                }
-
-                canComplete = false;
-
-                if (session.isolationMode == SessionInterface
-                        .TX_REPEATABLE_READ || session
-                        .isolationMode == SessionInterface.TX_SERIALIZABLE) {
-                    session.abortTransaction = true;
-
-                    break;
-                }
-            }
-
-            if (canComplete) {
-                logActions(session, list, limit);
-            }
-
-            if (!canComplete && !session.abortTransaction) {
-                session.redoAction = true;
-
-                rollbackAction(session);
-
-                if (session.tempSet.isEmpty()) {}
-                else {
-                    for (int i = 0; i < session.tempSet.size(); i++) {
-                        Session current = (Session) session.tempSet.get(i);
-
-                        if (current.isInMidTransaction()) {
-                            session.latch.countUp();
-                            current.waitingSessions.add(session);
-                        }
-                    }
-                }
-            }
-        } finally {
-            writeLock.unlock();
-            session.tempSet.clear();
-        }
+        logActions(session, list, limit);
     }
 
     private void logActions(Session session, Object[] list,
@@ -213,7 +168,8 @@ public class TransactionManagerMVCC implements TransactionManager {
         for (int i = session.actionIndex; i < limit; i++) {
             RowAction action = (RowAction) list[i];
 
-            if (!hasPersistence || !action.table.isLogged) {
+            if (!hasPersistence || action.table == null
+                    || !action.table.isLogged) {
                 continue;
             }
 
@@ -324,15 +280,6 @@ public class TransactionManagerMVCC implements TransactionManager {
 
             endTransaction(session);
 
-            if (limit == 0) {
-                try {
-                    session.logSequences();
-                    database.logger.writeCommitStatement(session);
-                } catch (HsqlException e) {}
-
-                return true;
-            }
-
             // new actionTimestamp used for commitTimestamp
             session.actionTimestamp = nextChangeTimestamp();
 
@@ -351,7 +298,7 @@ public class TransactionManagerMVCC implements TransactionManager {
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) list[i];
 
-                if (action.table.hasLobColumn) {
+                if (action.table != null && action.table.hasLobColumn) {
                     int type = action.getCommitTypeOn(session.actionTimestamp);
 
                     switch (type) {
@@ -375,7 +322,8 @@ public class TransactionManagerMVCC implements TransactionManager {
                     }
                 }
 
-                if (action.table.tableType == TableBase.TEXT_TABLE) {
+                if (action.table != null
+                        && action.table.tableType == TableBase.TEXT_TABLE) {
                     PersistentStore store =
                         session.sessionData.getRowStore(action.table);
                     int type = action.getCommitTypeOn(session.actionTimestamp);
@@ -413,6 +361,8 @@ public class TransactionManagerMVCC implements TransactionManager {
                 database.logger.writeCommitStatement(session);
             } catch (HsqlException e) {}
 
+            endTransactionTPL(session);
+
             //
             countDownLatches(session);
 
@@ -446,6 +396,8 @@ public class TransactionManagerMVCC implements TransactionManager {
 
             rollbackPartial(session, 0, session.transactionTimestamp);
             endTransaction(session);
+            countDownLatches(session);
+            endTransactionTPL(session);
         } finally {
             writeLock.unlock();
         }
@@ -503,15 +455,65 @@ public class TransactionManagerMVCC implements TransactionManager {
     public RowAction addDeleteAction(Session session, Table table, Row row) {
 
         RowAction action;
+        boolean   newAction;
 
         synchronized (row) {
-            action = RowAction.addAction(session, RowActionBase.ACTION_DELETE,
-                                         table, row);
+            newAction = row.rowAction == null;
+
+//            action = RowAction.addAction(session, RowActionBase.ACTION_DELETE, table, row);
+            action = RowAction.addDeleteAction(session, table, row);
+        }
+
+        if (action == null) {
+            writeLock.lock();
+
+            try {
+                if (row.rowAction.isDeleted()) {
+                    session.tempSet.clear();
+                    rollbackAction(session);
+
+                    session.redoAction = true;
+
+                    throw Error.error(ErrorCode.X_40501);
+                } else {
+                    Session current = (Session) session.tempSet.get(0);
+
+                    session.tempSet.clear();
+
+                    if (session.isolationMode == SessionInterface
+                            .TX_REPEATABLE_READ || session
+                            .isolationMode == SessionInterface
+                            .TX_SERIALIZABLE) {
+                        session.abortTransaction = true;
+
+                        throw Error.error(ErrorCode.X_40501);
+                    }
+
+                    rollbackAction(session);
+
+                    session.redoAction = true;
+
+                    if (session.waitingSessions.contains(current)) {
+                        row.rowAction.isDeleted();
+
+                        session.redoAction = false;
+                    } else if (current.isInMidTransaction()) {
+                        session.latch.countUp();
+                        current.waitingSessions.add(session);
+                    }
+
+                    redoCount++;
+
+                    throw Error.error(ErrorCode.X_40501);
+                }
+            } finally {
+                writeLock.unlock();
+            }
         }
 
         session.rowActionList.add(action);
 
-        if (!row.isMemory()) {
+        if (newAction) {
             rowActionMap.put(action.getPos(), action);
         }
 
@@ -539,30 +541,51 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         RowAction action = row.rowAction;
 
-        if (action == null) {
-            return true;
+        if (mode == TransactionManager.ACTION_READ) {
+            if (action == null) {
+                return true;
+            }
+
+            return action.canRead(session);
         }
 
-        return action.canRead(session);
-    }
+        if (mode == ACTION_REF) {
+            boolean result;
 
-    public boolean isDeleted(Session session, Row row) {
+            if (action == null) {
+                result = true;
+                action = RowAction.addRefAction(session, row);
+            } else {
+                result = action.canRead(session, mode);
+            }
 
-        RowAction action = row.rowAction;
+            if (result) {
+                session.rowActionList.add(action);
+            }
 
-        if (action == null) {
-            return false;
+            return result;
+        } else {
+            if (action == null) {
+                return true;
+            }
+
+            return action.canRead(session, mode);
         }
-
-        return !action.canRead(session);
     }
 
     public boolean canRead(Session session, int id, int mode) {
 
         RowAction action = (RowAction) rowActionMap.get(id);
 
-        return action == null ? true
-                              : action.canRead(session);
+        if (action == null) {
+            return true;
+        }
+
+        if (mode == TransactionManager.ACTION_READ) {
+            return action.canRead(session);
+        }
+
+        return action.canRead(session, mode);
     }
 
     /**
@@ -653,6 +676,10 @@ public class TransactionManagerMVCC implements TransactionManager {
             Row       row    = rowact.memoryRow;
 
             if (row == null) {
+                if (rowact.type == RowAction.ACTION_NONE) {
+                    continue;
+                }
+
                 PersistentStore store =
                     rowact.session.sessionData.getRowStore(rowact.table);
 
@@ -789,7 +816,32 @@ public class TransactionManagerMVCC implements TransactionManager {
      * add session to the end of queue when a transaction starts
      * (depending on isolation mode)
      */
-    public void beginAction(Session session, Statement cs) {}
+    public void beginAction(Session session, Statement cs) {
+
+        if (session.isTransaction) {
+            return;
+        }
+
+        if (catalogWriteSession == null && !cs.isCatalogChange()) {
+            return;
+        }
+
+        writeLock.lock();
+
+        try {
+            setWaitedSessionsTPL(session, cs);
+
+            if (session.tempSet.isEmpty()) {
+                lockTablesTPL(session, cs);
+
+                // we dont set other sessions that would now be waiting for this one too
+            } else {
+                setWaitingSessionTPL(session);
+            }
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
     /**
      * add session to the end of queue when a transaction starts
@@ -843,6 +895,19 @@ public class TransactionManagerMVCC implements TransactionManager {
         }
 
         return liveTransactionTimestamps.get(0);
+    }
+
+    void getTransactionSessions(HashSet set) {
+
+        Session[] sessions = database.sessionManager.getAllSessions();
+
+        for (int i = 0; i < sessions.length; i++) {
+            long timestamp = sessions[i].getTransactionTimestamp();
+
+            if (liveTransactionTimestamps.contains(timestamp)) {
+                set.add(sessions[i]);
+            }
+        }
     }
 
 // functional unit - list actions and translate id's
@@ -980,6 +1045,57 @@ public class TransactionManagerMVCC implements TransactionManager {
         }
     }
 
+    void endTransactionTPL(Session session) {
+
+        boolean isWriteSession = false;
+
+        if (catalogWriteSession == session) {
+            catalogWriteSession = null;
+            isWriteSession      = true;
+        }
+
+        final int waitingCount = session.waitingSessions.size();
+
+        if (waitingCount == 0) {
+            return;
+        }
+
+        for (int i = 0; i < waitingCount; i++) {
+            Session current = (Session) session.waitingSessions.get(i);
+
+            current.tempUnlocked = false;
+
+            long count = current.latch.getCount();
+
+            if (count == 1) {
+                setWaitedSessionsTPL(current, current.currentStatement);
+
+                if (current.tempSet.isEmpty()) {
+                    lockTablesTPL(current, current.currentStatement);
+
+                    current.tempUnlocked = true;
+                }
+            }
+        }
+
+        for (int i = 0; i < waitingCount; i++) {
+            Session current = (Session) session.waitingSessions.get(i);
+
+            if (!current.tempUnlocked) {
+                setWaitedSessionsTPL(current, current.currentStatement);
+            }
+        }
+
+        for (int i = 0; i < waitingCount; i++) {
+            Session current = (Session) session.waitingSessions.get(i);
+
+            setWaitingSessionTPL(current);
+        }
+
+        session.tempSet.clear();
+        session.waitingSessions.clear();
+    }
+
     boolean setWaitedSessionsTPL(Session session, Statement cs) {
 
         if (cs == null || session.abortTransaction) {
@@ -988,35 +1104,9 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         session.tempSet.clear();
 
-        HsqlName[] nameList       = cs.getTableNamesForWrite();
-        boolean    needsReadLock  = false;
-        boolean    needsWriteLock = false;
-
-        for (int i = 0; i < nameList.length; i++) {
-            if (nameList[i] == catalogName) {
-                needsWriteLock = true;
-
-                break;
-            }
-
-            needsReadLock = true;
-        }
-
-        if (!needsWriteLock && !needsReadLock) {
-            nameList = cs.getTableNamesForRead();
-
-            for (int i = 0; i < nameList.length; i++) {
-                HsqlName name = nameList[i];
-
-                if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                    continue;
-                }
-
-                needsReadLock = true;
-
-                break;
-            }
-        }
+        boolean needsReadLock = cs.getTableNamesForRead().length > 0
+                                || cs.getTableNamesForWrite().length > 0;
+        boolean needsWriteLock = cs.isCatalogChange();
 
         if (needsReadLock || needsWriteLock) {
             if (catalogWriteSession != session
@@ -1026,7 +1116,7 @@ public class TransactionManagerMVCC implements TransactionManager {
         }
 
         if (needsWriteLock) {
-            session.tempSet.addAll(catalogReadSessions);
+            getTransactionSessions(session.tempSet);
             session.tempSet.remove(session);
         }
 
@@ -1053,47 +1143,8 @@ public class TransactionManagerMVCC implements TransactionManager {
             return;
         }
 
-        HsqlName[] nameList       = cs.getTableNamesForWrite();
-        boolean    needsReadLock  = false;
-        boolean    needsWriteLock = false;
-
-        for (int i = 0; i < nameList.length; i++) {
-            if (nameList[i] == catalogName) {
-                needsWriteLock = true;
-
-                break;
-            }
-
-            needsReadLock = true;
-        }
-
-        if (!needsWriteLock && !needsReadLock) {
-            nameList = cs.getTableNamesForRead();
-
-            for (int i = 0; i < nameList.length; i++) {
-                HsqlName name = nameList[i];
-
-                if (name.schema == SqlInvariants.SYSTEM_SCHEMA_HSQLNAME) {
-                    continue;
-                }
-
-                needsReadLock = true;
-
-                break;
-            }
-        }
-
-        if (needsWriteLock) {
+        if (cs.isCatalogChange()) {
             catalogWriteSession = session;
-        } else if (needsReadLock) {
-            catalogReadSessions.add(session);
         }
-    }
-
-    void unlockTablesTPL(Session session) {
-
-        catalogWriteSession = null;
-
-        catalogReadSessions.remove(session);
     }
 }

@@ -58,27 +58,44 @@ public class RowAction extends RowActionBase {
         if (action == null) {
             action = new RowAction(session, table, type, row.isMemory(), row);
             row.rowAction = action;
-        } else {
-            if (action.type == ACTION_DELETE_FINAL) {
-                throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
-            }
 
-            if (action.type == ACTION_NONE) {
-                action.setAsAction(session, type);
-            } else {
-                RowActionBase actionItem = action;
-
-                while (actionItem.next != null) {
-                    actionItem = actionItem.next;
-                }
-
-                RowActionBase newAction = new RowActionBase(session, type);
-
-                actionItem.next = newAction;
-            }
+            return action;
         }
 
+        action.addAction(session, type);
+
         return action;
+    }
+
+    public static RowAction addDeleteAction(Session session, TableBase table,
+            Row row) {
+
+        RowAction action = row.rowAction;
+
+        if (action == null) {
+            action = new RowAction(session, table, ACTION_DELETE,
+                                   row.isMemory(), row);
+            row.rowAction = action;
+
+            return action;
+        }
+
+        return action.addDeleteAction(session);
+    }
+
+    public static RowAction addRefAction(Session session, Row row) {
+
+        RowAction action = row.rowAction;
+
+        if (action == null) {
+            action = new RowAction(session, row.getTable(), ACTION_REF,
+                                   row.isMemory(), row);
+            row.rowAction = action;
+
+            return action;
+        }
+
+        return action.addAction(session, ACTION_REF);
     }
 
     public RowAction(Session session, TableBase table, byte type,
@@ -87,10 +104,72 @@ public class RowAction extends RowActionBase {
         this.session    = session;
         this.type       = type;
         changeTimestamp = session.actionTimestamp;
+        actionTimestamp = session.actionTimestamp;
         this.table      = table;
         this.isMemory   = isMemory;
         this.memoryRow  = row;
         rowId           = row.getPos();
+    }
+
+    synchronized RowAction addAction(Session session, byte actionType) {
+
+        if (actionType == ACTION_DELETE_FINAL) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
+        }
+
+        if (actionType == ACTION_NONE) {
+            setAsAction(session, actionType);
+        } else {
+            RowActionBase action = this;
+
+            while (action.next != null) {
+                action = action.next;
+            }
+
+            RowActionBase newAction = new RowActionBase(session, actionType);
+
+            action.next = newAction;
+        }
+
+        return this;
+    }
+
+    synchronized RowAction addDeleteAction(Session session) {
+
+        if (type == ACTION_DELETE_FINAL) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
+        }
+
+        if (type == ACTION_NONE) {
+            setAsAction(session, ACTION_DELETE);
+        } else {
+            RowActionBase action = this;
+            RowActionBase lastAction;
+
+            do {
+                if (action.type == ACTION_DELETE) {
+                    if (session != action.session) {
+                        session.tempSet.add(action.session);
+
+                        return null;
+                    }
+                }
+
+                lastAction = action;
+                action     = action.next;
+            } while (action != null);
+
+            RowActionBase newAction = new RowActionBase(session,
+                ACTION_DELETE);
+
+            lastAction.next = newAction;
+        }
+
+        return this;
+    }
+
+    public boolean checkDeleteActions() {
+        return false;
     }
 
     public synchronized RowAction duplicate(int newRowId) {
@@ -119,6 +198,7 @@ public class RowAction extends RowActionBase {
         this.session    = session;
         this.type       = type;
         changeTimestamp = session.actionTimestamp;
+        actionTimestamp = session.actionTimestamp;
     }
 
     synchronized void setAsAction(RowActionBase action) {
@@ -242,6 +322,25 @@ public class RowAction extends RowActionBase {
         return type;
     }
 
+    public boolean isDeleted() {
+
+        RowActionBase action = this;
+
+        do {
+            if (action.commitTimestamp != 0) {
+                if (action.type == ACTION_DELETE
+                        || action.type == ACTION_INSERT_DELETE
+                        || action.type == ACTION_DELETE_FINAL) {
+                    return true;
+                }
+            }
+
+            action = action.next;
+        } while (action != null);
+
+        return false;
+    }
+
     /**
      * returns type of commit performed on timestamp. ACTION_NONE if none.
      */
@@ -278,12 +377,16 @@ public class RowAction extends RowActionBase {
 
         do {
             if (action.commitTimestamp <= timestamp) {
-                if (type == ACTION_NONE) {
+                if (action.type == ACTION_INSERT) {
                     type = action.type;
-                } else if (type == ACTION_INSERT) {
+                } else if (action.type == ACTION_DELETE) {
+                    if (type == ACTION_INSERT) {
 
-                    // ACTION_INSERT + ACTION_DELETE
-                    type = ACTION_INSERT_DELETE;
+                        // ACTION_INSERT + ACTION_DELETE
+                        type = ACTION_INSERT_DELETE;
+                    } else {
+                        type = action.type;
+                    }
                 }
             }
 
@@ -404,6 +507,8 @@ public class RowAction extends RowActionBase {
                         // can redo - if deletes
                         // can redo - if dup, but will likely fail at retry
                         // can redo - if ref, but will likely fail at retry
+                        set.add(session);
+
                         result = false;
                     } else if (action.commitTimestamp == 0
                                && action.actionTimestamp != 0) {
@@ -657,6 +762,12 @@ public class RowAction extends RowActionBase {
         }
 
         do {
+            if (action.type == ACTION_REF) {
+                action = action.next;
+
+                continue;
+            }
+
             if (action.rolledback) {
                 if (action.type == ACTION_INSERT) {
                     actionType = ACTION_DELETE;
@@ -716,5 +827,124 @@ public class RowAction extends RowActionBase {
         } while (action != null);
 
         return actionType == ACTION_NONE || actionType == ACTION_INSERT;
+    }
+
+    synchronized boolean canRead(Session session, int mode) {
+
+        boolean hasLock = false;
+        long    threshold;
+        int     actionType = ACTION_NONE;
+
+        if (type == ACTION_DELETE_FINAL) {
+            return false;
+        }
+
+        RowActionBase action = this;
+
+        if (session == null) {
+            threshold = Long.MAX_VALUE;
+        } else {
+            switch (session.isolationMode) {
+
+                case SessionInterface.TX_READ_UNCOMMITTED :
+                    threshold = Long.MAX_VALUE;
+                    break;
+
+                case SessionInterface.TX_READ_COMMITTED :
+                    threshold = session.actionTimestamp;
+                    break;
+
+                case SessionInterface.TX_REPEATABLE_READ :
+                case SessionInterface.TX_SERIALIZABLE :
+                default :
+                    threshold = session.transactionTimestamp;
+                    break;
+            }
+        }
+
+        do {
+            if (action.rolledback) {
+                if (action.type == ACTION_INSERT) {
+                    actionType = ACTION_DELETE;
+                }
+
+                action = action.next;
+
+                continue;
+            }
+
+            if (session == action.session) {
+                if (action.type == ACTION_DELETE) {
+                    if (actionType == ACTION_INSERT) {
+                        actionType = ACTION_INSERT_DELETE;
+                    } else {
+                        actionType = action.type;
+                    }
+                } else if (action.type == ACTION_INSERT) {
+                    actionType = action.type;
+                } else if (action.type == ACTION_REF) {
+                    hasLock = true;
+                }
+
+                action = action.next;
+
+                continue;
+            } else if (action.commitTimestamp == 0) {
+                if (action.type == ACTION_NONE) {
+
+                    //
+                } else if (action.type == ACTION_INSERT) {
+                    if (mode == TransactionManager.ACTION_DUP) {
+                        actionType = ACTION_INSERT;
+
+//                        actionType = ACTION_DELETE;
+                        break;
+                    } else if (mode == TransactionManager.ACTION_REF) {
+                        actionType = ACTION_DELETE;
+                    }
+                } else if (action.type == ACTION_DELETE) {
+                    if (mode == TransactionManager.ACTION_DUP) {
+
+                        //
+                    } else if (mode == TransactionManager.ACTION_REF) {
+                        actionType = ACTION_DELETE;
+                    }
+                }
+
+                action = action.next;
+
+                continue;
+            }
+
+            if (action.commitTimestamp < threshold) {
+                if (action.type == ACTION_DELETE) {
+                    if (actionType == ACTION_INSERT) {
+                        actionType = ACTION_INSERT_DELETE;
+                    } else {
+                        actionType = action.type;
+                    }
+                } else if (action.type == ACTION_INSERT) {
+                    actionType = action.type;
+                }
+            } else {
+                if (action.type == ACTION_INSERT) {
+                    actionType = ACTION_DELETE;
+                }
+            }
+
+            action = action.next;
+
+            continue;
+        } while (action != null);
+
+        if (actionType == ACTION_NONE || actionType == ACTION_INSERT) {
+            if (!hasLock && mode == TransactionManager.ACTION_REF) {
+                addAction(session, ACTION_REF);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }
