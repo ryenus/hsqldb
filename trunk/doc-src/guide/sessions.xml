@@ -81,7 +81,7 @@
     transaction.</simpara>
 
     <simpara>The isolation level and / or the readonly mode of a transaction
-    can be modified using an SQL statement. You can use the statement to
+    can also be modified using an SQL statement. You can use the statement to
     change only the isolation mode, only the read-only mode, or both at the
     same time. This command can be issued only after a commit or
     rollback.</simpara>
@@ -95,9 +95,9 @@
   <section>
     <title>Session Attributes and Variables</title>
 
-    <para>Each session has several properties. Some of these properties, like
-    the transaction mode, can be changed but cannot be explicitly read. Other
-    attributes have names and can be referenced in queries. They can be
+    <para>Each session has several properties. Some of these properties, such
+    as the transaction mode, can be changed but cannot be explicitly read.
+    Other attributes have names and can be referenced in queries. They can be
     returned using the <literal>VALUES &lt;attribute name&gt;, ...</literal>
     statement.</para>
 
@@ -138,39 +138,39 @@
     <para>HyperSQL 2.0 has been fully redesigned to support different
     transaction isolation models. It no longer supports the old 1.8.x model
     with "dirty read". Although it is perfectly possible to add an
-    implementaion of the transation manager that supports the legacy model, we
-    thought this is no longer necessary. The new system allows you to select
-    the transaction isolation model even while the engine is running and
-    choose different isolation modes for different simultaneous
+    implementation of the transaction manager that supports the legacy model,
+    we thought this is no longer necessary. The new system allows you to
+    select the transaction isolation model even while the engine is running
+    and choose different isolation modes for different simultaneous
     sessions.</para>
 
     <para>HyperSQL 2.0 supports three concurrency control models,
     two-phase-locking (2PL), multiversion concurrency control (MVCC) and a
-    hyprid model, which is 2PL plus multiversion rows. Within each model, it
+    hybrid model, which is 2PL plus multiversion rows. Within each model, it
     supports some of 4 levels of transaction isolation: READ UNCOMMITTED, READ
     COMMITTED, REPEATABLE READ and SERIALIZABLE. The isolation level is a
     property of each SQL session, so different sessions can have different
     isolation levels. The concurrency control model is a strategy that governs
     all the sessions and is set for the database, as opposed for individual
-    sessions. In the new implementation, all isolation levels, even READ
-    UNCOMMITTED, avoid the "dirty read" phenomenon and do not read uncommitted
-    changes made to rows by other transactions.</para>
+    sessions. In the new implementation, all isolation levels avoid the "dirty
+    read" phenomenon and do not read uncommitted changes made to rows by other
+    transactions.</para>
 
     <para>HyperSQL is fully multithreaded in all transaction models. Sessions
-    continue to work simultanously and can fully utilise multi-core
+    continue to work simultaneously and can fully utilise multi-core
     processors.</para>
 
     <section>
       <title>Two Phased Locking</title>
 
-      <para>The two-phased locking model is the default mode. It is refered to
-      by the keyword, LOCKS. In the 2PL model, each table that is read by a
+      <para>The two-phased locking model is the default mode. It is referred
+      to by the keyword, LOCKS. In the 2PL model, each table that is read by a
       transaction is locked with a shared lock, and each table that is written
       to is locked with an exclusive lock. If two sessions read and modify
       different tables then both go through simultaneously. If one session
       tries to lock a table that has been locked by the other, if both locks
       are shared locks, it will go ahead. If either of the locks is an
-      excusive lock, the engine will put the session in wait until the other
+      exclusive lock, the engine will put the session in wait until the other
       session commits or rolls back its transaction. In some cases the engine
       will invalidate the transaction of the current session, if the action
       would result in deadlock.</para>
@@ -203,7 +203,7 @@
     <section>
       <title>Two Phased Locking with Snapshot Isolation</title>
 
-      <para>This model is refered to as MVLOCKS. It works the same way as
+      <para>This model is referred to as MVLOCKS. It works the same way as
       normal 2PL as far as updates are concerned.</para>
 
       <para>SNAPSHOT ISOLATION is a multiversion concurrency strategy which
@@ -293,7 +293,7 @@
 
       <para>The SQL Standard defines the isolation levels as modes of
       operation that avoid the three unwanted phenomena, "dirty read", "fuzzy
-      read" and "phatom row". The "dirty read" phenomenon occurs when a
+      read" and "phantom row". The "dirty read" phenomenon occurs when a
       session can read a row that has been changed by another session. The
       "fuzzy read" phenomenon occurs when a row that was read by a session is
       modified by another session, then the first session reads the row again.
@@ -301,20 +301,21 @@
       that affects several rows, for example, counts the rows or modifies them
       using a search condition, then another session adds one or more rows
       that fulfil the same search condition, then the first session performs
-      the operation again. According to the Standard, the SERIALIZABLE
-      isolation level avoids all three phenomena and also ensures that all the
-      changes performed during a transaction can be considered as a series of
-      uniterrupted chages to the database without any other transaction
-      changing the database at all for the duration of these actions. The
-      changes made by other transactions are considered to occur before the
-      SERIALIZABLE transaction starts, or after it ends. The READ COMMITTED
-      level avoids "dirty read" only, while the REPEATABLE READ level avoids
-      "dirty read" and "fuzzy read", but not "phatom row".</para>
+      an operation that relies on the results of its last operation. According
+      to the Standard, the SERIALIZABLE isolation level avoids all three
+      phenomena and also ensures that all the changes performed during a
+      transaction can be considered as a series of uninterrupted changes to
+      the database without any other transaction changing the database at all
+      for the duration of these actions. The changes made by other
+      transactions are considered to occur before the SERIALIZABLE transaction
+      starts, or after it ends. The READ COMMITTED level avoids "dirty read"
+      only, while the REPEATABLE READ level avoids "dirty read" and "fuzzy
+      read", but not "phantom row".</para>
 
       <para>The Standard allows the engine to return a higher isolation level
       than requested by the application. HyperSQL promotes a READ UNCOMMITTED
-      request to READ COMMITTED, while it promotes a REPEATABLE READ request
-      to SERIALIZABLE.</para>
+      request to READ COMMITTED and promotes a REPEATABLE READ request to
+      SERIALIZABLE.</para>
 
       <para>The MVCC model is not covered directly by the Standard. Research
       has established that the READ CONSISTENCY level fulfills the
@@ -328,7 +329,7 @@
       <para>All modes can be used with as many simultaneous connections as
       required. The default 2PL model is fine for applications with a single
       connection, or applications that do not access the same tables heavily
-      for writes. With multiple simultanous connections, MVCC can be used for
+      for writes. With multiple simultaneous connections, MVCC can be used for
       most applications. Both READ CONSISTENCY and SNAPSHOT ISOLATION levels
       are stronger than the corresponding READ COMMITTED level in the 2PL
       mode. Some applications require SERIALIZABLE transactions for at least
@@ -516,7 +517,7 @@
     name&gt; { READ | WRITE} [, &lt;table name&gt; { READ | WRITE}
     ...]}</literal></simpara>
 
-    <simpara>In some cirsumstance, where multiple simultaneous transactions
+    <simpara>In some circumstances, where multiple simultaneous transactions
     are in progress, it may be necessary to ensure a transaction consisting of
     several statements is completed, without being terminated due to possible
     deadlock. When this statement is executed, it waits until it can obtain
@@ -590,7 +591,7 @@
     NO ] CHAIN ]</literal></simpara>
 
     <simpara>Rollback the current SQL transaction and terminate it. The
-    statment rolls back all the actions performed during the transaction. If
+    statement rolls back all the actions performed during the transaction. If
     NO CHAIN is specified, a new SQL transaction is started just after the
     rollback. The new transaction inherits the properties of the old
     transaction.</simpara>
@@ -666,7 +667,7 @@
 
       <screen>    SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY
     SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
-    SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, TRANSACTION ISOLATION LEVEL READ COMMITTED
+    SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
 </screen>
     </example>
 
@@ -706,9 +707,9 @@
 
     <simpara>Set the SQL-session role name and the current role name for the
     current SQL-session context. The user that executes this command must have
-    the specifid role. If NONE is specified, then the previous CURRENT_ROLE is
-    elminated. The effect of this lasts for the lifetime of the session. The
-    current role can be accessed with the CURRENT_ROLE function.</simpara>
+    the specified role. If NONE is specified, then the previous CURRENT_ROLE
+    is eliminated. The effect of this lasts for the lifetime of the session.
+    The current role can be accessed with the CURRENT_ROLE function.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET TIME ZONE</primary>
@@ -828,6 +829,6 @@
     statements with the FETCH &lt;n&gt; ROWS ONLY, or its alternative, LIMIT
     &lt;n&gt;. Therefore this command is not recommended for general use. The
     only legitimate use of this command is for checking and testing queries
-    that may return very larg numbers of rows.</simpara>
+    that may return very large numbers of rows.</simpara>
   </section>
 </chapter>
