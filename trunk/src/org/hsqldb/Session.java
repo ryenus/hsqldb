@@ -464,7 +464,19 @@ public class Session implements SessionInterface {
     }
 
     public boolean hasLocks(Statement statement) {
-        return lockStatement == statement;
+
+        if (lockStatement == statement) {
+            if (isolationMode == SessionInterface.TX_REPEATABLE_READ
+                    || isolationMode == SessionInterface.TX_SERIALIZABLE) {
+                return true;
+            }
+
+            if (statement.getTableNamesForRead().length == 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void startTransaction() {
@@ -2038,7 +2050,8 @@ public class Session implements SessionInterface {
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_SESSION);
         sb.append(' ').append(Tokens.T_CHARACTERISTICS).append(' ');
-        sb.append(Tokens.T_AS).append(' ').append(Tokens.TRANSACTION).append(' ');
+        sb.append(Tokens.T_AS).append(' ').append(Tokens.TRANSACTION).append(
+            ' ');
         appendIsolationSQL(sb, isolationModeDefault);
 
         return sb.toString();
