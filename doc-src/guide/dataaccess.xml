@@ -54,12 +54,6 @@
   <section>
     <title>Cursors And Result Sets</title>
 
-    <para>In SQL, when a query expression (SELECT or similar SQL statement) is
-    executed, an ephemeral table is created. When this table is returned to
-    the application program, it is returned as a result set, which is accessed
-    row-by-row by a cursor. A JDBC <classname>ResultSet</classname> represents
-    an SQL result set and its cursor.</para>
-
     <para>An SQL statement can executed in two ways. One way is to use the
     <classname>java.sql.Statement</classname> interface. The Statement object
     can be reused to execute completely different SQL statements.
@@ -67,6 +61,16 @@
     execute an SQL statement repeatedly, and the statements can be
     parameterized. Using either form, if the SQL statement is a query
     expression, a <classname>ResultSet</classname> is returned.</para>
+
+    <para>In SQL, when a query expression (SELECT or similar SQL statement) is
+    executed, an ephemeral table is created. When this table is returned to
+    the application program, it is returned as a result set, which is accessed
+    row-by-row by a cursor. A JDBC <classname>ResultSet</classname> represents
+    an SQL result set and its cursor.</para>
+
+    <para>The minimal definition of a cursor is a list of rows with a position
+    that can move forward. Some cursors also allow the position to move
+    backwards or jump to any position in the list.</para>
 
     <para>An SQL cursor has several attributes. These attributes depend on the
     query expression. Some of these attributes can be overridden by specifying
@@ -103,7 +107,7 @@
 
       <para>A cursor is either scrollable or not. Scrollable cursors allow
       accessing rows by absolute or relative positioning. No-scroll cursors
-      only allow moving the next row. The cursor can be optionally declared
+      only allow moving to the next row. The cursor can be optionally declared
       with the SQL qualifiers SCROLL, or NO SCROLL. The JDBC statement
       parameter can be specified as: TYPE_FORWARD_ONLY and
       TYPE_SCROLL_INSENSITIVE. The JDBC type TYPE_SCROLL_SENSITIVE is not
@@ -133,7 +137,7 @@
       columns are updatable. An updatable column is a column that can be
       traced directly to the underlying table. Therefore, columns that contain
       expressions are not updatable. Examples of updatable query expressions
-      are given below. The view V is updatable because its query expression is
+      are given below. The view V is updatable when its query expression is
       updatable. The SELECT statement from this view is also updatable:</para>
 
       <programlisting>SELECT A, B FROM T WHERE C &gt; 5
@@ -1929,6 +1933,18 @@ SELECT * FROM atable
 SELECT * FROM atable WHERE a + b = c
 /* in the next SELECT, projection is performed after the other operations */
 SELECT d, e, f FROM atable WHERE a + b = c
+/* in the next SELECT, computation performed after projection */
+SELECT (d + e) / f FROM atable WHERE a + b = c
+/* in the next two SELECT statements, column naming is performed in different ways*/
+SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c
+SELECT dcol, ecol, fcol FROM atable(acol, bcol, ccol, dcol, ecol, fcol) WHERE acol + bcol = ccol
+/* in the next SELECT, both grouping and aggregation is is performed */
+SELECT d, e, SUM(f) FROM atable GROUP BY d, e
+/* in the next SELECT, a UNION is performed on two selects from the same table */
+SELECT d, e, f FROM atable WHERE d = 3 UNION SELECT a, b, c FROM atable WHERE a = 30
+/* in the next SELECT, ordering is performed */
+SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c ORDER BY calc DESC, div NULLS LAST
+
 </programlisting>The next sections discuss various operations.</para>
 
     <section>
@@ -2069,14 +2085,6 @@ SELECT d, e, f FROM atable WHERE a + b = c
       possible to perform the selection with join conditions, this is the
       better method, as it results in a clearer expression of the
       query.</para>
-
-      <para>A different form of selection can also be performed on the result
-      table after it has been formed according to all the other operations
-      (selection, grouping, ordering etc.). This form of selection is
-      specified by the FETCH ... ROWS and OFFSET clauses of a SELECT
-      statement. In this form, the specified OFFSET rows are removed from
-      start of the table, then up to the specified FETCH rows are kept and the
-      rest of the rows are discarded.</para>
     </section>
 
     <section>
@@ -2273,10 +2281,18 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     <section>
       <title>Slicing</title>
 
+      <para>A different form of limiting the rows can be performed on the
+      result table after it has been formed according to all the other
+      operations (selection, grouping, ordering etc.). This is specified by
+      the FETCH ... ROWS and OFFSET clauses of a SELECT statement. In this
+      form, the specified OFFSET rows are removed from start of the table,
+      then up to the specified FETCH rows are kept and the rest of the rows
+      are discarded.</para>
+
       <para>A slicing operation takes the result set that has been already
-      processed and optionally ordered, then discards the specified number of
-      rows from the start of the result set and returns the specified number
-      of rows after the discarded rows.</para>
+      processed and ordered. It then discards the specified number of rows
+      from the start of the result set and returns the specified number of
+      rows after the discarded rows.</para>
 
       <programlisting>SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY </programlisting>
     </section>
