@@ -686,6 +686,8 @@ public final class Constraint implements SchemaObject {
                     core.mainTable.getIndex(core.mainIndex.getName().name);
                 core.mainCols = ArrayUtil.toAdjustedColumnArray(core.mainCols,
                         colIndex, adjust);
+
+                core.mainIndex.setTable(newTable);
             }
         }
 
@@ -697,6 +699,7 @@ public final class Constraint implements SchemaObject {
                     core.refTable.getIndex(core.refIndex.getName().name);
                 core.refCols = ArrayUtil.toAdjustedColumnArray(core.refCols,
                         colIndex, adjust);
+                core.refIndex.setTable(newTable);
             }
         }
 
@@ -754,22 +757,7 @@ public final class Constraint implements SchemaObject {
                     }
                 }
 
-                StringBuffer sb = new StringBuffer();
-
-                for (int i = 0; i < core.refCols.length; i++) {
-                    Object o = data[core.refCols[i]];
-
-                    sb.append(core.refTable.getColumnTypes()[core.refCols[i]]
-                        .convertToString(o));
-                    sb.append(',');
-                }
-
-                String[] info = new String[] {
-                    getName().name, getMain().getName().name, sb.toString()
-                };
-
-                throw Error.error(null, ErrorCode.X_23503,
-                                  ErrorCode.CONSTRAINT, info);
+                throw getException(data);
         }
     }
 
@@ -822,6 +810,58 @@ public final class Constraint implements SchemaObject {
                 throw Error.error(null, ErrorCode.X_23513,
                                   ErrorCode.CONSTRAINT, info);
             }
+        }
+    }
+
+    public HsqlException getException(Object[] data) {
+
+        switch (this.constType) {
+
+            case SchemaObject.ConstraintTypes.CHECK : {
+                String[] info = new String[]{ name.name };
+
+                return Error.error(null, ErrorCode.X_23513,
+                                   ErrorCode.CONSTRAINT, info);
+            }
+            case SchemaObject.ConstraintTypes.FOREIGN_KEY : {
+                StringBuffer sb = new StringBuffer();
+
+                for (int i = 0; i < core.refCols.length; i++) {
+                    Object o = data[core.refCols[i]];
+
+                    sb.append(core.refTable.getColumnTypes()[core.refCols[i]]
+                        .convertToString(o));
+                    sb.append(',');
+                }
+
+                String[] info = new String[] {
+                    getName().statementName,
+                    core.refTable.getName().statementName, sb.toString()
+                };
+
+                return Error.error(null, ErrorCode.X_23503,
+                                   ErrorCode.CONSTRAINT, info);
+            }
+            case SchemaObject.ConstraintTypes.PRIMARY_KEY :
+            case SchemaObject.ConstraintTypes.UNIQUE : {
+                StringBuffer sb = new StringBuffer();
+
+                for (int i = 0; i < core.mainCols.length; i++) {
+                    Object o = data[core.mainCols[i]];
+
+                    sb.append(core.mainTable.colTypes[core.mainCols[i]]
+                        .convertToString(o));
+                    sb.append(',');
+                }
+
+                return Error.error(null, ErrorCode.X_23505,
+                                   ErrorCode.CONSTRAINT, new String[] {
+                    getName().statementName,
+                    core.mainTable.getName().statementName, sb.toString()
+                });
+            }
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "Constraint");
         }
     }
 
