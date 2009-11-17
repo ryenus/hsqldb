@@ -34,6 +34,7 @@ package org.hsqldb.index;
 import org.hsqldb.Row;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
+import org.hsqldb.TableBase;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.Type;
@@ -104,6 +105,7 @@ public interface Index extends SchemaObject {
 
     public boolean isForward();
 
+    public void setTable(TableBase table);
     /**
      * Returns the node count.
      */

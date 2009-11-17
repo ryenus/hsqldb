@@ -42,6 +42,8 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.Type;
+import org.hsqldb.Constraint;
+import org.hsqldb.Table;
 
 /**
  * Implementation of an AVL for memory tables.<p>
@@ -187,7 +189,14 @@ public class IndexAVLMemory extends IndexAVL {
                 }
 
                 if (compare == 0) {
-                    throw Error.error(ErrorCode.X_23505);
+                    if (isConstraint) {
+                        Constraint c = ((Table)table).getUniqueConstraintForIndex(this);
+
+                        throw c.getException(row.getData());
+
+                    } else {
+                        throw Error.error(ErrorCode.X_23505, name.statementName);
+                    }
                 }
 
                 isleft = compare < 0;

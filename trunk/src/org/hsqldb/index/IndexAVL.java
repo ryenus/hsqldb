@@ -89,6 +89,7 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
+import org.hsqldb.Constraint;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users - corrections
 // fredt@users 20020225 - patch 1.7.0 - changes to support cascading deletes
@@ -116,25 +117,25 @@ import org.hsqldb.types.Type;
 public class IndexAVL implements Index {
 
     // fields
-    private final long      persistenceId;
-    private final HsqlName  name;
-    private final boolean[] colCheck;
-    final int[]             colIndex;
-    private final int[]     defaultColMap;
-    final Type[]            colTypes;
-    private final boolean[] colDesc;
-    private final boolean[] nullsLast;
-    boolean                 isSimpleOrder;
-    boolean                 isSimple;
-    protected final boolean isPK;        // PK with or without columns
-    protected final boolean isUnique;    // DDL uniqueness
-    private final boolean   isConstraint;
-    private final boolean   isForward;
-    private int             depth;
+    private final long       persistenceId;
+    protected final HsqlName name;
+    private final boolean[]  colCheck;
+    final int[]              colIndex;
+    private final int[]      defaultColMap;
+    final Type[]             colTypes;
+    private final boolean[]  colDesc;
+    private final boolean[]  nullsLast;
+    final boolean            isSimpleOrder;
+    final boolean            isSimple;
+    protected final boolean  isPK;        // PK with or without columns
+    protected final boolean  isUnique;    // DDL uniqueness
+    protected final boolean  isConstraint;
+    private final boolean    isForward;
+    private int              depth;
     private static final IndexRowIterator emptyIterator =
         new IndexRowIterator(null, (PersistentStore) null, null, null, false);
-    private final TableBase table;
-    int                     position;
+    protected TableBase table;
+    int                       position;
 
     //
     ReadWriteLock lock      = new ReentrantReadWriteLock();
@@ -183,15 +184,16 @@ public class IndexAVL implements Index {
 
         ArrayUtil.fillSequence(defaultColMap);
 
-        isSimpleOrder = colIndex.length > 0;
+        boolean simpleOrder = colIndex.length > 0;
 
         for (int i = 0; i < colDesc.length; i++) {
             if (this.colDesc[i] || this.nullsLast[i]) {
-                isSimpleOrder = false;
+                simpleOrder = false;
             }
         }
 
-        isSimple = isSimpleOrder && colIndex.length == 1;
+        isSimpleOrder = simpleOrder;
+        isSimple      = isSimpleOrder && colIndex.length == 1;
     }
 
     // SchemaObject implementation
@@ -354,6 +356,9 @@ public class IndexAVL implements Index {
         return isForward;
     }
 
+    public void setTable(TableBase table) {
+        this.table = table;
+    }
     /**
      * Returns the node count.
      */
@@ -486,7 +491,15 @@ public class IndexAVL implements Index {
                 }
 
                 if (compare == 0) {
-                    throw Error.error(ErrorCode.X_23505);
+                    if (isConstraint) {
+                        Constraint c =
+                            ((Table) table).getUniqueConstraintForIndex(this);
+
+                        throw c.getException(row.getData());
+                    } else {
+                        throw Error.error(ErrorCode.X_23505,
+                                          name.statementName);
+                    }
                 }
 
                 isleft = compare < 0;

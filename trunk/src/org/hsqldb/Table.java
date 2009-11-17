@@ -1520,6 +1520,16 @@ public class Table extends TableBase implements SchemaObject {
         setBestRowIdentifiers();
     }
 
+    public void createPrimaryKeyConstraint(HsqlName indexName, int[] columns,
+                                           boolean columnsNotNull) {
+
+        createPrimaryKey(indexName, columns, columnsNotNull);
+
+        Constraint c = new Constraint(indexName, this,
+            getPrimaryIndex(), SchemaObject.ConstraintTypes.PRIMARY_KEY);
+        this.addConstraint(c);
+    }
+
     void setColumnStructures() {
 
         colTypes         = new Type[columnCount];
@@ -1866,6 +1876,29 @@ public class Table extends TableBase implements SchemaObject {
 
         return (i < 0) ? null
                        : constraintList[i];
+    }
+
+    /**
+     *  Returns any unique Constraint using this index
+     *
+     * @param  index
+     * @return
+     */
+    public Constraint getUniqueConstraintForIndex(Index index) {
+
+        for (int i = 0, size = constraintList.length; i < size; i++) {
+            Constraint c = constraintList[i];
+
+            if (c.getMainIndex() == index) {
+                if (c.getConstraintType() == SchemaObject.ConstraintTypes
+                        .PRIMARY_KEY || c.getConstraintType() == SchemaObject
+                        .ConstraintTypes.UNIQUE) {
+                    return c;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

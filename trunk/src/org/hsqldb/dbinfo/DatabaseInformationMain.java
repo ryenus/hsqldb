@@ -685,7 +685,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_BESTROWIDENTIFIER].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 8, 9, 10, 1
             }, false);
 
@@ -887,7 +887,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_COLUMNS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 16
             }, false);
 
@@ -1097,7 +1097,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_CROSSREFERENCE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 4, 5, 6, 8, 11
             }, false);
 
@@ -1301,7 +1301,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_INDEXINFO].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 7
             }, false);
 
@@ -1463,7 +1463,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_PRIMARYKEYS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 3, 2, 1, 0
             }, false);
 
@@ -1564,7 +1564,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_PRIMARYKEYS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -1859,7 +1859,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_SCHEMAS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -1962,7 +1962,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_TABLES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 3, 1, 2, 0
             }, false);
 
@@ -2080,7 +2080,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_TABLETYPES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -2182,7 +2182,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_TYPEINFO].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 1, 0
             }, true);
 
@@ -2328,7 +2328,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_USERS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -2411,7 +2411,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[COLUMN_PRIVILEGES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 2, 3, 4, 5, 6, 1, 0
             }, false);
 
@@ -2613,7 +2613,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[SEQUENCES].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -2720,7 +2720,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[SYSTEM_SEQUENCES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -2844,7 +2844,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[SEQUENCES].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -2958,7 +2958,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[TABLES].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2,
             }, false);
 
@@ -3070,7 +3070,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 sysTableHsqlNames[INFORMATION_SCHEMA_CATALOG_NAME].name,
                 false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }

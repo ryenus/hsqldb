@@ -450,7 +450,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SYSTEM_CACHEINFO].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -642,7 +642,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SYSTEM_PROCEDURECOLUMNS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 19, 17
             }, false);
 
@@ -838,7 +838,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SYSTEM_PROCEDURES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 8
             }, false);
 
@@ -955,7 +955,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SYSTEM_PROPERTIES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, true);
 
@@ -1096,7 +1096,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SYSTEM_SESSIONINFO].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -1205,7 +1205,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SYSTEM_SESSIONS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -1308,7 +1308,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SYSTEM_TEXTTABLES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2,
             }, false);
 
@@ -1433,7 +1433,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SYSTEM_UDTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, null, false);
+            t.createPrimaryKeyConstraint(name, null, false);
 
             return t;
         }
@@ -1548,7 +1548,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SYSTEM_VERSIONCOLUMNS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, null, false);
+            t.createPrimaryKeyConstraint(name, null, false);
 
             return t;
         }
@@ -1581,7 +1581,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ADMINISTRABLE_ROLE_AUTHORIZATIONS].name,
                 false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -1636,7 +1636,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[APPLICABLE_ROLES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -1705,7 +1705,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[ASSERTIONS].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -1784,7 +1784,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[AUTHORIZATIONS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -1833,7 +1833,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[CHARACTER_SETS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -1950,7 +1950,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[CHECK_CONSTRAINT_ROUTINE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -2091,7 +2091,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[CHECK_CONSTRAINTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 2, 1, 0
             }, false);
 
@@ -2253,7 +2253,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[COLLATIONS].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -2317,7 +2317,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[COLUMN_COLUMN_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4
             }, false);
 
@@ -2360,7 +2360,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[COLUMN_DOMAIN_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -2408,7 +2408,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[COLUMN_UDT_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -2490,7 +2490,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[COLUMNS].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 3, 2, 1, 4
             }, false);
 
@@ -2756,7 +2756,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[CONSTRAINT_COLUMN_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -2972,7 +2972,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[CONSTRAINT_TABLE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -3012,7 +3012,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[DATA_TYPE_PRIVILEGES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4
             }, false);
 
@@ -3074,7 +3074,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "SCOPE_NAME", SQL_IDENTIFIER);
             addColumn(t, "MAXIMUM_CARDINALITY", SQL_IDENTIFIER);
-            t.createPrimaryKey(null, new int[] {
+            t.createPrimaryKeyConstraint(null, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
 
@@ -3140,7 +3140,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[DOMAIN_CONSTRAINTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
 
@@ -3242,7 +3242,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[DOMAINS].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
 
@@ -3400,7 +3400,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ENABLED_ROLES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, true);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, true);
 
             return t;
         }
@@ -3444,7 +3444,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[JAR_JAR_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -3481,7 +3481,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[JARS].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3
             }, false);
 
@@ -3547,7 +3547,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[KEY_COLUMN_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 2, 1, 0, 6, 7
             }, false);
 
@@ -3728,7 +3728,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[PARAMETERS].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3
             }, false);
 
@@ -3927,7 +3927,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[REFERENTIAL_CONSTRAINTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2,
             }, false);
 
@@ -4022,7 +4022,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROLE_COLUMN_GRANTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 5, 6, 1, 0, 4, 3, 2
             }, false);
 
@@ -4065,7 +4065,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROLE_ROUTINE_GRANTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
             }, false);
 
@@ -4125,7 +4125,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROLE_TABLE_GRANTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 3, 4, 5, 0, 1
             }, false);
 
@@ -4166,7 +4166,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROLE_TABLE_GRANTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, null, false);
+            t.createPrimaryKeyConstraint(name, null, false);
 
             return t;
         }
@@ -4206,7 +4206,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROLE_USAGE_GRANTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6, 7
             }, false);
 
@@ -4250,7 +4250,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROUTINE_COLUMN_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 3, 4, 5, 0, 1, 2, 6, 7, 8, 9
             }, false);
 
@@ -4348,7 +4348,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROUTINE_PRIVILEGES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
             }, false);
 
@@ -4466,7 +4466,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROUTINE_JAR_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -4540,7 +4540,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROUTINE_ROUTINE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -4622,7 +4622,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROUTINE_SEQUENCE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -4707,7 +4707,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROUTINE_TABLE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 3, 4, 5, 0, 1, 2, 6, 7, 8
             }, false);
 
@@ -4880,7 +4880,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[ROUTINES].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 3, 4, 5, 0, 1, 2
             }, false);
 
@@ -5258,7 +5258,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[SCHEMATA].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1
             }, false);
 
@@ -5332,7 +5332,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SQL_FEATURES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 2
             }, false);
 
@@ -5367,7 +5367,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SQL_IMPLEMENTATION_INFO].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -5403,7 +5403,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SQL_PACKAGES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -5435,7 +5435,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[SQL_PARTS].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -5466,7 +5466,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[SQL_SIZING].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -5500,7 +5500,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[SQL_SIZING_PROFILES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[]{ 0 }, false);
+            t.createPrimaryKeyConstraint(name, new int[]{ 0 }, false);
 
             return t;
         }
@@ -5645,7 +5645,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[TABLE_CONSTRAINTS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
 
@@ -5767,7 +5767,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[TRANSLATIONS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -5796,7 +5796,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[TRIGGER_COLUMN_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -5878,7 +5878,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[TRIGGER_ROUTINE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -5955,7 +5955,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[TRIGGER_SEQUENCE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -6033,7 +6033,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[TRIGGER_TABLE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -6122,7 +6122,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[TRIGGERS].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2
             }, false);
 
@@ -6213,7 +6213,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[TRIGGERED_UPDATE_COLUMNS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -6290,7 +6290,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[UDT_PRIVILEGES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4
             }, false);
 
@@ -6479,7 +6479,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[USAGE_PRIVILEGES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6, 7
             }, false);
 
@@ -6612,7 +6612,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[USER_DEFINED_TYPES].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
 
@@ -6791,7 +6791,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[VIEW_COLUMN_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5, 6
             }, false);
 
@@ -6927,7 +6927,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[VIEW_ROUTINE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -7052,7 +7052,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[VIEW_TABLE_USAGE].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1, 2, 3, 4, 5
             }, false);
 
@@ -7169,7 +7169,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
                 sysTableHsqlNames[VIEWS].name, false, SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 1, 2, 0
             }, false);
 
@@ -7333,7 +7333,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 sysTableHsqlNames[ROLE_AUTHORIZATION_DESCRIPTORS].name, false,
                 SchemaObject.INDEX);
 
-            t.createPrimaryKey(name, new int[] {
+            t.createPrimaryKeyConstraint(name, new int[] {
                 0, 1
             }, true);
 
