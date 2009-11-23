@@ -49,8 +49,8 @@ import org.hsqldb.persist.DataFileCacheSession;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.PersistentStoreCollectionSession;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.LobData;
@@ -126,31 +126,34 @@ public class SessionData {
     // result
     void setResultSetProperties(Result command, Result result) {
 
-        if (command.rsConcurrency == ResultConstants.CONCUR_READ_ONLY) {
-            result.setDataResultConcurrency(ResultConstants.CONCUR_READ_ONLY);
-            result.setDataResultHoldability(command.rsHoldability);
-        } else {
-            if (result.rsConcurrency == ResultConstants.CONCUR_UPDATABLE) {
-                result.setDataResultHoldability(
-                    ResultConstants.CLOSE_CURSORS_AT_COMMIT);
+        int required = command.rsProperties;
+        int returned = result.rsProperties;
 
-                if (command.rsHoldability
-                        != ResultConstants.CLOSE_CURSORS_AT_COMMIT) {
-                    session.addWarning(Error.error(ErrorCode.W_36503));
-                }
+        if (required != returned) {
+            if (ResultProperties.isReadOnly(required)) {
+                returned = ResultProperties.addHoldable(returned,
+                        ResultProperties.isHoldable(required));
             } else {
-                result.setDataResultConcurrency(
-                    ResultConstants.CONCUR_READ_ONLY);
-                result.setDataResultHoldability(command.rsHoldability);
-                session.addWarning(Error.error(ErrorCode.W_36502));
+                if (ResultProperties.isUpdatable(returned)) {
+                    if (ResultProperties.isHoldable(required)) {
+                        session.addWarning(Error.error(ErrorCode.W_36503));
+                    }
+                } else {
+                    returned = ResultProperties.addHoldable(returned,
+                            ResultProperties.isHoldable(required));
+
+                    session.addWarning(Error.error(ErrorCode.W_36502));
+                }
             }
-        }
 
-        if (command.rsScrollability == ResultConstants.TYPE_SCROLL_SENSITIVE) {
-            session.addWarning(Error.error(ErrorCode.W_36501));
-        }
+            if (ResultProperties.isSensitive(required)) {
+                session.addWarning(Error.error(ErrorCode.W_36501));
+            }
 
-        result.setDataResultScrollability(command.rsScrollability);
+            returned = ResultProperties.addScrollable(returned,
+                    ResultProperties.isScrollable(required));
+            result.rsProperties = returned;
+        }
     }
 
     Result getDataResultHead(Result command, Result result,
@@ -160,33 +163,39 @@ public class SessionData {
 
         result.setResultId(session.actionTimestamp);
 
-        if (command.rsConcurrency == ResultConstants.CONCUR_READ_ONLY) {
-            result.setDataResultConcurrency(ResultConstants.CONCUR_READ_ONLY);
-            result.setDataResultHoldability(command.rsHoldability);
-        } else {
-            if (result.rsConcurrency == ResultConstants.CONCUR_READ_ONLY) {
-                result.setDataResultHoldability(command.rsHoldability);
+        int required = command.rsProperties;
+        int returned = result.rsProperties;
 
-                // add warning for concurrency conflict
+        if (required != returned) {
+            if (ResultProperties.isReadOnly(required)) {
+                returned = ResultProperties.addHoldable(returned,
+                        ResultProperties.isHoldable(required));
             } else {
-                if (session.isAutoCommit()) {
-                    result.setDataResultConcurrency(
-                        ResultConstants.CONCUR_READ_ONLY);
-                    result.setDataResultHoldability(
-                        ResultConstants.HOLD_CURSORS_OVER_COMMIT);
+                if (ResultProperties.isReadOnly(returned)) {
+                    returned = ResultProperties.addHoldable(returned,
+                            ResultProperties.isHoldable(required));
+
+                    // add warning for concurrency conflict
                 } else {
-                    result.setDataResultHoldability(
-                        ResultConstants.CLOSE_CURSORS_AT_COMMIT);
+                    if (session.isAutoCommit()) {
+                        returned = ResultProperties.addHoldable(returned,
+                                ResultProperties.isHoldable(required));
+                    } else {
+                        returned = ResultProperties.addHoldable(returned,
+                                false);
+                    }
                 }
             }
-        }
 
-        result.setDataResultScrollability(command.rsScrollability);
+            returned = ResultProperties.addScrollable(returned,
+                    ResultProperties.isScrollable(required));
+            result.rsProperties = returned;
+        }
 
         boolean hold = false;
         boolean copy = false;
 
-        if (result.rsConcurrency == ResultConstants.CONCUR_UPDATABLE) {
+        if (ResultProperties.isUpdatable(result.rsProperties)) {
             hold = true;
         }
 
@@ -278,8 +287,7 @@ public class SessionData {
         while (it.hasNext()) {
             Result result = (Result) it.next();
 
-            if (result.rsHoldability
-                    == ResultConstants.CLOSE_CURSORS_AT_COMMIT) {
+            if (!ResultProperties.isHoldable(result.rsProperties)) {
                 result.getNavigator().close();
                 it.remove();
             }

@@ -38,6 +38,7 @@ import org.hsqldb.StatementTypes;
  * between the client and the engine when sending Result objects back
  * and forth.
  *
+ * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @since 1.9.0
  * @version 1.7.2
@@ -229,13 +230,11 @@ public interface ResultConstants {
      */
     int VALUE = HSQL_API_BASE + 42;
 
-
     /**
      * Indicates that the Result encapsulates a response to a procedure call via CallableStatement
      */
-    int CALL_RESPONSE = HSQL_API_BASE + 43;
-
-    int MODE_UPPER_LIMIT =  HSQL_API_BASE + 44;
+    int CALL_RESPONSE    = HSQL_API_BASE + 43;
+    int MODE_UPPER_LIMIT = HSQL_API_BASE + 44;
 
 //    /** The offset at which the standard SQL API Result mode values start. */
 //    int SQL_API_BASE = 0x00010000;
@@ -645,10 +644,10 @@ public interface ResultConstants {
     int TX_ROLLBACK_AND_CHAIN      = 7;
 
 /* StatementType codes duplicated for cursor operations */
-
     int UPDATE_CURSOR = StatementTypes.UPDATE_CURSOR;
     int DELETE_CURSOR = StatementTypes.DELETE_CURSOR;
     int INSERT_CURSOR = StatementTypes.INSERT;
+
 /* Environment attributes */
 
 //#define SQL_ATTR_OUTPUT_NTS 10001
@@ -676,6 +675,19 @@ public interface ResultConstants {
    The operational holdability property (either WITH HOLD or WITHOUT HOLD).
    The operational returnability property (either WITH RETURN or WITHOUT RETURN).
 */
+    int SQL_ASENSITIVE    = 0;
+    int SQL_INSENSITIVE   = 1;
+    int SQL_SENSITIVE     = 2;
+    int SQL_NONSCROLLABLE = 0;
+    int SQL_SCROLLABLE    = 1;
+    int SQL_NONHOLDABLE   = 0;
+    int SQL_HOLDABLE      = 1;
+
+//
+    int SQL_WITHOUT_RETURN = 0;
+    int SQL_WITH_RETURN    = 1;
+    int SQL_NOT_UPDATABLE  = 0;
+    int SQL_UPDATABLE      = 1;
 
 // data result properties - matching java.sql.ResultSet constants
     int TYPE_FORWARD_ONLY       = 1003;

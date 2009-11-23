@@ -448,6 +448,13 @@ public class Routine implements SchemaObject {
             }
 
             javaMethodWithConnection = hasConnection[0];
+
+            String className = javaMethod.getDeclaringClass().getName();
+
+            if (className.equals("org.hsqldb.Library")
+                    || className.equals("java.lang.Math")) {
+                isLibraryRoutine = true;
+            }
         }
     }
 

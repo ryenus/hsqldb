@@ -44,6 +44,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.navigator.RowSetNavigatorData;
+import org.hsqldb.navigator.RowSetNavigatorDataTable;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
@@ -456,8 +457,17 @@ public class QueryExpression {
             (RowSetNavigatorData) second.getNavigator();
 
         if (unionCorresponding) {
-            RowSetNavigatorData rowSet = new RowSetNavigatorData(session,
-                this);
+            RowSetNavigatorData rowSet;
+            boolean memory =
+                session.resultMaxMemoryRows == 0
+                || (navigator.getSize() < session.resultMaxMemoryRows
+                    && rightNavigator.getSize() < session.resultMaxMemoryRows);
+
+            if (memory) {
+                rowSet = new RowSetNavigatorData(session, this);
+            } else {
+                rowSet = new RowSetNavigatorDataTable(session, this);
+            }
 
             rowSet.copy(navigator, leftQueryExpression.unionColumnMap);
 
@@ -466,26 +476,26 @@ public class QueryExpression {
             first.setNavigator(navigator);
 
             first.metaData = this.getMetaData();
-            rowSet         = new RowSetNavigatorData(session, this);
 
-            if (unionType != UNION && unionType != UNION_ALL) {
-                rowSet.copy(rightNavigator,
-                            rightQueryExpression.unionColumnMap);
-
-                rightNavigator = rowSet;
+            if (memory) {
+                rowSet = new RowSetNavigatorData(session, this);
+            } else {
+                rowSet = new RowSetNavigatorDataTable(session, this);
             }
+
+            rowSet.copy(rightNavigator, rightQueryExpression.unionColumnMap);
+
+            rightNavigator = rowSet;
         }
 
         switch (unionType) {
 
             case UNION :
-                navigator.union(rightNavigator,
-                                rightQueryExpression.unionColumnMap);
+                navigator.union(rightNavigator);
                 break;
 
             case UNION_ALL :
-                navigator.unionAll(rightNavigator,
-                                   rightQueryExpression.unionColumnMap);
+                navigator.unionAll(rightNavigator);
                 break;
 
             case INTERSECT :
@@ -622,6 +632,7 @@ public class QueryExpression {
      * Used prior to type resolution
      */
     public void setView(View view) {
+        this.isUpdatable = true;
         this.view = view;
     }
 

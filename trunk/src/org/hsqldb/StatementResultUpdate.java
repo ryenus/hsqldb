@@ -112,7 +112,7 @@ public class StatementResultUpdate extends StatementDML {
 
                 RowSetNavigator navigator = new RowSetNavigatorLinkedList();
 
-                navigator.add(row);
+                navigator.addRow(row);
                 delete(session, baseTable, navigator);
 
                 break;
@@ -139,16 +139,15 @@ public class StatementResultUpdate extends StatementDML {
         int             rowIdIndex = result.metaData.getColumnCount();
         Long            rowId      = (Long) args[rowIdIndex];
         PersistentStore store = session.sessionData.getRowStore(baseTable);
-        Row             row;
+        Row             row        = null;
 
         if (rowIdIndex + 2 == result.metaData.getExtendedColumnCount()) {
-            row = ((RowSetNavigatorData) result.getNavigator()).getRow(rowId);
+            Object[] data =
+                ((RowSetNavigatorData) result.getNavigator()).getData(rowId);
 
-            if (row == null) {
-                return null;
+            if (data != null) {
+                row = (Row) data[rowIdIndex + 1];
             }
-
-            row = (Row) row.getData()[rowIdIndex + 1];
         } else {
             int id = (int) rowId.longValue();
 

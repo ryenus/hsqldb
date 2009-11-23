@@ -614,7 +614,7 @@ public final class RangeVariable {
             currentData = data;
         }
 
-        public long getRowid() {
+        public long getRowId() {
 
             return currentRow == null ? 0
                                       : ((long) rangeVar.rangeTable.getId() << 32)
@@ -623,7 +623,7 @@ public final class RangeVariable {
 
         public Object getRowidObject() {
             return currentRow == null ? null
-                                      : Long.valueOf(getRowid());
+                                      : Long.valueOf(getRowId());
         }
 
         public void remove() {}
@@ -645,6 +645,25 @@ public final class RangeVariable {
 
         public RangeVariable getRange() {
             return rangeVar;
+        }
+
+        public Row getNextRow() {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
+        }
+
+        public boolean hasNext() {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
+        }
+
+        public Object[] getNext() {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
+        }
+
+        public boolean setRowColumns(boolean[] columns) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
+        }
+
+        public void release() {
         }
     }
 

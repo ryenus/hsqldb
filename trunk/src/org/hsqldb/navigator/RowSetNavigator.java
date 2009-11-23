@@ -61,6 +61,7 @@ public abstract class RowSetNavigator implements RangeIterator {
     int              mode;
     boolean          isIterator;
     int              currentPos = -1;
+    int              rangePosition;
 
     /**
      * Sets the id;
@@ -94,9 +95,14 @@ public abstract class RowSetNavigator implements RangeIterator {
     public abstract Row getCurrentRow();
 
     /**
+     * Add data to the end
+     */
+    public abstract void add(Object[] data);
+
+    /**
      * Add row to the end
      */
-    public abstract void add(Object data);
+    public abstract void addRow(Row row);
 
     /**
      * Remove current row
@@ -158,6 +164,18 @@ public abstract class RowSetNavigator implements RangeIterator {
 
     public boolean hasNext() {
         return currentPos < size - 1;
+    }
+
+    public Row getNextRow() {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
+    }
+
+    public boolean setRowColumns(boolean[] columns) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
+    }
+
+    public long getRowId() {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigator");
     }
 
     public boolean beforeFirst() {
@@ -305,7 +323,7 @@ public abstract class RowSetNavigator implements RangeIterator {
     }
 
     public int getRangePosition() {
-        return 0;
+        return rangePosition;
     }
 
     public RangeVariable getRange() {

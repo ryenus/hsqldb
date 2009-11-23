@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.hsqldb.Row;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlLinkedList;
 import org.hsqldb.lib.HsqlLinkedList.Node;
 import org.hsqldb.result.ResultMetaData;
@@ -164,9 +166,13 @@ public class RowSetNavigatorLinkedList extends RowSetNavigator {
      *
      * @param  d
      */
-    public void add(Object d) {
+    public void add(Object[] d) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
+    }
 
-        list.add(d);
+    public void addRow(Row row) {
+
+        list.add(row);
 
         size++;
     }

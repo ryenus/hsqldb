@@ -84,6 +84,7 @@ import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -682,12 +683,11 @@ class ServerConnection implements Runnable {
 
                         r = Result.newExecuteDirectRequest();
 
-                        r.setPrepareOrExecuteProperties(sql, 0, 0, org.hsqldb
-                            .StatementTypes.RETURN_RESULT, 0, org.hsqldb.jdbc
-                            .JDBCResultSet.TYPE_FORWARD_ONLY, org.hsqldb.jdbc
-                            .JDBCResultSet.CONCUR_READ_ONLY, org.hsqldb.jdbc
-                            .JDBCResultSet.HOLD_CURSORS_OVER_COMMIT, java.sql
-                            .Statement.NO_GENERATED_KEYS, null, null);
+                        r.setPrepareOrExecuteProperties(
+                            sql, 0, 0,
+                            org.hsqldb.StatementTypes.RETURN_RESULT, 0,
+                            ResultProperties.defaultPropsValue,
+                            java.sql.Statement.NO_GENERATED_KEYS, null, null);
 
                         rOut = session.execute(r);
 
@@ -713,15 +713,15 @@ class ServerConnection implements Runnable {
                         // todo - fredt - this check may not hold
                         if (!(navigator
                                 instanceof org.hsqldb.navigator
-                                    .RowSetNavigatorData)) {
+                                    .RowSetNavigatorDataTable)) {
                             throw new RecoverableOdbcFailure(
                                 "Unexpected RowSetNavigator instance type: "
                                 + navigator.getClass().getName());
                         }
 
-                        org.hsqldb.navigator.RowSetNavigatorData navData =
+                        org.hsqldb.navigator.RowSetNavigatorDataTable navData =
                             (org.hsqldb.navigator
-                                .RowSetNavigatorData) navigator;
+                                .RowSetNavigatorDataTable) navigator;
                         org.hsqldb.result.ResultMetaData md = rOut.metaData;
 
                         if (md == null) {
@@ -1301,14 +1301,15 @@ class ServerConnection implements Runnable {
                     // todo - fredt - this check may not hold
                     if (!(navigator
                             instanceof org.hsqldb.navigator
-                                .RowSetNavigatorData)) {
+                                .RowSetNavigatorDataTable)) {
                         throw new RecoverableOdbcFailure(
                             "Unexpected RowSetNavigator instance type: "
                             + navigator.getClass().getName());
                     }
 
-                    org.hsqldb.navigator.RowSetNavigatorData navData =
-                        (org.hsqldb.navigator.RowSetNavigatorData) navigator;
+                    org.hsqldb.navigator.RowSetNavigatorDataTable navData =
+                        (org.hsqldb.navigator
+                            .RowSetNavigatorDataTable) navigator;
                     int rowNum   = 0;
                     int colCount = portal.ackResult.metaData.getColumnCount();
 
@@ -1929,12 +1930,11 @@ class ServerConnection implements Runnable {
 
         Result r = Result.newExecuteDirectRequest();
 
-        r.setPrepareOrExecuteProperties(
-            statement, 0, 0, org.hsqldb.StatementTypes.RETURN_COUNT, 0,
-            org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
-            org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
-            org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
-            java.sql.Statement.NO_GENERATED_KEYS, null, null);
+        r.setPrepareOrExecuteProperties(statement, 0, 0,
+                                        org.hsqldb.StatementTypes.RETURN_COUNT,
+                                        0, ResultProperties.defaultPropsValue,
+                                        java.sql.Statement.NO_GENERATED_KEYS,
+                                        null, null);
 
         Result rOut = session.execute(r);
 

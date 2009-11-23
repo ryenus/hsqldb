@@ -103,14 +103,8 @@ class JDBCStatementBase {
     /** The currently existing generated key Result */
     protected Result generatedResult;
 
-    /** The result set type obtained by executing this statement. */
-    protected int rsScrollability = JDBCResultSet.TYPE_FORWARD_ONLY;
-
-    /** The result set concurrency obtained by executing this statement. */
-    protected int rsConcurrency = JDBCResultSet.CONCUR_READ_ONLY;
-
-    /** The result set holdability obtained by executing this statement. */
-    protected int rsHoldability = JDBCResultSet.HOLD_CURSORS_OVER_COMMIT;
+    /** The combined result set properties obtained by executing this statement. */
+    protected int rsProperties;
 
     /** Used by this statement to communicate non-batched requests. */
     protected Result resultOut;

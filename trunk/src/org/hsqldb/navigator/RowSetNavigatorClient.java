@@ -129,13 +129,17 @@ public class RowSetNavigatorClient extends RowSetNavigator {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 
-    public void add(Object data) {
+    public void add(Object[] data) {
 
         ensureCapacity();
 
-        table[size] = (Object[]) data;
+        table[size] = data;
 
         size++;
+    }
+
+    public void addRow(Row row) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 
     public void clear() {
@@ -181,8 +185,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     }
 
     public void readSimple(RowInputInterface in,
-                           ResultMetaData meta)
-                           throws IOException {
+                           ResultMetaData meta) throws IOException {
 
         size = in.readInt();
 
@@ -196,8 +199,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     }
 
     public void writeSimple(RowOutputInterface out,
-                            ResultMetaData meta)
-                            throws IOException {
+                            ResultMetaData meta) throws IOException {
 
         out.writeInt(size);
 
@@ -265,7 +267,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
     private void ensureCapacity() {
 
         if (size == table.length) {
-            int        newSize  = size == 0 ? 1
+            int        newSize  = size == 0 ? 4
                                             : size * 2;
             Object[][] newTable = new Object[newSize][];
 

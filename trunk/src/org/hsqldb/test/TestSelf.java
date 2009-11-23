@@ -236,8 +236,8 @@ class TestSelf extends TestUtil {
 
             filelist = new File(new File(absolute).getParent()).list();
 
-            ArraySort.sort((Object[]) filelist, new StringComparator(), 0,
-                           filelist.length - 1);
+            ArraySort.sort((Object[]) filelist, 0, filelist.length,
+                           new StringComparator());
 
             for (int i = 0; i < filelist.length; i++) {
                 String fname = filelist[i];

@@ -34,7 +34,6 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
-import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.RangeVariable.RangeIteratorRight;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -51,8 +50,10 @@ import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowSetNavigatorData;
+import org.hsqldb.navigator.RowSetNavigatorDataTable;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -71,7 +72,7 @@ public class QuerySpecification extends QueryExpression {
     };
 
     //
-    private int           resultRangePosition;
+    public int            resultRangePosition;
     public boolean        isDistinctSelect;
     public boolean        isAggregated;
     public boolean        isGrouped;
@@ -1078,10 +1079,9 @@ public class QuerySpecification extends QueryExpression {
             hasLimits = true;
         }
 
-        if (simpleLimit && (!sortAndSlice.hasOrder() || sortAndSlice.skipSort)
+        if (hasLimits && simpleLimit
+                && (!sortAndSlice.hasOrder() || sortAndSlice.skipSort)
                 && (!sortAndSlice.hasLimit() || sortAndSlice.skipFullResult)) {
-            limitFetch = Integer.MAX_VALUE;
-
             if (limitFetch - skipRows > limitRows) {
                 limitFetch = skipRows + limitRows;
             }
@@ -1121,21 +1121,36 @@ public class QuerySpecification extends QueryExpression {
             navigator.removeDuplicates();
         }
 
-        navigator.sortOrder();
-        navigator.trim(limits[0], limits[1]);
+        if (sortAndSlice.hasOrder()) {
+            navigator.sortOrder();
+        }
+
+        if (limits != defaultLimits) {
+            navigator.trim(limits[0], limits[1]);
+        }
 
         return r;
     }
 
     private Result buildResult(Session session, int limitcount) {
 
-        RowSetNavigatorData navigator = new RowSetNavigatorData(session,
-            (QuerySpecification) this);
+        RowSetNavigatorData navigator;
+
+        if (session.resultMaxMemoryRows == 0) {
+            navigator = new RowSetNavigatorData(session,
+                                                (QuerySpecification) this);
+        } else {
+            navigator = new RowSetNavigatorDataTable(session,
+                    (QuerySpecification) this);
+        }
+
         Result result = Result.newResult(navigator);
 
         result.metaData = resultMetaData;
 
-        result.setDataResultConcurrency(isUpdatable);
+        if (isUpdatable) {
+            result.rsProperties = ResultProperties.updatablePropsValue;
+        }
 
         int fullJoinIndex = 0;
         RangeIterator[] rangeIterators =
@@ -1247,24 +1262,23 @@ public class QuerySpecification extends QueryExpression {
                 navigator.add(data);
             }
 
-            RangeIteratorBase it = new RangeIteratorBase(session,
-                navigator.store, navigator.table, resultRangePosition);
+            navigator.reset();
+            session.sessionContext.setRangeIterator(navigator);
 
-            session.sessionContext.setRangeIterator(it);
+            while (navigator.next()) {
+                Object[] data = navigator.getCurrent();
 
-            while (it.next()) {
                 for (int i = indexStartAggregates; i < indexLimitExpressions;
                         i++) {
                     ExpressionAggregate aggregate =
                         (ExpressionAggregate) exprColumns[i];
 
-                    it.currentData[i] = aggregate.getAggregatedValue(session,
-                            it.currentData[i]);
+                    data[i] = aggregate.getAggregatedValue(session, data[i]);
                 }
 
                 for (int i = 0; i < indexStartAggregates; i++) {
                     if (aggregateCheck[i]) {
-                        it.currentData[i] = exprColumns[i].getValue(session);
+                        data[i] = exprColumns[i].getValue(session);
                     }
                 }
             }
@@ -1616,6 +1630,12 @@ public class QuerySpecification extends QueryExpression {
     }
 
     void setUpdatability() {
+
+        if (!isUpdatable) {
+            return;
+        }
+
+        isUpdatable = false;
 
         if (isAggregated || isGrouped || isDistinctSelect || !isTopLevel) {
             return;

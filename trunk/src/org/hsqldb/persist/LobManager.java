@@ -54,6 +54,7 @@ import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
@@ -197,9 +198,10 @@ public class LobManager {
 
         lg.close();
 
-        String    sql       = (String) map.get("/*lob_schema_definition*/");
-        Statement statement = sysLobSession.compileStatement(sql);
-        Result    result    = statement.execute(sysLobSession);
+        String sql = (String) map.get("/*lob_schema_definition*/");
+        Statement statement = sysLobSession.compileStatement(sql,
+            ResultProperties.defaultPropsValue);
+        Result result = statement.execute(sysLobSession);
 
         if (result.isError()) {
             throw result.getException();
@@ -213,26 +215,38 @@ public class LobManager {
         Table table = database.schemaManager.getTable(sysLobSession, "BLOCKS",
             "SYSTEM_LOBS");
 
-        getLob     = sysLobSession.compileStatement(getLobSQL);
-        getLobPart = sysLobSession.compileStatement(getLobPartSQL);
-        createLob  = sysLobSession.compileStatement(createLobSQL);
+        getLob = sysLobSession.compileStatement(getLobSQL,
+                ResultProperties.defaultPropsValue);
+        getLobPart = sysLobSession.compileStatement(getLobPartSQL,
+                ResultProperties.defaultPropsValue);
+        createLob = sysLobSession.compileStatement(createLobSQL,
+                ResultProperties.defaultPropsValue);
         createLobPartCall =
-            sysLobSession.compileStatement(createLobPartCallSQL);
+            sysLobSession.compileStatement(createLobPartCallSQL,
+                                           ResultProperties.defaultPropsValue);
         divideLobPartCall =
-            sysLobSession.compileStatement(divideLobPartCallSQL);
-        deleteLobCall = sysLobSession.compileStatement(deleteLobCallSQL);
+            sysLobSession.compileStatement(divideLobPartCallSQL,
+                                           ResultProperties.defaultPropsValue);
+        deleteLobCall = sysLobSession.compileStatement(deleteLobCallSQL,
+                ResultProperties.defaultPropsValue);
         deleteLobPartCall =
-            sysLobSession.compileStatement(deleteLobPartCallSQL);
-        updateLobLength  = sysLobSession.compileStatement(updateLobLengthSQL);
-        updateLobUsage   = sysLobSession.compileStatement(updateLobUsageSQL);
-        getNextLobId     = sysLobSession.compileStatement(getNextLobIdSQL);
-        deleteUnusedLobs = sysLobSession.compileStatement(deleteUnusedCallSQL);
+            sysLobSession.compileStatement(deleteLobPartCallSQL,
+                                           ResultProperties.defaultPropsValue);
+        updateLobLength = sysLobSession.compileStatement(updateLobLengthSQL,
+                ResultProperties.defaultPropsValue);
+        updateLobUsage = sysLobSession.compileStatement(updateLobUsageSQL,
+                ResultProperties.defaultPropsValue);
+        getNextLobId = sysLobSession.compileStatement(getNextLobIdSQL,
+                ResultProperties.defaultPropsValue);
+        deleteUnusedLobs = sysLobSession.compileStatement(deleteUnusedCallSQL,
+                ResultProperties.defaultPropsValue);
     }
 
     public void initialiseLobSpace() {
 
         Statement statement =
-            sysLobSession.compileStatement(initialiseBlocksSQL);
+            sysLobSession.compileStatement(initialiseBlocksSQL,
+                                           ResultProperties.defaultPropsValue);
         Object[] params = new Object[3];
 
         params[0] = Integer.valueOf(0);

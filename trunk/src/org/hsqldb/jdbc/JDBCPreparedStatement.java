@@ -81,10 +81,10 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobDataID;
-import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
@@ -1489,7 +1489,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         }
 
         if (resultSetMetaData == null) {
-            boolean isUpdatable  = rsConcurrency == ResultSet.CONCUR_UPDATABLE;
+            boolean isUpdatable  = ResultProperties.isUpdatable(rsProperties);
             boolean isInsertable = isUpdatable;
 
             if (isInsertable) {
@@ -2273,7 +2273,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             checkClosed();
         }
 
-        return rsHoldability;
+        return ResultProperties.getJDBCHoldability(rsProperties);
     }
 
 //#endif JAVA4
@@ -3617,7 +3617,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             checkClosed();
         }
 
-        return rsConcurrency;
+        return ResultProperties.getJDBCConcurrency(rsProperties);
     }
 
     /**
@@ -3645,13 +3645,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized int getResultSetType() throws SQLException {
 
-// fredt - omit checkClosed() in order to be able to handle the result of a
-// SHUTDOWN query
+        // fredt - omit checkClosed() in order to be able to handle the result of a
+        // SHUTDOWN query
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
 
-        return rsScrollability;
+        return ResultProperties.getJDBCScrollability(rsProperties);
     }
 
     /**
@@ -3861,9 +3861,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
         }
         resultOut = Result.newPrepareStatementRequest();
-
+        int props = ResultProperties.getValueForJDBC(resultSetType, resultSetConcurrency, resultSetHoldability);
         resultOut.setPrepareOrExecuteProperties(sql, 0, 0, 0, queryTimeout,
-                resultSetType, resultSetConcurrency, resultSetHoldability,
+                                                props,
                 generatedKeys, generatedIndexes, generatedNames);
 
         Result in = session.execute(resultOut);
@@ -3896,9 +3896,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         parameterMetaData = in.parameterMetaData;
         parameterTypes    = parameterMetaData.getParameterTypes();
         parameterModes    = parameterMetaData.paramModes;
-        rsScrollability   = in.rsScrollability;
-        rsConcurrency     = in.rsConcurrency;
-        rsHoldability     = in.rsHoldability;
+
+        rsProperties      = in.rsProperties;
 
         //
         int paramCount = parameterMetaData.getColumnCount();

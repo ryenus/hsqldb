@@ -39,6 +39,8 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.result.ResultConstants;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BlobType;
@@ -4503,10 +4505,10 @@ public class ParserDQL extends ParserBase {
 
     StatementDMQL compileDeclareCursor() {
 
-        int sensitivity   = 0;    // ASENSITIVE
-        int scrollability = 0;    // NO_SCROLL
-        int holdability   = 0;    // WITHOUT_HOLD
-        int returnability = 0;    // WITHOUT_RETURN
+        int sensitivity   = ResultConstants.SQL_ASENSITIVE;
+        int scrollability = ResultConstants.SQL_NONSCROLLABLE;
+        int holdability   = ResultConstants.SQL_NONHOLDABLE;
+        int returnability = ResultConstants.SQL_WITHOUT_RETURN;
 
         readThis(Tokens.DECLARE);
         readNewSchemaObjectName(SchemaObject.CURSOR, true);
@@ -4516,13 +4518,13 @@ public class ParserDQL extends ParserBase {
             case Tokens.SENSITIVE :
                 read();
 
-                // sensitivity = SENSITIVE
+                sensitivity = ResultConstants.SQL_SENSITIVE;
                 break;
 
             case Tokens.INSENSITIVE :
                 read();
 
-                // sensitivity = INSENSITIVE
+                sensitivity = ResultConstants.SQL_INSENSITIVE;
                 break;
 
             case Tokens.ASENSITIVE :
@@ -4536,7 +4538,7 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType == Tokens.SCROLL) {
                 read();
 
-                // scrollability = SCROLL
+                scrollability = ResultConstants.SQL_SCROLLABLE;
             }
         }
 
@@ -4549,13 +4551,13 @@ public class ParserDQL extends ParserBase {
                 if (round == 0 && token.tokenType == Tokens.HOLD) {
                     read();
 
-                    // holdability = HOLD
+                    holdability = ResultConstants.SQL_HOLDABLE;
                 } else {
                     readThis(Tokens.RETURN);
 
                     round++;
 
-                    // returnability = WITH_RETURN
+                    returnability = ResultConstants.SQL_WITH_RETURN;
                 }
             } else if (token.tokenType == Tokens.WITHOUT) {
                 read();
@@ -4572,7 +4574,10 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.FOR);
 
-        StatementDMQL cs = compileCursorSpecification();
+        int props = ResultProperties.getProperties(sensitivity,
+            ResultConstants.SQL_UPDATABLE, scrollability, holdability,
+            returnability);
+        StatementDMQL cs = compileCursorSpecification(props);
 
         return cs;
     }
@@ -4580,12 +4585,10 @@ public class ParserDQL extends ParserBase {
     /**
      * Retrieves a SELECT or other query expression Statement from this parse context.
      */
-    StatementDMQL compileCursorSpecification() {
+    StatementDMQL compileCursorSpecification(int props) {
 
+        OrderedHashSet  colNames        = null;
         QueryExpression queryExpression = XreadQueryExpression();
-
-        queryExpression.setAsTopLevel();
-        queryExpression.resolve(session);
 
         if (token.tokenType == Tokens.FOR) {
             read();
@@ -4596,13 +4599,40 @@ public class ParserDQL extends ParserBase {
             } else {
                 readThis(Tokens.UPDATE);
 
+                props = ResultProperties.addUpdatable(props, true);
+
                 if (token.tokenType == Tokens.OF) {
                     readThis(Tokens.OF);
 
-                    OrderedHashSet colNames = readColumnNameList(null, false);
+                    colNames = readColumnNameList(null, false);
                 }
             }
         }
+
+        if (ResultProperties.isUpdatable(props)) {
+            queryExpression.isUpdatable = true;
+        }
+
+        queryExpression.setAsTopLevel();
+        queryExpression.resolve(session);
+
+        StatementDMQL cs = new StatementQuery(session, queryExpression,
+                                              compileContext);
+
+        return cs;
+    }
+
+    StatementDMQL compileShortCursorSpecification(
+            int props) {
+
+        QueryExpression queryExpression = XreadQueryExpression();
+
+        if (ResultProperties.isUpdatable(props)) {
+            queryExpression.isUpdatable = true;
+        }
+
+        queryExpression.setAsTopLevel();
+        queryExpression.resolve(session);
 
         StatementDMQL cs = new StatementQuery(session, queryExpression,
                                               compileContext);

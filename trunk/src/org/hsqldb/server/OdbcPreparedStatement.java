@@ -39,6 +39,7 @@ import java.util.Map;
 import org.hsqldb.Session;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
+import org.hsqldb.result.ResultProperties;
 
 class OdbcPreparedStatement {
 
@@ -70,10 +71,7 @@ class OdbcPreparedStatement {
         Result psResult = Result.newPrepareStatementRequest();
 
         psResult.setPrepareOrExecuteProperties(
-            query, 0, 0, 0, 0,
-            org.hsqldb.jdbc.JDBCResultSet.TYPE_FORWARD_ONLY,
-            org.hsqldb.jdbc.JDBCResultSet.CONCUR_READ_ONLY,
-            org.hsqldb.jdbc.JDBCResultSet.HOLD_CURSORS_OVER_COMMIT,
+            query, 0, 0, 0, 0,ResultProperties.defaultPropsValue,
             Statement.NO_GENERATED_KEYS, null, null);
 
         ackResult = session.execute(psResult);

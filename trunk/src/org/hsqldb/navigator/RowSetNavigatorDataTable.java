@@ -32,112 +32,131 @@
 package org.hsqldb.navigator;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.TreeMap;
 
+import org.hsqldb.HsqlException;
+import org.hsqldb.OpTypes;
 import org.hsqldb.QueryExpression;
 import org.hsqldb.QuerySpecification;
 import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.SortAndSlice;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
+import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
-import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.LongKeyHashMap;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.types.Type;
 
 /**
- * Implementation of RowSetNavigator for result sets.
+ * Implementation of RowSetNavigator using a table as the data store.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.9.0
  */
-public class RowSetNavigatorData extends RowSetNavigator
-implements Comparator {
+public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
-    public static final Object[][] emptyTable = new Object[0][];
-
-    //
-    int currentOffset;
-    int baseBlockSize;
-
-    //
-    Object[][] table = emptyTable;
-
-    //
-    final Session   session;
-    QueryExpression queryExpression;
-    int             visibleColumnCount;
-    boolean         isSimpleAggregate;
-    Object[]        simpleAggregateData;
+    final Session          session;
+    public TableBase       table;
+    public PersistentStore store;
+    RowIterator            iterator;
+    Row                    currentRow;
+    int                    maxMemoryRowCount;
+    boolean                isClosed;
+    int                    visibleColumnCount;
+    boolean                isAggregate;
+    boolean                isSimpleAggregate;
+    Object[]               simpleAggregateData;
 
     //
+    boolean reindexTable;
+
     //
     private Index mainIndex;
+    private Index fullIndex;
+    private Index orderIndex;
+    private Index groupIndex;
+    private Index idIndex;
 
-    //
-    TreeMap        rowMap;
-    LongKeyHashMap idMap;
+    public RowSetNavigatorDataTable(Session session,
+                                    QuerySpecification select) {
 
-    RowSetNavigatorData(Session session) {
-        this.session = session;
-    }
-
-    public RowSetNavigatorData(Session session, QuerySpecification select) {
+        super(session);
 
         this.session       = session;
-        this.queryExpression = select;
         this.rangePosition = select.resultRangePosition;
-        visibleColumnCount = select.getColumnCount();
-        isSimpleAggregate  = select.isAggregated && !select.isGrouped;
-
-        if (select.isGrouped) {
-            mainIndex = select.groupIndex;
-            rowMap    = new TreeMap(this);
-        }
-
-        if (select.idIndex != null) {
-            idMap = new LongKeyHashMap();
-        }
+        maxMemoryRowCount  = session.getResultMemoryRowCount();
+        visibleColumnCount = select.indexLimitVisible;
+        table              = select.resultTable.duplicate();
+        table.store = store = session.sessionData.getNewResultRowStore(table,
+                !select.isAggregated);
+        isAggregate       = select.isAggregated;
+        isSimpleAggregate = select.isAggregated && !select.isGrouped;
+        reindexTable      = select.isGrouped;
+        mainIndex         = select.mainIndex;
+        fullIndex         = select.fullIndex;
+        orderIndex        = select.orderIndex;
+        groupIndex        = select.groupIndex;
+        idIndex           = select.idIndex;
     }
 
-    public RowSetNavigatorData(Session session,
-                               QueryExpression queryExpression) {
+    public RowSetNavigatorDataTable(Session session,
+                                    QueryExpression queryExpression) {
+
+        super(session);
+
         this.session       = session;
-        this.queryExpression = queryExpression;
-        visibleColumnCount = queryExpression.getColumnCount();
+        maxMemoryRowCount  = session.getResultMemoryRowCount();
+        table              = queryExpression.resultTable.duplicate();
+        visibleColumnCount = table.getColumnCount();
+        table.store = store = session.sessionData.getNewResultRowStore(table,
+                true);
+        mainIndex = queryExpression.mainIndex;
+        fullIndex = queryExpression.fullIndex;
     }
 
-    /**
-     * For communication of small resuls such as BATCHEXECRESPONSE
-     */
-    public void setData(Object[][] table) {
-        this.table = table;
-        this.size  = table.length;
+    public RowSetNavigatorDataTable(Session session, TableBase table) {
+
+        super(session);
+
+        this.session       = session;
+        maxMemoryRowCount  = session.getResultMemoryRowCount();
+        this.table         = table;
+        visibleColumnCount = table.getColumnCount();
+        store              = session.sessionData.getRowStore(table);
+        mainIndex          = table.getPrimaryIndex();
+        fullIndex          = table.getFullIndex();
+        this.size          = mainIndex.size(store);
     }
 
     public void sortFull() {
 
-        mainIndex = queryExpression.fullIndex;
+        if (reindexTable) {
+            store.indexRows();
+        }
 
-        ArraySort.sort(table, 0, size, this);
+        mainIndex = fullIndex;
+
         reset();
+    }
+
+    public void sortFullCorresponding(int[] colIndex) {
+        sortFull();
     }
 
     public void sortOrder() {
 
-        if (queryExpression.orderIndex != null) {
-            mainIndex = queryExpression.orderIndex;
+        if (orderIndex != null) {
+            if (reindexTable) {
+                store.indexRows();
+            }
 
-            ArraySort.sort(table, 0, size, this);
+            mainIndex = orderIndex;
+
+            reset();
         }
-
-        reset();
     }
 
     public void sortUnion(SortAndSlice sortAndSlice) {
@@ -145,78 +164,45 @@ implements Comparator {
         if (sortAndSlice.index != null) {
             mainIndex = sortAndSlice.index;
 
-            ArraySort.sort(table, 0, size, this);
             reset();
         }
     }
 
     public void add(Object[] data) {
 
-        ensureCapacity();
+        try {
+            Row row = (Row) store.getNewCachedObject(session, data);
 
-        table[size] = data;
+            store.indexRow(null, row);
 
-        size++;
-
-        if (rowMap != null) {
-            rowMap.put(data, data);
-        }
-
-        if (idMap != null) {
-            Long id = (Long) data[visibleColumnCount];
-
-            idMap.put(id.longValue(), data);
-        }
-    }
-
-    public void addRow(Row row) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
+            size++;
+        } catch (HsqlException e) {}
     }
 
     void addAdjusted(Object[] data, int[] columnMap) {
 
-        data = projectData(data, columnMap);
+        try {
+            if (columnMap == null) {
+                data = (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
+                        visibleColumnCount);
+            } else {
+                Object[] newData = new Object[visibleColumnCount];
 
-        add(data);
-    }
+                ArrayUtil.projectRow(data, columnMap, newData);
 
-    void insertAdjusted(Object[] data, int[] columnMap) {
-        projectData(data, columnMap);
-        insert(data);
-    }
+                data = newData;
+            }
 
-    Object[] projectData(Object[] data, int[] columnMap) {
-
-        if (columnMap == null) {
-            data = (Object[]) ArrayUtil.resizeArrayIfDifferent(data,
-                    visibleColumnCount);
-        } else {
-            Object[] newData = new Object[visibleColumnCount];
-
-            ArrayUtil.projectRow(data, columnMap, newData);
-
-            data = newData;
-        }
-
-        return data;
-    }
-
-    /**
-     * for union only
-     */
-    void insert(Object[] data) {
-
-        ensureCapacity();
-        System.arraycopy(table, currentPos, table, currentPos + 1,
-                         size - currentPos);
-
-        table[currentPos] = data;
-
-        size++;
+            add(data);
+        } catch (HsqlException e) {}
     }
 
     public void clear() {
-        setData(emptyTable);
+
+        table.clearAllData(store);
+
+        size = 0;
+
         reset();
     }
 
@@ -225,52 +211,55 @@ implements Comparator {
     }
 
     public Object[] getCurrent() {
-
-        if (currentPos < 0 || currentPos >= size) {
-            return null;
-        }
-
-        if (currentPos == currentOffset + table.length) {
-            getBlock(currentOffset + table.length);
-        }
-
-        return table[currentPos - currentOffset];
+        return currentRow.getData();
     }
 
     public Row getCurrentRow() {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
-    }
-
-    public Object[] getNextRowData() {
-        return next() ? getCurrent()
-                      : null;
+        return currentRow;
     }
 
     public boolean next() {
-        return super.next();
+
+        boolean result = super.next();
+
+        currentRow = iterator.getNextRow();
+
+        return result;
     }
 
     public void remove() {
 
-        System.arraycopy(table, currentPos + 1, table, currentPos,
-                         size - currentPos - 1);
+        if (currentRow != null) {
+            iterator.remove();
 
-        table[size - 1] = null;
+            currentRow = null;
 
-        currentPos--;
-        size--;
+            currentPos--;
+            size--;
+        }
     }
 
     public void reset() {
+
         super.reset();
+
+        iterator = mainIndex.firstRow(store);
     }
 
     public void close() {
-        super.close();
+
+        if (isClosed) {
+            return;
+        }
+
+        iterator.release();
+        store.release();
+
+        isClosed = true;
     }
 
     public boolean isMemory() {
-        return true;
+        return store.isMemory();
     }
 
     public void read(RowInputInterface in,
@@ -296,7 +285,11 @@ implements Comparator {
     }
 
     public Object[] getData(Long rowId) {
-        return (Object[]) idMap.get(rowId);
+
+        RowIterator it = idIndex.findFirstRow(session, null, rowId,
+                                              OpTypes.EQUAL);
+
+        return it.getNext();
     }
 
     public void copy(RowSetNavigatorData other, int[] rightColumnIndexes) {
@@ -315,43 +308,38 @@ implements Comparator {
         Object[] currentData;
 
         removeDuplicates();
-        other.removeDuplicates();
+        reset();
 
         while (other.hasNext()) {
             currentData = other.getNext();
 
-            int position = ArraySort.searchFirst(table, 0, size, currentData,
-                                                 this);
+            RowIterator it = findFirstRow(currentData);
 
-            if (position < 0) {
-                position   = -position - 1;
-                currentPos = position;
-
-                insert(currentData);
+            if (!it.hasNext()) {
+                add(currentData);
             }
         }
 
         other.close();
-        reset();
     }
 
-    public void unionAll(RowSetNavigatorData other) {
+    public void unionAll(RowSetNavigatorData other, int[] rightColumnIndexes) {
 
         other.reset();
 
         while (other.hasNext()) {
             Object[] currentData = other.getNext();
 
-            add(currentData);
+            addAdjusted(currentData, rightColumnIndexes);
         }
 
         other.close();
-        reset();
     }
 
     public void intersect(RowSetNavigatorData other) {
 
         removeDuplicates();
+        reset();
         other.sortFull();
 
         while (hasNext()) {
@@ -364,39 +352,42 @@ implements Comparator {
         }
 
         other.close();
-        reset();
     }
 
     public void intersectAll(RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
+        Row         otherRow  = null;
         Object[]    otherData = null;
 
         sortFull();
+        reset();
         other.sortFull();
 
-        it = queryExpression.fullIndex.emptyIterator();
+        it = fullIndex.emptyIterator();
 
         while (hasNext()) {
             Object[] currentData = getNext();
             boolean newGroup =
                 compareData == null
-                || queryExpression.fullIndex.compareRowNonUnique(
+                || fullIndex.compareRowNonUnique(
                     session, currentData, compareData,
-                    visibleColumnCount) != 0;
+                    fullIndex.getColumnCount()) != 0;
 
             if (newGroup) {
                 compareData = currentData;
                 it          = other.findFirstRow(currentData);
             }
 
-            otherData = it.getNext();
+            otherRow  = it.getNextRow();
+            otherData = otherRow == null ? null
+                                         : otherRow.getData();
 
             if (otherData != null
-                    && queryExpression.fullIndex.compareRowNonUnique(
+                    && fullIndex.compareRowNonUnique(
                         session, currentData, otherData,
-                        visibleColumnCount) == 0) {
+                        fullIndex.getColumnCount()) == 0) {
                 continue;
             }
 
@@ -404,12 +395,12 @@ implements Comparator {
         }
 
         other.close();
-        reset();
     }
 
     public void except(RowSetNavigatorData other) {
 
         removeDuplicates();
+        reset();
         other.sortFull();
 
         while (hasNext()) {
@@ -422,45 +413,47 @@ implements Comparator {
         }
 
         other.close();
-        reset();
     }
 
     public void exceptAll(RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
+        Row         otherRow  = null;
         Object[]    otherData = null;
 
         sortFull();
+        reset();
         other.sortFull();
 
-        it = queryExpression.fullIndex.emptyIterator();
+        it = fullIndex.emptyIterator();
 
         while (hasNext()) {
             Object[] currentData = getNext();
             boolean newGroup =
                 compareData == null
-                || queryExpression.fullIndex.compareRowNonUnique(
+                || fullIndex.compareRowNonUnique(
                     session, currentData, compareData,
-                    queryExpression.fullIndex.getColumnCount()) != 0;
+                    fullIndex.getColumnCount()) != 0;
 
             if (newGroup) {
                 compareData = currentData;
                 it          = other.findFirstRow(currentData);
             }
 
-            otherData = it.getNext();
+            otherRow  = it.getNextRow();
+            otherData = otherRow == null ? null
+                                         : otherRow.getData();
 
             if (otherData != null
-                    && queryExpression.fullIndex.compareRowNonUnique(
+                    && fullIndex.compareRowNonUnique(
                         session, currentData, otherData,
-                        queryExpression.fullIndex.getColumnCount()) == 0) {
+                        fullIndex.getColumnCount()) == 0) {
                 remove();
             }
         }
 
         other.close();
-        reset();
     }
 
     public boolean hasUniqueNotNullRows() {
@@ -478,8 +471,8 @@ implements Comparator {
             }
 
             if (lastRowData != null
-                    && queryExpression.fullIndex.compareRow(
-                        session, lastRowData, currentData) == 0) {
+                    && fullIndex.compareRow(session, lastRowData, currentData)
+                       == 0) {
                 return false;
             } else {
                 lastRowData = currentData;
@@ -500,15 +493,13 @@ implements Comparator {
             Object[] currentData = getNext();
 
             if (lastRowData != null
-                    && queryExpression.fullIndex.compareRow(
-                        session, lastRowData, currentData) == 0) {
+                    && fullIndex.compareRow(session, lastRowData, currentData)
+                       == 0) {
                 remove();
             } else {
                 lastRowData = currentData;
             }
         }
-
-        reset();
     }
 
     public void trim(int limitstart, int limitcount) {
@@ -546,8 +537,6 @@ implements Comparator {
             next();
             remove();
         }
-
-        reset();
     }
 
     private boolean hasNull(Object[] data) {
@@ -559,6 +548,19 @@ implements Comparator {
         }
 
         return false;
+    }
+
+    private boolean equals(Object[] data1, Object[] data2) {
+
+        Type[] types = table.getColumnTypes();
+
+        for (int i = 0; i < visibleColumnCount; i++) {
+            if (types[i].compare(session, data1[i], data2[i]) != 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -576,114 +578,32 @@ implements Comparator {
             return simpleAggregateData;
         }
 
-        return (Object[]) rowMap.get(data);
+        RowIterator it = groupIndex.findFirstRow(session, store, data);
+
+        if (it.hasNext()) {
+            Row row = it.getNextRow();
+
+            if (isAggregate) {
+                row.setChanged();
+            }
+
+            return row.getData();
+        }
+
+        return null;
     }
 
     boolean containsRow(Object[] data) {
 
-        int position = ArraySort.searchFirst(table, 0, size, data, this);
+        RowIterator it     = mainIndex.findFirstRow(session, store, data);
+        boolean     result = it.hasNext();
 
-        return position >= 0;
+        it.release();
+
+        return result;
     }
 
     RowIterator findFirstRow(Object[] data) {
-
-        int position = ArraySort.searchFirst(table, 0, size, data, this);
-
-        if (position < 0) {
-            position = size;
-        } else {
-            position--;
-        }
-
-        return new DataIterator(position);
-    }
-
-    /**
-     * baseBlockSize remains unchanged.
-     */
-    void getBlock(int offset) {
-
-        // no op for no blocks
-    }
-
-    private void ensureCapacity() {
-
-        if (size == table.length) {
-            int        newSize  = size == 0 ? 1
-                                            : size * 2;
-            Object[][] newTable = new Object[newSize][];
-
-            System.arraycopy(table, 0, newTable, 0, size);
-
-            table = newTable;
-        }
-    }
-
-    void implement() {
-        throw Error.error(ErrorCode.U_S0500, "RSND");
-    }
-
-    class DataIterator implements RowIterator {
-
-        int pos;
-
-        DataIterator(int position) {
-            pos = position;
-        }
-
-        public Row getNextRow() {
-            return null;
-        }
-
-        public Object[] getNext() {
-
-            if (hasNext()) {
-                pos++;
-
-                return table[pos];
-            }
-
-            return null;
-        }
-
-        public boolean hasNext() {
-            return pos < size - 1;
-        }
-
-        public void remove() {}
-
-        public boolean setRowColumns(boolean[] columns) {
-            return false;
-        }
-
-        public void release() {}
-
-        public long getRowId() {
-            return 0L;
-        }
-    }
-
-    public int compare(Object a, Object b) {
-        return mainIndex.compareRow(session, (Object[]) a, (Object[]) b);
-    }
-
-    public static class RowDataCorrespondingComparator implements Comparator {
-
-        Session session;
-        Index   index;
-        int[]   colIndex;
-
-        public void setParams(Session session, Index index, int[] colIndex) {
-
-            this.session  = session;
-            this.index    = index;
-            this.colIndex = colIndex;
-        }
-
-        public int compare(Object a, Object b) {
-            return index.compareRowNonUnique(session, (Object[]) a, colIndex,
-                                             (Object[]) b);
-        }
+        return mainIndex.findFirstRow(session, store, data);
     }
 }

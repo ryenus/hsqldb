@@ -1465,13 +1465,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Shortcut for creating system table PK's.
-     */
-    void createPrimaryKey(int[] cols) {
-        createPrimaryKey(null, cols, false);
-    }
-
-    /**
      *  Shortcut for creating default PK's.
      */
     public void createPrimaryKey() {

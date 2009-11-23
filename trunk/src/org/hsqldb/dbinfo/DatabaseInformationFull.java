@@ -71,6 +71,7 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.persist.TextCache;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.Right;
 import org.hsqldb.scriptio.ScriptWriterBase;
@@ -851,7 +852,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*system_procedures*/");
-        Result rs  = sys.executeDirectStatement(sql);
+        Result rs =
+            sys.executeDirectStatement(sql,
+                                       ResultProperties.defaultPropsValue);
 
 /*
         RowSetNavigator nav = rs.getNavigator();
@@ -2373,7 +2376,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Result rs = sys.executeDirectStatement(
             "SELECT DOMAIN_CATALOG, DOMAIN_SCHEMA, DOMAIN_NAME, TABLE_CATALOG, "
             + "TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS "
-            + "WHERE DOMAIN_NAME IS NOT NULL;");
+            + "WHERE DOMAIN_NAME IS NOT NULL;", ResultProperties.defaultPropsValue);
 
         t.insertSys(store, rs);
         sys.close();
@@ -2421,7 +2424,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Result rs = sys.executeDirectStatement(
             "SELECT UDT_CATALOG, UDT_SCHEMA, UDT_NAME, TABLE_CATALOG, "
             + "TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS "
-            + "WHERE UDT_NAME IS NOT NULL;");
+            + "WHERE UDT_NAME IS NOT NULL;", ResultProperties.defaultPropsValue);
 
         t.insertSys(store, rs);
         sys.close();
@@ -2987,7 +2990,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Result rs = sys.executeDirectStatement(
             "select DISTINCT CONSTRAINT_CATALOG, CONSTRAINT_SCHEMA, "
             + "CONSTRAINT_NAME, TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME "
-            + "from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE");
+            + "from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE", ResultProperties
+                .defaultPropsValue);
 
         t.insertSys(store, rs);
         sys.close();
@@ -3025,7 +3029,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*data_type_privileges*/");
-        Result rs  = sys.executeDirectStatement(sql);
+        Result rs =
+            sys.executeDirectStatement(sql,
+                                       ResultProperties.defaultPropsValue);
 
         t.insertSys(store, rs);
         sys.close();
@@ -4035,7 +4041,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Result rs = sys.executeDirectStatement(
             "SELECT GRANTOR, GRANTEE, TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, PRIVILEGE_TYPE, IS_GRANTABLE "
             + "FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties.defaultPropsValue);
 
         t.insertSys(store, rs);
         sys.close();
@@ -4080,7 +4086,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             + "SPECIFIC_NAME, ROUTINE_CATALOG, ROUTINE_SCHEMA, ROUTINE_NAME, "
             + "PRIVILEGE_TYPE, IS_GRANTABLE "
             + "FROM INFORMATION_SCHEMA.ROUTINE_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties
+                .defaultPropsValue);
 
         t.insertSys(store, rs);
         sys.close();
@@ -4139,7 +4146,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             "SELECT GRANTOR, GRANTEE, TABLE_CATALOG, TABLE_SCHEMA, TABLE_NAME, "
             + "PRIVILEGE_TYPE, IS_GRANTABLE, 'NO' "
             + "FROM INFORMATION_SCHEMA.TABLE_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties
+                .defaultPropsValue);
 
         t.insertSys(store, rs);
         sys.close();
@@ -4178,7 +4186,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             "SELECT GRANTOR, GRANTEE, UDT_CATALOG, UDT_SCHEMA, UDT_NAME, "
             + "PRIVILEGE_TYPE, IS_GRANTABLE "
             + "FROM INFORMATION_SCHEMA.UDT_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties
+                .defaultPropsValue);
 
         t.insertSys(store, rs);
         sys.close();
@@ -4220,7 +4229,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             "SELECT GRANTOR, GRANTEE, OBJECT_CATALOG, OBJECT_SCHEMA, OBJECT_NAME, "
             + "OBJECT_TYPE, PRIVILEGE_TYPE, IS_GRANTABLE "
             + "FROM INFORMATION_SCHEMA.USAGE_PRIVILEGES "
-            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;");
+            + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties
+                .defaultPropsValue);
 
         t.insertSys(store, rs);
         sys.close();
@@ -5343,7 +5353,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_features*/");
-        Result rs  = sys.executeDirectStatement(sql);
+        Result rs =
+            sys.executeDirectStatement(sql,
+                                       ResultProperties.defaultPropsValue);
 
         t.insertSys(store, rs);
 
@@ -5412,7 +5424,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_packages*/");
-        Result rs  = sys.executeDirectStatement(sql);
+        Result rs =
+            sys.executeDirectStatement(sql,
+                                       ResultProperties.defaultPropsValue);
 
         t.insertSys(store, rs);
 
@@ -5444,7 +5458,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_parts*/");
-        Result rs  = sys.executeDirectStatement(sql);
+        Result rs =
+            sys.executeDirectStatement(sql,
+                                       ResultProperties.defaultPropsValue);
 
         t.insertSys(store, rs);
 
@@ -5475,7 +5491,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Session sys = database.sessionManager.newSysSession(
             SqlInvariants.INFORMATION_SCHEMA_HSQLNAME, session.getUser());
         String sql = (String) statementMap.get("/*sql_sizing*/");
-        Result rs  = sys.executeDirectStatement(sql);
+        Result rs =
+            sys.executeDirectStatement(sql,
+                                       ResultProperties.defaultPropsValue);
 
         t.insertSys(store, rs);
 

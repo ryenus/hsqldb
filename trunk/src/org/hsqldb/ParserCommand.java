@@ -38,6 +38,8 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.HsqlDatabaseProperties;
+import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -55,9 +57,9 @@ public class ParserCommand extends ParserDDL {
         super(session, t);
     }
 
-    Statement compileStatement() {
+    Statement compileStatement(int props) {
 
-        Statement cs = compilePart();
+        Statement cs = compilePart(props);
 
         if (token.tokenType == Tokens.X_ENDPARSE) {
             if (cs.getSchemalName() == null) {
@@ -70,7 +72,7 @@ public class ParserCommand extends ParserDDL {
         throw unexpectedToken();
     }
 
-    HsqlArrayList compileStatements(String sql, int returnType) {
+    HsqlArrayList compileStatements(String sql, Result cmd) {
 
         HsqlArrayList list = new HsqlArrayList();
         Statement     cs   = null;
@@ -82,7 +84,7 @@ public class ParserCommand extends ParserDDL {
                 break;
             }
 
-            cs = compilePart();
+            cs = compilePart(cmd.getExecuteProperties());
 
             if (cs.getParametersMetaData().getColumnCount() > 0) {
                 throw Error.error(ErrorCode.X_42575);
@@ -90,6 +92,8 @@ public class ParserCommand extends ParserDDL {
 
             list.add(cs);
         }
+
+        int returnType = cmd.getStatementType();
 
         if (returnType != StatementTypes.RETURN_ANY) {
             int group = cs.getGroup();
@@ -106,7 +110,7 @@ public class ParserCommand extends ParserDDL {
         return list;
     }
 
-    private Statement compilePart() {
+    private Statement compilePart(int props) {
 
         Statement cs;
 
@@ -125,7 +129,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.VALUES :
             case Tokens.TABLE :
             case Tokens.SELECT : {
-                cs = compileCursorSpecification();
+                cs = compileShortCursorSpecification(props);
 
                 break;
             }
@@ -1754,7 +1758,7 @@ public class ParserCommand extends ParserDDL {
         readThis(Tokens.PLAN);
         readThis(Tokens.FOR);
 
-        cs                 = compilePart();
+        cs                 = compilePart(ResultProperties.defaultPropsValue);
         cs.writeTableNames = HsqlName.emptyArray;
         cs.readTableNames  = HsqlName.emptyArray;
 

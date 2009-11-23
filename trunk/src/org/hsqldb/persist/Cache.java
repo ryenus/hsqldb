@@ -31,10 +31,11 @@
 
 package org.hsqldb.persist;
 
+import java.util.Comparator;
+
 import org.hsqldb.error.Error;
-import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.lib.ArraySort;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.store.BaseHashMap;
 
@@ -239,7 +240,7 @@ public class Cache extends BaseHashMap {
 
         rowComparator.setType(CachedObjectComparator.COMPARE_POSITION);
         sortTimer.start();
-        ArraySort.sort(rowTable, rowComparator, 0, count - 1);
+        ArraySort.sort(rowTable, 0, count, rowComparator);
         sortTimer.stop();
         saveAllTimer.start();
         dataFileCache.saveRows(rowTable, 0, count);
@@ -296,7 +297,7 @@ public class Cache extends BaseHashMap {
         cacheBytesLength = 0;
     }
 
-    static final class CachedObjectComparator implements ObjectComparator {
+    static final class CachedObjectComparator implements Comparator {
 
         static final int COMPARE_LAST_ACCESS = 0;
         static final int COMPARE_POSITION    = 1;
