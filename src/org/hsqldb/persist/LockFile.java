@@ -826,6 +826,12 @@ public class LockFile {
 
 //#endif JAVA2
         if (length != USED_REGION) {
+            if (length == 0) {
+                file.delete();
+
+                return;
+            }
+
             throw new WrongLengthException(this, "checkHeartbeat", length);
         }
 

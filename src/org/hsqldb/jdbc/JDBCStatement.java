@@ -42,6 +42,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultProperties;
 
 /* $Id$ */
 
@@ -884,7 +885,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
 
         checkClosed();
 
-        return rsConcurrency;
+        return ResultProperties.getJDBCConcurrency(rsProperties);
     }
 
     /**
@@ -914,7 +915,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
 
         checkClosed();
 
-        return rsScrollability;
+        return ResultProperties.getJDBCScrollability(rsProperties);
     }
 
     /**
@@ -1619,7 +1620,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      */
 //#ifdef JAVA4
     public synchronized int getResultSetHoldability() throws SQLException {
-        return rsHoldability;
+        return ResultProperties.getJDBCHoldability(rsProperties);
     }
 
 //#endif JAVA4
@@ -1759,14 +1760,11 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @param resultSetConcurrency int
      * @param resultSetHoldability int
      */
-    JDBCStatement(JDBCConnection c, int resultSetScrollability,
-                  int resultSetConcurrency, int resultSetHoldability) {
+    JDBCStatement(JDBCConnection c, int props) {
 
         resultOut       = Result.newExecuteDirectRequest();
         connection      = c;
-        rsScrollability = resultSetScrollability;
-        rsConcurrency   = resultSetConcurrency;
-        rsHoldability   = resultSetHoldability;
+        rsProperties = props;
     }
 
     /**
@@ -1792,8 +1790,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             sql = connection.nativeSQL(sql);
         }
         resultOut.setPrepareOrExecuteProperties(sql, maxRows, fetchSize,
-                statementRetType, queryTimeout, rsScrollability,
-                rsConcurrency, rsHoldability, generatedKeys, generatedIndexes,
+                statementRetType, queryTimeout, rsProperties, generatedKeys, generatedIndexes,
                 generatedNames);
 
         try {

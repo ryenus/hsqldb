@@ -32,9 +32,10 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.result.ResultProperties;
 
 /**
  * Base class for compiled statement objects.<p>
@@ -228,5 +229,9 @@ public abstract class Statement {
 
     public ResultMetaData getParametersMetaData() {
         return ResultMetaData.emptyParamMetaData;
+    }
+
+    public int getResultProperties() {
+        return ResultProperties.defaultPropsValue;
     }
 }

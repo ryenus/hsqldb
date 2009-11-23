@@ -135,7 +135,7 @@ public class IndexAVL implements Index {
     private static final IndexRowIterator emptyIterator =
         new IndexRowIterator(null, (PersistentStore) null, null, null, false);
     protected TableBase table;
-    int                       position;
+    int                 position;
 
     //
     ReadWriteLock lock      = new ReentrantReadWriteLock();
@@ -359,6 +359,7 @@ public class IndexAVL implements Index {
     public void setTable(TableBase table) {
         this.table = table;
     }
+
     /**
      * Returns the node count.
      */
@@ -1293,7 +1294,7 @@ public class IndexAVL implements Index {
         return 0;
     }
 
-    int compareRow(Session session, Object[] a, Object[] b) {
+    public int compareRow(Session session, Object[] a, Object[] b) {
 
         for (int j = 0; j < colIndex.length; j++) {
             int i = colTypes[j].compare(session, a[colIndex[j]],
@@ -1578,6 +1579,14 @@ public class IndexAVL implements Index {
             return lastrow;
         }
 
+        public Object[] getNext() {
+
+            Row row = getNextRow();
+
+            return row == null ? null
+                               : row.getData();
+        }
+
         public void remove() {
             store.delete(lastrow);
             store.remove(lastrow.getPos());
@@ -1589,7 +1598,7 @@ public class IndexAVL implements Index {
             return false;
         }
 
-        public long getPos() {
+        public long getRowId() {
             return nextnode.getPos();
         }
     }

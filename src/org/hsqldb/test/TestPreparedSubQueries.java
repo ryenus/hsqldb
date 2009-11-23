@@ -61,7 +61,7 @@ public class TestPreparedSubQueries extends TestCase {
     ;
 
     private sqlStmt[] stmtArray = {
-        new sqlStmt("drop table a if exists", false, false),
+        new sqlStmt("drop table a if exists cascade", false, false),
         new sqlStmt("create cached table a (a int identity,b int)", false,
                     false),
         new sqlStmt("create index bIdx on a(b)", false, false),

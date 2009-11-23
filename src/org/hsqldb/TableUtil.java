@@ -81,7 +81,8 @@ public class TableUtil {
                                  Type.SQL_INTEGER, false, true, null);
 
             table.addColumn(column);
-            table.createPrimaryKey(new int[]{ 0 });
+            table.createPrimaryKeyConstraint(table.getName(), new int[]{ 0 },
+                                             true);
 
             return table;
         } catch (HsqlException e) {

@@ -227,4 +227,7 @@ public interface Index extends SchemaObject {
      */
     public int compareRowNonUnique(Session session, Object[] a, Object[] b,
                                    int fieldcount);
+
+    public int compareRow(Session session, Object[] a, Object[] b);
+
 }

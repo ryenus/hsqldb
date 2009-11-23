@@ -69,6 +69,7 @@ import org.hsqldb.lib.StringUtil;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
+import org.hsqldb.result.ResultProperties;
 
 import java.sql.SQLData;
 import java.sql.SQLOutput;
@@ -565,9 +566,11 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        Statement stmt = new JDBCStatement(this,
+        int props = ResultProperties.getValueForJDBC(
             JDBCResultSet.TYPE_FORWARD_ONLY, JDBCResultSet.CONCUR_READ_ONLY,
             rsHoldability);
+
+        Statement stmt = new JDBCStatement(this,props);
 
         return stmt;
     }
@@ -1558,8 +1561,10 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        return new JDBCStatement(this, resultSetType, resultSetConcurrency,
+        int props = ResultProperties.getValueForJDBC(resultSetType, resultSetConcurrency,
                                  rsHoldability);
+
+        return new JDBCStatement(this,props);
     }
 
     /**
@@ -2262,8 +2267,9 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        return new JDBCStatement(this, resultSetType, resultSetConcurrency,
+        int props = ResultProperties.getValueForJDBC(resultSetType, resultSetConcurrency,
                                  resultSetHoldability);
+        return new JDBCStatement(this, props);
     }
 
 //#endif JAVA4

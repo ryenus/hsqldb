@@ -31,7 +31,9 @@
 
 package org.hsqldb.lib;
 
-public class StringComparator implements ObjectComparator {
+import java.util.Comparator;
+
+public class StringComparator implements Comparator {
 
     /*
      * @author Fred Toussi (fredt@users dot sourceforge.net)

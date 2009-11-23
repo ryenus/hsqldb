@@ -39,7 +39,7 @@ import org.hsqldb.Row;
  * @version 1.9.0
  * @since 1.9.0
  */
-public interface RangeIterator {
+public interface RangeIterator extends RowIterator {
 
     boolean isBeforeFirst();
 
@@ -50,8 +50,6 @@ public interface RangeIterator {
     Object[] getCurrent();
 
     void setCurrent(Object[] data);
-
-    long getRowid();
 
     Object getRowidObject();
 

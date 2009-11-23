@@ -67,10 +67,10 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.StringInputStream;
 import org.hsqldb.navigator.RowSetNavigator;
-import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
@@ -1548,10 +1548,8 @@ public class JDBCResultSet implements ResultSet {
         checkClosed();
 
         if (resultSetMetaData == null) {
-            boolean isUpdatable = rsConcurrency == ResultSet.CONCUR_UPDATABLE;
-
             resultSetMetaData = new JDBCResultSetMetaData(resultMetaData,
-                    isUpdatable, rsInsertability, connnection);
+                    isUpdatable, isInsertable, connnection);
         }
 
         return resultSetMetaData;
@@ -2563,7 +2561,7 @@ public class JDBCResultSet implements ResultSet {
 
         checkClosed();
 
-        return rsScrollabilty;
+        return ResultProperties.getJDBCScrollability(rsProperties);
     }
 
     /**
@@ -2594,7 +2592,7 @@ public class JDBCResultSet implements ResultSet {
 
         checkClosed();
 
-        return rsConcurrency;
+        return ResultProperties.getJDBCConcurrency(rsProperties);
     }
 
     //---------------------------------------------------------------------
@@ -5397,7 +5395,7 @@ public class JDBCResultSet implements ResultSet {
 
         checkClosed();
 
-        return rsHoldability;
+        return ResultProperties.getJDBCHoldability(rsProperties);
     }
 
     /**
@@ -6949,16 +6947,18 @@ public class JDBCResultSet implements ResultSet {
     /**
      * The scrollability / scroll sensitivity type of this result.
      */
-    int rsScrollabilty;
+    boolean isScrollable;
 
     /** The concurrency of this result. */
-    int rsConcurrency;
+    boolean isReadOnly;
 
-    /** The holdability of this result. */
-    int rsHoldability;
+    /** The updatability of this result. */
+    boolean isUpdatable;
 
     /** The insertability of this result. */
-    boolean rsInsertability;
+    boolean isInsertable;
+
+    int rsProperties;
     int     fetchSize;
 
     /** Statement is closed when its result set is closed */
@@ -7134,7 +7134,7 @@ public class JDBCResultSet implements ResultSet {
 
     private void checkNotForwardOnly() throws SQLException {
 
-        if (rsScrollabilty == TYPE_FORWARD_ONLY) {
+        if (!isScrollable) {
             throw Util.notSupported();
         }
     }
@@ -7156,7 +7156,7 @@ public class JDBCResultSet implements ResultSet {
 
         checkClosed();
 
-        if (rsConcurrency == ResultSet.CONCUR_READ_ONLY) {
+        if (!isUpdatable) {
             throw Util.notUpdatableColumn();
         }
     }
@@ -7166,7 +7166,7 @@ public class JDBCResultSet implements ResultSet {
         checkClosed();
         checkColumn(columnIndex);
 
-        if (rsConcurrency == ResultSet.CONCUR_READ_ONLY) {
+        if (!isUpdatable) {
             throw Util.notUpdatableColumn();
         }
 
@@ -7316,19 +7316,23 @@ public class JDBCResultSet implements ResultSet {
         this.statement   = s;
         this.result      = r;
         this.connnection = conn;
-        rsScrollabilty   = r.rsScrollability;
-        rsConcurrency    = r.rsConcurrency;
-        rsHoldability    = r.rsHoldability;
+        rsProperties   = r.rsProperties;
+
         navigator        = r.getNavigator();
         resultMetaData   = metaData;
         columnCount      = resultMetaData.getColumnCount();
 
-        if (rsConcurrency == ResultSet.CONCUR_UPDATABLE) {
-            rsInsertability = true;
+        isScrollable = ResultProperties.isScrollable(rsProperties);
+
+
+
+        if (ResultProperties.isUpdatable(rsProperties)) {
+            isUpdatable = true;
+            isInsertable = true;
 
             for (int i = 0; i < metaData.colIndexes.length; i++) {
                 if (metaData.colIndexes[i] < 0) {
-                    rsInsertability = false;
+                    isInsertable = false;
 
                     break;
                 }

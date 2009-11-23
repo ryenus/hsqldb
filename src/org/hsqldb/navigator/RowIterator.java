@@ -43,6 +43,8 @@ public interface RowIterator {
 
     Row getNextRow();
 
+    Object[] getNext();
+
     boolean hasNext();
 
     void remove();
@@ -51,5 +53,5 @@ public interface RowIterator {
 
     void release();
 
-    long getPos();
+    long getRowId();
 }

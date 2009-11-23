@@ -37,6 +37,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.result.ResultProperties;
 
 /**
  * Implementation of Statement for query expressions.<p>
@@ -95,5 +96,9 @@ public class StatementQuery extends StatementDMQL {
                 subqueries[i].queryExpression.getBaseTableNames(set);
             }
         }
+    }
+
+    public int getResultProperties() {
+        return ResultProperties.defaultPropsValue;
     }
 }

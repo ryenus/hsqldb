@@ -38,6 +38,7 @@ import org.hsqldb.lib.LongKeyHashMap;
 import org.hsqldb.lib.LongKeyIntValueHashMap;
 import org.hsqldb.lib.LongValueHashMap;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultProperties;
 
 /**
  * This class manages the reuse of Statement objects for prepared
@@ -188,7 +189,7 @@ public final class StatementManager {
 
                 session.setSchema(schema.name);
 
-                cs = session.compileStatement(sql);
+                cs = session.compileStatement(sql, cs.getResultProperties());
 
                 session.setSchema(oldSchema.name);
                 cs.setID(csid);
@@ -283,13 +284,15 @@ public final class StatementManager {
     synchronized Statement compile(Session session,
                                    Result cmd) throws Throwable {
 
-        String    sql  = cmd.getMainString();
-        long      csid = getStatementID(session.currentSchema, sql);
-        Statement cs   = (Statement) csidMap.get(csid);
+        String           sql  = cmd.getMainString();
+        long             csid = getStatementID(session.currentSchema, sql);
+        Statement        cs   = (Statement) csidMap.get(csid);
+        int props;
 
         if (cs == null || !cs.isValid()) {
-            cs   = session.compileStatement(sql);
-            csid = registerStatement(csid, cs);
+            props = cmd.getExecuteProperties();
+            cs    = session.compileStatement(sql, props);
+            csid  = registerStatement(csid, cs);
         }
 
         return cs;

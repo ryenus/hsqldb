@@ -639,7 +639,7 @@ public class StatementDML extends StatementDMQL {
         while (it.next()) {
             Row currentRow = it.getCurrentRow();
 
-            oldRows.add(currentRow);
+            oldRows.addRow(currentRow);
         }
 
         count = delete(session, baseTable, oldRows);
@@ -847,7 +847,8 @@ public class StatementDML extends StatementDMQL {
 
                     if (refrow == null || refrow.isDeleted(session)
                             || refindex.compareRowNonUnique(
-                                session, mdata, m_columns, refrow.getData()) != 0) {
+                                session, mdata, m_columns,
+                                refrow.getData()) != 0) {
                         break;
                     }
 
@@ -1102,8 +1103,8 @@ public class StatementDML extends StatementDMQL {
                     refrow = refiterator.getNextRow()) {
                 if (refrow == null
                         || refindex.compareRowNonUnique(
-                            session, orow.getData(),
-                            m_columns, refrow.getData()) != 0) {
+                            session, orow.getData(), m_columns,
+                            refrow.getData()) != 0) {
                     break;
                 }
 

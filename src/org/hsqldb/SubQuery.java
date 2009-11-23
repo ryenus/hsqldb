@@ -31,11 +31,13 @@
 
 package org.hsqldb;
 
+import java.util.Comparator;
+
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.ObjectComparator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.navigator.RowSetNavigatorData;
+import org.hsqldb.navigator.RowSetNavigatorDataTable;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 
@@ -49,7 +51,7 @@ import org.hsqldb.result.Result;
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  */
-class SubQuery implements ObjectComparator {
+class SubQuery implements Comparator {
 
     int                  level;
     private boolean      isCorrelated;
@@ -195,6 +197,7 @@ class SubQuery implements ObjectComparator {
         if (uniqueRows) {
             RowSetNavigatorData navigator =
                 ((RowSetNavigatorData) result.getNavigator());
+
             navigator.removeDuplicates();
         }
 
@@ -206,7 +209,7 @@ class SubQuery implements ObjectComparator {
 
     public boolean hasUniqueNotNullRows(Session session) {
 
-        RowSetNavigatorData navigator = new RowSetNavigatorData(session,
+        RowSetNavigatorData navigator = new RowSetNavigatorDataTable(session,
             table);
         boolean result = navigator.hasUniqueNotNullRows();
 

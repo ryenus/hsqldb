@@ -34,6 +34,7 @@ package org.hsqldb.persist;
 import java.io.EOFException;
 
 import org.hsqldb.Database;
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
 import org.hsqldb.Statement;
 import org.hsqldb.StatementDML;
@@ -43,11 +44,10 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.StopWatch;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultConstants;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
-import org.hsqldb.HsqlNameManager.HsqlName;
 
 /**
  * Restores the state of a Database instance from an SQL log file. <p>
@@ -122,7 +122,8 @@ public class ScriptRunner {
 
                     case ScriptReaderBase.ANY_STATEMENT :
                         statement = scr.getLoggedStatement();
-                        result    = current.executeDirectStatement(statement);
+                        result = current.executeDirectStatement(statement,
+                                ResultProperties.defaultPropsValue);
 
                         if (result != null && result.isError()) {
                             if (result.getException() != null) {

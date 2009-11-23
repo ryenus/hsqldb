@@ -32,6 +32,7 @@
 package org.hsqldb.lib;
 
 import java.lang.reflect.Array;
+import java.util.Comparator;
 
 // fredt@users - 1.8.0, 1.9.0 - enhancements
 
@@ -376,13 +377,13 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         return a;
     }
 
-    public void sort(ObjectComparator c) {
+    public void sort(Comparator c) {
 
         if (elementCount < 2) {
             return;
         }
 
-        ArraySort.sort(elementData, c, 0, elementCount - 1);
+        ArraySort.sort(elementData, 0, elementCount, c);
     }
 
     public Object[] getArray() {

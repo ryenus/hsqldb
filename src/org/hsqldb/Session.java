@@ -56,6 +56,7 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
@@ -825,11 +826,11 @@ public class Session implements SessionInterface {
         return transactionTimestamp;
     }
 
-    public Statement compileStatement(String sql) {
+    public Statement compileStatement(String sql, int props) {
 
         parser.reset(sql);
 
-        Statement cs = parser.compileStatement();
+        Statement cs = parser.compileStatement(props);
 
         return cs;
     }
@@ -1096,7 +1097,7 @@ public class Session implements SessionInterface {
         }
 
         try {
-            list = parser.compileStatements(sql, cmd.getStatementType());
+            list = parser.compileStatements(sql, cmd);
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
         }
@@ -1119,14 +1120,14 @@ public class Session implements SessionInterface {
         return result;
     }
 
-    public Result executeDirectStatement(String sql) {
+    public Result executeDirectStatement(String sql, int props) {
 
         Statement cs;
 
         parser.reset(sql);
 
         try {
-            cs = parser.compileStatement();
+            cs = parser.compileStatement(props);
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
         }
@@ -1297,7 +1298,7 @@ public class Session implements SessionInterface {
                         in.getChainedResult().getNavigator();
 
                     while (navgen.hasNext()) {
-                        Object generatedRow = navgen.getNext();
+                        Object[] generatedRow = navgen.getNext();
 
                         generatedResult.getNavigator().add(generatedRow);
                     }
@@ -1345,7 +1346,8 @@ public class Session implements SessionInterface {
             String   sql  = (String) data[0];
 
             try {
-                in = executeDirectStatement(sql);
+                in = executeDirectStatement(
+                    sql, ResultProperties.defaultPropsValue);
             } catch (Throwable t) {
                 in = Result.newErrorResult(t);
 
@@ -1839,8 +1841,8 @@ public class Session implements SessionInterface {
     public void setResultMemoryRowCount(int count) {
 
         if (database.logger.getTempDirectoryPath() != null) {
-            if (count <= 0) {
-                count = Integer.MAX_VALUE;
+            if (count < 0) {
+                count = 0;
             }
 
             resultMaxMemoryRows = count;

@@ -31,9 +31,13 @@
 
 package org.hsqldb.lib;
 
+import java.util.Comparator;
+
 /**
  * FastQSorts the [l,r] partition (inclusive) of the specfied array of
- * Rows, using the comparator.
+ * Rows, using the comparator.<p>
+ *
+ * Searches an ordered array.<p>
  *
  * @author Tony Lai
  * @author Fred Toussi
@@ -42,13 +46,50 @@ package org.hsqldb.lib;
  */
 public class ArraySort {
 
-    public static void sort(Object[] array, ObjectComparator comparator,
-                            int l, int r) {
-        quickSort(array, comparator, l, r);
-        insertionSort(array, comparator, l, r);
+    /**
+     * Returns the index of the lowest element == the given search target,
+     * or -1
+     * @return index or (- insert pos -1) if not found
+     */
+    public static int searchFirst(Object[] array, int start, int limit,
+                                  Object value, Comparator c) {
+
+        int low     = start;
+        int high    = limit;
+        int mid     = start;
+        int compare = 0;
+        int found   = limit;
+
+        while (low < high) {
+            mid     = (low + high) / 2;
+            compare = c.compare(value, array[mid]);
+
+            if (compare < 0) {
+                high = mid;
+            } else if (compare > 0) {
+                low = mid + 1;
+            } else {
+                high  = mid;
+                found = mid;
+            }
+        }
+
+        return found == limit ? -low - 1
+                              : found;
     }
 
-    static void quickSort(Object[] array, ObjectComparator comparator, int l,
+    public static void sort(Object[] array, int start, int limit,
+                            Comparator comparator) {
+
+        if (start + 1 >= limit) {
+            return;
+        }
+
+        quickSort(array, comparator, start, limit - 1);
+        insertionSort(array, comparator, start, limit - 1);
+    }
+
+    static void quickSort(Object[] array, Comparator comparator, int l,
                           int r) {
 
         int M = 16;
@@ -96,9 +137,8 @@ public class ArraySort {
         }
     }
 
-    public static void insertionSort(Object[] array,
-                                     ObjectComparator comparator, int lo0,
-                                     int hi0) {
+    public static void insertionSort(Object[] array, Comparator comparator,
+                                     int lo0, int hi0) {
 
         int i;
         int j;

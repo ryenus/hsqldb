@@ -47,6 +47,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rowio.RowInputTextLog;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
@@ -96,7 +97,8 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
 
             try {
-                cs = session.compileStatement(statement);
+                cs = session.compileStatement(statement,
+                                              ResultProperties.defaultPropsValue);
                 result = session.executeCompiledStatement(cs,
                         ValuePool.emptyObjectArray);
 

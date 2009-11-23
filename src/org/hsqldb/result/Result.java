@@ -160,9 +160,7 @@ public class Result {
     public ResultMetaData generatedMetaData;
 
     //
-    public int rsScrollability;
-    public int rsConcurrency;
-    public int rsHoldability;
+    public int rsProperties;
 
     //
     public int queryTimeout;
@@ -335,11 +333,9 @@ public class Result {
             case ResultConstants.PREPARE :
                 result.setStatementType(in.readByte());
 
-                result.mainString      = in.readString();
-                result.rsScrollability = in.readShort();
-                result.rsConcurrency   = in.readShort();
-                result.rsHoldability   = in.readShort();
-                result.generateKeys    = in.readByte();
+                result.mainString   = in.readString();
+                result.rsProperties = in.readByte();
+                result.generateKeys = in.readByte();
 
                 if (result.generateKeys == ResultConstants
                         .RETURN_GENERATED_KEYS_COL_NAMES || result
@@ -362,9 +358,7 @@ public class Result {
                 result.fetchSize           = in.readInt();
                 result.statementReturnType = in.readByte();
                 result.mainString          = in.readString();
-                result.rsScrollability     = in.readShort();
-                result.rsConcurrency       = in.readShort();
-                result.rsHoldability       = in.readShort();
+                result.rsProperties        = in.readByte();
                 result.queryTimeout        = in.readShort();
                 result.generateKeys        = in.readByte();
 
@@ -448,32 +442,26 @@ public class Result {
             case ResultConstants.PREPARE_ACK :
                 result.statementReturnType = in.readByte();
                 result.statementID         = in.readLong();
-                result.rsScrollability     = in.readShort();
-                result.rsConcurrency       = in.readShort();
-                result.rsHoldability       = in.readShort();
+                result.rsProperties        = in.readByte();
                 result.metaData            = new ResultMetaData(in);
                 result.parameterMetaData   = new ResultMetaData(in);
                 break;
 
             case ResultConstants.CALL_RESPONSE :
-                result.updateCount     = in.readInt();
-                result.fetchSize       = in.readInt();
-                result.statementID     = in.readLong();
-                result.rsScrollability = in.readShort();
-                result.rsConcurrency   = in.readShort();
-                result.rsHoldability   = in.readShort();
-                result.metaData        = new ResultMetaData(in);
-                result.valueData       = readSimple(in, result.metaData);
+                result.updateCount  = in.readInt();
+                result.fetchSize    = in.readInt();
+                result.statementID  = in.readLong();
+                result.rsProperties = in.readByte();
+                result.metaData     = new ResultMetaData(in);
+                result.valueData    = readSimple(in, result.metaData);
                 break;
 
             case ResultConstants.EXECUTE :
-                result.updateCount     = in.readInt();
-                result.fetchSize       = in.readInt();
-                result.statementID     = in.readLong();
-                result.rsScrollability = in.readShort();
-                result.rsConcurrency   = in.readShort();
-                result.rsHoldability   = in.readShort();
-                result.queryTimeout    = in.readShort();
+                result.updateCount  = in.readInt();
+                result.fetchSize    = in.readInt();
+                result.statementID  = in.readLong();
+                result.rsProperties = in.readByte();
+                result.queryTimeout = in.readShort();
 
                 Statement statement =
                     session.statementManager.getStatement(session,
@@ -526,14 +514,12 @@ public class Result {
             }
             case ResultConstants.DATAHEAD :
             case ResultConstants.DATA : {
-                result.id              = in.readLong();
-                result.updateCount     = in.readInt();
-                result.fetchSize       = in.readInt();
-                result.rsScrollability = in.readShort();
-                result.rsConcurrency   = in.readShort();
-                result.rsHoldability   = in.readShort();
-                result.metaData        = new ResultMetaData(in);
-                result.navigator       = new RowSetNavigatorClient();
+                result.id           = in.readLong();
+                result.updateCount  = in.readInt();
+                result.fetchSize    = in.readInt();
+                result.rsProperties = in.readByte();
+                result.metaData     = new ResultMetaData(in);
+                result.navigator    = new RowSetNavigatorClient();
 
                 result.navigator.read(in, result.metaData);
 
@@ -734,7 +720,8 @@ public class Result {
 
         result.sessionID  = sessionID;
         result.databaseID = databaseID;
-        result.mainString = database.getProperties().getClientPropertiesAsString();
+        result.mainString =
+            database.getProperties().getClientPropertiesAsString();
 
         return result;
     }
@@ -851,8 +838,7 @@ public class Result {
      */
     public void setPrepareOrExecuteProperties(String sql, int maxRows,
             int fetchSize, int statementReturnType, int timeout,
-            int resultSetType, int resultSetConcurrency,
-            int resultSetHoldability, int keyMode, int[] generatedIndexes,
+            int resultSetProperties, int keyMode, int[] generatedIndexes,
             String[] generatedNames) {
 
         mainString               = sql;
@@ -860,9 +846,7 @@ public class Result {
         this.fetchSize           = fetchSize;
         this.statementReturnType = statementReturnType;
         this.queryTimeout        = timeout;
-        rsScrollability          = resultSetType;
-        rsConcurrency            = resultSetConcurrency;
-        rsHoldability            = resultSetHoldability;
+        rsProperties          = resultSetProperties;
         generateKeys             = keyMode;
         generatedMetaData =
             ResultMetaData.newGeneratedColumnsMetaData(generatedIndexes,
@@ -902,21 +886,12 @@ public class Result {
         return result;
     }
 
-    public void setDataResultConcurrency(boolean isUpdatable) {
-        rsConcurrency = isUpdatable ? ResultConstants.CONCUR_UPDATABLE
-                                    : ResultConstants.CONCUR_READ_ONLY;
-    }
+    /**
+     * initially, only used for updatability
+     */
+    public int getExecuteProperties() {
 
-    public void setDataResultConcurrency(int resultSetConcurrency) {
-        rsConcurrency = resultSetConcurrency;
-    }
-
-    public void setDataResultHoldability(int resultSetHoldability) {
-        rsHoldability = resultSetHoldability;
-    }
-
-    public void setDataResultScrollability(int resultSetScrollability) {
-        rsScrollability = resultSetScrollability;
+        return  rsProperties;
     }
 
     /**
@@ -929,9 +904,10 @@ public class Result {
 
         updateCount     = maxRows;
         this.fetchSize  = fetchSize;
-        rsScrollability = resultSetScrollability;
-        rsConcurrency   = resultSetConcurrency;
-        rsHoldability   = resultSetHoldability;
+        rsProperties = ResultProperties.getValueForJDBC(
+        resultSetScrollability,
+         resultSetConcurrency,
+         resultSetHoldability);
     }
 
     public static Result newDataHeadResult(SessionInterface session,
@@ -951,10 +927,8 @@ public class Result {
         result.navigator.setId(source.navigator.getId());
         result.setSession(session);
 
-        result.rsConcurrency   = source.rsConcurrency;
-        result.rsHoldability   = source.rsHoldability;
-        result.rsScrollability = source.rsScrollability;
-        result.fetchSize       = source.fetchSize;
+        result.rsProperties = source.rsProperties;
+        result.fetchSize    = source.fetchSize;
 
         return result;
     }
@@ -1081,9 +1055,7 @@ public class Result {
             case ResultConstants.PREPARE :
                 rowOut.writeByte(statementReturnType);
                 rowOut.writeString(mainString);
-                rowOut.writeShort(rsScrollability);
-                rowOut.writeShort(rsConcurrency);
-                rowOut.writeShort(rsHoldability);
+                rowOut.writeByte(rsProperties);
                 rowOut.writeByte(generateKeys);
 
                 if (generateKeys == ResultConstants
@@ -1106,9 +1078,7 @@ public class Result {
                 rowOut.writeInt(fetchSize);
                 rowOut.writeByte(statementReturnType);
                 rowOut.writeString(mainString);
-                rowOut.writeShort(rsScrollability);
-                rowOut.writeShort(rsConcurrency);
-                rowOut.writeShort(rsHoldability);
+                rowOut.writeByte(rsProperties);
                 rowOut.writeShort(queryTimeout);
                 rowOut.writeByte(generateKeys);
 
@@ -1171,9 +1141,7 @@ public class Result {
             case ResultConstants.PREPARE_ACK :
                 rowOut.writeByte(statementReturnType);
                 rowOut.writeLong(statementID);
-                rowOut.writeShort(rsScrollability);
-                rowOut.writeShort(rsConcurrency);
-                rowOut.writeShort(rsHoldability);
+                rowOut.writeByte(rsProperties);
                 metaData.write(rowOut);
                 parameterMetaData.write(rowOut);
                 break;
@@ -1182,9 +1150,7 @@ public class Result {
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
                 rowOut.writeLong(statementID);
-                rowOut.writeShort(rsScrollability);
-                rowOut.writeShort(rsConcurrency);
-                rowOut.writeShort(rsHoldability);
+                rowOut.writeByte(rsProperties);
                 metaData.write(rowOut);
                 writeSimple(rowOut, metaData, (Object[]) valueData);
                 break;
@@ -1193,9 +1159,7 @@ public class Result {
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
                 rowOut.writeLong(statementID);
-                rowOut.writeShort(rsScrollability);
-                rowOut.writeShort(rsConcurrency);
-                rowOut.writeShort(rsHoldability);
+                rowOut.writeByte(rsProperties);
                 rowOut.writeShort(queryTimeout);
                 writeSimple(rowOut, metaData, (Object[]) valueData);
                 break;
@@ -1262,9 +1226,7 @@ public class Result {
                 rowOut.writeLong(id);
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
-                rowOut.writeShort(rsScrollability);
-                rowOut.writeShort(rsConcurrency);
-                rowOut.writeShort(rsHoldability);
+                rowOut.writeByte(rsProperties);
                 metaData.write(rowOut);
                 navigator.write(rowOut, metaData);
                 break;

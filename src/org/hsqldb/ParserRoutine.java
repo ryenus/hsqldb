@@ -38,6 +38,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
+import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -1155,7 +1156,8 @@ public class ParserRoutine extends ParserDML {
 
         readThis(Tokens.FOR);
 
-        Statement cursorStatement = compileCursorSpecification();
+        Statement cursorStatement =
+            compileCursorSpecification(ResultProperties.defaultPropsValue);
 
         readThis(Tokens.DO);
 
