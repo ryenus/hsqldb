@@ -32,6 +32,7 @@ package org.hsqldb.lib;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import java.util.Comparator;
 
 public class HsqlArrayHeapTest extends TestCase {
 
@@ -41,7 +42,7 @@ public class HsqlArrayHeapTest extends TestCase {
 
     public void testHsqlArrayHeap() {
 
-        ObjectComparator oc = new ObjectComparator() {
+        Comparator oc = new Comparator() {
 
             public int compare(Object a, Object b) {
 
