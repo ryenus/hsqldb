@@ -126,9 +126,13 @@ public class ParserCommand extends ParserDDL {
             // DQL
             case Tokens.WITH :
             case Tokens.OPENBRACKET :
-            case Tokens.VALUES :
-            case Tokens.TABLE :
-            case Tokens.SELECT : {
+            case Tokens.SELECT :
+            case Tokens.TABLE : {
+                cs = compileCursorSpecification(props);
+
+                break;
+            }
+            case Tokens.VALUES : {
                 cs = compileShortCursorSpecification(props);
 
                 break;

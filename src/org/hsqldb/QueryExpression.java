@@ -109,6 +109,7 @@ public class QueryExpression {
     boolean isInsertable;
     boolean isCheckable;
     boolean isTopLevel;
+    boolean acceptsSequences;
 
     //
     public TableBase resultTable;
@@ -632,8 +633,11 @@ public class QueryExpression {
      * Used prior to type resolution
      */
     public void setView(View view) {
-        this.isUpdatable = true;
-        this.view = view;
+
+        this.isUpdatable      = true;
+        this.view             = view;
+        this.acceptsSequences = true;
+        this.isTopLevel       = true;
     }
 
     /**
@@ -702,7 +706,7 @@ public class QueryExpression {
     /**
      * Not for views. Only used on root node.
      */
-    public void setAsTopLevel() {
+    public void setReturningResult() {
 
         if (compileContext.getSequences().length > 0) {
             throw Error.error(ErrorCode.X_42598);

@@ -247,6 +247,10 @@ public class StatementSchema extends Statement {
                 statementTokens = (Token[]) args[0];
                 break;
 
+            case StatementTypes.LOG_SCHEMA_STATEMENT :
+                group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "StatemntSchema");
         }
@@ -769,6 +773,13 @@ public class StatementSchema extends Statement {
                     } else {
                         session.database.schemaManager.createSchema(name,
                                 owner);
+
+                        // always include authorization
+                        Schema schema =
+                            session.database.schemaManager.findSchema(
+                                name.name);
+
+                        this.sql = schema.getSQL();
                     }
 
                     break;
@@ -1001,6 +1012,11 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+
+            // for logging only
+            case StatementTypes.LOG_SCHEMA_STATEMENT :
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "CompiledStateemntSchema");

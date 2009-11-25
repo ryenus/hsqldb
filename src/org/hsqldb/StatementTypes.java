@@ -217,6 +217,7 @@ public interface StatementTypes {
     int SET_TABLE_SOURCE        = 1069;
     int SET_TABLE_SOURCE_HEADER = 1070;
     int SET_TABLE_TYPE          = 1071;
+    int LOG_SCHEMA_STATEMENT    = 1072;
 
     // hsqldb sql implementation
     int CONDITION = 1101;                         // element of IF

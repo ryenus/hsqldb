@@ -103,6 +103,19 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     }
 
     public RowSetNavigatorDataTable(Session session,
+                                    QuerySpecification select,
+                                    RowSetNavigatorData navigator) {
+
+        this(session, (QuerySpecification) select);
+
+        navigator.reset();
+
+        while (navigator.hasNext()) {
+            add(navigator.getNext());
+        }
+    }
+
+    public RowSetNavigatorDataTable(Session session,
                                     QueryExpression queryExpression) {
 
         super(session);
@@ -197,6 +210,26 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         } catch (HsqlException e) {}
     }
 
+    public void update(Object[] oldData, Object[] newData) {
+
+        if (isSimpleAggregate) {
+            return;
+        }
+
+        RowIterator it = groupIndex.findFirstRow(session, store, oldData);
+
+        if (it.hasNext()) {
+            Row row = it.getNextRow();
+
+            it.remove();
+            it.release();
+
+            size--;
+
+            add(newData);
+        }
+    }
+
     public void clear() {
 
         table.clearAllData(store);
@@ -253,7 +286,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         }
 
         iterator.release();
-        store.release();
 
         isClosed = true;
     }
@@ -286,7 +318,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
     public Object[] getData(Long rowId) {
 
-        RowIterator it = idIndex.findFirstRow(session, null, rowId,
+        RowIterator it = idIndex.findFirstRow(session, store, rowId,
                                               OpTypes.EQUAL);
 
         return it.getNext();
@@ -316,6 +348,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
             RowIterator it = findFirstRow(currentData);
 
             if (!it.hasNext()) {
+                currentData =
+                    (Object[]) ArrayUtil.resizeArrayIfDifferent(currentData,
+                        table.getColumnCount());
+
                 add(currentData);
             }
         }

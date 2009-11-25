@@ -175,7 +175,7 @@ public class ParserRoutine extends ParserDML {
         readThis(Tokens.INTO);
         readColumnNamesForSelectInto(variableNames, rangeVars);
         XreadTableExpression(select);
-        select.setAsTopLevel();
+        select.setReturningResult();
         select.resolve(session, rangeVars, new Type[variableNames.size()]);
 
         int[]          indexes   = new int[variableNames.size()];

@@ -185,7 +185,17 @@ public class RowAVL extends Row {
 
         JavaSystem.memoryRecords++;
 
-//        rowData        = null;
+        clearNonPrimaryNodes();
+
+        NodeAVL n = nPrimaryNode.nNext;
+
+        while (n != null) {
+            NodeAVL last = n;
+
+            n          = n.nNext;
+            last.nNext = null;
+        }
+
         nPrimaryNode = null;
     }
 }

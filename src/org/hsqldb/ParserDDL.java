@@ -1216,7 +1216,7 @@ public class ParserDDL extends ParserRoutine {
 
         QueryExpression queryExpression = XreadQueryExpression();
 
-        queryExpression.setAsTopLevel();
+        queryExpression.setReturningResult();
         queryExpression.resolve(session);
         readThis(Tokens.CLOSEBRACKET);
         readThis(Tokens.WITH);
@@ -1695,7 +1695,6 @@ public class ParserDDL extends ParserRoutine {
 
         View view = new View(session, database, name, colList, sql, check);
 
-        queryExpression.setAsTopLevel();
         queryExpression.setView(view);
         queryExpression.resolve(session);
         view.compile(session, null);

@@ -303,6 +303,10 @@ public class SchemaManager {
         return getSchemaHsqlName(name).name;
     }
 
+    public Schema findSchema(String name) {
+        return  ((Schema) schemaMap.get(name));
+    }
+
     /**
      * Iterator includes DEFINITION_SCHEMA
      */

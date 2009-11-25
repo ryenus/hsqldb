@@ -84,6 +84,8 @@ public class StatementSchemaDefinition extends StatementSchema {
         StatementSchema cs;
         Result          result      = statements[0].execute(session);
         HsqlArrayList   constraints = new HsqlArrayList();
+        StatementSchema log = new StatementSchema(null,
+            StatementTypes.LOG_SCHEMA_STATEMENT, null);
 
         if (statements.length == 1 || result.isError()) {
             return result;
@@ -120,10 +122,21 @@ public class StatementSchemaDefinition extends StatementSchema {
                             throw session.parser.unexpectedToken();
                         }
 
-                        result = cs.execute(session);
+                        cs.isLogged = false;
+                        result      = cs.execute(session);
+
+                        HsqlName name = ((Table) cs.arguments[0]).getName();
+                        Table table =
+                            (Table) session.database.schemaManager
+                                .getSchemaObject(name);
 
                         constraints.addAll((HsqlArrayList) cs.arguments[1]);
                         ((HsqlArrayList) cs.arguments[1]).clear();
+
+                        //
+                        log.sql = table.getSQL();
+
+                        log.execute(session);
                         break;
 
                     case StatementTypes.CREATE_ROLE :
@@ -167,6 +180,7 @@ public class StatementSchemaDefinition extends StatementSchema {
                 }
             } catch (HsqlException e) {
                 result = Result.newErrorResult(e, statements[i].getSQL());
+
                 break;
             }
         }
@@ -180,6 +194,10 @@ public class StatementSchemaDefinition extends StatementSchema {
                             c.core.refTableName);
 
                     ParserDDL.addForeignKey(session, table, c, null);
+
+                    log.sql = c.getSQL();
+
+                    log.execute(session);
                 }
             } catch (HsqlException e) {
                 result = Result.newErrorResult(e, sql);

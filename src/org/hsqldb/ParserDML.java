@@ -309,7 +309,7 @@ public class ParserDML extends ParserDQL {
 
         QueryExpression queryExpression = XreadQueryExpression();
 
-        queryExpression.setAsTopLevel();
+        queryExpression.setReturningResult();
         queryExpression.resolve(session, outerRanges, types);
 
         if (colCount != queryExpression.getColumnCount()) {
