@@ -173,6 +173,10 @@ implements Comparator {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 
+    public void update(Object[] oldData, Object[] newData) {
+        // noop
+    }
+
     void addAdjusted(Object[] data, int[] columnMap) {
 
         data = projectData(data, columnMap);
@@ -610,7 +614,7 @@ implements Comparator {
     private void ensureCapacity() {
 
         if (size == table.length) {
-            int        newSize  = size == 0 ? 1
+            int        newSize  = size == 0 ? 4
                                             : size * 2;
             Object[][] newTable = new Object[newSize][];
 

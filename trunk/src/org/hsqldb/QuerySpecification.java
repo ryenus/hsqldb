@@ -96,7 +96,6 @@ public class QuerySpecification extends QueryExpression {
     //
     public boolean  isUniqueResultRows;
     private boolean simpleLimit = true;          // true if maxrows can be uses as is
-    private boolean acceptsSequences;
 
     //
     Type[]                    columnTypes;
@@ -1134,16 +1133,8 @@ public class QuerySpecification extends QueryExpression {
 
     private Result buildResult(Session session, int limitcount) {
 
-        RowSetNavigatorData navigator;
-
-        if (session.resultMaxMemoryRows == 0) {
-            navigator = new RowSetNavigatorData(session,
-                                                (QuerySpecification) this);
-        } else {
-            navigator = new RowSetNavigatorDataTable(session,
-                    (QuerySpecification) this);
-        }
-
+        RowSetNavigatorData navigator = new RowSetNavigatorData(session,
+            (QuerySpecification) this);
         Result result = Result.newResult(navigator);
 
         result.metaData = resultMetaData;
@@ -1238,13 +1229,24 @@ public class QuerySpecification extends QueryExpression {
 
             if (groupData == null) {
                 navigator.add(data);
+            } else if (isAggregated) {
+                navigator.update(groupData, data);
+            }
+
+            int rowCount = navigator.getSize();
+
+            if (rowCount == session.resultMaxMemoryRows && !isAggregated) {
+                navigator = new RowSetNavigatorDataTable(session, this,
+                        navigator);
+
+                result.setNavigator(navigator);
             }
 
             if (isAggregated || isGrouped) {
                 continue;
             }
 
-            if (navigator.getSize() >= limitcount) {
+            if (rowCount >= limitcount) {
                 break;
             }
         }
@@ -1419,7 +1421,7 @@ public class QuerySpecification extends QueryExpression {
             groupIndex = mainIndex;
         }
 
-        if (isUpdatable) {
+        if (isUpdatable && view == null) {
             int[] idCols = new int[]{ indexLimitVisible };
 
             idIndex = resultTable.createAndAddIndexStructure(null, idCols,
@@ -1736,7 +1738,7 @@ public class QuerySpecification extends QueryExpression {
             this.columnMap = columnMap;
             this.baseTable = baseTable;
 
-            if (persistenceScope == TableBase.SCOPE_STATEMENT) {
+            if (view != null) {
                 return;
             }
 
@@ -1871,7 +1873,7 @@ public class QuerySpecification extends QueryExpression {
     /**
      * Not for views. Only used on root node.
      */
-    public void setAsTopLevel() {
+    public void setReturningResult() {
 
         setReturningResultSet();
 

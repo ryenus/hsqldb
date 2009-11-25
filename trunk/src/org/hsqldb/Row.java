@@ -123,12 +123,7 @@ public class Row implements CachedObject {
 
     public void restore() {}
 
-    public void destroy() {
-
-        JavaSystem.memoryRecords++;
-
-        rowData = null;
-    }
+    public void destroy() {}
 
     public int getRealSize(RowOutputInterface out) {
         return 0;

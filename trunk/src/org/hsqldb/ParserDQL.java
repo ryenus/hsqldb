@@ -3499,7 +3499,6 @@ public class ParserDQL extends ParserBase {
             queryExpression = XreadJoinedTable();
         }
 
-        queryExpression.setAsTopLevel();
         queryExpression.setView(view);
         queryExpression.resolve(session);
 
@@ -4613,7 +4612,7 @@ public class ParserDQL extends ParserBase {
             queryExpression.isUpdatable = true;
         }
 
-        queryExpression.setAsTopLevel();
+        queryExpression.setReturningResult();
         queryExpression.resolve(session);
 
         StatementDMQL cs = new StatementQuery(session, queryExpression,
@@ -4631,7 +4630,7 @@ public class ParserDQL extends ParserBase {
             queryExpression.isUpdatable = true;
         }
 
-        queryExpression.setAsTopLevel();
+        queryExpression.setReturningResult();
         queryExpression.resolve(session);
 
         StatementDMQL cs = new StatementQuery(session, queryExpression,

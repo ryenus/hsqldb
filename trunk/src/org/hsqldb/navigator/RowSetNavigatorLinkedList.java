@@ -67,7 +67,7 @@ public class RowSetNavigatorLinkedList extends RowSetNavigator {
     }
 
     /**
-     * Returns the current row object. Type of object is implementation defined.
+     * Returns the current row object.
      */
     public Object[] getCurrent() {
         return ((Row) current.data).getData();
@@ -76,6 +76,11 @@ public class RowSetNavigatorLinkedList extends RowSetNavigator {
     public Row getCurrentRow() {
         return (Row) current.data;
     }
+
+    public Row getNextRow() {
+        return next() ? (Row) current.data : null;
+    }
+
 
     public void remove() {
 

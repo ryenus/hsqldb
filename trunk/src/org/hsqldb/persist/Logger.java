@@ -978,11 +978,16 @@ public class Logger {
             case TableBase.TEXT_TABLE :
                 return new RowStoreAVLDiskData(collection, (Table) table);
 
+            case TableBase.RESULT_TABLE :
+                if (session == null) {
+                    return null;
+                }
+                return new RowStoreAVLHybrid(session, collection, table);
+
             case TableBase.TEMP_TABLE :
                 diskBased = false;
 
             // fall through
-            case TableBase.RESULT_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.VIEW_TABLE :
             case TableBase.TRANSITION_TABLE :
@@ -990,20 +995,8 @@ public class Logger {
                     return null;
                 }
 
-                switch (table.persistenceScope) {
-
-                    case TableBase.SCOPE_STATEMENT :
-                        return new RowStoreAVLHybrid(session, collection,
-                                                     table, diskBased);
-
-                    case TableBase.SCOPE_TRANSACTION :
-                        return new RowStoreAVLHybrid(session, collection,
-                                                     table, diskBased);
-
-                    case TableBase.SCOPE_SESSION :
-                        return new RowStoreAVLHybrid(session, collection,
-                                                     table, diskBased);
-                }
+                return new RowStoreAVLHybrid(session, collection, table,
+                                             diskBased);
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");

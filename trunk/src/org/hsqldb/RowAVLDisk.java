@@ -133,7 +133,7 @@ public class RowAVLDisk extends RowAVL {
      */
     public RowAVLDisk(TableBase t, Object[] o) {
 
-        table  = t;
+        table = t;
 
         setNewNodes();
 
@@ -150,8 +150,7 @@ public class RowAVLDisk extends RowAVL {
      */
     public RowAVLDisk(TableBase t, RowInputInterface in) throws IOException {
 
-        table      = t;
-
+        table       = t;
         position    = in.getPos();
         storageSize = in.getSize();
 
@@ -258,10 +257,8 @@ public class RowAVLDisk extends RowAVL {
     }
 
     public void destroy() {
-
-        super.destroy();
-
-        table = null;
+        nPrimaryNode = null;
+        table        = null;
     }
 
     public synchronized boolean keepInMemory(boolean keep) {

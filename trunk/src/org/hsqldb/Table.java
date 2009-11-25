@@ -71,7 +71,6 @@ import org.hsqldb.RangeVariable.RangeIteratorBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
-import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
@@ -262,7 +261,7 @@ public class Table extends TableBase implements SchemaObject {
             this.isReadOnly = true;
         }
 
-        if (!isTemp) {
+        if (isSchemaBased && !isTemp) {
             createDefaultStore();
         }
     }

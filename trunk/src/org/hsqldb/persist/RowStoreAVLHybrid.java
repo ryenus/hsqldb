@@ -68,6 +68,17 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public RowStoreAVLHybrid(Session session,
                              PersistentStoreCollection manager,
+                             TableBase table) {
+        this(session, manager, table, true);
+        cache = session.sessionData.getResultCache();
+
+        if (cache != null) {
+            isCached = true;
+        }
+    }
+
+    public RowStoreAVLHybrid(Session session,
+                             PersistentStoreCollection manager,
                              TableBase table, boolean useCache) {
 
         this.session           = session;
@@ -339,6 +350,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 Row newRow = (Row) getNewCachedObject(session, row.getData());
 
                 indexRow(null, newRow);
+
+                row.destroy();
             }
         }
 
