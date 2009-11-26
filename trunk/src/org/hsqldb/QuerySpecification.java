@@ -92,6 +92,8 @@ public class QuerySpecification extends QueryExpression {
     private int           indexStartAggregates;
     private int           indexLimitExpressions;
     private int           indexLimitData;
+    private boolean       hasRowId;
+    private boolean       hasMemoryRow;
 
     //
     public boolean  isUniqueResultRows;
@@ -1235,7 +1237,8 @@ public class QuerySpecification extends QueryExpression {
 
             int rowCount = navigator.getSize();
 
-            if (rowCount == session.resultMaxMemoryRows && !isAggregated) {
+            if (rowCount == session.resultMaxMemoryRows && !isAggregated
+                    && !hasMemoryRow) {
                 navigator = new RowSetNavigatorDataTable(session, this,
                         navigator);
 
@@ -1744,8 +1747,12 @@ public class QuerySpecification extends QueryExpression {
 
             indexLimitRowId++;
 
+            hasRowId = true;
+
             if (!baseTable.isFileBased()) {
                 indexLimitRowId++;
+
+                hasMemoryRow = true;
             }
 
             indexLimitData = indexLimitRowId;

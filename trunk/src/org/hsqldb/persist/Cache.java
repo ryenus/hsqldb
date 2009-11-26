@@ -179,7 +179,7 @@ public class Cache extends BaseHashMap {
      * in the cache.
      *
      */
-    synchronized void cleanUp() {
+    private synchronized void cleanUp() {
 
         updateAccessCounts();
 

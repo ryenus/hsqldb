@@ -290,8 +290,8 @@ public class RowOutputBinary extends RowOutputBase {
                 switch (types[i].typeCode) {
 
                     case Types.SQL_ALL_TYPES :
-                        throw Error.runtimeError(ErrorCode.U_S0500,
-                                                 "RowOutputBinary");
+                        break;
+
                     case Types.SQL_CHAR :
                     case Types.SQL_VARCHAR :
                     case Types.VARCHAR_IGNORECASE :

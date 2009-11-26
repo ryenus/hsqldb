@@ -113,14 +113,6 @@ implements Comparator {
         visibleColumnCount = queryExpression.getColumnCount();
     }
 
-    /**
-     * For communication of small resuls such as BATCHEXECRESPONSE
-     */
-    public void setData(Object[][] table) {
-        this.table = table;
-        this.size  = table.length;
-    }
-
     public void sortFull() {
 
         mainIndex = queryExpression.fullIndex;
@@ -220,7 +212,8 @@ implements Comparator {
     }
 
     public void clear() {
-        setData(emptyTable);
+        this.table = emptyTable;
+        this.size  = table.length;
         reset();
     }
 
@@ -554,7 +547,7 @@ implements Comparator {
         reset();
     }
 
-    private boolean hasNull(Object[] data) {
+    boolean hasNull(Object[] data) {
 
         for (int i = 0; i < visibleColumnCount; i++) {
             if (data[i] == null) {
