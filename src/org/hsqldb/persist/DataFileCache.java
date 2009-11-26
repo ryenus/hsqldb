@@ -831,8 +831,6 @@ public class DataFileCache {
 
     protected void saveRows(CachedObject[] rows, int offset, int count) {
 
-        writeLock.lock();
-
         try {
             setFileModified();
             copyShadow(rows, offset, count);
@@ -854,7 +852,6 @@ public class DataFileCache {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
             initBuffers();
-            writeLock.unlock();
         }
     }
 

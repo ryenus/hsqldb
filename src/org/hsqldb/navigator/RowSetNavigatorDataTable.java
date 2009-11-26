@@ -155,10 +155,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         reset();
     }
 
-    public void sortFullCorresponding(int[] colIndex) {
-        sortFull();
-    }
-
     public void sortOrder() {
 
         if (orderIndex != null) {
@@ -354,19 +350,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
                 add(currentData);
             }
-        }
-
-        other.close();
-    }
-
-    public void unionAll(RowSetNavigatorData other, int[] rightColumnIndexes) {
-
-        other.reset();
-
-        while (other.hasNext()) {
-            Object[] currentData = other.getNext();
-
-            addAdjusted(currentData, rightColumnIndexes);
         }
 
         other.close();
@@ -575,7 +558,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         }
     }
 
-    private boolean hasNull(Object[] data) {
+    boolean hasNull(Object[] data) {
 
         for (int i = 0; i < visibleColumnCount; i++) {
             if (data[i] == null) {
@@ -584,19 +567,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         }
 
         return false;
-    }
-
-    private boolean equals(Object[] data1, Object[] data2) {
-
-        Type[] types = table.getColumnTypes();
-
-        for (int i = 0; i < visibleColumnCount; i++) {
-            if (types[i].compare(session, data1[i], data2[i]) != 0) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
