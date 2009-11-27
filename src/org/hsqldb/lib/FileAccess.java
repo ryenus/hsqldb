@@ -38,8 +38,8 @@ import java.io.OutputStream;
  * Interface for abstraction of file access.
  *
  * @author  Ocke Janssen oj@openoffice.org
- * @version 1.8.0
- * @since 1.80
+ * @version 1.9.0
+ * @since 1.8.0
  */
 public interface FileAccess {
 

@@ -451,8 +451,7 @@ public class Routine implements SchemaObject {
 
             String className = javaMethod.getDeclaringClass().getName();
 
-            if (className.equals("org.hsqldb.Library")
-                    || className.equals("java.lang.Math")) {
+            if (className.equals("java.lang.Math")) {
                 isLibraryRoutine = true;
             }
         }
@@ -708,8 +707,7 @@ public class Routine implements SchemaObject {
 
         String name = sb.toString();
 
-        if (className.equals("org.hsqldb.Library")
-                || className.equals("java.lang.Math")) {
+        if (className.equals("java.lang.Math")) {
             routine.isLibraryRoutine = true;
         }
 

@@ -62,8 +62,6 @@ public class AllSimpleTests {
 
         System.out.println("*********** " + TestHSQLDB.class.getName());
         TestHSQLDB.main(args);
-        System.out.println("*********** " + TestLibSpeed.class.getName());
-        TestLibSpeed.main(args);
         System.out.println("*********** " + TestObjectSize.class.getName());
         TestObjectSize.main(args);
         System.out.println(

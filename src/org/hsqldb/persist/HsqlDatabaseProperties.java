@@ -87,18 +87,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
      * access to all classe or method names formed by substitution of the
      * asterisk.<p>
      *
-     * All methods of org.hsqldb.Library and java.lang.Math are always
-     * accessible.
+     * All methods of java.lang.Math are always accessible.
      *
      *
      */
     public static boolean supportsJavaMethod(String name) {
 
         if (accessibleJavaMethodNames == null) {
-            return true;
-        }
-
-        if (name.startsWith("org.hsqldb.Library.")) {
             return true;
         }
 
@@ -195,6 +190,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     //
     public static final String hsqldb_tx             = "hsqldb.tx";
+    public static final String hsqldb_tx_level       = "hsqldb.tx_level";
     public static final String hsqldb_applog         = "hsqldb.applog";
     public static final String hsqldb_lob_file_scale = "hsqldb.lob_file_scale";
     public static final String hsqldb_cache_file_scale =
@@ -208,6 +204,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_defrag_limit   = "hsqldb.defrag_limit";
     public static final String hsqldb_files_readonly = "files_readonly";
     public static final String hsqldb_lock_file      = "hsqldb.lock_file";
+    public static final String hsqldb_log_file       = "hsqldb.log_file";
     public static final String hsqldb_log_size       = "hsqldb.log_size";
     public static final String hsqldb_nio_data_file  = "hsqldb.nio_data_file";
     public static final String hsqldb_max_nio_scale  = "hsqldb.max_nio_scale";
@@ -228,6 +225,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_names = "sql.enforce_names";
     public static final String jdbc_interval_as_varchar =
         "jdbc.interval_as_varchar";
+    public static final String sql_identity_is_pk     = "sql.identity_is_pk";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
@@ -308,6 +306,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // string defaults for user defined props
         dbMeta.put(hsqldb_tx,
                    HsqlProperties.getMeta(hsqldb_tx, SQL_PROPERTY, "LOCKS"));
+        dbMeta.put(hsqldb_tx_level,
+                   HsqlProperties.getMeta(hsqldb_tx_level, SQL_PROPERTY,
+                                          "READ_COMMITTED"));
         dbMeta.put(hsqldb_temp_directory,
                    HsqlProperties.getMeta(hsqldb_temp_directory, SQL_PROPERTY,
                                           null));
@@ -319,11 +320,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(jdbc_interval_as_varchar,
                    HsqlProperties.getMeta(jdbc_interval_as_varchar,
                                           SQL_PROPERTY, false));
+        dbMeta.put(sql_identity_is_pk,
+                   HsqlProperties.getMeta(sql_identity_is_pk,
+                                          SQL_PROPERTY, false));
         dbMeta.put(hsqldb_inc_backup,
                    HsqlProperties.getMeta(hsqldb_inc_backup, SQL_PROPERTY,
                                           true));
         dbMeta.put(hsqldb_lock_file,
                    HsqlProperties.getMeta(hsqldb_lock_file, SQL_PROPERTY,
+                                          true));
+        dbMeta.put(hsqldb_log_file,
+                   HsqlProperties.getMeta(hsqldb_log_file, SQL_PROPERTY,
                                           true));
         dbMeta.put(hsqldb_nio_data_file,
                    HsqlProperties.getMeta(hsqldb_nio_data_file, SQL_PROPERTY,

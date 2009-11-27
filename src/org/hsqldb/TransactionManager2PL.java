@@ -475,8 +475,8 @@ public class TransactionManager2PL implements TransactionManager {
 
     void endActionTPL(Session session) {
 
-        if (session.isolationMode == SessionInterface.TX_REPEATABLE_READ
-                || session.isolationMode == SessionInterface.TX_SERIALIZABLE) {
+        if (session.isolationLevel == SessionInterface.TX_REPEATABLE_READ
+                || session.isolationLevel == SessionInterface.TX_SERIALIZABLE) {
             return;
         }
 

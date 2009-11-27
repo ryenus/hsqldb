@@ -113,6 +113,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES :
             case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
+            case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL :
             case StatementTypes.SET_DATABASE_GC :
 
 //
@@ -499,6 +500,19 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.txManager.setTransactionControl(session,
                             mode);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL : {
+                try {
+                    int mode = ((Integer) parameters[0]).intValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.defaultIsolationLevel = mode;
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

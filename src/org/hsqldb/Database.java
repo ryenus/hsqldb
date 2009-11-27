@@ -82,47 +82,19 @@ import org.hsqldb.rights.User;
 import org.hsqldb.rights.UserManager;
 import org.hsqldb.types.Type;
 
-// fredt@users 20020130 - patch 476694 by velichko - transaction savepoints
-// additions to different parts to support savepoint transactions
-// fredt@users 20020215 - patch 1.7.0 - new HsqlProperties class
-// support use of properties from database.properties file
-// fredt@users 20020218 - patch 1.7.0 - DEFAULT keyword
-// support for default values for table columns
-// fredt@users 20020305 - patch 1.7.0 - restructuring
-// some methods move to Table.java, some removed
-// fredt@users 20020221 - patch 513005 by sqlbob@users (RMP) - restructuring
-// fredt@users 20020221 - patch 513005 by sqlbob@users (RMP) - error trapping
-// boucherb@users 20020130 - patch 1.7.0 - use lookup for speed
-// idents listed in alpha-order for easy check of stats...
-// fredt@users 20020420 - patch523880 by leptipre@users - VIEW support
-// boucherb@users - doc 1.7.0 - added javadoc comments
-// tony_lai@users 20020820 - patch 595073 - duplicated exception msg
-// tony_lai@users 20020820 - changes to shutdown compact to save memory
-// boucherb@users 20020828 - allow reconnect to local db that has shutdown
-// fredt@users 20020912 - patch 1.7.1 by fredt - drop duplicate name triggers
-// fredt@users 20021112 - patch 1.7.2 by Nitin Chauhan - use of switch
-// rewrite of the majority of multiple if(){}else if(){} chains with switch()
-// boucherb@users 20020310 - class loader update for JDK 1.1 compliance
-// fredt@users 20030401 - patch 1.7.2 by akede@users - data files readonly
-// fredt@users 20030401 - patch 1.7.2 by Brendan Ryan - data files in Jar
-// boucherb@users 20030405 - removed 1.7.2 lint - updated JavaDocs
-// boucherb@users 20030425 - DDL methods are moved to DatabaseCommandInterpreter.java
-// boucherb@users - fredt@users 200305..200307 - patch 1.7.2 - DatabaseManager upgrade
-// loosecannon1@users - patch 1.7.2 - properties on the JDBC URL
-// oj@openoffice.org - changed to file access api
+// incorporates following contributions
+// boucherb@users - javadoc comments
+// Brendan Ryan - data files in Jar
+// Ocke Jansen oj@openoffice.org - file access api
 
 /**
- *  Database is the root class for HSQL Database Engine database. <p>
+ * Database is the root class for HSQL Database Engine database. <p>
  *
- *  It holds the data structures that form an HSQLDB database instance.
+ * It holds the data structures that form an HSQLDB database instance.
  *
- * Modified significantly from the Hypersonic original in successive
- * HSQLDB versions.
- *
- * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
- * @since Hypersonic SQL
+ * @since 1.9.0
  */
 public class Database {
 
@@ -131,7 +103,6 @@ public class Database {
     String               databaseType;
     private final String canonicalPath;
 
-// loosecannon1@users 1.7.2 patch properties on the JDBC URL
     public HsqlProperties urlProperties;
     private final String  path;
     DatabaseInformation   dbInfo;
@@ -153,7 +124,7 @@ public class Database {
     private boolean               filesInJar;
     public boolean                sqlEnforceSize;
     public boolean                sqlEnforceNames;
-    private boolean               bIgnoreCase;
+    private boolean               isIgnoreCase;
     private boolean               isReferentialIntegrity;
     public HsqlDatabaseProperties databaseProperties;
     private final boolean         shutdownOnNoConnection;
@@ -167,7 +138,7 @@ public class Database {
     // session related objects
     public SessionManager     sessionManager;
     public TransactionManager txManager;
-
+    public int                defaultIsolationLevel;
     // schema objects
     public SchemaManager schemaManager;
 
@@ -180,13 +151,13 @@ public class Database {
 
     //
     public static final int DATABASE_ONLINE       = 1;
-    public static final int DATABASE_OPENING      = 4;
-    public static final int DATABASE_CLOSING      = 8;
-    public static final int DATABASE_SHUTDOWN     = 16;
-    public static final int CLOSEMODE_IMMEDIATELY = -1;
-    public static final int CLOSEMODE_NORMAL      = 0;
-    public static final int CLOSEMODE_COMPACT     = 1;
-    public static final int CLOSEMODE_SCRIPT      = 2;
+    public static final int DATABASE_OPENING      = 2;
+    public static final int DATABASE_CLOSING      = 3;
+    public static final int DATABASE_SHUTDOWN     = 4;
+    public static final int CLOSEMODE_IMMEDIATELY = 1;
+    public static final int CLOSEMODE_NORMAL      = 2;
+    public static final int CLOSEMODE_COMPACT     = 3;
+    public static final int CLOSEMODE_SCRIPT      = 4;
 
     //
     public static final int LOCKS   = 0;
@@ -365,6 +336,7 @@ public class Database {
         return databaseReadOnly;
     }
 
+
     /**
      *  Returns true if database has been shut down, false otherwise
      */
@@ -463,7 +435,7 @@ public class Database {
      * VARCHAR_IGNORECASE.
      */
     void setIgnoreCase(boolean b) {
-        bIgnoreCase = b;
+        isIgnoreCase = b;
     }
 
     /**
@@ -471,7 +443,7 @@ public class Database {
      * VARCHAR_IGNORECASE.
      */
     public boolean isIgnoreCase() {
-        return bIgnoreCase;
+        return isIgnoreCase;
     }
 
     public int getResultMaxMemoryRows() {
@@ -490,6 +462,9 @@ public class Database {
         sqlEnforceSize = mode;
     }
 
+    public int getDefaultIsolationLevel() {
+        return defaultIsolationLevel;
+    }
     /**
      *  Called by the garbage collector on this Databases object when garbage
      *  collection determines that there are no more references to it.
@@ -558,6 +533,7 @@ public class Database {
                 reopen();
                 setState(DATABASE_CLOSING);
                 logger.closePersistence(CLOSEMODE_NORMAL);
+                lobManager.close();
             }
         } catch (Throwable t) {
             if (t instanceof HsqlException) {
@@ -702,7 +678,7 @@ public class Database {
         }
 
         // text headers
-        list = schemaManager.getTextTableSQL(!indexRoots);
+        list = schemaManager.getTablePropsSQL(!indexRoots);
 
         addRows(r, list);
 
@@ -724,14 +700,6 @@ public class Database {
         }
     }
 
-// boucherb@users - 200403?? - patch 1.7.2 - metadata
-//------------------------------------------------------------------------------
-
-    /**
-     * Retrieves the uri portion of this object's in-process JDBC url.
-     *
-     * @return the uri portion of this object's in-process JDBC url
-     */
     public String getURI() {
         return databaseType + canonicalPath;
     }
@@ -740,7 +708,6 @@ public class Database {
         return canonicalPath;
     }
 
-// oj@openoffice.org - changed to file access api
     public HsqlProperties getURLProperties() {
         return urlProperties;
     }

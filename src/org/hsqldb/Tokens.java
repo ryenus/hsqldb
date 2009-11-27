@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedIntHashSet;
 
@@ -189,7 +190,7 @@ public class Tokens {
     static final String        T_INTO              = "INTO";
     static final String        T_ITERATE           = "ITERATE";
     static final String        T_IS                = "IS";
-    static final String        T_JAR               = "JAR";             // SQL/JRT
+    static final String        T_JAR               = "JAR";              // SQL/JRT
     static final String        T_JOIN              = "JOIN";
     static final String        T_LAG               = "LAG";
     static final String        T_LANGUAGE          = "LANGUAGE";
@@ -393,55 +394,55 @@ public class Tokens {
     static final String        T_DOUBLE_COLON   = "::";
 
     // SQL:200n non-reserved word list
-    static final String T_A                      = "A";
-    static final String T_ABSOLUTE               = "ABSOLUTE";
-    static final String T_ACTION                 = "ACTION";
-    static final String T_ADA                    = "ADA";
-    static final String T_ADMIN                  = "ADMIN";
-    static final String T_AFTER                  = "AFTER";
-    static final String T_ALWAYS                 = "ALWAYS";
-    static final String T_ASC                    = "ASC";
-    static final String T_ASSERTION              = "ASSERTION";
-    static final String T_ASSIGNMENT             = "ASSIGNMENT";
-    static final String T_ATTRIBUTE              = "ATTRIBUTE";
-    static final String T_ATTRIBUTES             = "ATTRIBUTES";
-    static final String T_BEFORE                 = "BEFORE";
-    static final String T_BERNOULLI              = "BERNOULLI";
-    static final String T_BREADTH                = "BREADTH";
-    static final String T_C                      = "C";
-    static final String T_CASCADE                = "CASCADE";
-    static final String T_CATALOG                = "CATALOG";
-    static final String T_CATALOG_NAME           = "CATALOG_NAME";
-    static final String T_CHAIN                  = "CHAIN";
-    static final String T_CHARACTER_SET_CATALOG  = "CHARACTER_SET_CATALOG";
-    static final String T_CHARACTER_SET_NAME     = "CHARACTER_SET_NAME";
-    static final String T_CHARACTER_SET_SCHEMA   = "CHARACTER_SET_SCHEMA";
-    static final String T_CHARACTERISTICS        = "CHARACTERISTICS";
-    static final String T_CHARACTERS             = "CHARACTERS";
-    static final String T_CLASS_ORIGIN           = "CLASS_ORIGIN";
-    static final String T_COBOL                  = "COBOL";
-    static final String T_COLLATION              = "COLLATION";
-    static final String T_COLLATION_CATALOG      = "COLLATION_CATALOG";
-    static final String T_COLLATION_NAME         = "COLLATION_NAME";
-    static final String T_COLLATION_SCHEMA       = "COLLATION_SCHEMA";
-    static final String T_COLUMN_NAME            = "COLUMN_NAME";
-    static final String T_COMMAND_FUNCTION       = "COMMAND_FUNCTION";
-    static final String T_COMMAND_FUNCTION_CODE  = "COMMAND_FUNCTION_CODE";
-    static final String T_COMMITTED              = "COMMITTED";
-    static final String T_COMPARABLE             = "COMPARABLE";        // SQL/JRT
-    static final String T_CONDITION_IDENTIFIER   = "CONDIITON_IDENTIFIER";
-    static final String T_CONDITION_NUMBER       = "CONDITION_NUMBER";
-    static final String T_CONNECTION_NAME        = "CONNECTION_NAME";
-    static final String T_CONSTRAINT_CATALOG     = "CONSTRAINT_CATALOG";
-    static final String T_CONSTRAINT_NAME        = "CONSTRAINT_NAME";
-    static final String T_CONSTRAINT_SCHEMA      = "CONSTRAINT_SCHEMA";
-    static final String T_CONSTRAINTS            = "CONSTRAINTS";
-    static final String T_CONSTRUCTOR            = "CONSTRUCTOR";
-    static final String T_CONTAINS               = "CONTAINS";
-    static final String T_CONTINUE               = "CONTINUE";
-    static final String T_CURRENT_COLLATION      = "CURRENT_COLLATION";
-    static final String T_CURSOR_NAME            = "CURSOR_NAME";
-    static final String T_DATA                   = "DATA";
+    static final String        T_A                    = "A";
+    static final String        T_ABSOLUTE             = "ABSOLUTE";
+    static final String        T_ACTION               = "ACTION";
+    static final String        T_ADA                  = "ADA";
+    static final String        T_ADMIN                = "ADMIN";
+    static final String        T_AFTER                = "AFTER";
+    static final String        T_ALWAYS               = "ALWAYS";
+    static final String        T_ASC                  = "ASC";
+    static final String        T_ASSERTION            = "ASSERTION";
+    static final String        T_ASSIGNMENT           = "ASSIGNMENT";
+    static final String        T_ATTRIBUTE            = "ATTRIBUTE";
+    static final String        T_ATTRIBUTES           = "ATTRIBUTES";
+    static final String        T_BEFORE               = "BEFORE";
+    static final String        T_BERNOULLI            = "BERNOULLI";
+    static final String        T_BREADTH              = "BREADTH";
+    static final String        T_C                    = "C";
+    static final String        T_CASCADE              = "CASCADE";
+    static final String        T_CATALOG              = "CATALOG";
+    static final String        T_CATALOG_NAME         = "CATALOG_NAME";
+    static final String        T_CHAIN                = "CHAIN";
+    static final String T_CHARACTER_SET_CATALOG = "CHARACTER_SET_CATALOG";
+    static final String        T_CHARACTER_SET_NAME   = "CHARACTER_SET_NAME";
+    static final String        T_CHARACTER_SET_SCHEMA = "CHARACTER_SET_SCHEMA";
+    static final String        T_CHARACTERISTICS      = "CHARACTERISTICS";
+    static final String        T_CHARACTERS           = "CHARACTERS";
+    static final String        T_CLASS_ORIGIN         = "CLASS_ORIGIN";
+    static final String        T_COBOL                = "COBOL";
+    static final String        T_COLLATION            = "COLLATION";
+    static final String        T_COLLATION_CATALOG    = "COLLATION_CATALOG";
+    static final String        T_COLLATION_NAME       = "COLLATION_NAME";
+    static final String        T_COLLATION_SCHEMA     = "COLLATION_SCHEMA";
+    static final String        T_COLUMN_NAME          = "COLUMN_NAME";
+    static final String        T_COMMAND_FUNCTION     = "COMMAND_FUNCTION";
+    static final String T_COMMAND_FUNCTION_CODE = "COMMAND_FUNCTION_CODE";
+    public static final String T_COMMITTED            = "COMMITTED";
+    static final String        T_COMPARABLE           = "COMPARABLE";    // SQL/JRT
+    static final String        T_CONDITION_IDENTIFIER = "CONDIITON_IDENTIFIER";
+    static final String        T_CONDITION_NUMBER     = "CONDITION_NUMBER";
+    static final String        T_CONNECTION_NAME      = "CONNECTION_NAME";
+    static final String        T_CONSTRAINT_CATALOG   = "CONSTRAINT_CATALOG";
+    static final String        T_CONSTRAINT_NAME      = "CONSTRAINT_NAME";
+    static final String        T_CONSTRAINT_SCHEMA    = "CONSTRAINT_SCHEMA";
+    static final String        T_CONSTRAINTS          = "CONSTRAINTS";
+    static final String        T_CONSTRUCTOR          = "CONSTRUCTOR";
+    static final String        T_CONTAINS             = "CONTAINS";
+    static final String        T_CONTINUE             = "CONTINUE";
+    static final String        T_CURRENT_COLLATION    = "CURRENT_COLLATION";
+    static final String        T_CURSOR_NAME          = "CURSOR_NAME";
+    static final String        T_DATA                 = "DATA";
     static final String T_DATETIME_INTERVAL_CODE = "DATETIME_INTERVAL_CODE";
     static final String T_DATETIME_INTERVAL_PRECISION =
         "DATETIME_INTERVAL_PRECISION";
@@ -483,10 +484,10 @@ public class Tokens {
     static final String        T_INSTANCE             = "INSTANCE";
     static final String        T_INSTANTIABLE         = "INSTANTIABLE";
     static final String        T_INSTEAD              = "INSTEAD";
-    static final String        T_INTERFACE            = "INTERFACE";    // SQL/JRT
+    static final String        T_INTERFACE            = "INTERFACE";     // SQL/JRT
     static final String        T_INVOKER              = "INVOKER";
-    static final String        T_ISOLATION            = "ISOLATION";
-    static final String        T_JAVA                 = "JAVA";         // SQL/JRT
+    public static final String T_ISOLATION            = "ISOLATION";
+    static final String        T_JAVA                 = "JAVA";          // SQL/JRT
     public static final String T_K_FACTOR             = "K";
     static final String        T_KEY                  = "KEY";
     static final String        T_KEY_MEMBER           = "KEY_MEMBER";
@@ -565,7 +566,7 @@ public class Tokens {
     static final String        T_SECURITY             = "SECURITY";
     static final String        T_SELF                 = "SELF";
     public static final String T_SEQUENCE             = "SEQUENCE";
-    static final String        T_SERIALIZABLE         = "SERIALIZABLE";
+    public static final String T_SERIALIZABLE         = "SERIALIZABLE";
     static final String        T_SERVER_NAME          = "SERVER_NAME";
     public static final String T_SESSION              = "SESSION";
     static final String        T_SETS                 = "SETS";
@@ -574,7 +575,7 @@ public class Tokens {
     static final String        T_SOURCE               = "SOURCE";
     static final String        T_SPACE                = "SPACE";
     static final String        T_SPECIFIC_NAME        = "SPECIFIC_NAME";
-    static final String        T_SQLDATA              = "SQLDATA";      // SQL/JRT
+    static final String        T_SQLDATA              = "SQLDATA";       // SQL/JRT
     static final String        T_STACKED              = "STACKED";
     static final String        T_STATE                = "STATE";
     static final String        T_STATEMENT            = "STATEMENT";
@@ -729,19 +730,19 @@ public class Tokens {
     public static final String T_YES                 = "YES";
 
     //
-    public static final String T_DAY_NAME            = "DAY_NAME";
-    public static final String T_MONTH_NAME          = "MONTH_NAME";
-    public static final String T_QUARTER             = "QUARTER";
-    public static final String T_DAY_OF_WEEK         = "DAY_OF_WEEK";
-    public static final String T_DAY_OF_MONTH        = "DAY_OF_MONTH";
-    public static final String T_DAY_OF_YEAR         = "DAY_OF_YEAR";
-    public static final String T_WEEK_OF_YEAR        = "WEEK_OF_YEAR";
-    static final String        T_DAYNAME             = "DAYNAME";
-    static final String        T_MONTHNAME           = "MONTHNAME";
-    static final String        T_DAYOFMONTH          = "DAYOFMONTH";
-    static final String        T_DAYOFWEEK           = "DAYOFWEEK";
-    static final String        T_DAYOFYEAR           = "DAYOFYEAR";
-    static final String        T_WEEK                = "WEEK";
+    public static final String T_DAY_NAME     = "DAY_NAME";
+    public static final String T_MONTH_NAME   = "MONTH_NAME";
+    public static final String T_QUARTER      = "QUARTER";
+    public static final String T_DAY_OF_WEEK  = "DAY_OF_WEEK";
+    public static final String T_DAY_OF_MONTH = "DAY_OF_MONTH";
+    public static final String T_DAY_OF_YEAR  = "DAY_OF_YEAR";
+    public static final String T_WEEK_OF_YEAR = "WEEK_OF_YEAR";
+    static final String        T_DAYNAME      = "DAYNAME";
+    static final String        T_MONTHNAME    = "MONTHNAME";
+    static final String        T_DAYOFMONTH   = "DAYOFMONTH";
+    static final String        T_DAYOFWEEK    = "DAYOFWEEK";
+    static final String        T_DAYOFYEAR    = "DAYOFYEAR";
+    static final String        T_WEEK         = "WEEK";
 
     //
     static final String        T_ACOS             = "ACOS";
@@ -788,6 +789,16 @@ public class Tokens {
     static final String        T_UCASE            = "UCASE";
 
     //
+    static final String T_ISOLATION_LEVEL         = "ISOLATION_LEVEL";
+    static final String T_SESSION_ISOLATION_LEVEL = "SESSION_ISOLATION_LEVEL";
+    static final String T_DATABASE_ISOLATION_LEVEL =
+        "DATABASE_ISOLATION_LEVEL";
+    static final String T_TRANSACTION_CONTROL = "TRANSACTION_CONTROL";
+    static final String T_TIMEZONE            = "TIMEZONE";
+    static final String T_SESSION_TIMEZONE    = "SESSION_TIMEZONE";
+    static final String T_DATABASE_TIMEZONE   = "DATABASE_TIMEZONE";
+    static final String T_DATABASE_VERSION    = "DATABASE_VERSION";
+
     //
     //SQL 200n Standard reserved keywords - full set
     public static final int ABS                              = 1;
@@ -1457,91 +1468,101 @@ public class Tokens {
     public static final int WEEK_OF_YEAR            = 674;
 
     //
-    static final int        ASTERISK         = 681;
-    static final int        CLOSEBRACKET     = 682;
-    static final int        COLON            = 683;
-    static final int        COMMA            = 684;
-    static final int        CONCAT           = 685;
-    static final int        DIVIDE           = 686;
-    static final int        DOUBLE_COLON_OP  = 687;
-    static final int        DOUBLE_PERIOD_OP = 688;
-    static final int        GREATER          = 680;
-    static final int        GREATER_EQUALS   = 690;
-    static final int        LESS             = 691;
-    static final int        LESS_EQUALS      = 692;
-    public static final int MINUS            = 693;
-    static final int        NOT_EQUALS       = 694;
-    static final int        OPENBRACKET      = 695;
-    static final int        PLUS             = 696;
-    static final int        QUESTION         = 697;
-    static final int        RIGHT_ARROW_OP   = 698;
-    static final int        SEMICOLON        = 699;
+    static final int ISOLATION_LEVEL          = 681;
+    static final int SESSION_ISOLATION_LEVEL  = 682;
+    static final int DATABASE_ISOLATION_LEVEL = 683;
+    static final int TRANSACTION_CONTROL      = 684;
+    static final int TIMEZONE                 = 685;
+    static final int SESSION_TIMEZONE         = 686;
+    static final int DATABASE_TIMEZONE        = 687;
+    static final int DATABASE_VERSION         = 688;
 
     //
-    static final int SQL_BIGINT        = 701;
-    static final int SQL_BINARY        = 702;
-    static final int SQL_BIT           = 703;
-    static final int SQL_BLOB          = 704;
-    static final int SQL_BOOLEAN       = 705;
-    static final int SQL_CHAR          = 706;
-    static final int SQL_CLOB          = 707;
-    static final int SQL_DATE          = 708;
-    static final int SQL_DECIMAL       = 709;
-    static final int SQL_DATALINK      = 710;
-    static final int SQL_DOUBLE        = 711;
-    static final int SQL_FLOAT         = 712;
-    static final int SQL_INTEGER       = 713;
-    static final int SQL_LONGVARBINARY = 714;
-    static final int SQL_LONGNVARCHAR  = 715;
-    static final int SQL_LONGVARCHAR   = 716;
-    static final int SQL_NCHAR         = 717;
-    static final int SQL_NCLOB         = 718;
-    static final int SQL_NUMERIC       = 719;
-    static final int SQL_NVARCHAR      = 720;
-    static final int SQL_REAL          = 721;
-    static final int SQL_ROWID         = 722;
-    static final int SQL_SQLXML        = 723;
-    static final int SQL_SMALLINT      = 724;
-    static final int SQL_TIME          = 725;
-    static final int SQL_TIMESTAMP     = 726;
-    static final int SQL_TINYINT       = 727;
-    static final int SQL_VARBINARY     = 728;
-    static final int SQL_VARCHAR       = 729;
+    static final int        ASTERISK         = 781;
+    static final int        CLOSEBRACKET     = 782;
+    static final int        COLON            = 783;
+    static final int        COMMA            = 784;
+    static final int        CONCAT           = 785;
+    static final int        DIVIDE           = 786;
+    static final int        DOUBLE_COLON_OP  = 787;
+    static final int        DOUBLE_PERIOD_OP = 788;
+    static final int        GREATER          = 789;
+    static final int        GREATER_EQUALS   = 790;
+    static final int        LESS             = 791;
+    static final int        LESS_EQUALS      = 792;
+    public static final int MINUS            = 793;
+    static final int        NOT_EQUALS       = 794;
+    static final int        OPENBRACKET      = 795;
+    static final int        PLUS             = 796;
+    static final int        QUESTION         = 797;
+    static final int        RIGHT_ARROW_OP   = 798;
+    static final int        SEMICOLON        = 799;
 
     //
-    static final int SQL_TSI_FRAC_SECOND = 731;
-    static final int SQL_TSI_SECOND      = 732;
-    static final int SQL_TSI_MINUTE      = 733;
-    static final int SQL_TSI_HOUR        = 734;
-    static final int SQL_TSI_DAY         = 735;
-    static final int SQL_TSI_WEEK        = 736;
-    static final int SQL_TSI_MONTH       = 737;
-    static final int SQL_TSI_QUARTER     = 738;
-    static final int SQL_TSI_YEAR        = 739;
+    static final int SQL_BIGINT        = 801;
+    static final int SQL_BINARY        = 802;
+    static final int SQL_BIT           = 803;
+    static final int SQL_BLOB          = 804;
+    static final int SQL_BOOLEAN       = 805;
+    static final int SQL_CHAR          = 806;
+    static final int SQL_CLOB          = 807;
+    static final int SQL_DATE          = 808;
+    static final int SQL_DECIMAL       = 809;
+    static final int SQL_DATALINK      = 810;
+    static final int SQL_DOUBLE        = 811;
+    static final int SQL_FLOAT         = 812;
+    static final int SQL_INTEGER       = 813;
+    static final int SQL_LONGVARBINARY = 814;
+    static final int SQL_LONGNVARCHAR  = 815;
+    static final int SQL_LONGVARCHAR   = 816;
+    static final int SQL_NCHAR         = 817;
+    static final int SQL_NCLOB         = 818;
+    static final int SQL_NUMERIC       = 819;
+    static final int SQL_NVARCHAR      = 820;
+    static final int SQL_REAL          = 821;
+    static final int SQL_ROWID         = 822;
+    static final int SQL_SQLXML        = 823;
+    static final int SQL_SMALLINT      = 824;
+    static final int SQL_TIME          = 825;
+    static final int SQL_TIMESTAMP     = 826;
+    static final int SQL_TINYINT       = 827;
+    static final int SQL_VARBINARY     = 828;
+    static final int SQL_VARCHAR       = 829;
 
     //
-    static final int X_KEYSET      = 741;
-    static final int X_OPTION      = 742;
-    static final int X_REPEAT      = 743;
-    static final int X_POS_INTEGER = 744;
+    static final int SQL_TSI_FRAC_SECOND = 831;
+    static final int SQL_TSI_SECOND      = 832;
+    static final int SQL_TSI_MINUTE      = 833;
+    static final int SQL_TSI_HOUR        = 834;
+    static final int SQL_TSI_DAY         = 835;
+    static final int SQL_TSI_WEEK        = 836;
+    static final int SQL_TSI_MONTH       = 837;
+    static final int SQL_TSI_QUARTER     = 838;
+    static final int SQL_TSI_YEAR        = 839;
 
     //
-    public static final int X_VALUE                    = 745;
-    public static final int X_IDENTIFIER               = 746;
-    public static final int X_DELIMITED_IDENTIFIER     = 747;
-    public static final int X_ENDPARSE                 = 748;
-    public static final int X_STARTPARSE               = 749;
-    public static final int X_REMARK                   = 750;
-    public static final int X_NULL                     = 751;
-    public static final int X_LOB_SIZE                 = 752;
-    public static final int X_MALFORMED_STRING         = 753;
-    public static final int X_MALFORMED_NUMERIC        = 754;
-    public static final int X_MALFORMED_BIT_STRING     = 755;
-    public static final int X_MALFORMED_BINARY_STRING  = 756;
-    public static final int X_MALFORMED_UNICODE_STRING = 757;
-    public static final int X_MALFORMED_COMMENT        = 758;
-    public static final int X_MALFORMED_IDENTIFIER     = 759;
-    public static final int X_MALFORMED_UNICODE_ESCAPE = 760;
+    static final int X_KEYSET      = 841;
+    static final int X_OPTION      = 842;
+    static final int X_REPEAT      = 843;
+    static final int X_POS_INTEGER = 844;
+
+    //
+    public static final int X_VALUE                    = 845;
+    public static final int X_IDENTIFIER               = 846;
+    public static final int X_DELIMITED_IDENTIFIER     = 847;
+    public static final int X_ENDPARSE                 = 848;
+    public static final int X_STARTPARSE               = 849;
+    public static final int X_REMARK                   = 850;
+    public static final int X_NULL                     = 851;
+    public static final int X_LOB_SIZE                 = 852;
+    public static final int X_MALFORMED_STRING         = 853;
+    public static final int X_MALFORMED_NUMERIC        = 854;
+    public static final int X_MALFORMED_BIT_STRING     = 855;
+    public static final int X_MALFORMED_BINARY_STRING  = 856;
+    public static final int X_MALFORMED_UNICODE_STRING = 857;
+    public static final int X_MALFORMED_COMMENT        = 858;
+    public static final int X_MALFORMED_IDENTIFIER     = 859;
+    public static final int X_MALFORMED_UNICODE_ESCAPE = 860;
 
     //
     public static final int X_UNKNOWN_TOKEN = -1;
@@ -2120,6 +2141,16 @@ public class Tokens {
         commandSet.put(T_UCASE, UCASE);
 
         //
+        commandSet.put(T_ISOLATION_LEVEL, ISOLATION_LEVEL);
+        commandSet.put(T_SESSION_ISOLATION_LEVEL, SESSION_ISOLATION_LEVEL);
+        commandSet.put(T_DATABASE_ISOLATION_LEVEL, DATABASE_ISOLATION_LEVEL);
+        commandSet.put(T_TRANSACTION_CONTROL, TRANSACTION_CONTROL);
+        commandSet.put(T_TIMEZONE, TIMEZONE);
+        commandSet.put(T_SESSION_TIMEZONE, SESSION_TIMEZONE);
+        commandSet.put(T_DATABASE_TIMEZONE, DATABASE_TIMEZONE);
+        commandSet.put(T_DATABASE_VERSION, DATABASE_VERSION);
+
+        //
         commandSet.put(T_ASTERISK, Tokens.ASTERISK);
         commandSet.put(T_CLOSEBRACKET, CLOSEBRACKET);
         commandSet.put(T_COLON, Tokens.COLON);
@@ -2212,4 +2243,21 @@ public class Tokens {
         Tokens.T_YEAR, Tokens.T_MONTH, Tokens.T_DAY, Tokens.T_HOUR,
         Tokens.T_MINUTE, Tokens.T_SECOND
     };
+    private static final IntKeyHashMap sqlTSILookup = new IntKeyHashMap(10);
+
+    static {
+        sqlTSILookup.put(SQL_TSI_DAY, T_SQL_TSI_DAY);
+        sqlTSILookup.put(SQL_TSI_FRAC_SECOND, T_SQL_TSI_FRAC_SECOND);
+        sqlTSILookup.put(SQL_TSI_HOUR, T_SQL_TSI_HOUR);
+        sqlTSILookup.put(SQL_TSI_MINUTE, T_SQL_TSI_MINUTE);
+        sqlTSILookup.put(SQL_TSI_MONTH, T_SQL_TSI_MONTH);
+        sqlTSILookup.put(SQL_TSI_QUARTER, T_SQL_TSI_QUARTER);
+        sqlTSILookup.put(SQL_TSI_SECOND, T_SQL_TSI_SECOND);
+        sqlTSILookup.put(SQL_TSI_WEEK, T_SQL_TSI_WEEK);
+        sqlTSILookup.put(SQL_TSI_YEAR, T_SQL_TSI_YEAR);
+    }
+
+    public static String getSQLTSIString(int token) {
+        return (String) sqlTSILookup.get(token);
+    }
 }
