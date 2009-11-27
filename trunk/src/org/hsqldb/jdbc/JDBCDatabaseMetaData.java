@@ -518,27 +518,14 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.7.2, this value is retrieved through an
-     * SQL call to the new {@link org.hsqldb.Library#getDatabaseProductName} method
-     * which allows correct determination of the database product name
-     * for both local and remote database instances.
+     * Returns the name of the HSQLDB engine.
      * </div> <p>
      *
      * @return database product name
      * @exception SQLException if a database access error occurs
      */
     public String getDatabaseProductName() throws SQLException {
-
-        ResultSet rs =
-            execute("call \"org.hsqldb.Library.getDatabaseProductName\"()");
-
-        rs.next();
-
-        String result = rs.getString(1);
-
-        rs.close();
-
-        return result;
+        return HsqlDatabaseProperties.PRODUCT_NAME;
     }
 
     /**
@@ -547,27 +534,18 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.7.2, this value is retrieved through an
-     * SQL call to the new {@link org.hsqldb.Library#getDatabaseProductVersion} method
-     * which allows correct determination of the database product name
-     * for both local and remote database instances.
+     * Returns the full version string.
      * </div> <p>
      *
      * @return database version number
      * @exception SQLException if a database access error occurs
      */
     public String getDatabaseProductVersion() throws SQLException {
-
-        ResultSet rs =
-            execute("call \"org.hsqldb.Library.getDatabaseProductVersion\"()");
+        ResultSet rs =  execute("call database_version()");
 
         rs.next();
 
-        String result = rs.getString(1);
-
-        rs.close();
-
-        return result;
+        return rs.getString(1);
     }
 
     /**
@@ -5265,13 +5243,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
-     *
-     * Starting with 1.7.2, the feature is supported under JDK1.4+ builds. <p>
-     *
-     * This value is retrieved through an SQL call to the new
-     * {@link org.hsqldb.Library#getDatabaseMajorVersion} method which allows
-     * correct determination of the database major version for both local
-     * and remote database instances.
+     * Returns the major version
      * </div>
      * <!-- end release-specific documentation -->
      * @return the underlying database's major version
@@ -5281,16 +5253,15 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 //#ifdef JAVA4
     public int getDatabaseMajorVersion() throws SQLException {
 
-        ResultSet rs =
-            execute("call \"org.hsqldb.Library.getDatabaseMajorVersion\"()");
+        ResultSet rs =  execute("call database_version()");
 
         rs.next();
 
-        int result = rs.getInt(1);
+        String v = rs.getString(1);
 
         rs.close();
 
-        return result;
+        return Integer.valueOf(v.substring(0, v.indexOf(".")));
     }
 
 //#endif JAVA4
@@ -5302,12 +5273,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.7.2, the feature is supported under JDK1.4+ builds. <p>
-     *
-     * This value is retrieved through an SQL call to the new
-     * {@link org.hsqldb.Library#getDatabaseMinorVersion} method which allows
-     * correct determination of the database minor version for both local
-     * and remote database instances.
+     * This returns the digit after the first point in version.
      * </div>
      * <!-- end release-specific documentation -->
      * @return underlying database's minor version
@@ -5317,16 +5283,15 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 //#ifdef JAVA4
     public int getDatabaseMinorVersion() throws SQLException {
 
-        ResultSet rs =
-            execute("call \"org.hsqldb.Library.getDatabaseMinorVersion\"()");
+        ResultSet rs =  execute("call database_version()");
 
         rs.next();
 
-        int result = rs.getInt(1);
+        String v = rs.getString(1);
 
         rs.close();
-
-        return result;
+        int start = v.indexOf(".") + 1;
+        return Integer.valueOf(v.substring( start, v.indexOf(".", start)));
     }
 
 //#endif JAVA4

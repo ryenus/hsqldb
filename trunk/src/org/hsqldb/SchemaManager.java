@@ -304,7 +304,7 @@ public class SchemaManager {
     }
 
     public Schema findSchema(String name) {
-        return  ((Schema) schemaMap.get(name));
+        return ((Schema) schemaMap.get(name));
     }
 
     /**
@@ -1785,7 +1785,7 @@ public class SchemaManager {
         return sb.toString();
     }
 
-    public String[] getTextTableSQL(boolean withHeader) {
+    public String[] getTablePropsSQL(boolean withHeader) {
 
         HsqlArrayList tableList = getAllTables();
         HsqlArrayList list      = new HsqlArrayList();
@@ -1793,13 +1793,17 @@ public class SchemaManager {
         for (int i = 0; i < tableList.size(); i++) {
             Table t = (Table) tableList.get(i);
 
-            if (!t.isText()) {
-                continue;
+            if (t.isText()) {
+                String[] ddl = t.getSQLForTextSource(withHeader);
+
+                list.addAll(ddl);
+            } else {
+                String ddl = t.getSQLForReadOnly();
+
+                if (ddl != null) {
+                    list.add(ddl);
+                }
             }
-
-            String[] ddl = t.getSQLForTextSource(withHeader);
-
-            list.addAll(ddl);
         }
 
         String[] array = new String[list.size()];

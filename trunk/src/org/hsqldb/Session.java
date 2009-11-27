@@ -86,8 +86,8 @@ public class Session implements SessionInterface {
 
     // transaction support
     boolean          isReadOnlyDefault;
-    int              isolationModeDefault = SessionInterface.TX_READ_COMMITTED;
-    int              isolationMode        = SessionInterface.TX_READ_COMMITTED;
+    int isolationLevelDefault       = SessionInterface.TX_READ_COMMITTED;
+    int              isolationLevel = SessionInterface.TX_READ_COMMITTED;
     int              actionIndex;
     long             actionTimestamp;
     long             transactionTimestamp;
@@ -159,7 +159,8 @@ public class Session implements SessionInterface {
         rowActionList               = new HsqlArrayList(true);
         waitingSessions             = new OrderedHashSet();
         tempSet                     = new OrderedHashSet();
-        isolationMode               = isolationModeDefault;
+        isolationLevelDefault       = database.getDefaultIsolationLevel();
+        isolationLevel              = isolationLevelDefault;
         sessionContext              = new SessionContext(this);
         sessionContext.isAutoCommit = ValuePool.getBoolean(autocommit);
         sessionContext.isReadOnly   = ValuePool.getBoolean(readonly);
@@ -233,14 +234,14 @@ public class Session implements SessionInterface {
             isReadOnlyDefault = true;
         }
 
-        if (level == isolationModeDefault) {
+        if (level == isolationLevelDefault) {
             return;
         }
 
-        isolationModeDefault = level;
+        isolationLevelDefault = level;
 
         if (!isInMidTransaction()) {
-            isolationMode = isolationModeDefault;
+            isolationLevel = isolationLevelDefault;
         }
 
         database.logger.writeToLog(this, getSessionIsolationSQL());
@@ -259,15 +260,15 @@ public class Session implements SessionInterface {
             sessionContext.isReadOnly = Boolean.TRUE;
         }
 
-        if (isolationMode != level) {
-            isolationMode = level;
+        if (isolationLevel != level) {
+            isolationLevel = level;
 
             database.logger.writeToLog(this, getTransactionIsolationSQL());
         }
     }
 
     public synchronized int getIsolation() {
-        return isolationMode;
+        return isolationLevel;
     }
 
     /**
@@ -467,8 +468,8 @@ public class Session implements SessionInterface {
     public boolean hasLocks(Statement statement) {
 
         if (lockStatement == statement) {
-            if (isolationMode == SessionInterface.TX_REPEATABLE_READ
-                    || isolationMode == SessionInterface.TX_SERIALIZABLE) {
+            if (isolationLevel == SessionInterface.TX_REPEATABLE_READ
+                    || isolationLevel == SessionInterface.TX_SERIALIZABLE) {
                 return true;
             }
 
@@ -520,7 +521,7 @@ public class Session implements SessionInterface {
         if (!isTransaction) {
             sessionContext.isReadOnly =
                 ValuePool.getBoolean(isReadOnlyDefault);
-            isolationMode = isolationModeDefault;
+            isolationLevel = isolationLevelDefault;
 
             return;
         }
@@ -558,7 +559,7 @@ public class Session implements SessionInterface {
         if (!isTransaction) {
             sessionContext.isReadOnly =
                 ValuePool.getBoolean(isReadOnlyDefault);
-            isolationMode = isolationModeDefault;
+            isolationLevel = isolationLevelDefault;
 
             return;
         }
@@ -580,7 +581,7 @@ public class Session implements SessionInterface {
         sessionData.closeAllTransactionNavigators();
 
         sessionContext.isReadOnly = ValuePool.getBoolean(isReadOnlyDefault);
-        isolationMode             = isolationModeDefault;
+        isolationLevel            = isolationLevelDefault;
         lockStatement             = null;
 /* debug 190
         tempActionHistory.add("commit ends " + actionTimestamp);
@@ -1557,7 +1558,7 @@ public class Session implements SessionInterface {
 
             case SessionInterface.INFO_ISOLATION :
                 data[SessionInterface.INFO_INTEGER] =
-                    ValuePool.getInt(isolationMode);
+                    ValuePool.getInt(isolationLevel);
                 break;
 
             case SessionInterface.INFO_AUTOCOMMIT :
@@ -1633,7 +1634,7 @@ public class Session implements SessionInterface {
         switch (id) {
 
             case SessionInterface.INFO_ISOLATION :
-                return ValuePool.getInt(isolationMode);
+                return ValuePool.getInt(isolationLevel);
 
             case SessionInterface.INFO_AUTOCOMMIT :
                 return sessionContext.isAutoCommit;
@@ -2027,9 +2028,9 @@ public class Session implements SessionInterface {
 
         sb.append(Tokens.T_START).append(' ').append(Tokens.T_TRANSACTION);
 
-        if (isolationMode != isolationModeDefault) {
+        if (isolationLevel != isolationLevelDefault) {
             sb.append(' ');
-            appendIsolationSQL(sb, isolationMode);
+            appendIsolationSQL(sb, isolationLevel);
         }
 
         return sb.toString();
@@ -2041,7 +2042,7 @@ public class Session implements SessionInterface {
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TRANSACTION);
         sb.append(' ');
-        appendIsolationSQL(sb, isolationMode);
+        appendIsolationSQL(sb, isolationLevel);
 
         return sb.toString();
     }
@@ -2054,7 +2055,7 @@ public class Session implements SessionInterface {
         sb.append(' ').append(Tokens.T_CHARACTERISTICS).append(' ');
         sb.append(Tokens.T_AS).append(' ').append(Tokens.T_TRANSACTION).append(
             ' ');
-        appendIsolationSQL(sb, isolationModeDefault);
+        appendIsolationSQL(sb, isolationLevelDefault);
 
         return sb.toString();
     }
@@ -2063,19 +2064,26 @@ public class Session implements SessionInterface {
 
         sb.append(Tokens.T_ISOLATION).append(' ');
         sb.append(Tokens.T_LEVEL).append(' ');
+        sb.append(getIsolationString(isolationLevel));
+    }
+
+    static String getIsolationString(int isolationLevel) {
 
         switch (isolationLevel) {
 
             case SessionInterface.TX_READ_UNCOMMITTED :
             case SessionInterface.TX_READ_COMMITTED :
+                StringBuffer sb = new StringBuffer();
+
                 sb.append(Tokens.T_READ).append(' ');
                 sb.append(Tokens.T_COMMITTED);
-                break;
+
+                return sb.toString();
 
             case SessionInterface.TX_REPEATABLE_READ :
             case SessionInterface.TX_SERIALIZABLE :
-                sb.append(Tokens.T_SERIALIZABLE);
-                break;
+            default :
+                return Tokens.T_SERIALIZABLE;
         }
     }
 

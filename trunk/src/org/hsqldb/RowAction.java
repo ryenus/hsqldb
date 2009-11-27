@@ -404,7 +404,7 @@ public class RowAction extends RowActionBase {
         RowActionBase action;
         long          timestamp       = session.transactionTimestamp;
         long          commitTimestamp = 0;
-        final boolean readCommitted = session.isolationMode
+        final boolean readCommitted = session.isolationLevel
                                       == SessionInterface.TX_READ_COMMITTED;
 
         action = this;
@@ -476,7 +476,7 @@ public class RowAction extends RowActionBase {
     synchronized boolean complete(Session session, OrderedHashSet set) {
 
         RowActionBase action;
-        boolean readCommitted = session.isolationMode
+        boolean readCommitted = session.isolationLevel
                                 == SessionInterface.TX_READ_COMMITTED;
         boolean result = true;
 
@@ -743,7 +743,7 @@ public class RowAction extends RowActionBase {
         if (session == null) {
             threshold = Long.MAX_VALUE;
         } else {
-            switch (session.isolationMode) {
+            switch (session.isolationLevel) {
 
                 case SessionInterface.TX_READ_UNCOMMITTED :
                     threshold = Long.MAX_VALUE;
@@ -844,7 +844,7 @@ public class RowAction extends RowActionBase {
         if (session == null) {
             threshold = Long.MAX_VALUE;
         } else {
-            switch (session.isolationMode) {
+            switch (session.isolationLevel) {
 
                 case SessionInterface.TX_READ_UNCOMMITTED :
                     threshold = Long.MAX_VALUE;

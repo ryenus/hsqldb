@@ -398,6 +398,38 @@ public class ParserCommand extends ParserDDL {
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args);
             }
+            case Tokens.ISOLATION : {
+                read();
+                readThis(Tokens.LEVEL);
+
+                int level;
+
+                switch (token.tokenType) {
+
+                    case Tokens.READ :
+                        read();
+                        readThis(Tokens.COMMITTED);
+
+                        level = SessionInterface.TX_READ_COMMITTED;
+                        break;
+
+                    case Tokens.SERIALIZABLE :
+                        read();
+
+                        level = SessionInterface.TX_SERIALIZABLE;
+                        break;
+
+                    default :
+                        throw unexpectedToken();
+                }
+
+                read();
+
+                Object[] args = new Object[]{ Integer.valueOf(level) };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL, args);
+            }
             default :
                 throw unexpectedToken();
         }

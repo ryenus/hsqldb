@@ -56,7 +56,7 @@ import org.hsqldb.types.Types;
  */
 public class FunctionSQL extends Expression {
 
-    private final static int   FUNC_POSITION_CHAR                    = 1;     // numeric
+    protected final static int FUNC_POSITION_CHAR                    = 1;     // numeric
     private final static int   FUNC_POSITION_BINARY                  = 2;
     private final static int   FUNC_OCCURENCES_REGEX                 = 3;
     private final static int   FUNC_POSITION_REGEX                   = 4;

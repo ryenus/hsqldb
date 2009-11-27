@@ -35,7 +35,8 @@ import java.sql.Connection;
 
 public class TestScript extends TestBase {
 
-        String path = "TestSelf06Generated.txt";
+//    String path = "TestSelf01Clob.txt";
+//        String path = "TestSelf06Generated.txt";
 //    String path = "TestAny.txt";
 //    String path = "TestSelf.txt";
 //    String path = "TestSelf3PartNames.txt";
@@ -72,7 +73,7 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfTempTable1.txt";
 //      String path = "TestSelfTransaction.txt";
 //    String path = "TestSelfTriggers.txt";
-//    String path = "TestSelfUnions.txt";
+    String path = "TestSelfUnions.txt";
 //    String path = "TestSelfUserFunction.txt";
 //    String path = "TestSelfViews.txt";
 //    String path = "TestSelfViewGrants.txt";

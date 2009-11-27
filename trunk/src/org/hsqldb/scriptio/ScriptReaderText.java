@@ -97,8 +97,8 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
 
             try {
-                cs = session.compileStatement(statement,
-                                              ResultProperties.defaultPropsValue);
+                cs = session.compileStatement(
+                    statement, ResultProperties.defaultPropsValue);
                 result = session.executeCompiledStatement(cs,
                         ValuePool.emptyObjectArray);
 
@@ -128,7 +128,13 @@ public class ScriptReaderText extends ScriptReaderBase {
                 database.logger.logWarningEvent(result.getMainString(),
                                                 result.getException());
 
-                throw Error.error(null, ErrorCode.ERROR_IN_SCRIPT_FILE,
+                if (cs != null
+                        && cs.getType() == StatementTypes.CREATE_ROUTINE) {
+                    continue;
+                }
+
+                throw Error.error(result.getException(),
+                                  ErrorCode.ERROR_IN_SCRIPT_FILE,
                                   ErrorCode.M_DatabaseScriptReader_readDDL,
                                   new Object[] {
                     new Integer(lineCount), result.getMainString()

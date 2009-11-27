@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -40,6 +41,7 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.Crypto;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
@@ -57,8 +59,8 @@ import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
 /**
- * Implementation of calls to HSQLDB functions with reserved names or functions
- * that have an SQL standard equivalent.<p>
+ * Implementation of HSQLDB functions that are not defined by the
+ * SQL standard.<p>
  *
  * Some functions are translated into equivalent SQL Standard functions.
  *
@@ -90,19 +92,27 @@ public class FunctionCustom extends FunctionSQL {
     };
 
     //
-    private final static int FUNC_ISAUTOCOMMIT            = 71;
-    private final static int FUNC_ISREADONLYSESSION       = 72;
-    private final static int FUNC_ISREADONLYDATABASE      = 73;
-    private final static int FUNC_ISREADONLYDATABASEFILES = 74;
-    private final static int FUNC_DATABASE                = 75;
-    private final static int FUNC_IDENTITY                = 76;
-    private final static int FUNC_SYSDATE                 = 77;
-    private final static int FUNC_TIMESTAMPADD            = 78;
-    private final static int FUNC_TIMESTAMPDIFF           = 79;
-    private final static int FUNC_TRUNCATE                = 80;
-    private final static int FUNC_TO_CHAR                 = 81;
-    private final static int FUNC_TIMESTAMP               = 82;
-    private final static int FUNC_CRYPT_KEY               = 83;
+    private final static int FUNC_ISAUTOCOMMIT             = 71;
+    private final static int FUNC_ISREADONLYSESSION        = 72;
+    private final static int FUNC_ISREADONLYDATABASE       = 73;
+    private final static int FUNC_ISREADONLYDATABASEFILES  = 74;
+    private final static int FUNC_DATABASE                 = 75;
+    private final static int FUNC_IDENTITY                 = 76;
+    private final static int FUNC_SYSDATE                  = 77;
+    private final static int FUNC_TIMESTAMPADD             = 78;
+    private final static int FUNC_TIMESTAMPDIFF            = 79;
+    private final static int FUNC_TRUNCATE                 = 80;
+    private final static int FUNC_TO_CHAR                  = 81;
+    private final static int FUNC_TIMESTAMP                = 82;
+    private final static int FUNC_CRYPT_KEY                = 83;
+    private final static int FUNC_ISOLATION_LEVEL          = 85;
+    private final static int FUNC_SESSION_ISOLATION_LEVEL  = 86;
+    private final static int FUNC_DATABASE_ISOLATION_LEVEL = 87;
+    private final static int FUNC_TRANSACTION_CONTROL      = 88;
+    private final static int FUNC_TIMEZONE                 = 89;
+    private final static int FUNC_SESSION_TIMEZONE         = 90;
+    private final static int FUNC_DATABASE_TIMEZONE        = 91;
+    private final static int FUNC_DATABASE_VERSION         = 92;
 
     //
     private static final int FUNC_ACOS             = 101;
@@ -198,7 +208,7 @@ public class FunctionCustom extends FunctionSQL {
         nonDeterministicFuncSet.add(FUNC_TIMESTAMP);
 
         //
-        customRegularFuncMap.put(Tokens.LOCATE, FUNC_LOCATE);
+        customRegularFuncMap.put(Tokens.LOCATE, FUNC_POSITION_CHAR);
         customRegularFuncMap.put(Tokens.INSERT, FUNC_OVERLAY_CHAR);
         customRegularFuncMap.put(Tokens.REVERSE, FUNC_REVERSE);
 
@@ -212,6 +222,20 @@ public class FunctionCustom extends FunctionSQL {
                                  FUNC_ISREADONLYDATABASE);
         customRegularFuncMap.put(Tokens.ISREADONLYDATABASEFILES,
                                  FUNC_ISREADONLYDATABASEFILES);
+        customRegularFuncMap.put(Tokens.ISOLATION_LEVEL, FUNC_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.SESSION_ISOLATION_LEVEL,
+                                 FUNC_SESSION_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.DATABASE_ISOLATION_LEVEL,
+                                 FUNC_DATABASE_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL,
+                                 FUNC_TRANSACTION_CONTROL);
+        customRegularFuncMap.put(Tokens.TIMEZONE, FUNC_TIMEZONE);
+        customRegularFuncMap.put(Tokens.SESSION_TIMEZONE,
+                                 FUNC_SESSION_TIMEZONE);
+        customRegularFuncMap.put(Tokens.DATABASE_TIMEZONE,
+                                 FUNC_DATABASE_TIMEZONE);
+        customRegularFuncMap.put(Tokens.DATABASE_VERSION,
+                                 FUNC_DATABASE_VERSION);
 
         //
         nonDeterministicFuncSet.add(FUNC_DATABASE);
@@ -219,6 +243,13 @@ public class FunctionCustom extends FunctionSQL {
         nonDeterministicFuncSet.add(FUNC_ISREADONLYSESSION);
         nonDeterministicFuncSet.add(FUNC_ISREADONLYDATABASE);
         nonDeterministicFuncSet.add(FUNC_ISREADONLYDATABASEFILES);
+        nonDeterministicFuncSet.add(FUNC_ISOLATION_LEVEL);
+        nonDeterministicFuncSet.add(FUNC_SESSION_ISOLATION_LEVEL);
+        nonDeterministicFuncSet.add(FUNC_DATABASE_ISOLATION_LEVEL);
+        nonDeterministicFuncSet.add(FUNC_TRANSACTION_CONTROL);
+        nonDeterministicFuncSet.add(FUNC_TIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_SESSION_TIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_DATABASE_TIMEZONE);
 
         //
         customRegularFuncMap.put(Tokens.ACOS, FUNC_ACOS);
@@ -280,14 +311,14 @@ public class FunctionCustom extends FunctionSQL {
 
         switch (tokenType) {
 
-            case Tokens.LOG :
-            case Tokens.LCASE :
-            case Tokens.UCASE :
-            case Tokens.LENGTH :
             case Tokens.BITLENGTH :
+            case Tokens.LCASE :
+            case Tokens.LENGTH :
+            case Tokens.LOG :
             case Tokens.OCTETLENGTH :
             case Tokens.TODAY :
             case Tokens.SYSDATE :
+            case Tokens.UCASE :
                 return new FunctionSQL(id);
 
             case Tokens.NOW : {
@@ -312,6 +343,16 @@ public class FunctionCustom extends FunctionSQL {
 
                 return function;
             }
+            case Tokens.LOCATE :
+                FunctionSQL function = new FunctionSQL(id);
+
+                function.parseList = new short[] {
+                    Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.CLOSEBRACKET
+                };
+
+                return function;
         }
 
         FunctionCustom function = new FunctionCustom(id);
@@ -394,6 +435,14 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_ISREADONLYSESSION :
             case FUNC_ISREADONLYDATABASE :
             case FUNC_ISREADONLYDATABASEFILES :
+            case FUNC_ISOLATION_LEVEL :
+            case FUNC_SESSION_ISOLATION_LEVEL :
+            case FUNC_DATABASE_ISOLATION_LEVEL :
+            case FUNC_TRANSACTION_CONTROL :
+            case FUNC_TIMEZONE :
+            case FUNC_SESSION_TIMEZONE :
+            case FUNC_DATABASE_TIMEZONE :
+            case FUNC_DATABASE_VERSION :
                 parseList = emptyParamList;
                 break;
 
@@ -504,14 +553,6 @@ public class FunctionCustom extends FunctionSQL {
                 parseList = doubleParamList;
                 break;
 
-            case FUNC_LOCATE :
-                parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.CLOSEBRACKET
-                };
-                break;
-
             case FUNC_DATEADD :
             case FUNC_DATEDIFF :
             case FUNC_REPLACE :
@@ -603,6 +644,46 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_ISREADONLYDATABASEFILES :
                 return session.getDatabase().isFilesReadOnly() ? Boolean.TRUE
                                                                : Boolean.FALSE;
+
+            case FUNC_ISOLATION_LEVEL : {
+                return Session.getIsolationString(session.isolationLevel);
+            }
+            case FUNC_SESSION_ISOLATION_LEVEL :
+                return Session.getIsolationString(
+                    session.isolationLevelDefault);
+
+            case FUNC_DATABASE_ISOLATION_LEVEL :
+                return Session.getIsolationString(
+                    session.database.getDefaultIsolationLevel());
+
+            case FUNC_TRANSACTION_CONTROL :
+                switch (session.database.txManager.getTransactionControl()) {
+
+                    case Database.MVCC :
+                        return Tokens.T_MVCC;
+
+                    case Database.MVLOCKS :
+                        return Tokens.T_MVLOCKS;
+
+                    case Database.LOCKS :
+                    default :
+                        return Tokens.T_LOCKS;
+                }
+            case FUNC_TIMEZONE :
+                return new IntervalSecondData(session.getZoneSeconds(), 0);
+
+            case FUNC_SESSION_TIMEZONE :
+                return new IntervalSecondData(session.sessionTimeZoneSeconds,
+                                              0);
+
+            case FUNC_DATABASE_TIMEZONE :
+
+                /** @todo */
+                return new IntervalSecondData(session.sessionTimeZoneSeconds,
+                                              0);
+
+            case FUNC_DATABASE_VERSION :
+                return HsqlDatabaseProperties.THIS_FULL_VERSION;
 
             case FUNC_IDENTITY : {
                 Number id = session.getLastIdentity();
@@ -843,6 +924,7 @@ public class FunctionCustom extends FunctionSQL {
                     return Double.valueOf(session.random());
                 } else {
                     long seed = ((Number) data[0]).longValue();
+
                     return Double.valueOf(session.random(seed));
                 }
             }
@@ -991,28 +1073,17 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 throw Error.error(ErrorCode.X_22511);
+            case FUNC_ROUNDMAGIC :
             case FUNC_ROUND : {
                 if (data[0] == null || data[1] == null) {
                     return null;
                 }
 
                 double d = NumberType.toDouble(data[0]);
-                int    i = ((Number) data[1]).intValue();
+                int    e = ((Number) data[1]).intValue();
+                double f = Math.pow(10., e);
 
-                d = Library.round(d, i);
-
-                return new Double(d);
-            }
-            case FUNC_ROUNDMAGIC : {
-                if (data[0] == null) {
-                    return null;
-                }
-
-                double d = NumberType.toDouble(data[0]);
-
-                d = Library.roundMagic(d);
-
-                return new Double(d);
+                return new Double(Math.round(d * f) / f);
             }
             case FUNC_SOUNDEX : {
                 if (data[0] == null) {
@@ -1021,7 +1092,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 String s = (String) data[0];
 
-                return Library.soundex(s);
+                return new String(soundex(s), 0, 4);
             }
             case FUNC_BITAND :
             case FUNC_BITOR :
@@ -1102,9 +1173,33 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
-                int v = Library.difference((String) data[0], (String) data[1]);
+                char[] s1 = soundex((String) data[0]);
+                char[] s2 = soundex((String) data[1]);
+                int    e  = 0;
 
-                return ValuePool.getInt(v);
+                if (s1[0] == s2[0]) {
+                    e++;
+                }
+
+                if (e == 4) {
+                    return ValuePool.getInt(e);
+                }
+
+                int js = 1;
+
+                for (int i = 1; i < 4; i++) {
+                    for (int j = js; j < 4; j++) {
+                        if (s1[j] == s2[i]) {
+                            e++;
+                            i++;
+                            js++;
+                        }
+                    }
+                }
+
+                e = 0;
+
+                return ValuePool.getInt(e);
             }
             case FUNC_HEXTORAW : {
                 if (data[0] == null) {
@@ -1120,18 +1215,6 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 return nodes[0].dataType.convertToString(data[0]);
-            }
-            case FUNC_LOCATE : {
-                for (int i = 0; i < data.length; i++) {
-                    if (data[i] == null) {
-                        return null;
-                    }
-                }
-
-                int v = Library.locate((String) data[0], (String) data[1],
-                                       (Integer) data[2]);
-
-                return ValuePool.getInt(v);
             }
             case FUNC_REPEAT : {
                 for (int i = 0; i < data.length; i++) {
@@ -1254,6 +1337,22 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_ISREADONLYDATABASE :
             case FUNC_ISREADONLYDATABASEFILES :
                 dataType = Type.SQL_BOOLEAN;
+
+                return;
+
+            case FUNC_ISOLATION_LEVEL :
+            case FUNC_SESSION_ISOLATION_LEVEL :
+            case FUNC_DATABASE_ISOLATION_LEVEL :
+            case FUNC_TRANSACTION_CONTROL :
+            case FUNC_DATABASE_VERSION :
+                dataType = Type.SQL_VARCHAR_DEFAULT;
+
+                return;
+
+            case FUNC_TIMEZONE :
+            case FUNC_SESSION_TIMEZONE :
+            case FUNC_DATABASE_TIMEZONE :
+                dataType = Type.SQL_INTERVAL_HOUR_TO_MINUTE;
 
                 return;
 
@@ -1711,35 +1810,6 @@ public class FunctionCustom extends FunctionSQL {
 
                 break;
             }
-            case FUNC_LOCATE : {
-                if (nodes[0].dataType == null) {
-                    nodes[0].dataType = Type.SQL_VARCHAR;
-                }
-
-                if (nodes[1].dataType == null) {
-                    nodes[1].dataType = Type.SQL_VARCHAR;
-                }
-
-                if (nodes[2] == null) {
-                    nodes[2] = new ExpressionValue(ValuePool.INTEGER_0,
-                                                   Type.SQL_INTEGER);
-                }
-
-                if (nodes[2].dataType == null) {
-                    nodes[2].dataType = Type.SQL_INTEGER;
-                }
-
-                boolean isChar = nodes[0].dataType.isCharacterType()
-                                 && nodes[1].dataType.isCharacterType();
-
-                if (!isChar || !nodes[2].dataType.isExactNumberType()) {
-                    throw Error.error(ErrorCode.X_42561);
-                }
-
-                dataType = Type.SQL_INTEGER;;
-
-                break;
-            }
             case FUNC_REPEAT : {
                 if (nodes[0].dataType == null) {
                     nodes[0].dataType = Type.SQL_VARCHAR;
@@ -1748,6 +1818,10 @@ public class FunctionCustom extends FunctionSQL {
                 boolean isChar = nodes[0].dataType.isCharacterType();
 
                 if (!isChar && !nodes[0].dataType.isBinaryType()) {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+
+                if (!nodes[1].dataType.isExactNumberType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
@@ -1848,40 +1922,40 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_ISREADONLYSESSION :
             case FUNC_ISREADONLYDATABASE :
             case FUNC_ISREADONLYDATABASEFILES :
+            case FUNC_ISOLATION_LEVEL :
+            case FUNC_SESSION_ISOLATION_LEVEL :
+            case FUNC_DATABASE_ISOLATION_LEVEL :
+            case FUNC_TRANSACTION_CONTROL :
+            case FUNC_TIMEZONE :
+            case FUNC_SESSION_TIMEZONE :
+            case FUNC_DATABASE_TIMEZONE :
+            case FUNC_DATABASE_VERSION :
+            case FUNC_PI :
+            case FUNC_IDENTITY :
                 return new StringBuffer(name).append(
                     Tokens.T_OPENBRACKET).append(
                     Tokens.T_CLOSEBRACKET).toString();
 
-            case FUNC_IDENTITY :
-                return new StringBuffer(Tokens.T_IDENTITY).append(
-                    Tokens.T_OPENBRACKET).append(
-                    Tokens.T_CLOSEBRACKET).toString();
+            case FUNC_TIMESTAMPADD : {
+                String token = Tokens.getSQLTSIString(
+                    ((Number) nodes[0].getValue(null)).intValue());
 
-            case FUNC_TIMESTAMPADD :
                 return new StringBuffer(Tokens.T_TIMESTAMPADD).append(
-                    Tokens.T_OPENBRACKET).append(nodes[0].getSQL())       //
-                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())     //
-                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())     //
+                    Tokens.T_OPENBRACKET).append(token)                  //
+                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())    //
+                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())    //
                     .append(Tokens.T_CLOSEBRACKET).toString();
+            }
+            case FUNC_TIMESTAMPDIFF : {
+                String token = Tokens.getSQLTSIString(
+                    ((Number) nodes[0].getValue(null)).intValue());
 
-            case FUNC_TIMESTAMPDIFF :
                 return new StringBuffer(Tokens.T_TIMESTAMPDIFF).append(
-                    Tokens.T_OPENBRACKET).append(nodes[0].getSQL())       //
-                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())     //
-                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())     //
+                    Tokens.T_OPENBRACKET).append(token)                  //
+                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())    //
+                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())    //
                     .append(Tokens.T_CLOSEBRACKET).toString();
-
-            case FUNC_TRUNCATE : {
-                return new StringBuffer(Tokens.T_TRUNCATE).append('(')    //
-                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
-                    .append(nodes[1].getSQL()).append(')').toString();
             }
-            case FUNC_TO_CHAR : {
-                return new StringBuffer(Tokens.T_TO_CHAR).append('(')     //
-                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
-                    .append(nodes[1].getSQL()).append(')').toString();
-            }
-            case FUNC_PI :
             case FUNC_RAND : {
                 StringBuffer sb = new StringBuffer(name).append('(');
 
@@ -1889,12 +1963,15 @@ public class FunctionCustom extends FunctionSQL {
                     sb.append(nodes[0].getSQL());
                 }
 
-                sb.append(')').toString();
+                sb.append(')');
+
+                return sb.toString();
             }
+            case FUNC_ASCII :
             case FUNC_ACOS :
             case FUNC_ASIN :
             case FUNC_ATAN :
-            case FUNC_ATAN2 :
+            case FUNC_CHAR :
             case FUNC_COS :
             case FUNC_COT :
             case FUNC_DEGREES :
@@ -1903,22 +1980,107 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_LOG10 :
             case FUNC_RADIANS :
             case FUNC_ROUNDMAGIC :
-            case FUNC_SIGN : {
-                return new StringBuffer(name).append('(')                 //
+            case FUNC_SIGN :
+            case FUNC_SOUNDEX :
+            case FUNC_SPACE :
+            case FUNC_REVERSE :
+            case FUNC_HEXTORAW :
+            case FUNC_RAWTOHEX : {
+                return new StringBuffer(name).append('(')                //
                     .append(nodes[0].getSQL()).append(')').toString();
             }
-            case FUNC_ROUND : {
-                return new StringBuffer(Tokens.ROUND).append('(')         //
-                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
+            case FUNC_ATAN2 :
+            case FUNC_BITAND :
+            case FUNC_BITOR :
+            case FUNC_BITXOR :
+            case FUNC_DIFFERENCE :
+            case FUNC_REPEAT :
+            case FUNC_LEFT :
+            case FUNC_RIGHT :
+            case FUNC_ROUND :
+            case FUNC_CRYPT_KEY :
+            case FUNC_TRUNCATE :
+            case FUNC_TIMESTAMP :
+            case FUNC_TO_CHAR : {
+                return new StringBuffer(name).append('(')                //
+                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)    //
                     .append(nodes[1].getSQL()).append(')').toString();
             }
-            case FUNC_CRYPT_KEY : {
-                return new StringBuffer(Tokens.CRYPT_KEY).append('(')     //
-                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)     //
-                    .append(nodes[1].getSQL()).append(')').toString();
+            case FUNC_REPLACE : {
+                return new StringBuffer(name).append('(')                //
+                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)    //
+                    .append(nodes[1].getSQL()).append(Tokens.T_COMMA)    //
+                    .append(nodes[2].getSQL()).append(')').toString();
             }
             default :
                 return super.getSQL();
         }
+    }
+
+    /**
+     * Returns a four character code representing the sound of the given
+     * <code>String</code>. Non-ASCCI characters in the
+     * input <code>String</code> are ignored. <p>
+     *
+     * This method was rewritten for HSQLDB to comply with the description at
+     * <a href="http://www.archives.gov/genealogy/census/soundex.html">
+     * http://www.archives.gov/genealogy/census/soundex.html </a>.<p>
+     * @param s the <code>String</code> for which to calculate the 4 character
+     *      <code>SOUNDEX</code> value
+     * @return the 4 character <code>SOUNDEX</code> value for the given
+     *      <code>String</code>
+     */
+    public static char[] soundex(String s) {
+
+        if (s == null) {
+            return null;
+        }
+
+        s = s.toUpperCase(Locale.ENGLISH);
+
+        int    len       = s.length();
+        char[] b         = new char[] {
+            '0', '0', '0', '0'
+        };
+        char   lastdigit = '0';
+
+        for (int i = 0, j = 0; i < len && j < 4; i++) {
+            char c = s.charAt(i);
+            char newdigit;
+
+            if ("AEIOUY".indexOf(c) != -1) {
+                newdigit = '7';
+            } else if (c == 'H' || c == 'W') {
+                newdigit = '8';
+            } else if ("BFPV".indexOf(c) != -1) {
+                newdigit = '1';
+            } else if ("CGJKQSXZ".indexOf(c) != -1) {
+                newdigit = '2';
+            } else if (c == 'D' || c == 'T') {
+                newdigit = '3';
+            } else if (c == 'L') {
+                newdigit = '4';
+            } else if (c == 'M' || c == 'N') {
+                newdigit = '5';
+            } else if (c == 'R') {
+                newdigit = '6';
+            } else {
+                continue;
+            }
+
+            if (j == 0) {
+                b[j++]    = c;
+                lastdigit = newdigit;
+            } else if (newdigit <= '6') {
+                if (newdigit != lastdigit) {
+                    b[j++]    = newdigit;
+                    lastdigit = newdigit;
+                }
+            } else if (newdigit == '7') {
+                lastdigit = newdigit;
+            }
+        }
+
+        return b;
     }
 }

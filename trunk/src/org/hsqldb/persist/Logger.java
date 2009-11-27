@@ -43,6 +43,7 @@ import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Session;
+import org.hsqldb.SessionInterface;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
@@ -339,6 +340,15 @@ public class Logger {
             case Database.MVCC :
                 database.txManager = new TransactionManagerMVCC(database);
                 break;
+        }
+
+        String txLevel = database.databaseProperties.getStringProperty(
+            HsqlDatabaseProperties.hsqldb_tx_level);
+
+        if (Tokens.T_SERIALIZABLE.equalsIgnoreCase(txLevel)) {
+            database.defaultIsolationLevel = SessionInterface.TX_SERIALIZABLE;
+        } else {
+            database.defaultIsolationLevel = SessionInterface.TX_READ_COMMITTED;
         }
 
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
@@ -1082,6 +1092,23 @@ public class Logger {
 
             case Database.LOCKS :
                 sb.append(Tokens.T_LOCKS);
+                break;
+        }
+
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_DEFAULT).append(' ');
+        sb.append(Tokens.T_ISOLATION).append(' ').append(Tokens.T_LEVEL);
+        sb.append(' ');
+
+        switch (database.getDefaultIsolationLevel()) {
+
+            case SessionInterface.TX_READ_COMMITTED :
+                sb.append(Tokens.T_READ).append(' ').append(Tokens.T_COMMITTED);
+                break;
+
+            case SessionInterface.TX_SERIALIZABLE :
+                sb.append(Tokens.T_SERIALIZABLE);
                 break;
         }
 

@@ -84,7 +84,7 @@ import org.hsqldb.result.Result;
  * DatabaseScriptReader and its subclasses read back the data at startup time.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.8.0
+ * @version 1.9.0
  * @since 1.7.2
  */
 public abstract class ScriptWriterBase implements Runnable {
@@ -323,16 +323,7 @@ public abstract class ScriptWriterBase implements Runnable {
 
     protected void writeTableInit(Table t) throws IOException {}
 
-    protected void writeTableTerm(Table t) throws IOException {
-
-        if (t.isDataReadOnly() && !t.isTemp() && !t.isText()) {
-            StringBuffer a = new StringBuffer("SET TABLE ");
-
-            a.append(t.getName().statementName);
-            a.append(" READONLY TRUE");
-            writeLogStatement(currentSession, a.toString());
-        }
-    }
+    protected void writeTableTerm(Table t) throws IOException {}
 
     protected void writeSingleColumnResult(Result r) throws IOException {
 

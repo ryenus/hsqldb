@@ -458,14 +458,6 @@ public class Table extends TableBase implements SchemaObject {
         return sb.toString();
     }
 
-    public long getChangeTimestamp() {
-        return changeTimestamp;
-    }
-
-    public boolean isConnected() {
-        return true;
-    }
-
     String[] getSQL(OrderedHashSet resolved, OrderedHashSet unresolved) {
 
         for (int i = 0; i < constraintList.length; i++) {
@@ -501,6 +493,23 @@ public class Table extends TableBase implements SchemaObject {
         return array;
     }
 
+    String getSQLForReadOnly() {
+
+        if (isReadOnly) {
+            StringBuffer sb = new StringBuffer(64);
+
+            sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(
+                ' ');
+            sb.append(getName().getSchemaQualifiedStatementName());
+            sb.append(' ').append(Tokens.T_READ).append(' ');
+            sb.append(Tokens.T_ONLY);
+
+            return sb.toString();
+        } else {
+            return null;
+        }
+    }
+
     String[] getSQLForTextSource(boolean withHeader) {
 
         // readonly for TEXT tables only
@@ -509,14 +518,7 @@ public class Table extends TableBase implements SchemaObject {
             boolean       readonly = isDataReadOnly();
 
             if (readonly) {
-                StringBuffer sb = new StringBuffer(64);
-
-                sb.append(Tokens.T_SET).append(' ').append(
-                    Tokens.T_TABLE).append(' ');
-                sb.append(getName().getSchemaQualifiedStatementName());
-                sb.append(' ').append(Tokens.T_READ).append(' ');
-                sb.append(Tokens.T_ONLY);
-                list.add(sb.toString());
+                list.add(getSQLForReadOnly());
             }
 
             // data source
@@ -584,6 +586,14 @@ public class Table extends TableBase implements SchemaObject {
         sb.append(')');
 
         return sb.toString();
+    }
+
+    public long getChangeTimestamp() {
+        return changeTimestamp;
+    }
+
+    public boolean isConnected() {
+        return true;
     }
 
     /**
@@ -1517,8 +1527,10 @@ public class Table extends TableBase implements SchemaObject {
 
         createPrimaryKey(indexName, columns, columnsNotNull);
 
-        Constraint c = new Constraint(indexName, this,
-            getPrimaryIndex(), SchemaObject.ConstraintTypes.PRIMARY_KEY);
+        Constraint c =
+            new Constraint(indexName, this, getPrimaryIndex(),
+                           SchemaObject.ConstraintTypes.PRIMARY_KEY);
+
         this.addConstraint(c);
     }
 

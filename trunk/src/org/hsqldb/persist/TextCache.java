@@ -391,7 +391,7 @@ public class TextCache extends DataFileCache {
                 FileUtil.getFileUtil().delete(dataFileName);
             }
         } catch (Throwable t) {
-            throw Error.error(null, ErrorCode.FILE_IO_ERROR,
+            throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_purging_file_error,
                               new Object[] {
                 t.getMessage(), dataFileName

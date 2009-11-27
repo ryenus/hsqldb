@@ -51,7 +51,7 @@ public class TestStoredProcedure extends TestBase {
         super(name);
     }
 
-    public void test() throws Exception {
+    public void testOne() throws Exception {
 
         Connection conn = newConnection();
         Statement  statement;
@@ -85,13 +85,70 @@ public class TestStoredProcedure extends TestBase {
         }
     }
 
-    public static int procTest1(Connection conn)
-    throws java.sql.SQLException {
+    public void testTwo() throws Exception {
+
+        Connection conn = newConnection();
+        Statement  statement;
+        int        updateCount;
+
+        try {
+            statement = conn.createStatement();
+            statement.execute("create table testtable(v varchar(20))");
+            statement.execute("insert into testtable values ('tennis'), ('tent'), ('television'), ('radio')");
+            ResultSet rs = statement.executeQuery(
+                "call \"org.hsqldb.test.TestStoredProcedure.funcTest2\"('test')");
+
+            rs.next();
+
+            boolean b = rs.getBoolean(1);
+
+            rs.close();
+            assertTrue("test result not correct", b);
+            statement.execute(
+                "create function func2(varchar(20)) returns boolean "
+                + "LANGUAGE JAVA DETERMINISTIC NO SQL CALLED ON NULL INPUT EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.funcTest2'");
+
+            rs = statement.executeQuery("call func2('test')");
+
+            rs.next();
+
+            b = rs.getBoolean(1);
+
+            rs.close();
+            assertTrue("test result not correct", b);
+
+            rs = statement.executeQuery("select count(*) from testtable where func2(v)");
+
+            rs.next();
+
+            int count = rs.getInt(1);
+
+            assertTrue("test result not correct", count == 3);
+
+        } catch (Exception e) {
+            assertTrue("unable to execute call to procedure", false);
+        } finally {
+            conn.close();
+        }
+
+        conn = newConnection();
+
+        try {
+            statement = conn.createStatement();
+        } catch (Exception e) {
+            assertTrue("unexpected error", false);
+        } finally {
+            conn.close();
+        }
+    }
+
+    public static int procTest1(Connection conn) throws java.sql.SQLException {
 
         int                cols;
         java.sql.Statement stmt = conn.createStatement();
 
-        stmt.execute("CREATE temp TABLE MYTABLE(COL1 INTEGER,COL2 VARCHAR(10));");
+        stmt.execute(
+            "CREATE temp TABLE MYTABLE(COL1 INTEGER,COL2 VARCHAR(10));");
         stmt.execute("INSERT INTO MYTABLE VALUES    (1,'test1');");
         stmt.execute("INSERT INTO MYTABLE VALUES(2,'test2');");
 
@@ -104,6 +161,17 @@ public class TestStoredProcedure extends TestBase {
         stmt.close();
 
         return cols;
+    }
+
+    public static boolean funcTest2(Connection conn,
+                                    String value)
+                                    throws java.sql.SQLException {
+
+        if (value != null && value.startsWith("te")) {
+            return true;
+        }
+
+        return false;
     }
 
     public static void main(String[] args) throws Exception {

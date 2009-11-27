@@ -188,18 +188,19 @@ public interface StatementTypes {
     int SET_DATABASE_SQL_STRICT_SIZE           = 1038;
     int SET_DATABASE_TEXT_SOURCE               = 1039;
     int SET_DATABASE_TRANSACTION_CONTROL       = 1040;
-    int SET_DATABASE_UNIQUE_NAME               = 1041;
+    int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1041;
+    int SET_DATABASE_UNIQUE_NAME               = 1042;
 
     // hsqldb user settings
-    int SET_USER_INITIAL_SCHEMA = 1042;
-    int SET_USER_PASSWORD       = 1043;
+    int SET_USER_INITIAL_SCHEMA = 1043;
+    int SET_USER_PASSWORD       = 1044;
 
     // hsqldb session
-    int TRANSACTION_LOCK_TABLE         = 1044;
-    int SET_SESSION_AUTOCOMMIT         = 1045;
-    int SET_SESSION_RESULT_MAX_ROWS    = 1046;
-    int SET_SESSION_RESULT_MEMORY_ROWS = 1047;
-    int ROLLBACK_SAVEPOINT             = 1048;
+    int TRANSACTION_LOCK_TABLE         = 1045;
+    int SET_SESSION_AUTOCOMMIT         = 1046;
+    int SET_SESSION_RESULT_MAX_ROWS    = 1047;
+    int SET_SESSION_RESULT_MEMORY_ROWS = 1048;
+    int ROLLBACK_SAVEPOINT             = 1049;
 
     // hsqldb schema
     int CREATE_ALIAS            = 1051;

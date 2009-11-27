@@ -472,9 +472,9 @@ public class TransactionManagerMVCC implements TransactionManager {
 
                 session.tempSet.clear();
 
-                if (session.isolationMode == SessionInterface
+                if (session.isolationLevel == SessionInterface
                         .TX_REPEATABLE_READ || session
-                        .isolationMode == SessionInterface.TX_SERIALIZABLE) {
+                        .isolationLevel == SessionInterface.TX_SERIALIZABLE) {
                     session.abortTransaction = true;
 
                     throw Error.error(ErrorCode.X_40501);
