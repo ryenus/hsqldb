@@ -327,7 +327,19 @@ public class Table extends TableBase implements SchemaObject {
 
                 set.add(name);
             }
+
+            if (colGenerated[i]) {
+                getColumn(i).getGeneratingExpression().collectObjectNames(set);
+            }
         }
+
+        for (int i = 0; i < constraintList.length; i++) {
+            OrderedHashSet refs = constraintList[i].getReferences();
+
+            set.addAll(refs);
+        }
+
+        set.remove(getName());
 
         return set;
     }

@@ -1698,7 +1698,10 @@ public class SchemaManager {
                 break;
             }
 
+            OrderedHashSet newResolved = new OrderedHashSet();
+
             while (it.hasNext()) {
+
                 SchemaObject   object     = (SchemaObject) it.next();
                 OrderedHashSet references = object.getReferences();
                 boolean        isResolved = true;
@@ -1709,6 +1712,10 @@ public class SchemaManager {
                     if (name.type == SchemaObject.COLUMN
                             || name.type == SchemaObject.CONSTRAINT) {
                         name = name.parent;
+                    }
+
+                    if(name == object.getName()) {
+                        continue;
                     }
 
                     if (!resolved.contains(name)) {
@@ -1728,9 +1735,11 @@ public class SchemaManager {
                         resolved.add(object.getName());
                     }
 
-                    it.remove();
+                    newResolved.add(object);
                 }
             }
+
+            unresolved.removeAll(newResolved);
         }
 
         schemas = schemaMap.values().iterator();

@@ -107,7 +107,6 @@ public final class Constraint implements SchemaObject {
     private boolean isNotNull;
     int             notNullColumnIndex;
     RangeVariable   rangeVariable;
-    OrderedHashSet  schemaObjectNames;
 
     // for temp constraints only
     OrderedHashSet mainColSet;
@@ -200,7 +199,6 @@ public final class Constraint implements SchemaObject {
         copy.isNotNull          = isNotNull;
         copy.notNullColumnIndex = notNullColumnIndex;
         copy.rangeVariable      = rangeVariable;
-        copy.schemaObjectNames  = schemaObjectNames;
 
         return copy;
     }
@@ -271,7 +269,19 @@ public final class Constraint implements SchemaObject {
         switch (constType) {
 
             case SchemaObject.ConstraintTypes.CHECK :
-                return schemaObjectNames;
+                OrderedHashSet refs = new OrderedHashSet();
+
+                check.collectObjectNames(refs);
+
+                for (int j = refs.size() - 1; j >= 0; j--) {
+                    HsqlName name = (HsqlName) refs.get(j);
+
+                    if (name.type == SchemaObject.COLUMN) {
+                        refs.remove(j);
+                    }
+                }
+
+                return refs;
 
             case SchemaObject.ConstraintTypes.FOREIGN_KEY :
                 OrderedHashSet set = new OrderedHashSet();
@@ -281,7 +291,7 @@ public final class Constraint implements SchemaObject {
                 return set;
         }
 
-        return null;
+        return new OrderedHashSet();
     }
 
     public OrderedHashSet getComponents() {
@@ -699,6 +709,7 @@ public final class Constraint implements SchemaObject {
                     core.refTable.getIndex(core.refIndex.getName().name);
                 core.refCols = ArrayUtil.toAdjustedColumnArray(core.refCols,
                         colIndex, adjust);
+
                 core.refIndex.setTable(newTable);
             }
         }
@@ -941,8 +952,7 @@ public final class Constraint implements SchemaObject {
 
         Expression condition = parser.XreadBooleanValueExpression();
 
-        check             = condition;
-        schemaObjectNames = parser.compileContext.getSchemaObjectNames();
+        check = condition;
 
         // this workaround is here to stop LIKE optimisation (for proper scripting)
         QuerySpecification s = Expression.getCheckSelect(session, newTable,

@@ -792,7 +792,7 @@ public class Expression {
     }
 
     /**
-     * collects all range variables in expression tree
+     * collects all table, routine and sequence references expression tree
      */
     void collectObjectNames(Set set) {
 
