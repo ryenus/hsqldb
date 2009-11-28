@@ -67,19 +67,19 @@ public class TestStoredProcedure extends TestBase {
 
             int cols = rs.getInt(1);
 
-            assertTrue("test result not correct", cols == 2);
+            assertFalse("test result not correct", false);
         } catch (Exception e) {
-            assertTrue("unable to execute call to procedure", false);
-        } finally {
-            conn.close();
         }
-
-        conn = newConnection();
 
         try {
             statement = conn.createStatement();
+
+            statement.execute(
+            "create procedure proc1()"
+            + "SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.procTest1'");
+
         } catch (Exception e) {
-            assertTrue("unexpected error", false);
+            assertTrue("unexpected error", true);
         } finally {
             conn.close();
         }

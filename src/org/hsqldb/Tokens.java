@@ -794,11 +794,11 @@ public class Tokens {
     static final String T_SESSION_ISOLATION_LEVEL = "SESSION_ISOLATION_LEVEL";
     static final String T_DATABASE_ISOLATION_LEVEL =
         "DATABASE_ISOLATION_LEVEL";
-    static final String T_TRANSACTION_CONTROL = "TRANSACTION_CONTROL";
-    static final String T_TIMEZONE            = "TIMEZONE";
-    static final String T_SESSION_TIMEZONE    = "SESSION_TIMEZONE";
-    static final String T_DATABASE_TIMEZONE   = "DATABASE_TIMEZONE";
-    static final String T_DATABASE_VERSION    = "DATABASE_VERSION";
+    static final String T_TRANSACTION_MODEL = "TRANSACTION_MODEL";
+    static final String T_TIMEZONE          = "TIMEZONE";
+    static final String T_SESSION_TIMEZONE  = "SESSION_TIMEZONE";
+    static final String T_DATABASE_TIMEZONE = "DATABASE_TIMEZONE";
+    static final String T_DATABASE_VERSION  = "DATABASE_VERSION";
 
     //
     //SQL 200n Standard reserved keywords - full set
@@ -1473,7 +1473,7 @@ public class Tokens {
     static final int ISOLATION_LEVEL          = 681;
     static final int SESSION_ISOLATION_LEVEL  = 682;
     static final int DATABASE_ISOLATION_LEVEL = 683;
-    static final int TRANSACTION_CONTROL      = 684;
+    static final int TRANSACTION_MODEL        = 684;
     static final int TIMEZONE                 = 685;
     static final int SESSION_TIMEZONE         = 686;
     static final int DATABASE_TIMEZONE        = 687;
@@ -2147,7 +2147,7 @@ public class Tokens {
         commandSet.put(T_ISOLATION_LEVEL, ISOLATION_LEVEL);
         commandSet.put(T_SESSION_ISOLATION_LEVEL, SESSION_ISOLATION_LEVEL);
         commandSet.put(T_DATABASE_ISOLATION_LEVEL, DATABASE_ISOLATION_LEVEL);
-        commandSet.put(T_TRANSACTION_CONTROL, TRANSACTION_CONTROL);
+        commandSet.put(T_TRANSACTION_MODEL, TRANSACTION_MODEL);
         commandSet.put(T_TIMEZONE, TIMEZONE);
         commandSet.put(T_SESSION_TIMEZONE, SESSION_TIMEZONE);
         commandSet.put(T_DATABASE_TIMEZONE, DATABASE_TIMEZONE);

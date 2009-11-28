@@ -723,8 +723,22 @@ public class TableWorks {
             }
 
             if (!referencingObjects.isEmpty()) {
+                mainLoop :
                 for (int i = 0; i < referencingObjects.size(); i++) {
                     HsqlName name = (HsqlName) referencingObjects.get(i);
+
+                    if (name == columnName) {
+                        continue;
+                    }
+
+                    for (int j = 0; j < dependentConstraints.size(); j++) {
+                        Constraint c =
+                            (Constraint) dependentConstraints.get(j);;
+
+                        if (c.getName() == name) {
+                            continue mainLoop;
+                        }
+                    }
 
                     throw Error.error(ErrorCode.X_42536,
                                       name.getSchemaQualifiedStatementName());

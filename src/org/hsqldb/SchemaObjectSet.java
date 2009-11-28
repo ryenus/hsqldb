@@ -396,41 +396,38 @@ public class SchemaObjectSet {
         while (it.hasNext()) {
             SchemaObject   object     = (SchemaObject) it.next();
             OrderedHashSet references = object.getReferences();
+            boolean        isResolved = true;
 
-            if (references != null) {
-                boolean isResolved = true;
+            for (int j = 0; j < references.size(); j++) {
+                HsqlName name = (HsqlName) references.get(j);
 
-                for (int j = 0; j < references.size(); j++) {
-                    HsqlName name = (HsqlName) references.get(j);
-
-                    if (SqlInvariants.isSchemaNameSystem(name)) {
-                        continue;
-                    }
-
-                    if (name.type == SchemaObject.COLUMN) {
-                        name = name.parent;
-                    }
-
-                    if (name.type == SchemaObject.CHARSET) {
-
-                        // some built-in character sets have no schema
-                        if (name.schema == null) {
-                            continue;
-                        }
-                    }
-
-                    if (!resolved.contains(name)) {
-                        isResolved = false;
-
-                        break;
-                    }
-                }
-
-                if (!isResolved) {
-                    unresolved.add(object);
-
+                if (SqlInvariants.isSchemaNameSystem(name)) {
                     continue;
                 }
+
+                if (name.type == SchemaObject.COLUMN) {
+                    name = name.parent;
+                }
+
+                if (name.type == SchemaObject.CHARSET) {
+
+                    // some built-in character sets have no schema
+                    if (name.schema == null) {
+                        continue;
+                    }
+                }
+
+                if (!resolved.contains(name)) {
+                    isResolved = false;
+
+                    break;
+                }
+            }
+
+            if (!isResolved) {
+                unresolved.add(object);
+
+                continue;
             }
 
             resolved.add(object.getName());
