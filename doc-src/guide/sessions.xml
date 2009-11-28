@@ -95,19 +95,24 @@
   <section>
     <title>Session Attributes and Variables</title>
 
-    <para>Each session has several properties. Some of these properties, such
-    as the transaction mode, can be changed but cannot be explicitly read.
-    Other attributes have names and can be referenced in queries. They can be
-    returned using the <literal>VALUES &lt;attribute name&gt;, ...</literal>
-    statement.</para>
+    <para>Each session has several system attributes. A session can also have
+    user-defined session variables.</para>
 
-    <para>The named properties such as CURRENT_USER, CURRENT_SCHEMA, etc. are
-    SQL Standard functions.Other properties of the session, such as
-    auto-commit read-only modes can be read using other built-in functions.
-    All these functions are listed in the Built-in Functions chapter.</para>
+    <section>
+      <title>Session Attributes</title>
 
-    <para>The properties for default session time zone, current session time
-    zone, current default transaction isolation mode cannot be read.</para>
+      <para>The system attributes reflect the current mode of operation for
+      the session. These attributes can be accessed with function calls and
+      can be referenced in queries. For example, they can be returned using
+      the <literal>VALUES &lt;attribute function&gt;, ...</literal>
+      statement.</para>
+
+      <para>The named attributes such as CURRENT_USER, CURRENT_SCHEMA, etc.
+      are SQL Standard functions.Other attributes of the session, such as
+      auto-commit or read-only modes can be read using other built-in
+      functions. All these functions are listed in the Built-in Functions
+      chapter.</para>
+    </section>
 
     <section>
       <title>Session Variables</title>
@@ -340,7 +345,7 @@
       another data source.</para>
 
       <para>All concurrency models are very fast in operation. When operating
-      mainly on the same tables, the MVCC model may be faster with multi-core
+      mainly on the same tables, the MVCC model may be faster with multiple
       processors.</para>
     </section>
 
