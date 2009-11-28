@@ -34,6 +34,8 @@ package org.hsqldb;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -154,6 +156,7 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_DATEADD          = 141;
     private static final int FUNC_DATEDIFF         = 142;
     private static final int FUNC_SECONDS_MIDNIGHT = 143;
+    private static final int FUNC_REGEXP_MATCHES   = 144;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -264,6 +267,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.RADIANS, FUNC_RADIANS);
         customRegularFuncMap.put(Tokens.RAND, FUNC_RAND);
         customRegularFuncMap.put(Tokens.ROUND, FUNC_ROUND);
+        customRegularFuncMap.put(Tokens.REGEXP_MATCHES, FUNC_REGEXP_MATCHES);
         customRegularFuncMap.put(Tokens.SIGN, FUNC_SIGN);
         customRegularFuncMap.put(Tokens.SIN, FUNC_SIN);
         customRegularFuncMap.put(Tokens.TAN, FUNC_TAN);
@@ -295,7 +299,9 @@ public class FunctionCustom extends FunctionSQL {
         customValueFuncMap.put(Tokens.NOW, FUNC_LOCALTIMESTAMP);
     }
 
-    private int extractSpec;
+    private int     extractSpec;
+    private String  matchPattern;
+    private Pattern pattern;
 
     public static FunctionSQL newCustomFunction(String token, int tokenType) {
 
@@ -546,6 +552,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DIFFERENCE :
             case FUNC_REPEAT :
             case FUNC_RIGHT :
+            case FUNC_REGEXP_MATCHES :
                 parseList = doubleParamList;
                 break;
 
@@ -1299,6 +1306,23 @@ public class FunctionCustom extends FunctionSQL {
 
                 return sb.toString();
             }
+            case FUNC_REGEXP_MATCHES : {
+                for (int i = 0; i < data.length; i++) {
+                    if (data[i] == null) {
+                        return null;
+                    }
+                }
+
+                if (!data[1].equals(matchPattern)) {
+                    matchPattern = (String) data[1];
+                    pattern      = Pattern.compile(matchPattern);
+                }
+
+                Matcher matcher = pattern.matcher((String) data[0]);
+
+                return matcher.matches() ? Boolean.TRUE
+                                         : Boolean.FALSE;
+            }
             case FUNC_CRYPT_KEY : {
                 byte[] bytes = Crypto.getNewKey((String) data[0],
                                                 (String) data[1]);
@@ -1891,6 +1915,24 @@ public class FunctionCustom extends FunctionSQL {
                 }
                 break;
 
+            case FUNC_REGEXP_MATCHES :
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                if (!nodes[0].dataType.isCharacterType()
+                        || !nodes[1].dataType.isCharacterType()
+                        || nodes[1].dataType.isLobType()) {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+
+                dataType = Type.SQL_BOOLEAN;
+                break;
+
             case FUNC_CRYPT_KEY :
                 for (int i = 0; i < nodes.length; i++) {
                     if (nodes[i].dataType == null) {
@@ -2001,7 +2043,8 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_CRYPT_KEY :
             case FUNC_TRUNCATE :
             case FUNC_TIMESTAMP :
-            case FUNC_TO_CHAR : {
+            case FUNC_TO_CHAR :
+            case FUNC_REGEXP_MATCHES : {
                 return new StringBuffer(name).append('(')                //
                     .append(nodes[0].getSQL()).append(Tokens.T_COMMA)    //
                     .append(nodes[1].getSQL()).append(')').toString();

@@ -4281,7 +4281,6 @@ public class ParserDQL extends ParserBase {
 
                 case SchemaObject.LABEL :
                 case SchemaObject.VARIABLE :
-                case SchemaObject.SPECIFIC_ROUTINE :
                 case SchemaObject.GRANTEE :
                 case SchemaObject.CATALOG :
                     throw unexpectedToken();

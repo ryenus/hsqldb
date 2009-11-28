@@ -93,6 +93,7 @@ public class TestStoredProcedure extends TestBase {
 
         try {
             statement = conn.createStatement();
+            statement.execute("create user testuser password 'test'");
             statement.execute("create table testtable(v varchar(20))");
             statement.execute("insert into testtable values ('tennis'), ('tent'), ('television'), ('radio')");
             ResultSet rs = statement.executeQuery(
@@ -106,7 +107,7 @@ public class TestStoredProcedure extends TestBase {
             assertTrue("test result not correct", b);
             statement.execute(
                 "create function func2(varchar(20)) returns boolean "
-                + "LANGUAGE JAVA DETERMINISTIC NO SQL CALLED ON NULL INPUT EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.funcTest2'");
+                + "SPECIFIC F2 LANGUAGE JAVA DETERMINISTIC NO SQL CALLED ON NULL INPUT EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.funcTest2'");
 
             rs = statement.executeQuery("call func2('test')");
 
@@ -124,6 +125,9 @@ public class TestStoredProcedure extends TestBase {
             int count = rs.getInt(1);
 
             assertTrue("test result not correct", count == 3);
+
+            statement.execute("grant execute on specific function public.f2 to testuser");
+
 
         } catch (Exception e) {
             assertTrue("unable to execute call to procedure", false);
