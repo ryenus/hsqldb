@@ -735,6 +735,7 @@ public class SqlFile {
                     throw new SqlToolError(bs);
                 }
             } catch (SQLException se) {
+                //se.printStackTrace();
                 errprintln("SQL " + rb.getString(SqltoolRB.ERRORAT,
                         new String[] {
                             ((file == null) ? "stdin" : file.toString()),
@@ -2507,6 +2508,8 @@ public class SqlFile {
         try {
             DatabaseMetaData md            = curConn.getMetaData();
             String           dbProductName = md.getDatabaseProductName();
+            int              majorVersion  = md.getDatabaseMajorVersion();
+            int              minorVersion  = md.getDatabaseMinorVersion();
 
             //System.err.println("DB NAME = (" + dbProductName + ')');
             // Database-specific table filtering.
@@ -2554,8 +2557,9 @@ public class SqlFile {
 
                         statement.execute(
                             "SELECT sequence_schema, sequence_name FROM "
-                            + "information_schema.system_sequences"
-                            + narrower);
+                            + "information_schema."
+                            + ((minorVersion> 8 || majorVersion > 1) 
+                            ? "sequences" : "system_sequences") + narrower);
                     } else {
                         types[0] = "SEQUENCE";
                     }
@@ -2566,9 +2570,10 @@ public class SqlFile {
                         statement = curConn.createStatement();
 
                         statement.execute(
-                            "SELECT authorization_name FROM "
-                            + "information_schema.system_authorizations\n"
-                            + "WHERE authorization_type = 'ROLE'\n"
+                            "SELECT authorization_name FROM information_schema."
+                            + ((minorVersion> 8 || majorVersion > 1) 
+                            ? "authorizations" : "system_authorizations")
+                            + "\nWHERE authorization_type = 'ROLE'\n"
                             + "ORDER BY authorization_name");
                     } else if (dbProductName.indexOf(
                             "Adaptive Server Enterprise") > -1) {
@@ -2594,11 +2599,11 @@ public class SqlFile {
                     if (dbProductName.indexOf("HSQL") > -1) {
                         statement = curConn.createStatement();
 
-                        statement.execute(
-                            "SELECT user_name, admin FROM "
+                        statement.execute("SELECT "
+                            + ((minorVersion> 8 || majorVersion > 1) 
+                            ? "user_name" : "user") + ", admin FROM "
                             + "information_schema.system_users\n"
                             + "ORDER BY user_name");
-                        // Was "user" instead of "username" before HSQLDB 1.9.
                     } else if (dbProductName.indexOf("Oracle") > -1) {
                         statement = curConn.createStatement();
 
@@ -2633,9 +2638,11 @@ public class SqlFile {
                     break;
 
                 case 'a' :
-                    if (dbProductName.indexOf("HSQL") > -1) {
-                        //  HSQLDB Aliases are not the same things as the
-                        //  aliases listed in DatabaseMetaData.getTables().
+                    if (dbProductName.indexOf("HSQL") > -1
+                        && (minorVersion < 9 && majorVersion < 2)) {
+                        // HSQLDB after 1.8 doesn't support any type of aliases
+                        //  Earlier HSQLDB Aliases are not the same things as
+                        //  the aliases listed in DatabaseMetaData.getTables().
                         if (filter != null) {
                             Matcher matcher = nameDotPattern.matcher(filter);
                             if (matcher.matches()) {
