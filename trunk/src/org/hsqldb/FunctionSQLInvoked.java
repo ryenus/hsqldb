@@ -94,8 +94,7 @@ public class FunctionSQLInvoked extends Expression {
                                                                 : 0;
         Object[] data        = ValuePool.emptyObjectArray;
         Object   returnValue = null;
-        boolean push = true;
-
+        boolean  push        = true;
 
         if (extraArg + nodes.length > 0) {
             data = new Object[nodes.length + extraArg];
@@ -155,10 +154,12 @@ public class FunctionSQLInvoked extends Expression {
             try {
                 if (routine.dataImpact == Routine.NO_SQL) {
                     session.sessionContext.isReadOnly = Boolean.TRUE;
+
                     session.setNoSQL();
                 } else if (routine.dataImpact == Routine.READS_SQL) {
                     session.sessionContext.isReadOnly = Boolean.TRUE;
                 }
+
                 returnValue = routine.javaMethod.invoke(null, data);
 
                 if (routine.returnsTable()) {
@@ -205,7 +206,23 @@ public class FunctionSQLInvoked extends Expression {
     }
 
     public String getSQL() {
-        return Tokens.T_FUNCTION;
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(routineSchema.getName().getSchemaQualifiedStatementName());
+        sb.append('(');
+
+        for (int i = 0; i < nodes.length; i++) {
+            if (i != 0) {
+                sb.append(',');
+            }
+
+            sb.append(nodes[i].getSQL());
+        }
+
+        sb.append(')');
+
+        return sb.toString();
     }
 
     public String describe(Session session) {
