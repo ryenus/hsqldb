@@ -745,6 +745,12 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
           </row>
 
           <row>
+            <entry><para>BOOLEAN</para></entry>
+
+            <entry><para>boolean or Boolean</para></entry>
+          </row>
+
+          <row>
             <entry><para>TABLE</para></entry>
 
             <entry><para>java.sql.ResultSet</para></entry>
