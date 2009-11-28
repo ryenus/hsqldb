@@ -90,6 +90,15 @@
         referencing between schema objects is allowed in some circumstances
         and disallowed in some others.</para>
       </listitem>
+
+      <listitem>
+        <para>Schema objects can be destroyed with the DROP statement. If
+        dependent schema objects exist, a DROP statement will succeed only if
+        it has a CASCADE clause. In this case, dependent objects are also
+        destroyed in most cases. In some cases, such as dropping DOMAIN
+        objects, the dependent objects are not destroyed, but modified to
+        remove the dependency.</para>
+      </listitem>
     </itemizedlist>
 
     <para>A new HyperSQL catalog contains an empty schema called PUBLIC. By
@@ -103,8 +112,8 @@
     SCHEMA ... CASCADE statement will succeed but will result in an empty
     schema, rather than no schema.</para>
 
-    <para>The statements for setting the initial schema users are described in
-    the <link endterm="accesscontrol-statements-title" os=""
+    <para>The statements for setting the initial schema for users are
+    described in the <link endterm="accesscontrol-statements-title" os=""
     xlink:href="#accesscontrol-chapt"></link> chapter.</para>
 
     <section>
@@ -112,9 +121,9 @@
 
       <para>The name of a schema object is an
       <literal>&lt;identifier&gt;</literal>. The name belongs to the
-      name-space for the particular kind of schema object within the schema.
-      The name is unique within its name-space. For example, each schema has a
-      separate name-space for TRIGGER objects.</para>
+      name-space for the particular kind of schema object. The name is unique
+      within its name-space. For example, each schema has a separate
+      name-space for TRIGGER objects.</para>
 
       <para>In addition to the name-spaces in the schema. Each table has a
       name-space for the names of its columns.</para>
@@ -127,7 +136,7 @@
       can be used and the <literal>&lt;identifier chain&gt;</literal> is
       prohibited. While in some other contexts, the use of
       <literal>&lt;identifier chain&gt;</literal> is optional. An identifier
-      chain is be formed by qualifying each object with the name of the object
+      chain is formed by qualifying each object with the name of the object
       that owns its name-space. Therefore a column name is prefixed with a
       table name, a table name is prefixed with a schema name, and a schema
       name is prefixed with a catalog name. A fully qualified column name is
@@ -139,8 +148,7 @@
       <para>HyperSQL extends the SQL standard to allow renaming all database
       objects. The ALTER ... RENAME TO command has slightly different forms
       depending on the type of object. If an object is referenced in a VIEW or
-      ROUTINE definition or a CHECK constraint, it is not always possible to
-      rename it.</para>
+      ROUTINE definition, it is not always possible to rename it.</para>
     </section>
 
     <section>
@@ -183,8 +191,8 @@
       set.</simpara>
 
       <simpara>Early releases of HyperSQL version 2.0 may not enforce the
-      CHARACTER SET that is specified for a column and accept any character
-      string.</simpara>
+      CHARACTER SET that is specified for a column and may accept any
+      character string.</simpara>
     </section>
 
     <section>
@@ -234,7 +242,7 @@
 
       <simpara>A SEQUENCE object produces INTEGER values in sequence. The
       SEQUENCE can be referenced in special contexts only within certain SQL
-      statements. Each time the object is referenced, its value is
+      statements. For each row where the object is referenced, its value is
       incremented.</simpara>
 
       <simpara>There is a separate name-space for SEQUENCE objects.</simpara>
@@ -276,11 +284,12 @@
       INSERT statement, you will get the same value as required by the
       Standard.</para>
 
-      <para>You can query the SEQUENCES table for the next value that will be
-      returned from any of the defined sequences. The SEQUENCE_NAME column
-      contains the name and the NEXT_VALUE column contains the next value to
-      be returned. Note that this is only for getting information and you
-      should not do this for using the sequence value.</para>
+      <para>The correct way to use a sequence value is the NEXT VALUE FOR
+      expression. You can query the SEQUENCES table for the next value that
+      will be returned from any of the defined sequences. The SEQUENCE_NAME
+      column contains the name and the NEXT_VALUE column contains the next
+      value to be returned. Note that this is only for getting information and
+      you should not use the sequence value.</para>
 
       <simpara><emphasis role="bold">Identity Auto-Increment
       Columns</emphasis></simpara>
@@ -295,26 +304,52 @@
       are possible with an IDENTITY column present).</para>
 
       <para>The SQL standard syntax is used, which allows the initial value
-      and other options to be specified.<programlisting>&lt;colname&gt; INTEGER GENERATED { BY DEFAULT | ALWAYS} AS IDENTITY [( &lt;options&gt; )] [PRIMARY KEY]</programlisting></para>
+      and other options to be specified.<programlisting>&lt;colname&gt; [ INTEGER | BIGINT | DECIMAL | NUMERIC ] GENERATED { BY DEFAULT | ALWAYS} AS IDENTITY [( &lt;options&gt; )] [PRIMARY KEY]</programlisting></para>
 
       <para>When you add a new row to such a table using an <literal>INSERT
-      INTO &lt;tablename&gt; ...; </literal>statement, you can use the NULL
-      value for the IDENTITY column, which results in an auto-generated value
-      for the column. The <literal>IDENTITY() </literal>function returns the
-      last value inserted into any IDENTITY column by this connection. Use
-      <literal>CALL IDENTITY(); </literal>as an SQL statement to retrieve this
-      value. If you want to use the value for a field in a child table, you
-      can use <literal>INSERT INTO &lt;childtable&gt; VALUES
-      (...,IDENTITY(),...);</literal>. Both types of call to<literal>
-      IDENTITY()</literal> must be made before any additional update or insert
-      statements are issued on the database.</para>
+      INTO &lt;tablename&gt; ... </literal>statement, you can use the DEFAULT
+      keyword for the IDENTITY column, which results in an auto-generated
+      value for the column. The <literal>IDENTITY() </literal>function returns
+      the last value inserted into any IDENTITY column by this session. Each
+      session manages this function call separetly and is not affected by
+      inserts in other sessions. Use <literal>CALL IDENTITY() </literal>as an
+      SQL statement to retrieve this value. If you want to use the value for a
+      field in a child table, you can use <literal>INSERT INTO
+      &lt;childtable&gt; VALUES (...,IDENTITY(),...);</literal>. Both types of
+      call to<literal> IDENTITY()</literal> must be made before any additional
+      update or insert statements are issued by the session.</para>
 
-      <para>The next IDENTITY value to be used can be set with following
-      command: <programlisting>ALTER TABLE ALTER COLUMN &lt;column name&gt; RESTART WITH &lt;new value&gt;;</programlisting>For
+      <para>The last inserted IDENTITY value can also be retreived via JDBC,
+      by specifying the Statement or PreparedStatement object to return the
+      generated value.</para>
+
+      <para>The next IDENTITY value to be used can be changed with following
+      statement. Note that this statement is not used in normal operation and
+      is only for special purposes: <programlisting>ALTER TABLE ALTER COLUMN &lt;column name&gt; RESTART WITH &lt;new value&gt;;</programlisting>For
       backward compatibility, support has been retained for <literal>CREATE
       TABLE &lt;tablename&gt;(&lt;colname&gt; IDENTITY, ...)</literal> as a
       shortcut which defines the column both as an IDENTITY column and a
-      PRIMARY KEY column.</para>
+      PRIMARY KEY column. Also, for backward compatibility, it is possible to
+      use NULL as the value of an IDENTITY column in an INSERT statement and
+      the value will be generated automatically. You should avoid these
+      compatibility features as they may be removed from future versions of
+      HyperSQL.</para>
+
+      <para>In the following example, the identity value for the first INSERT
+      statement is generated automatically using the DEFAULT keyword. The
+      second INSERT statement uses a call to the IDENTITY() function to
+      populate a row in the child table with the generated identity
+      value.</para>
+
+      <informalexample>
+        <programlisting>CREATE TABLE star (id INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, 
+   firstname VARCHAR(20),
+   lastname VARCHAR(20))
+CREATE TABLE movies (starid INTEGER, movieid INTEGER PRIMARY KEY, title VARCHAR(40)) 
+INSERT INTO star (id, firstname, lastname) VALUES (DEFAULT, 'Felix', 'the Cat')
+INSERT INTO movies (starid, movieid, title) VALUES (IDENTITY(), 10, 'Felix in Hollywood')
+</programlisting>
+      </informalexample>
     </section>
 
     <section>
@@ -518,8 +553,8 @@
 
       <simpara>There is a separate name-space for routines.</simpara>
 
-      <simpara>Because of the possibility of overloading, each routine has
-      more than one name. The name of the routine is the same for all
+      <simpara>Because of the possibility of overloading, each routine can
+      have more than one name. The name of the routine is the same for all
       overloaded variants, but each variant has a <glossterm>specific
       name</glossterm>, different from all other routine names and specific
       names in the schema. The <glossterm>specific name</glossterm> can be
@@ -750,13 +785,15 @@
 
       <programlisting>    CREATE SCHEMA ACCOUNTS AUTHORIZATION DBA
         CREATE TABLE AB(A INTEGER, ...)
-        CREATE TABLE CD(C CHAR, ...)
+        CREATE TABLE CD(C CHAR(10), ...)
         CREATE VIEW VI AS SELECT ...
         GRANT SELECT ON AB TO PUBLIC
         GRANT SELECT ON CD TO JOE;
 </programlisting>
 
-      <simpara>More..</simpara>
+      <simpara>It is not really necessary to create a schema and all its
+      objects as one command. The schema can be created first, and its objects
+      can be created one by one.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP SCHEMA</primary>
@@ -945,16 +982,18 @@
       to be unique, using a UNIQUE constraint on the table.</simpara>
 
       <simpara>When a row is inserted into a table, or an existing row is
-      updated, no value can be specified for a generated column. In the
-      example below, data is inserted into the non-generated columns and the
-      generated column will contain 'Felix the Cat'.</simpara>
+      updated, no value except DEFAULT can be specified for a generated
+      column. In the example below, data is inserted into the non-generated
+      columns and the generated column will contain 'Felix the Cat' or 'Pink
+      Panther'.</simpara>
 
       <informalexample>
         <programlisting>CREATE TABLE t (id INTEGER PRIMARY KEY, 
    firstname VARCHAR(20),
    lastname VARCHAR(20), 
-   fullname GENERATED ALWAYS AS (firstname || ' ' || lastname)) 
+   fullname VARCHAR(40) GENERATED ALWAYS AS (firstname || ' ' || lastname)) 
 INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
+INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', DEFAULT)
 </programlisting>
       </informalexample>
 
@@ -2735,6 +2774,8 @@ INSERT INTO t (id, firstname, lastname) VALUES (1, 'Felix', 'the Cat')
       <para>SYSTEM_PROPERTIES</para>
 
       <para>SYSTEM_SCHEMAS</para>
+
+      <para>SYSTEM_SEQUENCES</para>
 
       <para>SYSTEM_SESSIONINFO</para>
 

@@ -169,8 +169,10 @@
     2&gt; )</literal></para>
 
     <para>The arguments are character strings. Converts the arguments into
-    SOUNDEX codes, and returns an INTEGER between 0-3 which indicates how many
-    letters of the two SOUNDEX value are different. (JDBC)</para>
+    SOUNDEX codes, and returns an INTEGER between 0-4 which indicates how
+    similar the two SOUNDEX value are. If the values are the same, it returns
+    4, if the values have no similarity, it returns 0. In-between values are
+    returned for partial similarity. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>INSERT function</primary>
@@ -286,6 +288,19 @@
     representing the bytes in the <literal>&lt;binary value
     expr&gt;</literal>. Each byte of the <literal>&lt;binary value
     expr&gt;</literal> is translated into two hex digits. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>REGEXP_MATCHES function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">REGEXP_MATCHES</emphasis></simpara>
+
+    <para><literal>REGEXP_MATCHES ( &lt;char value expr&gt;, &lt;regular
+    expression&gt; ) </literal></para>
+
+    <para>Returns true if the &lt;char value expr&gt; matches the &lt;regular
+    expression&gt;. The &lt;regular expression&gt; is defined according to
+    Java language rules. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>REPEAT function</primary>
@@ -1458,12 +1473,23 @@
     database. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>DATABASE_VERSION function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DATABASE_VERSION</emphasis></simpara>
+
+    <para><literal>DATABASE_VERSION ()</literal></para>
+
+    <para>Returns the full version string for the database engine. For
+    example, 2.0.1. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>IDENTITY function</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">IDENTITY</emphasis></simpara>
 
-    <para><literal>IDENTITY()</literal></para>
+    <para><literal>IDENTITY ()</literal></para>
 
     <para>Returns the last IDENTITY value inserted into a row by the current
     session. The statement, CALL IDENTITY() can be made after an INSERT
@@ -1609,7 +1635,7 @@
 
     <para><literal>ISAUTOCOMMIT()</literal></para>
 
-    <para>Returns TRUE if the session is in autocommit mode.</para>
+    <para>Returns TRUE if the session is in autocommit mode. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ISREADONLYSESSION function</primary>
@@ -1619,7 +1645,7 @@
 
     <para><literal>ISREADONLYSESSION()</literal></para>
 
-    <para>Returns TRUE if the session is in read only mode.</para>
+    <para>Returns TRUE if the session is in read only mode. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ISREADONLYDATABASE function</primary>
@@ -1629,7 +1655,8 @@
 
     <para><literal>ISREADONLYDATABASE()</literal></para>
 
-    <para>Returns TRUE if the database is a read only database.</para>
+    <para>Returns TRUE if the database is a read only database.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ISREADONLYDATABASEFILES function</primary>
@@ -1640,9 +1667,92 @@
 
     <para><literal>ISREADONLYDATABASEFILES()</literal></para>
 
-    <para>Returns TRUE if the database is a read only files database. In this
+    <para>Returns TRUE if the database is a read-only files database. In this
     kind of database, it is possible to modify the data, but the changes are
-    not persisted to the database files.</para>
+    not persisted to the database files. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ISOLATION_LEVEL function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ISOLATION_LEVEL</emphasis></simpara>
+
+    <para><literal>ISOLATION_LEVEL()</literal></para>
+
+    <para>Returns the current transaction isolation level for the session.
+    Returns either READ COMMITTED or SERIALIZABLE as a string.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SESSION_ISOLATION_LEVEL function</primary>
+    </indexterm>
+
+    <simpara><emphasis
+    role="bold">SESSION_ISOLATION_LEVEL</emphasis></simpara>
+
+    <para><literal>SESSION_ISOLATION_LEVEL()</literal></para>
+
+    <para>Returns the default transaction isolation level for the current
+    session. Returns either READ COMMITTED or SERIALIZABLE as a string.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATABASE_ISOLATION_LEVEL function</primary>
+    </indexterm>
+
+    <simpara><emphasis
+    role="bold">DATABASE_ISOLATION_LEVEL</emphasis></simpara>
+
+    <para><literal>DATABASE_ISOLATION_LEVEL()</literal></para>
+
+    <para>Returns the default transaction isolation level for the database.
+    Returns either READ COMMITTED or SERIALIZABLE as a string.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRANSACTION_MODEL function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRANSACTION_MODEL</emphasis></simpara>
+
+    <para><literal>TRANSACTION_MODEL()</literal></para>
+
+    <para>Returns the current transaction model for the database. Returns
+    LOCKS, MVLOCKS or MVCC as a string. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TIMEZONE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TIMEZONE</emphasis></simpara>
+
+    <para><literal>TIMEZONE()</literal></para>
+
+    <para>Returns the current time zone for the session. Returns an INTERVAL
+    HOUR TO MINUTE value. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SESSION_TIMEZONE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SESSION_TIMEZONE</emphasis></simpara>
+
+    <para><literal>SESSION_TIMEZONE()</literal></para>
+
+    <para>Returns the default time zone for the current session. Returns an
+    INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATABASE_TIMEZONE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DATABASE_TIMEZONE</emphasis></simpara>
+
+    <para><literal>DATABASE_TIMEZONE()</literal></para>
+
+    <para>Returns the time zone for the database engine. This is based on
+    where the database server process is located. Returns an INTERVAL HOUR TO
+    MINUTE value. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>NULLIF function</primary>
