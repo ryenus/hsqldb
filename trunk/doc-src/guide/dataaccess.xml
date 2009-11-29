@@ -1890,9 +1890,18 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
   <section>
     <title>Data Access Statements</title>
 
-    <para>Data access statements access tables and return result tables, which
-    are falsely called result sets, as they are not necessarily sets of rows,
-    but multisets of rows.</para>
+    <para>HyperSQL fully supports all of SQL-92 data access statements, plus
+    some additions from the more recent versions of the standard. A typical
+    book on SQL has at least 50 pages covering data access. Due to time
+    constraints, it is currently not possible for the author to cover this
+    area fully in this Guide. You are advised to consult an SQL book such as
+    the O'Reilly title "SQL and Relational Theory" by C. J. Date.</para>
+
+    <para>Database queries are data access statements. The most commonly used
+    data access statement is the SELECT statement, but there are other
+    statements that perform a similar role. Data access statements access
+    tables and return result tables, which are falsely called result sets, as
+    they are not necessarily sets of rows, but multisets of rows.</para>
 
     <para>Result tables are formed by performing the following operations on
     base tables and views. These operations are loosely based on Relational
@@ -1945,7 +1954,65 @@ SELECT d, e, f FROM atable WHERE d = 3 UNION SELECT a, b, c FROM atable WHERE a 
 /* in the next SELECT, ordering is performed */
 SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c ORDER BY calc DESC, div NULLS LAST
 
-</programlisting>The next sections discuss various operations.</para>
+</programlisting>The next sections discuss various types of tables and
+    operations involved in data access statements.</para>
+
+    <section>
+      <title>Table</title>
+
+      <para>In data access statements, a table can be a database table (or
+      view) or an ephemeral table formed for the duration of the query. Some
+      types of table are &lt;table primary&gt; and can participate in joins
+      without the use of extra parentheses. The BNF below lists different
+      types of &lt;table primary&gt;:</para>
+
+      <simpara><literal>&lt;table primary&gt; ::= { &lt;table or query
+      name&gt; | &lt;derived table&gt; } </literal></simpara>
+
+      <simpara><literal>[ [ AS ] &lt;correlation name&gt; [ &lt;left paren&gt;
+      &lt;derived column list&gt; &lt;right paren&gt; ] ]</literal></simpara>
+
+      <simpara><literal>| &lt;parenthesized joined table&gt;
+      </literal></simpara>
+
+      <para>The &lt;table or query name&gt; indicates either the name of a
+      database table, or a query that has been introduced with the WITH
+      keyword and given a name. A &lt;derived table&gt; is a subquery, which
+      consists of a query enclosed in parenthses. A &lt;parenthesized joined
+      table&gt; is simply a set of joined tables enclosed in
+      parentheses.</para>
+
+      <para>Tables can also be formed by specifying the values that are
+      contained in them:</para>
+
+      <simpara><literal>&lt;table value constructor&gt; ::= VALUES &lt;row
+      value expression list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;row value expression list&gt; ::= &lt;table row
+      value expression&gt; [ { &lt;comma&gt; &lt;table row value
+      expression&gt; }... ]</literal></simpara>
+
+      <simpara>In the example below a table with two rows and 3 columns is
+      constructed out of some values:</simpara>
+
+      <programlisting>VALUES (12, 14, null), (10, 11, CURRENT_DATE)</programlisting>
+
+      <simpara>When a table is used in a UNION or similar operation, the
+      keyword TABLE is used with the name:</simpara>
+
+      <simpara><literal>&lt;explicit table&gt; ::= TABLE &lt;table or query
+      name&gt;</literal></simpara>
+
+      <simpara>In the examples below, all rows of the two tables are included
+      in the union. The keyword TABLE is used in the first example. The two
+      examples below are equivalent.</simpara>
+
+      <programlisting>TABLE atable UNION TABLE anothertable
+SELECT * FROM atable UNION SELECT * FROM anothertable
+</programlisting>
+
+      <simpara></simpara>
+    </section>
 
     <section>
       <title>Joined Table</title>
@@ -2267,6 +2334,34 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     </section>
 
     <section>
+      <title>Query Expression</title>
+
+      <para>A query exparession refers to a table formed by using UNION and
+      other set operations. The INTERSECT operator has precedence over the
+      UNION and EXCEPT operators. A simplified BNF is given below:</para>
+
+      <simpara><literal>&lt;query term&gt; INTERSECT | UNION | EXCEPT [ ALL |
+      DISTINCT ] [ &lt;corresponding spec&gt; ] &lt;query
+      primary&gt;</literal></simpara>
+
+      <para>&lt;corresponding spec&gt; ::= CORRESPONDING [ BY &lt;left
+      paren&gt; &lt;column name list&gt; &lt;right paren&gt; ]</para>
+
+      <para>A &lt;query term&gt; and a &lt;query primary&gt; can be a SELECT
+      statement, an &lt;explicit table&gt;, or a &lt;table value
+      constructor&gt;. The CORRESPONDING clause is optional and allows you to
+      select only some columns of the tables on the left and right side to
+      create the new table. In the example below the columns named u and v
+      from the two SELECT statements are used to create the UNION
+      table.</para>
+
+      <para><programlisting>SELECT * FROM atable UNION CORRESPONDING BY (u, v) SELECT * FROM anothertable
+</programlisting>The type of each column of the query expression is determined
+      by combining the types of the corresponding columns from the two
+      participating tables.</para>
+    </section>
+
+    <section>
       <title>Ordering</title>
 
       <para>When the rows of the result table have been formed, it is possible
@@ -2276,6 +2371,17 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       NULL values are returned first or last.</para>
 
       <programlisting>SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum, yzsum</programlisting>
+
+      <para>The ORDER BY clause specifies one or more &lt;value
+      expressions&gt;. The list of rows is sorted according to the first
+      &lt;value expression&gt;. When some rows are sorted equal then they are
+      sorted according to the next &lt;value expression&gt; and so on.</para>
+
+      <para>&lt;order by clause&gt; ::= ORDER BY &lt;sort specification&gt; [
+      { &lt;comma&gt; &lt;sort specification&gt; }... ]</para>
+
+      <para>&lt;sort specification&gt; ::= &lt;value expression&gt; [ ASC |
+      DESC ] [ NULLS FIRST | NULLS LAST ]</para>
     </section>
 
     <section>
