@@ -66,8 +66,8 @@ public class HsqlDateTime {
      * A reusable static value for today's date. Should only be accessed
      * by getToday()
      */
-    private static long           currentDateMillis;
-    private static final Calendar tempCalDefault = new GregorianCalendar();
+    private static long          currentDateMillis;
+    public static final Calendar tempCalDefault = new GregorianCalendar();
     public static final Calendar tempCalGMT =
         new GregorianCalendar(TimeZone.getTimeZone("GMT"));
     private static final Date   tempDate        = new Date(0);

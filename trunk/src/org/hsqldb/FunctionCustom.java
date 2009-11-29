@@ -110,7 +110,7 @@ public class FunctionCustom extends FunctionSQL {
     private final static int FUNC_ISOLATION_LEVEL          = 85;
     private final static int FUNC_SESSION_ISOLATION_LEVEL  = 86;
     private final static int FUNC_DATABASE_ISOLATION_LEVEL = 87;
-    private final static int FUNC_TRANSACTION_MODEL        = 88;
+    private final static int FUNC_TRANSACTION_CONTROL      = 88;
     private final static int FUNC_TIMEZONE                 = 89;
     private final static int FUNC_SESSION_TIMEZONE         = 90;
     private final static int FUNC_DATABASE_TIMEZONE        = 91;
@@ -230,8 +230,8 @@ public class FunctionCustom extends FunctionSQL {
                                  FUNC_SESSION_ISOLATION_LEVEL);
         customRegularFuncMap.put(Tokens.DATABASE_ISOLATION_LEVEL,
                                  FUNC_DATABASE_ISOLATION_LEVEL);
-        customRegularFuncMap.put(Tokens.TRANSACTION_MODEL,
-                                 FUNC_TRANSACTION_MODEL);
+        customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL,
+                                 FUNC_TRANSACTION_CONTROL);
         customRegularFuncMap.put(Tokens.TIMEZONE, FUNC_TIMEZONE);
         customRegularFuncMap.put(Tokens.SESSION_TIMEZONE,
                                  FUNC_SESSION_TIMEZONE);
@@ -249,7 +249,7 @@ public class FunctionCustom extends FunctionSQL {
         nonDeterministicFuncSet.add(FUNC_ISOLATION_LEVEL);
         nonDeterministicFuncSet.add(FUNC_SESSION_ISOLATION_LEVEL);
         nonDeterministicFuncSet.add(FUNC_DATABASE_ISOLATION_LEVEL);
-        nonDeterministicFuncSet.add(FUNC_TRANSACTION_MODEL);
+        nonDeterministicFuncSet.add(FUNC_TRANSACTION_CONTROL);
         nonDeterministicFuncSet.add(FUNC_TIMEZONE);
         nonDeterministicFuncSet.add(FUNC_SESSION_TIMEZONE);
         nonDeterministicFuncSet.add(FUNC_DATABASE_TIMEZONE);
@@ -444,7 +444,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_ISOLATION_LEVEL :
             case FUNC_SESSION_ISOLATION_LEVEL :
             case FUNC_DATABASE_ISOLATION_LEVEL :
-            case FUNC_TRANSACTION_MODEL :
+            case FUNC_TRANSACTION_CONTROL :
             case FUNC_TIMEZONE :
             case FUNC_SESSION_TIMEZONE :
             case FUNC_DATABASE_TIMEZONE :
@@ -663,7 +663,7 @@ public class FunctionCustom extends FunctionSQL {
                 return Session.getIsolationString(
                     session.database.getDefaultIsolationLevel());
 
-            case FUNC_TRANSACTION_MODEL :
+            case FUNC_TRANSACTION_CONTROL :
                 switch (session.database.txManager.getTransactionControl()) {
 
                     case Database.MVCC :
@@ -684,10 +684,10 @@ public class FunctionCustom extends FunctionSQL {
                                               0);
 
             case FUNC_DATABASE_TIMEZONE :
+                int sec =
+                    HsqlDateTime.getZoneSeconds(HsqlDateTime.tempCalDefault);
 
-                /** @todo */
-                return new IntervalSecondData(session.sessionTimeZoneSeconds,
-                                              0);
+                return new IntervalSecondData(sec, 0);
 
             case FUNC_DATABASE_VERSION :
                 return HsqlDatabaseProperties.THIS_FULL_VERSION;
@@ -1367,7 +1367,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_ISOLATION_LEVEL :
             case FUNC_SESSION_ISOLATION_LEVEL :
             case FUNC_DATABASE_ISOLATION_LEVEL :
-            case FUNC_TRANSACTION_MODEL :
+            case FUNC_TRANSACTION_CONTROL :
             case FUNC_DATABASE_VERSION :
                 dataType = Type.SQL_VARCHAR_DEFAULT;
 
@@ -1967,7 +1967,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_ISOLATION_LEVEL :
             case FUNC_SESSION_ISOLATION_LEVEL :
             case FUNC_DATABASE_ISOLATION_LEVEL :
-            case FUNC_TRANSACTION_MODEL :
+            case FUNC_TRANSACTION_CONTROL :
             case FUNC_TIMEZONE :
             case FUNC_SESSION_TIMEZONE :
             case FUNC_DATABASE_TIMEZONE :
