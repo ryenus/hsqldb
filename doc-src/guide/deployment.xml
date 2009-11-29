@@ -577,7 +577,7 @@
 
       <listitem>
         <para>Type declarations in column definition and in cast expressions
-        must have the necessary size parameters. </para>
+        must have the necessary size parameters.</para>
       </listitem>
 
       <listitem>
@@ -701,9 +701,8 @@
     <title>Encrypted Databases</title>
 
     <para>HyperSQL supports encrypted databases. Encryption services use the
-    Java Cryptography Extensions (JCE) and can therefore use the ciphers
-    supplied with the JRE as well as third party ciphers that are installed
-    with the JRE.</para>
+    Java Cryptography Extensions (JCE) and uses the ciphers installed with the
+    JRE.</para>
 
     <para>Three elements are involved in specifying the encryption method and
     key. A cipher, together with its configuation is identified by a string
@@ -735,7 +734,7 @@
       when the provider is not the default provider.</para>
 
       <para>HyperSQL works with any symmetric cipher that may be available
-      from the JVM. This includes both padded and unpadded ciphers.</para>
+      from the JVM.</para>
 
       <para>The files that are encrypted include the .script, .data, .backup
       and .log files. The .lobs file is not encrypted by default. The property
