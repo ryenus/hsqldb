@@ -331,6 +331,7 @@ public class TestMerge extends TestBase {
     protected void tearDown() {
 
         try {
+            stmnt.execute("DROP SCHEMA SA IF EXISTS CASCADE;");
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();

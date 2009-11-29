@@ -695,6 +695,7 @@ public class SchemaManager {
         tw.updateConstraints(tableSet, constraintNameSet);
         removeSchemaObjects(externalReferences);
         removeReferencedObject(table.getName());
+        removeReferencingObject(table);
         schema.tableList.remove(dropIndex);
         schema.triggerLookup.removeParent(table.tableName);
         schema.indexLookup.removeParent(table.tableName);
@@ -1701,7 +1702,6 @@ public class SchemaManager {
             OrderedHashSet newResolved = new OrderedHashSet();
 
             while (it.hasNext()) {
-
                 SchemaObject   object     = (SchemaObject) it.next();
                 OrderedHashSet references = object.getReferences();
                 boolean        isResolved = true;
@@ -1714,7 +1714,7 @@ public class SchemaManager {
                         name = name.parent;
                     }
 
-                    if(name == object.getName()) {
+                    if (name == object.getName()) {
                         continue;
                     }
 
