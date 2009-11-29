@@ -134,16 +134,6 @@ public class TestStoredProcedure extends TestBase {
         } finally {
             conn.close();
         }
-
-        conn = newConnection();
-
-        try {
-            statement = conn.createStatement();
-        } catch (Exception e) {
-            assertTrue("unexpected error", false);
-        } finally {
-            conn.close();
-        }
     }
 
     public static int procTest1(Connection conn) throws java.sql.SQLException {

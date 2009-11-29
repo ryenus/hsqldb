@@ -409,6 +409,10 @@ public class SchemaObjectSet {
                     name = name.parent;
                 }
 
+                if (name == object.getName()) {
+                    continue;
+                }
+
                 if (name.type == SchemaObject.CHARSET) {
 
                     // some built-in character sets have no schema
