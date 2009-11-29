@@ -89,7 +89,8 @@
           <para>HyperSQL Built-In Functions</para>
 
           <para>Several additional built-in functions are available for some
-          useful operations.</para>
+          useful operations. Some of these functions return the current
+          setting for the session and the database.</para>
         </listitem>
       </itemizedlist></para>
 
@@ -104,8 +105,9 @@
     <literal>&lt;right brace&gt;</literal> )<literal>.</literal> Alternative
     tokens are separated with the vertical bar ( <literal>&lt;vertical
     bar&gt;</literal> ). At the end of each function definition, the standard
-    which specifies the function is noted in parentheses as SQL/Foundation,
-    JDBC or HyperSQL.</para>
+    which specifies the function is noted in parentheses as JDBC or HyperSQL,
+    unless the function is in the SQL/Foundation part of the SQL
+    Standard.</para>
   </section>
 
   <section xml:id="builtin_functions_string-sect">
@@ -1710,12 +1712,12 @@
     (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>TRANSACTION_MODEL function</primary>
+      <primary>TRANSACTION_CONTROL function</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">TRANSACTION_MODEL</emphasis></simpara>
+    <simpara><emphasis role="bold">TRANSACTION_CONTROL</emphasis></simpara>
 
-    <para><literal>TRANSACTION_MODEL()</literal></para>
+    <para><literal>TRANSACTION_CONTROL()</literal></para>
 
     <para>Returns the current transaction model for the database. Returns
     LOCKS, MVLOCKS or MVCC as a string. (HyperSQL)</para>
