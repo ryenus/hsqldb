@@ -116,24 +116,32 @@ public class ScriptWriterText extends ScriptWriterBase {
 
     protected void writeDataTerm() throws IOException {}
 
-    protected void addSessionId(Session session) throws IOException {
+    protected void writeSessionIdAndSchema(Session session) throws IOException {
 
         if (session == null) {
             return;
         }
 
         if (session != currentSession) {
+            rowOut.reset();
             rowOut.write(BYTES_C_ID_INIT);
             rowOut.writeLong(session.getId());
             rowOut.write(BYTES_C_ID_TERM);
 
             currentSession = session;
+            writeRowOutToFile();
+
+            byteCount   += rowOut.size();
         }
 
         if (schemaToLog != session.loggedSchema) {
+            rowOut.reset();
             writeSchemaStatement(schemaToLog);
 
             session.loggedSchema = schemaToLog;
+            writeRowOutToFile();
+
+            byteCount   += rowOut.size();
         }
     }
 
@@ -150,8 +158,8 @@ public class ScriptWriterText extends ScriptWriterBase {
         schemaToLog = session.currentSchema;
         busyWriting = true;
 
+        writeSessionIdAndSchema(session);
         rowOut.reset();
-        addSessionId(session);
         rowOut.writeString(s);
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
@@ -171,9 +179,9 @@ public class ScriptWriterText extends ScriptWriterBase {
         schemaToLog = table.getName().schema;
         busyWriting = true;
 
+        writeSessionIdAndSchema(session);
         rowOut.reset();
         ((RowOutputTextLog) rowOut).setMode(RowOutputTextLog.MODE_INSERT);
-        addSessionId(session);
         rowOut.write(BYTES_INSERT_INTO);
         rowOut.writeString(table.getName().statementName);
         rowOut.write(BYTES_VALUES);
@@ -221,9 +229,9 @@ public class ScriptWriterText extends ScriptWriterBase {
         schemaToLog = table.getName().schema;
         busyWriting = true;
 
+        writeSessionIdAndSchema(session);
         rowOut.reset();
         ((RowOutputTextLog) rowOut).setMode(RowOutputTextLog.MODE_DELETE);
-        addSessionId(session);
         rowOut.write(BYTES_DELETE_FROM);
         rowOut.writeString(table.getName().statementName);
         rowOut.write(BYTES_WHERE);
@@ -246,8 +254,8 @@ public class ScriptWriterText extends ScriptWriterBase {
         schemaToLog = seq.getName().schema;
         busyWriting = true;
 
+        writeSessionIdAndSchema(session);
         rowOut.reset();
-        addSessionId(session);
         rowOut.write(BYTES_SEQUENCE);
         rowOut.writeString(seq.getSchemaName().statementName);
         rowOut.write('.');
@@ -270,8 +278,8 @@ public class ScriptWriterText extends ScriptWriterBase {
 
         busyWriting = true;
 
+        writeSessionIdAndSchema(session);
         rowOut.reset();
-        addSessionId(session);
         rowOut.write(BYTES_COMMIT);
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();

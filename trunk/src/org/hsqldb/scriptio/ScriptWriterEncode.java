@@ -69,7 +69,7 @@ public class ScriptWriterEncode extends ScriptWriterText {
 
     public ScriptWriterEncode(Database db, String file, Crypto crypto) {
 
-        super(db, file, false, true, false);
+        super(db, file, false, false, false);
 
         this.crypto = crypto;
         byteOut     = new HsqlByteArrayOutputStream();

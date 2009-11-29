@@ -341,7 +341,7 @@ public abstract class ScriptWriterBase implements Runnable {
 
     protected abstract void writeDataTerm() throws IOException;
 
-    protected abstract void addSessionId(Session session) throws IOException;
+    protected abstract void writeSessionIdAndSchema(Session session) throws IOException;
 
     public abstract void writeLogStatement(Session session,
                                            String s) throws IOException;
