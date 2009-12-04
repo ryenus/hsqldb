@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.RangeVariable.RangeVariableConditions;
 import org.hsqldb.index.Index;
@@ -586,6 +588,9 @@ public class RangeVariableResolver {
                 case OpTypes.OR : {
                     continue;
                 }
+                case OpTypes.COLUMN : {
+                    continue;
+                }
                 case OpTypes.EQUAL : {
                     if (e.exprSubType == OpTypes.ANY_QUANTIFIED) {
                         continue;
@@ -612,12 +617,18 @@ public class RangeVariableResolver {
 
                     break;
                 }
-                default : {
+                case OpTypes.SMALLER :
+                case OpTypes.SMALLER_EQUAL :
+                case OpTypes.GREATER :
+                case OpTypes.GREATER_EQUAL :
                     int colIndex = e.getLeftNode().getColumnIndex();
 
                     colIndexSetOther.add(colIndex);
-
                     break;
+
+                default : {
+                    Error.runtimeError(ErrorCode.U_S0500,
+                                       "RangeVariableResolver");
                 }
             }
         }
@@ -819,6 +830,7 @@ public class RangeVariableResolver {
             boolean isIndexed = false;
 
             if (e.getType() == OpTypes.NOT
+                    && e.getLeftNode().getType() == OpTypes.IS_NULL
                     && cols[0]
                        == e.getLeftNode().getLeftNode().getColumnIndex()) {
                 isIndexed = true;

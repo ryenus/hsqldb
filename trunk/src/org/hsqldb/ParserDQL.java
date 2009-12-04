@@ -363,6 +363,10 @@ public class ParserDQL extends ParserBase {
                 break;
         }
 
+        if (session.ignoreCase && typeNumber == Types.SQL_VARCHAR) {
+            typeNumber = Types.VARCHAR_IGNORECASE;
+        }
+
         Type typeObject = Type.getType(typeNumber, 0, length, scale);
 
         if (typeObject.isCharacterType()) {
@@ -1342,7 +1346,7 @@ public class ParserDQL extends ParserBase {
         Table      table = readTableName();
         SimpleName alias = null;
 
-        if (operation != StatementTypes.DELETE_WHERE) {
+        if (operation != StatementTypes.TRUNCATE) {
             if (token.tokenType == Tokens.AS) {
                 read();
                 checkIsNonCoreReservedIdentifier();
@@ -1833,12 +1837,11 @@ public class ParserDQL extends ParserBase {
                             return null;
                         }
 
-                        if (!sq.queryExpression.isSingleColumn()) {
-                            throw Error.error(ErrorCode.W_01000);
+                        if (sq.queryExpression.isSingleColumn()) {
+                            return new Expression(OpTypes.SCALAR_SUBQUERY, sq);
+                        } else {
+                            return new Expression(OpTypes.ROW_SUBQUERY, sq);
                         }
-
-                        return new Expression(OpTypes.SCALAR_SUBQUERY, sq);
-
                     default :
                         rewind(position);
 
@@ -4620,8 +4623,7 @@ public class ParserDQL extends ParserBase {
         return cs;
     }
 
-    StatementDMQL compileShortCursorSpecification(
-            int props) {
+    StatementDMQL compileShortCursorSpecification(int props) {
 
         QueryExpression queryExpression = XreadQueryExpression();
 

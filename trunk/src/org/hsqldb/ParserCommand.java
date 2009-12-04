@@ -610,8 +610,8 @@ public class ParserCommand extends ParserDDL {
                 Boolean  mode = processTrueOrFalseObject();
                 Object[] args = new Object[]{ mode };
 
-                return new StatementCommand(
-                    StatementTypes.SET_DATABASE_SQL_IGNORECASE, args);
+                return new StatementSession(
+                    StatementTypes.SET_SESSION_SQL_IGNORECASE, args);
             }
             case Tokens.MAXROWS : {
                 read();

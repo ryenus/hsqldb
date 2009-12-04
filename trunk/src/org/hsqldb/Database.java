@@ -89,7 +89,6 @@ public class Database {
     private boolean               filesInJar;
     public boolean                sqlEnforceSize;
     public boolean                sqlEnforceNames;
-    private boolean               isIgnoreCase;
     private boolean               isReferentialIntegrity;
     public HsqlDatabaseProperties databaseProperties;
     private final boolean         shutdownOnNoConnection;
@@ -393,22 +392,6 @@ public class Database {
      */
     public boolean isReferentialIntegrity() {
         return isReferentialIntegrity;
-    }
-
-    /**
-     * Sets the database to treat any new VARCHAR column declarations as
-     * VARCHAR_IGNORECASE.
-     */
-    void setIgnoreCase(boolean b) {
-        isIgnoreCase = b;
-    }
-
-    /**
-     *  Does the database treat any new VARCHAR column declarations as
-     * VARCHAR_IGNORECASE.
-     */
-    public boolean isIgnoreCase() {
-        return isIgnoreCase;
     }
 
     public int getResultMaxMemoryRows() {

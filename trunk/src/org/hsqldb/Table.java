@@ -322,24 +322,23 @@ public class Table extends TableBase implements SchemaObject {
         OrderedHashSet set = new OrderedHashSet();
 
         for (int i = 0; i < colTypes.length; i++) {
-            if (colTypes[i].isDomainType() || colTypes[i].isDistinctType()) {
-                HsqlName name = ((SchemaObject) colTypes[i]).getName();
+            ColumnSchema   column = getColumn(i);
+            OrderedHashSet refs   = column.getReferences();
 
-                set.add(name);
-            }
-
-            if (colGenerated[i]) {
-                getColumn(i).getGeneratingExpression().collectObjectNames(set);
+            if (!refs.isEmpty()) {
+                set.add(column.getName());
             }
         }
 
         for (int i = 0; i < constraintList.length; i++) {
             OrderedHashSet refs = constraintList[i].getReferences();
 
+            if (!refs.isEmpty()) {
+                set.add(constraintList[i].getName());
+            }
+
             set.addAll(refs);
         }
-
-        set.remove(getName());
 
         return set;
     }

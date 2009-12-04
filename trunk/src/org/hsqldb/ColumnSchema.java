@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
@@ -56,6 +57,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     private Expression     defaultExpression;
     private Expression     generatingExpression;
     private NumberSequence sequence;
+    private OrderedHashSet references = new OrderedHashSet();
 
     /**
      * Creates a column defined in DDL statement.
@@ -69,6 +71,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         this.dataType          = type;
         this.isPrimaryKey      = isPrimaryKey;
         this.defaultExpression = defaultExpression;
+
+        setReferences();
     }
 
     public int getType() {
@@ -116,7 +120,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-        return new OrderedHashSet();
+        return references;
     }
 
     public OrderedHashSet getComponents() {
@@ -129,6 +133,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
             return;
         }
 
+        generatingExpression.resetColumnReferences();
+
         generatingExpression.resolveCheckOrGenExpression(session,
                 ((Table) table).defaultRanges, false);
 
@@ -136,6 +142,8 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
                 != generatingExpression.getDataType().typeComparisonGroup) {
             throw Error.error(ErrorCode.X_42561);
         }
+
+        setReferences();
     }
 
     public String getSQL() {
@@ -172,7 +180,10 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     }
 
     public void setType(Type type) {
+
         this.dataType = type;
+
+        setReferences();
     }
 
     public void setName(HsqlName name) {
@@ -332,5 +343,31 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         copy.setIdentity(sequence);
 
         return copy;
+    }
+
+    private void setReferences() {
+
+        references.clear();
+
+        if (dataType.isDomainType() || dataType.isDistinctType()) {
+            HsqlName name = ((SchemaObject) dataType).getName();
+
+            references.add(name);
+        }
+
+        if (generatingExpression != null) {
+            generatingExpression.collectObjectNames(references);
+
+            Iterator it = references.iterator();
+
+            while (it.hasNext()) {
+                HsqlName name = (HsqlName) it.next();
+
+                if (name.type == SchemaObject.COLUMN
+                        || name.type == SchemaObject.TABLE) {
+                    it.remove();
+                }
+            }
+        }
     }
 }

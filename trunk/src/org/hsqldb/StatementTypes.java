@@ -182,7 +182,7 @@ public interface StatementTypes {
     int SET_DATABASE_RESULT_MEMORY_ROWS        = 1032;
     int SET_DATABASE_SCRIPT_FORMAT             = 1033;
     int SET_DATABASE_SQL_COLLATION             = 1034;
-    int SET_DATABASE_SQL_IGNORECASE            = 1035;
+    int SET_SESSION_SQL_IGNORECASE             = 1035;
     int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1036;
     int SET_DATABASE_SQL_STRICT_NAMES          = 1037;
     int SET_DATABASE_SQL_STRICT_SIZE           = 1038;
@@ -225,6 +225,7 @@ public interface StatementTypes {
     int HANDLER   = 1102;
     int DDL       = 1103;
     int CHECK     = 1104;
+    int TRUNCATE  = 1105;
 
     // hsqldb groups
     int X_SQL_SCHEMA_DEFINITION      = 2001;

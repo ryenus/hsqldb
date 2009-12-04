@@ -414,8 +414,10 @@ public class TableWorks {
         registerConstraintNames(constraints);
         setNewTableInSchema(table);
         updateConstraints(table, emptySet);
+        database.schemaManager.addSchemaObject(column);
         database.persistentStoreCollection.releaseStore(originalTable);
         database.schemaManager.recompileDependentObjects(table);
+        table.compile(session, null);
     }
 
     void updateConstraints(OrderedHashSet tableSet,
@@ -786,6 +788,7 @@ public class TableWorks {
         //
         database.schemaManager.removeSchemaObjects(referencingObjects);
         database.schemaManager.removeSchemaObjects(constraintNameSet);
+        database.schemaManager.removeSchemaObject(columnName);
         setNewTableInSchema(tn);
         setNewTablesInSchema(tableSet);
         updateConstraints(tn, emptySet);
@@ -793,6 +796,7 @@ public class TableWorks {
         database.persistentStoreCollection.releaseStore(table);
         database.schemaManager.recompileDependentObjects(tableSet);
         database.schemaManager.recompileDependentObjects(tn);
+        tn.compile(session, null);
 
         table = tn;
     }

@@ -2869,7 +2869,10 @@ public class ParserDDL extends ParserRoutine {
     void readColumnConstraints(Table table, ColumnSchema column,
                                HsqlArrayList constraintList) {
 
-        boolean end = false;
+        boolean end                  = false;
+        boolean hasNotNullConstraint = false;
+        boolean hasNullNoiseWord     = false;
+        boolean hasPrimaryKey        = false;
 
         while (true) {
             HsqlName constName = null;
@@ -2884,6 +2887,10 @@ public class ParserDDL extends ParserRoutine {
             switch (token.tokenType) {
 
                 case Tokens.PRIMARY : {
+                    if (hasNullNoiseWord || hasPrimaryKey) {
+                        throw unexpectedToken();
+                    }
+
                     read();
                     readThis(Tokens.KEY);
 
@@ -2911,6 +2918,8 @@ public class ParserDDL extends ParserRoutine {
 
                     constraintList.set(0, c);
                     column.setPrimaryKey(true);
+
+                    hasPrimaryKey = true;
 
                     break;
                 }
@@ -2988,6 +2997,10 @@ public class ParserDDL extends ParserRoutine {
                     break;
                 }
                 case Tokens.NOT : {
+                    if (hasNotNullConstraint || hasNullNoiseWord) {
+                        throw unexpectedToken();
+                    }
+
                     read();
                     readThis(Tokens.NULL);
 
@@ -3004,6 +3017,24 @@ public class ParserDDL extends ParserRoutine {
                     c.check = new ExpressionLogical(column);
 
                     constraintList.add(c);
+
+                    hasNotNullConstraint = true;
+
+                    break;
+                }
+                case Tokens.NULL : {
+                    if (hasNotNullConstraint || hasNullNoiseWord
+                            || hasPrimaryKey) {
+                        throw unexpectedToken();
+                    }
+
+                    if (constName != null) {
+                        throw unexpectedToken();
+                    }
+
+                    read();
+
+                    hasNullNoiseWord = true;
 
                     break;
                 }

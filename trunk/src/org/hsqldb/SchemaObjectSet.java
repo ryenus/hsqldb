@@ -75,6 +75,7 @@ public class SchemaObjectSet {
                 map = new HashMappedList();
                 break;
 
+            case SchemaObject.COLUMN :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX :
                 map = new HashMap();
@@ -103,6 +104,7 @@ public class SchemaObjectSet {
                 return object == null ? null
                                       : object.getName();
 
+            case SchemaObject.COLUMN :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX : {
                 return (HsqlName) map.get(name);
@@ -128,6 +130,7 @@ public class SchemaObjectSet {
             case SchemaObject.FUNCTION :
             case SchemaObject.ASSERTION :
             case SchemaObject.TRIGGER :
+            case SchemaObject.COLUMN :
                 return (SchemaObject) map.get(name);
 
             default :
@@ -246,6 +249,7 @@ public class SchemaObjectSet {
 
                 break;
             }
+            case SchemaObject.COLUMN :
             case SchemaObject.CONSTRAINT :
             case SchemaObject.INDEX : {
                 map.remove(name.name);
@@ -265,6 +269,7 @@ public class SchemaObjectSet {
 
             case SchemaObject.VIEW :
             case SchemaObject.TABLE :
+            case SchemaObject.COLUMN :
             case SchemaObject.SEQUENCE :
             case SchemaObject.CHARSET :
             case SchemaObject.DOMAIN :
@@ -295,6 +300,7 @@ public class SchemaObjectSet {
 
             case SchemaObject.VIEW :
             case SchemaObject.TABLE :
+            case SchemaObject.COLUMN :
             case SchemaObject.SEQUENCE :
             case SchemaObject.CHARSET :
             case SchemaObject.DOMAIN :
@@ -323,6 +329,9 @@ public class SchemaObjectSet {
 
             case SchemaObject.VIEW :
                 return Tokens.T_VIEW;
+
+            case SchemaObject.COLUMN :
+                return Tokens.T_COLUMN;
 
             case SchemaObject.TABLE :
                 return Tokens.T_TABLE;
@@ -386,12 +395,27 @@ public class SchemaObjectSet {
                 RoutineSchema routine = (RoutineSchema) it.next();
 
                 for (int i = 0; i < routine.routines.length; i++) {
-                    set.add(routine.routines[i]);
+                    if (routine.routines[i].dataImpact != Routine.NO_SQL) {
+                        set.add(routine.routines[i]);
+                    }
                 }
             }
 
             it = set.iterator();
         }
+
+        addAllSQL(resolved, unresolved, list, it, null);
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
+    static void addAllSQL(OrderedHashSet resolved, OrderedHashSet unresolved,
+                          HsqlArrayList list, Iterator it,
+                          OrderedHashSet newResolved) {
 
         while (it.hasNext()) {
             SchemaObject   object     = (SchemaObject) it.next();
@@ -405,26 +429,61 @@ public class SchemaObjectSet {
                     continue;
                 }
 
-                if (name.type == SchemaObject.COLUMN) {
-                    name = name.parent;
-                }
+                switch (name.type) {
 
-                if (name == object.getName()) {
-                    continue;
-                }
+                    case SchemaObject.TABLE :
+                        if (!resolved.contains(name)) {
+                            isResolved = false;
+                        }
+                        break;
 
-                if (name.type == SchemaObject.CHARSET) {
+                    case SchemaObject.COLUMN : {
+                        if (object.getType() == SchemaObject.TABLE) {
+                            int index = ((Table) object).findColumn(name.name);
+                            ColumnSchema column =
+                                ((Table) object).getColumn(index);
 
-                    // some built-in character sets have no schema
-                    if (name.schema == null) {
-                        continue;
+                            if (!isChildObjectResolved(column, resolved)) {
+                                isResolved = false;
+                            }
+
+                            break;
+                        }
+
+                        if (!resolved.contains(name.parent)) {
+                            isResolved = false;
+                        }
+
+                        break;
                     }
-                }
+                    case SchemaObject.CONSTRAINT : {
+                        if (name.parent == object.getName()) {
+                            Constraint constraint =
+                                ((Table) object).getConstraint(name.name);
 
-                if (!resolved.contains(name)) {
-                    isResolved = false;
+                            if (constraint.getConstraintType()
+                                    == SchemaObject.ConstraintTypes.CHECK) {
+                                if (!isChildObjectResolved(constraint,
+                                                           resolved)) {
+                                    isResolved = false;
+                                }
+                            }
+                        }
 
-                    break;
+                        // only UNIQUE constraint referenced by FK in table
+                        break;
+                    }
+                    case SchemaObject.CHARSET :
+                        if (name.schema == null) {
+                            continue;
+                        }
+                    case SchemaObject.TYPE :
+                    case SchemaObject.DOMAIN :
+                    case SchemaObject.FUNCTION :
+                        if (!resolved.contains(name)) {
+                            isResolved = false;
+                        }
+                    default :
                 }
             }
 
@@ -436,17 +495,35 @@ public class SchemaObjectSet {
 
             resolved.add(object.getName());
 
+            if (newResolved != null) {
+                newResolved.add(object);
+            }
+
             if (object.getType() == SchemaObject.TABLE) {
                 list.addAll(((Table) object).getSQL(resolved, unresolved));
             } else {
                 list.add(object.getSQL());
             }
         }
+    }
 
-        String[] array = new String[list.size()];
+    static boolean isChildObjectResolved(SchemaObject object,
+                                         OrderedHashSet resolved) {
 
-        list.toArray(array);
+        OrderedHashSet refs = object.getReferences();
 
-        return array;
+        for (int i = 0; i < refs.size(); i++) {
+            HsqlName name = (HsqlName) refs.get(i);
+
+            if (SqlInvariants.isSchemaNameSystem(name)) {
+                continue;
+            }
+
+            if (!resolved.contains(name)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

@@ -1030,17 +1030,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         t.insertSys(store, row);
 
-        // ignore case
-        row         = t.getEmptyRowData();
-        row[iscope] = scope;
-        row[ins]    = nameSpace;
-        row[iname]  = "IGNORECASE";
-        row[ivalue] = database.isIgnoreCase() ? "true"
-                                              : "false";
-        row[iclass] = "Boolean";
-
-        t.insertSys(store, row);
-
         // referential integrity
         row         = t.getEmptyRowData();
         row[iscope] = scope;

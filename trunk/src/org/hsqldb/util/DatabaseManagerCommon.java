@@ -108,7 +108,7 @@ class DatabaseManagerCommon {
     static String[] insertHelp = {
         "INSERT INTO ",
         "INSERT INTO table [ (column [,...] ) ] \n"
-        + "{ VALUES(Expression [,...]) | SelectStatement }"
+        + "{ VALUES(Expression [,...]) [,...] | SelectStatement }"
     };
     static String[] updateHelp = {
         "UPDATE ",
@@ -155,9 +155,10 @@ class DatabaseManagerCommon {
         + "SET FILES LOG SIZE <size>\n"                                          //
         + "SET MAXROWS maxrows\n"                                         //
         + "SET PASSWORD <password>\n"                                     //
-        + "SET FILES READONLY { TRUE | FALSE }\n"
+        + "SET FILES READ { ONLY | WRITE }\n"
         + "SET SCHEMA <schemaname>\n"
-        + "SET TABLE <tablename> READONLY { TRUE | FALSE }\n"
+        + "SET TABLE <tablename> READ { ONLY | WRITE }\n"
+        + "SET TABLE <tablename> SOURCE { ON | OFF }\n"
         + "SET TABLE <tablename> SOURCE \"<file>\" [DESC]\n"
         + "\n\n"                                                          //
         + "(HSQLDB SQL only)"

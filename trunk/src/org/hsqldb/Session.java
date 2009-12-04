@@ -112,6 +112,7 @@ public class Session implements SessionInterface {
     private Number     lastIdentity = ValuePool.INTEGER_0;
     private final long sessionId;
     private boolean    script;
+    boolean            ignoreCase;
 
     // internal connection
     private JDBCConnection intConnection;
@@ -694,6 +695,10 @@ public class Session implements SessionInterface {
 
     public void setNoSQL() {
         sessionContext.noSQL = Boolean.TRUE;
+    }
+
+    public void setIgnoreCase(boolean mode) {
+        ignoreCase = mode;
     }
 
     /**

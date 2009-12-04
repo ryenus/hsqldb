@@ -844,6 +844,11 @@ public class ExpressionColumn extends Expression {
         }
     }
 
+    void resetColumnReferences() {
+        rangeVariable = null;
+        columnIndex = -1;
+    }
+
     public boolean isIndexable(RangeVariable range) {
 
         if (opType == OpTypes.COLUMN) {
