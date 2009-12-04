@@ -75,7 +75,7 @@ public class StatementSession extends Statement {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StateemntCommand");
+                                         "StateemntSession");
         }
     }
 
@@ -152,6 +152,7 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_SESSION_RESULT_MAX_ROWS :
             case StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_SESSION_AUTOCOMMIT :
+            case StatementTypes.SET_SESSION_SQL_IGNORECASE :
                 group = StatementTypes.X_HSQLDB_SESSION;
                 break;
 
@@ -168,7 +169,7 @@ public class StatementSession extends Statement {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatementCommand");
+                                         "StatementSession");
         }
     }
 
@@ -188,7 +189,7 @@ public class StatementSession extends Statement {
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "StatementCommand");
+                                         "StatementSession");
         }
     }
 
@@ -601,9 +602,19 @@ public class StatementSession extends Statement {
 
                 return Result.updateZeroResult;
             }
+            case StatementTypes.SET_SESSION_SQL_IGNORECASE : {
+                try {
+                    boolean mode = ((Boolean) parameters[0]).booleanValue();
+                    session.setIgnoreCase(mode);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "CompiledStateemntCommand");
+                                         "StatementSession");
         }
     }
 

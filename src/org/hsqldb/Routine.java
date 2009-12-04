@@ -543,8 +543,9 @@ public class Routine implements SchemaObject {
             name = name.substring(i + 1);
         }
 
-        Method   method  = null;
-        Method[] methods = getMethods(name);
+        Method   method        = null;
+        Method[] methods       = getMethods(name);
+        int      firstMismatch = -1;
 
         for (i = 0; i < methods.length; i++) {
             int     offset = 0;
@@ -588,6 +589,10 @@ public class Routine implements SchemaObject {
                         != methodParamType.typeCode) {
                     method = null;
 
+                    if (j + offset > firstMismatch) {
+                        firstMismatch = j + offset;
+                    }
+
                     break;
                 }
             }
@@ -595,6 +600,12 @@ public class Routine implements SchemaObject {
             if (method != null) {
                 break;
             }
+        }
+
+        if (firstMismatch >= 0) {
+            ColumnSchema param = routine.getParameter(firstMismatch);
+
+            throw Error.error(ErrorCode.X_46511, param.getNameString());
         }
 
         return method;

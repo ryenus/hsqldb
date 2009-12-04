@@ -198,9 +198,14 @@ public class StatementProcedure extends StatementDMQL {
          */
         r = Result.newSingleColumnResult(resultMetaData);
 
-        Object[] row = new Object[1];
+        Object[] row;
 
-        row[0] = o;
+        if (o instanceof Object[]) {
+            row = (Object[]) o;
+        } else {
+            row    = new Object[1];
+            row[0] = o;
+        }
 
         r.getNavigator().add(row);
 

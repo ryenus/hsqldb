@@ -115,13 +115,14 @@ public class ScriptReaderText extends ScriptReaderBase {
 
                 // handle grants on math and library routines in old versions
                 if (cs == null) {}
-                else {
-                    if (cs.getType() == StatementTypes.GRANT) {
+                else if (cs.getType() == StatementTypes.GRANT) {
+                    continue;
+                } else if (cs.getType() == StatementTypes.CREATE_ROUTINE) {
+                    if (result.getMainString().contains(
+                            "org.hsqldb.Library")) {
                         continue;
                     }
                 }
-
-                //
             }
 
             if (result.isError()) {

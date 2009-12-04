@@ -185,7 +185,7 @@ public class Expression {
     // IN condition optimisation
 
     /**
-     * Creates a SCALAR SUBQUERY expression. Is called as ROW_SUBQUERY
+     * Creates a SCALAR SUBQUERY expression.
      */
     Expression(int exprType, SubQuery sq) {
 
@@ -342,9 +342,8 @@ public class Expression {
 
                 for (int i = 0; i < nodes.length; i++) {
                     sb.append(nodes[i].describe(session, blanks + 1));
+                    sb.append(' ');
                 }
-
-                sb.append("), TYPE = ").append(dataType.getNameString());
                 break;
 
             case OpTypes.TABLE :
@@ -355,18 +354,6 @@ public class Expression {
                     sb.append(' ');
                 }
                 break;
-        }
-
-        if (nodes[LEFT] != null) {
-            sb.append(" arg_left=[");
-            sb.append(nodes[LEFT].describe(session, blanks + 1));
-            sb.append(']');
-        }
-
-        if (nodes[RIGHT] != null) {
-            sb.append(" arg_right=[");
-            sb.append(nodes[RIGHT].describe(session, blanks + 1));
-            sb.append(']');
         }
 
         return sb.toString();
@@ -644,6 +631,17 @@ public class Expression {
         return this;
     }
 
+    void resetColumnReferences() {
+
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] == null) {
+                continue;
+            }
+
+            nodes[i].resetColumnReferences();
+        }
+    }
+
     void convertToSimpleColumn(OrderedHashSet expressions,
                                OrderedHashSet replacements) {
 
@@ -792,7 +790,7 @@ public class Expression {
     }
 
     /**
-     * collects all table, routine and sequence references expression tree
+     * collects all schema objects
      */
     void collectObjectNames(Set set) {
 
@@ -1152,28 +1150,6 @@ public class Expression {
                                      : 1;
     }
 
-    public Object[] getRowValue(Session session) {
-
-        switch (opType) {
-
-            case OpTypes.ROW : {
-                Object[] data = new Object[nodes.length];
-
-                for (int i = 0; i < nodes.length; i++) {
-                    data[i] = nodes[i].getValue(session);
-                }
-
-                return data;
-            }
-            case OpTypes.ROW_SUBQUERY :
-            case OpTypes.TABLE_SUBQUERY : {
-                return subQuery.queryExpression.getValues(session);
-            }
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
-        }
-    }
-
     Object getValue(Session session, Type type) {
 
         Object o = getValue(session);
@@ -1195,6 +1171,28 @@ public class Expression {
             return getValue(session);
         } catch (HsqlException e) {
             return null;
+        }
+    }
+
+    public Object[] getRowValue(Session session) {
+
+        switch (opType) {
+
+            case OpTypes.ROW : {
+                Object[] data = new Object[nodes.length];
+
+                for (int i = 0; i < nodes.length; i++) {
+                    data[i] = nodes[i].getValue(session);
+                }
+
+                return data;
+            }
+            case OpTypes.ROW_SUBQUERY :
+            case OpTypes.TABLE_SUBQUERY : {
+                return subQuery.queryExpression.getValues(session);
+            }
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
         }
     }
 
@@ -1229,7 +1227,11 @@ public class Expression {
             case OpTypes.TABLE_SUBQUERY : {
                 subQuery.materialiseCorrelated(session);
 
-                Object value = subQuery.getValue(session);
+                Object[] value = subQuery.getValues(session);
+
+                if (value.length == 1) {
+                    return ((Object[]) value)[0];
+                }
 
                 return value;
             }

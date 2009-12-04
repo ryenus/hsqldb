@@ -108,7 +108,6 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_SCRIPT_FORMAT :
             case StatementTypes.SET_DATABASE_PROPERTY :
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
-            case StatementTypes.SET_DATABASE_SQL_IGNORECASE :
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
             case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES :
             case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE :
@@ -418,19 +417,6 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
                     session.database.collation.setCollation(name);
                     session.database.setMetaDirty(false);
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
-            }
-            case StatementTypes.SET_DATABASE_SQL_IGNORECASE : {
-                try {
-                    boolean mode = ((Boolean) parameters[0]).booleanValue();
-
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-                    session.database.setIgnoreCase(mode);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

@@ -276,7 +276,8 @@ public final class Constraint implements SchemaObject {
                 for (int j = refs.size() - 1; j >= 0; j--) {
                     HsqlName name = (HsqlName) refs.get(j);
 
-                    if (name.type == SchemaObject.COLUMN) {
+                    if (name.type == SchemaObject.COLUMN
+                            || name.type == SchemaObject.TABLE) {
                         refs.remove(j);
                     }
                 }

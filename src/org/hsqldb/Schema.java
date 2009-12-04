@@ -48,6 +48,7 @@ public final class Schema implements SchemaObject {
     SchemaObjectSet constraintLookup;
     SchemaObjectSet indexLookup;
     SchemaObjectSet tableLookup;
+    SchemaObjectSet columnLookup;
     SchemaObjectSet sequenceLookup;
     SchemaObjectSet typeLookup;
     SchemaObjectSet charsetLookup;
@@ -68,6 +69,7 @@ public final class Schema implements SchemaObject {
         indexLookup      = new SchemaObjectSet(SchemaObject.INDEX);
         constraintLookup = new SchemaObjectSet(SchemaObject.CONSTRAINT);
         tableLookup      = new SchemaObjectSet(SchemaObject.TABLE);
+        columnLookup      = new SchemaObjectSet(SchemaObject.COLUMN);
         sequenceLookup   = new SchemaObjectSet(SchemaObject.SEQUENCE);
         typeLookup       = new SchemaObjectSet(SchemaObject.TYPE);
         charsetLookup    = new SchemaObjectSet(SchemaObject.CHARSET);
@@ -129,19 +131,24 @@ public final class Schema implements SchemaObject {
         return sb.toString();
     }
 
-    public String[] getSQLArray(OrderedHashSet resolved,
-                                OrderedHashSet unresolved) {
+    public String getDefinitionSQL() {
 
-        HsqlArrayList list = new HsqlArrayList();
-        StringBuffer  sb   = new StringBuffer(128);
+        StringBuffer sb = new StringBuffer(128);
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_SCHEMA).append(' ');
         sb.append(name.statementName).append(' ');
         sb.append(Tokens.T_AUTHORIZATION).append(' ');
         sb.append(owner.getStatementName());
-        list.add(sb.toString());
-        sb.setLength(0);
+        return sb.toString();
+    }
+
+    public String[] getSQLArray(OrderedHashSet resolved,
+                                OrderedHashSet unresolved) {
+
+        HsqlArrayList list = new HsqlArrayList();
+        StringBuffer  sb   = new StringBuffer(128);
+
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_SCHEMA).append(' ');
         sb.append(name.statementName);
@@ -228,6 +235,34 @@ public final class Schema implements SchemaObject {
         return array;
     }
 
+    public String[] getSimpleFunctionsSQLArray(OrderedHashSet resolved,
+                                OrderedHashSet unresolved) {
+
+        HsqlArrayList list = new HsqlArrayList();
+        Iterator      it   = specificRoutineLookup.map.values().iterator();
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        while (it.hasNext()) {
+            Routine    routine = (Routine) it.next();
+
+            if (routine.dataImpact == Routine.NO_SQL) {
+                if (resolved.containsAll(routine.getReferences())) {
+                    resolved.add(routine.getSpecificName());
+                    list.add(routine.getSQL());
+                } else {
+                    unresolved.add(routine.getSpecificName());
+                }
+            }
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
     boolean isEmpty() {
         return sequenceList.isEmpty() && tableList.isEmpty();
     }
@@ -294,6 +329,7 @@ public final class Schema implements SchemaObject {
         functionLookup   = null;
         sequenceLookup   = null;
         tableLookup      = null;
+        columnLookup     = null;
         typeLookup       = null;
     }
 }

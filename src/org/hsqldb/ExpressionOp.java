@@ -137,7 +137,7 @@ public class ExpressionOp extends Expression {
     }
 
     public static Expression getCastExpression(Session session, Expression e,
-                                        Type dataType) {
+            Type dataType) {
 
         if (e.getType() == OpTypes.VALUE) {
             Object value = dataType.castToType(session, e.getValue(session),

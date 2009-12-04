@@ -156,10 +156,6 @@ public class UserTypeModifier {
 
     public OrderedHashSet getReferences() {
 
-        if (constraints.length == 0) {
-            return null;
-        }
-
         OrderedHashSet set = new OrderedHashSet();
 
         for (int i = 0; i < constraints.length; i++) {

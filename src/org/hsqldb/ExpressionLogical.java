@@ -660,7 +660,8 @@ public class ExpressionLogical extends Expression {
     private void resolveTypesForComparison(Session session,
                                            Expression parent) {
 
-        if (exprSubType == OpTypes.ALL_QUANTIFIED
+        if (opType == OpTypes.NOT_DISTINCT
+                || exprSubType == OpTypes.ALL_QUANTIFIED
                 || exprSubType == OpTypes.ANY_QUANTIFIED) {
             resolveTypesForAllAny(session);
             checkRowComparison();
@@ -738,7 +739,6 @@ public class ExpressionLogical extends Expression {
                     && nodes[RIGHT].opType == OpTypes.VALUE) {
                 setAsConstantValue(session);
             }
-
         }
     }
 
@@ -1023,10 +1023,20 @@ public class ExpressionLogical extends Expression {
                 Object o2 = nodes[RIGHT].getValue(session);
 
                 if (o1 instanceof Object[]) {
+                    if (!(o2 instanceof Object[])) {
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "ExpressionLogical");
+                    }
+
                     return compareValues(session, (Object[]) o1,
                                          (Object[]) o2);
                 } else {
+                    if (o2 instanceof Object[]) {
+                        o2 = ((Object[]) o2) [0];
+                    }
+
                     return compareValues(session, o1, o2);
+
                 }
             }
             default :

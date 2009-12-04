@@ -626,6 +626,9 @@ public interface ErrorCode {
     int X_46102 = 6012;                                   // invalid JAR name in path
     int X_46103 = 6013;                                   // unresolved class name
 
+    // HSQLDB - SQL/JRT
+    int X_46511 = 6021;                                   // declared parameter types do not match method signature
+
     // Unknown Error: Catch-All - xxxx
     int X_99000 = 6500;                                   // Unknown Error: Catch-All
     int X_99099 = 6501;                                   // Error converting vendor code to SQL state code

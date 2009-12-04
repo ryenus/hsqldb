@@ -217,6 +217,10 @@ public abstract class DTIType extends Type {
                 .yearToSecondSeparators[DTIType.INTERVAL_FRACTION_PART_INDEX - 1]);
         }
 
+        if (nanos < 0) {
+            nanos = -nanos;
+        }
+
         for (int i = 0; i < scale; i++) {
             int digit = nanos / DTIType.precisionFactors[i];
 

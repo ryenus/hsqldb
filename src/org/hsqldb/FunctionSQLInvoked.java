@@ -202,7 +202,7 @@ public class FunctionSQLInvoked extends Expression {
     }
 
     void collectObjectNames(Set set) {
-        set.add(routine.getName());
+        set.add(routine.getSpecificName());
     }
 
     public String getSQL() {

@@ -453,6 +453,10 @@ public class SchemaManager {
                 set = schema.tableLookup;
                 break;
 
+            case SchemaObject.COLUMN :
+                set = schema.columnLookup;
+                break;
+
             case SchemaObject.CHARSET :
                 set = schema.charsetLookup;
                 break;
@@ -928,6 +932,9 @@ public class SchemaManager {
             case SchemaObject.VIEW :
                 return schema.sequenceLookup.getObject(name);
 
+            case SchemaObject.COLUMN :
+                return schema.columnLookup.getObject(name);
+
             case SchemaObject.CHARSET :
                 if (name.equals("SQL_IDENTIFIER")) {
                     return SqlInvariants.SQL_IDENTIFIER_CHARSET;
@@ -1129,11 +1136,7 @@ public class SchemaManager {
         for (int i = 0; i < set.size(); i++) {
             HsqlName referenced = (HsqlName) set.get(i);
 
-            if (referenced.type == SchemaObject.COLUMN) {
-                referenceMap.put(referenced.parent, object.getName());
-            } else {
-                referenceMap.put(referenced, object.getName());
-            }
+            referenceMap.put(referenced, object.getName());
         }
     }
 
@@ -1153,6 +1156,10 @@ public class SchemaManager {
             HsqlName referenced = (HsqlName) set.get(i);
 
             referenceMap.remove(referenced, object.getName());
+
+            if (object.getName().parent != null) {
+                referenceMap.remove(referenced, object.getName().parent);
+            }
         }
     }
 
@@ -1280,6 +1287,9 @@ public class SchemaManager {
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
                 return (SchemaObject) schema.tableList.get(name.name);
+
+            case SchemaObject.COLUMN :
+                return schema.columnLookup.getObject(name.name);
 
             case SchemaObject.CHARSET :
                 return schema.charsetLookup.getObject(name.name);
@@ -1423,7 +1433,7 @@ public class SchemaManager {
         switch (name.type) {
 
             case SchemaObject.PROCEDURE :
-            case SchemaObject.FUNCTION :
+            case SchemaObject.FUNCTION : {
                 RoutineSchema routine =
                     (RoutineSchema) set.getObject(name.name);
 
@@ -1456,6 +1466,31 @@ public class SchemaManager {
                 addReferences(object);
 
                 return;
+            }
+            case SchemaObject.TABLE : {
+                OrderedHashSet refs = object.getReferences();
+
+                for (int i = 0; i < refs.size(); i++) {
+                    HsqlName ref = (HsqlName) refs.get(i);
+
+                    if (ref.type == SchemaObject.COLUMN) {
+                        int index = ((Table) object).findColumn(ref.name);
+                        ColumnSchema column =
+                            ((Table) object).getColumn(index);
+
+                        addSchemaObject(column);
+                    }
+                }
+
+                break;
+            }
+            case SchemaObject.COLUMN : {
+                if (object.getReferences().isEmpty()) {
+                    return;
+                }
+
+                break;
+            }
         }
 
         set.add(object);
@@ -1541,7 +1576,11 @@ public class SchemaManager {
                 set    = schema.tableLookup;
                 object = set.getObject(name.name);
 
-                set.remove(name.name);
+                break;
+            }
+            case SchemaObject.COLUMN : {
+                set    = schema.columnLookup;
+                object = set.getObject(name.name);
 
                 break;
             }
@@ -1678,6 +1717,43 @@ public class SchemaManager {
         HsqlArrayList  list       = new HsqlArrayList();
         Iterator       schemas    = schemaMap.values().iterator();
 
+        schemas = schemaMap.values().iterator();
+
+        while (schemas.hasNext()) {
+            Schema schema = (Schema) schemas.next();
+
+            if (database.schemaManager.isSystemSchema(schema.name.name)) {
+                continue;
+            }
+
+            if (database.schemaManager.isLobsSchema(schema.name.name)) {
+                continue;
+            }
+
+            list.add(schema.getDefinitionSQL());
+
+            String[] t = schema.getSimpleFunctionsSQLArray(resolved,
+                unresolved);
+
+            list.addAll(t);
+        }
+
+        while (true) {
+            Iterator it = unresolved.iterator();
+
+            if (!it.hasNext()) {
+                break;
+            }
+
+            OrderedHashSet newResolved = new OrderedHashSet();
+
+            SchemaObjectSet.addAllSQL(resolved, unresolved, list, it,
+                                      newResolved);
+            unresolved.removeAll(newResolved);
+        }
+
+        schemas = schemaMap.values().iterator();
+
         while (schemas.hasNext()) {
             Schema schema = (Schema) schemas.next();
 
@@ -1701,44 +1777,8 @@ public class SchemaManager {
 
             OrderedHashSet newResolved = new OrderedHashSet();
 
-            while (it.hasNext()) {
-                SchemaObject   object     = (SchemaObject) it.next();
-                OrderedHashSet references = object.getReferences();
-                boolean        isResolved = true;
-
-                for (int j = 0; j < references.size(); j++) {
-                    HsqlName name = (HsqlName) references.get(j);
-
-                    if (name.type == SchemaObject.COLUMN
-                            || name.type == SchemaObject.CONSTRAINT) {
-                        name = name.parent;
-                    }
-
-                    if (name == object.getName()) {
-                        continue;
-                    }
-
-                    if (!resolved.contains(name)) {
-                        isResolved = false;
-
-                        break;
-                    }
-                }
-
-                if (isResolved) {
-                    if (object.getType() == SchemaObject.TABLE) {
-                        list.addAll(((Table) object).getSQL(resolved,
-                                                            unresolved));
-                    } else {
-                        list.add(getSetSchemaSQL(object.getSchemaName()));
-                        list.add(object.getSQL());
-                        resolved.add(object.getName());
-                    }
-
-                    newResolved.add(object);
-                }
-            }
-
+            SchemaObjectSet.addAllSQL(resolved, unresolved, list, it,
+                                      newResolved);
             unresolved.removeAll(newResolved);
         }
 
@@ -1752,17 +1792,23 @@ public class SchemaManager {
             }
 
             if (database.schemaManager.isLobsSchema(schema.name.name)) {
-
-//                continue;
+                continue;
             }
 
             String[] t = schema.getTriggerSQL();
 
             if (t.length > 0) {
                 list.add(getSetSchemaSQL(schema.name));
-                list.addAll(schema.getTriggerSQL());
+                list.addAll(t);
             }
 
+            list.addAll(schema.getSequenceRestartSQL());
+        }
+
+        schemas = schemaMap.values().iterator();
+
+        while (schemas.hasNext()) {
+            Schema schema = (Schema) schemas.next();
             list.addAll(schema.getSequenceRestartSQL());
         }
 

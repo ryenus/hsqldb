@@ -347,6 +347,7 @@ public class ParserDML extends ParserDQL {
         Expression condition       = null;
         boolean    truncate        = false;
         boolean    restartIdentity = false;
+        int        statementCode;
 
         switch (token.tokenType) {
 
@@ -354,7 +355,8 @@ public class ParserDML extends ParserDQL {
                 read();
                 readThis(Tokens.TABLE);
 
-                truncate = true;
+                truncate      = true;
+                statementCode = StatementTypes.TRUNCATE;
 
                 break;
             }
@@ -362,12 +364,16 @@ public class ParserDML extends ParserDQL {
                 read();
                 readThis(Tokens.FROM);
 
+                statementCode = StatementTypes.DELETE_WHERE;
+
                 break;
             }
+            default :
+                throw unexpectedToken();
         }
 
         RangeVariable[] rangeVariables = {
-            readSimpleRangeVariable(StatementTypes.DELETE_WHERE) };
+            readSimpleRangeVariable(statementCode) };
         Table table     = rangeVariables[0].getTable();
         Table baseTable = table.getBaseTable();
 
