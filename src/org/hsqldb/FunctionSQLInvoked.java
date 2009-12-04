@@ -156,6 +156,8 @@ public class FunctionSQLInvoked extends Expression {
                     session.sessionContext.isReadOnly = Boolean.TRUE;
 
                     session.setNoSQL();
+                } else if (routine.dataImpact == Routine.CONTAINS_SQL) {
+                    session.sessionContext.isReadOnly = Boolean.TRUE;
                 } else if (routine.dataImpact == Routine.READS_SQL) {
                     session.sessionContext.isReadOnly = Boolean.TRUE;
                 }
