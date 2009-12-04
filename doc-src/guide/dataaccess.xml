@@ -1246,10 +1246,11 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <title>Predicates</title>
 
       <simpara>Predicates are conditions with two sides and evaluate to a
-      boolean value. The <literal>&lt;row value predicand&gt;</literal> is the
-      common element of all predicates. This element is a generalisation of
-      both <literal>&lt;value expression&gt;</literal>, which is a scalar, and
-      of <literal>&lt;explicit row value constructor&gt;</literal>, which is a
+      boolean value. The left side of the predicate, the <literal>&lt;row
+      value predicand&gt;</literal>, is the common element of all predicates.
+      This element is a generalisation of both <literal>&lt;value
+      expression&gt;</literal>, which is a scalar, and of
+      <literal>&lt;explicit row value constructor&gt;</literal>, which is a
       row. The two sides of a predicate can be split in CASE statements where
       the <literal>&lt;row value predicand&gt;</literal> is part of multiple
       predicates.</simpara>
@@ -1261,11 +1262,12 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       raised. The number of fields in a row is called the
       <glossterm>degree</glossterm>.</simpara>
 
-      <simpara>In many predicates, if a <literal>&lt;row value
-      predicand&gt;</literal> evaluates to NULL, the result of the predicate
-      is UNKNOWN. If the <literal>&lt;row value predicand&gt;</literal> has
-      more than one element, and one or more of the fields evaluate to NULL,
-      the result depends on the particular predicate.</simpara>
+      <simpara>In many types of predicates (but not all of them), if the
+      <literal>&lt;row value predicand&gt;</literal> evaluates to NULL, the
+      result of the predicate is UNKNOWN. If the <literal>&lt;row value
+      predicand&gt;</literal> has more than one element, and one or more of
+      the fields evaluate to NULL, the result depends on the particular
+      predicate.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>comparison predicate</primary>
@@ -1276,10 +1278,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <simpara><emphasis>comparison predicate</emphasis></simpara>
 
       <simpara><literal>&lt;comparison predicate&gt; ::= &lt;row value
-      predicand&gt; &lt;comparison predicate part 2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;comparison predicate part 2&gt; ::= &lt;comp
-      op&gt; &lt;row value predicand&gt;</literal></simpara>
+      predicand&gt; &lt;comp op&gt; &lt;row value
+      predicand&gt;</literal></simpara>
 
       <simpara><literal>&lt;comp op&gt; ::= &lt;equals operator&gt; | &lt;not
       equals operator&gt; | &lt;less than operator&gt; | &lt;greater than
@@ -1379,11 +1379,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
       <simpara><emphasis>in predicate</emphasis></simpara>
 
-      <simpara><literal>&lt;in predicate&gt; ::= &lt;row value predicand&gt;
-      &lt;in predicate part 2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;in predicate part 2&gt; ::= [ NOT ] IN &lt;in
-      predicate value&gt;</literal></simpara>
+      <simpara><literal>&lt;in predicate&gt; ::= &lt;row value predicand&gt; [
+      NOT ] IN &lt;in predicate value&gt;</literal></simpara>
 
       <simpara><literal>&lt;in predicate value&gt; ::= &lt;table subquery&gt;
       | &lt;left paren&gt; &lt;in value list&gt; &lt;right
@@ -1421,12 +1418,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       predicate&gt; | &lt;octet like predicate&gt;</literal></simpara>
 
       <simpara><literal>&lt;character like predicate&gt; ::= &lt;row value
-      predicand&gt; &lt;character like predicate part
-      2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;character like predicate part 2&gt; ::= [ NOT ]
-      LIKE &lt;character pattern&gt; [ ESCAPE &lt;escape character&gt;
-      ]</literal></simpara>
+      predicand&gt; [ NOT ] LIKE &lt;character pattern&gt; [ ESCAPE &lt;escape
+      character&gt; ]</literal></simpara>
 
       <simpara><literal>&lt;character pattern&gt; ::= &lt;character value
       expression&gt;</literal></simpara>
@@ -1435,11 +1428,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       expression&gt;</literal></simpara>
 
       <simpara><literal>&lt;octet like predicate&gt; ::= &lt;row value
-      predicand&gt; &lt;octet like predicate part 2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;octet like predicate part 2&gt; ::= [ NOT ] LIKE
-      &lt;octet pattern&gt; [ ESCAPE &lt;escape octet&gt;
-      ]</literal></simpara>
+      predicand&gt; [ NOT ] LIKE &lt;octet pattern&gt; [ ESCAPE &lt;escape
+      octet&gt; ]</literal></simpara>
 
       <simpara><literal>&lt;octet pattern&gt; ::= &lt;binary value
       expression&gt;</literal></simpara>
@@ -1480,10 +1470,7 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <simpara><emphasis>null predicate</emphasis></simpara>
 
       <simpara><literal>&lt;null predicate&gt; ::= &lt;row value predicand&gt;
-      &lt;null predicate part 2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;null predicate part 2&gt; ::= IS [ NOT ]
-      NULL</literal></simpara>
+      IS [ NOT ] NULL</literal></simpara>
 
       <simpara>Specify a test for a null value. The expression <literal>X IS
       NOT NULL</literal> is NOT equivalent to <literal>NOT (X IS
@@ -1504,11 +1491,7 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <simpara><emphasis>quantified comparison predicate</emphasis></simpara>
 
       <simpara><literal>&lt;quantified comparison predicate&gt; ::= &lt;row
-      value predicand&gt; &lt;quantified comparison predicate part
-      2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;quantified comparison predicate part 2&gt; ::=
-      &lt;comp op&gt; &lt;quantifier&gt; &lt;table
+      value predicand&gt; &lt;comp op&gt; &lt;quantifier&gt; &lt;table
       subquery&gt;</literal></simpara>
 
       <simpara><literal>&lt;quantifier&gt; ::= &lt;all&gt; |
@@ -1539,6 +1522,20 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       Otherwise the result is UNKNOWN. Note that the IN predicate is
       equivalent to the SOME or ANY predicate using the <literal>&lt;equals
       operator&gt;</literal>.</simpara>
+
+      <simpara>In the examples below, the date of an invoice is compared to
+      holidays in a given year. In the first example the invoice date must
+      equal one of the holidays, in the second example it must be later than
+      all holidays (later than the last holiday), in the third example it must
+      be on or after some holiday (on or after the first holiday), and in the
+      fourth example, it must be before all holidays (before the first
+      holiday).</simpara>
+
+      <programlisting>invoice_date = SOME (SELECT holiday_date FROM holidays)
+invoice_date &gt; ALL (SELECT holiday_date FROM holidays)
+invoice_date &gt;= ANY (SELECT holiday_date FROM holidays)
+invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>EXISTS predicate</primary>
@@ -1583,10 +1580,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <simpara><emphasis>match predicate</emphasis></simpara>
 
       <simpara><literal>&lt;match predicate&gt; ::= &lt;row value
-      predicand&gt; &lt;match predicate part 2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;match predicate part 2&gt; ::= MATCH [ UNIQUE ] [
-      SIMPLE | PARTIAL | FULL ] &lt;table subquery&gt;</literal></simpara>
+      predicand&gt; MATCH [ UNIQUE ] [ SIMPLE | PARTIAL | FULL ] &lt;table
+      subquery&gt;</literal></simpara>
 
       <simpara>Specify a test for matching rows. The default is MATCH SIMPLE
       without UNIQUE. The result of the test is either TRUE or FALSE (never
@@ -1629,32 +1624,24 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
       <simpara><emphasis>overlaps predicate</emphasis></simpara>
 
-      <simpara><literal>&lt;overlaps predicate&gt; ::= &lt;overlaps predicate
-      part 1&gt; &lt;overlaps predicate part 2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;overlaps predicate part 1&gt; ::= &lt;row value
-      predicand 1&gt;</literal></simpara>
-
-      <simpara><literal>&lt;overlaps predicate part 2&gt; ::= OVERLAPS &lt;row
-      value predicand 2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;row value predicand 1&gt; ::= &lt;row value
-      predicand&gt;</literal></simpara>
-
-      <simpara><literal>&lt;row value predicand 2&gt; ::= &lt;row value
-      predicand&gt;</literal></simpara>
+      <simpara><literal>&lt;overlaps predicate&gt; ::= &lt;row value
+      predicand&gt; OVERLAPS &lt;row value predicand&gt;</literal></simpara>
 
       <simpara>Specify a test for an overlap between two datetime periods.
       Each <literal>&lt;row value predicand&gt;</literal> must have two fields
       and the fields together represent a datetime period. So the predicates
       is always in the form <literal>(X1, X2) OVERLAPS (Y1, Y2)</literal>. The
       first field is always a datetime value, while the second field is either
-      a datetime value or an interval value. If the second value is an
-      interval value, it is replaced with the sum of the datetime value and
-      itself, for example <literal>(X1, X1 + X2) OVERLAPS (Y1, Y1 + Y
-      2)</literal>. If any of the values is NULL, the result is UNKNOWN. The
-      expression is true if there is there is any overlap between the two
-      datetime periods.</simpara>
+      a datetime value or an interval value. </simpara>
+
+      <simpara>If the second value is an interval value, it is replaced with
+      the sum of the datetime value and itself, for example <literal>(X1, X1 +
+      X2) OVERLAPS (Y1, Y1 + Y 2)</literal>. </simpara>
+
+      <simpara>If any of the values is NULL, the result is UNKNOWN.</simpara>
+
+      <simpara>The expression is true if there is there is any overlap between
+      the two datetime periods.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>IS DISTINCT predicate</primary>
@@ -1664,16 +1651,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
       <simpara><emphasis>is distinct predicate</emphasis></simpara>
 
-      <simpara><literal>&lt;distinct predicate&gt; ::= &lt;row value predicand
-      3&gt; &lt;distinct predicate part 2&gt;</literal></simpara>
-
-      <simpara><literal>&lt;distinct predicate part 2&gt; ::= IS [ NOT ]
-      DISTINCT FROM &lt;row value predicand 4&gt;</literal></simpara>
-
-      <simpara><literal>&lt;row value predicand 3&gt; ::= &lt;row value
-      predicand&gt;</literal></simpara>
-
-      <simpara><literal>&lt;row value predicand 4&gt; ::= &lt;row value
+      <simpara><literal>&lt;distinct predicate&gt; ::= &lt;row value
+      predicand&gt; IS [ NOT ] DISTINCT FROM &lt;row value
       predicand&gt;</literal></simpara>
 
       <simpara>Specify a test of whether two row values are distinct. The
@@ -1859,28 +1838,15 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
       <simpara><emphasis>sort specification list</emphasis></simpara>
 
-      <simpara><literal>&lt;sort specification list&gt; ::= &lt;sort
-      specification&gt; [ { &lt;comma&gt; &lt;sort specification&gt; }...
-      ]</literal></simpara>
-
-      <simpara><literal>&lt;sort specification&gt; ::= &lt;sort key&gt; [
-      &lt;ordering specification&gt; ] [ &lt;null ordering&gt;
-      ]</literal></simpara>
-
-      <simpara><literal>&lt;sort key&gt; ::= &lt;value
-      expression&gt;</literal></simpara>
-
-      <simpara><literal>&lt;ordering specification&gt; ::= ASC |
-      DESC</literal></simpara>
-
-      <simpara><literal>&lt;null ordering&gt; ::= NULLS FIRST | NULLS
-      LAST</literal></simpara>
+      <simpara><literal>&lt;sort specification list&gt; ::= &lt;value
+      expression&gt; [ASC | DESC] [NULLS FIRST | NULLS
+      LAST]</literal></simpara>
 
       <simpara>Specify a sort order. A sort operation is performed on the
       result of a <literal>&lt;query expresssion&gt;</literal> or
       <literal>&lt;query specification&gt;</literal> and sorts the result
-      according to one or more <literal>&lt;sort key&gt;</literal>
-      expressions. The <literal>&lt;sort key&gt;</literal> is usually a single
+      according to one or more <literal>&lt;value expression&gt;</literal>.
+      The <literal>&lt;value expression&gt;</literal> is usually a single
       column of the result, but in some cases it can be a column of the
       <literal>&lt;table expression&gt;</literal> that is not used in the
       select list.</simpara>
@@ -1891,11 +1857,10 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
     <title>Data Access Statements</title>
 
     <para>HyperSQL fully supports all of SQL-92 data access statements, plus
-    some additions from the more recent versions of the standard. A typical
-    book on SQL has at least 50 pages covering data access. Due to time
-    constraints, it is currently not possible for the author to cover this
-    area fully in this Guide. You are advised to consult an SQL book such as
-    the O'Reilly title "SQL and Relational Theory" by C. J. Date.</para>
+    some additions from the more recent versions of the standard. Due to time
+    constraints, the current version of this Guide does not cover the subject
+    fully. You are advised to consult an SQL book such as the recent O'Reilly
+    title "SQL and Relational Theory" by C. J. Date.</para>
 
     <para>Database queries are data access statements. The most commonly used
     data access statement is the SELECT statement, but there are other
