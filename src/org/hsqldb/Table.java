@@ -330,16 +330,6 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        for (int i = 0; i < constraintList.length; i++) {
-            OrderedHashSet refs = constraintList[i].getReferences();
-
-            if (!refs.isEmpty()) {
-                set.add(constraintList[i].getName());
-            }
-
-            set.addAll(refs);
-        }
-
         return set;
     }
 

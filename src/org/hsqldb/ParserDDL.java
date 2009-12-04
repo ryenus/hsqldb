@@ -1901,7 +1901,7 @@ public class ParserDDL extends ParserRoutine {
 
             Method[] methods = Routine.getMethods(methodFQN);
 
-            routines = Routine.newRoutines(methods);
+            routines = Routine.newRoutines(session, methods);
         }
 
         String   sql  = getLastPart();

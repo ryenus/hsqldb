@@ -174,7 +174,7 @@ public abstract class Statement {
 
     public void clearVariables() {}
 
-    public void resolve() {}
+    public void resolve(Session session) {}
 
     public RangeVariable[] getRangeVariables() {
         return RangeVariable.emptyArray;

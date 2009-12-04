@@ -1790,6 +1790,12 @@ public class QuerySpecification extends QueryExpression {
         if (havingCondition != null) {
             havingCondition.collectObjectNames(set);
         }
+
+        for (int i = 0, len = rangeVariables.length; i < len; i++) {
+            HsqlName name = rangeVariables[i].getTable().getName();
+
+            set.add(name);
+        }
     }
 
     void getMergedSelect() {

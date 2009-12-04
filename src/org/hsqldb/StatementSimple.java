@@ -151,7 +151,7 @@ public class StatementSimple extends Statement {
         }
     }
 
-    public void resolve() {
+    public void resolve(Session session) {
 
         boolean resolved = false;
 

@@ -394,9 +394,9 @@ public class Routine implements SchemaObject {
         return returnsTable;
     }
 
-    public void resolve() {
+    public void resolve(Session session) {
 
-        if (this.routineType == SchemaObject.PROCEDURE && isNewSavepointLevel
+        if (routineType == SchemaObject.PROCEDURE && isNewSavepointLevel
                 && dataImpact != MODIFIES_SQL) {
             throw Error.error(ErrorCode.X_42604);
         }
@@ -435,7 +435,11 @@ public class Routine implements SchemaObject {
         }
 
         if (statement != null) {
-            statement.resolve();
+            statement.resolve(session);
+
+            if (dataImpact == CONTAINS_SQL) {
+                checkNoSQLData(session.database, statement.getReferences());
+            }
         }
 
         if (methodName != null && javaMethod == null) {
@@ -684,14 +688,14 @@ public class Routine implements SchemaObject {
         return methods;
     }
 
-    public static Routine[] newRoutines(Method[] methods) {
+    public static Routine[] newRoutines(Session session, Method[] methods) {
 
         Routine[] routines = new Routine[methods.length];
 
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
 
-            routines[i] = newRoutine(method);
+            routines[i] = newRoutine(session, method);
         }
 
         return routines;
@@ -700,7 +704,7 @@ public class Routine implements SchemaObject {
     /**
      * Returns a new function Routine object based solely on a Java Method object.
      */
-    public static Routine newRoutine(Method method) {
+    public static Routine newRoutine(Session session, Method method) {
 
         Routine      routine   = new Routine(SchemaObject.FUNCTION);
         int          offset    = 0;
@@ -743,7 +747,7 @@ public class Routine implements SchemaObject {
         routine.javaMethodWithConnection = offset == 1;;
 
         routine.setReturnType(methodReturnType);
-        routine.resolve();
+        routine.resolve(session);
 
         return routine;
     }
@@ -752,13 +756,32 @@ public class Routine implements SchemaObject {
                                       String name) {
 
         Method[]  methods  = Routine.getMethods(name);
-        Routine[] routines = Routine.newRoutines(methods);
+        Routine[] routines = Routine.newRoutines(session, methods);
         HsqlName routineName = session.database.nameManager.newHsqlName(schema,
             name, true, SchemaObject.FUNCTION);
 
         for (int i = 0; i < routines.length; i++) {
             routines[i].setName(routineName);
             session.database.schemaManager.addSchemaObject(routines[i]);
+        }
+    }
+
+    static void checkNoSQLData(Database database, OrderedHashSet set) {
+
+        for (int i = 0; i < set.size(); i++) {
+            HsqlName name = (HsqlName) set.get(i);
+
+            if (name.type == SchemaObject.SPECIFIC_ROUTINE) {
+                Routine routine =
+                    (Routine) database.schemaManager.getSchemaObject(name);
+
+                if (routine.dataImpact == Routine.READS_SQL
+                        || routine.dataImpact == Routine.MODIFIES_SQL) {
+                    throw Error.error(ErrorCode.X_42604, Tokens.CONTAINS);
+                }
+            } else if (name.type == SchemaObject.TABLE) {
+                throw Error.error(ErrorCode.X_42604, Tokens.CONTAINS);
+            }
         }
     }
 }
