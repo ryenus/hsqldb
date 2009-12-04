@@ -777,10 +777,10 @@ public class Routine implements SchemaObject {
 
                 if (routine.dataImpact == Routine.READS_SQL
                         || routine.dataImpact == Routine.MODIFIES_SQL) {
-                    throw Error.error(ErrorCode.X_42604, Tokens.CONTAINS);
+                    throw Error.error(ErrorCode.X_42608, Tokens.CONTAINS);
                 }
             } else if (name.type == SchemaObject.TABLE) {
-                throw Error.error(ErrorCode.X_42604, Tokens.CONTAINS);
+                throw Error.error(ErrorCode.X_42608, Tokens.CONTAINS);
             }
         }
     }

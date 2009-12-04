@@ -671,7 +671,14 @@ public class SchemaManager {
         OrderedHashSet tableSet          = new OrderedHashSet();
         OrderedHashSet constraintNameSet = new OrderedHashSet();
         OrderedHashSet indexNameSet      = new OrderedHashSet();
-        OrderedHashSet childReferences   = table.getReferences();
+
+        // only columns with refs
+        OrderedHashSet childReferences = table.getReferences();
+        TriggerDef[]   triggers        = table.getTriggers();
+
+        for (int i = 0; i < triggers.length; i++) {
+            childReferences.add(triggers[i].getName());
+        }
 
         for (int i = 0; i < externalConstraints.size(); i++) {
             Constraint c = (Constraint) externalConstraints.get(i);
