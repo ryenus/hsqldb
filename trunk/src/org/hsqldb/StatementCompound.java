@@ -525,7 +525,7 @@ public class StatementCompound extends Statement {
         return result;
     }
 
-    public void resolve() {
+    public void resolve(Session session) {
 
         for (int i = 0; i < statements.length; i++) {
             if (statements[i].getType() == StatementTypes.LEAVE
@@ -547,8 +547,20 @@ public class StatementCompound extends Statement {
         }
 
         for (int i = 0; i < statements.length; i++) {
-            statements[i].resolve();
+            statements[i].resolve(session);
         }
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        for (int i = 0; i < statements.length; i++) {
+            set.addAll(statements[i].getReferences());
+        }
+
+        for (int i = 0; i < handlers.length; i++) {
+            set.addAll(handlers[i].getReferences());
+        }
+
+        references = set;
     }
 
     public void setRoot(Routine routine) {
@@ -571,17 +583,7 @@ public class StatementCompound extends Statement {
 
     public OrderedHashSet getReferences() {
 
-        OrderedHashSet set = new OrderedHashSet();
-
-        for (int i = 0; i < statements.length; i++) {
-            set.addAll(statements[i].getReferences());
-        }
-
-        for (int i = 0; i < handlers.length; i++) {
-            set.addAll(handlers[i].getReferences());
-        }
-
-        return set;
+        return references;
     }
 
     public void setAtomic(boolean atomic) {

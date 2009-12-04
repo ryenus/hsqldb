@@ -791,7 +791,7 @@ public class StatementSchema extends Statement {
                 Routine routine = (Routine) arguments[0];
 
                 try {
-                    routine.resolve();
+                    routine.resolve(session);
                     setOrCheckObjectName(session, null, routine.getName(),
                                          false);
                     session.database.schemaManager.addSchemaObject(routine);

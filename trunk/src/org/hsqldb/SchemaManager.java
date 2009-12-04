@@ -671,6 +671,7 @@ public class SchemaManager {
         OrderedHashSet tableSet          = new OrderedHashSet();
         OrderedHashSet constraintNameSet = new OrderedHashSet();
         OrderedHashSet indexNameSet      = new OrderedHashSet();
+        OrderedHashSet childReferences   = table.getReferences();
 
         for (int i = 0; i < externalConstraints.size(); i++) {
             Constraint c = (Constraint) externalConstraints.get(i);
@@ -698,6 +699,7 @@ public class SchemaManager {
         tw.setNewTablesInSchema(tableSet);
         tw.updateConstraints(tableSet, constraintNameSet);
         removeSchemaObjects(externalReferences);
+        removeSchemaObjects(childReferences);
         removeReferencedObject(table.getName());
         removeReferencingObject(table);
         schema.tableList.remove(dropIndex);
@@ -1731,11 +1733,7 @@ public class SchemaManager {
             }
 
             list.add(schema.getDefinitionSQL());
-
-            String[] t = schema.getSimpleFunctionsSQLArray(resolved,
-                unresolved);
-
-            list.addAll(t);
+            schema.addSimpleObjects(unresolved);
         }
 
         while (true) {
@@ -1809,6 +1807,7 @@ public class SchemaManager {
 
         while (schemas.hasNext()) {
             Schema schema = (Schema) schemas.next();
+
             list.addAll(schema.getSequenceRestartSQL());
         }
 

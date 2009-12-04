@@ -259,6 +259,8 @@ public class ExpressionColumn extends Expression {
 
             case OpTypes.PARAMETER :
             case OpTypes.VARIABLE :
+                break;
+
             case OpTypes.COLUMN :
                 set.add(column.getName());
 
@@ -846,7 +848,7 @@ public class ExpressionColumn extends Expression {
 
     void resetColumnReferences() {
         rangeVariable = null;
-        columnIndex = -1;
+        columnIndex   = -1;
     }
 
     public boolean isIndexable(RangeVariable range) {

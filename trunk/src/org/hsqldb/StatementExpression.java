@@ -133,21 +133,17 @@ public class StatementExpression extends StatementDMQL {
         }
     }
 
-    public void resolve() {
+    public void resolve(Session session) {
 
         boolean resolved = false;
 
         switch (type) {
 
-            case StatementTypes.RETURN :
-                if (root.isProcedure()) {
-                    throw Error.error(ErrorCode.X_42602);
-                }
-
-                resolved = true;
-                break;
-
             case StatementTypes.CONDITION :
+            case StatementTypes.RETURN :
+
+                references = new OrderedHashSet();
+                expression.collectObjectNames(references);
                 resolved = true;
                 break;
 

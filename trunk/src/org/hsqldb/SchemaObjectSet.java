@@ -392,11 +392,15 @@ public class SchemaObjectSet {
             OrderedHashSet set = new OrderedHashSet();
 
             while (it.hasNext()) {
-                RoutineSchema routine = (RoutineSchema) it.next();
+                RoutineSchema routineSchema = (RoutineSchema) it.next();
 
-                for (int i = 0; i < routine.routines.length; i++) {
-                    if (routine.routines[i].dataImpact != Routine.NO_SQL) {
-                        set.add(routine.routines[i]);
+                for (int i = 0; i < routineSchema.routines.length; i++) {
+                    Routine routine = routineSchema.routines[i];
+
+                    if (routine.dataImpact == Routine.NO_SQL
+                            || routine.dataImpact == Routine.CONTAINS_SQL) {}
+                    else {
+                        set.add(routine);
                     }
                 }
             }
@@ -480,6 +484,8 @@ public class SchemaObjectSet {
                     case SchemaObject.TYPE :
                     case SchemaObject.DOMAIN :
                     case SchemaObject.FUNCTION :
+                    case SchemaObject.PROCEDURE :
+                    case SchemaObject.SPECIFIC_ROUTINE :
                         if (!resolved.contains(name)) {
                             isResolved = false;
                         }
@@ -493,7 +499,15 @@ public class SchemaObjectSet {
                 continue;
             }
 
-            resolved.add(object.getName());
+            HsqlName name;
+
+            if (object.getType() == SchemaObject.FUNCTION) {
+                name = ((Routine) object).getSpecificName();
+            } else {
+                name = object.getName();
+            }
+
+            resolved.add(name);
 
             if (newResolved != null) {
                 newResolved.add(object);

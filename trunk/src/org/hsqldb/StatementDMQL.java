@@ -830,7 +830,7 @@ public abstract class StatementDMQL extends Statement {
                                      "]\n");
     }
 
-    public void resolve() {}
+    public void resolve(Session session) {}
 
     public RangeVariable[] getRangeVariables() {
         return rangeVariables;
