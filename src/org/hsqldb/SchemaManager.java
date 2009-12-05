@@ -453,10 +453,6 @@ public class SchemaManager {
                 set = schema.tableLookup;
                 break;
 
-            case SchemaObject.COLUMN :
-                set = schema.columnLookup;
-                break;
-
             case SchemaObject.CHARSET :
                 set = schema.charsetLookup;
                 break;
@@ -710,7 +706,6 @@ public class SchemaManager {
         removeReferencedObject(table.getName());
         removeReferencingObject(table);
         schema.tableList.remove(dropIndex);
-        schema.triggerLookup.removeParent(table.tableName);
         schema.indexLookup.removeParent(table.tableName);
         schema.constraintLookup.removeParent(table.tableName);
         removeTable(session, table);
@@ -940,9 +935,6 @@ public class SchemaManager {
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
                 return schema.sequenceLookup.getObject(name);
-
-            case SchemaObject.COLUMN :
-                return schema.columnLookup.getObject(name);
 
             case SchemaObject.CHARSET :
                 if (name.equals("SQL_IDENTIFIER")) {
@@ -1297,9 +1289,6 @@ public class SchemaManager {
             case SchemaObject.VIEW :
                 return (SchemaObject) schema.tableList.get(name.name);
 
-            case SchemaObject.COLUMN :
-                return schema.columnLookup.getObject(name.name);
-
             case SchemaObject.CHARSET :
                 return schema.charsetLookup.getObject(name.name);
 
@@ -1502,7 +1491,10 @@ public class SchemaManager {
             }
         }
 
-        set.add(object);
+        if (set != null) {
+            set.add(object);
+        }
+
         addReferences(object);
     }
 
@@ -1588,8 +1580,11 @@ public class SchemaManager {
                 break;
             }
             case SchemaObject.COLUMN : {
-                set    = schema.columnLookup;
-                object = set.getObject(name.name);
+                Table table = (Table) getSchemaObject(name.parent);
+
+                if (table != null) {
+                    object = table.getColumn(table.getColumnIndex(name.name));
+                }
 
                 break;
             }
@@ -1701,7 +1696,10 @@ public class SchemaManager {
             removeReferencingObject(object);
         }
 
-        set.remove(name.name);
+        if (set != null) {
+            set.remove(name.name);
+        }
+
         removeReferencedObject(name);
     }
 
