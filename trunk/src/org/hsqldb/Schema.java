@@ -48,7 +48,6 @@ public final class Schema implements SchemaObject {
     SchemaObjectSet constraintLookup;
     SchemaObjectSet indexLookup;
     SchemaObjectSet tableLookup;
-    SchemaObjectSet columnLookup;
     SchemaObjectSet sequenceLookup;
     SchemaObjectSet typeLookup;
     SchemaObjectSet charsetLookup;
@@ -69,7 +68,6 @@ public final class Schema implements SchemaObject {
         indexLookup      = new SchemaObjectSet(SchemaObject.INDEX);
         constraintLookup = new SchemaObjectSet(SchemaObject.CONSTRAINT);
         tableLookup      = new SchemaObjectSet(SchemaObject.TABLE);
-        columnLookup     = new SchemaObjectSet(SchemaObject.COLUMN);
         sequenceLookup   = new SchemaObjectSet(SchemaObject.SEQUENCE);
         typeLookup       = new SchemaObjectSet(SchemaObject.TYPE);
         charsetLookup    = new SchemaObjectSet(SchemaObject.CHARSET);
@@ -312,7 +310,6 @@ public final class Schema implements SchemaObject {
         functionLookup   = null;
         sequenceLookup   = null;
         tableLookup      = null;
-        columnLookup     = null;
         typeLookup       = null;
     }
 }
