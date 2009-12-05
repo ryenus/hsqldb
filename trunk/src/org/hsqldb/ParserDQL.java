@@ -1851,7 +1851,7 @@ public class ParserDQL extends ParserBase {
                 e = new ExpressionColumn(token.namePrePrefix,
                                          token.namePrefix);
 
-                recordExpressionForToken((ExpressionColumn) e);
+                getRecordedToken().setExpression(e);
                 read();
 
                 return e;
@@ -3874,6 +3874,7 @@ public class ParserDQL extends ParserBase {
         String  prefix         = token.namePrefix;
         String  prePrefix      = token.namePrePrefix;
         String  prePrePrefix   = token.namePrePrePrefix;
+        Token   recordedToken  = getRecordedToken();
 
         checkIsIdentifier();
 
@@ -3920,6 +3921,8 @@ public class ParserDQL extends ParserBase {
             checkValidCatalogName(prePrePrefix);
 
             Expression column = new ExpressionColumn(prePrefix, prefix, name);
+
+            recordedToken.setExpression(column);
 
             return column;
         }
@@ -3985,6 +3988,7 @@ public class ParserDQL extends ParserBase {
         list.toArray(arguments);
         function.setArguments(arguments);
         compileContext.addRoutine(function);
+        recordedToken.setExpression(function);
 
         return function;
     }
@@ -4248,11 +4252,13 @@ public class ParserDQL extends ParserBase {
         NumberSequence sequence =
             database.schemaManager.getSequence(token.tokenString, schema,
                                                true);
+        Token recordedToken = getRecordedToken();
 
         read();
 
         Expression e = new ExpressionColumn(sequence);
 
+        recordedToken.setExpression(e);
         compileContext.addSequence(sequence);
 
         return e;

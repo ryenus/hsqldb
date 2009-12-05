@@ -58,6 +58,7 @@ public class ParserBase {
     //
     protected boolean       isRecording;
     protected HsqlArrayList recordedStatement;
+    private final Token     dummyToken = new Token();
 
     //
     protected boolean isCheckOrTriggerCondition;
@@ -190,13 +191,12 @@ public class ParserBase {
         isRecording = true;
     }
 
-    void recordExpressionForToken(ExpressionColumn expression) {
+    Token getRecordedToken() {
 
         if (isRecording) {
-            Token recordToken =
-                (Token) recordedStatement.get(recordedStatement.size() - 1);
-
-            recordToken.columnExpression = expression;
+            return (Token) recordedStatement.get(recordedStatement.size() - 1);
+        } else {
+            return dummyToken;
         }
     }
 

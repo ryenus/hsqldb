@@ -349,6 +349,11 @@ public class ParserRoutine extends ParserDML {
 
             Statement statement = compileSQLProcedureStatementOrNull(routine,
                 null);
+
+            if (statement == null) {
+                throw unexpectedToken();
+            }
+
             Token[] tokenList = getRecordedStatement();
             String  sql       = Token.getSQL(tokenList);
 
@@ -876,6 +881,11 @@ public class ParserRoutine extends ParserDML {
 
             // data
             case Tokens.SELECT : {
+                if (routine.dataImpact == Routine.CONTAINS_SQL) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                }
+
                 cs = compileSelectSingleRowStatement(rangeVariables);
 
                 break;
@@ -883,19 +893,39 @@ public class ParserRoutine extends ParserDML {
 
             // data change
             case Tokens.INSERT :
+                if (routine.dataImpact != Routine.MODIFIES_SQL) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                }
+
                 cs = compileInsertStatement(rangeVariables);
                 break;
 
             case Tokens.UPDATE :
+                if (routine.dataImpact != Routine.MODIFIES_SQL) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                }
+
                 cs = compileUpdateStatement(rangeVariables);
                 break;
 
             case Tokens.DELETE :
             case Tokens.TRUNCATE :
+                if (routine.dataImpact != Routine.MODIFIES_SQL) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                }
+
                 cs = compileDeleteStatement(rangeVariables);
                 break;
 
             case Tokens.MERGE :
+                if (routine.dataImpact != Routine.MODIFIES_SQL) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                }
+
                 cs = compileMergeStatement(rangeVariables);
                 break;
 

@@ -58,8 +58,8 @@ public class Token {
     boolean isMalformed;
 
     //
-    int              position;
-    ExpressionColumn columnExpression;
+    int    position;
+    Object expression;
 
     void reset() {
 
@@ -73,6 +73,7 @@ public class Token {
         charsetSchema            = null;
         charsetName              = null;
         fullString               = null;
+        expression               = null;
         lobMultiplierType        = Tokens.X_UNKNOWN_TOKEN;
         isDelimiter              = false;
         isDelimitedIdentifier    = false;
@@ -119,6 +120,10 @@ public class Token {
         return fullString;
     }
 
+    public void setExpression(Expression expression) {
+        this.expression = expression;
+    }
+
     String getSQL() {
 
         if (namePrefix == null && isUndelimitedIdentifier) {
@@ -132,13 +137,14 @@ public class Token {
         StringBuffer sb = new StringBuffer();
 
         if (tokenType == Tokens.ASTERISK) {
-            if (columnExpression != null
-                    && columnExpression.opType == OpTypes.MULTICOLUMN
-                    && columnExpression.nodes.length > 0) {
+            Expression expression = (Expression) this.expression;
+
+            if (expression != null && expression.opType == OpTypes.MULTICOLUMN
+                    && expression.nodes.length > 0) {
                 sb.append(' ');
 
-                for (int i = 0; i < columnExpression.nodes.length; i++) {
-                    Expression   e = columnExpression.nodes[i];
+                for (int i = 0; i < expression.nodes.length; i++) {
+                    Expression   e = expression.nodes[i];
                     ColumnSchema c = e.getColumn();
                     String       name;
 

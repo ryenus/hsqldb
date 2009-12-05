@@ -552,6 +552,10 @@ public class StatementCompound extends Statement {
 
         OrderedHashSet set = new OrderedHashSet();
 
+        for (int i = 0; i < variables.length; i++) {
+            set.addAll(variables[i].getReferences());
+        }
+
         for (int i = 0; i < statements.length; i++) {
             set.addAll(statements[i].getReferences());
         }
