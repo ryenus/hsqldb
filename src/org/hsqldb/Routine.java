@@ -107,6 +107,9 @@ public class Routine implements SchemaObject {
     int variableCount;
 
     //
+    OrderedHashSet references;
+
+    //
     public Routine(int type) {
         routineType = type;
         returnType  = Type.SQL_ALL_TYPES;
@@ -133,12 +136,7 @@ public class Routine implements SchemaObject {
     }
 
     public OrderedHashSet getReferences() {
-
-        if (statement == null) {
-            return new OrderedHashSet();
-        }
-
-        return statement.getReferences();
+        return references;
     }
 
     public OrderedHashSet getComponents() {
@@ -459,6 +457,19 @@ public class Routine implements SchemaObject {
                 isLibraryRoutine = true;
             }
         }
+
+        OrderedHashSet set = new OrderedHashSet();
+
+        for (int i = 0; i < parameterTypes.length; i++) {
+            ColumnSchema param = (ColumnSchema) parameterList.get(i);
+            set.addAll(param.getReferences());
+        }
+
+        if (statement != null) {
+            set.addAll(statement.getReferences());
+        }
+
+        references = set;
     }
 
     public boolean isProcedure() {
@@ -775,12 +786,16 @@ public class Routine implements SchemaObject {
                 Routine routine =
                     (Routine) database.schemaManager.getSchemaObject(name);
 
-                if (routine.dataImpact == Routine.READS_SQL
-                        || routine.dataImpact == Routine.MODIFIES_SQL) {
-                    throw Error.error(ErrorCode.X_42608, Tokens.CONTAINS);
+                if (routine.dataImpact == Routine.READS_SQL) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_READS + " " + Tokens.T_SQL);
+                } else if (routine.dataImpact == Routine.MODIFIES_SQL) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                } else if (name.type == SchemaObject.TABLE) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_READS + " " + Tokens.T_SQL);
                 }
-            } else if (name.type == SchemaObject.TABLE) {
-                throw Error.error(ErrorCode.X_42608, Tokens.CONTAINS);
             }
         }
     }

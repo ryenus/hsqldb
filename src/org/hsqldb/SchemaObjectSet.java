@@ -151,6 +151,10 @@ public class SchemaObjectSet {
         }
     }
 
+    boolean isEmpty() {
+        return map.isEmpty();
+    }
+
     void checkExists(String name) {
 
         if (!map.containsKey(name)) {

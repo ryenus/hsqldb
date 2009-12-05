@@ -604,7 +604,7 @@ public interface ErrorCode {
     int X_42605 = 5605;                                   // routine signature already exists
     int X_42606 = 5606;                                   // routine variable name already exists
     int X_42607 = 5607;                                   // invalid SQLSTATE value
-    int X_42608 = 5608;                                   // wrong or missing data impact clause in declration
+    int X_42608 = 5608;                                   // wrong or missing data impact clause in declaration
 
     // with check option violation - 200x
     int X_44000 = 5700;                                   // with check option violation

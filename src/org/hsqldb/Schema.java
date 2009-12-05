@@ -237,15 +237,15 @@ public final class Schema implements SchemaObject {
         }
 
         unresolved.addAll(typeLookup.map.values());
-
         unresolved.addAll(charsetLookup.map.values());
-
         unresolved.addAll(collationLookup.map.values());
-
     }
 
     boolean isEmpty() {
-        return sequenceList.isEmpty() && tableList.isEmpty();
+
+        return sequenceLookup.isEmpty() && tableLookup.isEmpty()
+               && typeLookup.isEmpty() && charsetLookup.isEmpty()
+               && collationLookup.isEmpty() && specificRoutineLookup.isEmpty();
     }
 
     Iterator schemaObjectIterator(int type) {
