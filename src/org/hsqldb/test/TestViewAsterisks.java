@@ -318,7 +318,7 @@ public class TestViewAsterisks extends TestBase {
         // SELECT *
         checkViewTranslationAndContent(
             "S1", null, "SELECT * FROM ABC",
-            "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC",
+            "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM PUBLIC.ABC",
             "ABC");
 
         // adding a column to "ABC" should succeed, and still leave the view with the columns
@@ -344,42 +344,42 @@ public class TestViewAsterisks extends TestBase {
         // same as S1, but this time add a LIMIT clause to the statement
         checkViewTranslationAndContent(
             "S2", null, "SELECT LIMIT 0 2 * FROM ABC ORDER BY ID",
-            "SELECT LIMIT 0 2 PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC ORDER BY ID",
+            "SELECT LIMIT 0 2 PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM PUBLIC.ABC ORDER BY ID",
             "ABC");
 
         // ................................................................
         // same as S1, but this time add a TOP clause to the statement
         checkViewTranslationAndContent(
             "S3", null, "SELECT TOP 2 * FROM ABC ORDER BY ID",
-            "SELECT TOP 2 PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC ORDER BY ID",
+            "SELECT TOP 2 PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM PUBLIC.ABC ORDER BY ID",
             "ABC");
 
         // ................................................................
         // same as S1, but this time add a DISTINCT clause to the statement
         checkViewTranslationAndContent(
             "S4", null, "SELECT DISTINCT * FROM ABC",
-            "SELECT DISTINCT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC",
+            "SELECT DISTINCT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM PUBLIC.ABC",
             "ABC");
 
         // ................................................................
         // same as S1, but this time qualifying the asterisk
         checkViewTranslationAndContent(
             "S5", null, "SELECT ABC.* FROM ABC",
-            "SELECT  PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C  FROM ABC",
+            "SELECT  PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C  FROM PUBLIC.ABC",
             "ABC");
 
         // ................................................................
         // same as S5, but this time also giving the table an alias
         checkViewTranslationAndContent(
             "S6", null, "SELECT \"A\".* FROM ABC AS A",
-            "SELECT A.ID,A.A,A.B,A.C FROM ABC AS A",
+            "SELECT A.ID,A.A,A.B,A.C FROM PUBLIC.ABC AS A",
             "ABC");
 
         // ................................................................
         // same as S1, but bracket the SELECT definition
         checkViewTranslationAndContent(
             "S7", null, "( SELECT * FROM ABC )",
-            "(SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC)",
+            "(SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM PUBLIC.ABC)",
             "ABC");
     }
 
@@ -391,7 +391,7 @@ public class TestViewAsterisks extends TestBase {
         // ................................................................
         checkViewTranslationAndContent(
             "C1", null, "SELECT *, A AS \"a2\" FROM ABC",
-            "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C ,A AS\"a2\" FROM ABC",
+            "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C ,A AS\"a2\" FROM PUBLIC.ABC",
             new Object[][] {
             new Object[] {
                 new Integer(1), "a", "b", "c", "a"
@@ -403,7 +403,7 @@ public class TestViewAsterisks extends TestBase {
         // ................................................................
         checkViewTranslationAndContent(
             "C2", null, "SELECT B AS \"b2\", * FROM ABC",
-            "SELECT B AS\"b2\" , PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC",
+            "SELECT B AS\"b2\" , PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM PUBLIC.ABC",
             new Object[][] {
             new Object[] {
                 "b", new Integer(1), "a", "b", "c"
@@ -421,7 +421,7 @@ public class TestViewAsterisks extends TestBase {
         // ................................................................
         checkViewTranslationAndContent(
             "M1", null, "SELECT * FROM TABLE_A, TABLE_B",
-            "SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A,PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM TABLE_A,TABLE_B",
+            "SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A,PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM PUBLIC.TABLE_A,PUBLIC.TABLE_B",
             new Object[][] {
             new Object[] {
                 new Integer(1), "first A", new Integer(1), "first B"
@@ -437,7 +437,7 @@ public class TestViewAsterisks extends TestBase {
         // ................................................................
         checkViewTranslationAndContent(
             "M2", null, "SELECT TABLE_B.*, TABLE_A.* FROM TABLE_A, TABLE_B",
-            "SELECT  PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B , PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A  FROM TABLE_A,TABLE_B",
+            "SELECT  PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B , PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A  FROM PUBLIC.TABLE_A,PUBLIC.TABLE_B",
             new Object[][] {
             new Object[] {
                 new Integer(1), "first B", new Integer(1), "first A"
@@ -453,7 +453,7 @@ public class TestViewAsterisks extends TestBase {
         // ................................................................
         checkViewTranslationAndContent(
             "M3", null, "SELECT \"TABLE_A\".* FROM TABLE_A, TABLE_B",
-            "SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM TABLE_A,TABLE_B",
+            "SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM PUBLIC.TABLE_A,PUBLIC.TABLE_B",
             new Object[][] {
             new Object[] {
                 new Integer(1), "first A"
@@ -475,27 +475,27 @@ public class TestViewAsterisks extends TestBase {
         // ................................................................
         checkViewTranslationAndContent(
             "Q1", null, "SELECT * FROM ( SELECT * FROM ABC )",
-            "SELECT ID,A,B,C FROM(SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC)",
+            "SELECT ID,A,B,C FROM(SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM PUBLIC.ABC)",
             null);
 
         // ................................................................
         checkViewTranslationAndContent(
             "Q2", null,
             "SELECT * FROM ( SELECT * FROM TABLE_A ), ( SELECT * FROM TABLE_B )",
-            "SELECT ID_A,NAME_A,ID_B,NAME_B FROM(SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM TABLE_A),(SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM TABLE_B)",
+            "SELECT ID_A,NAME_A,ID_B,NAME_B FROM(SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM PUBLIC.TABLE_A),(SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM PUBLIC.TABLE_B)",
             null);
 
         // ................................................................
         checkViewTranslationAndContent(
             "Q3", null, "SELECT A.* FROM ( SELECT * FROM TABLE_A ) AS A",
-            "SELECT  A.ID_A,A.NAME_A  FROM(SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM TABLE_A)AS A",
+            "SELECT  A.ID_A,A.NAME_A  FROM(SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM PUBLIC.TABLE_A)AS A",
             null);
 
         // ................................................................
         checkViewTranslationAndContent(
             "Q4", null,
             "SELECT A.*, B.* FROM ( SELECT * FROM TABLE_A ) AS A, ( SELECT * FROM TABLE_B ) AS B",
-            "SELECT  A.ID_A,A.NAME_A , B.ID_B,B.NAME_B  FROM(SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM TABLE_A)AS A,(SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM TABLE_B)AS B",
+            "SELECT  A.ID_A,A.NAME_A , B.ID_B,B.NAME_B  FROM(SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM PUBLIC.TABLE_A)AS A,(SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM PUBLIC.TABLE_B)AS B",
             null);
     }
 
@@ -512,7 +512,7 @@ public class TestViewAsterisks extends TestBase {
         // not that it should make any difference to S1, but who knows
         checkViewTranslationAndContent("L1", new String[] {
             "C1", "C2", "C3", "C4"
-        }, "SELECT * FROM ABC", "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM ABC",
+        }, "SELECT * FROM ABC", "SELECT PUBLIC.ABC.ID,PUBLIC.ABC.A,PUBLIC.ABC.B,PUBLIC.ABC.C FROM PUBLIC.ABC",
            "ABC");
     }
 
@@ -525,7 +525,7 @@ public class TestViewAsterisks extends TestBase {
         // not that it should make any difference whether we SELECT FROM a table or view, but who knows
         checkViewTranslationAndContent(
             "V1", null, "SELECT * FROM S1",
-            "SELECT PUBLIC.S1.ID,PUBLIC.S1.A,PUBLIC.S1.B,PUBLIC.S1.C FROM S1", "L1");
+            "SELECT PUBLIC.S1.ID,PUBLIC.S1.A,PUBLIC.S1.B,PUBLIC.S1.C FROM PUBLIC.S1", "L1");
     }
 
     /**
@@ -535,7 +535,7 @@ public class TestViewAsterisks extends TestBase {
 
         checkViewTranslationAndContent(
             "U1", null, "SELECT * FROM TABLE_A UNION SELECT * FROM TABLE_B",
-            "SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM TABLE_A UNION SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM TABLE_B",
+            "SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM PUBLIC.TABLE_A UNION SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM PUBLIC.TABLE_B",
             new Object[][] {
             new Object[] {
                 new Integer(1), "first A"
@@ -550,7 +550,7 @@ public class TestViewAsterisks extends TestBase {
         checkViewTranslationAndContent(
             "U2", null,
             "SELECT * FROM ( SELECT * FROM TABLE_A UNION SELECT * FROM TABLE_B )",
-            "SELECT ID_A,NAME_A FROM(SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM TABLE_A UNION SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM TABLE_B)",
+            "SELECT ID_A,NAME_A FROM(SELECT PUBLIC.TABLE_A.ID_A,PUBLIC.TABLE_A.NAME_A FROM PUBLIC.TABLE_A UNION SELECT PUBLIC.TABLE_B.ID_B,PUBLIC.TABLE_B.NAME_B FROM PUBLIC.TABLE_B)",
             new Object[][] {
             new Object[] {
                 new Integer(1), "first A"

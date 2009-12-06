@@ -125,6 +125,8 @@ public class ParserDQL extends ParserBase {
                     schemaName, false);
 
                 if (type != null) {
+                    getRecordedToken().setExpression(type);
+                    compileContext.addSchemaObject(type);
                     read();
 
                     return type;
@@ -3922,8 +3924,6 @@ public class ParserDQL extends ParserBase {
 
             Expression column = new ExpressionColumn(prePrefix, prefix, name);
 
-            recordedToken.setExpression(column);
-
             return column;
         }
 
@@ -3988,7 +3988,7 @@ public class ParserDQL extends ParserBase {
         list.toArray(arguments);
         function.setArguments(arguments);
         compileContext.addRoutine(function);
-        recordedToken.setExpression(function);
+        recordedToken.setExpression(routineSchema);
 
         return function;
     }
@@ -4258,7 +4258,7 @@ public class ParserDQL extends ParserBase {
 
         Expression e = new ExpressionColumn(sequence);
 
-        recordedToken.setExpression(e);
+        recordedToken.setExpression(sequence);
         compileContext.addSequence(sequence);
 
         return e;
@@ -4434,6 +4434,7 @@ public class ParserDQL extends ParserBase {
         Table table = database.schemaManager.getTable(session,
             token.tokenString, token.namePrefix);
 
+        getRecordedToken().setExpression(table);
         read();
 
         return table;
@@ -4688,6 +4689,7 @@ public class ParserDQL extends ParserBase {
         private HsqlArrayList usedSequences  = new HsqlArrayList(true);
         private HsqlArrayList usedRoutines   = new HsqlArrayList(true);
         private HsqlArrayList rangeVariables = new HsqlArrayList(true);
+        private HsqlArrayList usedObjects    = new HsqlArrayList(true);
         Type                  currentDomain;
         boolean               contextuallyTypedExpression;
         final Session         session;
@@ -4714,6 +4716,7 @@ public class ParserDQL extends ParserBase {
             parameters.clear();
             usedSequences.clear();
             usedRoutines.clear();
+            usedObjects.clear();
 
             //
             currentDomain               = null;
@@ -4780,8 +4783,12 @@ public class ParserDQL extends ParserBase {
             return array;
         }
 
-        private void addSequence(NumberSequence sequence) {
-            usedSequences.add(sequence);
+        private void addSchemaObject(SchemaObject object) {
+            usedObjects.add(object);
+        }
+
+        private void addSequence(SchemaObject object) {
+            usedSequences.add(object);
         }
 
         void addRoutine(FunctionSQLInvoked function) {
@@ -4861,10 +4868,15 @@ public class ParserDQL extends ParserBase {
             OrderedHashSet set = new OrderedHashSet();
 
             for (int i = 0; i < usedSequences.size(); i++) {
-                NumberSequence sequence =
-                    (NumberSequence) usedSequences.get(i);
+                SchemaObject object = (SchemaObject) usedSequences.get(i);
 
-                set.add(sequence.getName());
+                set.add(object.getName());
+            }
+
+            for (int i = 0; i < usedObjects.size(); i++) {
+                SchemaObject object = (SchemaObject) usedObjects.get(i);
+
+                set.add(object.getName());
             }
 
             for (int i = 0; i < rangeVariables.size(); i++) {

@@ -632,7 +632,8 @@ public class SchemaManager {
             table.getDependentExternalConstraints();
         OrderedHashSet externalReferences = new OrderedHashSet();
 
-        getCascadingReferences(table.getName(), externalReferences);
+        getCascadingReferencingObjectNames(table.getName(),
+                                           externalReferences);
 
         if (!cascade) {
             for (int i = 0; i < externalConstraints.size(); i++) {
@@ -769,7 +770,7 @@ public class SchemaManager {
         for (int i = 0; i < tableSet.size(); i++) {
             Table table = (Table) tableSet.get(i);
 
-            set.addAll(getReferencingObjects(table.getName()));
+            set.addAll(getReferencingObjectNames(table.getName()));
         }
 
         Session session = database.sessionManager.getSysSession();
@@ -782,6 +783,7 @@ public class SchemaManager {
                 case SchemaObject.VIEW :
                 case SchemaObject.CONSTRAINT :
                 case SchemaObject.ASSERTION :
+                case SchemaObject.SPECIFIC_ROUTINE :
                     SchemaObject object = getSchemaObject(name);
 
                     object.compile(session, null);
@@ -796,7 +798,7 @@ public class SchemaManager {
      */
     void recompileDependentObjects(Table table) {
 
-        OrderedHashSet set     = getReferencingObjects(table.getName());
+        OrderedHashSet set     = getReferencingObjectNames(table.getName());
         Session        session = database.sessionManager.getSysSession();
 
         for (int i = 0; i < set.size(); i++) {
@@ -807,6 +809,7 @@ public class SchemaManager {
                 case SchemaObject.VIEW :
                 case SchemaObject.CONSTRAINT :
                 case SchemaObject.ASSERTION :
+                case SchemaObject.SPECIFIC_ROUTINE :
                     SchemaObject object = getSchemaObject(name);
 
                     object.compile(session, null);
@@ -1164,7 +1167,7 @@ public class SchemaManager {
         }
     }
 
-    OrderedHashSet getReferencingObjects(HsqlName object) {
+    OrderedHashSet getReferencingObjectNames(HsqlName object) {
 
         OrderedHashSet set = new OrderedHashSet();
         Iterator       it  = referenceMap.get(object);
@@ -1178,7 +1181,7 @@ public class SchemaManager {
         return set;
     }
 
-    OrderedHashSet getReferencingObjects(HsqlName table, HsqlName column) {
+    OrderedHashSet getReferencingObjectNames(HsqlName table, HsqlName column) {
 
         OrderedHashSet set = new OrderedHashSet();
         Iterator       it  = referenceMap.get(table);
@@ -1201,7 +1204,8 @@ public class SchemaManager {
     }
 
     //
-    void getCascadingReferences(HsqlName object, OrderedHashSet set) {
+    void getCascadingReferencingObjectNames(HsqlName object,
+            OrderedHashSet set) {
 
         OrderedHashSet newSet = new OrderedHashSet();
         Iterator       it     = referenceMap.get(object);
@@ -1218,7 +1222,7 @@ public class SchemaManager {
         for (int i = 0; i < newSet.size(); i++) {
             HsqlName name = (HsqlName) newSet.get(i);
 
-            getCascadingReferences(name, set);
+            getCascadingReferencingObjectNames(name, set);
         }
     }
 
@@ -1234,7 +1238,7 @@ public class SchemaManager {
                 continue;
             }
 
-            getCascadingReferences(name, set);
+            getCascadingReferencingObjectNames(name, set);
         }
 
         for (int i = 0; i < set.size(); i++) {
@@ -1353,7 +1357,7 @@ public class SchemaManager {
 
     void checkColumnIsReferenced(HsqlName tableName, HsqlName name) {
 
-        OrderedHashSet set = getReferencingObjects(tableName, name);
+        OrderedHashSet set = getReferencingObjectNames(tableName, name);
 
         if (!set.isEmpty()) {
             HsqlName objectName = (HsqlName) set.get(0);
@@ -1365,7 +1369,7 @@ public class SchemaManager {
 
     void checkObjectIsReferenced(HsqlName name) {
 
-        OrderedHashSet set     = getReferencingObjects(name);
+        OrderedHashSet set     = getReferencingObjectNames(name);
         HsqlName       refName = null;
 
         for (int i = 0; i < set.size(); i++) {
@@ -1512,8 +1516,8 @@ public class SchemaManager {
                     Routine[] specifics = routine.getSpecificRoutines();
 
                     for (int i = 0; i < specifics.length; i++) {
-                        getCascadingReferences(specifics[i].getSpecificName(),
-                                               objectSet);
+                        getCascadingReferencingObjectNames(
+                            specifics[i].getSpecificName(), objectSet);
                     }
                 }
             }
@@ -1526,10 +1530,28 @@ public class SchemaManager {
             case SchemaObject.CHARSET :
             case SchemaObject.COLLATION :
             case SchemaObject.SPECIFIC_ROUTINE :
-                getCascadingReferences(name, objectSet);
+                getCascadingReferencingObjectNames(name, objectSet);
                 break;
 
             case SchemaObject.DOMAIN :
+                OrderedHashSet set = getReferencingObjectNames(name);
+                Iterator       it  = set.iterator();
+
+                while (it.hasNext()) {
+                    HsqlName ref = (HsqlName) it.next();
+
+                    if (ref.type == SchemaObject.COLUMN) {
+                        it.remove();
+                    }
+                }
+
+                if (!set.isEmpty()) {
+                    HsqlName objectName = (HsqlName) set.get(0);
+
+                    throw Error.error(
+                        ErrorCode.X_42502,
+                        objectName.getSchemaQualifiedStatementName());
+                }
                 break;
         }
 

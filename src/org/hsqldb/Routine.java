@@ -143,7 +143,22 @@ public class Routine implements SchemaObject {
         return null;
     }
 
-    public void compile(Session session, SchemaObject parentObject) {}
+    public void compile(Session session, SchemaObject parentObject) {
+
+        ParserRoutine p = new ParserRoutine(session,
+                                            new Scanner(statement.getSQL()));
+
+        p.read();
+        p.startRecording();
+
+        Statement statement = p.compileSQLProcedureStatementOrNull(this, null);
+        Token[]   tokenisedStatement = p.getRecordedStatement();
+        String    sql                = Token.getSQL(tokenisedStatement);
+
+        statement.setSQL(sql);
+        setProcedure(statement);
+        setReferences();
+    }
 
     public String getSQL() {
 
@@ -458,10 +473,16 @@ public class Routine implements SchemaObject {
             }
         }
 
+        setReferences();
+    }
+
+    private void setReferences() {
+
         OrderedHashSet set = new OrderedHashSet();
 
         for (int i = 0; i < parameterTypes.length; i++) {
             ColumnSchema param = (ColumnSchema) parameterList.get(i);
+
             set.addAll(param.getReferences());
         }
 
