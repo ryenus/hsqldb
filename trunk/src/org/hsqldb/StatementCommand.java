@@ -234,6 +234,11 @@ public class StatementCommand extends Statement {
                             null);
                     }
 
+                    if (session.database.logger.isStoredFileAccess) {
+                        return Result.newErrorResult(
+                            Error.error(ErrorCode.DATABASE_IS_NON_FILE), null);
+                    }
+
                     session.database.logger.backup(path,
                                                    session.database.getPath(),
                                                    script, blocking,
@@ -498,6 +503,7 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
+
                     session.database.defaultIsolationLevel = mode;
 
                     return Result.updateZeroResult;
