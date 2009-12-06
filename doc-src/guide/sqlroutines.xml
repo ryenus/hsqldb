@@ -454,6 +454,14 @@ CALL the_new_id;
       <para>There are two types of CASE ... WHEN statement and the IF ... THEN
       statement.</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>CASE WHEN in routines</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CASE WHEN</emphasis></simpara>
+
+      <simpara><emphasis>case when statement</emphasis></simpara>
+
       <para>The simple case statement uses a <literal>&lt;case
       operand&gt;</literal> as the predicand of one or more predicates. For
       the right part of each predicate, it specifies one or more SQL
@@ -472,11 +480,16 @@ CALL the_new_id;
       <simpara><literal>&lt;case statement else clause&gt; ::= ELSE &lt;SQL
       statement list&gt;</literal></simpara>
 
-      <para>A skeletal example is given below:</para>
+      <para>A skeletal example is given below. The variable var_one is first
+      tested for equality with 22 or 23 and if the test evaluates to TRUE,
+      then the INSERT statement is performed and the statement ends. If the
+      tests does not evaluate to TRUE, the next condition, with is an IN
+      predicate is performed with var_one and so on. The statement after the
+      ELSE clause is performed if none the previous tests returns TRUE.</para>
 
       <programlisting>CASE var_one
    WHEN 22, 23 THEN INSERT INTO t_one ...;
-   WHEN IN (2, 4, 5) DELETE FROM t_one WHERE ...;
+   WHEN IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
    ELSE UPDATE t_one ...;
    END CASE</programlisting>
 
@@ -493,6 +506,23 @@ CALL the_new_id;
       <simpara><literal>&lt;searched case statement when clause&gt; ::= WHEN
       &lt;search condition&gt; THEN &lt;SQL statement
       list&gt;</literal></simpara>
+
+      <para>The example below is partly a rewrite of the previous example, but
+      a new condition is added:</para>
+
+      <programlisting>CASE var_one = 22 OR var_one = 23 THEN INSERT INTO t_one ...;
+   WHEN var_one IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
+   WHEN var_two IS NULL THEN UPDATE t_one ...;
+   ELSE UPDATE t_one ...;
+   END CASE</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>IF STATEMENT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">IF</emphasis></simpara>
+
+      <simpara><emphasis>if statement</emphasis></simpara>
 
       <para>The if statement is very similar to the searched case statement.
       The difference is that no exception is raised if there is no ELSE clause
@@ -878,12 +908,12 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     <para>Return Value and Table Functions</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>RETURN</primary>
+      <primary>RETURNS</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">RETURN</emphasis></simpara>
+    <simpara><emphasis role="bold">RETURNS</emphasis></simpara>
 
-    <simpara><emphasis>return clause</emphasis></simpara>
+    <simpara><emphasis>returns clause</emphasis></simpara>
 
     <para>The <literal>&lt;returns clause&gt;</literal> specifies the type of
     the return value of a function. For all SQL/PSM functions and ordinary
