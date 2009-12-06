@@ -1422,30 +1422,6 @@
     statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>SET IGNORECASE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET IGNORECASE</emphasis></simpara>
-
-    <simpara><emphasis>set ignore case statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set ignore case statement&gt; ::= SET IGNORECASE {
-    TRUE | FALSE }</literal></simpara>
-
-    <simpara>Sets the type used for new VARCHAR table columns. By default,
-    character columns in new databases are case sensitive. If <literal>SET
-    IGNORECASE TRUE</literal> is used, all VARCHAR columns in new tables are
-    set to <literal>VARCHAR_IGNORECASE</literal>. It is possible to specify
-    the <literal>VARCHAR_IGNORECASE</literal> type for the definition of
-    individual columns. So it is possible to have some columns case sensitive
-    and some not, even in the same table. This statement must be switched
-    before creating tables. Existing tables and their data are not
-    affected.</simpara>
-
-    <simpara>Only a user with the DBA role can execute this statement. This
-    setting is not saved with the database.</simpara>
-
-    <indexterm significance="preferred" type="sql">
       <primary>*</primary>
     </indexterm>
 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xml:id="sessions-chapt"
          xmlns="http://docbook.org/ns/docbook"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns6="http://www.w3.org/1999/xlink"
          xmlns:ns5="http://www.w3.org/2000/svg"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
@@ -150,20 +151,24 @@
     sessions.</para>
 
     <para>HyperSQL 2.0 supports three concurrency control models,
-    two-phase-locking (2PL), multiversion concurrency control (MVCC) and a
-    hybrid model, which is 2PL plus multiversion rows. Within each model, it
-    supports some of 4 levels of transaction isolation: READ UNCOMMITTED, READ
-    COMMITTED, REPEATABLE READ and SERIALIZABLE. The isolation level is a
-    property of each SQL session, so different sessions can have different
-    isolation levels. The concurrency control model is a strategy that governs
-    all the sessions and is set for the database, as opposed for individual
-    sessions. In the new implementation, all isolation levels avoid the "dirty
-    read" phenomenon and do not read uncommitted changes made to rows by other
-    transactions.</para>
+    two-phase-locking (2PL), which is the default, multiversion concurrency
+    control (MVCC) and a hybrid model, which is 2PL plus multiversion rows.
+    Within each model, it supports some of 4 levels of transaction isolation:
+    READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ and SERIALIZABLE. The
+    isolation level is a property of each SQL session, so different sessions
+    can have different isolation levels. The concurrency control model is a
+    strategy that governs all the sessions and is set for the database, as
+    opposed for individual sessions. In the new implementation, all isolation
+    levels avoid the "dirty read" phenomenon and do not read uncommitted
+    changes made to rows by other transactions.</para>
 
     <para>HyperSQL is fully multithreaded in all transaction models. Sessions
     continue to work simultaneously and can fully utilise multi-core
     processors.</para>
+
+    <para>To change the concurrency control model, the <literal>SET DATABASE
+    TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</literal> can be used by a
+    user with the DBA role.</para>
 
     <section>
       <title>Two Phased Locking</title>
@@ -529,7 +534,9 @@
     all the listed locks, then returns. The SQL statements following this
     statements use the locks already obtained (and obtain new locks if
     necessary) and can proceed without waiting. All the locks are released
-    when a COMMIT or ROLLBACK statement is issued.</simpara>
+    when a COMMIT or ROLLBACK statement is issued. Currently, this command
+    does not have any effect when the database transaction control model is
+    MVCC.</simpara>
 
     <example>
       <title>Locking Tables</title>
@@ -582,7 +589,8 @@
     <simpara><literal>&lt;commit statement&gt; ::= COMMIT [ WORK ] [ AND [ NO
     ] CHAIN ]</literal></simpara>
 
-    <simpara>Terminate the current SQL-transaction with commit.</simpara>
+    <simpara>Terminate the current SQL-transaction with commit. This make all
+    the changes to the database permanent.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>ROLLBACK</primary>
@@ -613,10 +621,21 @@
     SAVEPOINT &lt;savepoint specifier&gt;</literal></simpara>
 
     <simpara>Rollback part of the current SQL transaction and continue the
-    transaction. The statement rolls back all the action performed after the
+    transaction. The statement rolls back all the actions performed after the
     specified SAVEPOINT was created. The same effect can be achieved with the
     <literal>rollback( Savepoint savepoint)</literal> method of the JDBC
     <classname>Connection</classname> object.</simpara>
+
+    <example>
+      <title>Rollback</title>
+
+      <screen>    -- perform some inserts, deletes, etc.
+    SAVEPOINT A
+    -- perform some inserts, deletes, selects etc.
+    ROLLBACK WORK TO SAVEPOINT A
+    -- all the work after the declaration of SAVEPOINT A is rolled back
+</screen>
+    </example>
 
     <!-- From Foundation chapt. 18 -->
 
@@ -696,6 +715,14 @@
     user. The current authorisation can be accessed with the CURRENT_USER and
     SESSION_USER functions.</simpara>
 
+    <example>
+      <title>Setting Session Authorization</title>
+
+      <screen>    SET SESSION AUTHORIZATION 'FELIX'
+    SET SESSION AUTHORIZATION SESSION_USER
+</screen>
+    </example>
+
     <indexterm significance="preferred" type="sql">
       <primary>SET ROLE</primary>
     </indexterm>
@@ -733,8 +760,9 @@
     <simpara>Set the current default time zone displacement for the current
     SQL-session. When the session starts, the time zone displacement is set to
     the time zone of the client. This command changes the time zone
-    displacement. The effect of this lasts for the lifetime of the
-    session.</simpara>
+    displacement. The effect of this lasts for the lifetime of the session. If
+    LOCAL is specified, the time zone displacement reverts to the local time
+    zone of the session.</simpara>
 
     <example>
       <title>Setting Session Time Zone</title>
@@ -835,5 +863,26 @@
     &lt;n&gt;. Therefore this command is not recommended for general use. The
     only legitimate use of this command is for checking and testing queries
     that may return very large numbers of rows.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET IGNORECASE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET IGNORECASE</emphasis></simpara>
+
+    <simpara><emphasis>set ignore case statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set ignore case statement&gt; ::= SET IGNORECASE {
+    TRUE | FALSE }</literal></simpara>
+
+    <simpara>Sets the type used for new VARCHAR table columns. By default,
+    character columns in new databases are case sensitive. If <literal>SET
+    IGNORECASE TRUE</literal> is used, all VARCHAR columns in new tables are
+    set to <literal>VARCHAR_IGNORECASE</literal>. It is possible to specify
+    the <literal>VARCHAR_IGNORECASE</literal> type for the definition of
+    individual columns. So it is possible to have some columns case sensitive
+    and some not, even in the same table. This statement must be switched
+    before creating tables. Existing tables and their data are not
+    affected.</simpara>
   </section>
 </chapter>
