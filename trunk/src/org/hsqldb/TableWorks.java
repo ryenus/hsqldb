@@ -710,7 +710,7 @@ public class TableWorks {
         OrderedHashSet indexNameSet = table.getContainingIndexNames(colIndex);
         HsqlName       columnName   = table.getColumn(colIndex).getName();
         OrderedHashSet referencingObjects =
-            database.schemaManager.getReferencingObjects(table.getName(),
+            database.schemaManager.getReferencingObjectNames(table.getName(),
                 columnName);
 
         checkModifyTable();

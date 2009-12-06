@@ -958,7 +958,8 @@ public class ParserDDL extends ParserRoutine {
         if (cascade) {
             OrderedHashSet names = new OrderedHashSet();
 
-            database.schemaManager.getCascadingReferences(objectName, names);
+            database.schemaManager.getCascadingReferencingObjectNames(
+                objectName, names);
 
             Iterator it = names.iterator();
 
@@ -1674,9 +1675,9 @@ public class ParserDDL extends ParserRoutine {
             queryExpression = XreadJoinedTable();
         }
 
-        Token[] statement = getRecordedStatement();
-        String  sql       = getLastPart(position);
-        int     check     = SchemaObject.ViewCheckModes.CHECK_NONE;
+        Token[] tokenisedStatement = getRecordedStatement();
+        String  sql                = getLastPart(position);
+        int     check              = SchemaObject.ViewCheckModes.CHECK_NONE;
 
         if (token.tokenType == Tokens.WITH) {
             read();
@@ -1701,9 +1702,7 @@ public class ParserDDL extends ParserRoutine {
         checkSchemaUpdateAuthorisation(name.schema);
         database.schemaManager.checkSchemaObjectNotExists(name);
 
-        String statementSQL = Token.getSQL(statement);
-
-        view.statement = statementSQL;
+        view.statement = Token.getSQL(tokenisedStatement);
 
         String   fullSQL = getLastPart();
         Object[] args    = new Object[]{ view };
@@ -3069,8 +3068,7 @@ public class ParserDDL extends ParserRoutine {
 
         readThis(Tokens.CLOSEBRACKET);
 
-        c.check          = condition;
-        c.checkStatement = Token.getSQL(tokens);
+        c.check = condition;
     }
 
     /**

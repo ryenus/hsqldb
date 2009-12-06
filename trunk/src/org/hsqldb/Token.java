@@ -120,11 +120,73 @@ public class Token {
         return fullString;
     }
 
-    public void setExpression(Expression expression) {
+    public void setExpression(Object expression) {
         this.expression = expression;
     }
 
     String getSQL() {
+
+        if (expression instanceof ExpressionColumn) {
+            if (tokenType == Tokens.ASTERISK) {
+                StringBuffer sb         = new StringBuffer();
+                Expression   expression = (Expression) this.expression;
+
+                if (expression != null
+                        && expression.opType == OpTypes.MULTICOLUMN
+                        && expression.nodes.length > 0) {
+                    sb.append(' ');
+
+                    for (int i = 0; i < expression.nodes.length; i++) {
+                        Expression   e = expression.nodes[i];
+                        ColumnSchema c = e.getColumn();
+                        String       name;
+
+                        if (e.opType == OpTypes.COALESCE) {
+                            sb.append(e.getColumnName());
+
+                            continue;
+                        }
+
+                        if (e.getRangeVariable().tableAlias == null) {
+                            name = c.getName()
+                                .getSchemaQualifiedStatementName();
+                        } else {
+                            RangeVariable range = e.getRangeVariable();
+
+                            name = range.tableAlias.getStatementName() + '.'
+                                   + c.getName().statementName;
+                        }
+
+                        if (i > 0) {
+                            sb.append(',');
+                        }
+
+                        sb.append(name);
+                    }
+
+                    sb.append(' ');
+                } else {
+                    return tokenString;
+                }
+
+                return sb.toString();
+            }
+        } else if (expression instanceof Type) {
+            isDelimiter = false;
+
+            Type type = (Type) expression;
+
+            if (type.isDistinctType() || type.isDomainType()) {
+                return type.getName().getSchemaQualifiedStatementName();
+            }
+
+            return type.getNameString();
+        } else if (expression instanceof SchemaObject) {
+            isDelimiter = false;
+
+            return ((SchemaObject) expression).getName()
+                .getSchemaQualifiedStatementName();
+        }
 
         if (namePrefix == null && isUndelimitedIdentifier) {
             return tokenString;
@@ -135,60 +197,6 @@ public class Token {
         }
 
         StringBuffer sb = new StringBuffer();
-
-        if (tokenType == Tokens.ASTERISK) {
-            Expression expression = (Expression) this.expression;
-
-            if (expression != null && expression.opType == OpTypes.MULTICOLUMN
-                    && expression.nodes.length > 0) {
-                sb.append(' ');
-
-                for (int i = 0; i < expression.nodes.length; i++) {
-                    Expression   e = expression.nodes[i];
-                    ColumnSchema c = e.getColumn();
-                    String       name;
-
-                    if (e.opType == OpTypes.COALESCE) {
-                        sb.append(e.getColumnName());
-
-                        continue;
-                    }
-
-                    if (e.getRangeVariable().tableAlias == null) {
-                        name = c.getName().getSchemaQualifiedStatementName();
-                    } else {
-                        RangeVariable range = e.getRangeVariable();
-
-                        name = range.tableAlias.getStatementName() + '.'
-                               + c.getName().statementName;
-                    }
-
-                    if (i > 0) {
-                        sb.append(',');
-                    }
-
-                    sb.append(name);
-                }
-
-                sb.append(' ');
-            } else {
-                return tokenString;
-            }
-
-            return sb.toString();
-        }
-
-        if (namePrePrePrefix != null) {
-            if (isDelimitedPrePrePrefix) {
-                sb.append('"');
-                sb.append(namePrePrePrefix);
-                sb.append('"');
-            } else {
-                sb.append(namePrePrePrefix);
-            }
-
-            sb.append('.');
-        }
 
         if (namePrePrefix != null) {
             if (isDelimitedPrePrefix) {
@@ -243,15 +251,32 @@ public class Token {
         StringBuffer sb           = new StringBuffer();
 
         for (int i = 0; i < statement.length; i++) {
+            String sql = statement[i].getSQL();
+
             if (!statement[i].isDelimiter && !wasDelimiter) {
                 sb.append(' ');
             }
 
-            sb.append(statement[i].getSQL());
+            sb.append(sql);
 
             wasDelimiter = statement[i].isDelimiter;
         }
 
         return sb.toString();
+    }
+
+    static Object[] getSimplifiedTokens(Token[] tokens) {
+
+        Object[] array = new Object[tokens.length];
+
+        for (int i = 0; i < tokens.length; i++) {
+            if (tokens[i].expression == null) {
+                array[i] = tokens[i].getSQL();
+            } else {
+                array[i] = tokens[i].expression;
+            }
+        }
+
+        return array;
     }
 }

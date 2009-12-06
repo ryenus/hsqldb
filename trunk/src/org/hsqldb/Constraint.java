@@ -103,7 +103,6 @@ public final class Constraint implements SchemaObject {
 
     //
     Expression      check;
-    String          checkStatement;
     private boolean isNotNull;
     int             notNullColumnIndex;
     RangeVariable   rangeVariable;

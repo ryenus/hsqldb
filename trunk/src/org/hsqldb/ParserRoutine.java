@@ -354,8 +354,8 @@ public class ParserRoutine extends ParserDML {
                 throw unexpectedToken();
             }
 
-            Token[] tokenList = getRecordedStatement();
-            String  sql       = Token.getSQL(tokenList);
+            Token[] tokenisedStatement = getRecordedStatement();
+            String  sql                = Token.getSQL(tokenisedStatement);
 
             statement.setSQL(sql);
             routine.setProcedure(statement);
@@ -860,7 +860,7 @@ public class ParserRoutine extends ParserDML {
         return statements;
     }
 
-    private Statement compileSQLProcedureStatementOrNull(Routine routine,
+    Statement compileSQLProcedureStatementOrNull(Routine routine,
             StatementCompound context) {
 
         Statement cs    = null;

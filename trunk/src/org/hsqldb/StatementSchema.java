@@ -1043,7 +1043,7 @@ public class StatementSchema extends Statement {
         Type domain =
             (Type) session.database.schemaManager.getSchemaObject(name);
         OrderedHashSet set =
-            session.database.schemaManager.getReferencingObjects(
+            session.database.schemaManager.getReferencingObjectNames(
                 domain.getName());
 
         if (!cascade && set.size() > 0) {
@@ -1055,7 +1055,7 @@ public class StatementSchema extends Statement {
 
         Constraint[] constraints = domain.userTypeModifier.getConstraints();
 
-        set.clear();
+        set = new OrderedHashSet();
 
         for (int i = 0; i < constraints.length; i++) {
             set.add(constraints[i].getName());

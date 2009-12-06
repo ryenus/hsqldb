@@ -55,9 +55,6 @@ public class View extends TableDerived {
     //
     HsqlName[] columnNames;
 
-    /** schema at the time of compilation */
-    HsqlName compileTimeSchema;
-
     /**
      * List of subqueries in this view in order of materialization. Last
      * element is the view itself.
@@ -85,10 +82,9 @@ public class View extends TableDerived {
 
         super(db, name, TableBase.VIEW_TABLE);
 
-        this.columnNames  = columnNames;
-        this.statement    = definition;
-        this.check        = check;
-        compileTimeSchema = session.getSchemaHsqlName(null);
+        this.columnNames = columnNames;
+        this.statement   = definition;
+        this.check       = check;
     }
 
     public int getType() {
@@ -107,12 +103,6 @@ public class View extends TableDerived {
      * Compiles the query expression and sets up the columns.
      */
     public void compile(Session session, SchemaObject parentObject) {
-
-        if (!database.schemaManager.schemaExists(compileTimeSchema.name)) {
-            compileTimeSchema = session.getSchemaHsqlName(null);
-        }
-
-        session.setSchema(compileTimeSchema.name);
 
         ParserDQL p = new ParserDQL(session, new Scanner(statement));
 
