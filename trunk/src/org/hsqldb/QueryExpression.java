@@ -97,9 +97,6 @@ public class QueryExpression {
     int persistenceScope = TableBase.SCOPE_STATEMENT;
 
     //
-    int columnMode = TableBase.COLUMNS_REFERENCED;
-
-    //
     ResultMetaData resultMetaData;
     boolean[]      accessibleColumns;
 
@@ -696,8 +693,6 @@ public class QueryExpression {
 
     public void setColumnsDefined() {
 
-        columnMode = TableBase.COLUMNS_REFERENCED;
-
         if (leftQueryExpression != null) {
             leftQueryExpression.setColumnsDefined();
         }
@@ -725,7 +720,6 @@ public class QueryExpression {
 
         if (unionCorresponding) {
             persistenceScope = TableBase.SCOPE_SESSION;
-            columnMode       = TableBase.COLUMNS_UNREFERENCED;
 
             return;
         }

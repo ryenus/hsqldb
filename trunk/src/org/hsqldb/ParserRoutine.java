@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
@@ -601,10 +602,14 @@ public class ParserRoutine extends ParserDML {
             Object var = readLocalVariableDeclarationOrNull();
 
             if (var == null) {
-                var = compileLocalHandlerDeclaration(routine, context);
+                var = compileLocalHandlerDeclarationOrNull(routine, context);
             }
 
-            list.add(var);
+            if (var instanceof ColumnSchema[]) {
+                list.addAll((Object[]) var);
+            } else {
+                list.add(var);
+            }
         }
 
         Object[] declarations = new Object[list.size()];
@@ -614,11 +619,11 @@ public class ParserRoutine extends ParserDML {
         return declarations;
     }
 
-    ColumnSchema readLocalVariableDeclarationOrNull() {
+    ColumnSchema[] readLocalVariableDeclarationOrNull() {
 
-        int      position = super.getPosition();
-        Type     type;
-        HsqlName name;
+        int        position = super.getPosition();
+        Type       type;
+        HsqlName[] names = HsqlName.emptyArray;
 
         try {
             readThis(Tokens.DECLARE);
@@ -629,7 +634,20 @@ public class ParserRoutine extends ParserDML {
                 return null;
             }
 
-            name = super.readNewSchemaObjectName(SchemaObject.VARIABLE, false);
+            while (true) {
+                names = (HsqlName[]) ArrayUtil.resizeArray(names,
+                        names.length + 1);
+                names[names.length - 1] =
+                    super.readNewSchemaObjectName(SchemaObject.VARIABLE,
+                                                  false);
+
+                if (token.tokenType == Tokens.COMMA) {
+                    read();
+                } else {
+                    break;
+                }
+            }
+
             type = readTypeDefinition(true);
         } catch (Exception e) {
 
@@ -647,16 +665,22 @@ public class ParserRoutine extends ParserDML {
             def = readDefaultClause(type);
         }
 
-        ColumnSchema variable = new ColumnSchema(name, type, true, false, def);
+        ColumnSchema[] variable = new ColumnSchema[names.length];
 
-        variable.setParameterMode(SchemaObject.ParameterModes.PARAM_INOUT);
+        for (int i = 0; i < names.length; i++) {
+            variable[i] = new ColumnSchema(names[i], type, true, false, def);
+
+            variable[i].setParameterMode(
+                SchemaObject.ParameterModes.PARAM_INOUT);
+        }
+
         readThis(Tokens.SEMICOLON);
 
         return variable;
     }
 
-    private StatementHandler compileLocalHandlerDeclaration(Routine routine,
-            StatementCompound context) {
+    private StatementHandler compileLocalHandlerDeclarationOrNull(
+            Routine routine, StatementCompound context) {
 
         int handlerType;
 

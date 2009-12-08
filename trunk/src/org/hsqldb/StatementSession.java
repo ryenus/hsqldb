@@ -578,11 +578,12 @@ public class StatementSession extends Statement {
                 }
             }
             case StatementTypes.DECLARE_VARIABLE : {
-                ColumnSchema variable = (ColumnSchema) parameters[0];
+                ColumnSchema[] variables = (ColumnSchema[]) parameters[0];
 
                 try {
-                    session.sessionContext.addSessionVariable(variable);
-
+                    for (int i = 0; i < variables.length; i++) {
+                        session.sessionContext.addSessionVariable(variables[i]);
+                    }
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);

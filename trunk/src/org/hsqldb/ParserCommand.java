@@ -272,10 +272,10 @@ public class ParserCommand extends ParserDDL {
     private Statement compileDeclare() {
 
         Statement    cs;
-        ColumnSchema variable = readLocalVariableDeclarationOrNull();
+        ColumnSchema variables[] = readLocalVariableDeclarationOrNull();
 
-        if (variable != null) {
-            Object[] args = new Object[]{ variable };
+        if (variables != null) {
+            Object[] args = new Object[]{ variables };
 
             cs = new StatementSession(StatementTypes.DECLARE_VARIABLE, args);
 
