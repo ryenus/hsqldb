@@ -63,14 +63,10 @@ public class TableBase {
     public static final int FUNCTION_TABLE   = 10;
 
     //
-    public static final int SCOPE_STATEMENT   = 11;
-    public static final int SCOPE_TRANSACTION = 12;
-    public static final int SCOPE_SESSION     = 13;
-    public static final int SCOPE_FULL        = 14;
-
-    //
-    public static final int COLUMNS_UNREFERENCED = 15;
-    public static final int COLUMNS_REFERENCED   = 16;
+    public static final int SCOPE_STATEMENT   = 21;
+    public static final int SCOPE_TRANSACTION = 22;
+    public static final int SCOPE_SESSION     = 23;
+    public static final int SCOPE_FULL        = 24;
 
     //
     public PersistentStore store;

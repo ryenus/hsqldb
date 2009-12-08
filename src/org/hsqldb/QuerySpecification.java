@@ -1896,7 +1896,6 @@ public class QuerySpecification extends QueryExpression {
 
     void setReturningResultSet() {
         persistenceScope = TableBase.SCOPE_SESSION;
-        columnMode       = TableBase.COLUMNS_UNREFERENCED;
     }
 
     public boolean isSingleColumn() {
