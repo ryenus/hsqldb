@@ -303,6 +303,10 @@ public class Logger {
             }
         }
 
+        if (!isNewDatabase) {
+            return;
+        }
+
         if (tempDirectoryPath != null) {
             int rows = database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_result_max_memory_rows);
@@ -348,7 +352,8 @@ public class Logger {
         if (Tokens.T_SERIALIZABLE.equalsIgnoreCase(txLevel)) {
             database.defaultIsolationLevel = SessionInterface.TX_SERIALIZABLE;
         } else {
-            database.defaultIsolationLevel = SessionInterface.TX_READ_COMMITTED;
+            database.defaultIsolationLevel =
+                SessionInterface.TX_READ_COMMITTED;
         }
 
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
@@ -379,10 +384,10 @@ public class Logger {
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_size) * 1024;
 
-        setLobFileScale(
+        setLobFileScaleNoCheck(
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_lob_file_scale));
-        setCacheFileScale(
+        setCacheFileScaleNoCheck(
             database.databaseProperties.getIntegerProperty(
                 HsqlDatabaseProperties.hsqldb_cache_file_scale));
 
@@ -803,8 +808,6 @@ public class Logger {
             return;
         }
 
-        propIncrementBackup = val;
-
         if (log != null) {
             log.setIncrementBackup(val);
 
@@ -812,6 +815,8 @@ public class Logger {
                 database.logger.checkpointRequired = true;
             }
         }
+
+        propIncrementBackup = val;
     }
 
     public void setCacheMaxRows(int value) {
@@ -830,8 +835,26 @@ public class Logger {
         return propCacheMaxSize;
     }
 
-    /** @todo - prevent setting for existing data or lobs file */
     public void setCacheFileScale(int value) {
+
+        if (propCacheFileScale == value) {
+            return;
+        }
+
+        checkPower(value, 8);
+
+        if (1 < value && value < 8) {
+            throw Error.error(ErrorCode.X_42556);
+        }
+
+        if (getCache() != null) {
+            throw Error.error(ErrorCode.DATA_FILE_IN_USE);
+        }
+
+        propCacheFileScale = value;
+    }
+
+    public void setCacheFileScaleNoCheck(int value) {
 
         checkPower(value, 8);
 
@@ -847,6 +870,24 @@ public class Logger {
     }
 
     public void setLobFileScale(int value) {
+
+        if (propLobBlockSize == value * 1024) {
+            return;
+        }
+
+        checkPower(value, 6);
+
+        if (database.lobManager.getLobCount() > 0) {
+            throw Error.error(ErrorCode.DATA_FILE_IN_USE);
+        }
+
+        propLobBlockSize = value * 1024;
+
+        database.lobManager.close();
+        database.lobManager.open();
+    }
+
+    public void setLobFileScaleNoCheck(int value) {
 
         checkPower(value, 6);
 
@@ -992,6 +1033,7 @@ public class Logger {
                 if (session == null) {
                     return null;
                 }
+
                 return new RowStoreAVLHybrid(session, collection, table);
 
             case TableBase.TEMP_TABLE :
@@ -1104,7 +1146,8 @@ public class Logger {
         switch (database.getDefaultIsolationLevel()) {
 
             case SessionInterface.TX_READ_COMMITTED :
-                sb.append(Tokens.T_READ).append(' ').append(Tokens.T_COMMITTED);
+                sb.append(Tokens.T_READ).append(' ').append(
+                    Tokens.T_COMMITTED);
                 break;
 
             case SessionInterface.TX_SERIALIZABLE :

@@ -94,6 +94,7 @@ public class LobManager {
     Statement updateLobUsage;
     Statement getNextLobId;
     Statement deleteUnusedLobs;
+    Statement getLobCount;
 
     // LOBS columns
     private interface LOBS {
@@ -176,6 +177,8 @@ public class LobManager {
         "CALL SYSTEM_LOBS.DELETE_LOB(?, ?)";
     private static String deleteUnusedCallSQL =
         "CALL SYSTEM_LOBS.DELETE_UNUSED()";
+    private static String getLobCountSQL =
+        "SELECT COUNT(*) FROM SYSTEM_LOBS.LOB_IDS";
 
     public LobManager(Database database) {
         this.database = database;
@@ -239,6 +242,8 @@ public class LobManager {
         getNextLobId = sysLobSession.compileStatement(getNextLobIdSQL,
                 ResultProperties.defaultPropsValue);
         deleteUnusedLobs = sysLobSession.compileStatement(deleteUnusedCallSQL,
+                ResultProperties.defaultPropsValue);
+        getLobCount = sysLobSession.compileStatement(getLobCountSQL,
                 ResultProperties.defaultPropsValue);
     }
 
@@ -1275,5 +1280,27 @@ public class LobManager {
 
         Result result =
             sysLobSession.executeCompiledStatement(createLobPartCall, params);
+    }
+
+    public int getLobCount() {
+
+        sysLobSession.sessionContext.pushDynamicArguments(new Object[]{});
+
+        Result result = getLobCount.execute(sysLobSession);
+
+        sysLobSession.sessionContext.pop();
+
+        RowSetNavigator navigator = result.getNavigator();
+        boolean         next      = navigator.next();
+
+        if (!next) {
+            navigator.close();
+
+            return 0;
+        }
+
+        Object[] data = navigator.getCurrent();
+
+        return ((Number) data[0]).intValue();
     }
 }
