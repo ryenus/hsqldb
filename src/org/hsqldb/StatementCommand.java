@@ -305,8 +305,11 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.logger.setLobFileScale(value);
-
+                    if (session.isProcessingScript) {
+                        session.database.logger.setLobFileScaleNoCheck(value);
+                    } else {
+                        session.database.logger.setLobFileScale(value);
+                    }
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -318,8 +321,12 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.logger.setCacheFileScale(value);
 
+                    if (session.isProcessingScript) {
+                        session.database.logger.setCacheFileScaleNoCheck(value);
+                    } else {
+                        session.database.logger.setCacheFileScale(value);
+                    }
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
