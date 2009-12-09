@@ -342,15 +342,22 @@
       but the source description is preserved. This allows the missing source
       file to be added to the directory and the table re-connected to it with
       the above command.</para>
+
+      <para>Disconnecting text tables from their source has several uses.
+      While disconnected, the text source can be edited outside HSQLDB
+      provided data integrity is respected. When large text sources are used,
+      and several constraints or indexes need to be created on the table, it
+      is possible to disconnect the source during the creation of constraints
+      and indexes and reduce the time it takes to perform the
+      operation.</para>
     </section>
   </section>
 
   <section xml:id="texttables_issues-sect">
     <title>Text File Usage</title>
 
-    <para>The text file source of a text table canText tables may be
-    <glossterm>disconnected</glossterm> from their underlying data source,
-    i.e. the text file.</para>
+    <para>The following information applies to the usage of text
+    tables.</para>
 
     <itemizedlist>
       <title>Text File Issues</title>
@@ -448,5 +455,20 @@
         <para><varname>textdb.allow_full_path</varname></para>
       </listitem>
     </itemizedlist>
+  </section>
+
+  <section>
+    <title>Transactions</title>
+
+    <para>Text tables fully support transactions. New or changed rows that
+    have not been committed are not updated in the source file. Therefore the
+    source file always contains committed rows.</para>
+
+    <para>However, text tables are not as resilient to machine crashes as
+    other types of tables. If the crash happens while the text source is being
+    written to, the text source may contain only some of the changes made
+    during a committed transaction. With other types of tables, additional
+    mechanisms ensure the integrity of the data and this situation will not
+    arise.</para>
   </section>
 </chapter>
