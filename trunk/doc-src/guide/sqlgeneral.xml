@@ -1300,7 +1300,40 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     <para>HyperSQL features automatic, on-the-fly indexes for views and
     subselects that are used in a query.</para>
 
-    <para>Indexes have no effect on ORDER BY clauses or some LIKE
-    conditions.</para>
+    <para>Indexes have no effect on some LIKE conditions.</para>
+
+    <para>Indexes are used for ORDER BY clauses if the same index is used for
+    selection and ordering of rows.</para>
+  </section>
+
+  <section>
+    <title>Query Processing and Optimisation</title>
+
+    <para>HyperSQL does not change the order of tables in a query in order to
+    optimise processing. As mentioned in the previous section, the table that
+    has a narrowing condition should be the first table in the query.</para>
+
+    <para>HyperSQL optimises queries to use indexes, for all types of range
+    and equality conditions, including NOT NULL conditions. In addition, it
+    will always use an index for IN conditions, whether constants, variable,
+    or subqueries are used on the right hand side of the IN predicate.
+    HyperSQL has always used indexes when several conditions are combined with
+    the AND operator, choosing a conditions which can use an index. HyperSQL
+    2.0 will also use indexes when several conditions are combined with the OR
+    operator and all the conditions can use an index (each condition may use a
+    different index). For example, if a huge table has two separate columns
+    for first name and last name, and both columns are indexed, a query such
+    as the following example will be very fast:</para>
+
+    <informalexample>
+      <programlisting>    (TC is a very large table)
+
+    SELECT * FROM TC WHERE TC.FIRSTNAME = 'John' OR TC.LASTNAME = 'Smith' OR TC.LASTNAME = 'Williams'
+</programlisting>
+    </informalexample>
+
+    <para></para>
+
+    <para></para>
   </section>
 </chapter>
