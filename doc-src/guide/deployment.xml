@@ -74,6 +74,12 @@
             <glossterm>in-process</glossterm> connections due to the overhead
             of streaming the data for each JDBC call.</para>
           </listitem>
+
+          <listitem>
+            <para>During development, it is better to use a Server with
+            server.silent=false, which displays the statements sent to the
+            server on the console window.</para>
+          </listitem>
         </itemizedlist></para>
     </section>
 
@@ -1447,8 +1453,11 @@
     <simpara>Changes the scale factor for the .data file. The default scale is
     8 and allows 16GB of data storage capacity. The scale can be increased in
     order to increase the maximum data storage capacity. The scale values 8,
-    16, 32, 64 and 128 are allowed. This command can be used only when there
-    is no data in CACHED tables.</simpara>
+    16, 32, 64 and 128 are allowed. Scale value 128 allows a maximum capacity
+    of 256GB.</simpara>
+
+    <simpara>This command can be used only when there is no data in CACHED
+    tables.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1464,16 +1473,18 @@
     <simpara><literal>&lt;set files lob scale statement&gt; ::= SET FILES LOB
     SCALE &lt;scale value&gt;</literal></simpara>
 
-    <simpara>Changes the scale factor for the .lobs file. The default scale is
-    32 and allows 64TB of lob data storage capacity. The scale is interpreted
-    in kilobytes. The scale can be reduced in order to improve storage
-    efficiency. If the lobs are a lot smaller than 32 kilobytes, reducing the
-    scale will reduce wasted space, but will increase memory use to some
-    extent. The scale values 1, 2, 4, 8, 16, 32 are allowed. This command can
-    be used only when there is no lob in the database. For example if the
-    average size of lobs is 4 kilobytes, the default scale of 32 will result
-    in 28KB wasted space for each lob. Reducing the lob scale to 2 will result
-    in average 1KB wasted space for each lob.</simpara>
+    <simpara>Changes the scale factor for the .lobs file. The scale is
+    interpreted in kilobytes. The default scale is 32 and allows 64TB of lob
+    data storage capacity. The scale can be reduced in order to improve
+    storage efficiency. If the lobs are a lot smaller than 32 kilobytes,
+    reducing the scale will reduce wasted space. The scale values 1, 2, 4, 8,
+    16, 32 are allowed. For example if the average size of lobs is 4
+    kilobytes, the default scale of 32 will result in 28KB wasted space for
+    each lob. Reducing the lob scale to 2 will result in average 1KB wasted
+    space for each lob.</simpara>
+
+    <simpara>This command can be used only when there is no lob in the
+    database. </simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>

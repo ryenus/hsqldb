@@ -1,13 +1,13 @@
 <html>
 <head>
-<title>HyperSQL Version 1.9 Release Candidate 5</title>
+<title>HyperSQL Version 2.0 Release Candidate 7</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
-<h2>HyperSQL 1.9 Release Candidate 5</h2>
-<p>16 September 2009</p>
-<p>This is the RC (release candidate) version of HyperSQL 1.9. Please use this 
+<h2>HyperSQL 2.0 Release Candidate 7</h2>
+<p>9 December 2009</p>
+<p>This is the RC (release candidate) version of HyperSQL 2.0. Please use this 
   version in testing and report any issues.</p>
 <h3>Feedback</h3>
 <p>We are releasing this RC version only to get feedback, bug reports, reports 
@@ -31,22 +31,14 @@
 <ul>
   <li>All errors and minor issues reported by users have been fixed.</li>
   <li>Sources can be compiled with JDK 1.5 or 1.6</li>
-  <li>Support for database file encryption</li>
+  <li>Many enhancements and additional features</li>
   <li>New features for incremental backup of the .data file allow speedy handling 
-    of huge databases up to 16GB.</li>
-  <li>Database files created with Alpha and Beta versions cannot be opened with 
-    this version without manual modification. It is recommended not to use old 
-    Alpha and Beta databases with this version.</li>
-  <li>This version persists BLOB and CLOB values. A database file with the extension 
-    .lobs is used for LOB objects. LOB support is now transactional. Operations 
-    on lobs, including modifying the contents of an existing lobs, should work 
-    and can be rolled back. The maximum total size of LOBs is currently 16TB. 
-    Access speed looks very good in our tests.</li>
-  <li>This version lacks some minor features of System Tables for SQL stored procedures 
-    and functions. These will be completed for the release..</li>
+    of huge databases up to 16GB by default (up to 256GB maximum).</li>
   <li>This version has been compiled with debug information. The jar size is therefore 
     much larger than the forthcoming release version. The jar can be used with 
     JDK 1.6 only.</li>
+  <li>Support for MVCC (Multiversion Concurrency Control) is functional in this version.
+    Therefore it is designated as version 2.0.</li>
 </ul>
 <h3>Differences to version 1.8.0</h3>
 <ul>
@@ -66,10 +58,5 @@
 </ul>
 <p>Fred Toussi</p>
 <p>Maintainer, HSQL Development Group</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-<p>&nbsp; </p>
 </body>
 </html>
