@@ -101,8 +101,7 @@
             <para>When the database is shutdown in the normal way, all the
             data for MEMORY tables is written out to the disk. In comparison,
             the data in CACHED tables that has changed is written out at
-            shutdown, plus a compressed backup of all the data in all cached
-            tables.</para>
+            shutdown.</para>
           </listitem>
 
           <listitem>
@@ -125,7 +124,7 @@
     <section>
       <title>Large Objects</title>
 
-      <para>HyperSQL 2.0 supports decicated storage and access to BLOB and
+      <para>HyperSQL 2.0 supports dedicated storage and access to BLOB and
       CLOB objects. These objects can have huge sizes. BLOB or CLOB is
       specified as the type of a column of the table. Afterwards, rows can be
       inserted into the table using a PreparedStatement for efficient transfer
@@ -152,11 +151,11 @@
         <listitem>
           <para>The file system must have enough spare room both for the
           'permanent' and 'temporary' files. The default maximum size of the
-          *.log file is 50MB. The *.data file can grow to up to 16GB. The
-          .backup file can be up to the size of the *.data file. The *.lobs
-          file can grow to several terabytes. The temporary files created at
-          the time of a SHUTDOWN can be equal in size to the *.script file and
-          the .data file.</para>
+          *.log file is 50MB. The *.data file can grow to up to 16GB (more if
+          the default has been increased). The .backup file can be up to the
+          size of the *.data file. The *.lobs file can grow to several
+          terabytes. The temporary files created at the time of a SHUTDOWN can
+          be equal in size to the *.script file and the .data file.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -224,9 +223,9 @@
       <title>Result Set Memory Allocation</title>
 
       <para>By default, all the rows in the result set are built in memory, so
-      very large result sets may not be possible. In server mode databases, by
-      default, the result set memory is released from the server once the
-      database server has returned the result set.
+      very large result sets may not be possible to build. In server mode
+      databases, by default, the result set memory is released from the server
+      once the database server has returned the result set.
       <glossterm>in-process</glossterm> databases release the memory when the
       application program releases the
       <classname>java.sql.ResultSet</classname> object. Server modes require
@@ -257,13 +256,17 @@
 
       <para>When transactions support is enabled with SET AUTOCOMMIT FALSE,
       lists of all insert, delete or update operations are stored in memory so
-      that they can be undone when ROLLBACK is issued. Transactions that span
-      hundreds of modification to data will take up a lot of memory until the
-      next COMMIT or ROLLBACK clears the list.</para>
+      that they can be undone when ROLLBACK is issued. For CACHED tables, only
+      the transaction information is held in memory, not the actual rows that
+      have changed. Transactions that span thousands of modification to data
+      will take up a lot of memory until the next COMMIT or ROLLBACK clears
+      the list.</para>
 
       <para>When subquries or views are used in SELECT and other statements,
-      transient tables are created and populated by the engine. If the SET
-      RESULT MEMORY ROWS has been used.</para>
+      transient tables are created and populated by the engine. If the
+      <literal>SET RESULT MEMORY ROWS &lt;integer&gt;</literal> statement has
+      been used, these transient tables are stored on disk when they are
+      larger than the threshold.</para>
     </section>
 
     <section>
@@ -311,6 +314,18 @@
       each pool can be modified only by altering and recompiling the
       <literal>org.hsqldb.store.ValuePool</literal> class.</para>
     </section>
+
+    <section>
+      <title>Lob Memory Usage</title>
+
+      <para>Access to lobs is always performed in chunks, so it is perfectly
+      possible to store and access a CLOB or BLOB that is larger than the JVM
+      memory allocation. Early versions of HyperSQL 2.0 use memory-based
+      tables for the lob catalog. Therefore it is paractical to store about
+      100,000 individual lobs in the database with the default JVM memory
+      allocation. More lobs can be stored with larger JVM memory
+      allocations.</para>
+    </section>
   </section>
 
   <section xml:id="deployment_conns-sect">
@@ -330,9 +345,8 @@
     <itemizedlist>
       <listitem>
         <para>To allow new queries to be performed while a time-consuming
-        query is being performed in the background. In HyperSQL, if a session
-        is in readonly mode, its queries are never blocked. If the session is
-        in read-write mode, blocking depends on the transaction model and the
+        query is being performed in the background. In HyperSQL, blocking
+        depends on the transaction control model, the isolation level, and the
         current activity by other sessions.</para>
       </listitem>
 
@@ -340,18 +354,9 @@
         <para>To limit the maximum number of simultaneous connections to the
         database for performance reasons. With HSQLDB this can be useful if
         your application is designed in a way that opens and closes
-        connections for each small task.</para>
-      </listitem>
-
-      <listitem>
-        <para>To control transactions in a multi-threaded application. This
-        can be useful with HSQLDB as well. For example, in a web application,
-        a transaction may involve some processing between the queries or user
-        action across web pages. A separate connection should be used for each
-        HTTP session so that the work can be committed when completed or
-        rolled back otherwise. Although this usage cannot be applied to most
-        other database engines, HyperSQL is perfectly capable of handling over
-        100 simultaneous HTTP sessions as individual JDBC connections.</para>
+        connections for each small task. If you want to reduce the number of
+        simultanous sessions, you can use a connection pool with fewer pooled
+        connections.</para>
       </listitem>
     </itemizedlist>
 
@@ -364,20 +369,21 @@
     <para>When using an <glossterm>in-process</glossterm> database, when the
     last connection to the database is closed, the database still remains
     open. An explicit SHUTDOWN command, with or without an argument, is
-    required to close the database. A connection property can be used to
-    shutdown the database when the last connection is closed.</para>
+    required to close the database. A connection property on the connection
+    URL or in a properties object can be used to shutdown the database when
+    the last connection is closed.</para>
 
     <para>When using a server database (and to some extent, an
     <glossterm>in-process</glossterm> database), care must be taken to avoid
     creating and dropping JDBC Connections too frequently. Failure to observe
-    this will result in unsuccessful connection attempts when the application
-    is under heavy load.</para>
+    this will result in poor performance when the application is under heavy
+    load.</para>
 
-    <para>A repeated error in load-test simulations is to use a single client
-    to open and close thousands of connections to a HyperSQL server instance.
-    The connection attempts will fail after a few thousand because of OS
-    restrictions on opening sockets and the delay that is built into the OS in
-    closing them.</para>
+    <para>A common error made by users in load-test simulations is to use a
+    single client to open and close thousands of connections to a HyperSQL
+    server instance. The connection attempts will fail after a few thousand
+    because of OS restrictions on opening sockets and the delay that is built
+    into the OS in closing them.</para>
   </section>
 
   <section xml:id="deployment_upgrade-sect">
@@ -388,7 +394,7 @@
     </indexterm>
 
     <para>Any database that is not produced with the release version of
-    HyperSQL 2 must be upgraded to this version. Some catalogs created with
+    HyperSQL 2.0 must be upgraded to this version. Some catalogs created with
     1.8.x can be upgraded simply by opening with HyperSQL 2. When this is not
     possible due to errors, the rest of the procedures below should be
     followed.</para>
@@ -593,6 +599,12 @@
         <para>Column names in a GROUP BY clause were previously resolved to
         the column label. They are now resolved to column name first, and if
         the name does not match, to the column label.</para>
+      </listitem>
+
+      <listitem>
+        <para>The names of some commands for changing database and session
+        properties have changed. See the list of statements in this
+        chapter.</para>
       </listitem>
     </itemizedlist>
   </section>
@@ -948,8 +960,8 @@
 
     <simpara>The HyperSQL jar also contains a program that creates an archive
     of an offline database. It also contains a program to expand an archive
-    into database files. These programs are documented in ***todo Backing up
-    Database Catalog section of Deployment Chapter.</simpara>
+    into database files. These programs are documented in this chapter under
+    Backing up Database Catalogs.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1417,6 +1429,51 @@
     <para>Each time the SET FILES WRITE DELAY statement is executed with any
     value, a sync is immediately performed. Only a user with the DBA role can
     execute this statement.</para>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES SCALE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES SCALE</emphasis></simpara>
+
+    <simpara><emphasis>set files scale</emphasis></simpara>
+
+    <simpara><literal>&lt;set files scale statement&gt; ::= SET FILES SCALE
+    &lt;scale value&gt;</literal></simpara>
+
+    <simpara>Changes the scale factor for the .data file. The default scale is
+    8 and allows 16GB of data storage capacity. The scale can be increased in
+    order to increase the maximum data storage capacity. The scale values 8,
+    16, 32, 64 and 128 are allowed. This command can be used only when there
+    is no data in CACHED tables.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES LOB SCALE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES LOB SCALE</emphasis></simpara>
+
+    <simpara><emphasis>set files lob scale</emphasis></simpara>
+
+    <simpara><literal>&lt;set files lob scale statement&gt; ::= SET FILES LOB
+    SCALE &lt;scale value&gt;</literal></simpara>
+
+    <simpara>Changes the scale factor for the .lobs file. The default scale is
+    32 and allows 64TB of lob data storage capacity. The scale is interpreted
+    in kilobytes. The scale can be reduced in order to improve storage
+    efficiency. If the lobs are a lot smaller than 32 kilobytes, reducing the
+    scale will reduce wasted space, but will increase memory use to some
+    extent. The scale values 1, 2, 4, 8, 16, 32 are allowed. This command can
+    be used only when there is no lob in the database. For example if the
+    average size of lobs is 4 kilobytes, the default scale of 32 will result
+    in 28KB wasted space for each lob. Reducing the lob scale to 2 will result
+    in average 1KB wasted space for each lob.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
