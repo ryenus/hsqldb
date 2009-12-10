@@ -1314,16 +1314,19 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     has a narrowing condition should be the first table in the query.</para>
 
     <para>HyperSQL optimises queries to use indexes, for all types of range
-    and equality conditions, including NOT NULL conditions. In addition, it
-    will always use an index for IN conditions, whether constants, variable,
-    or subqueries are used on the right hand side of the IN predicate.
-    HyperSQL has always used indexes when several conditions are combined with
-    the AND operator, choosing a conditions which can use an index. HyperSQL
-    2.0 will also use indexes when several conditions are combined with the OR
-    operator and all the conditions can use an index (each condition may use a
-    different index). For example, if a huge table has two separate columns
-    for first name and last name, and both columns are indexed, a query such
-    as the following example will be very fast:</para>
+    and equality conditions, including NOT NULL conditions. Conditions can be
+    in join or WHERE clauses, including all types of joins. In addition,
+    HyperSQL will always use an index (if one exists) for IN conditions,
+    whether constants, variable, or subqueries are used on the right hand side
+    of the IN predicate. HyperSQL has always used indexes when several
+    conditions are combined with the AND operator, choosing a conditions which
+    can use an index. This is now extended to all equality conditions on
+    multiple columns that are part of an index. HyperSQL 2.0 will also use
+    indexes when several conditions are combined with the OR operator and each
+    condition can use an index (each condition may use a different index). For
+    example, if a huge table has two separate columns for first name and last
+    name, and both columns are indexed, a query such as the following example
+    will use the indexes and complete in a short time:</para>
 
     <informalexample>
       <programlisting>    (TC is a very large table)
