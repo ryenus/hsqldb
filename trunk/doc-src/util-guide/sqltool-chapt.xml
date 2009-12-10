@@ -2994,12 +2994,16 @@ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid > /tmp/log.html 2>&1]]></screen>
                   <screen>    * *DSV_COL_DELIM = \t</screen>
                 </informalexample>
             </para><simpara>
-                The output delimiter values,
+                The input (\m) delimiter values,
                 <varname>*DSV_COL_SPLITTER</varname> and
                 <varname>*DSV_ROW_SPLITTER</varname>, are set using normal
                 Perl/Java regexp syntax.
                 There are escapes for specifying special characters, and
                 anything else you would need.
+                Input vs. output row and column delimiters are easily
+                distinguished by containing "SPLITTER" for splitting input
+                (\m) files; or "DELIM" for the delimiters that we will write
+                (\x) among the data.
             </simpara><para>
                 For imports, you must always specify the source DSV file path.
                 If you want to <emphasis>export</emphasis> to a different file
