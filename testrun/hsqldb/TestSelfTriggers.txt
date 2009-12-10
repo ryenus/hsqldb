@@ -1,13 +1,18 @@
 drop table testtrig if exists;
 drop table triglog if exists;
-create cached table testtrig(id integer, data varchar(20));
+create cached table testtrig(id integer, data varchar(20), updated date);
 create cached table triglog(id integer, data varchar(20), op varchar(10));
-create trigger trig after insert on testtrig referencing new row as newrow
+create trigger trigone after insert on testtrig referencing new row as newrow
  for each row when (newrow.id >1)
  insert into triglog values (newrow.id, newrow.data, 'inserted')
-insert into testtrig values(1,'one');
-insert into testtrig values(2,'two');
+create trigger trigtwo before update on testtrig referencing old row as oldrow new row as newrow
+ for each row when (oldrow.updated is null)
+ set newrow.updated = date'2009-11-01'
+insert into testtrig values(1,'one', null);
+insert into testtrig values(2,'two', date'1999-11-01');
 /*r2,two,inserted*/select * from triglog
-alter table testtrig drop column id cascade;
-drop table testtrig;
-
+update testtrig set data = data || ' ' || data
+/*r
+ 1,one one,2009-11-01
+ 2,two two,1999-11-01
+*/select * from testtrig

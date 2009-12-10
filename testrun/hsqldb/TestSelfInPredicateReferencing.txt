@@ -157,3 +157,5 @@ insert into t values (10, 20), (11, 21), (21, 32)
 /*r
  11,21
 */select * from t where (c2, c1) in ((21, 11))
+
+update t set c2 = 31 where (c2, c1) in ((21, 11))
