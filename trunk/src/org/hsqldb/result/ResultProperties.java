@@ -124,16 +124,16 @@ public class ResultProperties {
 
     public static int addUpdatable(int props, boolean flag) {
         return flag ? props | ((1) << idx_updatable)
-                    : props & ((~1) << idx_updatable);
+                    : props & (~(1 << idx_updatable));
     }
 
     public static int addHoldable(int props, boolean flag) {
         return flag ? props | ((1) << idx_holdable)
-                    : props & ((~1) << idx_holdable);
+                    : props & (~(1 << idx_holdable));
     }
 
     public static int addScrollable(int props, boolean flag) {
         return flag ? props | ((1) << idx_scrollable)
-                    : props & ((~1) << idx_scrollable);
+                    : props & (~(1 << idx_scrollable));
     }
 }
