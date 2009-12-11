@@ -1249,20 +1249,16 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.ROWS);
         }
 
-        TableUtil.setColumnsInSchemaTable(
-            table, queryExpression.getResultColumnNames(),
-            queryExpression.getColumnTypes());
-
-        if (columnNames != null) {
+        if (columnNames == null) {
+            columnNames = queryExpression.getResultColumnNames();
+        } else {
             if (columnNames.length != queryExpression.getColumnCount()) {
                 throw Error.error(ErrorCode.X_42593);
             }
-
-            for (int i = 0; i < columnNames.length; i++) {
-                table.getColumn(i).getName().rename(columnNames[i]);
-            }
         }
 
+        TableUtil.setColumnsInSchemaTable(table, columnNames,
+                                          queryExpression.getColumnTypes());
         table.createPrimaryKey();
 
         if (withData) {
@@ -2520,7 +2516,8 @@ public class ParserDDL extends ParserRoutine {
             typeObject   = Type.SQL_INTEGER;
             sequence     = new NumberSequence(null, 0, 1, typeObject);
         } else if (token.tokenType == Tokens.COMMA) {
-            ;
+            return null;
+        } else if (token.tokenType == Tokens.CLOSEBRACKET) {
             return null;
         } else {
             typeObject = readTypeDefinition(true);
