@@ -192,9 +192,9 @@
             <footnote label='1' xml:id='samplelocFn'><simpara>
             To reduce the time I will need to spend maintaining this document,
             in this chapter I am giving the path to the
-            <filename>sample</filename> directory as it is in HSQLDB 1.9.x
+            <filename>sample</filename> directory as it is in HSQLDB 2.0.x
             distributions, namely, <filename>HSQLDB_HOME/sample</filename>.
-            Users of HSQLDB before 1.9.x should translate these sample
+            Users of HSQLDB before 2.0.x should translate these sample
             directory paths
             to use <filename>HSQLDB_HOME/src/org/hsqldb/sample/...</filename>.
             </simpara></footnote>
@@ -1803,7 +1803,7 @@ java org.hsqldb.cmdline.SqlTool urlid</screen>
             </simpara><para>
                 Often, you will want to redirect output to a file, like
                 <informalexample>
-                  <screen><![CDATA[ java -jar $HSQLDB_HOME/lib/hsqldb.jar file.sql... > /tmp/file.log 2>&1]]></screen>
+                  <screen><![CDATA[ java -jar $HSQLDB_HOME/lib/hsqldb.jar urlid file.sql... > /tmp/file.log 2>&1]]></screen>
             </informalexample></para><simpara>
                 You can also execute SQL files from an interactive session with
                 the "\i"' Special Command,
