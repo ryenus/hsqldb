@@ -1,632 +1,715 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
-
 <!DOCTYPE book [
-    <!ENTITY % dummy22 SYSTEM "../entities/global.ent"> %dummy22;
-    <!ENTITY % dummy25 SYSTEM "entities/versions.ent"> %dummy25;
+<!ENTITY % dummy22 SYSTEM "../entities/global.ent">
+%dummy22;
+<!ENTITY % dummy25 SYSTEM "entities/versions.ent">
+%dummy25;
 ]>
-
-<book xmlns="http://docbook.org/ns/docbook" version="5.0"
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:ns5="http://www.w3.org/2000/svg"
+      xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+      xmlns:ns3="http://www.w3.org/1999/xhtml"
+      xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
-    <info>
-        <title>HyperSQL Utilities Guide</title>
-        <authorgroup>
-            <editor>
-                <orgname>The HSQLB Development Group</orgname>
-            </editor>
-            <editor>
-                <personname>
-                    <firstname>Blaine</firstname><surname>Simpson</surname>
-                </personname>
-                <affiliation>
-                    <orgname>The HSQL Development Group</orgname>
-                </affiliation>
-            </editor>
-            <editor>
-                <personname>
-                    <firstname>Fred</firstname><surname>Toussi</surname>
-                </personname>
-                <affiliation>
-                    <orgname>The HSQL Development Group</orgname>
-                </affiliation>
-            </editor>
-        </authorgroup>
-        <releaseinfo>$Revision$</releaseinfo>
-        <pubdate>$Date$</pubdate>
-        <keywordset>
-            <keyword>HyperSQL</keyword>
-            <keyword>Hsqldb</keyword>
-            <keyword>Hypersonic</keyword>
-            <keyword>Database</keyword>
-            <keyword>JDBC</keyword>
-            <keyword>Java</keyword>
-        </keywordset>
-        <legalnotice><para>
-            Copyright 2002-2009 The HSQL Development Group.
-            Permission is granted to distribute this document without any
-            alteration under the terms of the HSQLDB license.
-        </para></legalnotice>
-    </info>
-    <preface xml:id="book-pref">
-        <title>Preface</title>
-        <para>
-            If you notice any mistakes in this document, please email the
-            author listed at the beginning of the chapter.
-            If you have problems with the procedures themselves, please
-            use the HSQLDB support facilities which are listed at
-           <link xlink:href='http://hsqldb.org/web/hsqlSupport.html'/>.
-        </para>
-        <xi:include href="../altformats-sect.xml"/>
-    </preface>
-
-<xi:include href="sqltool-chapt.xml"/>
-
-<chapter xml:id="test-utility-chapt">
-  <title>Hsqldb Test Utility</title>
 
   <info>
-    <keywordset>
-      <keyword>Hsqldb</keyword>
+    <title>HyperSQL Utilities Guide</title>
 
-      <keyword>Test</keyword>
-
-      <keyword>Utility</keyword>
-    </keywordset>
-  </info>
-
-  <para>The <classname>org.hsqldb.test</classname> package contains a number of
-  tests for various functions of the database engine. Among these, the
-  <classname>TestSelf</classname> class performs the tests that are based on
-  scripts. To run the tests, you should compile the
-  <filename>hsqldbtest.jar</filename> target with Ant and JUnit.</para>
-
-  <para>For <classname>TestSelf</classname>, a batch file is provided in the
-  testrun/hsqldb directory, together with a set of TestSelf*.txt files. To
-  start the application in Windows, change to the directory and type:</para>
-
-  <screen>    runtest TestSelf</screen>
-
-  <para>In Unix / Linux, type:</para>
-
-  <screen>    ./runTest.sh TestSelf</screen>
-
-  <para>The new version of <classname>TestSelf</classname> runs multiple SQL
-  test files to test different SQL operations of the database. All files in
-  the working directory with names matching TestSelf*.txt are processed in
-  alphabetical order.</para>
-
-  <para>You can add your own scripts to test different series of SQL queries.
-  The format of the TestSelf*.txt file is simple text, with some indentation
-  and prefixes in the form of Java-style comments. The prefixes indicate what
-  the expected result should be.</para>
-
-  <para>The class <classname>org.hsqldb.test.TestScriptRunner</classname> is
-    a more general program which you can use to test any script files which
-    you specify (with scripts of the same exact format as described below).
-    For example,
-    <screen>java org.hsqldb.test.TestScriptRunner --urlid=mem script1.tsql script2.sql</screen>
-     You must have the HSQLDB classes, including the util and test classes,
-     in your <varname>CLASSPATH</varname>.
-     The urlid must be set up in an RC file as explained in the
-     <link xlink:href='#sqltool_auth-sect' endterm='auth-title'/> section.
-     Use the <literal>rcfile=</literal> argument to specify an RC file other
-     than the default of <filename>testscriptrunner.rc</filename> in the
-     current directory.
-     To see all invocation possibilities, just run TestScriptRunner with no
-     arguments at all.
-     TestScriptRunner can run tests sequentially (the default) or in
-     simultaneous asynchronous threads.
-  </para>
-
-  <itemizedlist>
-    <listitem>
-      <para>Comment lines must start with -- and are ignored</para>
-    </listitem>
-
-    <listitem>
-      <para>Lines starting with spaces are the continuation of the previous
-      line</para>
-    </listitem>
-
-    <listitem>
-      <para>SQL statements with no prefix are simply executed.</para>
-    </listitem>
-
-    <listitem>
-      <para>
-        <emphasis>The remaining items in this list exemplify use of the
-        available command line-prefixes.</emphasis>
-      </para>
-    </listitem>
-
-    <listitem>
-      <informalexample>
-        <simpara>The /*s*/ option stands for silent. It is used for executing
-        quries regardless of results. Used for preparation of tests, not for
-        actual tests.</simpara>
-
-        <programlisting>/*s*/ Any SQL statement - errors are ignored</programlisting>
-      </informalexample>
-    </listitem>
-
-    <listitem>
-      <informalexample>
-        <simpara>The /*c&lt;rows&gt;*/ option is for SELECT queries and
-        asserts the number of rows in the result matches the given
-        count.</simpara>
-
-        <programlisting><![CDATA[/*c<rows>*/ SQL statement returning count of <rows>]]></programlisting>
-      </informalexample>
-    </listitem>
-
-    <listitem>
-      <informalexample>
-        <simpara>The /*u*/ option is for queries that return an update count,
-        such as DELETE and UPDATE. It asserts the update count
-        matches.</simpara>
-
-        <programlisting><![CDATA[/*u<count>*/ SQL statement returning an update count equal to <count>]]></programlisting>
-      </informalexample>
-    </listitem>
-
-    <listitem>
-      <informalexample>
-        <simpara>The /*e*/ option asserts that the given query results in an
-        erros. It is mainly used for testing the error detection capabilities
-        of the engine. It can also be used with syntactically valid queries to
-        assert a certain state in the database. For example a CREATE TABLE can
-        be used to assert the table of the same name already exists.</simpara>
-
-        <programlisting>/*e*/ SQL statement that should produce an error when executing</programlisting>
-      </informalexample>
-    </listitem>
-
-    <listitem>
-      <informalexample>
-        <simpara>The /*r....*/ option asserts the SELECT query returns a
-        single row containing the given set of field values.</simpara>
-
-        <programlisting><![CDATA[/*r<string1>,<string2>*/ SQL statement returning a single row ResultSet equal to the specified value]]></programlisting>
-      </informalexample>
-    </listitem>
-
-    <listitem>
-      <informalexample>
-        <simpara>The extended /*r...*/ option asserts the SELECT query returns
-        the given rows containing the given set of field values.</simpara>
-
-        <programlisting><![CDATA[/*r
-    <string1>,<string2>
-    <string1>,<string2>
-    <string1>,<string2>
-*/ SQL statement returning a multiple row ResultSet equal to the specified values]]></programlisting>
-      </informalexample>
-
-      <simpara>(note that the result set lines are indented).</simpara>
-    </listitem>
-
-    <listitem>
-      <simpara>The /*d*/ directive just displays the supplied text.</simpara>
-      <informalexample>
-        <programlisting>/*d*/ Some message</programlisting>
-      </informalexample>
-    </listitem>
-
-    <listitem>
-        <simpara>The /*w MILLIS*/ directive causes the test to Wait for a
-          specified number of millisedonds.</simpara>
-      <informalexample>
-        <programlisting>/*w 1000*/ Optional message</programlisting>
-      </informalexample>
-    </listitem>
-    <listitem>
-        <simpara>The /*w ENFORCE_SEQUENCE WAITER_NAME*/ directive causes the
-          test to Wait for the specified <emphasis>Waiter</emphasis>.
-          A waiter is just name that is used to associate a /*w*/ directive
-          to its corresponding /*p*/  directive.
-          The ENFORCE_SEQUENCE argument must be set to <literal>true</literal>
-          or <literal>false</literal> to specify whether to fail unless the
-          /*p*/ command runs after the /*w*/ command is waiting.
-        </simpara>
-      <informalexample>
-        <programlisting>/*w true script4*/ Optional message</programlisting>
-      </informalexample>
-    </listitem>
-
-    <listitem>
-        <simpara>The /*p ENFORCE_SEQUENC WAITER_NAME*/ directive is the
-          peer directive to /*w*/, which causes a waiting thread to Proceed.
-        </simpara>
-      <informalexample>
-        <programlisting>/*p true script4*/ Optional message</programlisting>
-      </informalexample>
-    </listitem>
-
-    <listitem>
-      <para>All the options are lowercase letters. During development, an
-      uppercase can be used for a given test to exclude a test from the test
-      run. The utility will just report the test blocks that have been
-      excluded without running them. Once the code has been developed, the
-      option can be turned into lowercase to perform the actual test. </para>
-    </listitem>
-  </itemizedlist>
-
-  <simpara>See the TestSelf*.txt files in the /testrun/hsqldb/ directory for
-  actual examples.</simpara>
-  <para>The String <literal>${timestamp}</literal> may be used in script
-    messages (like in /*d*/, /*w*/, /*p*/).
-    It expands to the current time, down to the second.  For example,
-      <informalexample>
-      <programlisting>/*d*/ It is now ${timestamp}</programlisting>
-      </informalexample>
-  </para>
-</chapter>
-
-<chapter xml:id="dbm-chapt">
-  <title>Database Manager</title>
-
-  <info>
     <authorgroup>
-      <author>
-        <personname>
-          <firstname>Fred</firstname> <surname>Toussi</surname>
-        </personname>
+      <editor>
+        <orgname>The HSQLB Development Group</orgname>
+      </editor>
+
+      <editor>
+        <personname><firstname>Blaine</firstname><surname>Simpson</surname></personname>
 
         <affiliation>
           <orgname>The HSQL Development Group</orgname>
         </affiliation>
-      </author>
+      </editor>
 
-      <author> <personname>
-            <firstname>Blaine</firstname> <surname>Simpson</surname>
-        </personname>
+      <editor>
+        <personname><firstname>Fred</firstname><surname>Toussi</surname></personname>
 
         <affiliation>
           <orgname>The HSQL Development Group</orgname>
         </affiliation>
-      </author>
+      </editor>
     </authorgroup>
 
-    <!-- No sense for separate stamps while this is in a shared file.
     <releaseinfo>$Revision$</releaseinfo>
 
     <pubdate>$Date$</pubdate>
-    -->
 
     <keywordset>
+      <keyword>HyperSQL</keyword>
+
       <keyword>Hsqldb</keyword>
+
+      <keyword>Hypersonic</keyword>
 
       <keyword>Database</keyword>
 
-      <keyword>Manager</keyword>
+      <keyword>JDBC</keyword>
+
+      <keyword>Java</keyword>
     </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2002-2009 The HSQL Development Group. Permission is
+      granted to distribute this document without any alteration under the
+      terms of the HSQLDB license.</para>
+    </legalnotice>
   </info>
 
-  <section xml:id="dbm_intro-sect">
-    <title>Brief Introduction</title>
+  <preface xml:id="book-pref">
+    <title>Preface</title>
 
-    <para>The Database Manager tool is a simple GUI database query tool with a
-    tree display of the tables. Both AWT and SWING versions of the tool are
-    available and work almost identically. The AWT version class name is
-    org.hsqldb.util.DatabaseManager; the SWING version,
-    org.hsqldb.util.DatabaseManagerSwing.</para>
+    <para>If you notice any mistakes in this document, please email the author
+    listed at the beginning of the chapter. If you have problems with the
+    procedures themselves, please use the HSQLDB support facilities which are
+    listed at <link
+    xlink:href="http://hsqldb.org/web/hsqlSupport.html"></link>.</para>
 
-    <para>The AWT version of the database manager can be deployed as an applet
-    in a browser. A demo HTML file with an embedded Database Manager is
-    included in the /demo directory.</para>
+    <xi:include href="../altformats-sect.xml" />
+  </preface>
 
-    <para>When the Database Manager is started, a dialogue allows you to enter
-    the JDBC driver, URL, user and password for the new connection. A
-    drop-down box, Type, offers preset values for JDBC driver and URL for most
-    popular database engines, including HSQLDB. Once you have selected an item
-    from this drop-down box, you should edit the URL to specify the details of
-    the database or any additional properties to pass. You should also enter
-    the username and password before clicking on the OK button.</para>
+  <xi:include href="sqltool-chapt.xml" />
 
-    <para>The connection dialogue allows you to save the settings for the
-    connection you are about to make. You can then access the connection in
-    future sessions. To save a connection setting, enter a name in the Setting
-    Name box before clicking on the OK button. Next time the connection
-    dialogue is displayed, the drop-down box labeled Recent will include the
-    name for all the saved connection settings. When you select a name, the
-    individual settings are displayed in the appropriate boxes.</para>
+  <chapter xml:id="test-utility-chapt">
+    <title>Hsqldb Test Utility</title>
 
-    <para>The small Clr button next to the drop-down box allows you to clear
-    all the saved settings. If you want to modify an existing setting, first
-    select it from the drop-down box then modify any of the text boxes before
-    making the connection. The modified values will be saved.</para>
+    <info>
+      <keywordset>
+        <keyword>Hsqldb</keyword>
 
-    <simpara>Most menu items have context-sensitive tool tip help text which
-    will appear if you hold the mouse cursor still over the desired menu item.
-    (Assuming that you don't turn Tooltips off under the
-    <guimenu>Help</guimenu> menu.</simpara>
+        <keyword>Test</keyword>
 
-    <simpara>The DatabaseManagers do work with HSQLDB servers serving
-      TLS-encrypted JDBC data. See the TLS section of the Listeners chapter
-      of the <link xlink:href="&distro_baseurl;/guide/index.html">
-        HyperSQL User Guide</link>
-      </simpara>
+        <keyword>Utility</keyword>
+      </keywordset>
+    </info>
 
-    <tip><simpara>
-        If you are using DatabaseManagerSwing with Oracle, you will want
-        to make sure that <guimenuitem>Show row counts</guimenuitem>
-        and <guimenuitem>Show row counts</guimenuitem> are both off
-        <emphasis>before connecting to the database</emphasis>.
-        You may also want to turn off Auto tree-update, as described in
-        the next section.
-    </simpara></tip>
-  </section>
+    <para>The <classname>org.hsqldb.test</classname> package contains a number
+    of tests for various functions of the database engine. Among these, the
+    <classname>TestSelf</classname> class performs the tests that are based on
+    scripts. To run the tests, you should compile the
+    <filename>hsqldbtest.jar</filename> target with Ant and JUnit.</para>
 
-  <section xml:id="dbm_tree-sect">
-    <title>Auto tree-update</title>
+    <para>For <classname>TestSelf</classname>, a batch file is provided in the
+    testrun/hsqldb directory, together with a set of TestSelf*.txt files. To
+    start the application in Windows, change to the directory and type:</para>
 
-    <simpara>By default, the object tree in the left panel is refreshed when
-    you execute DDL which may update those objects. If you are on a slow
-    network or performance-challenged PC, use the <guimenu>view</guimenu> /
-    <guimenuitem>Auto-refresh tree</guimenuitem> menu item to turn it off. You
-    will then need to use the <guimenu>view</guimenu><guimenuitem>Refresh
-    tree</guimenuitem> menu item every time that you want to refresh the
-    tree.</simpara>
+    <screen>    runtest TestSelf</screen>
 
-    <note>
-      <simpara>Auto-refresh tree does not automatically show all updates to
-      database objects, it only refreshes when you submit DDL which may update
-      database objects. (This behavior is a compromise between utility and
-      performance).</simpara>
-    </note>
-  </section>
+    <para>In Unix / Linux, type:</para>
 
-  <section xml:id="dbm-autoconn-sect">
-    <title>Automatic Connection</title>
+    <screen>    ./runTest.sh TestSelf</screen>
 
-    <para>You can use command-line switches to supply connection information.
-    If you use these switch(es), then the connection dialog window will be
-    skipped and a JDBC connection will be established immediately. Assuming
-    that the <filename>hsqldb.jar</filename> (or an alternative jar) are in
-    your <varname>CLASSPATH</varname>, this
-    command will list the available command-line options. <informalexample>
-        <screen>    java org.hsqldb.util.DatabaseManagerSwing --help</screen>
+    <para>The new version of <classname>TestSelf</classname> runs multiple SQL
+    test files to test different SQL operations of the database. All files in
+    the working directory with names matching TestSelf*.txt are processed in
+    alphabetical order.</para>
+
+    <para>You can add your own scripts to test different series of SQL
+    queries. The format of the TestSelf*.txt file is simple text, with some
+    indentation and prefixes in the form of Java-style comments. The prefixes
+    indicate what the expected result should be.</para>
+
+    <para>The class <classname>org.hsqldb.test.TestScriptRunner</classname> is
+    a more general program which you can use to test any script files which
+    you specify (with scripts of the same exact format as described below).
+    For example, <screen>java org.hsqldb.test.TestScriptRunner --urlid=mem script1.tsql script2.sql</screen>
+    You must have the HSQLDB classes, including the util and test classes, in
+    your <varname>CLASSPATH</varname>. The urlid must be set up in an RC file
+    as explained in the <link endterm="auth-title"
+    xlink:href="#sqltool_auth-sect"></link> section. Use the
+    <literal>rcfile=</literal> argument to specify an RC file other than the
+    default of <filename>testscriptrunner.rc</filename> in the current
+    directory. To see all invocation possibilities, just run TestScriptRunner
+    with no arguments at all. TestScriptRunner can run tests sequentially (the
+    default) or in simultaneous asynchronous threads.</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Comment lines must start with -- and are ignored</para>
+      </listitem>
+
+      <listitem>
+        <para>Lines starting with spaces are the continuation of the previous
+        line</para>
+      </listitem>
+
+      <listitem>
+        <para>SQL statements with no prefix are simply executed.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis>The remaining items in this list exemplify use of the
+        available command line-prefixes.</emphasis></para>
+      </listitem>
+
+      <listitem>
+        <informalexample>
+          <simpara>The /*s*/ option stands for silent. It is used for
+          executing quries regardless of results. Used for preparation of
+          tests, not for actual tests.</simpara>
+
+          <programlisting>/*s*/ Any SQL statement - errors are ignored</programlisting>
+        </informalexample>
+      </listitem>
+
+      <listitem>
+        <informalexample>
+          <simpara>The /*c&lt;rows&gt;*/ option is for SELECT queries and
+          asserts the number of rows in the result matches the given
+          count.</simpara>
+
+          <programlisting>/*c&lt;rows&gt;*/ SQL statement returning count of &lt;rows&gt;</programlisting>
+        </informalexample>
+      </listitem>
+
+      <listitem>
+        <informalexample>
+          <simpara>The /*u*/ option is for queries that return an update
+          count, such as DELETE and UPDATE. It asserts the update count
+          matches.</simpara>
+
+          <programlisting>/*u&lt;count&gt;*/ SQL statement returning an update count equal to &lt;count&gt;</programlisting>
+        </informalexample>
+      </listitem>
+
+      <listitem>
+        <informalexample>
+          <simpara>The /*e*/ option asserts that the given query results in an
+          erros. It is mainly used for testing the error detection
+          capabilities of the engine. It can also be used with syntactically
+          valid queries to assert a certain state in the database. For example
+          a CREATE TABLE can be used to assert the table of the same name
+          already exists.</simpara>
+
+          <programlisting>/*e*/ SQL statement that should produce an error when executing</programlisting>
+        </informalexample>
+      </listitem>
+
+      <listitem>
+        <informalexample>
+          <simpara>The /*r....*/ option asserts the SELECT query returns a
+          single row containing the given set of field values.</simpara>
+
+          <programlisting>/*r&lt;string1&gt;,&lt;string2&gt;*/ SQL statement returning a single row ResultSet equal to the specified value</programlisting>
+        </informalexample>
+      </listitem>
+
+      <listitem>
+        <informalexample>
+          <simpara>The extended /*r...*/ option asserts the SELECT query
+          returns the given rows containing the given set of field
+          values.</simpara>
+
+          <programlisting>/*r
+    &lt;string1&gt;,&lt;string2&gt;
+    &lt;string1&gt;,&lt;string2&gt;
+    &lt;string1&gt;,&lt;string2&gt;
+*/ SQL statement returning a multiple row ResultSet equal to the specified values</programlisting>
+        </informalexample>
+
+        <simpara>(note that the result set lines are indented).</simpara>
+      </listitem>
+
+      <listitem>
+        <simpara>The /*d*/ directive just displays the supplied
+        text.</simpara>
+
+        <informalexample>
+          <programlisting>/*d*/ Some message</programlisting>
+        </informalexample>
+      </listitem>
+
+      <listitem>
+        <simpara>The /*w MILLIS*/ directive causes the test to Wait for a
+        specified number of millisedonds.</simpara>
+
+        <informalexample>
+          <programlisting>/*w 1000*/ Optional message</programlisting>
+        </informalexample>
+      </listitem>
+
+      <listitem>
+        <simpara>The /*w ENFORCE_SEQUENCE WAITER_NAME*/ directive causes the
+        test to Wait for the specified <emphasis>Waiter</emphasis>. A waiter
+        is just name that is used to associate a /*w*/ directive to its
+        corresponding /*p*/ directive. The ENFORCE_SEQUENCE argument must be
+        set to <literal>true</literal> or <literal>false</literal> to specify
+        whether to fail unless the /*p*/ command runs after the /*w*/ command
+        is waiting.</simpara>
+
+        <informalexample>
+          <programlisting>/*w true script4*/ Optional message</programlisting>
+        </informalexample>
+      </listitem>
+
+      <listitem>
+        <simpara>The /*p ENFORCE_SEQUENC WAITER_NAME*/ directive is the peer
+        directive to /*w*/, which causes a waiting thread to
+        Proceed.</simpara>
+
+        <informalexample>
+          <programlisting>/*p true script4*/ Optional message</programlisting>
+        </informalexample>
+      </listitem>
+
+      <listitem>
+        <para>All the options are lowercase letters. During development, an
+        uppercase can be used for a given test to exclude a test from the test
+        run. The utility will just report the test blocks that have been
+        excluded without running them. Once the code has been developed, the
+        option can be turned into lowercase to perform the actual test.</para>
+      </listitem>
+    </itemizedlist>
+
+    <simpara>See the TestSelf*.txt files in the /testrun/hsqldb/ directory for
+    actual examples.</simpara>
+
+    <para>The String <literal>${timestamp}</literal> may be used in script
+    messages (like in /*d*/, /*w*/, /*p*/). It expands to the current time,
+    down to the second. For example, <informalexample>
+        <programlisting>/*d*/ It is now ${timestamp}</programlisting>
       </informalexample></para>
+  </chapter>
 
-    <simpara>It's convenient to skip the connection dialog window if you
-    always work with the same database account.</simpara>
+  <chapter xml:id="dbm-chapt">
+    <title>Database Manager</title>
 
-    <warning>
-      <simpara>Use of the --password switch is not secure. Everything typed on
-      command-lines is generally available to other users on the computer. The
-      problem is compounded if you use a network connection to obtain your
-      command line. The RC File section explains how you can set up automatic
-      connections without supplying a password on the command line.</simpara>
-    </warning>
-  </section>
+    <info>
+      <authorgroup>
+        <author>
+          <personname><firstname>Fred</firstname>
+          <surname>Toussi</surname></personname>
 
-  <section xml:id="dbm_rcfile-sect">
-    <title>RC File</title>
+          <affiliation>
+            <orgname>The HSQL Development Group</orgname>
+          </affiliation>
+        </author>
 
-    <simpara>You can skip the connection dialog window securely by putting the
-    connection information into an RC file and then using the
-    <literal>--urlid</literal> switch to DatabaseManager or
-    DatabaseManagerSwing. This strategy is great for adding launch menu items
-    and/or launch icons to your desktop. You can set up one icon for each of
-    the database accounts which you regularly use.</simpara>
+        <author>
+          <personname><firstname>Blaine</firstname>
+          <surname>Simpson</surname></personname>
 
-    <simpara>The default location for the RC file is
-    <filename>dbmanager.rc</filename> in your home directory. The <link
-    endterm="auth-title" xlink:href="#sqltool_auth-sect" /> section explains how to put
-    the connection information into this text file. If you also run <link
-    endterm="sqltool-title" xlink:href="#sqltool-chapt" />, then you can share
-    the RC file with SqlTool by using a sym-link (if your operating system
-    supports sym links), or by using the <literal>--rcfile</literal> switch
-    for either SqlTool or DatabaseManagerSwing.</simpara>
+          <affiliation>
+            <orgname>The HSQL Development Group</orgname>
+          </affiliation>
+        </author>
+      </authorgroup>
 
-    <warning>
-      <simpara>Use your operating system facilities to prevent others from
-      reading your RC file, since it contains passwords.</simpara>
-    </warning>
-
-    <para>To set up launch items/icons, first experiment on your command line
-    to find exactly what command works. For example, <informalexample>
-        <screen>java -cp /path/to/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing --urlid mem</screen>
-      </informalexample> Then, use your window manager to add an item that
-    runs this command.</para>
-  </section>
-
-  <section xml:id="dbm_wold-sect">
-    <title>Using the current DatabaseManagers with an older HSQLDB
-    distribution.</title>
-
-    <simpara>This procedure will allow users of a legacy version of HSQLDB to
-    use all of the new features of the DatabaseManagers. You will also get the
-    new version of the SqlTool! This procedure works for distros going back to
-    1.7.3.3 at least, probably much farther.</simpara>
-
-    <simpara>
-      These instructions assume that you are capable of running an Ant
-      build. See the Building Appendix of the
-      <link xlink:href="&distro_baseurl;/guide/index.html">
-                  HyperSQL User Guide</link>.
-    </simpara>
-
-    <procedure>
-      <step>
-        <simpara>Download and extract a current HSQLDB distribution. If you
-        don't want to use the source code, documentation, etc., you can use a
-        temporary directory and remove it afterwards.</simpara>
-      </step>
-
-      <step>
-        <simpara>Cd to the build directory under the root directory where you
-        extracted the distribution to.</simpara>
-      </step>
-
-      <step>
-        <simpara>Run <literal>ant hsqldbutil</literal>.</simpara>
-      </step>
-
-      <step>
-        <simpara>If you're going to wipe out the build directory, copy
-        <filename>hsqldbutil.jar</filename> to a safe location
-        first.</simpara>
-      </step>
-
-      <step>
-        <simpara>For now on, whenver you are going to run DatabaseManager*,
-        make sure that you have this <filename>hsqldbutil.jar</filename> as
-        the first item in your <varname>CLASSPATH</varname>.</simpara>
-      </step>
-    </procedure>
-
-    <para>Here's a UNIX example where somebody wants to use the new
-    DatabaseManagerSwing with their older HSQLDB database, as well as with
-    Postgresql and a local application. <informalexample>
-        <screen>CLASSPATH=/path/to/hsqldbutil.jar:/home/bob/myapp/classes:/usr/local/lib/pg.jdbc3.jar
-export CLASSPATH
-java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
-      </informalexample></para>
-  </section>
-
-  <section xml:id="dbm_applet-sect">
-      <title>DatabaseManagerSwing as an Applet</title>
-      <simpara>
-          DatabaseManagerSwing is also an applet.
-          You can use it in HTML, JSPs, etc.
-          Be aware that in Applet mode, actions to load or save local files
-          will be disabled, and attempts to access any server other than
-          the HTML-serving-host will be fail.
-      </simpara>
-      <para>
-          Since the Applet can not store or load locally saved preferences,
-          the only way to have persistent preference settings is by using
-          Applet parameters.
-          <variablelist><title>DatabaseManagerSwing Applet Parameters</title>
-              <varlistentry><term>jdbcUrl</term><listitem><simpara>
-                  URL of a data source to auto-connect to.  String value.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>jdbcDriver</term><listitem><simpara>
-                  URL of a data source to auto-connect to.  String value.
-                  Defaults to <classname>org.hsqldb.driver.JDBCDriver</classname>.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>jdbcUser</term><listitem><simpara>
-                  User name for data source to auto-connect to.  String value.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>jdbcPassword</term><listitem><simpara>
-                  Password for data source to auto-connect to.  String value.
-                  Defaults to zero-length string.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>schemaFilter</term><listitem><simpara>
-                  Display only object from this schema in the object navigator.
-                  String value.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>laf</term><listitem><simpara>
-                  Look-and-feel.  String value.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>loadSampleData</term><listitem><simpara>
-                  Auto-load sample data.  Boolean value.
-                  Defaults to false.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>autoRefresh</term><listitem><simpara>
-                  Auto-refresh the object navigator when DDL modifications
-                  detected in user SQL commands.  Boolean value.
-                  Defaults to true.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>showRowCounts</term><listitem><simpara>
-                  Show number of rows in each table in the object navigator.
-                  Boolean value.  Defaults to false.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>showSysTables</term><listitem><simpara>
-                  Show system tables in the object navigator.  Boolean value.
-                  Defaults to false.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>showSchemas</term><listitem><simpara>
-                  Show object names like schema.name in object navigator.
-                  Boolean value.  Defaults to true.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>resultGrid</term><listitem><simpara>
-                  Show query results in Gui grid (as opposed to in plain text).
-                  Boolean value.  Defaults to true.
-              </simpara></listitem></varlistentry>
-              <varlistentry><term>showToolTips</term><listitem><simpara>
-                  Show help hover-text.  Boolean value.  Defaults to true.
-              </simpara></listitem></varlistentry>
-          </variablelist>
-      </para>
-  </section>
-</chapter>
-
-<chapter xml:id="transfer-tool-chapt">
-  <title>Transfer Tool</title>
-
-  <info>
-    <authorgroup>
-      <author>
-        <personname>
-          <firstname>Fred</firstname> <surname>Toussi</surname>
-        </personname>
-
-        <affiliation>
-          <orgname>The HSQL Development Group</orgname>
-        </affiliation>
-      </author>
-    </authorgroup>
-
-    <!-- No sense for separate stamps while this is in a shared file.
+      <!-- No sense for separate stamps while this is in a shared file.
     <releaseinfo>$Revision$</releaseinfo>
 
     <pubdate>$Date$</pubdate>
     -->
 
-    <keywordset>
-      <keyword>Hsqldb</keyword>
+      <keywordset>
+        <keyword>Hsqldb</keyword>
 
-      <keyword>Transfer</keyword>
-    </keywordset>
-  </info>
+        <keyword>Database</keyword>
 
-  <section xml:id="trantool_intro-sect">
-    <title>Brief Introduction</title>
+        <keyword>Manager</keyword>
+      </keywordset>
+    </info>
 
-    <para>Transfer Tool is a GUI program for transferring SQL schema and data
-    from one JDBC source to another. Source and destination can be different
-    database engines or different databases on the same server.</para>
+    <section xml:id="dbm_intro-sect">
+      <title>Brief Introduction</title>
 
-    <para>Transfer Tool works in two different modes. Direct transfer
-    maintains a connection to both source and destination and performs the
-    transfer. Dump and Restore mode is invoked once to transfer the data from
-    the source to a text file (Dump), then again to transfer the data from the
-    text file to the destination (Restore). With Dump and Restore, it is
-    possible to make any changes to database object definitions and data prior
-    to restoring it to the target.</para>
+      <para>The Database Manager tool is a simple GUI database query tool with
+      a tree display of the tables. Both AWT and SWING versions of the tool
+      are available and work almost identically. The AWT version class name is
+      org.hsqldb.util.DatabaseManager; the SWING version,
+      org.hsqldb.util.DatabaseManagerSwing. The SWING version has more
+      refinements than the AWT version.</para>
 
-    <para>Dump and Restore modes can be set via the command line with -d
-    (--dump) or -r (--restore) options. Alternatively the Transfer Tool can be
-    started with any of the three modes from the Database Manager's Tools
-    menu.</para>
+      <para>The AWT version of the database manager can be deployed as an
+      applet in a browser. A demo HTML file with an embedded Database Manager
+      is included in the /demo directory.</para>
 
-    <para>The connection dialogue allows you to save the settings for the
-    connection you are about to make. You can then access the connection in
-    future sessions. These settings are shared with those from the Database
-    Manager tool. See the appendix on Database Manager for details of the
-    connection dialogue box.</para>
+      <para>When the Database Manager is started, a dialogue allows you to
+      enter the JDBC driver, URL, user and password for the new connection. A
+      drop-down box, Type, offers preset values for JDBC driver and URL for
+      most popular database engines, including HSQLDB. Once you have selected
+      an item from this drop-down box, you should edit the URL to specify the
+      details of the database or any additional properties to pass. You should
+      also enter the username and password before clicking on the OK
+      button.</para>
 
-    <para>In version 1.8.0 Transfer Tool is no longer part of the
-    <filename>hsqldb.jar</filename>.  You can build the
-    <filename>hsqldbutil.jar</filename> using the Ant command of the same name,
-    to build a jar that includes Transfer Tool and the Database
-    Manager.</para>
+      <para>The connection dialogue allows you to save the settings for the
+      connection you are about to make. You can then access the connection in
+      future sessions. To save a connection setting, enter a name in the
+      Setting Name box before clicking on the OK button. Next time the
+      connection dialogue is displayed, the drop-down box labeled Recent will
+      include the name for all the saved connection settings. When you select
+      a name, the individual settings are displayed in the appropriate
+      boxes.</para>
 
-    <para>When collecting meta-data, Transfer Tool performs SELECT * FROM
-    &lt;table&gt; queries on all the tables in the source database. This may
-    take a long time with some database engines. When the source database is
-    HSQLDB, this means memory should be available for the result sets returned
-    from the queries. Therefore, the memory allocation of the java process in
-    which Transfer Tool is executed may have to be high.</para>
-  </section>
-</chapter>
+      <para>The small Clr button next to the drop-down box allows you to clear
+      all the saved settings. If you want to modify an existing setting, first
+      select it from the drop-down box then modify any of the text boxes
+      before making the connection. The modified values will be saved.</para>
 
-<xi:include href="filelinks-app.xml"/>
+      <simpara>Most SWING menu items have context-sensitive tool tip help text
+      which will appear if you hold the mouse cursor still over the desired
+      menu item. (Assuming that you don't turn Tooltips off under the
+      <guimenu>Help</guimenu> menu.</simpara>
+
+      <simpara>The DatabaseManagers do work with HSQLDB servers serving
+      TLS-encrypted JDBC data. See the TLS section of the Listeners chapter of
+      the <link xlink:href="distro_baseurl_DEFAULTVAL/guide/index.html">
+      HyperSQL User Guide</link></simpara>
+
+      <tip>
+        <simpara>If you are using DatabaseManagerSwing with Oracle, you will
+        want to make sure that <guimenuitem>Show row counts</guimenuitem> and
+        <guimenuitem>Show row counts</guimenuitem> are both off
+        <emphasis>before connecting to the database</emphasis>. You may also
+        want to turn off Auto tree-update, as described in the next
+        section.</simpara>
+      </tip>
+    </section>
+
+    <section xml:id="dbm_tree-sect">
+      <title>Auto tree-update</title>
+
+      <simpara>By default, the object tree in the left panel is refreshed when
+      you execute DDL which may update those objects. If you are on a slow
+      network or performance-challenged PC, use the <guimenu>view</guimenu> /
+      <guimenuitem>Auto-refresh tree</guimenuitem> menu item to turn it off.
+      You will then need to use the
+      <guimenu>view</guimenu><guimenuitem>Refresh tree</guimenuitem> menu item
+      every time that you want to refresh the tree.</simpara>
+
+      <note>
+        <simpara>Auto-refresh tree does not automatically show all updates to
+        database objects, it only refreshes when you submit DDL which may
+        update database objects. (This behavior is a compromise between
+        utility and performance).</simpara>
+      </note>
+    </section>
+
+    <section xml:id="dbm-autoconn-sect">
+      <title>Automatic Connection</title>
+
+      <para>You can use command-line switches to supply connection
+      information. If you use these switch(es), then the connection dialog
+      window will be skipped and a JDBC connection will be established
+      immediately. Assuming that the <filename>hsqldb.jar</filename> (or an
+      alternative jar) are in your <varname>CLASSPATH</varname>, this command
+      will list the available command-line options. <informalexample>
+          <screen>    java org.hsqldb.util.DatabaseManagerSwing --help</screen>
+        </informalexample></para>
+
+      <simpara>It's convenient to skip the connection dialog window if you
+      always work with the same database account.</simpara>
+
+      <warning>
+        <simpara>Use of the --password switch is not secure. Everything typed
+        on command-lines is generally available to other users on the
+        computer. The problem is compounded if you use a network connection to
+        obtain your command line. The RC File section explains how you can set
+        up automatic connections without supplying a password on the command
+        line.</simpara>
+      </warning>
+    </section>
+
+    <section xml:id="dbm_rcfile-sect">
+      <title>RC File</title>
+
+      <simpara>You can skip the connection dialog window securely by putting
+      the connection information into an RC file and then using the
+      <literal>--urlid</literal> switch to DatabaseManager or
+      DatabaseManagerSwing. This strategy is great for adding launch menu
+      items and/or launch icons to your desktop. You can set up one icon for
+      each of the database accounts which you regularly use.</simpara>
+
+      <simpara>The default location for the RC file is
+      <filename>dbmanager.rc</filename> in your home directory. The <link
+      endterm="auth-title" xlink:href="#sqltool_auth-sect"></link> section
+      explains how to put the connection information into this text file. If
+      you also run <link endterm="sqltool-title"
+      xlink:href="#sqltool-chapt"></link>, then you can share the RC file with
+      SqlTool by using a sym-link (if your operating system supports sym
+      links), or by using the <literal>--rcfile</literal> switch for either
+      SqlTool or DatabaseManagerSwing.</simpara>
+
+      <warning>
+        <simpara>Use your operating system facilities to prevent others from
+        reading your RC file, since it contains passwords.</simpara>
+      </warning>
+
+      <para>To set up launch items/icons, first experiment on your command
+      line to find exactly what command works. For example, <informalexample>
+          <screen>java -cp /path/to/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing --urlid mem</screen>
+        </informalexample> Then, use your window manager to add an item that
+      runs this command.</para>
+    </section>
+
+    <section xml:id="dbm_wold-sect">
+      <title>Using the current DatabaseManagers with an older HSQLDB
+      distribution.</title>
+
+      <simpara>This procedure will allow users of a legacy version of HSQLDB
+      to use all of the new features of the DatabaseManagers. You will also
+      get the new version of the SqlTool! This procedure works for distros
+      going back to 1.7.3.3 at least, probably much farther.</simpara>
+
+      <simpara>These instructions assume that you are capable of running an
+      Ant build. See the Building Appendix of the <link
+      xlink:href="distro_baseurl_DEFAULTVAL/guide/index.html"> HyperSQL User
+      Guide</link>.</simpara>
+
+      <procedure>
+        <step>
+          <simpara>Download and extract a current HSQLDB distribution. If you
+          don't want to use the source code, documentation, etc., you can use
+          a temporary directory and remove it afterwards.</simpara>
+        </step>
+
+        <step>
+          <simpara>Cd to the build directory under the root directory where
+          you extracted the distribution to.</simpara>
+        </step>
+
+        <step>
+          <simpara>Run <literal>ant hsqldbutil</literal>.</simpara>
+        </step>
+
+        <step>
+          <simpara>If you're going to wipe out the build directory, copy
+          <filename>hsqldbutil.jar</filename> to a safe location
+          first.</simpara>
+        </step>
+
+        <step>
+          <simpara>For now on, whenver you are going to run DatabaseManager*,
+          make sure that you have this <filename>hsqldbutil.jar</filename> as
+          the first item in your <varname>CLASSPATH</varname>.</simpara>
+        </step>
+      </procedure>
+
+      <para>Here's a UNIX example where somebody wants to use the new
+      DatabaseManagerSwing with their older HSQLDB database, as well as with
+      Postgresql and a local application. <informalexample>
+          <screen>CLASSPATH=/path/to/hsqldbutil.jar:/home/bob/myapp/classes:/usr/local/lib/pg.jdbc3.jar
+export CLASSPATH
+java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
+        </informalexample></para>
+    </section>
+
+    <section xml:id="dbm_applet-sect">
+      <title>DatabaseManagerSwing as an Applet</title>
+
+      <simpara>DatabaseManagerSwing is also an applet. You can use it in HTML,
+      JSPs, etc. Be aware that in Applet mode, actions to load or save local
+      files will be disabled, and attempts to access any server other than the
+      HTML-serving-host will fail.</simpara>
+
+      <para>Since the Applet can not store or load locally saved preferences,
+      the only way to have persistent preference settings is by using Applet
+      parameters. <variablelist>
+          <title>DatabaseManagerSwing Applet Parameters</title>
+
+          <varlistentry>
+            <term>jdbcUrl</term>
+
+            <listitem>
+              <simpara>URL of a data source to auto-connect to. String
+              value.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>jdbcDriver</term>
+
+            <listitem>
+              <simpara>URL of a data source to auto-connect to. String value.
+              Defaults to
+              <classname>org.hsqldb.driver.JDBCDriver</classname>.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>jdbcUser</term>
+
+            <listitem>
+              <simpara>User name for data source to auto-connect to. String
+              value.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>jdbcPassword</term>
+
+            <listitem>
+              <simpara>Password for data source to auto-connect to. String
+              value. Defaults to zero-length string.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>schemaFilter</term>
+
+            <listitem>
+              <simpara>Display only object from this schema in the object
+              navigator. String value.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>laf</term>
+
+            <listitem>
+              <simpara>Look-and-feel. String value.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>loadSampleData</term>
+
+            <listitem>
+              <simpara>Auto-load sample data. Boolean value. Defaults to
+              false.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>autoRefresh</term>
+
+            <listitem>
+              <simpara>Auto-refresh the object navigator when DDL
+              modifications detected in user SQL commands. Boolean value.
+              Defaults to true.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>showRowCounts</term>
+
+            <listitem>
+              <simpara>Show number of rows in each table in the object
+              navigator. Boolean value. Defaults to false.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>showSysTables</term>
+
+            <listitem>
+              <simpara>Show system tables in the object navigator. Boolean
+              value. Defaults to false.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>showSchemas</term>
+
+            <listitem>
+              <simpara>Show object names like schema.name in object navigator.
+              Boolean value. Defaults to true.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>resultGrid</term>
+
+            <listitem>
+              <simpara>Show query results in Gui grid (as opposed to in plain
+              text). Boolean value. Defaults to true.</simpara>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>showToolTips</term>
+
+            <listitem>
+              <simpara>Show help hover-text. Boolean value. Defaults to
+              true.</simpara>
+            </listitem>
+          </varlistentry>
+        </variablelist></para>
+    </section>
+  </chapter>
+
+  <chapter xml:id="transfer-tool-chapt">
+    <title>Transfer Tool</title>
+
+    <info>
+      <authorgroup>
+        <author>
+          <personname><firstname>Fred</firstname>
+          <surname>Toussi</surname></personname>
+
+          <affiliation>
+            <orgname>The HSQL Development Group</orgname>
+          </affiliation>
+        </author>
+      </authorgroup>
+
+      <!-- No sense for separate stamps while this is in a shared file.
+    <releaseinfo>$Revision$</releaseinfo>
+
+    <pubdate>$Date$</pubdate>
+    -->
+
+      <keywordset>
+        <keyword>Hsqldb</keyword>
+
+        <keyword>Transfer</keyword>
+      </keywordset>
+    </info>
+
+    <section xml:id="trantool_intro-sect">
+      <title>Brief Introduction</title>
+
+      <para>Transfer Tool is a GUI program for transferring SQL schema and
+      data from one JDBC source to another. Source and destination can be
+      different database engines or different databases on the same
+      server.</para>
+
+      <para>Transfer Tool works in two different modes. Direct transfer
+      maintains a connection to both source and destination and performs the
+      transfer. Dump and Restore mode is invoked once to transfer the data
+      from the source to a text file (Dump), then again to transfer the data
+      from the text file to the destination (Restore). With Dump and Restore,
+      it is possible to make any changes to database object definitions and
+      data prior to restoring it to the target.</para>
+
+      <para>Dump and Restore modes can be set via the command line with -d
+      (--dump) or -r (--restore) options. Alternatively the Transfer Tool can
+      be started with any of the three modes from the Database Manager's Tools
+      menu.</para>
+
+      <para>The connection dialogue allows you to save the settings for the
+      connection you are about to make. You can then access the connection in
+      future sessions. These settings are shared with those from the Database
+      Manager tool. See the appendix on Database Manager for details of the
+      connection dialogue box.</para>
+
+      <para>From version 1.8.0 Transfer Tool is no longer part of the
+      <filename>hsqldb.jar</filename>. You can build the
+      <filename>hsqldbutil.jar</filename> using the Ant command of the same
+      name, to build a jar that includes Transfer Tool and the Database
+      Manager.</para>
+
+      <para>When collecting meta-data, Transfer Tool performs SELECT * FROM
+      &lt;table&gt; queries on all the tables in the source database. This may
+      take a long time with some database engines. When the source database is
+      HSQLDB, this means memory should be available for the result sets
+      returned from the queries. Therefore, the memory allocation of the java
+      process in which Transfer Tool is executed may have to be high.</para>
+    </section>
+  </chapter>
+
+  <xi:include href="filelinks-app.xml" />
 
   <!--  Enable the index as soon as mark some index terms.
   <index xml:id="book-ind"/>
