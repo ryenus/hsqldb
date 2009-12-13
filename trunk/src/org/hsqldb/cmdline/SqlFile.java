@@ -45,6 +45,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -619,6 +620,9 @@ public class SqlFile {
                 scanner.setSqlPrompt(contPrompt);
                 scanner.setSqltoolPrompt(primaryPrompt);
                 scanner.setInteractive(true);
+                if (shared.jdbcConn == null)
+                    stdprintln("To connect to a data source, use '\\j "
+                        + "ulid' or '\\j account password jdbc:url...'");
                 stdprint(primaryPrompt);
             }
             scanpass(scanner);
@@ -1645,12 +1649,32 @@ public class SqlFile {
                 return;
             case 'j' :
                 enforce1charSpecial(arg1, 'j');
-                if (other == null) {
-                    displayConnBanner();
-                    return;
+                String urlid = null;
+                String acct = null;
+                String pwd = null;
+                String url = null;
+                boolean goalAutoCommit = false;
+                String[] tokens = (other == null)
+                        ? (new String[0]) : other.split("\\s+", 3);
+                switch (tokens.length) {
+                    case 0:
+                        break;
+                    case 1:
+                        urlid = tokens[0];
+                        break;
+                    case 2:
+                        acct = tokens[0];
+                        pwd = "";  // default password to ""
+                        url = tokens[1];
+                        break;
+                    case 3:
+                        acct = tokens[0];
+                        pwd = tokens[1];
+                        url = tokens[2];
+                        break;
                 }
-                if (other.matches("\\S+")) {
-                    boolean goalAutoCommit = false;
+                if (tokens.length > 0) {
+                    // Close current connection
                     if (shared.jdbcConn != null) try {
                         goalAutoCommit = shared.jdbcConn.getAutoCommit();
                         shared.jdbcConn.close();
@@ -1660,19 +1684,24 @@ public class SqlFile {
                     } catch (SQLException se) {
                         throw new BadSpecial(
                                 "Failed to close existing connection", se);
+                        // TODO:  Rbify
                     }
-                    try {
+                }
+                try {
+                    if (urlid != null) {
                         shared.jdbcConn = new RCData(new File(
-                            SqlTool.DEFAULT_RCFILE), other) .getConnection();
-                    } catch (Exception e) {
-                        throw new BadSpecial("Failed to connect", e);
+                            SqlTool.DEFAULT_RCFILE), urlid).getConnection();
+                    } else if (acct != null) {
+                        shared.jdbcConn =
+                                DriverManager.getConnection(url, acct, pwd);
                     }
                     shared.possiblyUncommitteds = false;
                     shared.jdbcConn.setAutoCommit(goalAutoCommit);
-                    displayConnBanner();
-                    return;
+                } catch (Exception e) {
+                    throw new BadSpecial("Failed to connect", e);
                 }
-                throw new BadSpecial("Can't make non-RCData Connection yet");
+                displayConnBanner();
+                return;
             case 'v' :
                 requireConnection();
                 enforce1charSpecial(arg1, 'v');
