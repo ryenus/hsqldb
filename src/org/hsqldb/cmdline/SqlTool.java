@@ -35,6 +35,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PipedReader;
+import java.io.PipedWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -215,9 +217,13 @@ public class SqlTool {
         String    val;
         String[]  allvars;
 
-        if ((varMap == null) || (varString == null)) {
+        if (varMap == null) {
             throw new IllegalArgumentException(
-                    "varMap or varString are null in SqlTool.varParser call");
+                    "varMap is null in SqlTool.varParser call");
+        }
+        if (varString == null) {
+            throw new IllegalArgumentException(
+                    "varString is null in SqlTool.varParser call");
         }
 
         allvars = varString.split("\\s*,\\s*");
@@ -292,7 +298,7 @@ public class SqlTool {
          * execute as many SqlFiles as we need to.
          */
         String  rcFile           = null;
-        File    tmpFile          = null;
+        PipedReader  tmpReader   = null;
         String  sqlText          = null;
         String  driver           = null;
         String  targetDb         = null;
@@ -419,35 +425,27 @@ public class SqlTool {
                 }
             }
 
-            if (!listMode) {
-
-                // If an inline RC file was specified, don't worry about the targetDb
-                if (rcParams == null) {
-                    if (++i == arg.length) {
-                        throw bcl;
-                    }
-
-                    targetDb = arg[i];
-                }
+            if (!listMode && rcParams == null && ++i != arg.length) {
+                // If an inline RC file was specified, don't look for targetDb
+                targetDb = arg[i];
+                if (targetDb.equals("-")) targetDb = null;
             }
 
             int scriptIndex = 0;
 
             if (sqlText != null) {
                 try {
-                    tmpFile = File.createTempFile("sqltool-", ".sql");
-
-                    //(new java.io.FileWriter(tmpFile)).write(sqlText);
-                    java.io.FileWriter fw = new java.io.FileWriter(tmpFile);
+                    tmpReader = new PipedReader();
+                    PipedWriter tmpWriter = new PipedWriter(tmpReader);
+                    // My best guess is that the encoding here will be however
+                    // we read the SQL text from the command-line, which will
+                    // be the platform default encoding.  Therefore, don't
+                    // specify an encoding for this pipe.
                     try {
-
-                        fw.write("/* " + (new java.util.Date()) + ".  "
-                                 + SqlTool.class.getName()
-                                 + " command-line SQL. */" + LS + LS);
-                        fw.write(sqlText + LS);
-                        fw.flush();
+                        tmpWriter.write(sqlText + LS);
+                        tmpWriter.flush();
                     } finally {
-                        fw.close();
+                        tmpWriter.close();
                     }
                 } catch (IOException ioe) {
                     throw new SqlToolException(IOERR_EXITVAL,
@@ -545,7 +543,7 @@ public class SqlTool {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.RCDATA_GENFROMVALUES_FAIL, e.getMessage()));
             }
-        } else {
+        } else if (targetDb != null) {
             try {
                 conData = new RCData(new File((rcFile == null)
                                               ? DEFAULT_RCFILE
@@ -559,16 +557,18 @@ public class SqlTool {
             }
         }
 
-        if (listMode) {
-            return;
-        }
-
         //if (debug) {
             //conData.report();
         //}
 
+        if (listMode) {
+            return;
+        }
+
+        if (interactive) System.out.print("SqlTool v. " + revnum + LS);
+
         Connection conn = null;
-        try {
+        if (conData != null) try {
             conn = conData.getConnection(
                 driver, System.getProperty("javax.net.ssl.trustStore"));
 
@@ -622,7 +622,7 @@ public class SqlTool {
 
         int numFiles = scriptFiles.length;
 
-        if (tmpFile != null) {
+        if (tmpReader != null) {
             numFiles += 1;
         }
 
@@ -634,6 +634,7 @@ public class SqlTool {
 
         Map userVars = null;
         if (varSettings != null) try {
+            userVars = new HashMap();
             varParser(varSettings, userVars, false);
         } catch (PrivateException pe) {
             throw new SqlToolException(RCERR_EXITVAL, pe.getMessage());
@@ -641,16 +642,18 @@ public class SqlTool {
 
         // We print version before execing this one.
         int interactiveFileIndex = -1;
+        String encoding = (conData == null) ? null : conData.charset;
 
         try {
             int fileIndex = 0;
 
             if (autoFile != null) {
-                sqlFiles[fileIndex++] = new SqlFile(autoFile, conData.charset);
+                sqlFiles[fileIndex++] = new SqlFile(autoFile, encoding);
             }
 
-            if (tmpFile != null) {
-                sqlFiles[fileIndex++] = new SqlFile(tmpFile, conData.charset);
+            if (tmpReader != null) {
+                sqlFiles[fileIndex++] =
+                    new SqlFile(tmpReader, "--sql", System.out, null, false);
             }
 
             for (int j = 0; j < scriptFiles.length; j++) {
@@ -659,13 +662,13 @@ public class SqlTool {
                 }
 
                 sqlFiles[fileIndex++] = (scriptFiles[j] == null)
-                        ?  (new SqlFile(conData.charset, interactive))
+                        ?  (new SqlFile(encoding, interactive))
                         :  (new SqlFile(scriptFiles[j],
-                                conData.charset, interactive));
+                                encoding, interactive));
             }
         } catch (IOException ioe) {
             try {
-                conn.close();
+                if (conn != null) conn.close();
             } catch (Exception e) {
                 // Can only report on so many errors at one time
             }
@@ -676,19 +679,16 @@ public class SqlTool {
         Map macros = null;
         try {
             for (int j = 0; j < sqlFiles.length; j++) {
-                sqlFiles[j].setConnection(conn);
+                if (conn != null) sqlFiles[j].setConnection(conn);
                 if (userVars != null) sqlFiles[j].addUserVars(userVars);
                 if (macros != null) sqlFiles[j].addUserVars(macros);
                 if (coeOverride != null)
                     sqlFiles[j].setContinueOnError(coeOverride.booleanValue());
-                if (j == interactiveFileIndex) {
-                    System.out.print("SqlTool v. " + revnum
-                                     + ".                        ");
-                }
 
                 sqlFiles[j].execute();
                 userVars = sqlFiles[j].getUserVars();
                 macros = sqlFiles[j].getMacros();
+                conn = sqlFiles[j].getConnection();
             }
             // Following two Exception types are handled properly inside of
             // SqlFile.  We just need to return an appropriate error status.
@@ -700,17 +700,9 @@ public class SqlTool {
             throw new SqlToolException(SQLERR_EXITVAL);
         } finally {
             try {
-                conn.close();
+                if (conn != null) conn.close();
             } catch (Exception e) {
                 // Purposefully doing nothing
-            }
-            if ((!debug) && tmpFile != null && !tmpFile.delete()) {
-                // Leave this in final block.
-                // There are plenty of valid use-cases where SqlTool is
-                // expected to fail out, and we usually do not want files
-                // left around.
-                System.err.println(conData.url + rb.getString(
-                        SqltoolRB.TEMPFILE_REMOVAL_FAIL, tmpFile.toString()));
             }
         }
     }
