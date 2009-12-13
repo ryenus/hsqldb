@@ -672,7 +672,7 @@ public class SqlTool {
             for (int j = 0; j < sqlFiles.length; j++) {
                 if (conn != null) sqlFiles[j].setConnection(conn);
                 if (userVars != null) sqlFiles[j].addUserVars(userVars);
-                if (macros != null) sqlFiles[j].addUserVars(macros);
+                if (macros != null) sqlFiles[j].addMacros(macros);
                 if (coeOverride != null)
                     sqlFiles[j].setContinueOnError(coeOverride.booleanValue());
 
