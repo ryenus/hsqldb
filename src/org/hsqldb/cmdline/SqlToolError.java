@@ -38,6 +38,10 @@ import org.hsqldb.lib.AppendableException;
  * (As opposed to the nested Exceptions within those classes).
  * This class is misnamed, because it is not only errors.
  * When there is time, this file and class should be renamed.
+ * <P>
+ * This class has a misleading name and should really be renamed.
+ * It is Java Exception, not a Java Error.
+ * </P>
  */
 public class SqlToolError extends AppendableException {
 
