@@ -334,7 +334,7 @@ public class SqlFileScanner implements TokenSource {
             FrameworkLogger.getLog(SqlFileScanner.class);
     private StringBuffer commandBuffer = new StringBuffer();
     private boolean interactive = false;
-    private PrintStream psStd = System.out;
+    private PrintStream psStd; // Runs silently by default
     private String magicPrefix = null;
     private int requestedState = YYINITIAL;
     private String RAW_LEADIN_MSG = null;
@@ -366,7 +366,7 @@ public class SqlFileScanner implements TokenSource {
             throw new RuntimeException("Internal assertion failed.  "
                 + "Scanner's message Resource Bundle not initialized properly");
         }
-        psStd.println(RAW_LEADIN_MSG);
+        if (psStd != null) psStd.println(RAW_LEADIN_MSG);
     }
 
     // Trims only the end

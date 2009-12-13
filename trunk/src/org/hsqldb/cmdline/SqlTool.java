@@ -249,13 +249,14 @@ public class SqlTool {
     /**
      * A static wrapper for objectMain, so that that method may be executed
      * as a Java "program".
-     * <P/>
+     * <P>
      * Throws only RuntimeExceptions or Errors, because this method is intended
      * to System.exit() for all but disasterous system problems, for which
-     * the inconvenience of a a stack trace would be the least of your worries.
-     * <P/>
+     * the inconvenience of a stack trace would be the least of your worries.
+     * <P/> <P>
      * If you don't want SqlTool to System.exit(), then use the method
      * objectMain() instead of this method.
+     * <P/>
      *
      * @see #objectMain(String[])
      */
@@ -569,8 +570,7 @@ public class SqlTool {
         Connection conn = null;
         try {
             conn = conData.getConnection(
-                driver, System.getProperty("sqlfile.charset"),
-                System.getProperty("javax.net.ssl.trustStore"));
+                driver, System.getProperty("javax.net.ssl.trustStore"));
 
             conn.setAutoCommit(autoCommit);
 
@@ -631,9 +631,8 @@ public class SqlTool {
         }
 
         SqlFile[] sqlFiles = new SqlFile[numFiles];
-        Map   userVars = new HashMap();
-        Map   macros = new HashMap();
 
+        Map userVars = null;
         if (varSettings != null) try {
             varParser(varSettings, userVars, false);
         } catch (PrivateException pe) {
@@ -647,13 +646,11 @@ public class SqlTool {
             int fileIndex = 0;
 
             if (autoFile != null) {
-                sqlFiles[fileIndex++] =
-                        new SqlFile(autoFile, false, userVars, macros);
+                sqlFiles[fileIndex++] = new SqlFile(autoFile, conData.charset);
             }
 
             if (tmpFile != null) {
-                sqlFiles[fileIndex++] =
-                        new SqlFile(tmpFile, false, userVars, macros);
+                sqlFiles[fileIndex++] = new SqlFile(tmpFile, conData.charset);
             }
 
             for (int j = 0; j < scriptFiles.length; j++) {
@@ -661,8 +658,10 @@ public class SqlTool {
                     interactiveFileIndex = fileIndex;
                 }
 
-                sqlFiles[fileIndex++] =
-                    new SqlFile(scriptFiles[j], interactive, userVars, macros);
+                sqlFiles[fileIndex++] = (scriptFiles[j] == null)
+                        ?  (new SqlFile(conData.charset, interactive))
+                        :  (new SqlFile(scriptFiles[j],
+                                conData.charset, interactive));
             }
         } catch (IOException ioe) {
             try {
@@ -674,14 +673,22 @@ public class SqlTool {
             throw new SqlToolException(FILEERR_EXITVAL, ioe.getMessage());
         }
 
+        Map macros = null;
         try {
             for (int j = 0; j < sqlFiles.length; j++) {
+                sqlFiles[j].setConnection(conn);
+                if (userVars != null) sqlFiles[j].addUserVars(userVars);
+                if (macros != null) sqlFiles[j].addUserVars(macros);
+                if (coeOverride != null)
+                    sqlFiles[j].setContinueOnError(coeOverride.booleanValue());
                 if (j == interactiveFileIndex) {
                     System.out.print("SqlTool v. " + revnum
                                      + ".                        ");
                 }
 
-                sqlFiles[j].execute(conn, coeOverride);
+                sqlFiles[j].execute();
+                userVars = sqlFiles[j].getUserVars();
+                macros = sqlFiles[j].getMacros();
             }
             // Following two Exception types are handled properly inside of
             // SqlFile.  We just need to return an appropriate error status.

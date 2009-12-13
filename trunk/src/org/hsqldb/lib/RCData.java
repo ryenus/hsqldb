@@ -283,15 +283,15 @@ public class RCData {
 
     /* Purposefully not using JavaBean paradigm so that these fields can
      * be used as a traditional, public DO */
-    public String id         = null;
-    public String url        = null;
-    public String username   = null;
-    public String password   = null;
-    public String ti         = null;
-    public String driver     = null;
-    public String charset    = null;
-    public String truststore = null;
-    public String libpath    = null;
+    public String id;
+    public String url;
+    public String username;
+    public String password;
+    public String ti;
+    public String driver;
+    public String charset;
+    public String truststore;
+    public String libpath;
 
     /**
      * Gets a JDBC Connection using the data of this RCData object.
@@ -300,7 +300,7 @@ public class RCData {
      */
     public Connection getConnection()
     throws ClassNotFoundException, SQLException, MalformedURLException {
-        return getConnection(null, null, null);
+        return getConnection(null, null);
     }
 
     /**
@@ -309,15 +309,13 @@ public class RCData {
      *
      * @return New JDBC Connection
      */
-    public Connection getConnection(String curDriverIn, String curCharsetIn,
-                                    String curTrustStoreIn)
+    public Connection getConnection(String curDriverIn, String curTrustStoreIn)
                                     throws ClassNotFoundException,
                                            MalformedURLException,
                                            SQLException {
 
         // Local vars to satisfy compiler warnings
         String curDriver = curDriverIn;
-        String curCharset = curCharsetIn;
         String curTrustStore = curTrustStoreIn;
 
         Properties sysProps = System.getProperties();
@@ -329,18 +327,8 @@ public class RCData {
                                           : driver);
         }
 
-        if (curCharset == null && charset != null) {
-            curCharset = charset;
-        }
-
         if (curTrustStore == null && truststore != null) {
             curTrustStore = truststore;
-        }
-
-        if (curCharset == null) {
-            sysProps.remove("sqlfile.charset");
-        } else {
-            sysProps.put("sqlfile.charset", curCharset);
         }
 
         if (curTrustStore == null) {
