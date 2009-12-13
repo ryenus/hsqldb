@@ -594,8 +594,7 @@ implements ActionListener, WindowListener, KeyListener {
                 RCData rcdata     = new RCData(new File(rcfilepath), urlid);
 
                 c = rcdata.getConnection(
-                    null, System.getProperty("sqlfile.charset"),
-                    System.getProperty("javax.net.ssl.trustStore"));
+                    null, System.getProperty("javax.net.ssl.trustStore"));
             } else {
                 c = ConnectionDialogSwing.createConnection(m.jframe,
                         "Connect");

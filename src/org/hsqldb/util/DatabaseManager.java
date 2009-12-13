@@ -314,7 +314,6 @@ implements ActionListener, WindowListener, KeyListener {
                 }
 
                 c = new RCData(new File(rcFile), urlid).getConnection(null,
-                               System.getProperty("sqlfile.charset"),
                                System.getProperty("javax.net.ssl.trustStore"));
             } else {
                 c = ConnectionDialog.createConnection(m.fMain, "Connect");
