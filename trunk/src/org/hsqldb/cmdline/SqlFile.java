@@ -39,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -170,7 +171,7 @@ public class SqlFile {
     // Study to be sure this won't cause state inconsistencies.
     static private SqltoolRB        rb;
     private boolean          reportTimes;
-    private InputStreamReader reader;
+    private Reader           reader;
     // Reader serves the auxiliary purpose of null meaning execute()
     // has finished.
     private String           inputStreamLabel;
@@ -402,7 +403,7 @@ public class SqlFile {
      *
      * @param encoding is applied to both the given File and input pulled in by
      *        nesting.  Null for the platform default.
-     * @see #SqlFile(InputStreamReader, String, PrintStream, boolean)
+     * @see #SqlFile(Reader, String, PrintStream, boolean)
      */
     public SqlFile(File inputFile, String encoding, boolean interactive)
             throws IOException {
@@ -417,7 +418,7 @@ public class SqlFile {
      * @param encoding Used for reading stdin and for input pulled in by
      *        nesting
      *
-     * @see #SqlFile(InputStreamReader, String, PrintStream, boolean)
+     * @see #SqlFile(Reader, String, PrintStream, boolean)
      */
     public SqlFile(String encoding, boolean interactive) throws IOException {
         this((encoding == null)
@@ -452,7 +453,7 @@ public class SqlFile {
      * @see #execute()
      */
      //* @throws IOException  If can't open specified SQL file.
-    public SqlFile(InputStreamReader reader, String inputStreamLabel,
+    public SqlFile(Reader reader, String inputStreamLabel,
             PrintStream psStd, String encoding, boolean interactive)
             throws IOException {
         this(reader, inputStreamLabel);
@@ -468,9 +469,9 @@ public class SqlFile {
     }
 
     /**
-     * Wrapper for SqlFile(SqlFile, InputStreamReader, String)
+     * Wrapper for SqlFile(SqlFile, Reader, String)
      *
-     * @see #SqlFile(SqlFile, InputStreamReader, String)
+     * @see #SqlFile(SqlFile, Reader, String)
      */
     private SqlFile(SqlFile parentSqlFile, File inputFile) throws IOException {
         this(parentSqlFile,
@@ -483,7 +484,7 @@ public class SqlFile {
     /**
      * Constructor for recursion
      */
-    private SqlFile(SqlFile parentSqlFile, InputStreamReader reader,
+    private SqlFile(SqlFile parentSqlFile, Reader reader,
             String inputStreamLabel) throws IOException {
         this(reader, inputStreamLabel);
         recursed = true;
@@ -497,7 +498,7 @@ public class SqlFile {
     /**
      * Base Constructor which every other Constructor starts with
      */
-    private SqlFile(InputStreamReader reader, String inputStreamLabel)
+    private SqlFile(Reader reader, String inputStreamLabel)
             throws IOException {
         logger.privlog(Level.FINER, "<init>ting SqlFile instance",
                 null, 2, FrameworkLogger.class);
@@ -519,6 +520,10 @@ public class SqlFile {
             throw new IllegalArgumentException(
                     "We don't yet support unsetting the JDBC Connection");
         shared.jdbcConn = jdbcConn;
+    }
+
+    public Connection getConnection() {
+        return shared.jdbcConn;
     }
 
     public void setContinueOnError(boolean continueOnError) {
