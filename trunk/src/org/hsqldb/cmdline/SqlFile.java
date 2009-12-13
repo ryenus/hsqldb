@@ -608,10 +608,6 @@ public class SqlFile {
         if (reader == null)
             throw new IllegalStateException("Can't call execute() "
                     + "more than once for a single SqlFile instance");
-        if (shared.jdbcConn == null)
-            throw new IllegalStateException("We don't yet support setting "
-                    + "JDBC Connection within SqlTool.  Therefore you must "
-                    + "set it before running execute().");
 
         try {
             scanner = new SqlFileScanner(reader);
@@ -912,12 +908,14 @@ public class SqlFile {
                         fetchingVar));
                 rollbackUncoms = true;
             }
-            if (shared.jdbcConn.getAutoCommit())
-                shared.possiblyUncommitteds = false;
-            if (rollbackUncoms && shared.possiblyUncommitteds) {
-                errprintln(rb.getString(SqltoolRB.ROLLINGBACK));
-                shared.jdbcConn.rollback();
-                shared.possiblyUncommitteds = false;
+            if (shared.jdbcConn != null) {
+                if (shared.jdbcConn.getAutoCommit())
+                    shared.possiblyUncommitteds = false;
+                if (rollbackUncoms && shared.possiblyUncommitteds) {
+                    errprintln(rb.getString(SqltoolRB.ROLLINGBACK));
+                    shared.jdbcConn.rollback();
+                    shared.possiblyUncommitteds = false;
+                }
             }
         }
     }
@@ -1397,6 +1395,7 @@ public class SqlFile {
                 return;
 
             case 'x' :
+                requireConnection();
                 if (arg1.equals("x?") ||
                         (arg1.equals("x") && other != null
                                  && other.equals("?"))) {
@@ -1489,6 +1488,7 @@ public class SqlFile {
                 return;
 
             case 'd' :
+                requireConnection();
                 if (arg1.equals("d?") ||
                         (arg1.equals("d") && other != null
                                  && other.equals("?"))) {
@@ -1631,6 +1631,7 @@ public class SqlFile {
                 return;
 
             case 'a' :
+                requireConnection();
                 enforce1charSpecial(arg1, 'a');
                 if (other != null) {
                     shared.jdbcConn.setAutoCommit(
@@ -1642,7 +1643,38 @@ public class SqlFile {
                         Boolean.toString(shared.jdbcConn.getAutoCommit())));
 
                 return;
+            case 'j' :
+                enforce1charSpecial(arg1, 'j');
+                if (other == null) {
+                    displayConnBanner();
+                    return;
+                }
+                if (other.matches("\\S+")) {
+                    boolean goalAutoCommit = false;
+                    if (shared.jdbcConn != null) try {
+                        goalAutoCommit = shared.jdbcConn.getAutoCommit();
+                        shared.jdbcConn.close();
+                        shared.possiblyUncommitteds = false;
+                        shared.jdbcConn = null;
+                        stdprintln("Connection closed"); // TODO:  Rbify
+                    } catch (SQLException se) {
+                        throw new BadSpecial(
+                                "Failed to close existing connection", se);
+                    }
+                    try {
+                        shared.jdbcConn = new RCData(new File(
+                            SqlTool.DEFAULT_RCFILE), other) .getConnection();
+                    } catch (Exception e) {
+                        throw new BadSpecial("Failed to connect", e);
+                    }
+                    shared.possiblyUncommitteds = false;
+                    shared.jdbcConn.setAutoCommit(goalAutoCommit);
+                    displayConnBanner();
+                    return;
+                }
+                throw new BadSpecial("Can't make non-RCData Connection yet");
             case 'v' :
+                requireConnection();
                 enforce1charSpecial(arg1, 'v');
                 if (other != null) {
                     if (integerPattern.matcher(other).matches()) {
@@ -1660,6 +1692,7 @@ public class SqlFile {
 
                 return;
             case '=' :
+                requireConnection();
                 enforce1charSpecial(arg1, '=');
                 shared.jdbcConn.commit();
                 shared.possiblyUncommitteds = false;
@@ -2429,7 +2462,7 @@ public class SqlFile {
             shared.psStd.println("<DIV style='color:white; background: red; "
                        + "font-weight: bold'>" + s + "</DIV>");
         } else {
-            logger.privlog(Level.SEVERE, s, null, 6, SqlFile.class);
+            logger.privlog(Level.SEVERE, s, null, 5, SqlFile.class);
             /* Only consistent way we can log source location is to log
              * the caller of SqlFile.
              * This seems acceptable, since the location being reported
@@ -2551,6 +2584,7 @@ public class SqlFile {
      */
     private void listTables(char c, String inFilter) throws BadSpecial,
             SqlToolError {
+        requireConnection();
         String   schema  = null;
         int[]    listSet = null;
         String[] types   = null;
@@ -2888,6 +2922,7 @@ public class SqlFile {
      * @throws SqlToolError all other errors.
      */
     private void processSQL() throws SQLException, SqlToolError {
+        requireConnection();
         if (buffer == null)
             throw new RuntimeException(
                     "Internal assertion failed.  No buffer in processSQL().");
@@ -3633,6 +3668,9 @@ public class SqlFile {
      */
     private void describe(String tableName,
                           String filterString) throws SQLException {
+        if (shared.jdbcConn == null)
+            throw new RuntimeException(
+                    "Somehow got to 'describe' even though we have no Conn");
         /*
          * Doing case-sensitive filters now, for greater portability.
         String filter = ((inFilter == null) ? null : inFilter.toUpperCase());
@@ -4348,6 +4386,7 @@ public class SqlFile {
      */
     public void importDsv(String filePath, String skipPrefix)
             throws SqlToolError {
+        requireConnection();
         /* To make string comparisons, contains() methods, etc. a little
          * simpler and concise, just switch all column names to lower-case.
          * This is ok since we acknowledge up front that DSV import/export
@@ -5190,5 +5229,39 @@ public class SqlFile {
     static public byte[] bitCharsToBytes(String hexChars) {
         throw new NumberFormatException(
                 "Sorry.  Bit exporting not supported yet");
+    }
+
+    private void requireConnection() throws SqlToolError {
+        if (shared.jdbcConn == null)
+            throw new SqlToolError(
+                    "An active JDBC Connection is required for this command");
+        // TODO:  Define an RB message
+    }
+
+    static public String getBanner(Connection c) {
+        try {
+            DatabaseMetaData md = c.getMetaData();
+            return (md == null)
+                    ? null
+                    : rb.getString(SqltoolRB.JDBC_ESTABLISHED,
+                            md.getDatabaseProductName(),
+                            md.getDatabaseProductVersion(),
+                            md.getUserName(),
+                                    (c.isReadOnly() ? "R/O " : "R/W ")
+                                    + RCData.tiToString(
+                                    c.getTransactionIsolation()));
+        } catch (SQLException se) {
+            return null;
+        }
+    }
+
+    private void displayConnBanner() {
+        String msg;
+        if (shared.jdbcConn == null) {
+            msg = "<UNCONNECTED>"; // TODO RB-ify
+        } else {
+            msg = SqlFile.getBanner(shared.jdbcConn);
+        }
+        stdprintln((msg == null) ? "<CONNECTED>" : msg);  // TODO:  RB-ify
     }
 }

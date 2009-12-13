@@ -38,7 +38,6 @@ import java.io.InputStreamReader;
 import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +74,7 @@ import org.hsqldb.lib.RCData;
 public class SqlTool {
     private static FrameworkLogger logger =
             FrameworkLogger.getLog(SqlTool.class);
-    private static final String DEFAULT_RCFILE =
+    public static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/sqltool.rc";
     // N.b. the following is static!
     private static String  revnum = null;
@@ -574,17 +573,9 @@ public class SqlTool {
 
             conn.setAutoCommit(autoCommit);
 
-            DatabaseMetaData md = null;
-
-            if (interactive && (md = conn.getMetaData()) != null) {
-                System.out.println(
-                        rb.getString(SqltoolRB.JDBC_ESTABLISHED,
-                                md.getDatabaseProductName(),
-                                md.getDatabaseProductVersion(),
-                                md.getUserName(),
-                                        (conn.isReadOnly() ? "R/O " : "R/W ")
-                                        + RCData.tiToString(
-                                        conn.getTransactionIsolation())));
+            String conBanner;
+            if (interactive && (conBanner = SqlFile.getBanner(conn)) != null) {
+                System.out.println(conBanner);
             }
         } catch (RuntimeException re) {
             throw re;  // Unrecoverable

@@ -1,4 +1,4 @@
-(SqlFile processor v. %{1})
+SqlFile processor v. %{1}
 Distribution is permitted under the terms of the HSQLDB license.
 (c) 2004-2009 Blaine Simpson and the HSQL Development Group.
 
