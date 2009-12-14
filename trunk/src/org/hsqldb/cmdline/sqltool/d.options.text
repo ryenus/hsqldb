@@ -1,12 +1,12 @@
 \dX [parameter...] where X is one of the following.
-    t:  list Tables
-    v:  list Views
-    s:  list Sequences
-    i:  list Indexes
-    S:  list System tables
     a:  list Aliases
+    i:  list Indexes
     n:  list schema Names
-    u:  list Users
     r:  list Roles
+    s:  list Sequences
+    S:  list System tables
+    t:  list Tables
+    u:  list Users
+    v:  list Views
     *:  list table-like objects
 

@@ -74,7 +74,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int RCDATA_GENFROMVALUES_FAIL = keyCounter++;
     static public final int CONNDATA_RETRIEVAL_FAIL = keyCounter++;
     static public final int JDBC_ESTABLISHED = keyCounter++;
-    static public final int TEMPFILE_REMOVAL_FAIL = keyCounter++;
 
     static public final int SQLFILE_BANNER = keyCounter++;
     static public final int BUFFER_HELP = keyCounter++;
@@ -89,7 +88,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int REJECTREPORT_BOTTOM = keyCounter++;
     static public final int MACRO_HELP = keyCounter++;
 
-    static public final int SQLFILE_READFAIL = keyCounter++;
     static public final int RAWMODE_PROMPT = keyCounter++;
     static public final int RAW_MOVEDTOBUFFER = keyCounter++;
     static public final int INPUT_MOVEDTOBUFFER = keyCounter++;
@@ -245,12 +243,16 @@ public class SqltoolRB extends ValidatingResourceBundle {
     static public final int MACRODEF_SEMI = keyCounter++;
     static public final int MACRO_MALFORMAT = keyCounter++;
     static public final int MACRO_UNDEFINED = keyCounter++;
-    static public final int ERRSTREAM_DEPRECATED = keyCounter++;
     static public final int LOG_SYNTAX = keyCounter++;
     static public final int LOG_SYNTAX_ERROR = keyCounter++;
     static public final int REJECT_RPC = keyCounter++;
     static public final int RPC_AUTOCOMMIT_FAILURE = keyCounter++;
     static public final int RPC_COMMIT_FAILURE = keyCounter++;
+    static public final int DISCONNECT_SUCCESS = keyCounter++;
+    static public final int DISCONNECT_FAILURE = keyCounter++;
+    static public final int NO_REQUIRED_CONN = keyCounter++;
+    static public final int DISCONNECTED_MSG = keyCounter++;
+    static public final int CONNECTED_FALLBACKMSG = keyCounter++;
 
     private static Object[] memberKeyArray = new Object[] {
         /* With Java 5, can use auto-boxing and get rid of all of the
@@ -274,7 +276,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
                 "rcdata.genfromvalues.fail",
         new Integer(CONNDATA_RETRIEVAL_FAIL), "conndata.retrieval.fail",
         new Integer(JDBC_ESTABLISHED), "jdbc.established",
-        new Integer(TEMPFILE_REMOVAL_FAIL), "tempfile.removal.fail",
 
         // SqlFile class, file references:
         new Integer(SQLFILE_BANNER), "SqlFile.banner",
@@ -291,7 +292,6 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(MACRO_HELP), "macro.help",
 
         // SqlFile inline properties:
-        new Integer(SQLFILE_READFAIL), "sqlfile.readfail",
         new Integer(RAWMODE_PROMPT), "rawmode.prompt",
         new Integer(RAW_MOVEDTOBUFFER), "raw.movedtobuffer",
         new Integer(INPUT_MOVEDTOBUFFER), "input.movedtobuffer",
@@ -447,12 +447,16 @@ public class SqltoolRB extends ValidatingResourceBundle {
         new Integer(MACRODEF_SEMI), "macrodef.semi",
         new Integer(MACRO_MALFORMAT), "macro.malformat",
         new Integer(MACRO_UNDEFINED), "macro.undefined",
-        new Integer(ERRSTREAM_DEPRECATED), "errstream.deprecated",
         new Integer(LOG_SYNTAX), "log.syntax",
         new Integer(LOG_SYNTAX_ERROR), "log.syntax.error",
         new Integer(REJECT_RPC), "reject.rpc",
         new Integer(RPC_AUTOCOMMIT_FAILURE), "rpc.autocommit.failure",
         new Integer(RPC_COMMIT_FAILURE), "rpc.commit.failure",
+        new Integer(DISCONNECT_SUCCESS), "disconnect.success",
+        new Integer(DISCONNECT_FAILURE), "disconnect.failure",
+        new Integer(NO_REQUIRED_CONN), "no.required.conn",
+        new Integer(DISCONNECTED_MSG), "disconnected.msg",
+        new Integer(CONNECTED_FALLBACKMSG), "connected.fallbackmsg",
     };
 
     private Map keyIdToString = new HashMap();

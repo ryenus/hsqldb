@@ -88,6 +88,7 @@ public class RCData {
      *
      * @param dbKey Key to look up in the file.
      *              If null, then will echo all urlids in the file to stdout.
+     *              (A rather ill-conceived design).
      * @param file File containing the authentication information.
      */
     public RCData(File file, String dbKey) throws Exception {
