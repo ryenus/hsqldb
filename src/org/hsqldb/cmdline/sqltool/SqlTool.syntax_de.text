@@ -9,7 +9,7 @@ Optionen:
     --debug                  Gibt Debug Infos auf stderr aus.
     --noAutoFile             Führt die Datei auto.sql im Home-Verzeichniss nicht aus.
     --autoCommit             Auto-commit JDBC DML Befehle
-    --sql="SQL; Anweisungen" Führt die angegebene SQL-Anweisung aus statt von stdin zu lesen
+    --sql="SQL; Anweisungen;" Führt die angegebene SQL-Anweisung aus statt von stdin zu lesen
     						 (bevor SQL-Dateien - wenn angegeben - ausgeführt werden)
     						  wobei 'SQL' aus SQL-Befehlen gebildet wird. Siehe Handbuch.
     --rcFile=path/file.rc    Verwende Info-Datei [$HOME/sqltool.rc]

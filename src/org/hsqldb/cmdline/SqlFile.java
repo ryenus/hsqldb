@@ -1656,7 +1656,7 @@ public class SqlFile {
                         Boolean.toString(shared.jdbcConn.getAutoCommit())));
 
                 return;
-            case 'j' :
+            case 'j' : try {
                 enforce1charSpecial(arg1, 'j');
                 String urlid = null;
                 String acct = null;
@@ -1689,14 +1689,13 @@ public class SqlFile {
                         shared.jdbcConn.close();
                         shared.possiblyUncommitteds = false;
                         shared.jdbcConn = null;
-                        stdprintln("Connection closed"); // TODO:  Rbify
+                        stdprintln(rb.getString(SqltoolRB.DISCONNECT_SUCCESS));
                     } catch (SQLException se) {
                         throw new BadSpecial(
-                                "Failed to close existing connection", se);
-                        // TODO:  Rbify
+                                rb.getString(SqltoolRB.DISCONNECT_FAILURE), se);
                     }
                 }
-                try {
+                if (urlid != null || acct != null) try {
                     if (urlid != null) {
                         shared.jdbcConn = new RCData(new File(
                             SqlTool.DEFAULT_RCFILE), urlid).getConnection();
@@ -1710,6 +1709,10 @@ public class SqlFile {
                     throw new BadSpecial("Failed to connect", e);
                 }
                 displayConnBanner();
+            } catch (Throwable t) {
+                t.printStackTrace();
+                return;
+            }
                 return;
             case 'v' :
                 requireConnection();
@@ -2431,10 +2434,8 @@ public class SqlFile {
                     setEncoding(m.group(3));
                     return;
                 } catch (UnsupportedEncodingException use) {
-                    throw new BadSpecial(
-                            "Specified encoding is not supported: "
-                            + m.group(3));
-                    // TODO:  Define a RB constant for this
+                    throw new BadSpecial(rb.getString(
+                            SqltoolRB.ENCODE_FAIL, m.group(3)));
                 }
                 if (m.groupCount() > 2 && m.group(3) != null) {
                     shared.userVars.put(varName, m.group(3));
@@ -3049,7 +3050,7 @@ public class SqlFile {
             shared.jdbcConn.close();
             shared.jdbcConn = null;
             shared.possiblyUncommitteds = false;
-            stdprintln("Connection closed"); // TODO:  Rbify
+            stdprintln(rb.getString(SqltoolRB.DISCONNECT_SUCCESS));
             return;
         }
         ResultSet rs = null;
@@ -5280,9 +5281,7 @@ public class SqlFile {
 
     private void requireConnection() throws SqlToolError {
         if (shared.jdbcConn == null)
-            throw new SqlToolError(
-                    "An active JDBC Connection is required for this command");
-        // TODO:  Define an RB message
+            throw new SqlToolError(rb.getString(SqltoolRB.NO_REQUIRED_CONN));
     }
 
     static public String getBanner(Connection c) {
@@ -5303,12 +5302,11 @@ public class SqlFile {
     }
 
     private void displayConnBanner() {
-        String msg;
-        if (shared.jdbcConn == null) {
-            msg = "<UNCONNECTED>"; // TODO RB-ify
-        } else {
-            msg = SqlFile.getBanner(shared.jdbcConn);
-        }
-        stdprintln((msg == null) ? "<CONNECTED>" : msg);  // TODO:  RB-ify
+        String msg = (shared.jdbcConn == null)
+                   ? rb.getString(SqltoolRB.DISCONNECTED_MSG)
+                   : SqlFile.getBanner(shared.jdbcConn);
+        stdprintln((msg == null)
+                  ? rb.getString(SqltoolRB.CONNECTED_FALLBACKMSG)
+                  : msg);
     }
 }

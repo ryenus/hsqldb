@@ -542,7 +542,7 @@ public class SqlTool {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.RCDATA_GENFROMVALUES_FAIL, e.getMessage()));
             }
-        } else if (targetDb != null) {
+        } else {
             try {
                 conData = new RCData(new File((rcFile == null)
                                               ? DEFAULT_RCFILE
@@ -561,10 +561,14 @@ public class SqlTool {
         //}
 
         if (listMode) {
+            // listMode has been handled above.
+            // Just returning here to prevent unexpected consequences if the
+            // user specifies both an inline RC (will will be ignored) and
+            // --list.
             return;
         }
 
-        if (interactive) System.out.print("SqlTool v. " + revnum + LS);
+        if (interactive) System.out.print("SqlTool v. " + revnum + '.' + LS);
 
         Connection conn = null;
         if (conData != null) try {
