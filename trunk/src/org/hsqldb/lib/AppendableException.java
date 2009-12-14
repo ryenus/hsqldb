@@ -81,7 +81,9 @@ public class AppendableException extends Exception {
         appendages.add(s);
     }
 
-    public AppendableException() {}
+    public AppendableException() {
+        // Intentionally empty
+    }
 
     public AppendableException(String s) {
         super(s);

@@ -136,9 +136,11 @@ public class SqlTool {
     private static class PrivateException extends Exception {
         static final long serialVersionUID = -7765061479594523462L;
 
+        /* Unused at this time
         PrivateException() {
             super();
         }
+        */
 
         PrivateException(String s) {
             super(s);
@@ -542,7 +544,7 @@ public class SqlTool {
                 throw new SqlToolException(RCERR_EXITVAL, rb.getString(
                         SqltoolRB.RCDATA_GENFROMVALUES_FAIL, e.getMessage()));
             }
-        } else {
+        } else if (listMode || targetDb != null) {
             try {
                 conData = new RCData(new File((rcFile == null)
                                               ? DEFAULT_RCFILE

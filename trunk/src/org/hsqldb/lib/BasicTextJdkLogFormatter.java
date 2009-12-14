@@ -63,6 +63,7 @@ public class BasicTextJdkLogFormatter extends Formatter {
     }
 
     public BasicTextJdkLogFormatter() {
+        // Intentionally empty
     }
 
     public String format(LogRecord record) {
