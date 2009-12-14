@@ -117,8 +117,9 @@ public class FrameworkLogger {
                 lm.readConfiguration(
                         FrameworkLogger.class.getResourceAsStream(
                         "/org/hsqldb/resources/jdklogging-default.properties"));
-                Logger.getLogger("org.hsqldb.cmdline")
-                        .addHandler(consoleHandler);
+                Logger cmdlineLogger = Logger.getLogger("org.hsqldb.cmdline");
+                cmdlineLogger.addHandler(consoleHandler);
+                cmdlineLogger.setUseParentHandlers(false);
             } else {
                 // Do not intervene.  Use JDK logging exactly as configured by
                 // user.

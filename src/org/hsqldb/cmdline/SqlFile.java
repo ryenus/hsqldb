@@ -867,6 +867,13 @@ public class SqlFile {
                 throw qn;
             } catch (SqlToolError ste) {
                 StringBuffer sb = new StringBuffer(rb.getString(
+                    /* WARNING:  I have removed an extra LS appended to
+                     * non-null ste.getMessages() below because I believe that
+                     * it is unnecessary (and causes inconsistent blank lines
+                     * to be written).
+                     * If I am wrong and this is needed for Scanner display or
+                     * something, restore it.
+                     */
                     SqltoolRB.ERRORAT, ((token == null)
                             ? (new String[] {
                                 inputStreamLabel, "?", "?",
@@ -880,7 +887,6 @@ public class SqlFile {
                                         ? "" : ste.getMessage())
                               }))
                 ));
-                if (ste.getMessage() != null) sb.append(LS);
                 Throwable cause = ste.getCause();
                 errprintln((cause == null) ? sb.toString()
                         : rb.getString(SqltoolRB.CAUSEREPORT,
