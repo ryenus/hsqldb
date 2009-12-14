@@ -1396,11 +1396,7 @@ public class SqlFile {
                     other = other.substring(0, colonIndex).trim();
                 }
 
-try {
                 importDsv(other, skipPrefix);
-} catch (Throwable t) {
-t.printStackTrace();
-}
 
                 return;
 
@@ -4499,7 +4495,6 @@ t.printStackTrace();
         try {
             String string = new String(bfr, (shared.encoding == null)
                     ? DEFAULT_FILE_ENCODING : shared.encoding);
-System.err.println("drs = " + dsvRowSplitter);
             lines = string.split(dsvRowSplitter, -1);
         } catch (UnsupportedEncodingException uee) {
             throw new SqlToolError(uee);
