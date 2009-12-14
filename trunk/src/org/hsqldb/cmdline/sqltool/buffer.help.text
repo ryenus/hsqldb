@@ -3,7 +3,7 @@ EDIT BUFFER AND HISTORY COMMANDS.  Not available for non-interactive use.
     :b                List current contents of edit Buffer
     :h                Show History of previous commands (plus buffer contents)
     :X  (integer X)   Load command #X from Command history into the Edit buffer
-    :-Y  (integer -Y) Same as :X, except -Y means Y commands back
+    :-Y  (integer -Y) Same an editY means Y commands back
     :/regex/          Same as :-Y, except it means latest command in history
                       matching the given regular expression
 The remaining edit/execute commands all operate on the Edit Buffer by default,
