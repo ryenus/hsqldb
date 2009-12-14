@@ -51,6 +51,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLTransientConnectionException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -3034,8 +3035,17 @@ public class SqlFile {
 
         /* This catches about the only very safe way to know a COMMIT
          * is not needed. */
-        shared.possiblyUncommitteds = !shared.jdbcConn.getAutoCommit()
-                && !commitOccursPattern.matcher(lastSqlStatement).matches();
+        try {
+            shared.possiblyUncommitteds = !shared.jdbcConn.getAutoCommit()
+                    && !commitOccursPattern.matcher(lastSqlStatement).matches();
+        } catch (SQLTransientConnectionException stce) {
+            lastSqlStatement = null; // I forget what this is for
+            shared.jdbcConn.close();
+            shared.jdbcConn = null;
+            shared.possiblyUncommitteds = false;
+            stdprintln("Connection closed"); // TODO:  Rbify
+            return;
+        }
         ResultSet rs = null;
         try {
             rs = statement.getResultSet();

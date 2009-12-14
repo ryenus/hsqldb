@@ -67,6 +67,7 @@ hsqldbmin.jar   ant hsqldbmin   No utility or server programs.
 hsqldbtest.jar  ant hsqldbtest  All, including test classes
 hsqldbz.jar     ant hsqldbz     Min jar plus necessary util classes
                                 for Zaurus
+sqltool.jar     ant sqltool     SqlTool app and JDBC driver
 
 jars built with JDK 1.2 OR 1.3 can now be used with JRE 1.1.</echo>
    </target>
@@ -671,7 +672,10 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
              <!-- This attribute is completely ignored unless the user
                   uses the jar like "java -jar .../hsqldb.jar" -->
-             <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
+             <!--
+             <attribute name='Main-Class' value='To Be Determined'/>
+             Fred to write a Welcome splash screen class.
+             -->
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/*Swing.*" if="noswing"/>
@@ -684,6 +688,7 @@ examples:
          <exclude name="org/hsqldb/util/Zaurus*"/>
          <exclude name="org/hsqldb/test/*.class"/>
          <exclude name="org/hsqldb/sample/*.class"/>
+         <exclude name="org/hsqldb/cmdline/**"/>
       </jar>
     </target>
 
@@ -763,22 +768,42 @@ examples:
                   '/>
 
     <fileset id='sqltoolclasses' dir='classes'
-        includes='org/hsqldb/cmdline/SqlTool*
-                  org/hsqldb/util/RCData*
-                  org/hsqldb/util/RefCapablePropertyResourceBundle*
-                  org/hsqldb/cmdline/SqltoolRB*
-                  org/hsqldb/util/ValidatingResourceBundle*
-                  org/hsqldb/util/AppendableException*
-                  org/hsqldb/cmdline/SqlToolError*
-                  org/hsqldb/cmdline/sqltool/*.class
-                  org/hsqldb/cmdline/SqlFile*
+      includes='org/hsqldb/cmdline/**/*.class
+                  org/hsqldb/lib/RCData*
+                  org/hsqldb/lib/RefCapablePropertyResourceBundle*
+                  org/hsqldb/lib/ValidatingResourceBundle*
+                  org/hsqldb/lib/AppendableException*
                   org/hsqldb/lib/FileAccess*
                   org/hsqldb/lib/StringUtil*
+                  org/hsqldb/lib/*Log*
+                  org/hsqldb/resources/jdklogging-default.properties
                   '/>
     <fileset id='sqltoolres' dir='classes'
         includes='org/hsqldb/cmdline/**/*.text
                   org/hsqldb/cmdline/**/*.properties
                   '/>
+
+    <target name="sqltool" depends="classes16, util, -prep-license-files"
+            description="Build 'sqltool.jar' file">
+       <jar jarfile="lib/sqltool.jar" compress="true" filesonly="true">
+         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
+         <metainf dir="doc" includes="*_lic.txt"/>
+         <manifest>
+             <attribute name='Specification-Title' value='${hsqldb.title}'/>
+             <attribute name='Specification-Version' value='${hsqldb.version}'/>
+             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
+             <attribute name='Implementation-Title' value='SqlTool Client'/>
+             <attribute name='Implementation-Version' value='${build.label}'/>
+             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
+             <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
+             <attribute name='Class-Path'
+                        value='hsqldb-2.0.0.jar hsqldbmain.jar hsqldb.jar'/>
+         </manifest>
+         <fileset refid='sqltoolclasses'/>
+         <fileset refid='sqltoolres'/>
+         <fileset refid='jdbcclasses'/>
+       </jar>
+    </target>
 
 <!-- classes referenced by the org.hsqldb.jdbc package classes -->
 <!-- or the org.hsqldb.jdbcDriver class are included here with some -->
@@ -797,7 +822,7 @@ examples:
              <attribute name='Implementation-Version' value='${build.label}'/>
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
          </manifest>
-            <fileset refid='jdbcclasses'/>
+          <fileset refid='jdbcclasses'/>
         </jar>
     </target>
 

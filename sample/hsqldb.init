@@ -255,7 +255,7 @@ COMMAND="$1"; shift
 }
 HSQLDB_OWNER=
 JAVA_EXECUTABLE=
-HSQLDB_JAR_PATH=
+SQLTOOL_JAR_PATH=
 SERVER_HOME=
 SHUTDOWN_URLIDS=
 URLIDS=
@@ -264,23 +264,23 @@ URLIDS=
 [ -n "$SERVER_ADDL_CLASSPATH" ] &&
 SERVER_ADDL_CLASSPATH="${SERVER_ADDL_CLASSPATH}:"
 # Validate that config file sets all required variables.
-[ -n "$JAVA_EXECUTABLE" ] && [ -n "$HSQLDB_JAR_PATH" ] &&
+[ -n "$JAVA_EXECUTABLE" ] && [ -n "$SQLTOOL_JAR_PATH" ] &&
 [ -n "$SERVER_HOME" ] && [ -n "$URLIDS" ] || {
     echo "Config file '$CFGFILE' does not set one or more of following variables
-    JAVA_EXECUTABLE, HSQLDB_JAR_PATH, SERVER_HOME, URLIDS" 1>&2
+    JAVA_EXECUTABLE, SQLTOOL_JAR_PATH, SERVER_HOME, URLIDS" 1>&2
     exit 2
 }
 [ -d "$SERVER_HOME" ] || {
     echo "SERVER_HOME variable in '$CFGFILE' is set to a non-directory." 1>&2
     exit 2
 }
-[ -f "$JAVA_EXECUTABLE" ] && [ -f "$HSQLDB_JAR_PATH" ] || {
-    echo "JAVA_EXECUTABLE or HSQLDB_JAR_PATH in '$CFGFILE' is set to a non-file." 1>&2
+[ -f "$JAVA_EXECUTABLE" ] && [ -f "$SQLTOOL_JAR_PATH" ] || {
+    echo "JAVA_EXECUTABLE or SQLTOOL_JAR_PATH in '$CFGFILE' is set to a non-file." 1>&2
     exit 2
 }
 
-[ -r "$HSQLDB_JAR_PATH" ] || {
-    echo "'$HSQLDB_JAR_PATH' isn't readable" 1>&2
+[ -r "$SQLTOOL_JAR_PATH" ] || {
+    echo "'$SQLTOOL_JAR_PATH' isn't readable" 1>&2
     exit 2
 }
 [ -x "$JAVA_EXECUTABLE" ] || {
@@ -354,7 +354,7 @@ case "$COMMAND" in
             echo "I don't know of any running ${SERVICE} server."
             exit 0
         }
-        echo "There is an ${SERVICE} server loaded from $HSQLDB_JAR_PATH
+        echo "There is an ${SERVICE} server loaded from $SQLTOOL_JAR_PATH
 running with pid $HSQLDB_PID."
         # I would give a nice ps command here, were ps not so damned 
         # OS-specific.
@@ -364,7 +364,7 @@ running with pid $HSQLDB_PID."
         [ -n "$AUTH_FILE" ] &&
         AUTH_FILE_SWITCH="-Dsqltoolsprayer.rcfile=$AUTH_FILE"
         # Might as well set CLASSPATH for a cleaner command.
-        CLASSPATH="$HSQLDB_JAR_PATH"
+        CLASSPATH="$SQLTOOL_JAR_PATH"
         export CLASSPATH
         export PATH   # Required only for some funny init environments.
         exec "$JAVA_EXECUTABLE" $AUTH_FILE_SWITCH $CLIENT_JVMARGS \
@@ -391,14 +391,14 @@ See the comments in the new sample 'hsqldb.cfg' file." 1>&2
             # Some OSes choke if there are newlines in this string.
             # N.b.!!!  The shell of the -c command is the target user's default
             # login shell, so keep this command shell-independent!
-            nohup su "$HSQLDB_OWNER" -c "cd '$SERVER_HOME' && echo "'$$'" > '$PIDFILE' && exec '$JAVA_EXECUTABLE' $SERVER_JVMARGS -classpath '${SERVER_ADDL_CLASSPATH}${HSQLDB_JAR_PATH}' org.hsqldb.util.MainInvoker $TARGET_CLASS $INVOC_ADDL_ARGS" >> "$LOGFILE" 2>&1 &
+            nohup su "$HSQLDB_OWNER" -c "cd '$SERVER_HOME' && echo "'$$'" > '$PIDFILE' && exec '$JAVA_EXECUTABLE' $SERVER_JVMARGS -classpath '${SERVER_ADDL_CLASSPATH}${SQLTOOL_JAR_PATH}' org.hsqldb.util.MainInvoker $TARGET_CLASS $INVOC_ADDL_ARGS" >> "$LOGFILE" 2>&1 &
         else
             cd "$SERVER_HOME" || {
                 echo "Failed to cd to '$SERVER_HOME'" 1>&2
                 exit 1
             }
             export JAVA_EXECUTABLE
-            export HSQLDB_JAR_PATH
+            export SQLTOOL_JAR_PATH
             export PIDFILE
             export SERVER_JVMARGS
             export TARGET_CLASS
@@ -408,7 +408,7 @@ See the comments in the new sample 'hsqldb.cfg' file." 1>&2
                     echo "Failed to write pid to pid file" 1>&2
                     exit 1
                 }
-                eval exec "$JAVA_EXECUTABLE" $SERVER_JVMARGS -classpath "${SERVER_ADDL_CLASSPATH}${HSQLDB_JAR_PATH}"  org.hsqldb.util.MainInvoker $TARGET_CLASS $INVOC_ADDL_ARGS
+                eval exec "$JAVA_EXECUTABLE" $SERVER_JVMARGS -classpath "${SERVER_ADDL_CLASSPATH}${SQLTOOL_JAR_PATH}"  org.hsqldb.util.MainInvoker $TARGET_CLASS $INVOC_ADDL_ARGS
             ' >> "$LOGFILE" 2>&1 &
         fi
         minsleep $SU_ECHO_SECS "$PIDFILE"
@@ -419,7 +419,7 @@ See the comments in the new sample 'hsqldb.cfg' file." 1>&2
         [ -n "$AUTH_FILE" ] &&
         AUTH_FILE_SWITCH="-Dsqltoolsprayer.rcfile=$AUTH_FILE"
         # Might as well set CLASSPATH for a cleaner command.
-        CLASSPATH="$HSQLDB_JAR_PATH"
+        CLASSPATH="$SQLTOOL_JAR_PATH"
         export CLASSPATH
         export PATH   # Required only for some funny init environments.
         # There are many reasons why we could fail to read the pid file,
@@ -468,7 +468,7 @@ See log file '$LOGFILE'." 1>&2
         [ -n "$AUTH_FILE" ] &&
         AUTH_FILE_SWITCH="-Dsqltoolsprayer.rcfile=$AUTH_FILE"
         # Might as well set CLASSPATH for a cleaner command.
-        CLASSPATH="$HSQLDB_JAR_PATH"
+        CLASSPATH="$SQLTOOL_JAR_PATH"
         export CLASSPATH
         export PATH   # Required only for some funny init environments.
         "$JAVA_EXECUTABLE" $AUTH_FILE_SWITCH $CLIENT_JVMARGS \
