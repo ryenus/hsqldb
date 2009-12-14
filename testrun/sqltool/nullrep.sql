@@ -4,7 +4,7 @@
  * Tests enforcement of null-representation token 
  */
 
-CREATE TABLE t (i INT, vc VARCHAR);
+CREATE TABLE t (i INT, vc VARCHAR(80));
 
 INSERT INTO t VALUES(1, 'one');
 /** For INPUT, the NULLREP is only used for DSV imports, since unquoted
@@ -30,12 +30,12 @@ DROP TABLE t;
 
 /* Now test nullrep tokens with DSV imports */
 CREATE TABLE t (
-    id VARCHAR PRIMARY KEY,
+    id VARCHAR(80) PRIMARY KEY,
     i INTEGER,
     r REAL,
     d DATE,
     t TIMESTAMP,
-    v VARCHAR,
+    v VARCHAR(80),
     b BOOLEAN
 );
 

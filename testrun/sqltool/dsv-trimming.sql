@@ -4,7 +4,7 @@
  * Tests trimming in DSV imports
  */
 
-CREATE TABLE t (i INT, r REAL, d DATE, t TIMESTAMP, v VARCHAR, b BOOLEAN);
+CREATE TABLE t (i INT, r REAL, d DATE, t TIMESTAMP, v VARCHAR(80), b BOOLEAN);
 
 \m dsv-trimming.dsv
 
