@@ -4,7 +4,7 @@
  * Tests proper commit behavior upon DSV abortion
  */
 
-CREATE TABLE t (i INT, r REAL, d DATE, t TIMESTAMP, v VARCHAR, b BOOLEAN);
+CREATE TABLE t (i INT, r REAL, d DATE, t TIMESTAMP, v VARCHAR(80), b BOOLEAN);
 
 \c true
 

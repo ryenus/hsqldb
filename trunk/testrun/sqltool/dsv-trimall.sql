@@ -4,7 +4,7 @@
  * Tests *DSV_TRIM_ALL option.
  */
 
-CREATE TABLE t (i INT, vc VARCHAR, d DATE);
+CREATE TABLE t (i INT, vc VARCHAR(80), d DATE);
 
 \m dsv-trimall.dsv
 

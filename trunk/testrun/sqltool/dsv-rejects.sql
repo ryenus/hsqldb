@@ -4,7 +4,7 @@
  * Tests proper rejection of bad DSV input records
  */
 
-CREATE TABLE t (i INT, r REAL, d DATE, t TIMESTAMP, v VARCHAR, b BOOLEAN);
+CREATE TABLE t (i INT, r REAL, d DATE, t TIMESTAMP, v VARCHAR(80), b BOOLEAN);
 
 * *DSV_REJECT_REPORT = ${java.io.tmpdir}/sqltoolutst-${user.name}.html
 \m dsv-rejects.dsv

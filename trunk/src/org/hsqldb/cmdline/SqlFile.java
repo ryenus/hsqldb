@@ -467,6 +467,8 @@ public class SqlFile {
             history = new TokenList();
             maxHistoryLength = DEFAULT_HISTORY_SIZE;
         }
+        updateUserSettings(); // Updates local vars basd on * shared.userVars
+                              // even when (like now) these are all defaults.
     }
 
     /**
@@ -1394,7 +1396,11 @@ public class SqlFile {
                     other = other.substring(0, colonIndex).trim();
                 }
 
+try {
                 importDsv(other, skipPrefix);
+} catch (Throwable t) {
+t.printStackTrace();
+}
 
                 return;
 
@@ -4493,6 +4499,7 @@ public class SqlFile {
         try {
             String string = new String(bfr, (shared.encoding == null)
                     ? DEFAULT_FILE_ENCODING : shared.encoding);
+System.err.println("drs = " + dsvRowSplitter);
             lines = string.split(dsvRowSplitter, -1);
         } catch (UnsupportedEncodingException uee) {
             throw new SqlToolError(uee);
