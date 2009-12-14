@@ -34,7 +34,6 @@ package org.hsqldb.cmdline;
 import java.util.Map;
 import java.util.HashMap;
 import org.hsqldb.lib.ValidatingResourceBundle;
-import org.hsqldb.lib.RefCapablePropertyResourceBundle;
 
 /* $Id$ */
 

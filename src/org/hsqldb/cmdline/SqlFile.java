@@ -65,10 +65,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.nio.charset.Charset;
-import java.lang.reflect.Method;
 import org.hsqldb.lib.ValidatingResourceBundle;
 import org.hsqldb.lib.AppendableException;
 import org.hsqldb.lib.RCData;
@@ -78,7 +76,6 @@ import org.hsqldb.cmdline.sqltool.Token;
 import org.hsqldb.cmdline.sqltool.TokenList;
 import org.hsqldb.cmdline.sqltool.TokenSource;
 import org.hsqldb.cmdline.sqltool.SqlFileScanner;
-import org.hsqldb.types.Types;
 
 /* $Id$ */
 
@@ -354,21 +351,21 @@ public class SqlFile {
          * Java API spec mandates that setting AUTOCOMMIT causes an implicit
          * COMMIT, regardless of whether turning AUTOCOMMIT on or off).
          */
-        private boolean possiblyUncommitteds;
+        boolean possiblyUncommitteds;
 
-        private Connection jdbcConn;
+        Connection jdbcConn;
 
-        private Map userVars = new HashMap();
+        Map userVars = new HashMap();
 
-        private Map macros = new HashMap();
+        Map macros = new HashMap();
 
-        private PrintStream psStd;
+        PrintStream psStd;
 
-        private SharedFields(PrintStream psStd) {
+        SharedFields(PrintStream psStd) {
             this.psStd = psStd;
         }
 
-        private String encoding;
+        String encoding;
     }
 
     private SharedFields shared;
@@ -489,7 +486,7 @@ public class SqlFile {
      * Constructor for recursion
      */
     private SqlFile(SqlFile parentSqlFile, Reader reader,
-            String inputStreamLabel) throws IOException {
+            String inputStreamLabel) {
         this(reader, inputStreamLabel);
         recursed = true;
         shared = parentSqlFile.shared;
@@ -502,8 +499,7 @@ public class SqlFile {
     /**
      * Base Constructor which every other Constructor starts with
      */
-    private SqlFile(Reader reader, String inputStreamLabel)
-            throws IOException {
+    private SqlFile(Reader reader, String inputStreamLabel) {
         logger.privlog(Level.FINER, "<init>ting SqlFile instance",
                 null, 2, FrameworkLogger.class);
         if (reader == null)
@@ -531,7 +527,7 @@ public class SqlFile {
     }
 
     public void setContinueOnError(boolean continueOnError) {
-        this.continueOnError = true;
+        this.continueOnError = continueOnError;
     }
 
     public void setMaxHistoryLength(int maxHistoryLength) {
@@ -1033,9 +1029,11 @@ public class SqlFile {
             super(s);
         }
 
+        /* Unused so far
         RowError(Throwable t) {
             this(null, t);
         }
+        */
 
         RowError(String s, Throwable t) {
             super(s, t);
@@ -5275,6 +5273,8 @@ public class SqlFile {
     }
 
     static public byte[] bitCharsToBytes(String hexChars) {
+        if (hexChars == null) throw new NullPointerException();
+        // To shut up compiler warn
         throw new NumberFormatException(
                 "Sorry.  Bit exporting not supported yet");
     }

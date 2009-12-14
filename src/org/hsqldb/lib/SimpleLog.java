@@ -142,7 +142,8 @@ public class SimpleLog {
         writer.println(info + " " + message);
     }
 
-    public synchronized void logContext(Throwable t, String message) {
+    public synchronized void logContext(Throwable t, String inMessage) {
+        String message = inMessage; // We may change this
 
         if (level == LOG_NONE) {
             return;
