@@ -48,7 +48,7 @@ Failout() {
 java -version >&- 2>&- ||
 Failout 'You must put the version of Java to test (early) in your search path'
 [ -n "$CLASSPATH" ] ||
-Failout "You must put the HSQLDB jar file (or class directory) in your CLASSPATH
+Failout "You must put the SqlTool jar file (or class directory) in your CLASSPATH
 (and export)"
 java org.hsqldb.cmdline.SqlTool --help >&- 2>&- ||
 Failout 'org.hsqldb.cmdline.SqlTool is not in your CLASSPATH.  Add, export, and re-run.'
