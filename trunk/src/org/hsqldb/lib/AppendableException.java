@@ -45,7 +45,7 @@ public class AppendableException extends Exception {
 
     static final long    serialVersionUID = -1002629580611098803L;
     public static String LS = System.getProperty("line.separator");
-    public List          appendages       = null;
+    public List<String>  appendages       = null;
 
     public String getMessage() {
 
@@ -75,7 +75,7 @@ public class AppendableException extends Exception {
     public void appendMessage(String s) {
 
         if (appendages == null) {
-            appendages = new ArrayList();
+            appendages = new ArrayList<String>();
         }
 
         appendages.add(s);

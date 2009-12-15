@@ -39,8 +39,7 @@ import java.util.Map;
  *
  * The fields controlled here are fields for the individual tar file entries
  * in an archive.  There is no such thing as a Header Field at the top archive
- * level.
- * <P>
+ * level.  * <P>
  * We use header field names as they are specified in the FreeBSD man page for
  * tar in section 5 (Solaris and Linux have no such page in section 5).
  * Where we use a constant, the constant name is just the FreeBSD field name
@@ -69,6 +68,7 @@ import java.util.Map;
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
+@SuppressWarnings("boxing")
 public class TarHeaderFields {
 
     final static int NAME     = 1;
@@ -87,11 +87,13 @@ public class TarHeaderFields {
     final static int PREFIX = 12;
 
     // Replace these contants with proper enum once we require Java 1.5.
-    static Map labels = new HashMap();    // String identifier
+    static Map<Integer, String> labels = new HashMap<Integer, String>();
+    // String identifier
 
     // (this supplied automatically by enums)
-    static Map starts = new HashMap();    // Starting positions
-    static Map stops  = new HashMap();
+    static Map<Integer, Integer> starts = new HashMap<Integer, Integer>();
+    // Starting positions
+    static Map<Integer, Integer> stops  = new HashMap<Integer, Integer>();
 
     // 1 PAST last position (in normal Java substring fashion).
     /* Note that (with one exception), there is always 1 byte
@@ -109,50 +111,50 @@ public class TarHeaderFields {
      * character.  ???  GNU tar certainly does not honor this.
      */
     static {
-        labels.put(new Integer(NAME), "name");
-        starts.put(new Integer(NAME), new Integer(0));
-        stops.put(new Integer(NAME), new Integer(100));
-        labels.put(new Integer(MODE), "mode");
-        starts.put(new Integer(MODE), new Integer(100));
-        stops.put(new Integer(MODE), new Integer(107));
-        labels.put(new Integer(UID), "uid");
-        starts.put(new Integer(UID), new Integer(108));
-        stops.put(new Integer(UID), new Integer(115));
-        labels.put(new Integer(GID), "gid");
-        starts.put(new Integer(GID), new Integer(116));
-        stops.put(new Integer(GID), new Integer(123));
-        labels.put(new Integer(SIZE), "size");
-        starts.put(new Integer(SIZE), new Integer(124));
-        stops.put(new Integer(SIZE), new Integer(135));
-        labels.put(new Integer(MTIME), "mtime");
-        starts.put(new Integer(MTIME), new Integer(136));
-        stops.put(new Integer(MTIME), new Integer(147));
-        labels.put(new Integer(CHECKSUM), "checksum");          // Queer terminator.
+        labels.put(NAME, "name");
+        starts.put(NAME, 0);
+        stops.put(NAME, 100);
+        labels.put(MODE, "mode");
+        starts.put(MODE, 100);
+        stops.put(MODE, 107);
+        labels.put(UID, "uid");
+        starts.put(UID, 108);
+        stops.put(UID, 115);
+        labels.put(GID, "gid");
+        starts.put(GID, 116);
+        stops.put(GID, 123);
+        labels.put(SIZE, "size");
+        starts.put(SIZE, 124);
+        stops.put(SIZE, 135);
+        labels.put(MTIME, "mtime");
+        starts.put(MTIME, 136);
+        stops.put(MTIME, 147);
+        labels.put(CHECKSUM, "checksum");          // Queer terminator.
 
         // Pax UStore does not follow spec and delimits this field like
         // any other numeric, skipping the space byte.
-        starts.put(new Integer(CHECKSUM), new Integer(148));    // Special fmt.
-        stops.put(new Integer(CHECKSUM), new Integer(156));     // Queer terminator.
-        labels.put(new Integer(TYPEFLAG), "typeflag");
-        starts.put(new Integer(TYPEFLAG), new Integer(156));    // 1-byte CODE
+        starts.put(CHECKSUM, 148);    // Special fmt.
+        stops.put(CHECKSUM, 156);     // Queer terminator.
+        labels.put(TYPEFLAG, "typeflag");
+        starts.put(TYPEFLAG, 156);    // 1-byte CODE
 
         // With current version, we are never doing anything with this
         // field.  In future, we will support x and/or g type here.
-        stops.put(new Integer(TYPEFLAG), new Integer(157));
-        labels.put(new Integer(MAGIC), "magic");
+        stops.put(TYPEFLAG, 157);
+        labels.put(MAGIC, "magic");
 
         // N.b. Gnu Tar does not honor this Stop.
-        starts.put(new Integer(MAGIC), new Integer(257));
-        stops.put(new Integer(MAGIC), new Integer(263));
-        labels.put(new Integer(UNAME), "uname");
-        starts.put(new Integer(UNAME), new Integer(265));
-        stops.put(new Integer(UNAME), new Integer(296));
-        labels.put(new Integer(GNAME), "gname");
-        starts.put(new Integer(GNAME), new Integer(297));
-        stops.put(new Integer(GNAME), new Integer(328));
-        labels.put(new Integer(PREFIX), "prefix");
-        starts.put(new Integer(PREFIX), new Integer(345));
-        stops.put(new Integer(PREFIX), new Integer(399));
+        starts.put(MAGIC, 257);
+        stops.put(MAGIC, 263);
+        labels.put(UNAME, "uname");
+        starts.put(UNAME, 265);
+        stops.put(UNAME, 296);
+        labels.put(GNAME, "gname");
+        starts.put(GNAME, 297);
+        stops.put(GNAME, 328);
+        labels.put(PREFIX, "prefix");
+        starts.put(PREFIX, 345);
+        stops.put(PREFIX, 399);
     }
 
     // The getters below throw RuntimExceptions instead of
@@ -160,7 +162,7 @@ public class TarHeaderFields {
     // not some problem with a Header, or generating or reading a Header.
     static public int getStart(int field) {
 
-        Integer iObject = (Integer) starts.get(new Integer(field));
+        Integer iObject = starts.get(field);
 
         if (iObject == null) {
             throw new IllegalArgumentException(
@@ -172,7 +174,7 @@ public class TarHeaderFields {
 
     static public int getStop(int field) {
 
-        Integer iObject = (Integer) stops.get(new Integer(field));
+        Integer iObject = stops.get(field);
 
         if (iObject == null) {
             throw new IllegalArgumentException(
@@ -184,7 +186,7 @@ public class TarHeaderFields {
 
     static public String toString(int field) {
 
-        String s = (String) labels.get(new Integer(field));
+        String s = labels.get(field);
 
         if (s == null) {
             throw new IllegalArgumentException(

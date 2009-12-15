@@ -80,7 +80,8 @@ public class TarGenerator {
     }
 
     protected TarFileOutputStream archive;
-    protected List                entryQueue   = new ArrayList();
+    protected List<TarEntrySupplicant> entryQueue =
+            new ArrayList<TarEntrySupplicant>();
     protected long                paxThreshold = 0100000000000L;
 
     // in bytes.  Value here exactly = 8GB.
@@ -222,7 +223,7 @@ public class TarGenerator {
                 System.err.print(Integer.toString(i + 1) + " / "
                                  + entryQueue.size() + ' ');
 
-                entry = (TarEntrySupplicant) entryQueue.get(i);
+                entry = entryQueue.get(i);
 
                 System.err.print(entry.getPath() + "... ");
 
@@ -245,7 +246,7 @@ public class TarGenerator {
                 // Just release resources from any Entry's input, which may be
                 // left open.
                 for (int i = 0; i < entryQueue.size(); i++) {
-                    ((TarEntrySupplicant) entryQueue.get(i)).close();
+                    entryQueue.get(i).close();
                 }
 
                 archive.close();
@@ -268,7 +269,7 @@ public class TarGenerator {
     static protected class TarEntrySupplicant {
 
         static protected byte[] HEADER_TEMPLATE =
-            (byte[]) TarFileOutputStream.ZERO_BLOCK.clone();
+            TarFileOutputStream.ZERO_BLOCK.clone();
         static Character              swapOutDelim = null;
         final protected static byte[] ustarBytes   = {
             'u', 's', 't', 'a', 'r'
@@ -360,7 +361,7 @@ public class TarGenerator {
                                              '0', false);
         }
 
-        protected byte[] rawHeader = (byte[]) HEADER_TEMPLATE.clone();
+        protected byte[] rawHeader = HEADER_TEMPLATE.clone();
         protected String fileMode  = DEFAULT_FILE_MODES;
 
         // Following fields are always initialized by constructors.

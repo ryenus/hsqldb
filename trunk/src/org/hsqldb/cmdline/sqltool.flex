@@ -50,7 +50,6 @@ import org.hsqldb.cmdline.SqltoolRB;
     private String magicPrefix = null;
     private int requestedState = YYINITIAL;
     private String RAW_LEADIN_MSG = null;
-    private SqltoolRB        rb               = null;
     private boolean specialAppendState = false;
     // This last is needed for very unique check needed when appending to
     // a SQL command.  Only applies to interactive mode.
@@ -66,7 +65,6 @@ import org.hsqldb.cmdline.SqltoolRB;
      * For now, will just check explicitly before using.
      */
     public void setResourceBundle(SqltoolRB rb) {
-        this.rb = rb;
         RAW_LEADIN_MSG = rb.getString(SqltoolRB.RAW_LEADIN);
     }
 
@@ -328,10 +326,9 @@ TRADITIONAL_COMMENT = "/*" ~"*/"
             pushbackTrim();
             trimBuffer();
             return new Token(Token.BUFFER_TYPE, commandBuffer, yyline);
-        } else {
-            specialAppendState = false;
-            commandBuffer.append(yytext());
         }
+        specialAppendState = false;
+        commandBuffer.append(yytext());
     }
     {TRADITIONAL_COMMENT} {
         specialAppendState = false;

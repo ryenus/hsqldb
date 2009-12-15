@@ -92,7 +92,7 @@ public class SqlToolSprayer {
                                                                    : new File(
                                                                        System.getProperty(
                                                                            "sqltoolsprayer.monfile"));
-        ArrayList urlids = new ArrayList();
+        ArrayList<String> urlids = new ArrayList<String>();
 
         for (int i = 1; i < sa.length; i++) {
             urlids.add(sa[i]);
@@ -133,7 +133,7 @@ public class SqlToolSprayer {
                     continue;
                 }
 
-                sqlToolArgs[sqlToolArgs.length - 1] = (String) urlids.get(i);
+                sqlToolArgs[sqlToolArgs.length - 1] = urlids.get(i);
 
                 try {
                     SqlTool.objectMain(sqlToolArgs);
@@ -162,7 +162,7 @@ public class SqlToolSprayer {
             }
         }
 
-        ArrayList failedUrlids = new ArrayList();
+        ArrayList<String> failedUrlids = new ArrayList<String>();
 
         // If all statuses true, then System.exit(0);
         for (int i = 0; i < status.length; i++) {

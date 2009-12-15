@@ -156,7 +156,7 @@ public class SqlFile {
     static private String    rawPrompt;
     private String           contPrompt       = "  +> ";
     private boolean          htmlMode;
-    private List             history;
+    private TokenList        history;
     private String           nullRepToken;
     private String           dsvTargetFile;
     private String           dsvTargetTable;
@@ -219,7 +219,8 @@ public class SqlFile {
     private static Pattern logPattern =
         Pattern.compile("(?i)(FINER|WARNING|SEVERE|INFO|FINEST)\\s+(.*\\S)");
 
-    static private Map nestingPLCommands = new HashMap();
+    static private Map<String, Pattern> nestingPLCommands =
+            new HashMap<String, Pattern>();
     static {
         nestingPLCommands.put("if", ifwhilePattern);
         nestingPLCommands.put("while", ifwhilePattern);
@@ -270,68 +271,67 @@ public class SqlFile {
      */
     private void updateUserSettings() {
         dsvSkipPrefix = SqlFile.convertEscapes(
-                (String) shared.userVars.get("*DSV_SKIP_PREFIX"));
+                shared.userVars.get("*DSV_SKIP_PREFIX"));
         if (dsvSkipPrefix == null) {
             dsvSkipPrefix = DEFAULT_SKIP_PREFIX;
         }
-        dsvSkipCols = (String) shared.userVars.get("*DSV_SKIP_COLS");
+        dsvSkipCols = shared.userVars.get("*DSV_SKIP_COLS");
         dsvTrimAll = Boolean.valueOf(
-                (String) shared.userVars.get("*DSV_TRIM_ALL")).
-                booleanValue();
+                shared.userVars.get("*DSV_TRIM_ALL")).booleanValue();
         dsvColDelim = SqlFile.convertEscapes(
-                (String) shared.userVars.get("*DSV_COL_DELIM"));
+                shared.userVars.get("*DSV_COL_DELIM"));
         if (dsvColDelim == null) {
             dsvColDelim = SqlFile.convertEscapes(
-                    (String) shared.userVars.get("*CSV_COL_DELIM"));
+                    shared.userVars.get("*CSV_COL_DELIM"));
         }
         if (dsvColDelim == null) {
             dsvColDelim = DEFAULT_COL_DELIM;
         }
-        dsvColSplitter = (String) shared.userVars.get("*DSV_COL_SPLITTER");
+        dsvColSplitter = shared.userVars.get("*DSV_COL_SPLITTER");
         if (dsvColSplitter == null) {
             dsvColSplitter = DEFAULT_COL_SPLITTER;
         }
 
         dsvRowDelim = SqlFile.convertEscapes(
-                (String) shared.userVars.get("*DSV_ROW_DELIM"));
+                shared.userVars.get("*DSV_ROW_DELIM"));
         if (dsvRowDelim == null) {
             dsvRowDelim = SqlFile.convertEscapes(
-                    (String) shared.userVars.get("*CSV_ROW_DELIM"));
+                    shared.userVars.get("*CSV_ROW_DELIM"));
         }
         if (dsvRowDelim == null) {
             dsvRowDelim = DEFAULT_ROW_DELIM;
         }
-        dsvRowSplitter = (String) shared.userVars.get("*DSV_ROW_SPLITTER");
+        dsvRowSplitter = shared.userVars.get("*DSV_ROW_SPLITTER");
         if (dsvRowSplitter == null) {
             dsvRowSplitter = DEFAULT_ROW_SPLITTER;
         }
 
-        dsvTargetFile = (String) shared.userVars.get("*DSV_TARGET_FILE");
+        dsvTargetFile = shared.userVars.get("*DSV_TARGET_FILE");
         if (dsvTargetFile == null) {
-            dsvTargetFile = (String) shared.userVars.get("*CSV_FILEPATH");
+            dsvTargetFile = shared.userVars.get("*CSV_FILEPATH");
         }
-        dsvTargetTable = (String) shared.userVars.get("*DSV_TARGET_TABLE");
+        dsvTargetTable = shared.userVars.get("*DSV_TARGET_TABLE");
         if (dsvTargetTable == null) {
-            dsvTargetTable = (String) shared.userVars.get("*CSV_TABLENAME");
+            dsvTargetTable = shared.userVars.get("*CSV_TABLENAME");
             // This just for legacy variable name.
         }
 
-        dsvConstCols = (String) shared.userVars.get("*DSV_CONST_COLS");
-        dsvRejectFile = (String) shared.userVars.get("*DSV_REJECT_FILE");
-        dsvRejectReport = (String) shared.userVars.get("*DSV_REJECT_REPORT");
+        dsvConstCols = shared.userVars.get("*DSV_CONST_COLS");
+        dsvRejectFile = shared.userVars.get("*DSV_REJECT_FILE");
+        dsvRejectReport = shared.userVars.get("*DSV_REJECT_REPORT");
         if (shared.userVars.get("*DSV_RECORDS_PER_COMMIT") != null) try {
             dsvRecordsPerCommit = Integer.parseInt(
-                    (String) shared.userVars.get("*DSV_RECORDS_PER_COMMIT"));
+                    shared.userVars.get("*DSV_RECORDS_PER_COMMIT"));
         } catch (NumberFormatException nfe) {
             logger.error(rb.getString(SqltoolRB.REJECT_RPC,
-                    (String) shared.userVars.get("*DSV_RECORDS_PER_COMMIT")));
+                    shared.userVars.get("*DSV_RECORDS_PER_COMMIT")));
             shared.userVars.remove("*DSV_REJECT_REPORT");
             dsvRecordsPerCommit = 0;
         }
 
-        nullRepToken = (String) shared.userVars.get("*NULL_REP_TOKEN");
+        nullRepToken = shared.userVars.get("*NULL_REP_TOKEN");
         if (nullRepToken == null) {
-            nullRepToken = (String) shared.userVars.get("*CSV_NULL_REP");
+            nullRepToken = shared.userVars.get("*CSV_NULL_REP");
         }
         if (nullRepToken == null) {
             nullRepToken = DEFAULT_NULL_REP;
@@ -355,9 +355,9 @@ public class SqlFile {
 
         Connection jdbcConn;
 
-        Map userVars = new HashMap();
+        Map<String, String> userVars = new HashMap<String, String>();
 
-        Map macros = new HashMap();
+        Map<String, Token> macros = new HashMap<String, Token>();
 
         PrintStream psStd;
 
@@ -540,20 +540,20 @@ public class SqlFile {
         this.maxHistoryLength = maxHistoryLength;
     }
 
-    public void addMacros(Map newMacros) {
+    public void addMacros(Map<String, Token> newMacros) {
         shared.macros.putAll(newMacros);
     }
 
-    public void addUserVars(Map newUserVars) {
+    public void addUserVars(Map<String, String> newUserVars) {
         shared.userVars.putAll(newUserVars);
     }
 
-    public Map getUserVars() {
+    public Map<String, String> getUserVars() {
         // Consider whether safer to return a deep copy.  Probably.
         return shared.userVars;
     }
 
-    public Map getMacros() {
+    public Map<String, Token> getMacros() {
         // Consider whether safer to return a deep copy.  Probably.
         return shared.macros;
     }
@@ -648,7 +648,7 @@ public class SqlFile {
         // The scanner assures that val is non-null for PL_TYPEs.
         String commandWord = token.val.replaceFirst("\\s.*", "");
         if (!nestingPLCommands.containsKey(commandWord)) return null;
-        Pattern pattern = (Pattern) nestingPLCommands.get(commandWord);
+        Pattern pattern = nestingPLCommands.get(commandWord);
         if (pattern.matcher(token.val).matches()) return commandWord;
         throw new BadSpecial(rb.getString(SqltoolRB.PL_MALFORMAT));
     }
@@ -1105,7 +1105,7 @@ public class SqlFile {
                 // groups.  Unfortunately, there's no way to guarantee that :( .
             }
             histNum = ((hm.group(1) == null || hm.group(1).length() < 1)
-                    ? null : new Integer(hm.group(1)));
+                    ? null : Integer.valueOf(hm.group(1)));
         }
         if (hm.groupCount() != 2) {
             throw new BadSpecial(rb.getString(SqltoolRB.EDIT_MALFORMAT));
@@ -1439,10 +1439,10 @@ public class SqlFile {
                                                 : ("SELECT * FROM "
                                                    + tableName));
                     try {
-                        List colList = new ArrayList();
+                        List<Integer> colList = new ArrayList<Integer>();
                         int[] incCols = null;
                         if (dsvSkipCols != null) {
-                            Set skipCols = new HashSet();
+                            Set<String> skipCols = new HashSet<String>();
                             String[] skipColsArray =
                                     dsvSkipCols.split(dsvColDelim, -1);
                             // Don't know if better to use dsvColDelim or
@@ -1456,7 +1456,7 @@ public class SqlFile {
                             for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                                 if (!skipCols.remove(rsmd.getColumnName(i)
                                         .toLowerCase())) {
-                                    colList.add(new Integer(i));
+                                    colList.add(Integer.valueOf(i));
                                 }
                             }
                             if (colList.size() < 1) {
@@ -1470,7 +1470,7 @@ public class SqlFile {
                             }
                             incCols = new int[colList.size()];
                             for (int i = 0; i < incCols.length; i++) {
-                                incCols[i] = ((Integer) colList.get(i)).intValue();
+                                incCols[i] = colList.get(i).intValue();
                             }
                         }
                         displayResultSet(null, rs, incCols, null);
@@ -1948,7 +1948,7 @@ public class SqlFile {
             }
 
             varName  = inString.substring(slashIndex + 1, slashIndex + 1 + e);
-            varValue = (String) shared.userVars.get(varName);
+            varValue = shared.userVars.get(varName);
 
             if (varValue == null) {
                 throw new SqlToolError(rb.getString(
@@ -1956,7 +1956,7 @@ public class SqlFile {
             }
 
             expandBuffer.replace(slashIndex, slashIndex + 1 + e,
-                                 (String) shared.userVars.get(varName));
+                                 shared.userVars.get(varName));
         }
 
         String s;
@@ -2035,7 +2035,7 @@ public class SqlFile {
             // TODO:  Use a smarter algorithm to handle (or prohibit)
             // recursion without this clumsy detection tactic.
 
-            varValue = (String) shared.userVars.get(varName);
+            varValue = shared.userVars.get(varName);
             if (varValue == null) {
                 if (permitUnset) {
                     varValue = "";
@@ -2098,7 +2098,7 @@ public class SqlFile {
             }
             String[] values = foreachM.group(2).split("\\s+", -1);
 
-            String origval = (String) shared.userVars.get(varName);
+            String origval = shared.userVars.get(varName);
 
 
             try {
@@ -3010,7 +3010,7 @@ public class SqlFile {
 
                 ps.setBytes(1, binBuffer);
             } else {
-                String val = (String) shared.userVars.get(prepareVar);
+                String val = shared.userVars.get(prepareVar);
 
                 if (val == null) {
                     lastSqlStatement = null;
@@ -3135,7 +3135,7 @@ public class SqlFile {
                                                                : incCols
                                                                    .length;
                 String            val;
-                List              rows        = new ArrayList();
+                List<String[]>    rows        = new ArrayList<String[]>();
                 String[]          headerArray = null;
                 String[]          fieldArray;
                 int[]             maxWidth = new int[incCount];
@@ -3443,7 +3443,7 @@ public class SqlFile {
                                                           : COL_ODD) + LS
                                                           + PRE_TD, true);
 
-                        fieldArray = (String[]) rows.get(i);
+                        fieldArray = rows.get(i);
 
                         for (int j = 0; j < fieldArray.length; j++) {
                             condlPrint("<TD>" + fieldArray[j] + "</TD>",
@@ -3489,7 +3489,7 @@ public class SqlFile {
                 }
 
                 for (int i = 0; i < rows.size(); i++) {
-                    fieldArray = (String[]) rows.get(i);
+                    fieldArray = rows.get(i);
 
                     for (int j = 0; j < fieldArray.length; j++) {
                         dsvSafe(fieldArray[j]);
@@ -3587,7 +3587,7 @@ public class SqlFile {
           // both interactive and non-interactive usage.
         Token token;
         for (int i = 0; i < history.size(); i++) {
-            token = (Token) history.get(i);
+            token = history.get(i);
             shared.psStd.println("#" + (i + oldestHist) + " or "
                     + (i - history.size()) + ':');
             shared.psStd.println(token.reconstitute());
@@ -3632,7 +3632,7 @@ public class SqlFile {
                        history.size()));
             }
         }
-        return (Token) history.get(index);
+        return history.get(index);
     }
 
     /**
@@ -3654,8 +3654,8 @@ public class SqlFile {
         // Make matching more liberal.  Users can customize search behavior
         // by using "(?-OPTIONS)" or (?OPTIONS) in their regexes.
         for (int index = history.size() - 1; index >= 0; index--)
-            if (pattern.matcher(((Token) history.get(index)).val).find())
-                return new Integer(index + oldestHist);
+            if (pattern.matcher((history.get(index)).val).find())
+                return Integer.valueOf(index + oldestHist);
         return null;
     }
 
@@ -3725,7 +3725,7 @@ public class SqlFile {
          */
         Pattern   filter = null;
         boolean   filterMatchesAll = false;  // match filter against all cols.
-        List      rows        = new ArrayList();
+        List<String[]> rows = new ArrayList<String[]>();
         String[]  headerArray = {
             rb.getString(SqltoolRB.DESCRIBE_TABLE_NAME),
             rb.getString(SqltoolRB.DESCRIBE_TABLE_DATATYPE),
@@ -3838,7 +3838,7 @@ public class SqlFile {
                                                   : COL_ODD) + LS
                                                   + PRE_TD, true);
 
-                fieldArray = (String[]) rows.get(i);
+                fieldArray = rows.get(i);
 
                 for (int j = 0; j < fieldArray.length; j++) {
                     condlPrint("<TD>" + fieldArray[j] + "</TD>", true);
@@ -3880,7 +3880,7 @@ public class SqlFile {
         for (int i = 0; i < tokens.length; i++) {
             inToken = inTokens[i + (negate ? 1 : 0)];
             if (inToken.length() > 1 && inToken.charAt(0) == '*') {
-                tokens[i] = (String) shared.userVars.get(inToken.substring(1));
+                tokens[i] = shared.userVars.get(inToken.substring(1));
             } else {
                 tokens[i] = inTokens[i + (negate ? 1 : 0)];
             }
@@ -3969,10 +3969,10 @@ public class SqlFile {
         }
     }
 
-    private String formatNicely(Map map, boolean withValues) {
+    private String formatNicely(Map<?, ?> map, boolean withValues) {
         String       key;
         StringBuffer sb = new StringBuffer();
-        Iterator     it = (new TreeMap(map)).keySet().iterator();
+        Iterator<?>  it = new TreeMap<Object, Object>(map).keySet().iterator();
 
         if (withValues) {
             SqlFile.appendLine(sb, rb.getString(SqltoolRB.PL_LIST_PARENS));
@@ -4000,7 +4000,7 @@ public class SqlFile {
      */
     private void dump(String varName,
                       File dumpFile) throws IOException, BadSpecial {
-        String val = (String) shared.userVars.get(varName);
+        String val = shared.userVars.get(varName);
 
         if (val == null) {
             throw new BadSpecial(rb.getString(
@@ -4442,11 +4442,11 @@ public class SqlFile {
         Matcher matcher;
         byte[] bfr  = null;
         File   dsvFile = new File(filePath);
-        SortedMap constColMap = null;
+        SortedMap<String, String> constColMap = null;
         if (dsvConstCols != null) {
             // We trim col. names, but not values.  Must allow users to
             // specify values as spaces, empty string, null.
-            constColMap = new TreeMap();
+            constColMap = new TreeMap<String, String>();
             String[] constPairs = dsvConstCols.split(dsvColSplitter, -1);
             for (int i = 0; i < constPairs.length; i++) {
                 matcher = nameValPairPattern.matcher(constPairs[i]);
@@ -4459,9 +4459,9 @@ public class SqlFile {
                         ? "" : matcher.group(2)));
             }
         }
-        Set skipCols = null;
+        Set<String> skipCols = null;
         if (dsvSkipCols != null) {
-            skipCols = new HashSet();
+            skipCols = new HashSet<String>();
             String[] skipColsArray = dsvSkipCols.split(dsvColSplitter, -1);
             for (int i = 0; i < skipColsArray.length; i++) {
                 skipCols.add(skipColsArray[i].trim().toLowerCase());
@@ -4520,7 +4520,7 @@ public class SqlFile {
                     re);
         }
 
-        List     headerList = new ArrayList();
+        List<String> headerList = new ArrayList<String>();
         String    tableName = dsvTargetTable;
 
         // First read one until we get one header line
@@ -4627,7 +4627,7 @@ public class SqlFile {
             headerList.addAll(constColMap.keySet());
         }
 
-        String[]  headers   = (String[]) headerList.toArray(new String[0]);
+        String[]  headers   = headerList.toArray(new String[0]);
         // headers contains input headers + all constCols, some of these
         // values may be nulls.
 
@@ -4642,7 +4642,7 @@ public class SqlFile {
         }
 
         StringBuffer tmpSb = new StringBuffer();
-        List tmpList = new ArrayList();
+        List<String> tmpList = new ArrayList<String>();
 
         int skippers = 0;
         for (int i = 0; i < headers.length; i++) {
@@ -4661,7 +4661,7 @@ public class SqlFile {
         boolean[] parseDate = new boolean[autonulls.length];
         boolean[] parseBool = new boolean[autonulls.length];
         char[] readFormat = new char[autonulls.length];
-        String[] insertFieldName = (String[]) tmpList.toArray(new String[] {});
+        String[] insertFieldName = tmpList.toArray(new String[] {});
         // Remember that the headers array has all columns in DSV file,
         // even skipped columns.
         // The autonulls array only has columns that we will insert into.
@@ -4860,9 +4860,9 @@ public class SqlFile {
                 /* Already checked for readColCount too high in prev. block */
 
                 if (constColMap != null) {
-                    Iterator it = constColMap.values().iterator();
+                    Iterator<String> it = constColMap.values().iterator();
                     while (it.hasNext()) {
-                        dataVals[storeColCount++] = (String) it.next();
+                        dataVals[storeColCount++] = it.next();
                     }
                 }
                 if (storeColCount != dataVals.length) {
@@ -5062,7 +5062,7 @@ public class SqlFile {
      * into a WIndows cmd.exe invocation to approximate.
      */
     static private String[] genWinArgs(String monolithic) {
-        List list = new ArrayList();
+        List<String> list = new ArrayList<String>();
         list.add("cmd.exe");
         list.add("/y");
         list.add("/c");
@@ -5080,7 +5080,7 @@ public class SqlFile {
                     list.add(internalTokens[j]);
             }
         }
-        return (String[]) list.toArray(new String[] {});
+        return list.toArray(new String[] {});
     }
 
     private void genRejectReportRecord(PrintWriter pw, int rCount,
@@ -5162,11 +5162,11 @@ public class SqlFile {
                 String defString = defToken.val;
                 defString = defString.substring(1).trim();
                 if (defString.length() < 1) {
-                    Iterator it = shared.macros.keySet().iterator();
+                    Iterator<String> it = shared.macros.keySet().iterator();
                     String key;
                     while (it.hasNext()) {
-                        key = (String) it.next();
-                        Token t = (Token) shared.macros.get(key);
+                        key = it.next();
+                        Token t = shared.macros.get(key);
                         stdprintln(key + " = " + t.reconstitute());
                     }
                     break;
@@ -5214,7 +5214,7 @@ public class SqlFile {
                 if (!matcher.matches())
                     throw new BadSpecial(rb.getString(
                             SqltoolRB.MACRO_MALFORMAT));
-                macroToken = (Token) shared.macros.get(matcher.group(1));
+                macroToken = shared.macros.get(matcher.group(1));
                 if (macroToken == null)
                     throw new BadSpecial(rb.getString(
                             SqltoolRB.MACRO_UNDEFINED, matcher.group(1)));

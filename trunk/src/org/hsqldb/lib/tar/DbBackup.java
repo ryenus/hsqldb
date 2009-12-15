@@ -171,7 +171,7 @@ public class DbBackup {
      * Much validation is deferred until the write() method, to prevent
      * problems with files changing between the constructor and the write call.
      */
-    public DbBackup(File archiveFile, String dbPath) throws IOException {
+    public DbBackup(File archiveFile, String dbPath) {
 
         this.archiveFile = archiveFile;
 

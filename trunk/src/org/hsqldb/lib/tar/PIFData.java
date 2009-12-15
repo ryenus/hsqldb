@@ -44,7 +44,8 @@ import java.util.regex.Pattern;
  * <P/>
  * Right now, the only Pax property that we support directly is "size".
  */
-public class PIFData extends HashMap {
+public class PIFData extends HashMap<String, String> {
+    static final long serialVersionUID = 3086795680582315773L;
 
     private static Pattern pifRecordPattern =
         Pattern.compile("\\d+ +([^=]+)=(.*)");
@@ -96,7 +97,7 @@ public class PIFData extends HashMap {
             stream.close();
         }
 
-        String sizeString = (String) get("size");
+        String sizeString = get("size");
 
         if (sizeString != null) {
             try {

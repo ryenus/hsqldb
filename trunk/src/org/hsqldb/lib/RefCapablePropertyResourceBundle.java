@@ -157,7 +157,9 @@ public class RefCapablePropertyResourceBundle {
     private PropertyResourceBundle wrappedBundle;
     private String baseName;
     private String language, country, variant;
-    static private Map allBundles = new HashMap();
+    static private Map<ResourceBundle, RefCapablePropertyResourceBundle>
+            allBundles =
+            new HashMap<ResourceBundle, RefCapablePropertyResourceBundle>();
     public static String LS = System.getProperty("line.separator");
     private Pattern sysPropVarPattern = Pattern.compile(
             "(?s)\\Q${\\E([^}]+?)(?:\\Q:+\\E([^}]+))?\\Q}");
@@ -169,7 +171,7 @@ public class RefCapablePropertyResourceBundle {
     public static final int EMPTYSTRING_BEHAVIOR = 1;
     public static final int NOOP_BEHAVIOR = 2;
 
-    public Enumeration getKeys() {
+    public Enumeration<String> getKeys() {
         return wrappedBundle.getKeys();
     }
 
@@ -370,8 +372,7 @@ public class RefCapablePropertyResourceBundle {
                     "Found a Resource Bundle, but it is a "
                             + rb.getClass().getName(),
                     PropertyResourceBundle.class.getName(), null);
-        if (allBundles.containsKey(rb))
-            return (RefCapablePropertyResourceBundle) allBundles.get(rb);
+        if (allBundles.containsKey(rb)) return allBundles.get(rb);
         RefCapablePropertyResourceBundle newPRAFP =
                 new RefCapablePropertyResourceBundle(baseName,
                         (PropertyResourceBundle) rb, loader);

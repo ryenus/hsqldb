@@ -44,6 +44,7 @@ import java.util.Map;
 import org.hsqldb.lib.FrameworkLogger;
 import org.hsqldb.lib.ValidatingResourceBundle;
 import org.hsqldb.lib.RCData;
+import org.hsqldb.cmdline.sqltool.Token;
 
 /* $Id$ */
 
@@ -209,7 +210,7 @@ public class SqlTool {
      * @param lowerCaseKeys Set to <code>true</code> if the map keys should be
      *        converted to lower case
      */
-    private static void varParser(String varString, Map varMap,
+    private static void varParser(String varString, Map<String, String> varMap,
                                   boolean lowerCaseKeys)
                                   throws PrivateException {
 
@@ -321,7 +322,7 @@ public class SqlTool {
         String  rcCharset        = null;
         String  rcTruststore     = null;
         String  rcTransIso     = null;
-        Map     rcFields         = null;
+        Map<String, String> rcFields = null;
         String  parameter;
 
         try {
@@ -497,7 +498,7 @@ public class SqlTool {
 
         // Use the inline RC file if it was specified
         if (rcParams != null) {
-            rcFields = new HashMap();
+            rcFields = new HashMap<String, String>();
 
             try {
                 varParser(rcParams, rcFields, true);
@@ -505,12 +506,12 @@ public class SqlTool {
                 throw new SqlToolException(SYNTAXERR_EXITVAL, e.getMessage());
             }
 
-            rcUrl        = (String) rcFields.remove("url");
-            rcUsername   = (String) rcFields.remove("user");
-            rcCharset    = (String) rcFields.remove("charset");
-            rcTruststore = (String) rcFields.remove("truststore");
-            rcPassword   = (String) rcFields.remove("password");
-            rcTransIso   = (String) rcFields.remove("transiso");
+            rcUrl        = rcFields.remove("url");
+            rcUsername   = rcFields.remove("user");
+            rcCharset    = rcFields.remove("charset");
+            rcTruststore = rcFields.remove("truststore");
+            rcPassword   = rcFields.remove("password");
+            rcTransIso   = rcFields.remove("transiso");
 
             // Don't ask for password if what we have already is invalid!
             if (rcUrl == null || rcUrl.length() < 1)
@@ -629,9 +630,9 @@ public class SqlTool {
 
         SqlFile[] sqlFiles = new SqlFile[numFiles];
 
-        Map userVars = null;
+        Map<String, String> userVars = null;
         if (varSettings != null) try {
-            userVars = new HashMap();
+            userVars = new HashMap<String, String>();
             varParser(varSettings, userVars, false);
         } catch (PrivateException pe) {
             throw new SqlToolException(RCERR_EXITVAL, pe.getMessage());
@@ -673,7 +674,7 @@ public class SqlTool {
             throw new SqlToolException(FILEERR_EXITVAL, ioe.getMessage());
         }
 
-        Map macros = null;
+        Map<String, Token> macros = null;
         try {
             for (int j = 0; j < sqlFiles.length; j++) {
                 if (conn != null) sqlFiles[j].setConnection(conn);
