@@ -53,13 +53,13 @@
     <simpara>This chapter explains how to quickly install, run, and use a
     HyperSQL Listener (aka Server) on UNIX.</simpara>
 
-    <simpara>Note that, unlike traditional databases, there are many use cases
+    <simpara>Note that, unlike a traditional database server, there are many
+    use cases
     where it makes sense to run HyperSQL without any listener. This type of
     setup is called <glossterm>in-process</glossterm>, and is not covered
     here, since there is no UNIX-specific setup in that case.</simpara>
 
-    <simpara>HyperSQL has lots of great optional features. I intend to cover
-    very few of them. I do intend to cover what I think is the most common
+    <simpara>I intend to cover what I think is the most common
     UNIX setup: To run a multi-user, externally-accessible catalog with
     permanent data persistence. (By the latter I mean that data is stored to
     disk so that the catalog data will persist across process shutdowns and
@@ -76,14 +76,14 @@
 
     <simpara>Go to <link
     xlink:href="http://sourceforge.net/projects/hsqldb"></link> and click on
-    the "files" link. You want the current version. This will be the highest
-    numbered version under the plain black "hsqldb" heading. See if there's a
-    distribution for the current HSQLDB version in the format that you
-    want.</simpara>
+    the "files" link. You want the current version. I can't be more specific
+    because SourceForge/Geeknet are likely to continue changing their
+    interface. See if there's a distribution for the current HSQLDB version in
+    the format that you want.</simpara>
 
     <simpara>If you want a binary package and we either don't provide it, or
     you prefer somebody else's build, you should still find out the current
-    version of HyperSQL as described in the previous paragraph. It's very
+    version of HyperSQL available at SourceForge. It's very
     likely that you can find a binary package for your UNIX variant with your
     OS distributor, <link xlink:href="http://www.jpackage.org/"></link>, <link
     xlink:href="http://sunfreeware.com/"></link>, etc. Nowadays, most UNIXes
@@ -91,7 +91,7 @@
     repositories. Just search the repositories for "hsqldb" and "hypersql".
     The challenge is to find an <emphasis>up-to-date</emphasis> package. You
     will get better features and support if you work with the current stable
-    release of HyperSQL. (In particular, HyperSQL version 2.0 added tons of
+    release of HyperSQL. (In particular, HyperSQL version 2.0.0 added tons of
     new features). Pay attention to what JVM versions your binary package
     supports. Our builds (version 2.0 and later) document the Java version it
     was built with in the file <filename>doc/index.html</filename>, but you
@@ -190,7 +190,10 @@
     <filename>hsqldb</filename> for zip file installations. Otherwise, use the
     utilities for your packaging system). The most important file of the
     HyperSQL system is <filename>hsqldb.jar</filename>, which resides in the
-    subdirectory <filename>lib</filename>.</simpara>
+    subdirectory <filename>lib</filename>.
+    Depending on who built your distribution, your file name may have a
+    version label in it, like <filename>hsqldb-1.2.3.4.jar</filename>.
+    </simpara>
 
     <important>
       <simpara>For the purposes of this chapter, I define
@@ -357,6 +360,18 @@
 
   <section xml:id="unix_access-sect">
     <title>Accessing your Database</title>
+    <simpara>
+      We're going to use SqlTool to access the database, so you will need the
+      file <filename>sqltool.jar</filename> in addition to
+      <filename>hsqldb.jar</filename>.
+      If <filename>sqltool.jar</filename> isn't already sitting there beside
+      <filename>hsqldb.jar</filename> (they both come pre-built), build it
+      exactly as you would build <filename>hsqldb.jar</filename>, except use
+      ant target <literal>sqltool</literal>.
+      If your distribution came with a sqltool jar file with a version label,
+      like <filename>sqltool-1.2.3.4.jar</filename>, that's fine-- use that
+      file whenever I say <filename>sqltool.jar</filename> below.
+    </simpara>
 
     <simpara>Copy the file <filename
     xlink:href="#sqltool.rc-link">sample/sqltool.rc</filename> to the
@@ -375,7 +390,7 @@
     without listeners in other chapters of this guide.</simpara>
 
     <para>Run <classname>SqlTool</classname>. <informalexample>
-        <screen>    java -jar path/to/hsqldb.jar localhost-sa</screen>
+        <screen>    java -jar path/to/sqltool.jar localhost-sa</screen>
       </informalexample> If you get a prompt, then all is well. If security is
     of any concern to you at all, then you should change the privileged
     password in the database. Use the command <literal
@@ -393,14 +408,12 @@
     <simpara>When you're finished playing, exit with the command
     <literal>\q</literal>.</simpara>
 
-    <simpara>If you changed the SA password, then you need to fix the password
-    in the <filename>sqltool.rc</filename> file accordingly.</simpara>
+    <simpara>If you changed the SA password, then you need to update the
+    password in the <filename>sqltool.rc</filename> file accordingly.</simpara>
 
     <simpara>You can, of course, also access the database with any JDBC client
-    program. <remark>Restore firstclient appendix link</remark> <!--
-  See the <link
-  endterm="firstclient-title" xlink:href="#firstclient-app" /> appendix.
-  --> You will need to modify your classpath to include
+    program.
+    You will need to modify your classpath to include
     <filename>hsqldb.jar</filename> as well as your client class(es). You can
     also use the other HSQLDB client programs, such as
     <classname>org.hsqldb.util.DatabasManagerSwing</classname>, a graphical
@@ -408,7 +421,7 @@
 
     <simpara>You can use any normal UNIX account to run the JDBC clients,
     including <classname>SqlTool</classname>, as long as the account has read
-    access to the <filename>hsqldb.jar</filename> file and to an
+    access to the <filename>sqltool.jar</filename> file and to an
     <filename>sqltool.rc</filename> file. See the Utilities Guide about where
     to put <filename>sqltool.rc</filename>, how to execute sql files, and
     other <classname>SqlTool</classname> features.</simpara>
@@ -458,7 +471,7 @@
     <para>Do a clean database shutdown when you are finished with the database
     catalog. You need to connect up as SA or some other Admin user, of course.
     With SqlTool, you can run <informalexample>
-        <screen>    java -jar path/to/hsqldb.jar --sql 'shutdown;' localhost-sa</screen>
+        <screen>    java -jar path/to/sqltool.jar --sql 'shutdown;' localhost-sa</screen>
       </informalexample> You don't have to worry about stopping the
     <classname>Listener</classname> because it shuts down automatically when
     all served database catalogs are shut down.</para>
@@ -553,7 +566,7 @@
           you will need to set up administrative access for each of these
           catalogs. If you are using our sample <filename
           xlink:href="#server.properties-link"> server.properties</filename>
-          file, you just need to know that you need to set up access for the
+          file, you will just need to set up access for the
           catalog specified with <literal>file:db0/dbo</literal>.</para>
 
           <note>
@@ -689,7 +702,8 @@
       script config file).</simpara>
 
       <simpara>If your database really is not starting, then verify that you
-      can su to the database owner account and start the database. The command
+      can <literal>su</literal> to the database owner account and start the
+      database. The command
       <literal>su USERNAME -c ...</literal> won't work on most UNIXes unless
       the target user has a real login shell. Therefore, if you try to tighten
       up security by disabling this user's login shell, you will break the
@@ -716,7 +730,7 @@
     <title>Upgrading</title>
 
     <simpara>This section is for users who are using our UNIX init script, and
-    who are upgrading their HSQLDB installation.</simpara>
+    who are upgrading their HyperSQL installation.</simpara>
 
     <simpara>Most users will not have customized the init script itself, and
     your customizations will all be encapsulated in the init script
@@ -728,8 +742,11 @@
     instructions in the new config file template at
     <filename>sample/hsqldb.cfg</filename>. You will have to change very few
     settings. If you are upgrading from a pre-2.0 installation to a post-2.0
-    installation, you will need to add the setting <varname>URLIDS</varname>,
-    as described above and in the inline comments.</simpara>
+    installation, you will need to (1) add the setting
+    <varname>URLIDS</varname>, as described above and in the inline comments,
+    and (2) replace variable <varname>HSQLDB_JAR_PATH</varname> with
+    <varname>SQLTOOL_JAR_PATH</varname> which (if you haven't guessed) should
+    be set to the path to your <filename>sqltool.jar</filename> file.</simpara>
 
     <simpara>Users who customized their init script will need to merge their
     customizations into the new init script.</simpara>

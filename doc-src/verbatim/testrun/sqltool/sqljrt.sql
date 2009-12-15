@@ -4,7 +4,7 @@
  * Tests SQL/JRT
  */
 
-create function dehex(VARCHAR, INTEGER)
+create function dehex(VARCHAR(80), INTEGER)
     returns INTEGER
     no sql
     language java
