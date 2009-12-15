@@ -9,11 +9,13 @@
 
 # You can run SqlTool right now by copying this file to your home directory
 # and running
-#    java -jar /path/to/hsqldb.jar mem
+#    java -jar /path/to/sqltool.jar mem
 # This will access the first urlid definition below in order to use a 
 # personal Memory-Only database.
 # "url" values may, of course, contain JDBC connection properties, delimited
 # with semicolons.
+# As of revision 3347 of SqlFile, you can also connect to datasources defined
+# here from within an SqlTool session/file with the command "\j urlid".
 
 # You can use Java system property values in this file like this:  ${user.home}
 

@@ -23,8 +23,8 @@ PROCEDURAL LANGUAGE COMMANDS
                                   (Just "?", "*{?}" would mean the auto var.).
     * while (logical expr)        Repeat following PL block while expr true
 
-Use PL variables (which you have set) like: *{VARNAME}.
-Use System Properties (which you may not set) like: ${property.name}.
+Use PL variable values (which have been set) like: *{VARNAME}.
+Use System Property values (which you may not set) like: ${property.name}.
 You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.
 Use PL variables in logical expressions, like (*VARNAME == 1).
 Auto. variable ? is set to the very next SQL datum fetched (or update count).

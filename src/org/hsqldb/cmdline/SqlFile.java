@@ -3464,7 +3464,7 @@ public class SqlFile {
 
                     condlPrintln("</TABLE>", true);
 
-                    if (rows.size() != 1) {
+                    if (interactive && rows.size() != 1) {
                         stdprintln(LS + rb.getString(SqltoolRB.ROWS_FETCHED,
                                 rows.size()), true);
                     }
@@ -3508,6 +3508,8 @@ public class SqlFile {
 
                 stdprintln(rb.getString(SqltoolRB.ROWS_FETCHED_DSV,
                         rows.size()));
+                // Undecided about whether should display row count here when
+                // in non-interactive mode
                 break;
 
             default :
@@ -3518,7 +3520,7 @@ public class SqlFile {
                     fetchingVar = null;
                 }
 
-                if (updateCount != 0) {
+                if (updateCount != 0 && interactive) {
                     stdprintln((updateCount == 1)
                         ? rb.getString(SqltoolRB.ROW_UPDATE_SINGULAR)
                         : rb.getString(SqltoolRB.ROW_UPDATE_MULTIPLE,
