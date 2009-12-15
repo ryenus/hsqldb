@@ -63,11 +63,10 @@ import org.hsqldb.types.Type;
  */
 public class Database {
 
-    int                  databaseID;
-    String               databaseUniqueName;
-    String               databaseType;
-    private final String canonicalPath;
-
+    int                   databaseID;
+    String                databaseUniqueName;
+    String                databaseType;
+    private final String  canonicalPath;
     public HsqlProperties urlProperties;
     private final String  path;
     DatabaseInformation   dbInfo;
@@ -102,7 +101,8 @@ public class Database {
     // session related objects
     public SessionManager     sessionManager;
     public TransactionManager txManager;
-    public int                defaultIsolationLevel;
+    public int defaultIsolationLevel = SessionInterface.TX_READ_COMMITTED;
+
     // schema objects
     public SchemaManager schemaManager;
 
@@ -300,7 +300,6 @@ public class Database {
         return databaseReadOnly;
     }
 
-
     /**
      *  Returns true if database has been shut down, false otherwise
      */
@@ -413,6 +412,7 @@ public class Database {
     public int getDefaultIsolationLevel() {
         return defaultIsolationLevel;
     }
+
     /**
      *  Called by the garbage collector on this Databases object when garbage
      *  collection determines that there are no more references to it.
