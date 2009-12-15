@@ -169,10 +169,18 @@ public final class ExpressionLike extends ExpressionLogical {
             }
         }
 
+        if (nodes[LEFT].dataType == null && nodes[RIGHT].dataType == null) {
+            throw Error.error(ErrorCode.X_42567);
+        }
+
         if (nodes[LEFT].isParam) {
-            nodes[LEFT].dataType = nodes[RIGHT].dataType;
+            nodes[LEFT].dataType = nodes[RIGHT].dataType.isBinaryType()
+                                   ? Type.SQL_VARBINARY_DEFAULT
+                                   : Type.SQL_VARCHAR_DEFAULT;
         } else if (nodes[RIGHT].isParam) {
-            nodes[RIGHT].dataType = nodes[LEFT].dataType;
+            nodes[RIGHT].dataType = nodes[LEFT].dataType.isBinaryType()
+                                    ? Type.SQL_VARBINARY_DEFAULT
+                                    : Type.SQL_VARCHAR_DEFAULT;
         }
 
         if (nodes[LEFT].dataType == null || nodes[RIGHT].dataType == null) {

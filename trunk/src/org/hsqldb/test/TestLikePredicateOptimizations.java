@@ -85,14 +85,14 @@ public class TestLikePredicateOptimizations extends TestBase {
         pstmt.executeBatch();
 
         sql = "select count(*) from test where name = (select max(name) from empty)";
-        rs  = stmt.executeQuery(sql);
+        rs = stmt.executeQuery(sql);
 
         rs.next();
 
         expectedCount = rs.getInt(1);
-        sql           = "select count(*) from test where name like (select min(name) from empty)";
-        pstmt         = conn.prepareStatement(sql);
-        rs            = pstmt.executeQuery();
+        sql = "select count(*) from test where name like (select min(name) from empty)";
+        pstmt = conn.prepareStatement(sql);
+        rs    = pstmt.executeQuery();
 
         rs.next();
 
@@ -136,7 +136,7 @@ public class TestLikePredicateOptimizations extends TestBase {
 
 // --
         sql = "select count(*) from test where substring(name from 1 for 6) = 'name44'";
-        rs  = stmt.executeQuery(sql);
+        rs = stmt.executeQuery(sql);
 
         rs.next();
 
@@ -169,9 +169,12 @@ public class TestLikePredicateOptimizations extends TestBase {
         assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 
 // --
+        String result  = "true";
+        String presult = "false";
+
         stmt.execute("drop table test1 if exists");
 
-        sql   = "CREATE TABLE test1 (col VARCHAR(30))";
+        sql   = "CREATE TABLE test1 (col CHAR(30))";
         pstmt = conn.prepareStatement(sql);
 
         pstmt.execute();
@@ -184,21 +187,21 @@ public class TestLikePredicateOptimizations extends TestBase {
         sql   = "SELECT * FROM test1 WHERE ( col LIKE ? )";
         pstmt = conn.prepareStatement(sql);
 
-        pstmt.setString(1, "one");
+        pstmt.setString(1, "on%");
 
         rs = pstmt.executeQuery();
 
-        rs.next();
-
-        String presult = rs.getString("COL");
+        if (rs.next()) {
+            presult = rs.getString("COL");
+        }
 
         sql   = "SELECT * FROM test1 WHERE ( col LIKE 'one' )";
         pstmt = conn.prepareStatement(sql);
         rs    = pstmt.executeQuery();
 
-        rs.next();
-
-        String result = rs.getString("COL");
+        if (rs.next()) {
+            result = rs.getString("COL");
+        }
 
         assertEquals("\"" + sql + "\"", result, presult);
     }
