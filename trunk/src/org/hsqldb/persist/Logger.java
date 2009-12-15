@@ -303,7 +303,10 @@ public class Logger {
             }
         }
 
-        if (!isNewDatabase) {
+        String version = database.databaseProperties.getStringProperty(
+            HsqlDatabaseProperties.hsqldb_version);
+
+        if (!isNewDatabase && !version.substring(0, 4).equals("1.8.")) {
             return;
         }
 
