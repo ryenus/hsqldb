@@ -55,19 +55,21 @@
      <echo>jar filename    build command   explanation
 --------------  -------------   -----------------------------------
 hsqldb.jar      ant hsqldb      Default distribution jar
-hsqljdbc.jar    ant hsqljdbc    JDBC client only.  (No direct urls
-                                of form jdbc:hsqldb:mem/file/res:*)
+hsqljdbc.jar    ant hsqljdbc    JDBC network client JDBC Driver.
+                                (Can connect to HyperSQL Servers)
 hsqldbmain.jar  ant hsqldbmain  No utility programs
 hsqldbutil.jar  ant hsqldbutil  Utility programs only.  No JDBC
                                 driver.  (Includes SqlTool and
                                 DatabaseManagers)
 hsqldbmin.jar   ant hsqldbmin   No utility or server programs.
-                                (Include JDBC driver, but no support
-                                for urls of form jdbc:hsqldb:ht*...)
+                                (Includes in-process JDBC driver,
+                                but no support for HyperSQL
+                                Servers)
 hsqldbtest.jar  ant hsqldbtest  All, including test classes
 hsqldbz.jar     ant hsqldbz     Min jar plus necessary util classes
                                 for Zaurus
-sqltool.jar     ant sqltool     SqlTool app and JDBC driver
+sqltool.jar     ant sqltool     SqlTool app and JDBC network client
+                                JDBC driver
 
 jars built with JDK 1.2 OR 1.3 can now be used with JRE 1.1.</echo>
    </target>
@@ -763,9 +765,10 @@ examples:
                   org/hsqldb/resources/sql-error-messages*
                   '/>
 
-    <fileset id='utilclasses' dir='classes'
-             includes='org/hsqldb/util/**, org/hsqldb/cmdline/**
-                  '/>
+    <fileset id='utilclasses' dir='classes' includes='
+         org/hsqldb/util/**
+         org/hsqldb/lib/*Log*
+      '/>
 
     <fileset id='sqltoolclasses' dir='classes'
       includes='org/hsqldb/cmdline/**/*.class
@@ -809,7 +812,7 @@ examples:
 <!-- or the org.hsqldb.jdbcDriver class are included here with some -->
 <!-- ommissions where the calling methods are not actually used -->
     <target name="hsqljdbc" depends="classes16, -prep-license-files"
-             description="Build the hsqljdbc.jar">
+             description="Build the hsqljdbc.jar for network clients">
         <jar jarfile="lib/hsqljdbc.jar" compress="true">
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <metainf dir="doc" includes="*_lic.txt"/>
@@ -838,11 +841,13 @@ examples:
                         value='Utilities runtime, without JDBC driver'/>
              <attribute name='Implementation-Version' value='${build.label}'/>
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-             <!-- N.b. Blaine removed the Main-Class because this jar is
-                  useless without a JDBC driver in the classpath, and you
-                  can't add to classpath if invoked with "-jar" -->
+             <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
+             <attribute name='Class-Path'
+                        value='hsqldb-2.0.0.jar hsqldbmain.jar hsqldb.jar'/>
          </manifest>
          <fileset refid='utilclasses'/>
+         <fileset refid='sqltoolclasses'/>
+         <fileset refid='sqltoolres'/>
       </jar>
     </target>
 
