@@ -109,7 +109,7 @@
           <term>hsqldb</term>
 
           <listitem>
-            <simpara>to make the <filename>hsqldb.jar</filename></simpara>
+            <simpara>to build the <filename>hsqldb.jar</filename> file</simpara>
           </listitem>
         </varlistentry>
 
@@ -132,10 +132,10 @@
         </varlistentry>
 
         <varlistentry>
-          <term>cleanall</term>
+          <term>clean-all</term>
 
           <listitem>
-            <simpara>to remove the old jar as well</simpara>
+            <simpara>to remove the old jar and doc files as well</simpara>
           </listitem>
         </varlistentry>
 
@@ -161,9 +161,8 @@
 
           <listitem>
             <simpara>to build an extremely small jar containing only the
-            client-side JDBC driver (does not support direct connection to
-            HSQLDB URLs of the form jdbc:hsldb:mem:*, jdbc:hsqldb:file:*, nor
-            jdbc:hsqldb:res:*).</simpara>
+            client-side JDBC driver (can connect only to a HyperSQL Server).
+            </simpara>
           </listitem>
         </varlistentry>
 
@@ -171,18 +170,22 @@
           <term>hsqldbmin</term>
 
           <listitem>
-            <simpara>to build a small jar that supports HSQLDB URLs of the
-            form jdbc:hsqldb:mem:*, jdbc:hsqld:file*, jdbc:hsqldb:res:*; but
-            not network URLs like jdbc:hsql* or jdbc:http*.</simpara>
+            <simpara>to build a small jar that supports
+              <emphasis>in-process</emphasis> catalogs, but neither running nor
+              connecting to HyperSQL Servers.</simpara>
           </listitem>
         </varlistentry>
 
         <varlistentry>
-          <term>hsqldbtest</term>
+          <term>sqltool</term>
 
           <listitem>
-            <simpara>to build a larger jar for hsqldb that contains
-            tests</simpara>
+            <simpara>to build sqltool.jar, which contains only the SqlTool
+            classes and HyperSQL JDBC Driver.  With just this file, you can
+            connect to HyperSQL Servers.  If <filename>hsqldb.jar</filename>
+            resides in the same directory, you can connect to every type of
+            HyperSQL catalog.
+            </simpara>
           </listitem>
         </varlistentry>
 
@@ -216,13 +219,14 @@
       <filename>servlet.jar</filename>, which is included in the .zip
       package.</simpara>
 
-      <para>If you want your code built for debugging, as opposed to high
-      performance, make a file named <filename>build.properties</filename> in
+      <para>If you want your code built for high performance, as opposed to
+      debugging (in the same way that we make our production distributions),
+      make a file named <filename>build.properties</filename> in
       your build directory with the contents <informalexample>
-          <screen>build.debug: true</screen>
-        </informalexample>The resulting Java binaries will be larger and
-      slower, but exception stack traces will contain source code line
-      numbers, which can be extremely useful for debugging.</para>
+          <screen>build.debug: false</screen>
+        </informalexample>The resulting Java binaries will be faster and
+      smaller, at the cost of exception stack traces not identifying source
+      code locations (which can be extremely useful for debugging).</para>
 
       <simpara>After installing Ant on your system use the following command
       from the <filename>/build</filename> directory. Just run <literal>ant

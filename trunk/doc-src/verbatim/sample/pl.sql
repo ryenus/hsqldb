@@ -12,7 +12,7 @@
        break out of the current SQL file.
        If people invoke your script from SqlTool interactively (with
        \i yourscriptname.sql) any \q will kill their SqlTool session. */
-    \p Use arguments "--setvar MYTABLE=mytablename" for SqlTool
+    \p Use arguments "--setvar=MYTABLE=mytablename" for SqlTool
     * break
 * end if
 
@@ -27,7 +27,7 @@
 * retval ~
 CREATE TABLE *{MYTABLE} (
     i int,
-    s varchar
+    s varchar(20);
 );
 \p CREATE status is *{retval}
 \p

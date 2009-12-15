@@ -14,8 +14,8 @@ DROP TABLE pctask;
 CREATE TABLE pctask (
     id integer identity,
     name varchar(40),
-    description varchar,
-    url varchar,
+    description varchar(256),
+    url varchar(80),
     UNIQUE (name)
 );
 
