@@ -51,7 +51,7 @@ import java.util.Collection;
  */
 abstract public class ValidatingResourceBundle {
     protected boolean validated = false;
-    abstract protected Map getKeyIdToString();
+    abstract protected Map<Integer, String> getKeyIdToString();
 
     public static final int THROW_BEHAVIOR =
             RefCapablePropertyResourceBundle.THROW_BEHAVIOR;
@@ -74,27 +74,26 @@ abstract public class ValidatingResourceBundle {
 
     /** @see RefCapablePropertyResourceBundle#getString(String) */
     public String getString(int id) {
-        return wrappedRCPRB.getString((String) getKeyIdToString().get(
-                new Integer(id)));
+        return wrappedRCPRB.getString(getKeyIdToString().get(new Integer(id)));
     }
 
     /** @see RefCapablePropertyResourceBundle#getString(String, String[], int) */
     public String getString(int id, String[] sa) {
-        return wrappedRCPRB.getString((String) getKeyIdToString().get(
+        return wrappedRCPRB.getString(getKeyIdToString().get(
                 new Integer(id)), sa, missingPosValueBehavior);
     }
 
     /** @see RefCapablePropertyResourceBundle#getExpandedString(String, int) */
     public String getExpandedString(int id) {
         return wrappedRCPRB.getExpandedString(
-                (String) getKeyIdToString().get(new Integer(id)),
+                getKeyIdToString().get(new Integer(id)),
                 missingPropertyBehavior);
     }
 
     /** @see RefCapablePropertyResourceBundle#getExpandedString(String, String[], int, int) */
     public String getExpandedString(int id, String[] sa) {
         return wrappedRCPRB.getExpandedString(
-                (String) getKeyIdToString().get(new Integer(id)), sa,
+                getKeyIdToString().get(new Integer(id)), sa,
                 missingPropertyBehavior, missingPosValueBehavior);
     }
 
@@ -151,21 +150,22 @@ abstract public class ValidatingResourceBundle {
         String val;
         if (validated) return;
         validated = true;
-        Set allIdStrings = new HashSet(getKeyIdToString().values());
+        Set<String> allIdStrings =
+                new HashSet<String>(getKeyIdToString().values());
         if (allIdStrings.size() < getKeyIdToString().values().size()) {
-            Collection c = getKeyIdToString().values();
-            Iterator it = allIdStrings.iterator();
+            Collection<String> c = getKeyIdToString().values();
+            Iterator<String> it = allIdStrings.iterator();
             while (it.hasNext()) c.remove(it.next());
             throw new RuntimeException(
                     "Duplicate property key(s) string in keyIdToString map: "
                             + c);
         }
-        Enumeration allKeys = wrappedRCPRB.getKeys();
+        Enumeration<String> allKeys = wrappedRCPRB.getKeys();
         while (allKeys.hasMoreElements()) {
             // We can't test positional parameters, but we can verify that
             // referenced files exist by reading the values.
             // Pretty inefficient, but this can be optimized when I have time.
-            val = (String) allKeys.nextElement();
+            val = allKeys.nextElement();
             wrappedRCPRB.getString(val);
             // Keep no reference to the returned String
             allIdStrings.remove(val);

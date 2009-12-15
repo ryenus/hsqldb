@@ -38,9 +38,9 @@ import java.util.ArrayList;
 /**
  * A list of SqlFile Tokens
  */
-public class TokenList extends ArrayList implements TokenSource {
-// public class TokenList extends ArrayList<Token> implements TokenSource {
-// Java 5
+public class TokenList extends ArrayList<Token> implements TokenSource {
+    static final long serialVersionUID = 5441418591320947274L;
+
     public TokenList() {
         super();
     }
@@ -51,7 +51,7 @@ public class TokenList extends ArrayList implements TokenSource {
         if (size() < 1) return null;
         //return remove(0);
         // Java5
-        return (Token) remove(0);
+        return remove(0);
     }
 
     public TokenList dup() {

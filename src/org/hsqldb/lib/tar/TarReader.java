@@ -519,6 +519,7 @@ public class TarReader {
      *
      * @author Blaine Simpson (blaine dot simpson at admc dot com)
      */
+    @SuppressWarnings("serial")
     static protected class TarEntryHeader {
 
         static protected class MissingField extends Exception {

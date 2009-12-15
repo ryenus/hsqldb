@@ -183,9 +183,9 @@ public class RB extends ValidatingResourceBundle {
         new Integer(LISTING_FORMAT), "listing.format",
     };
 
-    private Map keyIdToString = new HashMap();
+    private Map<Integer, String> keyIdToString = new HashMap<Integer, String>();
 
-    protected Map getKeyIdToString() {
+    protected Map<Integer, String> getKeyIdToString() {
         return keyIdToString;
     }
 
@@ -194,7 +194,8 @@ public class RB extends ValidatingResourceBundle {
         if (memberKeyArray == null)
             throw new RuntimeException("'static memberKeyArray not set");
         for (int i = 0; i < memberKeyArray.length; i += 2) {
-            keyIdToString.put(memberKeyArray[i], memberKeyArray[i+1]);
+            keyIdToString.put(
+                    (Integer) memberKeyArray[i], (String) memberKeyArray[i+1]);
         }
     }
 
