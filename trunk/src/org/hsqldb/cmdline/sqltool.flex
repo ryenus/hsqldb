@@ -45,12 +45,12 @@ import org.hsqldb.cmdline.SqltoolRB;
     static private FrameworkLogger logger =
             FrameworkLogger.getLog(SqlFileScanner.class);
     private StringBuffer commandBuffer = new StringBuffer();
-    private boolean interactive = false;
+    private boolean interactive;
     private PrintStream psStd = System.out;
-    private String magicPrefix = null;
+    private String magicPrefix;
     private int requestedState = YYINITIAL;
-    private String RAW_LEADIN_MSG = null;
-    private boolean specialAppendState = false;
+    private String RAW_LEADIN_MSG;
+    private boolean specialAppendState;
     // This last is needed for very unique check needed when appending to
     // a SQL command.  Only applies to interactive mode.
 

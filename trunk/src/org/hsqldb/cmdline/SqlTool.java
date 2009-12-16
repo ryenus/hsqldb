@@ -78,7 +78,7 @@ public class SqlTool {
     public static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/sqltool.rc";
     // N.b. the following is static!
-    private static String  revnum = null;
+    private static String  revnum;
 
     public static final int SQLTOOLERR_EXITVAL = 1;
     public static final int SYNTAXERR_EXITVAL = 11;
@@ -217,7 +217,6 @@ public class SqlTool {
         int       equals;
         String    var;
         String    val;
-        String[]  allvars;
 
         if (varMap == null) {
             throw new IllegalArgumentException(
@@ -228,18 +227,16 @@ public class SqlTool {
                     "varString is null in SqlTool.varParser call");
         }
 
-        allvars = varString.split("\\s*,\\s*");
-
-        for (int i = 0; i < allvars.length; i++) {
-            equals     = allvars[i].indexOf('=');
+        for (String token : varString.split("\\s*,\\s*")) {
+            equals     = token.indexOf('=');
 
             if (equals < 1) {
                 throw new PrivateException(
                     rb.getString(SqltoolRB.SQLTOOL_VARSET_BADFORMAT));
             }
 
-            var = allvars[i].substring(0, equals).trim();
-            val = allvars[i].substring(equals + 1).trim();
+            var = token.substring(0, equals).trim();
+            val = token.substring(equals + 1).trim();
 
             if (var.length() < 1) {
                 throw new PrivateException(
@@ -654,15 +651,14 @@ public class SqlTool {
                     new SqlFile(tmpReader, "--sql", System.out, null, false);
             }
 
-            for (int j = 0; j < scriptFiles.length; j++) {
+            for (File scriptFile : scriptFiles) {
                 if (interactiveFileIndex < 0 && interactive) {
                     interactiveFileIndex = fileIndex;
                 }
 
-                sqlFiles[fileIndex++] = (scriptFiles[j] == null)
+                sqlFiles[fileIndex++] = (scriptFile == null)
                         ?  (new SqlFile(encoding, interactive))
-                        :  (new SqlFile(scriptFiles[j],
-                                encoding, interactive));
+                        :  (new SqlFile(scriptFile,encoding, interactive));
             }
         } catch (IOException ioe) {
             try {
@@ -676,17 +672,17 @@ public class SqlTool {
 
         Map<String, Token> macros = null;
         try {
-            for (int j = 0; j < sqlFiles.length; j++) {
-                if (conn != null) sqlFiles[j].setConnection(conn);
-                if (userVars != null) sqlFiles[j].addUserVars(userVars);
-                if (macros != null) sqlFiles[j].addMacros(macros);
+            for (SqlFile sqlFile : sqlFiles) {
+                if (conn != null) sqlFile.setConnection(conn);
+                if (userVars != null) sqlFile.addUserVars(userVars);
+                if (macros != null) sqlFile.addMacros(macros);
                 if (coeOverride != null)
-                    sqlFiles[j].setContinueOnError(coeOverride.booleanValue());
+                    sqlFile.setContinueOnError(coeOverride.booleanValue());
 
-                sqlFiles[j].execute();
-                userVars = sqlFiles[j].getUserVars();
-                macros = sqlFiles[j].getMacros();
-                conn = sqlFiles[j].getConnection();
+                sqlFile.execute();
+                userVars = sqlFile.getUserVars();
+                macros = sqlFile.getMacros();
+                conn = sqlFile.getConnection();
             }
             // Following two Exception types are handled properly inside of
             // SqlFile.  We just need to return an appropriate error status.
