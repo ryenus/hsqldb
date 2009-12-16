@@ -254,9 +254,18 @@ public class DbBackup {
         }
 
         if (abortUponModify) {
-            Properties p = new Properties();
+            Properties      p   = new Properties();
+            FileInputStream fis = null;
 
-            p.load(new FileInputStream(propertiesFile));
+            try {
+                fis = new FileInputStream(propertiesFile);
+
+                p.load(fis);
+            } finally {
+                if (fis != null) {
+                    fis.close();
+                }
+            }
 
             String modifiedString = p.getProperty("modified");
 
