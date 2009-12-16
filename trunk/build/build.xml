@@ -171,7 +171,7 @@ examples:
    <target name="clean-all" depends="-clean, -clean-switch-branch, clean-docs"
            description="Same as clean but delete the jar and doc files as well">
       <delete>
-         <fileset dir="lib" includes="hsql*.jar, testsuite.jar"/>
+         <fileset dir="lib" includes="sqltool*.jar, hsql*.jar, testsuite.jar"/>
       </delete>
    </target>
 
