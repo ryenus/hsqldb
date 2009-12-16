@@ -53,6 +53,7 @@ import java.util.regex.Pattern;
  * 1.6.  If it was not, and if your tar entries contain private data in files
  * with 0400 or similar, be aware that they will be extracted with privs such
  * that they can be ready by anybody.
+ * </P>
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
@@ -332,13 +333,14 @@ public class TarReader {
         int modulus    = (int) (dataSize % 512L);
 
         // Couldn't care less about the entry "name" field.
+        PipedInputStream  inPipe  = null;
         PipedOutputStream outPipe = new PipedOutputStream();
-        PipedInputStream  inPipe  = new PipedInputStream(outPipe);
 
         /* This constructor not available until Java 1.6:
                 new PipedInputStream(outPipe, (int) dataSize);
         */
         try {
+            inPipe = new PipedInputStream(outPipe);
             while (readBlocks > 0) {
                 readNow = (readBlocks > archive.getReadBufferBlocks())
                           ? archive.getReadBufferBlocks()
@@ -358,11 +360,18 @@ public class TarReader {
 
             outPipe.flush();    // Do any good on a pipe?
         } catch (IOException ioe) {
-            inPipe.close();
+            if (inPipe != null) {
+                inPipe.close();
+            }
 
             throw ioe;
         } finally {
-            outPipe.close();
+            try {
+                outPipe.close();
+            } finally {
+                outPipe = null;  // Encourage buffer GC
+                inPipe = null;  // Encourage buffer GC
+            }
         }
 
         return new PIFData(inPipe);
@@ -467,7 +476,11 @@ public class TarReader {
 
             outStream.flush();
         } finally {
-            outStream.close();
+            try {
+                outStream.close();
+            } finally {
+                outStream = null;  // Encourage buffer GC
+            }
         }
 
         newFile.setLastModified(header.getModTime() * 1000);

@@ -39,14 +39,15 @@ import java.util.Map;
  *
  * The fields controlled here are fields for the individual tar file entries
  * in an archive.  There is no such thing as a Header Field at the top archive
- * level.  * <P>
+ * level.
+ * <P>
  * We use header field names as they are specified in the FreeBSD man page for
  * tar in section 5 (Solaris and Linux have no such page in section 5).
  * Where we use a constant, the constant name is just the FreeBSD field name
  * capitalized.
  * Since a single field is known as either "linkflag" or "typeflag", we are
  * going with the UStar name typeflag for this field.
- * <P>
+ * </P> <P>
  * We purposefully define no variable for this list of fields, since
  * we DO NOT WANT TO access or change these values, due to application
  * goals or JVM limitations:<UL>
@@ -61,10 +62,11 @@ import java.util.Map;
  * </UL>
  * Our application has no use for these, or Java has no ability to
  * work with them.
- * <P>
+ * </P> <P>
  * This class will be very elegant when refactored as an enum with enumMap(s)
  * and using generics with auto-boxing instead of the ugly and non-validating
  * casts.
+ * </P>
  *
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */

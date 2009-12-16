@@ -41,8 +41,9 @@ import java.util.regex.Pattern;
 
 /**
  * Pax Interchange Format object constituted from an Input Stream.
- * <P/>
+ * <P>
  * Right now, the only Pax property that we support directly is "size".
+ * </P> <P>
  */
 public class PIFData extends HashMap<String, String> {
     static final long serialVersionUID = 3086795680582315773L;
@@ -63,9 +64,9 @@ public class PIFData extends HashMap<String, String> {
     public PIFData(InputStream stream)
     throws TarMalformatException, IOException {
 
+        BufferedReader br = null;
         try {
-            BufferedReader br =
-                new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            br = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
             String  s, k, v;
             Matcher m;
             int     lineNum = 0;
@@ -94,7 +95,11 @@ public class PIFData extends HashMap<String, String> {
                 }
             }
         } finally {
-            stream.close();
+            try {
+                stream.close();
+            } finally {
+                br = null;  // Encourage buffer GC
+            }
         }
 
         String sizeString = get("size");

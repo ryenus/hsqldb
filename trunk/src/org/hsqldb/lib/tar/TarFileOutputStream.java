@@ -48,26 +48,27 @@ import java.util.zip.GZIPOutputStream;
  * It is concerned with reading and writing blocks of data in conformance with
  * Tar formatting, in a way convenient to those who want to write the header
  * and data blocks.
- * <P>
+ * </P> <P>
  * Users write file data by means of populating the provided, public byte array,
  * then calling the single write(int) method to write a portion of that array.
  * This design purposefully goes with efficiency, simplicity, and performance
  * over Java convention, which would not use public fields.
- * <P>
+ * </P> <P>
  * At this time, we do not support appending.  That would greatly decrease the
  * generality and simplicity of the our design, since appending is trivial
  * without compression and very difficult with compression.
- * <P>
+ * </P> <P>
  * Users must finish tar file creation by using the finish() method.
  * Just like a normal OutputStream, if processing is aborted for any reason,
  * the close() method must be used to free up system resources.
- * <P>
+ * </P> <P>
  * <B>SECURITY NOTE</B>
  * Due to pitiful lack of support for file security in Java before version 1.6,
  * this class will only explicitly set permissions if it is compiled for Java
  * 1.6.  If it was not, and if your tar entries contain private data in files
  * with 0400 or similar, be aware that that file can be pretty much be
  * extracted by anybody with access to the tar file.
+ * </P>
  *
  * @see #finish
  * @see #close
@@ -122,7 +123,7 @@ public class TarFileOutputStream {
      * This class does no validation or enforcement of file naming conventions.
      * If desired, the caller should enforce extensions like "tar" and
      * "tar.gz" (and that they match the specified compression type).
-     * <P/>
+     *
      * It also overwrites files without warning (just like FileOutputStream).
      */
     public TarFileOutputStream(File targetFile, int compressionType,
@@ -303,12 +304,20 @@ public class TarFileOutputStream {
      */
     public void close() throws IOException {
 
-        writeStream.close();
+        if (writeStream == null) {
+            return;
+        }
 
-        if (!writeFile.delete()) {
-            throw new IOException(
-                RB.singleton.getString(
-                    RB.WORKFILE_DELETE_FAIL, writeFile.getAbsolutePath()));
+        try {
+            writeStream.close();
+
+            if (!writeFile.delete()) {
+                throw new IOException(
+                    RB.singleton.getString(
+                        RB.WORKFILE_DELETE_FAIL, writeFile.getAbsolutePath()));
+            }
+        } finally {
+            writeStream = null;  // Encourage buffer GC
         }
     }
 

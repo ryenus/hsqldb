@@ -443,6 +443,7 @@ public class RefCapablePropertyResourceBundle {
             } catch (IOException ioe) {
                 System.err.println("Failed to close input stream: " + ioe);
             }
+            inputStream = null;
         }
         if (bytesread != ba.length) {
             throw new MissingResourceException(
