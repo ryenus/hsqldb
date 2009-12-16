@@ -397,7 +397,16 @@
     xlink:href="#set_password-sql">SET PASSWORD</literal> command to change
     SA's password. <informalexample>
         <programlisting>    SET PASSWORD 'newpassword';</programlisting>
-      </informalexample></para>
+      </informalexample>
+    Set a <emphasis>strong</emphasis> password!
+    </para>
+    <note><simpara>
+        If, like most UNIX System Administrators, you often need to make up
+        strong passwords, I highly suggest the great little program
+        <filename xlink:href="https://sourceforge.net/projects/pwgen/">pwgen</filename>.
+        You can probably get it where you get your other OS packages.
+        The command <literal>pwgen -1</literal> is usually all you need.
+    </simpara></note>
 
     <simpara>Note that with SQL-conformant databases like HyperSQL 2.0, user
     names and passwords are case sensitive. If you don't quote the name, it
@@ -460,9 +469,14 @@
     with the database, it is often useful to permit other database users to
     view the data in your tables. To optimize performance, reduce contention,
     and minimize administration, it is often best to grant SELECT to PUBLIC on
-    any object that needs to be accessed by multiple database users (with the
-    significant exception of any data which you want to keep
-    secret).</simpara>
+    table-like objects that need to be accessed by multiple database users,
+    with the significant exception of any data which you want to keep secret.
+    (Similary with EXECUTE priv for routines and USAGE priv for other object
+    types).
+    Note that this is not at all equivalent to giving the world or the Internet
+    read access to your tables-- you are giving read access to people that have
+    been given accounts for the target database catalog.
+    </simpara>
   </section>
 
   <section xml:id="unix_shutdown-sect">

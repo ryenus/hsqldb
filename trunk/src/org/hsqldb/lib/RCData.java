@@ -45,16 +45,17 @@ import java.util.StringTokenizer;
 /* $Id$ */
 
 /**
- * Manages all the details we need to connect up to database(s),
+ * Manages all the details we need to connect up to JDBC database(s),
  * in a declarative way.
- * <P/>
+ * <P>
  * The file <CODE>src/org/hsqldb/sample/SqlFileEmbedder.java</CODE>
  * in the HSQLDB distribution provides an example of how to use RCData for your
  * own programs.
+ * <P/>
  *
- * @see <a href="../../../../util-guide/sqltool-chapt.html#sqltool_auth-sect"
+ * @see <A href="../../../../util-guide/sqltool-chapt.html#sqltool_auth-sect"
  *      target="guide">
- *     The RC File section of the HyperSQL Utilities Guide</a>
+ *     The RC File section of the HyperSQL Utilities Guide</A>
  * @see org.hsqldb.sample.SqlFileEmbedder
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
@@ -242,11 +243,13 @@ public class RCData {
     }
 
     /**
-     * <p>Creates a new <code>RCData</code> object.
+     * Creates a new <code>RCData</code> object.
      *
-     * <p>The parameters driver, charset, truststore, and libpath are optional.
+     * <P>
+     * The parameters driver, charset, truststore, and libpath are optional.
      * Setting these parameters to <code>NULL</code> will set them to their
      * default values.
+     * <P/>
      *
      * @param id The identifier for these connection settings
      * @param url The URL of the database to connect to
@@ -386,7 +389,12 @@ public class RCData {
         return c;
     }
 
-    static public String expandSysPropVars(String inString) {
+    /**
+     * Returns a copy of the given String with System property names in the
+     * format <code>${system.property}</code> replaced by the corresponding Java
+     * System Properties.
+     */
+    public static String expandSysPropVars(String inString) {
 
         String outString = new String(inString);
         int    varOffset, varEnd;
@@ -427,7 +435,10 @@ public class RCData {
         return outString;
     }
 
-    static public void setTI(Connection c, String tiString)
+    /**
+     * Set Transaction Isolation level on the specified JDBC Connection
+     */
+    public static void setTI(Connection c, String tiString)
             throws SQLException {
         int i = -1;
         if (tiString.equals("TRANSACTION_READ_UNCOMMITTED"))
@@ -449,12 +460,15 @@ public class RCData {
     }
 
     /**
-     * Return String for numerical java.sql.Connection Transaction level.
-     *
+     * Return a String representation for the given numerical
+     * java.sql.Connection Transaction level.
+     * <P>
+     * Database implementations are free to provide their own transaction
+     * isolation levels, so you can't depend upon this method to much.
+     * </P>
      * Returns null, since DB implementations are free to provide
-     * their own transaction isolation levels.
      */
-    static public String tiToString(int ti) {
+    public static String tiToString(int ti) {
         switch (ti) {
             case Connection.TRANSACTION_READ_UNCOMMITTED:
                 return "TRANSACTION_READ_UNCOMMITTED";
