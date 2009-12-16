@@ -128,7 +128,7 @@ public class TestDima {
 
     public static void testTwo() {
 
-        TestSelf.deleteDatabase("test");
+        TestUtil.deleteDatabase("test");
 
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");

@@ -116,8 +116,7 @@ public class TestBatchBug {
 // Try to drop the table
         try {
 
-// stmt.executeUpdate("DROP TABLE " + TEST_TABLE_NAME + " IF EXISTS");
-            stmt.executeUpdate("DROP TABLE " + TEST_TABLE_NAME);
+            stmt.executeUpdate("DROP TABLE " + TEST_TABLE_NAME + " IF EXISTS");
         } catch (SQLException e) {    // Ignore Exception, because the table may not yet exist
             System.out.println(e.getMessage());
         }

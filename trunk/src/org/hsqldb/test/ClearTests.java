@@ -35,15 +35,16 @@ class ClearTests {
 
     public static void main(String[] argv) {
 
-        TestSelf.deleteDatabase("test");
-        TestSelf.deleteDatabase("test1");
-        TestSelf.deleteDatabase("test2");
-        TestSelf.deleteDatabase("test3");
-        TestSelf.deleteDatabase("/hsql/jdbcbench/test");
-        TestSelf.deleteDatabase("/hsql/test/subselect");
-        TestSelf.deleteDatabase("/hsql/test/testpersistent");
-        TestSelf.deleteDatabase("/hsql/testdima/test");
-        TestSelf.deleteDatabase("/hsql/testpa/test");
-        TestSelf.deleteDatabase("/hsql/testtime/test");
+        TestUtil.deleteDatabase("test");
+        TestUtil.deleteDatabase("test1");
+        TestUtil.deleteDatabase("test2");
+        TestUtil.deleteDatabase("test3");
+        TestUtil.deleteDatabase("/hsql/testbench/test");
+        TestUtil.deleteDatabase("/hsql/jdbcbench/test");
+        TestUtil.deleteDatabase("/hsql/test/subselect");
+        TestUtil.deleteDatabase("/hsql/test/testpersistent");
+        TestUtil.deleteDatabase("/hsql/testdima/test");
+        TestUtil.deleteDatabase("/hsql/testpa/test");
+        TestUtil.deleteDatabase("/hsql/testtime/test");
     }
 }

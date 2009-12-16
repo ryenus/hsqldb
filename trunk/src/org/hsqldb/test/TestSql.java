@@ -42,6 +42,7 @@ import java.sql.Types;
 
 import junit.framework.TestCase;
 import junit.framework.TestResult;
+import java.sql.Date;
 
 /**
  * Test sql statements via jdbc against in-memory database
@@ -781,6 +782,137 @@ public class TestSql extends TestBase {
         }
 
         ps.executeUpdate();
+    }
+
+
+    static byte[] b1 = {
+        0, 1, -128, 44, 12
+    };
+    static byte[] b2 = {
+        10, 127
+    };
+
+    public void testBinaryFunction() throws Exception {
+
+        Statement sStatement = null;
+        ResultSet r;
+        boolean mismatch;
+       sStatement = connection.createStatement();
+
+        try {
+
+            // prepared statements
+            String s = "create table bintest(id int primary key, bin varbinary(100))";
+
+            sStatement.execute(s);
+
+            s = "insert into bintest values ( ?, ?)";
+
+            PreparedStatement p = connection.prepareStatement(s);
+
+            p.clearParameters();
+            p.setInt(1, 10);
+
+            p.setBytes(2, b1);
+            p.executeUpdate();
+
+            p.clearParameters();
+            p.setInt(1, 20);
+
+            p.setBytes(2, b2);
+            p.executeUpdate();
+
+            byte[]  b1n;
+            byte[]  b2n;
+
+            s = "select \"org.hsqldb.lib.ArrayUtil.countStartElementsAt\"(bin,0, ?) "
+                + "from bintest";
+            p = connection.prepareStatement(s);
+
+            p.setBytes(1, b2);
+
+            r = p.executeQuery();
+
+            r.next();
+
+            int integer1 = r.getInt(1);
+
+            r.next();
+
+            int integer2 = r.getInt(1);
+
+            s = "select \"org.hsqldb.lib.StringConverter.hexStringToByteArray\""
+                + "(\"org.hsqldb.lib.StringConverter.byteArrayToHexString\"(x'abcd')) "
+                + "from bintest";
+            r = sStatement.executeQuery(s);
+
+            r.next();
+
+            b1n = r.getBytes(1);
+
+            r.next();
+
+            b1n = r.getBytes(1);
+
+            //--
+            s = "select \"org.hsqldb.lib.StringConverter.byteArrayToHexString\"(bin) "
+                + "from bintest";
+            r = sStatement.executeQuery(s);
+
+            r.next();
+
+            b1n = r.getBytes(1);
+
+            r.next();
+
+            b1n = r.getBytes(1);
+
+            s = "create table obj(id int,o object)";
+
+            sStatement.execute(s);
+
+            s = "insert into obj values(?,?)";
+            p = connection.prepareStatement(s);
+
+            p.setInt(1, 1);
+
+            int[] ia1 = {
+                1, 2, 3
+            };
+
+            p.setObject(2, ia1);
+            p.executeUpdate();
+            p.clearParameters();
+            p.setInt(1, 2);
+
+            java.awt.Rectangle r1 = new java.awt.Rectangle(10, 11, 12, 13);
+
+            p.setObject(2, r1);
+            p.executeUpdate();
+
+            r = sStatement.executeQuery("SELECT o FROM obj ORDER BY id DESC");
+
+            r.next();
+
+            java.awt.Rectangle r2 = (java.awt.Rectangle) r.getObject(1);
+
+            if (r2.x != 10 || r2.y != 11 || r2.width != 12
+                    || r2.height != 13) {
+                throw new Exception("Object data error: Rectangle");
+            }
+
+            r.next();
+
+            int[] ia2 = (int[]) (r.getObject(1));
+
+            if (ia2[0] != 1 || ia2[1] != 2 || ia2[2] != 3 || ia2.length != 3) {
+                throw new Exception("Object data error: int[]");
+            }
+
+            sStatement.close();
+        } catch (Exception e) {
+            assertEquals(0, 1);
+        }
     }
 
     protected void tearDown() {
