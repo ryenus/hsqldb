@@ -205,7 +205,7 @@ public class RCData {
             }
         }
         } finally {
-            if (br != null) try  {
+            try  {
                 br.close();
             } catch (IOException ioe) {
                 // Can only report on so many errors at one time

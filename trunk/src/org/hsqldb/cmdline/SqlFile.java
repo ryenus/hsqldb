@@ -4170,8 +4170,9 @@ public class SqlFile {
      * As the name says...
      * This method always closes the input stream.
      */
-    public String streamToString(InputStream is, String cs)
+    public String streamToString(InputStream isIn, String cs)
             throws IOException {
+        InputStream is = isIn;  // Compiler warning, when we can null the ref
         byte[] ba = null;
         int bytesread = 0;
         int retval;
@@ -5189,7 +5190,7 @@ public class SqlFile {
                     rejectWriter = null;  // Encourage GC of buffers
                 }
             }
-            if (rejectWriter != null) {
+            if (rejectReportWriter != null) {
                 try {
                     rejectReportWriter.close();
                 } finally {
