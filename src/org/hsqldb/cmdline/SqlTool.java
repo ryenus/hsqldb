@@ -51,16 +51,17 @@ import org.hsqldb.cmdline.sqltool.Token;
 /**
  * A command-line JDBC SQL tool supporting both interactive and
  * non-interactive usage.
- *
+ * <P>
  * See JavaDocs for the main method for syntax of how to run from the
  * command-line.
- * <P/>
+ * <P/> <P>
  * Programmatic users will usually want to use the objectMain(String[]) method
  * if they want arguments and behavior exactly like command-line SqlTool.
- * But in most cases, you would have better control and efficiency by using
+ * But in many cases, you will have better control and efficiency by using
  * the SqlFile class directly.  The file
  * <CODE>src/org/hsqldb/sample/SqlFileEmbedder.java</CODE>
  * in the HSQLDB distribution provides an example for this latter strategy.
+ * <P/>
  *
  * @see <a href="../../../../util-guide/sqltool-chapt.html" target="guide">
  *     The SqlTool chapter of the
@@ -118,6 +119,7 @@ public class SqlTool {
             throw re;
         }
     }
+    /** Platform-specific line separator */
     public static String LS = System.getProperty("line.separator");
 
     /** Utility nested class for internal use. */
@@ -256,7 +258,7 @@ public class SqlTool {
      * as a Java "program".
      * <P>
      * Throws only RuntimeExceptions or Errors, because this method is intended
-     * to System.exit() for all but disasterous system problems, for which
+     * to System.exit() for all but disastrous system problems, for which
      * the inconvenience of a stack trace would be the least of your worries.
      * <P/> <P>
      * If you don't want SqlTool to System.exit(), then use the method
@@ -280,15 +282,17 @@ public class SqlTool {
     /**
      * Connect to a JDBC Database and execute the commands given on
      * stdin or in SQL file(s).
-     * <P/>
+     * <P>
      * This method is changed for HSQLDB 1.8.0.8 and later to never
      * System.exit().
+     * Developers may catch Throwables to handle all fatal situations.
+     * </P>
      *
      * @param arg  Run "java... org.hsqldb.cmdline.SqlTool --help" for syntax.
      * @throws SqlToolException  Upon any fatal error, with useful
      *                          reason as the exception's message.
      */
-    static public void objectMain(String[] arg) throws SqlToolException {
+    public static void objectMain(String[] arg) throws SqlToolException {
         logger.finer("Invoking SqlTool");
 
         /*

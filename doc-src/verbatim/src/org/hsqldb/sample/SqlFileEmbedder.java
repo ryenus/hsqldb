@@ -121,9 +121,6 @@ public class SqlFileEmbedder {
      *
      * @see #main(String[])
      */
-    @SuppressWarnings("unchecked")
-    // Due to SqlFile supporting Java 1.4 (i.e. pre-1.5), its maps are not
-    // Generified.
     public void executeFiles(String[] fileStrings)
             throws IOException, SqlToolError, SQLException {
         Map<String, String> sqlVarMap = new HashMap<String, String>();
