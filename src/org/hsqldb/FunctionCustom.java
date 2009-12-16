@@ -1849,8 +1849,8 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                dataType = isChar ? Type.SQL_VARCHAR_DEFAULT
-                                  : Type.SQL_VARBINARY_DEFAULT;
+                dataType = isChar ? (Type) Type.SQL_VARCHAR_DEFAULT
+                                  : (Type) Type.SQL_VARBINARY_DEFAULT;
 
                 break;
             }

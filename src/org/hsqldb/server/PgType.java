@@ -212,20 +212,26 @@ public class PgType {
 
             case Types.SQL_DATE:
                 return dateSingleton;
-                // 4 bytes
-            case Types.SQL_TIME:
-                return new PgType(hType, TYPE_TIME, 8, hType.precision);
-            case Types.SQL_TIME_WITH_TIME_ZONE:
-                return new PgType(
-                    hType, TYPE_TIME_WITH_TMZONE, 12, hType.precision);
-            case Types.SQL_TIMESTAMP:
-                return new PgType(
-                    hType, TYPE_TIMESTAMP_NO_TMZONE, 8, hType.precision);
-            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE:
-                return new PgType(hType, TYPE_TIMESTAMP, 8, hType.precision);
-                // Postgresql is returning type DATETIME for this case.
-                // It should return TYPE_TIMESTAMP, no?
 
+            // 4 bytes
+            case Types.SQL_TIME :
+                return new PgType(hType, TYPE_TIME, new Integer(8),
+                                  hType.precision);
+
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                return new PgType(hType, TYPE_TIME_WITH_TMZONE,
+                                  new Integer(12), hType.precision);
+
+            case Types.SQL_TIMESTAMP :
+                return new PgType(hType, TYPE_TIMESTAMP_NO_TMZONE,
+                                  new Integer(8), hType.precision);
+
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                return new PgType(hType, TYPE_TIMESTAMP, new Integer(8),
+                                  hType.precision);
+
+            // Postgresql is returning type DATETIME for this case.
+            // It should return TYPE_TIMESTAMP, no?
             /* *********************************************************
              * For INTERVALs, we get the more specific type here, not just
              * SQL_INTERVAL.

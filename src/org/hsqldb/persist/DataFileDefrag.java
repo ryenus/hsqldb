@@ -232,7 +232,7 @@ final class DataFileDefrag {
 
         Session session = database.getSessionManager().getSysSession();
         PersistentStore    store  = session.sessionData.getRowStore(table);
-        RowOutputInterface rowOut = cache.rowOut.clone();
+        RowOutputInterface rowOut = cache.rowOut.duplicate();
         DoubleIntIndex pointerLookup =
             new DoubleIntIndex(table.getPrimaryIndex().sizeEstimate(store),
                                false);

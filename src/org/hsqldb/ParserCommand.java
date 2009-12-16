@@ -1151,8 +1151,8 @@ public class ParserCommand extends ParserDDL {
                 throw unexpectedToken();
         }
 
-        Object[] args = new Object[]{ flag == null ? value
-                                                   : flag };
+        Object[] args = new Object[]{ flag == null ? (Object) value
+                                                   : (Object) flag };
 
         return new StatementCommand(type, args, database.getCatalogName(),
                                     null);

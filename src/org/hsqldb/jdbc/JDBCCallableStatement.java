@@ -966,8 +966,13 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 return getBytes(parameterIndex);
-            case Types.SQL_BIT :
-                return getBoolean(parameterIndex);
+            case Types.SQL_BIT : {
+                boolean b = getBoolean(parameterIndex);
+
+                return wasNull() ? null
+                    : b ? Boolean.TRUE
+                    : Boolean.FALSE;
+            }
             case Types.OTHER :
             case Types.JAVA_OBJECT : {
                 Object o = getColumnInType(parameterIndex, sourceType);

@@ -72,7 +72,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         this.cache        = cache;
 
         if (cache != null) {
-            rowOut = cache.rowOut.clone();
+            rowOut = cache.rowOut.duplicate();
         }
 
         manager.setStore(table, this);

@@ -119,7 +119,7 @@ class Like {
     private Object getStartsWith() {
 
         if (iLen == 0) {
-            return isBinary ? BinaryData.zeroLengthBinary
+            return isBinary ? (Object) BinaryData.zeroLengthBinary
                             : "";
         }
 
@@ -146,7 +146,7 @@ class Like {
             return null;
         }
 
-        return isBinary ? new BinaryData(os.toByteArray(), false)
+        return isBinary ? (Object) new BinaryData(os.toByteArray(), false)
                         : sb.toString();
     }
 

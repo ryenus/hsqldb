@@ -1156,8 +1156,8 @@ public class LobManager {
         Object         params[]    = new Object[meta.getColumnCount()];
 
         params[DELETE_BLOCKS.LOB_ID]       = Long.valueOf(lobID);
-        params[DELETE_BLOCKS.BLOCK_OFFSET] = Integer.valueOf(blockOffset);
-        params[DELETE_BLOCKS.BLOCK_LIMIT]  = Integer.MAX_VALUE;
+        params[DELETE_BLOCKS.BLOCK_OFFSET] = new Integer(blockOffset);
+        params[DELETE_BLOCKS.BLOCK_LIMIT]  = new Integer(Integer.MAX_VALUE);
         params[DELETE_BLOCKS.TX_ID] =
             Long.valueOf(sysLobSession.getTransactionTimestamp());
 

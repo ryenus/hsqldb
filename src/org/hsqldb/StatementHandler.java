@@ -63,7 +63,7 @@ public class StatementHandler extends Statement {
 
     //
     OrderedIntHashSet conditionGroups = new OrderedIntHashSet();
-    HashSet           conditionStates = new HashSet();
+    OrderedHashSet    conditionStates = new OrderedHashSet();
     Statement         statement;
 
     //
