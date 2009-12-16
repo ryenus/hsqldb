@@ -1060,11 +1060,11 @@ public class QuerySpecification extends QueryExpression {
                 (Integer) sortAndSlice.limitCondition.getRightNode().getValue(
                     session);
 
-            if (limit == null || limit.intValue() <= 0) {
+            if (limit == null || limit.intValue() < 0) {
                 throw Error.error(ErrorCode.X_2201W);
             }
 
-            if (limit == 0) {
+            if (limit.intValue() == 0) {
                 limitRows = Integer.MAX_VALUE;
             } else {
                 limitRows = limit.intValue();

@@ -1613,8 +1613,14 @@ public class JDBCResultSet implements ResultSet {
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 return getBytes(columnIndex);
-            case Types.SQL_BIT :
-                return getBoolean(columnIndex);
+
+            case Types.SQL_BIT : {
+                boolean b = getBoolean(columnIndex);
+
+                return wasNull() ? null
+                                 : b ? Boolean.TRUE
+                                     : Boolean.FALSE;
+            }
             case Types.OTHER :
             case Types.JAVA_OBJECT : {
                 Object o = getColumnInType(columnIndex, sourceType);

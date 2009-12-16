@@ -227,11 +227,11 @@ public class RowOutputText extends RowOutputBase {
     }
 
     public void writeIntData(int i, int position) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowInputText");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputText");
     }
 
     public void writeLong(long i) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowInputText");
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputText");
     }
 
 // fredt@users - comment - methods used for writing each SQL type
@@ -376,4 +376,7 @@ public class RowOutputText extends RowOutputBase {
         return size;
     }
 
+    public RowOutputInterface duplicate() {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputText");
+    }
 }

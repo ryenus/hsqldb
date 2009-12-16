@@ -143,7 +143,8 @@ public class StatementResultUpdate extends StatementDML {
 
         if (rowIdIndex + 2 == result.metaData.getExtendedColumnCount()) {
             Object[] data =
-                ((RowSetNavigatorData) result.getNavigator()).getData(rowId);
+                ((RowSetNavigatorData) result.getNavigator()).getData(
+                    rowId.longValue());
 
             if (data != null) {
                 row = (Row) data[rowIdIndex + 1];

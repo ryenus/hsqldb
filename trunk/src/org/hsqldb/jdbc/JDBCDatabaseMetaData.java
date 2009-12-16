@@ -5261,7 +5261,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         rs.close();
 
-        return Integer.valueOf(v.substring(0, v.indexOf(".")));
+        return Integer.parseInt(v.substring(0, v.indexOf(".")));
     }
 
 //#endif JAVA4
@@ -5291,7 +5291,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 
         rs.close();
         int start = v.indexOf(".") + 1;
-        return Integer.valueOf(v.substring( start, v.indexOf(".", start)));
+        return Integer.parseInt(v.substring( start, v.indexOf(".", start)));
     }
 
 //#endif JAVA4

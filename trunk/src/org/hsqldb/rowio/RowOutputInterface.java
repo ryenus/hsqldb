@@ -86,5 +86,5 @@ public interface RowOutputInterface extends Cloneable {
     // returns the current size
     int size();
 
-    public RowOutputInterface clone();
+    public RowOutputInterface duplicate();
 }

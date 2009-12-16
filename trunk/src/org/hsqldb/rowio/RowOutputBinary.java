@@ -64,7 +64,7 @@ public class RowOutputBinary extends RowOutputBase {
 
     protected static final int INT_STORE_SIZE = 4;
     int                        storageSize;
-    final int                  scale; // 2 to power n where n >= 0
+    final int                  scale;    // 2 to power n where n >= 0
     final int                  mask;
 
     public RowOutputBinary(int initialSize, int scale) {
@@ -429,5 +429,9 @@ public class RowOutputBinary extends RowOutputBase {
         this.buffer = buffer;
 
         reset();
+    }
+
+    public RowOutputInterface duplicate() {
+        return new RowOutputBinary(128, this.scale);
     }
 }

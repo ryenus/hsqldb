@@ -294,12 +294,5 @@ implements RowOutputInterface {
         return this;
     }
 
-    public RowOutputInterface clone() {
-
-        try {
-            return (RowOutputInterface) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-    }
+    public abstract RowOutputInterface duplicate();
 }

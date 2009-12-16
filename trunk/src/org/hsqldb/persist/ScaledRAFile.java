@@ -123,7 +123,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             return new ScaledRAFile(database, name, readonly);
         } else {
             java.io.File fi     = new java.io.File(name);
-            Long         length = fi.length();
+            long         length = fi.length();
 
             if (length > MAX_NIO_LENGTH) {
                 return new ScaledRAFile(database, name, readonly);

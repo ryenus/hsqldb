@@ -2285,8 +2285,9 @@ public class ParserDDL extends ParserRoutine {
 
             read();
 
-            td = new TriggerDef(name, beforeOrAfter, operation, isForEachRow,
-                                table, transitions, rangeVars, condition,
+            td = new TriggerDef(name, beforeOrAfter, operation,
+                                isForEachRow.booleanValue(), table,
+                                transitions, rangeVars, condition,
                                 conditionSQL, updateColumnIndexes, className,
                                 isNowait, queueSize);
 
@@ -2432,8 +2433,9 @@ public class ParserDDL extends ParserRoutine {
 
         references.remove(table.getName());
 
-        td = new TriggerDefSQL(name, beforeOrAfter, operation, isForEachRow,
-                               table, transitions, rangeVars, condition,
+        td = new TriggerDefSQL(name, beforeOrAfter, operation,
+                               isForEachRow.booleanValue(), table,
+                               transitions, rangeVars, condition,
                                conditionSQL, updateColumnIndexes, csArray,
                                procedureSQL, references);
 

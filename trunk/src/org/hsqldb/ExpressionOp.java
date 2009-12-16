@@ -191,12 +191,18 @@ public class ExpressionOp extends Expression {
                 return sb.toString();
 
             case OpTypes.LIMIT :
-                sb.append(' ').append(Tokens.T_OFFSET).append(' ');
-                sb.append(left).append(' ');
-                sb.append(Tokens.T_FETCH).append(' ').append(Tokens.T_FIRST);
-                sb.append(right).append(' ').append(right).append(' ');
-                sb.append(Tokens.T_ROWS).append(' ').append(Tokens.T_ONLY);
-                sb.append(' ');
+                if (left != null) {
+                    sb.append(' ').append(Tokens.T_OFFSET).append(' ');
+                    sb.append(left).append(' ');
+                }
+
+                if (right != null) {
+                    sb.append(' ').append(Tokens.T_FETCH).append(' ');
+                    sb.append(Tokens.T_FIRST);
+                    sb.append(right).append(' ').append(right).append(' ');
+                    sb.append(Tokens.T_ROWS).append(' ').append(Tokens.T_ONLY);
+                    sb.append(' ');
+                }
                 break;
 
             case OpTypes.ZONE_MODIFIER :

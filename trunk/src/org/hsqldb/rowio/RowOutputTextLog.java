@@ -263,4 +263,8 @@ public class RowOutputTextLog extends RowOutputBase {
 
         isWritten = false;
     }
+
+    public RowOutputInterface duplicate() {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputText");
+    }
 }

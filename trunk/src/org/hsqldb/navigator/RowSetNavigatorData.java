@@ -292,7 +292,7 @@ implements Comparator {
         reset();
     }
 
-    public Object[] getData(Long rowId) {
+    public Object[] getData(long rowId) {
         return (Object[]) idMap.get(rowId);
     }
 

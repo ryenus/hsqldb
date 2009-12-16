@@ -1275,6 +1275,10 @@ public class ParserDQL extends ParserBase {
             e1 = new ExpressionValue(ValuePool.INTEGER_0, Type.SQL_INTEGER);
         }
 
+        if (e2 == null) {
+            e2 = new ExpressionValue(ValuePool.INTEGER_0, Type.SQL_INTEGER);
+        }
+
         boolean valid = true;
 
         if (e1.isParam()) {
@@ -1287,8 +1291,11 @@ public class ParserDQL extends ParserBase {
         if (e2.isParam()) {
             e2.setDataType(session, Type.SQL_INTEGER);
         } else {
-            valid &= (e2.getDataType().typeCode == Types.SQL_INTEGER
-                      && ((Integer) e2.getValue(null)).intValue() >= 0);
+            valid &= (e2.getDataType().typeCode == Types.SQL_INTEGER);
+
+            Integer value = ((Integer) e2.getValue(null));
+
+            valid &= (value.intValue() >= 0);
         }
 
         if (valid) {
@@ -2123,7 +2130,7 @@ public class ParserDQL extends ParserBase {
             Expression a = e;
 
             e = XreadAllTypesTerm(boole);
-            e = boole ? new ExpressionLogical(type, a, e)
+            e = boole ? (Expression) new ExpressionLogical(type, a, e)
                       : new ExpressionArithmetic(type, a, e);
         }
 
@@ -2176,7 +2183,7 @@ public class ParserDQL extends ParserBase {
                 throw unexpectedToken();
             }
 
-            e = boole ? new ExpressionLogical(type, a, e)
+            e = boole ? (Expression) new ExpressionLogical(type, a, e)
                       : new ExpressionArithmetic(type, a, e);
         }
 

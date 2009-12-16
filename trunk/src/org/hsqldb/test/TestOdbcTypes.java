@@ -302,7 +302,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             assertTrue("Got no rows with id in (1, 2)", rs.next());
             assertEquals(Double.class, rs.getObject("f").getClass());
             assertTrue("Got only one row with id in (1, 2)", rs.next());
-            assertEquals(8.9D, rs.getDouble("f"));
+            assertEquals(8.9D, rs.getDouble("f"), 0D);
             assertFalse("Got too many rows with id in (1, 2)", rs.next());
         } catch (SQLException se) {
             junit.framework.AssertionFailedError ase
@@ -331,7 +331,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             assertTrue("Got no rows with id in (1, 2)", rs.next());
             assertEquals(Double.class, rs.getObject("r").getClass());
             assertTrue("Got only one row with id in (1, 2)", rs.next());
-            assertEquals(9.7D, rs.getDouble("r"));
+            assertEquals(9.7D, rs.getDouble("r"), 0D);
             assertFalse("Got too many rows with id in (1, 2)", rs.next());
         } catch (SQLException se) {
             junit.framework.AssertionFailedError ase
@@ -1072,7 +1072,7 @@ public class TestOdbcTypes extends AbstractTestOdbc {
             assertTrue("Got no rows with r = 876.54D", rs.next());
             assertEquals(Double.class, rs.getObject("r").getClass());
             assertTrue("Got only one row with r = 876.54D", rs.next());
-            assertEquals(876.54D, rs.getDouble("r"));
+            assertEquals(876.54D, rs.getDouble("r"), 0D);
             assertFalse("Got too many rows with r = 876.54D", rs.next());
         } catch (SQLException se) {
             junit.framework.AssertionFailedError ase
