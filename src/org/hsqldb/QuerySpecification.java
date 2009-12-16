@@ -1046,29 +1046,33 @@ public class QuerySpecification extends QueryExpression {
         boolean hasLimits  = false;
 
         if (sortAndSlice.hasLimit()) {
-            Integer limit =
+            Integer value =
                 (Integer) sortAndSlice.limitCondition.getLeftNode().getValue(
                     session);
 
-            if (limit == null || limit.intValue() < 0) {
+            if (value == null || value.intValue() < 0) {
                 throw Error.error(ErrorCode.X_2201X);
             }
 
-            skipRows  = limit.intValue();
+            skipRows  = value.intValue();
             hasLimits = skipRows != 0;
-            limit =
-                (Integer) sortAndSlice.limitCondition.getRightNode().getValue(
-                    session);
 
-            if (limit == null || limit.intValue() < 0) {
-                throw Error.error(ErrorCode.X_2201W);
-            }
+            if (sortAndSlice.limitCondition.getRightNode() != null) {
+                value =
+                    (Integer) sortAndSlice.limitCondition.getRightNode().getValue(
+                        session);
 
-            if (limit.intValue() == 0) {
-                limitRows = Integer.MAX_VALUE;
-            } else {
-                limitRows = limit.intValue();
-                hasLimits = true;
+                if (value == null || value.intValue() <= 0) {
+                    throw Error.error(ErrorCode.X_2201W);
+                }
+
+                if (value.intValue() == 0) {
+                    limitRows = Integer.MAX_VALUE;
+                }
+                else {
+                    limitRows = value.intValue();
+                    hasLimits = true;
+                }
             }
         }
 

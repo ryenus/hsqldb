@@ -51,11 +51,11 @@ public class TestTextTables extends TestBase {
 
     public void testSectionOne() throws Exception {
 
-        TestSelf.deleteDatabase("/hsql/testtext/test");
-        TestSelf.delete("/hsql/testtext/t.txt");
-        TestSelf.delete("/hsql/testtext/tt.txt");
-        TestSelf.delete("/hsql/testtext/ttt.txt");
-        TestSelf.delete("/hsql/testtext/tttt.txt");
+        TestUtil.deleteDatabase("/hsql/testtext/test");
+        TestUtil.delete("/hsql/testtext/t.txt");
+        TestUtil.delete("/hsql/testtext/tt.txt");
+        TestUtil.delete("/hsql/testtext/ttt.txt");
+        TestUtil.delete("/hsql/testtext/tttt.txt");
         initDatabase();
         partA();
         partD();
@@ -63,11 +63,11 @@ public class TestTextTables extends TestBase {
 
     public void testSectionTwo() throws Exception {
 
-        TestSelf.deleteDatabase("/hsql/testtext/test");
-        TestSelf.delete("/hsql/testtext/t.txt");
-        TestSelf.delete("/hsql/testtext/tt.txt");
-        TestSelf.delete("/hsql/testtext/ttt.txt");
-        TestSelf.delete("/hsql/testtext/tttt.txt");
+        TestUtil.deleteDatabase("/hsql/testtext/test");
+        TestUtil.delete("/hsql/testtext/t.txt");
+        TestUtil.delete("/hsql/testtext/tt.txt");
+        TestUtil.delete("/hsql/testtext/ttt.txt");
+        TestUtil.delete("/hsql/testtext/tttt.txt");
         initDatabase();
         partB();
         partD();

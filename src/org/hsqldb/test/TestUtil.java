@@ -37,13 +37,16 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.LineGroupReader;
+import org.hsqldb.lib.StringComparator;
 import org.hsqldb.lib.StringUtil;
 
 /**
@@ -70,6 +73,26 @@ public class TestUtil {
     static final private String TIMESTAMP_VAR_STR = "${timestamp}";
     static final String LS = System.getProperty("line.separator", "\n");
 
+    public static void main(String[] argv) {
+        TestUtil.testScripts("testrun/hsqldb");
+    }
+
+    static void deleteDatabase(String path) {
+
+        delete(path + ".backup");
+        delete(path + ".properties");
+        delete(path + ".script");
+        delete(path + ".data");
+        delete(path + ".log");
+    }
+
+    static void delete(String file) {
+
+        try {
+            new File(file).delete();
+        } catch (Exception e) {}
+    }
+
     /**
      * Expand occurrences of "${timestamp}" in input to time stamps.
      */
@@ -91,6 +114,43 @@ public class TestUtil {
             sb.replace(i, i + TIMESTAMP_VAR_STR.length(), timestamp);
 
             i = sb.indexOf(TIMESTAMP_VAR_STR);
+        }
+    }
+
+    static void testScripts(String directory) {
+
+        TestUtil.deleteDatabase("test1");
+
+        try {
+            Class.forName("org.hsqldb.jdbc.JDBCDriver");
+            String     url = "jdbc:hsqldb:test1;sql.enforce_strict_size=true";
+            String     user        = "sa";
+            String     password    = "";
+            Connection cConnection = null;
+            String[]   filelist;
+            String     absolute = new File(directory).getAbsolutePath();
+
+            filelist = new File(absolute).list();
+
+            ArraySort.sort((Object[]) filelist, 0, filelist.length,
+                           new StringComparator());
+
+            for (int i = 0; i < filelist.length; i++) {
+                String fname = filelist[i];
+
+                if (fname.startsWith("TestSelf") && fname.endsWith(".txt")) {
+                    print("Openning DB");
+
+                    cConnection = DriverManager.getConnection(url, user,
+                            password);
+
+                    testScript(cConnection, fname);
+                    cConnection.close();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            print("TestUtil init error: " + e.getMessage());
         }
     }
 

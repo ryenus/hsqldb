@@ -86,7 +86,7 @@ public class TestScript extends TestBase {
 
     public void test() throws java.lang.Exception {
 
-        TestSelf.deleteDatabase("test");
+        TestUtil.deleteDatabase("test");
 
         Connection conn = newConnection();
 

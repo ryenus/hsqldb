@@ -84,7 +84,7 @@ public class TestSubselect extends TestCase {
 
     protected void setUp() throws Exception {
 
-        TestSelf.deleteDatabase("/hsql/test/subselect");
+        TestUtil.deleteDatabase("/hsql/test/subselect");
         Class.forName(databaseDriver);
 
         jdbcConnection = getJDBCConnection();
