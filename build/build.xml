@@ -241,7 +241,7 @@ examples:
           <arg value="--basedir=../${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
                the path must be relative to run dir (build), not the
-               At basedir -->
+               Ant basedir -->
       </java>
       <available classname="java.util.Vector" property="noswing"/>
     </target>
@@ -256,7 +256,7 @@ examples:
           <arg value="--basedir=../${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
                the path must be relative to run dir (build), not the
-               At basedir -->
+               Ant basedir -->
       </java>
     </target>
 
@@ -270,7 +270,7 @@ examples:
           <arg value="--basedir=../${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
                the path must be relative to run dir (build), not the
-               At basedir -->
+               Ant basedir -->
        </java>
     </target>
 
@@ -284,7 +284,7 @@ examples:
           <arg value="--basedir=../${swsrc}"/>
           <!-- Since these paths are interpreted by the JVM, not ant,
                the path must be relative to run dir (build), not the
-               At basedir -->
+               Ant basedir -->
        </java>
     </target>
 
