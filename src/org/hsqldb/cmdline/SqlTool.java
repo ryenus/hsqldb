@@ -198,6 +198,8 @@ public class SqlTool {
             }
         } catch (IOException e) {
             throw new PrivateException(e.getMessage());
+        } finally {
+            console = null;  // Encourage GC of buffers
         }
 
         return password;
@@ -322,11 +324,15 @@ public class SqlTool {
         String  rcPassword       = null;
         String  rcCharset        = null;
         String  rcTruststore     = null;
-        String  rcTransIso     = null;
+        String  rcTransIso       = null;
         Map<String, String> rcFields = null;
         String  parameter;
+        SqlFile[] sqlFiles       = null;
+        Connection conn          = null;
+        Map<String, String> userVars = null;
 
-        try {
+        try { // Try block to GC tmpReader
+        try { // Try block for BadCmdline
             while ((i + 1 < arg.length) && arg[i + 1].startsWith("--")) {
                 i++;
 
@@ -448,7 +454,7 @@ public class SqlTool {
                         tmpWriter.write(sqlText + LS);
                         tmpWriter.flush();
                     } finally {
-                        tmpWriter.close();
+                        tmpWriter = null;  // Encourage GC of buffers
                     }
                 } catch (IOException ioe) {
                     throw new SqlToolException(IOERR_EXITVAL,
@@ -574,7 +580,6 @@ public class SqlTool {
 
         if (interactive) System.out.print("SqlTool v. " + revnum + '.' + LS);
 
-        Connection conn = null;
         if (conData != null) try {
             conn = conData.getConnection(
                 driver, System.getProperty("javax.net.ssl.trustStore"));
@@ -629,9 +634,8 @@ public class SqlTool {
             numFiles += 1;
         }
 
-        SqlFile[] sqlFiles = new SqlFile[numFiles];
+        sqlFiles = new SqlFile[numFiles];
 
-        Map<String, String> userVars = null;
         if (varSettings != null) try {
             userVars = new HashMap<String, String>();
             varParser(varSettings, userVars, false);
@@ -672,6 +676,9 @@ public class SqlTool {
             }
 
             throw new SqlToolException(FILEERR_EXITVAL, ioe.getMessage());
+        }
+        } finally {
+            tmpReader = null;  // Encourage GC of buffers
         }
 
         Map<String, Token> macros = null;

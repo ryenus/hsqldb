@@ -40,17 +40,17 @@ import java.util.Properties;
 /**
  * Works with tar archives containing HSQLDB database instance backups.
  * Viz, creating, examining, or extracting these archives.
- * <P/>
+ * <P>
  * This class provides OO Tar backup-creation control.
  * The extraction and listing features are implemented only in static fashion
  * in the Main method, which provides a consistent interface for all three
  * features from the command-line.
- * <P/>
+ * </P> <P>
  * For tar creation, the default behavior is to fail if the target archive
  * exists, and to abort if any database change is detected.
  * Use the JavaBean setters to changes this behavior.
- * <P/>
  * See the main(String[]) method for details about command-line usage.
+ * </P>
  *
  * @see <a href="../../../../../guide/deployment-chapt.html#deployment_backup-sect"
  *      target="guide">
@@ -73,13 +73,14 @@ public class DbBackup {
      * inconvenience of messing up the user's current directory is more than
      * compensated by making it easier for the user to restore to a new
      * database URL location at a peer level to the original.
-     * <P/>
+     * </P> <P>
      * Automatically calculates buffer sizes based on the largest component
      * file (for "save" mode) or tar file size (for other modes).
-     * <P/>
+     * </P> <P>
      * Run<CODE><PRE>
      *     java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup
      * </PRE></CODE> for syntax help.
+     * </P>
      */
     static public void main(String[] sa)
     throws IOException, TarMalformatException {
@@ -262,8 +263,12 @@ public class DbBackup {
 
                 p.load(fis);
             } finally {
-                if (fis != null) {
-                    fis.close();
+                try {
+                    if (fis != null) {
+                        fis.close();
+                    }
+                } finally {
+                    fis = null; // Encourage buffer GC
                 }
             }
 
@@ -344,9 +349,9 @@ public class DbBackup {
     /**
      * Return a 512-block buffer size suggestion, based on the size of what
      * needs to be read or written, and default and typical JVM constraints.
-     * <P/>
+     * <P>
      * <B>Algorithm details:</B>
-     * <P/>
+     * </P> <P>
      * Minimum system I want support is a J2SE system with 256M physical
      * RAM.  This sytem can hold a 61 MB byte array (real 1024^2 M).
      * (61MB with Java 1.6, 62MB with Java 1.4).
@@ -358,16 +363,17 @@ public class DbBackup {
      * This allows 20 MB for us to use.  User can easily use more than this
      * by raising JVM settings and/or getting more PRAM or VRAM.
      * Therefore, ceiling = 20MB = 20 MB / .5 Kb = 40 k blocks
-     * <P/>
+     * </P> <P>
      * We make the conservative simplification that each data file contains
      * just one huge data entry component.  This is a good estimation, since in
      * most cases, the contents of the single largest file will be many orders
      * of magnitude larger than the other files and the single block entry
      * headers.
-     * <P/>
+     * </P> <P>
      * We aim for reading or writing these biggest file with 10 reads/writes.
      * In the case of READING Gzip files, there will actually be many more
      * reads than this, but that's the price you pay for smaller file size.
+     * </P>
      *
      * @param files  Null array elements are permitted.  They will just be
      *               skipped by the algorithm.

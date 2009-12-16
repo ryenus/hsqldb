@@ -130,6 +130,12 @@ import org.hsqldb.cmdline.sqltool.SqlFileScanner;
  * The process*() methods, other than processBuffHist() ALWAYS execute
  * on "buffer", and expect it to contain the method specific prefix
  * (if any).
+ * <P/><P>
+ * The input/output Reader/Stream are generally managed by the caller.
+ * An exception is that the input reader may be closed automatically or on
+ * demand by the user, since in some cases this class builds the Reader.
+ * There is no corresponding functionality for output since the user always
+ * has control over that object (which may be null or System.out).
  * <P/>
  *
  * @see <a href="../../../../util-guide/sqltool-chapt.html" target="guide">
@@ -474,17 +480,26 @@ public class SqlFile {
             PrintStream psStd, String encoding, boolean interactive)
             throws IOException {
         this(reader, inputStreamLabel);
-        shared = new SharedFields(psStd);
-        setEncoding(encoding);
-        this.interactive = interactive;
-        continueOnError = this.interactive;
+        try {
+            shared = new SharedFields(psStd);
+            setEncoding(encoding);
+            this.interactive = interactive;
+            continueOnError = this.interactive;
 
-        if (interactive) {
-            history = new TokenList();
-            maxHistoryLength = DEFAULT_HISTORY_SIZE;
+            if (interactive) {
+                history = new TokenList();
+                maxHistoryLength = DEFAULT_HISTORY_SIZE;
+            }
+            updateUserSettings();
+            // Updates local vars basd on * shared.userVars
+            // even when (like now) these are all defaults.
+        } catch (IOException ioe) {
+            closeReader();
+            throw ioe;
+        } catch (RuntimeException re) {
+            closeReader();
+            throw re;
         }
-        updateUserSettings(); // Updates local vars basd on * shared.userVars
-                              // even when (like now) these are all defaults.
     }
 
     /**
@@ -506,12 +521,18 @@ public class SqlFile {
     private SqlFile(SqlFile parentSqlFile, Reader reader,
             String inputStreamLabel) {
         this(reader, inputStreamLabel);
-        recursed = true;
-        shared = parentSqlFile.shared;
-        plMode = parentSqlFile.plMode;
-        interactive = parentSqlFile.interactive;
-        continueOnError = parentSqlFile.continueOnError;
-        updateUserSettings(); // Updates local vars basd on * shared.userVars
+        try {
+            recursed = true;
+            shared = parentSqlFile.shared;
+            plMode = parentSqlFile.plMode;
+            interactive = parentSqlFile.interactive;
+            continueOnError = parentSqlFile.continueOnError;
+            updateUserSettings();
+            // Updates local vars basd on * shared.userVars
+        } catch (RuntimeException re) {
+            closeReader();
+            throw re;
+        }
     }
 
     /**
@@ -607,6 +628,24 @@ public class SqlFile {
     private Token               buffer;
     private boolean             preempt;
     private String              lastSqlStatement;
+    private boolean             autoClose = true;
+
+    /**
+     * Specify whether the supplied or generated input Reader should
+     * automatically be closed by the execute() method.
+     * <P>
+     * execute() will close the Reader by default (i.e. 'autoClose' defaults
+     * to true).
+     * You may want to set this to false if you want to stop execution with
+     * \q or similar, then continue using the Reader or underlying Stream.
+     * </P> <P>
+     * The caller is always responsible for closing the output object (if any)
+     * used by SqlFile.
+     * </P>
+     */
+    public void setAutoClose(boolean autoClose) {
+        this.autoClose = autoClose;
+    }
 
     /**
      * Process all the commands from the file or Reader associated with
@@ -642,13 +681,38 @@ public class SqlFile {
             }
             scanpass(scanner);
         } finally {
+            try {
+                closeQueryOutputStream();
+                if (autoClose) closeReader();
+            } finally {
+                reader = null; // Encourage GC of buffers
+            }
+        }
+    }
+
+    /**
+     * Close the reader.
+     *
+     * The execute method will run this automatically, by default.
+     */
+    public void closeReader() {
+        if (reader == null) {
+            return;
+        }
+        try {
             if (scanner != null) try {
                 scanner.yyclose();
-                closeQueryOutputStream();
             } catch (IOException ioe) {
                 errprintln("Failed to close pipes");
             }
-            reader = null;
+            try {
+                reader.close();
+            } catch (IOException ioe) {
+                // Purposefully empty.
+                // The reader will usually already be closed at this point.
+            }
+        } finally {
+            reader = null; // Encourage GC of buffers
         }
     }
 
@@ -1231,7 +1295,13 @@ public class SqlFile {
                     throw new BadSpecial(rb.getString(SqltoolRB.FILE_APPENDFAIL,
                             targetFile), e);
                 } finally {
-                    if (pw != null) pw.close();
+                    if (pw != null) {
+                        try {
+                            pw.close();
+                        } finally {
+                            pw = null; // Encourage GC of buffers
+                        }
+                    }
                 }
 
                 return;
@@ -1504,10 +1574,12 @@ public class SqlFile {
                 } finally {
                     // Reset all state changes
                     if (pwDsv != null) {
-                        pwDsv.close();
+                        try {
+                            pwDsv.close();
+                        } finally {
+                            pwDsv = null; // Encourage GC of buffers
+                        }
                     }
-
-                    pwDsv       = null;
                 }
 
                 return;
@@ -1857,9 +1929,10 @@ public class SqlFile {
                     throw new BadSpecial(rb.getString(
                             SqltoolRB.BANG_INCOMPLETE));
 
+                Process proc = null;
                 try {
                     Runtime runtime = Runtime.getRuntime();
-                    Process proc = ((wincmdPattern == null)
+                    proc = ((wincmdPattern == null)
                             ? runtime.exec(extCommand)
                             : runtime.exec(genWinArgs(extCommand))
                     );
@@ -1891,6 +1964,7 @@ public class SqlFile {
                     }
 
                     stream.close();
+                    stream = null;  // Encourage buffer GC
 
                     if (proc.waitFor() != 0) {
                         throw new BadSpecial(rb.getString(
@@ -1901,6 +1975,10 @@ public class SqlFile {
                 } catch (Exception e) {
                     throw new BadSpecial(rb.getString(
                             SqltoolRB.BANG_COMMAND_FAIL, extCommand), e);
+                } finally {
+                    if (proc != null) {
+                        proc.destroy();
+                    }
                 }
 
                 return;
@@ -3936,14 +4014,18 @@ public class SqlFile {
             return;
         }
 
-        if (htmlMode) {
-            pwQuery.println("</BODY></HTML>");
-            pwQuery.flush();
+        try {
+            if (htmlMode) {
+                pwQuery.println("</BODY></HTML>");
+                pwQuery.flush();
+            }
+        } finally {
+            try {
+                pwQuery.close();
+            } finally {
+                pwQuery = null; // Encourage GC of buffers
+            }
         }
-
-        pwQuery.close();
-
-        pwQuery = null;
     }
 
     /**
@@ -4033,7 +4115,13 @@ public class SqlFile {
 
             osw.flush();
         } finally {
-            osw.close();
+            try {
+                osw.close();
+            } catch (IOException ioe) {
+                // Intentionally empty
+            } finally {
+                osw = null;  // Encourage GC of buffers
+            }
         }
 
         // Since opened in overwrite mode, since we didn't exception out,
@@ -4054,8 +4142,8 @@ public class SqlFile {
             throw new BadSpecial(rb.getString(SqltoolRB.BINBUFFER_EMPTY));
         }
 
-        FileOutputStream fos = new FileOutputStream(dumpFile);
         int len = 0;
+        FileOutputStream fos = new FileOutputStream(dumpFile);
 
         try {
             fos.write(binBuffer);
@@ -4066,7 +4154,13 @@ public class SqlFile {
 
             fos.flush();
         } finally {
-            fos.close();
+            try {
+                fos.close();
+            } catch (IOException ioe) {
+                // Intentionally empty
+            } finally {
+                fos = null; // Encourage GC of buffers
+            }
         }
         stdprintln(rb.getString(SqltoolRB.FILE_WROTECHARS,
                 len, dumpFile.toString()));
@@ -4078,10 +4172,10 @@ public class SqlFile {
      */
     public String streamToString(InputStream is, String cs)
             throws IOException {
+        byte[] ba = null;
+        int bytesread = 0;
+        int retval;
         try {
-            byte[] ba = null;
-            int bytesread = 0;
-            int retval;
             try {
                 ba = new byte[is.available()];
             } catch (RuntimeException re) {
@@ -4107,7 +4201,13 @@ public class SqlFile {
                 throw new IOException(rb.getString(SqltoolRB.READ_CONVERTFAIL));
             }
         } finally {
-            is.close();
+            try {
+                is.close();
+            } catch (IOException ioe) {
+                // intentionally empty
+            } finally {
+                is = null;  // Encourage GC of buffers
+            }
         }
     }
 
@@ -4117,6 +4217,7 @@ public class SqlFile {
     private void load(String varName, File asciiFile, String cs)
             throws IOException {
         String string = streamToString(new FileInputStream(asciiFile), cs);
+        // The streamToString() method ensures that the Stream gets closed
         shared.userVars.put(varName, string);
         updateUserSettings();
     }
@@ -4126,14 +4227,19 @@ public class SqlFile {
      */
     public static byte[] streamToBytes(InputStream is) throws IOException {
         byte[]                xferBuffer = new byte[10240];
-        ByteArrayOutputStream baos       = new ByteArrayOutputStream();
+        byte[]                outBytes = null;
         int                   i;
+        ByteArrayOutputStream baos       = new ByteArrayOutputStream();
 
-        while ((i = is.read(xferBuffer)) > 0) {
-            baos.write(xferBuffer, 0, i);
+        try {
+            while ((i = is.read(xferBuffer)) > 0) {
+                baos.write(xferBuffer, 0, i);
+            }
+            outBytes = baos.toByteArray();
+        } finally {
+            baos = null;  // Encourage buffer GC
         }
-
-        return baos.toByteArray();
+        return outBytes;
     }
 
     /**
@@ -4143,21 +4249,29 @@ public class SqlFile {
      */
     public static byte[] loadBinary(File binFile) throws IOException {
         byte[]                xferBuffer = new byte[10240];
-        ByteArrayOutputStream baos       = new ByteArrayOutputStream();
+        byte[]                outBytes = null;
+        ByteArrayOutputStream baos;
         int                   i;
         FileInputStream       fis        = new FileInputStream(binFile);
 
         try {
+            baos = new ByteArrayOutputStream();
             while ((i = fis.read(xferBuffer)) > 0) {
                 baos.write(xferBuffer, 0, i);
             }
+            outBytes = baos.toByteArray();
         } finally {
-            fis.close();
+            try {
+                fis.close();
+            } catch (IOException ioe) {
+                // intentionally empty
+            } finally {
+                fis = null; // Encourage GC of buffers
+                baos = null; // Encourage GC of buffers
+            }
         }
 
-        byte[] ba = baos.toByteArray();
-
-        return ba;
+        return outBytes;
     }
 
     /**
@@ -4173,8 +4287,7 @@ public class SqlFile {
      * value displayable.
      * </P>
      *
-     * @see <a href="http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html">
-     * http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html</a>
+     * @see <A href="http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html">http://java.sun.com/docs/books/tutorial/jdbc/basics/retrieving.html</A>
      *      The table on this page lists the most common SqlTypes, all of which
      *      must implement toString()
      * @see java.sql.Types
@@ -4515,6 +4628,8 @@ public class SqlFile {
             } catch (IOException ioe) {
                 errprintln(rb.getString(SqltoolRB.INPUTFILE_CLOSEFAIL)
                         + ": " + ioe);
+            } finally {
+                is = null;  // Encourage GC of buffers
             }
         }
         if (bytesread != bfr.length) {
@@ -4760,6 +4875,7 @@ public class SqlFile {
         File rejectReportFile = null;
         PrintWriter rejectWriter = null;
         PrintWriter rejectReportWriter = null;
+        try {
         if (dsvRejectFile != null) try {
             rejectFile = new File(dsvRejectFile);
             rejectWriter = new PrintWriter(
@@ -5002,6 +5118,8 @@ public class SqlFile {
             } catch (SQLException se) {
                 // We already got what we want from it, or have/are
                 // processing a more specific error.
+            } finally {
+                ps = null;  // Encourage GC of buffers
             }
             try {
                 if (dsvRecordsPerCommit > 0
@@ -5044,13 +5162,11 @@ public class SqlFile {
             }
             if (rejectWriter != null) {
                 rejectWriter.flush();
-                rejectWriter.close();
             }
             if (rejectReportWriter != null && rejectCount > 0) {
                 rejectReportWriter.println(rb.getString(
                         SqltoolRB.REJECTREPORT_BOTTOM, summaryString, revnum));
                 rejectReportWriter.flush();
-                rejectReportWriter.close();
             }
             if (rejectCount == 0) {
                 if (rejectFile != null && rejectFile.exists()
@@ -5063,6 +5179,22 @@ public class SqlFile {
                                     (rejectFile == null)
                                             ? null : rejectFile.toString()));
                 // These are trivial errors.
+            }
+        }
+        } finally {
+            if (rejectWriter != null) {
+                try {
+                    rejectWriter.close();
+                } finally {
+                    rejectWriter = null;  // Encourage GC of buffers
+                }
+            }
+            if (rejectWriter != null) {
+                try {
+                    rejectReportWriter.close();
+                } finally {
+                    rejectReportWriter = null;  // Encourage GC of buffers
+                }
             }
         }
     }

@@ -90,10 +90,11 @@ public class TarGenerator {
      * When data file is this size or greater, in bytes, a
      * Pix Interchange Format 'x' record will be created and used for the file
      * entry.
-     * <P/>
+     * <P>
      * <B>Limitation</B>
      * At this time, PAX is only implemented for entries added a Files,
      * not entries added as Stream.
+     * </P>
      */
     public void setPaxThreshold(long paxThreshold) {
         this.paxThreshold = paxThreshold;
@@ -196,8 +197,9 @@ public class TarGenerator {
     /**
      * This method does not support Pax Interchange Format, nor data sizes
      * greater than 2G.
-     * <P/>
+     * <P>
      * This limitation may or may not be eliminated in the future.
+     * </P>
      */
     public void queueEntry(String entryPath, InputStream inStream,
                            int maxBytes)
@@ -488,12 +490,13 @@ public class TarGenerator {
          * After instantiating a TarEntrySupplicant, the user must either invoke
          * write() or close(), to release system resources on the input
          * File/Stream.
-         * <P/>
+         * <P>
          * <B>WARNING:</B>
          * Do not use this method unless the quantity of available RAM is
          * sufficient to accommodate the specified maxBytes all at one time.
          * This constructor loads all input from the specified InputStream into
          * RAM before anything is written to disk.
+         * </P>
          *
          * @param maxBytes This method will fail if more than maxBytes bytes
          *                 are supplied on the specified InputStream.
@@ -521,12 +524,11 @@ public class TarGenerator {
             int               i;
             PipedOutputStream outPipe = new PipedOutputStream();
 
-            inputStream = new PipedInputStream(outPipe);
-
             /* This constructor not available until Java 1.6:
             inputStream = new PipedInputStream(outPipe, maxBytes);
             */
             try {
+                inputStream = new PipedInputStream(outPipe);
                 while ((i =
                         origStream
                             .read(tarStream.writeBuffer, 0, tarStream
@@ -544,18 +546,30 @@ public class TarGenerator {
                             RB.STREAM_BUFFER_REPORT, Long.toString(dataSize)));
                 }
             } catch (IOException ioe) {
-                inputStream.close();
+                close();
 
                 throw ioe;
             } finally {
-                outPipe.close();
+                try {
+                    outPipe.close();
+                } finally {
+                    outPipe = null;  // Encourage buffer GC
+                }
             }
 
             modTime = new java.util.Date().getTime() / 1000L;
         }
 
         public void close() throws IOException {
-            inputStream.close();
+            if (inputStream == null) {
+                return;
+            }
+
+            try {
+                inputStream.close();
+            } finally {
+                inputStream = null;  // Encourage buffer GC
+            }
         }
 
         protected long headerChecksum() {
@@ -652,11 +666,12 @@ public class TarGenerator {
         /**
          * This method is so-named because it only sets the owner privileges,
          * not any "group" or "other" privileges.
-         * <P/>
+         * <P>
          * This is because of Java limitation.
          * Incredibly, with Java 1.6, the API gives you the power to set
          * privileges for "other" (last nibble in file Mode), but no ability
          * to detect the same.
+         * </P>
          */
         static protected String getLameMode(File file) {
 

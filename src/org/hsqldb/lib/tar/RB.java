@@ -40,13 +40,13 @@ import org.hsqldb.lib.ValidatingResourceBundle;
 
 /**
  * Resource Bundle for Tar classes
- *
+ * <P>
  * Purpose of this class is to wrap a RefCapablePropertyResourceBundle to
  *  reliably detect any possible use of a missing property key as soon as
  *  this class is clinitted.
  * The reason for this is to allow us developers to detect all such errors
  *  before end-users ever use this class.
- *
+ * </P> <P>
  * IMPORTANT:  To add a new ResourceBundle element, add two new lines, one
  * like <PRE>
  *    static public final int NEWKEYID = keyCounter++;
@@ -56,6 +56,7 @@ import org.hsqldb.lib.ValidatingResourceBundle;
  * Both should be inserted right after all of the other lines of the same type.
  * NEWKEYID is obviously a new constant which you will use in calling code
  * like RB.NEWKEYID.
+ * </P>
  */
 public class RB extends ValidatingResourceBundle {
     private static int keyCounter = 0;

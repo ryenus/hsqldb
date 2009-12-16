@@ -111,6 +111,7 @@ public class RCData {
         int             linenum = 0;
         BufferedReader  br      = new BufferedReader(new FileReader(file));
 
+        try {
         while ((s = br.readLine()) != null) {
             ++linenum;
 
@@ -203,8 +204,15 @@ public class RCData {
                 }
             }
         }
+        } finally {
+            if (br != null) try  {
+                br.close();
+            } catch (IOException ioe) {
+                // Can only report on so many errors at one time
+            }
+            br = null;  // Encourage GC
+        }
 
-        br.close();
 
         if (dbKey == null) {
             return;
