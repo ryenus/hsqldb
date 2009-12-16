@@ -54,8 +54,8 @@ import java.sql.SQLException;
 import java.sql.SQLTransientConnectionException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -276,8 +276,8 @@ public class SqlFile {
             dsvSkipPrefix = DEFAULT_SKIP_PREFIX;
         }
         dsvSkipCols = shared.userVars.get("*DSV_SKIP_COLS");
-        dsvTrimAll = Boolean.valueOf(
-                shared.userVars.get("*DSV_TRIM_ALL")).booleanValue();
+        dsvTrimAll = Boolean.parseBoolean(
+                shared.userVars.get("*DSV_TRIM_ALL"));
         dsvColDelim = SqlFile.convertEscapes(
                 shared.userVars.get("*DSV_COL_DELIM"));
         if (dsvColDelim == null) {
@@ -1443,14 +1443,12 @@ public class SqlFile {
                         int[] incCols = null;
                         if (dsvSkipCols != null) {
                             Set<String> skipCols = new HashSet<String>();
-                            String[] skipColsArray =
-                                    dsvSkipCols.split(dsvColDelim, -1);
+                            for (String s : dsvSkipCols.split(dsvColDelim, -1)) {
                             // Don't know if better to use dsvColDelim or
                             // dsvColSplitter.  Going with former, since the
                             // latter should not need to be set for eXporting
                             // (only importing).
-                            for (int i = 0; i < skipColsArray.length; i++) {
-                                skipCols.add(skipColsArray[i].trim().toLowerCase());
+                                skipCols.add(s.trim().toLowerCase());
                             }
                             ResultSetMetaData rsmd = rs.getMetaData();
                             for (int i = 1; i <= rsmd.getColumnCount(); i++) {
@@ -1646,7 +1644,7 @@ public class SqlFile {
                 enforce1charSpecial(arg1, 'a');
                 if (other != null) {
                     shared.jdbcConn.setAutoCommit(
-                        Boolean.valueOf(other).booleanValue());
+                        Boolean.parseBoolean(other));
                     shared.possiblyUncommitteds = false;
                 }
 
@@ -1790,7 +1788,7 @@ public class SqlFile {
                 enforce1charSpecial(arg1, '=');
                 if (other != null) {
                     // But remember that we have to abort on some I/O errors.
-                    reportTimes = Boolean.valueOf(other).booleanValue();
+                    reportTimes = Boolean.parseBoolean(other);
                 }
 
                 stdprintln(rb.getString(
@@ -1804,7 +1802,7 @@ public class SqlFile {
                 enforce1charSpecial(arg1, '=');
                 if (other != null) {
                     // But remember that we have to abort on some I/O errors.
-                    continueOnError = Boolean.valueOf(other).booleanValue();
+                    continueOnError = Boolean.parseBoolean(other);
                 }
 
                 stdprintln(rb.getString(SqltoolRB.C_SETTING,
@@ -1912,8 +1910,8 @@ public class SqlFile {
         int    e          = inString.length();  // Index 1 past end of var name.
         int    nonVarIndex;
 
-        for (int i = 0; i < nonVarChars.length; i++) {
-            nonVarIndex = workString.indexOf(nonVarChars[i]);
+        for (char nonVarChar : nonVarChars) {
+            nonVarIndex = workString.indexOf(nonVarChar);
 
             if (nonVarIndex > -1 && nonVarIndex < e) {
                 e = nonVarIndex;
@@ -2102,9 +2100,9 @@ public class SqlFile {
 
 
             try {
-                for (int i = 0; i < values.length; i++) {
+                for (String val : values) {
                     try {
-                        shared.userVars.put(varName, values[i]);
+                        shared.userVars.put(varName, val);
                         updateUserSettings();
 
                         boolean origRecursed = recursed;
@@ -2332,11 +2330,11 @@ public class SqlFile {
                     stdprintln(rb.getString(SqltoolRB.PL_LIST_LENGTHS));
                 }
 
-                for (int i = 1; i < tokens.length; i++) {
+                for (String token : tokens) {
                     s = (String) (sysProps ? System.getProperties()
-                                           : shared.userVars).get(tokens[i]);
+                                           : shared.userVars).get(token);
                     if (s == null) continue;
-                    stdprintln("    " + tokens[i] + ": "
+                    stdprintln("    " + token + ": "
                                + (doValues ? ("(" + s + ')')
                                            : Integer.toString(s.length())));
                 }
@@ -2897,19 +2895,19 @@ public class SqlFile {
             displayResultSet(null, rs, listSet, filter);
 
             if (additionalSchemas != null) {
-                for (int i = 1; i < additionalSchemas.length; i++) {
+                for (String additionalSchema : additionalSchemas) {
                     /*
                      * Inefficient, but we have to do each successful query
                      * twice in order to prevent calling displayResultSet
                      * for empty/non-existent schemas
                      */
-                    rs = md.getTables(null, additionalSchemas[i], null,
+                    rs = md.getTables(null, additionalSchema, null,
                                       types);
 
                     if (rs == null) {
                         throw new BadSpecial(rb.getString(
                                 SqltoolRB.METADATA_FETCH_FAILFOR,
-                                        additionalSchemas[i]));
+                                        additionalSchema));
                     }
 
                     if (!rs.next()) {
@@ -2919,7 +2917,7 @@ public class SqlFile {
                     displayResultSet(
                         null,
                         md.getTables(
-                            null, additionalSchemas[i], null, types), listSet, filter);
+                            null, additionalSchema, null, types), listSet, filter);
                 }
             }
         } catch (SQLException se) {
@@ -3226,8 +3224,8 @@ public class SqlFile {
                         if (incCols != null) {
                             skip = true;
 
-                            for (int j = 0; j < incCols.length; j++) {
-                                if (i == incCols[j]) {
+                            for (int incCol : incCols) {
+                                if (i == incCol) {
                                     skip = false;
                                 }
                             }
@@ -3343,9 +3341,8 @@ public class SqlFile {
                         }
 
                         if (excludeSysSchemas && val != null && i == 2) {
-                            for (int z = 0; z < oracleSysSchemas.length;
-                                    z++) {
-                                if (val.equals(oracleSysSchemas[z])) {
+                            for (String oracleSysSchema : oracleSysSchemas) {
+                                if (val.equals(oracleSysSchema)) {
                                     filteredOut = true;
 
                                     break;
@@ -3488,17 +3485,15 @@ public class SqlFile {
                     pwDsv.print(dsvRowDelim);
                 }
 
-                for (int i = 0; i < rows.size(); i++) {
-                    fieldArray = rows.get(i);
-
-                    for (int j = 0; j < fieldArray.length; j++) {
-                        dsvSafe(fieldArray[j]);
-                        pwDsv.print((fieldArray[j] == null)
+                for (String[] fArray : rows) {
+                    for (int j = 0; j < fArray.length; j++) {
+                        dsvSafe(fArray[j]);
+                        pwDsv.print((fArray[j] == null)
                                     ? (autonulls[j] ? ""
                                                     : nullRepToken)
-                                    : fieldArray[j]);
+                                    : fArray[j]);
 
-                        if (j < fieldArray.length - 1) {
+                        if (j < fArray.length - 1) {
                             pwDsv.print(dsvColDelim);
                         }
                     }
@@ -3970,9 +3965,8 @@ public class SqlFile {
     }
 
     private String formatNicely(Map<?, ?> map, boolean withValues) {
-        String       key;
+        String       s;
         StringBuffer sb = new StringBuffer();
-        Iterator<?>  it = new TreeMap<Object, Object>(map).keySet().iterator();
 
         if (withValues) {
             SqlFile.appendLine(sb, rb.getString(SqltoolRB.PL_LIST_PARENS));
@@ -3980,12 +3974,11 @@ public class SqlFile {
             SqlFile.appendLine(sb, rb.getString(SqltoolRB.PL_LIST_LENGTHS));
         }
 
-        while (it.hasNext()) {
-            key = (String) it.next();
+        for (Map.Entry<Object, Object> entry
+                : new TreeMap<Object, Object>(map).entrySet()) {
+            s = (String) entry.getValue();
 
-            String s = (String) map.get(key);
-
-            SqlFile.appendLine(sb, "    " + key + ": " + (withValues ? ("(" + s + ')')
+            SqlFile.appendLine(sb, "    " + (String) entry.getKey() + ": " + (withValues ? ("(" + s + ')')
                                                         : Integer.toString(
                                                         s.length())));
         }
@@ -4447,9 +4440,8 @@ public class SqlFile {
             // We trim col. names, but not values.  Must allow users to
             // specify values as spaces, empty string, null.
             constColMap = new TreeMap<String, String>();
-            String[] constPairs = dsvConstCols.split(dsvColSplitter, -1);
-            for (int i = 0; i < constPairs.length; i++) {
-                matcher = nameValPairPattern.matcher(constPairs[i]);
+            for (String constPair : dsvConstCols.split(dsvColSplitter, -1)) {
+                matcher = nameValPairPattern.matcher(constPair);
                 if (!matcher.matches()) {
                     throw new SqlToolError(
                             rb.getString(SqltoolRB.DSV_CONSTCOLS_NULLCOL));
@@ -4462,9 +4454,8 @@ public class SqlFile {
         Set<String> skipCols = null;
         if (dsvSkipCols != null) {
             skipCols = new HashSet<String>();
-            String[] skipColsArray = dsvSkipCols.split(dsvColSplitter, -1);
-            for (int i = 0; i < skipColsArray.length; i++) {
-                skipCols.add(skipColsArray[i].trim().toLowerCase());
+            for (String skipCol : dsvSkipCols.split(dsvColSplitter, -1)) {
+                skipCols.add(skipCol.trim().toLowerCase());
             }
         }
 
@@ -4583,14 +4574,14 @@ public class SqlFile {
         String colName;
         String[] cols = headerLine.split(dsvColSplitter, -1);
 
-        for (int i = 0; i < cols.length; i++) {
-            if (cols[i].length() < 1) {
+        for (String col : cols) {
+            if (col.length() < 1) {
                 throw new SqlToolError(rb.getString(
                         SqltoolRB.DSV_NOCOLHEADER,
                         headerList.size() + 1, lineCount));
             }
 
-            colName = cols[i].trim().toLowerCase();
+            colName = col.trim().toLowerCase();
             headerList.add(
                 (colName.equals("-")
                         || (skipCols != null
@@ -4607,8 +4598,8 @@ public class SqlFile {
         }
 
         boolean oneCol = false;  // At least 1 non-null column
-        for (int i = 0; i < headerList.size(); i++) {
-            if (headerList.get(i) != null) {
+        for (String header : headerList) {
+            if (header != null) {
                 oneCol = true;
                 break;
             }
@@ -4645,8 +4636,8 @@ public class SqlFile {
         List<String> tmpList = new ArrayList<String>();
 
         int skippers = 0;
-        for (int i = 0; i < headers.length; i++) {
-            if (headers[i] == null) {
+        for (String header : headers) {
+            if (header == null) {
                 skippers++;
                 continue;
             }
@@ -4654,8 +4645,8 @@ public class SqlFile {
                 tmpSb.append(", ");
             }
 
-            tmpSb.append(headers[i]);
-            tmpList.add(headers[i]);
+            tmpSb.append(header);
+            tmpList.add(header);
         }
         boolean[] autonulls = new boolean[headers.length - skippers];
         boolean[] parseDate = new boolean[autonulls.length];
@@ -4840,7 +4831,7 @@ public class SqlFile {
                 storeColCount = 0;
                 cols = curLine.split(dsvColSplitter, -1);
 
-                for (int coli = 0; coli < cols.length; coli++) {
+                for (String col : cols) {
                     if (readColCount == inputColHeadCount) {
                         throw new RowError(rb.getString(
                                 SqltoolRB.DSV_COLCOUNT_MISMATCH,
@@ -4848,8 +4839,7 @@ public class SqlFile {
                     }
 
                     if (headers[readColCount++] != null) {
-                        dataVals[storeColCount++] =
-                            dsvTrimAll ? cols[coli].trim() : cols[coli];
+                        dataVals[storeColCount++] = dsvTrimAll ? col.trim() : col;
                     }
                 }
                 if (readColCount < inputColHeadCount) {
@@ -4860,9 +4850,8 @@ public class SqlFile {
                 /* Already checked for readColCount too high in prev. block */
 
                 if (constColMap != null) {
-                    Iterator<String> it = constColMap.values().iterator();
-                    while (it.hasNext()) {
-                        dataVals[storeColCount++] = it.next();
+                    for (String val : constColMap.values()) {
+                        dataVals[storeColCount++] = val;
                     }
                 }
                 if (storeColCount != dataVals.length) {
@@ -4904,8 +4893,8 @@ public class SqlFile {
                             ps.setNull(i + 1, java.sql.Types.BOOLEAN);
                         } else {
                             try {
-                                ps.setBoolean(i + 1, Boolean.valueOf(
-                                        dataVals[i]).booleanValue());
+                                ps.setBoolean(i + 1,
+                                        Boolean.parseBoolean(dataVals[i]));
                                 // Boolean... is equivalent to Java 4's
                                 // Boolean.parseBoolean().
                             } catch (IllegalArgumentException iae) {
@@ -5067,7 +5056,6 @@ public class SqlFile {
         list.add("/y");
         list.add("/c");
         Matcher m = wincmdPattern.matcher(monolithic);
-        String[] internalTokens;
         while (m.find()) {
             for (int i = 1; i <= m.groupCount(); i++) {
                 if (m.group(i) == null) continue;
@@ -5075,9 +5063,7 @@ public class SqlFile {
                     list.add(m.group(i).substring(1, m.group(i).length() - 1));
                     continue;
                 }
-                internalTokens = m.group(i).split("\\s+", -1);
-                for (int j = 0; j < internalTokens.length; j++)
-                    list.add(internalTokens[j]);
+                list.addAll(Arrays.asList(m.group(i).split("\\s+", -1)));
             }
         }
         return list.toArray(new String[] {});
@@ -5162,12 +5148,10 @@ public class SqlFile {
                 String defString = defToken.val;
                 defString = defString.substring(1).trim();
                 if (defString.length() < 1) {
-                    Iterator<String> it = shared.macros.keySet().iterator();
-                    String key;
-                    while (it.hasNext()) {
-                        key = it.next();
-                        Token t = shared.macros.get(key);
-                        stdprintln(key + " = " + t.reconstitute());
+                    for (Map.Entry<String, Token> entry
+                            : shared.macros.entrySet()) {
+                        stdprintln(entry.getKey() + " = "
+                                + entry.getValue().reconstitute());
                     }
                     break;
                 }

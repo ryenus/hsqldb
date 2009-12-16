@@ -105,10 +105,6 @@ public class SqlToolSprayer {
 
         boolean[] status = new boolean[urlids.size()];
 
-        for (int i = 0; i < status.length; i++) {
-            status[i] = false;
-        }
-
         String[] withRcArgs    = {
             "--sql", sa[0], "--rcfile=" + rcFile, null
         };
