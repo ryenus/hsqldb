@@ -1966,9 +1966,9 @@ public class Session implements SessionInterface {
             clientProperties = new HsqlProperties();
 
             clientProperties.setProperty(
-                HsqlDatabaseProperties.jdbc_interval_as_varchar,
+                HsqlDatabaseProperties.jdbc_translate_dti_types,
                 database.getProperties().isPropertyTrue(
-                    HsqlDatabaseProperties.jdbc_interval_as_varchar));
+                    HsqlDatabaseProperties.jdbc_translate_dti_types));
         }
 
         return clientProperties;

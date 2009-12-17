@@ -81,6 +81,7 @@ public class ValuePool {
 
     public static final Integer INTEGER_0 = ValuePool.getInt(0);
     public static final Integer INTEGER_1 = ValuePool.getInt(1);
+    public static final Integer INTEGER_2 = ValuePool.getInt(2);
     public static final Integer INTEGER_MAX =
         ValuePool.getInt(Integer.MAX_VALUE);
     public static final BigDecimal BIG_DECIMAL_0 =

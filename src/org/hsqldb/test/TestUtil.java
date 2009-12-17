@@ -123,6 +123,7 @@ public class TestUtil {
 
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
+
             String     url = "jdbc:hsqldb:test1;sql.enforce_strict_size=true";
             String     user        = "sa";
             String     password    = "";
@@ -144,7 +145,7 @@ public class TestUtil {
                     cConnection = DriverManager.getConnection(url, user,
                             password);
 
-                    testScript(cConnection, fname);
+                    testScript(cConnection, absolute + File.separator + fname);
                     cConnection.close();
                 }
             }

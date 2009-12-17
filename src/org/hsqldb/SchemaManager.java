@@ -1406,6 +1406,8 @@ public class SchemaManager {
                 case SchemaObject.ROUTINE :
                 case SchemaObject.FUNCTION :
                 case SchemaObject.PROCEDURE :
+                case SchemaObject.TRIGGER :
+                case SchemaObject.SPECIFIC_ROUTINE :
                     if (refName.schema == name) {
                         break mainLoop;
                     }
