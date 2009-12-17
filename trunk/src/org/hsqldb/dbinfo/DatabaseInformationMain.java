@@ -38,6 +38,8 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
+import org.hsqldb.Routine;
+import org.hsqldb.RoutineSchema;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
@@ -356,8 +358,17 @@ class DatabaseInformationMain extends DatabaseInformation {
             case SYSTEM_PRIMARYKEYS :
                 return SYSTEM_PRIMARYKEYS();
 
+            case SYSTEM_PROCEDURECOLUMNS :
+                return SYSTEM_PROCEDURECOLUMNS();
+
+            case SYSTEM_PROCEDURES :
+                return SYSTEM_PROCEDURES();
+
             case SYSTEM_SCHEMAS :
                 return SYSTEM_SCHEMAS();
+
+            case SYSTEM_SEQUENCES :
+                return SYSTEM_SEQUENCES();
 
             case SYSTEM_TABLES :
                 return SYSTEM_TABLES();
@@ -371,8 +382,11 @@ class DatabaseInformationMain extends DatabaseInformation {
             case SYSTEM_USERS :
                 return SYSTEM_USERS();
 
-            case SYSTEM_SEQUENCES :
-                return SYSTEM_SEQUENCES();
+            case SYSTEM_UDTS :
+                return SYSTEM_UDTS();
+
+            case SYSTEM_VERSIONCOLUMNS :
+                return SYSTEM_VERSIONCOLUMNS();
 
             case COLUMN_PRIVILEGES :
                 return COLUMN_PRIVILEGES();
@@ -745,6 +759,9 @@ class DatabaseInformationMain extends DatabaseInformation {
         tables =
             database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
+        boolean translateDTI = database.getProperties().isPropertyTrue(
+            HsqlDatabaseProperties.jdbc_translate_dti_types);
+
         // Do it.
         while (tables.hasNext()) {
             table = (Table) tables.next();
@@ -776,11 +793,14 @@ class DatabaseInformationMain extends DatabaseInformation {
                 ColumnSchema column = table.getColumn(i);
                 Type         type   = types[i];
 
-                if (type.isIntervalType()
-                        && database.getProperties().isPropertyTrue(
-                            HsqlDatabaseProperties.jdbc_interval_as_varchar)) {
-                    type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
-                                                          type.displaySize());
+                if (translateDTI) {
+                    if (type.isIntervalType()) {
+                        type = CharacterType.getCharacterType(
+                            Types.SQL_VARCHAR, type.displaySize());
+                    } else if (type.isDateTimeTypeWithZone()) {
+                        type = ((DateTimeType) type)
+                            .getDateTimeTypeWithoutZone();
+                    }
                 }
 
                 row                  = t.getEmptyRowData();
@@ -941,6 +961,9 @@ class DatabaseInformationMain extends DatabaseInformation {
         tables = allTables();
         ti     = new DITableInfo();
 
+        boolean translateDTI = database.getProperties().isPropertyTrue(
+            HsqlDatabaseProperties.jdbc_translate_dti_types);
+
         // Do it.
         while (tables.hasNext()) {
             table = (Table) tables.next();
@@ -961,11 +984,14 @@ class DatabaseInformationMain extends DatabaseInformation {
                 ColumnSchema column = table.getColumn(i);
                 Type         type   = column.getDataType();
 
-                if (type.isIntervalType()
-                        && database.getProperties().isPropertyTrue(
-                            HsqlDatabaseProperties.jdbc_interval_as_varchar)) {
-                    type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
-                                                          type.displaySize());
+                if (translateDTI) {
+                    if (type.isIntervalType()) {
+                        type = CharacterType.getCharacterType(
+                            Types.SQL_VARCHAR, type.displaySize());
+                    } else if (type.isDateTimeTypeWithZone()) {
+                        type = ((DateTimeType) type)
+                            .getDateTimeTypeWithoutZone();
+                    }
                 }
 
                 row = t.getEmptyRowData();
@@ -1530,6 +1556,366 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                 t.insertSys(store, row);
             }
+        }
+
+        return t;
+    }
+
+    /**
+     * Retrieves a <code>Table</code> object describing the
+     * return, parameter and result columns of the accessible
+     * routines defined within this database.<p>
+     *
+     * Each row is a procedure column description with the following
+     * columns: <p>
+     *
+     * <pre class="SqlCodeExample">
+     * PROCEDURE_CAT   VARCHAR   routine catalog
+     * PROCEDURE_SCHEM VARCHAR   routine schema
+     * PROCEDURE_NAME  VARCHAR   routine name
+     * COLUMN_NAME     VARCHAR   column/parameter name
+     * COLUMN_TYPE     SMALLINT  kind of column/parameter
+     * DATA_TYPE       SMALLINT  SQL type from DITypes
+     * TYPE_NAME       VARCHAR   SQL type name
+     * PRECISION       INTEGER   precision (length) of type
+     * LENGTH          INTEGER   transfer size, in bytes, if definitely known
+     *                           (roughly equivalent to BUFFER_SIZE for table
+     *                           columns)
+     * SCALE           SMALLINT  scale
+     * RADIX           SMALLINT  radix
+     * NULLABLE        SMALLINT  can column contain NULL?
+     * REMARKS         VARCHAR   explanatory comment on column
+     * // JDBC 4.0
+     * COLUMN_DEF        VARCHAR The default column value.
+     *                           The string NULL (not enclosed in quotes)
+     *                           - If NULL was specified as the default value
+     *                           TRUNCATE (not enclosed in quotes)
+     *                           - If the specified default value cannot be
+     *                           represented without truncation
+     *                           NULL
+     *                           - If a default value was not specified
+     * SQL_DATA_TYPE     INTEGER CLI type list from SQL 2003 Table 37,
+     *                           tables 6-9 Annex A1, and/or addendums in other
+     *                           documents, such as:
+     *                           SQL 2003 Part 9: Management of External Data (SQL/MED) : DATALINK
+     *                           SQL 2003 Part 14: XML-Related Specifications (SQL/XML) : XML
+     * SQL_DATETIME_SUB  INTEGER SQL 2003 CLI datetime/interval subcode.
+     * CHAR_OCTET_LENGTH INTEGER The maximum length of binary and character
+     *                           based columns.  For any other datatype the
+     *                           returned value is a NULL
+     * ORDINAL_POSITION  INTEGER The ordinal position, starting from 1, for the
+     *                           input and output parameters for a procedure.
+     *                           A value of 0 is returned if this row describes
+     *                           the procedure's return value.
+     * IS_NULLABLE       VARCHAR ISO rules are used to determinte the nulliblity
+     *                           for a column.
+     *
+     *                           YES (enclosed in quotes)  --- if the column can include NULLs
+     *                           NO  (enclosed in quotes)  --- if the column cannot include NULLs
+     *                           empty string              --- if the nullability for the column is unknown
+     *
+     * SPECIFIC_NAME     VARCHAR The name which uniquely identifies this
+     *                           procedure within its schema.
+     *                           Typically (but not restricted to) a
+     *                           fully qualified Java Method name and
+     *                           signature
+     * // HSQLDB extension
+     * JDBC_SEQ          INTEGER The JDBC-specified order within
+     *                           runs of PROCEDURE_SCHEM, PROCEDURE_NAME,
+     *                           SPECIFIC_NAME, which is:
+     *
+     *                           return value (0), if any, first, followed
+     *                           by the parameter descriptions in call order
+     *                           (1..n1), followed by the result column
+     *                           descriptions in column number order
+     *                           (n1 + 1..n1 + n2)
+     * </pre> <p>
+     *
+     * @return a <code>Table</code> object describing the
+     *        return, parameter and result columns
+     *        of the accessible routines defined
+     *        within this database.
+     */
+    Table SYSTEM_PROCEDURECOLUMNS() {
+
+        Table t = sysTables[SYSTEM_PROCEDURECOLUMNS];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_PROCEDURECOLUMNS]);
+
+            // ----------------------------------------------------------------
+            // required
+            // ----------------------------------------------------------------
+            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);          // 0
+            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);        // 1
+            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);         // not null
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);            // not null
+            addColumn(t, "COLUMN_TYPE", Type.SQL_SMALLINT);         // not null
+            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);           // not null
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);              // not null
+            addColumn(t, "PRECISION", Type.SQL_INTEGER);            // 7
+            addColumn(t, "LENGTH", Type.SQL_INTEGER);               // 8
+            addColumn(t, "SCALE", Type.SQL_SMALLINT);               // 9
+            addColumn(t, "RADIX", Type.SQL_SMALLINT);               // 10
+            addColumn(t, "NULLABLE", Type.SQL_SMALLINT);            // not null
+            addColumn(t, "REMARKS", CHARACTER_DATA);                // 12
+
+            // ----------------------------------------------------------------
+            // JDBC 4.0
+            // ----------------------------------------------------------------
+            addColumn(t, "COLUMN_DEF", CHARACTER_DATA);             // 13
+            addColumn(t, "SQL_DATA_TYPE", Type.SQL_INTEGER);        // 14
+            addColumn(t, "SQL_DATETIME_SUB", Type.SQL_INTEGER);     // 15
+            addColumn(t, "CHAR_OCTET_LENGTH", Type.SQL_INTEGER);    // 16
+            addColumn(t, "ORDINAL_POSITION", Type.SQL_INTEGER);     // 17
+            addColumn(t, "IS_NULLABLE", CHARACTER_DATA);            // 18
+            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);          // 19
+
+            // order: PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME, ORDINAL_POSITION
+            //
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_PROCEDURECOLUMNS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 19, 17
+            }, false);
+
+            return t;
+        }
+
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+
+        // column number mappings
+        final int specific_cat            = 0;
+        final int specific_schem          = 1;
+        final int procedure_name          = 2;
+        final int parameter_name          = 3;
+        final int parameter_mode          = 4;
+        final int data_type_sql_id        = 5;
+        final int data_type               = 6;
+        final int numeric_precision       = 7;
+        final int byte_length             = 8;
+        final int numeric_scale           = 9;
+        final int numeric_precision_radix = 10;
+        final int nullable                = 11;
+        final int remark                  = 12;
+        final int default_val             = 13;
+        final int sql_data_type           = 14;
+        final int sql_datetime_sub        = 15;
+        final int character_octet_length  = 16;
+        final int ordinal_position        = 17;
+        final int is_nullable             = 18;
+        final int specific_name           = 19;
+
+        // intermediate holders
+        int           columnCount;
+        Iterator      routines;
+        RoutineSchema routineSchema;
+        Routine       routine;
+        Object[]      row;
+        Type          type;
+
+        // Initialization
+        boolean translateDTI = database.getProperties().isPropertyTrue(
+            HsqlDatabaseProperties.jdbc_translate_dti_types);
+
+        routines = database.schemaManager.databaseObjectIterator(
+            SchemaObject.ROUTINE);
+
+        while (routines.hasNext()) {
+            routineSchema = (RoutineSchema) routines.next();
+
+            if (!session.getGrantee().isAccessible(routineSchema)) {
+                continue;
+            }
+
+            Routine[] specifics = routineSchema.getSpecificRoutines();
+
+            for (int i = 0; i < specifics.length; i++) {
+                routine     = specifics[i];
+                columnCount = routine.getParameterCount();
+
+                for (int j = 0; j < columnCount; j++) {
+                    ColumnSchema column = routine.getParameter(j);
+
+                    row  = t.getEmptyRowData();
+                    type = column.getDataType();
+
+                    if (translateDTI) {
+                        if (type.isIntervalType()) {
+                            type = CharacterType.getCharacterType(
+                                Types.SQL_VARCHAR, type.displaySize());
+                        } else if (type.isDateTimeTypeWithZone()) {
+                            type = ((DateTimeType) type)
+                                .getDateTimeTypeWithoutZone();
+                        }
+                    }
+
+                    row[specific_cat]     = database.getCatalogName().name;
+                    row[specific_schem]   = routine.getSchemaName().name;
+                    row[specific_name]    = routine.getSpecificName().name;
+                    row[procedure_name]   = routine.getName().name;
+                    row[parameter_name]   = column.getName().name;
+                    row[ordinal_position] = ValuePool.getInt(j + 1);
+                    row[parameter_mode] =
+                        ValuePool.getInt(column.getParameterMode());
+                    row[data_type] = type.getFullNameString();
+                    row[data_type_sql_id] =
+                        ValuePool.getInt(type.getJDBCTypeCode());
+                    row[numeric_precision]      = ValuePool.INTEGER_0;
+                    row[character_octet_length] = ValuePool.INTEGER_0;
+
+                    if (type.isCharacterType()) {
+                        row[numeric_precision] =
+                            ValuePool.getInt(type.getJDBCPrecision());
+
+                        // this is length not octet_length, for character columns
+                        row[character_octet_length] =
+                            ValuePool.getInt(type.getJDBCPrecision());
+                    }
+
+                    if (type.isBinaryType()) {
+                        row[numeric_precision] =
+                            ValuePool.getInt(type.getJDBCPrecision());
+                        row[character_octet_length] =
+                            ValuePool.getInt(type.getJDBCPrecision());
+                    }
+
+                    if (type.isNumberType()) {
+                        row[numeric_precision] = ValuePool.getInt(
+                            ((NumberType) type).getNumericPrecisionInRadix());
+                        row[numeric_precision_radix] =
+                            ValuePool.getLong(type.getPrecisionRadix());
+
+                        if (type.isExactNumberType()) {
+                            row[numeric_scale] = ValuePool.getLong(type.scale);
+                        }
+                    }
+
+                    if (type.isDateTimeType()) {
+                        int size = (int) column.getDataType().displaySize();
+
+                        row[numeric_precision] = ValuePool.getInt(size);
+                    }
+
+                    row[sql_data_type] =
+                        ValuePool.getInt(column.getDataType().typeCode);
+                    row[nullable] = ValuePool.getInt(column.getNullability());
+                    row[is_nullable] = column.isNullable() ? "YES"
+                                                           : "NO";
+
+                    t.insertSys(store, row);
+                }
+            }
+        }
+
+        return t;
+    }
+
+    /**
+     * Retrieves a <code>Table</code> object describing the accessible
+     * routines defined within this database.
+     *
+     * Each row is a procedure description with the following
+     * columns: <p>
+     *
+     * <pre class="SqlCodeExample">
+     * PROCEDURE_CAT     VARCHAR   catalog in which routine is defined
+     * PROCEDURE_SCHEM   VARCHAR   schema in which routine is defined
+     * PROCEDURE_NAME    VARCHAR   simple routine identifier
+     * COL_4             INTEGER   unused
+     * COL_5             INTEGER   unused
+     * COL_6             INTEGER   unused
+     * REMARKS           VARCHAR   explanatory comment on the routine
+     * PROCEDURE_TYPE    SMALLINT  { Unknown | No Result | Returns Result }
+     * // JDBC 4.0
+     * SPECIFIC_NAME     VARCHAR   The name which uniquely identifies this
+     *                             procedure within its schema.
+     *                             typically (but not restricted to) a
+     *                             fully qualified Java Method name
+     *                             and signature.
+     * // HSQLDB extension
+     * ORIGIN            VARCHAR   {ALIAS |
+     *                             [BUILTIN | USER DEFINED] ROUTINE |
+     *                             [BUILTIN | USER DEFINED] TRIGGER |
+     *                              ...}
+     * </pre> <p>
+     *
+     * @return a <code>Table</code> object describing the accessible
+     *        routines defined within the this database
+     */
+    Table SYSTEM_PROCEDURES() {
+
+        Table t = sysTables[SYSTEM_PROCEDURES];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_PROCEDURES]);
+
+            // ----------------------------------------------------------------
+            // required
+            // ----------------------------------------------------------------
+            addColumn(t, "PROCEDURE_CAT", SQL_IDENTIFIER);        // 0
+            addColumn(t, "PROCEDURE_SCHEM", SQL_IDENTIFIER);      // 1
+            addColumn(t, "PROCEDURE_NAME", SQL_IDENTIFIER);       // 2
+            addColumn(t, "COL_4", Type.SQL_INTEGER);              // 3
+            addColumn(t, "COL_5", Type.SQL_INTEGER);              // 4
+            addColumn(t, "COL_6", Type.SQL_INTEGER);              // 5
+            addColumn(t, "REMARKS", CHARACTER_DATA);              // 6
+
+            // basically: function (returns result), procedure (no return value)
+            // or unknown (say, a trigger callout routine)
+            addColumn(t, "PROCEDURE_TYPE", Type.SQL_SMALLINT);    // 7
+
+            // ----------------------------------------------------------------
+            // JDBC 4.0
+            // ----------------------------------------------------------------
+            addColumn(t, "SPECIFIC_NAME", SQL_IDENTIFIER);        // 8
+
+            // ----------------------------------------------------------------
+            // order: PROCEDURE_CAT, PROCEDURE_SCHEM, PROCEDURE_NAME, SPECIFIC_NAME
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_PROCEDURES].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 8
+            }, false);
+
+            return t;
+        }
+
+        //
+        final int procedure_catalog = 0;
+        final int procedure_schema  = 1;
+        final int procedure_name    = 2;
+        final int col_4             = 3;
+        final int col_5             = 4;
+        final int col_6             = 5;
+        final int remarks           = 6;
+        final int procedure_type    = 7;
+        final int specific_name     = 8;
+
+        //
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+
+        //
+        Iterator it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.SPECIFIC_ROUTINE);
+
+        while (it.hasNext()) {
+            Routine  routine = (Routine) it.next();
+            Object[] row     = t.getEmptyRowData();
+
+            row[procedure_catalog] = row[procedure_catalog] =
+                database.getCatalogName().name;
+            row[procedure_schema] = routine.getSchemaName().name;
+            row[procedure_name]   = routine.getName().name;
+            row[procedure_type] = routine.isProcedure() ? ValuePool.INTEGER_1
+                                                        : ValuePool.INTEGER_2;
+            row[specific_name]    = routine.getSpecificName().name;
+
+            t.insertSys(store, row);
         }
 
         return t;
@@ -2220,6 +2606,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         PersistentStore store = database.persistentStoreCollection.getStore(t);
         Object[]        row;
         Iterator        it = Type.typeNames.keySet().iterator();
+        boolean translateDTI = database.getProperties().isPropertyTrue(
+            HsqlDatabaseProperties.jdbc_translate_dti_types);
 
         while (it.hasNext()) {
             String typeName = (String) it.next();
@@ -2230,10 +2618,13 @@ class DatabaseInformationMain extends DatabaseInformation {
                 continue;
             }
 
-            if (type.isIntervalType()
-                    && database.getProperties().isPropertyTrue(
-                        HsqlDatabaseProperties.jdbc_interval_as_varchar)) {
-                continue;
+            if (translateDTI) {
+                if (type.isIntervalType()) {
+                    type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                                                          type.displaySize());
+                } else if (type.isDateTimeTypeWithZone()) {
+                    type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
+                }
             }
 
             row             = t.getEmptyRowData();
@@ -2301,6 +2692,184 @@ class DatabaseInformationMain extends DatabaseInformation {
         row             = t.getEmptyRowData();
         row[itype_name] = "DISTINCT";
         row[idata_type] = ValuePool.getInt(Types.DISTINCT);
+
+        return t;
+    }
+
+    /**
+     * Retrieves a <code>Table</code> object describing the accessible
+     * user-defined types defined in this database. <p>
+     *
+     * Schema-specific UDTs may have type JAVA_OBJECT, STRUCT, or DISTINCT.
+     *
+     * <P>Each row is a UDT descripion with the following columns:
+     * <OL>
+     *   <LI><B>TYPE_CAT</B> <code>VARCHAR</code> => the type's catalog
+     *   <LI><B>TYPE_SCHEM</B> <code>VARCHAR</code> => type's schema
+     *   <LI><B>TYPE_NAME</B> <code>VARCHAR</code> => type name
+     *   <LI><B>CLASS_NAME</B> <code>VARCHAR</code> => Java class name
+     *   <LI><B>DATA_TYPE</B> <code>VARCHAR</code> =>
+     *         type value defined in <code>DITypes</code>;
+     *         one of <code>JAVA_OBJECT</code>, <code>STRUCT</code>, or
+     *        <code>DISTINCT</code>
+     *   <LI><B>REMARKS</B> <code>VARCHAR</code> =>
+     *          explanatory comment on the type
+     *   <LI><B>BASE_TYPE</B><code>SMALLINT</code> =>
+     *          type code of the source type of a DISTINCT type or the
+     *          type that implements the user-generated reference type of the
+     *          SELF_REFERENCING_COLUMN of a structured type as defined in
+     *          DITypes (null if DATA_TYPE is not DISTINCT or not
+     *          STRUCT with REFERENCE_GENERATION = USER_DEFINED)
+     *
+     * </OL> <p>
+     *
+     * @return a <code>Table</code> object describing the accessible
+     *      user-defined types defined in this database
+     */
+    Table SYSTEM_UDTS() {
+
+        Table t = sysTables[SYSTEM_UDTS];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_UDTS]);
+
+            addColumn(t, "TYPE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "TYPE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);
+            addColumn(t, "CLASS_NAME", CHARACTER_DATA);
+            addColumn(t, "DATA_TYPE", Type.SQL_INTEGER);
+            addColumn(t, "REMARKS", CHARACTER_DATA);
+            addColumn(t, "BASE_TYPE", Type.SQL_SMALLINT);
+
+            //
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_UDTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, null, false);
+
+            return t;
+        }
+
+        boolean translateDTI = database.getProperties().isPropertyTrue(
+            HsqlDatabaseProperties.jdbc_translate_dti_types);
+        PersistentStore store = database.persistentStoreCollection.getStore(t);
+
+        // column number mappings
+        final int type_catalog = 0;
+        final int type_schema  = 1;
+        final int type_name    = 2;
+        final int class_name   = 3;
+        final int data_type    = 4;
+        final int remarks      = 5;
+        final int base_type    = 6;
+        Iterator it =
+            database.schemaManager.databaseObjectIterator(SchemaObject.TYPE);
+
+        while (it.hasNext()) {
+            Type distinct = (Type) it.next();
+
+            if (!distinct.isDistinctType()) {
+                continue;
+            }
+
+            Object[] data = t.getEmptyRowData();
+            Type     type = distinct;
+
+            if (translateDTI) {
+                if (type.isIntervalType()) {
+                    type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                                                          type.displaySize());
+                } else if (type.isDateTimeTypeWithZone()) {
+                    type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
+                }
+            }
+
+            data[type_catalog] = database.getCatalogName().name;
+            data[type_schema]  = distinct.getSchemaName().name;
+            data[type_name]    = distinct.getName().name;
+            data[class_name]   = type.getJDBCClassName();
+            data[data_type]    = ValuePool.getInt(Types.DISTINCT);
+            data[remarks]      = null;
+            data[base_type]    = ValuePool.getInt(type.getJDBCTypeCode());
+
+            t.insertSys(store, data);
+        }
+
+        return t;
+    }
+
+    /**
+     * Retrieves a <code>Table</code> object describing the accessible
+     * columns that are automatically updated when any value in a row
+     * is updated. <p>
+     *
+     * Each row is a version column description with the following columns: <p>
+     *
+     * <OL>
+     * <LI><B>SCOPE</B> <code>SMALLINT</code> => is not used
+     * <LI><B>COLUMN_NAME</B> <code>VARCHAR</code> => column name
+     * <LI><B>DATA_TYPE</B> <code>SMALLINT</code> =>
+     *        SQL data type from java.sql.Types
+     * <LI><B>TYPE_NAME</B> <code>SMALLINT</code> =>
+     *       Data source dependent type name
+     * <LI><B>COLUMN_SIZE</B> <code>INTEGER</code> => precision
+     * <LI><B>BUFFER_LENGTH</B> <code>INTEGER</code> =>
+     *        length of column value in bytes
+     * <LI><B>DECIMAL_DIGITS</B> <code>SMALLINT</code> => scale
+     * <LI><B>PSEUDO_COLUMN</B> <code>SMALLINT</code> =>
+     *        is this a pseudo column like an Oracle <code>ROWID</code>:<BR>
+     *        (as defined in <code>java.sql.DatabaseMetadata</code>)
+     * <UL>
+     *    <LI><code>versionColumnUnknown</code> - may or may not be
+     *        pseudo column
+     *    <LI><code>versionColumnNotPseudo</code> - is NOT a pseudo column
+     *    <LI><code>versionColumnPseudo</code> - is a pseudo column
+     * </UL>
+     * </OL> <p>
+     *
+     * <B>Note:</B> Currently, the HSQLDB engine does not support version
+     * columns, so an empty table is returned. <p>
+     *
+     * @return a <code>Table</code> object describing the columns
+     *        that are automatically updated when any value
+     *        in a row is updated
+     */
+    Table SYSTEM_VERSIONCOLUMNS() {
+
+        Table t = sysTables[SYSTEM_VERSIONCOLUMNS];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_VERSIONCOLUMNS]);
+
+            // ----------------------------------------------------------------
+            // required by DatabaseMetaData.getVersionColumns result set
+            // ----------------------------------------------------------------
+            addColumn(t, "SCOPE", Type.SQL_INTEGER);
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);         // not null
+            addColumn(t, "DATA_TYPE", Type.SQL_SMALLINT);        // not null
+            addColumn(t, "TYPE_NAME", SQL_IDENTIFIER);           // not null
+            addColumn(t, "COLUMN_SIZE", Type.SQL_SMALLINT);
+            addColumn(t, "BUFFER_LENGTH", Type.SQL_INTEGER);
+            addColumn(t, "DECIMAL_DIGITS", Type.SQL_SMALLINT);
+            addColumn(t, "PSEUDO_COLUMN", Type.SQL_SMALLINT);    // not null
+
+            // -----------------------------------------------------------------
+            // required by DatabaseMetaData.getVersionColumns filter parameters
+            // -----------------------------------------------------------------
+            addColumn(t, "TABLE_CAT", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_SCHEM", SQL_IDENTIFIER);
+            addColumn(t, "TABLE_NAME", SQL_IDENTIFIER);          // not null
+
+            // -----------------------------------------------------------------
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_VERSIONCOLUMNS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, null, false);
+
+            return t;
+        }
 
         return t;
     }

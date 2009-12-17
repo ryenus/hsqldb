@@ -277,6 +277,9 @@ public final class Schema implements SchemaObject {
                 return new WrapperIterator(
                     functions, procedureLookup.map.values().iterator());
 
+            case SchemaObject.SPECIFIC_ROUTINE :
+                return specificRoutineLookup.map.values().iterator();
+
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
                 return typeLookup.map.values().iterator();

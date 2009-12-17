@@ -223,9 +223,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_strict_size =
         "sql.enforce_strict_size";
     public static final String sql_enforce_names = "sql.enforce_names";
-    public static final String jdbc_interval_as_varchar =
-        "jdbc.interval_as_varchar";
-    public static final String sql_identity_is_pk     = "sql.identity_is_pk";
+    public static final String jdbc_translate_dti_types =
+        "jdbc.translate_dti_types";
+    public static final String sql_identity_is_pk = "sql.identity_is_pk";
 
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
@@ -317,12 +317,12 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, "MEMORY"));
 
         // boolean defaults for user defined props
-        dbMeta.put(jdbc_interval_as_varchar,
-                   HsqlProperties.getMeta(jdbc_interval_as_varchar,
+        dbMeta.put(jdbc_translate_dti_types,
+                   HsqlProperties.getMeta(jdbc_translate_dti_types,
                                           SQL_PROPERTY, false));
         dbMeta.put(sql_identity_is_pk,
-                   HsqlProperties.getMeta(sql_identity_is_pk,
-                                          SQL_PROPERTY, false));
+                   HsqlProperties.getMeta(sql_identity_is_pk, SQL_PROPERTY,
+                                          false));
         dbMeta.put(hsqldb_inc_backup,
                    HsqlProperties.getMeta(hsqldb_inc_backup, SQL_PROPERTY,
                                           true));
@@ -769,8 +769,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public String getClientPropertiesAsString() {
 
-        if (isPropertyTrue(jdbc_interval_as_varchar)) {
-            StringBuffer sb = new StringBuffer(jdbc_interval_as_varchar);
+        if (isPropertyTrue(jdbc_translate_dti_types)) {
+            StringBuffer sb = new StringBuffer(jdbc_translate_dti_types);
 
             sb.append('=').append(true);
         }

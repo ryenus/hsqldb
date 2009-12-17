@@ -36,11 +36,12 @@ import java.lang.reflect.Modifier;
 import java.sql.ParameterMetaData;
 import java.sql.SQLException;
 
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.types.CharacterType;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
-import org.hsqldb.types.CharacterType;
-import org.hsqldb.persist.HsqlDatabaseProperties;
 
 /* $Id$ */
 
@@ -336,7 +337,7 @@ public class JDBCParameterMetaData
 
     /** The number of parameters in the described statement */
     int             parameterCount;
-    private boolean translateIntervalType;
+    private boolean translateDTIType;
 
     /**
      * Creates a new instance of JDBCParameterMetaData. <p>
@@ -351,18 +352,24 @@ public class JDBCParameterMetaData
         parameterCount = rmd.getColumnCount();
 
         if (conn.clientProperties != null) {
-            translateIntervalType = conn.clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.jdbc_interval_as_varchar);
+            translateDTIType = conn.clientProperties.isPropertyTrue(
+                HsqlDatabaseProperties.jdbc_translate_dti_types);
         }
     }
 
     /**
      * Translates an INTERVAL type to VARCHAR.
+     * Removes time zone from datetime types.
+     *
      */
     private Type translateType(Type type) {
 
-        if (this.translateIntervalType && type.isIntervalType()) {
-            type = new CharacterType(Types.SQL_VARCHAR, type.displaySize());
+        if (this.translateDTIType) {
+           if ( type.isIntervalType()) {
+               type = new CharacterType(Types.SQL_VARCHAR, type.displaySize());
+           } else if (type.isDateTimeTypeWithZone() ) {
+               type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
+           }
         }
 
         return type;
