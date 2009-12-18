@@ -285,8 +285,8 @@ public class TarGenerator {
             }
 
             try {
-                writeField(TarHeaderFields.UID, 0L, HEADER_TEMPLATE);
-                writeField(TarHeaderFields.GID, 0L, HEADER_TEMPLATE);
+                writeField(TarHeaderField.uid, 0L, HEADER_TEMPLATE);
+                writeField(TarHeaderField.gid, 0L, HEADER_TEMPLATE);
             } catch (TarMalformatException tme) {
 
                 // This would definitely get caught in Dev env.
@@ -295,7 +295,7 @@ public class TarGenerator {
 
             // Setting uid and gid to 0 = root.
             // Misleading, yes.  Anything better we can do?  No.
-            int magicStart = TarHeaderFields.getStart(TarHeaderFields.MAGIC);
+            int magicStart = TarHeaderField.magic.getStart();
 
             for (int i = 0; i < ustarBytes.length; i++) {
 
@@ -310,12 +310,12 @@ public class TarGenerator {
             // This is the field that Gnu Tar desecrates.
         }
 
-        static protected void writeField(int fieldId, String newValue,
+        static protected void writeField(TarHeaderField field, String newValue,
                                          byte[] target)
                                          throws TarMalformatException {
 
-            int    start = TarHeaderFields.getStart(fieldId);
-            int    stop  = TarHeaderFields.getStop(fieldId);
+            int    start = field.getStart();
+            int    stop  = field.getStop();
             byte[] ba;
 
             try {
@@ -326,9 +326,8 @@ public class TarGenerator {
 
             if (ba.length > stop - start) {
                 throw new TarMalformatException(
-                    RB.singleton.getString(
-                        RB.TAR_FIELD_TOOBIG,
-                        TarHeaderFields.toString(fieldId), newValue));
+                    RB.singleton.getString(RB.TAR_FIELD_TOOBIG,
+                        field.toString(), newValue));
             }
 
             for (int i = 0; i < ba.length; i++) {
@@ -336,26 +335,24 @@ public class TarGenerator {
             }
         }
 
-        static protected void clearField(int fieldId, byte[] target) {
+        static protected void clearField(TarHeaderField field, byte[] target) {
 
-            int start = TarHeaderFields.getStart(fieldId);
-            int stop  = TarHeaderFields.getStop(fieldId);
+            int start = field.getStart();
+            int stop  = field.getStop();
 
             for (int i = start; i < stop; i++) {
                 target[i] = 0;
             }
         }
 
-        static protected void writeField(int fieldId, long newValue,
+        static protected void writeField(TarHeaderField field, long newValue,
                                          byte[] target)
                                          throws TarMalformatException {
 
             TarEntrySupplicant.writeField(
-                fieldId,
+                field,
                 TarEntrySupplicant.prePaddedOctalString(
-                    newValue,
-                    TarHeaderFields.getStop(fieldId)
-                    - TarHeaderFields.getStart(fieldId)), target);
+                    newValue, field.getStop() - field.getStart()), target);
         }
 
         static public String prePaddedOctalString(long val, int width) {
@@ -401,12 +398,12 @@ public class TarGenerator {
                                                    '/');
             this.tarStream = tarStream;
 
-            writeField(TarHeaderFields.TYPEFLAG, typeFlag);
+            writeField(TarHeaderField.typeflag, typeFlag);
 
             if (typeFlag == '\0' || typeFlag == ' ') {
-                writeField(TarHeaderFields.UNAME,
+                writeField(TarHeaderField.uname,
                            System.getProperty("user.name"), HEADER_TEMPLATE);
-                writeField(TarHeaderFields.GNAME, "root", HEADER_TEMPLATE);
+                writeField(TarHeaderField.gname, "root", HEADER_TEMPLATE);
 
                 // Setting UNAME and GNAME at the instance level instead of the
                 // static template, because record types 'x' and 'g' do not set
@@ -578,8 +575,8 @@ public class TarGenerator {
 
             for (int i = 0; i < rawHeader.length; i++) {
                 boolean isInRange =
-                    (i >= TarHeaderFields.getStart(TarHeaderFields.CHECKSUM)
-                     && i < TarHeaderFields.getStop(TarHeaderFields.CHECKSUM));
+                    (i >= TarHeaderField.checksum.getStart()
+                     && i < TarHeaderField.checksum.getStop());
 
                 sum += isInRange ? 32
                                  : (255 & rawHeader[i]);
@@ -592,24 +589,23 @@ public class TarGenerator {
             return sum;
         }
 
-        protected void clearField(int fieldId) {
-            TarEntrySupplicant.clearField(fieldId, rawHeader);
+        protected void clearField(TarHeaderField field) {
+            TarEntrySupplicant.clearField(field, rawHeader);
         }
 
-        protected void writeField(int fieldId,
-                                  String newValue)
-                                  throws TarMalformatException {
-            TarEntrySupplicant.writeField(fieldId, newValue, rawHeader);
+        protected void writeField(TarHeaderField field, String newValue)
+                throws TarMalformatException {
+            TarEntrySupplicant.writeField(field, newValue, rawHeader);
         }
 
-        protected void writeField(int fieldId,
-                                  long newValue) throws TarMalformatException {
-            TarEntrySupplicant.writeField(fieldId, newValue, rawHeader);
+        protected void writeField(TarHeaderField field, long newValue)
+                throws TarMalformatException {
+            TarEntrySupplicant.writeField(field, newValue, rawHeader);
         }
 
-        protected void writeField(int fieldId,
-                                  char c) throws TarMalformatException {
-            TarEntrySupplicant.writeField(fieldId, Character.toString(c),
+        protected void writeField(TarHeaderField field, char c)
+                throws TarMalformatException {
+            TarEntrySupplicant.writeField(field, Character.toString(c),
                                           rawHeader);
         }
 
@@ -623,20 +619,20 @@ public class TarGenerator {
             int i;
 
             try {
-                writeField(TarHeaderFields.NAME, path);
+                writeField(TarHeaderField.name, path);
 
                 // TODO:  If path.length() > 99, then write a PIF entry with
                 // the file path.
                 // Don't waste time using the PREFIX header field.
-                writeField(TarHeaderFields.MODE, fileMode);
+                writeField(TarHeaderField.mode, fileMode);
 
                 if (!paxSized) {
-                    writeField(TarHeaderFields.SIZE, dataSize);
+                    writeField(TarHeaderField.size, dataSize);
                 }
 
-                writeField(TarHeaderFields.MTIME, modTime);
+                writeField(TarHeaderField.mtime, modTime);
                 writeField(
-                    TarHeaderFields.CHECKSUM,
+                    TarHeaderField.checksum,
                     TarEntrySupplicant.prePaddedOctalString(
                         headerChecksum(), 6) + "\0 ");
 

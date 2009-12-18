@@ -71,32 +71,7 @@ import java.util.Map;
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  */
 @SuppressWarnings("boxing")
-public class TarHeaderFields {
-
-    final static int NAME     = 1;
-    final static int MODE     = 2;
-    final static int UID      = 3;
-    final static int GID      = 4;
-    final static int SIZE     = 5;
-    final static int MTIME    = 6;        // (File.lastModified()|*.getTime())/1000
-    final static int CHECKSUM = 7;
-    final static int TYPEFLAG = 8;
-
-    // The remaining are from UStar format:
-    final static int MAGIC  = 9;
-    final static int UNAME  = 10;
-    final static int GNAME  = 11;
-    final static int PREFIX = 12;
-
-    // Replace these contants with proper enum once we require Java 1.5.
-    static Map<Integer, String> labels = new HashMap<Integer, String>();
-    // String identifier
-
-    // (this supplied automatically by enums)
-    static Map<Integer, Integer> starts = new HashMap<Integer, Integer>();
-    // Starting positions
-    static Map<Integer, Integer> stops  = new HashMap<Integer, Integer>();
-
+public enum TarHeaderField {
     // 1 PAST last position (in normal Java substring fashion).
     /* Note that (with one exception), there is always 1 byte
      * between a numeric field stop and the next start.  This is
@@ -112,89 +87,36 @@ public class TarHeaderFields {
      * headers must be <= 100 chars. INCLUDING the trailing \0
      * character.  ???  GNU tar certainly does not honor this.
      */
-    static {
-        labels.put(NAME, "name");
-        starts.put(NAME, 0);
-        stops.put(NAME, 100);
-        labels.put(MODE, "mode");
-        starts.put(MODE, 100);
-        stops.put(MODE, 107);
-        labels.put(UID, "uid");
-        starts.put(UID, 108);
-        stops.put(UID, 115);
-        labels.put(GID, "gid");
-        starts.put(GID, 116);
-        stops.put(GID, 123);
-        labels.put(SIZE, "size");
-        starts.put(SIZE, 124);
-        stops.put(SIZE, 135);
-        labels.put(MTIME, "mtime");
-        starts.put(MTIME, 136);
-        stops.put(MTIME, 147);
-        labels.put(CHECKSUM, "checksum");          // Queer terminator.
-
-        // Pax UStore does not follow spec and delimits this field like
-        // any other numeric, skipping the space byte.
-        starts.put(CHECKSUM, 148);    // Special fmt.
-        stops.put(CHECKSUM, 156);     // Queer terminator.
-        labels.put(TYPEFLAG, "typeflag");
-        starts.put(TYPEFLAG, 156);    // 1-byte CODE
-
+    name(0, 100),
+    mode(100, 107),
+    uid(108, 115),
+    gid(116, 123),
+    size(124, 135),
+    mtime(136, 147),  // (File.lastModified()|*.getTime())/1000
+    checksum(148, 156),// "Queer terminator" in original code.  ???
+                      // Pax UStore does not follow spec and delimits this
+                      // field like any other numeric, skipping the space byte.
+    typeflag(156, 157), // 1-byte CODE
         // With current version, we are never doing anything with this
         // field.  In future, we will support x and/or g type here.
-        stops.put(TYPEFLAG, 157);
-        labels.put(MAGIC, "magic");
-
         // N.b. Gnu Tar does not honor this Stop.
-        starts.put(MAGIC, 257);
-        stops.put(MAGIC, 263);
-        labels.put(UNAME, "uname");
-        starts.put(UNAME, 265);
-        stops.put(UNAME, 296);
-        labels.put(GNAME, "gname");
-        starts.put(GNAME, 297);
-        stops.put(GNAME, 328);
-        labels.put(PREFIX, "prefix");
-        starts.put(PREFIX, 345);
-        stops.put(PREFIX, 399);
+
+    // The remaining are from UStar format:
+    magic(257, 263),
+    uname(265, 296),
+    gname(297, 328),
+    prefix(345, 299),
+    ;
+
+    private TarHeaderField(int start, int stop) {
+        this.start = start;
+        this.stop = stop;
     }
+    private int start, stop;
 
     // The getters below throw RuntimExceptions instead of
     // TarMalformatExceptions because these errors indicate a dev problem,
     // not some problem with a Header, or generating or reading a Header.
-    static public int getStart(int field) {
-
-        Integer iObject = starts.get(field);
-
-        if (iObject == null) {
-            throw new IllegalArgumentException(
-                RB.singleton.getString(RB.UNEXPECTED_HEADER_KEY, field));
-        }
-
-        return iObject.intValue();
-    }
-
-    static public int getStop(int field) {
-
-        Integer iObject = stops.get(field);
-
-        if (iObject == null) {
-            throw new IllegalArgumentException(
-                RB.singleton.getString(RB.UNEXPECTED_HEADER_KEY, field));
-        }
-
-        return iObject.intValue();
-    }
-
-    static public String toString(int field) {
-
-        String s = labels.get(field);
-
-        if (s == null) {
-            throw new IllegalArgumentException(
-                RB.singleton.getString(RB.UNEXPECTED_HEADER_KEY, field));
-        }
-
-        return s;
-    }
+    public int getStart() { return start; }
+    public int getStop() { return stop; }
 }
