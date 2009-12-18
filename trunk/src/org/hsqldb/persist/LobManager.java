@@ -55,6 +55,7 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.result.ResultProperties;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
@@ -254,9 +255,9 @@ public class LobManager {
                                            ResultProperties.defaultPropsValue);
         Object[] params = new Object[3];
 
-        params[0] = Integer.valueOf(0);
-        params[1] = Integer.valueOf(totalBlockLimitCount);
-        params[2] = Long.valueOf(0);
+        params[0] = ValuePool.INTEGER_0;
+        params[1] = ValuePool.getInt(totalBlockLimitCount);
+        params[2] = ValuePool.getLong(0);
 
         sysLobSession.executeCompiledStatement(statement, params);
     }
@@ -306,7 +307,7 @@ public class LobManager {
         ResultMetaData meta     = getLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[0] = Long.valueOf(lobID);
+        params[0] = ValuePool.getLong(lobID);
 
         sysLobSession.sessionContext.pushDynamicArguments(params);
 
@@ -364,10 +365,10 @@ public class LobManager {
         ResultMetaData meta     = createLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[LOB_IDS.LOB_ID]          = Long.valueOf(lobID);
-        params[LOB_IDS.LOB_LENGTH]      = Long.valueOf(length);
-        params[LOB_IDS.LOB_USAGE_COUNT] = Integer.valueOf(0);
-        params[LOB_IDS.LOB_TYPE]        = Integer.valueOf(Types.SQL_BLOB);
+        params[LOB_IDS.LOB_ID]          = ValuePool.getLong(lobID);
+        params[LOB_IDS.LOB_LENGTH]      = ValuePool.getLong(length);
+        params[LOB_IDS.LOB_USAGE_COUNT] = ValuePool.INTEGER_0;
+        params[LOB_IDS.LOB_TYPE]        = ValuePool.getInt(Types.SQL_BLOB);
 
         Result result = sysLobSession.executeCompiledStatement(createLob,
             params);
@@ -381,10 +382,10 @@ public class LobManager {
         ResultMetaData meta     = createLob.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[LOB_IDS.LOB_ID]          = Long.valueOf(lobID);
-        params[LOB_IDS.LOB_LENGTH]      = Long.valueOf(length);
-        params[LOB_IDS.LOB_USAGE_COUNT] = Integer.valueOf(0);
-        params[LOB_IDS.LOB_TYPE]        = Integer.valueOf(Types.SQL_CLOB);
+        params[LOB_IDS.LOB_ID]          = ValuePool.getLong(lobID);
+        params[LOB_IDS.LOB_LENGTH]      = ValuePool.getLong(length);
+        params[LOB_IDS.LOB_USAGE_COUNT] = ValuePool.INTEGER_0;
+        params[LOB_IDS.LOB_TYPE]        = ValuePool.getInt(Types.SQL_CLOB);
 
         Result result = sysLobSession.executeCompiledStatement(createLob,
             params);
@@ -397,8 +398,8 @@ public class LobManager {
         ResultMetaData meta     = deleteLobCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[0] = Long.valueOf(lobID);
-        params[1] = Long.valueOf(0);
+        params[0] = ValuePool.getLong(lobID);
+        params[1] = ValuePool.getLong(0);
 
         Result result = sysLobSession.executeCompiledStatement(deleteLobCall,
             params);
@@ -716,7 +717,7 @@ public class LobManager {
         long   newLobID = getNewLobID();
         Object params[] = new Object[data.length];
 
-        params[LOB_IDS.LOB_ID] = Long.valueOf(newLobID);
+        params[LOB_IDS.LOB_ID] = ValuePool.getLong(newLobID);
         params[1]              = data[1];
         params[2]              = data[2];
         params[3]              = data[3];
@@ -1155,11 +1156,11 @@ public class LobManager {
         ResultMetaData meta        = deleteLobPartCall.getParametersMetaData();
         Object         params[]    = new Object[meta.getColumnCount()];
 
-        params[DELETE_BLOCKS.LOB_ID]       = Long.valueOf(lobID);
+        params[DELETE_BLOCKS.LOB_ID]       = ValuePool.getLong(lobID);
         params[DELETE_BLOCKS.BLOCK_OFFSET] = new Integer(blockOffset);
         params[DELETE_BLOCKS.BLOCK_LIMIT]  = new Integer(Integer.MAX_VALUE);
         params[DELETE_BLOCKS.TX_ID] =
-            Long.valueOf(sysLobSession.getTransactionTimestamp());
+            ValuePool.getLong(sysLobSession.getTransactionTimestamp());
 
         Result result =
             sysLobSession.executeCompiledStatement(deleteLobPartCall, params);
@@ -1174,8 +1175,8 @@ public class LobManager {
         ResultMetaData meta     = updateLobLength.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[UPDATE_LENGTH.LOB_LENGTH] = Long.valueOf(length);
-        params[UPDATE_LENGTH.LOB_ID]     = Long.valueOf(lobID);
+        params[UPDATE_LENGTH.LOB_LENGTH] = ValuePool.getLong(length);
+        params[UPDATE_LENGTH.LOB_ID]     = ValuePool.getLong(lobID);
 
         Result result = sysLobSession.executeCompiledStatement(updateLobLength,
             params);
@@ -1196,8 +1197,8 @@ public class LobManager {
         ResultMetaData meta     = updateLobUsage.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[UPDATE_USAGE.BLOCK_COUNT] = Long.valueOf(count + delta);
-        params[UPDATE_USAGE.LOB_ID]      = Long.valueOf(lobID);
+        params[UPDATE_USAGE.BLOCK_COUNT] = ValuePool.getLong(count + delta);
+        params[UPDATE_USAGE.LOB_ID]      = ValuePool.getLong(lobID);
 
         Result result = sysLobSession.executeCompiledStatement(updateLobUsage,
             params);
@@ -1210,9 +1211,9 @@ public class LobManager {
         ResultMetaData meta     = getLobPart.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[GET_LOB_PART.LOB_ID]       = Long.valueOf(lobID);
-        params[GET_LOB_PART.BLOCK_OFFSET] = Integer.valueOf(offset);
-        params[GET_LOB_PART.BLOCK_LIMIT]  = Integer.valueOf(limit);
+        params[GET_LOB_PART.LOB_ID]       = ValuePool.getLong(lobID);
+        params[GET_LOB_PART.BLOCK_OFFSET] = ValuePool.getInt(offset);
+        params[GET_LOB_PART.BLOCK_LIMIT]  = ValuePool.getInt(limit);
 
         sysLobSession.sessionContext.pushDynamicArguments(params);
 
@@ -1247,11 +1248,11 @@ public class LobManager {
         ResultMetaData meta     = deleteLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[DELETE_BLOCKS.LOB_ID]       = Long.valueOf(lobID);
-        params[DELETE_BLOCKS.BLOCK_OFFSET] = Integer.valueOf(offset);
-        params[DELETE_BLOCKS.BLOCK_LIMIT]  = Integer.valueOf(limit);
+        params[DELETE_BLOCKS.LOB_ID]       = ValuePool.getLong(lobID);
+        params[DELETE_BLOCKS.BLOCK_OFFSET] = ValuePool.getInt(offset);
+        params[DELETE_BLOCKS.BLOCK_LIMIT]  = ValuePool.getInt(limit);
         params[DELETE_BLOCKS.TX_ID] =
-            Long.valueOf(sysLobSession.getTransactionTimestamp());
+            ValuePool.getLong(sysLobSession.getTransactionTimestamp());
 
         Result result =
             sysLobSession.executeCompiledStatement(deleteLobPartCall, params);
@@ -1262,8 +1263,8 @@ public class LobManager {
         ResultMetaData meta     = divideLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[DIVIDE_BLOCK.BLOCK_OFFSET] = Integer.valueOf(offset);
-        params[DIVIDE_BLOCK.LOB_ID]       = Long.valueOf(lobID);
+        params[DIVIDE_BLOCK.BLOCK_OFFSET] = ValuePool.getInt(offset);
+        params[DIVIDE_BLOCK.LOB_ID]       = ValuePool.getLong(lobID);
 
         Result result =
             sysLobSession.executeCompiledStatement(divideLobPartCall, params);
@@ -1274,9 +1275,9 @@ public class LobManager {
         ResultMetaData meta     = createLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[ALLOC_BLOCKS.BLOCK_COUNT]  = Integer.valueOf(count);
-        params[ALLOC_BLOCKS.BLOCK_OFFSET] = Integer.valueOf(offset);
-        params[ALLOC_BLOCKS.LOB_ID]       = Long.valueOf(lobID);
+        params[ALLOC_BLOCKS.BLOCK_COUNT]  = ValuePool.getInt(count);
+        params[ALLOC_BLOCKS.BLOCK_OFFSET] = ValuePool.getInt(offset);
+        params[ALLOC_BLOCKS.LOB_ID]       = ValuePool.getLong(lobID);
 
         Result result =
             sysLobSession.executeCompiledStatement(createLobPartCall, params);

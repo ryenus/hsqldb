@@ -40,6 +40,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultProperties;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -393,7 +394,7 @@ public class ParserCommand extends ParserDDL {
 
                 read();
 
-                Object[] args = new Object[]{ Integer.valueOf(type) };
+                Object[] args = new Object[]{ ValuePool.getInt(type) };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args);
@@ -425,7 +426,7 @@ public class ParserCommand extends ParserDDL {
 
                 read();
 
-                Object[] args = new Object[]{ Integer.valueOf(level) };
+                Object[] args = new Object[]{ ValuePool.getInt(level) };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL, args);
@@ -646,7 +647,7 @@ public class ParserCommand extends ParserDDL {
 
                 read();
 
-                Object[] args = new Object[]{ Integer.valueOf(type) };
+                Object[] args = new Object[]{  ValuePool.getInt(type) };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args);
@@ -975,7 +976,7 @@ public class ParserCommand extends ParserDDL {
                         break;
                 }
 
-                Object[] args = new Object[]{ Integer.valueOf(mode) };
+                Object[] args = new Object[]{  ValuePool.getInt(mode) };
                 StatementCommand cs = new StatementCommand(
                     StatementTypes.SET_DATABASE_TRANSACTION_CONTROL, args,
                     null, null);
