@@ -970,8 +970,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
                 boolean b = getBoolean(parameterIndex);
 
                 return wasNull() ? null
-                    : b ? Boolean.TRUE
-                    : Boolean.FALSE;
+                                 : b ? Boolean.TRUE
+                                     : Boolean.FALSE;
             }
             case Types.OTHER :
             case Types.JAVA_OBJECT : {
