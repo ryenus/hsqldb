@@ -175,11 +175,12 @@ public class Scanner {
     }
 
     // single token types
-    String sqlString;
-    int    currentPosition;
-    int    tokenPosition;
-    int    limit;
-    Token  token = new Token();
+    String  sqlString;
+    int     currentPosition;
+    int     tokenPosition;
+    int     limit;
+    Token   token = new Token();
+    boolean nullAndBooleanAsValue;
 
     //
     private boolean hasNonSpaceSeparator;
@@ -221,6 +222,10 @@ public class Scanner {
         tokenPosition = currentPosition;
 
         token.reset();
+    }
+
+    public void setNullAndBooleanAsValue() {
+        nullAndBooleanAsValue = true;
     }
 
     public void scanNext() {
@@ -855,49 +860,50 @@ public class Scanner {
                 i).toUpperCase(Locale.ENGLISH);
         currentPosition = i;
 
-/*
-        int tokenLength = currentPosition - tokenPosition;
+        if (nullAndBooleanAsValue) {
+            int tokenLength = currentPosition - tokenPosition;
 
-        if (tokenLength == 4 || tokenLength == 5) {
-            switch (start) {
+            if (tokenLength == 4 || tokenLength == 5) {
+                switch (start) {
 
-                case 'T' :
-                case 't' :
-                    if (Tokens.T_TRUE.equals(token.tokenString)) {
-                        token.tokenString = Tokens.T_TRUE;
-                        token.tokenType   = Tokens.X_VALUE;
-                        token.tokenValue  = Boolean.TRUE;
-                        token.dataType    = Type.SQL_BOOLEAN;
+                    case 'T' :
+                    case 't' :
+                        if (Tokens.T_TRUE.equals(token.tokenString)) {
+                            token.tokenString = Tokens.T_TRUE;
+                            token.tokenType   = Tokens.X_VALUE;
+                            token.tokenValue  = Boolean.TRUE;
+                            token.dataType    = Type.SQL_BOOLEAN;
 
-                        return false;
-                    }
-                    break;
+                            return false;
+                        }
+                        break;
 
-                case 'F' :
-                case 'f' :
-                    if (Tokens.T_FALSE.equals(token.tokenString)) {
-                        token.tokenString = Tokens.T_FALSE;
-                        token.tokenType   = Tokens.X_VALUE;
-                        token.tokenValue  = Boolean.FALSE;
-                        token.dataType    = Type.SQL_BOOLEAN;
+                    case 'F' :
+                    case 'f' :
+                        if (Tokens.T_FALSE.equals(token.tokenString)) {
+                            token.tokenString = Tokens.T_FALSE;
+                            token.tokenType   = Tokens.X_VALUE;
+                            token.tokenValue  = Boolean.FALSE;
+                            token.dataType    = Type.SQL_BOOLEAN;
 
-                        return false;
-                    }
-                    break;
+                            return false;
+                        }
+                        break;
 
-                case 'N' :
-                case 'n' :
-                    if (Tokens.T_NULL.equals(token.tokenString)) {
-                        token.tokenString = Tokens.T_NULL;
-                        token.tokenType   = Tokens.X_VALUE;
-                        token.tokenValue  = null;
+                    case 'N' :
+                    case 'n' :
+                        if (Tokens.T_NULL.equals(token.tokenString)) {
+                            token.tokenString = Tokens.T_NULL;
+                            token.tokenType   = Tokens.X_VALUE;
+                            token.tokenValue  = null;
 
-                        return false;
-                    }
-                    break;
+                            return false;
+                        }
+                        break;
+                }
             }
         }
-*/
+
         return true;
     }
 
@@ -1720,6 +1726,8 @@ public class Scanner {
     }
 
     public boolean scanNull() {
+
+        scanSeparator();
 
         int character = charAt(currentPosition);
 

@@ -46,6 +46,7 @@ import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.rights.User;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.UserTypeModifier;
@@ -909,7 +910,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         Object[] args = new Object[] {
-            object.getName(), Integer.valueOf(SchemaObject.CONSTRAINT),
+            object.getName(),  ValuePool.getInt(SchemaObject.CONSTRAINT),
             Boolean.valueOf(cascade), Boolean.valueOf(false)
         };
         String sql = getLastPart();
@@ -940,7 +941,7 @@ public class ParserDDL extends ParserRoutine {
 
         SchemaObject object = t.getPrimaryConstraint();
         Object[]     args   = new Object[] {
-            object.getName(), Integer.valueOf(SchemaObject.CONSTRAINT),
+            object.getName(), ValuePool.getInt(SchemaObject.CONSTRAINT),
             Boolean.valueOf(cascade), Boolean.valueOf(false)
         };
         String sql = getLastPart();
@@ -3723,7 +3724,7 @@ public class ParserDDL extends ParserRoutine {
 
         Object[] args = new Object[] {
             table.getColumn(colindex).getName(),
-            Integer.valueOf(SchemaObject.CONSTRAINT), Boolean.valueOf(cascade),
+            ValuePool.getInt(SchemaObject.CONSTRAINT), Boolean.valueOf(cascade),
             Boolean.valueOf(false)
         };
 

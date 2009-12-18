@@ -623,7 +623,7 @@ public final class RangeVariable {
 
         public Object getRowidObject() {
             return currentRow == null ? null
-                                      : Long.valueOf(getRowId());
+                                      : ValuePool.getLong(getRowId());
         }
 
         public void remove() {}

@@ -924,15 +924,15 @@ public class FunctionCustom extends FunctionSQL {
                                          + time.getSeconds(), time.getNanos());
             }
             case FUNC_PI :
-                return Double.valueOf(Math.PI);
+                return new Double(Math.PI);
 
             case FUNC_RAND : {
                 if (nodes[0] == null) {
-                    return Double.valueOf(session.random());
+                    return new Double(session.random());
                 } else {
                     long seed = ((Number) data[0]).longValue();
 
-                    return Double.valueOf(session.random(seed));
+                    return new Double(session.random(seed));
                 }
             }
             case FUNC_ACOS : {
@@ -942,7 +942,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(java.lang.Math.acos(d));
+                return new Double(java.lang.Math.acos(d));
             }
             case FUNC_ASIN : {
                 if (data[0] == null) {
@@ -951,7 +951,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(java.lang.Math.asin(d));
+                return new Double(java.lang.Math.asin(d));
             }
             case FUNC_ATAN : {
                 if (data[0] == null) {
@@ -960,7 +960,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(java.lang.Math.atan(d));
+                return new Double(java.lang.Math.atan(d));
             }
             case FUNC_COS : {
                 if (data[0] == null) {
@@ -969,7 +969,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(java.lang.Math.cos(d));
+                return new Double(java.lang.Math.cos(d));
             }
             case FUNC_COT : {
                 if (data[0] == null) {
@@ -979,7 +979,7 @@ public class FunctionCustom extends FunctionSQL {
                 double d = NumberType.toDouble(data[0]);
                 double c = 1.0 / java.lang.Math.tan(d);
 
-                return Double.valueOf(c);
+                return new Double(c);
             }
             case FUNC_DEGREES : {
                 if (data[0] == null) {
@@ -988,7 +988,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(java.lang.Math.toDegrees(d));
+                return new Double(java.lang.Math.toDegrees(d));
             }
             case FUNC_SIN : {
                 if (data[0] == null) {
@@ -997,7 +997,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(java.lang.Math.sin(d));
+                return new Double(java.lang.Math.sin(d));
             }
             case FUNC_TAN : {
                 if (data[0] == null) {
@@ -1006,7 +1006,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(java.lang.Math.tan(d));
+                return new Double(java.lang.Math.tan(d));
             }
             case FUNC_LOG10 : {
                 if (data[0] == null) {
@@ -1015,7 +1015,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(java.lang.Math.log10(d));
+                return new Double(java.lang.Math.log10(d));
             }
             case FUNC_RADIANS : {
                 if (data[0] == null) {
@@ -1024,7 +1024,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 double d = NumberType.toDouble(data[0]);
 
-                return Double.valueOf(java.lang.Math.toRadians(d));
+                return new Double(java.lang.Math.toRadians(d));
             }
 
             //
@@ -1046,7 +1046,7 @@ public class FunctionCustom extends FunctionSQL {
                 double a = NumberType.toDouble(data[0]);
                 double b = NumberType.toDouble(data[1]);
 
-                return Double.valueOf(java.lang.Math.atan2(a, b));
+                return new Double(java.lang.Math.atan2(a, b));
             }
             case FUNC_ASCII : {
                 String arg;
