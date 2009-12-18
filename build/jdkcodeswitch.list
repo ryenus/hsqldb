@@ -28,3 +28,4 @@ org/hsqldb/lib/StringConverter.java
 org/hsqldb/server/PgType.java
 org/hsqldb/test/TestBug778213.java
 org/hsqldb/util/ConnectionDialogCommon.java
+org/hsqldb/persist/Logger.java
