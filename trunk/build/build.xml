@@ -18,7 +18,7 @@
         Use multiple class directories (javac dest dirs).
         Current tactic requires tons of complicated includes and exludes
         and still often bundles arbitrary extra stuff (determined by what
-        happened to be built previously.
+        happened to be built previously).
   -->
 
    <property file='build/build.properties'/>
@@ -98,36 +98,22 @@ examples:
       <echo message="ant.java.hasjsse=${ant.java.hasjsse}" />
    </target>
 
-   <!-- If there really are no inter-dependencies between these availability
-        properties (i.e., we always want to set all of these properties
-        during setup), then we should clean things up and make one
-        -checkAvailability, or similar, target instead of 4. -->
-
-   <target name="-javaversion6">
-      <available classname="java.net.IDN" property="ant.java.iscjava16"/>
-      <available classname="java.net.IDN" property="ant.java.iscjava14"/>
-      <available classname="java.net.IDN" property="ant.java.iscjavamodern"/>
-   </target>
-
-   <target name="-javaversion4" depends="-javaversion6" unless="ant.java.iscjava16">
-      <available classname="java.nio.Buffer" property="ant.java.iscjava14"/>
-      <available classname="java.nio.Buffer" property="ant.java.iscjavamodern"/>
-   </target>
-
-   <!-- I can't think of any reason for the 'unless' att.
-        If this is to prevent repeat runs, then why depend on a property
-        which may or may not be called by a sub-target.
-        This property is not set elsewhere, and doesn't look at all like
-        a property which would be set externally (by -D or a properties file).
-                                                      - blaine
-   -->
-   <target name="-javaversion2" depends="-javaversion4"
-           unless="ant.java.iscjava14">
+   <target name="-set-jvmvars">
+   <!-- Besides this one target taking the place of 4 targets (-javaversionX),
+        this target eliminates the redundancy in those methods by making a
+        single class-existence-test definitively responsible for determining if
+        JVM X is supported.
+        It is sufficient for this purposes if the test classes used are
+        verified to be present in version X and in all newer versions (> X)
+        (i.e. that the class is not removed from some higher JVM). -->
       <available classname="java.lang.ref.Reference" property="ant.java.iscjava12"/>
       <available classname="java.lang.ref.Reference" property="ant.java.iscjavamodern"/>
+      <available classname="java.nio.Buffer" property="ant.java.iscjava14"/>
+      <available classname="java.util.EnumSet" property="ant.java.iscjava15"/>
+      <available classname="java.net.IDN" property="ant.java.iscjava16"/>
    </target>
 
-   <target name="-prepare" depends="init,-javaversion2">
+   <target name="-prepare" depends="init,-set-jvmvars">
        <mkdir dir="classes" />
    </target>
 
@@ -176,7 +162,7 @@ examples:
    </target>
 
     <target name="codeswitcher" depends="-prepare"
-            description="uses +-JAVA2 +-JAVA4 +-JAVA6">
+            description="uses +-JAVA2 +-JAVA4 +-JAVA5 +-JAVA6">
       <javac destdir="classes">
          <src path="src"/>
          <include name="org/hsqldb/util/CodeSwitcher.java"/>
@@ -236,6 +222,7 @@ examples:
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="-JAVA2"/>
           <arg value="-JAVA4"/>
+          <arg value="-JAVA5"/>
           <arg value="-JAVA6"/>
           <arg value="--pathlist=jdkcodeswitch.list"/>
           <arg value="--basedir=../${swsrc}"/>
@@ -251,6 +238,7 @@ examples:
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA2"/>
           <arg value="-JAVA4"/>
+          <arg value="-JAVA5"/>
           <arg value="-JAVA6"/>
           <arg value="--pathlist=jdkcodeswitch.list"/>
           <arg value="--basedir=../${swsrc}"/>
@@ -261,10 +249,26 @@ examples:
     </target>
 
     <target name="switchtojdk14" depends="switches"
-            description="self explanatory" if="ant.java.iscjava14" unless="ant.java.iscjava16">
+            description="self explanatory" if="ant.java.iscjava14" unless="ant.java.iscjava15">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA2"/>
           <arg value="+JAVA4"/>
+          <arg value="-JAVA5"/>
+          <arg value="-JAVA6"/>
+          <arg value="--pathlist=jdkcodeswitch.list"/>
+          <arg value="--basedir=../${swsrc}"/>
+          <!-- Since these paths are interpreted by the JVM, not ant,
+               the path must be relative to run dir (build), not the
+               Ant basedir -->
+       </java>
+    </target>
+
+    <target name="switchtojdk15" depends="switches"
+            description="self explanatory" if="ant.java.iscjava15" unless="ant.java.iscjava16">
+      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
+          <arg value="+JAVA2"/>
+          <arg value="+JAVA4"/>
+          <arg value="+JAVA5"/>
           <arg value="-JAVA6"/>
           <arg value="--pathlist=jdkcodeswitch.list"/>
           <arg value="--basedir=../${swsrc}"/>
@@ -279,6 +283,7 @@ examples:
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA2"/>
           <arg value="+JAVA4"/>
+          <arg value="+JAVA5"/>
           <arg value="+JAVA6"/>
           <arg value="--pathlist=jdkcodeswitch.list"/>
           <arg value="--basedir=../${swsrc}"/>
@@ -300,19 +305,22 @@ examples:
     </target>
 
     <target name="lib" depends="store"
-            description="compiles the /lib folder">
+            description="compiles the JVM-independent lib classes">
       <javac srcdir="${swsrc}"
              destdir="classes"
                  debug="${build.debug}"
                  optimize="${build.optimize}"
       >
+         <exclude name="org/hsqldb/lib/AppendableException.java"/>
+         <exclude name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
+         <exclude name="org/hsqldb/lib/ValidatingResourceBundle.java"/>
+         <exclude name="org/hsqldb/lib/tar/**"/>
          <include name="org/hsqldb/lib/**"/>
-         <include name="org/hsqldb/lib/java/**"/>
       </javac>
     </target>
 
     <target name="classes" depends="lib,-javajsse"
-            description="compiles all the classes">
+            description="compiles JVM-independent non-lib/util/cmdline classes">
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
       <fail unless='_servlet_available'
@@ -380,11 +388,8 @@ examples:
 
    <target name="classes14" depends="classes12" if="ant.java.iscjava14"
            description="compiles 1.4 specific classes">
-      <javac srcdir="${swsrc}"
-             destdir="classes"
-                 debug="${build.debug}"
-                 optimize="${build.optimize}"
-       >
+      <javac srcdir="${swsrc}" destdir="classes" debug="${build.debug}"
+                 optimize="${build.optimize}" >
       <include name="org/hsqldb/jdbc/pool/*.java"/>
       <include name="org/hsqldb/jdbc/JDBCDataSource*.java"/>
       <include name="org/hsqldb/jdbc/JDBCParameterMetaData.java"/>
@@ -394,13 +399,21 @@ examples:
       </javac>
    </target>
 
-   <target name="classes16" depends="classes14" if="ant.java.iscjava16"
+   <target name="classes15" depends="classes14" if="ant.java.iscjava15"
+           description="compiles 1.5 specific classes">
+      <javac srcdir="${swsrc}" destdir="classes" debug="${build.debug}"
+                 optimize="${build.optimize}" >
+        <include name="org/hsqldb/lib/AppendableException.java"/>
+        <include name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
+        <include name="org/hsqldb/lib/ValidatingResourceBundle.java"/>
+        <include name="org/hsqldb/lib/tar/**"/>
+      </javac>
+   </target>
+
+   <target name="classes16" depends="classes15" if="ant.java.iscjava16"
            description="compiles 1.6 specific classes">
-      <javac srcdir="${swsrc}"
-             destdir="classes"
-                 debug="${build.debug}"
-                 optimize="${build.optimize}"
-       >
+      <javac srcdir="${swsrc}" destdir="classes" debug="${build.debug}"
+                 optimize="${build.optimize}" >
          <include name="org/hsqldb/jdbc/JDBCNClob.java"/>
          <include name="org/hsqldb/jdbc/JDBCRowId.java"/>
          <include name="org/hsqldb/jdbc/JDBCSQLXML.java"/>
@@ -435,7 +448,7 @@ examples:
       </javac>
    </target>
 
-    <target name="util" depends="lib, -sqlfile-scanner"
+    <target name="util" depends="lib, -cmdline"
             description="compiles the util and cmdline folders">
       <javac srcdir="${swsrc}"
              destdir="classes"
@@ -443,7 +456,6 @@ examples:
              optimize="${build.optimize}"
       >
          <include name="org/hsqldb/util/**"/>
-         <include name="org/hsqldb/cmdline/**"/>
          <exclude name="org/hsqldb/util/*Swing.java"/>
          <exclude name="org/hsqldb/util/TableSorter.java"/>
       </javac>
@@ -451,6 +463,21 @@ examples:
           <fileset dir="src/org/hsqldb/util" includes='*.gif, *.png'/>
       </copy>
     </target>
+
+    <target name="-cmdline" if="ant.java.iscjava15"
+            description="compiles the cmdline classes">
+      <antcall target="-sqlfile-scanner"/>
+      <!-- antcall instead of depends, because we don't want it to be run
+           if the 'if' is false -->
+      <javac srcdir="${swsrc}"
+             destdir="classes"
+             debug="${build.debug}"
+             optimize="${build.optimize}"
+      >
+         <include name="org/hsqldb/cmdline/**"/>
+      </javac>
+    </target>
+
 
    <target name="swing" depends="util" unless="noswing"
            description="compiles the swing based classes in the util folder">
@@ -780,8 +807,10 @@ examples:
                   org/hsqldb/cmdline/**/*.properties
                   '/>
 
-    <target name="sqltool" depends="classes16, util, -prep-license-files"
+    <target name="sqltool" depends="classes15, -cmdline, -prep-license-files"
             description="Build 'sqltool.jar' file">
+      <fail unless="ant.java.iscjava15"
+            message="Can't build sqltool with JVM less than v. 1.5"/>
        <jar jarfile="lib/sqltool.jar" compress="true" filesonly="true">
          <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <metainf dir="doc" includes="*_lic.txt"/>
@@ -874,7 +903,7 @@ examples:
                   value="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/"/>
     </target>
 
-    <target name="javadoc" depends="-prepare-javadoc,-javaversion2,-doclink-1.2"
+    <target name="javadoc" depends="-prepare-javadoc,-set-jvmvars,-doclink-1.2"
             description="Create javadoc for the distribution package">
       <!-- TODO:  Find out why JDBCDriver class is listed twice in the lass
            list pane, but only when All Classes selected
@@ -926,7 +955,7 @@ examples:
    </target>
 
    <target name="javadocdev"
-            depends="-prepare-javadoc,-javaversion2,-doclink-1.2"
+            depends="-prepare-javadoc,-set-jvmvars,-doclink-1.2"
             description="Create javadoc for all HSQLDB code-base classes">
       <javadoc
            destdir="doc/apidocs"
