@@ -40,6 +40,7 @@ import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
+import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
 
 /**
@@ -50,6 +51,9 @@ import org.hsqldb.types.Type;
  * @since 1.9.0
  */
 public class StatementInsert extends StatementDML {
+
+    int            generatedType;
+    ResultMetaData generatedInputMetaData;
 
     /**
      * Instantiate this as an INSERT_VALUES statement.
@@ -242,5 +246,75 @@ public class StatementInsert extends StatementDML {
         }
 
         return newData;
+    }
+
+    /**
+     * @todo - fredt - this does not work with different prepare calls
+     * with the same SQL statement, but different generated column requests
+     * To fix, add comment encapsulating the generated column list to SQL
+     * to differentiate between the two invocations
+     */
+    public void setGeneratedColumnInfo(int generate, ResultMetaData meta) {
+
+        // can support INSERT_SELECT also
+        if (type != StatementTypes.INSERT) {
+            return;
+        }
+
+        int colIndex = baseTable.getIdentityColumnIndex();
+
+        if (colIndex == -1) {
+            return;
+        }
+
+        generatedType          = generate;
+        generatedInputMetaData = meta;
+
+        switch (generate) {
+
+            case ResultConstants.RETURN_NO_GENERATED_KEYS :
+                return;
+
+            case ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES :
+                int[] columnIndexes = meta.getGeneratedColumnIndexes();
+
+                if (columnIndexes.length != 1) {
+                    return;
+                }
+
+                if (columnIndexes[0] != colIndex) {
+                    return;
+                }
+
+            // fall through
+            case ResultConstants.RETURN_GENERATED_KEYS :
+                generatedIndexes = new int[]{ colIndex };
+                break;
+
+            case ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES :
+                String[] columnNames = meta.getGeneratedColumnNames();
+
+                if (columnNames.length != 1) {
+                    return;
+                }
+
+                if (baseTable.findColumn(columnNames[0]) != colIndex) {
+                    return;
+                }
+
+                generatedIndexes = new int[]{ colIndex };
+                break;
+        }
+
+        generatedResultMetaData =
+            ResultMetaData.newResultMetaData(generatedIndexes.length);
+
+        for (int i = 0; i < generatedIndexes.length; i++) {
+            ColumnSchema column = baseTable.getColumn(generatedIndexes[i]);
+
+            generatedResultMetaData.columns[i] = column;
+        }
+
+        generatedResultMetaData.prepareData();
     }
 }

@@ -218,7 +218,7 @@ public class TestDatabaseMetaData extends TestBase {
         int updateCount;
 
         try {
-            TestUtil.testScript(conn, "TestSelf.txt");
+            TestUtil.testScript(conn, "testrun/hsqldb/TestSelf.txt");
 
             DatabaseMetaData dbmeta = conn.getMetaData();
 

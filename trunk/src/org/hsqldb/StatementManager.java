@@ -33,12 +33,9 @@ package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.lib.IntKeyHashMap;
-import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
-import org.hsqldb.lib.LongKeyIntValueHashMap;
 import org.hsqldb.lib.LongValueHashMap;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultProperties;
 
 /**
  * This class manages the reuse of Statement objects for prepared
@@ -55,21 +52,19 @@ import org.hsqldb.result.ResultProperties;
  * statement id for the sql statement to access the statement.<p>
  *
  * Changes to database structure via DDL statements, will result in all
- * registered CompiledStatement objects to become invalidated. This is done by
- * setting to null all the managed CompiledStatement instances, while keeping
- * their id and sql string. When a session subsequently attempts to use an
- * invalidated (null) CompiledStatement via its id, it will reinstantiate the
- * Statement using its sql statement still held by this class.<p>
+ * registered Statement objects to become invalidated. This is done by
+ * comparing the schema change and compile timestamps. When a session
+ * subsequently attempts to use an invalidated Statement via its id, it will
+ * reinstantiate the Statement using its sql statement still held by this class.<p>
  *
- * This class keeps count of the number of different sessions that are linked
- * to each registered compiled statement, and the number of times each session
- * is linked.  It unregisters a compiled statement when no session remains
- * linked to it.<p>
+ * This class keeps count of the number of time each registered compiled
+ * statement is linked to a session. It unregisters a compiled statement when
+ * no session remains linked to it.<p>
  *
  * Modified by fredt@users from the original by boucherb@users to simplify,
  * support multiple identical prepared statements per session, and avoid
- * keeping references to Statement objects after DDL changes which
- * could result in memory leaks. Modified further to support schemas.<p>
+ * memory leaks. Modified further to support schemas. Changed implementation
+ * in 1.9 as a session object<p>
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -189,18 +184,30 @@ public final class StatementManager {
 
                 session.setSchema(schema.name);
 
+                StatementInsert si = null;
+
+                if (cs.generatedResultMetaData() != null) {
+                    si = (StatementInsert) cs;
+                }
+
                 cs = session.compileStatement(sql, cs.getResultProperties());
 
-                session.setSchema(oldSchema.name);
                 cs.setID(csid);
                 cs.setCompileTimestamp(
                     database.txManager.getGlobalChangeTimestamp());
+
+                if (si != null) {
+                    cs.setGeneratedColumnInfo(si.generatedType,
+                                              si.generatedInputMetaData);
+                }
+
                 csidMap.put(csid, cs);
             } catch (Throwable t) {
                 freeStatement(csid);
-                session.setSchema(oldSchema.name);
 
                 return null;
+            } finally {
+                session.setSchema(oldSchema.name);
             }
         }
 
@@ -284,16 +291,21 @@ public final class StatementManager {
     synchronized Statement compile(Session session,
                                    Result cmd) throws Throwable {
 
-        String           sql  = cmd.getMainString();
-        long             csid = getStatementID(session.currentSchema, sql);
-        Statement        cs   = (Statement) csidMap.get(csid);
-        int props;
+        String    sql  = cmd.getMainString();
+        long      csid = getStatementID(session.currentSchema, sql);
+        Statement cs   = (Statement) csidMap.get(csid);
+        int       props;
 
-        if (cs == null || !cs.isValid()) {
+        if (cs == null || !cs.isValid()
+                || cs.getCompileTimestamp()
+                   < database.schemaManager.getSchemaChangeTimestamp()) {
             props = cmd.getExecuteProperties();
             cs    = session.compileStatement(sql, props);
             csid  = registerStatement(csid, cs);
         }
+
+        cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
+                                  cmd.getGeneratedResultMetaData());
 
         return cs;
     }

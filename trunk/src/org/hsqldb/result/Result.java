@@ -468,7 +468,11 @@ public class Result {
                         result.statementID);
 
                 result.statement = statement;
-                result.metaData  = result.statement.getParametersMetaData();
+
+                if (statement != null) {
+                    result.metaData = result.statement.getParametersMetaData();
+                }
+
                 result.valueData = readSimple(in, result.metaData);
                 break;
 

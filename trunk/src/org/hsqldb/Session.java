@@ -874,11 +874,10 @@ public class Session implements SessionInterface {
 
                 Statement cs = cmd.statement;
 
-                if (cs.compileTimestamp
+                if (cs == null || cs.compileTimestamp
                         < database.schemaManager.schemaChangeTimestamp) {
                     long csid = cmd.getStatementID();
 
-                    // todo - use compileTimestamp with schema object changeTimestamp to invalidate
                     cs = statementManager.getStatement(this, csid);
 
                     if (cs == null) {
@@ -936,9 +935,6 @@ public class Session implements SessionInterface {
 
                     return Result.newErrorResult(t, errorString);
                 }
-
-                cs.setGeneratedColumnInfo(cmd.getGeneratedResultType(),
-                                          cmd.getGeneratedResultMetaData());
 
                 Result result = Result.newPrepareResponse(cs);
 
