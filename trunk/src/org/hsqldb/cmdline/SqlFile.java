@@ -51,7 +51,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.SQLTransientConnectionException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -3090,8 +3089,14 @@ public class SqlFile {
         try {
             shared.possiblyUncommitteds = !shared.jdbcConn.getAutoCommit()
                     && !commitOccursPattern.matcher(lastSqlStatement).matches();
-        } catch (SQLTransientConnectionException stce) {
-            lastSqlStatement = null; // I forget what this is for shared.jdbcConn.close();
+        } catch (java.sql.SQLException se) {
+            // If connection is closed by instance shutdown or whatever, we'll
+            // get here.
+            lastSqlStatement = null; // I forget what this is for
+            try {
+                shared.jdbcConn.close();
+            } catch (Exception anye) {
+            }
             shared.jdbcConn = null;
             shared.possiblyUncommitteds = false;
             stdprintln(SqltoolRB.disconnect_success.getString());
