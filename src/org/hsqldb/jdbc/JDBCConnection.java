@@ -566,11 +566,10 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        int props = ResultProperties.getValueForJDBC(
-            JDBCResultSet.TYPE_FORWARD_ONLY, JDBCResultSet.CONCUR_READ_ONLY,
-            rsHoldability);
-
-        Statement stmt = new JDBCStatement(this,props);
+        int props =
+            ResultProperties.getValueForJDBC(JDBCResultSet.TYPE_FORWARD_ONLY,
+                JDBCResultSet.CONCUR_READ_ONLY, rsHoldability);
+        Statement stmt = new JDBCStatement(this, props);
 
         return stmt;
     }
@@ -1561,10 +1560,10 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        int props = ResultProperties.getValueForJDBC(resultSetType, resultSetConcurrency,
-                                 rsHoldability);
+        int props = ResultProperties.getValueForJDBC(resultSetType,
+            resultSetConcurrency, rsHoldability);
 
-        return new JDBCStatement(this,props);
+        return new JDBCStatement(this, props);
     }
 
     /**
@@ -2267,8 +2266,9 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        int props = ResultProperties.getValueForJDBC(resultSetType, resultSetConcurrency,
-                                 resultSetHoldability);
+        int props = ResultProperties.getValueForJDBC(resultSetType,
+            resultSetConcurrency, resultSetHoldability);
+
         return new JDBCStatement(this, props);
     }
 

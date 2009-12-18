@@ -365,11 +365,12 @@ public class JDBCParameterMetaData
     private Type translateType(Type type) {
 
         if (this.translateDTIType) {
-           if ( type.isIntervalType()) {
-               type = new CharacterType(Types.SQL_VARCHAR, type.displaySize());
-           } else if (type.isDateTimeTypeWithZone() ) {
-               type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
-           }
+            if (type.isIntervalType()) {
+                type = new CharacterType(Types.SQL_VARCHAR,
+                        type.displaySize());
+            } else if (type.isDateTimeTypeWithZone()) {
+                type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
+            }
         }
 
         return type;

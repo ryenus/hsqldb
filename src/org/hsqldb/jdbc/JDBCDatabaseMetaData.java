@@ -541,7 +541,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public String getDatabaseProductVersion() throws SQLException {
-        ResultSet rs =  execute("call database_version()");
+
+        ResultSet rs = execute("call database_version()");
 
         rs.next();
 
@@ -5253,7 +5254,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 //#ifdef JAVA4
     public int getDatabaseMajorVersion() throws SQLException {
 
-        ResultSet rs =  execute("call database_version()");
+        ResultSet rs = execute("call database_version()");
 
         rs.next();
 
@@ -5283,15 +5284,17 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
 //#ifdef JAVA4
     public int getDatabaseMinorVersion() throws SQLException {
 
-        ResultSet rs =  execute("call database_version()");
+        ResultSet rs = execute("call database_version()");
 
         rs.next();
 
         String v = rs.getString(1);
 
         rs.close();
+
         int start = v.indexOf(".") + 1;
-        return Integer.parseInt(v.substring( start, v.indexOf(".", start)));
+
+        return Integer.parseInt(v.substring(start, v.indexOf(".", start)));
     }
 
 //#endif JAVA4

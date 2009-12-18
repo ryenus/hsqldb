@@ -1613,7 +1613,6 @@ public class JDBCResultSet implements ResultSet {
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
                 return getBytes(columnIndex);
-
             case Types.SQL_BIT : {
                 boolean b = getBoolean(columnIndex);
 
@@ -6963,8 +6962,7 @@ public class JDBCResultSet implements ResultSet {
 
     /** The insertability of this result. */
     boolean isInsertable;
-
-    int rsProperties;
+    int     rsProperties;
     int     fetchSize;
 
     /** Statement is closed when its result set is closed */
@@ -7322,18 +7320,14 @@ public class JDBCResultSet implements ResultSet {
         this.statement   = s;
         this.result      = r;
         this.connnection = conn;
-        rsProperties   = r.rsProperties;
-
+        rsProperties     = r.rsProperties;
         navigator        = r.getNavigator();
         resultMetaData   = metaData;
         columnCount      = resultMetaData.getColumnCount();
-
-        isScrollable = ResultProperties.isScrollable(rsProperties);
-
-
+        isScrollable     = ResultProperties.isScrollable(rsProperties);
 
         if (ResultProperties.isUpdatable(rsProperties)) {
-            isUpdatable = true;
+            isUpdatable  = true;
             isInsertable = true;
 
             for (int i = 0; i < metaData.colIndexes.length; i++) {

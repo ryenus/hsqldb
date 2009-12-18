@@ -1762,8 +1762,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      */
     JDBCStatement(JDBCConnection c, int props) {
 
-        resultOut       = Result.newExecuteDirectRequest();
-        connection      = c;
+        resultOut    = Result.newExecuteDirectRequest();
+        connection   = c;
         rsProperties = props;
     }
 
@@ -1790,8 +1790,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             sql = connection.nativeSQL(sql);
         }
         resultOut.setPrepareOrExecuteProperties(sql, maxRows, fetchSize,
-                statementRetType, queryTimeout, rsProperties, generatedKeys, generatedIndexes,
-                generatedNames);
+                statementRetType, queryTimeout, rsProperties, generatedKeys,
+                generatedIndexes, generatedNames);
 
         try {
             resultIn = connection.sessionProxy.execute(resultOut);

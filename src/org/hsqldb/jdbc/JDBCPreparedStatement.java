@@ -408,7 +408,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
-
         checkSetParameterIndex(parameterIndex, false);
 
         if (parameterTypes[parameterIndex - 1].typeCode
@@ -438,7 +437,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
-
         checkSetParameterIndex(parameterIndex, false);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_INTEGER) {
@@ -467,11 +465,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (isClosed || connection.isClosed) {
             checkClosed();
         }
-
         checkSetParameterIndex(parameterIndex, false);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BIGINT) {
-
             parameterValues[--parameterIndex] = ValuePool.getLong(x);
 
             return;
@@ -3861,10 +3857,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             }
         }
         resultOut = Result.newPrepareStatementRequest();
-        int props = ResultProperties.getValueForJDBC(resultSetType, resultSetConcurrency, resultSetHoldability);
+
+        int props = ResultProperties.getValueForJDBC(resultSetType,
+            resultSetConcurrency, resultSetHoldability);
+
         resultOut.setPrepareOrExecuteProperties(sql, 0, 0, 0, queryTimeout,
-                                                props,
-                generatedKeys, generatedIndexes, generatedNames);
+                props, generatedKeys, generatedIndexes, generatedNames);
 
         Result in = session.execute(resultOut);
 
@@ -3896,7 +3894,6 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         parameterMetaData = in.parameterMetaData;
         parameterTypes    = parameterMetaData.getParameterTypes();
         parameterModes    = parameterMetaData.paramModes;
-
         rsProperties      = in.rsProperties;
 
         //
