@@ -286,16 +286,15 @@ public class DbBackup {
         TarGenerator generator = new TarGenerator(archiveFile, overWrite,
             new Integer(DbBackup.generateBufferBlockValue(componentFiles)));
 
-        for (int i = 0; i < componentFiles.length; i++) {
-            if (!componentFiles[i].exists()) {
+        for (File componentFile : componentFiles) {
+            if (!componentFile.exists()) {
                 continue;
 
                 // We've already verified that required files exist, therefore
                 // there is no error condition here.
             }
 
-            generator.queueEntry(componentFiles[i].getName(),
-                                 componentFiles[i]);
+            generator.queueEntry(componentFile.getName(), componentFile);
         }
 
         generator.write();
@@ -382,13 +381,13 @@ public class DbBackup {
 
         long maxFileSize = 0;
 
-        for (int i = 0; i < files.length; i++) {
-            if (files[i] == null) {
+        for (File file : files) {
+            if (file == null) {
                 continue;
             }
 
-            if (files[i].length() > maxFileSize) {
-                maxFileSize = files[i].length();
+            if (file.length() > maxFileSize) {
+                maxFileSize = file.length();
             }
         }
 

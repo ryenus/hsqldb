@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 
 /**
  * Encapsulates Pax Interchange Format key/value pairs.
@@ -60,7 +61,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
                 "Serious problem.  JVM can't encode UTF-8", uee);
         }
 
-        fakePid = (int) (new java.util.Date().getTime() % 100000L);
+        fakePid = (int) (new Date().getTime() % 100000L);
 
         // Java doesn't have access to PIDs, as PIF wants in the "name" field,
         // so we emulate one in a way that is easy for us.
