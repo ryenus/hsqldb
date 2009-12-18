@@ -135,25 +135,25 @@ public class TarFileOutputStream {
                              targetFile.getName() + "-partial");
 
         if (this.writeFile.exists()) {
-            throw new IOException(RB.singleton.getString(RB.MOVE_WORK_FILE,
-                    writeFile.getAbsolutePath()));
+            throw new IOException(
+                    RB.move_work_file.getString(writeFile.getAbsolutePath()));
         }
 
         if (targetFile.exists() && !targetFile.canWrite()) {
-            throw new IOException(RB.singleton.getString(RB.CANT_OVERWRITE,
-                    targetFile.getAbsolutePath()));
+            throw new IOException(
+                    RB.cant_overwrite.getString(targetFile.getAbsolutePath()));
         }
 
         File parentDir = targetFile.getAbsoluteFile().getParentFile();
 
         if (parentDir.exists() && parentDir.isDirectory()) {
             if (!parentDir.canWrite()) {
-                throw new IOException(RB.singleton.getString(RB.CANT_WRITE_DIR,
+                throw new IOException(RB.cant_write_dir.getString(
                         parentDir.getAbsolutePath()));
             }
         } else {
-            throw new IOException(RB.singleton.getString(RB.NO_PARENT_DIR,
-                    parentDir.getAbsolutePath()));
+            throw new IOException(
+                    RB.no_parent_dir.getString(parentDir.getAbsolutePath()));
         }
 
         writeBuffer = new byte[blocksPerRecord * 512];
@@ -172,8 +172,7 @@ public class TarFileOutputStream {
 
             default :
                 throw new IllegalArgumentException(
-                    RB.singleton.getString(
-                        RB.COMPRESSION_UNKNOWN, compressionType));
+                    RB.compression_unknown.getString(compressionType));
         }
 
 //#ifdef JAVA6
@@ -211,8 +210,7 @@ public class TarFileOutputStream {
     }
 
     /**
-     * Write a user-specified 512-byte block.
-     *
+     * Write a user-specified 512-byte block.  *
      * For efficiency, write(int) should be used when writing file body content.
      *
      * @see #write(int)
@@ -221,7 +219,7 @@ public class TarFileOutputStream {
 
         if (block.length != 512) {
             throw new IllegalArgumentException(
-                RB.singleton.getString(RB.BAD_BLOCK_WRITE_LEN, block.length));
+                    RB.bad_block_write_len.getString(block.length));
         }
 
         write(block, block.length);
@@ -262,8 +260,8 @@ public class TarFileOutputStream {
 
         if (bytesLeftInBlock() != 0) {
             throw new IllegalArgumentException(
-                RB.singleton.getString(
-                    RB.ILLEGAL_BLOCK_BOUNDARY, Long.toString(bytesWritten)));
+                RB.illegal_block_boundary.getString(
+                        Long.toString(bytesWritten)));
         }
     }
 
@@ -313,8 +311,8 @@ public class TarFileOutputStream {
 
             if (!writeFile.delete()) {
                 throw new IOException(
-                    RB.singleton.getString(
-                        RB.WORKFILE_DELETE_FAIL, writeFile.getAbsolutePath()));
+                        RB.workfile_delete_fail.getString(
+                        writeFile.getAbsolutePath()));
             }
         } finally {
             writeStream = null;  // Encourage buffer GC
@@ -351,8 +349,8 @@ public class TarFileOutputStream {
             int finalPadBlocks = (int) (finalBlock - bytesWritten / 512L);
 
             if (TarFileOutputStream.debug) {
-                System.out.println(RB.singleton.getString(RB.PAD_BLOCK_WRITE,
-                        finalPadBlocks));
+                System.out.println(
+                        RB.pad_block_write.getString(finalPadBlocks));
             }
 
             writePadBlocks(finalPadBlocks);

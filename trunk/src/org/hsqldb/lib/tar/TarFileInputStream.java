@@ -132,8 +132,8 @@ public class TarFileInputStream {
         }
 
         if (!sourceFile.canRead()) {
-            throw new IOException(RB.singleton.getString(RB.READ_DENIED,
-                    sourceFile.getAbsolutePath()));
+            throw new IOException(
+                    RB.read_denied.getString(sourceFile.getAbsolutePath()));
         }
 
         this.readBufferBlocks = readBufferBlocks;
@@ -154,8 +154,7 @@ public class TarFileInputStream {
 
             default :
                 throw new IllegalArgumentException(
-                    RB.singleton.getString(
-                        RB.COMPRESSION_UNKNOWN, compressionType));
+                    RB.compression_unknown.getString(compressionType));
         }
     }
 
@@ -198,7 +197,7 @@ public class TarFileInputStream {
 
         if (i != blocks * 512) {
             throw new TarMalformatException(
-                RB.singleton.getString(RB.INSUFFICIENT_READ, blocks * 512, i));
+                RB.insufficient_read.getString(blocks * 512, i));
         }
     }
 
@@ -223,9 +222,8 @@ public class TarFileInputStream {
                                 requiredBytes - bytesSoFar);
 
             if (i < 0) {
-                throw new EOFException(
-                    RB.singleton.getString(
-                        RB.DECOMPRESS_RANOUT, bytesSoFar, requiredBytes));
+                throw new EOFException(RB.decompression_ranout.getString(
+                        bytesSoFar, requiredBytes));
             }
 
             bytesRead  += i;

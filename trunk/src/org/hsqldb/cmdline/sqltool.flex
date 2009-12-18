@@ -35,7 +35,6 @@ package org.hsqldb.cmdline.sqltool;
 
 import java.io.PrintStream;
 import org.hsqldb.lib.FrameworkLogger;
-import org.hsqldb.cmdline.SqltoolRB;
 
 %%
 // Defaults to Yylex
@@ -49,7 +48,7 @@ import org.hsqldb.cmdline.SqltoolRB;
     private PrintStream psStd = System.out;
     private String magicPrefix;
     private int requestedState = YYINITIAL;
-    private String RAW_LEADIN_MSG;
+    private String rawLeadinPrompt;
     private boolean specialAppendState;
     // This last is needed for very unique check needed when appending to
     // a SQL command.  Only applies to interactive mode.
@@ -59,24 +58,23 @@ import org.hsqldb.cmdline.SqltoolRB;
     }
 
     /**
-     * Set the message ResourceBundle, which should be validated elsewhere.
      * Really need a way to validate that this is called before using the
      * scanner, like Spring's init-method property.
      * For now, will just check explicitly before using.
      */
-    public void setResourceBundle(SqltoolRB rb) {
-        RAW_LEADIN_MSG = rb.getString(SqltoolRB.RAW_LEADIN);
+    public void setRawLeadinPrompt(String rawLeadinPrompt) {
+        this.rawLeadinPrompt = rawLeadinPrompt;
     }
 
     private void rawLeadinPrompt() {
         if (!interactive) {
             return;
         }
-        if (RAW_LEADIN_MSG == null) {
+        if (rawLeadinPrompt == null) {
             throw new RuntimeException("Internal assertion failed.  "
                 + "Scanner's message Resource Bundle not initialized properly");
         }
-        psStd.println(RAW_LEADIN_MSG);
+        psStd.println(rawLeadinPrompt);
     }
 
     // Trims only the end
