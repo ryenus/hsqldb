@@ -537,15 +537,15 @@ public class TarReader {
 
         static protected class MissingField extends Exception {
 
-            private int field;
+            private TarHeaderField field;
 
-            public MissingField(int field) {
+            public MissingField(TarHeaderField field) {
                 this.field = field;
             }
 
             public String getMessage() {
                 return RB.singleton.getString(RB.HEADER_FIELD_MISSING,
-                                              TarHeaderFields.toString(field));
+                                              field.toString());
             }
         }
 
@@ -560,11 +560,11 @@ public class TarReader {
 
             this.rawHeader = rawHeader;
 
-            Long expectedCheckSum = readInteger(TarHeaderFields.CHECKSUM);
+            Long expectedCheckSum = readInteger(TarHeaderField.checksum);
 
             try {
                 if (expectedCheckSum == null) {
-                    throw new MissingField(TarHeaderFields.CHECKSUM);
+                    throw new MissingField(TarHeaderField.checksum);
                 }
 
                 long calculatedCheckSum = headerChecksum();
@@ -576,29 +576,29 @@ public class TarReader {
                             Long.toString(calculatedCheckSum)));
                 }
 
-                path = readString(TarHeaderFields.NAME);
+                path = readString(TarHeaderField.name);
 
                 if (path == null) {
-                    throw new MissingField(TarHeaderFields.NAME);
+                    throw new MissingField(TarHeaderField.name);
                 }
 
-                Long longObject = readInteger(TarHeaderFields.MODE);
+                Long longObject = readInteger(TarHeaderField.mode);
 
                 if (longObject == null) {
-                    throw new MissingField(TarHeaderFields.MODE);
+                    throw new MissingField(TarHeaderField.mode);
                 }
 
                 fileMode   = (int) longObject.longValue();
-                longObject = readInteger(TarHeaderFields.SIZE);
+                longObject = readInteger(TarHeaderField.size);
 
                 if (longObject != null) {
                     dataSize = longObject.longValue();
                 }
 
-                longObject = readInteger(TarHeaderFields.MTIME);
+                longObject = readInteger(TarHeaderField.mtime);
 
                 if (longObject == null) {
-                    throw new MissingField(TarHeaderFields.MTIME);
+                    throw new MissingField(TarHeaderField.mtime);
                 }
 
                 modTime = longObject.longValue();
@@ -606,10 +606,10 @@ public class TarReader {
                 throw new TarMalformatException(mf.getMessage());
             }
 
-            entryType = readChar(TarHeaderFields.TYPEFLAG);
-            ownerName = readString(TarHeaderFields.UNAME);
+            entryType = readChar(TarHeaderField.typeflag);
+            ownerName = readString(TarHeaderField.uname);
 
-            String pathPrefix = readString(TarHeaderFields.PREFIX);
+            String pathPrefix = readString(TarHeaderField.prefix);
 
             if (pathPrefix != null) {
                 path = pathPrefix + '/' + path;
@@ -712,7 +712,7 @@ public class TarReader {
          */
         public boolean isUstar() throws TarMalformatException {
 
-            String magicString = readString(TarHeaderFields.MAGIC);
+            String magicString = readString(TarHeaderField.magic);
 
             return magicString != null && magicString.startsWith("ustar");
         }
@@ -731,11 +731,11 @@ public class TarReader {
             return -1;
         }
 
-        protected char readChar(int fieldId) throws TarMalformatException {
+        protected char readChar(TarHeaderField field) throws TarMalformatException {
 
             /* Depends on readString(int) contract that it will never return
              * a 0-length String */
-            String s = readString(fieldId);
+            String s = readString(field);
 
             return (s == null) ? '\0'
                                : s.charAt(0);
@@ -744,10 +744,10 @@ public class TarReader {
         /**
          * @return null or String with length() > 0.
          */
-        protected String readString(int fieldId) throws TarMalformatException {
+        protected String readString(TarHeaderField field) throws TarMalformatException {
 
-            int start = TarHeaderFields.getStart(fieldId);
-            int stop  = TarHeaderFields.getStop(fieldId);
+            int start = field.getStart();
+            int stop  = field.getStop();
             int termIndex = TarEntryHeader.indexOf(rawHeader, (byte) 0, start,
                                                    stop);
 
@@ -768,8 +768,7 @@ public class TarReader {
                 // Java API does not specify behavior if decoding fails.
                 throw new TarMalformatException(
                     RB.singleton.getString(
-                        RB.BAD_HEADER_VALUE,
-                        TarHeaderFields.toString(fieldId)));
+                        RB.BAD_HEADER_VALUE, field.toString()));
             }
         }
 
@@ -777,9 +776,10 @@ public class TarReader {
          * Integer as in positive whole number, which does not imply Java
          * types of <CODE>int</CODE> or <CODE>Integer</CODE>.
          */
-        protected Long readInteger(int fieldId) throws TarMalformatException {
+        protected Long readInteger(TarHeaderField field)
+                throws TarMalformatException {
 
-            String s = readString(fieldId);
+            String s = readString(field);
 
             if (s == null) {
                 return null;
@@ -789,9 +789,8 @@ public class TarReader {
                 return Long.valueOf(s, 8);
             } catch (NumberFormatException nfe) {
                 throw new TarMalformatException(
-                    RB.singleton.getString(
-                        RB.BAD_NUMERIC_HEADER_VALUE,
-                        TarHeaderFields.toString(fieldId), nfe.getMessage()));
+                    RB.singleton.getString(RB.BAD_NUMERIC_HEADER_VALUE,
+                        field.toString(), nfe.getMessage()));
             }
         }
 
@@ -801,8 +800,8 @@ public class TarReader {
 
             for (int i = 0; i < 512; i++) {
                 boolean isInRange =
-                    (i >= TarHeaderFields.getStart(TarHeaderFields.CHECKSUM)
-                     && i < TarHeaderFields.getStop(TarHeaderFields.CHECKSUM));
+                    (i >= TarHeaderField.checksum.getStart()
+                     && i < TarHeaderField.checksum.getStop());
 
                 // We ignore current contents of the checksum field so that
                 // this method will continue to work right, even if we later
