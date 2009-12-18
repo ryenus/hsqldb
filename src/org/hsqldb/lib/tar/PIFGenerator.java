@@ -148,8 +148,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
 
         if (key == null || value == null || key.length() < 1
                 || value.length() < 1) {
-            throw new TarMalformatException(
-                RB.singleton.getString(RB.ZERO_WRITE));
+            throw new TarMalformatException(RB.zero_write.getString());
         }
 
         int lenWithoutIlen = key.length() + value.length() + 3;
@@ -168,8 +167,7 @@ public class PIFGenerator extends ByteArrayOutputStream {
         } else if (lenWithoutIlen < 99994) {
             lenW = lenWithoutIlen + 5;
         } else {
-            throw new TarMalformatException(
-                RB.singleton.getString(RB.PIF_TOOBIG, 99991));
+            throw new TarMalformatException(RB.pif_toobig.getString(99991));
         }
 
         writer.write(Integer.toString(lenW));

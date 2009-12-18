@@ -79,7 +79,9 @@ public class SqlTool {
     public static final String DEFAULT_RCFILE =
         System.getProperty("user.home") + "/sqltool.rc";
     // N.b. the following is static!
-    private static String  revnum;
+    private static String  revnum =
+            "$Revision$".substring("$Revision: ".length(),
+            "$Revision$".length() - 2);
 
     public static final int SQLTOOLERR_EXITVAL = 1;
     public static final int SYNTAXERR_EXITVAL = 11;
@@ -95,30 +97,7 @@ public class SqlTool {
      * specified on the command line
      */
     private static String CMDLINE_ID = "cmdline";
-    private static SqltoolRB rb = null;
-    // Must use a shared static RB object, since we need to get messages
-    // inside of static methods.
-    // This means that the locale will be set the first time this class
-    // is accessed.  Subsequent calls will not update the RB if the locale
-    // changes (could have it check and reload the RB if this becomes an
-    // issue).
 
-    static {
-        revnum = "$Revision$".substring("$Revision: ".length(),
-                                               "$Revision$".length()
-                                               - 2);
-        try {
-            rb = new SqltoolRB();
-            rb.validate();
-            rb.setMissingPosValueBehavior(
-                    ValidatingResourceBundle.NOOP_BEHAVIOR);
-            rb.setMissingPropertyBehavior(
-                    ValidatingResourceBundle.NOOP_BEHAVIOR);
-        } catch (RuntimeException re) {
-            System.err.println("Failed to initialize resource bundle");
-            throw re;
-        }
-    }
     /** Platform-specific line separator */
     public static String LS = System.getProperty("line.separator");
 
@@ -185,7 +164,7 @@ public class SqlTool {
             console = new BufferedReader(new InputStreamReader(System.in));
 
             // Prompt for password
-            System.out.print(rb.getString(SqltoolRB.PASSWORDFOR_PROMPT,
+            System.out.print(SqltoolRB.passwordFor_prompt.getString(
                     RCData.expandSysPropVars(username)));
 
             // Read the password from the command line
@@ -236,7 +215,7 @@ public class SqlTool {
 
             if (equals < 1) {
                 throw new PrivateException(
-                    rb.getString(SqltoolRB.SQLTOOL_VARSET_BADFORMAT));
+                    SqltoolRB.SqlTool_varset_badformat.getString());
             }
 
             var = token.substring(0, equals).trim();
@@ -244,7 +223,7 @@ public class SqlTool {
 
             if (var.length() < 1) {
                 throw new PrivateException(
-                    rb.getString(SqltoolRB.SQLTOOL_VARSET_BADFORMAT));
+                    SqltoolRB.SqlTool_varset_badformat.getString());
             }
 
             if (lowerCaseKeys) {
@@ -343,31 +322,28 @@ public class SqlTool {
                 parameter = arg[i].substring(2).toLowerCase();
 
                 if (parameter.equals("help")) {
-                    System.out.println(rb.getString(SqltoolRB.SQLTOOL_SYNTAX,
+                    System.out.println(SqltoolRB.SqlTool_syntax.getString(
                             revnum, RCData.DEFAULT_JDBC_DRIVER));
                     return;
                 }
                 if (parameter.equals("abortonerr")) {
                     if (coeOverride != null) {
                         throw new SqlToolException(SYNTAXERR_EXITVAL,
-                                rb.getString(
-                        SqltoolRB.SQLTOOL_ABORTCONTINUE_MUTUALLYEXCLUSIVE));
+                                SqltoolRB.SqlTool_abort_continue_mutuallyexclusive.getString());
                     }
 
                     coeOverride = Boolean.FALSE;
                 } else if (parameter.equals("continueonerr")) {
                     if (coeOverride != null) {
                         throw new SqlToolException(SYNTAXERR_EXITVAL,
-                                rb.getString(
-                        SqltoolRB.SQLTOOL_ABORTCONTINUE_MUTUALLYEXCLUSIVE));
+                                SqltoolRB.SqlTool_abort_continue_mutuallyexclusive.getString());
                     }
 
                     coeOverride = Boolean.TRUE;
                 } else if (parameter.startsWith("continueonerr=")) {
                     if (coeOverride != null) {
                         throw new SqlToolException(SYNTAXERR_EXITVAL,
-                                rb.getString(
-                        SqltoolRB.SQLTOOL_ABORTCONTINUE_MUTUALLYEXCLUSIVE));
+                                SqltoolRB.SqlTool_abort_continue_mutuallyexclusive.getString());
                     }
 
                     coeOverride = Boolean.valueOf(
@@ -458,8 +434,8 @@ public class SqlTool {
                     }
                 } catch (IOException ioe) {
                     throw new SqlToolException(IOERR_EXITVAL,
-                            rb.getString(SqltoolRB.SQLTEMPFILE_FAIL,
-                                    ioe.toString()));
+                            SqltoolRB.sqltempfile_fail.getString(
+                            ioe.toString()));
                 }
             }
 
@@ -497,8 +473,8 @@ public class SqlTool {
             }
         } catch (BadCmdline bcle) {
             throw new SqlToolException(SYNTAXERR_EXITVAL,
-                    rb.getString(SqltoolRB.SQLTOOL_SYNTAX,
-                                revnum, RCData.DEFAULT_JDBC_DRIVER));
+                    SqltoolRB.SqlTool_syntax.getString(
+                    revnum, RCData.DEFAULT_JDBC_DRIVER));
         }
 
         RCData conData = null;
@@ -522,25 +498,24 @@ public class SqlTool {
 
             // Don't ask for password if what we have already is invalid!
             if (rcUrl == null || rcUrl.length() < 1)
-                throw new SqlToolException(RCERR_EXITVAL, rb.getString(
-                        SqltoolRB.RCDATA_INLINEURL_MISSING));
+                throw new SqlToolException(RCERR_EXITVAL,
+                        SqltoolRB.rcdata_inlineurl_missing.getString());
             // We now allow both null and "" user name, but we require password
             // if the user name != null.
             if (rcPassword != null && rcPassword.length() > 0)
-                throw new SqlToolException(RCERR_EXITVAL, rb.getString(
-                        SqltoolRB.RCDATA_PASSWORD_VISIBLE));
+                throw new SqlToolException(RCERR_EXITVAL,
+                        SqltoolRB.rcdata_password_visible.getString());
             if (rcFields.size() > 0) {
                 throw new SqlToolException(INPUTERR_EXITVAL,
-                        rb.getString(SqltoolRB.RCDATA_INLINE_EXTRAVARS,
-                                rcFields.keySet().toString()));
+                        SqltoolRB.rcdata_inline_extravars.getString(
+                        rcFields.keySet().toString()));
             }
 
             if (rcUsername != null && rcPassword == null) try {
                 rcPassword   = promptForPassword(rcUsername);
             } catch (PrivateException e) {
                 throw new SqlToolException(INPUTERR_EXITVAL,
-                        rb.getString(SqltoolRB.PASSWORD_READFAIL,
-                                e.getMessage()));
+                        SqltoolRB.password_readfail.getString(e.getMessage()));
             }
             try {
                 conData = new RCData(CMDLINE_ID, rcUrl, rcUsername,
@@ -549,8 +524,8 @@ public class SqlTool {
             } catch (RuntimeException re) {
                 throw re;  // Unrecoverable
             } catch (Exception e) {
-                throw new SqlToolException(RCERR_EXITVAL, rb.getString(
-                        SqltoolRB.RCDATA_GENFROMVALUES_FAIL, e.getMessage()));
+                throw new SqlToolException(RCERR_EXITVAL,
+                        SqltoolRB.rcdata_genfromvalues_fail.getString());
             }
         } else if (listMode || targetDb != null) {
             try {
@@ -560,9 +535,9 @@ public class SqlTool {
             } catch (RuntimeException re) {
                 throw re;  // Unrecoverable
             } catch (Exception e) {
-                throw new SqlToolException(RCERR_EXITVAL, rb.getString(
-                        SqltoolRB.CONNDATA_RETRIEVAL_FAIL,
-                                targetDb, e.getMessage()));
+                throw new SqlToolException(RCERR_EXITVAL,
+                        SqltoolRB.conndata_retrieval_fail.getString(
+                        targetDb, e.getMessage()));
             }
         }
 
@@ -599,7 +574,7 @@ public class SqlTool {
             String reportUser = (conData.username == null)
                     ? "<DFLTUSER>" : conData.username;
             throw new SqlToolException(CONNECTERR_EXITVAL,
-                    rb.getString(SqltoolRB.CONNECTION_FAIL, conData.url,
+                    SqltoolRB.connection_fail.getString(conData.url,
                     reportUser, e.getMessage()));
         }
 

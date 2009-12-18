@@ -87,10 +87,10 @@ public class DbBackup {
 
         try {
             if (sa.length < 1) {
-                System.out.println(RB.singleton.getString(RB.DBBACKUP_SYNTAX,
-                        DbBackup.class.getName()));
+                System.out.println(
+                        RB.DbBackup_syntax.getString(DbBackup.class.getName()));
                 System.out.println();
-                System.out.println(RB.singleton.getString(RB.LISTING_FORMAT));
+                System.out.println(RB.listing_format.getString());
                 System.exit(0);
             }
 
@@ -160,8 +160,8 @@ public class DbBackup {
                 throw new IllegalArgumentException();
             }
         } catch (IllegalArgumentException iae) {
-            System.out.println(RB.singleton.getString(RB.DBBACKUP_SYNTAXERR,
-                    DbBackup.class.getName()));
+            System.out.println(
+                    RB.DbBackup_syntaxerr.getString(DbBackup.class.getName()));
             System.exit(2);
         }
     }
@@ -249,8 +249,8 @@ public class DbBackup {
 
                 // First 2 files are REQUIRED
                 throw new FileNotFoundException(
-                    RB.singleton.getString(
-                        RB.FILE_MISSING, componentFiles[i].getAbsolutePath()));
+                        RB.file_missing.getString(
+                        componentFiles[i].getAbsolutePath()));
             }
         }
 
@@ -278,8 +278,7 @@ public class DbBackup {
                     && (modifiedString.equalsIgnoreCase("yes")
                         || modifiedString.equalsIgnoreCase("true"))) {
                 throw new IllegalStateException(
-                    RB.singleton.getString(
-                        RB.MODIFIED_PROPERTY, modifiedString));
+                        RB.modified_property.getString(modifiedString));
             }
         }
 
@@ -305,29 +304,26 @@ public class DbBackup {
                     if (componentFiles[i].exists()) {
                         if (!existList[i]) {
                             throw new FileNotFoundException(
-                                RB.singleton.getString(
-                                    RB.FILE_DISAPPEARED,
+                                    RB.file_disappeared.getString(
                                     componentFiles[i].getAbsolutePath()));
                         }
 
                         if (componentFiles[i].lastModified() > startTime) {
                             throw new FileNotFoundException(
-                                RB.singleton.getString(
-                                    RB.FILE_CHANGED,
+                                    RB.file_changed.getString(
                                     componentFiles[i].getAbsolutePath()));
                         }
                     } else if (existList[i]) {
                         throw new FileNotFoundException(
-                            RB.singleton.getString(
-                                RB.FILE_APPEARED,
+                                RB.file_appeared.getString(
                                 componentFiles[i].getAbsolutePath()));
                     }
                 }
             } catch (IllegalStateException ise) {
                 if (!archiveFile.delete()) {
                     System.out.println(
-                        RB.singleton.getString(
-                            RB.CLEANUP_RMFAIL, archiveFile.getAbsolutePath()));
+                            RB.cleanup_rmfail.getString(
+                            archiveFile.getAbsolutePath()));
 
                     // Be-it-known.  This method can write to stderr if
                     // abortUponModify is true.

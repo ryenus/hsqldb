@@ -81,9 +81,9 @@ public class TarReader {
     throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
-            System.out.println(RB.singleton.getString(RB.TARREADER_SYNTAX,
-                    TarReader.class.getName()));
-            System.out.println(RB.singleton.getString(RB.LISTING_FORMAT));
+            System.out.println(
+                    RB.TarReader_syntax.getString(TarReader.class.getName()));
+            System.out.println(RB.listing_format.getString());
             System.exit(0);
         }
 
@@ -96,8 +96,7 @@ public class TarReader {
         if (sa.length < firstPatInd
                 || ((!sa[0].equals("t")) && !sa[0].equals("x"))) {
             throw new IllegalArgumentException(
-                RB.singleton.getString(
-                    RB.TARREADER_SYNTAXERR, TarReader.class.getName()));
+                RB.tarreader_syntaxerr.getString(TarReader.class.getName()));
         }
 
         String[] patternStrings = null;
@@ -111,8 +110,7 @@ public class TarReader {
         }
 
         if (sa[0].equals("t") && exDir != null) {
-            throw new IllegalArgumentException(
-                RB.singleton.getString(RB.DIR_X_CONFLICT));
+            throw new IllegalArgumentException(RB.dir_x_conflict.getString());
         }
 
         int dirIndex      = (exDir == null) ? 1
@@ -288,15 +286,14 @@ public class TarReader {
 
                     default :
                         throw new IllegalArgumentException(
-                            RB.singleton.getString(RB.UNSUPPORTED_MODE, mode));
+                                RB.unsupported_mode.getString(mode));
                 }
 
                 paxString = null;
             }
 
             if (anyUnsupporteds) {
-                System.out.println(
-                    RB.singleton.getString(RB.UNSUPPORTED_ENTRY_PRESENT));
+                System.out.println(RB.unsupported_entry_present.getString());
             }
         } catch (IOException ioe) {
             archive.close();
@@ -318,14 +315,12 @@ public class TarReader {
 
         if (dataSize < 1) {
             throw new TarMalformatException(
-                RB.singleton.getString(RB.PIF_UNKNOWN_DATASIZE));
+                    RB.pif_unknown_datasize.getString());
         }
 
         if (dataSize > Integer.MAX_VALUE) {
-            throw new TarMalformatException(
-                RB.singleton.getString(
-                    RB.PIF_DATA_TOOBIG, Long.toString(dataSize),
-                    Integer.MAX_VALUE));
+            throw new TarMalformatException(RB.pif_data_toobig.getString(
+                    Long.toString(dataSize), Integer.MAX_VALUE));
         }
 
         int readNow;
@@ -353,8 +348,7 @@ public class TarReader {
                 outPipe.write(archive.readBuffer, 0, readNow * 512);
             }
 
-            if (modulus != 0) {
-                archive.readBlock();
+            if (modulus != 0) { archive.readBlock();
                 outPipe.write(archive.readBuffer, 0, modulus);
             }
 
@@ -381,8 +375,7 @@ public class TarReader {
     throws IOException, TarMalformatException {
 
         if (header.getDataSize() < 1) {
-            throw new TarMalformatException(
-                RB.singleton.getString(RB.DATA_SIZE_UNKNOWN));
+            throw new TarMalformatException(RB.data_size_unknown.getString());
         }
 
         int  readNow;
@@ -402,14 +395,12 @@ public class TarReader {
         if (newFile.exists()) {
             if (mode != TarReader.OVERWRITE_MODE) {
                 throw new IOException(
-                    RB.singleton.getString(
-                        RB.EXTRACTION_EXISTS, newFile.getAbsolutePath()));
+                    RB.extraction_exists.getString(newFile.getAbsolutePath()));
             }
 
             if (!newFile.isFile()) {
                 throw new IOException(
-                    RB.singleton.getString(
-                        RB.EXTRACTION_EXISTS_NOTFILE,
+                        RB.extraction_exists_notfile.getString(
                         newFile.getAbsolutePath()));
             }
 
@@ -420,22 +411,19 @@ public class TarReader {
         if (parentDir.exists()) {
             if (!parentDir.isDirectory()) {
                 throw new IOException(
-                    RB.singleton.getString(
-                        RB.EXTRACTION_PARENT_NOT_DIR,
+                        RB.extraction_parent_not_dir.getString(
                         parentDir.getAbsolutePath()));
             }
 
             if (!parentDir.canWrite()) {
                 throw new IOException(
-                    RB.singleton.getString(
-                        RB.EXTRACTION_PARENT_NOT_WRITABLE,
+                        RB.extraction_parent_not_writable.getString(
                         parentDir.getAbsolutePath()));
             }
         } else {
             if (!parentDir.mkdirs()) {
                 throw new IOException(
-                    RB.singleton.getString(
-                        RB.EXTRACTION_PARENT_MKFAIL,
+                        RB.extraction_parent_mkfail.getString(
                         parentDir.getAbsolutePath()));
             }
         }
@@ -486,9 +474,7 @@ public class TarReader {
         newFile.setLastModified(header.getModTime() * 1000);
 
         if (newFile.length() != header.getDataSize()) {
-            throw new IOException(
-                RB.singleton.getString(
-                    RB.WRITE_COUNT_MISMATCH,
+            throw new IOException(RB.write_count_mismatch.getString(
                     Long.toString(header.getDataSize()),
                     newFile.getAbsolutePath(),
                     Long.toString(newFile.length())));
@@ -507,8 +493,7 @@ public class TarReader {
         }
 
         if (header.getDataSize() < 0) {
-            throw new TarMalformatException(
-                RB.singleton.getString(RB.DATA_SIZE_UNKNOWN));
+            throw new TarMalformatException(RB.data_size_unknown.getString());
         }
 
         int skipNow;
@@ -544,8 +529,7 @@ public class TarReader {
             }
 
             public String getMessage() {
-                return RB.singleton.getString(RB.HEADER_FIELD_MISSING,
-                                              field.toString());
+                return RB.header_field_missing.getString(field.toString());
             }
         }
 
@@ -571,8 +555,8 @@ public class TarReader {
 
                 if (expectedCheckSum.longValue() != calculatedCheckSum) {
                     throw new TarMalformatException(
-                        RB.singleton.getString(
-                            RB.CHECKSUM_MISMATCH, expectedCheckSum.toString(),
+                            RB.checksum_mismatch.getString(
+                            expectedCheckSum.toString(),
                             Long.toString(calculatedCheckSum)));
                 }
 
@@ -640,7 +624,7 @@ public class TarReader {
 
             if (entryType != '\0' && entryType != '0') {
                 throw new IllegalStateException(
-                    RB.singleton.getString(RB.CREATE_ONLY_NORMAL));
+                        RB.create_only_normal.getString());
             }
 
             // Unfortunately, it does no good to set modification times or
@@ -767,8 +751,7 @@ public class TarReader {
 
                 // Java API does not specify behavior if decoding fails.
                 throw new TarMalformatException(
-                    RB.singleton.getString(
-                        RB.BAD_HEADER_VALUE, field.toString()));
+                        RB.bad_header_value.getString(field.toString()));
             }
         }
 
@@ -789,7 +772,7 @@ public class TarReader {
                 return Long.valueOf(s, 8);
             } catch (NumberFormatException nfe) {
                 throw new TarMalformatException(
-                    RB.singleton.getString(RB.BAD_NUMERIC_HEADER_VALUE,
+                        RB.bad_numeric_header_value.getString(
                         field.toString(), nfe.getMessage()));
             }
         }

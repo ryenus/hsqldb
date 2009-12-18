@@ -105,7 +105,7 @@ public enum TarHeaderField {
     magic(257, 263),
     uname(265, 296),
     gname(297, 328),
-    prefix(345, 299),
+    prefix(345, 399),
     ;
 
     private TarHeaderField(int start, int stop) {

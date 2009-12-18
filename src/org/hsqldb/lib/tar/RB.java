@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hsqldb.lib.ValidatingResourceBundle;
+import org.hsqldb.lib.RefCapableRBInterface;
 
 /* $Id$ */
 
@@ -58,179 +59,124 @@ import org.hsqldb.lib.ValidatingResourceBundle;
  * like RB.NEWKEYID.
  * </P>
  */
-public class RB extends ValidatingResourceBundle {
-    private static int keyCounter = 0;
-    public static final int DBBACKUP_SYNTAX = keyCounter++;
-    public static final int DBBACKUP_SYNTAXERR = keyCounter++;
-    public static final int TARGENERATOR_SYNTAX = keyCounter++;
-    public static final int PAD_BLOCK_WRITE = keyCounter++;
-    public static final int CLEANUP_RMFAIL = keyCounter++;
-    public static final int TARREADER_SYNTAX = keyCounter++;
-    public static final int UNSUPPORTED_ENTRY_PRESENT = keyCounter++;
-    public static final int BPR_WRITE = keyCounter++;
-    public static final int STREAM_BUFFER_REPORT = keyCounter++;
-    public static final int WRITE_QUEUE_REPORT = keyCounter++;
-    public static final int FILE_MISSING = keyCounter++;
-    public static final int MODIFIED_PROPERTY = keyCounter++;
-    public static final int FILE_DISAPPEARED = keyCounter++;
-    public static final int FILE_CHANGED = keyCounter++;
-    public static final int FILE_APPEARED = keyCounter++;
-    public static final int PIF_MALFORMAT = keyCounter++;
-    public static final int PIF_MALFORMAT_SIZE = keyCounter++;
-    public static final int ZERO_WRITE = keyCounter++;
-    public static final int PIF_TOOBIG = keyCounter++;
-    public static final int READ_DENIED = keyCounter++;
-    public static final int COMPRESSION_UNKNOWN = keyCounter++;
-    public static final int INSUFFICIENT_READ = keyCounter++;
-    public static final int DECOMPRESS_RANOUT = keyCounter++;
-    public static final int MOVE_WORK_FILE = keyCounter++;
-    public static final int CANT_OVERWRITE = keyCounter++;
-    public static final int CANT_WRITE_DIR = keyCounter++;
-    public static final int NO_PARENT_DIR = keyCounter++;
-    public static final int BAD_BLOCK_WRITE_LEN = keyCounter++;
-    public static final int ILLEGAL_BLOCK_BOUNDARY = keyCounter++;
-    public static final int WORKFILE_DELETE_FAIL = keyCounter++;
-    public static final int UNSUPPORTED_EXT = keyCounter++;
-    public static final int DEST_EXISTS = keyCounter++;
-    public static final int PARENT_NOT_DIR = keyCounter++;
-    public static final int CANT_WRITE_PARENT = keyCounter++;
-    public static final int PARENT_CREATE_FAIL = keyCounter++;
-    public static final int TAR_FIELD_TOOBIG = keyCounter++;
-    public static final int MISSING_SUPP_PATH = keyCounter++;
-    public static final int NONFILE_ENTRY = keyCounter++;
-    public static final int READ_LT_1 = keyCounter++;
-    public static final int DATA_CHANGED = keyCounter++;
-    public static final int UNEXPECTED_HEADER_KEY = keyCounter++;
-    public static final int TARREADER_SYNTAXERR = keyCounter++;
-    public static final int UNSUPPORTED_MODE = keyCounter++;
-    public static final int DIR_X_CONFLICT = keyCounter++;
-    public static final int PIF_UNKNOWN_DATASIZE = keyCounter++;
-    public static final int PIF_DATA_TOOBIG = keyCounter++;
-    public static final int DATA_SIZE_UNKNOWN = keyCounter++;
-    public static final int EXTRACTION_EXISTS = keyCounter++;
-    public static final int EXTRACTION_EXISTS_NOTFILE = keyCounter++;
-    public static final int EXTRACTION_PARENT_NOT_DIR = keyCounter++;
-    public static final int EXTRACTION_PARENT_NOT_WRITABLE = keyCounter++;
-    public static final int EXTRACTION_PARENT_MKFAIL = keyCounter++;
-    public static final int WRITE_COUNT_MISMATCH = keyCounter++;
-    public static final int HEADER_FIELD_MISSING = keyCounter++;
-    public static final int CHECKSUM_MISMATCH = keyCounter++;
-    public static final int CREATE_ONLY_NORMAL = keyCounter++;
-    public static final int BAD_HEADER_VALUE = keyCounter++;
-    public static final int BAD_NUMERIC_HEADER_VALUE = keyCounter++;
-    public static final int LISTING_FORMAT = keyCounter++;
+public enum RB implements RefCapableRBInterface {
+    DbBackup_syntax,
+    DbBackup_syntaxerr,
+    TarGenerator_syntax,
+    pad_block_write,
+    cleanup_rmfail,
+    TarReader_syntax,
+    unsupported_entry_present,
+    bpr_write,
+    stream_buffer_report,
+    write_queue_report,
+    file_missing,
+    modified_property,
+    file_disappeared,
+    file_changed,
+    file_appeared,
+    pif_malformat,
+    pif_malformat_size,
+    zero_write,
+    pif_toobig,
+    read_denied,
+    compression_unknown,
+    insufficient_read,
+    decompression_ranout,
+    move_work_file,
+    cant_overwrite,
+    cant_write_dir,
+    no_parent_dir,
+    bad_block_write_len,
+    illegal_block_boundary,
+    workfile_delete_fail,
+    unsupported_ext,
+    dest_exists,
+    parent_not_dir,
+    cant_write_parent,
+    parent_create_fail,
+    tar_field_toobig,
+    missing_supp_path,
+    nonfile_entry,
+    read_lt_1,
+    data_changed,
+    unexpected_header_key,
+    tarreader_syntaxerr,
+    unsupported_mode,
+    dir_x_conflict,
+    pif_unknown_datasize,
+    pif_data_toobig,
+    data_size_unknown,
+    extraction_exists,
+    extraction_exists_notfile,
+    extraction_parent_not_dir,
+    extraction_parent_not_writable,
+    extraction_parent_mkfail,
+    write_count_mismatch,
+    header_field_missing,
+    checksum_mismatch,
+    create_only_normal,
+    bad_header_value,
+    bad_numeric_header_value,
+    listing_format,
+    ;
 
-    private static Object[] memberKeyArray = new Object[] {
-        DBBACKUP_SYNTAX, "DbBackup.syntax",
-        DBBACKUP_SYNTAXERR, "DbBackup.syntaxerr",
-        TARGENERATOR_SYNTAX, "TarGenerator.syntax",
-        PAD_BLOCK_WRITE, "pad.block.write",
-        CLEANUP_RMFAIL, "cleanup.rmfail",
-        TARREADER_SYNTAX, "TarReader.syntax",
-        UNSUPPORTED_ENTRY_PRESENT, "unsupported.entry.present",
-        BPR_WRITE, "bpr.write",
-        STREAM_BUFFER_REPORT, "stream.buffer.report",
-        WRITE_QUEUE_REPORT, "write.queue.report",
-        FILE_MISSING, "file.missing",
-        MODIFIED_PROPERTY, "modified.property",
-        FILE_DISAPPEARED, "file.disappeared",
-        FILE_CHANGED, "file.changed",
-        FILE_APPEARED, "file.appeared",
-        PIF_MALFORMAT, "pif.malformat",
-        PIF_MALFORMAT_SIZE, "pif.malformat.size",
-        ZERO_WRITE, "zero.write",
-        PIF_TOOBIG, "pif.toobig",
-        READ_DENIED, "read.denied",
-        COMPRESSION_UNKNOWN, "compression.unknown",
-        INSUFFICIENT_READ, "insufficient.read",
-        DECOMPRESS_RANOUT, "decompression.ranout",
-        MOVE_WORK_FILE, "move.work.file",
-        CANT_OVERWRITE, "cant.overwrite",
-        CANT_WRITE_DIR, "cant.write.dir",
-        NO_PARENT_DIR, "no.parent.dir",
-        BAD_BLOCK_WRITE_LEN, "bad.block.write.len",
-        ILLEGAL_BLOCK_BOUNDARY, "illegal.block.boundary",
-        WORKFILE_DELETE_FAIL, "workfile.delete.fail",
-        UNSUPPORTED_EXT, "unsupported.ext",
-        DEST_EXISTS, "dest.exists",
-        PARENT_NOT_DIR, "parent.not.dir",
-        CANT_WRITE_PARENT, "cant.write.parent",
-        PARENT_CREATE_FAIL, "parent.create.fail",
-        TAR_FIELD_TOOBIG, "tar.field.toobig",
-        MISSING_SUPP_PATH, "missing.supp.path",
-        NONFILE_ENTRY, "nonfile.entry",
-        READ_LT_1, "read.lt.1",
-        DATA_CHANGED, "data.changed",
-        UNEXPECTED_HEADER_KEY, "unexpected.header.key",
-        TARREADER_SYNTAXERR, "tarreader.syntaxerr",
-        UNSUPPORTED_MODE, "unsupported.mode",
-        DIR_X_CONFLICT, "dir.x.conflict",
-        PIF_UNKNOWN_DATASIZE, "pif.unknown.datasize",
-        PIF_DATA_TOOBIG, "pif.data.toobig",
-        DATA_SIZE_UNKNOWN, "data.size.unknown",
-        EXTRACTION_EXISTS, "extraction.exists",
-        EXTRACTION_EXISTS_NOTFILE, "extraction.exists.notfile",
-        EXTRACTION_PARENT_NOT_DIR, "extraction.parent.not.dir",
-        EXTRACTION_PARENT_NOT_WRITABLE, "extraction.parent.not.writable",
-        EXTRACTION_PARENT_MKFAIL, "extraction.parent.mkfail",
-        WRITE_COUNT_MISMATCH, "write.count.mismatch",
-        HEADER_FIELD_MISSING, "header.field.missing",
-        CHECKSUM_MISMATCH, "checksum.mismatch",
-        CREATE_ONLY_NORMAL, "create.only.normal",
-        BAD_HEADER_VALUE, "bad.header.value",
-        BAD_NUMERIC_HEADER_VALUE, "bad.numeric.header.value",
-        LISTING_FORMAT, "listing.format",
-    };
-
-    private Map<Integer, String> keyIdToString = new HashMap<Integer, String>();
-
-    protected Map<Integer, String> getKeyIdToString() {
-        return keyIdToString;
-    }
-
-    public RB() {
-        super("org.hsqldb.lib.tar.rb");
-        if (memberKeyArray == null)
-            throw new RuntimeException("'static memberKeyArray not set");
-        for (int i = 0; i < memberKeyArray.length; i += 2) {
-            keyIdToString.put(
-                    (Integer) memberKeyArray[i], (String) memberKeyArray[i+1]);
-        }
-    }
-
+    private static ValidatingResourceBundle vrb =
+            new ValidatingResourceBundle(
+                    RB.class.getPackage().getName() + ".rb", RB.class);
     static {
-        if (memberKeyArray == null)
-            throw new RuntimeException("'static memberKeyArray not set");
-        if (memberKeyArray.length % 2 != 0)
-            throw new RuntimeException("memberKeyArray has an odd length");
-        for (int i = 0; i < memberKeyArray.length; i += 2) {
-            if (!(memberKeyArray[i] instanceof Integer))
-                throw new RuntimeException("Element #" + i + " ("
-                        + ((i - 1 < 0) ? "first item"
-                            : ("after item \"" + memberKeyArray[i-1] + "\""))
-                        + ") is a " + memberKeyArray[i].getClass().getName()
-                        + ", not an Integer, in memberKeyArray in class "
-                        + RB.class.getName());
-            if (!(memberKeyArray[i+1] instanceof String))
-                throw new RuntimeException("Element #" + (i+1) + " ("
-                        + ((i - 2 < 0) ? "first item"
-                            : ("after item \"" + memberKeyArray[i-1] + "\""))
-                        + ") is a " + memberKeyArray[i+1].getClass().getName()
-                        + ", not a String, in memberKeyArray in class "
-                        + RB.class.getName());
-            if (((Integer) memberKeyArray[i]).intValue() != i/2)
-                throw new RuntimeException("Element #" +  i
-                        + " is wrong constant for item " + memberKeyArray[i+1]
-                        + " in memberKeyArray in class "
-                        + RB.class.getName());
-        }
+        vrb.setMissingPosValueBehavior(
+                ValidatingResourceBundle.NOOP_BEHAVIOR);
+        vrb.setMissingPropertyBehavior(
+                ValidatingResourceBundle.NOOP_BEHAVIOR);
     }
 
-    /* IMPORTANT:  Leave the singleton instantiation at the end here!
-     * Otherwise there will be a confusing tangle between clinitting and
-     * singleton instantiation.  */
-    static public RB singleton = new RB();
-    static {
-        singleton.validate();
+    public String getString() {
+        return vrb.getString(this);
+    }
+    public String toString() {
+        return ValidatingResourceBundle.resourceKeyFor(this);
+    }
+    public String getExpandedString() {
+        return vrb.getExpandedString(this);
+    }
+    public String getExpandedString(String... strings) {
+        return vrb.getExpandedString(this, strings);
+    }
+    public String getString(String... strings) {
+        return vrb.getString(this, strings);
+    }
+    public String getString(int i1) {
+        return vrb.getString(this, i1);
+    }
+    public String getString(int i1, int i2) {
+        return vrb.getString(this, i1, i2);
+    }
+    public String getString(int i1, int i2, int i3) {
+        return vrb.getString(this, i1, i2, i3);
+    }
+    public String getString(int i1, String s2) {
+        return vrb.getString(this, i1, s2);
+    }
+    public String getString(String s1, int i2) {
+        return vrb.getString(this, s1, i2);
+    }
+    public String getString(int i1, int i2, String s3) {
+        return vrb.getString(this, i1, i2, s3);
+    }
+    public String getString(int i1, String s2, int i3) {
+        return vrb.getString(this, i1, s2, i3);
+    }
+    public String getString(String s1, int i2, int i3) {
+        return vrb.getString(this, s1, i2, i3);
+    }
+    public String getString(int i1, String s2, String s3) {
+        return vrb.getString(this, i1, s3, s3);
+    }
+    public String getString(String s1, String s2, int i3) {
+        return vrb.getString(this, s1, s2, i3);
+    }
+    public String getString(String s1, int i2, String s3) {
+        return vrb.getString(this, s1, i2, s3);
     }
 }

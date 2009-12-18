@@ -61,8 +61,8 @@ public class TarGenerator {
     throws IOException, TarMalformatException {
 
         if (sa.length < 1) {
-            System.out.println(RB.singleton.getString(RB.TARGENERATOR_SYNTAX,
-                    DbBackup.class.getName()));
+            System.out.println(
+                    RB.TarGenerator_syntax.getString(DbBackup.class.getName()));
             System.exit(0);
         }
 
@@ -135,16 +135,14 @@ public class TarGenerator {
 
             // purposefully do nothing
         } else {
-            throw new IllegalArgumentException(
-                RB.singleton.getString(
-                    RB.UNSUPPORTED_EXT, getClass().getName(),
-                    archiveFile.getPath()));
+            throw new IllegalArgumentException(RB.unsupported_ext.getString(
+                    getClass().getName(), archiveFile.getPath()));
         }
 
         if (archiveFile.exists()) {
             if (!overWrite) {
-                throw new IOException(RB.singleton.getString(RB.DEST_EXISTS,
-                        archiveFile.getPath()));
+                throw new IOException(
+                        RB.dest_exists.getString(archiveFile.getPath()));
             }
         } else {
             File parentDir = archiveFile.getParentFile();
@@ -153,20 +151,17 @@ public class TarGenerator {
             if (parentDir.exists()) {
                 if (!parentDir.isDirectory()) {
                     throw new IOException(
-                        RB.singleton.getString(
-                            RB.PARENT_NOT_DIR, parentDir.getPath()));
+                        RB.parent_not_dir.getString(parentDir.getPath()));
                 }
 
                 if (!parentDir.canWrite()) {
                     throw new IOException(
-                        RB.singleton.getString(
-                            RB.CANT_WRITE_PARENT, parentDir.getPath()));
+                        RB.cant_write_parent.getString(parentDir.getPath()));
                 }
             } else {
                 if (!parentDir.mkdirs()) {
                     throw new IOException(
-                        RB.singleton.getString(
-                            RB.PARENT_CREATE_FAIL, parentDir.getPath()));
+                        RB.parent_create_fail.getString(parentDir.getPath()));
                 }
             }
         }
@@ -177,8 +172,8 @@ public class TarGenerator {
                                             blocksPerRecord.intValue());
 
         if (blocksPerRecord != null && TarFileOutputStream.debug) {
-            System.out.println(RB.singleton.getString(RB.BPR_WRITE,
-                    blocksPerRecord.intValue()));
+            System.out.println(
+                    RB.bpr_write.getString(blocksPerRecord.intValue()));
         }
     }
 
@@ -214,8 +209,8 @@ public class TarGenerator {
     public void write() throws IOException, TarMalformatException {
 
         if (TarFileOutputStream.debug) {
-            System.out.println(RB.singleton.getString(RB.WRITE_QUEUE_REPORT,
-                    entryQueue.size()));
+            System.out.println(
+                    RB.write_queue_report.getString(entryQueue.size()));
         }
 
         TarEntrySupplicant entry;
@@ -326,8 +321,7 @@ public class TarGenerator {
 
             if (ba.length > stop - start) {
                 throw new TarMalformatException(
-                    RB.singleton.getString(RB.TAR_FIELD_TOOBIG,
-                        field.toString(), newValue));
+                    RB.tar_field_toobig.getString(field.toString(), newValue));
             }
 
             for (int i = 0; i < ba.length; i++) {
@@ -389,7 +383,7 @@ public class TarGenerator {
 
             if (path == null) {
                 throw new IllegalArgumentException(
-                    RB.singleton.getString(RB.MISSING_SUPP_PATH));
+                    RB.missing_supp_path.getString());
             }
 
             this.path = (swapOutDelim == null) ? path
@@ -468,13 +462,12 @@ public class TarGenerator {
             // outcry of UStar archives failing to work with older tars.
             if (!file.isFile()) {
                 throw new IllegalArgumentException(
-                    RB.singleton.getString(RB.NONFILE_ENTRY));
+                        RB.nonfile_entry.getString());
             }
 
             if (!file.canRead()) {
                 throw new IllegalArgumentException(
-                    RB.singleton.getString(
-                        RB.READ_DENIED, file.getAbsolutePath()));
+                    RB.read_denied.getString(file.getAbsolutePath()));
             }
 
             modTime     = file.lastModified() / 1000L;
@@ -514,8 +507,7 @@ public class TarGenerator {
             this(path, typeFlag, tarStream);
 
             if (maxBytes < 1) {
-                throw new IllegalArgumentException(
-                    RB.singleton.getString(RB.READ_LT_1));
+                throw new IllegalArgumentException(RB.read_lt_1.getString());
             }
 
             int               i;
@@ -539,8 +531,8 @@ public class TarGenerator {
 
                 if (TarFileOutputStream.debug) {
                     System.out.println(
-                        RB.singleton.getString(
-                            RB.STREAM_BUFFER_REPORT, Long.toString(dataSize)));
+                        RB.stream_buffer_report.getString(
+                                Long.toString(dataSize)));
                 }
             } catch (IOException ioe) {
                 close();
@@ -647,10 +639,9 @@ public class TarGenerator {
 
                 if (dataStart + dataSize != tarStream.getBytesWritten()) {
                     throw new IOException(
-                        RB.singleton.getString(
-                            RB.DATA_CHANGED, Long.toString(dataSize),
+                            RB.data_changed.getString(Long.toString(dataSize),
                             Long.toString(
-                                (tarStream.getBytesWritten() - dataStart))));
+                            tarStream.getBytesWritten() - dataStart)));
                 }
 
                 tarStream.padCurrentBlock();

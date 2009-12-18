@@ -82,7 +82,7 @@ public class PIFData extends HashMap<String, String> {
 
                 if (!m.matches()) {
                     throw new TarMalformatException(
-                        RB.singleton.getString(RB.PIF_MALFORMAT, lineNum, s));
+                        RB.pif_malformat.getString(lineNum, s));
                 }
 
                 k = m.group(1);
@@ -109,7 +109,7 @@ public class PIFData extends HashMap<String, String> {
                 sizeObject = Long.valueOf(sizeString);
             } catch (NumberFormatException nfe) {
                 throw new TarMalformatException(
-                    RB.singleton.getString(RB.PIF_MALFORMAT_SIZE, sizeString));
+                    RB.pif_malformat_size.getString(sizeString));
             }
         }
     }
