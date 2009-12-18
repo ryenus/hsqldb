@@ -247,8 +247,8 @@ public class TarGenerator {
 
                 // Just release resources from any Entry's input, which may be
                 // left open.
-                for (int i = 0; i < entryQueue.size(); i++) {
-                    entryQueue.get(i).close();
+                for (TarEntrySupplicant sup : entryQueue) {
+                    sup.close();
                 }
 
                 archive.close();

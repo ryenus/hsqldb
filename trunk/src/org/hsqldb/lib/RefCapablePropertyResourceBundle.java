@@ -210,8 +210,7 @@ public class RefCapablePropertyResourceBundle {
                 varValue = ((varValue == null)
                         ? ""
                         : condlVal.replaceAll("\\Q$" + varName + "\\E\\b",
-                                RefCapablePropertyResourceBundle.literalize(
-                                        varValue)));
+                                Matcher.quoteReplacement(varValue)));
             }
             if (varValue == null) switch (behavior) {
                 case THROW_BEHAVIOR:
@@ -258,8 +257,7 @@ public class RefCapablePropertyResourceBundle {
                 varValue = ((varValue == null)
                         ? ""
                         : condlVal.replaceAll("\\Q%" + (varIndex+1) + "\\E\\b",
-                                RefCapablePropertyResourceBundle.literalize(
-                                        varValue)));
+                                Matcher.quoteReplacement(varValue)));
             }
             // System.err.println("Behavior: " + behavior);
             if (varValue == null) switch (behavior) {
@@ -443,7 +441,6 @@ public class RefCapablePropertyResourceBundle {
             } catch (IOException ioe) {
                 System.err.println("Failed to close input stream: " + ioe);
             }
-            inputStream = null;
         }
         if (bytesread != ba.length) {
             throw new MissingResourceException(
@@ -463,34 +460,5 @@ public class RefCapablePropertyResourceBundle {
                 + "(try Java -Xm* switches).: " + re,
                 RefCapablePropertyResourceBundle.class.getName(), key);
         }
-    }
-
-    /**
-     * Escape \ and $ characters in replacement strings so that nothing
-     * funny happens.
-     *
-     * Once we can use Java 1.5, wipe out this method and use
-     * java.util.regex.matcher.QuoteReplacement() instead.
-     */
-    public static String literalize(String s) {
-        if ((s.indexOf('\\') == -1) && (s.indexOf('$') == -1)) {
-            return s;
-        }
-        StringBuffer sb = new StringBuffer();
-        for (int i=0; i<s.length(); i++) {
-            char c = s.charAt(i);
-            switch (c) {
-                case '\\':
-                    sb.append('\\'); sb.append('\\');
-                    break;
-                case '$':
-                    sb.append('\\'); sb.append('$');
-                    break;
-                default:
-                    sb.append(c);
-                    break;
-            }
-        }
-        return sb.toString();
     }
 }

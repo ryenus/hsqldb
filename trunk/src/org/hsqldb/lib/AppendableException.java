@@ -61,12 +61,12 @@ public class AppendableException extends Exception {
             sb.append(message);
         }
 
-        for (int i = 0; i < appendages.size(); i++) {
+        for (String appendage : appendages) {
             if (sb.length() > 0) {
                 sb.append(LS);
             }
 
-            sb.append(appendages.get(i));
+            sb.append(appendage);
         }
 
         return sb.toString();
