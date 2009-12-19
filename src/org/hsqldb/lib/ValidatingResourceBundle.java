@@ -31,12 +31,9 @@
 
 package org.hsqldb.lib;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Collection;
 
 /* $Id$ */
 
@@ -51,7 +48,7 @@ import java.util.Collection;
  */
 public class ValidatingResourceBundle {
     protected boolean validated = false;
-    protected Class<? extends Enum> enumType;
+    protected Class<? extends Enum<?>> enumType;
 
     public static final int THROW_BEHAVIOR =
             RefCapablePropertyResourceBundle.THROW_BEHAVIOR;
@@ -65,17 +62,17 @@ public class ValidatingResourceBundle {
 
     protected RefCapablePropertyResourceBundle wrappedRCPRB;
 
-    public static String resourceKeyFor(Enum enumKey) {
+    public static String resourceKeyFor(Enum<?> enumKey) {
         return enumKey.name().replace('_', '.');
     }
 
     public ValidatingResourceBundle(
-            String baseName, Class<? extends Enum> enumType) {
+            String baseName, Class<? extends Enum<?>> enumType) {
         this.enumType = enumType;
         try {
             wrappedRCPRB = RefCapablePropertyResourceBundle.getBundle(baseName,
                     enumType.getClassLoader());
-            validate(this.enumType);
+            validate();
         } catch (RuntimeException re) {
             System.err.println("Failed to initialize resource bundle: " + re);
             // Make extra sure that the source of this fatal startup condition
@@ -87,7 +84,7 @@ public class ValidatingResourceBundle {
     // The following methods are a passthru wrappers for the wrapped RCPRB.
 
     /** @see RefCapablePropertyResourceBundle#getString(String) */
-    public String getString(Enum key) {
+    public String getString(Enum<?> key) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -96,7 +93,7 @@ public class ValidatingResourceBundle {
     }
 
     /** @see RefCapablePropertyResourceBundle#getString(String, String[], int) */
-    public String getString(Enum key, String... strings) {
+    public String getString(Enum<?> key, String... strings) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -106,7 +103,7 @@ public class ValidatingResourceBundle {
     }
 
     /** @see RefCapablePropertyResourceBundle#getExpandedString(String, int) */
-    public String getExpandedString(Enum key) {
+    public String getExpandedString(Enum<?> key) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -115,7 +112,7 @@ public class ValidatingResourceBundle {
     }
 
     /** @see RefCapablePropertyResourceBundle#getExpandedString(String, String[], int, int) */
-    public String getExpandedString(Enum key, String... strings) {
+    public String getExpandedString(Enum<?> key, String... strings) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -162,12 +159,12 @@ public class ValidatingResourceBundle {
         return missingPosValueBehavior;
     }
 
-    public void validate(Class<? extends Enum> enumType) {
+    public void validate() {
         String val;
         if (validated) return;
         validated = true;
         Set<String> resKeysFromEls = new HashSet<String>();
-        for (Enum e : enumType.getEnumConstants())
+        for (Enum<?> e : enumType.getEnumConstants())
             resKeysFromEls.add(e.toString());
         Enumeration<String> allKeys = wrappedRCPRB.getKeys();
         while (allKeys.hasMoreElements()) {
@@ -188,14 +185,14 @@ public class ValidatingResourceBundle {
     /* Convenience wrappers follow for getString(int, String[]) for up to
      * 3 int and/or String positionals or any number of just String positions
      */
-    public String getString(Enum key, int i1) {
+    public String getString(Enum<?> key, int i1) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
                     + enumType.getName() + ":  " + key);
         return getString(key, new String[] {Integer.toString(i1)});
     }
-    public String getString(Enum key, int i1, int i2) {
+    public String getString(Enum<?> key, int i1, int i2) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -204,7 +201,7 @@ public class ValidatingResourceBundle {
             Integer.toString(i1), Integer.toString(i2)
         });
     }
-    public String getString(Enum key, int i1, int i2, int i3) {
+    public String getString(Enum<?> key, int i1, int i2, int i3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -213,7 +210,7 @@ public class ValidatingResourceBundle {
             Integer.toString(i1), Integer.toString(i2), Integer.toString(i3)
         });
     }
-    public String getString(Enum key, int i1, String s2) {
+    public String getString(Enum<?> key, int i1, String s2) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -222,7 +219,7 @@ public class ValidatingResourceBundle {
             Integer.toString(i1), s2
         });
     }
-    public String getString(Enum key, String s1, int i2) {
+    public String getString(Enum<?> key, String s1, int i2) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -232,7 +229,7 @@ public class ValidatingResourceBundle {
         });
     }
 
-    public String getString(Enum key, int i1, int i2, String s3) {
+    public String getString(Enum<?> key, int i1, int i2, String s3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -241,7 +238,7 @@ public class ValidatingResourceBundle {
             Integer.toString(i1), Integer.toString(i2), s3
         });
     }
-    public String getString(Enum key, int i1, String s2, int i3) {
+    public String getString(Enum<?> key, int i1, String s2, int i3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -250,7 +247,7 @@ public class ValidatingResourceBundle {
             Integer.toString(i1), s2, Integer.toString(i3)
         });
     }
-    public String getString(Enum key, String s1, int i2, int i3) {
+    public String getString(Enum<?> key, String s1, int i2, int i3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -259,7 +256,7 @@ public class ValidatingResourceBundle {
             s1, Integer.toString(i2), Integer.toString(i3)
         });
     }
-    public String getString(Enum key, int i1, String s2, String s3) {
+    public String getString(Enum<?> key, int i1, String s2, String s3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -268,7 +265,7 @@ public class ValidatingResourceBundle {
             Integer.toString(i1), s2, s3
         });
     }
-    public String getString(Enum key, String s1, String s2, int i3) {
+    public String getString(Enum<?> key, String s1, String s2, int i3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "
@@ -277,7 +274,7 @@ public class ValidatingResourceBundle {
             s1, s2, Integer.toString(i3)
         });
     }
-    public String getString(Enum key, String s1, int i2, String s3) {
+    public String getString(Enum<?> key, String s1, int i2, String s3) {
         if (!enumType.isInstance(key))
             throw new IllegalArgumentException(
                     "Key is a " + key.getClass().getName() + ",not a "

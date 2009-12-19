@@ -66,7 +66,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.logging.Level;
 import java.nio.charset.Charset;
-import org.hsqldb.lib.ValidatingResourceBundle;
 import org.hsqldb.lib.AppendableException;
 import org.hsqldb.lib.RCData;
 import org.hsqldb.lib.StringUtil;
@@ -3096,6 +3095,7 @@ public class SqlFile {
             try {
                 shared.jdbcConn.close();
             } catch (Exception anye) {
+                // Intentionally empty
             }
             shared.jdbcConn = null;
             shared.possiblyUncommitteds = false;

@@ -42,7 +42,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.hsqldb.lib.FrameworkLogger;
-import org.hsqldb.lib.ValidatingResourceBundle;
 import org.hsqldb.lib.RCData;
 import org.hsqldb.cmdline.sqltool.Token;
 
