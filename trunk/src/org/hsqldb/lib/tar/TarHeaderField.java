@@ -31,9 +31,6 @@
 
 package org.hsqldb.lib.tar;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Purely static structure defining our interface to the Tar Entry Header.
  *
