@@ -647,7 +647,7 @@ public class ParserCommand extends ParserDDL {
 
                 read();
 
-                Object[] args = new Object[]{  ValuePool.getInt(type) };
+                Object[] args = new Object[]{ ValuePool.getInt(type) };
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args);
@@ -857,6 +857,8 @@ public class ParserCommand extends ParserDDL {
 
         String name;
 
+        checkDatabaseUpdateAuthorisation();
+
         switch (token.tokenType) {
 
             case Tokens.COLLATION : {
@@ -976,7 +978,7 @@ public class ParserCommand extends ParserDDL {
                         break;
                 }
 
-                Object[] args = new Object[]{  ValuePool.getInt(mode) };
+                Object[] args = new Object[]{ ValuePool.getInt(mode) };
                 StatementCommand cs = new StatementCommand(
                     StatementTypes.SET_DATABASE_TRANSACTION_CONTROL, args,
                     null, null);
@@ -1026,6 +1028,8 @@ public class ParserCommand extends ParserDDL {
         int     type  = 0;
         Boolean flag  = null;
         Integer value = null;
+
+        checkDatabaseUpdateAuthorisation();
 
         switch (token.tokenType) {
 
@@ -1096,18 +1100,22 @@ public class ParserCommand extends ParserDDL {
             }
             case Tokens.LOG : {
                 read();
-                readThis(Tokens.SIZE);
-                checkDatabaseUpdateAuthorisation();
 
-                type  = StatementTypes.SET_DATABASE_FILES_LOG_SIZE;
-                value = readIntegerObject();
+                if (token.tokenType == Tokens.SIZE) {
+                    readThis(Tokens.SIZE);
+
+                    type  = StatementTypes.SET_DATABASE_FILES_LOG_SIZE;
+                    value = readIntegerObject();
+                } else {
+                    type = StatementTypes.SET_DATABASE_FILES_LOG;
+                    flag = processTrueOrFalseObject();
+                }
 
                 break;
             }
             case Tokens.TEMP : {
                 read();
                 readThis(Tokens.PATH);
-                checkDatabaseUpdateAuthorisation();
 
                 type  = StatementTypes.SET_DATABASE_FILES_TEMP_PATH;
                 value = readIntegerObject();

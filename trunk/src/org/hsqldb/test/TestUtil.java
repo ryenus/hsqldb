@@ -84,6 +84,8 @@ public class TestUtil {
         delete(path + ".script");
         delete(path + ".data");
         delete(path + ".log");
+        delete(path + ".lck");
+        delete(path + ".lobs");
     }
 
     static void delete(String file) {

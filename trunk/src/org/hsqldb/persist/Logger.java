@@ -107,10 +107,11 @@ public class Logger {
     boolean        propTextAllowFullPath;
     int            propWriteDelay;
     int            propLogSize;
+    boolean        propLogData;
     int            propEventLogLevel;
     int            propGC;
-    int            propTxMode = Database.LOCKS;
-    boolean        propRefIntegrity;
+    int            propTxMode       = Database.LOCKS;
+    boolean        propRefIntegrity = true;
     int            propLobBlockSize = 32 * 1024;
 
     //
@@ -241,7 +242,8 @@ public class Logger {
 
         log.open();
 
-        logsStatements = loggingEnabled = !database.isFilesReadOnly();
+        logsStatements = propLogData && !database.isFilesReadOnly();
+        loggingEnabled = logsStatements;
 
         String version = database.databaseProperties.getStringProperty(
             HsqlDatabaseProperties.hsqldb_version);
@@ -411,6 +413,8 @@ public class Logger {
 
         propLogSize = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_log_size);
+        propLogData = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.hsqldb_log_data);
         propGC = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.runtime_gc_interval);
         propRefIntegrity = database.databaseProperties.isPropertyTrue(
@@ -747,6 +751,17 @@ public class Logger {
     }
 
     /**
+     *  Sets the maximum size to which the log file can grow
+     *  before being automatically checkpointed.
+     *
+     * @param  megas size in MB
+     */
+    public synchronized void setLogData(boolean mode) {
+        propLogData    = mode;
+        logsStatements = propLogData && !database.isFilesReadOnly();
+    }
+
+    /**
      *  Sets the type of script file, currently 0 for text (default)
      *  1 for binary and 3 for compressed
      *
@@ -959,14 +974,6 @@ public class Logger {
         checkpointRequired = false;
 
         return false;
-    }
-
-    public void stopLogging() {
-        loggingEnabled = false;
-    }
-
-    public void restartLogging() {
-        loggingEnabled = logsStatements;
     }
 
     public boolean hasLockFile() {
@@ -1220,6 +1227,11 @@ public class Logger {
             sb.append("SET FILES ").append(Tokens.T_NIO);
             sb.append(' ').append(propNioDataFile ? Tokens.T_TRUE
                                                   : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+            sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');
+            sb.append(propLogData ? Tokens.T_TRUE
+                                  : Tokens.T_FALSE);
             list.add(sb.toString());
             sb.setLength(0);
             sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');

@@ -158,67 +158,69 @@ public interface StatementTypes {
     int DATABASE_SCRIPT     = 1004;
 
     // hsqldb database settings
-    int SET_DATABASE_DEFAULT_INITIAL_SCHEMA    = 1011;
-    int SET_DATABASE_DEFAULT_TABLE_TYPE        = 1012;
-    int SET_DATABASE_FILES_BACKUP_INCREMENT    = 1013;
-    int SET_DATABASE_FILES_CACHE_ROWS          = 1014;
-    int SET_DATABASE_FILES_CACHE_SIZE          = 1015;
-    int SET_DATABASE_FILES_DEFRAG              = 1016;
-    int SET_DATABASE_FILES_EVENT_LOG           = 1017;
-    int SET_DATABASE_FILES_LOBS_SCALE          = 1018;
-    int SET_DATABASE_FILES_LOCK                = 1019;
-    int SET_DATABASE_FILES_LOG_SIZE            = 1020;
-    int SET_DATABASE_FILES_NIO                 = 1021;
-    int SET_DATABASE_FILES_READ_ONLY           = 1022;
-    int SET_DATABASE_FILES_READ_ONLY_FILES     = 1023;
-    int SET_DATABASE_FILES_SCALE               = 1024;
-    int SET_DATABASE_FILES_SCRIPT_FORMAT       = 1025;
-    int SET_DATABASE_FILES_TEMP_PATH           = 1026;
-    int SET_DATABASE_FILES_WRITE_DELAY         = 1027;
-    int SET_DATABASE_GC                        = 1028;
-    int SET_DATABASE_PROPERTY                  = 1029;
-    int SET_DATABASE_READ_ONLY                 = 1030;
-    int SET_DATABASE_READ_ONLY_FILES           = 1031;
-    int SET_DATABASE_RESULT_MEMORY_ROWS        = 1032;
-    int SET_DATABASE_SCRIPT_FORMAT             = 1033;
-    int SET_DATABASE_SQL_COLLATION             = 1034;
-    int SET_SESSION_SQL_IGNORECASE             = 1035;
-    int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1036;
-    int SET_DATABASE_SQL_STRICT_NAMES          = 1037;
-    int SET_DATABASE_SQL_STRICT_SIZE           = 1038;
-    int SET_DATABASE_TEXT_SOURCE               = 1039;
-    int SET_DATABASE_TRANSACTION_CONTROL       = 1040;
-    int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1041;
-    int SET_DATABASE_UNIQUE_NAME               = 1042;
+    int SET_DATABASE_FILES_BACKUP_INCREMENT    = 1011;
+    int SET_DATABASE_FILES_CACHE_ROWS          = 1012;
+    int SET_DATABASE_FILES_CACHE_SIZE          = 1013;
+    int SET_DATABASE_FILES_DEFRAG              = 1014;
+    int SET_DATABASE_FILES_EVENT_LOG           = 1015;
+    int SET_DATABASE_FILES_LOBS_SCALE          = 1016;
+    int SET_DATABASE_FILES_LOCK                = 1017;
+    int SET_DATABASE_FILES_LOG                 = 1018;
+    int SET_DATABASE_FILES_LOG_SIZE            = 1019;
+    int SET_DATABASE_FILES_NIO                 = 1020;
+    int SET_DATABASE_FILES_READ_ONLY           = 1021;
+    int SET_DATABASE_FILES_READ_ONLY_FILES     = 1022;
+    int SET_DATABASE_FILES_SCALE               = 1023;
+    int SET_DATABASE_FILES_SCRIPT_FORMAT       = 1024;
+    int SET_DATABASE_FILES_TEMP_PATH           = 1025;
+    int SET_DATABASE_FILES_WRITE_DELAY         = 1026;
+
+    int SET_DATABASE_DEFAULT_INITIAL_SCHEMA    = 1031;
+    int SET_DATABASE_DEFAULT_TABLE_TYPE        = 1032;
+    int SET_DATABASE_GC                        = 1033;
+    int SET_DATABASE_PROPERTY                  = 1034;
+    int SET_DATABASE_READ_ONLY                 = 1035;
+    int SET_DATABASE_READ_ONLY_FILES           = 1036;
+    int SET_DATABASE_RESULT_MEMORY_ROWS        = 1037;
+    int SET_DATABASE_SCRIPT_FORMAT             = 1038;
+    int SET_DATABASE_SQL_COLLATION             = 1039;
+    int SET_SESSION_SQL_IGNORECASE             = 1040;
+    int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1041;
+    int SET_DATABASE_SQL_STRICT_NAMES          = 1042;
+    int SET_DATABASE_SQL_STRICT_SIZE           = 1043;
+    int SET_DATABASE_TEXT_SOURCE               = 1044;
+    int SET_DATABASE_TRANSACTION_CONTROL       = 1045;
+    int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1046;
+    int SET_DATABASE_UNIQUE_NAME               = 1047;
 
     // hsqldb user settings
-    int SET_USER_INITIAL_SCHEMA = 1043;
-    int SET_USER_PASSWORD       = 1044;
+    int SET_USER_INITIAL_SCHEMA = 1061;
+    int SET_USER_PASSWORD       = 1062;
 
     // hsqldb session
-    int TRANSACTION_LOCK_TABLE         = 1045;
-    int SET_SESSION_AUTOCOMMIT         = 1046;
-    int SET_SESSION_RESULT_MAX_ROWS    = 1047;
-    int SET_SESSION_RESULT_MEMORY_ROWS = 1048;
-    int ROLLBACK_SAVEPOINT             = 1049;
+    int TRANSACTION_LOCK_TABLE         = 1063;
+    int SET_SESSION_AUTOCOMMIT         = 1064;
+    int SET_SESSION_RESULT_MAX_ROWS    = 1065;
+    int SET_SESSION_RESULT_MEMORY_ROWS = 1066;
+    int ROLLBACK_SAVEPOINT             = 1067;
 
     // hsqldb schema
-    int CREATE_ALIAS            = 1051;
-    int CREATE_INDEX            = 1052;
-    int CREATE_USER             = 1053;
-    int DECLARE_VARIABLE        = 1056;
-    int DROP_COLUMN             = 1057;
-    int DROP_INDEX              = 1058;
-    int DROP_CONSTRAINT         = 1059;
-    int DROP_USER               = 1062;
-    int EXPLAIN_PLAN            = 1063;
-    int RENAME_OBJECT           = 1064;
-    int SET_TABLE_INDEX         = 1067;
-    int SET_TABLE_READONLY      = 1068;
-    int SET_TABLE_SOURCE        = 1069;
-    int SET_TABLE_SOURCE_HEADER = 1070;
-    int SET_TABLE_TYPE          = 1071;
-    int LOG_SCHEMA_STATEMENT    = 1072;
+    int CREATE_ALIAS            = 1071;
+    int CREATE_INDEX            = 1072;
+    int CREATE_USER             = 1073;
+    int DECLARE_VARIABLE        = 1074;
+    int DROP_COLUMN             = 1075;
+    int DROP_INDEX              = 1076;
+    int DROP_CONSTRAINT         = 1077;
+    int DROP_USER               = 1078;
+    int EXPLAIN_PLAN            = 1079;
+    int RENAME_OBJECT           = 1080;
+    int SET_TABLE_INDEX         = 1081;
+    int SET_TABLE_READONLY      = 1082;
+    int SET_TABLE_SOURCE        = 1083;
+    int SET_TABLE_SOURCE_HEADER = 1084;
+    int SET_TABLE_TYPE          = 1085;
+    int LOG_SCHEMA_STATEMENT    = 1086;
 
     // hsqldb sql implementation
     int CONDITION = 1101;                         // element of IF
