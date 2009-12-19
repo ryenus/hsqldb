@@ -204,7 +204,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_defrag_limit   = "hsqldb.defrag_limit";
     public static final String hsqldb_files_readonly = "files_readonly";
     public static final String hsqldb_lock_file      = "hsqldb.lock_file";
-    public static final String hsqldb_log_file       = "hsqldb.log_file";
+    public static final String hsqldb_log_data       = "hsqldb.log_data";
     public static final String hsqldb_log_size       = "hsqldb.log_size";
     public static final String hsqldb_nio_data_file  = "hsqldb.nio_data_file";
     public static final String hsqldb_max_nio_scale  = "hsqldb.max_nio_scale";
@@ -329,8 +329,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_lock_file,
                    HsqlProperties.getMeta(hsqldb_lock_file, SQL_PROPERTY,
                                           true));
-        dbMeta.put(hsqldb_log_file,
-                   HsqlProperties.getMeta(hsqldb_log_file, SQL_PROPERTY,
+        dbMeta.put(hsqldb_log_data,
+                   HsqlProperties.getMeta(hsqldb_log_data, SQL_PROPERTY,
                                           true));
         dbMeta.put(hsqldb_nio_data_file,
                    HsqlProperties.getMeta(hsqldb_nio_data_file, SQL_PROPERTY,
@@ -359,7 +359,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           true));
         dbMeta.put(hsqldb_write_delay_millis,
                    HsqlProperties.getMeta(hsqldb_write_delay_millis,
-                                          SQL_PROPERTY, 2000, 20, 10000));
+                                          SQL_PROPERTY, 500, 20, 10000));
 
         // integral defaults for user-defined set props
         dbMeta.put(hsqldb_applog,

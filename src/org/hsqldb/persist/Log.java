@@ -338,6 +338,9 @@ public class Log {
 
     void renameNewBackup() {
 
+        // required for inc backup
+        fa.removeElement(fileName + ".backup");
+
         if (fa.isStreamElement(fileName + ".backup.new")) {
             fa.renameElement(fileName + ".backup.new", fileName + ".backup");
         }

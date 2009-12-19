@@ -234,12 +234,6 @@ public class DataFileCache {
 
                     if (database.logger.propIncrementBackup) {
                         restored = restoreBackupIncremental();
-
-                        if (!restored) {
-                            deleteFile();
-
-                            is180 = false;
-                        }
                     } else {
                         restoreBackup();
                     }
@@ -249,6 +243,8 @@ public class DataFileCache {
 
                     if (!restored) {
                         initNewFile();
+
+                        is180 = false;
                     }
                 }
 
@@ -508,9 +504,13 @@ public class DataFileCache {
                 dataFileName);
 
             dfd.process();
-            close(false);
+            close(true);
             cache.clear();
-            backupFile();
+
+            if (!database.logger.propIncrementBackup) {
+                backupFile();
+            }
+
             database.schemaManager.setTempIndexRoots(dfd.getIndexRoots());
             database.logger.log.writeScript(false);
             database.getProperties().setDBModified(
@@ -832,8 +832,8 @@ public class DataFileCache {
     protected void saveRows(CachedObject[] rows, int offset, int count) {
 
         try {
-            setFileModified();
             copyShadow(rows, offset, count);
+            setFileModified();
 
             for (int i = offset; i < offset + count; i++) {
                 CachedObject r = rows[i];
@@ -864,8 +864,13 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
+            copyShadow(row);
             setFileModified();
             saveRowNoLock(row);
+        } catch (Throwable e) {
+            database.logger.logSevereEvent("saveRow failed", e);
+
+            throw Error.error(ErrorCode.DATA_FILE_ERROR, e);
         } finally {
             writeLock.unlock();
         }
@@ -895,6 +900,16 @@ public class DataFileCache {
                 shadowFile.copy(seekpos, row.getStorageSize());
             }
 
+            shadowFile.close();
+        }
+    }
+
+    protected void copyShadow(CachedObject row) throws IOException {
+
+        if (shadowFile != null) {
+            long seekpos = (long) row.getPos() * cacheFileScale;
+
+            shadowFile.copy(seekpos, row.getStorageSize());
             shadowFile.close();
         }
     }

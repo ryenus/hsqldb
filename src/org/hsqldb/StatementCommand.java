@@ -103,6 +103,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_EVENT_LOG :
             case StatementTypes.SET_DATABASE_FILES_LOBS_SCALE :
             case StatementTypes.SET_DATABASE_FILES_LOCK :
+            case StatementTypes.SET_DATABASE_FILES_LOG :
             case StatementTypes.SET_DATABASE_FILES_LOG_SIZE :
             case StatementTypes.SET_DATABASE_FILES_NIO :
             case StatementTypes.SET_DATABASE_FILES_SCRIPT_FORMAT :
@@ -374,6 +375,19 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
                     session.database.logger.setNioDataFile(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_FILES_LOG : {
+                try {
+                    boolean value = ((Boolean) parameters[0]).booleanValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setLogData(value);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
