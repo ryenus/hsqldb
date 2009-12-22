@@ -314,6 +314,7 @@ examples:
       >
          <exclude name="org/hsqldb/lib/AppendableException.java"/>
          <exclude name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
+         <exclude name="org/hsqldb/lib/RefCapableRBInterface.java"/>
          <exclude name="org/hsqldb/lib/ValidatingResourceBundle.java"/>
          <exclude name="org/hsqldb/lib/tar/**"/>
          <include name="org/hsqldb/lib/**"/>
@@ -406,6 +407,7 @@ examples:
                  optimize="${build.optimize}" >
         <include name="org/hsqldb/lib/AppendableException.java"/>
         <include name="org/hsqldb/lib/RefCapablePropertyResourceBundle.java"/>
+        <include name="org/hsqldb/lib/RefCapableRBInterface.java"/>
         <include name="org/hsqldb/lib/ValidatingResourceBundle.java"/>
         <include name="org/hsqldb/lib/tar/**"/>
       </javac>
@@ -796,6 +798,7 @@ examples:
       includes='org/hsqldb/cmdline/**/*.class
                   org/hsqldb/lib/RCData*
                   org/hsqldb/lib/RefCapablePropertyResourceBundle*
+                  org/hsqldb/lib/RefCapableRBInterface*
                   org/hsqldb/lib/ValidatingResourceBundle*
                   org/hsqldb/lib/AppendableException*
                   org/hsqldb/lib/FileAccess*
@@ -813,7 +816,6 @@ examples:
       <fail unless="ant.java.iscjava15"
             message="Can't build sqltool with JVM less than v. 1.5"/>
        <jar jarfile="lib/sqltool.jar" compress="true" filesonly="true">
-         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
          <metainf dir="doc" includes="*_lic.txt"/>
          <manifest>
              <attribute name='Specification-Title' value='${hsqldb.title}'/>
@@ -824,11 +826,10 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
              <attribute name='Main-Class' value='org.hsqldb.cmdline.SqlTool'/>
              <attribute name='Class-Path'
-                        value='hsqldb-2.0.0.jar hsqldbmain.jar hsqldb.jar'/>
+              value='hsqldb-2.0.0.jar hsqljdbc-2.0.0.jar hsqldbmain.jar-2.0.0.jar hsqldb.jar hsqljdbc.jar hsqldbmain.jar'/>
          </manifest>
          <fileset refid='sqltoolclasses'/>
          <fileset refid='sqltoolres'/>
-         <fileset refid='jdbcclasses'/>
        </jar>
     </target>
 
