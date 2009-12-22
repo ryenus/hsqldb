@@ -709,7 +709,8 @@ public class TransactionManagerMV2PL implements TransactionManager {
     void endActionTPL(Session session) {
 
         if (session.isolationLevel == SessionInterface.TX_REPEATABLE_READ
-                || session.isolationLevel == SessionInterface.TX_SERIALIZABLE) {
+                || session.isolationLevel
+                   == SessionInterface.TX_SERIALIZABLE) {
             return;
         }
 
@@ -725,12 +726,6 @@ public class TransactionManagerMV2PL implements TransactionManager {
             return;
         }
 
-        for (int i = 0; i < readLocks.length; i++) {
-            if (tableWriteLocks.get(readLocks[i]) == session) {
-                return;
-            }
-        }
-
         writeLock.lock();
 
         try {
@@ -742,12 +737,26 @@ public class TransactionManagerMV2PL implements TransactionManager {
                 return;
             }
 
+            boolean holdsLocks = true;
+
+            for (int i = 0; i < readLocks.length; i++) {
+                if (tableWriteLocks.get(readLocks[i]) != session) {
+                    holdsLocks = false;
+
+                    break;
+                }
+            }
+
+            if (holdsLocks) {
+                return;
+            }
+
             boolean canUnlock = false;
 
             for (int i = 0; i < waitingCount; i++) {
                 Session current = (Session) session.waitingSessions.get(i);
 
-                canUnlock = ArrayUtil.containsAll(
+                canUnlock = ArrayUtil.containsAny(
                     readLocks,
                     current.currentStatement.getTableNamesForWrite());
 
@@ -761,6 +770,7 @@ public class TransactionManagerMV2PL implements TransactionManager {
             }
 
             resetLocks(session);
+            resetLatchesMidTransaction(session);
         } finally {
             writeLock.unlock();
         }
@@ -777,12 +787,12 @@ public class TransactionManagerMV2PL implements TransactionManager {
         }
 
         resetLocks(session);
+        resetLatches(session);
     }
 
     void resetLocks(Session session) {
 
-        final int waitingCount  = session.waitingSessions.size();
-        int       unlockedCount = 0;
+        final int waitingCount = session.waitingSessions.size();
 
         for (int i = 0; i < waitingCount; i++) {
             Session current = (Session) session.waitingSessions.get(i);
@@ -803,8 +813,6 @@ public class TransactionManagerMV2PL implements TransactionManager {
                     lockTablesTPL(current, current.currentStatement);
 
                     current.tempUnlocked = true;
-
-                    unlockedCount++;
                 }
             }
         }
@@ -823,11 +831,41 @@ public class TransactionManagerMV2PL implements TransactionManager {
                 }
             }
         }
+    }
+
+    void resetLatches(Session session) {
+
+        final int waitingCount = session.waitingSessions.size();
 
         for (int i = 0; i < waitingCount; i++) {
             Session current = (Session) session.waitingSessions.get(i);
 
-            if (current.tempSet.isEmpty()) {
+            if (!current.abortTransaction && current.tempSet.isEmpty()) {
+                boolean hasLocks = hasLocks(current, current.currentStatement);
+
+                if (!hasLocks) {
+                    System.out.println("trouble");
+                }
+            }
+
+            setWaitingSessionTPL(current);
+        }
+
+        session.waitingSessions.clear();
+    }
+
+    void resetLatchesMidTransaction(Session session) {
+
+        session.tempSet.clear();
+        session.tempSet.addAll(session.waitingSessions);
+        session.waitingSessions.clear();
+
+        final int waitingCount = session.tempSet.size();
+
+        for (int i = 0; i < waitingCount; i++) {
+            Session current = (Session) session.tempSet.get(i);
+
+            if (!current.abortTransaction && current.tempSet.isEmpty()) {
                 boolean hasLocks = hasLocks(current, current.currentStatement);
 
                 if (!hasLocks) {
@@ -839,7 +877,6 @@ public class TransactionManagerMV2PL implements TransactionManager {
         }
 
         session.tempSet.clear();
-        session.waitingSessions.clear();
     }
 
     boolean setWaitedSessionsTPL(Session session, Statement cs) {
