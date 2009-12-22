@@ -35,6 +35,7 @@ import java.sql.ResultSetMetaData;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import java.sql.ResultSet;
 
 /**
  *
@@ -91,7 +92,7 @@ public class JDBCResultSetMetaDataTest extends BaseJdbcTestCase {
     protected JDBCResultSetMetaData newJdbcResultSetMetaData() throws Exception {
         return (JDBCResultSetMetaData)
         newConnection()
-            .createStatement()
+            .createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)
                 .executeQuery(m_select)
                     .getMetaData();
     }
