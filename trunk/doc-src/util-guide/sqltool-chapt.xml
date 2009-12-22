@@ -496,13 +496,13 @@
                     running your SqlTool command from a shell
                     <emphasis>command-line</emphasis> (as opposed to by
                     using icons or the Windows'
-                    <guimenuitem>Start/Run...</guimenuitem>).
+                    <guimenuitem>Start/Run... or Start/Search...</guimenuitem>).
                     This way, you will be sure to see error messages if you
                     type the command wrong or if SqlTool can't start up for
                     some reason.
                     On recent versions of Windows, you can get a shell by
                     running <literal>cmd</literal> from
-                    <guimenuitem>Start/Run...</guimenuitem>) or
+                    <guimenuitem>Start/Run...</guimenuitem> or
                     <guimenuitem>Start/Search...</guimenuitem>).
                     On UNIX or Linux, any real or virtual terminal will work.
                     </para><para>
@@ -515,15 +515,31 @@
                     <varname>CLASSPATH</varname>
                     when you use the <literal>-jar</literal> switch
                     to <filename>java</filename>.
-                    If you will to connect to a non-Server HyperSQL instance,
-                    your <filename>hsqldb.jar</filename> (perhaps with a version
-                    label) will need to reside in the same directory as your
-                    <filename>sqltool.jar</filename> file (it will be there
-                    unless you have moved your files around or otherwise
-                    monkeyed with your distribution).
-                    Assuming that you set up your SqlTool RC file
-                    at the default location and you want to use the HSQLDB
-                    JDBC driver, you will want to run something like
+              </para><para>
+                To run SqlTool without a JDBC connection, run
+                    <informalexample>
+              <screen>    java -jar $HSQLDB_HOME/lib/sqltool.jar</screen>
+                </informalexample>
+                You won't be able to execute any SQL, but you can play with
+                the SqlTool interface (including using PL features).
+              </para>
+              <para>
+                To execute SQL, you'll need the classes for the target
+                database's JDBC driver (and database engine classes for
+                <glossterm>in-process</glossterm> databases).
+                As this section is titled <emphasis>The Bare Minimum</emphasis>,
+                I'll just say that if you are running SqlTool from a HyperSQL
+                product installation, you are all set to connect to any kind of
+                HyperSQL database.
+                This is because SqlTool will look for the file
+                <filename>hsqldb.jar</filename> in the same directory as
+                <filename>sqltool.jar</filename>, and that file contains all of
+                the needed classes.
+                (SqlTool supports all JDBC databases and does not require a
+                HyperSQL installation, but these cases would take us beyond
+                <emphasis>the bare minimum</emphasis>).
+                So, with <filename>hsqldb.jar</filename> in place, you can run
+                commands like
                     <informalexample>
                   <screen>    java -jar $HSQLDB_HOME/lib/sqltool.jar mem</screen>
                 </informalexample>
@@ -545,24 +561,35 @@
                     </literal>in these commands is a key
                     into your RC file, as explained in the
                     <link xlink:href='#sqltool_auth-sect' endterm='auth-title'/> section.
-                    Since this is a Memory Only database, you can use SqlTool
+                    Since this is a <glossterm>mem:</glossterm> type catalog,
+                    you can use SqlTool
                     with this urlid immediately with no database setup
                     whatsoever (however, you can't persist any changes that
                     you make to this database).
                     The sample sqltool.rc file also defines the urlid
-                    "localhost-sa" for a local HSQLDB Server.
+                    "localhost-sa" for a local HyperSQL Listener.
                     At the end of this section, I explain how you can load
                     some sample data to play with, if you want to.
                 </simpara></step>
             </procedure>
+        <tip><simpara>
+            If SqlTool fails to connect to the specified urlid and you don't
+            know why, add the invocation parameter <literal>--debug</literal>.
+            This will cause SqlTool to display a stack trace from where the
+            connection attempt fails.
+            (If a connection attempt fails with the interactive \j command,
+            details will always be displayed).
+        </simpara></tip>
         <important><simpara>
             SqlTool does not <emphasis>commit</emphasis> SQL changes by default.
+            (You can use the <literal>--autoCommit</literal> command-line
+            switch to have it auto-commit).
             This leaves it to the user's disgression whether to commit or
             rollback their modifications.
-            Remember to run \= to commit before quitting SqlTool.
+            If you do want your changes committed, remember to run \= before
+            quitting SqlTool.
             (Most databases also support the SQL command
-            <literal>commit;</literal>,
-            or use the <literal>--autoCommit</literal> command-line switch).
+            <literal>commit;</literal>),
         </simpara></important>
         <simpara>
             If you put a file named <filename>auto.sql</filename> into your
@@ -570,7 +597,7 @@
             time that you run SqlTool interactively (unless you invoke with
             the <literal>--noAutoFile</literal> switch).
         </simpara> <para>
-            To use a JDBC Driver other than the HSQLDB driver, you can't use
+            To use a JDBC Driver other than the HyperSQL driver, you can't use
             the <literal>-jar</literal> switch because you need to modify the
             classpath.
             You must add the <filename>sqltool.jar</filename> file and your JDBC
@@ -593,12 +620,6 @@
             with others you use a menu system where you can enter the number
             of columns).
         </simpara></tip>
-        <simpara>
-            If you are using SqlTool to connect to a HyperSQL network server
-            or any non-HSQLDB database, the only jar file that SqlTool needs
-            from the distribution is <filename>sqltool.jar</filename>.
-            Therefore, you can just copy that single file to other client PCs.
-        </simpara>
         <section><title>Embedding</title>
           <subtitle>Using SqlTool to execute SQL files from your own Java
             code</subtitle>
@@ -747,44 +768,131 @@
     </section>
 
     <section>
-      <title>SqlTool-Relevant Jar Files</title>
-      <para>
-        Come back to this section if you get confused about which HyperSQL jar
-        files contain what, or about exactly which one(s) you need.
-        <variablelist>
-        <varlistentry><term>sqltool.jar</term><listitem><simpara>
-          Contains the core <classname>SqlTool</classname> and
-          <classname>SqlFile</classname> classes, and auxilliary stuff necessary
-          for them to run, plus the HyperSQL network client JDBC driver.
-          To access <emphasis>in-process</emphasis>, you will need for
-          <filename>hsqldb.jar</filename> to be co-located with
-          <filename>sqltool.jar</filename> (or to get it in the runtime
-          CLASSPATH some other way).
-        </simpara></listitem></varlistentry>
-        <varlistentry><term>hsqldb.jar</term><listitem><simpara>
-          The HyperSQL engine, JDBC Drivers, plus Servers.
-          This needs to be accessible if you want to run a HyperSQL engine of
-          any sort in your SqlTool process
-          (this would not be needed to connect to a HyperSQL Server, nor to
-          connect to some other database server).
-          It also contains the HyperSQL JDBC driver.
-        </simpara></listitem></varlistentry>
-        <varlistentry><term>hsqldbutil.jar</term><listitem><simpara>
-          Contains the core <classname>SqlTool</classname> and
-          <classname>SqlFile</classname> classes, and auxilliary stuff necessary
-          for them to run.
-          It's the same as <filename>sqltool.jar</filename>, plus other
-          utilities like DatabaseManager and minus the network JDBC Driver.
-          You could use this by itself instead of
-          <filename>sqltool.jar</filename> to connect up to a non-HSQLDB
-          database server (you will have to add the other JDBC driver to your
-          CLASSPTH).
-          A <filename>hsqldbutil.jar</filename> from a new HyperSQL
-          distribution is the easiest way to use the newest SqlTool but
-          connect to an older HSQLDB Server.
-        </simpara></listitem></varlistentry>
-        </variablelist>
-      </para>
+      <title>Satisfying SqlTool's CLASSPATH Requirements</title>
+      <simpara>
+        As discussed earlier, only the single file
+        <filename>sqltool.jar</filename> is required to run SqlTool (the file
+        name may contain a version label like
+        <filename>sqltool-1.2.3.4.jar</filename>).
+        But it's useless as an SQL <emphasis>Tool</emphasis> unless you can
+        connect to a JDBC data source, and for that you need the target
+        database's JDBC driver in the classpath.
+        For <glossterm>in-process</glossterm> catalogs, you'll also need the
+        database engine classes in the CLASSPATH.
+        The <link xlink:href='#sqltool_baremin-sect' endterm='baremin-title'/>
+        section explains that the easiest way to use SqlTool with any HyperSQL
+        database is to just use <filename>sqltool.jar</filename> in-place where
+        it resides in a HyperSQL installation.
+        This section explains how to satisfy the CLASSPATH requirements for
+        other setups and use cases.
+      </simpara>
+      <section>
+        <title>Connecting to older HSQLDB Databases with SqlTool</title>
+        <simpara>
+          <emphasis>Don't try it.</emphasis>
+          Due to SqlTool itself using classes which the JDBC network driver
+          uses, and  which the HSQLDB engine uses, you need to use a version of
+          SqlTool for the point version of the HSQLDB engine that you will
+          connect to.
+        </simpara> <simpara>
+          This limitation doesn't apply to any database engine other than
+          HSQLDB/HyperSQL.
+          You can use any SqlTool release to connect to any version of
+          non-HSQLDB databases.
+        </simpara>
+      </section>
+      <section>
+        <title>App-specific Classes, Embedding, and non-HyperSQL Databases</title>
+        <simpara>
+          For these situations, you need to add your custom, third-party, or
+          SQL driver classes to your Java CLASSPATH.
+          Java doesn't support adding arbitrary elements to the classpath when
+          you use the <literal>-jar</literal>, so you must set a classpath
+          containing <filename>sqltool.jar</filename> plus whatever else you
+          need, then invoke SqlTool without the <literal>-jar</literal> switch,
+          as briefly described at the end of the
+          <link xlink:href='#sqltool_baremin-sect' endterm='baremin-title'/>
+          section.
+          For embedded apps, invoke your own main class instead of SqlTool, and
+          you can invoke <classname>SqlTool</classname> or
+          <classname>SqlFile</classname> from your code base.
+        </simpara> <para>
+          To customize the classpath,
+          you need to set up your classpath by using your
+          operating system or shell variable <varname>CLASSPATH</varname> or
+          by using the <filename>java</filename> switch <literal>-cp</literal>
+          (or the equivalent <literal>-classpath</literal>).
+          I'm not going to take up space here to explain how to set up a
+          Java CLASSPATH.  That is a platform-dependent task that is
+          documented well in tons of Java introductions and tutorials.
+          What I'm responsible for telling you is <emphasis>what</emphasis>
+          you need to add to your classpath.
+          For the non-embedded case where you have set up your CLASSPATH
+          environmental varialbe, you would invoke SqlTool like this.
+          <informalexample>
+            <screen>    java org.hsqldb.cmdline.SqlTool ...</screen>
+          </informalexample>
+            If you are using the <literal>-cp</literal> switch instead of a
+            <varname>CLASSPATH</varname> variable, stick it after
+            <literal>java</literal>.
+            After "<literal>SqlTool</literal>", give any SqlTool parameters
+            exactly as you would put after
+            <literal>java -jar .../sqltool.jar</literal> if you didn't need to
+            customize the CLASSPATH.
+            You can specify a JDBC driver class to use either with the
+            <literal>--driver</literal> switch to SqlTool, or in your
+            RC file stanza (the last method is usually more convenient).
+        </para><simpara>
+          Note that without the <literal>-jar</literal> switch, SqlTool will
+          still automatically pull in HyperSQL JDBC driver or engine classes
+          from HyperSQL jar files in the same directory.
+          It's often a good practice to minimize your runtime classpath.
+          To prevent the possibility of pulling in classes from other HyperSQL
+          jar files, just copy <filename>sqltool.jar</filename> to some other
+          directory (which does not contain other HyperSQL jar files) and put
+          the path to that one in your classpath.
+        </simpara>
+      </section>
+      <section>
+        <title>Distributing SqlTool with your Apps</title>
+        <simpara>
+          You can distribute SqlTool along with your application, for
+          standalone or embedded invocation.
+          For embedded use, you will need to customize the classpath as
+          discussed in the previous item.
+          Either way, you should minimize your application footprint by
+          distributing only those HyperSQL jar files needed by your app.
+          You will obviously need <filename>sqltool.jar</filename> if you will
+          use the <classname>SqlTool</classname> or
+          <classname>SqlFile</classname> class in any way.
+          If your app will only connect to external HyperSQL listeners, then
+          build and include <filename>hsqljdbc.jar</filename>.
+          If your app will also <emphasis>run</emphasis> a HyperSQL Listener,
+          you'll need to include <filename>hsqldb.jar</filename>.
+          If your app will connect directly to a
+          <glossterm>in-process</glossterm> catalog, then include
+          <filename>hsqldbmain.jar</filename>.
+          Note that you never need to include more than one of
+          <filename>hsqldb.jar</filename>, <filename>hsqldbmain.jar</filename>,
+          <filename>hsqljdbc.jar</filename>, since the former jars include
+          everything in the following jars.
+        </simpara>
+      </section>
+      <section>
+        <title>SqlTool Client PCs</title>
+        <simpara>
+          If you just want to be able to run SqlTool (interactively or
+          non-interactively) on a PC, and have no need for documentation, then
+          it's usually easiest to just copy 
+          <filename>sqltool.jar</filename> and <filename>hsqldb.jar</filename>
+          to the PCs (plus JDBC driver jars for any other target databases).
+          If you want to minize what you distribute, then build and
+          distribute <filename>hsqljdbc.jar</filename> or
+          <filename>hsqldbmain.jar</filename> instead of
+          <filename>hsqldb.jar</filename>, according to the criteria listed in
+          the previous sub-section.
+        </simpara>
+      </section>
     </section>
 
     <section xml:id='sqltool_auth-sect'>
@@ -1024,49 +1132,6 @@
             logging command <literal>\l</literal> in your SQL files (or
             interactively), including what logging levels you may specify.
         </simpara>
-    </section>
-
-    <section xml:id="sqltool_w_older-sect">
-        <title>
-            Using the current version of SqlTool with an older HSQLDB
-            Server.
-        </title>
-        <simpara>This procedure will allow users of a legacy version of
-            HSQLDB Server to use all of the new features of SqlTool.
-            You will also get the new versions of the DatabaseManagers.
-            This procedure works for distros going back to 1.7.3.3 at least,
-            probably much farther.
-            Unfortunately, due to engine classes and SqlTool depending on
-            different versions of the same logging classes, it's not possible
-            to use a post-1.9 SqlTool to run an older
-            <emphasis>in-process</emphasis> database instance.
-        </simpara><simpara>
-            If you aren't handy with Ant, you'll need to find the relevant
-            chapter about how to use the <literal>hsqldbutil</literal> target
-            to build the <filename>hsqldbutil.jar</filename> jar file.
-            You can't use <filename>sqltool.jar</filename> with old HSQLDB
-            engines because <filename>sqltool.jar</filename> contains the new
-            HSQLDB JDBC driver, which is not backwards-compatible.
-        </simpara> <simpara>
-            Now put the new <filename>hsqldbutil.jar</filename> in the same
-            directory as a copy of a <filename>hsqldb.jar</filename> file
-            matching the Server's HSQLDB version.
-            In this case, the engine jar must be named precisely
-            <filename>hsqldb.jar</filename>, with no version label, etc.,
-            because that is how hsqldbutil.jar will find it.
-        </simpara>
-        <para>
-            Now just use this <filename>hsqldbutil.jar</filename> exactly as
-            you would <filename>sqltool.jar</filename>, except that you will
-            need to specify the JDBC driver name if it is different from
-            <classname>org.hsqldb.jdbc.JDBCDriver</classname>.
-            <informalexample>
-              <screen>java -jar path/to/old/hsqldb/lib/hsqldbutil.jar --driver=org.hsqldb.jdbcDriver ...</screen>
-            </informalexample>
-            If you need to add anything else to the classpath, you will need
-            to add <filename>hsqldbutil.jar</filename> to your CLASSPATH
-            instead of using the Java <literal>-jar</literal> switch.
-        </para>
     </section>
 
     <section xml:id='sqltool_int-sect'>
@@ -2922,47 +2987,6 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
       <programlisting><xi:include href="../verbatim/testrun/sqltool/sqlpsm.sql"
                             parse="text"/></programlisting>
           </example>
-        </para>
-    </section>
-
-    <section>
-        <title>Using SqlTool with Other Databases, or with customized CLASSPATH</title>
-        <simpara>
-          Most of this guide explains how to invoke SqlTook like
-          <literal>java -jar .../sqltool.jar</literal>.
-          That's really convenient (and really convenient to write about), but
-          since the "<literal>java -jar</literal>" mechanism doesn't allow you
-          to modify the CLASSPATH, this just won't work if you need to add
-          custom classes, third party libraries, or other JDBC drivers.
-        </simpara><simpara>
-          In this case, you need to set up your CLASSPATH by using your
-          operating system or shell variable <varname>CLASSPATH</varname> or
-          by using the <filename>java</filename> switch <literal>-cp</literal>
-          (or the equivalent <literal>-classpath</literal>).
-        </simpara><para>
-          I'm not going to take up the space here to explain how to set up a
-          Java CLASSPATH.  That is a platform-dependent task that is
-          documented well in tons of Java introductions and tutorials.
-          The critical thing that I need to tell you is that, besides the
-          application-specific items (incl. JDBC driver) which brought you to
-          this section of the Guide, your CLASSPATH must contain
-          <filename>sqltool.jar</filename> and, if you want to run a HyperSQL
-          engine too, <filename>hsldb.jar</filename>, both from your HyperSQL
-          distribution.
-          After your CLASSPATH is set up, you run SqlTool like this.
-          <informalexample>
-            <screen>    java org.hsqldb.cmdline.SqlTool ...</screen>
-          </informalexample>
-            If you are using the <literal>-cp</literal> switch instead of an
-            the <varname>CLASSPATH</varname> variable, stick it after
-            <literal>java</literal>.
-            After "<literal>SqlTool</literal>", give any SqlTool parameters
-            exactly as you would put after
-            <literal>java -jar .../sqltool.jar</literal> if you didn't need to
-            customize the CLASSPATH.
-            You can specify a JDBC driver class to use either with the
-            <literal>--driver</literal> switch to SqlTool, or in your
-            RC file stanza (the last method is usually more convenient).
         </para>
     </section>
 
