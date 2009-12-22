@@ -66,8 +66,7 @@ hsqldbmin.jar   ant hsqldbmin   No utility or server programs.
                                 but no support for HyperSQL
                                 Servers)
 hsqldbtest.jar  ant hsqldbtest  All, including test classes
-sqltool.jar     ant sqltool     SqlTool app and JDBC network client
-                                JDBC driver</echo>
+sqltool.jar     ant sqltool     SqlTool app (no JDBC driver)</echo>
    </target>
 
    <!-- Deprecated targets.  New naming convention is:
