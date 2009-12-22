@@ -1,0 +1,28 @@
+Sonderbefehle.
+Bei Filterzeichenketten wird die Groß/Kleinschreibung beachtet . Verwenden Sie "SCHEMANAME.", 
+um auf ein Schema zu begrenzen.
+    \?                     Sonderbefehle Hilfe
+    \p [Eine Nachricht]    Gibt Nachricht auf stdout aus
+    \l LEVEL  Log-Meld.    Log-Meldung. (verfügbare Levels mit '\l?' anzeigen lassen.)
+    \i pfad/datei.sql      Befehle aus externer Datei ausführen/einbinden
+    \d{tvsiSanur*?} [Zeichenkette] Listet Objekte der spezifizierten Art:
+  (Tbln/Views/Seqs/Indexe/SysTbln/Aliase/SchemaNamen/Benutzer/Rollenn/tbl-ähnlich)
+    \d OBJEKTNAME [regx]   Beschreibt Spalten von Tabellen oder Views
+    \o [datei/pfad.html]   Leitet (oder stoppt dies) die Ausgabe der Abfrage in die angegebene Datei um.
+    \H                     Schaltet in den HTML-Ausgabe-Modus.
+    \! BEFEHL  [ARGE]      Führt externe Programme aus (stdin wird nicht unterstützt).
+    \c [true|false]        Weiter nach Fehler oder Abbruch nach Fehler.
+    \a [true|false]        Commitet automatisch JDBC DML Befehle.
+    \t [true|false]        Gibt die Ausführungszeiten für alle SQL-Befehle aus.
+    \v [TRAN_ISO_LEVEL]    Zeigt/Setzt das Level der Verbindungs-Transaktion-Isolation.
+    					   (connection transaction isolation)
+    \b                     Speichert die nächste Ergebnismenge im Binärpuffer (keine Ausgabe).
+    \bd pfad/datei.bin     Speichert den Binärpuffer in Datei.
+    \bl pfad/datei.bin     Lädt Datei in den Binärpuffer
+    \bp                    Verwenden Sie ? in der nächsten SQL-Anweisung um den Binärpuffer
+                           hochzuladen.
+    \.                     Geben Sie reines SQL ein (Raw-SQL). Schließen Sie mit einer Leerzeile ab, die nur einen "." enthält
+    \=                     Commitet JDBC Transaktionen.
+    \x {TABELLE|SELECT...} Exportiert Tabellen oder Abfragen in eine DSV-Textdatei (weitere Optionen: '\x?').
+    \m pfad/datei.dsv [*]  Importiert Datensätze aus einer DSV-Textdatei in eine Tabelle. (weitere Optionen '\m?').
+    \q [Abbruchmeldung]  Beendet das Programm (oder beenden Sie es mit STRG-Z oder STRG-D).
