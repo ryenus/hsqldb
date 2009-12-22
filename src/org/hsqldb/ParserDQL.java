@@ -1432,7 +1432,8 @@ public class ParserDQL extends ParserBase {
 
         if (isNonCoreReservedIdentifier()) {
             boolean limit = token.tokenType == Tokens.LIMIT
-                            || token.tokenType == Tokens.OFFSET;
+                            || token.tokenType == Tokens.OFFSET
+                            || token.tokenType == Tokens.FETCH;
             int position = getPosition();
 
             alias = HsqlNameManager.getSimpleName(token.tokenString,
