@@ -215,23 +215,6 @@ examples:
             description="Execute code switchers, other than for JVM version">
     </target>
 
-    <!-- this target is obsolete -->
-    <target name="switchtojdk11" depends="switches"
-            description="self explanatory" unless="ant.java.iscjavamodern">
-      <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
-          <arg value="-JAVA2"/>
-          <arg value="-JAVA4"/>
-          <arg value="-JAVA5"/>
-          <arg value="-JAVA6"/>
-          <arg value="--pathlist=jdkcodeswitch.list"/>
-          <arg value="--basedir=../${swsrc}"/>
-          <!-- Since these paths are interpreted by the JVM, not ant,
-               the path must be relative to run dir (build), not the
-               Ant basedir -->
-      </java>
-      <available classname="java.util.Vector" property="noswing"/>
-    </target>
-
     <target name="switchtojdk12" depends="switches" unless="ant.java.iscjava14"
             description="self explanatory" if="ant.java.iscjava12">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
@@ -293,7 +276,7 @@ examples:
     </target>
 
     <target name="store" description="compiles the /store folder"
-            depends="switchtojdk11,switchtojdk12,switchtojdk14,
+            depends="switchtojdk12,switchtojdk14,
                      switchtojdk15,switchtojdk16">
       <javac srcdir="${swsrc}"
              destdir="classes"
@@ -333,7 +316,6 @@ examples:
        >
          <classpath>
             <pathelement location="${servletapi.lib}"/>
-            <pathelement location="lib/JAMon.jar"/>
          </classpath>
          <include name="*.java"/>
          <include name="org/hsqldb/*.java"/>
@@ -459,6 +441,7 @@ examples:
       >
          <include name="org/hsqldb/util/**"/>
          <exclude name="org/hsqldb/util/*Swing.java"/>
+         <exclude name="org/hsqldb/util/preprocessor/**"/>
          <exclude name="org/hsqldb/util/TableSorter.java"/>
       </javac>
       <copy todir="classes/org/hsqldb/util" preservelastmodified='true'>
