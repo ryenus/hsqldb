@@ -166,15 +166,15 @@ examples:
       <javac destdir="classes">
          <src path="src"/>
          <include name="org/hsqldb/util/CodeSwitcher.java"/>
-       </javac>
-       <antcall target="-update-switch-branch"/>
+      </javac>
+      <antcall target="-update-switch-branch"/>
     </target>
 
     <target name="switchtojava1target" depends="codeswitcher"
             description="self explanatory">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
         <arg file="${swsrc}/org/hsqldb/lib/java/JavaSystem.java"/>
-         <arg file="${swsrc}/org/hsqldb/util/DatabaseManager.java"/>
+        <arg file="${swsrc}/org/hsqldb/util/DatabaseManager.java"/>
         <arg file="${swsrc}/org/hsqldb/util/ConnectionDialogCommon.java"/>
         <arg value="-JAVA2FULL"/>
       </java>
@@ -233,7 +233,7 @@ examples:
       <available classname="java.util.Vector" property="noswing"/>
     </target>
 
-    <target name="switchtojdk12" depends="switches"
+    <target name="switchtojdk12" depends="switches" unless="ant.java.iscjava14"
             description="self explanatory" if="ant.java.iscjava12">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA2"/>
@@ -248,8 +248,8 @@ examples:
       </java>
     </target>
 
-    <target name="switchtojdk14" depends="switches"
-            description="self explanatory" if="ant.java.iscjava14" unless="ant.java.iscjava15">
+    <target name="switchtojdk14" depends="switches" unless="ant.java.iscjava15"
+            description="self explanatory" if="ant.java.iscjava14">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA2"/>
           <arg value="+JAVA4"/>
@@ -263,8 +263,8 @@ examples:
        </java>
     </target>
 
-    <target name="switchtojdk15" depends="switches"
-            description="self explanatory" if="ant.java.iscjava15" unless="ant.java.iscjava16">
+    <target name="switchtojdk15" depends="switches" unless="ant.java.iscjava16"
+      description="self explanatory" if="ant.java.iscjava15">
       <java classname="org.hsqldb.util.CodeSwitcher" classpath="classes" >
           <arg value="+JAVA2"/>
           <arg value="+JAVA4"/>
@@ -293,8 +293,9 @@ examples:
        </java>
     </target>
 
-    <target name="store" depends="switchtojdk11,switchtojdk12,switchtojdk14,switchtojdk16"
-            description="compiles the /store folder">
+    <target name="store" description="compiles the /store folder"
+            depends="switchtojdk11,switchtojdk12,switchtojdk14,
+                     switchtojdk15,switchtojdk16">
       <javac srcdir="${swsrc}"
              destdir="classes"
                  debug="${build.debug}"
