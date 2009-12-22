@@ -1,62 +1,59 @@
-<html>
-<head>
-<title>HyperSQL Version 2.0 Release Candidate 7</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-</head>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
 
-<body bgcolor="#FFFFFF" text="#000000">
-<h2>HyperSQL 2.0 Release Candidate 7</h2>
-<p>9 December 2009</p>
-<p>This is the RC (release candidate) version of HyperSQL 2.0. Please use this 
+<title>HyperSQL Version 2.0 Release Candidate 7</title><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body bgcolor="#ffffff" text="#000000">
+<h2>HyperSQL 2.0 Release Candidate 8</h2>
+<p>21 December 2009</p>
+<p>This is the RC (release candidate) version of HyperSQL 2.0. Please use this
   version in testing and report any issues.</p>
 <h3>Feedback</h3>
-<p>We are releasing this RC version only to get feedback, bug reports, reports 
+<p>We are releasing this RC version only to get feedback, bug reports, reports
   about migration from older versions, and related information from our users.</p>
-<p>Please do use this RC version in tests as soon as possible, and let us know 
-  of your findings, via direct email, or posting to our user list or forums, or 
+<p>Please do use this RC version in tests as soon as possible, and let us know
+  of your findings, via direct email, or posting to our user list or forums, or
   filing a bug report.</p>
-<p>We have fixed tens of reported bugs and issues during the alpha and beta phase. 
+<p>We have fixed tens of reported bugs and issues during the alpha and beta phase.
   Thank you all testers!</p>
-<p>This version is generally stable. If your tests indicate you can use it for 
-  your application, please let us know. If there are any issues, this is the last 
-  chance to get the issues fixed quickly before the general release, so please 
-  let us know as soon as possible. The database file format will not change for 
+<p>This version is generally stable. If your tests indicate you can use it for
+  your application, please let us know. If there are any issues, this is the last
+  chance to get the issues fixed quickly before the general release, so please
+  let us know as soon as possible. The database file format will not change for
   the general release. <br>
 </p>
 <h3>Release plan.</h3>
 <ul>
   <li>The GA (General Availability) version will be released later this month.</li>
 </ul>
-<h3>Features in this RC version and changes from the first alpha</h3>
+<h3>Features in this RC version and changes from the first&nbsp;RC version</h3>
 <ul>
   <li>All errors and minor issues reported by users have been fixed.</li>
   <li>Sources can be compiled with JDK 1.5 or 1.6</li>
   <li>Many enhancements and additional features</li>
-  <li>New features for incremental backup of the .data file allow speedy handling 
+  <li>New features for incremental backup of the .data file allow speedy handling
     of huge databases up to 16GB by default (up to 256GB maximum).</li>
-  <li>This version has been compiled with debug information. The jar size is therefore 
-    much larger than the forthcoming release version. The jar can be used with 
+  <li>This version has been compiled with debug information. The jar size is therefore
+    much larger than the forthcoming release version. The jar can be used with
     JDK 1.6 only.</li>
   <li>Support for MVCC (Multiversion Concurrency Control) is functional in this version.
     Therefore it is designated as version 2.0.</li>
 </ul>
 <h3>Differences to version 1.8.0</h3>
 <ul>
-  <li>There are very many new features in the new version. Most of these do not 
+  <li>There are very many new features in the new version. Most of these do not
     affect existing features.</li>
   <li>For use with existing applications, the main differences are as follows:</li>
-  <li>Transaction isolation is always enforced - READ COMMITTED and SERIALIZABLE 
+  <li>Transaction isolation is always enforced - READ COMMITTED and SERIALIZABLE
     modes are supported.</li>
-  <li>SQL keywords are enforced in some places, therefore some table names or 
+  <li>SQL keywords are enforced in some places, therefore some table names or
     column names may not be acceptable.</li>
 </ul>
 <h3>Documentation</h3>
 <ul>
-  <li>The new Guide is included in the package and is a must-read. It has been 
-    completely rewritten compared to version 1.8.0. The Guide will be enhanced 
+  <li>The new Guide is included in the package and is a must-read. It has been
+    completely rewritten compared to version 1.8.0. The Guide will be enhanced
     further for the General Availability release.</li>
 </ul>
 <p>Fred Toussi</p>
 <p>Maintainer, HSQL Development Group</p>
-</body>
-</html>
+</body></html>
