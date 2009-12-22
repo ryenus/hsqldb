@@ -39,6 +39,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
+import org.hsqldb.lib.StringUtil;
 
 /**
  * Implementation of SQL procedure and functions
@@ -160,6 +161,7 @@ public class RoutineSchema implements SchemaObject {
             routine.getSpecificName().parent = name;
             routine.getSpecificName().schema = name.schema;
         }
+
         routine.setName(name);
 
         routine.routineSchema = this;
@@ -253,7 +255,22 @@ public class RoutineSchema implements SchemaObject {
         }
 
         if (matchIndex < 0) {
-            throw Error.error(ErrorCode.X_42501);
+            StringBuffer sb = new StringBuffer();
+
+            sb.append(name.getSchemaQualifiedStatementName());
+            sb.append(Tokens.T_OPENBRACKET);
+
+            for (int i = 0; i < types.length; i++) {
+                if (i != 0) {
+                    sb.append(Tokens.T_COMMA);
+                }
+
+                sb.append(types[i].getNameString());
+            }
+
+            sb.append(Tokens.T_CLOSEBRACKET);
+
+            throw Error.error(ErrorCode.X_42609, sb.toString());
         }
 
         return routines[matchIndex];

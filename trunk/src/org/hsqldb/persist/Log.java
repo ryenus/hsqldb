@@ -265,14 +265,14 @@ public class Log {
         properties.setDBModified(HsqlDatabaseProperties.FILES_NEW);
         deleteLog();
 
-        if (script) {
-            deleteBackup();
-            deleteData();
-        } else {
-            try {
-                backupData();
-                renameNewBackup();
-            } catch (IOException e) {}
+        if (cache != null) {
+            if (script) {
+                cache.deleteFile();
+                cache.deleteBackup();
+            } else {
+                cache.backupFile();
+                cache.renameBackupFile();
+            }
         }
 
         renameNewScript();
