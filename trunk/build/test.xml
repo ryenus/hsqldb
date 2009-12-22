@@ -38,6 +38,9 @@
    <property name="test.suite.implementation.vendor"
              value="${user.name}"/>
              
+   <property name="sqltool.jar"
+             value="${basedir}/lib/sqltool.jar" />
+             
    <property name="hsqldb.jar"
              value="${basedir}/lib/hsqldb.jar" />
              
@@ -70,6 +73,7 @@
    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <path id="test.suite.javac.classpath">
         <pathelement location="${hsqldb.jar}"/>
+        <pathelement location="${sqltool.jar}"/>
         <pathelement location="${junit.jar}" />
    </path>
    
@@ -94,6 +98,13 @@
 
         <fail unless='hsqldb.available'
               message="'hsqldb.jar' must reside at ${hsqldb.jar}"/>
+
+        <available file="${sqltool.jar}" 
+                   type='file' 
+                   property="sqltool.available"/>
+
+        <fail unless='sqltool.available'
+              message="'sqltool.jar' must reside at ${sqltool.jar}"/>
 
         <available file="${junit.jar}" 
                    type='file' 
