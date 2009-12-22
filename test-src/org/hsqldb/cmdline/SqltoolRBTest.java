@@ -35,14 +35,7 @@ import org.hsqldb.lib.ValidatingResourceBundle;
 import org.hsqldb.lib.RefCapablePropertyResourceBundle;
 
 public class SqltoolRBTest extends junit.framework.TestCase {
-    private SqltoolRB rb1 = null;
-    private SqltoolRB rb2 = null;
     private static final String[] testParams = {"one", "two", "three", "four"};
-
-    public void setUp() {
-        rb1 = new SqltoolRB();
-        rb2 = new SqltoolRB();
-    }
 
     static private final String RAW_CONN_MSG =
         "JDBC Connection established to a %{1} v. %{2} database\n"
@@ -60,41 +53,9 @@ public class SqltoolRBTest extends junit.framework.TestCase {
      */
     public void testNoPosParams() {
         try {
-            rb1.validate();
-            rb2.validate();
-            //System.err.println("rb1 size = " + rb1.getSize());
-            //System.err.println("rb2 size = " + rb2.getSize());
-            rb1.setMissingPosValueBehavior(
-                ValidatingResourceBundle.EMPTYSTRING_BEHAVIOR);
-            rb2.setMissingPosValueBehavior(
-                ValidatingResourceBundle.NOOP_BEHAVIOR);
-
-            /*
-            rb1.setMissingPropertyBehavior(
-                    ValidatingResourceBundle.THROW_BEHAVIOR);
-            System.out.println("("
-                    + rb1.getExpandedString(SqltoolRB.JDBC_ESTABLISHED) + ')');
-            */
-
             // When no substitution parameter at all given to getString(), behavior
             // settings have no influence, and no subsitution is performed.
-            assertEquals(RAW_CONN_MSG, rb1.getString(SqltoolRB.JDBC_ESTABLISHED));
-            assertEquals(RAW_CONN_MSG, rb2.getString(SqltoolRB.JDBC_ESTABLISHED));
-
-            assertEquals(RAW_CONN_MSG.replaceAll("%\\{\\d+\\}", ""),
-                    rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
-            assertEquals(RAW_CONN_MSG,
-                rb2.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {}));
-        } catch (Exception e) {
-            fail ("RB system choked w/ " + e);
-        }
-
-        try {
-            rb1.setMissingPosValueBehavior(
-                 RefCapablePropertyResourceBundle.THROW_BEHAVIOR);
-            rb1.getString(SqltoolRB.JDBC_ESTABLISHED, new String[] {});
-        } catch (RuntimeException ee) {
-            return;  // Unsatisfied %{} should cause throw here
+            assertEquals(RAW_CONN_MSG, SqltoolRB.jdbc_established.getString());
         } catch (Exception e) {
             fail ("RB system choked w/ " + e);
         }
@@ -105,20 +66,9 @@ public class SqltoolRBTest extends junit.framework.TestCase {
      */
     public void testWithParams() {
         try {
-            rb1.validate();
-            rb2.validate();
-            rb1.setMissingPosValueBehavior(
-                    ValidatingResourceBundle.EMPTYSTRING_BEHAVIOR);
-            rb2.setMissingPosValueBehavior(
-                ValidatingResourceBundle.NOOP_BEHAVIOR);
+            //ValidatingResourceBundle.NOOP_BEHAVIOR);  This is SqltoolRB
             assertEquals(SUBSTITUTED_CONN_MSG,
-                    rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
-            assertEquals(SUBSTITUTED_CONN_MSG,
-                    rb2.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
-            rb1.setMissingPosValueBehavior(
-                 RefCapablePropertyResourceBundle.THROW_BEHAVIOR);
-            assertEquals(SUBSTITUTED_CONN_MSG,
-                    rb1.getString(SqltoolRB.JDBC_ESTABLISHED, testParams));
+                    SqltoolRB.jdbc_established.getString(testParams));
         } catch (Exception e) {
             fail ("RB system choked w/ " + e);
         }
