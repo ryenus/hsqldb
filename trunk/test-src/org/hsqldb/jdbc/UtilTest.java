@@ -142,6 +142,7 @@ public class UtilTest extends BaseJdbcTestCase {
                 ErrorCode.X_42531,
                 ErrorCode.X_42532,
                 ErrorCode.X_42533,
+                ErrorCode.X_42534,
                 ErrorCode.X_42535,
                 ErrorCode.X_42536,
                 ErrorCode.X_42537,
@@ -205,11 +206,12 @@ public class UtilTest extends BaseJdbcTestCase {
                 ErrorCode.X_42605,
                 ErrorCode.X_42606,
                 ErrorCode.X_42607,
+                ErrorCode.X_42608,
             }
         }, {
             SQLTransactionRollbackException.class, new int[]{
                 ErrorCode.X_40000, ErrorCode.X_40001, ErrorCode.X_40002,
-                ErrorCode.X_40003, ErrorCode.X_40004
+                ErrorCode.X_40003, ErrorCode.X_40004, ErrorCode.X_40501
             }
         },
 

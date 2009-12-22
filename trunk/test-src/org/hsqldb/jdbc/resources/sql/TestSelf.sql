@@ -77,7 +77,7 @@ revoke all on test from "test" restrict
 select * from test order by test.id
 grant all on test to "test"
 grant select on test to "test"
-revoke select, insert, update, delete on test from "test" restrict
+revoke select,insert,update,delete on test from "test" restrict
 connect user "test" password "test-p"
 set password "test-p2"
 connect user sa password ""
@@ -98,9 +98,9 @@ script
 set autocommit true
 create memory table test (id integer)
 drop table test
--- no longer supporting "null" after type definition
-/*e*/create cached table test (id integer null)
-
+-- still supporting noise word "null" after type definition
+create cached table test (id integer null)
+drop table test
 -- Data Manipulation without result
 create table address(nr integer,name varchar(16),placezip smallint)
 insert into address values(1,'Boss',3000)
@@ -293,24 +293,32 @@ insert into test_maxrows select id+4 from test_maxrows;
 */select id from test_maxrows order by id desc limit 2 offset 3
 set maxrows 3
 /*c3*/select * from test_maxrows
+set maxrows 3
 /*c3*/select id from test_maxrows order by id desc
+set maxrows 3
 /*r
  7
  6
  5
 */select id from test_maxrows order by id desc
+set maxrows 3
 /*r
  4
  3
  2
 */select id from test_maxrows order by id desc limit 4 offset 3
+set maxrows 3
 /*r
  4
  3
 */select id from test_maxrows order by id desc limit 2 offset 3
+set maxrows 3
 /*r8*/select count(*) from test_maxrows
+set maxrows 3
 /*r7*/select max(id) from test_maxrows
+set maxrows 3
 /*c0*/select id from test_maxrows except select id from test_maxrows
+set maxrows 3
 /*c3*/select id from test_maxrows group by id
 set maxrows 0
 /*c8*/select * from test_maxrows
@@ -1227,7 +1235,6 @@ INSERT INTO POS VALUES(49,16,24,18,10.80)
 CREATE VIEW DOC_ADDR AS SELECT D.ID,D.TOTAL,A.CITY FROM DOCUMENT D, ADDRESS A
     WHERE D.ADDRESSID=A.ID AND A.ID < 10
 /*c88*/SELECT * FROM DOC_ADDR D, POS P WHERE P.DOCUMENTID = D.ID
-
 
 
 
