@@ -142,13 +142,12 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     // versions
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
-    public static final String VERSION_STRING_1_9_0 = "1.9.0";
-    public static final String THIS_VERSION         = "1.9.0";
-    public static final String THIS_FULL_VERSION    = "1.9.0";
-    public static final String THIS_CACHE_VERSION   = "1.9.0";
+    public static final String THIS_VERSION         = "2.0.0";
+    public static final String THIS_FULL_VERSION    = "2.0.0";
+    public static final String THIS_CACHE_VERSION   = "2.0.0";
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
-    public static final int    MAJOR                = 1,
-                               MINOR                = 9,
+    public static final int    MAJOR                = 2,
+                               MINOR                = 0,
                                REVISION             = 0;
 
     /**
