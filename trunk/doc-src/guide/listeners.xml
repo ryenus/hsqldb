@@ -190,16 +190,6 @@
           </row>
 
           <row>
-            <entry><property>server.urlid.0</property></entry>
-
-            <entry><literal>NO DEFAULT</literal></entry>
-
-            <entry>SqlTool urlid used by UNIX init script. (This property is
-            not used if your are running Server/Webserver on a platform other
-            than UNIX, or if you are not using our UNIX init script).</entry>
-          </row>
-
-          <row>
             <entry><property>server.database.n</property></entry>
 
             <entry><literal>NO DEFAULT</literal></entry>
