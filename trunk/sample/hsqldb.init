@@ -51,7 +51,7 @@ SERVICE=hsqldb
 # time, since ${0} is entirely different for init scripts, depending on UNIX 
 # version.
 
-# See the "UNIX Quick Start" chapter of the Hsqldb User Guide for how to
+# See the "HyperSQL on UNIX" chapter of the HyperSQL User Guide for how to
 # use this file.
 # This block only used by chkconfig systems (incl. SuSE Linux).
 # chkconfig: 345 87 13
