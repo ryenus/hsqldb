@@ -429,7 +429,11 @@ public class SqlTool {
                         tmpWriter.write(sqlText + LS);
                         tmpWriter.flush();
                     } finally {
-                        tmpWriter = null;  // Encourage GC of buffers
+                        try {
+                            tmpWriter.close();
+                        } finally {
+                            tmpWriter = null;  // Encourage GC of buffers
+                        }
                     }
                 } catch (IOException ioe) {
                     throw new SqlToolException(IOERR_EXITVAL,
@@ -652,6 +656,8 @@ public class SqlTool {
             throw new SqlToolException(FILEERR_EXITVAL, ioe.getMessage());
         }
         } finally {
+            // DO NOT close tmpReader, since SqlFile needs to read from it
+            // (and will auto-close it).
             tmpReader = null;  // Encourage GC of buffers
         }
 

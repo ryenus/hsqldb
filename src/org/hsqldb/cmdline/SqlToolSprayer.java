@@ -106,10 +106,10 @@ public class SqlToolSprayer {
         boolean[] status = new boolean[urlids.size()];
 
         String[] withRcArgs    = {
-            "--sql", sa[0], "--rcfile=" + rcFile, null
+            "--sql=" +  sa[0], "--rcfile=" + rcFile, null
         };
         String[] withoutRcArgs = {
-            "--sql", sa[0], null
+            "--sql=" + sa[0], null
         };
         String[] sqlToolArgs   = (rcFile == null) ? withoutRcArgs
                                                   : withRcArgs;
@@ -130,6 +130,8 @@ public class SqlToolSprayer {
                 }
 
                 sqlToolArgs[sqlToolArgs.length - 1] = urlids.get(i);
+                // System.err.println("ARGS:"
+                //      + java.util.Arrays.asList(sqlToolArgs));
 
                 try {
                     SqlTool.objectMain(sqlToolArgs);
