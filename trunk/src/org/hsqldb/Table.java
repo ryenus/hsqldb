@@ -849,8 +849,8 @@ public class Table extends TableBase implements SchemaObject {
             if (constraintList[i].hasTriggeredAction()) {
                 int[] mainColumns = constraintList[i].getMainColumns();
 
-                if (ArrayUtil.countCommonElements(columnMap, mainColumns)
-                        > 0) {
+                if (ArrayUtil.haveCommonElement(columnMap, mainColumns,
+                                                mainColumns.length)) {
                     if (list.add(constraintList[i])) {
                         constraintList[i].getRef().getConstraintPath(
                             constraintList[i].getRefColumns(), list);

@@ -66,19 +66,19 @@
 
 package org.hsqldb.index;
 
+import org.hsqldb.Constraint;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.Session;
+import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.Type;
-import org.hsqldb.Constraint;
-import org.hsqldb.Table;
 
 /**
  * Implementation of an AVL for memory tables.<p>

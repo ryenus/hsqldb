@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
  */
 public class StatementSet extends StatementDMQL {
 
-    Expression      expression;
+    Expression expression;
 
     //
     ColumnSchema[] variables;
@@ -168,7 +168,6 @@ public class StatementSet extends StatementDMQL {
             case StatementSet.TRIGGER_SET :
             case StatementSet.SELECT_INTO :
             case StatementSet.VARIABLE_SET : {
-
                 references = new OrderedHashSet();
 
                 if (expression != null) {
@@ -178,6 +177,7 @@ public class StatementSet extends StatementDMQL {
                 if (queryExpression != null) {
                     queryExpression.collectObjectNames(references);
                 }
+
                 break;
             }
             default :

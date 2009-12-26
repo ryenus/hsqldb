@@ -3993,7 +3993,7 @@ public class ParserDQL extends ParserBase {
 
         list.toArray(arguments);
         function.setArguments(arguments);
-        compileContext.addRoutine(function);
+        compileContext.addFunctionCall(function);
         recordedToken.setExpression(routineSchema);
 
         return function;
@@ -4797,7 +4797,7 @@ public class ParserDQL extends ParserBase {
             usedSequences.add(object);
         }
 
-        void addRoutine(FunctionSQLInvoked function) {
+        void addFunctionCall(FunctionSQLInvoked function) {
             usedRoutines.add(function);
         }
 

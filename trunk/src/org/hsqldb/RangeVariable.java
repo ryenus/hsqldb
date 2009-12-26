@@ -663,8 +663,7 @@ public final class RangeVariable {
             throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
         }
 
-        public void release() {
-        }
+        public void release() {}
     }
 
     public static class RangeIteratorMain extends RangeIteratorBase {

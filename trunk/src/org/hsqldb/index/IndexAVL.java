@@ -70,6 +70,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.hsqldb.Constraint;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.OpTypes;
@@ -89,7 +90,6 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
-import org.hsqldb.Constraint;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users - corrections
 // fredt@users 20020225 - patch 1.7.0 - changes to support cascading deletes
@@ -708,8 +708,7 @@ public class IndexAVL implements Index {
     }
 
     public boolean existsParent(Session session, PersistentStore store,
-                                Object[] rowdata, int[] rowColMap,
-                                boolean isNew) {
+                                Object[] rowdata, int[] rowColMap) {
 
         NodeAVL node = findNode(session, store, rowdata, rowColMap,
                                 rowColMap.length,
