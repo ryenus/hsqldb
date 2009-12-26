@@ -141,9 +141,10 @@ public class StatementExpression extends StatementDMQL {
 
             case StatementTypes.CONDITION :
             case StatementTypes.RETURN :
-
                 references = new OrderedHashSet();
+
                 expression.collectObjectNames(references);
+
                 resolved = true;
                 break;
 

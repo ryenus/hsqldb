@@ -106,6 +106,7 @@ public interface Index extends SchemaObject {
     public boolean isForward();
 
     public void setTable(TableBase table);
+
     /**
      * Returns the node count.
      */
@@ -125,8 +126,7 @@ public interface Index extends SchemaObject {
     public void delete(PersistentStore store, Row row);
 
     public boolean existsParent(Session session, PersistentStore store,
-                                Object[] rowdata, int[] rowColMap,
-                                boolean isNew);
+                                Object[] rowdata, int[] rowColMap);
 
     /**
      * Return the first node equal to the indexdata object. The rowdata has
@@ -229,5 +229,4 @@ public interface Index extends SchemaObject {
                                    int fieldcount);
 
     public int compareRow(Session session, Object[] a, Object[] b);
-
 }

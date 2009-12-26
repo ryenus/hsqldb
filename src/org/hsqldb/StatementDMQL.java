@@ -41,6 +41,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.store.ValuePool;
 
 /**
  * Statement implementation for DML and base DQL statements.

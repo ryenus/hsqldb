@@ -37,9 +37,9 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.StringUtil;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
-import org.hsqldb.lib.StringUtil;
 
 /**
  * Implementation of SQL procedure and functions

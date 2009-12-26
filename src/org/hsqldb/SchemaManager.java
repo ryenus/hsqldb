@@ -400,7 +400,12 @@ public class SchemaManager {
         HsqlArrayList alltables = new HsqlArrayList();
 
         while (schemas.hasNext()) {
-            String         name    = (String) schemas.next();
+            String name = (String) schemas.next();
+
+            if (isSystemSchema(name) || isLobsSchema(name)) {
+                continue;
+            }
+
             HashMappedList current = getTables(name);
 
             alltables.addAll(current.values());

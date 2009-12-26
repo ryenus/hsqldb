@@ -755,7 +755,7 @@ public final class Constraint implements SchemaObject {
 
                     // core.matchType == OpTypes.MATCH_FULL
                 } else if (core.mainIndex.existsParent(session, store, data,
-                                                       core.refCols, isNew)) {
+                                                       core.refCols)) {
                     return;
                 } else if (core.mainTable == core.refTable) {
 

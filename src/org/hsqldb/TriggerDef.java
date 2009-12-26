@@ -89,7 +89,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     long     changeTimestamp;
     String   actionTimingString;
     String   eventTimingString;
-    int      operationPrivilegeType;
+    int      operationType;
     boolean  forEachRow;
     boolean  nowait;                                           // block or overwrite if queue full
     int      maxRowsQueued;                                    // max size of queue of pending triggers
@@ -412,12 +412,12 @@ public class TriggerDef implements Runnable, SchemaObject {
 
         if (eventTimingString.equals(Tokens.T_INSERT)) {
             triggerType            = Trigger.INSERT_AFTER;
-            operationPrivilegeType = GrantConstants.INSERT;
+            operationType = StatementTypes.INSERT;
         } else if (eventTimingString.equals(Tokens.T_DELETE)) {
-            operationPrivilegeType = GrantConstants.DELETE;
+            operationType = StatementTypes.DELETE_WHERE;
             triggerType            = Trigger.DELETE_AFTER;
         } else if (eventTimingString.equals(Tokens.T_UPDATE)) {
-            operationPrivilegeType = GrantConstants.UPDATE;
+            operationType = StatementTypes.UPDATE_WHERE;
             triggerType            = Trigger.UPDATE_AFTER;
         } else {
             throw Error.runtimeError(ErrorCode.U_S0500, "TriggerDef");
@@ -434,8 +434,8 @@ public class TriggerDef implements Runnable, SchemaObject {
         }
     }
 
-    public int getPrivilegeType() {
-        return operationPrivilegeType;
+    public int getStatementType() {
+        return operationType;
     }
 
     /**

@@ -212,27 +212,27 @@ public class StatementDML extends StatementDMQL {
             switch (type) {
 
                 case StatementTypes.INSERT :
-                    if (td.getPrivilegeType() == GrantConstants.INSERT) {
+                    if (td.getStatementType() == StatementTypes.INSERT) {
                         break;
                     }
 
                     continue;
                 case StatementTypes.UPDATE_WHERE :
-                    if (td.getPrivilegeType() == GrantConstants.UPDATE) {
+                    if (td.getStatementType() == StatementTypes.UPDATE_WHERE) {
                         break;
                     }
 
                     continue;
                 case StatementTypes.DELETE_WHERE :
-                    if (td.getPrivilegeType() == GrantConstants.DELETE) {
+                    if (td.getStatementType() == StatementTypes.DELETE_WHERE) {
                         break;
                     }
 
                     continue;
                 case StatementTypes.MERGE :
-                    if (td.getPrivilegeType() == GrantConstants.INSERT
-                            || td.getPrivilegeType()
-                               == GrantConstants.UPDATE) {
+                    if (td.getStatementType() == StatementTypes.INSERT
+                            || td.getStatementType()
+                               == StatementTypes.UPDATE_WHERE) {
                         break;
                     }
 
