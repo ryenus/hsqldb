@@ -176,7 +176,26 @@ public class StatementDML extends StatementDMQL {
 
         if (!baseTable.isTemp()) {
             for (int i = 0; i < baseTable.fkConstraints.length; i++) {
-                set.add(baseTable.fkConstraints[i].getMain().getName());
+                Constraint constraint = baseTable.fkConstraints[i];
+
+                if (type == StatementTypes.UPDATE_WHERE
+                        || type == StatementTypes.MERGE) {
+                    if (ArrayUtil.haveCommonElement(constraint.getRefColumns(),
+                                                    updateColumnMap,
+                                                    updateColumnMap.length)) {
+                        set.add(
+                            baseTable.fkConstraints[i].getMain().getName());
+                    }
+                } else if (type == StatementTypes.INSERT) {
+                    set.add(baseTable.fkConstraints[i].getMain().getName());
+                }
+            }
+
+            if (type == StatementTypes.UPDATE_WHERE
+                    || type == StatementTypes.MERGE) {
+                baseTable.collectFKReadLocks(updateColumnMap, set);
+            } else if (type == StatementTypes.DELETE_WHERE) {
+                baseTable.collectFKReadLocks(null, set);
             }
 
             getTriggerTableNames(set, false);
@@ -201,6 +220,27 @@ public class StatementDML extends StatementDMQL {
             if (subqueries[i].queryExpression != null) {
                 subqueries[i].queryExpression.getBaseTableNames(set);
             }
+        }
+
+        for (int i = 0; i < routines.length; i++) {
+            set.addAll(routines[i].getTableNamesForRead());
+        }
+    }
+
+    void collectTableNamesForWrite(OrderedHashSet set) {
+
+        // other fk references this :  if constraint trigger action  : other write lock
+        if (!baseTable.isTemp()) {
+            set.add(baseTable.getName());
+
+            if (type == StatementTypes.UPDATE_WHERE
+                    || type == StatementTypes.MERGE) {
+                baseTable.collectFKWriteLocks(updateColumnMap, set);
+            } else if (type == StatementTypes.DELETE_WHERE) {
+                baseTable.collectFKWriteLocks(null, set);
+            }
+
+            getTriggerTableNames(set, true);
         }
     }
 

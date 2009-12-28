@@ -74,7 +74,6 @@ import org.hsqldb.RowAVL;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
-import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.persist.PersistentStore;
@@ -225,12 +224,13 @@ public class IndexAVLMemory extends IndexAVL {
 
                 if (compare == 0) {
                     if (isConstraint) {
-                        Constraint c = ((Table)table).getUniqueConstraintForIndex(this);
+                        Constraint c =
+                            ((Table) table).getUniqueConstraintForIndex(this);
 
                         throw c.getException(row.getData());
-
                     } else {
-                        throw Error.error(ErrorCode.X_23505, name.statementName);
+                        throw Error.error(ErrorCode.X_23505,
+                                          name.statementName);
                     }
                 }
 
@@ -487,74 +487,6 @@ public class IndexAVLMemory extends IndexAVL {
         }
 
         return x;
-    }
-
-    /**
-     * Finds a match with a row from a different table
-     *
-     * @param rowdata array containing data for the index columns
-     * @param rowColMap map of the data to columns
-     * @param first true if the first matching node is required, false if any node
-     * @return matching node or null
-     */
-    NodeAVL findNode(Session session, PersistentStore store, Object[] rowdata,
-                     int[] rowColMap, int fieldCount, int readMode) {
-
-        readLock.lock();
-
-        try {
-            NodeAVL x = getAccessor(store);
-            NodeAVL n;
-            NodeAVL result = null;
-
-            while (x != null) {
-                int i = this.compareRowNonUnique(session, rowdata, rowColMap,
-                                                 x.getData(store), fieldCount);
-
-                if (i == 0) {
-                    result = x;
-                    n      = x.nLeft;
-                } else if (i > 0) {
-                    n = x.nRight;
-                } else {
-                    n = x.nLeft;
-                }
-
-                if (n == null) {
-                    break;
-                }
-
-                x = n;
-            }
-
-            // MVCC 190
-            if (session == null) {
-                return result;
-            }
-
-            while (result != null) {
-                Row row = result.row;
-
-                if (compareRowNonUnique(
-                        session, rowdata, rowColMap, row.rowData,
-                        fieldCount) != 0) {
-                    result = null;
-
-                    break;
-                }
-
-                if (session.database.txManager.canRead(session, row,
-                                                       readMode)) {
-                    break;
-                }
-
-                result = next(store, result);
-            }
-
-            return result;
-        } finally {
-            readLock.unlock();
-        }
     }
 
     /**

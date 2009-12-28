@@ -550,7 +550,9 @@ public class StatementCompound extends Statement {
             statements[i].resolve(session);
         }
 
-        OrderedHashSet set = new OrderedHashSet();
+        OrderedHashSet writeTableNamesSet = new OrderedHashSet();
+        OrderedHashSet readTableNamesSet  = new OrderedHashSet();
+        OrderedHashSet set                = new OrderedHashSet();
 
         for (int i = 0; i < variables.length; i++) {
             set.addAll(variables[i].getReferences());
@@ -558,11 +560,25 @@ public class StatementCompound extends Statement {
 
         for (int i = 0; i < statements.length; i++) {
             set.addAll(statements[i].getReferences());
+            readTableNamesSet.addAll(statements[i].getTableNamesForRead());
+            writeTableNamesSet.addAll(statements[i].getTableNamesForWrite());
         }
 
         for (int i = 0; i < handlers.length; i++) {
             set.addAll(handlers[i].getReferences());
+            readTableNamesSet.addAll(handlers[i].getTableNamesForRead());
+            writeTableNamesSet.addAll(handlers[i].getTableNamesForWrite());
         }
+
+        readTableNamesSet.removeAll(writeTableNamesSet);
+
+        readTableNames = new HsqlName[readTableNamesSet.size()];
+
+        readTableNamesSet.toArray(readTableNames);
+
+        writeTableNames = new HsqlName[writeTableNamesSet.size()];
+
+        writeTableNamesSet.toArray(writeTableNames);
 
         references = set;
     }
@@ -586,7 +602,6 @@ public class StatementCompound extends Statement {
     }
 
     public OrderedHashSet getReferences() {
-
         return references;
     }
 

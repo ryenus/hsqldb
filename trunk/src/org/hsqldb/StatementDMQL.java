@@ -80,11 +80,11 @@ public abstract class StatementDMQL extends Statement {
     boolean restartIdentity;
 
     /** column map for INSERT operation direct or via MERGE */
-    int[] insertColumnMap;
+    int[] insertColumnMap = ValuePool.emptyIntArray;
 
     /** column map for UPDATE operation direct or via MERGE */
-    int[] updateColumnMap;
-    int[] baseUpdateColumnMap;
+    int[] updateColumnMap     = ValuePool.emptyIntArray;
+    int[] baseUpdateColumnMap = ValuePool.emptyIntArray;
 
     /** Column value Expressions for UPDATE and MERGE. */
     Expression[] updateExpressions;
@@ -192,8 +192,39 @@ public abstract class StatementDMQL extends Statement {
         }
 
         if (isExplain) {
-            return Result.newSingleColumnStringResult("OPERATION",
+            result = Result.newSingleColumnStringResult("OPERATION",
                     describe(session));
+
+            OrderedHashSet set = getReferences();
+
+            result.navigator.add(new Object[]{ "Object References" });
+
+            for (int i = 0; i < set.size(); i++) {
+                HsqlName name = (HsqlName) set.get(i);
+
+                result.navigator.add(new Object[]{
+                    name.getSchemaQualifiedStatementName() });
+            }
+
+            result.navigator.add(new Object[]{ "Read Locks" });
+
+            for (int i = 0; i < readTableNames.length; i++) {
+                HsqlName name = readTableNames[i];
+
+                result.navigator.add(new Object[]{
+                    name.getSchemaQualifiedStatementName() });
+            }
+
+            result.navigator.add(new Object[]{ "WriteLocks" });
+
+            for (int i = 0; i < writeTableNames.length; i++) {
+                HsqlName name = writeTableNames[i];
+
+                result.navigator.add(new Object[]{
+                    name.getSchemaQualifiedStatementName() });
+            }
+
+            return result;
         }
 
         try {
@@ -216,6 +247,8 @@ public abstract class StatementDMQL extends Statement {
     abstract Result getResult(Session session);
 
     abstract void collectTableNamesForRead(OrderedHashSet set);
+
+    abstract void collectTableNamesForWrite(OrderedHashSet set);
 
     Object[] getGeneratedColumns(Object[] data) {
 
@@ -293,8 +326,8 @@ public abstract class StatementDMQL extends Statement {
         targetTable        = null;
         baseTable          = null;
         condition          = null;
-        insertColumnMap    = null;
-        updateColumnMap    = null;
+        insertColumnMap    = ValuePool.emptyIntArray;
+        updateColumnMap    = ValuePool.emptyIntArray;
         updateExpressions  = null;
         insertExpression   = null;
         insertCheckColumns = null;
@@ -319,24 +352,7 @@ public abstract class StatementDMQL extends Statement {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        // other fk references this :  if constraint trigger action  : other write lock
-        if (baseTable != null) {
-            if (baseTable.isTemp()) {
-                return;
-            }
-
-            set.add(baseTable.getName());
-
-            for (int i = 0; i < baseTable.fkPath.length; i++) {
-                set.add(baseTable.fkPath[i].getMain().getName());
-            }
-
-            getTriggerTableNames(set, true);
-        }
-
-        for (int i = 0; i < routines.length; i++) {
-            set.addAll(routines[i].getTableNamesForWrite());
-        }
+        collectTableNamesForWrite(set);
 
         if (set.size() > 0) {
             writeTableNames = new HsqlName[set.size()];
@@ -346,12 +362,6 @@ public abstract class StatementDMQL extends Statement {
         }
 
         collectTableNamesForRead(set);
-
-        for (int i = 0; i < routines.length; i++) {
-            set.addAll(routines[i].getTableNamesForRead());
-        }
-
-
         set.removeAll(writeTableNames);
 
         if (set.size() > 0) {
@@ -360,11 +370,8 @@ public abstract class StatementDMQL extends Statement {
             set.toArray(readTableNames);
         }
 
-
         references = compileContext.getSchemaObjectNames();
     }
-
-    void getTriggerTableNames(OrderedHashSet set, boolean write) {}
 
     /**
      * Determines if the authorizations are adequate
@@ -613,10 +620,13 @@ public abstract class StatementDMQL extends Statement {
                 appendColumns(sb, updateColumnMap).append('\n');
                 appendTable(sb).append('\n');
                 appendCondition(session, sb);
-                sb.append(targetRangeVariables[0].describe(session)).append(
-                    '\n');
-                sb.append(targetRangeVariables[1].describe(session)).append(
-                    '\n');
+
+                for (int i = 0; i < targetRangeVariables.length; i++) {
+                    sb.append(
+                        targetRangeVariables[i].describe(session)).append(
+                        '\n');
+                }
+
                 appendParms(sb).append('\n');
                 appendSubqueries(session, sb).append(']');
 
@@ -627,10 +637,13 @@ public abstract class StatementDMQL extends Statement {
                 sb.append('[').append('\n');
                 appendTable(sb).append('\n');
                 appendCondition(session, sb);
-                sb.append(targetRangeVariables[0].describe(session)).append(
-                    '\n');
-                sb.append(targetRangeVariables[1].describe(session)).append(
-                    '\n');
+
+                for (int i = 0; i < targetRangeVariables.length; i++) {
+                    sb.append(
+                        targetRangeVariables[i].describe(session)).append(
+                        '\n');
+                }
+
                 appendParms(sb).append('\n');
                 appendSubqueries(session, sb).append(']');
 
@@ -649,12 +662,13 @@ public abstract class StatementDMQL extends Statement {
                 appendColumns(sb, updateColumnMap).append('\n');
                 appendTable(sb).append('\n');
                 appendCondition(session, sb);
-                sb.append(targetRangeVariables[0].describe(session)).append(
-                    '\n');
-                sb.append(targetRangeVariables[1].describe(session)).append(
-                    '\n');
-                sb.append(targetRangeVariables[2].describe(session)).append(
-                    '\n');
+
+                for (int i = 0; i < targetRangeVariables.length; i++) {
+                    sb.append(
+                        targetRangeVariables[i].describe(session)).append(
+                        '\n');
+                }
+
                 appendParms(sb).append('\n');
                 appendSubqueries(session, sb).append(']');
 
@@ -773,5 +787,4 @@ public abstract class StatementDMQL extends Statement {
     public final boolean isCatalogChange() {
         return false;
     }
-
 }

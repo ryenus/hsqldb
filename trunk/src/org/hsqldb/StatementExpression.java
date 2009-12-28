@@ -176,5 +176,18 @@ public class StatementExpression extends StatementDMQL {
         }
     }
 
-    void collectTableNamesForRead(OrderedHashSet set) {}
+    void collectTableNamesForRead(OrderedHashSet set) {
+
+        for (int i = 0; i < subqueries.length; i++) {
+            if (subqueries[i].queryExpression != null) {
+                subqueries[i].queryExpression.getBaseTableNames(set);
+            }
+        }
+
+        for (int i = 0; i < routines.length; i++) {
+            set.addAll(routines[i].getTableNamesForRead());
+        }
+    }
+
+    void collectTableNamesForWrite(OrderedHashSet set) {}
 }

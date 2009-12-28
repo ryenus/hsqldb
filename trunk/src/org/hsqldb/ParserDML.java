@@ -1028,6 +1028,9 @@ public class ParserDML extends ParserDQL {
 
                 Routine routine =
                     routineSchema.getSpecificRoutine(arguments.length);
+
+                compileContext.addProcedureCall(routine);
+
                 HsqlList unresolved = null;
 
                 for (int i = 0; i < arguments.length; i++) {

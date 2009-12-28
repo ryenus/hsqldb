@@ -4699,6 +4699,7 @@ public class ParserDQL extends ParserBase {
         Type                  currentDomain;
         boolean               contextuallyTypedExpression;
         final Session         session;
+        Routine               callProcedure;
 
         //
         private int rangeVarIndex = 0;
@@ -4722,6 +4723,9 @@ public class ParserDQL extends ParserBase {
             parameters.clear();
             usedSequences.clear();
             usedRoutines.clear();
+
+            callProcedure = null;
+
             usedObjects.clear();
 
             //
@@ -4769,7 +4773,7 @@ public class ParserDQL extends ParserBase {
 
         public Routine[] getRoutines() {
 
-            if (usedRoutines.size() == 0) {
+            if (callProcedure == null && usedRoutines.size() == 0) {
                 return Routine.emptyArray;
             }
 
@@ -4780,6 +4784,10 @@ public class ParserDQL extends ParserBase {
                     (FunctionSQLInvoked) usedRoutines.get(i);
 
                 set.add(function.routine);
+            }
+
+            if (callProcedure != null) {
+                set.add(callProcedure);
             }
 
             Routine[] array = new Routine[set.size()];
@@ -4799,6 +4807,10 @@ public class ParserDQL extends ParserBase {
 
         void addFunctionCall(FunctionSQLInvoked function) {
             usedRoutines.add(function);
+        }
+
+        void addProcedureCall(Routine procedure) {
+            callProcedure = procedure;
         }
 
         void resetSubQueryLevel() {

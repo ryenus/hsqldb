@@ -101,12 +101,14 @@ class ConstraintCore {
     Index mainIndex;
 
     // Ref is the table that has a reference to the main table
-    Table refTable;
-    int[] refCols;
-    Index refIndex;
-    int   deleteAction;
-    int   updateAction;
-    int   matchType;
+    Table   refTable;
+    int[]   refCols;
+    Index   refIndex;
+    int     deleteAction;
+    int     updateAction;
+    boolean hasUpdateAction;
+    boolean hasDeleteAction;
+    int     matchType;
 
     //
     ConstraintCore duplicate() {

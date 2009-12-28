@@ -270,5 +270,30 @@ public class StatementProcedure extends StatementDMQL {
         return super.getParametersMetaData();
     }
 
-    void collectTableNamesForRead(OrderedHashSet set) {}
+    /** @todo add the base tables in routines etc. in expression */
+    void collectTableNamesForRead(OrderedHashSet set) {
+
+        if (expression == null) {
+            set.addAll(procedure.getTableNamesForRead());
+        } else {
+            OrderedHashSet temp = new OrderedHashSet();
+
+            expression.collectObjectNames(temp);
+
+            for (int i = 0; i < temp.size(); i++) {
+                HsqlName name = (HsqlName) temp.get(i);
+
+                if (name.type == SchemaObject.TABLE) {
+                    set.add(name);
+                }
+            }
+        }
+    }
+
+    void collectTableNamesForWrite(OrderedHashSet set) {
+
+        if (expression == null) {
+            set.addAll(procedure.getTableNamesForWrite());
+        }
+    }
 }
