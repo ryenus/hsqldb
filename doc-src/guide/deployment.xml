@@ -1359,13 +1359,13 @@
     statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>SET FILES INCREMENT BACKUP</primary>
+      <primary>SET FILES BACKUP INCREMENT</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">SET FILES INCREMENT
-    BACKUP</emphasis></simpara>
+    <simpara><emphasis role="bold">SET FILES BACKUP
+    INCREMENT</emphasis></simpara>
 
-    <simpara><emphasis>set files increment backup
+    <simpara><emphasis>set files backup increment
     statement</emphasis></simpara>
 
     <simpara><literal>&lt;set files increment backup statement&gt; ::= SET
@@ -1381,7 +1381,8 @@
 
     <simpara>When the property is false, the .data file is backed up entirely
     at the time of checkpoint and shutdown. Up to version 1.8.0, HSQLDB
-    supported only full backup.</simpara>
+    supported only full backup. Version 1.8.1 supports incremental
+    backup.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1484,7 +1485,7 @@
     space for each lob.</simpara>
 
     <simpara>This command can be used only when there is no lob in the
-    database. </simpara>
+    database.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
