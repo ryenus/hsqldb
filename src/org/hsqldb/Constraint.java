@@ -174,6 +174,23 @@ public final class Constraint implements SchemaObject {
         core.deleteAction  = deleteAction;
         core.updateAction  = updateAction;
         core.matchType     = matchType;
+
+        switch (core.deleteAction) {
+
+            case SchemaObject.ReferentialAction.CASCADE :
+            case SchemaObject.ReferentialAction.SET_DEFAULT :
+            case SchemaObject.ReferentialAction.SET_NULL :
+                core.hasDeleteAction = true;
+        }
+
+        switch (core.updateAction) {
+
+            case SchemaObject.ReferentialAction.CASCADE :
+            case SchemaObject.ReferentialAction.SET_DEFAULT :
+            case SchemaObject.ReferentialAction.SET_NULL :
+                core.hasUpdateAction = true;
+        }
+
     }
 
     public Constraint(HsqlName name, OrderedHashSet mainCols, int type) {

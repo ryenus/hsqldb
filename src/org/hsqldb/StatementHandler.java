@@ -139,6 +139,16 @@ public class StatementHandler extends Statement {
             new String[conditionStates.size()]);
     }
 
+    public void resolve(Session session) {
+
+        if (statement != null) {
+            statement.resolve(session);
+
+            readTableNames  = statement.getTableNamesForRead();
+            writeTableNames = statement.getTableNamesForWrite();
+        }
+    }
+
     public Result execute(Session session) {
 
         if (statement != null) {

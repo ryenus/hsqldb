@@ -1804,8 +1804,6 @@ public class ParserCommand extends ParserDDL {
         readThis(Tokens.FOR);
 
         cs                 = compilePart(ResultProperties.defaultPropsValue);
-        cs.writeTableNames = HsqlName.emptyArray;
-        cs.readTableNames  = HsqlName.emptyArray;
 
         cs.setDescribe();
 

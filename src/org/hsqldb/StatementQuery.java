@@ -96,7 +96,13 @@ public class StatementQuery extends StatementDMQL {
                 subqueries[i].queryExpression.getBaseTableNames(set);
             }
         }
+
+        for (int i = 0; i < routines.length; i++) {
+            set.addAll(routines[i].getTableNamesForRead());
+        }
     }
+
+    void collectTableNamesForWrite(OrderedHashSet set) {}
 
     public int getResultProperties() {
         return ResultProperties.defaultPropsValue;

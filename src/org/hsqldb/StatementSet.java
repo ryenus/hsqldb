@@ -285,7 +285,13 @@ public class StatementSet extends StatementDMQL {
                 subqueries[i].queryExpression.getBaseTableNames(set);
             }
         }
+
+        for (int i = 0; i < routines.length; i++) {
+            set.addAll(routines[i].getTableNamesForRead());
+        }
     }
+
+    void collectTableNamesForWrite(OrderedHashSet set) {}
 
     Object[] getExpressionValues(Session session) {
 

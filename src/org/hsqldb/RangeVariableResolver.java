@@ -715,10 +715,10 @@ public class RangeVariableResolver {
 
             c.excludeConditions = e;
 
-            if (c.indexConditions != null) {
+            if (c.indexCond != null) {
                 for (int k = 0; k < c.indexedColumnCount; k++) {
                     e = ExpressionLogical.andExpressions(
-                        e, c.indexConditions[k]);
+                        e, c.indexCond[k]);
                 }
             }
 
@@ -775,10 +775,6 @@ public class RangeVariableResolver {
                     continue;
                 }
             }
-
-            // not used in index lookup
-            conditions.addCondition(e);
-            exprList.set(j, null);
         }
 
         boolean hasNull = false;
@@ -805,7 +801,19 @@ public class RangeVariableResolver {
 
         conditions.addIndexCondition(firstRowExpressions, idx, colCount);
 
-        return;
+
+        for (int j = 0; j < exprList.size(); j++) {
+            Expression e = (Expression) exprList.get(j);
+
+            if (e == null) {
+                continue;
+            }
+
+            // not used in index lookup
+            conditions.addCondition(e);
+            exprList.set(j, null);
+
+        }
     }
 
     private void setNonEqualityConditions(RangeVariableConditions conditions,

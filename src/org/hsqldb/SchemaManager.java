@@ -130,22 +130,30 @@ public class SchemaManager {
             throw Error.error(ErrorCode.X_42501, name);
         }
 
-        if (cascade) {
-            OrderedHashSet externalReferences = new OrderedHashSet();
-
-            getCascadingSchemaReferences(schema.getName(), externalReferences);
-            removeSchemaObjects(externalReferences);
-        } else {
-            if (!schema.isEmpty()) {
-                throw Error.error(ErrorCode.X_2B000);
-            }
+        if (!cascade && !schema.isEmpty()) {
+            throw Error.error(ErrorCode.X_2B000);
         }
+
+        OrderedHashSet externalReferences = new OrderedHashSet();
+
+        getCascadingSchemaReferences(schema.getName(), externalReferences);
+        removeSchemaObjects(externalReferences);
 
         Iterator tableIterator =
             schema.schemaObjectIterator(SchemaObject.TABLE);
 
         while (tableIterator.hasNext()) {
-            Table table = ((Table) tableIterator.next());
+            Table        table = ((Table) tableIterator.next());
+            Constraint[] list  = table.fkConstraints;
+
+            for (int i = 0; i < list.length; i++) {
+                Constraint constraint = list[i];
+
+                if (constraint.getMain().getSchemaName() != schema.getName()) {
+                    constraint.getMain().removeConstraint(
+                        constraint.getMainName().name);
+                }
+            }
 
             removeTable(session, table);
         }
@@ -827,7 +835,7 @@ public class SchemaManager {
         for (int i = 0; i < list.size(); i++) {
             Table t = (Table) list.get(i);
 
-            t.updateConstraintPath();
+            t.verifyConstraintsIntegrity();
         }
     }
 

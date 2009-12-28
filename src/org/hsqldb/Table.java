@@ -137,19 +137,20 @@ public class Table extends TableBase implements SchemaObject {
 
 // -----------------------------------------------------------------------
     Constraint[]    constraintList;            // constrainst for the table
-    Constraint[]    fkPath;                    //
     Constraint[]    fkConstraints;             //
     Constraint[]    fkMainConstraints;
     Constraint[]    checkConstraints;
     TriggerDef[]    triggerList;
     TriggerDef[][]  triggerLists;              // array of trigger lists
-    Expression[]    colDefaults;               // fredt - expressions of DEFAULT values
-    private boolean hasDefaultValues;          //fredt - shortcut for above
-    boolean[]       colGenerated;              // fredt - expressions of DEFAULT values
-    private boolean hasGeneratedValues;        //fredt - shortcut for above
-    private boolean hasDomainColumns;          //fredt - shortcut
-    private boolean hasNotNullColumns;         //fredt - shortcut
-    protected int[] defaultColumnMap;          // fred - holding 0,1,2,3,...
+    Expression[]    colDefaults;               // expressions of DEFAULT values
+    private boolean hasDefaultValues;          // shortcut for above
+    boolean[]       colGenerated;              // generated columns
+    private boolean hasGeneratedValues;        // shortcut for above
+    boolean[]       colRefFK;                  // foreing key columns
+    boolean[]       colMainFK;                 // columns referenced by foreign key
+    private boolean hasDomainColumns;          // shortcut
+    private boolean hasNotNullColumns;         // shortcut
+    protected int[] defaultColumnMap;          // holding 0,1,2,3,...
     RangeVariable[] defaultRanges;
 
     //
@@ -246,7 +247,6 @@ public class Table extends TableBase implements SchemaObject {
         columnList        = new HashMappedList();
         indexList         = Index.emptyArray;
         constraintList    = Constraint.emptyArray;
-        fkPath            = Constraint.emptyArray;
         fkConstraints     = Constraint.emptyArray;
         fkMainConstraints = Constraint.emptyArray;
         checkConstraints  = Constraint.emptyArray;
@@ -716,26 +716,6 @@ public class Table extends TableBase implements SchemaObject {
         updateConstraintLists();
     }
 
-    void updateConstraintPath() {
-
-        if (fkMainConstraints.length == 0) {
-            return;
-        }
-
-        OrderedHashSet list = new OrderedHashSet();
-
-        getConstraintPath(defaultColumnMap, list);
-
-        if (list.size() == 0) {
-            return;
-        }
-
-        fkPath = new Constraint[list.size()];
-
-        list.toArray(fkPath);
-        verifyConstraintsIntegrity();
-    }
-
     void updateConstraintLists() {
 
         int fkCount    = 0;
@@ -772,6 +752,8 @@ public class Table extends TableBase implements SchemaObject {
         checkConstraints  = checkCount == 0 ? Constraint.emptyArray
                                             : new Constraint[checkCount];
         checkCount        = 0;
+        colRefFK          = new boolean[columnCount];
+        colMainFK         = new boolean[columnCount];
 
         for (int i = 0; i < constraintList.length; i++) {
             switch (constraintList[i].getConstraintType()) {
@@ -779,11 +761,17 @@ public class Table extends TableBase implements SchemaObject {
                 case SchemaObject.ConstraintTypes.FOREIGN_KEY :
                     fkConstraints[fkCount] = constraintList[i];
 
+                    ArrayUtil.intIndexesToBooleanArray(
+                        constraintList[i].getRefColumns(), colRefFK);
+
                     fkCount++;
                     break;
 
                 case SchemaObject.ConstraintTypes.MAIN :
                     fkMainConstraints[mainCount] = constraintList[i];
+
+                    ArrayUtil.intIndexesToBooleanArray(
+                        constraintList[i].getMainColumns(), colMainFK);
 
                     mainCount++;
                     break;
@@ -806,24 +794,26 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0; i < constraintList.length; i++) {
             Constraint c = constraintList[i];
 
-            if (c.getConstraintType() == SchemaObject.ConstraintTypes.CHECK) {
-                continue;
-            }
+            if (c.getConstraintType() == SchemaObject.ConstraintTypes
+                    .FOREIGN_KEY || c.getConstraintType() == SchemaObject
+                    .ConstraintTypes.MAIN) {
+                if (c.getMain()
+                        != database.schemaManager.findUserTable(null,
+                            c.getMain().getName().name,
+                            c.getMain().getName().schema.name)) {
+                    throw Error.runtimeError(ErrorCode.U_S0500,
+                                             "FK mismatch : "
+                                             + c.getName().name);
+                }
 
-            if (c.getMain() != null
-                    && c.getMain()
-                       != database.schemaManager.getUserTable(null,
-                           c.getMain().getName())) {
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "table constraint");
-            }
-
-            if (c.getRef() != null
-                    && c.getRef()
-                       != database.schemaManager.getUserTable(null,
-                           c.getRef().getName())) {
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "table constraint");
+                if (c.getRef()
+                        != database.schemaManager.findUserTable(null,
+                            c.getRef().getName().name,
+                            c.getRef().getName().schema.name)) {
+                    throw Error.runtimeError(ErrorCode.U_S0500,
+                                             "FK mismatch : "
+                                             + c.getName().name);
+                }
             }
         }
     }
@@ -843,18 +833,64 @@ public class Table extends TableBase implements SchemaObject {
                                           : constraintList[0];
     }
 
-    void getConstraintPath(int[] columnMap, OrderedHashSet list) {
+    /** columnMap is null for deletes */
+    void collectFKReadLocks(int[] columnMap, OrderedHashSet set) {
 
-        for (int i = 0; i < constraintList.length; i++) {
-            if (constraintList[i].hasTriggeredAction()) {
-                int[] mainColumns = constraintList[i].getMainColumns();
+        for (int i = 0; i < fkMainConstraints.length; i++) {
+            Constraint constraint  = fkMainConstraints[i];
+            Table      ref         = constraint.getRef();
+            int[]      mainColumns = constraint.getMainColumns();
 
-                if (ArrayUtil.haveCommonElement(columnMap, mainColumns,
-                                                mainColumns.length)) {
-                    if (list.add(constraintList[i])) {
-                        constraintList[i].getRef().getConstraintPath(
-                            constraintList[i].getRefColumns(), list);
-                    }
+            if (ref == this) {
+                continue;
+            }
+
+            if (columnMap == null) {
+                set.add(ref.getName());
+
+                if (constraint.getDeleteAction()
+                        == SchemaObject.ReferentialAction.CASCADE) {
+                    constraint.getRef().collectFKReadLocks(null, set);
+                } else if (constraint.core.hasDeleteAction) {
+                    ref.collectFKReadLocks(constraint.getRefColumns(), set);
+                }
+            } else if (ArrayUtil.haveCommonElement(columnMap, mainColumns,
+                                                   mainColumns.length)) {
+                set.add(ref.getName());
+                constraint.getRef().collectFKReadLocks(
+                    constraint.getRefColumns(), set);
+            }
+        }
+    }
+
+    /** columnMap is null for deletes */
+    void collectFKWriteLocks(int[] columnMap, OrderedHashSet set) {
+
+        for (int i = 0; i < fkMainConstraints.length; i++) {
+            Constraint constraint  = fkMainConstraints[i];
+            Table      ref         = constraint.getRef();
+            int[]      mainColumns = constraint.getMainColumns();
+
+            if (ref == this) {
+                continue;
+            }
+
+            if (columnMap == null) {
+                if (constraint.getDeleteAction()
+                        == SchemaObject.ReferentialAction.CASCADE) {
+                    set.add(ref.getName());
+                    constraint.getRef().collectFKWriteLocks(null, set);
+                } else if (constraint.core.hasDeleteAction) {
+                    set.add(ref.getName());
+                    constraint.getRef().collectFKWriteLocks(
+                        constraint.getRefColumns(), set);
+                }
+            } else if (ArrayUtil.haveCommonElement(columnMap, mainColumns,
+                                                   mainColumns.length)) {
+                if (constraint.core.hasUpdateAction) {
+                    set.add(ref.getName());
+                    constraint.getRef().collectFKWriteLocks(
+                        constraint.getRefColumns(), set);
                 }
             }
         }

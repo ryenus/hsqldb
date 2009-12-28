@@ -174,13 +174,18 @@ public class TableWorks {
 
         uniqueConstraint.checkReferencedRows(session, table);
 
-        int offset = database.schemaManager.getTableIndex(table);
-        boolean isForward = c.core.mainTable.getSchemaName()
-                            != table.getSchemaName();
+        boolean isForward = false;
 
-        if (offset != -1
-                && offset
-                   < database.schemaManager.getTableIndex(c.core.mainTable)) {
+        if (c.core.mainTable.getSchemaName() == table.getSchemaName()) {
+            int offset = database.schemaManager.getTableIndex(table);
+
+            if (offset != -1
+                    && offset
+                       < database.schemaManager.getTableIndex(
+                           c.core.mainTable)) {
+                isForward = true;
+            }
+        } else {
             isForward = true;
         }
 
@@ -208,10 +213,15 @@ public class TableWorks {
             database.persistentStoreCollection.getStore(tn);
 
         newStore.moveData(session, oldStore, -1, 0);
-        c.core.mainTable.addConstraint(new Constraint(mainName, c));
+
         database.schemaManager.addSchemaObject(c);
         database.persistentStoreCollection.releaseStore(table);
         setNewTableInSchema(tn);
+        Table mainTable = database.schemaManager.getTable(session,
+            c.core.mainTable.getName().name,
+            c.core.mainTable.getSchemaName().name);
+
+        mainTable.addConstraint(new Constraint(mainName, c));
         updateConstraints(tn, emptySet);
         database.schemaManager.recompileDependentObjects(tn);
 
@@ -725,7 +735,7 @@ public class TableWorks {
             }
 
             if (!referencingObjects.isEmpty()) {
-                mainLoop :
+                mainLoop:
                 for (int i = 0; i < referencingObjects.size(); i++) {
                     HsqlName name = (HsqlName) referencingObjects.get(i);
 

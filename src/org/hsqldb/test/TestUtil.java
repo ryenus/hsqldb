@@ -46,6 +46,7 @@ import java.text.SimpleDateFormat;
 import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.LineGroupReader;
+import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.StringComparator;
 import org.hsqldb.lib.StringUtil;
 
@@ -74,7 +75,9 @@ public class TestUtil {
     static final String LS = System.getProperty("line.separator", "\n");
 
     public static void main(String[] argv) {
+        StopWatch sw = new StopWatch(true);
         TestUtil.testScripts("testrun/hsqldb");
+        System.out.println(sw.currentElapsedTimeToMessage("Total time :"));
     }
 
     static void deleteDatabase(String path) {
