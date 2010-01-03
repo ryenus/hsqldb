@@ -35,13 +35,12 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.navigator.RowSetNavigator;
-import org.hsqldb.navigator.RowSetNavigatorLinkedList;
+import org.hsqldb.navigator.RowSetNavigatorData;
+import org.hsqldb.navigator.RowSetNavigatorDataChange;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.types.Type;
-import org.hsqldb.navigator.RowSetNavigatorData;
 
 public class StatementResultUpdate extends StatementDML {
 
@@ -110,7 +109,8 @@ public class StatementResultUpdate extends StatementDML {
                     throw Error.error(ErrorCode.X_24521);
                 }
 
-                RowSetNavigator navigator = new RowSetNavigatorLinkedList();
+                RowSetNavigatorDataChange navigator =
+                    new RowSetNavigatorDataChange();
 
                 navigator.addRow(row);
                 delete(session, baseTable, navigator);
@@ -128,6 +128,16 @@ public class StatementResultUpdate extends StatementDML {
                     session.sessionData.getRowStore(baseTable);
 
                 baseTable.insertRow(session, store, data);
+
+                if (baseTable.triggerLists[Trigger.INSERT_AFTER_ROW].length > 0) {
+                    baseTable.fireTriggers(session, Trigger.INSERT_AFTER_ROW, null,
+                                           data, null);
+                }
+
+                if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
+                    baseTable.fireTriggers(session, Trigger.INSERT_AFTER, null, null,
+                                           null);
+                }
             }
         }
 

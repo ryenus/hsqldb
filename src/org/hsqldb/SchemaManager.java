@@ -1720,8 +1720,9 @@ public class SchemaManager {
 
                 object = table.getTrigger(name.name);
 
-                table.removeTrigger(name.name);
-
+                if (object != null) {
+                    table.removeTrigger((TriggerDef) object);
+                }
                 break;
             }
             default :

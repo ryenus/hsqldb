@@ -681,7 +681,7 @@ public class ArrayUtil {
         }
     }
 
-    public static boolean areIntIndexesInBooleanArray(int[] arra,
+    public static boolean areAllIntIndexesInBooleanArray(int[] arra,
             boolean[] arrb) {
 
         for (int i = 0; i < arra.length; i++) {
@@ -695,20 +695,16 @@ public class ArrayUtil {
         return true;
     }
 
-    /**
-     * Return true if for each true element in arrb, the corresponding
-     * element in arra is true
-     */
-    public static boolean containsAllTrueElements(boolean[] arra,
+    public static boolean isAnyIntIndexInBooleanArray(int[] arra,
             boolean[] arrb) {
 
         for (int i = 0; i < arra.length; i++) {
-            if (arrb[i] && !arra[i]) {
-                return false;
+            if (arrb[arra[i]]) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
     /**

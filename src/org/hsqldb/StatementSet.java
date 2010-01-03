@@ -163,13 +163,18 @@ public class StatementSet extends StatementDMQL {
 
     public void resolve(Session session) {
 
+        references = new OrderedHashSet();
+
         switch (operationType) {
 
             case StatementSet.TRIGGER_SET :
+                for (int i = 0; i < updateExpressions.length; i++) {
+                    updateExpressions[i].collectObjectNames(references);
+                }
+                break;
+
             case StatementSet.SELECT_INTO :
             case StatementSet.VARIABLE_SET : {
-                references = new OrderedHashSet();
-
                 if (expression != null) {
                     expression.collectObjectNames(references);
                 }
@@ -190,6 +195,9 @@ public class StatementSet extends StatementDMQL {
         StringBuffer sb = new StringBuffer();
 
         switch (operationType) {
+
+            case StatementSet.TRIGGER_SET :
+                return sql;
 
             case StatementSet.VARIABLE_SET : {
 

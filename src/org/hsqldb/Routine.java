@@ -98,10 +98,9 @@ public class Routine implements SchemaObject {
     private boolean isLibraryRoutine;
 
     //
-    HashMappedList parameterList = new HashMappedList();
-    int            scopeVariableCount;
-    RangeVariable[] ranges = new RangeVariable[]{
-        new RangeVariable(parameterList, false) };
+    HashMappedList  parameterList = new HashMappedList();
+    int             scopeVariableCount;
+    RangeVariable[] ranges;
 
     //
     int variableCount;
@@ -110,9 +109,28 @@ public class Routine implements SchemaObject {
     OrderedHashSet references;
 
     //
+    Table triggerTable;
+    int triggerType;
+    int triggerOperation;
+
     public Routine(int type) {
+
         routineType = type;
         returnType  = Type.SQL_ALL_TYPES;
+        ranges = new RangeVariable[]{
+            new RangeVariable(parameterList, false) };
+    }
+
+    public Routine(Table table, RangeVariable[] ranges, int impact,
+        int triggerType, int operationType) {
+
+        routineType       = SchemaObject.TRIGGER;
+        returnType        = Type.SQL_ALL_TYPES;
+        dataImpact        = impact;
+        this.ranges       = ranges;
+        this.triggerTable = table;
+        this.triggerType = triggerType;
+        this.triggerOperation = operationType;
     }
 
     public int getType() {
@@ -491,6 +509,10 @@ public class Routine implements SchemaObject {
         }
 
         references = set;
+    }
+
+    public boolean isTrigger() {
+        return routineType == SchemaObject.TRIGGER;
     }
 
     public boolean isProcedure() {

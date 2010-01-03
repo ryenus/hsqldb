@@ -54,6 +54,7 @@ public class StatementInsert extends StatementDML {
 
     int            generatedType;
     ResultMetaData generatedInputMetaData;
+    boolean        isSimpleInsert;
 
     /**
      * Instantiate this as an INSERT_VALUES statement.
@@ -65,15 +66,21 @@ public class StatementInsert extends StatementDML {
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
 
-        this.targetTable            = targetTable;
-        this.baseTable              = targetTable.getBaseTable();
-        this.insertColumnMap        = columnMap;
-        this.insertCheckColumns     = checkColumns;
-        this.insertExpression       = insertExpression;
-        this.isTransactionStatement = true;
+        this.targetTable = targetTable;
+        this.baseTable   = targetTable.isTriggerInsertable() ? targetTable
+                                                             : targetTable
+                                                             .getBaseTable();
+        this.insertColumnMap    = columnMap;
+        this.insertCheckColumns = checkColumns;
+        this.insertExpression   = insertExpression;
 
         setDatabseObjects(compileContext);
         checkAccessRights(session);
+        setupChecks();
+
+        isSimpleInsert = insertExpression != null
+                         && insertExpression.nodes.length == 1 &&
+                         updatableTableCheck == null;
     }
 
     /**
@@ -91,10 +98,10 @@ public class StatementInsert extends StatementDML {
         this.insertColumnMap        = columnMap;
         this.insertCheckColumns     = checkColumns;
         this.queryExpression        = queryExpression;
-        this.isTransactionStatement = true;
-
+        
         setDatabseObjects(compileContext);
         checkAccessRights(session);
+        setupChecks();
     }
 
     /**
@@ -105,72 +112,25 @@ public class StatementInsert extends StatementDML {
      */
     Result getResult(Session session) {
 
-        Table           table              = baseTable;
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
         PersistentStore store = session.sessionData.getRowStore(baseTable);
-        boolean         isSimple           = true;
 
         if (generatedIndexes != null) {
             resultOut = Result.newUpdateCountResult(generatedResultMetaData,
                     0);
             generatedNavigator = resultOut.getChainedResult().getNavigator();
-            isSimple           = false;
         }
 
-        Expression    checkCondition = null;
-        RangeIterator checkIterator  = null;
-
-        if (targetTable != baseTable) {
-            QuerySpecification select =
-                ((TableDerived) targetTable).getQueryExpression()
-                    .getMainSelect();
-
-            checkCondition = select.checkQueryCondition;
-
-            if (checkCondition != null) {
-                checkIterator = select.rangeVariables[0].getIterator(session);
-            }
-
-            isSimple = false;
-        }
-
-        if (insertExpression == null || insertExpression.nodes.length > 1) {
-            isSimple = false;
-        }
-
-        if (isSimple) {
-            return getSimpleResult(session, table, store);
+        if (isSimpleInsert) {
+            return getSimpleResult(session, store);
         }
 
         RowSetNavigator newDataNavigator = queryExpression == null
                                            ? getInsertValuesNavigator(session)
                                            : getInsertSelectNavigator(session);
 
-        while (newDataNavigator.hasNext()) {
-            Object[] data = newDataNavigator.getNext();
-
-            if (checkCondition != null) {
-                checkIterator.setCurrent(data);
-
-                boolean check = checkCondition.testCondition(session);
-
-                if (!check) {
-                    throw Error.error(ErrorCode.X_44000);
-                }
-            }
-
-            table.insertRow(session, store, data);
-
-            if (generatedNavigator != null) {
-                Object[] generatedValues = getGeneratedColumns(data);
-
-                generatedNavigator.add(generatedValues);
-            }
-        }
-
-        newDataNavigator.beforeFirst();
-        table.fireTriggers(session, Trigger.INSERT_AFTER, newDataNavigator);
+        super.insertRowSet(session, generatedNavigator, newDataNavigator);
 
         if (resultOut == null) {
             resultOut = new Result(ResultConstants.UPDATECOUNT,
@@ -182,18 +142,30 @@ public class StatementInsert extends StatementDML {
         return resultOut;
     }
 
-    Result getSimpleResult(Session session, Table table,
-                           PersistentStore store) {
+    Result getSimpleResult(Session session, PersistentStore store) {
 
         Type[] colTypes = baseTable.getColumnTypes();
         Object[] data = getInsertData(session, colTypes,
                                       insertExpression.nodes[0].nodes);
 
-        table.insertRow(session, store, data);
+        baseTable.insertRow(session, store, data);
 
-        if (table.triggerList.length > 0) {
-            table.fireTriggers(session, Trigger.INSERT_AFTER, null, data,
-                               null);
+        if (session.database.isReferentialIntegrity()) {
+            for (int i = 0, size = baseTable.fkConstraints.length; i < size;
+                    i++) {
+                baseTable.fkConstraints[i].checkInsert(session, baseTable,
+                                                       data, true);
+            }
+        }
+
+        if (baseTable.triggerLists[Trigger.INSERT_AFTER_ROW].length > 0) {
+            baseTable.fireTriggers(session, Trigger.INSERT_AFTER_ROW, null,
+                                   data, null);
+        }
+
+        if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
+            baseTable.fireTriggers(session, Trigger.INSERT_AFTER, null, null,
+                                   null);
         }
 
         Result resultOut = Result.updateOneResult;
@@ -316,5 +288,7 @@ public class StatementInsert extends StatementDML {
         }
 
         generatedResultMetaData.prepareData();
+
+        isSimpleInsert = false;
     }
 }

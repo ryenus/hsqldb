@@ -544,19 +544,27 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             String   propertyName = (String) e.nextElement();
             Object[] row          = (Object[]) dbMeta.get(propertyName);
             boolean  valid        = false;
-
+            boolean  validVal     = false;
             if (row != null
                     && ((Integer) row[HsqlProperties.indexType]).intValue()
                        == SQL_PROPERTY) {
-                valid = setDatabaseProperty(propertyName,
+                valid = true;
+                validVal = setDatabaseProperty(propertyName,
                                             p.getProperty(propertyName));
             }
 
-            if (strict && !valid
-                    && (propertyName.startsWith("sql.")
+            if (propertyName.startsWith("sql.")
                         || propertyName.startsWith("hsqldb.")
-                        || propertyName.startsWith("textdb."))) {
-                throw Error.error(ErrorCode.X_42555, propertyName);
+                        || propertyName.startsWith("textdb.")) {
+
+                if (strict && !valid) {
+                    throw Error.error(ErrorCode.X_42555, propertyName);
+                }
+
+                if (strict && !validVal) {
+                    throw Error.error(ErrorCode.X_42556, propertyName);
+                }
+
             }
         }
     }

@@ -39,7 +39,6 @@ import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.store.ValuePool;
 
@@ -134,24 +133,6 @@ public abstract class StatementDMQL extends Statement {
      * Subqueries inverse usage depth order
      */
     SubQuery[] subqueries = SubQuery.emptySubqueryArray;
-
-    /**
-     * The type of this CompiledStatement. <p>
-     *
-     * One of: <p>
-     *
-     * <ol>
-     *  <li>UNKNOWN
-     *  <li>INSERT_VALUES
-     *  <li>INSERT_SELECT
-     *  <li>UPDATE
-     *  <li>DELETE
-     *  <li>SELECT
-     *  <li>CALL
-     *  <li>MERGE
-     *  <li>DDL
-     * </ol>
-     */
 
     /**
      * Total number of RangeIterator objects used
@@ -331,10 +312,8 @@ public abstract class StatementDMQL extends Statement {
         updateExpressions  = null;
         insertExpression   = null;
         insertCheckColumns = null;
-
-//        expression         = null;
-        parameters = null;
-        subqueries = null;
+        parameters         = null;
+        subqueries         = null;
     }
 
     void setDatabseObjects(CompileContext compileContext) {
@@ -371,6 +350,10 @@ public abstract class StatementDMQL extends Statement {
         }
 
         references = compileContext.getSchemaObjectNames();
+
+        if (targetTable != null) {
+            references.add(targetTable.getName());
+        }
     }
 
     /**
@@ -577,7 +560,7 @@ public abstract class StatementDMQL extends Statement {
     /**
      * Provides the toString() implementation.
      */
-    private String describeImpl(Session session) throws Exception {
+    String describeImpl(Session session) throws Exception {
 
         StringBuffer sb;
 

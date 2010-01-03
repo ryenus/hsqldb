@@ -127,7 +127,7 @@ public class Cache extends BaseHashMap {
             super.resetAccessCount();
         }
 
-        super.addOrRemove(key, row, false);
+        super.addOrRemove(key, row, null, false);
         row.setInMemory(true);
 
         cacheBytesLength += storageSize;
@@ -138,7 +138,7 @@ public class Cache extends BaseHashMap {
      */
     synchronized CachedObject release(int i) {
 
-        CachedObject r = (CachedObject) super.addOrRemove(i, null, true);
+        CachedObject r = (CachedObject) super.addOrRemove(i, null, null, true);
 
         if (r == null) {
             return null;
@@ -208,6 +208,12 @@ public class Cache extends BaseHashMap {
                     }
                 }
             }
+
+            if (savecount == rowTable.length) {
+                saveRows(savecount);
+
+                savecount = 0;
+            }
         }
 
         super.setAccessCountFloor(accessTarget);
@@ -216,7 +222,7 @@ public class Cache extends BaseHashMap {
 
     synchronized void forceCleanUp() {
 
-        BaseHashMap.BaseHashIterator it          = new BaseHashIterator();
+        BaseHashMap.BaseHashIterator it = new BaseHashIterator();
 
         for (; it.hasNext(); ) {
             CachedObject row = (CachedObject) it.next();

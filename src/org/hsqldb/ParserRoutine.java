@@ -219,7 +219,7 @@ public class ParserRoutine extends ParserDML {
         setVariables(rangeVars, variableNames, indexes, variables);
 
         HsqlList unresolved = expression.resolveColumnReferences(rangeVars,
-            rangeVars.length, null, false);
+            rangeVars.length, null, true);
 
         unresolved = Expression.resolveColumnSet(rangeVars, unresolved, null);
 
@@ -228,6 +228,37 @@ public class ParserRoutine extends ParserDML {
 
         StatementSet cs = new StatementSet(session, compileContext, variables,
                                            expression, indexes);
+
+        return cs;
+    }
+
+    /**
+     * Creates SET Statement for a trigger row from this parse context.
+     */
+    StatementDMQL compileTriggerSetStatement(Table table,
+            RangeVariable[] rangeVars) {
+
+        read();
+
+        Expression[]   updateExpressions;
+        int[]          columnMap;
+        OrderedHashSet colNames = new OrderedHashSet();
+        HsqlArrayList  exprList = new HsqlArrayList();
+        RangeVariable[] targetRangeVars = new RangeVariable[]{
+            rangeVars[TriggerDef.NEW_ROW] };
+
+        readSetClauseList(targetRangeVars, colNames, exprList);
+
+        columnMap         = table.getColumnIndexes(colNames);
+        updateExpressions = new Expression[exprList.size()];
+
+        exprList.toArray(updateExpressions);
+        resolveUpdateExpressions(table, rangeVars, columnMap,
+                                 updateExpressions, RangeVariable.emptyArray);
+
+        StatementDMQL cs = new StatementSet(session, table, rangeVars,
+                                            columnMap, updateExpressions,
+                                            compileContext);
 
         return cs;
     }
@@ -243,6 +274,10 @@ public class ParserRoutine extends ParserDML {
             String colName = (String) colNames.get(i);
 
             for (int j = 0; j < rangeVars.length; j++) {
+                if (rangeVars[j] == null || rangeVars[j].variables == null) {
+                    continue;
+                }
+
                 index = rangeVars[j].variables.getIndex(colName);
 
                 if (index > -1) {
@@ -893,7 +928,7 @@ public class ParserRoutine extends ParserDML {
                                          ? routine.getParameterRangeVariables()
                                          : context.getRangeVariables();
 
-        if (isSimpleName() && !isReservedKey()) {
+        if (!routine.isTrigger() && isSimpleName() && !isReservedKey()) {
             label = readNewSchemaObjectName(SchemaObject.LABEL, false);
 
             readThis(Tokens.COLON);
@@ -907,7 +942,11 @@ public class ParserRoutine extends ParserDML {
             case Tokens.SELECT : {
                 if (routine.dataImpact == Routine.CONTAINS_SQL) {
                     throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                                      routine.getDataImpactString());
+                }
+
+                if (label != null) {
+                    throw unexpectedToken();
                 }
 
                 cs = compileSelectSingleRowStatement(rangeVariables);
@@ -919,7 +958,11 @@ public class ParserRoutine extends ParserDML {
             case Tokens.INSERT :
                 if (routine.dataImpact != Routine.MODIFIES_SQL) {
                     throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                                      routine.getDataImpactString());
+                }
+
+                if (label != null) {
+                    throw unexpectedToken();
                 }
 
                 cs = compileInsertStatement(rangeVariables);
@@ -928,7 +971,11 @@ public class ParserRoutine extends ParserDML {
             case Tokens.UPDATE :
                 if (routine.dataImpact != Routine.MODIFIES_SQL) {
                     throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                                      routine.getDataImpactString());
+                }
+
+                if (label != null) {
+                    throw unexpectedToken();
                 }
 
                 cs = compileUpdateStatement(rangeVariables);
@@ -938,7 +985,11 @@ public class ParserRoutine extends ParserDML {
             case Tokens.TRUNCATE :
                 if (routine.dataImpact != Routine.MODIFIES_SQL) {
                     throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                                      routine.getDataImpactString());
+                }
+
+                if (label != null) {
+                    throw unexpectedToken();
                 }
 
                 cs = compileDeleteStatement(rangeVariables);
@@ -947,14 +998,36 @@ public class ParserRoutine extends ParserDML {
             case Tokens.MERGE :
                 if (routine.dataImpact != Routine.MODIFIES_SQL) {
                     throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
+                                      routine.getDataImpactString());
+                }
+
+                if (label != null) {
+                    throw unexpectedToken();
                 }
 
                 cs = compileMergeStatement(rangeVariables);
                 break;
 
             case Tokens.SET :
-                cs = compileSetStatement(rangeVariables);
+                if (label != null) {
+                    throw unexpectedToken();
+                }
+
+                if (routine.isTrigger()) {
+                    if (routine.triggerOperation
+                            == StatementTypes.DELETE_WHERE) {
+                        throw unexpectedToken();
+                    }
+
+                    if (routine.triggerType != TriggerDef.BEFORE) {
+                        throw unexpectedToken();
+                    }
+
+                    cs = compileTriggerSetStatement(routine.triggerTable,
+                                                    rangeVariables);
+                } else {
+                    cs = compileSetStatement(rangeVariables);
+                }
                 break;
 
             // control
@@ -965,10 +1038,34 @@ public class ParserRoutine extends ParserDML {
 
                 cs = compileCallStatement(rangeVariables, true);
 
+                Routine proc = ((StatementProcedure) cs).procedure;
+
+                if (proc != null) {
+                    switch (routine.dataImpact) {
+
+                        case Routine.CONTAINS_SQL : {
+                            if (proc.dataImpact == Routine.READS_SQL
+                                    || proc.dataImpact
+                                       == Routine.MODIFIES_SQL) {
+                                throw Error.error(
+                                    ErrorCode.X_42608,
+                                    routine.getDataImpactString());
+                            }
+                        }
+                        case Routine.READS_SQL : {
+                            if (routine.dataImpact == Routine.MODIFIES_SQL) {
+                                throw Error.error(
+                                    ErrorCode.X_42608,
+                                    routine.getDataImpactString());
+                            }
+                        }
+                    }
+                }
+
                 break;
             }
             case Tokens.RETURN : {
-                if (label != null) {
+                if (routine.isTrigger() || label != null) {
                     throw unexpectedToken();
                 }
 
@@ -984,27 +1081,43 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.WHILE : {
+                if (routine.isTrigger()) {
+                    throw unexpectedToken();
+                }
+
                 cs = compileWhile(routine, context, label);
 
                 break;
             }
             case Tokens.REPEAT : {
+                if (routine.isTrigger()) {
+                    throw unexpectedToken();
+                }
+
                 cs = compileRepeat(routine, context, label);
 
                 break;
             }
             case Tokens.LOOP : {
+                if (routine.isTrigger()) {
+                    throw unexpectedToken();
+                }
+
                 cs = compileLoop(routine, context, label);
 
                 break;
             }
             case Tokens.FOR : {
+                if (routine.isTrigger()) {
+                    throw unexpectedToken();
+                }
+
                 cs = compileFor(routine, context, label);
 
                 break;
             }
             case Tokens.ITERATE : {
-                if (label != null) {
+                if (routine.isTrigger() || label != null) {
                     throw unexpectedToken();
                 }
 
@@ -1013,7 +1126,7 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.LEAVE : {
-                if (label != null) {
+                if (routine.isTrigger() || label != null) {
                     throw unexpectedToken();
                 }
 
@@ -1022,7 +1135,7 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.IF : {
-                if (label != null) {
+                if (routine.isTrigger() || label != null) {
                     throw unexpectedToken();
                 }
 
@@ -1031,7 +1144,7 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.CASE : {
-                if (label != null) {
+                if (routine.isTrigger() || label != null) {
                     throw unexpectedToken();
                 }
 
@@ -1040,11 +1153,19 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.SIGNAL : {
+                if (routine.isTrigger() || label != null) {
+                    throw unexpectedToken();
+                }
+
                 cs = compileSignal(routine, context, label);
 
                 break;
             }
             case Tokens.RESIGNAL : {
+                if (routine.isTrigger() || label != null) {
+                    throw unexpectedToken();
+                }
+
                 cs = compileResignal(routine, context, label);
 
                 break;

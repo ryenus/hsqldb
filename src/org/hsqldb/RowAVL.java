@@ -77,7 +77,8 @@ import org.hsqldb.lib.java.JavaSystem;
  * Base class for a database row object implementing rows for
  * memory resident tables.<p>
  *
- * Subclass RowAVLDisk implements rows for CACHED and TEXT tables
+ * Subclass RowAVLDisk implements rows for CACHED and TEXT tables.<p>
+ * New class derived from Hypersonic SQL code and enhanced in HSQLDB.<p>
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @version 1.9.0
@@ -91,13 +92,6 @@ public class RowAVL extends Row {
      *  Default constructor used only in subclasses.
      */
     protected RowAVL() {}
-
-    /**
-     *  Constructor for MEMORY table Row. .
-     */
-    public RowAVL(Object[] o) {
-        rowData = o;
-    }
 
     /**
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that

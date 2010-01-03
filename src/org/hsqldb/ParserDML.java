@@ -74,7 +74,8 @@ public class ParserDML extends ParserDQL {
 
         int position = getPosition();
 
-        if (!table.isInsertable() && !session.isProcessingScript) {
+        if (!table.isInsertable() && !table.isTriggerInsertable()
+                && !session.isProcessingScript) {
             throw Error.error(ErrorCode.X_42545);
         }
 
@@ -347,7 +348,7 @@ public class ParserDML extends ParserDQL {
         Expression condition       = null;
         boolean    truncate        = false;
         boolean    restartIdentity = false;
-        int        statementCode;
+        int        statementType;
 
         switch (token.tokenType) {
 
@@ -356,7 +357,7 @@ public class ParserDML extends ParserDQL {
                 readThis(Tokens.TABLE);
 
                 truncate      = true;
-                statementCode = StatementTypes.TRUNCATE;
+                statementType = StatementTypes.TRUNCATE;
 
                 break;
             }
@@ -364,7 +365,7 @@ public class ParserDML extends ParserDQL {
                 read();
                 readThis(Tokens.FROM);
 
-                statementCode = StatementTypes.DELETE_WHERE;
+                statementType = StatementTypes.DELETE_WHERE;
 
                 break;
             }
@@ -373,15 +374,19 @@ public class ParserDML extends ParserDQL {
         }
 
         RangeVariable[] rangeVariables = {
-            readSimpleRangeVariable(statementCode) };
+            readSimpleRangeVariable(statementType) };
         Table table     = rangeVariables[0].getTable();
         Table baseTable = table.getBaseTable();
 
         if (!table.isUpdatable()) {
-            throw Error.error(ErrorCode.X_42000);
+            throw Error.error(ErrorCode.X_42545);
         }
 
         if (truncate) {
+            if (table != baseTable) {
+                throw Error.error(ErrorCode.X_42545);
+            }
+
             switch (token.tokenType) {
 
                 case Tokens.CONTINUE : {
@@ -400,16 +405,9 @@ public class ParserDML extends ParserDQL {
                 }
             }
 
-            for (int i = 0; i < table.constraintList.length; i++) {
-                if (table.constraintList[i].getConstraintType()
-                        == SchemaObject.ConstraintTypes.MAIN) {
-                    throw Error.error(ErrorCode.X_23504);
-                }
+            if (table.fkMainConstraints.length > 0) {
+                throw Error.error(ErrorCode.X_23504);
             }
-        }
-
-        if (truncate && table != baseTable) {
-            throw Error.error(ErrorCode.X_42000);
         }
 
         if (!truncate && token.tokenType == Tokens.WHERE) {
@@ -461,7 +459,8 @@ public class ParserDML extends ParserDQL {
         }
 
         StatementDMQL cs = new StatementDML(session, table, rangeVariables,
-                                            compileContext, restartIdentity);
+                                            compileContext, restartIdentity,
+                                            statementType);
 
         return cs;
     }

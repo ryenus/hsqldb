@@ -70,14 +70,6 @@ public class StatementExpression extends StatementDMQL {
         switch (type) {
 
             case StatementTypes.RETURN :
-/*
-                sb.append(Tokens.T_RETURN);
-
-                if (expression != null) {
-                    sb.append(' ').append(expression.getSQL());
-                }
-                break;
-*/
                 return sql;
 
             case StatementTypes.CONDITION :
@@ -133,32 +125,10 @@ public class StatementExpression extends StatementDMQL {
         }
     }
 
-    public void resolve(Session session) {
+    public void resolve(Session session) {}
 
-        boolean resolved = false;
-
-        switch (type) {
-
-            case StatementTypes.CONDITION :
-            case StatementTypes.RETURN :
-                references = new OrderedHashSet();
-
-                expression.collectObjectNames(references);
-
-                resolved = true;
-                break;
-
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "");
-        }
-
-        if (!resolved) {
-            throw Error.error(ErrorCode.X_42602);
-        }
-    }
-
-    public String describe(Session session) {
-        return "";
+    String describeImpl(Session session) throws Exception {
+        return getSQL();
     }
 
     private Result getResultValue(Session session) {

@@ -37,20 +37,36 @@ import org.hsqldb.store.BaseHashMap;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 1.9.0
- * @since 1.7.2
+ * @since 1.9.0
  */
-public class IntKeyHashMap extends BaseHashMap {
+public class OrderedIntKeyHashMap extends BaseHashMap {
 
     Set        keySet;
     Collection values;
 
-    public IntKeyHashMap() {
+    public OrderedIntKeyHashMap() {
         this(8);
     }
 
-    public IntKeyHashMap(int initialCapacity) throws IllegalArgumentException {
+    public OrderedIntKeyHashMap(int initialCapacity)
+    throws IllegalArgumentException {
+
         super(initialCapacity, BaseHashMap.intKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
+
+        isList = true;
+    }
+
+    public OrderedIntKeyHashMap(int initialCapacity,
+                                boolean hasSecondValue)
+                                throws IllegalArgumentException {
+
+        super(initialCapacity, BaseHashMap.intKeyOrValue,
+              BaseHashMap.objectKeyOrValue, false);
+
+        objectKeyTable   = new Object[objectValueTable.length];
+        isTwoObjectValue = true;
+        isList           = true;
     }
 
     public Object get(int key) {
@@ -64,6 +80,14 @@ public class IntKeyHashMap extends BaseHashMap {
         return null;
     }
 
+    public Object getValueByIndex(int index) {
+        return objectValueTable[index];
+    }
+
+    public Object getSecondValueByIndex(int index) {
+        return objectKeyTable[index];
+    }
+
     public Object put(int key, Object value) {
         return super.addOrRemove(key, value, null, false);
     }
@@ -73,11 +97,34 @@ public class IntKeyHashMap extends BaseHashMap {
     }
 
     public Object remove(int key) {
-        return super.addOrRemove(key, null, null, true);
+        return super.addOrRemove(key, null, null, false);
     }
 
     public boolean containsKey(int key) {
         return super.containsKey(key);
+    }
+
+    /* methods for two object lookups */
+    public Object put(int key, Object valueOne, Object valueTwo) {
+        return super.addOrRemove(key, valueOne, valueTwo, false);
+    }
+
+    public Object getFirstByLookup(int lookup) {
+
+        if (lookup == -1) {
+            return null;
+        }
+
+        return objectValueTable[lookup];
+    }
+
+    public Object getSecondByLookup(int lookup) {
+
+        if (lookup == -1) {
+            return null;
+        }
+
+        return objectKeyTable[lookup];
     }
 
     public Set keySet() {
@@ -101,11 +148,11 @@ public class IntKeyHashMap extends BaseHashMap {
     class KeySet implements Set {
 
         public Iterator iterator() {
-            return IntKeyHashMap.this.new BaseHashIterator(true);
+            return OrderedIntKeyHashMap.this.new BaseHashIterator(true);
         }
 
         public int size() {
-            return IntKeyHashMap.this.size();
+            return OrderedIntKeyHashMap.this.size();
         }
 
         public boolean contains(Object o) {
@@ -133,18 +180,18 @@ public class IntKeyHashMap extends BaseHashMap {
         }
 
         public void clear() {
-            IntKeyHashMap.this.clear();
+            OrderedIntKeyHashMap.this.clear();
         }
     }
 
     class Values implements Collection {
 
         public Iterator iterator() {
-            return IntKeyHashMap.this.new BaseHashIterator(false);
+            return OrderedIntKeyHashMap.this.new BaseHashIterator(false);
         }
 
         public int size() {
-            return IntKeyHashMap.this.size();
+            return OrderedIntKeyHashMap.this.size();
         }
 
         public boolean contains(Object o) {
@@ -168,7 +215,7 @@ public class IntKeyHashMap extends BaseHashMap {
         }
 
         public void clear() {
-            IntKeyHashMap.this.clear();
+            OrderedIntKeyHashMap.this.clear();
         }
     }
 }
