@@ -4502,6 +4502,10 @@ public class ParserDQL extends ParserBase {
         }
 
         for (int i = 0; i < rangeVars.length; i++) {
+            if (rangeVars[i] == null) {
+                continue;
+            }
+
             int index = rangeVars[i].findColumn(token.tokenString);
 
             if (index > -1 && rangeVars[i].resolvesTableName(token.namePrefix)

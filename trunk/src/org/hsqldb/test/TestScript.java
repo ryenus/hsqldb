@@ -72,8 +72,8 @@ public class TestScript extends TestBase {
 //    String path = "TestSelfSysTables.txt";
 //    String path = "TestSelfTempTable1.txt";
 //      String path = "TestSelfTransaction.txt";
-//    String path = "TestSelfTriggers.txt";
-    String path = "TestSelfUnions.txt";
+    String path = "TestSelfTriggers.txt";
+//    String path = "TestSelfUnions.txt";
 //    String path = "TestSelfUserFunction.txt";
 //    String path = "TestSelfViews.txt";
 //    String path = "TestSelfViewGrants.txt";
@@ -89,8 +89,8 @@ public class TestScript extends TestBase {
         TestUtil.deleteDatabase("test");
 
         Connection conn = newConnection();
-
-        TestUtil.testScript(conn, path);
+        String fullPath = "testrun/hsqldb/" + path;
+        TestUtil.testScript(conn, fullPath);
         conn.createStatement().execute("SHUTDOWN IMMEDIATELY");
     }
 

@@ -37,7 +37,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.rights.GrantConstants;
 import org.hsqldb.rights.Grantee;
 
 // peterhudson@users 20020130 - patch 478657 by peterhudson - triggers support
@@ -67,6 +66,9 @@ public class TriggerDef implements Runnable, SchemaObject {
     static final int NEW_ROW   = 1;
     static final int OLD_TABLE = 2;
     static final int NEW_TABLE = 3;
+    static final int BEFORE    = 4;
+    static final int AFTER     = 5;
+    static final int INSTEAD   = 6;
 
     //
     static final int NUM_TRIGGER_OPS = 3;                      // {ins,del,upd}
@@ -81,14 +83,13 @@ public class TriggerDef implements Runnable, SchemaObject {
     boolean                   hasTransitionRanges;
     String                    conditionSQL;
     String                    procedureSQL;
-    Statement[]               statements = Statement.emptyArray;
+    Routine                   routine;
     int[]                     updateColumns;
 
     // other variables
     HsqlName name;
     long     changeTimestamp;
-    String   actionTimingString;
-    String   eventTimingString;
+    int      actionTiming;
     int      operationType;
     boolean  forEachRow;
     boolean  nowait;                                           // block or overwrite if queue full
@@ -118,9 +119,9 @@ public class TriggerDef implements Runnable, SchemaObject {
      *  (fredt@users)
      *
      * @param  name The trigger object's HsqlName
-     * @param  when the String representation of whether the trigger fires
-     *      before or after the triggering event
-     * @param  operation the String representation of the triggering operation;
+     * @param  when whether the trigger fires
+     *      before, after or instead of the triggering event
+     * @param  operation the triggering operation;
      *      currently insert, update, or delete
      * @param  forEach indicates whether the trigger is fired for each row
      *      (true) or statement (false)
@@ -135,12 +136,11 @@ public class TriggerDef implements Runnable, SchemaObject {
      *      further additions are either blocked or overwrite the tail entry,
      *      as determined by noWait
      */
-    public TriggerDef(HsqlNameManager.HsqlName name, String when,
-                      String operation, boolean forEach, Table table,
-                      Table[] transitions, RangeVariable[] rangeVars,
-                      Expression condition, String conditionSQL,
-                      int[] updateColumns, String triggerClassName,
-                      boolean noWait, int queueSize) {
+    public TriggerDef(HsqlNameManager.HsqlName name, int when, int operation,
+                      boolean forEach, Table table, Table[] transitions,
+                      RangeVariable[] rangeVars, Expression condition,
+                      String conditionSQL, int[] updateColumns,
+                      String triggerClassName, boolean noWait, int queueSize) {
 
         this(name, when, operation, forEach, table, transitions, rangeVars,
              condition, conditionSQL, updateColumns);
@@ -170,23 +170,22 @@ public class TriggerDef implements Runnable, SchemaObject {
         }
     }
 
-    public TriggerDef(HsqlNameManager.HsqlName name, String when,
-                      String operation, boolean forEachRow, Table table,
-                      Table[] transitions, RangeVariable[] rangeVars,
-                      Expression condition, String conditionSQL,
-                      int[] updateColumns) {
+    public TriggerDef(HsqlNameManager.HsqlName name, int when, int operation,
+                      boolean forEachRow, Table table, Table[] transitions,
+                      RangeVariable[] rangeVars, Expression condition,
+                      String conditionSQL, int[] updateColumns) {
 
-        this.name               = name;
-        this.actionTimingString = when;
-        this.eventTimingString  = operation;
-        this.forEachRow         = forEachRow;
-        this.table              = table;
-        this.transitions        = transitions;
-        this.rangeVars          = rangeVars;
-        this.condition          = condition == null ? Expression.EXPR_TRUE
-                                                    : condition;
-        this.updateColumns      = updateColumns;
-        this.conditionSQL       = conditionSQL;
+        this.name          = name;
+        this.actionTiming  = when;
+        this.operationType = operation;
+        this.forEachRow    = forEachRow;
+        this.table         = table;
+        this.transitions   = transitions;
+        this.rangeVars     = rangeVars;
+        this.condition     = condition == null ? Expression.EXPR_TRUE
+                                               : condition;
+        this.updateColumns = updateColumns;
+        this.conditionSQL  = conditionSQL;
         hasTransitionRanges = transitions[OLD_ROW] != null
                               || transitions[NEW_ROW] != null;
         hasTransitionTables = transitions[OLD_TABLE] != null
@@ -267,8 +266,8 @@ public class TriggerDef implements Runnable, SchemaObject {
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_TRIGGER).append(' ');
         sb.append(name.getSchemaQualifiedStatementName()).append(' ');
-        sb.append(actionTimingString).append(' ');
-        sb.append(eventTimingString).append(' ');
+        sb.append(getActionTimingString()).append(' ');
+        sb.append(getEventTypeString()).append(' ');
 
         if (updateColumns != null) {
             sb.append(Tokens.T_OF).append(' ');
@@ -320,7 +319,6 @@ public class TriggerDef implements Runnable, SchemaObject {
                 sb.append(transitions[NEW_TABLE].getName().statementName);
                 sb.append(' ');
             }
-
         }
 
         if (forEachRow) {
@@ -343,11 +341,39 @@ public class TriggerDef implements Runnable, SchemaObject {
     }
 
     public String getActionTimingString() {
-        return actionTimingString;
+
+        switch (this.actionTiming) {
+
+            case TriggerDef.BEFORE :
+                return Tokens.T_BEFORE;
+
+            case TriggerDef.AFTER :
+                return Tokens.T_AFTER;
+
+            case TriggerDef.INSTEAD :
+                return Tokens.T_INSTEAD + ' ' + Tokens.T_OF;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "TriggerDef");
+        }
     }
 
     public String getEventTypeString() {
-        return eventTimingString;
+
+        switch (this.operationType) {
+
+            case StatementTypes.INSERT :
+                return Tokens.T_INSERT;
+
+            case StatementTypes.DELETE_WHERE :
+                return Tokens.T_DELETE;
+
+            case StatementTypes.UPDATE_WHERE :
+                return Tokens.T_UPDATE;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "TriggerDef");
+        }
     }
 
     public boolean isForEachRow() {
@@ -410,27 +436,70 @@ public class TriggerDef implements Runnable, SchemaObject {
 
         triggerType = 0;
 
-        if (eventTimingString.equals(Tokens.T_INSERT)) {
-            triggerType            = Trigger.INSERT_AFTER;
-            operationType = StatementTypes.INSERT;
-        } else if (eventTimingString.equals(Tokens.T_DELETE)) {
-            operationType = StatementTypes.DELETE_WHERE;
-            triggerType            = Trigger.DELETE_AFTER;
-        } else if (eventTimingString.equals(Tokens.T_UPDATE)) {
-            operationType = StatementTypes.UPDATE_WHERE;
-            triggerType            = Trigger.UPDATE_AFTER;
-        } else {
-            throw Error.runtimeError(ErrorCode.U_S0500, "TriggerDef");
-        }
+        switch (operationType) {
 
-        if (actionTimingString.equals(Tokens.T_BEFORE)) {
-            triggerType += NUM_TRIGGER_OPS;    // number of operations
-        }
+            case StatementTypes.INSERT :
+                triggerType = Trigger.INSERT_AFTER;
+                break;
 
-        triggerType = triggerType;
+            case StatementTypes.DELETE_WHERE :
+                triggerType = Trigger.DELETE_AFTER;
+                break;
+
+            case StatementTypes.UPDATE_WHERE :
+                triggerType = Trigger.UPDATE_AFTER;
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "TriggerDef");
+        }
 
         if (forEachRow) {
             triggerType += NUM_TRIGGER_OPS;
+        }
+
+        if (actionTiming == TriggerDef.BEFORE
+                || actionTiming == TriggerDef.INSTEAD) {
+            triggerType += NUM_TRIGGER_OPS;
+        }
+    }
+
+    /**
+     *  Return the type code for operation tokens
+     */
+    static int getOperationType(int token) {
+
+        switch (token) {
+
+            case Tokens.INSERT :
+                return StatementTypes.INSERT;
+
+            case Tokens.DELETE :
+                return StatementTypes.DELETE_WHERE;
+
+            case Tokens.UPDATE :
+                return StatementTypes.UPDATE_WHERE;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "TriggerDef");
+        }
+    }
+
+    static int getTiming(int token) {
+
+        switch (token) {
+
+            case Tokens.BEFORE :
+                return TriggerDef.BEFORE;
+
+            case Tokens.AFTER :
+                return TriggerDef.AFTER;
+
+            case Tokens.INSTEAD :
+                return TriggerDef.INSTEAD;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "TriggerDef");
         }
     }
 
@@ -589,7 +658,8 @@ public class TriggerDef implements Runnable, SchemaObject {
 
         public void fire(int i, String name, String table, Object[] row1,
                          Object[] row2) {
-            throw new RuntimeException("Missing Trigger class!");
+
+            // do nothing
         }
     }
 }

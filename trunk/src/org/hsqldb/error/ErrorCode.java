@@ -539,7 +539,7 @@ public interface ErrorCode {
     int X_42542 = 5542;                                  // requires OVERRIDING clause
     int X_42543 = 5543;                                  // requires either DEFAULT keyword or OVERRIDING clause
     int X_42544 = 5544;                                  // DEFAULT keyword cannot be used as column has no DEFAULT
-    int X_42545 = 5545;                                  // INSERT, UPDATE, or DELETE not permitted for view
+    int X_42545 = 5545;                                  // INSERT, UPDATE, DELETE or TRUNCATE not permitted for table or view
     int X_42546 = 5546;                                  // number of target columns does not match that of query expression
     int X_42547 = 5547;                                  // merge when matched already used
     int X_42548 = 5548;                                  // merge when not matched altready used

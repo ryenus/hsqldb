@@ -910,7 +910,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         Object[] args = new Object[] {
-            object.getName(),  ValuePool.getInt(SchemaObject.CONSTRAINT),
+            object.getName(), ValuePool.getInt(SchemaObject.CONSTRAINT),
             Boolean.valueOf(cascade), Boolean.valueOf(false)
         };
         String sql = getLastPart();
@@ -1915,9 +1915,7 @@ public class ParserDDL extends ParserRoutine {
         boolean        isNowait     = false;
         boolean        hasQueueSize = false;
         int            queueSize    = 0;
-        String         beforeOrAfter;
         int            beforeOrAfterType;
-        String         operation;
         int            operationType;
         String         className;
         TriggerDef     td;
@@ -1933,8 +1931,7 @@ public class ParserDDL extends ParserRoutine {
         switch (token.tokenType) {
 
             case Tokens.INSTEAD :
-                beforeOrAfter     = token.tokenString;
-                beforeOrAfterType = token.tokenType;
+                beforeOrAfterType = TriggerDef.getTiming(Tokens.INSTEAD);
 
                 read();
                 readThis(Tokens.OF);
@@ -1942,8 +1939,7 @@ public class ParserDDL extends ParserRoutine {
 
             case Tokens.BEFORE :
             case Tokens.AFTER :
-                beforeOrAfter     = token.tokenString;
-                beforeOrAfterType = token.tokenType;
+                beforeOrAfterType = TriggerDef.getTiming(token.tokenType);
 
                 read();
                 break;
@@ -1956,20 +1952,18 @@ public class ParserDDL extends ParserRoutine {
 
             case Tokens.INSERT :
             case Tokens.DELETE :
-                operation     = token.tokenString;
-                operationType = token.tokenType;
+                operationType = TriggerDef.getOperationType(token.tokenType);
 
                 read();
                 break;
 
             case Tokens.UPDATE :
-                operation     = token.tokenString;
-                operationType = token.tokenType;
+                operationType = TriggerDef.getOperationType(token.tokenType);
 
                 read();
 
                 if (token.tokenType == Tokens.OF
-                        && beforeOrAfterType != Tokens.INSTEAD) {
+                        && beforeOrAfterType != TriggerDef.INSTEAD) {
                     read();
 
                     columns = readColumnNameList(null, false);
@@ -1994,7 +1988,7 @@ public class ParserDDL extends ParserRoutine {
         name.setSchemaIfNull(table.getSchemaName());
         checkSchemaUpdateAuthorisation(name.schema);
 
-        if (beforeOrAfterType == Tokens.INSTEAD) {
+        if (beforeOrAfterType == TriggerDef.INSTEAD) {
             if (!table.isView()
                     || ((View) table).getCheckOption()
                        == SchemaObject.ViewCheckModes.CHECK_CASCADE) {
@@ -2025,16 +2019,14 @@ public class ParserDDL extends ParserRoutine {
             }
         }
 
-        Expression      condition          = null;
-        String          oldTableName       = null;
-        String          newTableName       = null;
-        String          oldRowName         = null;
-        String          newRowName         = null;
-        Table[]         transitions        = new Table[4];
-        RangeVariable[] rangeVars          = new RangeVariable[4];
-        HsqlArrayList   compiledStatements = new HsqlArrayList();
-        String          conditionSQL       = null;
-        String          procedureSQL       = null;
+        Expression      condition    = null;
+        String          oldTableName = null;
+        String          newTableName = null;
+        String          oldRowName   = null;
+        String          newRowName   = null;
+        Table[]         transitions  = new Table[4];
+        RangeVariable[] rangeVars    = new RangeVariable[4];
+        String          conditionSQL = null;
 
         if (token.tokenType == Tokens.REFERENCING) {
             read();
@@ -2046,7 +2038,7 @@ public class ParserDDL extends ParserRoutine {
 
             while (true) {
                 if (token.tokenType == Tokens.OLD) {
-                    if (operationType == Tokens.INSERT) {
+                    if (operationType == StatementTypes.INSERT) {
                         throw unexpectedToken();
                     }
 
@@ -2055,7 +2047,7 @@ public class ParserDDL extends ParserRoutine {
                     if (token.tokenType == Tokens.TABLE) {
                         if (Boolean.TRUE.equals(isForEachRow)
                                 || oldTableName != null
-                                || beforeOrAfterType == Tokens.BEFORE) {
+                                || beforeOrAfterType == TriggerDef.BEFORE) {
                             throw unexpectedToken();
                         }
 
@@ -2120,7 +2112,7 @@ public class ParserDDL extends ParserRoutine {
                         throw unexpectedToken();
                     }
                 } else if (token.tokenType == Tokens.NEW) {
-                    if (operationType == Tokens.DELETE) {
+                    if (operationType == StatementTypes.DELETE_WHERE) {
                         throw unexpectedToken();
                     }
 
@@ -2129,7 +2121,7 @@ public class ParserDDL extends ParserRoutine {
                     if (token.tokenType == Tokens.TABLE) {
                         if (Boolean.TRUE.equals(isForEachRow)
                                 || newTableName != null
-                                || beforeOrAfterType == Tokens.BEFORE) {
+                                || beforeOrAfterType == TriggerDef.BEFORE) {
                             throw unexpectedToken();
                         }
 
@@ -2202,7 +2194,7 @@ public class ParserDDL extends ParserRoutine {
 
         if (Boolean.TRUE.equals(isForEachRow)
                 && token.tokenType != Tokens.FOR) {
-            throw unexpectedToken();
+            throw unexpectedTokenRequire(Tokens.T_FOR);
         }
 
         if (token.tokenType == Tokens.FOR) {
@@ -2217,7 +2209,7 @@ public class ParserDDL extends ParserRoutine {
                 isForEachRow = Boolean.TRUE;
             } else if (token.tokenType == Tokens.STATEMENT) {
                 if (Boolean.TRUE.equals(isForEachRow)
-                        || beforeOrAfterType == Tokens.BEFORE) {
+                        || beforeOrAfterType == TriggerDef.BEFORE) {
                     throw unexpectedToken();
                 }
 
@@ -2249,7 +2241,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         if (token.tokenType == Tokens.WHEN
-                && beforeOrAfterType != Tokens.INSTEAD) {
+                && beforeOrAfterType != TriggerDef.INSTEAD) {
             read();
             readThis(Tokens.OPENBRACKET);
 
@@ -2278,27 +2270,33 @@ public class ParserDDL extends ParserRoutine {
         }
 
         if (token.tokenType == Tokens.CALL) {
-            read();
-            checkIsSimpleName();
-            checkIsDelimitedIdentifier();
+            int position = getPosition();
 
-            className = token.tokenString;
+            try {
+                read();
+                checkIsSimpleName();
+                checkIsDelimitedIdentifier();
 
-            read();
+                className = token.tokenString;
 
-            td = new TriggerDef(name, beforeOrAfter, operation,
-                                isForEachRow.booleanValue(), table,
-                                transitions, rangeVars, condition,
-                                conditionSQL, updateColumnIndexes, className,
-                                isNowait, queueSize);
+                read();
 
-            String   sql  = getLastPart();
-            Object[] args = new Object[] {
-                td, otherName
-            };
+                td = new TriggerDef(name, beforeOrAfterType, operationType,
+                                    isForEachRow.booleanValue(), table,
+                                    transitions, rangeVars, condition,
+                                    conditionSQL, updateColumnIndexes,
+                                    className, isNowait, queueSize);
 
-            return new StatementSchema(sql, StatementTypes.CREATE_TRIGGER,
-                                       args, null, table.getName());
+                String   sql  = getLastPart();
+                Object[] args = new Object[] {
+                    td, otherName
+                };
+
+                return new StatementSchema(sql, StatementTypes.CREATE_TRIGGER,
+                                           args, null, table.getName());
+            } catch (HsqlException e) {
+                rewind(position);
+            }
         }
 
         //
@@ -2310,135 +2308,13 @@ public class ParserDDL extends ParserRoutine {
             throw unexpectedToken(Tokens.T_NOWAIT);
         }
 
-        // procedure
-        boolean isBlock = false;
+        Routine routine = compileTriggerRoutine(table, rangeVars,
+            beforeOrAfterType, operationType);
 
-        if (readIfThis(Tokens.BEGIN)) {
-            readThis(Tokens.ATOMIC);
-
-            isBlock = true;
-        }
-
-        int position = getPosition();
-
-        while (true) {
-            StatementDMQL cs = null;
-
-            compileContext.reset();
-
-            switch (token.tokenType) {
-
-                case Tokens.INSERT :
-                    if (beforeOrAfterType == Tokens.BEFORE) {
-                        throw unexpectedToken();
-                    }
-
-                    cs = compileInsertStatement(rangeVars);
-
-                    compiledStatements.add(cs);
-
-                    if (isBlock) {
-                        readThis(Tokens.SEMICOLON);
-                    }
-                    break;
-
-                case Tokens.UPDATE :
-                    if (beforeOrAfterType == Tokens.BEFORE) {
-                        throw unexpectedToken();
-                    }
-
-                    cs = compileUpdateStatement(rangeVars);
-
-                    compiledStatements.add(cs);
-
-                    if (isBlock) {
-                        readThis(Tokens.SEMICOLON);
-                    }
-                    break;
-
-                case Tokens.DELETE :
-                    if (beforeOrAfterType == Tokens.BEFORE) {
-                        throw unexpectedToken();
-                    }
-
-                    cs = compileDeleteStatement(rangeVars);
-
-                    compiledStatements.add(cs);
-
-                    if (isBlock) {
-                        readThis(Tokens.SEMICOLON);
-                    }
-                    break;
-
-                case Tokens.MERGE :
-                    if (beforeOrAfterType == Tokens.BEFORE) {
-                        throw unexpectedToken();
-                    }
-
-                    cs = compileMergeStatement(rangeVars);
-
-                    compiledStatements.add(cs);
-
-                    if (isBlock) {
-                        readThis(Tokens.SEMICOLON);
-                    }
-                    break;
-
-                case Tokens.SET :
-                    if (beforeOrAfterType != Tokens.BEFORE
-                            || operationType == Tokens.DELETE) {
-                        throw unexpectedToken();
-                    }
-
-                    cs = compileTriggerSetStatement(table, rangeVars);
-
-                    compiledStatements.add(cs);
-
-                    if (isBlock) {
-                        readThis(Tokens.SEMICOLON);
-                    }
-                    break;
-
-                case Tokens.END :
-                    break;
-
-                default :
-                    throw unexpectedToken();
-            }
-
-            if (!isBlock || token.tokenType == Tokens.END) {
-                break;
-            }
-        }
-
-        procedureSQL = getLastPart(position);
-
-        if (isBlock) {
-            readThis(Tokens.END);
-        }
-
-        StatementDMQL[] csArray = new StatementDMQL[compiledStatements.size()];
-
-        compiledStatements.toArray(csArray);
-
-        OrderedHashSet references = compileContext.getSchemaObjectNames();
-
-        for (int i = 0; i < csArray.length; i++) {
-            Table     targetTable = csArray[i].targetTable;
-            boolean[] check = csArray[i].getInsertOrUpdateColumnCheckList();
-
-            if (check != null) {
-                targetTable.getColumnNames(check, references);
-            }
-        }
-
-        references.remove(table.getName());
-
-        td = new TriggerDefSQL(name, beforeOrAfter, operation,
+        td = new TriggerDefSQL(name, beforeOrAfterType, operationType,
                                isForEachRow.booleanValue(), table,
                                transitions, rangeVars, condition,
-                               conditionSQL, updateColumnIndexes, csArray,
-                               procedureSQL, references);
+                               conditionSQL, updateColumnIndexes, routine);
 
         String   sql  = getLastPart();
         Object[] args = new Object[] {
@@ -2449,35 +2325,32 @@ public class ParserDDL extends ParserRoutine {
                                    null, table.getName());
     }
 
-    /**
-     * Creates SET Statement for a trigger row from this parse context.
-     */
-    StatementDMQL compileTriggerSetStatement(Table table,
-            RangeVariable[] rangeVars) {
+    Routine compileTriggerRoutine(Table table, RangeVariable[] ranges,
+                                  int beforeOrAfter, int operation) {
 
-        read();
+        int impact = (beforeOrAfter == TriggerDef.BEFORE) ? Routine.READS_SQL
+                                                          : Routine
+                                                              .MODIFIES_SQL;
+        Routine routine = new Routine(table, ranges, impact, beforeOrAfter,
+                                      operation);
 
-        Expression[]   updateExpressions;
-        int[]          columnMap;
-        OrderedHashSet colNames = new OrderedHashSet();
-        HsqlArrayList  exprList = new HsqlArrayList();
-        RangeVariable[] targetRangeVars = new RangeVariable[]{
-            rangeVars[TriggerDef.NEW_ROW] };
+        startRecording();
 
-        readSetClauseList(targetRangeVars, colNames, exprList);
+        Statement statement = compileSQLProcedureStatementOrNull(routine,
+            null);
 
-        columnMap         = table.getColumnIndexes(colNames);
-        updateExpressions = new Expression[exprList.size()];
+        if (statement == null) {
+            throw unexpectedToken();
+        }
 
-        exprList.toArray(updateExpressions);
-        resolveUpdateExpressions(table, rangeVars, columnMap,
-                                 updateExpressions, RangeVariable.emptyArray);
+        Token[] tokenisedStatement = getRecordedStatement();
+        String  sql                = Token.getSQL(tokenisedStatement);
 
-        StatementDMQL cs = new StatementSet(session, table, rangeVars,
-                                            columnMap, updateExpressions,
-                                            compileContext);
+        statement.setSQL(sql);
+        routine.setProcedure(statement);
+        routine.resolve(session);
 
-        return cs;
+        return routine;
     }
 
     /**
@@ -3724,8 +3597,8 @@ public class ParserDDL extends ParserRoutine {
 
         Object[] args = new Object[] {
             table.getColumn(colindex).getName(),
-            ValuePool.getInt(SchemaObject.CONSTRAINT), Boolean.valueOf(cascade),
-            Boolean.valueOf(false)
+            ValuePool.getInt(SchemaObject.CONSTRAINT),
+            Boolean.valueOf(cascade), Boolean.valueOf(false)
         };
 
         if (!table.isTemp()) {

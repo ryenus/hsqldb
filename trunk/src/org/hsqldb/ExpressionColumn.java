@@ -244,7 +244,7 @@ public class ExpressionColumn extends Expression {
         switch (opType) {
 
             case OpTypes.SEQUENCE :
-                HsqlName name = ((NumberSequence) valueData).getName();
+                HsqlName name = sequence.getName();
 
                 set.add(name);
 

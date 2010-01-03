@@ -76,11 +76,11 @@ public final class ObjectCacheHashMap extends BaseHashMap {
             resetAccessCount();
         }
 
-        return super.addOrRemove(key, value, false);
+        return super.addOrRemove(key, value, null, false);
     }
 
     public Object remove(int key) {
-        return super.addOrRemove(key, null, true);
+        return super.addOrRemove(key, null, null, true);
     }
 
     /**

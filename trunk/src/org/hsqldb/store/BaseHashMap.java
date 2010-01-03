@@ -87,6 +87,7 @@ public class BaseHashMap {
     boolean           isIntValue;
     boolean           isLongValue;
     boolean           isObjectValue;
+    protected boolean isTwoObjectValue;
     protected boolean isList;
 
     //
@@ -590,7 +591,7 @@ public class BaseHashMap {
     /**
      * type-specific method for adding or removing keys in int->Object maps
      */
-    protected Object addOrRemove(int intKey, Object objectValue,
+    protected Object addOrRemove(int intKey, Object objectValue, Object objectValueTwo,
                                  boolean remove) {
 
         int    hash        = intKey;
@@ -620,6 +621,10 @@ public class BaseHashMap {
 
                 hashIndex.unlinkNode(index, lastLookup, lookup);
 
+                if (isTwoObjectValue) {
+                    objectKeyTable[lookup] = null;
+                }
+
                 if (accessTable != null) {
                     accessTable[lookup] = 0;
                 }
@@ -630,6 +635,10 @@ public class BaseHashMap {
             if (isObjectValue) {
                 returnValue              = objectValueTable[lookup];
                 objectValueTable[lookup] = objectValue;
+            }
+
+            if (isTwoObjectValue) {
+                objectKeyTable[lookup] = objectValueTwo;
             }
 
             if (accessTable != null) {
@@ -646,7 +655,7 @@ public class BaseHashMap {
 
         if (hashIndex.elementCount >= threshold) {
             if (reset()) {
-                return addOrRemove(intKey, objectValue, remove);
+                return addOrRemove(intKey, objectValue, objectValueTwo, remove);
             } else {
                 return null;
             }
@@ -661,6 +670,10 @@ public class BaseHashMap {
         }
 
         objectValueTable[lookup] = objectValue;
+
+        if (isTwoObjectValue) {
+            objectKeyTable[lookup] = objectValueTwo;
+        }
 
         if (accessTable != null) {
             accessTable[lookup] = accessCount++;
@@ -841,7 +854,7 @@ public class BaseHashMap {
             System.arraycopy(temp, 0, longValueTable, 0, usedLength);
         }
 
-        if (isObjectKey) {
+        if (isObjectKey || objectKeyTable != null) {
             temp           = objectKeyTable;
             objectKeyTable = new Object[newLength];
 
@@ -887,7 +900,10 @@ public class BaseHashMap {
             while (--counter >= from) {
                 longKeyTable[counter] = 0;
             }
-        } else if (isObjectKey) {
+
+
+
+        } else if (isObjectKey || objectKeyTable != null) {
             int counter = to;
 
             while (--counter >= from) {
@@ -957,7 +973,7 @@ public class BaseHashMap {
             longKeyTable[arrayLength - 1] = 0;
         }
 
-        if (isObjectKey) {
+        if (isObjectKey || objectKeyTable != null) {
             Object array = objectKeyTable;
 
             System.arraycopy(array, lookup + 1, array, lookup,

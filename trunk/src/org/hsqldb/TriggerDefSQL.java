@@ -32,6 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.store.ValuePool;
+import org.hsqldb.result.Result;
 
 /**
  * Implementation of SQL TRIGGER objects.<p>
@@ -44,24 +46,21 @@ public class TriggerDefSQL extends TriggerDef {
 
     OrderedHashSet references;
 
-    public TriggerDefSQL(HsqlNameManager.HsqlName name, String when,
-                         String operation, boolean forEachRow, Table table,
+    public TriggerDefSQL(HsqlNameManager.HsqlName name, int when,
+                         int operation, boolean forEachRow, Table table,
                          Table[] transitions, RangeVariable[] rangeVars,
                          Expression condition, String conditionSQL,
-                         int[] updateColumns,
-                         StatementDMQL[] compiledStatements,
-                         String procedureSQL, OrderedHashSet references) {
+                         int[] updateColumns, Routine routine) {
 
         super(name, when, operation, forEachRow, table, transitions,
               rangeVars, condition, conditionSQL, updateColumns);
 
-        this.statements   = compiledStatements;
-        this.procedureSQL = procedureSQL;
-        this.references   = references;
+        this.routine    = routine;
+        this.references = routine.getReferences();
     }
 
     public OrderedHashSet getReferences() {
-        return references;
+        return routine.getReferences();
     }
 
     public OrderedHashSet getComponents() {
@@ -85,6 +84,10 @@ public class TriggerDefSQL extends TriggerDef {
     synchronized void pushPair(Session session, Object[] oldData,
                                Object[] newData) {
 
+        Result result = Result.updateZeroResult;
+
+        session.sessionContext.push();
+
         if (transitions[OLD_ROW] != null) {
             rangeVars[OLD_ROW].getIterator(session).setCurrent(oldData);
         }
@@ -93,30 +96,24 @@ public class TriggerDefSQL extends TriggerDef {
             rangeVars[NEW_ROW].getIterator(session).setCurrent(newData);
         }
 
-        if (!condition.testCondition(session)) {
-            return;
+        if (condition.testCondition(session)) {
+            session.sessionContext.routineVariables =
+                ValuePool.emptyObjectArray;
+            result = routine.statement.execute(session);
         }
 
-        for (int i = 0; i < statements.length; i++) {
-            statements[i].execute(session);
+        session.sessionContext.pop();
+
+        if (result.isError()) {
+            throw result.getException();
         }
     }
 
     public String getSQL() {
 
-        boolean      isBlock = statements.length > 1;
-        StringBuffer sb      = getSQLMain();
+        StringBuffer sb = getSQLMain();
 
-        if (isBlock) {
-            sb.append(Tokens.T_BEGIN).append(' ').append(Tokens.T_ATOMIC);
-            sb.append(' ');
-        }
-
-        sb.append(procedureSQL).append(' ');
-
-        if (isBlock) {
-            sb.append(Tokens.T_END);
-        }
+        sb.append(routine.statement.getSQL());
 
         return sb.toString();
     }

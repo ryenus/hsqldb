@@ -146,8 +146,9 @@ public class Table extends TableBase implements SchemaObject {
     private boolean hasDefaultValues;          // shortcut for above
     boolean[]       colGenerated;              // generated columns
     private boolean hasGeneratedValues;        // shortcut for above
-    boolean[]       colRefFK;                  // foreing key columns
+    boolean[]       colRefFK;                  // foreign key columns
     boolean[]       colMainFK;                 // columns referenced by foreign key
+    boolean         hasReferentialAction;      // has set null, set default or cascade
     private boolean hasDomainColumns;          // shortcut
     private boolean hasNotNullColumns;         // shortcut
     protected int[] defaultColumnMap;          // holding 0,1,2,3,...
@@ -266,6 +267,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
+    /** trigger transition table */
     public Table(Table table, HsqlName name) {
 
         persistenceScope    = SCOPE_STATEMENT;
@@ -722,6 +724,8 @@ public class Table extends TableBase implements SchemaObject {
         int mainCount  = 0;
         int checkCount = 0;
 
+        hasReferentialAction = false;
+
         for (int i = 0; i < constraintList.length; i++) {
             switch (constraintList[i].getConstraintType()) {
 
@@ -772,6 +776,10 @@ public class Table extends TableBase implements SchemaObject {
 
                     ArrayUtil.intIndexesToBooleanArray(
                         constraintList[i].getMainColumns(), colMainFK);
+
+                    if (constraintList[i].hasTriggeredAction()) {
+                        hasReferentialAction = true;
+                    }
 
                     mainCount++;
                     break;
@@ -1486,9 +1494,9 @@ public class Table extends TableBase implements SchemaObject {
             if (constraint.constType == SchemaObject.ConstraintTypes.UNIQUE) {
                 int[] indexCols = constraint.getMainColumns();
 
-                if (ArrayUtil.areIntIndexesInBooleanArray(
+                if (ArrayUtil.areAllIntIndexesInBooleanArray(
                         indexCols, colNotNull) && ArrayUtil
-                            .areIntIndexesInBooleanArray(
+                            .areAllIntIndexesInBooleanArray(
                                 indexCols, usedColumns)) {
                     return indexCols;
                 }
@@ -1496,7 +1504,7 @@ public class Table extends TableBase implements SchemaObject {
                        == SchemaObject.ConstraintTypes.PRIMARY_KEY) {
                 int[] indexCols = constraint.getMainColumns();
 
-                if (ArrayUtil.areIntIndexesInBooleanArray(indexCols,
+                if (ArrayUtil.areAllIntIndexesInBooleanArray(indexCols,
                         usedColumns)) {
                     return indexCols;
                 }
@@ -1507,7 +1515,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     boolean areColumnsNotNull(int[] indexes) {
-        return ArrayUtil.areIntIndexesInBooleanArray(indexes, colNotNull);
+        return ArrayUtil.areAllIntIndexesInBooleanArray(indexes, colNotNull);
     }
 
     /**
@@ -1811,14 +1819,14 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Drops a trigger.
      */
-    void removeTrigger(String name) {
+    void removeTrigger(TriggerDef trigger) {
 
         TriggerDef td = null;
 
         for (int i = 0; i < triggerList.length; i++) {
             td = triggerList[i];
 
-            if (td.name.name.equals(name)) {
+            if (td.name.name.equals(trigger.name.name)) {
                 td.terminate();
 
                 triggerList =
@@ -1839,7 +1847,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int j = 0; j < triggerLists[index].length; j++) {
             td = triggerLists[index][j];
 
-            if (td.name.name.equals(name)) {
+            if (td.name.name.equals(trigger.name.name)) {
                 td.terminate();
 
                 triggerLists[index] = (TriggerDef[]) ArrayUtil.toAdjustedArray(
@@ -2000,6 +2008,18 @@ public class Table extends TableBase implements SchemaObject {
 
     public boolean isUpdatable() {
         return isWritable();
+    }
+
+    public boolean isTriggerInsertable() {
+        return false;
+    }
+
+    public boolean isTriggerUpdatable() {
+        return false;
+    }
+
+    public boolean isTriggerDeletable() {
+        return false;
     }
 
     public int[] getUpdatableColumns() {
@@ -2433,21 +2453,11 @@ public class Table extends TableBase implements SchemaObject {
             enforceRowConstraints(session, data);
         }
 
-        if (database.isReferentialIntegrity()) {
-            for (int i = 0, size = fkConstraints.length; i < size; i++) {
-                fkConstraints[i].checkInsert(session, this, data, true);
-            }
-        }
-
         for (int i = 0, size = checkConstraints.length; i < size; i++) {
             checkConstraints[i].checkInsert(session, this, data, true);
         }
 
         insertNoCheck(session, store, data);
-
-        if (triggerList.length > 0) {
-            fireTriggers(session, Trigger.INSERT_AFTER_ROW, null, data, null);
-        }
     }
 
     /**
@@ -2657,10 +2667,9 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * Low level row delete method. Removes the row from the indexes and
-     * from the Cache.
+     * Low level row delete method.
      */
-    private void deleteNoCheck(Session session, Row row) {
+    public void deleteNoCheck(Session session, Row row) {
 
         if (row.isDeleted(session)) {
             return;
