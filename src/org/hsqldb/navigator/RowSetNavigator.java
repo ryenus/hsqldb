@@ -102,7 +102,7 @@ public abstract class RowSetNavigator implements RangeIterator {
     /**
      * Add row to the end
      */
-    public abstract void addRow(Row row);
+    public abstract boolean addRow(Row row);
 
     /**
      * Remove current row

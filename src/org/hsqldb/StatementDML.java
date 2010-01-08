@@ -35,9 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RangeIterator;
@@ -58,11 +56,9 @@ import org.hsqldb.types.Type;
  * @since 1.9.0
  */
 
-// support for ON UPDATE CASCADE etc. | ON DELETE SET NULL etc. by Sebastian Kloska (kloska@users dot ...)
-// support for MERGE statement by Justin Spadea (jzs9783@users dot sourceforge.net)
+// support for MERGE statement originally contributed by Justin Spadea (jzs9783@users dot sourceforge.net)
 public class StatementDML extends StatementDMQL {
 
-    boolean       fkCheck;
     Expression    updatableTableCheck;
     RangeVariable checkRangeVariable;
     boolean       isTruncate;
@@ -81,15 +77,15 @@ public class StatementDML extends StatementDMQL {
         super(StatementTypes.DELETE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
 
-        this.targetTable          = targetTable;
-        this.baseTable            = targetTable.getBaseTable();
+        this.targetTable = targetTable;
+        this.baseTable   = targetTable.isTriggerInsertable() ? targetTable
+                                                             : targetTable
+                                                             .getBaseTable();
         this.targetRangeVariables = rangeVars;
         this.restartIdentity      = restartIdentity;
 
         setDatabseObjects(compileContext);
         checkAccessRights(session);
-
-        this.fkCheck = baseTable.fkMainConstraints.length > 0;
 
         if (type == StatementTypes.TRUNCATE) {
             isTruncate = true;
@@ -116,15 +112,6 @@ public class StatementDML extends StatementDMQL {
 
         setDatabseObjects(compileContext);
         checkAccessRights(session);
-
-        this.fkCheck =
-            baseTable.fkConstraints.length > 0
-            && ArrayUtil.isAnyIntIndexInBooleanArray(updateColumnMap,
-                baseTable.colRefFK);
-        fkCheck |= baseTable.fkMainConstraints.length > 0
-                   && ArrayUtil.isAnyIntIndexInBooleanArray(updateColumnMap,
-                       baseTable.colMainFK);
-
         setupChecks();
     }
 
@@ -191,7 +178,6 @@ public class StatementDML extends StatementDMQL {
                 break;
 
             case StatementTypes.DELETE_WHERE :
-
                 if (isTruncate) {
                     result = executeDeleteTruncateStatement(session);
                 } else {
@@ -209,15 +195,16 @@ public class StatementDML extends StatementDMQL {
     // this fk references -> other  :  other read lock
     void collectTableNamesForRead(OrderedHashSet set) {
 
-        if (!baseTable.isTemp()) {
+        if (baseTable.isView()) {
+            getTriggerTableNames(set, false);
+        } else if (!baseTable.isTemp()) {
             for (int i = 0; i < baseTable.fkConstraints.length; i++) {
                 Constraint constraint = baseTable.fkConstraints[i];
 
                 if (type == StatementTypes.UPDATE_WHERE
                         || type == StatementTypes.MERGE) {
                     if (ArrayUtil.haveCommonElement(constraint.getRefColumns(),
-                                                    updateColumnMap,
-                                                    updateColumnMap.length)) {
+                                                    updateColumnMap)) {
                         set.add(
                             baseTable.fkConstraints[i].getMain().getName());
                     }
@@ -265,7 +252,9 @@ public class StatementDML extends StatementDMQL {
     void collectTableNamesForWrite(OrderedHashSet set) {
 
         // other fk references this :  if constraint trigger action  : other write lock
-        if (!baseTable.isTemp()) {
+        if (baseTable.isView()) {
+            getTriggerTableNames(set, true);
+        } else if (!baseTable.isTemp()) {
             set.add(baseTable.getName());
 
             if (type == StatementTypes.UPDATE_WHERE
@@ -328,26 +317,18 @@ public class StatementDML extends StatementDMQL {
     }
 
     /**
-     * Executes an UPDATE statement.  It is assumed that the argument
-     * is of the correct type.
+     * Executes a MERGE statement.
      *
-     * @return the result of executing the statement
+     * @return Result object
      */
     Result executeUpdateStatement(Session session) {
 
-        int            count          = 0;
-        Expression[]   colExpressions = updateExpressions;
-        HashMappedList rowset         = new HashMappedList();
-        Type[]         colTypes       = baseTable.getColumnTypes();
+        int                       count          = 0;
+        Expression[]              colExpressions = updateExpressions;
+        RowSetNavigatorDataChange rowset = new RowSetNavigatorDataChange();
+        Type[]                    colTypes       = baseTable.getColumnTypes();
         RangeIterator it = RangeVariable.getIterator(session,
             targetRangeVariables);
-        Expression checkCondition = null;
-
-        if (targetTable != baseTable) {
-            checkCondition =
-                ((TableDerived) targetTable).getQueryExpression()
-                    .getMainSelect().checkQueryCondition;
-        }
 
         while (it.next()) {
             session.sessionData.startRowProcessing();
@@ -358,17 +339,17 @@ public class StatementDML extends StatementDMQL {
                                               updateColumnMap, colExpressions,
                                               colTypes, data);
 
-            if (checkCondition != null) {
+            if (updatableTableCheck != null) {
                 it.setCurrent(newData);
 
-                boolean check = checkCondition.testCondition(session);
+                boolean check = updatableTableCheck.testCondition(session);
 
                 if (!check) {
                     throw Error.error(ErrorCode.X_44000);
                 }
             }
 
-            rowset.add(row, newData);
+            rowset.addRow(session, row, newData, colTypes, updateColumnMap);
         }
 
 /* debug 190
@@ -381,9 +362,13 @@ public class StatementDML extends StatementDMQL {
        }
 
 //* debug 190 */
-        count = update(session, baseTable, rowset);
+        rowset.beforeFirst();
 
-        baseTable.fireTriggers(session, Trigger.UPDATE_AFTER, rowset);
+        if (rowset.getSize() > 0) {
+            count = update(session, baseTable, rowset);
+        } else {
+            return Result.updateZeroResult;
+        }
 
         if (count == 1) {
             return Result.updateOneResult;
@@ -474,13 +459,13 @@ public class StatementDML extends StatementDMQL {
     }
 
     /**
-     * Executes a MERGE statement.  It is assumed that the argument
-     * is of the correct type.
+     * Executes a MERGE statement.
      *
      * @return Result object
      */
     Result executeMergeStatement(Session session) {
 
+        Type[]          colTypes           = baseTable.getColumnTypes();
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
 
@@ -496,7 +481,8 @@ public class StatementDML extends StatementDMQL {
         RowSetNavigatorClient newData = new RowSetNavigatorClient(8);
 
         // rowset for update operation
-        HashMappedList  updateRowSet       = new HashMappedList();
+        RowSetNavigatorDataChange updateRowSet =
+            new RowSetNavigatorDataChange();
         RangeVariable[] joinRangeIterators = targetRangeVariables;
 
         // populate insert and update lists
@@ -520,7 +506,6 @@ public class StatementDML extends StatementDMQL {
             } else {
                 if (currentIndex == 1 && beforeFirst
                         && insertExpression != null) {
-                    Type[] colTypes = baseTable.getColumnTypes();
                     Object[] data =
                         getInsertData(session, colTypes,
                                       insertExpression.nodes[0].nodes);
@@ -542,21 +527,18 @@ public class StatementDML extends StatementDMQL {
                 Row row = it.getCurrentRow();    // this is always the second iterator
                 Object[] data = getUpdatedData(session, baseTable,
                                                updateColumnMap,
-                                               updateExpressions,
-                                               baseTable.getColumnTypes(),
+                                               updateExpressions, colTypes,
                                                row.getData());
 
-                updateRowSet.add(row, data);
+                updateRowSet.addRow(session, row, data, colTypes,
+                                    updateColumnMap);
             }
         }
 
         // run the transaction as a whole, updating and inserting where needed
         // update any matched rows
-        if (updateRowSet.size() > 0) {
+        if (updateRowSet.getSize() > 0) {
             count = update(session, baseTable, updateRowSet);
-
-            baseTable.fireTriggers(session, Trigger.UPDATE_AFTER,
-                                   updateRowSet);
         }
 
         // insert any non-matched rows
@@ -591,10 +573,21 @@ public class StatementDML extends StatementDMQL {
 
         newData.beforeFirst();
 
+        if (baseTable.triggerLists[Trigger.INSERT_BEFORE_ROW].length > 0) {
+            while (newData.hasNext()) {
+                Object[] data = (Object[]) newData.getNext();
+
+                baseTable.fireTriggers(session, Trigger.INSERT_BEFORE_ROW,
+                                       null, data, null);
+            }
+
+            newData.beforeFirst();
+        }
+
         while (newData.hasNext()) {
             Object[] data = (Object[]) newData.getNext();
 
-            baseTable.insertRow(session, store, data);
+            baseTable.insertSingleRow(session, store, data);
 
             if (checkIterator != null) {
                 checkIterator.setCurrent(data);
@@ -613,452 +606,62 @@ public class StatementDML extends StatementDMQL {
             }
         }
 
-        if (session.database.isReferentialIntegrity()) {
-            newData.beforeFirst();
+        newData.beforeFirst();
 
-            while (newData.hasNext()) {
-                Object[] data = (Object[]) newData.getNext();
+        while (newData.hasNext()) {
+            Object[] data = (Object[]) newData.getNext();
 
-                for (int i = 0, size = baseTable.fkConstraints.length;
-                        i < size; i++) {
-                    baseTable.fkConstraints[i].checkInsert(session, baseTable,
-                                                           data, true);
-                }
-            }
+            performIntegrityChecks(session, baseTable, null, data);
         }
 
-        if (baseTable.triggerLists[Trigger.INSERT_AFTER_ROW].length > 0) {
-            newData.beforeFirst();
+        newData.beforeFirst();
 
+        if (baseTable.triggerLists[Trigger.INSERT_AFTER_ROW].length > 0) {
             while (newData.hasNext()) {
                 Object[] data = (Object[]) newData.getNext();
 
                 baseTable.fireTriggers(session, Trigger.INSERT_AFTER_ROW,
                                        null, data, null);
             }
-        }
 
-        newData.beforeFirst();
+            newData.beforeFirst();
+        }
 
         if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
             baseTable.fireTriggers(session, Trigger.INSERT_AFTER, newData);
         }
     }
 
-    /**
-     * Highest level multiple row update method. Corresponds to an SQL UPDATE.
-     * To deal with unique constraints we need to perform all deletes at once
-     * before the inserts. If there is a UNIQUE constraint violation limited
-     * only to the duration of updating multiple rows, we don't want to abort
-     * the operation. Example: UPDATE MYTABLE SET UNIQUECOL = UNIQUECOL + 1
-     * After performing each cascade update, delete the main row. After all
-     * cascade ops and deletes have been performed, insert new rows.<p>
-     *
-     * Following clauses from SQL Standard section 11.8 are enforced 9) Let ISS
-     * be the innermost SQL-statement being executed. 10) If evaluation of these
-     * General Rules during the execution of ISS would cause an update of some
-     * site to a value that is distinct from the value to which that site was
-     * previously updated during the execution of ISS, then an exception
-     * condition is raised: triggered data change violation. 11) If evaluation
-     * of these General Rules during the execution of ISS would cause deletion
-     * of a row containing a site that is identified for replacement in that
-     * row, then an exception condition is raised: triggered data change
-     * violation. (fredt)
-     *
-     * @param session Session
-     * @param table Table
-     * @param updateList HashMappedList
-     * @return int
-     */
-    int update(Session session, Table table, HashMappedList updateList) {
+    Result insertSingleRow(Session session, PersistentStore store,
+                           Object[] data) {
 
-        HashSet path = session.sessionContext.getConstraintPath();
-        HashMappedList tableUpdateList =
-            session.sessionContext.getTableUpdateList();
-
-        // set identity column where null and check columns
-        for (int i = 0; i < updateList.size(); i++) {
-            Row      row  = (Row) updateList.getKey(i);
-            Object[] data = (Object[]) updateList.get(i);
-
-            /**
-             * @todo 1.9.0 - make optional using database property -
-             * this means the identity column can be set to null to force
-             * creation of a new identity value
-             */
-            table.setIdentityColumn(session, data);
-
-            if (table.triggerLists[Trigger.UPDATE_BEFORE_ROW].length > 0) {
-                table.fireTriggers(session, Trigger.UPDATE_BEFORE_ROW,
-                                   row.getData(), data, updateColumnMap);
-            }
-
-            table.setGeneratedColumns(session, data);
-            table.enforceRowConstraints(session, data);
+        if (baseTable.triggerLists[Trigger.INSERT_BEFORE_ROW].length > 0) {
+            baseTable.fireTriggers(session, Trigger.INSERT_BEFORE_ROW, null,
+                                   data, null);
         }
 
-        if (table.isView) {
-            return updateList.size();
-        }
+        baseTable.insertSingleRow(session, store, data);
+        performIntegrityChecks(session, baseTable, null, data);
 
-        // perform check/cascade operations
-        if (fkCheck && session.database.isReferentialIntegrity()) {
-            for (int i = 0; i < updateList.size(); i++) {
-                Object[] data = (Object[]) updateList.get(i);
-                Row      row  = (Row) updateList.getKey(i);
-
-                checkCascadeUpdate(session, table, tableUpdateList, row, data,
-                                   updateColumnMap, null, path);
-            }
-
-            // merge any triggered change to this table with the update list
-            HashMappedList triggeredList =
-                (HashMappedList) tableUpdateList.get(table);
-
-            if (triggeredList != null) {
-                for (int i = 0; i < triggeredList.size(); i++) {
-                    Row      row  = (Row) triggeredList.getKey(i);
-                    Object[] data = (Object[]) triggeredList.get(i);
-
-                    mergeKeepUpdate(session, updateList, updateColumnMap,
-                                    table.colTypes, row, data);
-                }
-
-                triggeredList.clear();
-            }
-
-            // update lists - main list last
-            for (int i = 0; i < tableUpdateList.size(); i++) {
-                Table targetTable = (Table) tableUpdateList.getKey(i);
-                HashMappedList updateListT =
-                    (HashMappedList) tableUpdateList.get(i);
-
-                targetTable.updateRowSet(session, updateListT, null, true);
-                updateListT.clear();
+        if (session.database.isReferentialIntegrity()) {
+            for (int i = 0, size = baseTable.fkConstraints.length; i < size;
+                    i++) {
+                baseTable.fkConstraints[i].checkInsert(session, baseTable,
+                                                       data, true);
             }
         }
 
-        table.updateRowSet(session, updateList, updateColumnMap, false);
-        baseTable.fireTriggers(session, Trigger.UPDATE_AFTER_ROW, updateList);
-        path.clear();
-
-        return updateList.size();
-    }
-
-    // fredt - currently deletes that fail due to referential constraints are caught
-    // prior to actual delete operation
-
-    /**
-     * Executes a DELETE statement.  It is assumed that the argument is
-     * of the correct type.
-     *
-     * @return the result of executing the statement
-     */
-    Result executeDeleteStatement(Session session) {
-
-        int count = 0;
-        RangeIterator it = RangeVariable.getIterator(session,
-            targetRangeVariables);
-        RowSetNavigatorDataChange navigator = new RowSetNavigatorDataChange();
-
-        while (it.next()) {
-            Row currentRow = it.getCurrentRow();
-
-            navigator.addRow(currentRow);
+        if (baseTable.triggerLists[Trigger.INSERT_AFTER_ROW].length > 0) {
+            baseTable.fireTriggers(session, Trigger.INSERT_AFTER_ROW, null,
+                                   data, null);
         }
 
-        count = delete(session, baseTable, navigator);
-
-        if (count == 1) {
-            return Result.updateOneResult;
-        }
-
-        return new Result(ResultConstants.UPDATECOUNT, count);
-    }
-
-    Result executeDeleteTruncateStatement(Session session) {
-
-        RangeIterator it = RangeVariable.getIterator(session,
-            targetRangeVariables);
-
-        while (it.next()) {
-            Row row = it.getCurrentRow();
-
-            baseTable.deleteNoCheck(session, row);
-        }
-
-        if (restartIdentity && targetTable.identitySequence != null) {
-            targetTable.identitySequence.reset();
+        if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
+            baseTable.fireTriggers(session, Trigger.INSERT_AFTER, null, null,
+                                   null);
         }
 
         return Result.updateOneResult;
-    }
-
-    /**
-     *  Highest level multiple row delete method. Corresponds to an SQL
-     *  DELETE.
-     */
-    int delete(Session session, Table table,
-               RowSetNavigatorDataChange navigator) {
-
-        if (!fkCheck || !session.database.isReferentialIntegrity()) {
-            deleteRows(session, table, navigator);
-            navigator.beforeFirst();
-            table.fireTriggers(session, Trigger.DELETE_AFTER, navigator);
-
-            return navigator.getSize();
-        }
-
-        HashSet path = session.sessionContext.getConstraintPath();
-        HashMappedList tableUpdateList =
-            session.sessionContext.getTableUpdateList();
-
-        navigator.beforeFirst();
-
-        while (navigator.hasNext()) {
-            navigator.next();
-
-            Row row = navigator.getCurrentRow();
-
-            path.clear();
-            checkCascadeDelete(session, table, tableUpdateList, row, false,
-                               path);
-        }
-
-        navigator.beforeFirst();
-
-        while (navigator.hasNext()) {
-            navigator.next();
-
-            Row row = navigator.getCurrentRow();
-
-            path.clear();
-            checkCascadeDelete(session, table, tableUpdateList, row, true,
-                               path);
-        }
-
-        navigator.beforeFirst();
-
-        while (navigator.hasNext()) {
-            navigator.next();
-
-            Row row = navigator.getCurrentRow();
-
-            if (!row.isDeleted(session)) {
-                table.deleteNoRefCheck(session, row);
-            }
-        }
-
-        for (int i = 0; i < tableUpdateList.size(); i++) {
-            Table targetTable = (Table) tableUpdateList.getKey(i);
-            HashMappedList updateList =
-                (HashMappedList) tableUpdateList.get(i);
-
-            if (updateList.size() > 0) {
-                targetTable.updateRowSet(session, updateList, null, true);
-                updateList.clear();
-            }
-        }
-
-        navigator.beforeFirst();
-        table.fireTriggers(session, Trigger.DELETE_AFTER, navigator);
-        path.clear();
-
-        return navigator.getSize();
-    }
-
-    void deleteRows(Session session, Table table,
-                    RowSetNavigatorDataChange navigator) {
-
-        while (navigator.hasNext()) {
-            navigator.next();
-
-            Row row = navigator.getCurrentRow();
-
-            if (!row.isDeleted(session)) {
-                table.deleteNoRefCheck(session, row);
-            }
-        }
-    }
-
-    // fredt@users 20020225 - patch 1.7.0 - CASCADING DELETES
-
-    /**
-     *  Method is called recursively on a tree of tables from the current one
-     *  until no referring foreign-key table is left. In the process, if a
-     *  non-cascading foreign-key referring table contains data, an exception
-     *  is thrown. Parameter delete indicates whether to delete refering rows.
-     *  The method is called first to check if the row can be deleted, then to
-     *  delete the row and all the refering rows.<p>
-     *
-     *  Support added for SET NULL and SET DEFAULT by kloska@users involves
-     *  switching to checkCascadeUpdate(,,,,) when these rules are encountered
-     *  in the constraint.(fredt@users)
-     *
-     * @param session current session
-     * @param  table table to delete from
-     * @param  tableUpdateList list of update lists
-     * @param  row row to delete
-     * @param  delete action
-     * @param  path constraint path
-     * @throws  HsqlException
-     */
-    static void checkCascadeDelete(Session session, Table table,
-                                   HashMappedList tableUpdateList, Row row,
-                                   boolean delete, HashSet path) {
-
-        for (int i = 0, size = table.fkMainConstraints.length; i < size; i++) {
-            Constraint c = table.fkMainConstraints[i];
-            RowIterator refiterator = c.findFkRef(session, row.getData(),
-                                                  delete);
-
-            if (!refiterator.hasNext()) {
-                continue;
-            }
-
-            try {
-                if (c.core.deleteAction == SchemaObject.ReferentialAction
-                        .NO_ACTION || c.core.deleteAction == SchemaObject
-                        .ReferentialAction.RESTRICT) {
-                    if (c.core.mainTable == c.core.refTable) {
-                        Row refrow = refiterator.getNextRow();
-
-                        // fredt - it's the same row
-                        // this supports deleting a single row
-                        // in future we can iterate over and check against
-                        // the full delete row list to enable multi-row
-                        // with self-referencing FK's deletes
-                        if (row.equals(refrow)) {
-                            continue;
-                        }
-                    }
-
-                    int errorCode =
-                        c.core.deleteAction == SchemaObject.ReferentialAction
-                            .NO_ACTION ? ErrorCode.X_23504
-                                       : ErrorCode.X_23001;
-                    String[] info = new String[] {
-                        c.core.refName.name, c.core.refTable.getName().name
-                    };
-
-                    throw Error.error(null, errorCode, ErrorCode.CONSTRAINT,
-                                      info);
-                }
-
-                Table reftable = c.getRef();
-
-                // shortcut when deltable has no imported constraint
-                boolean hasref = reftable.fkMainConstraints.length > 0;
-
-                // if (reftable == this) we don't need to go further and can return ??
-                if (!delete && !hasref) {
-                    continue;
-                }
-
-                Index    refindex  = c.getRefIndex();
-                int[]    m_columns = c.getMainColumns();
-                int[]    r_columns = c.getRefColumns();
-                Object[] mdata     = row.getData();
-                boolean isUpdate =
-                    c.getDeleteAction() == SchemaObject.ReferentialAction
-                        .SET_NULL || c.getDeleteAction() == SchemaObject
-                        .ReferentialAction.SET_DEFAULT;
-
-                // -- list for records to be inserted if this is
-                // -- a 'ON DELETE SET [NULL|DEFAULT]' constraint
-                HashMappedList rowSet = null;
-
-                if (isUpdate) {
-                    rowSet = (HashMappedList) tableUpdateList.get(reftable);
-
-                    if (rowSet == null) {
-                        rowSet = new HashMappedList();
-
-                        tableUpdateList.add(reftable, rowSet);
-                    }
-                }
-
-                // walk the index for all the nodes that reference delnode
-                for (;;) {
-                    Row refrow = refiterator.getNextRow();
-
-                    if (refrow == null || refrow.isDeleted(session)
-                            || refindex.compareRowNonUnique(
-                                session, mdata, m_columns,
-                                refrow.getData()) != 0) {
-                        break;
-                    }
-
-                    // -- if the constraint is a 'SET [DEFAULT|NULL]' constraint we have to keep
-                    // -- a new record to be inserted after deleting the current. We also have to
-                    // -- switch over to the 'checkCascadeUpdate' method below this level
-                    if (isUpdate) {
-                        Object[] rnd = reftable.getEmptyRowData();
-
-                        System.arraycopy(refrow.getData(), 0, rnd, 0,
-                                         rnd.length);
-
-                        if (c.getDeleteAction()
-                                == SchemaObject.ReferentialAction.SET_NULL) {
-                            for (int j = 0; j < r_columns.length; j++) {
-                                rnd[r_columns[j]] = null;
-                            }
-                        } else {
-                            for (int j = 0; j < r_columns.length; j++) {
-                                ColumnSchema col =
-                                    reftable.getColumn(r_columns[j]);
-
-                                rnd[r_columns[j]] =
-                                    col.getDefaultValue(session);
-                            }
-                        }
-
-                        if (hasref && path.add(c)) {
-
-                            // fredt - avoid infinite recursion on circular references
-                            // these can be rings of two or more mutually dependent tables
-                            // so only one visit per constraint is allowed
-                            checkCascadeUpdate(session, reftable, null,
-                                               refrow, rnd, r_columns, null,
-                                               path);
-                            path.remove(c);
-                        }
-
-                        if (delete) {
-
-                            //  foreign key referencing own table - do not update the row to be deleted
-                            if (reftable != table || !refrow.equals(row)) {
-                                mergeUpdate(rowSet, refrow, rnd, r_columns);
-                            }
-                        }
-                    } else if (hasref) {
-                        if (reftable != table) {
-                            if (path.add(c)) {
-                                checkCascadeDelete(session, reftable,
-                                                   tableUpdateList, refrow,
-                                                   delete, path);
-                                path.remove(c);
-                            }
-                        } else {
-
-                            // fredt - we avoid infinite recursion on the fk's referencing the same table
-                            // but chained rows can result in very deep recursion and StackOverflowError
-                            if (refrow.getPos() != row.getPos()) {
-                                checkCascadeDelete(session, reftable,
-                                                   tableUpdateList, refrow,
-                                                   delete, path);
-                            }
-                        }
-                    }
-
-                    if (delete && !isUpdate && !refrow.isDeleted(session)) {
-                        reftable.deleteRowAsTriggeredAction(session, refrow);
-                    }
-                }
-            } finally {
-                refiterator.release();
-            }
-        }
     }
 
     Object[] getInsertData(Session session, Type[] colTypes,
@@ -1101,249 +704,586 @@ public class StatementDML extends StatementDMQL {
     }
 
     /**
-     * Check or perform an update cascade operation on a single row. Check or
-     * cascade an update (delete/insert) operation. The method takes a pair of
-     * rows (new data,old data) and checks if Constraints permit the update
-     * operation. A boolean arguement determines if the operation should realy
-     * take place or if we just have to check for constraint violation. fredt -
-     * cyclic conditions are now avoided by checking for second visit to each
-     * constraint. The set of list of updates for all tables is passed and
-     * filled in recursive calls.
+     * Highest level multiple row update method.<p>
      *
-     * @param session current database session
-     * @param table table to check
-     * @param tableUpdateLists lists of updates
-     * @param orow old row data to be deleted.
-     * @param nrow new row data to be inserted.
-     * @param cols indices of the columns actually changed.
-     * @param ref This should be initialized to null when the method is called
-     *   from the 'outside'. During recursion this will be the current table
-     *   (i.e. this) to indicate from where we came. Foreign keys to this table
-     *   do not have to be checked since they have triggered the update and are
-     *   valid by definition.
-     * @param path HashSet
+     * Following clauses from SQL Standard section 11.8 are enforced 9) Let ISS
+     * be the innermost SQL-statement being executed. 10) If evaluation of these
+     * General Rules during the execution of ISS would cause an update of some
+     * site to a value that is distinct from the value to which that site was
+     * previously updated during the execution of ISS, then an exception
+     * condition is raised: triggered data change violation. 11) If evaluation
+     * of these General Rules during the execution of ISS would cause deletion
+     * of a row containing a site that is identified for replacement in that
+     * row, then an exception condition is raised: triggered data change
+     * violation. (fredt)
+     *
+     * @param session Session
+     * @param table Table
+     * @param updateList RowSetNavigatorDataChange
+     * @return int
      */
-    static void checkCascadeUpdate(Session session, Table table,
-                                   HashMappedList tableUpdateLists, Row orow,
-                                   Object[] nrow, int[] cols, Table ref,
-                                   HashSet path) {
+    int update(Session session, Table table,
+               RowSetNavigatorDataChange navigator) {
 
-        // -- We iterate through all constraints associated with this table
-        // --
-        for (int i = 0, size = table.fkConstraints.length; i < size; i++) {
+        HashSet path     = session.sessionContext.getConstraintPath();
+        int     rowCount = navigator.getSize();
 
-            // -- (1) If it is a foreign key constraint we have to check if the
-            // --     main table still holds a record which allows the new values
-            // --     to be set in the updated columns. This test however will be
-            // --     skipped if the reference table is the main table since changes
-            // --     in the reference table triggered the update and therefor
-            // --     the referential integrity is guaranteed to be valid.
-            // --
-            Constraint c = table.fkConstraints[i];
+        // set identity column where null and check columns
+        for (int i = 0; i < rowCount; i++) {
+            navigator.next();
 
-            if (ref == null || c.getMain() != ref) {
+            Object[] data = navigator.getCurrentChangedData();
 
-                // -- common indexes of the changed columns and the main/ref constraint
-                if (ArrayUtil.countCommonElements(cols, c.getRefColumns())
-                        == 0) {
+            /**
+             * @todo 1.9.0 - make optional using database property -
+             * this means the identity column can be set to null to force
+             * creation of a new identity value
+             */
+            table.setIdentityColumn(session, data);
+            table.setGeneratedColumns(session, data);
+        }
 
-                    // -- Table::checkCascadeUpdate -- NO common cols; reiterating
+        navigator.beforeFirst();
+
+        // perform cascade operations
+        for (int i = 0; i < rowCount; i++) {
+            Row      row  = navigator.getNextRow();
+            Object[] data = navigator.getCurrentChangedData();
+
+            performReferentialActions(session, table, navigator, row, data,
+                                      this.updateColumnMap, path);
+        }
+
+        navigator.beforeFirst();
+
+        for (int i = 0; i < navigator.getSize(); i++) {
+            Row      row          = navigator.getNextRow();
+            Object[] data         = navigator.getCurrentChangedData();
+            Table    currentTable = ((Table) row.getTable());
+
+            if (data == null) {
+                if (currentTable.triggerLists[Trigger.DELETE_BEFORE_ROW].length
+                        > 0) {
+                    currentTable.fireTriggers(session,
+                                              Trigger.DELETE_BEFORE_ROW,
+                                              row.getData(), data,
+                                              updateColumnMap);
+                }
+            } else {
+                if (currentTable.triggerLists[Trigger.UPDATE_BEFORE_ROW].length
+                        > 0) {
+                    currentTable.fireTriggers(session,
+                                              Trigger.UPDATE_BEFORE_ROW,
+                                              row.getData(), data,
+                                              updateColumnMap);
+                    currentTable.enforceRowConstraints(session, data);
+                }
+            }
+        }
+
+        if (table.isView) {
+            return navigator.getSize();
+        }
+
+        navigator.beforeFirst();
+
+        for (int i = 0; i < navigator.getSize(); i++) {
+            Row   row          = navigator.getNextRow();
+            Table currentTable = ((Table) row.getTable());
+
+            currentTable.deleteNoCheck(session, row);
+        }
+
+        navigator.beforeFirst();
+
+        for (int i = 0; i < navigator.getSize(); i++) {
+            Row      row          = navigator.getNextRow();
+            Object[] data         = navigator.getCurrentChangedData();
+            Table    currentTable = ((Table) row.getTable());
+            PersistentStore store =
+                session.sessionData.getRowStore(currentTable);
+
+            if (data == null) {
+                continue;
+            }
+
+            currentTable.insertSingleRow(session, store, data);
+        }
+
+        navigator.beforeFirst();
+
+        OrderedHashSet extraUpdateTables = null;
+        boolean hasAfterRowTriggers =
+            table.triggerLists[Trigger.UPDATE_AFTER_ROW].length > 0;
+
+        for (int i = 0; i < navigator.getSize(); i++) {
+            Row      row          = navigator.getNextRow();
+            Object[] changedData  = navigator.getCurrentChangedData();
+            Table    currentTable = ((Table) row.getTable());
+
+            performIntegrityChecks(session, currentTable, row.getData(),
+                                   changedData);
+
+            if (currentTable != table) {
+                if (extraUpdateTables == null) {
+                    extraUpdateTables = new OrderedHashSet();
+                }
+
+                extraUpdateTables.add(currentTable);
+
+                if (currentTable.triggerLists[Trigger.UPDATE_AFTER_ROW].length
+                        > 0) {
+                    hasAfterRowTriggers = true;
+                }
+            }
+        }
+
+        navigator.beforeFirst();
+
+        if (hasAfterRowTriggers) {
+            for (int i = 0; i < navigator.getSize(); i++) {
+                Row      row          = navigator.getNextRow();
+                Object[] changedData  = navigator.getCurrentChangedData();
+                Table    currentTable = ((Table) row.getTable());
+
+                currentTable.fireTriggers(session, Trigger.UPDATE_AFTER_ROW,
+                                          row.getData(), changedData, null);
+            }
+
+            navigator.beforeFirst();
+        }
+
+        path.clear();
+        baseTable.fireTriggers(session, Trigger.UPDATE_AFTER, navigator);
+
+        if (extraUpdateTables != null) {
+            for (int i = 0; i < extraUpdateTables.size(); i++) {
+                Table currentTable = (Table) extraUpdateTables.get(i);
+
+                currentTable.fireTriggers(session, Trigger.UPDATE_AFTER,
+                                          navigator);
+            }
+        }
+
+        return rowCount;
+    }
+
+    /**
+     * Executes a DELETE statement.
+     *
+     * @return the result of executing the statement
+     */
+    Result executeDeleteStatement(Session session) {
+
+        int count = 0;
+        RangeIterator it = RangeVariable.getIterator(session,
+            targetRangeVariables);
+        RowSetNavigatorDataChange navigator = new RowSetNavigatorDataChange();
+
+        while (it.next()) {
+            Row currentRow = it.getCurrentRow();
+
+            navigator.addRow(currentRow);
+        }
+
+        if (navigator.getSize() > 0) {
+            count = delete(session, baseTable, navigator);
+        } else {
+            return Result.updateZeroResult;
+        }
+
+        if (count == 1) {
+            return Result.updateOneResult;
+        }
+
+        return new Result(ResultConstants.UPDATECOUNT, count);
+    }
+
+    Result executeDeleteTruncateStatement(Session session) {
+
+        RangeIterator it = RangeVariable.getIterator(session,
+            targetRangeVariables);
+
+        while (it.next()) {
+            Row row = it.getCurrentRow();
+
+            baseTable.deleteNoCheck(session, row);
+        }
+
+        if (restartIdentity && targetTable.identitySequence != null) {
+            targetTable.identitySequence.reset();
+        }
+
+        return Result.updateOneResult;
+    }
+
+    /**
+     *  Highest level multiple row delete method. Corresponds to an SQL
+     *  DELETE.
+     */
+    int delete(Session session, Table table,
+               RowSetNavigatorDataChange navigator) {
+
+        if (baseTable.fkMainConstraints.length == 0
+                || !session.database.isReferentialIntegrity()) {
+            deleteRows(session, table, navigator);
+            navigator.beforeFirst();
+            table.fireTriggers(session, Trigger.DELETE_AFTER, navigator);
+
+            return navigator.getSize();
+        }
+
+        HashSet path     = session.sessionContext.getConstraintPath();
+        int     rowCount = navigator.getSize();
+
+        navigator.beforeFirst();
+
+        for (int i = 0; i < rowCount; i++) {
+            navigator.next();
+
+            Row row = navigator.getCurrentRow();
+
+            path.clear();
+            performReferentialActions(session, table, navigator, row, null,
+                                      null, path);
+        }
+
+        // track affected tables
+        navigator.beforeFirst();
+
+        while (navigator.hasNext()) {
+            navigator.next();
+
+            Row      row          = navigator.getCurrentRow();
+            Object[] changedData  = navigator.getCurrentChangedData();
+            Table    currentTable = ((Table) row.getTable());
+
+            if (changedData == null) {
+                currentTable.fireTriggers(session, Trigger.DELETE_BEFORE_ROW,
+                                          row.getData(), null, null);
+            } else {
+
+                // determine changed columns
+                currentTable.fireTriggers(session, Trigger.UPDATE_BEFORE_ROW,
+                                          row.getData(), changedData, null);
+            }
+        }
+
+        navigator.beforeFirst();
+
+        boolean hasUpdate = false;
+
+        for (int i = 0; i < navigator.getSize(); i++) {
+            Row      row          = navigator.getNextRow();
+            Object[] data         = navigator.getCurrentChangedData();
+            Table    currentTable = ((Table) row.getTable());
+
+            currentTable.deleteNoCheck(session, row);
+
+            if (data != null) {
+                hasUpdate = true;
+            }
+        }
+
+        navigator.beforeFirst();
+
+        if (hasUpdate) {
+            for (int i = 0; i < navigator.getSize(); i++) {
+                Row      row          = navigator.getNextRow();
+                Object[] data         = navigator.getCurrentChangedData();
+                Table    currentTable = ((Table) row.getTable());
+                PersistentStore store =
+                    session.sessionData.getRowStore(currentTable);
+
+                if (data == null) {
                     continue;
                 }
 
-                c.checkInsert(session, c.getMain(), nrow, true);
+                currentTable.insertSingleRow(session, store, data);
+            }
+
+            navigator.beforeFirst();
+        }
+
+        OrderedHashSet extraUpdateTables = null;
+        OrderedHashSet extraDeleteTables = null;
+        boolean hasAfterRowTriggers =
+            table.triggerLists[Trigger.DELETE_AFTER_ROW].length > 0;
+
+        while (navigator.hasNext()) {
+            navigator.next();
+
+            Row      row          = navigator.getCurrentRow();
+            Object[] changedData  = navigator.getCurrentChangedData();
+            Table    currentTable = ((Table) row.getTable());
+
+            if (changedData != null) {
+                performIntegrityChecks(session, currentTable, row.getData(),
+                                       changedData);
+            }
+
+            if (currentTable != table) {
+                if (changedData == null) {
+                    if (currentTable.triggerLists[Trigger.DELETE_AFTER_ROW]
+                            .length > 0) {
+                        hasAfterRowTriggers = true;
+                    }
+
+                    if (extraDeleteTables == null) {
+                        extraDeleteTables = new OrderedHashSet();
+                    }
+
+                    extraDeleteTables.add(currentTable);
+                } else {
+                    if (currentTable.triggerLists[Trigger.UPDATE_AFTER_ROW]
+                            .length > 0) {
+                        hasAfterRowTriggers = true;
+                    }
+
+                    if (extraUpdateTables == null) {
+                        extraUpdateTables = new OrderedHashSet();
+                    }
+
+                    extraUpdateTables.add(currentTable);
+                }
             }
         }
+
+        navigator.beforeFirst();
+
+        if (hasAfterRowTriggers) {
+            while (navigator.hasNext()) {
+                navigator.next();
+
+                Row      row          = navigator.getCurrentRow();
+                Object[] changedData  = navigator.getCurrentChangedData();
+                Table    currentTable = ((Table) row.getTable());
+
+                if (changedData == null) {
+                    currentTable.fireTriggers(session,
+                                              Trigger.DELETE_AFTER_ROW,
+                                              row.getData(), null, null);
+                } else {
+                    currentTable.fireTriggers(session,
+                                              Trigger.UPDATE_AFTER_ROW,
+                                              row.getData(), changedData,
+                                              null);
+                }
+            }
+
+            navigator.beforeFirst();
+        }
+
+        table.fireTriggers(session, Trigger.DELETE_AFTER, navigator);
+
+        if (extraUpdateTables != null) {
+            for (int i = 0; i < extraUpdateTables.size(); i++) {
+                Table currentTable = (Table) extraUpdateTables.get(i);
+
+                currentTable.fireTriggers(session, Trigger.UPDATE_AFTER,
+                                          navigator);
+            }
+        }
+
+        if (extraDeleteTables != null) {
+            for (int i = 0; i < extraDeleteTables.size(); i++) {
+                Table currentTable = (Table) extraDeleteTables.get(i);
+
+                currentTable.fireTriggers(session, Trigger.DELETE_AFTER,
+                                          navigator);
+            }
+        }
+
+        path.clear();
+
+        return rowCount;
+    }
+
+    void deleteRows(Session session, Table table,
+                    RowSetNavigatorDataChange navigator) {
+
+        while (navigator.hasNext()) {
+            navigator.next();
+
+            Row row = navigator.getCurrentRow();
+
+            table.deleteNoRefCheck(session, row);
+        }
+    }
+
+    static void performIntegrityChecks(Session session, Table table,
+                                       Object[] oldData, Object[] newData) {
+
+        for (int i = 0, size = table.checkConstraints.length; i < size; i++) {
+            table.checkConstraints[i].checkInsert(session, table, newData,
+                                                  oldData == null);
+        }
+
+        if (!session.database.isReferentialIntegrity()) {
+            return;
+        }
+
+        for (int i = 0, size = table.fkConstraints.length; i < size; i++) {
+            Constraint c     = table.fkConstraints[i];
+            Type[]     types = table.getColumnTypes();
+            boolean    check;
+
+            if (oldData == null) {
+                check = true;
+            } else if (newData == null) {
+                check = false;
+            } else {
+                check = false;
+
+                for (int j = 0; j < types.length; j++) {
+                    if (types[j].compare(session, newData[j], oldData[j])
+                            != 0) {
+                        check = true;
+
+                        break;
+                    }
+                }
+            }
+
+            if (check) {
+                c.checkInsert(session, table, newData, oldData == null);
+            }
+        }
+    }
+
+    static void performReferentialActions(Session session, Table table,
+                                          RowSetNavigatorDataChange navigator,
+                                          Row row, Object[] data,
+                                          int[] changedCols, HashSet path) {
+
+        if (!session.database.isReferentialIntegrity()) {
+            return;
+        }
+
+        boolean delete = data == null;
 
         for (int i = 0, size = table.fkMainConstraints.length; i < size; i++) {
-            Constraint c = table.fkMainConstraints[i];
+            Constraint c      = table.fkMainConstraints[i];
+            int        action = delete ? c.core.deleteAction
+                                       : c.core.updateAction;
 
-            // -- (2) If it happens to be a main constraint we check if the slave
-            // --     table holds any records refering to the old contents. If so,
-            // --     the constraint has to support an 'on update' action or we
-            // --     throw an exception (all via a call to Constraint.findFkRef).
-            // --
-            // -- If there are no common columns between the reference constraint
-            // -- and the changed columns, we reiterate.
-            int[] common = ArrayUtil.commonElements(cols, c.getMainColumns());
+            if (!delete) {
+                if (!ArrayUtil.haveCommonElement(changedCols,
+                                                 c.core.mainCols)) {
+                    continue;
+                }
 
-            if (common == null) {
-
-                // -- NO common cols between; reiterating
-                continue;
-            }
-
-            int[] m_columns = c.getMainColumns();
-            int[] r_columns = c.getRefColumns();
-
-            // fredt - find out if the FK columns have actually changed
-            boolean nochange = true;
-
-            for (int j = 0; j < m_columns.length; j++) {
-
-                // identity test is enough
-                if (orow.getData()[m_columns[j]] != nrow[m_columns[j]]) {
-                    nochange = false;
-
-                    break;
+                if (c.core.mainIndex.compareRowNonUnique(
+                        session, row.getData(), c.core.mainCols, data) == 0) {
+                    continue;
                 }
             }
 
-            if (nochange) {
+            RowIterator refiterator = c.findFkRef(session, row.getData());
+
+            if (!refiterator.hasNext()) {
                 continue;
             }
 
-            // there must be no record in the 'slave' table
-            // sebastian@scienion -- dependent on forDelete | forUpdate
-            RowIterator refiterator = c.findFkRef(session, orow.getData(),
-                                                  false);
+            while (refiterator.hasNext()) {
+                Row      refRow  = refiterator.getNextRow();
+                Object[] refData = null;
 
-            if (refiterator.hasNext()) {
-                if (c.core.updateAction == SchemaObject.ReferentialAction
-                        .NO_ACTION || c.core.updateAction == SchemaObject
-                        .ReferentialAction.RESTRICT) {
-                    int errorCode =
-                        c.core.deleteAction == SchemaObject.ReferentialAction
-                            .NO_ACTION ? ErrorCode.X_23504
-                                       : ErrorCode.X_23001;
-                    String[] info = new String[] {
-                        c.core.refName.name, c.core.refTable.getName().name
-                    };
-
-                    throw Error.error(null, errorCode, ErrorCode.CONSTRAINT,
-                                      info);
-                }
-            } else {
-
-                // no referencing row found
-                continue;
-            }
-
-            Table reftable = c.getRef();
-
-            // -- unused shortcut when update table has no imported constraint
-            boolean hasref = reftable.getNextConstraintIndex(
-                0, SchemaObject.ConstraintTypes.MAIN) != -1;
-            Index refindex = c.getRefIndex();
-
-            // -- walk the index for all the nodes that reference update node
-            HashMappedList rowSet =
-                (HashMappedList) tableUpdateLists.get(reftable);
-
-            if (rowSet == null) {
-                rowSet = new HashMappedList();
-
-                tableUpdateLists.add(reftable, rowSet);
-            }
-
-            for (Row refrow = refiterator.getNextRow(); ;
-                    refrow = refiterator.getNextRow()) {
-                if (refrow == null
-                        || refindex.compareRowNonUnique(
-                            session, orow.getData(), m_columns,
-                            refrow.getData()) != 0) {
+                // use MATCH
+                if (c.core.refIndex.compareRowNonUnique(
+                        session, row.getData(), c.core.mainCols,
+                        refRow.getData()) != 0) {
                     break;
                 }
 
-                Object[] rnd = reftable.getEmptyRowData();
-
-                System.arraycopy(refrow.getData(), 0, rnd, 0, rnd.length);
-
-                // -- Depending on the type constraint we are dealing with we have to
-                // -- fill up the forign key of the current record with different values
-                // -- And handle the insertion procedure differently.
-                if (c.getUpdateAction()
-                        == SchemaObject.ReferentialAction.SET_NULL) {
-
-                    // -- set null; we do not have to check referential integrity any further
-                    // -- since we are setting <code>null</code> values
-                    for (int j = 0; j < r_columns.length; j++) {
-                        rnd[r_columns[j]] = null;
-                    }
-                } else if (c.getUpdateAction()
-                           == SchemaObject.ReferentialAction.SET_DEFAULT) {
-
-                    // -- set default; we check referential integrity with ref==null; since we manipulated
-                    // -- the values and referential integrity is no longer guaranteed to be valid
-                    for (int j = 0; j < r_columns.length; j++) {
-                        ColumnSchema col = reftable.getColumn(r_columns[j]);
-
-                        rnd[r_columns[j]] = col.getDefaultValue(session);
-                    }
-
-                    if (path.add(c)) {
-                        checkCascadeUpdate(session, reftable,
-                                           tableUpdateLists, refrow, rnd,
-                                           r_columns, null, path);
-                        path.remove(c);
-                    }
-                } else {
-
-                    // -- cascade; standard recursive call. We inherit values from the foreign key
-                    // -- table therefor we set ref==this.
-                    for (int j = 0; j < m_columns.length; j++) {
-                        rnd[r_columns[j]] = nrow[m_columns[j]];
-                    }
-
-                    if (path.add(c)) {
-                        checkCascadeUpdate(session, reftable,
-                                           tableUpdateLists, refrow, rnd,
-                                           common, table, path);
-                        path.remove(c);
-                    }
+                if (delete && refRow.getId() == row.getId()) {
+                    continue;
                 }
 
-                mergeUpdate(rowSet, refrow, rnd, r_columns);
+                switch (action) {
+
+                    case SchemaObject.ReferentialAction.CASCADE : {
+                        if (delete) {
+                            if (navigator.addRow(refRow)) {
+                                performReferentialActions(session,
+                                                          c.core.refTable,
+                                                          navigator, refRow,
+                                                          null, null, path);
+                            }
+
+                            continue;
+                        }
+
+                        refData = c.core.refTable.getEmptyRowData();
+
+                        System.arraycopy(refRow.getData(), 0, refData, 0,
+                                         refData.length);
+
+                        for (int j = 0; j < c.core.refCols.length; j++) {
+                            refData[c.core.refCols[j]] =
+                                data[c.core.mainCols[j]];
+                        }
+
+                        break;
+                    }
+                    case SchemaObject.ReferentialAction.SET_NULL : {
+                        refData = c.core.refTable.getEmptyRowData();
+
+                        System.arraycopy(refRow.getData(), 0, refData, 0,
+                                         refData.length);
+
+                        for (int j = 0; j < c.core.refCols.length; j++) {
+                            refData[c.core.refCols[j]] = null;
+                        }
+
+                        break;
+                    }
+                    case SchemaObject.ReferentialAction.SET_DEFAULT : {
+                        refData = c.core.refTable.getEmptyRowData();
+
+                        System.arraycopy(refRow.getData(), 0, refData, 0,
+                                         refData.length);
+
+                        for (int j = 0; j < c.core.refCols.length; j++) {
+                            ColumnSchema col =
+                                c.core.refTable.getColumn(c.core.refCols[j]);
+
+                            refData[c.core.refCols[j]] =
+                                col.getDefaultValue(session);
+                        }
+
+                        break;
+                    }
+                    case SchemaObject.ReferentialAction.NO_ACTION :
+                    case SchemaObject.ReferentialAction.RESTRICT : {
+                        int errorCode = c.core.deleteAction
+                                        == SchemaObject.ReferentialAction
+                                            .NO_ACTION ? ErrorCode.X_23504
+                                                       : ErrorCode.X_23001;
+                        String[] info = new String[] {
+                            c.core.refName.name, c.core.refTable.getName().name
+                        };
+
+                        throw Error.error(null, errorCode,
+                                          ErrorCode.CONSTRAINT, info);
+                    }
+                    default :
+                        continue;
+                }
+
+                refData = navigator.addRow(session, refRow, refData,
+                                           table.getColumnTypes(),
+                                           c.core.refCols);
+
+                if (!path.add(c)) {
+                    continue;
+                }
+
+                performReferentialActions(session, c.core.refTable, navigator,
+                                          refRow, refData, c.core.refCols,
+                                          path);
+                path.remove(c);
             }
         }
-    }
-
-    /**
-     *  Merges a triggered change with a previous triggered change, or adds to
-     * list.
-     */
-    static void mergeUpdate(HashMappedList rowSet, Row row, Object[] newData,
-                            int[] cols) {
-
-        Object[] data = (Object[]) rowSet.get(row);
-
-        if (data != null) {
-            for (int j = 0; j < cols.length; j++) {
-                data[cols[j]] = newData[cols[j]];
-            }
-        } else {
-            rowSet.add(row, newData);
-        }
-    }
-
-    /**
-     * Merge the full triggered change with the updated row, or add to list.
-     * Return false if changes conflict.
-     */
-    static boolean mergeKeepUpdate(Session session, HashMappedList rowSet,
-                                   int[] cols, Type[] colTypes, Row row,
-                                   Object[] newData) {
-
-        Object[] data = (Object[]) rowSet.get(row);
-
-        if (data != null) {
-            if (Table.compareRows(
-                    session, row
-                        .getData(), newData, cols, colTypes) != 0 && Table
-                            .compareRows(
-                                session, newData, data, cols, colTypes) != 0) {
-                return false;
-            }
-
-            for (int j = 0; j < cols.length; j++) {
-                newData[cols[j]] = data[cols[j]];
-            }
-
-            rowSet.put(row, newData);
-        } else {
-            rowSet.add(row, newData);
-        }
-
-        return true;
     }
 }

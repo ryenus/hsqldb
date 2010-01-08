@@ -909,7 +909,7 @@ public final class Constraint implements SchemaObject {
      * @return iterator
      * @
      */
-    RowIterator findFkRef(Session session, Object[] row, boolean delete) {
+    RowIterator findFkRef(Session session, Object[] row) {
 
         if (row == null || ArrayUtil.hasNull(row, core.mainCols)) {
             return core.refIndex.emptyIterator();

@@ -589,12 +589,12 @@ public class BaseHashMap {
     }
 
     /**
-     * type-specific method for adding or removing keys in int->Object maps
+     * type-specific method for adding or removing keys in long or int->Object maps
      */
-    protected Object addOrRemove(int intKey, Object objectValue, Object objectValueTwo,
-                                 boolean remove) {
+    protected Object addOrRemove(long longKey, Object objectValue,
+                                 Object objectValueTwo, boolean remove) {
 
-        int    hash        = intKey;
+        int    hash        = (int) longKey;
         int    index       = hashIndex.getHashIndex(hash);
         int    lookup      = hashIndex.hashTable[index];
         int    lastLookup  = -1;
@@ -603,19 +603,30 @@ public class BaseHashMap {
         for (; lookup >= 0;
                 lastLookup = lookup,
                 lookup = hashIndex.getNextLookup(lookup)) {
-            if (intKey == intKeyTable[lookup]) {
-                break;
+            if (isIntKey) {
+                if (longKey == intKeyTable[lookup]) {
+                    break;
+                }
+            } else {
+                if (longKey == longKeyTable[lookup]) {
+                    break;
+                }
             }
         }
 
         if (lookup >= 0) {
             if (remove) {
-                if (intKey == 0) {
+                if (longKey == 0) {
                     hasZeroKey   = false;
                     zeroKeyIndex = -1;
                 }
 
-                intKeyTable[lookup]      = 0;
+                if (isIntKey) {
+                    intKeyTable[lookup] = 0;
+                } else {
+                    longKeyTable[lookup] = 0;
+                }
+
                 returnValue              = objectValueTable[lookup];
                 objectValueTable[lookup] = null;
 
@@ -655,16 +666,22 @@ public class BaseHashMap {
 
         if (hashIndex.elementCount >= threshold) {
             if (reset()) {
-                return addOrRemove(intKey, objectValue, objectValueTwo, remove);
+                return addOrRemove(longKey, objectValue, objectValueTwo,
+                                   remove);
             } else {
                 return null;
             }
         }
 
-        lookup              = hashIndex.linkNode(index, lastLookup);
-        intKeyTable[lookup] = intKey;
+        lookup = hashIndex.linkNode(index, lastLookup);
 
-        if (intKey == 0) {
+        if (isIntKey) {
+            intKeyTable[lookup] = (int) longKey;
+        } else {
+            longKeyTable[lookup] = longKey;
+        }
+
+        if (longKey == 0) {
             hasZeroKey   = true;
             zeroKeyIndex = lookup;
         }
@@ -900,9 +917,6 @@ public class BaseHashMap {
             while (--counter >= from) {
                 longKeyTable[counter] = 0;
             }
-
-
-
         } else if (isObjectKey || objectKeyTable != null) {
             int counter = to;
 

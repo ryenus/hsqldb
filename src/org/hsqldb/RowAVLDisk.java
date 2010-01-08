@@ -103,7 +103,6 @@ public class RowAVLDisk extends RowAVL {
     public static final int NO_POS = -1;
 
     //
-    protected TableBase table;
     int                 storageSize;
     int                 keepCount;
     boolean             isInMemory;

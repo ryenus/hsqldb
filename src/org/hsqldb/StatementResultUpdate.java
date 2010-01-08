@@ -34,7 +34,6 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
-import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.navigator.RowSetNavigatorDataChange;
 import org.hsqldb.persist.PersistentStore;
@@ -73,7 +72,6 @@ public class StatementResultUpdate extends StatementDML {
         checkAccessRights(session);
 
         Object[]      args = session.sessionContext.dynamicArguments;
-        HsqlException e;
         Row           row;
 
         switch (actionType) {
@@ -85,7 +83,8 @@ public class StatementResultUpdate extends StatementDML {
                     throw Error.error(ErrorCode.X_24521);
                 }
 
-                HashMappedList list = new HashMappedList();
+                RowSetNavigatorDataChange list =
+                    new RowSetNavigatorDataChange();
                 Object[] data =
                     (Object[]) ArrayUtil.duplicateArray(row.getData());
 
@@ -97,7 +96,8 @@ public class StatementResultUpdate extends StatementDML {
                     data[baseColumnMap[i]] = args[i];
                 }
 
-                list.add(row, data);
+                list.addRow(session, row, data, baseTable.getColumnTypes(),
+                            baseTable.defaultColumnMap);
                 update(session, baseTable, list);
 
                 break;
@@ -124,20 +124,12 @@ public class StatementResultUpdate extends StatementDML {
                     data[baseColumnMap[i]] = args[i];
                 }
 
+
                 PersistentStore store =
                     session.sessionData.getRowStore(baseTable);
 
-                baseTable.insertRow(session, store, data);
 
-                if (baseTable.triggerLists[Trigger.INSERT_AFTER_ROW].length > 0) {
-                    baseTable.fireTriggers(session, Trigger.INSERT_AFTER_ROW, null,
-                                           data, null);
-                }
-
-                if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
-                    baseTable.fireTriggers(session, Trigger.INSERT_AFTER, null, null,
-                                           null);
-                }
+                return insertSingleRow(session, store, data);
             }
         }
 

@@ -47,7 +47,6 @@ import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.types.Type;
 
 /**
  * Implementation of RowSetNavigator using a table as the data store.

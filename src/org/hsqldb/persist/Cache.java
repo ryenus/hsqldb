@@ -271,6 +271,12 @@ public class Cache extends BaseHashMap {
         int      savecount = 0;
 
         for (; it.hasNext(); ) {
+            if (savecount == rowTable.length) {
+                saveRows(savecount);
+
+                savecount = 0;
+            }
+
             CachedObject r = (CachedObject) it.next();
 
             if (r.hasChanged()) {

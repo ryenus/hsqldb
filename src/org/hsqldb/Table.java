@@ -854,19 +854,21 @@ public class Table extends TableBase implements SchemaObject {
             }
 
             if (columnMap == null) {
-                set.add(ref.getName());
+                if (constraint.core.hasDeleteAction) {
+                    int[] cols =
+                        constraint.core.deleteAction
+                        == SchemaObject.ReferentialAction.CASCADE ? null
+                                                                  : constraint
+                                                                      .getRefColumns();
 
-                if (constraint.getDeleteAction()
-                        == SchemaObject.ReferentialAction.CASCADE) {
-                    constraint.getRef().collectFKReadLocks(null, set);
-                } else if (constraint.core.hasDeleteAction) {
+                    if (set.add(ref.getName())) {
+                        ref.collectFKReadLocks(cols, set);
+                    }
+                }
+            } else if (ArrayUtil.haveCommonElement(columnMap, mainColumns)) {
+                if (set.add(ref.getName())) {
                     ref.collectFKReadLocks(constraint.getRefColumns(), set);
                 }
-            } else if (ArrayUtil.haveCommonElement(columnMap, mainColumns,
-                                                   mainColumns.length)) {
-                set.add(ref.getName());
-                constraint.getRef().collectFKReadLocks(
-                    constraint.getRefColumns(), set);
             }
         }
     }
@@ -884,21 +886,23 @@ public class Table extends TableBase implements SchemaObject {
             }
 
             if (columnMap == null) {
-                if (constraint.getDeleteAction()
-                        == SchemaObject.ReferentialAction.CASCADE) {
-                    set.add(ref.getName());
-                    constraint.getRef().collectFKWriteLocks(null, set);
-                } else if (constraint.core.hasDeleteAction) {
-                    set.add(ref.getName());
-                    constraint.getRef().collectFKWriteLocks(
-                        constraint.getRefColumns(), set);
+                if (constraint.core.hasDeleteAction) {
+                    int[] cols =
+                        constraint.core.deleteAction
+                        == SchemaObject.ReferentialAction.CASCADE ? null
+                                                                  : constraint
+                                                                      .getRefColumns();
+
+                    if (set.add(ref.getName())) {
+                        ref.collectFKWriteLocks(cols, set);
+                    }
                 }
-            } else if (ArrayUtil.haveCommonElement(columnMap, mainColumns,
-                                                   mainColumns.length)) {
+            } else if (ArrayUtil.haveCommonElement(columnMap, mainColumns)) {
                 if (constraint.core.hasUpdateAction) {
-                    set.add(ref.getName());
-                    constraint.getRef().collectFKWriteLocks(
-                        constraint.getRefColumns(), set);
+                    if (set.add(ref.getName())) {
+                        ref.collectFKWriteLocks(constraint.getRefColumns(),
+                                                set);
+                    }
                 }
             }
         }
@@ -2163,7 +2167,7 @@ public class Table extends TableBase implements SchemaObject {
 
             if (cols != null && td.getUpdateColumnIndexes() != null
                     && !ArrayUtil.haveCommonElement(
-                        td.getUpdateColumnIndexes(), cols, cols.length)) {
+                        td.getUpdateColumnIndexes(), cols)) {
                 continue;
             }
 
@@ -2428,33 +2432,26 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Mid level method for inserting rows. Performs constraint checks and
+     *  Mid level method for inserting single rows. Performs constraint checks and
      *  fires row level triggers.
      */
-    void insertRow(Session session, PersistentStore store, Object[] data) {
+    void insertSingleRow(Session session, PersistentStore store,
+                         Object[] data) {
 
         if (identityColumn != -1) {
             setIdentityColumn(session, data);
-        }
-
-        if (triggerList.length > 0) {
-            fireTriggers(session, Trigger.INSERT_BEFORE_ROW, null, data, null);
-        }
-
-        if (hasGeneratedValues) {
-            setGeneratedColumns(session, data);
         }
 
         if (isView) {
             return;
         }
 
-        if (hasDomainColumns || hasNotNullColumns) {
-            enforceRowConstraints(session, data);
+        if (hasGeneratedValues) {
+            setGeneratedColumns(session, data);
         }
 
-        for (int i = 0, size = checkConstraints.length; i < size; i++) {
-            checkConstraints[i].checkInsert(session, this, data, true);
+        if (hasDomainColumns || hasNotNullColumns) {
+            enforceRowConstraints(session, data);
         }
 
         insertNoCheck(session, store, data);
@@ -2670,11 +2667,6 @@ public class Table extends TableBase implements SchemaObject {
      * Low level row delete method.
      */
     public void deleteNoCheck(Session session, Row row) {
-
-        if (row.isDeleted(session)) {
-            return;
-        }
-
         session.addDeleteAction(this, row);
     }
 
@@ -2740,42 +2732,6 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         deleteNoCheck(session, row);
-    }
-
-    void updateRowSet(Session session, HashMappedList rowSet, int[] cols,
-                      boolean isTriggeredSet) {
-
-        PersistentStore store = session.sessionData.getRowStore(this);
-
-        for (int i = 0; i < rowSet.size(); i++) {
-            Row row = (Row) rowSet.getKey(i);
-
-            if (row.isDeleted(session)) {
-                if (isTriggeredSet) {
-                    rowSet.remove(i);
-
-                    i--;
-
-                    continue;
-                } else {
-                    throw Error.error(ErrorCode.X_27000);
-                }
-            }
-        }
-
-        for (int i = 0; i < rowSet.size(); i++) {
-            Row      row  = (Row) rowSet.getKey(i);
-            Object[] data = (Object[]) rowSet.get(i);
-
-            checkRowData(session, data, cols);    // todo - see if check is necessary ??
-            deleteNoCheck(session, row);
-        }
-
-        for (int i = 0; i < rowSet.size(); i++) {
-            Object[] data = (Object[]) rowSet.get(i);
-
-            insertNoCheck(session, store, data);
-        }
     }
 
     void checkRowData(Session session, Object[] data, int[] cols) {

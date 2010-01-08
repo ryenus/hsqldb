@@ -79,7 +79,8 @@ public class ParserDML extends ParserDQL {
             throw Error.error(ErrorCode.X_42545);
         }
 
-        Table baseTable = table.getBaseTable();
+        Table baseTable = table.isTriggerInsertable() ? table
+                                                      : table.getBaseTable();
 
         switch (token.tokenType) {
 
@@ -378,12 +379,16 @@ public class ParserDML extends ParserDQL {
         Table table     = rangeVariables[0].getTable();
         Table baseTable = table.getBaseTable();
 
-        if (!table.isUpdatable()) {
+        if (!table.isUpdatable() && !table.isTriggerDeletable()) {
             throw Error.error(ErrorCode.X_42545);
         }
 
         if (truncate) {
             if (table != baseTable) {
+                throw Error.error(ErrorCode.X_42545);
+            }
+
+            if (table.isTriggerDeletable()) {
                 throw Error.error(ErrorCode.X_42545);
             }
 
