@@ -161,7 +161,7 @@ implements Comparator {
         }
     }
 
-    public void addRow(Row row) {
+    public boolean addRow(Row row) {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 

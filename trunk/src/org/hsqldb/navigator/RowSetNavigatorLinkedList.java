@@ -78,9 +78,9 @@ public class RowSetNavigatorLinkedList extends RowSetNavigator {
     }
 
     public Row getNextRow() {
-        return next() ? (Row) current.data : null;
+        return next() ? (Row) current.data
+                      : null;
     }
-
 
     public void remove() {
 
@@ -175,10 +175,12 @@ public class RowSetNavigatorLinkedList extends RowSetNavigator {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
     }
 
-    public void addRow(Row row) {
+    public boolean addRow(Row row) {
 
         list.add(row);
 
         size++;
+
+        return true;
     }
 }

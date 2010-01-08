@@ -32,10 +32,8 @@
 package org.hsqldb;
 
 import org.hsqldb.lib.IntLookup;
-import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Base class for a database row object.
@@ -48,6 +46,7 @@ public class Row implements CachedObject {
     int                       position;
     public Object[]           rowData;
     public volatile RowAction rowAction;
+    protected TableBase       table;
 
     public RowAction getAction() {
         return rowAction;
@@ -99,6 +98,10 @@ public class Row implements CachedObject {
         return position;
     }
 
+    public long getId() {
+        return ((long) table.getId() << 32) + (long) position;
+    }
+
     public void setPos(int pos) {
         position = pos;
     }
@@ -130,7 +133,7 @@ public class Row implements CachedObject {
     }
 
     public TableBase getTable() {
-        return null;
+        return table;
     }
 
     public void write(RowOutputInterface out) {}

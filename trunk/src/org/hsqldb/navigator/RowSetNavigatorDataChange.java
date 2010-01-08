@@ -35,14 +35,14 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import org.hsqldb.Row;
+import org.hsqldb.Session;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.HsqlLinkedList;
-import org.hsqldb.lib.HsqlLinkedList.Node;
+import org.hsqldb.lib.OrderedLongKeyHashMap;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.lib.OrderedIntKeyHashMap;
+import org.hsqldb.types.Type;
 
 /*
  * All-in-memory implementation of RowSetNavigator for delete and update
@@ -54,11 +54,10 @@ import org.hsqldb.lib.OrderedIntKeyHashMap;
  */
 public class RowSetNavigatorDataChange extends RowSetNavigator {
 
-    OrderedIntKeyHashMap list;
+    OrderedLongKeyHashMap list;
 
     public RowSetNavigatorDataChange() {
-
-        list    = new OrderedIntKeyHashMap();
+        list = new OrderedLongKeyHashMap(8, true);
     }
 
     /**
@@ -72,17 +71,20 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
         return (Row) list.getValueByIndex(super.currentPos);
     }
 
-    public Row getNextRow() {
-        return next() ? getCurrentRow() : null;
+    public Object[] getCurrentChangedData() {
+        return (Object[]) list.getSecondValueByIndex(super.currentPos);
     }
 
+    public Row getNextRow() {
+        return next() ? getCurrentRow()
+                      : null;
+    }
 
     public void remove() {
         throw new NoSuchElementException();
     }
 
     public boolean next() {
-
         return super.next();
     }
 
@@ -133,23 +135,64 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
         size = 0;
     }
 
-    /**
-     *  Method declaration
-     *
-     * @param  d
-     */
     public void add(Object[] d) {
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowSetNavigatorClient");
+        throw Error.runtimeError(ErrorCode.U_S0500,
+                                 "RowSetNavigatorDataChange");
     }
 
-    public void addRow(Row row) {
-        list.put(row.getPos(), row, null);
-        size++;
+    public boolean addRow(Row row) {
+
+        int lookup = list.getLookup(row.getId());
+
+        if (lookup == -1) {
+            list.put(row.getId(), row, null);
+
+            size++;
+
+            return true;
+        } else {
+            if (list.getSecondByLookup(lookup) != null) {
+                throw Error.error(ErrorCode.X_27000);
+            }
+
+            return false;
+        }
     }
 
-    public void addRow(Row row, Object[] data) {
-        list.put(row.getPos(), row, data);
-        size++;
-    }
+    public Object[] addRow(Session session, Row row, Object[] data,
+                           Type[] types, int[] columnMap) {
 
+        long rowId = row.getId();
+        int lookup = list.getLookup(rowId);
+
+        if (lookup == -1) {
+            list.put(rowId, row, data);
+
+            size++;
+
+            return data;
+        } else {
+            Object[] rowData = ((Row) list.getFirstByLookup(lookup)).getData();
+            Object[] currentData = (Object[]) list.getSecondByLookup(lookup);
+
+            if (currentData == null) {
+                throw Error.error(ErrorCode.X_27000);
+            }
+
+            for (int i = 0; i < columnMap.length; i++) {
+                int j = columnMap[i];
+
+                if (types[j].compare(session, data[j], currentData[j]) != 0) {
+                    if (types[j].compare(session, rowData[j], currentData[j])
+                            != 0) {
+                        throw Error.error(ErrorCode.X_27000);
+                    } else {
+                        currentData[j] = data[j];
+                    }
+                }
+            }
+
+            return currentData;
+        }
+    }
 }

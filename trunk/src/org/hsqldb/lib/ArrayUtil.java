@@ -413,18 +413,16 @@ public class ArrayUtil {
     }
 
     /**
-     * Returns true if arra and the first bcount elements of arrb share any
-     * element. <p>
+     * Returns true if arra and arrb share any element. <p>
      *
      * Used for checks for any overlap between two arrays of column indexes.
      */
-    public static boolean haveCommonElement(int[] arra, int[] arrb,
-            int bcount) {
+    public static boolean haveCommonElement(int[] arra, int[] arrb) {
 
         for (int i = 0; i < arra.length; i++) {
             int c = arra[i];
 
-            for (int j = 0; j < bcount; j++) {
+            for (int j = 0; j < arrb.length; j++) {
                 if (c == arrb[j]) {
                     return true;
                 }

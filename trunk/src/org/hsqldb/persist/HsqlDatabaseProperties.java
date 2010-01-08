@@ -318,7 +318,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         // boolean defaults for user defined props
         dbMeta.put(jdbc_translate_dti_types,
                    HsqlProperties.getMeta(jdbc_translate_dti_types,
-                                          SQL_PROPERTY, false));
+                                          SQL_PROPERTY, true));
         dbMeta.put(sql_identity_is_pk,
                    HsqlProperties.getMeta(sql_identity_is_pk, SQL_PROPERTY,
                                           false));

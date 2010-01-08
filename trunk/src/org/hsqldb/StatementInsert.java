@@ -79,8 +79,8 @@ public class StatementInsert extends StatementDML {
         setupChecks();
 
         isSimpleInsert = insertExpression != null
-                         && insertExpression.nodes.length == 1 &&
-                         updatableTableCheck == null;
+                         && insertExpression.nodes.length == 1
+                         && updatableTableCheck == null;
     }
 
     /**
@@ -93,20 +93,22 @@ public class StatementInsert extends StatementDML {
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
 
-        this.targetTable            = targetTable;
-        this.baseTable              = targetTable.getBaseTable();
-        this.insertColumnMap        = columnMap;
-        this.insertCheckColumns     = checkColumns;
-        this.queryExpression        = queryExpression;
-        
+        this.targetTable = targetTable;
+        this.baseTable   = targetTable.isTriggerInsertable() ? targetTable
+                                                             : targetTable
+                                                             .getBaseTable();
+        this.insertColumnMap    = columnMap;
+        this.insertCheckColumns = checkColumns;
+        this.queryExpression    = queryExpression;
+
         setDatabseObjects(compileContext);
         checkAccessRights(session);
         setupChecks();
     }
 
     /**
-     * Executes an INSERT_SELECT or INSERT_VALUESstatement.  It is assumed that the argument
-     * is of the correct type.
+     * Executes an INSERT_SELECT or INSERT_VALUESstatement.  It is assumed that
+     * the argument is of the correct type.
      *
      * @return the result of executing the statement
      */
@@ -123,14 +125,25 @@ public class StatementInsert extends StatementDML {
         }
 
         if (isSimpleInsert) {
-            return getSimpleResult(session, store);
+            Type[] colTypes = baseTable.getColumnTypes();
+            Object[] data = getInsertData(session, colTypes,
+                                          insertExpression.nodes[0].nodes);
+
+            return insertSingleRow(session, store, data);
         }
 
         RowSetNavigator newDataNavigator = queryExpression == null
                                            ? getInsertValuesNavigator(session)
                                            : getInsertSelectNavigator(session);
 
-        super.insertRowSet(session, generatedNavigator, newDataNavigator);
+        if (newDataNavigator.getSize() > 0) {
+            insertRowSet(session, generatedNavigator, newDataNavigator);
+
+            if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
+                baseTable.fireTriggers(session, Trigger.INSERT_AFTER, null,
+                                       null, null);
+            }
+        }
 
         if (resultOut == null) {
             resultOut = new Result(ResultConstants.UPDATECOUNT,
@@ -138,37 +151,6 @@ public class StatementInsert extends StatementDML {
         } else {
             resultOut.setUpdateCount(newDataNavigator.getSize());
         }
-
-        return resultOut;
-    }
-
-    Result getSimpleResult(Session session, PersistentStore store) {
-
-        Type[] colTypes = baseTable.getColumnTypes();
-        Object[] data = getInsertData(session, colTypes,
-                                      insertExpression.nodes[0].nodes);
-
-        baseTable.insertRow(session, store, data);
-
-        if (session.database.isReferentialIntegrity()) {
-            for (int i = 0, size = baseTable.fkConstraints.length; i < size;
-                    i++) {
-                baseTable.fkConstraints[i].checkInsert(session, baseTable,
-                                                       data, true);
-            }
-        }
-
-        if (baseTable.triggerLists[Trigger.INSERT_AFTER_ROW].length > 0) {
-            baseTable.fireTriggers(session, Trigger.INSERT_AFTER_ROW, null,
-                                   data, null);
-        }
-
-        if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
-            baseTable.fireTriggers(session, Trigger.INSERT_AFTER, null, null,
-                                   null);
-        }
-
-        Result resultOut = Result.updateOneResult;
 
         return resultOut;
     }

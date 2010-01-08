@@ -72,8 +72,7 @@ public class TableWorks {
     void checkCreateForeignKey(Constraint c) {
 
         if (c.core.mainName == table.getName()) {
-            if (ArrayUtil.haveCommonElement(c.core.refCols, c.core.mainCols,
-                                            c.core.refCols.length)) {
+            if (ArrayUtil.haveCommonElement(c.core.refCols, c.core.mainCols)) {
                 throw Error.error(ErrorCode.X_42527);
             }
         }
@@ -213,10 +212,10 @@ public class TableWorks {
             database.persistentStoreCollection.getStore(tn);
 
         newStore.moveData(session, oldStore, -1, 0);
-
         database.schemaManager.addSchemaObject(c);
         database.persistentStoreCollection.releaseStore(table);
         setNewTableInSchema(tn);
+
         Table mainTable = database.schemaManager.getTable(session,
             c.core.mainTable.getName().name,
             c.core.mainTable.getSchemaName().name);
@@ -1261,6 +1260,14 @@ public class TableWorks {
     }
 
     private void checkModifyTable() {
+
+        if (session.getUser().isSystem() ) {
+            return;
+        }
+
+        if (session.isProcessingScript) {
+            return;
+        }
 
         if (database.isFilesReadOnly() || table.isReadOnly()) {
             throw Error.error(ErrorCode.DATA_IS_READONLY);
