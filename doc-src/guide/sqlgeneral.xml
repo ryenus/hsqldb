@@ -462,7 +462,9 @@
       characters beyond the type length are spaces).</para>
 
       <para>The VARCHAR and CLOB types have length limits, but the strings are
-      not padded by the system.</para>
+      not padded by the system. Note that if you use a large length for a
+      VARCHAR or CLOB type, no extra space is used in the database. The space
+      used for each stored item is proportional to its actual length.</para>
 
       <para>If CHARACTER is used without specifying the length, the length
       defaults to 1. For the CLOB type, the length limit can be defined in
@@ -985,6 +987,14 @@ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
     zone. Conversly, the getTime(...) and getTimestamp(...) methods of the
     ResultSet interface which have a Calendar parameter can be used with a
     Calendar argument to retrieve the values.</para>
+
+    <para>JDBC has an unfortunate limitation and does not include type codes
+    for SQL datetime types that have a TIME ZONE property. Therefore, for
+    compatibility with database tools that are limited to the JDBC type codes,
+    HyperSQL reports these types by default as datetime types without TIME
+    ZONE. You can use the URL property
+    <literal>hsqldb.translate_dti_types=false</literal> to override the
+    default behaviour.</para>
   </section>
 
   <section>
@@ -1204,7 +1214,15 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     SQL interval values are independent of any start or end dates or times.
     However, when they are added to or subtracted from certain date or
     timestamp values, the result may be invalid and cause an exception (e.g.
-    adding one month to January 30 results in February 30).</para>
+    adding one month to January 30 results in February 30, which is
+    invalid).</para>
+
+    <para>JDBC has an unfortunate limitation and does not include type codes
+    for SQL INTERVAL types. Therefore, for compatibility with database tools
+    that are limited to the JDBC type codes, HyperSQL reports these types by
+    default as VARCHAR. You can use the URL property
+    <literal>hsqldb.translate_dti_types=false</literal> to override the
+    default behaviour.</para>
   </section>
 
   <section xml:id="sqlgeneral_constr_indexes-sect">

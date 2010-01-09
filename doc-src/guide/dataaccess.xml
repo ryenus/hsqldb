@@ -44,7 +44,7 @@
     <title>Overview</title>
 
     <para>HyperSQL data access and data change statements are fully compatible
-    with the latest SQL Standard. There are a few extensions and some
+    with the latest SQL:2008 Standard. There are a few extensions and some
     relaxation or rules, but these do not affect statements that are written
     to the Standard syntax. There is full support for classic SQL, as
     specified by SQL-92, and many enhancements added in later versions of the
@@ -230,7 +230,7 @@ SELECT X FROM V WHERE Y = 5
       <para>The SQL default is WITHOUT HOLD.</para>
 
       <para>The JDBC default for HSQLDB result sets is WITH HOLD for read-only
-      result sets and WITHOUT HOLD for others.</para>
+      result sets and WITHOUT HOLD for updatable result sets.</para>
 
       <para>If the holdability of a <classname>ResultSet</classname> is
       specified in a conflicting manner in the SQL statement and the JDBC
@@ -918,7 +918,18 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       <simpara><literal>&lt;result expression&gt; ::= &lt;value
       expression&gt;</literal></simpara>
 
-      <simpara>Specify a conditional value.</simpara>
+      <simpara>Specify a conditional value. The result of a case expression is
+      always a value. All the values introduced with THEN must be of the same
+      type.</simpara>
+
+      <simpara>An (simple) example of the CASE statement is given below. It
+      returns 'Britain', 'Germany', or 'Other country' depending on the value
+      of dialcode'</simpara>
+
+      <programlisting>CASE dialcode WHEN 44 THEN 'Britain' WHEN 49 THEN 'Germany' ELSE 'Other country' END</programlisting>
+
+      <simpara>The case statement can be far more complex and involve several
+      conditions.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CAST</primary>
@@ -1616,6 +1627,10 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       UNIQUE is not specified, or if UNIQUE is specified and only one row
       matches.</simpara>
 
+      <simpara>Note that MATCH can also used be used in FOREIGN KEY constraint
+      definitions. The exact meaning is described in the relevant
+      chapter.</simpara>
+
       <indexterm significance="preferred" type="sql">
         <primary>OVERLAPS predicate</primary>
       </indexterm>
@@ -1632,16 +1647,19 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       and the fields together represent a datetime period. So the predicates
       is always in the form <literal>(X1, X2) OVERLAPS (Y1, Y2)</literal>. The
       first field is always a datetime value, while the second field is either
-      a datetime value or an interval value. </simpara>
+      a datetime value or an interval value.</simpara>
 
       <simpara>If the second value is an interval value, it is replaced with
       the sum of the datetime value and itself, for example <literal>(X1, X1 +
-      X2) OVERLAPS (Y1, Y1 + Y 2)</literal>. </simpara>
+      X2) OVERLAPS (Y1, Y1 + Y 2)</literal>.</simpara>
 
       <simpara>If any of the values is NULL, the result is UNKNOWN.</simpara>
 
       <simpara>The expression is true if there is there is any overlap between
-      the two datetime periods.</simpara>
+      the two datetime periods. In the example below, the period is compared
+      with a week long period ending yesterday.</simpara>
+
+      <programlisting>(startdate, enddate) OVERLAPS (CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY)</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>IS DISTINCT predicate</primary>
@@ -1665,7 +1683,12 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       elements are NOT equal, then the result of the expression is TRUE. If no
       comparison result is TRUE, then the result of the predicate is FALSE.
       The expression <literal>X IS NOT DISTINCT FROM Y</literal> is equivalent
-      to <literal>NOT (X IS DISTINCT FORM Y)</literal>.</simpara>
+      to <literal>NOT (X IS DISTINCT FORM Y)</literal>. The follwing check
+      returns true if startdate is not equal to enddate. It also returns true
+      if either startdate or enddate is NULL. It returns false in other
+      cases.</simpara>
+
+      <programlisting>startdate IS DISTINCT FROM enddate</programlisting>
     </section>
 
     <section>
@@ -1682,7 +1705,8 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <simpara><literal>&lt;search condition&gt; ::= &lt;boolean value
       expression&gt;</literal></simpara>
 
-      <simpara>Specify a condition that is TRUE, FALSE, or UNKNOWN.</simpara>
+      <simpara>Specify a condition that is TRUE, FALSE, or UNKNOWN. A search
+      condition is often a predicate.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>PATH</primary>
@@ -1698,8 +1722,8 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <simpara><literal>&lt;schema name list&gt; ::= &lt;schema name&gt; [ {
       &lt;comma&gt; &lt;schema name&gt; }... ]</literal></simpara>
 
-      <simpara>Specify an order for searching for an SQL-invoked
-      routine.</simpara>
+      <simpara>Specify an order for searching for a user-defined SQL-invoked
+      routine. This is not currently supported by HyperSQL.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>routine invocation</primary>
@@ -1722,7 +1746,8 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <simpara><literal>&lt;SQL argument&gt; ::= &lt;value expression&gt; |
       &lt;target specification&gt;</literal></simpara>
 
-      <simpara>Invoke an SQL-invoked routine.</simpara>
+      <simpara>Invoke an SQL-invoked routine. Examples are given in the
+      Routines chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>COLLATE</primary>
@@ -1735,7 +1760,8 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <simpara><literal>&lt;collate clause&gt; ::= COLLATE &lt;collation
       name&gt;</literal></simpara>
 
-      <simpara>Specify a default collation.</simpara>
+      <simpara>Specify a default collation. This is not currently supported by
+      HyperSQL</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>CONSTRAINT</primary>
@@ -1755,8 +1781,9 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <simpara><literal>&lt;constraint check time&gt; ::= INITIALLY DEFERRED |
       INITIALLY IMMEDIATE</literal></simpara>
 
-      <simpara>Specify the name of a constraint and its
-      characteristics.</simpara>
+      <simpara>Specify the name of a constraint and its characteristics. This
+      is an optional element of CONSTRAINT definition, not yet supported by
+      HyperSQL.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>aggregate function</primary>
@@ -1865,8 +1892,9 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
     <para>Database queries are data access statements. The most commonly used
     data access statement is the SELECT statement, but there are other
     statements that perform a similar role. Data access statements access
-    tables and return result tables, which are falsely called result sets, as
-    they are not necessarily sets of rows, but multisets of rows.</para>
+    tables and return result tables. The returned result tables are falsely
+    called result sets, as they are not necessarily sets of rows, but
+    multisets of rows.</para>
 
     <para>Result tables are formed by performing the following operations on
     base tables and views. These operations are loosely based on Relational
@@ -1900,14 +1928,14 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
     below a simple select statement is made more complex by adding various
     operations.</para>
 
-    <para><programlisting>CREATE TABLE t (a INT, b INT, c INT, d INT, e INT, f INT);
+    <para><programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
 /* in the next SELECT, no join is performed and no further operation takes place */
 SELECT * FROM atable
 /* in the next SELECT, selection is performed by the WHERE clause, with no further action */
 SELECT * FROM atable WHERE a + b = c
 /* in the next SELECT, projection is performed after the other operations */
 SELECT d, e, f FROM atable WHERE a + b = c
-/* in the next SELECT, computation performed after projection */
+/* in the next SELECT, computation is performed after projection */
 SELECT (d + e) / f FROM atable WHERE a + b = c
 /* in the next two SELECT statements, column naming is performed in different ways*/
 SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c
@@ -2316,9 +2344,10 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       statement, an &lt;explicit table&gt;, or a &lt;table value
       constructor&gt;. The CORRESPONDING clause is optional and allows you to
       select only some columns of the tables on the left and right side to
-      create the new table. In the example below the columns named u and v
-      from the two SELECT statements are used to create the UNION
-      table.</para>
+      create the new table. If no column list is used with CORRESPONDING, then
+      all the column names that are common in the tables on two sides are
+      used. In the example below the columns named u and v from the two SELECT
+      statements are used to create the UNION table.</para>
 
       <para><programlisting>SELECT * FROM atable UNION CORRESPONDING BY (u, v) SELECT * FROM anothertable
 </programlisting>The type of each column of the query expression is determined
@@ -2365,7 +2394,8 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       from the start of the result set and returns the specified number of
       rows after the discarded rows.</para>
 
-      <programlisting>SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY </programlisting>
+      <programlisting>SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 FETCH 2 ROWS ONLY 
+SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* alternative keyword */ </programlisting>
     </section>
   </section>
 
@@ -2388,8 +2418,19 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     <literal>&lt;boolean value expression&gt;</literal> that is evaluated for
     each row of the table. If the condition is true, the row is deleted. If
     the condition is not specified, all the rows of the table are deleted. In
-    the second example below the rows that have the maximum value for column A
-    are deleted;</simpara>
+    fact, an implicit SELECT is performed in the form of <literal>SELECT *
+    FROM &lt;target table&gt; [ WHERE &lt;search condition&gt;]</literal> and
+    the selected rows are deleted. When used in JDBC, the number of rows
+    returned by the implicit SELECT is returned as the update count.</simpara>
+
+    <simpara>If there are FOREIGN KEY constraints on other other tables that
+    reference the subject table, and the FOREIGN KEY constraints have
+    referential actions, then rows from those other tables that reference the
+    deleted rows are either deleted, or updated, according to the specified
+    referential actions.</simpara>
+
+    <simpara>In the second example below the rows that have the maximum value
+    for column A are deleted;</simpara>
 
     <programlisting>DELETE FROM T WHERE C &gt; 5
 DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
@@ -2479,7 +2520,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
     <simpara>The rows that are inserted into the table are checked against all
     the constraints that have been declared on the table. The whole INSERT
     operation fails if any row fails to inserted due to constraint violation.
-    Expamples</simpara>
+    Examples</simpara>
 
     <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
 INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */
@@ -2547,16 +2588,20 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inser
     between 0 an the number of the rows in <literal>&lt;table
     reference&gt;</literal> into the <literal>&lt;target table&gt;</literal>.
     The total number of inserted and unpdated rows is always the same as the
-    number of rows in <literal>&lt;table reference&gt;</literal> .</simpara>
+    number of rows in <literal>&lt;table reference&gt;</literal>. The
+    constraints and referential actions specified on the database tables are
+    enforced the same way as for an update and an insert statement. </simpara>
 
-    <simpara>In the first example below, the <literal>&lt;table
+    <simpara>In the first example below, the table originally contains two
+    rows for different furniture. The <literal>&lt;table
     reference&gt;</literal> is the <literal>(VALUES(1, 'conference table'),
     (14, 'sofa'), (5, 'coffee table'))</literal> expression, which evaluates
     to a table with 3 rows. When the x value for a row matches an existing
     row, then the existing row is updated. When the x value does not match,
-    the row is inserted. Therefore one row of table t is updated, and two rows
-    are inserted into table t. The second example uses a SELECT statement as
-    the source of the values for the MERGE.</simpara>
+    the row is inserted. Therefore one row of table t is updated from 'dining
+    table' to 'conference table', and two rows are inserted into table t. The
+    second example uses a SELECT statement as the source of the values for the
+    MERGE.</simpara>
 
     <programlisting>CREATE TABLE t (id INT PRIMARY KEY, description VARCHAR(100))
 INSERT INTO t VALUES (1, 'dining table'), (2, 'deck chair')
@@ -2597,9 +2642,15 @@ MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals
     When used in JDBC, the number of rows returned by the implicit SELECT is
     returned as the update count.</simpara>
 
+    <simpara>If there are FOREIGN KEY constraints on other other tables that
+    reference the subject table, and the FOREIGN KEY constraints have
+    referential actions, then rows from those other tables that reference the
+    updated rows are updated, according to the specified referential
+    actions.</simpara>
+
     <simpara>The rows that are updated are checked against all the constraints
     that have been declared on the table. The whole UPDATE operation fails if
-    any row violates any constraint.</simpara>
+    any row violates any constraint. </simpara>
 
     <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
 INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */

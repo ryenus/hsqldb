@@ -47,7 +47,7 @@
   <section>
     <title>HyperSQL with OpenOffice.org</title>
 
-    <simpara>OpenOffice.org comes with HyperSQL and uses it for embedded
+    <simpara>OpenOffice.org includes HyperSQL and uses it for embedded
     databases. Our collaboration with OpenOffice.org developers over the last
     few years has benefited the development and maturity of HyperSQL. Before
     integration into OOo, HSQLDB was intended solely for application-specific

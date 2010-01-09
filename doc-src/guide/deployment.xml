@@ -87,8 +87,9 @@
       <title>Tables</title>
 
       <para>TEXT tables are designed for special applications where the data
-      has to be in an interchangeable format, such as CSV. TEXT tables should
-      not be used for routine storage of data.</para>
+      has to be in an interchangeable format, such as CSV (comma separated
+      values). TEXT tables should not be used for routine storage of
+      data.</para>
 
       <para>MEMORY tables and CACHED tables are generally used for data
       storage. The difference between the two is as follows:</para>
@@ -106,8 +107,8 @@
           <listitem>
             <para>When the database is shutdown in the normal way, all the
             data for MEMORY tables is written out to the disk. In comparison,
-            the data in CACHED tables that has changed is written out at
-            shutdown.</para>
+            the data in CACHED tables that has changed is written out during
+            operation and at shutdown.</para>
           </listitem>
 
           <listitem>
@@ -386,10 +387,10 @@
     load.</para>
 
     <para>A common error made by users in load-test simulations is to use a
-    single client to open and close thousands of connections to a HyperSQL
-    server instance. The connection attempts will fail after a few thousand
-    because of OS restrictions on opening sockets and the delay that is built
-    into the OS in closing them.</para>
+    single client machine to open and close thousands of connections to a
+    HyperSQL server instance. The connection attempts will fail after a few
+    thousand because of OS restrictions on opening sockets and the delay that
+    is built into the OS in closing them.</para>
   </section>
 
   <section xml:id="deployment_upgrade-sect">

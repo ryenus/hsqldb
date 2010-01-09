@@ -109,7 +109,8 @@
           <term>hsqldb</term>
 
           <listitem>
-            <simpara>to build the <filename>hsqldb.jar</filename> file</simpara>
+            <simpara>to build the <filename>hsqldb.jar</filename>
+            file</simpara>
           </listitem>
         </varlistentry>
 
@@ -161,8 +162,8 @@
 
           <listitem>
             <simpara>to build an extremely small jar containing only the
-            client-side JDBC driver (can connect only to a HyperSQL Server).
-            </simpara>
+            client-side JDBC driver (can connect only to a HyperSQL
+            Server).</simpara>
           </listitem>
         </varlistentry>
 
@@ -171,8 +172,8 @@
 
           <listitem>
             <simpara>to build a small jar that supports
-              <emphasis>in-process</emphasis> catalogs, but neither running nor
-              connecting to HyperSQL Servers.</simpara>
+            <emphasis>in-process</emphasis> catalogs, but neither running nor
+            connecting to HyperSQL Servers.</simpara>
           </listitem>
         </varlistentry>
 
@@ -181,11 +182,7 @@
 
           <listitem>
             <simpara>to build sqltool.jar, which contains only the SqlTool
-            classes and HyperSQL JDBC Driver.  With just this file, you can
-            connect to HyperSQL Servers.  If <filename>hsqldb.jar</filename>
-            resides in the same directory, you can connect to every type of
-            HyperSQL catalog.
-            </simpara>
+            classes.</simpara>
           </listitem>
         </varlistentry>
 
@@ -221,8 +218,8 @@
 
       <para>If you want your code built for high performance, as opposed to
       debugging (in the same way that we make our production distributions),
-      make a file named <filename>build.properties</filename> in
-      your build directory with the contents <informalexample>
+      make a file named <filename>build.properties</filename> in your build
+      directory with the contents <informalexample>
           <screen>build.debug: false</screen>
         </informalexample>The resulting Java binaries will be faster and
       smaller, at the cost of exception stack traces not identifying source

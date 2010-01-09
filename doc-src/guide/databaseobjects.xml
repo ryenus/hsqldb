@@ -108,9 +108,9 @@
     rename the PUBLIC schema.</para>
 
     <para>HyperSQL allows all schemas to be dropped, except the schema that is
-    the default initial schema for new sessions. For this schema, a DROP
-    SCHEMA ... CASCADE statement will succeed but will result in an empty
-    schema, rather than no schema.</para>
+    the default initial schema for new sessions (by default, the PUBLIC
+    schema). For this schema, a DROP SCHEMA ... CASCADE statement will succeed
+    but will result in an empty schema, rather than no schema.</para>
 
     <para>The statements for setting the initial schema for users are
     described in the <link endterm="accesscontrol-statements-title" os=""
