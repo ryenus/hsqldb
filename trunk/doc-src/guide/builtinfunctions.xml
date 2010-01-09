@@ -46,7 +46,9 @@
 
     <para>HyperSQL supports a wide range of built-in functions and allows
     user-defined functions written in SQL and Java languages. User defined
-    functions are covered in a separate chapter.</para>
+    functions are covered in a separate chapter. If a built-in function is not
+    avaliable, you can write your own using SQL. Aggregate functions are
+    discussed in chapters that cover SQL in general.</para>
 
     <para>The built-in functions fall into three groups:</para>
 
@@ -822,7 +824,9 @@
 
     <para>Returns a random value in the DOUBLE type. The optional <literal>[
     &lt;int value expr&gt; ]</literal> is used as seed value. In HyperSQL each
-    session has a separate random number generator. (JDBC)</para>
+    session has a separate random number generator. The first call that uses a
+    seed parameter sets the seed for subsequent calls that do not include a
+    parameter. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>ROUND function</primary>

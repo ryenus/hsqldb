@@ -242,9 +242,9 @@
       of the trigger (as name argument), the name of the table (as table
       argument), the OLD ROW (as row1 argument) and the NEW ROW (as row2
       argument). The row1 argument is null for row level INSERT triggers. The
-      row2 argument argument is null for row level DELETE triggers. For table
-      level triggers, both arguments are null (that is, there is no access to
-      the data). The triggerType argument is one of the constants in the
+      row2 argument is null for row level DELETE triggers. For table level
+      triggers, both arguments are null (that is, there is no access to the
+      data). The triggerType argument is one of the constants in the
       org.hsqldb.Trigger interface which indicate the type of trigger, for
       example, INSERT_BEFORE_ROW or UPDATE_AFTER_ROW.</para>
 
@@ -413,14 +413,15 @@
 
     <simpara>The first form is a single SQL procedure statement. This
     statement can reference the OLD ROW and NEW ROW variables. For example, it
-    can reference these variables and insert values into a separate
+    can reference these variables and insert a row into a separate
     table.</simpara>
 
     <simpara>The second form is enclosed in a BEGIN ... END block and can
     include one or more SQL procedure statements. In BEFORE triggers, you can
     include SET statements to modify the inserted or updated rows. In AFTER
     triggers, you can include INSERT, DELETE and UPDATE statements to change
-    the data in other database tables.</simpara>
+    the data in other database tables. SELECT and CALL statements are allowed
+    in BEFORE and AFTER triggers.</simpara>
 
     <simpara>The third form specifies a call to a Java method.</simpara>
 

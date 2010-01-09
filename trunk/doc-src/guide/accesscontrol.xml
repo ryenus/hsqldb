@@ -2,7 +2,11 @@
 <chapter version="5.0" xml:id="accesscontrol-chapt"
          xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
-         xmlns:xi="http://www.w3.org/2001/XInclude">
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns4="http://www.w3.org/2000/svg"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <title xml:id="accesscontrol-title">Access Control</title>
 
   <info>
@@ -47,7 +51,10 @@
     elements of an SQL environment are database objects</para>
 
     <para>Each database object has a name. A name is an identifier and is
-    unique within its name-space.</para>
+    unique within its name-space. Authorizations names follow the rules
+    described below and the case-normal form is stored in the database. When
+    connecting to a database, the user name and password must match the case
+    of the case-normal form.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>identifier definition</primary>
@@ -245,7 +252,7 @@
       the DBA role. Initially, the password for this user is an empty string.
       After connecting to the new database as this user, it is possible to
       change the password, create other users and created new schema objects.
-      This user can be dropped by another user that has the DBA
+      The SA user can be dropped by another user that has the DBA
       role.</simpara>
     </section>
 

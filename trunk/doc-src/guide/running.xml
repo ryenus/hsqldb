@@ -608,5 +608,10 @@
         <programlisting>    Connection c = DriverManager.getConnection(
             "jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
       </example></para>
+
+    <para>A database has many optional properties, described in the Deplyment
+    chapter. You can specifiy most of these properties on the URL or in the
+    connection properties for the first connection that creates the database.
+    See the Database Properties chapter.</para>
   </section>
 </chapter>

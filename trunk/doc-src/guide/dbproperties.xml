@@ -7,7 +7,11 @@
 <chapter version="5.0" xml:id="dbproperties-chapt"
          xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
-         xmlns:xi="http://www.w3.org/2001/XInclude">
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns5="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns4="http://www.w3.org/2000/svg"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
@@ -380,6 +384,25 @@
 
         <tbody valign="top">
           <row>
+            <entry><property>check_params</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>checks the validity of the connection properties</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>If the property is true,
+            every database property that is specified on the URL or in
+            connection properties is checked and if it is not used correctly,
+            an error is returned</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><property>crypt_lobs</property></entry>
 
             <entry><literal>false</literal></entry>
@@ -450,7 +473,7 @@
           </row>
 
           <row>
-            <entry><property>hsqldb.read_only</property></entry>
+            <entry><property>read_only</property></entry>
 
             <entry><literal>false</literal></entry>
 
@@ -466,7 +489,7 @@
           </row>
 
           <row>
-            <entry><property>hsqldb.files_read_only</property></entry>
+            <entry><property>files_read_only</property></entry>
 
             <entry><literal>false</literal></entry>
 
@@ -479,6 +502,23 @@
             true, CACHED and TEXT tables are readonly but memory files are
             not. Any change to the data is not persisted to database
             files.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.log_data</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>recovery log</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property can be set to
+            false when database recovery in the event of an unexpected crash
+            is not necessary. A database that is used as a temporary cache is
+            an example. Regardless of the value of this property, if there is
+            a proper shutdown of the database, all the change data is
+            stored.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
 
           <row>
@@ -765,6 +805,26 @@
             CACHED table, it applies immediately, otherwise it comes into
             effect after a SHUTDOWN and restart or
             CHECKPOINT.</para><para><programlisting>SET FILES NIO { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.translate_dti_types</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>usage of type codes for advanced type datetime
+            types</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>If the property is true, the
+            datetime WITH TIME ZONE types and INTERVAL types are represented
+            as JDBC datetime types without time zone and the VARCHAR type
+            respectively.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
 
           <row>
