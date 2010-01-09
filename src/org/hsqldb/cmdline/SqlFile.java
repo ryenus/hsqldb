@@ -587,7 +587,7 @@ public class SqlFile {
             shared.userVars.remove("ENCODING");
             return;
         }
-        if (Charset.isSupported(newEncoding))
+        if (!Charset.isSupported(newEncoding))
             throw new UnsupportedEncodingException(newEncoding);
         shared.userVars.put("*ENCODING", newEncoding);
         shared.encoding = newEncoding;
