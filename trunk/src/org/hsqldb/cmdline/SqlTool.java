@@ -251,9 +251,8 @@ public class SqlTool {
         try {
             SqlTool.objectMain(args);
         } catch (SqlToolException fr) {
-            if (fr.getMessage() != null) {
-                System.err.println(fr.getMessage());
-            }
+            System.err.println(
+                    (fr.getMessage() == null) ? fr : fr.getMessage());
             System.exit(fr.exitValue);
         }
         System.exit(0);
