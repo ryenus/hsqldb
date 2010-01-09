@@ -1982,6 +1982,8 @@ public class SqlFile {
      */
     private String dereference(String inString,
                                boolean permitAlias) throws SqlToolError {
+        if (inString.length() < 1) return inString;
+
         /* TODO:  Rewrite using java.util.regex. */
         String       varName, varValue;
         StringBuffer expandBuffer = new StringBuffer(inString);
