@@ -38,6 +38,7 @@ import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedLongKeyHashMap;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.rowio.RowInputInterface;
@@ -73,6 +74,10 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
 
     public Object[] getCurrentChangedData() {
         return (Object[]) list.getSecondValueByIndex(super.currentPos);
+    }
+
+    public int[] getCurrentChangedColumns() {
+        return (int[]) list.getThirdValueByIndex(super.currentPos);
     }
 
     public Row getNextRow() {
@@ -151,7 +156,7 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
 
             return true;
         } else {
-            if (list.getSecondByLookup(lookup) != null) {
+            if (list.getSecondValueByIndex(lookup) != null) {
                 throw Error.error(ErrorCode.X_27000);
             }
 
@@ -162,18 +167,20 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
     public Object[] addRow(Session session, Row row, Object[] data,
                            Type[] types, int[] columnMap) {
 
-        long rowId = row.getId();
-        int lookup = list.getLookup(rowId);
+        long rowId  = row.getId();
+        int  lookup = list.getLookup(rowId);
 
         if (lookup == -1) {
             list.put(rowId, row, data);
+            list.setThirdValueByIndex(size, columnMap);
 
             size++;
 
             return data;
         } else {
             Object[] rowData = ((Row) list.getFirstByLookup(lookup)).getData();
-            Object[] currentData = (Object[]) list.getSecondByLookup(lookup);
+            Object[] currentData =
+                (Object[]) list.getSecondValueByIndex(lookup);
 
             if (currentData == null) {
                 throw Error.error(ErrorCode.X_27000);
@@ -191,6 +198,12 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
                     }
                 }
             }
+
+            int[] currentMap = (int[]) list.getThirdValueByIndex(lookup);
+
+            currentMap = ArrayUtil.union(currentMap, columnMap);
+
+            list.setThirdValueByIndex(lookup, currentMap);
 
             return currentData;
         }

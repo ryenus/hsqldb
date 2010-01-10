@@ -100,7 +100,6 @@ public class Session implements SessionInterface {
     OrderedHashSet   waitingSessions;
     OrderedHashSet   tempSet;
     CountUpDownLatch latch = new CountUpDownLatch();
-    public Statement currentStatement;
     Statement        lockStatement;
 
     // current settings
@@ -1163,11 +1162,11 @@ public class Session implements SessionInterface {
             }
         }
 
-        currentStatement = cs;
+        sessionContext.currentStatement = cs;
 
         if (!cs.isTransactionStatement()) {
             r                = cs.execute(this);
-            currentStatement = null;
+            sessionContext.currentStatement = null;
 
             return r;
         }
@@ -1180,7 +1179,7 @@ public class Session implements SessionInterface {
             if (abortTransaction) {
                 rollback(false);
 
-                currentStatement = null;
+                sessionContext.currentStatement = null;
 
                 return Result.newErrorResult(Error.error(ErrorCode.X_40001));
             }
@@ -1195,7 +1194,7 @@ public class Session implements SessionInterface {
             if (abortTransaction) {
                 rollback(false);
 
-                currentStatement = null;
+                sessionContext.currentStatement = null;
 
                 return Result.newErrorResult(Error.error(ErrorCode.X_40001));
             }
@@ -1206,7 +1205,7 @@ public class Session implements SessionInterface {
             sessionContext.setDynamicArguments(pvals);
 
             r             = cs.execute(this);
-            lockStatement = currentStatement;
+            lockStatement = sessionContext.currentStatement;
 
             //        tempActionHistory.add("sql execute end " + actionTimestamp + " " + rowActionList.size());
             endAction(r);
@@ -1214,7 +1213,7 @@ public class Session implements SessionInterface {
             if (abortTransaction) {
                 rollback(false);
 
-                currentStatement = null;
+                sessionContext.currentStatement = null;
 
                 return Result.newErrorResult(Error.error(ErrorCode.X_40001));
             }
@@ -1244,14 +1243,14 @@ public class Session implements SessionInterface {
                     commit(false);
                 }
             } catch (Exception e) {
-                currentStatement = null;
+                sessionContext.currentStatement = null;
 
                 return Result.newErrorResult(Error.error(ErrorCode.X_40001,
                         e));
             }
         }
 
-        currentStatement = null;
+        sessionContext.currentStatement = null;
 
         return r;
     }

@@ -89,7 +89,7 @@ public class TestCacheSize {
     String  tableType      = "CACHED";
     int     cacheScale     = 14;
     int     cacheSizeScale = 10;
-    boolean nioMode        = false;
+    boolean nioMode        = true;
     int     writeDelay     = 60;
     boolean indexZip       = false;
     boolean indexLastName  = false;

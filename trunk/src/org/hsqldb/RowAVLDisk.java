@@ -103,10 +103,10 @@ public class RowAVLDisk extends RowAVL {
     public static final int NO_POS = -1;
 
     //
-    int                 storageSize;
-    int                 keepCount;
-    boolean             isInMemory;
-    int                 usageCount;
+    int     storageSize;
+    int     keepCount;
+    boolean isInMemory;
+    int     usageCount;
 
     /**
      *  Flag indicating unwritten data.
@@ -253,6 +253,13 @@ public class RowAVLDisk extends RowAVL {
      */
     public synchronized boolean isKeepInMemory() {
         return keepCount > 0;
+    }
+
+    /**
+     * Only unlinks nodes. Is not a destroy() method
+     */
+    public void delete() {
+        super.delete();
     }
 
     public void destroy() {

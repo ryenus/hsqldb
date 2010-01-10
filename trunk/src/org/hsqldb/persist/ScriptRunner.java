@@ -139,7 +139,7 @@ public class ScriptRunner {
                         break;
 
                     case ScriptReaderBase.INSERT_STATEMENT : {
-                        current.currentStatement = dummy;
+                        current.sessionContext.currentStatement = dummy;
 
                         current.beginAction(dummy);
 
@@ -152,7 +152,7 @@ public class ScriptRunner {
                         break;
                     }
                     case ScriptReaderBase.DELETE_STATEMENT : {
-                        current.currentStatement = dummy;
+                        current.sessionContext.currentStatement = dummy;
 
                         current.beginAction(dummy);
 

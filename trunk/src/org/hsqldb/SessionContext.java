@@ -77,22 +77,14 @@ public class SessionContext {
     // range variable data
     RangeIterator[] rangeIterators;
 
+    //
+    public Statement currentStatement;
+
     /**
      * Reusable set of all FK constraints that have so far been enforced while
-     * a cascading insert or delete is in progress. This is emptied and passed
-     * with the first call to checkCascadeDelete or checkCascadeUpdate. During
-     * recursion, if an FK constraint is encountered and is already present
-     * in the set, the recursion stops.
+     * a cascading insert or delete is in progress.
      */
-    HashSet constraintPath;
-
-    /**
-     * Current list of all cascading updates on all table. This is emptied once
-     * a cascading operation is over.
-     */
-    HashMappedList tableUpdateList;
-
-    //
+    HashSet               constraintPath;
     StatementResultUpdate rowUpdateStatement = new StatementResultUpdate();
 
     /**
@@ -173,28 +165,6 @@ public class SessionContext {
 
     void clearStructures(StatementDMQL cs) {
 
-        if (cs.type == StatementTypes.UPDATE_WHERE
-                || cs.type == StatementTypes.DELETE_WHERE
-                || cs.type == StatementTypes.MERGE) {
-            if (constraintPath != null) {
-                constraintPath.clear();
-            }
-
-            if (tableUpdateList != null) {
-                for (int i = 0; i < tableUpdateList.size(); i++) {
-                    HashMappedList updateList =
-                        (HashMappedList) tableUpdateList.get(i);
-
-                    updateList.clear();
-                }
-            }
-        }
-
-        if (cs.type == StatementTypes.INSERT) {
-
-            //
-        }
-
         int count = cs.rangeIteratorCount;
 
         if (count > rangeIterators.length) {
@@ -238,22 +208,12 @@ public class SessionContext {
     /**
      * For cascade operations
      */
-    public HashMappedList getTableUpdateList() {
-
-        if (tableUpdateList == null) {
-            tableUpdateList = new HashMappedList();
-        }
-
-        return tableUpdateList;
-    }
-
-    /**
-     * For cascade operations
-     */
     public HashSet getConstraintPath() {
 
         if (constraintPath == null) {
             constraintPath = new HashSet();
+        } else {
+            constraintPath.clear();
         }
 
         return constraintPath;

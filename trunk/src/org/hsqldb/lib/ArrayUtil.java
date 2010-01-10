@@ -558,6 +558,36 @@ public class ArrayUtil {
     }
 
     /**
+     * Returns an array that contains all the elements of the two arrays.
+     */
+    public static int[] union(int[] arra, int[] arrb) {
+
+        int newSize = arra.length + arrb.length
+                      - ArrayUtil.countCommonElements(arra, arrb);
+
+        if (newSize > arra.length && newSize > arrb.length) {
+            int[] arrn = (int[]) ArrayUtil.resizeArray(arrb, newSize);
+            int   pos  = arrb.length;
+
+            mainloop:
+            for (int i = 0; i < arra.length; i++) {
+                for (int j = 0; j < arrb.length; j++) {
+                    if (arra[i] == arrb[j]) {
+                        continue mainloop;
+                    }
+                }
+
+                arrn[pos++] = arra[i];
+            }
+
+            return arrn;
+        }
+
+        return arra.length > arrb.length ? arra
+                                         : arrb;
+    }
+
+    /**
      * Returns the index of the first occurence of arrb in arra. Or -1 if not found.
      */
     public static int find(byte[] arra, int start, int limit, byte[] arrb) {
@@ -639,6 +669,32 @@ public class ArrayUtil {
         }
 
         return -1;
+    }
+
+    /**
+     * Set elements of arrb true if their indexes appear in arrb.
+     */
+    public static int[] booleanArrayToIntIndexes(boolean[] arrb) {
+
+        int count = 0;
+
+        for (int i = 0; i < arrb.length; i++) {
+            if (arrb[i]) {
+                count++;
+            }
+        }
+
+        int[] intarr = new int[count];
+
+        count = 0;
+
+        for (int i = 0; i < arrb.length; i++) {
+            if (arrb[i]) {
+                intarr[count++] = i;
+            }
+        }
+
+        return intarr;
     }
 
     /**

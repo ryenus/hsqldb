@@ -1791,6 +1791,10 @@ public class SchemaManager {
             SchemaObjectSet.addAllSQL(resolved, unresolved, list, it,
                                       newResolved);
             unresolved.removeAll(newResolved);
+
+            if (newResolved.size() == 0) {
+                break;
+            }
         }
 
         schemas = schemaMap.values().iterator();
@@ -1821,6 +1825,10 @@ public class SchemaManager {
             SchemaObjectSet.addAllSQL(resolved, unresolved, list, it,
                                       newResolved);
             unresolved.removeAll(newResolved);
+
+            if (newResolved.size() == 0) {
+                break;
+            }
         }
 
         schemas = schemaMap.values().iterator();
@@ -1839,7 +1847,7 @@ public class SchemaManager {
             String[] t = schema.getTriggerSQL();
 
             if (t.length > 0) {
-                list.add(getSetSchemaSQL(schema.name));
+                list.add(Schema.getSetSchemaSQL(schema.name));
                 list.addAll(t);
             }
 
@@ -1869,17 +1877,6 @@ public class SchemaManager {
         list.toArray(array);
 
         return array;
-    }
-
-    private String getSetSchemaSQL(HsqlName schemaName) {
-
-        StringBuffer sb = new StringBuffer();
-
-        sb.append(Tokens.T_SET).append(' ');
-        sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(schemaName.statementName);
-
-        return sb.toString();
     }
 
     public String[] getTablePropsSQL(boolean withHeader) {

@@ -143,16 +143,24 @@ public final class Schema implements SchemaObject {
         return sb.toString();
     }
 
-    public String[] getSQLArray(OrderedHashSet resolved,
-                                OrderedHashSet unresolved) {
+    static String getSetSchemaSQL(HsqlName schemaName) {
 
-        HsqlArrayList list = new HsqlArrayList();
-        StringBuffer  sb   = new StringBuffer(128);
+        StringBuffer sb = new StringBuffer();
 
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(name.statementName);
-        list.add(sb.toString());
+        sb.append(schemaName.statementName);
+
+        return sb.toString();
+    }
+
+    public String[] getSQLArray(OrderedHashSet resolved,
+                                OrderedHashSet unresolved) {
+
+        HsqlArrayList list      = new HsqlArrayList();
+        String        setSchema = getSetSchemaSQL(name);
+
+        list.add(setSchema);
 
         //
         String[] subList;
@@ -178,6 +186,10 @@ public final class Schema implements SchemaObject {
         list.addAll(subList);
 
 //
+        if (list.size() == 1) {
+            return new String[]{};
+        }
+
         String[] array = new String[list.size()];
 
         list.toArray(array);

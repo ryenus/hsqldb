@@ -317,7 +317,7 @@ public class StatementDML extends StatementDMQL {
     }
 
     /**
-     * Executes a MERGE statement.
+     * Executes an UPDATE statement.
      *
      * @return Result object
      */
@@ -725,8 +725,7 @@ public class StatementDML extends StatementDMQL {
     int update(Session session, Table table,
                RowSetNavigatorDataChange navigator) {
 
-        HashSet path     = session.sessionContext.getConstraintPath();
-        int     rowCount = navigator.getSize();
+        int rowCount = navigator.getSize();
 
         // set identity column where null and check columns
         for (int i = 0; i < rowCount; i++) {
@@ -745,39 +744,32 @@ public class StatementDML extends StatementDMQL {
 
         navigator.beforeFirst();
 
-        // perform cascade operations
-        for (int i = 0; i < rowCount; i++) {
-            Row      row  = navigator.getNextRow();
-            Object[] data = navigator.getCurrentChangedData();
+        if (table.fkMainConstraints.length > 0) {
+            HashSet path = session.sessionContext.getConstraintPath();
 
-            performReferentialActions(session, table, navigator, row, data,
-                                      this.updateColumnMap, path);
+            for (int i = 0; i < rowCount; i++) {
+                Row      row  = navigator.getNextRow();
+                Object[] data = navigator.getCurrentChangedData();
+
+                performReferentialActions(session, table, navigator, row,
+                                          data, this.updateColumnMap, path);
+                path.clear();
+            }
+
+            navigator.beforeFirst();
         }
 
-        navigator.beforeFirst();
-
         for (int i = 0; i < navigator.getSize(); i++) {
-            Row      row          = navigator.getNextRow();
-            Object[] data         = navigator.getCurrentChangedData();
-            Table    currentTable = ((Table) row.getTable());
+            Row      row            = navigator.getNextRow();
+            Object[] data           = navigator.getCurrentChangedData();
+            int[]    changedColumns = navigator.getCurrentChangedColumns();
+            Table    currentTable   = ((Table) row.getTable());
 
-            if (data == null) {
-                if (currentTable.triggerLists[Trigger.DELETE_BEFORE_ROW].length
-                        > 0) {
-                    currentTable.fireTriggers(session,
-                                              Trigger.DELETE_BEFORE_ROW,
-                                              row.getData(), data,
-                                              updateColumnMap);
-                }
-            } else {
-                if (currentTable.triggerLists[Trigger.UPDATE_BEFORE_ROW].length
-                        > 0) {
-                    currentTable.fireTriggers(session,
-                                              Trigger.UPDATE_BEFORE_ROW,
-                                              row.getData(), data,
-                                              updateColumnMap);
-                    currentTable.enforceRowConstraints(session, data);
-                }
+            if (currentTable.triggerLists[Trigger.UPDATE_BEFORE_ROW].length
+                    > 0) {
+                currentTable.fireTriggers(session, Trigger.UPDATE_BEFORE_ROW,
+                                          row.getData(), data, changedColumns);
+                currentTable.enforceRowConstraints(session, data);
             }
         }
 
@@ -842,18 +834,19 @@ public class StatementDML extends StatementDMQL {
 
         if (hasAfterRowTriggers) {
             for (int i = 0; i < navigator.getSize(); i++) {
-                Row      row          = navigator.getNextRow();
-                Object[] changedData  = navigator.getCurrentChangedData();
-                Table    currentTable = ((Table) row.getTable());
+                Row      row            = navigator.getNextRow();
+                Object[] changedData    = navigator.getCurrentChangedData();
+                int[]    changedColumns = navigator.getCurrentChangedColumns();
+                Table    currentTable   = ((Table) row.getTable());
 
                 currentTable.fireTriggers(session, Trigger.UPDATE_AFTER_ROW,
-                                          row.getData(), changedData, null);
+                                          row.getData(), changedData,
+                                          changedColumns);
             }
 
             navigator.beforeFirst();
         }
 
-        path.clear();
         baseTable.fireTriggers(session, Trigger.UPDATE_AFTER, navigator);
 
         if (extraUpdateTables != null) {
@@ -924,48 +917,41 @@ public class StatementDML extends StatementDMQL {
     int delete(Session session, Table table,
                RowSetNavigatorDataChange navigator) {
 
-        if (baseTable.fkMainConstraints.length == 0
-                || !session.database.isReferentialIntegrity()) {
-            deleteRows(session, table, navigator);
+        int rowCount = navigator.getSize();
+
+        navigator.beforeFirst();
+
+        if (table.fkMainConstraints.length > 0) {
+            HashSet path = session.sessionContext.getConstraintPath();
+
+            for (int i = 0; i < rowCount; i++) {
+                navigator.next();
+
+                Row row = navigator.getCurrentRow();
+
+                performReferentialActions(session, table, navigator, row,
+                                          null, null, path);
+                path.clear();
+            }
+
             navigator.beforeFirst();
-            table.fireTriggers(session, Trigger.DELETE_AFTER, navigator);
-
-            return navigator.getSize();
         }
-
-        HashSet path     = session.sessionContext.getConstraintPath();
-        int     rowCount = navigator.getSize();
-
-        navigator.beforeFirst();
-
-        for (int i = 0; i < rowCount; i++) {
-            navigator.next();
-
-            Row row = navigator.getCurrentRow();
-
-            path.clear();
-            performReferentialActions(session, table, navigator, row, null,
-                                      null, path);
-        }
-
-        // track affected tables
-        navigator.beforeFirst();
 
         while (navigator.hasNext()) {
             navigator.next();
 
-            Row      row          = navigator.getCurrentRow();
-            Object[] changedData  = navigator.getCurrentChangedData();
-            Table    currentTable = ((Table) row.getTable());
+            Row      row            = navigator.getCurrentRow();
+            Object[] changedData    = navigator.getCurrentChangedData();
+            int[]    changedColumns = navigator.getCurrentChangedColumns();
+            Table    currentTable   = ((Table) row.getTable());
 
             if (changedData == null) {
                 currentTable.fireTriggers(session, Trigger.DELETE_BEFORE_ROW,
                                           row.getData(), null, null);
             } else {
-
-                // determine changed columns
                 currentTable.fireTriggers(session, Trigger.UPDATE_BEFORE_ROW,
-                                          row.getData(), changedData, null);
+                                          row.getData(), changedData,
+                                          changedColumns);
             }
         }
 
@@ -1094,21 +1080,7 @@ public class StatementDML extends StatementDMQL {
             }
         }
 
-        path.clear();
-
         return rowCount;
-    }
-
-    void deleteRows(Session session, Table table,
-                    RowSetNavigatorDataChange navigator) {
-
-        while (navigator.hasNext()) {
-            navigator.next();
-
-            Row row = navigator.getCurrentRow();
-
-            table.deleteNoRefCheck(session, row);
-        }
     }
 
     static void performIntegrityChecks(Session session, Table table,

@@ -71,8 +71,8 @@ public class StatementResultUpdate extends StatementDML {
 
         checkAccessRights(session);
 
-        Object[]      args = session.sessionContext.dynamicArguments;
-        Row           row;
+        Object[] args = session.sessionContext.dynamicArguments;
+        Row      row;
 
         switch (actionType) {
 
@@ -87,17 +87,21 @@ public class StatementResultUpdate extends StatementDML {
                     new RowSetNavigatorDataChange();
                 Object[] data =
                     (Object[]) ArrayUtil.duplicateArray(row.getData());
+                boolean[] columnCheck = baseTable.getNewColumnCheckList();
 
                 for (int i = 0; i < baseColumnMap.length; i++) {
                     if (types[i] == Type.SQL_ALL_TYPES) {
                         continue;
                     }
 
-                    data[baseColumnMap[i]] = args[i];
+                    data[baseColumnMap[i]]        = args[i];
+                    columnCheck[baseColumnMap[i]] = true;
                 }
 
+                int[] colMap = ArrayUtil.booleanArrayToIntIndexes(columnCheck);
+
                 list.addRow(session, row, data, baseTable.getColumnTypes(),
-                            baseTable.defaultColumnMap);
+                            colMap);
                 update(session, baseTable, list);
 
                 break;
@@ -124,10 +128,8 @@ public class StatementResultUpdate extends StatementDML {
                     data[baseColumnMap[i]] = args[i];
                 }
 
-
                 PersistentStore store =
                     session.sessionData.getRowStore(baseTable);
-
 
                 return insertSingleRow(session, store, data);
             }

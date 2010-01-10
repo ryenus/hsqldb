@@ -87,30 +87,6 @@ import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
-// fredt@users 20020130 - patch 491987 by jimbag@users - made optional
-// fredt@users 20020405 - patch 1.7.0 by fredt - quoted identifiers
-// for sql standard quoted identifiers for column and table names and aliases
-// applied to different places
-// fredt@users 20020225 - patch 1.7.0 - restructuring
-// some methods moved from Database.java, some rewritten
-// changes to several methods
-// fredt@users 20020225 - patch 1.7.0 - ON DELETE CASCADE
-// fredt@users 20020225 - patch 1.7.0 - named constraints
-// boucherb@users 20020225 - patch 1.7.0 - multi-column primary keys
-// fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
-// tony_lai@users 20020820 - patch 595099 - user defined PK name
-// tony_lai@users 20020820 - patch 595172 - drop constraint fix
-// fredt@users 20021210 - patch 1.7.2 - better ADD / DROP INDEX for non-CACHED tables
-// fredt@users 20030901 - patch 1.7.2 - allow multiple nulls for UNIQUE columns
-// fredt@users 20030901 - patch 1.7.2 - reworked IDENTITY support
-// achnettest@users 20040130 - patch 878288 - bug fix for new indexes in memory tables by Arne Christensen
-// boucherb@users 20040327 - doc 1.7.2 - javadoc updates
-// boucherb@users 200404xx - patch 1.7.2 - proper uri for getCatalogName
-// fredt@users 20050000 - 1.8.0 updates in several areas
-// fredt@users 20050220 - patch 1.8.0 enforcement of DECIMAL precision/scale
-// fredt@users 1.9.0 referential constraint enforcement moved to CompiledStatementExecutor
-// fredt@users 1.9.0 base functionality moved to TableBase
-
 /**
  * Holds the data structures and methods for creation of a database table.
  *
@@ -2638,32 +2614,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     *  Delete method for referential triggered actions.
-     */
-    void deleteRowAsTriggeredAction(Session session, Row row) {
-        deleteNoCheck(session, row);
-    }
-
-    /**
-     *  Mid level row delete method. Fires triggers but no integrity
-     *  constraint checks.
-     */
-    void deleteNoRefCheck(Session session, Row row) {
-
-        Object[] data = row.getData();
-
-        if (triggerList.length > 0) {
-            fireTriggers(session, Trigger.DELETE_BEFORE_ROW, data, null, null);
-        }
-
-        if (isView) {
-            return;
-        }
-
-        deleteNoCheck(session, row);
-    }
-
-    /**
      * Low level row delete method.
      */
     public void deleteNoCheck(Session session, Row row) {
@@ -2732,15 +2682,6 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         deleteNoCheck(session, row);
-    }
-
-    void checkRowData(Session session, Object[] data, int[] cols) {
-
-        enforceRowConstraints(session, data);
-
-        for (int i = 0; i < checkConstraints.length; i++) {
-            checkConstraints[i].checkCheckConstraint(session, this, data);
-        }
     }
 
     public void clearAllData(Session session) {
