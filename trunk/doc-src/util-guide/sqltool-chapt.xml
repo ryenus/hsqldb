@@ -3265,6 +3265,12 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 the dsv records that failed to insert.
                 The reject report file is a HTML report which lists, for
                 every rejected record, why that record was rejected.
+                <literal>\m?</literal> will show you that the required PL
+                variables for this functionality are
+                <varname>*DSV_REJECT_FILE</varname>
+                and <varname>*DSV_REJECT_REPORT</varname>.
+                In both cases, you set the variable value to the path of the
+                file which SqlTool will create.
             </simpara> <simpara>
                 To allow for user-friendly entry of headers, we require
                 that tables for DSV import/exports use standard column names.
