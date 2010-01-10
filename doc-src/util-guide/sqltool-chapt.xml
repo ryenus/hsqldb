@@ -2992,6 +2992,39 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
 
     <section xml:id="sqltool_dsv-sect">
         <title>Delimiter-Separated-Value Imports and Exports</title>
+        <para>
+          SqlTool's DSV functionality encompasses what many users will
+          recognize as CSV export, as well as portable backup or transfer of
+          data.
+          Those familiar with Oracle's SQL*Loader will recognize the extreme
+          usefulness of the feature set.
+          Besides database- and platform-independent data backups, exports can
+          be used to deploy data sets with applications, to transfer data
+          among multiple database instances (even drastically different
+          database instances such as SQL Server and HyperSQL), and to properly
+          change control data sets with a content management system such as a
+          collaboration server or Subversion.
+          To jump way ahead for a moment to whet your appetite, here is a
+          sample <emphasis>import reject report</emphasis> which will can be
+          generated automatically for you upon import just by setting the PL
+          variable <varname>*DSV_REJECT_REPORT</varname> (to the desired
+          destination HTML file name).
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="rejreport-sample.png"
+                       align="center" format="PNG"/>
+             <!-- Instead of specifying width="6.5in" here, I've scaled the
+                  image file itself.  This causes HTML representation to
+                  display the image without distortion and reduction with its
+                  native size, and is manually sized correctly for PDF/PS. -->
+            </imageobject>
+            <caption>
+              <simpara>A DSV Import reject report</simpara>
+            </caption>
+          </mediaobject>
+          If you wish to, you can review the reject report before deciding
+          whether to commit or roll back the inserts.
+        </para>
         <note><simpara>
             This feature is independent of HSQLDB Text Tables.
             (See the Text Tables chapter of the
