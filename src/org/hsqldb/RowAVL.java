@@ -166,15 +166,18 @@ public class RowAVL extends Row {
         }
     }
 
-    public void restore() {
+    public void delete() {
 
         NodeAVL n = nPrimaryNode;
 
         while (n != null) {
-            n.iBalance = 0;
-            n          = n.nNext;
+            n.delete();
+
+            n = n.nNext;
         }
     }
+
+    public void restore() {}
 
     public void destroy() {
 

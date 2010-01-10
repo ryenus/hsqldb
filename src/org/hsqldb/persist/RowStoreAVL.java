@@ -119,6 +119,8 @@ public abstract class RowStoreAVL implements PersistentStore {
         for (int i = indexList.length - 1; i >= 0; i--) {
             indexList[i].delete(this, row);
         }
+
+        row.delete();
     }
 
     public final void indexRow(Session session, Row row) {
@@ -219,7 +221,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
                 ArrayUtil.copyAdjustArray(o, data, colvalue, colindex, adjust);
                 table.systemSetIdentityColumn(session, data);
-                table. enforceTypeLimits(session, data);
+                table.enforceTypeLimits(session, data);
                 table.enforceRowConstraints(session, data);
 
                 // get object without RowAction

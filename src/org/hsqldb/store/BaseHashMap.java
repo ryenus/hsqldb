@@ -111,6 +111,7 @@ public class BaseHashMap {
     protected int       accessCount;
     protected int[]     accessTable;
     protected boolean[] multiValueTable;
+    protected Object[]  objectValueTable2;
 
     //
     final float       loadFactor;
@@ -871,7 +872,7 @@ public class BaseHashMap {
             System.arraycopy(temp, 0, longValueTable, 0, usedLength);
         }
 
-        if (isObjectKey || objectKeyTable != null) {
+        if (objectKeyTable != null) {
             temp           = objectKeyTable;
             objectKeyTable = new Object[newLength];
 
@@ -883,6 +884,13 @@ public class BaseHashMap {
             objectValueTable = new Object[newLength];
 
             System.arraycopy(temp, 0, objectValueTable, 0, usedLength);
+        }
+
+        if (objectValueTable2 != null) {
+            temp              = objectValueTable2;
+            objectValueTable2 = new Object[newLength];
+
+            System.arraycopy(temp, 0, objectValueTable2, 0, usedLength);
         }
 
         if (accessTable != null) {

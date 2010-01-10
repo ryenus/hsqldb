@@ -1052,10 +1052,10 @@ public class TransactionManagerMVCC implements TransactionManager {
             long count = current.latch.getCount();
 
             if (count == 1) {
-                setWaitedSessionsTPL(current, current.currentStatement);
+                setWaitedSessionsTPL(current, current.sessionContext.currentStatement);
 
                 if (current.tempSet.isEmpty()) {
-                    lockTablesTPL(current, current.currentStatement);
+                    lockTablesTPL(current, current.sessionContext.currentStatement);
 
                     current.tempUnlocked = true;
                 }
@@ -1066,7 +1066,7 @@ public class TransactionManagerMVCC implements TransactionManager {
             Session current = (Session) session.waitingSessions.get(i);
 
             if (!current.tempUnlocked) {
-                setWaitedSessionsTPL(current, current.currentStatement);
+                setWaitedSessionsTPL(current, current.sessionContext.currentStatement);
             }
         }
 

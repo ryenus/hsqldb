@@ -714,13 +714,14 @@ public class TransactionManagerMV2PL implements TransactionManager {
             return;
         }
 
-        if (session.currentStatement == null) {
+        if (session.sessionContext.currentStatement == null) {
 
             // after java function / proc with db access
             return;
         }
 
-        HsqlName[] readLocks = session.currentStatement.getTableNamesForRead();
+        HsqlName[] readLocks =
+            session.sessionContext.currentStatement.getTableNamesForRead();
 
         if (readLocks.length == 0) {
             return;
@@ -756,9 +757,11 @@ public class TransactionManagerMV2PL implements TransactionManager {
             for (int i = 0; i < waitingCount; i++) {
                 Session current = (Session) session.waitingSessions.get(i);
 
-                canUnlock = ArrayUtil.containsAny(
-                    readLocks,
-                    current.currentStatement.getTableNamesForWrite());
+                canUnlock =
+                    ArrayUtil
+                        .containsAny(readLocks,
+                                     current.sessionContext.currentStatement
+                                         .getTableNamesForWrite());
 
                 if (canUnlock) {
                     break;
@@ -803,14 +806,15 @@ public class TransactionManagerMV2PL implements TransactionManager {
 
             if (count == 1) {
                 boolean canProceed = setWaitedSessionsTPL(current,
-                    current.currentStatement);
+                    current.sessionContext.currentStatement);
 
                 if (!canProceed) {
                     current.abortTransaction = true;
                 }
 
                 if (current.tempSet.isEmpty()) {
-                    lockTablesTPL(current, current.currentStatement);
+                    lockTablesTPL(current,
+                                  current.sessionContext.currentStatement);
 
                     current.tempUnlocked = true;
                 }
@@ -824,7 +828,7 @@ public class TransactionManagerMV2PL implements TransactionManager {
 
                 // this can introduce additional waits for the sessions
                 boolean canProceed = setWaitedSessionsTPL(current,
-                    current.currentStatement);
+                    current.sessionContext.currentStatement);
 
                 if (!canProceed) {
                     current.abortTransaction = true;
@@ -841,7 +845,8 @@ public class TransactionManagerMV2PL implements TransactionManager {
             Session current = (Session) session.waitingSessions.get(i);
 
             if (!current.abortTransaction && current.tempSet.isEmpty()) {
-                boolean hasLocks = hasLocks(current, current.currentStatement);
+                boolean hasLocks =
+                    hasLocks(current, current.sessionContext.currentStatement);
 
                 if (!hasLocks) {
                     System.out.println("trouble");
@@ -866,7 +871,8 @@ public class TransactionManagerMV2PL implements TransactionManager {
             Session current = (Session) session.tempSet.get(i);
 
             if (!current.abortTransaction && current.tempSet.isEmpty()) {
-                boolean hasLocks = hasLocks(current, current.currentStatement);
+                boolean hasLocks =
+                    hasLocks(current, current.sessionContext.currentStatement);
 
                 if (!hasLocks) {
                     System.out.println("trouble");
