@@ -363,6 +363,7 @@ public class ParserDDL extends ParserRoutine {
                 objectType    = SchemaObject.SPECIFIC_ROUTINE;
                 writeName     = catalogName;
                 canCascade    = true;
+                useIfExists   = true;
 
                 break;
             }
@@ -373,6 +374,7 @@ public class ParserDDL extends ParserRoutine {
                 objectType    = SchemaObject.PROCEDURE;
                 writeName     = catalogName;
                 canCascade    = true;
+                useIfExists   = true;
 
                 break;
             }
@@ -383,6 +385,7 @@ public class ParserDDL extends ParserRoutine {
                 objectType    = SchemaObject.FUNCTION;
                 writeName     = catalogName;
                 canCascade    = true;
+                useIfExists   = true;
 
                 break;
             }
@@ -392,8 +395,8 @@ public class ParserDDL extends ParserRoutine {
                 statementType = StatementTypes.DROP_SCHEMA;
                 objectType    = SchemaObject.SCHEMA;
                 writeName     = catalogName;
-                useIfExists   = true;
                 canCascade    = true;
+                useIfExists   = true;
 
                 break;
             }
@@ -415,6 +418,7 @@ public class ParserDDL extends ParserRoutine {
                 objectType    = SchemaObject.TRIGGER;
                 writeName     = catalogName;
                 canCascade    = false;
+                useIfExists   = true;
 
                 break;
             }
@@ -445,6 +449,7 @@ public class ParserDDL extends ParserRoutine {
                 objectType    = SchemaObject.DOMAIN;
                 writeName     = catalogName;
                 canCascade    = true;
+                useIfExists   = true;
                 break;
 
             case Tokens.TYPE :
@@ -454,6 +459,7 @@ public class ParserDDL extends ParserRoutine {
                 objectType    = SchemaObject.TYPE;
                 writeName     = catalogName;
                 canCascade    = true;
+                useIfExists   = true;
                 break;
 
             case Tokens.CHARACTER :
@@ -464,6 +470,7 @@ public class ParserDDL extends ParserRoutine {
                 objectType    = SchemaObject.CHARSET;
                 writeName     = catalogName;
                 canCascade    = false;
+                useIfExists   = true;
                 break;
 
             case Tokens.VIEW :
