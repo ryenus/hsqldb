@@ -294,12 +294,14 @@ public class StatementCompound extends Statement {
 
     private Result executeBlock(Session session) {
 
-        Result result = Result.updateZeroResult;
-        int    i      = 0;
+        Result  result = Result.updateZeroResult;
+        boolean push   = !root.isTrigger();
 
-        session.sessionContext.push();
+        if (push) {
+            session.sessionContext.push();
+        }
 
-        for (; i < statements.length; i++) {
+        for (int i = 0; i < statements.length; i++) {
             result = statements[i].execute(session);
             result = handleCondition(session, result);
 
@@ -323,7 +325,9 @@ public class StatementCompound extends Statement {
             }
         }
 
-        session.sessionContext.pop();
+        if (push) {
+            session.sessionContext.pop();
+        }
 
         return result;
     }
