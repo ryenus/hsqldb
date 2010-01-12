@@ -2,20 +2,9 @@
 <html><head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>HSQLDB</title></head>
-
 <body>
 
-<h3>HyperSQL version 2.0.0 Distribution</h3>
-
-  <h4>RELEASE CANDIDATE VERSION - NOT FOR PRODUCTION USE</h4>
-
-
-<p>This distribution is version RC_8 and therefore not recommended for production.
-  It is released only to allow our users learn the new features, test it, and
-  report any bugs or questions to <a href="http://hsqldb.org/support">http://hsqldb.org/support</a> . Please read the
-  file <a href="betaVersion.html">betaVersion.html</a> in this directory for details.</p>
-
-<p>HSQLDB (HyperSQL DataBase) is a relational
+<h3>HyperSQL version 2.0.0 Distribution</h3><p>HSQLDB (HyperSQL DataBase) is a relational
 database engine written in Java. Version 2.0.0 is the result of over 4 years
 development since the last major version. It offers many features and adheres
 closely to the latest SQL and JDBC 4 standards.</p>
@@ -72,7 +61,7 @@ minor changes and bug fixes since the release of version 2.0.0 <a href="doc%5Cch
 and its GUI utilities (hsqldb.jar) has been pre-built in this
 directory. The jar is
 compatible with Java version 1.6. The jar for SqlTool (sqltool.jar) is
-also in this directory. The extra zip file is needed only for
+also in this directory. The extra zip file in the directory is needed only for
 recompiling hsqldb and is not required for deployment. </p>
 
 <h4>src</h4>
@@ -84,18 +73,26 @@ directory. </p>
 
 <p>Contains test scripts for the
 database engine and SqlTool. These scripts are run by separate test utilities
-for the engine and SqlTool</p>
+for the engine and SqlTool</p><h4>CHANGES</h4>
 
-<p>&nbsp;</p>
+<ul><li>There are very many new features in the new version. Most of these do not
+    affect existing features in version 1.8.x.</li><li>For use with existing applications, the main differences are as follows:</li><li>Transaction isolation is always enforced - READ COMMITTED and SERIALIZABLE
+    modes are supported.</li><li>GENERATE BY DEFAULT AS IDENTITY does not create a primary key. A primary key must be declared explicitly.</li></ul>
 
-<h4>SUPPORT</h4>
+<h4>UPDATES</h4>
+
+We constantly fix reported issues. Please check the web site regularly for&nbsp;latest updated version and latest information.<h4>SUPPORT</h4>
 
 <p>Support for HyperSQL is available
 from <a href="http://hsqldb.org/support">http://hsqldb.org/support</a> in
 various forms, including a mailing list and user forums. The web site features
 the latest bugfix versions of the software, FAQ and other useful resources.</p>
 
-<p>&nbsp;</p>
+<h4>SUPPORTWARE</h4>
+
+The development and maintenance of&nbsp; HyperSQL has been possible
+because of financial contributions by business users. We need renewed
+contributions. Please subscribe to SupporWare at&nbsp; <a href="http://hsqldb.org/supportware">http://hsqldb.org/supportware</a> .
 
 <p>Fred Toussi (fredt (at)
 users.sourceforge.net)<br>
