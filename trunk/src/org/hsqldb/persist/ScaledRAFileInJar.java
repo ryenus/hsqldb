@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.hsqldb.Database;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
 
 /**
@@ -65,8 +67,7 @@ final class ScaledRAFileInJar implements ScaledRAInterface {
 
     ScaledRAFileInJar(String name) throws FileNotFoundException, IOException {
 
-        fileName = name;
-
+        fileName   = name;
         fileLength = getLength();
 
         resetStream();
@@ -206,27 +207,38 @@ final class ScaledRAFileInJar implements ScaledRAInterface {
     private long getLength() throws IOException {
 
         int count = 0;
+
         resetStream();
 
-
-        while(true) {
+        while (true) {
             if (file.read() < 1) {
                 break;
             }
 
             count++;
-
         }
 
         return count;
     }
+
     private void resetStream() throws IOException {
 
         if (file != null) {
             file.close();
         }
 
-        InputStream fis = getClass().getResourceAsStream(fileName);
+        InputStream fis;
+
+        try {
+            fis = getClass().getResourceAsStream(fileName);
+
+            if (fis == null) {
+                fis = Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream(fileName);
+            }
+        } catch (Throwable t) {
+            throw Error.error(ErrorCode.DATABASE_NOT_EXISTS, t);
+        }
 
         file = new DataInputStream(fis);
     }
