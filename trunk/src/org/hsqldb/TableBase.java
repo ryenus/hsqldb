@@ -175,7 +175,8 @@ public class TableBase {
     }
 
     public final Index getPrimaryIndex() {
-        return indexList[0];
+        return indexList.length > 0 ? indexList[0]
+                                    : null;
     }
 
     public final Type[] getPrimaryKeyTypes() {

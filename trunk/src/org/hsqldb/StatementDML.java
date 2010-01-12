@@ -78,9 +78,9 @@ public class StatementDML extends StatementDMQL {
               session.getCurrentSchemaHsqlName());
 
         this.targetTable = targetTable;
-        this.baseTable   = targetTable.isTriggerInsertable() ? targetTable
-                                                             : targetTable
-                                                             .getBaseTable();
+        this.baseTable   = targetTable.getBaseTable() == null ? targetTable
+                                                              : targetTable
+                                                              .getBaseTable();
         this.targetRangeVariables = rangeVars;
         this.restartIdentity      = restartIdentity;
 
@@ -103,8 +103,10 @@ public class StatementDML extends StatementDMQL {
         super(StatementTypes.UPDATE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
 
-        this.targetTable          = targetTable;
-        this.baseTable            = targetTable.getBaseTable();
+        this.targetTable = targetTable;
+        this.baseTable   = targetTable.getBaseTable() == null ? targetTable
+                                                              : targetTable
+                                                              .getBaseTable();
         this.updateColumnMap      = updateColumnMap;
         this.updateExpressions    = colExpressions;
         this.updateCheckColumns   = checkColumns;
@@ -127,9 +129,11 @@ public class StatementDML extends StatementDMQL {
         super(StatementTypes.MERGE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
 
-        this.sourceTable          = targetRangeVars[0].rangeTable;
-        this.targetTable          = targetRangeVars[1].rangeTable;
-        this.baseTable            = targetTable.getBaseTable();
+        this.sourceTable = targetRangeVars[0].rangeTable;
+        this.targetTable = targetRangeVars[1].rangeTable;
+        this.baseTable   = targetTable.getBaseTable() == null ? targetTable
+                                                              : targetTable
+                                                              .getBaseTable();
         this.insertCheckColumns   = checkColumns;
         this.insertColumnMap      = insertColMap;
         this.updateColumnMap      = updateColMap;
@@ -774,7 +778,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         if (table.isView) {
-            return navigator.getSize();
+            return rowCount;
         }
 
         navigator.beforeFirst();
@@ -953,6 +957,10 @@ public class StatementDML extends StatementDMQL {
                                           row.getData(), changedData,
                                           changedColumns);
             }
+        }
+
+        if (table.isView) {
+            return rowCount;
         }
 
         navigator.beforeFirst();
