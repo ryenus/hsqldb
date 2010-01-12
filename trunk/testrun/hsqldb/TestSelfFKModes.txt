@@ -39,6 +39,13 @@ create cached table testB(id integer, parent integer, ref integer,
 */select * from testB order by id
 /*c2*/select * from testB where parent is null
 -- ON DELETE SET DEFAULT
+
+delete from testB;
+/*u4*/insert into testB values(100,100,1,'xxxx'),
+ (101,100,1,'xxxx'),
+ (102,100,1,'xxxx'),
+ (200,200,1,'xxxx')
+
 drop table testB if exists;
 create cached table testB(id integer, parent integer default 20, ref integer,
  data varchar(200), unique (id),foreign key (parent)
@@ -136,3 +143,21 @@ create cached table testE(id integer primary key, idref integer);
 alter table testE alter column idref set default 10;
 alter table testE add foreign key(idref) references testE(id) on delete set default;
 /*e*/alter table testE alter column idref drop default;
+
+--
+drop table testA if exists cascade;
+drop table testB if exists;
+drop table testC if exists;
+create cached table testA(id integer primary key);
+create cached table testB(id integer primary key, foreign key (id) references testA(id) on delete cascade);
+create cached table testC(id integer primary key, foreign key (id) references testB(id) on delete cascade);
+insert into testA values 10
+insert into testB values 10
+insert into testC values 10
+alter table testA add foreign key (id) references testC(id) on delete cascade;
+delete from testA
+drop table testA if exists cascade;
+drop table testB if exists cascade;
+drop table testC if exists cascade;
+
+

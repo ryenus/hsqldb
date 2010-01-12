@@ -499,3 +499,26 @@ CREATE VIEW lok_bremse_lfdnr1_view
  and gew_r.gewicht_bremse IS NOT NULL
  where br.lfd_nr = 1
  AND br.bremse_dl_bauart IN( 'ALaH','H2Lw');
+
+-- check for use of index in execution plan
+CREATE CACHED TABLE article (
+ id INTEGER IDENTITY,
+ name VARCHAR(50));
+
+CREATE CACHED TABLE salesorder_row (
+ id INTEGER IDENTITY,
+ salesorder_id INTEGER,
+ article_id INTEGER,
+ needed DECIMAL(10,2),
+ CONSTRAINT fk_salesorder_row_article FOREIGN KEY (article_id) REFERENCES
+ article (id) ON DELETE CASCADE);
+
+CREATE INDEX idx_salesorder_row_article ON salesorder_row (article_id);
+CREATE INDEX idx_salesorder_row_salesorder ON salesorder_row
+ (salesorder_id);
+
+EXPLAIN PLAN FOR
+ SELECT article.name, salesorder_row.needed
+ FROM salesorder_row
+ LEFT JOIN article ON salesorder_row.article_id = article.id
+ WHERE (salesorder_row.salesorder_id = 1234)

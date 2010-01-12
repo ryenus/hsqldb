@@ -40,7 +40,7 @@ create table ref2(id int identity,idMain int,
 /*u1*/  insert into main values(2,'test2')
 /*u1*/  insert into ref values(2,2)
 /*e*/   update main set id=2-id
-/*e*/   drop table main;drop table ref; drop table ref2
+/*e*/   drop table main;
 drop table ref2;drop table ref;drop table main
 
 -- Data Definition
@@ -221,7 +221,8 @@ update test set nr=null;
 /*r2*/ update test set nr=4/2;select "TEST"."NR" from test
 /*r34   */ update test set name='3' || '4';select distinct name from test
 /*rHo*/ select 'Ho' as hhoo from TEsT where name in ('34','y','z')
-/*rNULL*/ update test set name=null;select name from "TEST"
+update test set name=null;
+/*rNULL*/select name from "TEST"
 -- case sensitivity tests
 create table "t6"("x" char(6),s smallint not null,b bigint, c binary);
 /*r0*/ select count(*) from "t6"
