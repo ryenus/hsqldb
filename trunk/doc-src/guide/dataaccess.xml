@@ -2459,6 +2459,8 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
     IDENTITY sequence of the table. If <literal>RESTART IDENTITY</literal> is
     specified, then the sequence is reset to its start value.</simpara>
 
+    <simpara>This command is faster than odinary DELETE.</simpara>
+
     <indexterm significance="preferred" type="sql">
       <primary>INSERT INTO</primary>
     </indexterm>
@@ -2517,10 +2519,14 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
     has a default value or is an IDENTITY or GENERATED column of the
     table.</simpara>
 
+    <simpara>The <literal>&lt;override clause&gt;</literal> must be used when
+    a value is explicitly assigned to a column that has been defined as
+    GENERATED ALWAYS AS IDENTITY. </simpara>
+
     <simpara>The rows that are inserted into the table are checked against all
     the constraints that have been declared on the table. The whole INSERT
     operation fails if any row fails to inserted due to constraint violation.
-    Examples</simpara>
+    Examples:</simpara>
 
     <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
 INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */
@@ -2590,7 +2596,7 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inser
     The total number of inserted and unpdated rows is always the same as the
     number of rows in <literal>&lt;table reference&gt;</literal>. The
     constraints and referential actions specified on the database tables are
-    enforced the same way as for an update and an insert statement. </simpara>
+    enforced the same way as for an update and an insert statement.</simpara>
 
     <simpara>In the first example below, the table originally contains two
     rows for different furniture. The <literal>&lt;table
@@ -2650,7 +2656,7 @@ MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals
 
     <simpara>The rows that are updated are checked against all the constraints
     that have been declared on the table. The whole UPDATE operation fails if
-    any row violates any constraint. </simpara>
+    any row violates any constraint.</simpara>
 
     <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
 INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */

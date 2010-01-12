@@ -357,11 +357,13 @@
     <simpara><literal>&lt;user definition&gt; ::= CREATE USER &lt;user
     name&gt; PASSWORD &lt;password&gt; [ ADMIN ]</literal></simpara>
 
-    <simpara>Define a new user and its password.
+    <simpara>Define a new user and its password. <literal>&lt;user
+    name&gt;</literal> is an SQL identifier. If it is double-quoted it is
+    case-sensitive, otherwise it is turned to uppercase.
     <literal>&lt;password&gt;</literal> is a string enclosed with single quote
-    characters. If <literal>ADMIN</literal> is specified, the DBA role is
-    granted to the new user. Only a user with the DBA role can execute this
-    statement.</simpara>
+    characters and is case-sensitive. If <literal>ADMIN</literal> is
+    specified, the DBA role is granted to the new user. Only a user with the
+    DBA role can execute this statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>DROP USER</primary>
@@ -391,8 +393,12 @@
     <simpara><literal>&lt;alter user set password statement&gt; ::= ALTER USER
     &lt;user name&gt; SET PASSWORD &lt;password&gt;</literal></simpara>
 
-    <simpara>Change the password of an existing user. Only a user with the DBA
-    role can execute this command.</simpara>
+    <simpara>Change the password of an existing user. <literal>&lt;user
+    name&gt;</literal> is an SQL identifier. If it is double-quoted it is
+    case-sensitive, otherwise it is turned to uppercase.
+    <literal>&lt;password&gt;</literal> is a string enclosed with single quote
+    characters and is case-sensitive. Only a user with the DBA role can
+    execute this command.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>ALTER USER ... SET INITIAL SCHEMA</primary>
@@ -429,7 +435,7 @@
 
     <simpara>Set the password for the current user.
     <literal>&lt;password&gt;</literal> is a string enclosed with single quote
-    characters.</simpara>
+    characters and is case-sensitive. </simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET INITIAL SCHEMA*</primary>
