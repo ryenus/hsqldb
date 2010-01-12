@@ -233,11 +233,11 @@ public class View extends TableDerived {
                 break;
 
             case StatementTypes.UPDATE_WHERE :
-                if (isTriggerInsertable) {
+                if (isTriggerUpdatable) {
                     throw Error.error(ErrorCode.X_42545);
                 }
 
-                isTriggerInsertable = true;
+                isTriggerUpdatable = true;
                 break;
 
             default :

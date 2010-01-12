@@ -1371,17 +1371,36 @@ public class ParserDQL extends ParserBase {
             switch (operation) {
 
                 case StatementTypes.MERGE :
-                    if (!table.isUpdatable() || !table.isInsertable()) {
-                        throw Error.error(ErrorCode.X_42545);
+                    if (table.isTriggerUpdatable()
+                            && table.isTriggerDeletable()) {
+                        break;
                     }
-                    break;
 
-                case StatementTypes.UPDATE_WHERE :
-                case StatementTypes.DELETE_WHERE :
-                    if (!table.isUpdatable()) {
-                        throw Error.error(ErrorCode.X_42545);
+                    if (table.isUpdatable() && table.isInsertable()) {
+                        break;
                     }
-                    break;
+
+                    throw Error.error(ErrorCode.X_42545);
+                case StatementTypes.UPDATE_WHERE :
+                    if (table.isTriggerUpdatable()) {
+                        break;
+                    }
+
+                    if (table.isUpdatable()) {
+                        break;
+                    }
+
+                    throw Error.error(ErrorCode.X_42545);
+                case StatementTypes.DELETE_WHERE :
+                    if (table.isTriggerDeletable()) {
+                        break;
+                    }
+
+                    if (table.isUpdatable()) {
+                        break;
+                    }
+
+                    throw Error.error(ErrorCode.X_42545);
             }
 
             SubQuery sq = getViewSubquery((View) table);

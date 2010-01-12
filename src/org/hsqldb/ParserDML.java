@@ -276,7 +276,7 @@ public class ParserDML extends ParserDQL {
 
         columnCheckList = table.getColumnCheckList(columnMap);
 
-        if (table != baseTable) {
+        if (baseTable != null && table != baseTable) {
             int[] baseColumnMap = table.getBaseTableColumnMap();
             int[] newColumnMap  = new int[columnMap.length];
 
@@ -379,16 +379,13 @@ public class ParserDML extends ParserDQL {
         Table table     = rangeVariables[0].getTable();
         Table baseTable = table.getBaseTable();
 
-        if (!table.isUpdatable() && !table.isTriggerDeletable()) {
-            throw Error.error(ErrorCode.X_42545);
-        }
-
         if (truncate) {
             if (table != baseTable) {
                 throw Error.error(ErrorCode.X_42545);
             }
 
             if (table.isTriggerDeletable()) {
+                // redundant
                 throw Error.error(ErrorCode.X_42545);
             }
 
@@ -438,7 +435,10 @@ public class ParserDML extends ParserDQL {
             }
         }
 
-        if (table != baseTable) {
+        if (baseTable == null) {
+
+            //
+        } else if (table != baseTable) {
             QuerySpecification select =
                 ((TableDerived) table).getQueryExpression().getMainSelect();
 
@@ -547,7 +547,7 @@ public class ParserDML extends ParserDQL {
             rangeVariables = resolver.rangeVariables;
         }
 
-        if (table != baseTable) {
+        if (baseTable != null && table != baseTable) {
             int[] baseColumnMap = table.getBaseTableColumnMap();
             int[] newColumnMap  = new int[columnMap.length];
 
