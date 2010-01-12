@@ -662,8 +662,12 @@ public final class DateTimeType extends DTIType {
         throw Error.error(ErrorCode.X_42561);
     }
 
-    /** @todo - do the time zone */
+    /** @todo - check the time zone conversion */
     public Object convertJavaToSQL(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
 
         switch (typeCode) {
 
@@ -791,6 +795,10 @@ public final class DateTimeType extends DTIType {
     }
 
     public Object convertSQLToJava(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
 
         switch (typeCode) {
 

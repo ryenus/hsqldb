@@ -342,6 +342,10 @@ public class BinaryType extends Type {
 
     public Object convertJavaToSQL(SessionInterface session, Object a) {
 
+        if (a == null) {
+            return null;
+        }
+
         if (a instanceof byte[]) {
             return new BinaryData((byte[]) a, true);
         }
@@ -350,6 +354,11 @@ public class BinaryType extends Type {
     }
 
     public Object convertSQLToJava(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
+
         return ((BlobData) a).getBytes();
     }
 

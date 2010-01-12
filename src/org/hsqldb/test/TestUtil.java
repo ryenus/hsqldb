@@ -75,7 +75,9 @@ public class TestUtil {
     static final String LS = System.getProperty("line.separator", "\n");
 
     public static void main(String[] argv) {
+
         StopWatch sw = new StopWatch(true);
+
         TestUtil.testScripts("testrun/hsqldb");
         System.out.println(sw.currentElapsedTimeToMessage("Total time :"));
     }
@@ -410,6 +412,9 @@ public class TestUtil {
             case 'r' :
                 return new ResultSetParsedSection(rows);
 
+            case 'o' :
+                return new ResultSetOutputParsedSection(rows);
+
             case 'c' :
                 return new CountParsedSection(rows);
 
@@ -640,6 +645,7 @@ abstract class ParsedSection {
 
             case ' ' :
             case 'r' :
+            case 'o' :
             case 'e' :
             case 'c' :
             case 'u' :
@@ -789,6 +795,77 @@ class ResultSetParsedSection extends ParsedSection {
         }
 
         return true;
+    }
+
+    private String[] getExpectedRows() {
+        return expectedRows;
+    }
+}
+
+/** Represents a ParsedSection for a ResultSet dump */
+class ResultSetOutputParsedSection extends ParsedSection {
+
+    private String   delim = System.getProperty("TestUtilFieldDelimiter", ",");
+    private String[] expectedRows = null;
+
+    /**
+     * constructs a new instance of ResultSetParsedSection, interpreting
+     * the supplied results as one or more lines of delimited field values
+     * @param lines String[]
+     */
+    protected ResultSetOutputParsedSection(String[] lines) {
+
+        super(lines);
+
+        type = 'o';
+    }
+
+    protected String getResultString() {
+        return "";
+    }
+
+    protected boolean test(Statement aStatement) {
+
+        try {
+            try {
+
+                //execute the SQL
+                aStatement.execute(getSql());
+            } catch (SQLException s) {
+                throw new Exception("Expected a ResultSet, but got the error: "
+                                    + s.getMessage());
+            }
+
+            //check that update count != -1
+            if (aStatement.getUpdateCount() != -1) {
+                throw new Exception(
+                    "Expected a ResultSet, but got an update count of "
+                    + aStatement.getUpdateCount());
+            }
+
+            //iterate over the ResultSet
+            ResultSet    results  = aStatement.getResultSet();
+            StringBuffer printVal = new StringBuffer();
+
+            while (results.next()) {
+                for (int j = 0; j < results.getMetaData().getColumnCount();
+                        j++) {
+                    if (j != 0) {
+                        printVal.append(',');
+                    }
+
+                    printVal.append(results.getString(j + 1));
+                }
+
+                printVal.append(LS);
+            }
+
+            throw new Exception(printVal.toString());
+        } catch (Exception x) {
+            message = x.getMessage();
+
+            return false;
+        }
     }
 
     private String[] getExpectedRows() {
