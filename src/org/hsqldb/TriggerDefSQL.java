@@ -31,6 +31,8 @@
 
 package org.hsqldb;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.result.Result;
@@ -85,6 +87,10 @@ public class TriggerDefSQL extends TriggerDef {
                                Object[] newData) {
 
         Result result = Result.updateZeroResult;
+
+        if (session.sessionContext.depth > 128) {
+            throw Error.error(ErrorCode.GENERAL_ERROR);
+        }
 
         session.sessionContext.push();
 
