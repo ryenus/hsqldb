@@ -2083,13 +2083,13 @@ public class ParserDDL extends ParserRoutine {
 
                         transitions[TriggerDef.OLD_TABLE] = transition;
                         rangeVars[TriggerDef.OLD_TABLE]   = range;
-                    } else if (token.tokenType == Tokens.ROW) {
+                    } else {
                         if (Boolean.FALSE.equals(isForEachRow)
                                 || oldRowName != null) {
                             throw unexpectedToken();
                         }
 
-                        read();
+                        readIfThis(Tokens.ROW);
                         readIfThis(Tokens.AS);
                         checkIsSimpleName();
 
@@ -2115,8 +2115,6 @@ public class ParserDDL extends ParserRoutine {
 
                         transitions[TriggerDef.OLD_ROW] = transition;
                         rangeVars[TriggerDef.OLD_ROW]   = range;
-                    } else {
-                        throw unexpectedToken();
                     }
                 } else if (token.tokenType == Tokens.NEW) {
                     if (operationType == StatementTypes.DELETE_WHERE) {
@@ -2158,13 +2156,13 @@ public class ParserDDL extends ParserRoutine {
 
                         transitions[TriggerDef.NEW_TABLE] = transition;
                         rangeVars[TriggerDef.NEW_TABLE]   = range;
-                    } else if (token.tokenType == Tokens.ROW) {
+                    } else {
                         if (Boolean.FALSE.equals(isForEachRow)
                                 || newRowName != null) {
                             throw unexpectedToken();
                         }
 
-                        read();
+                        readIfThis(Tokens.ROW);
                         readIfThis(Tokens.AS);
                         checkIsSimpleName();
 
@@ -2190,8 +2188,6 @@ public class ParserDDL extends ParserRoutine {
 
                         transitions[TriggerDef.NEW_ROW] = transition;
                         rangeVars[TriggerDef.NEW_ROW]   = range;
-                    } else {
-                        throw unexpectedToken();
                     }
                 } else {
                     break;
