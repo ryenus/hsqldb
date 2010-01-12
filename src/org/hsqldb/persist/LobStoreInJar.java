@@ -112,10 +112,17 @@ public class LobStoreInJar implements LobStore {
             file.close();
         }
 
-        InputStream fis = getClass().getResourceAsStream(fileName);
+        InputStream fis;
 
-        if (fis == null) {
-            return;
+        try {
+            fis = getClass().getResourceAsStream(fileName);
+
+            if (fis == null) {
+                fis = Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream(fileName);
+            }
+        } catch (Throwable t) {
+            throw Error.error(ErrorCode.DATABASE_NOT_EXISTS, t);
         }
 
         file         = new DataInputStream(fis);

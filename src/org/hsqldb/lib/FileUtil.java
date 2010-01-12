@@ -36,6 +36,8 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Random;
 
 import org.hsqldb.lib.java.JavaSystem;
@@ -71,8 +73,8 @@ public class FileUtil implements FileAccess {
         return (new File(elementName)).exists();
     }
 
-    public java.io.InputStream openInputStreamElement(
-            java.lang.String streamName) throws java.io.IOException {
+    public InputStream openInputStreamElement(java.lang.String streamName)
+    throws java.io.IOException {
 
         try {
             return new FileInputStream(new File(streamName));
@@ -81,11 +83,11 @@ public class FileUtil implements FileAccess {
         }
     }
 
-    public void createParentDirs(java.lang.String filename) {
+    public void createParentDirs(String filename) {
         makeParentDirectories(new File(filename));
     }
 
-    public void removeElement(java.lang.String filename) {
+    public void removeElement(String filename) {
 
         if (isStreamElement(filename)) {
             delete(filename);
@@ -174,15 +176,14 @@ public class FileUtil implements FileAccess {
      */
     private boolean renameWithOverwrite(String oldname, String newname) {
 
-        File file = new File(oldname);
+        File    file    = new File(oldname);
         boolean renamed = file.renameTo(new File(newname));
 
         if (renamed) {
             return true;
         }
 
-        if( delete(newname) ) {
-
+        if (delete(newname)) {
             return file.renameTo(new File(newname));
         }
 
@@ -303,29 +304,38 @@ public class FileUtil implements FileAccess {
 
         FileDescriptor outDescriptor;
 
-        FileSync(FileOutputStream os) throws java.io.IOException {
+        FileSync(FileOutputStream os) throws IOException {
             outDescriptor = os.getFD();
         }
 
-        public void sync() throws java.io.IOException {
+        public void sync() throws IOException {
             outDescriptor.sync();
         }
     }
 
     public static class FileAccessRes implements FileAccess {
 
-        public boolean isStreamElement(java.lang.String elementName) {
+        public boolean isStreamElement(String elementName) {
             return getClass().getResource(elementName) != null;
         }
 
-        public java.io.InputStream openInputStreamElement(
-                java.lang.String streamName) throws java.io.IOException {
+        public InputStream openInputStreamElement(String streamName)
+        throws IOException {
+
+            InputStream is;
 
             try {
-                return getClass().getResourceAsStream(streamName);
-            } catch (Throwable e) {
-                throw JavaSystem.toIOException(e);
+                is = getClass().getResourceAsStream(streamName);
+
+                if (is == null) {
+                    is = Thread.currentThread().getContextClassLoader()
+                        .getResourceAsStream(streamName);
+                }
+            } catch (Throwable t) {
+                throw JavaSystem.toIOException(t);
             }
+
+            return is;
         }
 
         public void createParentDirs(java.lang.String filename) {}
@@ -335,13 +345,13 @@ public class FileUtil implements FileAccess {
         public void renameElement(java.lang.String oldName,
                                   java.lang.String newName) {}
 
-        public java.io.OutputStream openOutputStreamElement(
-                java.lang.String streamName) throws java.io.IOException {
+        public java.io.OutputStream openOutputStreamElement(String streamName)
+        throws IOException {
             throw new IOException();
         }
 
-        public FileAccess.FileSync getFileSync(java.io.OutputStream os)
-        throws java.io.IOException {
+        public FileAccess.FileSync getFileSync(OutputStream os)
+        throws IOException {
             throw new IOException();
         }
     }
