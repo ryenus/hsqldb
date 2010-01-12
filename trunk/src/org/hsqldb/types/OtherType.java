@@ -158,6 +158,11 @@ public final class OtherType extends Type {
     }
 
     public Object convertSQLToJava(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
+
         return ((JavaObjectData) a).getObject();
     }
 
@@ -167,7 +172,7 @@ public final class OtherType extends Type {
             return true;
         }
 
-        if (otherType.typeCode == Types.SQL_ALL_TYPES ) {
+        if (otherType.typeCode == Types.SQL_ALL_TYPES) {
             return true;
         }
 
