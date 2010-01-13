@@ -212,7 +212,7 @@ public class SqlFile {
     private static Pattern nameValPairPattern =
             Pattern.compile("\\s*(\\w+)\\s*=(.*)");
             // Specifically permits 0-length values, but not names.
-    private static Pattern nameDotPattern = Pattern.compile("(\\w+)\\.");
+    private static Pattern dotPattern = Pattern.compile("(\\w*)\\.(\\w*)");
     private static Pattern commitOccursPattern =
             Pattern.compile("(?is)(?:set\\s+autocommit.*)|(commit\\s*)");
     private static Pattern logPattern =
@@ -503,8 +503,12 @@ public class SqlFile {
             recursed = true;
             shared = parentSqlFile.shared;
             plMode = parentSqlFile.plMode;
-            interactive = parentSqlFile.interactive;
+            interactive = false;
             continueOnError = parentSqlFile.continueOnError;
+            // Nested input is non-interactive because it just can't work to
+            // have user append to edit buffer, and displaying prompts would
+            // be misleading and inappropriate; yet we will inherit the current
+            // continueOnError behavior.
             updateUserSettings();
             // Updates local vars basd on * shared.userVars
         } catch (RuntimeException re) {
@@ -2651,6 +2655,40 @@ public class SqlFile {
         "REPADMIN"
     };
 
+    public String getCurrentSchema() throws BadSpecial, SqlToolError {
+        requireConnection();
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            st = shared.jdbcConn.createStatement();
+            rs = st.executeQuery("VALUES CURRENT_SCHEMA");
+            if (!rs.next())
+                throw new BadSpecial(SqltoolRB.no_vendor_schemaspt.getString());
+            String currentSchema = rs.getString(1);
+            if (currentSchema == null)
+                throw new BadSpecial(
+                        SqltoolRB.schemaname_retrieval_fail.getString());
+            return currentSchema;
+        } catch (SQLException se) {
+            throw new BadSpecial(SqltoolRB.no_vendor_schemaspt.getString());
+        } finally {
+            if (rs != null) try {
+                rs.close();
+            } catch (SQLException se) {
+                // Purposefully doing nothing
+            } finally {
+                rs = null;
+            }
+            if (st != null) try {
+                st.close();
+            } catch (SQLException se) {
+                // Purposefully doing nothing
+            } finally {
+                st = null;
+            }
+        }
+    }
+
     /**
      * Lists available database tables.
      *
@@ -2732,11 +2770,14 @@ public class SqlFile {
                         //  hence we do not list them in
                         //  DatabaseMetaData.getTables().
                         if (filter != null) {
-                            Matcher matcher = nameDotPattern.matcher(filter);
+                            Matcher matcher = dotPattern.matcher(filter);
                             if (matcher.matches()) {
+                                filter = (matcher.group(2).length() > 0)
+                                        ? matcher.group(2) : null;
                                 narrower = "\nWHERE sequence_schema = '"
-                                        + matcher.group(1) + "'";
-                                filter = null;
+                                        + ((matcher.group(1).length() > 0)
+                                                ? matcher.group(1)
+                                                : getCurrentSchema()) + "'";
                             }
                         }
 
@@ -2831,11 +2872,14 @@ public class SqlFile {
                         //  Earlier HSQLDB Aliases are not the same things as
                         //  the aliases listed in DatabaseMetaData.getTables().
                         if (filter != null) {
-                            Matcher matcher = nameDotPattern.matcher(filter);
+                            Matcher matcher = dotPattern.matcher(filter);
                             if (matcher.matches()) {
+                                filter = (matcher.group(2).length() > 0)
+                                        ? matcher.group(2) : null;
                                 narrower = "\nWHERE alias_schema = '"
-                                    + matcher.group(1) + "'";
-                                filter = null;
+                                        + ((matcher.group(1).length() > 0)
+                                                ? matcher.group(1)
+                                                : getCurrentSchema()) + "'";
                             }
                         }
 
@@ -2883,17 +2927,15 @@ public class SqlFile {
                     String table = null;
 
                     if (filter != null) {
-                        int dotat = filter.indexOf('.');
-
-                        schema = ((dotat > 0) ? filter.substring(0, dotat)
-                                              : null);
-
-                        if (!nameDotPattern.matcher(filter).matches()) {
-                            // Not a schema-only specifier
-                            table = ((dotat > 0) ? filter.substring(dotat + 1)
-                                                 : filter);
+                        Matcher matcher = dotPattern.matcher(filter);
+                        if (matcher.matches()) {
+                            table = (matcher.group(2).length() > 0)
+                                    ? matcher.group(2) : null;
+                            schema = (matcher.group(1).length() > 0)
+                                    ? matcher.group(1) : getCurrentSchema();
+                        } else {
+                            table = filter;
                         }
-
                         filter = null;
                     }
 
@@ -2928,10 +2970,13 @@ public class SqlFile {
 
 
                 if (schema == null && filter != null) {
-                    Matcher matcher = nameDotPattern.matcher(filter);
+                    Matcher matcher = dotPattern.matcher(filter);
                     if (matcher.matches()) {
-                        schema = matcher.group(1);
-                        filter = null;
+                        filter = (matcher.group(2).length() > 0)
+                                ? matcher.group(2) : null;
+                        schema = (matcher.group(1).length() > 0)
+                                ? matcher.group(1)
+                                : getCurrentSchema();
                     }
                 }
             }
