@@ -76,9 +76,20 @@
           </listitem>
 
           <listitem>
+            <para>You can reduce client/server traffic using SQL Stored
+            procedures to reduce the number of JDBC execute calls.</para>
+          </listitem>
+
+          <listitem>
             <para>During development, it is better to use a Server with
             server.silent=false, which displays the statements sent to the
             server on the console window.</para>
+          </listitem>
+
+          <listitem>
+            <para>To improve speed of execution for statements that are
+            executed repeatedly, reuse a parameterized PreparedStatement for
+            the lifetime of the connections.</para>
           </listitem>
         </itemizedlist></para>
     </section>
@@ -135,8 +146,9 @@
       CLOB objects. These objects can have huge sizes. BLOB or CLOB is
       specified as the type of a column of the table. Afterwards, rows can be
       inserted into the table using a PreparedStatement for efficient transfer
-      of large BLOB of CLOB data to the database. In mem: catalogs, CLOB and
-      BLOB data is stored in memory. In file: catalogs, this data is stored in
+      of large BLOB of CLOB data to the database. In
+      <glossterm>mem:</glossterm> catalogs, CLOB and BLOB data is stored in
+      memory. In <glossterm>file:</glossterm> catalogs, this data is stored in
       a single separate file which has the extension *.lobs. The size of this
       file can grow to huge, terabyte figures.</para>
     </section>
@@ -170,10 +182,10 @@
     <section>
       <title>Readonly Databases</title>
 
-      <para>A file: catalog can be made readonly premanently, or it can be
-      opened as readonly. To make the database readonly, the property, value
-      pair, readonly=true can be added to the .properties file of the
-      database.</para>
+      <para>A <glossterm>file:</glossterm> catalog can be made readonly
+      premanently, or it can be opened as readonly. To make the database
+      readonly, the property, value pair, readonly=true can be added to the
+      .properties file of the database.</para>
 
       <para>It is also possible to open a normal database as readonly. For
       this, the property can be included in the URL of the first connection to
@@ -248,7 +260,9 @@
       setFetchSize() method of the Statement interface is used to limit the
       number rows fetched, the whole result is held by the engine and is
       returnd to the JDBC ResultSet in blocks of rows of the specified fetch
-      size.</para>
+      size. Disk-based result sets slow down the database operations and
+      should be used only when absolutely necessary, perhaps with result sets
+      that are larger than tens of thousands of rows.</para>
     </section>
 
     <section>
@@ -267,7 +281,8 @@
       the transaction information is held in memory, not the actual rows that
       have changed. Transactions that span thousands of modification to data
       will take up a lot of memory until the next COMMIT or ROLLBACK clears
-      the list.</para>
+      the list. Each row modifcation uses less than 100 bytes until
+      COMMIT.</para>
 
       <para>When subquries or views are used in SELECT and other statements,
       transient tables are created and populated by the engine. If the
@@ -328,7 +343,8 @@
       <para>Access to lobs is always performed in chunks, so it is perfectly
       possible to store and access a CLOB or BLOB that is larger than the JVM
       memory allocation. Early versions of HyperSQL 2.0 use memory-based
-      tables for the lob catalog. Therefore it is paractical to store about
+      tables for the lob catalog (not the data). The lob data is stored on
+      disk with file: databases. Therefore it is paractical to store about
       100,000 individual lobs in the database with the default JVM memory
       allocation. More lobs can be stored with larger JVM memory
       allocations.</para>
@@ -346,8 +362,8 @@
     clients.</para>
 
     <para>Connection pooling software can be used to connect to the database
-    but it is not generally necessary. With other database engines, connection
-    pools are used for reasons that may not apply to HyperSQL.</para>
+    but it is not generally necessary. Connection pools may be used for the
+    following reasons.</para>
 
     <itemizedlist>
       <listitem>
@@ -361,9 +377,10 @@
         <para>To limit the maximum number of simultaneous connections to the
         database for performance reasons. With HSQLDB this can be useful if
         your application is designed in a way that opens and closes
-        connections for each small task. If you want to reduce the number of
-        simultanous sessions, you can use a connection pool with fewer pooled
-        connections.</para>
+        connections for each small task. Also, the overall performance may be
+        higher when fewer simultanous connections are used. If you want to
+        reduce the number of simultanous sessions, you can use a connection
+        pool with fewer pooled connections.</para>
       </listitem>
     </itemizedlist>
 
@@ -393,6 +410,105 @@
     is built into the OS in closing them.</para>
   </section>
 
+  <section>
+    <title>Tweaking the Mode of Operation</title>
+
+    <para>Different modes of operation and settings are used for different
+    purposes. Some scenarios are discussed below:</para>
+
+    <section>
+      <title>Application Development and Testing</title>
+
+      <para>For application unit testing you can use an all-in-memory,
+      in-process database.</para>
+
+      <para>If the tests are all run in one process, then the contents of a
+      <glossterm>mem:</glossterm> database survives between tests. To release
+      the contents you can use the SHUTDOWN command (an SQL command). You can
+      even use multiple <glossterm>mem:</glossterm> databases in your tests
+      and SHUTDOWN each one separately.</para>
+
+      <para>If the tests are in different processes and you want to keep the
+      data between the tests, the best solution is to use a Server instance
+      that has a <glossterm>mem:</glossterm> database. After the tests are
+      done, you can SHUTDOWN this database, which will shutdown the
+      server.</para>
+
+      <para>The Server has an option that allows databases to be created
+      remotely (see the Listeners Chapter). This option is useful for testing,
+      as your server is never shut down. Each time you connect to the
+      <glossterm>mem:</glossterm> database that is served by the Server, the
+      database is created if it does not exist (i.e. has been previously shut
+      down).</para>
+
+      <para>If you do not want to run a Server instance, and you need
+      persistence between tests in different processes, then you should use a
+      <glossterm>file:</glossterm> database. You can use the
+      <literal>shutdown=true</literal> connection property to ensure the
+      database is persisted fully after the connections are closed. An
+      alternative option is to use <literal>hsqldb.write_delay=false</literal>
+      connection property, but this is slightly slower than the other
+      option.</para>
+
+      <para>It has been reported that some data access frameworks do not close
+      all their connection to the database after the tests. In such
+      situations, you need to use zero WRITE DELAY if you want the data to
+      persist at the end of the tests</para>
+
+      <para>You may actually want to use a <glossterm>file:</glossterm>
+      database, or a server instance that serves a
+      <glossterm>file:</glossterm> database in preference to a
+      <glossterm>mem:</glossterm> database. As HyperSQL logs the DDL and DML
+      statements in the .log file, this file can be used to check what is
+      being sent to the database. Note that UPDATE statements are represented
+      by a DELETE followed by an INSERT statement. Statements are written out
+      when the connection commits. The write delay also has an effect on how
+      soon the statements are written out.</para>
+
+      <para>Some types of tests start with a database that already contains
+      the tables and data, and perform various operations on it during the
+      tests. You can create and populate the initial database then set the
+      property "files_read_only=true" in the .properties file of the database.
+      The tests can then modify the database, but these modifications are not
+      persisted after the tests have completed.</para>
+    </section>
+
+    <section>
+      <title>Embedded Databases in Desktop Applications</title>
+
+      <para>In this usage, the amount of data change is often limited and
+      there is often a requirement to persist the data immediately. You can
+      use the property <literal>write_delay=false</literal> to force a disk
+      sync after each commit. Before the application is closed, you should
+      perform the SHUTDOWN command to ensure the database is opened instantly
+      when it is next opened.</para>
+    </section>
+
+    <section>
+      <title>Embedded Databases in Server Applications</title>
+
+      <para>In this usage, the database is often accessed heavily, therefore
+      performance and latency is a consideration. If the database is updated
+      heavily, the default value of the WRITE DELAY property (1 sec) is often
+      enough, as it is assumed the server or the applicaton does not go down
+      frequently. If it is necessary, you can reduce the WRITE DELAY to a
+      small value (20 ms) without impacing the update speed. If you reduce
+      WRITE DELAY to zero, perfomance drops to the speed of disk file sync
+      operation.</para>
+
+      <para>Your server applications can use a database as a temporary disk
+      data cache which is not persisted past the lifetime of the application.
+      For these applications you can set the property
+      <literal>hsqldb.log_data=false</literal> to disable the recovery log and
+      speed up data change performance.</para>
+
+      <para>Alternatively, a server application can use an all-in-mem database
+      instance for fast access, while sending the data changes to a
+      persistent, disk based instance either periodically or in real
+      time.</para>
+    </section>
+  </section>
+
   <section xml:id="deployment_upgrade-sect">
     <title>Upgrading Databases</title>
 
@@ -401,7 +517,7 @@
     </indexterm>
 
     <para>Any database that is not produced with the release version of
-    HyperSQL 2.0 must be upgraded to this version. Some catalogs created with
+    HyperSQL 2.0 must be upgraded to this version. Most catalogs created with
     1.8.x can be upgraded simply by opening with HyperSQL 2. When this is not
     possible due to errors, the rest of the procedures below should be
     followed.</para>
@@ -581,9 +697,9 @@
       </listitem>
 
       <listitem>
-        <para>Check constraints must conform to the Standard. If a check
-        constrained is not deterministic, or retrospectively deterministic, it
-        is rejected. When opening an old database, HyperSQL silently drops
+        <para>Check constraints must conform to the SQL Standard. A check
+        constraint is rejected if it is not deterministic or retrospectively
+        deterministic. When opening an old database, HyperSQL silently drops
         check constraints that no longer compile. See under check constraints
         for more detail about what is not allowed.</para>
       </listitem>
@@ -595,17 +711,32 @@
 
       <listitem>
         <para>In connection with the above, an old database that did not have
-        the endforce_strict_size property, is now converted to version 2.0
-        with the engine supplying the missing size parameters. For example, a
-        VARCHAR column declaration that has no size, is given a 32K size.
-        Check these sizes are adequate for your use, and change the column
-        definition as necessary.</para>
+        the <literal>enforce_strict_size</literal> property, is now converted
+        to version 2.0 with the engine supplying the missing size parameters.
+        For example, a VARCHAR column declaration that has no size, is given a
+        32K size. Check these sizes are adequate for your use, and change the
+        column definition as necessary.</para>
       </listitem>
 
       <listitem>
         <para>Column names in a GROUP BY clause were previously resolved to
         the column label. They are now resolved to column name first, and if
         the name does not match, to the column label.</para>
+      </listitem>
+
+      <listitem>
+        <para>Table definitions containing GENERATED BY DEFAULT AS IDENTITY
+        but with no PRIMARY KEY do not automatically create a primary key.
+        Database .scripts files made with 1.8 are fine, as the PRIMARY KEY
+        clause is always included.</para>
+      </listitem>
+
+      <listitem>
+        <para>CREATE ALIAS is now obsolete. Use the new function definition
+        syntax. The <classname>org.hsqldb.Library </classname>class no longer
+        exists. You should use the SQL form of the old library functions. For
+        example, use <literal>LOG(x)</literal> rather than the direct form,
+        <literal>"org.hsqldb.Library.log"(x)</literal>.</para>
       </listitem>
 
       <listitem>
@@ -1114,9 +1245,9 @@
     <simpara>Sets the amount of information logged in the internal,
     database-specific event log. Level 0 means no log. Level 1 means only
     important (error) events. Level 2 means more events, including both
-    important and less important (normal) events. For readonly and mem:
-    databases, if the level is set above 0, the log messages are directed to
-    stderr.</simpara>
+    important and less important (normal) events. For readonly and
+    <glossterm>mem:</glossterm> databases, if the level is set above 0, the
+    log messages are directed to stderr.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
