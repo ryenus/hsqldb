@@ -132,7 +132,6 @@ public abstract class AbstractTestOdbc extends junit.framework.TestCase {
                 "jdbc:hsqldb:mem:test", "SA", "");
             setupConn.setAutoCommit(false);
             Statement st = setupConn.createStatement();
-            st.executeUpdate("set property \"sql.enforce_strict_size\" true;");
             st.executeUpdate("SET PASSWORD 'sapwd'");
             populate(st);
             st.close();

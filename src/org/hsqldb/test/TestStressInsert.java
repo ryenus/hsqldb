@@ -69,14 +69,9 @@ public class TestStressInsert {
         Statement stmt = con.createStatement();
 
         try {
-            stmt.execute("set property \"hsqldb.nio_data_file\" false");
-            stmt.execute("set property \"hsqldb.applog\" 1");
-            stmt.execute("set property \"hsqldb.cache_rows\" 800");
-            stmt.execute("set property \"hsqldb.cache_size\" 1200");
             stmt.execute("set files write delay 10000 millis");
             stmt.execute("set files log size " + 200);
 
-//            stmt.execute("set property \"hsqldb.cache_file_scale\" 8");
             stmt.execute("set files backup increment true");
 
             DatabaseMetaData metaData = con.getMetaData();
