@@ -454,7 +454,7 @@ public class ParserCommand extends ParserDDL {
         boolean isstring   = props.isString(token.tokenString);
 
         if (!(isboolean || isintegral || isstring)) {
-            throw Error.error(ErrorCode.X_42555);
+            throw Error.error(ErrorCode.X_42555, property);
         }
 
         int typeCode = isboolean ? Types.SQL_BOOLEAN
