@@ -1200,8 +1200,11 @@ public class LobManager {
         params[UPDATE_USAGE.BLOCK_COUNT] = ValuePool.getLong(count + delta);
         params[UPDATE_USAGE.LOB_ID]      = ValuePool.getLong(lobID);
 
-        Result result = sysLobSession.executeCompiledStatement(updateLobUsage,
-            params);
+        sysLobSession.sessionContext.pushDynamicArguments(params);
+
+        Result result = updateLobUsage.execute(sysLobSession);
+
+        sysLobSession.sessionContext.pop();
 
         return result;
     }

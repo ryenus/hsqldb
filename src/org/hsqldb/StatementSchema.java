@@ -36,12 +36,14 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Charset;
+import org.hsqldb.types.LobData;
 import org.hsqldb.types.Type;
 
 /**
@@ -889,6 +891,23 @@ public class StatementSchema extends Statement {
                         Result result = statement.execute(session);
 
                         table.insertIntoTable(session, result);
+                    }
+
+                    if (table.hasLobColumn) {
+                        RowIterator it = table.rowIterator(session);
+
+                        while (it.hasNext()) {
+                            Row      row  = it.getNextRow();
+                            Object[] data = row.getData();
+
+                            for (int i = 0; i < data.length; i++) {
+                                if (data[i] instanceof LobData) {
+                                    session.database.lobManager
+                                        .adjustUsageCount(((LobData) data[i])
+                                            .getId(), +1);
+                                }
+                            }
+                        }
                     }
 
                     return Result.updateZeroResult;

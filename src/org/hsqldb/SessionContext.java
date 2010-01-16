@@ -127,12 +127,6 @@ public class SessionContext {
         isAutoCommit        = Boolean.FALSE;
         currentMaxRows      = 0;
 
-        String name =
-            HsqlNameManager.getAutoSavepointNameString(session.actionTimestamp,
-                depth);
-
-        session.savepoint(name);
-
         depth++;
     }
 

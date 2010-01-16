@@ -41,6 +41,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.LobData;
 import org.hsqldb.types.Types;
 
 /**
@@ -717,7 +718,8 @@ public class TableWorks {
         OrderedHashSet cascadingConstraints =
             table.getContainingConstraints(colIndex);
         OrderedHashSet indexNameSet = table.getContainingIndexNames(colIndex);
-        HsqlName       columnName   = table.getColumn(colIndex).getName();
+        ColumnSchema   column       = table.getColumn(colIndex);
+        HsqlName       columnName   = column.getName();
         OrderedHashSet referencingObjects =
             database.schemaManager.getReferencingObjectNames(table.getName(),
                 columnName);
@@ -793,8 +795,6 @@ public class TableWorks {
             database.persistentStoreCollection.getStore(tn);
 
         newStore.moveData(session, oldStore, colIndex, -1);
-
-        //
         database.schemaManager.removeSchemaObjects(referencingObjects);
         database.schemaManager.removeSchemaObjects(constraintNameSet);
         database.schemaManager.removeSchemaObject(columnName);
@@ -802,10 +802,25 @@ public class TableWorks {
         setNewTablesInSchema(tableSet);
         updateConstraints(tn, emptySet);
         updateConstraints(tableSet, constraintNameSet);
-        database.persistentStoreCollection.releaseStore(table);
         database.schemaManager.recompileDependentObjects(tableSet);
         database.schemaManager.recompileDependentObjects(tn);
         tn.compile(session, null);
+
+        if (column.getDataType().isLobType()) {
+            RowIterator it = table.rowIterator(session);
+
+            while (it.hasNext()) {
+                Row      row  = it.getNextRow();
+                Object[] data = row.getData();
+
+                if (data[colIndex] != null) {
+                    database.lobManager.adjustUsageCount(
+                        ((LobData) data[colIndex]).getId(), -1);
+                }
+            }
+        }
+
+        database.persistentStoreCollection.releaseStore(table);
 
         table = tn;
     }
@@ -1261,7 +1276,7 @@ public class TableWorks {
 
     private void checkModifyTable() {
 
-        if (session.getUser().isSystem() ) {
+        if (session.getUser().isSystem()) {
             return;
         }
 

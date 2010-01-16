@@ -197,6 +197,8 @@ public class Database {
             txManager              = new TransactionManager2PL(this);
 
             lobManager.createSchema();
+            sessionManager.getSysLobSession().setSchema(
+                SqlInvariants.LOBS_SCHEMA);
             logger.openPersistence();
 
             isNew = logger.isNewDatabase;
