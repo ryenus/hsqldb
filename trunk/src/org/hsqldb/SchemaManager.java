@@ -730,7 +730,6 @@ public class SchemaManager {
 
         database.getGranteeManager().removeDbObject(table.getName());
         table.releaseTriggers();
-        database.persistentStoreCollection.releaseStore(table);
 
         if (table.hasLobColumn) {
             RowIterator it = table.rowIterator(session);
@@ -747,6 +746,8 @@ public class SchemaManager {
                 }
             }
         }
+
+        database.persistentStoreCollection.releaseStore(table);
     }
 
     void setTable(int index, Table table) {

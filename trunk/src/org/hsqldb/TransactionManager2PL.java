@@ -359,8 +359,8 @@ public class TransactionManager2PL implements TransactionManager {
             action.mergeRollback(session, timestamp, row);
 
             if (type == RowActionBase.ACTION_DELETE) {
-
                 row = (Row) store.get(row, true);
+
                 row.delete();
                 row.keepInMemory(false);
                 store.indexRow(session, row);
@@ -491,6 +491,12 @@ public class TransactionManager2PL implements TransactionManager {
             return;
         }
 
+        if (session.sessionContext.depth > 0) {
+
+            // routine or trigger
+            return;
+        }
+
         HsqlName[] readLocks =
             session.sessionContext.currentStatement.getTableNamesForRead();
 
@@ -510,14 +516,6 @@ public class TransactionManager2PL implements TransactionManager {
             }
 
             boolean holdsLocks = true;
-
-            for (int i = 0; i < readLocks.length; i++) {
-                if (tableWriteLocks.get(readLocks[i]) != session) {
-                    holdsLocks = false;
-
-                    break;
-                }
-            }
 
             if (holdsLocks) {
                 return;

@@ -53,6 +53,7 @@ public class StatementCompound extends Statement {
     final boolean       isLoop;
     HsqlName            label;
     StatementHandler[]  handlers = StatementHandler.emptyExceptionHandlerArray;
+    boolean             hasUndoHandler;
     Statement           loopCursor;
     Statement[]         statements;
     StatementExpression condition;
@@ -231,6 +232,10 @@ public class StatementCompound extends Statement {
                 handler.setParent(this);
 
                 handlers[handlerCount++] = handler;
+
+                if (handler.handlerType == StatementHandler.UNDO ) {
+                    hasUndoHandler = true;
+                }
             }
         }
 
@@ -299,6 +304,13 @@ public class StatementCompound extends Statement {
 
         if (push) {
             session.sessionContext.push();
+
+            if (hasUndoHandler) {
+                String name = HsqlNameManager.getAutoSavepointNameString(
+                    session.actionTimestamp, session.sessionContext.depth);
+
+                session.savepoint(name);
+            }
         }
 
         for (int i = 0; i < statements.length; i++) {
