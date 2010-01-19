@@ -75,19 +75,24 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import org.hsqldb.ClientConnection;
+import org.hsqldb.ColumnBase;
 import org.hsqldb.DatabaseManager;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DataOutputStream;
+import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.resources.BundleHandler;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
+import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.types.Type;
+import org.hsqldb.StatementTypes;
 
 // fredt@users 20020215 - patch 461556 by paul-h@users - server factory
 // fredt@users 20020424 - patch 1.7.0 by fredt - shutdown without exit
@@ -379,21 +384,21 @@ class ServerConnection implements Runnable {
          *   <LI>INSERT...
          * </OL>
          */
-        char    op, c;
+        char    c;
         boolean sendReadyForQuery = false;
-        String  stringVal, psHandle, portalHandle, handle, dataString, tmpStr;
+        String  psHandle, portalHandle, handle, dataString, tmpStr;
         String  interposedStatement = null;
 
         // Statement which must be executed after the primary statement, but
         // before sending the ReadyForQuery Z packet.
-        Result                           r, rOut;
-        int                              paramCount, lastSemi;
-        OdbcPreparedStatement            odbcPs;
-        StatementPortal                  portal;
-        org.hsqldb.result.ResultMetaData pmd;
-        OdbcPacketInputStream            inPacket = null;
-        org.hsqldb.types.Type[]          colTypes;
-        PgType[]                         pgTypes;
+        Result                r, rOut;
+        int                   paramCount, lastSemi;
+        OdbcPreparedStatement odbcPs;
+        StatementPortal       portal;
+        ResultMetaData        pmd;
+        OdbcPacketInputStream inPacket = null;
+        Type[]                colTypes;
+        PgType[]              pgTypes;
 
         try {
             inPacket = OdbcPacketInputStream.newOdbcPacketInputStream(inC,
@@ -515,7 +520,7 @@ class ServerConnection implements Runnable {
             MAIN_ODBC_COMM_SWITCH:
             switch (inPacket.packetType) {
 
-                case 'Q' :                                        // Query packet
+                case 'Q' :                                    // Query packet
                     String sql = inPacket.readString();
 
                     // We don't ask for the null terminator
@@ -622,7 +627,7 @@ class ServerConnection implements Runnable {
                         // Executed by psqlodbc after every user-specified query.
                         server.printWithThread(
                             "Swallowing 'select n.nspname,...'");
-                        outPacket.writeShort(1);                  // Num cols.
+                        outPacket.writeShort(1);              // Num cols.
                         outPacket.write("oid");
                         outPacket.writeInt(201);
                         outPacket.writeShort(1);
@@ -630,7 +635,7 @@ class ServerConnection implements Runnable {
                         outPacket.writeShort(4);
                         outPacket.writeInt(-1);
                         outPacket.writeShort(0);
-                        outPacket.xmit('T', dataOutput);          // Xmit Row Definition
+                        outPacket.xmit('T', dataOutput);      // Xmit Row Definition
 
                         // This query returns no rows.  typenam "lo"??
                         outPacket.write("SELECT");
@@ -651,22 +656,22 @@ class ServerConnection implements Runnable {
                          * This query is run as "a hack to get the oid of our
                          * large object oid type.
                          */
-                        outPacket.writeShort(2);                  // Num cols.
-                        outPacket.write("oid");                   // Col. name
-                        outPacket.writeInt(101);                  // table ID
-                        outPacket.writeShort(102);                // column id
-                        outPacket.writeInt(26);                   // Datatype ID  [adtid]
-                        outPacket.writeShort(4);                  // Datatype size  [adtsize]
-                        outPacket.writeInt(-1);                   // Var size [atttypmod]
-                        outPacket.writeShort(0);                  // text "format code"
-                        outPacket.write("typbasetype");           // Col. name
-                        outPacket.writeInt(101);                  // table ID
-                        outPacket.writeShort(103);                // column id
-                        outPacket.writeInt(26);                   // Datatype ID  [adtid]
-                        outPacket.writeShort(4);                  // Datatype size  [adtsize]
-                        outPacket.writeInt(-1);                   // Var size [atttypmod]
-                        outPacket.writeShort(0);                  // text "format code"
-                        outPacket.xmit('T', dataOutput);          // sending a Tuple (row)
+                        outPacket.writeShort(2);              // Num cols.
+                        outPacket.write("oid");               // Col. name
+                        outPacket.writeInt(101);              // table ID
+                        outPacket.writeShort(102);            // column id
+                        outPacket.writeInt(26);               // Datatype ID  [adtid]
+                        outPacket.writeShort(4);              // Datatype size  [adtsize]
+                        outPacket.writeInt(-1);               // Var size [atttypmod]
+                        outPacket.writeShort(0);              // text "format code"
+                        outPacket.write("typbasetype");       // Col. name
+                        outPacket.writeInt(101);              // table ID
+                        outPacket.writeShort(103);            // column id
+                        outPacket.writeInt(26);               // Datatype ID  [adtid]
+                        outPacket.writeShort(4);              // Datatype size  [adtsize]
+                        outPacket.writeInt(-1);               // Var size [atttypmod]
+                        outPacket.writeShort(0);              // text "format code"
+                        outPacket.xmit('T', dataOutput);      // sending a Tuple (row)
 
                         // This query returns no rows.  typenam "lo"??
                         outPacket.write("SELECT");
@@ -684,8 +689,7 @@ class ServerConnection implements Runnable {
                         r = Result.newExecuteDirectRequest();
 
                         r.setPrepareOrExecuteProperties(
-                            sql, 0, 0,
-                            org.hsqldb.StatementTypes.RETURN_RESULT, 0,
+                            sql, 0, 0, StatementTypes.RETURN_RESULT, 0,
                             ResultProperties.defaultPropsValue,
                             java.sql.Statement.NO_GENERATED_KEYS, null, null);
 
@@ -706,60 +710,36 @@ class ServerConnection implements Runnable {
 
                         // See Result.newDataHeadResult() for what we have here
                         // .metaData, .navigator
-                        org.hsqldb.navigator.RowSetNavigator navigator =
-                            rOut.getNavigator();
-
-                        // todo - fredt - this check may not hold
-                        /*
-                        if (!(navigator
-                                instanceof org.hsqldb.navigator
-                                    .RowSetNavigatorDataTable)) {
-                            throw new RecoverableOdbcFailure(
-                                "Unexpected RowSetNavigator instance type: "
-                                + navigator.getClass().getName());
-                        }
-
-                        org.hsqldb.navigator.RowSetNavigatorDataTable navData =
-                            (org.hsqldb.navigator
-                                .RowSetNavigatorDataTable) navigator;
-                        */
-                        org.hsqldb.result.ResultMetaData md = rOut.metaData;
+                        RowSetNavigator navigator = rOut.getNavigator();
+                        ResultMetaData  md        = rOut.metaData;
 
                         if (md == null) {
                             throw new RecoverableOdbcFailure(
                                 "Failed to get metadata for query results");
                         }
 
-                        String[] colNames = md.getGeneratedColumnNames();
-
-                        if (md.getColumnCount() != colNames.length) {
-                            throw new RecoverableOdbcFailure(
-                                "Couldn't get all column names: "
-                                + md.getColumnCount() + " cols. but only got "
-                                + colNames.length + " col. names");
-                        }
+                        int      columnCount = md.getColumnCount();
+                        String[] colLabels   = md.getGeneratedColumnNames();
 
                         colTypes = md.columnTypes;
-                        pgTypes  = new PgType[colNames.length];
+                        pgTypes  = new PgType[columnCount];
 
                         for (int i = 0; i < pgTypes.length; i++) {
                             pgTypes[i] = PgType.getPgType(colTypes[i],
                                                           md.isTableColumn(i));
                         }
 
-                        org.hsqldb.ColumnBase[] colDefs = md.columns;
+                        // todo - fredt : colLabels may not contain some column names
+                        // colDefs should also be used:
+                        // SELECT TABLECOL AS COLLABLE has both name and label
+                        // SELECT TABLECOL has name 'TABLECOL'
+                        // SELECT 2 AS CONST has label 'CONST'
+                        ColumnBase[] colDefs = md.columns;
 
-                        if (colNames.length != colDefs.length) {
-                            throw new RecoverableOdbcFailure(
-                                "Col data mismatch.  " + colDefs.length
-                                + " col instances but " + colNames.length
-                                + " col names");
-                        }
+                        outPacket.writeShort(columnCount);    // Num cols.
 
-                        outPacket.writeShort(colNames.length);    // Num cols.
-
-                        for (int i = 0; i < colNames.length; i++) {
-                            outPacket.write(colNames[i]);         // Col. name
+                        for (int i = 0; i < columnCount; i++) {
+                            outPacket.write(colLabels[i]);    // Col. name
 
                             // table ID  [relid]:
                             outPacket.writeInt(OdbcUtil.getTableOidForColumn(i,
@@ -785,7 +765,7 @@ class ServerConnection implements Runnable {
                             // Would only be non-0 if a 'B' command requested it.
                         }
 
-                        outPacket.xmit('T', dataOutput);          // Xmit Row Definition
+                        outPacket.xmit('T', dataOutput);      // Xmit Row Definition
 
                         int rowNum = 0;
 
@@ -801,21 +781,20 @@ class ServerConnection implements Runnable {
                                 throw new RecoverableOdbcFailure("Null row?");
                             }
 
-                            if (rowData.length < colNames.length) {
+                            if (rowData.length < columnCount) {
                                 throw new RecoverableOdbcFailure(
-                                    "Data element mismatch. "
-                                    + colNames.length + " metadata cols, yet "
-                                    + rowData.length
+                                    "Data element mismatch. " + columnCount
+                                    + " metadata cols, yet " + rowData.length
                                     + " data elements for row " + rowNum);
                             }
 
                             //server.printWithThread("Row " + rowNum + " has "
                             //+ rowData.length + " elements");
-                            outPacket.writeShort(colNames.length);
+                            outPacket.writeShort(columnCount);
 
                             // This field is just swallowed by PG ODBC
                             // client, but OdbcUtil.validated by psql.
-                            for (int i = 0; i < colNames.length; i++) {
+                            for (int i = 0; i < columnCount; i++) {
                                 if (rowData[i] == null) {
                                     /*
                                     server.printWithThread("R" + rowNum + "C"
@@ -917,7 +896,7 @@ class ServerConnection implements Runnable {
                     sendReadyForQuery = true;
                     break;
 
-                case 'X' :                                        // Terminate packet
+                case 'X' :                                    // Terminate packet
                     if (sessionOdbcPsMap.size()
                             > (sessionOdbcPsMap.containsKey("") ? 1
                                                                 : 0)) {
@@ -937,14 +916,14 @@ class ServerConnection implements Runnable {
                     OdbcUtil.validateInputPacketSize(inPacket);
 
                     throw cleanExit;
-                case 'H' :                                        // Flush packet
+                case 'H' :                                    // Flush packet
 
                     // No-op.  It is impossible to cache while supporting multiple
                     // ps and portal objects, so there is nothing for a Flush to
                     // do.  There isn't even a reply to a Flush packet.
                     break;
 
-                case 'S' :                                        // Sync packet
+                case 'S' :                                    // Sync packet
 
                     // Special case for Sync packets.
                     // To facilitate recovery, we do not abort in case of problems.
@@ -972,7 +951,7 @@ class ServerConnection implements Runnable {
                     sendReadyForQuery = true;
                     break;
 
-                case 'P' :                                        // Parse packet
+                case 'P' :                                    // Parse packet
                     psHandle = inPacket.readString();
 
                     String query = OdbcUtil.revertMungledPreparedQuery(
@@ -1008,7 +987,7 @@ class ServerConnection implements Runnable {
                     outPacket.xmit('1', dataOutput);
                     break;
 
-                case 'D' :                                        // Describe packet
+                case 'D' :                                    // Describe packet
                     c      = inPacket.readByteChar();
                     handle = inPacket.readString();
                     odbcPs = null;
@@ -1046,8 +1025,7 @@ class ServerConnection implements Runnable {
                     pmd        = ackResult.parameterMetaData;
                     paramCount = pmd.getColumnCount();
 
-                    org.hsqldb.types.Type[] paramTypes =
-                        pmd.getParameterTypes();
+                    Type[] paramTypes = pmd.getParameterTypes();
 
                     if (paramCount != paramTypes.length) {
                         throw new RecoverableOdbcFailure(
@@ -1074,7 +1052,7 @@ class ServerConnection implements Runnable {
                         // ParameterDescription packet
                     }
 
-                    org.hsqldb.result.ResultMetaData md = ackResult.metaData;
+                    ResultMetaData md = ackResult.metaData;
 
                     if (md.getColumnCount() < 1) {
                         if (server.isTrace()) {
@@ -1105,7 +1083,7 @@ class ServerConnection implements Runnable {
                     colTypes = md.columnTypes;
                     pgTypes  = new PgType[colNames.length];
 
-                    org.hsqldb.ColumnBase[] colDefs = md.columns;
+                    ColumnBase[] colDefs = md.columns;
 
                     for (int i = 0; i < pgTypes.length; i++) {
                         pgTypes[i] = PgType.getPgType(colTypes[i],
@@ -1119,10 +1097,10 @@ class ServerConnection implements Runnable {
                             + " col names");
                     }
 
-                    outPacket.writeShort(colNames.length);        // Num cols.
+                    outPacket.writeShort(colNames.length);    // Num cols.
 
                     for (int i = 0; i < colNames.length; i++) {
-                        outPacket.write(colNames[i]);             // Col. name
+                        outPacket.write(colNames[i]);         // Col. name
 
                         // table ID  [relid]:
                         outPacket.writeInt(OdbcUtil.getTableOidForColumn(i,
@@ -1147,10 +1125,10 @@ class ServerConnection implements Runnable {
                         // Would only be non-0 if a 'B' command requested it.
                     }
 
-                    outPacket.xmit('T', dataOutput);              // Xmit Row Definition
+                    outPacket.xmit('T', dataOutput);          // Xmit Row Definition
                     break;
 
-                case 'B' :                                        // Bind packet
+                case 'B' :                                    // Bind packet
                     portalHandle = inPacket.readString();
                     psHandle     = inPacket.readString();
 
@@ -1229,7 +1207,7 @@ class ServerConnection implements Runnable {
                     outPacket.xmit('2', dataOutput);
                     break;
 
-                case 'E' :                                        // Execute packet
+                case 'E' :                                    // Execute packet
                     portalHandle = inPacket.readString();
 
                     int fetchRows = inPacket.readInt();
@@ -1296,32 +1274,15 @@ class ServerConnection implements Runnable {
 
                     // See Result.newDataHeadResult() for what we have here
                     // .metaData, .navigator
-                    org.hsqldb.navigator.RowSetNavigator navigator =
-                        rOut.getNavigator();
-
-                    // todo - fredt - this check may not hold
-                    if (!(navigator
-                            instanceof org.hsqldb.navigator
-                                .RowSetNavigatorDataTable)) {
-                        throw new RecoverableOdbcFailure(
-                            "Unexpected RowSetNavigator instance type: "
-                            + navigator.getClass().getName());
-                    }
-
-                    org.hsqldb.navigator.RowSetNavigatorDataTable navData =
-                        (org.hsqldb.navigator
-                            .RowSetNavigatorDataTable) navigator;
-                    int rowNum   = 0;
+                    RowSetNavigator navigator = rOut.getNavigator();
+                    int             rowNum    = 0;
                     int colCount = portal.ackResult.metaData.getColumnCount();
 
-                    while (navData.next()) {
+                    while (navigator.next()) {
                         rowNum++;
 
-                        Object[] rowData = navData.getCurrent();
+                        Object[] rowData = navigator.getCurrent();
 
-                        // Row.getData().  Don't know why *Data.getCurrent()
-                        //                 method returns Object instead of O[].
-                        //  TODO:  Remove the assertion here:
                         if (rowData == null) {
                             throw new RecoverableOdbcFailure("Null row?");
                         }
@@ -1387,7 +1348,7 @@ class ServerConnection implements Runnable {
                     // would end in ReadyForQuery/Z, but no.
                     break;
 
-                case 'C' :                                        // Close packet
+                case 'C' :                                    // Close packet
                     c      = inPacket.readByteChar();
                     handle = inPacket.readString();
                     odbcPs = null;
@@ -1486,8 +1447,8 @@ class ServerConnection implements Runnable {
             switch (odbcCommMode) {
 
                 case OdbcUtil.ODBC_SIMPLE_MODE :
-                    outPacket.reset();                            /// transaction status = Error
-                    outPacket.writeByte('E');                     /// transaction status = Error
+                    outPacket.reset();                        /// transaction status = Error
+                    outPacket.writeByte('E');                 /// transaction status = Error
 
                     // TODO:  Consider keeping this state until the session
                     // is either committed or rolled back.
@@ -1933,11 +1894,10 @@ class ServerConnection implements Runnable {
 
         Result r = Result.newExecuteDirectRequest();
 
-        r.setPrepareOrExecuteProperties(statement, 0, 0,
-                                        org.hsqldb.StatementTypes.RETURN_COUNT,
-                                        0, ResultProperties.defaultPropsValue,
-                                        java.sql.Statement.NO_GENERATED_KEYS,
-                                        null, null);
+        r.setPrepareOrExecuteProperties(
+            statement, 0, 0, StatementTypes.RETURN_COUNT, 0,
+            ResultProperties.defaultPropsValue,
+            ResultConstants.RETURN_NO_GENERATED_KEYS, null, null);
 
         Result rOut = session.execute(r);
 
