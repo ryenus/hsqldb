@@ -207,11 +207,9 @@ public class RowAction extends RowActionBase {
 
     synchronized void setAsNoOp(Row row) {
 
-        synchronized (row) {
-            setAsNoOp();
+        setAsNoOp();
 
-            row.rowAction = null;
-        }
+        row.rowAction = null;
     }
 
     private void setAsNoOp() {

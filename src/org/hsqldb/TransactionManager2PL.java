@@ -234,7 +234,9 @@ public class TransactionManager2PL implements TransactionManager {
                         default :
                     }
 
-                    action.setAsNoOp(row);
+                    synchronized (row) {
+                        action.setAsNoOp(row);
+                    }
                 } else {
                     Object[] data = row.getData();
 
@@ -264,7 +266,9 @@ public class TransactionManager2PL implements TransactionManager {
                                 break;
                         }
 
-                        action.setAsNoOp(row);
+                        synchronized (row) {
+                            action.setAsNoOp(row);
+                        }
                     } catch (HsqlException e) {
                         database.logger.logWarningEvent("logging problem", e);
                     }
