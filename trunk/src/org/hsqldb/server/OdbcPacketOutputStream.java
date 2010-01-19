@@ -118,6 +118,7 @@ class OdbcPacketOutputStream extends DataOutputStream {
         reset();
         destinationStream.writeByte(packetType);
         destinationStream.write(ba);
+        destinationStream.flush();
         return ba.length;
     }
 

@@ -705,12 +705,12 @@ class ServerConnection implements Runnable {
                         }
 
                         // See Result.newDataHeadResult() for what we have here
-                        // See Result.newDataHeadResult() for what we have here
                         // .metaData, .navigator
                         org.hsqldb.navigator.RowSetNavigator navigator =
                             rOut.getNavigator();
 
                         // todo - fredt - this check may not hold
+                        /*
                         if (!(navigator
                                 instanceof org.hsqldb.navigator
                                     .RowSetNavigatorDataTable)) {
@@ -722,6 +722,7 @@ class ServerConnection implements Runnable {
                         org.hsqldb.navigator.RowSetNavigatorDataTable navData =
                             (org.hsqldb.navigator
                                 .RowSetNavigatorDataTable) navigator;
+                        */
                         org.hsqldb.result.ResultMetaData md = rOut.metaData;
 
                         if (md == null) {
@@ -788,10 +789,10 @@ class ServerConnection implements Runnable {
 
                         int rowNum = 0;
 
-                        while (navData.next()) {
+                        while (navigator.next()) {
                             rowNum++;
 
-                            Object[] rowData = navData.getCurrent();
+                            Object[] rowData = navigator.getCurrent();
 
                             // Row.getData().  Don't know why *Data.getCurrent()
                             //                 method returns Object instead of O[].
@@ -1775,6 +1776,7 @@ class ServerConnection implements Runnable {
             dataOutput.writeByte('R');
             dataOutput.writeInt(8);                                              //size
             dataOutput.writeInt(OdbcUtil.ODBC_AUTH_REQ_PASSWORD);
+            dataOutput.flush();
 
             // areq of auth. mode.
             char c = '\0';
@@ -1854,6 +1856,7 @@ class ServerConnection implements Runnable {
         OdbcUtil.alertClient(
             OdbcUtil.ODBC_SEVERITY_INFO,
             "MHello\nYou have connected to HyperSQL ODBC Server", dataOutput);
+        dataOutput.flush();
     }
 
     private java.util.Map sessionOdbcPsMap     = new java.util.HashMap();
