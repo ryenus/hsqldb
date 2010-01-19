@@ -2733,8 +2733,19 @@ public class SqlFile {
         try {
             DatabaseMetaData md            = shared.jdbcConn.getMetaData();
             String           dbProductName = md.getDatabaseProductName();
-            int              majorVersion  = md.getDatabaseMajorVersion();
-            int              minorVersion  = md.getDatabaseMinorVersion();
+            int              majorVersion  = 0;
+            int              minorVersion  = 0;
+
+            // We only use majorVersion and minorVersion for HyperSQL so far
+            // The calls avoided here avoid problems with non-confirmant drivers
+            if (dbProductName.indexOf("HSQL") > -1) try {
+                majorVersion  = md.getDatabaseMajorVersion();
+                minorVersion  = md.getDatabaseMinorVersion();
+            } catch (UnsupportedOperationException uoe) {
+                // It seems that Sun's JDBC/ODBC bridge throws here
+                majorVersion = 2;
+                minorVersion = 0;
+            }
 
             //System.err.println("DB NAME = (" + dbProductName + ')');
             // Database-specific table filtering.
