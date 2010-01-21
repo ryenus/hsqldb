@@ -901,6 +901,7 @@ public class ExpressionLogical extends Expression {
             }
 
             nodes[LEFT].nodeDataTypes[i] = type;
+            nodes[LEFT].nodes[i].dataType = type;
         }
     }
 
