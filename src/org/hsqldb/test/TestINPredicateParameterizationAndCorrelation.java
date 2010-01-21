@@ -43,7 +43,7 @@ import junit.framework.TestResult;
  *  HSQLDB TestINPredicate Junit test case. <p>
  *
  * @author  boucherb@users
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.2
  */
 public class TestINPredicateParameterizationAndCorrelation extends TestBase {
@@ -118,10 +118,56 @@ public class TestINPredicateParameterizationAndCorrelation extends TestBase {
         assertEquals(sql, expectedCount, actualCount);
 
         //
-        sql   = "select count(*) from test a, test b where ? in(?, b.id)";
-        pstmt = conn.prepareStatement(sql);
+        expectedCount = 20;
         sql   = "select count(*) from test a, test b where a.id in(?, ?)";
         pstmt = conn.prepareStatement(sql);
+
+        pstmt.setInt(1, 0);
+        pstmt.setInt(2, 9);
+
+        rs = pstmt.executeQuery();
+
+        rs.next();
+
+        actualCount = rs.getInt(1);
+        sql = "\"select count(*) from test a, test b where a.id in (?, ?)\"";
+
+        assertEquals(sql, expectedCount, actualCount);
+
+        //
+        expectedCount = 10;
+        sql   = "select count(*) from test a, test b where ? in(?, b.id)";
+        pstmt = conn.prepareStatement(sql);
+
+        pstmt.setInt(1, 0);
+        pstmt.setInt(2, 9);
+
+        rs = pstmt.executeQuery();
+
+        rs.next();
+
+        actualCount = rs.getInt(1);
+        sql = "\"select count(*) from test a, test b where ? in (?, b.id)\"";
+
+        assertEquals(sql, expectedCount, actualCount);
+
+        //
+        expectedCount = 1;
+        sql   = "select count(*) from test a where ? in(select b.id from test b where a.id = b.id)";
+        pstmt = conn.prepareStatement(sql);
+
+        pstmt.setInt(1, 0);
+
+        rs = pstmt.executeQuery();
+
+        rs.next();
+
+        actualCount = rs.getInt(1);
+        sql = "\"select count(*) .. \" subquery";
+
+        assertEquals(sql, expectedCount, actualCount);
+
+        //
         sql = "select count(*) from "
               + "(select * from test where id in (1,2)) a,"
               + "(select * from test where id in (3,4)) b "
