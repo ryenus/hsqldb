@@ -221,7 +221,6 @@ public class RowAction extends RowActionBase {
         commitTimestamp = 0;
 
 //        rolledback      = false;
-        deleteFinal    = false;
         deleteComplete = false;
 
 //        prepared        = false;
@@ -234,7 +233,6 @@ public class RowAction extends RowActionBase {
 //        actionTimestamp = 0;
 //        commitTimestamp = 0;
         rolledback     = false;
-        deleteFinal    = false;
         deleteComplete = false;
         prepared       = false;
         type           = ACTION_DELETE_FINAL;

@@ -43,7 +43,7 @@ import junit.framework.TestResult;
  * HSQLDB TestLikePredicate Junit test case. <p>
  *
  * @author  boucherb@users
- * @version 1.7.2
+ * @version 1.9.0
  * @since 1.7.2
  */
 public class TestLikePredicateOptimizations extends TestBase {
@@ -74,6 +74,14 @@ public class TestLikePredicateOptimizations extends TestBase {
 
         stmt.execute(sql);
 
+        sql = "insert into empty values 'name10'";
+
+        stmt.execute(sql);
+
+        sql = "insert into empty values 'name11'";
+
+        stmt.execute(sql);
+
         sql   = "insert into test values(?)";
         pstmt = conn.prepareStatement(sql);
 
@@ -84,6 +92,7 @@ public class TestLikePredicateOptimizations extends TestBase {
 
         pstmt.executeBatch();
 
+//
         sql = "select count(*) from test where name = (select max(name) from empty)";
         rs = stmt.executeQuery(sql);
 
@@ -93,6 +102,19 @@ public class TestLikePredicateOptimizations extends TestBase {
         sql = "select count(*) from test where name like (select min(name) from empty)";
         pstmt = conn.prepareStatement(sql);
         rs    = pstmt.executeQuery();
+
+        rs.next();
+
+        actualCount = rs.getInt(1);
+
+        assertEquals("\"" + sql + "\"", expectedCount, actualCount);
+
+        sql = "select count(*) from test where (select max(name) from empty where empty.name = test.name and empty.name > ?) like '%ame11%'";
+        pstmt = conn.prepareStatement(sql);
+
+        pstmt.setString(1, "n");
+
+        rs = pstmt.executeQuery();
 
         rs.next();
 
@@ -117,6 +139,19 @@ public class TestLikePredicateOptimizations extends TestBase {
 
         assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 
+        // --
+        sql = "SELECT t.name FROM test t WHERE ((SELECT t2.name from test t2 where t2.name=?) like '%name5000%')";
+        pstmt = conn.prepareStatement(sql);
+
+        pstmt.setString(1, "name5000");
+
+        rs = pstmt.executeQuery();
+
+        assertEquals(rs.next(), true);
+        String actual = rs.getString(1);
+        assertEquals(actual, "name0");
+
+// --
 // --
         sql = "select count(*) from test where name is not null";
         rs  = stmt.executeQuery(sql);

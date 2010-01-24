@@ -92,9 +92,8 @@ public class TestINPredicateParameterizationAndCorrelation extends TestBase {
 
         expectedCount = 2;
         actualCount   = rs.getInt(1);
-        sql           = "\"select count(*) from test where id in(0,9)\"";
 
-        assertEquals(sql, expectedCount, actualCount);
+        assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 
         //
         sql = "select count(*) from test a, test b where 0 in(a.id, b.id)";
@@ -113,14 +112,13 @@ public class TestINPredicateParameterizationAndCorrelation extends TestBase {
         rs.next();
 
         actualCount = rs.getInt(1);
-        sql = "\"select count(*) from test a, test b where 0 in (a.id, b.id)\"";
 
-        assertEquals(sql, expectedCount, actualCount);
+        assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 
         //
         expectedCount = 20;
-        sql   = "select count(*) from test a, test b where a.id in(?, ?)";
-        pstmt = conn.prepareStatement(sql);
+        sql = "select count(*) from test a, test b where a.id in(?, ?)";
+        pstmt         = conn.prepareStatement(sql);
 
         pstmt.setInt(1, 0);
         pstmt.setInt(2, 9);
@@ -130,14 +128,13 @@ public class TestINPredicateParameterizationAndCorrelation extends TestBase {
         rs.next();
 
         actualCount = rs.getInt(1);
-        sql = "\"select count(*) from test a, test b where a.id in (?, ?)\"";
 
-        assertEquals(sql, expectedCount, actualCount);
+        assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 
         //
         expectedCount = 10;
-        sql   = "select count(*) from test a, test b where ? in(?, b.id)";
-        pstmt = conn.prepareStatement(sql);
+        sql = "select count(*) from test a, test b where ? in(?, b.id)";
+        pstmt         = conn.prepareStatement(sql);
 
         pstmt.setInt(1, 0);
         pstmt.setInt(2, 9);
@@ -147,13 +144,12 @@ public class TestINPredicateParameterizationAndCorrelation extends TestBase {
         rs.next();
 
         actualCount = rs.getInt(1);
-        sql = "\"select count(*) from test a, test b where ? in (?, b.id)\"";
 
-        assertEquals(sql, expectedCount, actualCount);
+        assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 
         //
         expectedCount = 1;
-        sql   = "select count(*) from test a where ? in(select b.id from test b where a.id = b.id)";
+        sql = "select count(*) from test a where ? in(select b.id from test b where a.id = b.id)";
         pstmt = conn.prepareStatement(sql);
 
         pstmt.setInt(1, 0);
@@ -163,9 +159,8 @@ public class TestINPredicateParameterizationAndCorrelation extends TestBase {
         rs.next();
 
         actualCount = rs.getInt(1);
-        sql = "\"select count(*) .. \" subquery";
 
-        assertEquals(sql, expectedCount, actualCount);
+        assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 
         //
         sql = "select count(*) from "

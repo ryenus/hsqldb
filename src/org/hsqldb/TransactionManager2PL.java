@@ -41,6 +41,7 @@ import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.MultiValueHashMap;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
 
@@ -384,8 +385,7 @@ public class TransactionManager2PL implements TransactionManager {
         RowAction action;
 
         synchronized (row) {
-            action = RowAction.addAction(session, RowActionBase.ACTION_DELETE,
-                                         table, row);
+            action = RowAction.addDeleteAction(session,table, row);
         }
 
         session.rowActionList.add(action);
@@ -457,12 +457,10 @@ public class TransactionManager2PL implements TransactionManager {
                 if (session.tempSet.isEmpty()) {
                     lockTablesTPL(session, cs);
 
-                    // we dont set other sessions that would now be waiting for this one too
+                    // we don't set other sessions that would now be waiting for this one too
                 } else {
                     setWaitingSessionTPL(session);
                 }
-            } else {
-                session.abortTransaction = true;
             }
         } finally {
             writeLock.unlock();
@@ -519,24 +517,32 @@ public class TransactionManager2PL implements TransactionManager {
                 return;
             }
 
-            boolean holdsLocks = true;
+            boolean canUnlock = false;
 
-            if (holdsLocks) {
+            // if write lock was used for read lock
+            for (int i = 0; i < readLocks.length; i++) {
+                if (tableWriteLocks.get(readLocks[i]) != session) {
+                    canUnlock = true;
+
+                    break;
+                }
+            }
+
+            if (!canUnlock) {
                 return;
             }
 
-            boolean canUnlock = false;
+            canUnlock = false;
 
             for (int i = 0; i < waitingCount; i++) {
                 Session current = (Session) session.waitingSessions.get(i);
 
-                canUnlock =
-                    ArrayUtil
+                if (ArrayUtil
                         .containsAny(readLocks,
                                      current.sessionContext.currentStatement
-                                         .getTableNamesForWrite());
+                                         .getTableNamesForWrite())) {
+                    canUnlock = true;
 
-                if (canUnlock) {
                     break;
                 }
             }
@@ -581,15 +587,13 @@ public class TransactionManager2PL implements TransactionManager {
                 boolean canProceed = setWaitedSessionsTPL(current,
                     current.sessionContext.currentStatement);
 
-                if (!canProceed) {
-                    current.abortTransaction = true;
-                }
+                if (canProceed) {
+                    if (current.tempSet.isEmpty()) {
+                        lockTablesTPL(current,
+                                      current.sessionContext.currentStatement);
 
-                if (current.tempSet.isEmpty()) {
-                    lockTablesTPL(current,
-                                  current.sessionContext.currentStatement);
-
-                    current.tempUnlocked = true;
+                        current.tempUnlocked = true;
+                    }
                 }
             }
         }
@@ -597,15 +601,17 @@ public class TransactionManager2PL implements TransactionManager {
         for (int i = 0; i < waitingCount; i++) {
             Session current = (Session) session.waitingSessions.get(i);
 
-            if (!current.tempUnlocked) {
+            if (current.tempUnlocked) {
+
+                //
+            } else if (current.abortTransaction) {
+
+                //
+            } else {
 
                 // this can introduce additional waits for the sessions
-                boolean canProceed = setWaitedSessionsTPL(current,
-                    current.sessionContext.currentStatement);
-
-                if (!canProceed) {
-                    current.abortTransaction = true;
-                }
+                setWaitedSessionsTPL(current,
+                                     current.sessionContext.currentStatement);
             }
         }
     }
@@ -620,13 +626,11 @@ public class TransactionManager2PL implements TransactionManager {
             if (!current.abortTransaction && current.tempSet.isEmpty()) {
 
                 // valid for top level statements
-                boolean hasLocks =
-                    hasLocks(current, current.sessionContext.currentStatement);
-
-                if (!hasLocks) {
-
+//                boolean hasLocks = hasLocks(current, current.sessionContext.currentStatement);
+//                if (!hasLocks) {
 //                    System.out.println("trouble");
-                }
+//                    hasLocks(current, current.sessionContext.currentStatement);
+//                }
             }
 
             setWaitingSessionTPL(current);
@@ -649,13 +653,11 @@ public class TransactionManager2PL implements TransactionManager {
             if (!current.abortTransaction && current.tempSet.isEmpty()) {
 
                 // valid for top level statements
-                boolean hasLocks =
-                    hasLocks(current, current.sessionContext.currentStatement);
-
-                if (!hasLocks) {
-
+//                boolean hasLocks = hasLocks(current, current.sessionContext.currentStatement);
+//                if (!hasLocks) {
 //                    System.out.println("trouble");
-                }
+//                    hasLocks(current, current.sessionContext.currentStatement);
+//                }
             }
 
             setWaitingSessionTPL(current);
@@ -668,8 +670,12 @@ public class TransactionManager2PL implements TransactionManager {
 
         session.tempSet.clear();
 
-        if (cs == null || session.abortTransaction) {
+        if (cs == null) {
             return true;
+        }
+
+        if (session.abortTransaction) {
+            return false;
         }
 
         HsqlName[] nameList = cs.getTableNamesForWrite();
@@ -714,12 +720,31 @@ public class TransactionManager2PL implements TransactionManager {
             }
         }
 
+        if (session.tempSet.isEmpty()) {
+            return true;
+        }
+
+        if (checkDeadlock(session, session.tempSet)) {
+            return true;
+        }
+
+        session.tempSet.clear();
+
+        session.abortTransaction = true;
+
+        return false;
+    }
+
+    boolean checkDeadlock(Session session, OrderedHashSet newWaits) {
+
         for (int i = 0; i < session.waitingSessions.size(); i++) {
             Session current = (Session) session.waitingSessions.get(i);
 
-            if (session.tempSet.contains(current)) {
-                session.tempSet.clear();
+            if (newWaits.contains(current)) {
+                return false;
+            }
 
+            if (!checkDeadlock(current, newWaits)) {
                 return false;
             }
         }
@@ -730,6 +755,10 @@ public class TransactionManager2PL implements TransactionManager {
     void setWaitingSessionTPL(Session session) {
 
         int count = session.tempSet.size();
+
+        if (session.latch.getCount() > count + 1) {
+            System.out.println("trouble");
+        }
 
         for (int i = 0; i < count; i++) {
             Session current = (Session) session.tempSet.get(i);

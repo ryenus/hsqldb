@@ -46,6 +46,7 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Manages rows involved in transactions
@@ -459,9 +460,7 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         synchronized (row) {
             newAction = row.rowAction == null;
-
-//            action = RowAction.addAction(session, RowActionBase.ACTION_DELETE, table, row);
-            action = RowAction.addDeleteAction(session, table, row);
+            action    = RowAction.addDeleteAction(session, table, row);
         }
 
         if (action == null) {
@@ -490,11 +489,15 @@ public class TransactionManagerMVCC implements TransactionManager {
                     throw Error.error(ErrorCode.X_40501);
                 }
 
-                if (session.waitingSessions.contains(current)) {
-                    session.redoAction = false;
-                } else if (current.isInMidTransaction()) {
+                boolean canWait = checkDeadlock(session, session.tempSet);
+
+                if (canWait) {
+                    // assert current.isInMidTransaction();
+
                     session.latch.countUp();
                     current.waitingSessions.add(session);
+                } else {
+                    session.redoAction = false;
                 }
 
                 redoCount++;
@@ -548,7 +551,10 @@ public class TransactionManagerMVCC implements TransactionManager {
 
             if (action == null) {
                 result = true;
-                action = RowAction.addRefAction(session, row);
+
+                synchronized (row) {
+                    action = RowAction.addRefAction(session, row);
+                }
             } else {
                 result = action.canRead(session, mode);
             }
@@ -1052,10 +1058,12 @@ public class TransactionManagerMVCC implements TransactionManager {
             long count = current.latch.getCount();
 
             if (count == 1) {
-                setWaitedSessionsTPL(current, current.sessionContext.currentStatement);
+                setWaitedSessionsTPL(current,
+                                     current.sessionContext.currentStatement);
 
                 if (current.tempSet.isEmpty()) {
-                    lockTablesTPL(current, current.sessionContext.currentStatement);
+                    lockTablesTPL(current,
+                                  current.sessionContext.currentStatement);
 
                     current.tempUnlocked = true;
                 }
@@ -1066,7 +1074,8 @@ public class TransactionManagerMVCC implements TransactionManager {
             Session current = (Session) session.waitingSessions.get(i);
 
             if (!current.tempUnlocked) {
-                setWaitedSessionsTPL(current, current.sessionContext.currentStatement);
+                setWaitedSessionsTPL(current,
+                                     current.sessionContext.currentStatement);
             }
         }
 
@@ -1102,6 +1111,23 @@ public class TransactionManagerMVCC implements TransactionManager {
         if (needsWriteLock) {
             getTransactionSessions(session.tempSet);
             session.tempSet.remove(session);
+        }
+
+        return true;
+    }
+
+    boolean checkDeadlock(Session session, OrderedHashSet newWaits) {
+
+        for (int i = 0; i < session.waitingSessions.size(); i++) {
+            Session current = (Session) session.waitingSessions.get(i);
+
+            if (newWaits.contains(current)) {
+                return false;
+            }
+
+            if (!checkDeadlock(current, newWaits)) {
+                return false;
+            }
         }
 
         return true;

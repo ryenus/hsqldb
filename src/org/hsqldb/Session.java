@@ -110,6 +110,7 @@ public class Session implements SessionInterface {
     private int        sessionMaxRows;
     private Number     lastIdentity = ValuePool.INTEGER_0;
     private final long sessionId;
+    int                sessionTxId = -1;
     private boolean    script;
     boolean            ignoreCase;
 
