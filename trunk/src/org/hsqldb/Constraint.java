@@ -774,15 +774,6 @@ public final class Constraint implements SchemaObject {
                 } else if (core.mainIndex.existsParent(session, store, data,
                                                        core.refCols)) {
                     return;
-                } else if (core.mainTable == core.refTable) {
-
-                    // special case: self referencing table and self referencing row
-                    int compare = core.mainIndex.compareRowNonUnique(session,
-                        data, core.refCols, data);
-
-                    if (compare == 0) {
-                        return;
-                    }
                 }
 
                 throw getException(data);

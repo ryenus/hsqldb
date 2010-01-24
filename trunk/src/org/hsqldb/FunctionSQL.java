@@ -289,11 +289,11 @@ public class FunctionSQL extends Expression {
             case FUNC_EXTRACT :
                 name      = Tokens.T_EXTRACT;
                 parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 16, Tokens.YEAR,
+                    Tokens.OPENBRACKET, Tokens.X_KEYSET, 17, Tokens.YEAR,
                     Tokens.MONTH, Tokens.DAY, Tokens.HOUR, Tokens.MINUTE,
                     Tokens.SECOND, Tokens.DAY_OF_WEEK, Tokens.WEEK_OF_YEAR,
                     Tokens.QUARTER, Tokens.DAY_OF_YEAR, Tokens.DAY_OF_MONTH,
-                    Tokens.DAY_NAME, Tokens.MONTH_NAME,
+                    Tokens.WEEK_OF_YEAR, Tokens.DAY_NAME, Tokens.MONTH_NAME,
                     Tokens.SECONDS_MIDNIGHT, Tokens.TIMEZONE_HOUR,
                     Tokens.TIMEZONE_MINUTE, Tokens.FROM, Tokens.QUESTION,
                     Tokens.CLOSEBRACKET

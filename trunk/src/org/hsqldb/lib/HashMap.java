@@ -50,8 +50,8 @@ public class HashMap extends BaseHashMap {
     }
 
     public HashMap(int initialCapacity) throws IllegalArgumentException {
-        super(initialCapacity, BaseHashMap.objectKeyOrValue, BaseHashMap.objectKeyOrValue,
-              false);
+        super(initialCapacity, BaseHashMap.objectKeyOrValue,
+              BaseHashMap.objectKeyOrValue, false);
     }
 
     public Object get(Object key) {
@@ -90,6 +90,18 @@ public class HashMap extends BaseHashMap {
             Object key = it.next();
 
             put(key, t.get(key));
+        }
+    }
+
+    public void valuesToArray(Object[] array) {
+
+        Iterator it = values().iterator();
+        int      i  = 0;
+
+        while (it.hasNext()) {
+            array[i] = it.next();
+
+            i++;
         }
     }
 

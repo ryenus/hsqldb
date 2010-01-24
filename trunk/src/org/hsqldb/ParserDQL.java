@@ -38,6 +38,8 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.IntKeyHashMap;
+import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
@@ -1666,7 +1668,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.QUESTION :
                 e = new ExpressionColumn(OpTypes.DYNAMIC_PARAM);
 
-                compileContext.parameters.add(e);
+                compileContext.parameters.put(getPosition(), e);
                 read();
 
                 return e;
@@ -1728,7 +1730,7 @@ public class ParserDQL extends ParserBase {
             case Tokens.QUESTION :
                 e = new ExpressionColumn(OpTypes.DYNAMIC_PARAM);
 
-                compileContext.parameters.add(e);
+                compileContext.parameters.put(getPosition(), e);
                 read();
 
                 return e;
@@ -1851,7 +1853,8 @@ public class ParserDQL extends ParserBase {
 
                             readThis(Tokens.CLOSEBRACKET);
                         } catch (HsqlException ex) {
-                            compileContext.resetSubQueryLevel();
+                            compileContext.resetSubQueryLevel(
+                                subqueryPosition);
                             ex.setLevel(compileContext.subQueryDepth);
 
                             if (lastError == null
@@ -4713,8 +4716,8 @@ public class ParserDQL extends ParserBase {
 
         //
         private int           subQueryDepth;
+        private IntKeyHashMap parameters     = new IntKeyHashMap();
         private HsqlArrayList subQueryList   = new HsqlArrayList(true);
-        HsqlArrayList         parameters     = new HsqlArrayList(true);
         private HsqlArrayList usedSequences  = new HsqlArrayList(true);
         private HsqlArrayList usedRoutines   = new HsqlArrayList(true);
         private HsqlArrayList rangeVariables = new HsqlArrayList(true);
@@ -4836,7 +4839,7 @@ public class ParserDQL extends ParserBase {
             callProcedure = procedure;
         }
 
-        void resetSubQueryLevel() {
+        void resetSubQueryLevel(int position) {
 
             for (int i = rangeVariables.size() - 1; i >= 0; i--) {
                 RangeVariable range = (RangeVariable) rangeVariables.get(i);
@@ -4857,6 +4860,16 @@ public class ParserDQL extends ParserBase {
                     subQueryList.remove(i);
                 } else {
                     break;
+                }
+            }
+
+            Iterator it = parameters.keySet().iterator();
+
+            while (it.hasNext()) {
+                int pos = it.nextInt();
+
+                if (pos >= position) {
+                    it.remove();
                 }
             }
         }
@@ -4892,9 +4905,9 @@ public class ParserDQL extends ParserBase {
             }
 
             ExpressionColumn[] result =
-                (ExpressionColumn[]) parameters.toArray(
-                    new ExpressionColumn[parameters.size()]);
+                new ExpressionColumn[parameters.size()];
 
+            parameters.valuesToArray(result);
             parameters.clear();
 
             return result;

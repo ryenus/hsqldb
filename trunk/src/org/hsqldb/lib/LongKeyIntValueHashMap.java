@@ -97,6 +97,10 @@ public class LongKeyIntValueHashMap extends BaseHashMap {
         return false;
     }
 
+    public int getLookup(long key) {
+        return super.getLookup(key);
+    }
+
     public boolean put(long key, int value) {
 
         int oldSize = size();

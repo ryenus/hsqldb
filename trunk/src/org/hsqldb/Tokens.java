@@ -2106,8 +2106,6 @@ public class Tokens {
         commandSet.put(T_DAYOFMONTH, DAYOFMONTH);
         commandSet.put(T_DAYOFWEEK, DAYOFWEEK);
         commandSet.put(T_DAYOFYEAR, DAYOFYEAR);
-        commandSet.put(T_MONTHNAME, MONTHNAME);
-        commandSet.put(T_WEEK, WEEK);
         commandSet.put(T_DEGREES, DEGREES);
         commandSet.put(T_DIFFERENCE, DIFFERENCE);
         commandSet.put(T_DMOD, DMOD);
@@ -2119,6 +2117,7 @@ public class Tokens {
         commandSet.put(T_LOG10, LOG10);
         commandSet.put(T_LTRIM, LTRIM);
         commandSet.put(T_MONTH_NAME, MONTH_NAME);
+        commandSet.put(T_MONTHNAME, MONTHNAME);
         commandSet.put(T_NAMES, Tokens.NAMES);
         commandSet.put(T_NVL, Tokens.IFNULL);
         commandSet.put(T_OCTETLENGTH, OCTETLENGTH);
@@ -2142,6 +2141,8 @@ public class Tokens {
         commandSet.put(T_SYSDATE, SYSDATE);
         commandSet.put(T_TAN, TAN);
         commandSet.put(T_UCASE, UCASE);
+        commandSet.put(T_WEEK, WEEK);
+        commandSet.put(T_WEEK_OF_YEAR, WEEK_OF_YEAR);
 
         //
         commandSet.put(T_ISOLATION_LEVEL, ISOLATION_LEVEL);

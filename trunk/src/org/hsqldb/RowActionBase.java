@@ -62,7 +62,6 @@ class RowActionBase {
     long                     actionTimestamp;
     long                     commitTimestamp;
     byte                     type;
-    boolean                  deleteFinal;
     boolean                  deleteComplete;
     boolean                  rolledback;
     boolean                  prepared;
@@ -91,7 +90,6 @@ class RowActionBase {
         actionTimestamp = action.actionTimestamp;
         commitTimestamp = action.commitTimestamp;
         type            = action.type;
-        deleteFinal     = action.deleteFinal;
         deleteComplete  = action.deleteComplete;
         rolledback      = action.rolledback;
         prepared        = action.prepared;

@@ -158,7 +158,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
         if (session != null) {
             RowAction action = new RowAction(session, table,
-                                             RowAction.ACTION_INSERT, true,
+                                             RowAction.ACTION_INSERT, false,
                                              row);
 
             row.rowAction = action;
