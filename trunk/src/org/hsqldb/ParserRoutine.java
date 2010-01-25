@@ -1194,6 +1194,7 @@ public class ParserRoutine extends ParserDML {
         }
 
         resolveOuterReferences(routine, context, e);
+        e.resolveTypes(session, null);
 
         if (routine.isProcedure()) {
             throw Error.error(ErrorCode.X_42602);

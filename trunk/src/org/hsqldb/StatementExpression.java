@@ -100,6 +100,10 @@ public class StatementExpression extends StatementDMQL {
         Result result;
 
         try {
+            if (subqueries.length > 0) {
+                materializeSubQueries(session);
+            }
+
             result = getResult(session);
         } catch (Throwable t) {
             result = Result.newErrorResult(t, null);

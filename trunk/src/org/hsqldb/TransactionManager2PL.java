@@ -410,7 +410,7 @@ public class TransactionManager2PL implements TransactionManager {
     }
 
 // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row, int mode) {
+    public boolean canRead(Session session, Row row, int mode, int[] colMap) {
         return true;
     }
 
