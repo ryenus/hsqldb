@@ -50,19 +50,20 @@ public class RowAction extends RowActionBase {
     int             rowId;
     boolean         isMemory;
 
-    public static RowAction addAction(Session session, byte type,
-                                      TableBase table, Row row) {
+    public static RowAction addInsertAction(Session session, TableBase table,
+            Row row) {
 
         RowAction action = row.rowAction;
 
         if (action == null) {
-            action = new RowAction(session, table, type, row.isMemory(), row);
+            action = new RowAction(session, table, ACTION_INSERT,
+                                   row.isMemory(), row);
             row.rowAction = action;
 
             return action;
         }
 
-        action.addAction(session, type);
+        action.addInsertAction(session);
 
         return action;
     }
@@ -83,7 +84,8 @@ public class RowAction extends RowActionBase {
         return action.addDeleteAction(session);
     }
 
-    public static RowAction addRefAction(Session session, Row row) {
+    public static RowAction addRefAction(Session session, Row row,
+                                         int[] colMap) {
 
         RowAction action = row.rowAction;
 
@@ -95,7 +97,7 @@ public class RowAction extends RowActionBase {
             return action;
         }
 
-        return action.addAction(session, ACTION_REF);
+        return action.addRefAction(session);
     }
 
     public RowAction(Session session, TableBase table, byte type,
@@ -111,25 +113,17 @@ public class RowAction extends RowActionBase {
         rowId           = row.getPos();
     }
 
-    synchronized RowAction addAction(Session session, byte actionType) {
+    synchronized RowAction addInsertAction(Session session) {
 
-        if (actionType == ACTION_DELETE_FINAL) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
+        RowActionBase action = this;
+
+        while (action.next != null) {
+            action = action.next;
         }
 
-        if (actionType == ACTION_NONE) {
-            setAsAction(session, actionType);
-        } else {
-            RowActionBase action = this;
+        RowActionBase newAction = new RowActionBase(session, ACTION_INSERT);
 
-            while (action.next != null) {
-                action = action.next;
-            }
-
-            RowActionBase newAction = new RowActionBase(session, actionType);
-
-            action.next = newAction;
-        }
+        action.next = newAction;
 
         return this;
     }
@@ -163,6 +157,29 @@ public class RowAction extends RowActionBase {
                 ACTION_DELETE);
 
             lastAction.next = newAction;
+        }
+
+        return this;
+    }
+
+    synchronized RowAction addRefAction(Session session) {
+
+        if (type == ACTION_DELETE_FINAL) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
+        }
+
+        if (type == ACTION_NONE) {
+            setAsAction(session, ACTION_REF);
+        } else {
+            RowActionBase action = this;
+
+            while (action.next != null) {
+                action = action.next;
+            }
+
+            RowActionBase newAction = new RowActionBase(session, ACTION_REF);
+
+            action.next = newAction;
         }
 
         return this;
@@ -935,7 +952,7 @@ public class RowAction extends RowActionBase {
 
         if (actionType == ACTION_NONE || actionType == ACTION_INSERT) {
             if (!hasLock && mode == TransactionManager.ACTION_REF) {
-                addAction(session, ACTION_REF);
+                addRefAction(session);
             }
 
             return true;

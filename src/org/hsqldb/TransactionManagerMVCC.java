@@ -44,9 +44,9 @@ import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
+import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.CachedObject;
 import org.hsqldb.persist.PersistentStore;
-import org.hsqldb.lib.OrderedHashSet;
 
 /**
  * Manages rows involved in transactions
@@ -492,8 +492,8 @@ public class TransactionManagerMVCC implements TransactionManager {
                 boolean canWait = checkDeadlock(session, session.tempSet);
 
                 if (canWait) {
-                    // assert current.isInMidTransaction();
 
+                    // assert current.isInMidTransaction();
                     session.latch.countUp();
                     current.waitingSessions.add(session);
                 } else {
@@ -534,7 +534,7 @@ public class TransactionManagerMVCC implements TransactionManager {
     }
 
 // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row, int mode) {
+    public boolean canRead(Session session, Row row, int mode, int[] colMap) {
 
         RowAction action = row.rowAction;
 
@@ -553,7 +553,7 @@ public class TransactionManagerMVCC implements TransactionManager {
                 result = true;
 
                 synchronized (row) {
-                    action = RowAction.addRefAction(session, row);
+                    action = RowAction.addRefAction(session, row, colMap);
                 }
             } else {
                 result = action.canRead(session, mode);
@@ -1104,6 +1104,15 @@ public class TransactionManagerMVCC implements TransactionManager {
         if (needsReadLock || needsWriteLock) {
             if (catalogWriteSession != session
                     && catalogWriteSession != null) {
+                HsqlName[] nameList = cs.getTableNamesForWrite();
+
+                for (int i = 0; i < nameList.length; i++) {
+                    if (nameList[i].schema
+                            == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
+                        return true;
+                    }
+                }
+
                 session.tempSet.add(catalogWriteSession);
             }
         }

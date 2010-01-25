@@ -57,7 +57,7 @@ public interface TransactionManager {
     public void beginTransaction(Session session);
 
     // functional unit - accessibility of rows
-    public boolean canRead(Session session, Row row, int mode);
+    public boolean canRead(Session session, Row row, int mode, int[] colMap);
 
     public boolean canRead(Session session, int id, int mode);
 

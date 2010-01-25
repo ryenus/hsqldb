@@ -3055,6 +3055,10 @@ public class ParserDDL extends ParserRoutine {
             throw Error.error(ErrorCode.X_42504, schemaName.name);
         }
 
+        if (schemaName.name.equals(SqlInvariants.LOBS_SCHEMA)) {
+            schemaName = SqlInvariants.LOBS_SCHEMA_HSQLNAME;
+        }
+
         String        sql  = getLastPart();
         Object[]      args = new Object[] {
             schemaName, owner
