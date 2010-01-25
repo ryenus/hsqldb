@@ -3057,6 +3057,7 @@ public class ParserDDL extends ParserRoutine {
 
         if (schemaName.name.equals(SqlInvariants.LOBS_SCHEMA)) {
             schemaName = SqlInvariants.LOBS_SCHEMA_HSQLNAME;
+            owner = schemaName.owner;
         }
 
         String        sql  = getLastPart();
