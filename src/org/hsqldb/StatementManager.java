@@ -180,7 +180,7 @@ public final class StatementManager {
 
             // revalidate with the original schema
             try {
-                HsqlName schema = cs.getSchemalName();
+                HsqlName schema = cs.getSchemaName();
 
                 session.setSchema(schema.name);
 
@@ -231,7 +231,7 @@ public final class StatementManager {
         if (csid < 0) {
             csid = nextID();
 
-            int schemaid = cs.getSchemalName().hashCode();
+            int schemaid = cs.getSchemaName().hashCode();
             LongValueHashMap sqlMap =
                 (LongValueHashMap) schemaMap.get(schemaid);
 
@@ -272,7 +272,7 @@ public final class StatementManager {
         Statement cs = (Statement) csidMap.remove(csid);
 
         if (cs != null) {
-            int schemaid = cs.getSchemalName().hashCode();
+            int schemaid = cs.getSchemaName().hashCode();
             LongValueHashMap sqlMap =
                 (LongValueHashMap) schemaMap.get(schemaid);
             String sql = (String) sqlLookup.remove(csid);

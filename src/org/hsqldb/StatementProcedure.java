@@ -71,6 +71,10 @@ public class StatementProcedure extends StatementDMQL {
 
         setDatabseObjects(compileContext);
         checkAccessRights(session);
+
+        if (procedure != null) {
+            session.getGrantee().checkAccess(procedure);
+        }
     }
 
     /**

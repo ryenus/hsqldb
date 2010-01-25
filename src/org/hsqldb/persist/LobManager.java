@@ -214,8 +214,6 @@ public class LobManager {
         HsqlName name =
             database.schemaManager.getSchemaHsqlName("SYSTEM_LOBS");
 
-        name.owner = SqlInvariants.LOBS_SCHEMA_HSQLNAME.owner;
-
         Table table = database.schemaManager.getTable(sysLobSession, "BLOCKS",
             "SYSTEM_LOBS");
 
