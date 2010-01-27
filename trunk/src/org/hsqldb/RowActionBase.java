@@ -56,9 +56,10 @@ class RowActionBase {
     public static final byte ACTION_REF           = 5;
     public static final byte ACTION_CHECK         = 6;
     public static final byte ACTION_DEBUG         = 7;
+
+    //
     RowActionBase            next;
     Session                  session;
-    long                     changeTimestamp;
     long                     actionTimestamp;
     long                     commitTimestamp;
     byte                     type;
@@ -67,7 +68,7 @@ class RowActionBase {
     boolean                  prepared;
 
     //
-    long tempMergeTimestamp;
+    int[]                    changeColumnMap;
 
     RowActionBase() {}
 
@@ -78,7 +79,6 @@ class RowActionBase {
 
         this.session    = session;
         this.type       = type;
-        changeTimestamp = session.actionTimestamp;
         actionTimestamp = session.actionTimestamp;
     }
 
@@ -86,7 +86,6 @@ class RowActionBase {
 
         next            = action.next;
         session         = action.session;
-        changeTimestamp = action.changeTimestamp;
         actionTimestamp = action.actionTimestamp;
         commitTimestamp = action.commitTimestamp;
         type            = action.type;

@@ -556,7 +556,7 @@ public class TransactionManagerMVCC implements TransactionManager {
                     action = RowAction.addRefAction(session, row, colMap);
                 }
             } else {
-                result = action.canRead(session, mode);
+                result = action.canRead(session, mode, colMap);
             }
 
             if (result) {
@@ -569,7 +569,7 @@ public class TransactionManagerMVCC implements TransactionManager {
                 return true;
             }
 
-            return action.canRead(session, mode);
+            return action.canRead(session, mode, colMap);
         }
     }
 
@@ -585,7 +585,7 @@ public class TransactionManagerMVCC implements TransactionManager {
             return action.canRead(session);
         }
 
-        return action.canRead(session, mode);
+        return action.canRead(session, mode, null);
     }
 
     /**

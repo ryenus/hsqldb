@@ -107,7 +107,7 @@ public class Logger {
     boolean        propTextAllowFullPath;
     int            propWriteDelay;
     int            propLogSize;
-    boolean        propLogData;
+    boolean        propLogData = true;
     int            propEventLogLevel;
     int            propGC;
     int            propTxMode       = Database.LOCKS;
