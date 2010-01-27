@@ -72,8 +72,7 @@ public class Row implements CachedObject {
             return false;
         }
 
-        return RowActionBase.ACTION_DELETE
-               == action.getLastChangeActionType(session.actionTimestamp);
+        return action.canRead(session);
     }
 
     public void setChanged() {}

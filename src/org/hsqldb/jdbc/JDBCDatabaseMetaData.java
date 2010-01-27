@@ -3225,7 +3225,11 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public ResultSet getCatalogs() throws SQLException {
-        return executeSelect("INFORMATION_SCHEMA_CATALOG_NAME", null);
+
+        String select =
+            "SELECT CATALOG_NAME AS TABLE_CAT FROM INFORMATION_SCHEMA.INFORMATION_SCHEMA_CATALOG_NAME";
+
+        return execute(select);
     }
 
     /**
