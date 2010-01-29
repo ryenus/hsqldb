@@ -341,10 +341,12 @@
       <literal>0.2</literal> is considered a DECIMAL value but
       <literal>0.2E0</literal> is considered a DOUBLE value.</para>
 
-      <para>When a REAL, FLOAT or DOUBLE (all synonymous) is part of an
-      expression involving different numeric types, the type of the result is
-      DOUBLE. DECIMAL values can be converted to DOUBLE unless they are beyond
-      the <literal>Double.MIN_VALUE - Double.MAX_VALUE</literal> range.</para>
+      <para>When an approximate numeric type, REAL, FLOAT or DOUBLE (all
+      synonymous) is part of an expression involving different numeric types,
+      the type of the result is DOUBLE. DECIMAL values can be converted to
+      DOUBLE unless they are beyond the <literal>Double.MIN_VALUE -
+      Double.MAX_VALUE</literal> range. For example, A * B, A / B, A + B, etc.
+      will return a DOUBLE value if either A or B is a DOUBLE.</para>
 
       <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
       value is part an expression, the type of the result is DECIMAL or
@@ -354,10 +356,12 @@
       DECIMAL type can be assigned to a column of SMALLINT or INTEGER, but a
       value with 15 digits cannot.</para>
 
-      <para>When two DECIMAL values are multiplied, the resulting scale is the
-      sum of the scales of the two terms. When they are divided, the result is
-      a value with a scale (number of digits to the right of the decimal
-      point) equal to the larger of the scales of the two terms.</para>
+      <para>When a DECIMAL values is multiplied by a DECIMAL or integral type,
+      the resulting scale is the sum of the scales of the two terms. When they
+      are divided, the result is a value with a scale (number of digits to the
+      right of the decimal point) equal to the larger of the scales of the two
+      terms. The precision for both operations is calculated (usually
+      increased) to allow all possible results.</para>
 
       <para>The distinction between DOUBLE and DECIMAL is important when a
       division takes place. For example, <literal>10.0/8.0</literal> (DECIMAL)
@@ -376,6 +380,8 @@
       <methodname>PreparedStatement.setDouble()</methodname> or
       <methodname>setFloat()</methodname> is used, the value is treated as a
       DOUBLE automatically.</para>
+
+      <para>In short, </para>
 
       <simpara><literal>&lt;numeric type&gt; ::= &lt;exact numeric type&gt; |
       &lt;approximate numeric type&gt;</literal></simpara>
