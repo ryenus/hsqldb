@@ -84,6 +84,8 @@ public class JavaSystem {
 //#endif JAVA6
     }
 
+    final static BigDecimal BD_1  = BigDecimal.valueOf(1L);
+    final static BigDecimal MBD_1 = BigDecimal.valueOf(-1L);
 
     public static int precision(BigDecimal o) {
 
@@ -92,10 +94,22 @@ public class JavaSystem {
         }
 
 //#ifdef JAVA6
-        return o.precision();
+        int precision;
+
+        if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
+            precision = o.scale() + 1;
+        } else {
+            precision = o.precision();
+        }
+
+        return precision;
 
 //#else
 /*
+        if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
+            return o.scale() + 1;
+        }
+
         BigInteger big  = o.unscaledValue();
         int        sign = big.signum() == -1 ? 1
                                              : 0;

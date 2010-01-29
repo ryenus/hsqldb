@@ -512,6 +512,9 @@ public final class NumberType extends Type {
                 break;
 
             case OpTypes.DIVIDE :
+                if (typeWidth == DECIMAL_WIDTH) {
+                    break;
+                }
             case OpTypes.SUBTRACT :
             default :
 
@@ -544,8 +547,6 @@ public final class NumberType extends Type {
 
         switch (operation) {
 
-//            case OpCodes.DIVIDE :
-//            case OpCodes.SUBTRACT :
             case OpTypes.ADD :
                 newScale = scale > other.scale ? scale
                                                : other.scale;
@@ -554,6 +555,12 @@ public final class NumberType extends Type {
                             : other.precision - other.scale;
 
                 newDigits++;
+                break;
+
+            case OpTypes.DIVIDE :
+                newDigits = precision - scale + other.scale;
+                newScale  = scale > other.scale ? scale
+                                                : other.scale;
                 break;
 
             case OpTypes.MULTIPLY :
@@ -831,10 +838,9 @@ public final class NumberType extends Type {
             return a;
         }
 
-        if (otherType.isLobType() ) {
+        if (otherType.isLobType()) {
             throw Error.error(ErrorCode.X_42561);
         }
-
 
         switch (otherType.typeCode) {
 
@@ -1311,13 +1317,19 @@ public final class NumberType extends Type {
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
-                a = convertToDefaultType(null, a);
-                b = convertToDefaultType(null, b);
+                if (!(a instanceof BigDecimal)) {
+                    a = convertToDefaultType(null, a);
+                }
+
+                if (!(b instanceof BigDecimal)) {
+                    b = convertToDefaultType(null, b);
+                }
 
                 BigDecimal abd = (BigDecimal) a;
                 BigDecimal bbd = (BigDecimal) b;
+                BigDecimal bd  = abd.multiply(bbd);
 
-                return abd.multiply(bbd);
+                return convertToDefaultType(null, bd);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -1360,19 +1372,24 @@ public final class NumberType extends Type {
             }
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL : {
-                a = convertToDefaultType(null, a);
-                b = convertToDefaultType(null, b);
+                if (!(a instanceof BigDecimal)) {
+                    a = convertToDefaultType(null, a);
+                }
 
-                BigDecimal abd   = (BigDecimal) a;
-                BigDecimal bbd   = (BigDecimal) b;
-                int        scale = abd.scale() > bbd.scale() ? abd.scale()
-                                                             : bbd.scale();
+                if (!(b instanceof BigDecimal)) {
+                    b = convertToDefaultType(null, b);
+                }
+
+                BigDecimal abd = (BigDecimal) a;
+                BigDecimal bbd = (BigDecimal) b;
 
                 if (bbd.signum() == 0) {
                     throw Error.error(ErrorCode.X_22012);
                 }
 
-                return abd.divide(bbd, scale, BigDecimal.ROUND_DOWN);
+                BigDecimal bd = abd.divide(bbd, scale, BigDecimal.ROUND_DOWN);
+
+                return convertToDefaultType(null, bd);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
