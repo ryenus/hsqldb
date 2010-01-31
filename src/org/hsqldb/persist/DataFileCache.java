@@ -306,6 +306,7 @@ public class DataFileCache {
 
         dataFile.seek(FLAGS_POS);
         dataFile.writeInt(flags);
+        dataFile.synch();
     }
 
     void setIncrementBackup(boolean value) {
@@ -457,8 +458,8 @@ public class DataFileCache {
             boolean empty = fileFreePosition == initialFreePos;
 
             if (empty) {
-                fa.removeElement(dataFileName);
-                fa.removeElement(backupFileName);
+                deleteFile();
+                deleteBackup();
             }
         } catch (Throwable t) {
             database.logger.logSevereEvent("Close failed", t);
@@ -926,7 +927,7 @@ public class DataFileCache {
         try {
             if (database.logger.propIncrementBackup) {
                 if (fa.isStreamElement(backupFileName)) {
-                    fa.removeElement(backupFileName);
+                    deleteBackup();
                 }
 
                 return;
@@ -952,15 +953,13 @@ public class DataFileCache {
 
         try {
             if (database.logger.propIncrementBackup) {
-                if (fa.isStreamElement(backupFileName)) {
-                    fa.removeElement(backupFileName);
-                }
+                deleteBackup();
 
                 return;
             }
 
             if (fa.isStreamElement(backupFileName + ".new")) {
-                fa.removeElement(backupFileName);
+                deleteBackup();
                 fa.renameElement(backupFileName + ".new", backupFileName);
             }
         } finally {
@@ -1058,7 +1057,9 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            fa.removeElement(backupFileName);
+            if (fa.isStreamElement(backupFileName)) {
+                fa.removeElement(backupFileName);
+            }
         } finally {
             writeLock.unlock();
         }
@@ -1070,9 +1071,7 @@ public class DataFileCache {
      */
     void deleteOrResetFreePos() {
 
-        Storage raFile = null;
-
-        database.logger.getFileAccess().removeElement(dataFileName);
+        deleteFile();
 
         // OOo related code
         if (database.logger.isStoredFileAccess()) {
@@ -1084,17 +1083,17 @@ public class DataFileCache {
             return;
         }
 
-        try {
-            raFile = new ScaledRAFileSimple(dataFileName, "rw");
 
-            raFile.seek(LONG_FREE_POS_POS);
-            raFile.writeLong(initialFreePos);
+        try {
+            dataFile = new ScaledRAFileSimple(dataFileName, "rw");
+            initNewFile();
         } catch (IOException e) {
             database.logger.logSevereEvent("deleteOrResetFreePos failed", e);
         } finally {
-            if (raFile != null) {
+            if (dataFile != null) {
                 try {
-                    raFile.close();
+                    dataFile.close();
+                    dataFile = null;
                 } catch (IOException e) {
                     database.logger.logWarningEvent("Failed to close RA file",
                                                     e);

@@ -66,8 +66,6 @@ class RowActionBase {
     boolean                  deleteComplete;
     boolean                  rolledback;
     boolean                  prepared;
-
-    //
     int[]                    changeColumnMap;
 
     RowActionBase() {}
@@ -92,5 +90,6 @@ class RowActionBase {
         deleteComplete  = action.deleteComplete;
         rolledback      = action.rolledback;
         prepared        = action.prepared;
+        changeColumnMap = action.changeColumnMap;
     }
 }

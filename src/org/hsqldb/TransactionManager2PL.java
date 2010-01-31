@@ -55,6 +55,7 @@ import org.hsqldb.persist.PersistentStore;
 public class TransactionManager2PL implements TransactionManager {
 
     Database database;
+    Session  lobSession;
     boolean  hasPersistence;
 
     //
@@ -73,8 +74,10 @@ public class TransactionManager2PL implements TransactionManager {
     MultiValueHashMap tableReadLocks  = new MultiValueHashMap();
 
     public TransactionManager2PL(Database db) {
+
         database       = db;
         hasPersistence = database.logger.isLogged();
+        lobSession     = database.sessionManager.getSysLobSession();
     }
 
     public long getGlobalChangeTimestamp() {
@@ -282,12 +285,19 @@ public class TransactionManager2PL implements TransactionManager {
             } catch (HsqlException e) {}
 
             endTransactionTPL(session);
-
-            return true;
         } finally {
             writeLock.unlock();
-            session.tempSet.clear();
         }
+
+        session.tempSet.clear();
+
+        if (session != lobSession && lobSession.rowActionList.size() > 0) {
+            lobSession.isTransaction = true;
+
+            lobSession.commit(false);
+        }
+
+        return true;
     }
 
     public void rollback(Session session) {
@@ -380,12 +390,13 @@ public class TransactionManager2PL implements TransactionManager {
         session.rowActionList.setSize(start);
     }
 
-    public RowAction addDeleteAction(Session session, Table table, Row row) {
+    public RowAction addDeleteAction(Session session, Table table, Row row,
+                                     int[] colMap) {
 
         RowAction action;
 
         synchronized (row) {
-            action = RowAction.addDeleteAction(session,table, row);
+            action = RowAction.addDeleteAction(session, table, row, colMap);
         }
 
         session.rowActionList.add(action);
@@ -458,6 +469,7 @@ public class TransactionManager2PL implements TransactionManager {
                     lockTablesTPL(session, cs);
 
                     // we don't set other sessions that would now be waiting for this one too
+                    // next lock release will do it
                 } else {
                     setWaitingSessionTPL(session);
                 }
@@ -737,7 +749,9 @@ public class TransactionManager2PL implements TransactionManager {
 
     boolean checkDeadlock(Session session, OrderedHashSet newWaits) {
 
-        for (int i = 0; i < session.waitingSessions.size(); i++) {
+        int size = session.waitingSessions.size();
+
+        for (int i = 0; i < size; i++) {
             Session current = (Session) session.waitingSessions.get(i);
 
             if (newWaits.contains(current)) {
@@ -755,10 +769,6 @@ public class TransactionManager2PL implements TransactionManager {
     void setWaitingSessionTPL(Session session) {
 
         int count = session.tempSet.size();
-
-        if (session.latch.getCount() > count + 1) {
-            System.out.println("trouble");
-        }
 
         for (int i = 0; i < count; i++) {
             Session current = (Session) session.tempSet.get(i);
