@@ -2614,13 +2614,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * Low level row delete method.
-     */
-    public void deleteNoCheck(Session session, Row row) {
-        session.addDeleteAction(this, row);
-    }
-
-    /**
      * For log statements. Delete a single row.
      */
     public void deleteNoCheckFromLog(Session session, Object[] data) {
@@ -2681,7 +2674,7 @@ public class Table extends TableBase implements SchemaObject {
             return;
         }
 
-        deleteNoCheck(session, row);
+        session.addDeleteAction(this, row, null);
     }
 
     public void clearAllData(Session session) {

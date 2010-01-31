@@ -784,10 +784,11 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         for (int i = 0; i < navigator.getSize(); i++) {
-            Row   row          = navigator.getNextRow();
-            Table currentTable = ((Table) row.getTable());
+            Row   row            = navigator.getNextRow();
+            Table currentTable   = ((Table) row.getTable());
+            int[] changedColumns = navigator.getCurrentChangedColumns();
 
-            currentTable.deleteNoCheck(session, row);
+            session.addDeleteAction(currentTable, row, changedColumns);
         }
 
         navigator.beforeFirst();
@@ -904,7 +905,7 @@ public class StatementDML extends StatementDMQL {
         while (it.next()) {
             Row row = it.getCurrentRow();
 
-            baseTable.deleteNoCheck(session, row);
+            session.addDeleteAction((Table) row.getTable(), row, null);
         }
 
         if (restartIdentity && targetTable.identitySequence != null) {
@@ -972,7 +973,7 @@ public class StatementDML extends StatementDMQL {
             Object[] data         = navigator.getCurrentChangedData();
             Table    currentTable = ((Table) row.getTable());
 
-            currentTable.deleteNoCheck(session, row);
+            session.addDeleteAction(currentTable, row, null);
 
             if (data != null) {
                 hasUpdate = true;

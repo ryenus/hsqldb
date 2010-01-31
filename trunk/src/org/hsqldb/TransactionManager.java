@@ -42,7 +42,8 @@ public interface TransactionManager {
 
     public long getGlobalChangeTimestamp();
 
-    public RowAction addDeleteAction(Session session, Table table, Row row);
+    public RowAction addDeleteAction(Session session, Table table, Row row,
+                                     int[] colMap);
 
     public void addInsertAction(Session session, Table table, Row row);
 

@@ -97,6 +97,7 @@ public class Session implements SessionInterface {
     volatile boolean redoAction;
     HsqlArrayList    rowActionList;
     volatile boolean tempUnlocked;
+    OrderedHashSet   waitedSessions;
     OrderedHashSet   waitingSessions;
     OrderedHashSet   tempSet;
     CountUpDownLatch latch = new CountUpDownLatch();
@@ -158,6 +159,7 @@ public class Session implements SessionInterface {
         this.sessionTimeZoneSeconds = timeZoneSeconds;
         this.timeZoneSeconds        = timeZoneSeconds;
         rowActionList               = new HsqlArrayList(true);
+        waitedSessions              = new OrderedHashSet();
         waitingSessions             = new OrderedHashSet();
         tempSet                     = new OrderedHashSet();
         isolationLevelDefault       = database.getDefaultIsolationLevel();
@@ -400,7 +402,7 @@ public class Session implements SessionInterface {
      * @param  row the deleted row
      * @throws  HsqlException
      */
-    void addDeleteAction(Table table, Row row) {
+    void addDeleteAction(Table table, Row row, int[] colMap) {
 
 //        tempActionHistory.add("add delete action " + actionTimestamp);
         if (abortTransaction) {
@@ -408,7 +410,7 @@ public class Session implements SessionInterface {
 //            throw Error.error(ErrorCode.X_40001);
         }
 
-        database.txManager.addDeleteAction(this, table, row);
+        database.txManager.addDeleteAction(this, table, row, colMap);
     }
 
     void addInsertAction(Table table, Row row) {

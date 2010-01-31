@@ -61,6 +61,7 @@ public class TransactionManagerMV2PL implements TransactionManager {
 
     Database database;
     boolean  hasPersistence;
+    Session  lobSession;
 
     //
     ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
@@ -92,6 +93,7 @@ public class TransactionManagerMV2PL implements TransactionManager {
 
         database        = db;
         hasPersistence  = database.logger.isLogged();
+        lobSession      = database.sessionManager.getSysLobSession();
         catalogNameList = new HsqlName[]{ database.getCatalogName() };
     }
 
@@ -281,7 +283,6 @@ public class TransactionManagerMV2PL implements TransactionManager {
                                     database.logger.writeDeleteStatement(
                                         session, (Table) action.table, data);
                                 }
-
                                 break;
 
                             case RowActionBase.ACTION_INSERT :
@@ -319,12 +320,18 @@ public class TransactionManagerMV2PL implements TransactionManager {
             } catch (HsqlException e) {}
 
             endTransactionTPL(session);
-
-            return true;
         } finally {
             writeLock.unlock();
             session.tempSet.clear();
         }
+
+        if (session != lobSession && lobSession.rowActionList.size() > 0) {
+            lobSession.isTransaction = true;
+
+            lobSession.commit(false);
+        }
+
+        return true;
     }
 
     public void rollback(Session session) {
@@ -393,12 +400,13 @@ public class TransactionManagerMV2PL implements TransactionManager {
         session.rowActionList.setSize(start);
     }
 
-    public RowAction addDeleteAction(Session session, Table table, Row row) {
+    public RowAction addDeleteAction(Session session, Table table, Row row,
+                                     int[] colMap) {
 
         RowAction action;
 
         synchronized (row) {
-            action = RowAction.addDeleteAction(session,table, row);
+            action = RowAction.addDeleteAction(session, table, row, colMap);
         }
 
         session.rowActionList.add(action);
@@ -1081,8 +1089,10 @@ public class TransactionManagerMV2PL implements TransactionManager {
 
         int index = liveTransactionTimestamps.indexOf(timestamp);
 
-        liveTransactionTimestamps.remove(index);
-        mergeExpiredTransactions(session);
+        if (index >= 0) {
+            liveTransactionTimestamps.remove(index);
+            mergeExpiredTransactions(session);
+        }
     }
 
     long getFirstLiveTransactionTimestamp() {

@@ -59,6 +59,7 @@ public class TransactionManagerMVCC implements TransactionManager {
 
     Database database;
     boolean  hasPersistence;
+    Session  lobSession;
 
     //
     ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
@@ -81,16 +82,16 @@ public class TransactionManagerMVCC implements TransactionManager {
         new IntKeyHashMapConcurrent(10000);
 
     // locks
-    Session  catalogWriteSession;
-    HsqlName catalogName;
-    int      transactionCount = 0;
+    boolean isLockedMode;
+    Session catalogWriteSession;
+    int     transactionCount = 0;
 
     //
     public TransactionManagerMVCC(Database db) {
 
         database       = db;
         hasPersistence = database.logger.isLogged();
-        catalogName    = database.getCatalogName();
+        lobSession     = database.sessionManager.getSysLobSession();
     }
 
     public long getGlobalChangeTimestamp() {
@@ -305,6 +306,11 @@ public class TransactionManagerMVCC implements TransactionManager {
                     switch (type) {
 
                         case RowActionBase.ACTION_INSERT :
+                            if (session.isProcessingLog
+                                    || session.isProcessingScript) {
+                                break;
+                            }
+
                             Row row = action.memoryRow;
 
                             if (row == null) {
@@ -366,25 +372,33 @@ public class TransactionManagerMVCC implements TransactionManager {
 
             //
             countDownLatches(session);
-
-            return true;
         } finally {
             writeLock.unlock();
             session.tempSet.clear();
         }
+
+        if (session != lobSession && lobSession.rowActionList.size() > 0) {
+            lobSession.isTransaction = true;
+            lobSession.actionIndex   = 0;
+
+            logActions(lobSession, lobSession.rowActionList.getArray(),
+                       lobSession.rowActionList.size());
+            lobSession.commit(false);
+        }
+
+        return true;
     }
 
     private void countDownLatches(Session session) {
 
-        if (!session.waitingSessions.isEmpty()) {
-            for (int i = 0; i < session.waitingSessions.size(); i++) {
-                Session current = (Session) session.waitingSessions.get(i);
+        for (int i = 0; i < session.waitingSessions.size(); i++) {
+            Session current = (Session) session.waitingSessions.get(i);
 
-                current.latch.countDown();
-            }
-
-            session.waitingSessions.clear();
+            current.waitedSessions.remove(session);
+            current.latch.countDown();
         }
+
+        session.waitingSessions.clear();
     }
 
     public void rollback(Session session) {
@@ -397,8 +411,8 @@ public class TransactionManagerMVCC implements TransactionManager {
 
             rollbackPartial(session, 0, session.transactionTimestamp);
             endTransaction(session);
-            countDownLatches(session);
             endTransactionTPL(session);
+            countDownLatches(session);
         } finally {
             writeLock.unlock();
         }
@@ -453,37 +467,38 @@ public class TransactionManagerMVCC implements TransactionManager {
         session.rowActionList.setSize(start);
     }
 
-    public RowAction addDeleteAction(Session session, Table table, Row row) {
+    public RowAction addDeleteAction(Session session, Table table, Row row,
+                                     int[] colMap) {
 
         RowAction action;
         boolean   newAction;
 
         synchronized (row) {
             newAction = row.rowAction == null;
-            action    = RowAction.addDeleteAction(session, table, row);
+            action    = RowAction.addDeleteAction(session, table, row, colMap);
         }
 
         if (action == null) {
             writeLock.lock();
 
             try {
-                Session current = (Session) session.tempSet.get(0);
-
-                session.tempSet.clear();
+                rollbackAction(session);
 
                 if (session.isolationLevel == SessionInterface
                         .TX_REPEATABLE_READ || session
                         .isolationLevel == SessionInterface.TX_SERIALIZABLE) {
+                    session.tempSet.clear();
+
                     session.abortTransaction = true;
 
                     throw Error.error(ErrorCode.X_40501);
                 }
 
-                rollbackAction(session);
+                if (row.rowAction != null && row.rowAction.isDeleted()) {
+                    session.tempSet.clear();
 
-                session.redoAction = true;
+                    session.redoAction = true;
 
-                if (row.rowAction.isDeleted()) {
                     redoCount++;
 
                     throw Error.error(ErrorCode.X_40501);
@@ -492,13 +507,21 @@ public class TransactionManagerMVCC implements TransactionManager {
                 boolean canWait = checkDeadlock(session, session.tempSet);
 
                 if (canWait) {
+                    Session current = (Session) session.tempSet.get(0);
 
-                    // assert current.isInMidTransaction();
+                    session.redoAction = true;
+
                     session.latch.countUp();
                     current.waitingSessions.add(session);
+                    session.waitedSessions.add(current);
                 } else {
-                    session.redoAction = false;
+                    checkDeadlock(session, session.tempSet);
+
+                    session.redoAction       = false;
+                    session.abortTransaction = true;
                 }
+
+                session.tempSet.clear();
 
                 redoCount++;
 
@@ -551,25 +574,29 @@ public class TransactionManagerMVCC implements TransactionManager {
 
             if (action == null) {
                 result = true;
-
-                synchronized (row) {
-                    action = RowAction.addRefAction(session, row, colMap);
-                }
             } else {
-                result = action.canRead(session, mode, colMap);
+                result = action.canRead(session, ACTION_READ);
             }
 
             if (result) {
-                session.rowActionList.add(action);
+                synchronized (row) {
+                    result = RowAction.addRefAction(session, row, colMap);
+                }
+
+                if (result) {
+                    session.rowActionList.add(row.rowAction);
+                }
+
+                return true;
             }
 
-            return result;
+            return false;
         } else {
             if (action == null) {
                 return true;
             }
 
-            return action.canRead(session, mode, colMap);
+            return action.canRead(session, mode);
         }
     }
 
@@ -585,7 +612,7 @@ public class TransactionManagerMVCC implements TransactionManager {
             return action.canRead(session);
         }
 
-        return action.canRead(session, mode, null);
+        return action.canRead(session, mode);
     }
 
     /**
@@ -817,22 +844,18 @@ public class TransactionManagerMVCC implements TransactionManager {
             return;
         }
 
-        if (catalogWriteSession == null && !cs.isCatalogChange()) {
+        if (cs == null) {
+            return;
+        }
+
+        if (!isLockedMode && !cs.isCatalogChange()) {
             return;
         }
 
         writeLock.lock();
 
         try {
-            setWaitedSessionsTPL(session, cs);
-
-            if (session.tempSet.isEmpty()) {
-                lockTablesTPL(session, cs);
-
-                // we dont set other sessions that would now be waiting for this one too
-            } else {
-                setWaitingSessionTPL(session);
-            }
+            beingActionTPL(session, cs);
         } finally {
             writeLock.unlock();
         }
@@ -874,8 +897,10 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         int index = liveTransactionTimestamps.indexOf(timestamp);
 
-        liveTransactionTimestamps.remove(index);
-        mergeExpiredTransactions(session);
+        if (index >= 0) {
+            liveTransactionTimestamps.remove(index);
+            mergeExpiredTransactions(session);
+        }
     }
 
     long getFirstLiveTransactionTimestamp() {
@@ -1037,90 +1062,72 @@ public class TransactionManagerMVCC implements TransactionManager {
 
     void endTransactionTPL(Session session) {
 
-        boolean isWriteSession = false;
-
-        if (catalogWriteSession == session) {
-            catalogWriteSession = null;
-            isWriteSession      = true;
-        }
-
-        final int waitingCount = session.waitingSessions.size();
-
-        if (waitingCount == 0) {
+        if (catalogWriteSession != session) {
             return;
         }
 
-        for (int i = 0; i < waitingCount; i++) {
-            Session current = (Session) session.waitingSessions.get(i);
-
-            current.tempUnlocked = false;
-
-            long count = current.latch.getCount();
-
-            if (count == 1) {
-                setWaitedSessionsTPL(current,
-                                     current.sessionContext.currentStatement);
-
-                if (current.tempSet.isEmpty()) {
-                    lockTablesTPL(current,
-                                  current.sessionContext.currentStatement);
-
-                    current.tempUnlocked = true;
-                }
-            }
-        }
-
-        for (int i = 0; i < waitingCount; i++) {
-            Session current = (Session) session.waitingSessions.get(i);
-
-            if (!current.tempUnlocked) {
-                setWaitedSessionsTPL(current,
-                                     current.sessionContext.currentStatement);
-            }
-        }
-
-        for (int i = 0; i < waitingCount; i++) {
-            Session current = (Session) session.waitingSessions.get(i);
-
-            setWaitingSessionTPL(current);
-        }
-
-        session.tempSet.clear();
-        session.waitingSessions.clear();
+        catalogWriteSession = null;
+        isLockedMode        = false;
     }
 
-    boolean setWaitedSessionsTPL(Session session, Statement cs) {
+    boolean beingActionTPL(Session session, Statement cs) {
 
-        if (cs == null || session.abortTransaction) {
+        if (cs == null) {
             return true;
         }
 
+        if (session.abortTransaction) {
+            return false;
+        }
+
         session.tempSet.clear();
 
-        boolean needsReadLock = cs.getTableNamesForRead().length > 0
-                                || cs.getTableNamesForWrite().length > 0;
-        boolean needsWriteLock = cs.isCatalogChange();
+        if (cs.isCatalogChange()) {
+            if (catalogWriteSession == null) {
+                getTransactionSessions(session.tempSet);
+                session.tempSet.remove(session);
 
-        if (needsReadLock || needsWriteLock) {
-            if (catalogWriteSession != session
-                    && catalogWriteSession != null) {
-                HsqlName[] nameList = cs.getTableNamesForWrite();
-
-                for (int i = 0; i < nameList.length; i++) {
-                    if (nameList[i].schema
-                            == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
-                        return true;
-                    }
+                if (session.tempSet.isEmpty()) {
+                    catalogWriteSession = session;
+                    isLockedMode        = true;
+                } else {
+                    setWaitingSessionTPL(session);
                 }
 
-                session.tempSet.add(catalogWriteSession);
+                return true;
+            } else {
+                catalogWriteSession.waitingSessions.add(session);
+                session.latch.countUp();
+
+                return true;
             }
         }
 
-        if (needsWriteLock) {
-            getTransactionSessions(session.tempSet);
-            session.tempSet.remove(session);
+        if (!isLockedMode) {
+            return true;
         }
+
+        boolean needsLock = cs.getTableNamesForRead().length > 0
+                            || cs.getTableNamesForWrite().length > 0;
+
+        if (!needsLock) {
+            return true;
+        }
+
+        if (cs.getTableNamesForWrite().length > 0) {
+            if (cs.getTableNamesForWrite()[0].schema
+                    == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
+                return true;
+            }
+        } else if (cs.getTableNamesForRead().length > 0) {
+            if (cs.getTableNamesForRead()[0].schema
+                    == SqlInvariants.LOBS_SCHEMA_HSQLNAME) {
+                return true;
+            }
+        }
+
+        catalogWriteSession.waitingSessions.add(session);
+        session.latch.countUp();
 
         return true;
     }
@@ -1154,16 +1161,5 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         session.tempSet.clear();
         session.latch.setCount(count);
-    }
-
-    void lockTablesTPL(Session session, Statement cs) {
-
-        if (cs == null || session.abortTransaction) {
-            return;
-        }
-
-        if (cs.isCatalogChange()) {
-            catalogWriteSession = session;
-        }
     }
 }

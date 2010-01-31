@@ -1200,6 +1200,10 @@ public class BaseHashMap {
             return false;
         }
 
+        if (hashIndex.elementCount == 0) {
+            return false;
+        }
+
         int lookup = getLookup(key, key.hashCode());
 
         return lookup == -1 ? false
@@ -1208,6 +1212,10 @@ public class BaseHashMap {
 
     protected boolean containsKey(int key) {
 
+        if (hashIndex.elementCount == 0) {
+            return false;
+        }
+
         int lookup = getLookup(key);
 
         return lookup == -1 ? false
@@ -1215,6 +1223,10 @@ public class BaseHashMap {
     }
 
     protected boolean containsKey(long key) {
+
+        if (hashIndex.elementCount == 0) {
+            return false;
+        }
 
         int lookup = getLookup(key);
 
@@ -1225,6 +1237,10 @@ public class BaseHashMap {
     protected boolean containsValue(Object value) {
 
         int lookup = 0;
+
+        if (hashIndex.elementCount == 0) {
+            return false;
+        }
 
         if (value == null) {
             for (; lookup < hashIndex.newNodePointer; lookup++) {

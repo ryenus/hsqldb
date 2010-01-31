@@ -31,8 +31,7 @@
 
 package org.hsqldb;
 
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
 
 /**
@@ -53,39 +52,33 @@ public class RowAction extends RowActionBase {
     public static RowAction addInsertAction(Session session, TableBase table,
             Row row) {
 
-        RowAction action = row.rowAction;
+        RowAction action = new RowAction(session, table, ACTION_INSERT,
+                                         row.isMemory(), row);
 
-        if (action == null) {
-            action = new RowAction(session, table, ACTION_INSERT,
-                                   row.isMemory(), row);
-            row.rowAction = action;
-
-            return action;
-        }
-
-        action.addInsertAction(session);
+        row.rowAction = action;
 
         return action;
     }
 
     public static RowAction addDeleteAction(Session session, TableBase table,
-            Row row) {
+            Row row, int[] colMap) {
 
         RowAction action = row.rowAction;
 
         if (action == null) {
             action = new RowAction(session, table, ACTION_DELETE,
                                    row.isMemory(), row);
-            row.rowAction = action;
+            action.changeColumnMap = colMap;
+            row.rowAction          = action;
 
             return action;
         }
 
-        return action.addDeleteAction(session);
+        return action.addDeleteAction(session, colMap);
     }
 
-    public static RowAction addRefAction(Session session, Row row,
-                                         int[] colMap) {
+    public static boolean addRefAction(Session session, Row row,
+                                       int[] colMap) {
 
         RowAction action = row.rowAction;
 
@@ -95,7 +88,7 @@ public class RowAction extends RowActionBase {
             action.changeColumnMap = colMap;
             row.rowAction          = action;
 
-            return action;
+            return true;
         }
 
         return action.addRefAction(session, colMap);
@@ -113,29 +106,11 @@ public class RowAction extends RowActionBase {
         rowId           = row.getPos();
     }
 
-    synchronized RowAction addInsertAction(Session session) {
-
-        RowActionBase action = this;
-
-        while (action.next != null) {
-            action = action.next;
-        }
-
-        RowActionBase newAction = new RowActionBase(session, ACTION_INSERT);
-
-        action.next = newAction;
-
-        return this;
-    }
-
-    synchronized RowAction addDeleteAction(Session session) {
-
-        if (type == ACTION_DELETE_FINAL) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
-        }
+    synchronized RowAction addDeleteAction(Session session, int[] colMap) {
 
         if (type == ACTION_NONE) {
             setAsAction(session, ACTION_DELETE);
+            changeColumnMap = colMap;
         } else {
             RowActionBase action = this;
             RowActionBase lastAction;
@@ -150,9 +125,13 @@ public class RowAction extends RowActionBase {
                 } else if (action.type == ACTION_REF) {
                     if (session != action.session
                             && action.commitTimestamp != 0) {
-                        session.tempSet.add(action.session);
+                        if (colMap == null
+                                || ArrayUtil.haveCommonElement(
+                                    colMap, action.changeColumnMap)) {
+                            session.tempSet.add(action.session);
 
-                        return null;
+                            return null;
+                        }
                     }
                 }
 
@@ -162,42 +141,52 @@ public class RowAction extends RowActionBase {
 
             RowActionBase newAction = new RowActionBase(session,
                 ACTION_DELETE);
-
+            newAction.changeColumnMap = colMap;
             lastAction.next = newAction;
         }
 
         return this;
     }
 
-    synchronized RowAction addRefAction(Session session, int[] colMap) {
-
-        if (type == ACTION_DELETE_FINAL) {
-            throw Error.runtimeError(ErrorCode.U_S0500, "RowAction");
-        }
+    synchronized boolean addRefAction(Session session, int[] colMap) {
 
         if (type == ACTION_NONE) {
             setAsAction(session, ACTION_REF);
 
             changeColumnMap = colMap;
-        } else {
-            RowActionBase action = this;
 
-            if (session == action.session && action.type == ACTION_REF
-                    && action.changeColumnMap == colMap) {
-                return this;
-            }
-
-            while (action.next != null) {
-                action = action.next;
-            }
-
-            RowActionBase newAction = new RowActionBase(session, ACTION_REF);
-
-            action.changeColumnMap = colMap;
-            action.next            = newAction;
+            return true;
         }
 
-        return this;
+        RowActionBase action = this;
+
+        while (true) {
+            if (session == action.session) {
+                if (action.type == ACTION_REF
+                        && action.changeColumnMap == colMap) {
+                    return false;
+                }
+
+                if (action.type == ACTION_INSERT) {
+                    if (action.commitTimestamp == 0) {
+                        return false;
+                    }
+                }
+            }
+
+            if (action.next == null) {
+                break;
+            }
+
+            action = action.next;
+        }
+
+        RowActionBase newAction = new RowActionBase(session, ACTION_REF);
+
+        newAction.changeColumnMap = colMap;
+        action.next               = newAction;
+
+        return true;
     }
 
     public boolean checkDeleteActions() {
@@ -230,6 +219,7 @@ public class RowAction extends RowActionBase {
         this.session    = session;
         this.type       = type;
         actionTimestamp = session.actionTimestamp;
+        changeColumnMap = null;
     }
 
     synchronized void setAsAction(RowActionBase action) {
@@ -252,7 +242,8 @@ public class RowAction extends RowActionBase {
         commitTimestamp = 0;
 
 //        rolledback      = false;
-        deleteComplete = false;
+        deleteComplete  = false;
+        changeColumnMap = null;
 
 //        prepared        = false;
         type = ACTION_NONE;
@@ -263,11 +254,12 @@ public class RowAction extends RowActionBase {
 
 //        actionTimestamp = 0;
 //        commitTimestamp = 0;
-        rolledback     = false;
-        deleteComplete = false;
-        prepared       = false;
-        type           = ACTION_DELETE_FINAL;
-        next           = null;
+        rolledback      = false;
+        deleteComplete  = false;
+        prepared        = false;
+        changeColumnMap = null;
+        type            = ACTION_DELETE_FINAL;
+        next            = null;
     }
 
     /** for two-phased pre-commit */
@@ -837,11 +829,10 @@ public class RowAction extends RowActionBase {
         return actionType == ACTION_NONE || actionType == ACTION_INSERT;
     }
 
-    synchronized boolean canRead(Session session, int mode, int[] colMap) {
+    synchronized boolean canRead(Session session, int mode) {
 
-        boolean hasLock = false;
-        long    threshold;
-        int     actionType = ACTION_NONE;
+        long threshold;
+        int  actionType = ACTION_NONE;
 
         if (type == ACTION_DELETE_FINAL) {
             return false;
@@ -890,10 +881,6 @@ public class RowAction extends RowActionBase {
                     }
                 } else if (action.type == ACTION_INSERT) {
                     actionType = action.type;
-                } else if (action.type == ACTION_REF) {
-                    if (action.changeColumnMap == colMap) {
-                        hasLock = true;
-                    }
                 }
 
                 action = action.next;
@@ -948,10 +935,6 @@ public class RowAction extends RowActionBase {
         } while (action != null);
 
         if (actionType == ACTION_NONE || actionType == ACTION_INSERT) {
-            if (!hasLock && mode == TransactionManager.ACTION_REF) {
-                addRefAction(session, colMap);
-            }
-
             return true;
         }
 
