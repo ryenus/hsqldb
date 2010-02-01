@@ -392,6 +392,8 @@ public class DataFileCache {
      */
     public void close(boolean write) {
 
+        writeLock.lock();
+
         try {
             if (cacheReadonly) {
                 if (dataFile != null) {
@@ -468,6 +470,8 @@ public class DataFileCache {
                               ErrorCode.M_DataFileCache_close, new Object[] {
                 t.getMessage(), dataFileName
             });
+        } finally {
+            writeLock.unlock();
         }
     }
 
@@ -877,7 +881,7 @@ public class DataFileCache {
         }
     }
 
-    public void saveRowNoLock(CachedObject row) {
+    private void saveRowNoLock(CachedObject row) {
 
         try {
             rowOut.reset();
@@ -1083,9 +1087,9 @@ public class DataFileCache {
             return;
         }
 
-
         try {
             dataFile = new ScaledRAFileSimple(dataFileName, "rw");
+
             initNewFile();
         } catch (IOException e) {
             database.logger.logSevereEvent("deleteOrResetFreePos failed", e);
@@ -1093,6 +1097,7 @@ public class DataFileCache {
             if (dataFile != null) {
                 try {
                     dataFile.close();
+
                     dataFile = null;
                 } catch (IOException e) {
                     database.logger.logWarningEvent("Failed to close RA file",

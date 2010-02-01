@@ -35,11 +35,12 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
-import org.hsqldb.lib.StringUtil;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.StringUtil;
 
 // fredt@users 20020414 - patch 828957 by tjcrowder@users - JDK 1.3 compatibility
 
@@ -66,10 +67,11 @@ public class HsqlDateTime {
      * A reusable static value for today's date. Should only be accessed
      * by getToday()
      */
+    private static Locale        defaultLocale = Locale.UK;
     private static long          currentDateMillis;
     public static final Calendar tempCalDefault = new GregorianCalendar();
     public static final Calendar tempCalGMT =
-        new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+        new GregorianCalendar(TimeZone.getTimeZone("GMT"), defaultLocale);
     private static final Date   tempDate        = new Date(0);
     private static final String sdfdPattern     = "yyyy-MM-dd";
     static SimpleDateFormat     sdfd = new SimpleDateFormat(sdfdPattern);
@@ -82,11 +84,14 @@ public class HsqlDateTime {
 
     static {
         tempCalGMT.setLenient(false);
-        sdfd.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT")));
+        sdfd.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT"),
+                                               defaultLocale));
         sdfd.setLenient(false);
-        sdft.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT")));
+        sdft.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT"),
+                                               defaultLocale));
         sdft.setLenient(false);
-        sdfts.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT")));
+        sdfts.setCalendar(new GregorianCalendar(TimeZone.getTimeZone("GMT"),
+                defaultLocale));
         sdfts.setLenient(false);
     }
 

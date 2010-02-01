@@ -41,6 +41,7 @@ import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
 
@@ -112,6 +113,18 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
             cache.release(i);
         }
     }
+
+    public CachedObject getAccessor(Index key) {
+
+        int position = key.getPosition();
+
+        if (position >= accessorList.length) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
+        }
+
+        return accessorList[position];
+    }
+
 
     public void commitPersistence(CachedObject row) {
 

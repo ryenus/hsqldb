@@ -719,7 +719,7 @@ public class StatementDML extends StatementDMQL {
      * of these General Rules during the execution of ISS would cause deletion
      * of a row containing a site that is identified for replacement in that
      * row, then an exception condition is raised: triggered data change
-     * violation. (fredt)
+     * violation.
      *
      * @param session Session
      * @param table Table

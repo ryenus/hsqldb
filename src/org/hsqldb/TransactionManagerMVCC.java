@@ -494,6 +494,7 @@ public class TransactionManagerMVCC implements TransactionManager {
                     throw Error.error(ErrorCode.X_40501);
                 }
 
+                // can redo when conflicting action is already committed
                 if (row.rowAction != null && row.rowAction.isDeleted()) {
                     session.tempSet.clear();
 
@@ -585,6 +586,19 @@ public class TransactionManagerMVCC implements TransactionManager {
 
                 if (result) {
                     session.rowActionList.add(row.rowAction);
+                } else {
+                    if (!session.tempSet.isEmpty()) {
+                        Session current = (Session) session.tempSet.get(0);
+
+                        session.redoAction = true;
+
+                        session.latch.countUp();
+                        current.waitingSessions.add(session);
+                        session.waitedSessions.add(current);
+                        session.tempSet.clear();
+
+                        throw Error.error(ErrorCode.X_40501);
+                    }
                 }
 
                 return true;
@@ -848,13 +862,15 @@ public class TransactionManagerMVCC implements TransactionManager {
             return;
         }
 
-        if (!isLockedMode && !cs.isCatalogChange()) {
-            return;
-        }
-
         writeLock.lock();
 
         try {
+            session.isPreTransaction = true;
+
+            if (!isLockedMode && !cs.isCatalogChange()) {
+                return;
+            }
+
             beingActionTPL(session, cs);
         } finally {
             writeLock.unlock();
@@ -878,6 +894,8 @@ public class TransactionManagerMVCC implements TransactionManager {
 
                 liveTransactionTimestamps.addLast(session.actionTimestamp);
             }
+
+            session.isPreTransaction = false;
         } finally {
             writeLock.unlock();
         }
@@ -920,6 +938,8 @@ public class TransactionManagerMVCC implements TransactionManager {
             long timestamp = sessions[i].getTransactionTimestamp();
 
             if (liveTransactionTimestamps.contains(timestamp)) {
+                set.add(sessions[i]);
+            } else if (sessions[i].isPreTransaction) {
                 set.add(sessions[i]);
             }
         }
@@ -1091,6 +1111,9 @@ public class TransactionManagerMVCC implements TransactionManager {
                     catalogWriteSession = session;
                     isLockedMode        = true;
                 } else {
+                    catalogWriteSession = session;
+                    isLockedMode        = true;
+
                     setWaitingSessionTPL(session);
                 }
 

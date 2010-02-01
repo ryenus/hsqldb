@@ -722,17 +722,13 @@ public class Logger {
      * @throws  HsqlException if there is a problem checkpointing the
      *      database
      */
-    public void checkpoint(boolean mode) {
+    public synchronized void checkpoint(boolean mode) {
 
         if (loggingEnabled) {
-            database.lobManager.removeUnusedLobs();
-
-            synchronized (this) {
-                logInfoEvent("Checkpoint start");
-                log.checkpoint(mode);
-                database.sessionManager.resetLoggedSchemas();
-                logInfoEvent("Checkpoint end");
-            }
+            logInfoEvent("Checkpoint start");
+            log.checkpoint(mode);
+            database.sessionManager.resetLoggedSchemas();
+            logInfoEvent("Checkpoint end");
         }
 
         checkpointDue = false;

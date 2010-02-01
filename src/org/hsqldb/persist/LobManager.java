@@ -84,6 +84,9 @@ public class LobManager {
     int totalBlockLimitCount = Integer.MAX_VALUE;
 
     //
+    int deletedLobCount;
+
+    //
     Statement getLob;
     Statement getLobPart;
     Statement deleteLobCall;
@@ -213,7 +216,6 @@ public class LobManager {
 
         HsqlName name =
             database.schemaManager.getSchemaHsqlName("SYSTEM_LOBS");
-
         Table table = database.schemaManager.getTable(sysLobSession, "BLOCKS",
             "SYSTEM_LOBS");
 
@@ -688,13 +690,6 @@ public class LobManager {
         }
 
         return 0;
-    }
-
-    public void removeUnusedLobs() {
-
-        Result result =
-            sysLobSession.executeCompiledStatement(deleteUnusedLobs,
-                new Object[]{});
     }
 
     /**
@@ -1188,8 +1183,7 @@ public class LobManager {
         int      count = ((Number) data[LOB_IDS.LOB_USAGE_COUNT]).intValue();
 
         if (count + delta == 0) {
-
-//            return deleteLob(lobID);
+            deletedLobCount++;
         }
 
         ResultMetaData meta     = updateLobUsage.getParametersMetaData();
@@ -1201,6 +1195,12 @@ public class LobManager {
         sysLobSession.sessionContext.pushDynamicArguments(params);
 
         Result result = updateLobUsage.execute(sysLobSession);
+
+        if (deletedLobCount > 100) {
+            deleteUnusedLobs.execute(sysLobSession);
+
+            deletedLobCount = 0;
+        }
 
         sysLobSession.sessionContext.pop();
 
