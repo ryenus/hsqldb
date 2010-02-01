@@ -97,7 +97,7 @@ public class JavaSystem {
         int precision;
 
         if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
-            precision = o.scale() + 1;
+            precision = o.scale();
         } else {
             precision = o.precision();
         }
@@ -107,7 +107,7 @@ public class JavaSystem {
 //#else
 /*
         if (o.compareTo(BD_1) < 0 && o.compareTo(MBD_1) > 0) {
-            return o.scale() + 1;
+            return o.scale();
         }
 
         BigInteger big  = o.unscaledValue();
