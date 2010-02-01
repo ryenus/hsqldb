@@ -110,12 +110,12 @@ public class RowAction extends RowActionBase {
 
         if (type == ACTION_NONE) {
             setAsAction(session, ACTION_DELETE);
+
             changeColumnMap = colMap;
         } else {
             RowActionBase action = this;
-            RowActionBase lastAction;
 
-            do {
+            while (true) {
                 if (action.type == ACTION_DELETE) {
                     if (session != action.session) {
                         session.tempSet.add(action.session);
@@ -124,7 +124,7 @@ public class RowAction extends RowActionBase {
                     }
                 } else if (action.type == ACTION_REF) {
                     if (session != action.session
-                            && action.commitTimestamp != 0) {
+                            && action.commitTimestamp == 0) {
                         if (colMap == null
                                 || ArrayUtil.haveCommonElement(
                                     colMap, action.changeColumnMap)) {
@@ -135,14 +135,18 @@ public class RowAction extends RowActionBase {
                     }
                 }
 
-                lastAction = action;
-                action     = action.next;
-            } while (action != null);
+                if (action.next == null) {
+                    break;
+                }
+
+                action = action.next;
+            }
 
             RowActionBase newAction = new RowActionBase(session,
                 ACTION_DELETE);
+
             newAction.changeColumnMap = colMap;
-            lastAction.next = newAction;
+            action.next               = newAction;
         }
 
         return this;
@@ -163,12 +167,24 @@ public class RowAction extends RowActionBase {
         while (true) {
             if (session == action.session) {
                 if (action.type == ACTION_REF
-                        && action.changeColumnMap == colMap) {
+                        && action.changeColumnMap == colMap
+                        && action.commitTimestamp == 0) {
                     return false;
                 }
 
                 if (action.type == ACTION_INSERT) {
                     if (action.commitTimestamp == 0) {
+                        return false;
+                    }
+                }
+            } else {
+                if (action.type == ACTION_DELETE
+                        && action.commitTimestamp == 0) {
+                    if (colMap == null
+                            || ArrayUtil.haveCommonElement(
+                                colMap, action.changeColumnMap)) {
+                        session.tempSet.add(action.session);
+
                         return false;
                     }
                 }

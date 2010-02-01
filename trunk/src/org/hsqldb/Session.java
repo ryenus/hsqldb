@@ -91,6 +91,7 @@ public class Session implements SessionInterface {
     int              actionIndex;
     long             actionTimestamp;
     long             transactionTimestamp;
+    boolean          isPreTransaction;
     boolean          isTransaction;
     boolean          isBatch;
     volatile boolean abortTransaction;
