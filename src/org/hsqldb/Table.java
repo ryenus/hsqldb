@@ -460,7 +460,8 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         for (int i = 0; i < indexList.length; i++) {
-            if (!indexList[i].isConstraint()) {
+            if (!indexList[i].isConstraint()
+                    && indexList[i].getColumnCount() > 0) {
                 list.add(indexList[i].getSQL());
             }
         }
