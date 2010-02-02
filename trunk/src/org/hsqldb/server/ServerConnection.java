@@ -390,7 +390,7 @@ class ServerConnection implements Runnable {
 
         // Statement which must be executed after the primary statement, but
         // before sending the ReadyForQuery Z packet.
-        String  interposedStatement = null;
+        String                interposedStatement = null;
         Result                r, rOut;
         int                   paramCount, lastSemi;
         OdbcPreparedStatement odbcPs;
@@ -729,17 +729,24 @@ class ServerConnection implements Runnable {
                                                           md.isTableColumn(i));
                         }
 
-                        // todo - fredt : colLabels may not contain some column names
-                        // colDefs should also be used:
+                        // fredt : colLabels may not contain some column names
+                        // colDefs is used when no label is present:
                         // SELECT TABLECOL AS COLLABLE has both name and label
                         // SELECT TABLECOL has name 'TABLECOL'
                         // SELECT 2 AS CONST has label 'CONST'
                         ColumnBase[] colDefs = md.columns;
 
-                        outPacket.writeShort(columnCount);    // Num cols.
+                        // Num cols.
+                        outPacket.writeShort(columnCount);
 
                         for (int i = 0; i < columnCount; i++) {
-                            outPacket.write(colLabels[i]);    // Col. name
+
+                            // col name
+                            if (colLabels[i] != null) {
+                                outPacket.write(colLabels[i]);
+                            } else {
+                                outPacket.write(colDefs[i].getNameString());
+                            }
 
                             // table ID  [relid]:
                             outPacket.writeInt(OdbcUtil.getTableOidForColumn(i,
@@ -1737,7 +1744,7 @@ class ServerConnection implements Runnable {
 
             /* Unencoded/unsalted authentication */
             dataOutput.writeByte('R');
-            dataOutput.writeInt(8);                                              //size
+            dataOutput.writeInt(8);    //size
             dataOutput.writeInt(OdbcUtil.ODBC_AUTH_REQ_PASSWORD);
             dataOutput.flush();
 
@@ -1793,6 +1800,7 @@ class ServerConnection implements Runnable {
             }
         } catch (ClientFailure cf) {
             server.print(cf.getMessage());
+
             // Code below means CONNECTION FAILURE
             OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_FATAL,
                                  cf.getClientMessage(), "08006", dataOutput);
@@ -1872,8 +1880,7 @@ class ServerConnection implements Runnable {
     }
 
     // Tentative state variable
-    private int streamProtocol = UNDEFINED_STREAM_PROTOCOL;
-
+    private int      streamProtocol            = UNDEFINED_STREAM_PROTOCOL;
     static final int UNDEFINED_STREAM_PROTOCOL = 0;
     static final int HSQL_STREAM_PROTOCOL      = 1;
     static final int ODBC_STREAM_PROTOCOL      = 2;
@@ -1924,6 +1931,7 @@ class ServerConnection implements Runnable {
         // This keeps session.autoUpdate in sync with client's notion
         // of transaction state.
         outPacket.xmit('C', dataOutput);
+
         if (norm.equals("commit") || norm.startsWith("commit ")
                 || norm.equals("rollback") || norm.startsWith("rollback ")) {
             try {
