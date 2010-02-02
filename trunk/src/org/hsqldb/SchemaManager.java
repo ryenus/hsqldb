@@ -812,8 +812,11 @@ public class SchemaManager {
      */
     void recompileDependentObjects(Table table) {
 
-        OrderedHashSet set     = getReferencingObjectNames(table.getName());
-        Session        session = database.sessionManager.getSysSession();
+        OrderedHashSet set = new OrderedHashSet();
+
+        getCascadingReferencingObjectNames(table.getName(), set);
+
+        Session session = database.sessionManager.getSysSession();
 
         for (int i = 0; i < set.size(); i++) {
             HsqlName name = (HsqlName) set.get(i);
