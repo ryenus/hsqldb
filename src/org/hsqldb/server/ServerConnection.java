@@ -387,10 +387,10 @@ class ServerConnection implements Runnable {
         char    c;
         boolean sendReadyForQuery = false;
         String  psHandle, portalHandle, handle, dataString, tmpStr;
-        String  interposedStatement = null;
 
         // Statement which must be executed after the primary statement, but
         // before sending the ReadyForQuery Z packet.
+        String  interposedStatement = null;
         Result                r, rOut;
         int                   paramCount, lastSemi;
         OdbcPreparedStatement odbcPs;
@@ -606,12 +606,12 @@ class ServerConnection implements Runnable {
                      * and for now, the Rowset-generating statement (SELECT, etc.)
                      * must be first in order for us to detect that we need to
                      * return a result set.
-                     / If we do parse out the component statement here, the states
+                     * If we do parse out the component statement here, the states
                      * set above apply to all executions, and only one Z packet
                      * should be sent at the very end.
                      *
                      * I find that the Driver can't handle compound statements
-                     * which mix resultset + non-resultset statements (even In
+                     * which mix resultset + non-resultset statements (even in
                      * SIMPLE mode), so we are more capable than our client is.
                      */
                     if (normalized.startsWith("select current_schema()")) {
@@ -1068,9 +1068,9 @@ class ServerConnection implements Runnable {
                     }
 
                     // TODO:
-                    // May need to pass the extra BIGINT pseudo-colun for
+                    // May need to pass the extra BIGINT pseudo-column for
                     // updatable-row or other purposes.  In that case, it may
-                    // make sense to use getExtededColumnCount(), etc.
+                    // make sense to use getExtendedColumnCount(), etc.
                     String[] colNames = md.getGeneratedColumnNames();
 
                     if (md.getColumnCount() != colNames.length) {
@@ -1496,6 +1496,8 @@ class ServerConnection implements Runnable {
             } catch (HsqlException e) {
 
                 // fredt - is thrown while constructing the result or server shutdown
+                // blaine - Should we check shutdown state and slip the stack
+                //          trace if this exception is expected?
                 if (keepAlive) {
                     server.printStackTrace(e);
                 }
@@ -1791,8 +1793,9 @@ class ServerConnection implements Runnable {
             }
         } catch (ClientFailure cf) {
             server.print(cf.getMessage());
+            // Code below means CONNECTION FAILURE
             OdbcUtil.alertClient(OdbcUtil.ODBC_SEVERITY_FATAL,
-                                 cf.getClientMessage(), "08006", dataOutput);    // Code means CONNECTION FAILURE
+                                 cf.getClientMessage(), "08006", dataOutput);
 
             return;
         }
@@ -1868,9 +1871,9 @@ class ServerConnection implements Runnable {
         return s;
     }
 
+    // Tentative state variable
     private int streamProtocol = UNDEFINED_STREAM_PROTOCOL;
 
-    // Tentative state variable
     static final int UNDEFINED_STREAM_PROTOCOL = 0;
     static final int HSQL_STREAM_PROTOCOL      = 1;
     static final int ODBC_STREAM_PROTOCOL      = 2;
@@ -1917,10 +1920,10 @@ class ServerConnection implements Runnable {
         outPacket.reset();
         outPacket.write(OdbcUtil.echoBackReplyString(norm,
                 rOut.getUpdateCount()));
-        outPacket.xmit('C', dataOutput);
 
         // This keeps session.autoUpdate in sync with client's notion
         // of transaction state.
+        outPacket.xmit('C', dataOutput);
         if (norm.equals("commit") || norm.startsWith("commit ")
                 || norm.equals("rollback") || norm.startsWith("rollback ")) {
             try {
