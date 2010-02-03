@@ -233,7 +233,7 @@ public class StatementCompound extends Statement {
 
                 handlers[handlerCount++] = handler;
 
-                if (handler.handlerType == StatementHandler.UNDO ) {
+                if (handler.handlerType == StatementHandler.UNDO) {
                     hasUndoHandler = true;
                 }
             }
@@ -566,12 +566,21 @@ public class StatementCompound extends Statement {
             statements[i].resolve(session);
         }
 
+        for (int i = 0; i < handlers.length; i++) {
+            handlers[i].resolve(session);
+        }
+
         OrderedHashSet writeTableNamesSet = new OrderedHashSet();
         OrderedHashSet readTableNamesSet  = new OrderedHashSet();
         OrderedHashSet set                = new OrderedHashSet();
 
         for (int i = 0; i < variables.length; i++) {
             set.addAll(variables[i].getReferences());
+        }
+
+        if (condition != null) {
+            set.addAll(condition.getReferences());
+            readTableNamesSet.addAll(condition.getTableNamesForRead());
         }
 
         for (int i = 0; i < statements.length; i++) {

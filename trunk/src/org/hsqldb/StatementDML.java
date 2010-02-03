@@ -1005,46 +1005,48 @@ public class StatementDML extends StatementDMQL {
         boolean hasAfterRowTriggers =
             table.triggerLists[Trigger.DELETE_AFTER_ROW].length > 0;
 
-        while (navigator.hasNext()) {
-            navigator.next();
+        if (rowCount != navigator.getSize()) {
+            while (navigator.hasNext()) {
+                navigator.next();
 
-            Row      row          = navigator.getCurrentRow();
-            Object[] changedData  = navigator.getCurrentChangedData();
-            Table    currentTable = ((Table) row.getTable());
+                Row      row          = navigator.getCurrentRow();
+                Object[] changedData  = navigator.getCurrentChangedData();
+                Table    currentTable = ((Table) row.getTable());
 
-            if (changedData != null) {
-                performIntegrityChecks(session, currentTable, row.getData(),
-                                       changedData);
-            }
+                if (changedData != null) {
+                    performIntegrityChecks(session, currentTable,
+                                           row.getData(), changedData);
+                }
 
-            if (currentTable != table) {
-                if (changedData == null) {
-                    if (currentTable.triggerLists[Trigger.DELETE_AFTER_ROW]
-                            .length > 0) {
-                        hasAfterRowTriggers = true;
+                if (currentTable != table) {
+                    if (changedData == null) {
+                        if (currentTable.triggerLists[Trigger.DELETE_AFTER_ROW]
+                                .length > 0) {
+                            hasAfterRowTriggers = true;
+                        }
+
+                        if (extraDeleteTables == null) {
+                            extraDeleteTables = new OrderedHashSet();
+                        }
+
+                        extraDeleteTables.add(currentTable);
+                    } else {
+                        if (currentTable.triggerLists[Trigger.UPDATE_AFTER_ROW]
+                                .length > 0) {
+                            hasAfterRowTriggers = true;
+                        }
+
+                        if (extraUpdateTables == null) {
+                            extraUpdateTables = new OrderedHashSet();
+                        }
+
+                        extraUpdateTables.add(currentTable);
                     }
-
-                    if (extraDeleteTables == null) {
-                        extraDeleteTables = new OrderedHashSet();
-                    }
-
-                    extraDeleteTables.add(currentTable);
-                } else {
-                    if (currentTable.triggerLists[Trigger.UPDATE_AFTER_ROW]
-                            .length > 0) {
-                        hasAfterRowTriggers = true;
-                    }
-
-                    if (extraUpdateTables == null) {
-                        extraUpdateTables = new OrderedHashSet();
-                    }
-
-                    extraUpdateTables.add(currentTable);
                 }
             }
-        }
 
-        navigator.beforeFirst();
+            navigator.beforeFirst();
+        }
 
         if (hasAfterRowTriggers) {
             while (navigator.hasNext()) {

@@ -70,22 +70,26 @@ public class TestMerge extends TestBase {
      * Prints a table displaying specified columns, and checks the expected
      * number of rows.
      */
-    private void printTable(String table, String cols, int expected) throws SQLException {
-        int rows = 0;
-        ResultSet rs = stmnt.executeQuery("SELECT " + cols + " FROM " + table);
+    private void printTable(String table, String cols,
+                            int expected) throws SQLException {
 
+        int               rows = 0;
+        ResultSet rs = stmnt.executeQuery("SELECT " + cols + " FROM " + table);
         ResultSetMetaData rsmd = rs.getMetaData();
-        String result = "Table " + table + ", expecting "
-            + expected + " rows total:\n";
+        String result = "Table " + table + ", expecting " + expected
+                        + " rows total:\n";
 
         while (rs.next()) {
             for (int i = 0; i < rsmd.getColumnCount(); i++) {
                 result += rsmd.getColumnLabel(i + 1) + ":"
-                           + rs.getString(i + 1) + ":";
+                          + rs.getString(i + 1) + ":";
             }
+
             result += "\n";
+
             rows++;
         }
+
         rs.close();
         System.out.println(result);
         assertEquals(expected, rows);
@@ -97,6 +101,7 @@ public class TestMerge extends TestBase {
      * @throws SQLException
      */
     private void executeMerge(String merge) throws SQLException {
+
         // create table T and insert some preliminary data
         stmnt.execute("DROP SCHEMA SA IF EXISTS CASCADE;");
         stmnt.execute("CREATE SCHEMA SA AUTHORIZATION SA");
@@ -104,18 +109,17 @@ public class TestMerge extends TestBase {
         stmnt.execute(
             "CREATE TABLE SA.T (I IDENTITY, A CHAR(10), B CHAR(10));");
         stmnt.execute("INSERT INTO SA.T VALUES ((0, 'A', 'a'),"
-            + "(1, 'B', 'b'), (4, 'C', 'c'));");
+                      + "(1, 'B', 'b'), (4, 'C', 'c'));");
 
         // create table S and insert some preliminary data
         stmnt.execute("DROP TABLE SA.S IF EXISTS;");
         stmnt.execute(
             "CREATE TABLE SA.S (I IDENTITY, A CHAR(10), B CHAR(10), C CHAR(10));");
-        stmnt.execute("INSERT INTO SA.S VALUES ((0, 'D', 'd', 'Dd'),"
+        stmnt.execute(
+            "INSERT INTO SA.S VALUES ((0, 'D', 'd', 'Dd'),"
             + "(2, 'E', 'e', 'Ee'), (3, 'F', 'f', 'Ff'), (4, 'G', 'g', 'Gg'));");
-
         printTable("SA.T", "*", 3);
         printTable("SA.S", "*", 4);
-
         stmnt.execute(merge);
     }
 
@@ -143,12 +147,12 @@ public class TestMerge extends TestBase {
         }
 
         System.out.println("testMerge1 complete\n");
-
     }
 
     public void testMerge2() {
 
         try {
+
             // merge statement with only update statement
             executeMerge(
                 "MERGE INTO SA.T " +
@@ -170,6 +174,7 @@ public class TestMerge extends TestBase {
     public void testMerge3() {
 
         try {
+
             // merge statement with only insert statement, without
             // specifying insert columns
             executeMerge(
@@ -192,6 +197,7 @@ public class TestMerge extends TestBase {
     public void testMerge4() {
 
         try {
+
             // merge statement with both update and insert, without
             // specifying insert columns
             executeMerge(
@@ -214,7 +220,9 @@ public class TestMerge extends TestBase {
     }
 
     public void testMerge5() {
+
         try {
+
             // merge statement with select statement as source table, using all
             // columns from S
             executeMerge(
@@ -237,7 +245,9 @@ public class TestMerge extends TestBase {
     }
 
     public void testMerge6() {
+
         try {
+
             // merge statement with select statement as source table, specifying
             // select columns from S
             executeMerge(
@@ -260,7 +270,9 @@ public class TestMerge extends TestBase {
     }
 
     public void testMerge7() {
+
         try {
+
             // merge statement with select statement as source table, with WHERE
             // condition that matches a row in T
             executeMerge(
@@ -283,7 +295,9 @@ public class TestMerge extends TestBase {
     }
 
     public void testMerge8() {
+
         try {
+
             // merge statement with select statement as source table, with WHERE
             // condition that does not match a row in T
             executeMerge(
@@ -306,7 +320,9 @@ public class TestMerge extends TestBase {
     }
 
     public void testMerge9() {
+
         try {
+
             // merge statement with select statement as source table, with WHERE
             // condition that does and does not not match a row in T
             executeMerge(
@@ -383,8 +399,8 @@ public class TestMerge extends TestBase {
             e.printStackTrace();
             System.out.println("TestSql.tearDown() error: " + e.getMessage());
         }
-        super.tearDown();
 
+        super.tearDown();
     }
 
     public static void main(String[] argv) {
@@ -409,9 +425,12 @@ public class TestMerge extends TestBase {
         testG.run(result);
         testH.run(result);
         testI.run(result);
-
         System.out.println("TestMerge error count: " + result.failureCount());
+
         Enumeration e = result.failures();
-        while(e.hasMoreElements()) System.out.println(e.nextElement());
+
+        while (e.hasMoreElements()) {
+            System.out.println(e.nextElement());
+        }
     }
 }

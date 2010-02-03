@@ -1193,8 +1193,7 @@ public class ParserRoutine extends ParserDML {
             }
         }
 
-        resolveOuterReferences(routine, context, e);
-        e.resolveTypes(session, null);
+        resolveOuterReferencesAndTypes(routine, context, e);
 
         if (routine.isProcedure()) {
             throw Error.error(ErrorCode.X_42602);
@@ -1228,9 +1227,12 @@ public class ParserRoutine extends ParserDML {
 
         readThis(Tokens.WHILE);
 
+        Expression e = XreadBooleanValueExpression();
+
+        resolveOuterReferencesAndTypes(routine, context, e);
+
         StatementExpression condition = new StatementExpression(session,
-            compileContext, StatementTypes.CONDITION,
-            XreadBooleanValueExpression());
+            compileContext, StatementTypes.CONDITION, e);
 
         readThis(Tokens.DO);
 
@@ -1272,9 +1274,12 @@ public class ParserRoutine extends ParserDML {
 
         readThis(Tokens.UNTIL);
 
+        Expression e = XreadBooleanValueExpression();
+
+        resolveOuterReferencesAndTypes(routine, context, e);
+
         StatementExpression condition = new StatementExpression(session,
-            compileContext, StatementTypes.CONDITION,
-            XreadBooleanValueExpression());
+            compileContext, StatementTypes.CONDITION, e);
 
         readThis(Tokens.END);
         readThis(Tokens.REPEAT);
@@ -1374,12 +1379,12 @@ public class ParserRoutine extends ParserDML {
 
         readThis(Tokens.IF);
 
-        Expression condition = XreadBooleanValueExpression();
+        Expression e = XreadBooleanValueExpression();
 
-        resolveOuterReferences(routine, context, condition);
+        resolveOuterReferencesAndTypes(routine, context, e);
 
         Statement statement = new StatementExpression(session, compileContext,
-            StatementTypes.CONDITION, condition);
+            StatementTypes.CONDITION, e);
 
         list.add(statement);
         readThis(Tokens.THEN);
@@ -1394,13 +1399,12 @@ public class ParserRoutine extends ParserDML {
         while (token.tokenType == Tokens.ELSEIF) {
             read();
 
-            condition = XreadBooleanValueExpression();
+            e = XreadBooleanValueExpression();
 
-            resolveOuterReferences(routine, context, condition);
+            resolveOuterReferencesAndTypes(routine, context, e);
 
             statement = new StatementExpression(session, compileContext,
-                                                StatementTypes.CONDITION,
-                                                condition);
+                                                StatementTypes.CONDITION, e);
 
             list.add(statement);
             readThis(Tokens.THEN);
@@ -1415,10 +1419,9 @@ public class ParserRoutine extends ParserDML {
         if (token.tokenType == Tokens.ELSE) {
             read();
 
-            condition = Expression.EXPR_TRUE;
+            e = Expression.EXPR_TRUE;
             statement = new StatementExpression(session, compileContext,
-                                                StatementTypes.CONDITION,
-                                                condition);
+                                                StatementTypes.CONDITION, e);
 
             list.add(statement);
 
@@ -1512,8 +1515,7 @@ public class ParserRoutine extends ParserDML {
                                               XreadRowValuePredicand());
                 }
 
-                resolveOuterReferences(routine, context, newCondition);
-                newCondition.resolveTypes(session, null);
+                resolveOuterReferencesAndTypes(routine, context, newCondition);
 
                 if (condition == null) {
                     condition = newCondition;
@@ -1563,7 +1565,7 @@ public class ParserRoutine extends ParserDML {
 
             condition = XreadBooleanValueExpression();
 
-            resolveOuterReferences(routine, context, condition);
+            resolveOuterReferencesAndTypes(routine, context, condition);
 
             statement = new StatementExpression(session, compileContext,
                                                 StatementTypes.CONDITION,
@@ -1666,8 +1668,9 @@ public class ParserRoutine extends ParserDML {
         return column;
     }
 
-    void resolveOuterReferences(Routine routine, StatementCompound context,
-                                Expression e) {
+    void resolveOuterReferencesAndTypes(Routine routine,
+                                        StatementCompound context,
+                                        Expression e) {
 
         RangeVariable[] rangeVars = routine.getParameterRangeVariables();
 
