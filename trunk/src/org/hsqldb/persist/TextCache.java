@@ -417,15 +417,16 @@ public class TextCache extends DataFileCache {
 //        release(pos);
     }
 
-    public synchronized void removePersistence(int pos) {
+    public synchronized void removePersistence(int pos,
+            PersistentStore store) {
 
-        CachedObject row = (CachedObject) uncommittedCache.get(pos);
+        CachedObject row = (CachedObject) uncommittedCache.remove(pos);
 
         if (row != null) {
             return;
         }
 
-        row = cache.get(pos);
+        row = get(pos, store, false);
 
         clearRowImage(row);
     }
