@@ -103,7 +103,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
     public void removePersistence(int i) {
 
         if (cache != null) {
-            cache.removePersistence(i);
+            cache.removePersistence(i, this);
         }
     }
 

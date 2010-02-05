@@ -40,7 +40,7 @@
 
    <!-- It is safe to override these with settings in your own
         build.properties file. -->
-   <property name="build.debug" value="true"/>
+   <property name="build.debug" value="false"/>
    <property name="build.optimize" value="false"/>
    <!-- N.b. Compliation optimization only has effect with JDK 1.1 and 1.2 -->
 
@@ -52,6 +52,7 @@
 
    <target name='explainjars'
            description="List description of jars that you can build">
+     <echo>Ant version: ${ant.version} </echo>
      <echo>jar filename    build command   explanation
 --------------  -------------   -----------------------------------
 hsqldb.jar      ant hsqldb      Default distribution jar
@@ -81,6 +82,7 @@ sqltool.jar     ant sqltool     SqlTool app (no JDBC driver)</echo>
    <target name='jarzaurus' depends='hsqldbz'/>
 
    <target name="help" description="Top-level help message">
+     <echo>Ant version: ${ant.version} </echo>
       <echo>usage:
    ant -help            Display ant help screen
    ant -projecthelp     Display all invocable targets
@@ -680,10 +682,7 @@ examples:
              <attribute name='Implementation-Vendor' value='${build.vendor}'/>
              <!-- This attribute is completely ignored unless the user
                   uses the jar like "java -jar .../hsqldb.jar" -->
-             <!--
-             <attribute name='Main-Class' value='To Be Determined'/>
-             Fred to write a Welcome splash screen class.
-             -->
+             <attribute name='Main-Class' value='org.hsqldb.util.DatabaseManagerSwing'/>
          </manifest>
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/*Swing.*" if="noswing"/>
