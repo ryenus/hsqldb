@@ -462,8 +462,18 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         // rolled back transactions can always be merged as they have never been
         // seen by other sessions
-        mergeRolledBackTransaction(session, timestamp, list, start, limit);
-        rowActionMapRemoveTransaction(list, start, limit, false);
+        if (start != limit) {
+            writeLock.lock();
+
+            try {
+                mergeRolledBackTransaction(session, timestamp, list, start,
+                                           limit);
+                rowActionMapRemoveTransaction(list, start, limit, false);
+            } finally {
+                writeLock.unlock();
+            }
+        }
+
         session.rowActionList.setSize(start);
     }
 
@@ -640,12 +650,19 @@ public class TransactionManagerMVCC implements TransactionManager {
 
             if (!rowact.isMemory) {
                 synchronized (rowact) {
-                    if (rowact.type == RowActionBase.ACTION_NONE
-                            || rowact.type
-                               == RowActionBase.ACTION_DELETE_FINAL) {
-                        int pos = rowact.getPos();
+                    switch (rowact.type) {
 
-                        rowActionMap.remove(pos);
+                        case RowActionBase.ACTION_NONE :
+                        case RowActionBase.ACTION_DELETE_FINAL :
+                            int pos = rowact.getPos();
+
+                            rowActionMap.remove(pos);
+                            break;
+
+                        case RowActionBase.ACTION_REF :
+                        case RowActionBase.ACTION_INSERT :
+                        case RowActionBase.ACTION_INSERT_DELETE :
+                            System.out.println("trouble");
                     }
                 }
             }
@@ -656,6 +673,8 @@ public class TransactionManagerMVCC implements TransactionManager {
 
     void deleteRows(Object[] list, int start, int limit, boolean commit) {
 
+        PersistentStore store;
+
         for (int i = start; i < limit; i++) {
             RowAction rowact = (RowAction) list[i];
 
@@ -663,9 +682,9 @@ public class TransactionManagerMVCC implements TransactionManager {
                     && !rowact.deleteComplete) {
                 try {
                     rowact.deleteComplete = true;
-
-                    PersistentStore store =
+                    store =
                         rowact.session.sessionData.getRowStore(rowact.table);
+
                     Row row = rowact.memoryRow;
 
                     if (row == null) {
@@ -681,7 +700,7 @@ public class TransactionManagerMVCC implements TransactionManager {
 
                     store.delete(row);
                     store.remove(row.getPos());
-                } catch (HsqlException e) {
+                } catch (Exception e) {
 
 //                    throw unexpectedException(e.getMessage());
                 }
@@ -695,15 +714,17 @@ public class TransactionManagerMVCC implements TransactionManager {
      */
     public void setTransactionInfo(CachedObject object) {
 
-        Row row = (Row) object;
-
-        if (row.rowAction != null) {
-            return;
-        }
-
+        Row       row    = (Row) object;
         RowAction rowact = (RowAction) rowActionMap.get(row.position);
 
         row.rowAction = rowact;
+    }
+
+    /**
+     * remove the transaction info
+     */
+    public void removeTransactionInfo(CachedObject object) {
+        rowActionMap.remove(object.getPos());
     }
 
     /**

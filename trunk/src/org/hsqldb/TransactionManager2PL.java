@@ -435,6 +435,8 @@ public class TransactionManager2PL implements TransactionManager {
      */
     public void setTransactionInfo(CachedObject object) {}
 
+    public void removeTransactionInfo(CachedObject object) {}
+
     /**
      * gets the next timestamp for an action
      */

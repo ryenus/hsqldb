@@ -520,15 +520,17 @@ public class TransactionManagerMV2PL implements TransactionManager {
      */
     public void setTransactionInfo(CachedObject object) {
 
-        Row row = (Row) object;
-
-        if (row.rowAction != null) {
-            return;
-        }
-
+        Row       row    = (Row) object;
         RowAction rowact = (RowAction) rowActionMap.get(row.position);
 
         row.rowAction = rowact;
+    }
+
+    /**
+     * remove the transaction info
+     */
+    public void removeTransactionInfo(CachedObject object) {
+        rowActionMap.remove(object.getPos());
     }
 
     /**
