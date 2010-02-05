@@ -794,13 +794,9 @@ public class RowAction extends RowActionBase {
                 continue;
             }
 
-            if (session == action.session) {
+            if (session == action.session ) {
                 if (action.type == ACTION_DELETE) {
-                    if (actionType == ACTION_INSERT) {
-                        actionType = ACTION_INSERT_DELETE;
-                    } else {
-                        actionType = action.type;
-                    }
+                    actionType = action.type;
                 } else if (action.type == ACTION_INSERT) {
                     actionType = action.type;
                 }
@@ -809,25 +805,16 @@ public class RowAction extends RowActionBase {
 
                 continue;
             } else if (action.commitTimestamp == 0) {
-                if (action.type == ACTION_NONE) {
-
-                    //
-                } else if (action.type == ACTION_INSERT) {
+                if (action.type == ACTION_INSERT) {
                     actionType = ACTION_DELETE;
                 }
 
                 action = action.next;
 
                 continue;
-            }
-
-            if (action.commitTimestamp < threshold) {
+            } else if (action.commitTimestamp < threshold) {
                 if (action.type == ACTION_DELETE) {
-                    if (actionType == ACTION_INSERT) {
-                        actionType = ACTION_INSERT_DELETE;
-                    } else {
-                        actionType = action.type;
-                    }
+                    actionType = action.type;
                 } else if (action.type == ACTION_INSERT) {
                     actionType = action.type;
                 }

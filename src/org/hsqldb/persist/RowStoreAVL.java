@@ -123,7 +123,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         row.delete();
     }
 
-    public final void indexRow(Session session, Row row) {
+    public void indexRow(Session session, Row row) {
 
         int i = 0;
 
@@ -185,7 +185,7 @@ public abstract class RowStoreAVL implements PersistentStore {
      * The colindex argument is the index of the column that was
      * added or removed. The adjust argument is {-1 | 0 | +1}
      */
-    public void moveData(Session session, PersistentStore other, int colindex,
+    public final void moveData(Session session, PersistentStore other, int colindex,
                          int adjust) {
 
         Object colvalue = null;

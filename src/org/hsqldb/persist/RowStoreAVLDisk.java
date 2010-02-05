@@ -33,13 +33,14 @@ package org.hsqldb.persist;
 
 import java.io.IOException;
 
+import org.hsqldb.Database;
+import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.RowAVLDisk;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
-import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -47,7 +48,6 @@ import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.Database;
 
 /*
  * Implementation of PersistentStore for CACHED tables.
@@ -165,6 +165,28 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         }
 
         return row;
+    }
+
+    public void indexRow(Session session, Row row) {
+
+        int i = 0;
+
+        try {
+            for (; i < indexList.length; i++) {
+                indexList[i].insert(session, this, row);
+            }
+        } catch (HsqlException e) {
+
+            // unique index violation - rollback insert
+            for (--i; i >= 0; i--) {
+                indexList[i].delete(this, row);
+            }
+
+            remove(row.getPos());
+            database.txManager.removeTransactionInfo(row);
+
+            throw e;
+        }
     }
 
     public void removeAll() {

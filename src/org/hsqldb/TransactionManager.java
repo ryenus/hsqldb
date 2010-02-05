@@ -97,4 +97,9 @@ public interface TransactionManager {
      * for CACHED tables
      */
     public void setTransactionInfo(CachedObject object);
+
+    /**
+     * remove the transaction info
+     */
+    public void removeTransactionInfo(CachedObject object);
 }

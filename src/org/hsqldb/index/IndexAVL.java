@@ -481,7 +481,7 @@ public class IndexAVL implements Index {
                                                       compareRowId, 0);
 
                 // after the first match and check, all compares are with row id
-                if (compare == 0 && session != null
+                if (compare == 0 && session != null && colIndex.length != 0
                         && session.database.txManager.isMVRows()
                         && !isEqualReadable(session, store, n)) {
                     compareRowId = true;
