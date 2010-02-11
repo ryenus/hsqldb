@@ -627,12 +627,13 @@ public class Result {
      * The parameters are set by this method as the Result is reused
      */
     public void setPreparedExecuteProperties(Object[] parameterValues,
-            int maxRows, int fetchSize) {
+            int maxRows, int fetchSize, int resultProps) {
 
         mode           = ResultConstants.EXECUTE;
         valueData      = parameterValues;
         updateCount    = maxRows;
         this.fetchSize = fetchSize;
+        this.rsProperties = resultProps;
     }
 
     /**

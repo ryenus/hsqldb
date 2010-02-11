@@ -730,7 +730,9 @@ public class QuerySpecification extends QueryExpression {
         setRangeVariableConditions();
         resolveAggregates();
 
-        for (int i = 0; i < unionColumnMap.length; i++) {
+        for (int i = 0;
+                i < unionColumnMap.length && i < unionColumnTypes.length;
+                i++) {
             unionColumnTypes[i] = Type.getAggregateType(unionColumnTypes[i],
                     exprColumns[i].getDataType());
         }
@@ -740,7 +742,9 @@ public class QuerySpecification extends QueryExpression {
 
         resolveGroups();
 
-        for (int i = 0; i < unionColumnMap.length; i++) {
+        for (int i = 0;
+                i < unionColumnMap.length && i < unionColumnTypes.length;
+                i++) {
             Type type = unionColumnTypes[unionColumnMap[i]];
 
             if (type == null) {
@@ -1059,8 +1063,8 @@ public class QuerySpecification extends QueryExpression {
 
             if (sortAndSlice.limitCondition.getRightNode() != null) {
                 value =
-                    (Integer) sortAndSlice.limitCondition.getRightNode().getValue(
-                        session);
+                    (Integer) sortAndSlice.limitCondition.getRightNode()
+                        .getValue(session);
 
                 if (value == null || value.intValue() <= 0) {
                     throw Error.error(ErrorCode.X_2201W);
@@ -1068,8 +1072,7 @@ public class QuerySpecification extends QueryExpression {
 
                 if (value.intValue() == 0) {
                     limitRows = Integer.MAX_VALUE;
-                }
-                else {
+                } else {
                     limitRows = value.intValue();
                     hasLimits = true;
                 }

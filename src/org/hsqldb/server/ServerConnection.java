@@ -1236,8 +1236,9 @@ class ServerConnection implements Runnable {
                             + portalHandle, "08P01");
                     }
 
+                    // result properties means readonly, not holdable
                     portal.bindResult.setPreparedExecuteProperties(
-                        portal.parameters, fetchRows, 0);
+                        portal.parameters, fetchRows, 0, 0);
 
                     // 0 for maxRows means unlimited.  Same for fetchRows.
                     rOut = session.execute(portal.bindResult);

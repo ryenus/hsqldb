@@ -55,7 +55,6 @@ public class TestStoredProcedure extends TestBase {
 
         Connection conn = newConnection();
         Statement  statement;
-        int        updateCount;
 
         try {
             statement = conn.createStatement();

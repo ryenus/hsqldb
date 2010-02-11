@@ -354,8 +354,8 @@ public class Grantee implements SchemaObject {
     void grant(HsqlName name, Right right, Grantee grantor,
                boolean withGrant) {
 
-        final Right    grantableRights = grantor.getAllGrantableRights(name);
-        Right          existingRight   = null;
+        final Right grantableRights = grantor.getAllGrantableRights(name);
+        Right       existingRight   = null;
 
         if (right == Right.fullRights) {
             if (grantableRights.isEmpty()) {
@@ -418,9 +418,12 @@ public class Grantee implements SchemaObject {
     void revoke(SchemaObject object, Right right, Grantee grantor,
                 boolean grantOption) {
 
-        HsqlName name = object.getType() == SchemaObject.SPECIFIC_ROUTINE
-                        ? ((Routine) object).getSpecificName()
-                        : object.getName();
+        HsqlName name = object.getName();
+
+        if (object instanceof Routine) {
+            name = ((Routine) object).getSpecificName();
+        }
+
         Iterator it       = directRightsMap.get(name);
         Right    existing = null;
 
@@ -647,7 +650,13 @@ public class Grantee implements SchemaObject {
             return;
         }
 
-        Right right = (Right) fullRightsMap.get(object.getName());
+        HsqlName name = object.getName();
+
+        if (object instanceof Routine) {
+            name = ((Routine) object).getSpecificName();
+        }
+
+        Right right = (Right) fullRightsMap.get(name);
 
         if (right != null && !right.isEmpty()) {
             return;
@@ -708,7 +717,6 @@ public class Grantee implements SchemaObject {
     public boolean isGrantable(Grantee role) {
         return isAdmin;
     }
-
 
     public boolean isFullyAccessibleByRole(HsqlName name) {
 

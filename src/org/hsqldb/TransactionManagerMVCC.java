@@ -87,6 +87,9 @@ public class TransactionManagerMVCC implements TransactionManager {
     int     transactionCount = 0;
 
     //
+    int redoCount = 0;
+
+    //
     public TransactionManagerMVCC(Database db) {
 
         database       = db;
@@ -153,8 +156,6 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         throw Error.error(ErrorCode.X_25001);
     }
-
-    int redoCount = 0;
 
     public void completeActions(Session session) {
 
@@ -462,16 +463,13 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         // rolled back transactions can always be merged as they have never been
         // seen by other sessions
-        if (start != limit) {
-            writeLock.lock();
+        writeLock.lock();
 
-            try {
-                mergeRolledBackTransaction(session, timestamp, list, start,
-                                           limit);
-                rowActionMapRemoveTransaction(list, start, limit, false);
-            } finally {
-                writeLock.unlock();
-            }
+        try {
+            mergeRolledBackTransaction(session, timestamp, list, start, limit);
+            rowActionMapRemoveTransaction(list, start, limit, false);
+        } finally {
+            writeLock.unlock();
         }
 
         session.rowActionList.setSize(start);
@@ -544,7 +542,7 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         session.rowActionList.add(action);
 
-        if (newAction) {
+        if (newAction && !row.isMemory()) {
             rowActionMap.put(action.getPos(), action);
         }
 
@@ -639,9 +637,6 @@ public class TransactionManagerMVCC implements TransactionManager {
         return action.canRead(session, mode);
     }
 
-    /**
-     *  todo - can remove a row that has previously inserted by the same transaction
-     */
     void rowActionMapRemoveTransaction(Object[] list, int start, int limit,
                                        boolean commit) {
 
@@ -661,8 +656,10 @@ public class TransactionManagerMVCC implements TransactionManager {
 
                         case RowActionBase.ACTION_REF :
                         case RowActionBase.ACTION_INSERT :
+                        case RowActionBase.ACTION_DELETE :
                         case RowActionBase.ACTION_INSERT_DELETE :
-                            System.out.println("trouble");
+
+                        // not relevant
                     }
                 }
             }
