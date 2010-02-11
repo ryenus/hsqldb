@@ -1284,7 +1284,18 @@ public class SchemaManager {
             }
         }
 
-        set = getSchemaObjectSet(schema, type);
+        if (type == RoutineSchema.ROUTINE) {
+            set = schema.functionLookup;
+
+            SchemaObject object = schema.functionLookup.getObject(name);
+
+            if (object == null) {
+                set    = schema.procedureLookup;
+                object = schema.procedureLookup.getObject(name);
+            }
+        } else {
+            set = getSchemaObjectSet(schema, type);
+        }
 
         if (raise) {
             set.checkExists(name);
@@ -1324,6 +1335,16 @@ public class SchemaManager {
 
             case RoutineSchema.SPECIFIC_ROUTINE :
                 return schema.specificRoutineLookup.getObject(name.name);
+
+            case RoutineSchema.ROUTINE :
+                SchemaObject object =
+                    schema.functionLookup.getObject(name.name);
+
+                if (object == null) {
+                    object = schema.procedureLookup.getObject(name.name);
+                }
+
+                return object;
 
             case SchemaObject.DOMAIN :
             case SchemaObject.TYPE :
@@ -1527,6 +1548,7 @@ public class SchemaManager {
 
         switch (name.type) {
 
+            case SchemaObject.ROUTINE :
             case SchemaObject.PROCEDURE :
             case SchemaObject.FUNCTION : {
                 RoutineSchema routine = (RoutineSchema) getSchemaObject(name);
@@ -1540,8 +1562,8 @@ public class SchemaManager {
                     }
                 }
             }
+            break;
 
-            // fall through
             case SchemaObject.SEQUENCE :
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
@@ -1727,6 +1749,7 @@ public class SchemaManager {
                 if (object != null) {
                     table.removeTrigger((TriggerDef) object);
                 }
+
                 break;
             }
             default :

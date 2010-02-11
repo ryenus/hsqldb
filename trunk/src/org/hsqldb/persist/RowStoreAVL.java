@@ -114,7 +114,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     /**
      * Basic delete with no logging or referential checks.
      */
-    public final void delete(Row row) {
+    public void delete(Row row) {
 
         for (int i = indexList.length - 1; i >= 0; i--) {
             indexList[i].delete(this, row);

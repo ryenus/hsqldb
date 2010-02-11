@@ -404,14 +404,16 @@ public class TransactionManagerMV2PL implements TransactionManager {
                                      int[] colMap) {
 
         RowAction action;
+        boolean   newAction;
 
         synchronized (row) {
-            action = RowAction.addDeleteAction(session, table, row, colMap);
+            newAction = row.rowAction == null;
+            action    = RowAction.addDeleteAction(session, table, row, colMap);
         }
 
         session.rowActionList.add(action);
 
-        if (!row.isMemory()) {
+        if (newAction && !row.isMemory()) {
             rowActionMap.put(action.getPos(), action);
         }
 
@@ -454,9 +456,6 @@ public class TransactionManagerMV2PL implements TransactionManager {
                               : action.canRead(session);
     }
 
-    /**
-     *  todo - can remove a row that has previously inserted by the same transaction
-     */
     void rowActionMapRemoveTransaction(Object[] list, int start, int limit,
                                        boolean commit) {
 

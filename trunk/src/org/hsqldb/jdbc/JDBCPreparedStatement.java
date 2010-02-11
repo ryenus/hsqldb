@@ -4488,7 +4488,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             resultOut.setPreparedResultUpdateProperties(parameterValues);
         } else {
             resultOut.setPreparedExecuteProperties(parameterValues, maxRows,
-                    fetchSize);
+                    fetchSize, rsProperties);
         }
 
         try {
