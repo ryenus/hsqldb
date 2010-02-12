@@ -70,6 +70,7 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
+import org.hsqldb.Tokens;
 
 import java.sql.SQLData;
 import java.sql.SQLOutput;
@@ -783,24 +784,17 @@ public class JDBCConnection implements Connection {
     public synchronized String nativeSQL(
             final String sql) throws SQLException {
 
-        // boucherb@users 20030405
-        // FIXME: does not work properly for nested escapes
-        //       e.g.  {call ...(...,{ts '...'},....)} does not work
-        // boucherb@users 20030817
-        // TESTME: First kick at the FIXME cat done.  Now lots of testing
-        // and refinment
         checkClosed();
 
-        // CHECKME:  Thow or return null if input is null?
         if (sql == null || sql.length() == 0 || sql.indexOf('{') == -1) {
             return sql;
         }
 
-        // boolean   changed = false;
+        boolean   changed = false;
         int          state = 0;
         int          len   = sql.length();
         int          nest  = 0;
-        StringBuffer sb    = new StringBuffer(sql.length());    //avoid 16 extra
+        StringBuffer sb = null;
         String       msg;
 
         //--
@@ -820,10 +814,10 @@ public class JDBCConnection implements Connection {
         // Better than old way for large inputs and for avoiding GC overhead;
         // toString() reuses internal char[], reducing memory requirment
         // and garbage items 3:2
-        sb.append(sql);
 
+        int tail = 0;
         for (int i = 0; i < len; i++) {
-            char c = sb.charAt(i);
+            char c = sql.charAt(i);
 
             switch (state) {
 
@@ -833,9 +827,12 @@ public class JDBCConnection implements Connection {
                     } else if (c == '"') {
                         state = outside_escape_inside_double_quotes;
                     } else if (c == '{') {
+                        sb = new StringBuffer(sql.length());
+                        sb.append(sql.substring(tail, i));
                         i = onStartEscapeSequence(sql, sb, i);
+                        tail = i;
 
-                        // changed = true;
+                        changed = true;
                         nest++;
 
                         state = inside_escape;
@@ -862,23 +859,35 @@ public class JDBCConnection implements Connection {
                     } else if (c == '"') {
                         state = inside_escape_inside_double_quotes;
                     } else if (c == '}') {
-                        sb.setCharAt(i, ' ');
 
-                        // changed = true;
+                        sb.append(sql.substring(tail, i));
+
+                        sb.append(' ');
+
+                        i++;
+                        tail = i;
+                        changed = true;
                         nest--;
 
                         state = (nest == 0) ? outside_all
                                 : inside_escape;
                     } else if (c == '{') {
+                        sb.append(sql.substring(tail, i));
                         i = onStartEscapeSequence(sql, sb, i);
-
-                        // changed = true;
+                        tail = i;
+                        changed = true;
                         nest++;
 
                         state = inside_escape;
                     }
             }
         }
+
+        if (!changed) {
+            return sql;
+        }
+
+        sb.append(sql.substring(tail, sql.length()));
 
         return sb.toString();
     }
@@ -3381,31 +3390,34 @@ public class JDBCConnection implements Connection {
     private int onStartEscapeSequence(String sql, StringBuffer sb,
                                       int i) throws SQLException {
 
-        sb.setCharAt(i++, ' ');
+        sb.append(' ');
+        i++;
 
         i = StringUtil.skipSpaces(sql, i);
 
         if (sql.regionMatches(true, i, "fn ", 0, 3)
-                || sql.regionMatches(true, i, "oj ", 0, 3)
-                || sql.regionMatches(true, i, "ts ", 0, 3)) {
-            sb.setCharAt(i++, ' ');
-            sb.setCharAt(i++, ' ');
-        } else if (sql.regionMatches(true, i, "d ", 0, 2)
-                   || sql.regionMatches(true, i, "t ", 0, 2)) {
-            sb.setCharAt(i++, ' ');
+                || sql.regionMatches(true, i, "oj ", 0, 3)) {
+            i+= 2;
+
+        } else if (sql.regionMatches(true, i, "ts ", 0, 3)) {
+            sb.insert(i, Tokens.T_TIMESTAMP);
+            i+= 2;
+
+        } else if (sql.regionMatches(true, i, "d ", 0, 2)) {
+            sb.insert(i, Tokens.T_DATE);
+            i++;
+        } else if (sql.regionMatches(true, i, "t ", 0, 2)) {
+            sb.insert(i, Tokens.T_TIME);
+            i++;
         } else if (sql.regionMatches(true, i, "call ", 0, 5)) {
+            sb.append(Tokens.T_CALL);
             i += 4;
         } else if (sql.regionMatches(true, i, "?= call ", 0, 8)) {
-            sb.setCharAt(i++, ' ');
-            sb.setCharAt(i++, ' ');
-
-            i += 5;
+            sb.append(Tokens.T_CALL);
+            i += 7;
         } else if (sql.regionMatches(true, i, "? = call ", 0, 8)) {
-            sb.setCharAt(i++, ' ');
-            sb.setCharAt(i++, ' ');
-            sb.setCharAt(i++, ' ');
-
-            i += 5;
+            sb.append(Tokens.T_CALL);
+            i += 8;
         } else if (sql.regionMatches(true, i, "escape ", 0, 7)) {
             i += 6;
         } else {

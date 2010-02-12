@@ -38,7 +38,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
-import org.hsqldb.result.ResultConstants;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
@@ -56,6 +55,7 @@ public class StatementSet extends StatementDMQL {
     //
     ColumnSchema[] variables;
     int[]          variableIndexes;
+    Type[]         sourceTypes;
 
     //
     final int               operationType;
@@ -97,6 +97,7 @@ public class StatementSet extends StatementDMQL {
         this.expression        = e;
         this.variables         = variables;
         variableIndexes        = indexes;
+        sourceTypes            = expression.nodeDataTypes;
 
         setDatabseObjects(compileContext);
         checkAccessRights(session);
@@ -113,6 +114,7 @@ public class StatementSet extends StatementDMQL {
         this.queryExpression   = query;
         this.variables         = variables;
         variableIndexes        = indexes;
+        sourceTypes            = query.getColumnTypes();
 
         setDatabseObjects(compileContext);
         checkAccessRights(session);
@@ -135,6 +137,12 @@ public class StatementSet extends StatementDMQL {
                     result = Result.updateZeroResult;
 
                     break;
+                }
+
+                for (int i = 0; i < values.length; i++) {
+                    values[i] =
+                        variables[i].getDataType().convertToType(session,
+                            values[i], sourceTypes[i]);
                 }
 
                 result = executeAssignment(session, values);
@@ -318,7 +326,7 @@ public class StatementSet extends StatementDMQL {
             }
         } else {
             values    = new Object[1];
-            values[0] = expression.getValue(session, variables[0].dataType);
+            values[0] = expression.getValue(session);
         }
 
         return values;
@@ -342,8 +350,7 @@ public class StatementSet extends StatementDMQL {
 
             int colIndex = variableIndexes[j];
 
-            data[colIndex] =
-                variables[j].dataType.convertToDefaultType(session, values[j]);
+            data[colIndex] = values[j];
         }
 
         return Result.updateZeroResult;

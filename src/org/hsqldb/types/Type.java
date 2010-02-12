@@ -288,6 +288,11 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public abstract boolean canConvertFrom(Type otherType);
 
+    public boolean canBeAssignedFrom(Type otherType) {
+        return otherType == null ? true :
+            this.typeComparisonGroup == otherType.typeComparisonGroup;
+    }
+
     public boolean isDistinctType() {
 
         return userTypeModifier == null ? false

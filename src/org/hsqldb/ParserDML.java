@@ -385,6 +385,7 @@ public class ParserDML extends ParserDQL {
             }
 
             if (table.isTriggerDeletable()) {
+
                 // redundant
                 throw Error.error(ErrorCode.X_42545);
             }
@@ -1065,6 +1066,12 @@ public class ParserDML extends ParserDQL {
 
                 for (int i = 0; i < arguments.length; i++) {
                     arguments[i].resolveTypes(session, null);
+
+                    if (!routine.getParameter(
+                            i).getDataType().canBeAssignedFrom(
+                            arguments[i].getDataType())) {
+                        throw Error.error(ErrorCode.X_42561);
+                    }
                 }
 
                 StatementDMQL cs = new StatementProcedure(session, routine,

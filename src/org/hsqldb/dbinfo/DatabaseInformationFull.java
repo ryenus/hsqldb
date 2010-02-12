@@ -2130,8 +2130,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                                              : "NO";
                 }
 
-                row[is_generated]          = "NEVER";
-                row[generation_expression] = null;
+                row[is_generated] = "NEVER";
+
+                if (column.isGenerated()) {
+                    row[is_generated] = "ALWAYS";
+                    row[generation_expression] =
+                        column.getGeneratingExpression().getSQL();
+                }
+
                 row[is_updatable]          = table.isWritable() ? "YES"
                                                                 : "NO";
                 row[declared_data_type]    = row[data_type];

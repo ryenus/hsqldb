@@ -71,7 +71,7 @@ public class Tokens {
     public static final String T_BOOLEAN          = "BOOLEAN";
     static final String        T_BOTH             = "BOTH";
     static final String        T_BY               = "BY";
-    static final String        T_CALL             = "CALL";
+    public static final String T_CALL             = "CALL";
     static final String        T_CALLED           = "CALLED";
     static final String        T_CARDINALITY      = "CARDINALITY";
     public static final String T_CASCADED         = "CASCADED";
