@@ -44,6 +44,8 @@ create table ref2(id int identity,idMain int,
 drop table ref2;drop table ref;drop table main
 
 -- Data Definition
+drop table T1 if exists
+drop table T2 if exists
 create table T1(Nr integer)
 create table T2(Nr integer primary Key)
 create table T3(Nr integer,dbl double,vc varchar(10),cc char(1))
