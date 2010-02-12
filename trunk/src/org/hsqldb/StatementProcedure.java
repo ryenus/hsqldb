@@ -38,6 +38,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.Type;
 
 /**
  * Implementation of Statement for callable procedures.<p>
@@ -107,10 +108,14 @@ public class StatementProcedure extends StatementDMQL {
         }
 
         for (int i = 0; i < arguments.length; i++) {
-            Expression e = arguments[i];
+            Expression e     = arguments[i];
+            Object     value = e.getValue(session);
 
             if (e != null) {
-                data[i] = e.getValue(session, e.dataType);
+                Type targetType = procedure.getParameter(i).getDataType();
+
+                data[i] = targetType.convertToType(session, value,
+                                                   e.getDataType());
             }
         }
 

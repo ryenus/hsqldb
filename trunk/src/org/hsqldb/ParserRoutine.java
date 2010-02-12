@@ -172,17 +172,35 @@ public class ParserRoutine extends ParserDML {
 
         OrderedHashSet     variableNames = new OrderedHashSet();
         QuerySpecification select        = XreadSelect();
-
+        Type[]             targetTypes;
         readThis(Tokens.INTO);
         readColumnNamesForSelectInto(variableNames, rangeVars);
         XreadTableExpression(select);
         select.setReturningResult();
-        select.resolve(session, rangeVars, new Type[variableNames.size()]);
 
-        int[]          indexes   = new int[variableNames.size()];
-        ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
+        int[]              indexes   = new int[variableNames.size()];
+        ColumnSchema[]     variables = new ColumnSchema[variableNames.size()];
 
         setVariables(rangeVars, variableNames, indexes, variables);
+
+        targetTypes = new Type[variables.length];
+
+        for (int i = 0; i < variables.length; i++) {
+            if (variables[i].getParameterMode()
+                    == SchemaObject.ParameterModes.PARAM_IN) {
+
+                // todo - use more specific error message
+                throw Error.error(ErrorCode.X_0U000);
+            }
+
+            targetTypes[i] = variables[i].getDataType();
+        }
+
+        select.resolve(session, rangeVars, targetTypes);
+
+        if (select.getColumnCount() != variables.length) {
+            throw Error.error(ErrorCode.X_42564, Tokens.T_INTO);
+        }
 
         Statement statement = new StatementSet(session, compileContext,
                                                variables, select, indexes);
@@ -209,8 +227,7 @@ public class ParserRoutine extends ParserDML {
         Expression expression = (Expression) exprList.get(0);
 
         if (expression.getDegree() != variableNames.size()) {
-
-//            throw Error.error(ErrorCode.X_42546);
+            throw Error.error(ErrorCode.X_42546, Tokens.T_SET);
         }
 
         int[]          indexes   = new int[variableNames.size()];
@@ -225,6 +242,20 @@ public class ParserRoutine extends ParserDML {
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         expression.resolveTypes(session, null);
+
+        for (int i = 0; i < variables.length; i++) {
+            if (variables[i].getParameterMode()
+                    == SchemaObject.ParameterModes.PARAM_IN) {
+
+                // todo - use more specific error message
+                throw Error.error(ErrorCode.X_0U000);
+            }
+
+            if (!variables[i].getDataType().canBeAssignedFrom(
+                    expression.getNodeDataType(i))) {
+                throw Error.error(ErrorCode.X_42561);
+            }
+        }
 
         StatementSet cs = new StatementSet(session, compileContext, variables,
                                            expression, indexes);

@@ -325,7 +325,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     /**
      *  Returns generated expression for the column.
      */
-    Expression getGeneratingExpression() {
+    public Expression getGeneratingExpression() {
         return generatingExpression;
     }
 

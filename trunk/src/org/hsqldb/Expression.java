@@ -1145,9 +1145,32 @@ public class Expression {
         return dataType;
     }
 
+    Type getNodeDataType(int i) {
+
+        if (nodeDataTypes == null) {
+            if (i > 0) {
+                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+            }
+
+            return dataType;
+        } else {
+            return nodeDataTypes[i];
+        }
+    }
+
     int getDegree() {
-        return opType == OpTypes.ROW ? nodes.length
-                                     : 1;
+
+        switch (opType) {
+
+            case OpTypes.ROW :
+                return nodes.length;
+
+            case OpTypes.TABLE_SUBQUERY :
+                return subQuery.queryExpression.getColumnCount();
+
+            default :
+                return 1;
+        }
     }
 
     Object getValue(Session session, Type type) {
