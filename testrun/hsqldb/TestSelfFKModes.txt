@@ -159,5 +159,34 @@ delete from testA
 drop table testA if exists cascade;
 drop table testB if exists cascade;
 drop table testC if exists cascade;
+--
+CREATE TABLE user(
+ USER_ID VARCHAR(15) NOT NULL
+ ,PASSWD_TX VARCHAR(15) NOT NULL
+ ,CONSTRAINT user_PK PRIMARY KEY (USER_ID)
+ );
+
+CREATE TABLE role(
+ ROLE_NM VARCHAR(25) NOT NULL
+ ,DESC VARCHAR(100) NOT NULL
+ ,CONSTRAINT role_PK PRIMARY KEY (ROLE_NM)
+ );
+
+CREATE TABLE user_roles(
+ USER_ID VARCHAR(15) NOT NULL
+ ,ROLE_NM VARCHAR(25) NOT NULL
+ ,CONSTRAINT user_roles_PK PRIMARY KEY (USER_ID,ROLE_NM)
+ );
+
+ALTER TABLE user_roles ADD CONSTRAINT FK_user_roles_user_0 FOREIGN KEY (USER_ID) REFERENCES user;
+ALTER TABLE user_roles ADD CONSTRAINT FK_user_roles_role_1 FOREIGN KEY (ROLE_NM) REFERENCES role;
+
+INSERT INTO user VALUES('JOE_USER', 'secret');
+INSERT INTO role VALUES('SUPERSTAR', 'The best role');
+INSERT INTO role VALUES('ACTUAL_TALENT', 'What there''s a difference?');
+
+INSERT INTO user_roles VALUES('JOE_USER', 'SUPERSTAR');
+
+UPDATE user SET USER_ID='JOE_USER', PASSWD_TX = 'eat@joes37' WHERE USER_ID = 'JOE_USER'
 
 

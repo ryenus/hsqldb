@@ -17,6 +17,14 @@ update testtrig set data = data || ' ' || data
  2,two two,1999-11-01
 */select * from testtrig
 
+
+create trigger trigthree after delete on testtrig referencing old row as oldrow
+ for each row
+ insert into triglog values oldrow.id, oldrow.data, 'deleted'
+
+delete from testtrig
+/*c2*/select * from triglog where op = 'deleted'
+
 create procedure proc_trig(in in_arg_one varchar(10))
   language sql parameter style sql deterministic modifies sql data
     label_one: begin atomic
@@ -24,7 +32,7 @@ create procedure proc_trig(in in_arg_one varchar(10))
      end label_one;
 
 create cached table testtrig2(id integer, data varchar(20), updated date);
-create trigger trigthree after insert on testtrig2 referencing new row as newrow
+create trigger trigfour after insert on testtrig2 referencing new row as newrow
  for each row
  call proc_trig(newrow.data)
 

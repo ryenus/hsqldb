@@ -62,4 +62,4 @@
 /*u0*/DROP USER privd;
 /*u0*/DROP USER unprivd;
 /*u0*/DROP TABLE multicol;
-/*u0*/SHUTDOWN;
+/*u0*/CHECKPOINT;
