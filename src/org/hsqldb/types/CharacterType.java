@@ -208,8 +208,13 @@ public class CharacterType extends Type {
 
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE :
+                if (other.typeCode == Types.SQL_VARCHAR
+                        || other.typeCode == Types.VARCHAR_IGNORECASE) {
+                    return 0;
+                }
+
                 return other.typeCode == Types.SQL_CLOB ? 4
-                                                        : -2;
+                                                        : 2;
 
             case Types.SQL_CLOB :
                 return other.typeCode == Types.SQL_CHAR ? -4
@@ -584,7 +589,7 @@ public class CharacterType extends Type {
             return a;
         }
 
-        if (otherType.isLobType() ) {
+        if (otherType.isLobType()) {
             throw Error.error(ErrorCode.X_42561);
         }
 

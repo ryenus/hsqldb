@@ -149,7 +149,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
 
     public boolean absolute(int position) {
 
-        if (position < 1) {
+        if (position < 0) {
             position += size;
         }
 
@@ -159,7 +159,7 @@ public class RowSetNavigatorClient extends RowSetNavigator {
             return false;
         }
 
-        if (position > size) {
+        if (position >= size) {
             afterLast();
 
             return false;
