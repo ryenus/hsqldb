@@ -123,11 +123,6 @@ public class Database {
     public static final int CLOSEMODE_COMPACT     = 3;
     public static final int CLOSEMODE_SCRIPT      = 4;
 
-    //
-    public static final int LOCKS   = 0;
-    public static final int MVLOCKS = 1;
-    public static final int MVCC    = 2;
-
     /**
      *  Constructs a new Database object.
      *

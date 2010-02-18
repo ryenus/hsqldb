@@ -34,19 +34,15 @@ package org.hsqldb;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HashSet;
-import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
-import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.persist.CachedObject;
-import org.hsqldb.persist.PersistentStore;
 
 /**
  * Manages rows involved in transactions
@@ -55,11 +51,8 @@ import org.hsqldb.persist.PersistentStore;
  * @version 2.0.0
  * @since 2.0.0
  */
-public class TransactionManagerMVCC implements TransactionManager {
-
-    Database database;
-    boolean  hasPersistence;
-    Session  lobSession;
+public class TransactionManagerMVCC extends TransactionManagerCommon
+implements TransactionManager {
 
     //
     ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
@@ -75,12 +68,6 @@ public class TransactionManagerMVCC implements TransactionManager {
     HsqlDeque committedTransactions          = new HsqlDeque();
     LongDeque committedTransactionTimestamps = new LongDeque();
 
-    // functional unit - cached table transactions
-
-    /** Map : rowID -> RowAction */
-    public IntKeyHashMapConcurrent rowActionMap =
-        new IntKeyHashMapConcurrent(10000);
-
     // locks
     boolean isLockedMode;
     Session catalogWriteSession;
@@ -95,6 +82,8 @@ public class TransactionManagerMVCC implements TransactionManager {
         database       = db;
         hasPersistence = database.logger.isLogged();
         lobSession     = database.sessionManager.getSysLobSession();
+        rowActionMap   = new IntKeyHashMapConcurrent(10000);
+        txModel        = MVCC;
     }
 
     public long getGlobalChangeTimestamp() {
@@ -106,7 +95,7 @@ public class TransactionManagerMVCC implements TransactionManager {
     }
 
     public int getTransactionControl() {
-        return Database.MVCC;
+        return MVCC;
     }
 
     public void setTransactionControl(Session session, int mode) {
@@ -119,10 +108,10 @@ public class TransactionManagerMVCC implements TransactionManager {
             if (liveTransactionTimestamps.size() == 1) {
                 switch (mode) {
 
-                    case Database.MVCC :
+                    case MVCC :
                         break;
 
-                    case Database.MVLOCKS : {
+                    case MVLOCKS : {
                         TransactionManagerMV2PL manager =
                             new TransactionManagerMV2PL(database);
 
@@ -135,7 +124,7 @@ public class TransactionManagerMVCC implements TransactionManager {
 
                         break;
                     }
-                    case Database.LOCKS : {
+                    case LOCKS : {
                         TransactionManager2PL manager =
                             new TransactionManager2PL(database);
 
@@ -157,62 +146,7 @@ public class TransactionManagerMVCC implements TransactionManager {
         throw Error.error(ErrorCode.X_25001);
     }
 
-    public void completeActions(Session session) {
-
-        Object[] list  = session.rowActionList.getArray();
-        int      limit = session.rowActionList.size();
-
-        logActions(session, list, limit);
-    }
-
-    private void logActions(Session session, Object[] list,
-                            int limit) throws RuntimeException {
-
-        for (int i = session.actionIndex; i < limit; i++) {
-            RowAction action = (RowAction) list[i];
-
-            if (!hasPersistence || action.table == null
-                    || !action.table.isLogged) {
-                continue;
-            }
-
-            Row row = action.memoryRow;
-
-            if (row == null) {
-                PersistentStore store =
-                    session.sessionData.getRowStore(action.table);
-
-                row = (Row) store.get(action.getPos(), false);
-            }
-
-            Object[] data = row.getData();
-
-            try {
-                int actionType = action.getActionType(session.actionTimestamp);
-
-                switch (actionType) {
-
-                    case RowActionBase.ACTION_INSERT :
-                        database.logger.writeInsertStatement(
-                            session, (Table) action.table, data);
-                        break;
-
-                    case RowActionBase.ACTION_DELETE :
-                        database.logger.writeDeleteStatement(
-                            session, (Table) action.table, data);
-                        break;
-
-                    case RowActionBase.ACTION_INSERT_DELETE :
-
-                        // no logging
-                        break;
-                }
-            } catch (HsqlException e) {
-
-                // can put db in special state
-            }
-        }
-    }
+    public void completeActions(Session session) {}
 
     public boolean prepareCommitActions(Session session) {
 
@@ -298,76 +232,18 @@ public class TransactionManagerMVCC implements TransactionManager {
                 current.abortTransaction = true;
             }
 
-            for (int i = 0; i < limit; i++) {
-                RowAction action = (RowAction) list[i];
-
-                if (action.table != null && action.table.hasLobColumn) {
-                    int type = action.getCommitTypeOn(session.actionTimestamp);
-
-                    switch (type) {
-
-                        case RowActionBase.ACTION_INSERT :
-                            if (session.isProcessingLog
-                                    || session.isProcessingScript) {
-                                break;
-                            }
-
-                            Row row = action.memoryRow;
-
-                            if (row == null) {
-                                PersistentStore store =
-                                    session.sessionData.getRowStore(
-                                        action.table);
-
-                                row = (Row) store.get(action.getPos(), false);
-                            }
-
-                            session.sessionData.addLobUsageCount(
-                                action.table, row.getData());
-                            break;
-
-                        default :
-                    }
-                }
-
-                if (action.table != null
-                        && action.table.tableType == TableBase.TEXT_TABLE) {
-                    PersistentStore store =
-                        session.sessionData.getRowStore(action.table);
-                    int type = action.getCommitTypeOn(session.actionTimestamp);
-
-                    switch (type) {
-
-                        case RowActionBase.ACTION_DELETE :
-                            store.removePersistence(action.getPos());
-                            break;
-
-                        case RowActionBase.ACTION_INSERT :
-                            Row row = (Row) store.get(action.getPos(), false);
-
-                            store.commitPersistence(row);
-                            break;
-
-                        default :
-                    }
-                }
-            }
+            persistCommit(session, list, limit);
 
             // session.actionTimestamp is the committed tx timestamp
             if (getFirstLiveTransactionTimestamp() > session.actionTimestamp) {
                 mergeTransaction(session, list, 0, limit,
                                  session.actionTimestamp);
-                rowActionMapRemoveTransaction(list, 0, limit, true);
+                finaliseRows(session, list, 0, limit, true);
             } else {
                 list = session.rowActionList.toArray();
 
                 addToCommittedQueue(session, list);
             }
-
-            try {
-                session.logSequences();
-                database.logger.writeCommitStatement(session);
-            } catch (HsqlException e) {}
 
             endTransactionTPL(session);
 
@@ -375,31 +251,18 @@ public class TransactionManagerMVCC implements TransactionManager {
             countDownLatches(session);
         } finally {
             writeLock.unlock();
-            session.tempSet.clear();
         }
+
+        session.tempSet.clear();
 
         if (session != lobSession && lobSession.rowActionList.size() > 0) {
             lobSession.isTransaction = true;
-            lobSession.actionIndex   = 0;
+            lobSession.actionIndex   = lobSession.rowActionList.size();
 
-            logActions(lobSession, lobSession.rowActionList.getArray(),
-                       lobSession.rowActionList.size());
             lobSession.commit(false);
         }
 
         return true;
-    }
-
-    private void countDownLatches(Session session) {
-
-        for (int i = 0; i < session.waitingSessions.size(); i++) {
-            Session current = (Session) session.waitingSessions.get(i);
-
-            current.waitedSessions.remove(session);
-            current.latch.countDown();
-        }
-
-        session.waitingSessions.clear();
     }
 
     public void rollback(Session session) {
@@ -467,7 +330,7 @@ public class TransactionManagerMVCC implements TransactionManager {
 
         try {
             mergeRolledBackTransaction(session, timestamp, list, start, limit);
-            rowActionMapRemoveTransaction(list, start, limit, false);
+            finaliseRows(session, list, start, limit, false);
         } finally {
             writeLock.unlock();
         }
@@ -479,11 +342,54 @@ public class TransactionManagerMVCC implements TransactionManager {
                                      int[] colMap) {
 
         RowAction action;
-        boolean   newAction;
 
         synchronized (row) {
-            newAction = row.rowAction == null;
-            action    = RowAction.addDeleteAction(session, table, row, colMap);
+            if (row.isMemory()) {
+                action = RowAction.addDeleteAction(session, table, row,
+                                                   colMap);
+            } else {
+/*
+                // may not work when two row images coexist
+                newAction = action == null;
+
+                action = RowAction.addDeleteAction(session, table, row,
+                                                   colMap);
+
+                if (newAction && action != null) {
+                    rowActionMap.put(row.getPos(), action);
+                }
+*/
+                ReentrantReadWriteLock.WriteLock mapLock =
+                    rowActionMap.getWriteLock();
+
+                mapLock.lock();
+
+                try {
+                    action = row.rowAction;
+
+                    if (action == null) {
+                        action = (RowAction) rowActionMap.get(row.getPos());
+                    }
+
+                    if (action == null) {
+                        action = RowAction.addDeleteAction(session, table,
+                                                           row, colMap);
+
+                        if (action != null) {
+                            rowActionMap.put(row.getPos(), action);
+
+                            row.rowAction = action;
+                        }
+                    } else {
+
+                        // possibly from rowActionMap
+                        row.rowAction = action;
+                        action = action.addDeleteAction(session, colMap);
+                    }
+                } finally {
+                    mapLock.unlock();
+                }
+            }
         }
 
         if (action == null) {
@@ -520,12 +426,10 @@ public class TransactionManagerMVCC implements TransactionManager {
 
                     session.redoAction = true;
 
-                    session.latch.countUp();
                     current.waitingSessions.add(session);
                     session.waitedSessions.add(current);
+                    session.latch.countUp();
                 } else {
-                    checkDeadlock(session, session.tempSet);
-
                     session.redoAction       = false;
                     session.abortTransaction = true;
                 }
@@ -541,10 +445,6 @@ public class TransactionManagerMVCC implements TransactionManager {
         }
 
         session.rowActionList.add(action);
-
-        if (newAction && !row.isMemory()) {
-            rowActionMap.put(action.getPos(), action);
-        }
 
         return action;
     }
@@ -575,7 +475,7 @@ public class TransactionManagerMVCC implements TransactionManager {
                 return true;
             }
 
-            return action.canRead(session);
+            return action.canRead(session, TransactionManager.ACTION_READ);
         }
 
         if (mode == ACTION_REF) {
@@ -584,12 +484,41 @@ public class TransactionManagerMVCC implements TransactionManager {
             if (action == null) {
                 result = true;
             } else {
-                result = action.canRead(session, ACTION_READ);
+                result = action.canRead(session,
+                                        TransactionManager.ACTION_READ);
             }
 
+            return result;
+/*
             if (result) {
                 synchronized (row) {
-                    result = RowAction.addRefAction(session, row, colMap);
+                    if (row.isMemory()) {
+                        result = RowAction.addRefAction(session, row, colMap);
+                    } else {
+                        ReentrantReadWriteLock.WriteLock mapLock =
+                            rowActionMap.getWriteLock();
+
+                        mapLock.lock();
+
+                        try {
+                            action = row.rowAction;
+
+                            if (action == null) {
+                                action =
+                                    (RowAction) rowActionMap.get(row.getPos());
+                                row.rowAction = action;
+                            }
+
+                            result = RowAction.addRefAction(session, row,
+                                                            colMap);
+
+                            if (result && action == null) {
+                                rowActionMap.put(row.getPos(), action);
+                            }
+                        } finally {
+                            mapLock.unlock();
+                        }
+                    }
                 }
 
                 if (result) {
@@ -613,13 +542,14 @@ public class TransactionManagerMVCC implements TransactionManager {
             }
 
             return false;
-        } else {
-            if (action == null) {
-                return true;
-            }
-
-            return action.canRead(session, mode);
+*/
         }
+
+        if (action == null) {
+            return true;
+        }
+
+        return action.canRead(session, mode);
     }
 
     public boolean canRead(Session session, int id, int mode) {
@@ -630,79 +560,7 @@ public class TransactionManagerMVCC implements TransactionManager {
             return true;
         }
 
-        if (mode == TransactionManager.ACTION_READ) {
-            return action.canRead(session);
-        }
-
         return action.canRead(session, mode);
-    }
-
-    void rowActionMapRemoveTransaction(Object[] list, int start, int limit,
-                                       boolean commit) {
-
-        for (int i = start; i < limit; i++) {
-            RowAction rowact = (RowAction) list[i];
-
-            if (!rowact.isMemory) {
-                synchronized (rowact) {
-                    switch (rowact.type) {
-
-                        case RowActionBase.ACTION_NONE :
-                        case RowActionBase.ACTION_DELETE_FINAL :
-                            int pos = rowact.getPos();
-
-                            rowActionMap.remove(pos);
-                            break;
-
-                        case RowActionBase.ACTION_REF :
-                        case RowActionBase.ACTION_INSERT :
-                        case RowActionBase.ACTION_DELETE :
-                        case RowActionBase.ACTION_INSERT_DELETE :
-
-                        // not relevant
-                    }
-                }
-            }
-        }
-
-        deleteRows(list, start, limit, commit);
-    }
-
-    void deleteRows(Object[] list, int start, int limit, boolean commit) {
-
-        PersistentStore store;
-
-        for (int i = start; i < limit; i++) {
-            RowAction rowact = (RowAction) list[i];
-
-            if (rowact.type == RowActionBase.ACTION_DELETE_FINAL
-                    && !rowact.deleteComplete) {
-                try {
-                    rowact.deleteComplete = true;
-                    store =
-                        rowact.session.sessionData.getRowStore(rowact.table);
-
-                    Row row = rowact.memoryRow;
-
-                    if (row == null) {
-                        row = (Row) store.get(rowact.getPos(), false);
-                    }
-
-                    if (commit && rowact.table.hasLobColumn) {
-                        Object[] data = row.getData();
-
-                        rowact.session.sessionData.removeLobUsageCount(
-                            rowact.table, data);
-                    }
-
-                    store.delete(row);
-                    store.remove(row.getPos());
-                } catch (Exception e) {
-
-//                    throw unexpectedException(e.getMessage());
-                }
-            }
-        }
     }
 
     /**
@@ -722,40 +580,6 @@ public class TransactionManagerMVCC implements TransactionManager {
      */
     public void removeTransactionInfo(CachedObject object) {
         rowActionMap.remove(object.getPos());
-    }
-
-    /**
-     * merge a given list of transaction rollback action with given timestamp
-     */
-    void mergeRolledBackTransaction(Session session, long timestamp,
-                                    Object[] list, int start, int limit) {
-
-        for (int i = start; i < limit; i++) {
-            RowAction rowact = (RowAction) list[i];
-            Row       row    = rowact.memoryRow;
-
-            if (row == null) {
-                if (rowact.type == RowAction.ACTION_NONE) {
-                    continue;
-                }
-
-                PersistentStore store =
-                    rowact.session.sessionData.getRowStore(rowact.table);
-
-                row = (Row) store.get(rowact.getPos(), false);
-            }
-
-            if (row == null) {
-
-                // only if transaction has been merged
-                // shouldn't normally happen
-                continue;
-            }
-
-            synchronized (row) {
-                rowact.mergeRollback(session, timestamp, row);
-            }
-        }
     }
 
     /**
@@ -786,8 +610,8 @@ public class TransactionManagerMVCC implements TransactionManager {
         long timestamp = getFirstLiveTransactionTimestamp();
 
         while (true) {
-            long     commitTimestamp = 0;
-            Object[] actions         = null;
+            long     commitTimestamp;
+            Object[] actions;
 
             synchronized (committedTransactionTimestamps) {
                 if (committedTransactionTimestamps.isEmpty()) {
@@ -807,48 +631,8 @@ public class TransactionManagerMVCC implements TransactionManager {
 
             mergeTransaction(session, actions, 0, actions.length,
                              commitTimestamp);
-            rowActionMapRemoveTransaction(actions, 0, actions.length, true);
+            finaliseRows(session, actions, 0, actions.length, true);
         }
-    }
-
-    /**
-     * merge a transaction committed at a given timestamp.
-     */
-    void mergeTransaction(Session session, Object[] list, int start,
-                          int limit, long timestamp) {
-
-        for (int i = start; i < limit; i++) {
-            RowAction rowact = (RowAction) list[i];
-
-            if (rowact == null || rowact.type == RowActionBase.ACTION_NONE
-                    || rowact.type == RowActionBase.ACTION_DELETE_FINAL) {
-                continue;
-            }
-
-            Row row = rowact.memoryRow;
-
-            if (row == null) {
-                PersistentStore store =
-                    rowact.session.sessionData.getRowStore(rowact.table);
-
-                row = (Row) store.get(rowact.getPos(), false);
-            }
-
-            if (row == null) {
-                continue;
-            }
-
-            synchronized (row) {
-                rowact.mergeToTimestamp(row, timestamp);
-            }
-        }
-    }
-
-    /**
-     * gets the next timestamp for an action
-     */
-    long nextChangeTimestamp() {
-        return globalChangeTimestamp.incrementAndGet();
     }
 
     public void beginTransaction(Session session) {
@@ -948,6 +732,36 @@ public class TransactionManagerMVCC implements TransactionManager {
         return liveTransactionTimestamps.get(0);
     }
 
+// functional unit - list actions and translate id's
+
+    /**
+     * Return a lookup of all row ids for cached tables in transactions.
+     * For auto-defrag, as currently there will be no RowAction entries
+     * at the time of defrag.
+     */
+    public DoubleIntIndex getTransactionIDList() {
+        return super.getTransactionIDList();
+    }
+
+    /**
+     * Convert row ID's for cached table rows in transactions
+     */
+    public void convertTransactionIDs(DoubleIntIndex lookup) {
+        super.convertTransactionIDs(lookup);
+    }
+
+    private void countDownLatches(Session session) {
+
+        for (int i = 0; i < session.waitingSessions.size(); i++) {
+            Session current = (Session) session.waitingSessions.get(i);
+
+            current.waitedSessions.remove(session);
+            current.latch.countDown();
+        }
+
+        session.waitingSessions.clear();
+    }
+
     void getTransactionSessions(HashSet set) {
 
         Session[] sessions = database.sessionManager.getAllSessions();
@@ -960,141 +774,6 @@ public class TransactionManagerMVCC implements TransactionManager {
             } else if (sessions[i].isPreTransaction) {
                 set.add(sessions[i]);
             }
-        }
-    }
-
-// functional unit - list actions and translate id's
-
-    /**
-     * Return an array of all row actions sorted by System Change No.
-     */
-    RowAction[] getRowActionList() {
-
-        writeLock.lock();
-
-        try {
-            Session[]   sessions = database.sessionManager.getAllSessions();
-            int[]       tIndex   = new int[sessions.length];
-            RowAction[] rowActions;
-            int         rowActionCount = 0;
-
-            {
-                int actioncount = 0;
-
-                for (int i = 0; i < sessions.length; i++) {
-                    actioncount += sessions[i].getTransactionSize();
-                }
-
-                rowActions = new RowAction[actioncount];
-            }
-
-            while (true) {
-                boolean found        = false;
-                long    minChangeNo  = Long.MAX_VALUE;
-                int     sessionIndex = 0;
-
-                // find the lowest available SCN across all sessions
-                for (int i = 0; i < sessions.length; i++) {
-                    int tSize = sessions[i].getTransactionSize();
-
-                    if (tIndex[i] < tSize) {
-                        RowAction current =
-                            (RowAction) sessions[i].rowActionList.get(
-                                tIndex[i]);
-
-                        if (current.actionTimestamp < minChangeNo) {
-                            minChangeNo  = current.actionTimestamp;
-                            sessionIndex = i;
-                        }
-
-                        found = true;
-                    }
-                }
-
-                if (!found) {
-                    break;
-                }
-
-                HsqlArrayList currentList =
-                    sessions[sessionIndex].rowActionList;
-
-                for (; tIndex[sessionIndex] < currentList.size(); ) {
-                    RowAction current =
-                        (RowAction) currentList.get(tIndex[sessionIndex]);
-
-                    // if the next change no is in this session, continue adding
-                    if (current.actionTimestamp == minChangeNo + 1) {
-                        minChangeNo++;
-                    }
-
-                    if (current.actionTimestamp == minChangeNo) {
-                        rowActions[rowActionCount++] = current;
-
-                        tIndex[sessionIndex]++;
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            return rowActions;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    /**
-     * Return a lookup of all row ids for cached tables in transactions.
-     * For auto-defrag, as currently there will be no RowAction entries
-     * at the time of defrag.
-     */
-    public DoubleIntIndex getTransactionIDList() {
-
-        writeLock.lock();
-
-        try {
-            int            size   = rowActionMap.size();
-            DoubleIntIndex lookup = new DoubleIntIndex(size, false);
-
-            lookup.setKeysSearchTarget();
-
-            Iterator it = this.rowActionMap.keySet().iterator();
-
-            for (; it.hasNext(); ) {
-                lookup.addUnique(it.nextInt(), 0);
-            }
-
-            return lookup;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    /**
-     * Convert row ID's for cached table rows in transactions
-     */
-    public void convertTransactionIDs(DoubleIntIndex lookup) {
-
-        writeLock.lock();
-
-        try {
-            RowAction[] list = new RowAction[rowActionMap.size()];
-            Iterator    it   = this.rowActionMap.values().iterator();
-
-            for (int i = 0; it.hasNext(); i++) {
-                list[i] = (RowAction) it.next();
-            }
-
-            rowActionMap.clear();
-
-            for (int i = 0; i < list.length; i++) {
-                int pos = lookup.lookupFirstEqual(list[i].getPos());
-
-                list[i].setPos(pos);
-                rowActionMap.put(pos, list[i]);
-            }
-        } finally {
-            writeLock.unlock();
         }
     }
 
@@ -1171,36 +850,5 @@ public class TransactionManagerMVCC implements TransactionManager {
         session.latch.countUp();
 
         return true;
-    }
-
-    boolean checkDeadlock(Session session, OrderedHashSet newWaits) {
-
-        for (int i = 0; i < session.waitingSessions.size(); i++) {
-            Session current = (Session) session.waitingSessions.get(i);
-
-            if (newWaits.contains(current)) {
-                return false;
-            }
-
-            if (!checkDeadlock(current, newWaits)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    void setWaitingSessionTPL(Session session) {
-
-        int count = session.tempSet.size();
-
-        for (int i = 0; i < count; i++) {
-            Session current = (Session) session.tempSet.get(i);
-
-            current.waitingSessions.add(session);
-        }
-
-        session.tempSet.clear();
-        session.latch.setCount(count);
     }
 }

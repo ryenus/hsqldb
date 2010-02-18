@@ -481,14 +481,15 @@ public class IndexAVL implements Index {
                                                       compareRowId, 0);
 
                 // after the first match and check, all compares are with row id
-                if (compare == 0 && session != null && colIndex.length != 0
-                        && session.database.txManager.isMVRows()
-                        && !isEqualReadable(session, store, n)) {
-                    compareRowId = true;
-                    compare = compareRowForInsertOrDelete(session, row,
-                                                          currentRow,
-                                                          compareRowId,
-                                                          colIndex.length);
+                if (compare == 0 && session != null && !compareRowId
+                        && session.database.txManager.isMVRows()) {
+                    if (!isEqualReadable(session, store, n)) {
+                        compareRowId = true;
+                        compare = compareRowForInsertOrDelete(session, row,
+                                                              currentRow,
+                                                              compareRowId,
+                                                              colIndex.length);
+                    }
                 }
 
                 if (compare == 0) {

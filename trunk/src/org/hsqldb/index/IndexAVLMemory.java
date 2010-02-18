@@ -201,7 +201,7 @@ public class IndexAVLMemory extends IndexAVL {
                         colTypes[0].compare(session, rowData[colIndex[0]],
                                             currentRow.rowData[colIndex[0]]);
 
-                    if (compare == 0) {
+                    if (compare == 0 && compareRowId) {
                         compare = compareRowForInsertOrDelete(session, row,
                                                               currentRow,
                                                               compareRowId, 1);
@@ -212,14 +212,16 @@ public class IndexAVLMemory extends IndexAVL {
                                                           compareRowId, 0);
                 }
 
-                if (compare == 0 && session != null
-                        && session.database.txManager.isMVRows()
-                        && !isEqualReadable(session, store, n)) {
-                    compareRowId = true;
-                    compare = compareRowForInsertOrDelete(session, row,
-                                                          currentRow,
-                                                          compareRowId,
-                                                          colIndex.length);
+                // after the first match and check, all compares are with row id
+                if (compare == 0 && session != null && !compareRowId
+                        && session.database.txManager.isMVRows()) {
+                    if (!isEqualReadable(session, store, n)) {
+                        compareRowId = true;
+                        compare = compareRowForInsertOrDelete(session, row,
+                                                              currentRow,
+                                                              compareRowId,
+                                                              colIndex.length);
+                    }
                 }
 
                 if (compare == 0) {

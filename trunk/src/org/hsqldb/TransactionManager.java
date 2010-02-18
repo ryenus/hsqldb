@@ -36,6 +36,12 @@ import org.hsqldb.persist.CachedObject;
 
 public interface TransactionManager {
 
+    //
+    public int LOCKS   = 0;
+    public int MVLOCKS = 1;
+    public int MVCC    = 2;
+
+    //
     public int ACTION_READ = 0;
     public int ACTION_DUP  = 1;
     public int ACTION_REF  = 2;

@@ -308,10 +308,6 @@ public class RowAVLDisk extends RowAVL {
         }
 
         RowAction action = rowAction;
-
-        if (action != null) {
-            action.memoryRow = null;
-        }
     }
 
     /**

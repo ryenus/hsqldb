@@ -47,6 +47,7 @@ import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.TransactionManager;
 
 /*
  * Implementation of PersistentStore for result set and temporary tables.
@@ -120,7 +121,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         return !isCached;
     }
 
-    public int getAccessCount() {
+    public synchronized int getAccessCount() {
         return isCached ? cache.getAccessCount()
                         : 0;
     }
@@ -254,8 +255,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             if (isTempTable) {
                 RowAction action = new RowAction(session, table,
-                                                 RowAction.ACTION_INSERT,
-                                                 !isCached, row);
+                                                 RowAction.ACTION_INSERT, row,
+                                                 null);
 
                 row.rowAction = action;
             }
@@ -286,6 +287,72 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void commitPersistence(CachedObject row) {}
 
+    public void commitRow(Session session, Row row, int changeAction,
+                          int txModel) {
+
+        switch (changeAction) {
+
+            case RowAction.ACTION_DELETE :
+                if (txModel == TransactionManager.LOCKS) {
+                    remove(row.getPos());
+                }
+                break;
+
+            case RowAction.ACTION_INSERT :
+                break;
+
+            case RowAction.ACTION_INSERT_DELETE :
+
+                // INSERT + DELEETE
+                if (txModel == TransactionManager.LOCKS) {
+                    remove(row.getPos());
+                }
+                break;
+
+            case RowAction.ACTION_DELETE_FINAL :
+                delete(row);
+                break;
+        }
+    }
+
+    public void rollbackRow(Session session, Row row, int changeAction,
+                            int txModel) {
+
+        switch (changeAction) {
+
+            case RowAction.ACTION_DELETE :
+                if (txModel == TransactionManager.LOCKS) {
+
+                    // index node count may have changed
+                    Row newRow = (Row) getNewCachedObject(session,
+                                                          row.getData());
+
+                    newRow.setPos(row.getPos());
+
+                    newRow.rowAction = null;
+
+                    indexRow(session, newRow);
+                }
+                break;
+
+            case RowAction.ACTION_INSERT :
+                if (txModel == TransactionManager.LOCKS) {
+                    delete(row);
+                    remove(row.getPos());
+                }
+                break;
+
+            case RowAction.ACTION_INSERT_DELETE :
+
+                // INSERT + DELEETE
+                if (txModel == TransactionManager.LOCKS) {
+                    remove(row.getPos());
+                }
+                break;
+        }
+    }
+
+    //
     public DataFileCache getCache() {
         return cache;
     }
@@ -321,7 +388,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
     public void setAccessor(Index key, int accessor) {}
 
-    public void resetAccessorKeys(Index[] keys) {
+    public synchronized void resetAccessorKeys(Index[] keys) {
 
         if (indexList.length == 0 || indexList[0] == null
                 || accessorList[0] == null) {

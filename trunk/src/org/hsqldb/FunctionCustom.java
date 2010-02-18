@@ -666,13 +666,13 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TRANSACTION_CONTROL :
                 switch (session.database.txManager.getTransactionControl()) {
 
-                    case Database.MVCC :
+                    case TransactionManager.MVCC :
                         return Tokens.T_MVCC;
 
-                    case Database.MVLOCKS :
+                    case TransactionManager.MVLOCKS :
                         return Tokens.T_MVLOCKS;
 
-                    case Database.LOCKS :
+                    case TransactionManager.LOCKS :
                     default :
                         return Tokens.T_LOCKS;
                 }
