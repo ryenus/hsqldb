@@ -1453,6 +1453,11 @@
                     functionality which cannot (portably) be reproduced by
                     SqlTool.
                 </simpara></tip>
+                <tip><simpara>
+                    The filter string "." (just a plain dot) means the current
+                    session schema, for databases which support the concept
+                    according to the SQL standard (HyperSQL database does).
+                </simpara></tip>
                 <important><simpara>
                     Indexes may not be searched for by
                     <emphasis>substring</emphasis>, only by
