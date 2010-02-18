@@ -2029,6 +2029,15 @@ public class Table extends TableBase implements SchemaObject {
             Index index = createAndAddIndexStructure(indexName, columns, null,
                 null, false, false, false);
 
+            if (tableType == TableBase.TEMP_TABLE) {
+                Session sessions[] = database.sessionManager.getAllSessions();
+
+                for (int i = 0; i < sessions.length; i++) {
+                    sessions[i].sessionData.persistentStoreCollection
+                        .registerIndex(this);
+                }
+            }
+
             return index;
         } catch (Throwable t) {
             return null;
@@ -2412,15 +2421,11 @@ public class Table extends TableBase implements SchemaObject {
      *  Mid level method for inserting single rows. Performs constraint checks and
      *  fires row level triggers.
      */
-    void insertSingleRow(Session session, PersistentStore store,
-                         Object[] data) {
+    Row insertSingleRow(Session session, PersistentStore store, Object[] data,
+                        int[] changedCols) {
 
         if (identityColumn != -1) {
             setIdentityColumn(session, data);
-        }
-
-        if (isView) {
-            return;
         }
 
         if (hasGeneratedValues) {
@@ -2431,7 +2436,18 @@ public class Table extends TableBase implements SchemaObject {
             enforceRowConstraints(session, data);
         }
 
-        insertNoCheck(session, store, data);
+        if (isView) {
+
+            // may have domain column
+            return null;
+        }
+
+        Row row = (Row) store.getNewCachedObject(session, data);
+
+        store.indexRow(session, row);
+        session.addInsertAction(this, row);
+
+        return row;
     }
 
     /**
@@ -2449,22 +2465,6 @@ public class Table extends TableBase implements SchemaObject {
 
             insertData(store, newData);
         }
-    }
-
-    /**
-     *  Low level method for row insert.
-     *  UNIQUE or PRIMARY constraints are enforced by attempting to
-     *  add the row to the indexes.
-     */
-    private Row insertNoCheck(Session session, PersistentStore store,
-                              Object[] data) {
-
-        Row row = (Row) store.getNewCachedObject(session, data);
-
-        store.indexRow(session, row);
-        session.addInsertAction(this, row);
-
-        return row;
     }
 
     /**

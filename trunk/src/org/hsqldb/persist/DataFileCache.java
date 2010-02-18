@@ -104,9 +104,6 @@ public class DataFileCache {
     // post openning constant fields
     protected boolean cacheReadonly;
 
-    // cache operation mode
-    protected boolean storeOnInsert;
-
     //
     protected int     cachedRowPadding = 8;
     protected int     initialFreePos   = MIN_INITIAL_FREE_POS;
@@ -606,32 +603,6 @@ public class DataFileCache {
 
             cache.put(i, object);
 
-            // was previously used for text tables
-            if (storeOnInsert) {
-                saveRow(object);
-            }
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    /**
-     * For a CacheObject that had been previously released from the cache.
-     * A new version is introduced, using the preallocated space for the object.
-     */
-    public void restore(CachedObject object) {
-
-        writeLock.lock();
-
-        try {
-            int i = object.getPos();
-
-            cache.put(i, object);
-
-            // was previously used for text tables
-            if (storeOnInsert) {
-                saveRow(object);
-            }
         } finally {
             writeLock.unlock();
         }

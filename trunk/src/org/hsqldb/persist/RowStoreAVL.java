@@ -57,6 +57,10 @@ public abstract class RowStoreAVL implements PersistentStore {
     // for result tables
     long timestamp;
 
+    public TableBase getTable() {
+        return table;
+    }
+
     public boolean isMemory() {
         return false;
     }
@@ -144,6 +148,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         }
     }
 
+    //
     public final void indexRows() {
 
         RowIterator it = rowIterator();

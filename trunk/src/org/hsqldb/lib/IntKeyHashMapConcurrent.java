@@ -47,7 +47,7 @@ public class IntKeyHashMapConcurrent extends BaseHashMap {
     Collection values;
 
     //
-    ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
+    ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock(true);
     ReentrantReadWriteLock.ReadLock  readLock  = lock.readLock();
     ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
 
@@ -59,6 +59,10 @@ public class IntKeyHashMapConcurrent extends BaseHashMap {
     throws IllegalArgumentException {
         super(initialCapacity, BaseHashMap.intKeyOrValue,
               BaseHashMap.objectKeyOrValue, false);
+    }
+
+    public ReentrantReadWriteLock.WriteLock getWriteLock() {
+        return writeLock;
     }
 
     public Object get(int key) {

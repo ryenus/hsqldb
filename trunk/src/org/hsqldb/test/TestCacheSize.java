@@ -86,7 +86,7 @@ public class TestCacheSize {
     boolean reportProgress = false;
 
     // type of the big table {MEMORY | CACHED | TEXT | ""}
-    String  tableType      = "CACHED";
+    String  tableType      = "TEXT";
     int     cacheScale     = 14;
     int     cacheSizeScale = 10;
     boolean nioMode        = true;

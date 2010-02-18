@@ -591,7 +591,7 @@ public class StatementDML extends StatementDMQL {
         while (newData.hasNext()) {
             Object[] data = (Object[]) newData.getNext();
 
-            baseTable.insertSingleRow(session, store, data);
+            baseTable.insertSingleRow(session, store, data, null);
 
             if (checkIterator != null) {
                 checkIterator.setCurrent(data);
@@ -644,7 +644,7 @@ public class StatementDML extends StatementDMQL {
                                    data, null);
         }
 
-        baseTable.insertSingleRow(session, store, data);
+        baseTable.insertSingleRow(session, store, data, null);
         performIntegrityChecks(session, baseTable, null, data);
 
         if (session.database.isReferentialIntegrity()) {
@@ -794,9 +794,10 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         for (int i = 0; i < navigator.getSize(); i++) {
-            Row      row          = navigator.getNextRow();
-            Object[] data         = navigator.getCurrentChangedData();
-            Table    currentTable = ((Table) row.getTable());
+            Row      row            = navigator.getNextRow();
+            Object[] data           = navigator.getCurrentChangedData();
+            Table    currentTable   = ((Table) row.getTable());
+            int[]    changedColumns = navigator.getCurrentChangedColumns();
             PersistentStore store =
                 session.sessionData.getRowStore(currentTable);
 
@@ -804,7 +805,10 @@ public class StatementDML extends StatementDMQL {
                 continue;
             }
 
-            currentTable.insertSingleRow(session, store, data);
+            Row newRow = currentTable.insertSingleRow(session, store, data,
+                changedColumns);
+
+//            newRow.rowAction.updatedAction = row.rowAction;
         }
 
         navigator.beforeFirst();
@@ -984,9 +988,10 @@ public class StatementDML extends StatementDMQL {
 
         if (hasUpdate) {
             for (int i = 0; i < navigator.getSize(); i++) {
-                Row      row          = navigator.getNextRow();
-                Object[] data         = navigator.getCurrentChangedData();
-                Table    currentTable = ((Table) row.getTable());
+                Row      row            = navigator.getNextRow();
+                Object[] data           = navigator.getCurrentChangedData();
+                Table    currentTable   = ((Table) row.getTable());
+                int[]    changedColumns = navigator.getCurrentChangedColumns();
                 PersistentStore store =
                     session.sessionData.getRowStore(currentTable);
 
@@ -994,7 +999,10 @@ public class StatementDML extends StatementDMQL {
                     continue;
                 }
 
-                currentTable.insertSingleRow(session, store, data);
+                Row newRow = currentTable.insertSingleRow(session, store,
+                    data, changedColumns);
+
+//                newRow.rowAction.updatedAction = row.rowAction;
             }
 
             navigator.beforeFirst();
@@ -1172,7 +1180,7 @@ public class StatementDML extends StatementDMQL {
                 Row      refRow  = refiterator.getNextRow();
                 Object[] refData = null;
 
-                // use MATCH
+                /** @todo use MATCH */
                 if (c.core.refIndex.compareRowNonUnique(
                         session, row.getData(), c.core.mainCols,
                         refRow.getData()) != 0) {
@@ -1239,6 +1247,10 @@ public class StatementDML extends StatementDMQL {
                     }
                     case SchemaObject.ReferentialAction.NO_ACTION :
                     case SchemaObject.ReferentialAction.RESTRICT : {
+                        if (navigator.containsDeletedRow(refRow)) {
+                            continue;
+                        }
+
                         int errorCode = c.core.deleteAction
                                         == SchemaObject.ReferentialAction
                                             .NO_ACTION ? ErrorCode.X_23504

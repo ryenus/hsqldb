@@ -245,7 +245,7 @@ public abstract class RowSetNavigator implements RangeIterator {
             return false;
         }
 
-        if (position > size) {
+        if (position >= size) {
             afterLast();
 
             return false;

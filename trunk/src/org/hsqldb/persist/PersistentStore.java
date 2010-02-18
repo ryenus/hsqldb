@@ -33,6 +33,7 @@ package org.hsqldb.persist;
 
 import org.hsqldb.Row;
 import org.hsqldb.Session;
+import org.hsqldb.TableBase;
 import org.hsqldb.index.Index;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
@@ -49,6 +50,8 @@ public interface PersistentStore {
     int               INT_STORE_SIZE  = 4;
     int               LONG_STORE_SIZE = 8;
     PersistentStore[] emptyArray      = new PersistentStore[]{};
+
+    TableBase getTable();
 
     boolean isMemory();
 
