@@ -71,15 +71,21 @@ public class StatementResultUpdate extends StatementDML {
 
         checkAccessRights(session);
 
-        Object[] args = session.sessionContext.dynamicArguments;
-        Row      row;
+        Object[]        args = session.sessionContext.dynamicArguments;
+        Row             row;
+        PersistentStore store = session.sessionData.getRowStore(baseTable);
 
         switch (actionType) {
 
             case ResultConstants.UPDATE_CURSOR : {
                 row = getRow(session, args);
 
-                if (row == null || row.isDeleted(session)) {
+                /**
+                 * @todo - in 2PL mode isDeleted() always returns false.
+                 * While write lock prevents delete by other transactions,
+                 * same-transaction deletes are not caught
+                 */
+                if (row == null || row.isDeleted(session, store)) {
                     throw Error.error(ErrorCode.X_24521);
                 }
 
@@ -109,7 +115,7 @@ public class StatementResultUpdate extends StatementDML {
             case ResultConstants.DELETE_CURSOR : {
                 row = getRow(session, args);
 
-                if (row == null || row.isDeleted(session)) {
+                if (row == null || row.isDeleted(session, store)) {
                     throw Error.error(ErrorCode.X_24521);
                 }
 
@@ -127,9 +133,6 @@ public class StatementResultUpdate extends StatementDML {
                 for (int i = 0; i < data.length; i++) {
                     data[baseColumnMap[i]] = args[i];
                 }
-
-                PersistentStore store =
-                    session.sessionData.getRowStore(baseTable);
 
                 return insertSingleRow(session, store, data);
             }

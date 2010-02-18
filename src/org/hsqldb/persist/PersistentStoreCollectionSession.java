@@ -31,13 +31,14 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.HsqlException;
+import org.hsqldb.Session;
+import org.hsqldb.Table;
+import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.Session;
-import org.hsqldb.TableBase;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
-import org.hsqldb.HsqlException;
 
 /**
  * Collection of PersistenceStore itmes currently used by a session.
@@ -217,5 +218,40 @@ implements PersistentStoreCollection {
         }
 
         rowStoreMapStatement.clear();
+    }
+
+    public void registerIndex(Table table) {
+
+        Iterator it = rowStoreMapSession.values().iterator();
+
+        while (it.hasNext()) {
+            PersistentStore store = (PersistentStore) it.next();
+
+            if (store.getTable() instanceof Table) {
+                Table current = (Table) store.getTable();
+
+                if (current.getName().equals(table.getName())) {
+                    store.resetAccessorKeys(table.getIndexList());
+                }
+            }
+        }
+
+        if (rowStoreMapTransaction.isEmpty()) {
+            return;
+        }
+
+        it = rowStoreMapTransaction.values().iterator();
+
+        while (it.hasNext()) {
+            PersistentStore store = (PersistentStore) it.next();
+
+            if (store.getTable() instanceof Table) {
+                Table current = (Table) store.getTable();
+
+                if (current.getName().equals(table.getName())) {
+                    store.resetAccessorKeys(table.getIndexList());
+                }
+            }
+        }
     }
 }

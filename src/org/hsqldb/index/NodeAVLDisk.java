@@ -112,7 +112,7 @@ public class NodeAVLDisk extends NodeAVL {
     public NodeAVLDisk(RowAVLDisk r, RowInputInterface in,
                        int id) throws IOException {
 
-        row = r;
+        row      = r;
         iId      = id;
         iData    = r.getPos();
         iBalance = in.readInt();
@@ -137,7 +137,7 @@ public class NodeAVLDisk extends NodeAVL {
 
     public NodeAVLDisk(RowAVLDisk r, int id) {
 
-        row = r;
+        row   = r;
         iId   = id;
         iData = r.getPos();
     }
@@ -326,9 +326,8 @@ public class NodeAVLDisk extends NodeAVL {
 
     public NodeAVL child(PersistentStore store, boolean isleft) {
         return isleft ? getLeft(store)
-            : getRight(store);
+                      : getRight(store);
     }
-
 
     NodeAVL setParent(PersistentStore store, NodeAVL n) {
 
@@ -476,8 +475,12 @@ public class NodeAVLDisk extends NodeAVL {
     }
 
     boolean equals(NodeAVL n) {
-        return this == n
-               || (n != null && getPos() == ((NodeAVLDisk) n).getPos());
+
+        if (n instanceof NodeAVLDisk) {
+            return this == n || (getPos() == ((NodeAVLDisk) n).getPos());
+        }
+
+        return false;
     }
 
     public int getRealSize(RowOutputInterface out) {
@@ -538,28 +541,23 @@ public class NodeAVLDisk extends NodeAVL {
         out.writeInt(newPointer);
     }
 
-    public void restore() {
-    }
+    public void restore() {}
 
-    public void destroy() {
-    }
+    public void destroy() {}
 
-    public void updateAccessCount(int count) {
-    }
+    public void updateAccessCount(int count) {}
 
     public int getAccessCount() {
         return 0;
     }
 
-    public void setStorageSize(int size) {
-    }
+    public void setStorageSize(int size) {}
 
     public int getStorageSize() {
         return 0;
     }
 
-    public void setPos(int pos) {
-    }
+    public void setPos(int pos) {}
 
     public boolean hasChanged() {
         return false;

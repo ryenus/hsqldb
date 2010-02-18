@@ -33,6 +33,7 @@ package org.hsqldb;
 
 import org.hsqldb.lib.IntLookup;
 import org.hsqldb.persist.CachedObject;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowOutputInterface;
 
 /**
@@ -64,15 +65,17 @@ public class Row implements CachedObject {
         return rowData;
     }
 
-    boolean isDeleted(Session session) {
+    boolean isDeleted(Session session, PersistentStore store) {
 
-        RowAction action = rowAction;
+        Row row = (Row) store.get(this, false);
+
+        RowAction action = row.rowAction;
 
         if (action == null) {
             return false;
         }
 
-        return action.canRead(session);
+        return !action.canRead(session, TransactionManager.ACTION_READ);
     }
 
     public void setChanged() {}

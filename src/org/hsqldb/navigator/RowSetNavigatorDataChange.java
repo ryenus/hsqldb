@@ -208,4 +208,17 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
             return currentData;
         }
     }
+
+    public boolean containsDeletedRow(Row row) {
+
+        int lookup = list.getLookup(row.getId());
+
+        if (lookup == -1) {
+            return false;
+        }
+
+        Object[] currentData = (Object[]) list.getSecondValueByIndex(lookup);
+
+        return currentData == null;
+    }
 }

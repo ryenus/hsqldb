@@ -69,7 +69,9 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     public RowStoreAVLHybrid(Session session,
                              PersistentStoreCollection manager,
                              TableBase table) {
+
         this(session, manager, table, true);
+
         cache = session.sessionData.getResultCache();
 
         if (cache != null) {
@@ -234,8 +236,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             add(row);
 
             if (isTempTable) {
-                RowAction.addInsertAction(session, (Table) table,
-                                    row);
+                RowAction.addInsertAction(session, (Table) table, row);
             }
 
             return row;
@@ -248,7 +249,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 return getNewCachedObject(session, object);
             }
 
-            Row row = new RowAVL(table, indexList.length, (Object[]) object, id);
+            Row row = new RowAVL(table, indexList.length, (Object[]) object,
+                                 id);
 
             if (isTempTable) {
                 RowAction action = new RowAction(session, table,
@@ -329,7 +331,43 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             return;
         }
 
-        throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLHybrid");
+        if (isCached) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLHybrid");
+        }
+
+        CachedObject[] oldAccessors = accessorList;
+        Index[]        oldIndexList = indexList;
+        int            limit        = indexList.length;
+        int            diff         = 1;
+        int            position     = 0;
+
+        if (keys.length < indexList.length) {
+            diff  = -1;
+            limit = keys.length;
+        }
+
+        for (; position < limit; position++) {
+            if (indexList[position] != keys[position]) {
+                break;
+            }
+        }
+
+        accessorList = (CachedObject[]) ArrayUtil.toAdjustedArray(accessorList,
+                null, position, diff);
+        indexList = keys;
+
+        try {
+            if (diff > 0) {
+                insertIndexNodes(indexList[0], indexList[position]);
+            } else {
+                dropIndexFromRows(indexList[0], oldIndexList[position]);
+            }
+        } catch (HsqlException e) {
+            accessorList = oldAccessors;
+            indexList    = oldIndexList;
+
+            throw e;
+        }
     }
 
     public void changeToDiskTable() {
@@ -350,7 +388,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 Row newRow = (Row) getNewCachedObject(session, row.getData());
 
                 indexRow(null, newRow);
-
                 row.destroy();
             }
         }

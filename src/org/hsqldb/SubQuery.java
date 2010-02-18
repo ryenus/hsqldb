@@ -151,7 +151,7 @@ class SubQuery implements Comparator {
             if (isDataExpression) {
                 TableUtil.setTableColumnsForSubquery(
                     table, dataExpression.nodeDataTypes,
-                    uniqueRows || isUniquePredicate);
+                    uniqueRows || isUniquePredicate, uniqueRows);
             } else {
                 TableUtil.setTableColumnsForSubquery(table, queryExpression,
                                                      uniqueRows

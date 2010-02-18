@@ -364,7 +364,7 @@ class TestBench {
             String    Query;
 
 //
-            Stmt.execute("SET WRITE_DELAY 1000 MILLIS;");
+//            Stmt.execute("SET WRITE_DELAY 1000 MILLIS;");
 
 //            Stmt.execute("SET DATABASE DEFAULT TABLE TYPE CACHED");
 

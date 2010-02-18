@@ -492,14 +492,17 @@ public class IndexAVL implements Index {
                 }
 
                 if (compare == 0) {
-                    if (isConstraint) {
-                        Constraint c =
-                            ((Table) table).getUniqueConstraintForIndex(this);
+                    Constraint c = null;
 
-                        throw c.getException(row.getData());
-                    } else {
+                    if (isConstraint) {
+                        c = ((Table) table).getUniqueConstraintForIndex(this);
+                    }
+
+                    if (c == null) {
                         throw Error.error(ErrorCode.X_23505,
                                           name.statementName);
+                    } else {
+                        throw c.getException(row.getData());
                     }
                 }
 

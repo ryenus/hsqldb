@@ -114,19 +114,26 @@ public class TableUtil {
     }
 
     static void setTableColumnsForSubquery(Table table, Type[] types,
-                                           boolean fullIndex) {
+                                           boolean fullIndex,
+                                           boolean uniqueRows) {
 
         addAutoColumns(table, types);
-        table.createPrimaryKey();
+
+        int[] cols = null;
 
         if (fullIndex) {
-            int[] colIndexes = null;
+            cols = new int[types.length];
 
-            colIndexes = table.getNewColumnMap();
+            ArrayUtil.fillSequence(cols);
+        }
 
-            ArrayUtil.fillSequence(colIndexes);
+        table.createPrimaryKey(null, uniqueRows ? cols
+                                                : null, false);
 
-            table.fullIndex = table.createIndexForColumns(colIndexes);
+        if (uniqueRows) {
+            table.fullIndex = table.getPrimaryIndex();
+        } else if (fullIndex) {
+            table.fullIndex = table.createIndexForColumns(cols);
         }
     }
 

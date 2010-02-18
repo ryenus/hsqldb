@@ -413,8 +413,6 @@ public class TextCache extends DataFileCache {
         row = cache.release(pos);
 
         clearRowImage(row);
-
-//        release(pos);
     }
 
     public synchronized void removePersistence(int pos,

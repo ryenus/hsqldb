@@ -97,7 +97,7 @@ public class StatementSet extends StatementDMQL {
         this.expression        = e;
         this.variables         = variables;
         variableIndexes        = indexes;
-        sourceTypes            = expression.nodeDataTypes;
+        sourceTypes            = expression.getNodeDataTypes();
 
         setDatabseObjects(compileContext);
         checkAccessRights(session);
@@ -156,6 +156,12 @@ public class StatementSet extends StatementDMQL {
                     result = Result.updateZeroResult;
 
                     break;
+                }
+
+                for (int i = 0; i < values.length; i++) {
+                    values[i] =
+                        variables[i].getDataType().convertToType(session,
+                            values[i], sourceTypes[i]);
                 }
 
                 result = executeAssignment(session, values);
