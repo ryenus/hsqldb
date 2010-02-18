@@ -155,6 +155,10 @@ public class RowAVLDiskData extends RowAVLDisk {
         }
     }
 
+    public boolean isMemory() {
+        return true;
+    }
+
     /**
      * With the current implementation of TEXT table updates and inserts,
      * the lifetime scope of this method extends until redefinition of table

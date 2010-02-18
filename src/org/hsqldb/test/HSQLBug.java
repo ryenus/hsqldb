@@ -92,7 +92,7 @@ public class HSQLBug {
 //                      query.append( "AND Table1.Time IN " );  // The work-around is to replace it with IN
         query.append("(");
         query.append(
-            "SELECT MAX(Timec) FROM Table1 WHERE Timec <= '2010-01-01 00:00:00'");
+            "SELECT MAX(Timec) FROM Table1 WHERE Timec <= '2020-01-01 00:00:00'");
         query.append(")");
         System.out.println("Query = " + query);
         System.out.println(

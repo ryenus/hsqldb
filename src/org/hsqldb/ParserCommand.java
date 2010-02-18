@@ -955,26 +955,26 @@ public class ParserCommand extends ParserDDL {
                 read();
                 readThis(Tokens.CONTROL);
 
-                int mode = Database.LOCKS;
+                int mode = TransactionManager.LOCKS;
 
                 switch (token.tokenType) {
 
                     case Tokens.MVCC :
                         read();
 
-                        mode = Database.MVCC;
+                        mode = TransactionManager.MVCC;
                         break;
 
                     case Tokens.MVLOCKS :
                         read();
 
-                        mode = Database.MVLOCKS;
+                        mode = TransactionManager.MVLOCKS;
                         break;
 
                     case Tokens.LOCKS :
                         read();
 
-                        mode = Database.LOCKS;
+                        mode = TransactionManager.LOCKS;
                         break;
                 }
 

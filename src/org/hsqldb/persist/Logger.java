@@ -48,6 +48,7 @@ import org.hsqldb.SqlInvariants;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.Tokens;
+import org.hsqldb.TransactionManager;
 import org.hsqldb.TransactionManagerMV2PL;
 import org.hsqldb.TransactionManagerMVCC;
 import org.hsqldb.error.Error;
@@ -110,7 +111,7 @@ public class Logger {
     boolean        propLogData = true;
     int            propEventLogLevel;
     int            propGC;
-    int            propTxMode       = Database.LOCKS;
+    int            propTxMode       = TransactionManager.LOCKS;
     boolean        propRefIntegrity = true;
     int            propLobBlockSize = 32 * 1024;
 
@@ -330,23 +331,23 @@ public class Logger {
             HsqlDatabaseProperties.hsqldb_tx);
 
         if (Tokens.T_MVCC.equalsIgnoreCase(txMode)) {
-            propTxMode = Database.MVCC;
+            propTxMode = TransactionManager.MVCC;
         } else if (Tokens.T_MVLOCKS.equalsIgnoreCase(txMode)) {
-            propTxMode = Database.MVLOCKS;
+            propTxMode = TransactionManager.MVLOCKS;
         } else if (Tokens.T_LOCKS.equalsIgnoreCase(txMode)) {
-            propTxMode = Database.LOCKS;
+            propTxMode = TransactionManager.LOCKS;
         }
 
         switch (propTxMode) {
 
-            case Database.LOCKS :
+            case TransactionManager.LOCKS :
                 break;
 
-            case Database.MVLOCKS :
+            case TransactionManager.MVLOCKS :
                 database.txManager = new TransactionManagerMV2PL(database);
                 break;
 
-            case Database.MVCC :
+            case TransactionManager.MVCC :
                 database.txManager = new TransactionManagerMVCC(database);
                 break;
         }
@@ -1133,15 +1134,15 @@ public class Logger {
 
         switch (database.txManager.getTransactionControl()) {
 
-            case Database.MVCC :
+            case TransactionManager.MVCC :
                 sb.append(Tokens.T_MVCC);
                 break;
 
-            case Database.MVLOCKS :
+            case TransactionManager.MVLOCKS :
                 sb.append(Tokens.T_MVLOCKS);
                 break;
 
-            case Database.LOCKS :
+            case TransactionManager.LOCKS :
                 sb.append(Tokens.T_LOCKS);
                 break;
         }

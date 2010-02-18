@@ -39,11 +39,14 @@ import org.hsqldb.RowAVLDiskData;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
+import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.rowio.RowInputInterface;
+import org.hsqldb.RowAction;
 
 /*
  * Implementation of PersistentStore for TEXT tables.
@@ -53,6 +56,8 @@ import org.hsqldb.rowio.RowInputInterface;
  * @since 1.9.0
  */
 public class RowStoreAVLDiskData extends RowStoreAVLDisk {
+
+    IntKeyHashMap rowActionMap = new IntKeyHashMap();
 
     public RowStoreAVLDiskData(PersistentStoreCollection manager,
                                Table table) {
@@ -64,7 +69,10 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         int size = object.getRealSize(cache.rowOut);
 
         object.setStorageSize(size);
-        cache.add(object);
+
+        if (cache != null) {
+            cache.add(object);
+        }
     }
 
     public CachedObject get(RowInputInterface in) {
@@ -84,13 +92,65 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
         if (session != null) {
             RowAction.addInsertAction(session, table, row);
+
+            RowAction action = row.rowAction;
+
+            if (database.txManager.getTransactionControl()
+                    != TransactionManager.LOCKS) {
+                rowActionMap.put(action.getPos(), action);
+            }
         }
 
         return row;
     }
 
+    public void indexRow(Session session, Row row) {
+
+        int i = 0;
+
+        try {
+            for (; i < indexList.length; i++) {
+                indexList[i].insert(session, this, row);
+            }
+        } catch (HsqlException e) {
+
+            // unique index violation - rollback insert
+            for (--i; i >= 0; i--) {
+                indexList[i].delete(this, row);
+            }
+
+            remove(row.getPos());
+
+            throw e;
+        }
+    }
+
+    public void set(CachedObject object) {
+
+        if (database.txManager.getTransactionControl()
+                == TransactionManager.LOCKS) {
+            return;
+        }
+
+        Row       row    = (Row) object;
+        RowAction rowact = (RowAction) rowActionMap.get(row.getPos());
+
+        if (rowact == null) {
+            return;
+        }
+
+        if (rowact.getType() == RowAction.ACTION_NONE) {
+            rowActionMap.remove(row.getPos());
+
+            return;
+        }
+
+        row.rowAction = rowact;
+    }
+
     public void removeAll() {
         ArrayUtil.fillArray(accessorList, null);
+        rowActionMap.clear();
     }
 
     public void remove(int i) {
@@ -125,7 +185,6 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         return accessorList[position];
     }
 
-
     public void commitPersistence(CachedObject row) {
 
         try {
@@ -135,6 +194,87 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         } catch (HsqlException e1) {}
     }
 
+    public void delete(Row row) {
+
+        for (int j = indexList.length - 1; j >= 0; j--) {
+            indexList[j].delete(this, row);
+        }
+
+        row.delete();
+    }
+
+    public void commitRow(Session session, Row row, int changeAction,
+                          int txModel) {
+
+        switch (changeAction) {
+
+            case RowAction.ACTION_DELETE :
+                removePersistence(row.getPos());
+                break;
+
+            case RowAction.ACTION_INSERT :
+                commitPersistence(row);
+                break;
+
+            case RowAction.ACTION_INSERT_DELETE :
+
+                // INSERT + DELETE
+                if (txModel == TransactionManager.LOCKS) {
+                    remove(row.getPos());
+                } else {
+                    delete(row);
+                    remove(row.getPos());
+                    rowActionMap.remove(row.getPos());
+                }
+                break;
+
+            case RowAction.ACTION_DELETE_FINAL :
+                if (txModel != TransactionManager.LOCKS) {
+                    delete(row);
+                    remove(row.getPos());
+                    rowActionMap.remove(row.getPos());
+                }
+                break;
+        }
+    }
+
+    public void rollbackRow(Session session, Row row, int changeAction,
+                            int txModel) {
+
+        switch (changeAction) {
+
+            case RowAction.ACTION_DELETE :
+                if (txModel == TransactionManager.LOCKS) {
+                    row = (Row) get(row, true);
+
+                    row.delete();
+                    row.keepInMemory(false);
+                    indexRow(session, row);
+                }
+                break;
+
+            case RowAction.ACTION_INSERT :
+                if (txModel == TransactionManager.LOCKS) {
+                    delete(row);
+                    remove(row.getPos());
+                } else {}
+                break;
+
+            case RowAction.ACTION_INSERT_DELETE :
+
+                // INSERT + DELETE
+                if (txModel == TransactionManager.LOCKS) {
+                    remove(row.getPos());
+                } else {
+                    delete(row);
+                    remove(row.getPos());
+                    rowActionMap.remove(row.getPos());
+                }
+                break;
+        }
+    }
+
+    //
     public void release() {
 
         ArrayUtil.fillArray(accessorList, null);
