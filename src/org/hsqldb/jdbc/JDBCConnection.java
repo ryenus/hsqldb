@@ -827,7 +827,9 @@ public class JDBCConnection implements Connection {
                     } else if (c == '"') {
                         state = outside_escape_inside_double_quotes;
                     } else if (c == '{') {
-                        sb = new StringBuffer(sql.length());
+                        if (sb == null) {
+                            sb = new StringBuffer(sql.length());
+                        }
                         sb.append(sql.substring(tail, i));
                         i = onStartEscapeSequence(sql, sb, i);
                         tail = i;
@@ -3400,14 +3402,14 @@ public class JDBCConnection implements Connection {
             i+= 2;
 
         } else if (sql.regionMatches(true, i, "ts ", 0, 3)) {
-            sb.insert(i, Tokens.T_TIMESTAMP);
+            sb.append(Tokens.T_TIMESTAMP);
             i+= 2;
 
         } else if (sql.regionMatches(true, i, "d ", 0, 2)) {
-            sb.insert(i, Tokens.T_DATE);
+            sb.append(Tokens.T_DATE);
             i++;
         } else if (sql.regionMatches(true, i, "t ", 0, 2)) {
-            sb.insert(i, Tokens.T_TIME);
+            sb.append(Tokens.T_TIME);
             i++;
         } else if (sql.regionMatches(true, i, "call ", 0, 5)) {
             sb.append(Tokens.T_CALL);
