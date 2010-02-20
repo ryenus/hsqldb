@@ -60,7 +60,7 @@ import org.hsqldb.types.UserTypeModifier;
  */
 public class ParserDDL extends ParserRoutine {
 
-    final static int[]   schemaCommands           = new int[] {
+    final static int[]   schemaCommands             = new int[] {
         Tokens.CREATE, Tokens.GRANT
     };
     final static short[] startStatementTokens       = new short[] {
@@ -1185,6 +1185,8 @@ public class ParserDDL extends ParserRoutine {
                     column.getName());
 
             column.setName(name);
+            column.setNullable(true);
+            column.setPrimaryKey(false);
 
             if (identity) {
                 if (column.isIdentity()) {
@@ -3057,7 +3059,7 @@ public class ParserDDL extends ParserRoutine {
 
         if (schemaName.name.equals(SqlInvariants.LOBS_SCHEMA)) {
             schemaName = SqlInvariants.LOBS_SCHEMA_HSQLNAME;
-            owner = schemaName.owner;
+            owner      = schemaName.owner;
         }
 
         String        sql  = getLastPart();
@@ -3184,15 +3186,15 @@ public class ParserDDL extends ParserRoutine {
 
                         case Tokens.FUNCTION :
                             statementType = StatementTypes.CREATE_ROUTINE;
-                            sql = getStatementForRoutine(position,
-                                               startStatementTokensSchema);
+                            sql = getStatementForRoutine(
+                                position, startStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.PROCEDURE :
                             statementType = StatementTypes.CREATE_ROUTINE;
-                            sql = getStatementForRoutine(position,
-                                               startStatementTokensSchema);
+                            sql = getStatementForRoutine(
+                                position, startStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);
                             break;
 
