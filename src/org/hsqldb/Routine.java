@@ -175,6 +175,7 @@ public class Routine implements SchemaObject {
 
         statement.setSQL(sql);
         setProcedure(statement);
+        statement.resolve(session);
         setReferences();
     }
 

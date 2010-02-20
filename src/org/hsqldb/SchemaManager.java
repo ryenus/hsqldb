@@ -797,6 +797,9 @@ public class SchemaManager {
                 case SchemaObject.VIEW :
                 case SchemaObject.CONSTRAINT :
                 case SchemaObject.ASSERTION :
+                case SchemaObject.ROUTINE :
+                case SchemaObject.PROCEDURE :
+                case SchemaObject.FUNCTION :
                 case SchemaObject.SPECIFIC_ROUTINE :
                     SchemaObject object = getSchemaObject(name);
 
@@ -826,6 +829,9 @@ public class SchemaManager {
                 case SchemaObject.VIEW :
                 case SchemaObject.CONSTRAINT :
                 case SchemaObject.ASSERTION :
+                case SchemaObject.ROUTINE :
+                case SchemaObject.PROCEDURE :
+                case SchemaObject.FUNCTION :
                 case SchemaObject.SPECIFIC_ROUTINE :
                     SchemaObject object = getSchemaObject(name);
 
@@ -1156,8 +1162,13 @@ public class SchemaManager {
 
         for (int i = 0; i < set.size(); i++) {
             HsqlName referenced = (HsqlName) set.get(i);
+            HsqlName name = object.getName();
 
-            referenceMap.put(referenced, object.getName());
+            if (object instanceof Routine) {
+                name = ((Routine)object).getSpecificName();
+            }
+
+            referenceMap.put(referenced, name);
         }
     }
 

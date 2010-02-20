@@ -187,9 +187,16 @@ public class QueryExpression {
             }
         }
 
-        unionColumnTypes = targetTypes;
+        resolveTypesPartOne(session);
 
-        resolveTypes(session);
+        for (int i = 0; i < unionColumnTypes.length && i < targetTypes.length;
+                i++) {
+            if (unionColumnTypes[i] == null) {
+                unionColumnTypes[i] = targetTypes[i];
+            }
+        }
+
+        resolveTypesPartTwo(session);
     }
 
     public void resolveReferences(Session session) {
