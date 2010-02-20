@@ -83,10 +83,15 @@ public final class RangeVariable {
     //
     boolean isLeftJoin;     // table joined with LEFT / FULL OUTER JOIN
     boolean isRightJoin;    // table joined with RIGHT / FULL OUTER JOIN
+
+    //
     int     level;
 
     //
     int rangePosition;
+
+    //
+    int parsePosition;
 
     // for variable and argument lists
     HashMappedList variables;

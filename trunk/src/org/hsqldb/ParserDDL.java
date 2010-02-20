@@ -63,10 +63,10 @@ public class ParserDDL extends ParserRoutine {
     final static int[]   schemaCommands           = new int[] {
         Tokens.CREATE, Tokens.GRANT
     };
-    final static short[] endStatementTokens       = new short[] {
+    final static short[] startStatementTokens       = new short[] {
         Tokens.CREATE, Tokens.GRANT, Tokens.ALTER, Tokens.DROP
     };
-    final static short[] endStatementTokensSchema = new short[] {
+    final static short[] startStatementTokensSchema = new short[] {
         Tokens.CREATE, Tokens.GRANT,
     };
 
@@ -3121,7 +3121,7 @@ public class ParserDDL extends ParserRoutine {
                         case Tokens.INDEX :
                             statementType = StatementTypes.CREATE_INDEX;
                             sql = getStatement(position,
-                                               endStatementTokensSchema);
+                                               startStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);
                             break;
 
@@ -3138,7 +3138,7 @@ public class ParserDDL extends ParserRoutine {
                         case Tokens.DOMAIN :
                             statementType = StatementTypes.CREATE_DOMAIN;
                             sql = getStatement(position,
-                                               endStatementTokensSchema);
+                                               startStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);
                             break;
 
@@ -3164,35 +3164,35 @@ public class ParserDDL extends ParserRoutine {
                         case Tokens.TEXT :
                             statementType = StatementTypes.CREATE_TABLE;
                             sql = getStatement(position,
-                                               endStatementTokensSchema);
+                                               startStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.TRIGGER :
                             statementType = StatementTypes.CREATE_TRIGGER;
                             sql = getStatement(position,
-                                               endStatementTokensSchema);
+                                               startStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.VIEW :
                             statementType = StatementTypes.CREATE_VIEW;
                             sql = getStatement(position,
-                                               endStatementTokensSchema);
+                                               startStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.FUNCTION :
                             statementType = StatementTypes.CREATE_ROUTINE;
-                            sql = getStatement(position,
-                                               endStatementTokensSchema);
+                            sql = getStatementForRoutine(position,
+                                               startStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);
                             break;
 
                         case Tokens.PROCEDURE :
                             statementType = StatementTypes.CREATE_ROUTINE;
-                            sql = getStatement(position,
-                                               endStatementTokensSchema);
+                            sql = getStatementForRoutine(position,
+                                               startStatementTokensSchema);
                             cs = new StatementSchema(sql, statementType, null);
                             break;
 
@@ -3848,7 +3848,7 @@ public class ParserDDL extends ParserRoutine {
             ColumnSchema column) {
 
         String sql = super.getStatement(getParsePosition(),
-                                        endStatementTokens);
+                                        startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
                                    table.getName());
@@ -3858,7 +3858,7 @@ public class ParserDDL extends ParserRoutine {
             ColumnSchema column) {
 
         String sql = super.getStatement(getParsePosition(),
-                                        endStatementTokens);
+                                        startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
                                    table.getName());
@@ -3868,7 +3868,7 @@ public class ParserDDL extends ParserRoutine {
             ColumnSchema column, boolean b) {
 
         String sql = super.getStatement(getParsePosition(),
-                                        endStatementTokens);
+                                        startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
                                    table.getName());
@@ -3878,7 +3878,7 @@ public class ParserDDL extends ParserRoutine {
             ColumnSchema column, Expression expr) {
 
         String sql = super.getStatement(getParsePosition(),
-                                        endStatementTokens);
+                                        startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
                                    table.getName());
@@ -3888,7 +3888,7 @@ public class ParserDDL extends ParserRoutine {
             ColumnSchema column, int columnIndex) {
 
         String sql = super.getStatement(getParsePosition(),
-                                        endStatementTokens);
+                                        startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
                                    table.getName());
@@ -3898,7 +3898,7 @@ public class ParserDDL extends ParserRoutine {
             ColumnSchema column, int columnIndex) {
 
         String sql = super.getStatement(getParsePosition(),
-                                        endStatementTokens);
+                                        startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, null,
                                    table.getName());
@@ -4381,7 +4381,7 @@ public class ParserDDL extends ParserRoutine {
             Constraint c) {
 
         String sql = super.getStatement(getParsePosition(),
-                                        endStatementTokens);
+                                        startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_DOMAIN, null,
                                    null);
@@ -4390,7 +4390,7 @@ public class ParserDDL extends ParserRoutine {
     private Statement compileAlterDomainSetDefault(Type domain, Expression e) {
 
         String sql = super.getStatement(getParsePosition(),
-                                        endStatementTokens);
+                                        startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_DOMAIN, null,
                                    null);
@@ -4400,7 +4400,7 @@ public class ParserDDL extends ParserRoutine {
             HsqlName name) {
 
         String sql = super.getStatement(getParsePosition(),
-                                        endStatementTokens);
+                                        startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_DOMAIN, null,
                                    null);
@@ -4408,7 +4408,7 @@ public class ParserDDL extends ParserRoutine {
 
     private Statement compileAlterDomainDropDefault(Type domain) {
 
-        String sql = getStatement(getParsePosition(), endStatementTokens);
+        String sql = getStatement(getParsePosition(), startStatementTokens);
 
         return new StatementSchema(sql, StatementTypes.ALTER_DOMAIN, null,
                                    null);

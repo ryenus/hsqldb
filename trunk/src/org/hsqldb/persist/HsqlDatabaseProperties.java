@@ -304,7 +304,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         // string defaults for user defined props
         dbMeta.put(hsqldb_tx,
-                   HsqlProperties.getMeta(hsqldb_tx, SQL_PROPERTY, "MVCC"));
+                   HsqlProperties.getMeta(hsqldb_tx, SQL_PROPERTY, "LOCKS"));
         dbMeta.put(hsqldb_tx_level,
                    HsqlProperties.getMeta(hsqldb_tx_level, SQL_PROPERTY,
                                           "READ_COMMITTED"));

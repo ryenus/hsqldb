@@ -1308,7 +1308,7 @@ public class Expression {
     static QuerySpecification getCheckSelect(Session session, Table t,
             Expression e) {
 
-        CompileContext     compileContext = new CompileContext(session);
+        CompileContext     compileContext = new CompileContext(session, null);
         QuerySpecification s = new QuerySpecification(compileContext);
         RangeVariable[] ranges = new RangeVariable[]{
             new RangeVariable(t, null, null, null, compileContext) };
