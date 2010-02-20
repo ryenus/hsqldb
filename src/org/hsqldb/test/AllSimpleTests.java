@@ -48,18 +48,11 @@ public class AllSimpleTests {
 
         System.out.println("*********** " + HSQLBug.class.getName());
         HSQLBug.main(args);
-
-        System.out.println("*********** " + TestBatchBug.class.getClass().getName());
-        TestBatchBug.main(args);
         System.out.println("*********** "
-                           + TestDataStructures.class.getName());
-//      TestDataStructures.main(args);
+                           + TestBatchBug.class.getClass().getName());
+        TestBatchBug.main(args);
         System.out.println("*********** " + TestDima.class.getName());
         TestDima.main(args);
-        System.out.println("*********** "
-                           + TestHashStructures.class.getName());
-        TestHashStructures.main(args);
-
         System.out.println("*********** " + TestHSQLDB.class.getName());
         TestHSQLDB.main(args);
         System.out.println("*********** " + TestObjectSize.class.getName());
@@ -68,7 +61,6 @@ public class AllSimpleTests {
             "*********** "
             + TestSubQueriesInPreparedStatements.class.getName());
         TestSubQueriesInPreparedStatements.main(args);
-
     }
 
     public static void main(String[] Args) throws Exception {

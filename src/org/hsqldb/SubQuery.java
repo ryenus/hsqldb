@@ -69,6 +69,9 @@ class SubQuery implements Comparator {
     boolean    isDataExpression;
 
     //
+    int                  parsePosition;
+
+    //
     public final static SubQuery[] emptySubqueryArray = new SubQuery[]{};
 
     SubQuery(Database database, int level, QueryExpression queryExpression,
