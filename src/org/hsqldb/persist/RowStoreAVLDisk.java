@@ -66,6 +66,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     public RowStoreAVLDisk(PersistentStoreCollection manager,
                            DataFileCache cache, Table table) {
 
+        this.database     = table.database;
         this.manager      = manager;
         this.table        = table;
         this.indexList    = table.getIndexList();
@@ -77,8 +78,6 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         }
 
         manager.setStore(table, this);
-
-        database       = table.database;
     }
 
     public boolean isMemory() {
@@ -214,8 +213,8 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         switch (changeAction) {
 
             case RowAction.ACTION_DELETE :
-                    database.logger.writeDeleteStatement(session,
-                                                         (Table) table, data);
+                database.logger.writeDeleteStatement(session, (Table) table,
+                                                     data);
 
                 if (txModel == TransactionManager.LOCKS) {
                     remove(row.getPos());
@@ -223,8 +222,8 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                 break;
 
             case RowAction.ACTION_INSERT :
-                    database.logger.writeInsertStatement(session,
-                                                         (Table) table, data);
+                database.logger.writeInsertStatement(session, (Table) table,
+                                                     data);
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :
@@ -234,13 +233,12 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                     remove(row.getPos());
                 }
                 break;
-            case RowAction.ACTION_DELETE_FINAL :
 
+            case RowAction.ACTION_DELETE_FINAL :
                 delete(row);
 
                 // remove after delete
                 database.txManager.removeTransactionInfo(row);
-
                 remove(row.getPos());
                 break;
         }
@@ -294,13 +292,6 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         cache = null;
     }
 
-    public void setAccessor(Index key, CachedObject accessor) {
-
-        Index index = (Index) key;
-
-        accessorList[index.getPosition()] = accessor;
-    }
-
     public CachedObject getAccessor(Index key) {
 
         NodeAVL node = (NodeAVL) accessorList[key.getPosition()];
@@ -317,6 +308,13 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         }
 
         return node;
+    }
+
+    public void setAccessor(Index key, CachedObject accessor) {
+
+        Index index = (Index) key;
+
+        accessorList[index.getPosition()] = accessor;
     }
 
     public void setAccessor(Index key, int accessor) {

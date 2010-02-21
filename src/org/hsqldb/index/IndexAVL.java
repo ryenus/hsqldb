@@ -163,24 +163,24 @@ public class IndexAVL implements Index {
                     Type[] colTypes, boolean pk, boolean unique,
                     boolean constraint, boolean forward) {
 
-        persistenceId  = id;
-        this.name      = name;
-        this.colIndex  = columns;
-        this.colTypes  = colTypes;
-        this.colDesc   = descending == null ? new boolean[columns.length]
-                                            : descending;
-        this.nullsLast = nullsLast == null ? new boolean[columns.length]
-                                           : nullsLast;
-        isPK           = pk;
-        isUnique       = unique;
-        isConstraint   = constraint;
-        isForward      = forward;
-        this.table     = table;
-        colCheck       = table.getNewColumnCheckList();
+        this.persistenceId = id;
+        this.name          = name;
+        this.colIndex      = columns;
+        this.colTypes      = colTypes;
+        this.colDesc       = descending == null ? new boolean[columns.length]
+                                                : descending;
+        this.nullsLast     = nullsLast == null ? new boolean[columns.length]
+                                               : nullsLast;
+        this.isPK          = pk;
+        this.isUnique      = unique;
+        this.isConstraint  = constraint;
+        this.isForward     = forward;
+        this.table         = table;
+        this.colCheck      = table.getNewColumnCheckList();
 
         ArrayUtil.intIndexesToBooleanArray(colIndex, colCheck);
 
-        defaultColMap = new int[columns.length];
+        this.defaultColMap = new int[columns.length];
 
         ArrayUtil.fillSequence(defaultColMap);
 

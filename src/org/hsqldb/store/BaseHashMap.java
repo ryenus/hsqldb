@@ -1527,6 +1527,15 @@ public class BaseHashMap {
             return accessTable[lookup];
         }
 
+        public void setAccessCount(int count) {
+
+            if (removed || accessTable == null) {
+                throw new NoSuchElementException();
+            }
+
+            accessTable[lookup] = count;
+        }
+
         public int getLookup() {
             return lookup;
         }

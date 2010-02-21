@@ -46,7 +46,6 @@ import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.RowAction;
 
 /*
  * Implementation of PersistentStore for TEXT tables.

@@ -41,13 +41,13 @@ import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.TableBase;
+import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.TransactionManager;
 
 /*
  * Implementation of PersistentStore for result set and temporary tables.

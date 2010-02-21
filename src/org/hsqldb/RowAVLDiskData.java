@@ -67,10 +67,10 @@ public class RowAVLDiskData extends RowAVLDisk {
      *  the Nodes is made separetly.
      */
     public RowAVLDiskData(TableBase t,
-                          RowInputInterface in)
-                          throws IOException {
+                          RowInputInterface in) throws IOException {
 
-        table          = t;
+        super(t, (Object[]) null);
+
         position       = in.getPos();
         storageSize    = in.getSize();
         rowData        = in.readData(table.getColumnTypes());
