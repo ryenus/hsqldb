@@ -85,7 +85,7 @@ public final class RangeVariable {
     boolean isRightJoin;    // table joined with RIGHT / FULL OUTER JOIN
 
     //
-    int     level;
+    int level;
 
     //
     int rangePosition;

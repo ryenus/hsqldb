@@ -119,11 +119,6 @@ public class RowAVLDisk extends RowAVL {
     boolean hasNodesChanged;
 
     /**
-     *  Default constructor used only in subclasses.
-     */
-    RowAVLDisk() {}
-
-    /**
      *  Constructor for new Rows.  Variable hasDataChanged is set to true in
      *  order to indicate the data needs saving.
      *
@@ -132,11 +127,10 @@ public class RowAVLDisk extends RowAVL {
      */
     public RowAVLDisk(TableBase t, Object[] o) {
 
-        table = t;
+        super(t, o);
 
         setNewNodes();
 
-        rowData        = o;
         hasDataChanged = hasNodesChanged = true;
     }
 
@@ -149,7 +143,7 @@ public class RowAVLDisk extends RowAVL {
      */
     public RowAVLDisk(TableBase t, RowInputInterface in) throws IOException {
 
-        table       = t;
+        super(t, null);
         position    = in.getPos();
         storageSize = in.getSize();
 

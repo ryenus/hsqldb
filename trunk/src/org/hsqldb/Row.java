@@ -56,8 +56,10 @@ public class Row implements CachedObject {
     /**
      *  Default constructor used only in subclasses.
      */
-    protected Row() {}
-
+    public Row(TableBase table, Object[] data) {
+        this.table = table;
+        this.rowData = data;
+    }
     /**
      * Returns the array of fields in the database row.
      */

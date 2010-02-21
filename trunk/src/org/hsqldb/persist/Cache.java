@@ -183,17 +183,20 @@ public class Cache extends BaseHashMap {
 
         updateAccessCounts();
 
-        int                          removeCount = size() / 2;
+        int                          removeCount     = size() / 2;
         int accessTarget = getAccessCountCeiling(removeCount, removeCount / 8);
-        BaseHashMap.BaseHashIterator it          = new BaseHashIterator();
-        int                          savecount   = 0;
+        BaseHashMap.BaseHashIterator it              = new BaseHashIterator();
+        int                          savecount       = 0;
 
         for (; it.hasNext(); ) {
             CachedObject row = (CachedObject) it.next();
+            int currentAccessCount = it.getAccessCount();
 
-            if (it.getAccessCount() <= accessTarget) {
+            if (currentAccessCount <= accessTarget) {
                 synchronized (row) {
-                    if (!row.isKeepInMemory()) {
+                    if (row.isKeepInMemory()) {
+                        it.setAccessCount(accessTarget + 1);
+                    } else {
                         row.setInMemory(false);
 
                         if (row.hasChanged()) {

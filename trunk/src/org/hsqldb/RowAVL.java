@@ -91,7 +91,9 @@ public class RowAVL extends Row {
     /**
      *  Default constructor used only in subclasses.
      */
-    protected RowAVL() {}
+    protected RowAVL(TableBase table, Object[] data) {
+        super(table, data);
+    }
 
     /**
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that
@@ -100,8 +102,7 @@ public class RowAVL extends Row {
     public RowAVL(TableBase table, int indexCount, Object[] data,
                   int position) {
 
-        this.table    = table;
-        this.rowData  = data;
+        super(table, data);
         this.position = position;
         nPrimaryNode  = new NodeAVL(this);
 
