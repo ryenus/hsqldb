@@ -883,7 +883,7 @@ public final class RangeVariable {
                 it = conditions[condIndex].rangeIndex.findFirstRow(session,
                         store, currentJoinData,
                         conditions[condIndex].indexedColumnCount,
-                        OpTypes.EQUAL);
+                        conditions[condIndex].opType);
             }
         }
 

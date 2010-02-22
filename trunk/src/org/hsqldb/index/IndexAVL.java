@@ -722,13 +722,14 @@ public class IndexAVL implements Index {
     }
 
     /**
-     * Return the first node equal to the indexdata object. The rowdata has
-     * the same column mapping as this index.
+     * Return the first node equal to the indexdata object. The rowdata has the
+     * same column mapping as this index.
      *
      * @param session session object
      * @param store store object
      * @param rowdata array containing index column data
-     * @param match count of columns to match
+     * @param fieldCount count of columns to match
+     * @param compareType int
      * @return iterator
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
@@ -762,12 +763,13 @@ public class IndexAVL implements Index {
     }
 
     /**
-     * Return the first node equal to the rowdata object.
-     * The rowdata has the column mapping privided in rowColMap.
+     * Return the first node equal to the rowdata object. The rowdata has the
+     * column mapping privided in rowColMap.
      *
      * @param session session object
      * @param store store object
      * @param rowdata array containing table row data
+     * @param rowColMap int[]
      * @return iterator
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
@@ -781,130 +783,24 @@ public class IndexAVL implements Index {
     }
 
     /**
-     * Finds the first node that is larger or equal to the given one based
-     * on the first column of the index only.
+     * Finds the first node that is larger or equal to the given one based on
+     * the first column of the index only.
      *
      * @param session session object
      * @param store store object
      * @param value value to match
-     * @param compare comparison Expression type
-     *
+     * @param compareType comparison Expression type
      * @return iterator
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object value, int compareType) {
 
-        readLock.lock();
+        NodeAVL node = findNode(session, store, value, compareType,
+                                TransactionManager.ACTION_READ);
 
-        try {
-            if (compareType == OpTypes.SMALLER
-                    || compareType == OpTypes.SMALLER_EQUAL) {
-                return findFirstRowNotNull(session, store);
-            }
-
-            boolean isEqual = compareType == OpTypes.EQUAL
-                              || compareType == OpTypes.IS_NULL;
-            NodeAVL x     = getAccessor(store);
-            int     iTest = 1;
-
-            if (compareType == OpTypes.GREATER) {
-                iTest = 0;
-            }
-
-            if (value == null && !isEqual) {
-                return emptyIterator;
-            }
-
-            // this method returns the correct node only with the following conditions
-            boolean check = compareType == OpTypes.GREATER
-                            || compareType == OpTypes.EQUAL
-                            || compareType == OpTypes.GREATER_EQUAL;
-
-            if (!check) {
-                Error.runtimeError(ErrorCode.U_S0500, "IndexAVL");
-            }
-
-            while (x != null) {
-                boolean t = colTypes[0].compare(
-                    session, value, x.getData(store)[colIndex[0]]) >= iTest;
-
-                if (t) {
-                    NodeAVL r = x.getRight(store);
-
-                    if (r == null) {
-                        break;
-                    }
-
-                    x = r;
-                } else {
-                    NodeAVL l = x.getLeft(store);
-
-                    if (l == null) {
-                        break;
-                    }
-
-                    x = l;
-                }
-            }
-
-/*
-        while (x != null
-                && Column.compare(value, x.getData()[colIndex_0], colType_0)
-                   >= iTest) {
-            x = next(x);
-        }
-*/
-            while (x != null) {
-                Object colvalue = x.getData(store)[colIndex[0]];
-                int    result = colTypes[0].compare(session, value, colvalue);
-
-                if (result >= iTest) {
-                    x = next(store, x);
-                } else {
-                    if (isEqual) {
-                        if (result != 0) {
-                            x = null;
-                        }
-                    } else if (colvalue == null) {
-                        x = next(store, x);
-
-                        continue;
-                    }
-
-                    break;
-                }
-            }
-
-// MVCC
-            if (session == null || x == null) {
-                return getIterator(session, store, x, false);
-            }
-
-            while (x != null) {
-                Row row = x.getRow(store);
-
-                if (compareType == OpTypes.EQUAL
-                        && colTypes[0].compare(
-                            session, value, row.rowData[colIndex[0]]) != 0) {
-                    x = null;
-
-                    break;
-                }
-
-                if (session.database.txManager.canRead(
-                        session, row, TransactionManager.ACTION_READ, null)) {
-                    break;
-                }
-
-                x = next(store, x);
-            }
-
-            return getIterator(session, store, x,
-                               isUnique && this.colIndex.length == 1
-                               && compareType == OpTypes.EQUAL);
-        } finally {
-            readLock.unlock();
-        }
+        return getIterator(session, store, node,
+                           isUnique && this.colIndex.length == 1
+                           && compareType == OpTypes.EQUAL);
     }
 
     /**
@@ -915,60 +811,10 @@ public class IndexAVL implements Index {
     public RowIterator findFirstRowNotNull(Session session,
                                            PersistentStore store) {
 
-        readLock.lock();
+        NodeAVL node = findNode(session, store, null, OpTypes.NOT,
+                                TransactionManager.ACTION_READ);
 
-        try {
-            NodeAVL x = getAccessor(store);
-
-            while (x != null) {
-                boolean t = colTypes[0].compare(
-                    session, null, x.getData(store)[colIndex[0]]) >= 0;
-
-                if (t) {
-                    NodeAVL r = x.getRight(store);
-
-                    if (r == null) {
-                        break;
-                    }
-
-                    x = r;
-                } else {
-                    NodeAVL l = x.getLeft(store);
-
-                    if (l == null) {
-                        break;
-                    }
-
-                    x = l;
-                }
-            }
-
-            while (x != null) {
-                Object colvalue = x.getData(store)[colIndex[0]];
-
-                if (colvalue == null) {
-                    x = next(store, x);
-                } else {
-                    break;
-                }
-            }
-
-// MVCC
-            while (session != null && x != null) {
-                Row row = x.getRow(store);
-
-                if (session.database.txManager.canRead(
-                        session, row, TransactionManager.ACTION_READ, null)) {
-                    break;
-                }
-
-                x = next(store, x);
-            }
-
-            return getIterator(session, store, x, false);
-        } finally {
-            readLock.unlock();
-        }
+        return getIterator(session, store, node, false);
     }
 
     /**
@@ -1241,13 +1087,13 @@ public class IndexAVL implements Index {
     /**
      * Compares two table rows based on the columns of this index. The rowColMap
      * parameter specifies which columns of the other table are to be compared
-     * with the colIndex columns of this index. The rowColMap can cover all
-     * or only some columns of this index.
+     * with the colIndex columns of this index. The rowColMap can cover all or
+     * only some columns of this index.
      *
+     * @param session Session
      * @param a row from another table
      * @param rowColMap column indexes in the other table
      * @param b a full row in this table
-     *
      * @return comparison result, -1,0,+1
      */
     public int compareRowNonUnique(Session session, Object[] a,
@@ -1339,8 +1185,11 @@ public class IndexAVL implements Index {
      * Compare two rows of the table for inserting rows into unique indexes
      * Supports descending columns.
      *
+     * @param session Session
      * @param newRow data
      * @param existingRow data
+     * @param useRowId boolean
+     * @param start int
      * @return comparison result, -1,0,+1
      */
     int compareRowForInsertOrDelete(Session session, Row newRow,
@@ -1395,9 +1244,13 @@ public class IndexAVL implements Index {
     /**
      * Finds a match with a row from a different table
      *
+     * @param session Session
+     * @param store PersistentStore
      * @param rowdata array containing data for the index columns
      * @param rowColMap map of the data to columns
-     * @param first true if the first matching node is required, false if any node
+     * @param fieldCount int
+     * @param compareType int
+     * @param readMode int
      * @return matching node or null
      */
     NodeAVL findNode(Session session, PersistentStore store, Object[] rowdata,
@@ -1426,6 +1279,7 @@ public class IndexAVL implements Index {
                 if (i == 0) {
                     switch (compareType) {
 
+                        case OpTypes.IS_NULL :
                         case OpTypes.EQUAL : {
                             result = x;
                             n      = x.getLeft(store);
@@ -1437,11 +1291,11 @@ public class IndexAVL implements Index {
                             i = compareObject(session, rowdata, rowColMap,
                                               currentRow.rowData, fieldCount);
 
-                            if (i > 0) {
+                            if (i >= 0) {
+                                n = x.getRight(store);
+                            } else {
                                 result = x;
                                 n      = x.getLeft(store);
-                            } else {
-                                n = x.getRight(store);
                             }
 
                             break;
@@ -1450,11 +1304,11 @@ public class IndexAVL implements Index {
                             i = compareObject(session, rowdata, rowColMap,
                                               currentRow.rowData, fieldCount);
 
-                            if (i >= 0) {
+                            if (i > 0) {
+                                n = x.getRight(store);
+                            } else {
                                 result = x;
                                 n      = x.getLeft(store);
-                            } else {
-                                n = x.getRight(store);
                             }
 
                             break;
@@ -1496,6 +1350,114 @@ public class IndexAVL implements Index {
                     result = null;
 
                     break;
+                }
+            }
+
+            return result;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * Finds a match with a value
+     *
+     * @param session Session
+     * @param store PersistentStore
+     * @param data value data for the index columns
+     * @param compareType int
+     * @param readMode int
+     * @return matching node or null
+     */
+    NodeAVL findNode(Session session, PersistentStore store, Object data,
+                     int compareType, int readMode) {
+
+        readLock.lock();
+
+        try {
+            NodeAVL x          = getAccessor(store);
+            NodeAVL n          = null;
+            NodeAVL result     = null;
+            Row     currentRow = null;
+
+            while (x != null) {
+                currentRow = x.getRow(store);
+
+                int i = colTypes[0].compare(session, data,
+                                            currentRow.rowData[colIndex[0]]);
+
+                switch (compareType) {
+
+                    case OpTypes.IS_NULL :
+                    case OpTypes.EQUAL : {
+                        if (i == 0) {
+                            result = x;
+                            n      = x.getLeft(store);
+
+                            break;
+                        } else if (i > 0) {
+                            n = x.getRight(store);
+                        } else if (i < 0) {
+                            n = x.getLeft(store);
+                        }
+
+                        break;
+                    }
+                    case OpTypes.NOT :
+                    case OpTypes.GREATER : {
+                        if (i >= 0) {
+                            n = x.getRight(store);
+                        } else {
+                            result = x;
+                            n      = x.getLeft(store);
+                        }
+
+                        break;
+                    }
+                    case OpTypes.GREATER_EQUAL : {
+                        if (i > 0) {
+                            n = x.getRight(store);
+                        } else {
+                            result = x;
+                            n      = x.getLeft(store);
+                        }
+
+                        break;
+                    }
+                    default :
+                        Error.runtimeError(ErrorCode.U_S0500, "Index");
+                }
+
+                if (n == null) {
+                    break;
+                }
+
+                x = n;
+            }
+
+            // MVCC 190
+            if (session == null) {
+                return result;
+            }
+
+            while (result != null) {
+                currentRow = result.getRow(store);
+
+                if (session.database.txManager.canRead(session, currentRow,
+                                                       readMode, colIndex)) {
+                    break;
+                }
+
+                result = next(store, result);
+
+                if (compareType == OpTypes.EQUAL) {
+                    if (colTypes[0].compare(
+                            session, data,
+                            currentRow.rowData[colIndex[0]]) != 0) {
+                        result = null;
+
+                        break;
+                    }
                 }
             }
 

@@ -68,7 +68,6 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     boolean                isAggregate;
     boolean                isSimpleAggregate;
     Object[]               simpleAggregateData;
-    Object[]               tempArray = new Object[1];
 
     //
     boolean reindexTable;
@@ -314,9 +313,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
     public Object[] getData(Long rowId) {
 
-        tempArray[0] = rowId;
-
-        RowIterator it = idIndex.findFirstRow(session, store, tempArray, 1,
+        RowIterator it = idIndex.findFirstRow(session, store, rowId,
                                               OpTypes.EQUAL);
 
         return it.getNext();
