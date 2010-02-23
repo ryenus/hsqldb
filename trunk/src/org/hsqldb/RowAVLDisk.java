@@ -73,6 +73,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLDisk;
 import org.hsqldb.lib.IntLookup;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
 
@@ -144,6 +145,7 @@ public class RowAVLDisk extends RowAVL {
     public RowAVLDisk(TableBase t, RowInputInterface in) throws IOException {
 
         super(t, null);
+
         position    = in.getPos();
         storageSize = in.getSize();
 
@@ -252,8 +254,19 @@ public class RowAVLDisk extends RowAVL {
     /**
      * Only unlinks nodes. Is not a destroy() method
      */
-    public void delete() {
-        super.delete();
+    public void delete(PersistentStore store) {
+
+        RowAVLDisk row = this;
+
+        if (!row.keepInMemory(true)) {
+            row = (RowAVLDisk) store.get(row, true);
+        }
+
+        super.delete(store);
+
+        hasNodesChanged = true;
+
+        row.keepInMemory(false);
     }
 
     public void destroy() {

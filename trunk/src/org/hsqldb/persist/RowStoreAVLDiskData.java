@@ -199,7 +199,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
             indexList[j].delete(this, row);
         }
 
-        row.delete();
+        row.delete(this);
     }
 
     public void commitRow(Session session, Row row, int changeAction,
@@ -246,7 +246,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
                 if (txModel == TransactionManager.LOCKS) {
                     row = (Row) get(row, true);
 
-                    row.delete();
+                    row.delete(this);
                     row.keepInMemory(false);
                     indexRow(session, row);
                 }

@@ -68,6 +68,7 @@ package org.hsqldb;
 
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.java.JavaSystem;
+import org.hsqldb.persist.PersistentStore;
 
 // fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
 // fredt@users 20020920 - patch 1.7.1 - refactoring to cut mamory footprint
@@ -167,7 +168,7 @@ public class RowAVL extends Row {
         }
     }
 
-    public void delete() {
+    public void delete(PersistentStore store) {
 
         NodeAVL n = nPrimaryNode;
 
