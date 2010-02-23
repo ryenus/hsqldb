@@ -128,7 +128,7 @@ public class Row implements CachedObject {
 
     public void setInMemory(boolean in) {}
 
-    public void delete() {}
+    public void delete(PersistentStore store) {}
 
     public void restore() {}
 

@@ -253,7 +253,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                 if (txModel == TransactionManager.LOCKS) {
                     row = (Row) get(row, true);
 
-                    row.delete();
+                    row.delete(this);
                     row.keepInMemory(false);
                     indexRow(session, row);
                 }
