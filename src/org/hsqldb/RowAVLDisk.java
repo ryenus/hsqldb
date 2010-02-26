@@ -1,4 +1,7 @@
-/* Copyright (c) 1995-2000, The Hypersonic SQL Group.
+/*
+ * For work originally developed by the Hypersonic SQL Group:
+ *
+ * Copyright (c) 1995-2000, The Hypersonic SQL Group.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +36,7 @@
  *
  * For work added by the HSQL Development Group:
  *
- * Copyright (c) 2001-2009, The HSQL Development Group
+ * Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
