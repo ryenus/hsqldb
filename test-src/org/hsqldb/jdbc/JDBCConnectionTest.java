@@ -254,7 +254,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         String     sql       = "{?= call abs(?)}";
         Connection conn      = newConnection();
         String     expResult = "call abs(?)";
-        String     result    = conn.nativeSQL(sql);
+        String     result    = conn.nativeSQL(sql).toLowerCase();
 
         assertEquals(expResult, result.trim());
     }

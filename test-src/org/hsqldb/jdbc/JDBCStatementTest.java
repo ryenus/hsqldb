@@ -367,13 +367,13 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
         String    sql  = "select * from customer";
         Statement stmt = newStatement();
 
-        stmt.execute(sql);
-
         boolean expResult = true;
-        boolean result    = stmt.getMoreResults();
+        boolean result    = stmt.execute(sql);
 
         assertEquals(expResult, result);
 
+        expResult = false;
+        result = stmt.getMoreResults();
         sql = "delete from customer where 1=0";
 
         stmt.execute(sql);
