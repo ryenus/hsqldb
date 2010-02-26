@@ -53,6 +53,8 @@ public interface PersistentStore {
 
     TableBase getTable();
 
+    long getCreationTimestamp();
+
     boolean isMemory();
 
     int getAccessCount();

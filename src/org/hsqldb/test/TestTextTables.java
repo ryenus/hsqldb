@@ -160,6 +160,11 @@ public class TestTextTables extends TestBase {
 
         st.execute("truncate table tsingle restart identity");
 
+        ResultSet rs = st.executeQuery("select count(*) from tident");
+
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt(1));
+
         st.execute("set table tident source off");
         st.execute("set table tsingle source off");
 
@@ -169,6 +174,17 @@ public class TestTextTables extends TestBase {
 
         st.execute("set table tident source on");
         st.execute("set table tsingle source on");
+
+        rs = st.executeQuery("select count(*) from tmsingle");
+
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt(1));
+
+        rs = st.executeQuery("select count(*) from tident");
+
+        assertTrue(rs.next());
+        assertEquals(0, rs.getInt(1));
+
 
         PreparedStatement ps =
             conn.prepareStatement("insert into tmsingle(c1) values ?");
@@ -190,12 +206,25 @@ public class TestTextTables extends TestBase {
 
         ps.close();
 
-        st.execute("SHUTDOWN");
+        st   = conn.createStatement();
+
+        rs = st.executeQuery("select count(*) from tmsingle");
+
+        assertTrue(rs.next());
+        assertEquals(20, rs.getInt(1));
+
+        rs = st.executeQuery("select count(*) from tident");
+
+        assertTrue(rs.next());
+        assertEquals(20, rs.getInt(1));
+
+
+        st.execute("SHUTDOWN SCRIPT");
 
         conn = newConnection();
         st   = conn.createStatement();
 
-        ResultSet rs = st.executeQuery("select count(*) from tmsingle");
+        rs = st.executeQuery("select count(*) from tmsingle");
 
         assertTrue(rs.next());
         assertEquals(20, rs.getInt(1));
@@ -208,7 +237,7 @@ public class TestTextTables extends TestBase {
         conn = newConnection();
         st   = conn.createStatement();
 
-        st.execute("SHUTDOWN SCRIPT");
+        st.execute("SHUTDOWN");
     }
 
     void initDatabase() throws Exception {

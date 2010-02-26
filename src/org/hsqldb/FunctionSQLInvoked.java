@@ -189,10 +189,6 @@ public class FunctionSQLInvoked extends Expression {
         }
 
         if (push) {
-            if (result.isError()) {
-                session.rollbackToSavepoint();
-            }
-
             session.sessionContext.pop();
         }
 

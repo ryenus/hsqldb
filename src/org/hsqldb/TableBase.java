@@ -163,11 +163,11 @@ public class TableBase {
 
         PersistentStore store = session.sessionData.getRowStore(this);
 
-        return getPrimaryIndex().firstRow(store);
+        return getPrimaryIndex().firstRow(session, store);
     }
 
     public final RowIterator rowIterator(PersistentStore store) {
-        return getPrimaryIndex().firstRow(store);
+        return getPrimaryIndex().firstRow(store, false);
     }
 
     public final int getIndexCount() {

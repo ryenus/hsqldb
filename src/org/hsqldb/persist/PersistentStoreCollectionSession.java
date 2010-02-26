@@ -161,9 +161,9 @@ implements PersistentStoreCollection {
         Iterator it = rowStoreMapSession.values().iterator();
 
         while (it.hasNext()) {
-            RowStoreAVL store = (RowStoreAVL) it.next();
+            PersistentStore store = (PersistentStore) it.next();
 
-            if (store.timestamp == actionTimestamp) {
+            if (store.getCreationTimestamp() == actionTimestamp) {
                 store.release();
             }
         }
