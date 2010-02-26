@@ -48,14 +48,14 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
     public static final int StandardMaxIdentifierLength = 128;
     public static final int DefaultJDBCMajorVersion = 4;
     public static final int DefaultJDBCMinorVersion = 0;
-    public static final int DefaultDriverMajorVersion = 1;
-    public static final int DefaultDriverMinorVersion = 9;
+    public static final int DefaultDriverMajorVersion = 2;
+    public static final int DefaultDriverMinorVersion = 0;
     public static final String DefaultDriverName = "HSQL Database Engine Driver";
-    public static final String DefaultDriverVersion = "1.9.0";
-    public static final int DefaultDatabaseMajorVersion = 1;
-    public static final int DefaultDatabaseMinorVersion = 9;
+    public static final String DefaultDriverVersion = "2.0.0";
+    public static final int DefaultDatabaseMajorVersion = 2;
+    public static final int DefaultDatabaseMinorVersion = 0;
     private static final String DefaultDatabaseProductName = "HSQL Database Engine";
-    private static final String DefaultDatabaseProductVersion = "1.9.0";
+    private static final String DefaultDatabaseProductVersion = "2.0.0";
 
     protected final int getStandardMaxIdentifierLength() {
         return StandardMaxIdentifierLength;
@@ -2728,7 +2728,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
      */
     public void testUpdatesAreDetected() throws Exception {
         println("updatesAreDetected");
-        
+
         DatabaseMetaData dbmd = getMetaData();
         //--
         int type = JDBCResultSet.TYPE_FORWARD_ONLY;

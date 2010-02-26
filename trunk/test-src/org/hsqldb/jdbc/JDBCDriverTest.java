@@ -72,11 +72,11 @@ public class JDBCDriverTest extends BaseJdbcTestCase {
     }
 
     protected int getExpectedMajorVersion() {
-        return getIntProperty("driver.major.version", 1);
+        return getIntProperty("driver.major.version", 2);
     }
 
     protected int getExpectedMinorVersion() {
-       return getIntProperty("driver.minor.version", 9);
+       return getIntProperty("driver.minor.version", 0);
     }
 
     protected boolean getExpectedJdbcCompliant()
