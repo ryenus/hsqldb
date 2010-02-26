@@ -63,6 +63,7 @@ import org.hsqldb.result.ResultConstants;
  * There is no real relation between the current state fo an Statement instance
  * and the various ResultSets that it may have returned for different queries.
  */
+
 /**
  * @todo 1.9.0 - review the following issues:
  *
@@ -124,11 +125,10 @@ class JDBCStatementBase {
     /** Counter for ResultSet in getMoreResults(). */
     protected int resultSetCounter;
 
-
     /** Query timeout in seconds */
     protected int queryTimeout;
 
-    /** Implementation in subclasses **/
+    /** Implementation in subclasses */
     public synchronized void close() throws SQLException {}
 
     /**
@@ -144,6 +144,7 @@ class JDBCStatementBase {
 
         if (connection.isClosed) {
             close();
+
             throw Util.sqlException(ErrorCode.X_08503);
         }
     }
@@ -161,7 +162,7 @@ class JDBCStatementBase {
             return;
         }
 
-        rootWarning    = null;
+        rootWarning = null;
 
         Result current = resultIn;
 
@@ -189,8 +190,9 @@ class JDBCStatementBase {
 
         if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection.sessionProxy,
-                    this, resultIn, resultIn.metaData,
-                    connection);
+                                                 this, resultIn,
+                                                 resultIn.metaData,
+                                                 connection);
         }
     }
 
@@ -199,16 +201,18 @@ class JDBCStatementBase {
         checkClosed();
 
         return (resultIn == null || resultIn.isData()) ? -1
-                : resultIn.getUpdateCount();
+                                                       : resultIn
+                                                       .getUpdateCount();
     }
-
 
     ResultSet getResultSet() throws SQLException {
 
         checkClosed();
 
         ResultSet result = currentResultSet;
+
         currentResultSet = null;
+
         return result;
     }
 
@@ -217,19 +221,21 @@ class JDBCStatementBase {
     }
 
     /**
-     * Note yet correct for multiple ResultSets. Should keep track of the
+     * Not yet correct for multiple ResultSets. Should keep track of all
      * previous ResultSet objects to be able to close them
      */
     boolean getMoreResults(int current) throws SQLException {
+
         checkClosed();
 
-        if (resultIn == null || !resultIn.isData()) {
+        if (resultIn == null) {
             return false;
         }
 
-        if (resultSetCounter == 0) {
-            resultSetCounter++;
-            return true;
+        if (!resultIn.isData()) {
+            resultIn = null;
+
+            return false;
         }
 
         if (currentResultSet != null && current != KEEP_CURRENT_RESULT) {
@@ -250,9 +256,11 @@ class JDBCStatementBase {
         if (generatedResult == null) {
             generatedResult = Result.emptyGeneratedResult;
         }
+
         generatedResultSet = new JDBCResultSet(connection.sessionProxy, null,
-                generatedResult, generatedResult.metaData,
-                connection);
+                                               generatedResult,
+                                               generatedResult.metaData,
+                                               connection);
 
         return generatedResultSet;
     }
@@ -269,6 +277,7 @@ class JDBCStatementBase {
         if (generatedResultSet != null) {
             generatedResultSet.close();
         }
+
         generatedResultSet = null;
         generatedResult    = null;
         resultIn           = null;
@@ -277,12 +286,11 @@ class JDBCStatementBase {
     /**
      * JDBC 3 constants
      */
-    static final int CLOSE_CURRENT_RESULT = 1;
-    static final int KEEP_CURRENT_RESULT = 2;
-    static final int CLOSE_ALL_RESULTS = 3;
-    static final int SUCCESS_NO_INFO = -2;
-    static final int EXECUTE_FAILED = -3;
+    static final int CLOSE_CURRENT_RESULT  = 1;
+    static final int KEEP_CURRENT_RESULT   = 2;
+    static final int CLOSE_ALL_RESULTS     = 3;
+    static final int SUCCESS_NO_INFO       = -2;
+    static final int EXECUTE_FAILED        = -3;
     static final int RETURN_GENERATED_KEYS = 1;
-    static final int NO_GENERATED_KEYS = 2;
-
+    static final int NO_GENERATED_KEYS     = 2;
 }
