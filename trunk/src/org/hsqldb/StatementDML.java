@@ -903,19 +903,22 @@ public class StatementDML extends StatementDMQL {
 
     Result executeDeleteTruncateStatement(Session session) {
 
-        RangeIterator it = RangeVariable.getIterator(session,
-            targetRangeVariables);
+        PersistentStore store = session.sessionData.getRowStore(targetTable);
+        RowIterator it = targetTable.getPrimaryIndex().firstRow(store, true);
 
-        while (it.next()) {
-            Row row = it.getCurrentRow();
+        try {
+            while (it.hasNext()) {
+                Row row = it.getNextRow();
 
-            session.addDeleteAction((Table) row.getTable(), row, null);
+                session.addDeleteAction( (Table) row.getTable(), row, null);
+            }
+
+            if (restartIdentity && targetTable.identitySequence != null) {
+                targetTable.identitySequence.reset();
+            }
+        } finally {
+            it.release();
         }
-
-        if (restartIdentity && targetTable.identitySequence != null) {
-            targetTable.identitySequence.reset();
-        }
-
         return Result.updateOneResult;
     }
 

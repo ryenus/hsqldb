@@ -40,7 +40,6 @@ import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
-import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.persist.CachedObject;
 
@@ -341,56 +340,7 @@ implements TransactionManager {
     public RowAction addDeleteAction(Session session, Table table, Row row,
                                      int[] colMap) {
 
-        RowAction action;
-
-        synchronized (row) {
-            if (row.isMemory()) {
-                action = RowAction.addDeleteAction(session, table, row,
-                                                   colMap);
-            } else {
-/*
-                // may not work when two row images coexist
-                newAction = action == null;
-
-                action = RowAction.addDeleteAction(session, table, row,
-                                                   colMap);
-
-                if (newAction && action != null) {
-                    rowActionMap.put(row.getPos(), action);
-                }
-*/
-                ReentrantReadWriteLock.WriteLock mapLock =
-                    rowActionMap.getWriteLock();
-
-                mapLock.lock();
-
-                try {
-                    action = row.rowAction;
-
-                    if (action == null) {
-                        action = (RowAction) rowActionMap.get(row.getPos());
-                    }
-
-                    if (action == null) {
-                        action = RowAction.addDeleteAction(session, table,
-                                                           row, colMap);
-
-                        if (action != null) {
-                            rowActionMap.put(row.getPos(), action);
-
-                            row.rowAction = action;
-                        }
-                    } else {
-
-                        // possibly from rowActionMap
-                        row.rowAction = action;
-                        action = action.addDeleteAction(session, colMap);
-                    }
-                } finally {
-                    mapLock.unlock();
-                }
-            }
-        }
+        RowAction action = addDeleteActionToRow(session, table, row, colMap);
 
         if (action == null) {
             writeLock.lock();
@@ -701,6 +651,86 @@ implements TransactionManager {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    RowAction addDeleteActionToRow(Session session, Table table, Row row,
+                                   int[] colMap) {
+
+        RowAction action = null;
+
+        synchronized (row) {
+            if (row.isMemory()) {
+                action = RowAction.addDeleteAction(session, table, row,
+                                                   colMap);
+            } else {
+                ReentrantReadWriteLock.WriteLock mapLock =
+                    rowActionMap.getWriteLock();
+
+                mapLock.lock();
+
+                try {
+
+                    /* using rowActionMap as source */
+                    action = (RowAction) rowActionMap.get(row.getPos());
+
+                    if (action == null) {
+                        if (row.rowAction != null) {
+
+                            // test code
+                            action = row.rowAction;
+                        }
+
+                        action = RowAction.addDeleteAction(session, table,
+                                                           row, colMap);
+
+                        if (action != null) {
+                            rowActionMap.put(row.getPos(), action);
+                        }
+                    } else {
+                        if (row.rowAction != action) {
+
+                            // test code
+                            action = row.rowAction;
+                        }
+
+                        row.rowAction = action;
+                        action = RowAction.addDeleteAction(session, table,
+                                                           row, colMap);
+                    }
+
+
+/*
+
+                    action = row.rowAction;
+
+                    if (action == null) {
+                        action = (RowAction) rowActionMap.get(row.getPos());
+                    }
+
+                    if (action == null) {
+                        action = RowAction.addDeleteAction(session, table,
+                                                           row, colMap);
+
+                        if (action != null) {
+                            rowActionMap.put(row.getPos(), action);
+
+                            row.rowAction = action;
+                        }
+                    } else {
+
+                        // possibly from rowActionMap
+                        row.rowAction = action;
+                        action = action.addDeleteAction(session, colMap);
+                    }
+*/
+
+                } finally {
+                    mapLock.unlock();
+                }
+            }
+        }
+
+        return action;
     }
 
     /**

@@ -1112,8 +1112,6 @@ public class QuerySpecification extends QueryExpression {
 
         Result r = getSingleResult(session, maxrows);
 
-        // fredt - now there is no need for the sort and group columns
-//        r.setColumnCount(indexLimitVisible);
         r.getNavigator().reset();
 
         return r;

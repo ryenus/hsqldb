@@ -61,6 +61,10 @@ public abstract class RowStoreAVL implements PersistentStore {
         return table;
     }
 
+    public long getCreationTimestamp() {
+        return timestamp;
+    }
+
     public boolean isMemory() {
         return false;
     }
@@ -162,9 +166,7 @@ public abstract class RowStoreAVL implements PersistentStore {
         while (it.hasNext()) {
             Row row = it.getNextRow();
 
-            if (row instanceof RowAVL) {
-                ((RowAVL) row).clearNonPrimaryNodes();
-            }
+            ((RowAVL) row).clearNonPrimaryNodes();
 
             for (int i = 1; i < indexList.length; i++) {
                 indexList[i].insert(null, this, row);
@@ -178,7 +180,7 @@ public abstract class RowStoreAVL implements PersistentStore {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
         }
 
-        return indexList[0].firstRow(this);
+        return indexList[0].firstRow(this, false);
     }
 
     public abstract void setAccessor(Index key, CachedObject accessor);
@@ -206,8 +208,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
             if (adjust == 0) {
                 oldtype =
-                    ((Table) ((RowStoreAVL) other).table)
-                        .getColumnTypes()[colindex];
+                    ((Table) other.getTable()).getColumnTypes()[colindex];
                 newtype = ((Table) table).getColumnTypes()[colindex];
             }
         }
@@ -247,7 +248,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     void dropIndexFromRows(Index primaryIndex, Index oldIndex) {
 
-        RowIterator it       = primaryIndex.firstRow(this);
+        RowIterator it       = primaryIndex.firstRow(this, false);
         int         position = oldIndex.getPosition() - 1;
 
         while (it.hasNext()) {
@@ -266,7 +267,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     boolean insertIndexNodes(Index primaryIndex, Index newIndex) {
 
         int           position = newIndex.getPosition();
-        RowIterator   it       = primaryIndex.firstRow(this);
+        RowIterator   it       = primaryIndex.firstRow(this, false);
         int           rowCount = 0;
         HsqlException error    = null;
 
@@ -291,7 +292,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         // backtrack on error
         // rowCount rows have been modified
-        it = primaryIndex.firstRow(this);
+        it = primaryIndex.firstRow(this, false);
 
         for (int i = 0; i < rowCount; i++) {
             Row     row      = it.getNextRow();
@@ -315,7 +316,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         setAccessor(index, null);
 
-        RowIterator it = table.rowIterator(session);
+        RowIterator it = table.rowIterator(this);
 
         while (it.hasNext()) {
             Row row = it.getNextRow();

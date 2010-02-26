@@ -139,7 +139,7 @@ public interface Index extends SchemaObject {
      * @return iterator
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object[] rowdata, int match,
+                                    Object[] rowdata, int matchCount,
                                     int compareType);
 
     /**
@@ -188,7 +188,7 @@ public interface Index extends SchemaObject {
     public RowIterator findFirstRowNotNull(Session session,
                                            PersistentStore store);
 
-    public RowIterator firstRow(PersistentStore store);
+    public RowIterator firstRow(PersistentStore store, boolean forDelete);
 
     /**
      * Returns the row for the first node of the index

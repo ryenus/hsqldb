@@ -362,6 +362,8 @@ public class TextCache extends DataFileCache {
             if (empty && !cacheReadonly) {
                 FileUtil.getFileUtil().delete(dataFileName);
             }
+
+            uncommittedCache.clear();
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_TextCache_closing_file_error,
