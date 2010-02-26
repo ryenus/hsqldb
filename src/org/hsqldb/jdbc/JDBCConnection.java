@@ -507,8 +507,8 @@ import java.sql.SQLInput;
  * </div> <!-- end release-specific documentation -->
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
- * @revised JDK 1.6, HSQLDB 1.9.0
+ * @version 2.0
+ * @revised JDK 1.6, HSQLDB 2.0
  * @see JDBCDriver
  * @see JDBCStatement
  * @see JDBCParameterMetaData
@@ -933,7 +933,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including HSQLDB 1.9.0, <p>
+     * Up to and including HSQLDB 2.0, <p>
      *
      * <ol>
      *   <li> All rows of a result set are retrieved internally <em>
@@ -946,9 +946,9 @@ public class JDBCConnection implements Connection {
      * </ol>
      * <p>
      *
-     * Starting with 1.9.0, HSQLDB may not return a result set to the network
-     * client as a whole; the
-     * generic documentation may apply.
+     * Starting with 2.0, HSQLDB may not return a result set to the network
+     * client as a whole; the generic documentation will apply. The fetch
+     * size is taken into account
      *
      * (boucherb@users) </div> <!-- end release-specific
      * documentation -->
@@ -1158,7 +1158,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 essentially supports full database metadata. <p>
+     * HSQLDB 2.0 essentially supports full database metadata. <p>
      *
      * For discussion in greater detail, please follow the link to the
      * overview for JDBCDatabaseMetaData, below.
@@ -1192,7 +1192,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports the SQL standard, which will not allow calls to
+     * HSQLDB 2.0 supports the SQL standard, which will not allow calls to
      * this method to succeed during a transaction.<p>
      *
      * Additionally, HSQLDB provides a way to put a whole database in
@@ -1529,7 +1529,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 adheres closely to SQL and JDBC standards. The
+     * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
      * changed in this version.<p>
      *
@@ -1594,7 +1594,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 adheres closely to SQL and JDBC standards. The
+     * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
      * changed in this version.<p>
      *
@@ -1665,7 +1665,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 adheres closely to SQL and JDBC standards. The
+     * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
      * changed in this version.<p>
      *
@@ -1926,7 +1926,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports this feature. <p>
+     * From 2.0, HSQLDB supports this feature. <p>
      *
      * Note: Unnamed savepoints are not part of the SQL:2003 standard.
      * Use setSavepoint(String name) instead. <p>
@@ -2227,7 +2227,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 adheres closely to SQL and JDBC standards. The
+     * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
      * changed in this version.<p>
      *
@@ -2301,7 +2301,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 adheres closely to SQL and JDBC standards. The
+     * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
      * changed in this version.<p>
      *
@@ -2380,7 +2380,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 adheres closely to SQL and JDBC standards. The
+     * HSQLDB 2.0 adheres closely to SQL and JDBC standards. The
      * interpretation of of resultSetType and resultSetConcurrency has
      * changed in this version.<p>
      *
@@ -2475,7 +2475,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 1.9.0.x
+     * Supported in 2.0
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -2560,7 +2560,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 1.9.0
+     * Supported in 2.0
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -2636,7 +2636,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 1.9.0
+     * Supported in 2.0
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -2687,7 +2687,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this data type
      *
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public Clob createClob() throws SQLException {
 
@@ -2708,7 +2708,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this data type
      *
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public Blob createBlob() throws SQLException {
 
@@ -2729,7 +2729,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this data type
      *
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 
 //#ifdef JAVA6
@@ -2753,7 +2753,7 @@ public class JDBCConnection implements Connection {
      * called on a closed connection or a database access error occurs.
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this data type
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public SQLXML createSQLXML() throws SQLException {
@@ -2786,7 +2786,7 @@ public class JDBCConnection implements Connection {
      * @return true if the connection is valid, false otherwise
      * @exception SQLException if the value supplied for <code>timeout</code>
      * is less then 0
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      * <p>
      * @see JDBCDatabaseMetaData#getClientInfoProperties
      */
@@ -2885,7 +2885,7 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0, throws an SQLClientInfoException when this method is
+     * HSQLDB 2.0, throws an SQLClientInfoException when this method is
      * called.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2899,7 +2899,7 @@ public class JDBCConnection implements Connection {
      *                  setting the client info value on the database server or this method
      * is called on a closed connection
      * <p>
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void setClientInfo(String name,
@@ -2939,7 +2939,7 @@ public class JDBCConnection implements Connection {
      * @param properties                the list of client info properties to set
      * <p>
      * @see java.sql.Connection#setClientInfo(String, String) setClientInfo(String, String)
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      * <p>
      * @throws SQLClientInfoException if the database server returns an error while
      *                  setting the clientInfo values on the database server or this method
@@ -2987,7 +2987,7 @@ public class JDBCConnection implements Connection {
      *                                                  fetching the client info value from the database
      * or this method is called on a closed connection
      * <p>
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      * <p>
      * @see java.sql.DatabaseMetaData#getClientInfoProperties
      */
@@ -3016,7 +3016,7 @@ public class JDBCConnection implements Connection {
      *                  fetching the client info values from the database
      * or this method is called on a closed connection
      * <p>
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public Properties getClientInfo() throws SQLException {
@@ -3039,7 +3039,7 @@ public class JDBCConnection implements Connection {
      * @return an Array object whose elements map to the specified SQL type
      * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
      * @throws SQLFeatureNotSupportedException  if the JDBC driver does not support this data type
-     * @since JDK 1.6_b80, HSQLDB 1.9.0
+     * @since JDK 1.6_b80, HSQLDB 2.0
      * @revised JDK 1.6_b86 method renamed from createArray to createArrayOf
      */
 //#ifdef JAVA6
@@ -3063,7 +3063,7 @@ public class JDBCConnection implements Connection {
      * @return a Struct object that maps to the given SQL type and is populated with the given attributes
      * @throws SQLException if a database error occurs, the typeName is null or this method is called on a closed connection
      * @throws SQLFeatureNotSupportedException if the JDBC driver does not support this data type
-     * @since JDK 1.6_b80, HSQLDB 1.9.0
+     * @since JDK 1.6_b80, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public Struct createStruct(String typeName,
@@ -3092,7 +3092,7 @@ public class JDBCConnection implements Connection {
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
@@ -3122,7 +3122,7 @@ public class JDBCConnection implements Connection {
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public boolean isWrapperFor(

@@ -54,7 +54,7 @@ import java.sql.Savepoint;
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
  * SQL 2003 standard does not support unnamed savepoints. However, this
- * feature is supported from version 1.9.0.<p>
+ * feature is supported from version 2.0.<p>
  *
  * If the connection is autoCommit, setting savepoints has no effect as any
  * such savepoint is cleared upon the execution of the first transactional

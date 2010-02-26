@@ -138,7 +138,7 @@ import org.hsqldb.persist.HsqlProperties;
  * <hr>
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0
  * </div> <!-- end release-specific documentation -->
  *
  * @see org.hsqldb.jdbc.JDBCConnection
@@ -464,7 +464,7 @@ public class JDBCDriver implements Driver {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     *  HSQLDB 1.9.0 is aimed to be compliant with JDBC 4.0 specification.
+     *  HSQLDB 2.0 is aimed to be compliant with JDBC 4.0 specification.
      *  It supports SQL 92 Entry Level and beyond.
      * </div> <!-- end release-specific documentation -->
      *

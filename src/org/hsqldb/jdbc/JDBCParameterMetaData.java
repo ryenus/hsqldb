@@ -68,9 +68,9 @@ import org.hsqldb.types.Types;
  * object.
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0
  * @since JDK 1.4, HSQLDB 1.7.2
- * @revised JDK 1.6, HSQLDB 1.9.0
+ * @revised JDK 1.6, HSQLDB 2.0
  */
 //#ifdef JAVA6
 public class JDBCParameterMetaData implements ParameterMetaData,
@@ -279,7 +279,7 @@ public class JDBCParameterMetaData
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
@@ -307,7 +307,7 @@ public class JDBCParameterMetaData
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public boolean isWrapperFor(
