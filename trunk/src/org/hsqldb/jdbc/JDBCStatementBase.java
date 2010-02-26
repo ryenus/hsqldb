@@ -44,7 +44,7 @@ import org.hsqldb.result.ResultConstants;
  * java.sql.PreparedStatement. Contains common members and methods.
  *
  * @author fredt@usrs
- * @version 1.9.0
+ * @version 2.0
  * @since 1.9.0
  */
 
@@ -74,7 +74,7 @@ class JDBCStatementBase {
 
     /**
      * Whether this Statement has been explicitly closed.  A JDBCConnection
-     * object now explicitly closes all of its open JDBC*Statement objects
+     * object now explicitly closes all of its open JDBC Statement objects
      * when it is closed.
      */
     volatile boolean isClosed;

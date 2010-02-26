@@ -42,6 +42,16 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.types.ClobDataID;
 
+/**
+ * A wrapper for HSQLDB ClobData objects.
+ *
+ * Instances of this class are returnd by calls to ResultSet methods.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0
+ * @since 1.9.0
+ */
+
 public class JDBCClobClient implements Clob {
 
     /**
@@ -280,7 +290,7 @@ public class JDBCClobClient implements Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized void free() throws SQLException {
         isClosed = true;
@@ -300,7 +310,7 @@ public class JDBCClobClient implements Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized Reader getCharacterStream(long pos,
             long length) throws SQLException {

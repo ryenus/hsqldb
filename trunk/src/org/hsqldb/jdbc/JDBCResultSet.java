@@ -236,7 +236,7 @@ import org.hsqldb.types.Types;
  * <code>WebServer</code> or in-process mode <code>Database.</code>
  * <p>
  *
- * From HSQLDB 1.9.0, there is full support for updateable result sets.
+ * From HSQLDB 2.0, there is full support for updatable result sets.
  * Supported methods
  * include all updateXXX methods for the supported types, as well as the
  * {@link #insertRow},
@@ -314,7 +314,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0
  * @since 1.9.0
  */
 public class JDBCResultSet implements ResultSet {
@@ -1511,7 +1511,7 @@ public class JDBCResultSet implements ResultSet {
      *
      * <B>Changes:</B> <p>
      *
-     * With version 1.9.0, the engine's SQL implementation has been
+     * With version 2.0, the engine's SQL implementation has been
      * completely rewritten. Changes to this class and the implementation of
      * ResultSetMetaData reflect the engine's new capabilities and provide
      * more accurate information. <p>
@@ -4321,7 +4321,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports this feature for objects of type BLOB and BINARY.
+     * HSQLDB 2.0 supports this feature for objects of type BLOB and BINARY.
      * The Blob returned for BINARY objects is a memory object. The Blob
      * return for BLOB objects is not held entirely in memory. Its contents are
      * fetched from the database when its getXXX() methods are called. <p>
@@ -4372,7 +4372,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports this feature for objects of type CLOB and
+     * HSQLDB 2.0 supports this feature for objects of type CLOB and
      * the variations of CHAR.
      * The Clob returned for CHAR objects is a memory object. The Clob
      * return for CLOB objects is not held entirely in memory. Its contents are
@@ -4489,7 +4489,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, HSQLDB does not support reference types; this method
+     * Including 2.0, HSQLDB does not support reference types; this method
      * always throws an <code>SQLException</code> stating that the operation
      * is not supported.
      * </div>
@@ -4519,7 +4519,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports this feature for objects of type BLOB and BINARY.
+     * HSQLDB 2.0 supports this feature for objects of type BLOB and BINARY.
      * The Blob returned for BINARY objects is a memory object. The Blob
      * return for BLOB objects is not held entirely in memory. Its contents are
      * fetched from the database when its getXXX() methods are called. <p>
@@ -4551,7 +4551,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports this feature for objects of type CLOB and
+     * HSQLDB 2.0 supports this feature for objects of type CLOB and
      * the variations of CHAR.
      * The Clob returned for CHAR objects is a memory object. The Clob
      * return for CLOB objects is not held entirely in memory. Its contents are
@@ -4583,7 +4583,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, HSQLDB does not support array types; this method always
+     * Including 2.0, HSQLDB does not support array types; this method always
      * throws an <code>SQLException</code> stating that the operation is not
      * supported.
      * </div>
@@ -5043,7 +5043,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports this feature for columns of type BLOB.
+     * HSQLDB 2.0 supports this feature for columns of type BLOB.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5083,7 +5083,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports this feature for columns of type BLOB.
+     * HSQLDB 2.0 supports this feature for columns of type BLOB.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5120,7 +5120,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports this feature for columns of type CLOB.<p>
+     * HSQLDB 2.0 supports this feature for columns of type CLOB.<p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5160,7 +5160,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports this feature for columns of type CLOB.<p>
+     * HSQLDB 2.0 supports this feature for columns of type CLOB.<p>
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5273,7 +5273,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public RowId getRowId(int columnIndex) throws SQLException {
@@ -5308,7 +5308,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public RowId getRowId(String columnLabel) throws SQLException {
@@ -5343,7 +5343,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateRowId(int columnIndex, RowId x) throws SQLException {
@@ -5380,7 +5380,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateRowId(String columnLabel, RowId x) throws SQLException {
@@ -5394,7 +5394,7 @@ public class JDBCResultSet implements ResultSet {
      * @return  either <code>ResultSet.HOLD_CURSORS_OVER_COMMIT</code> or <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
      * @throws SQLException if a database access error occurs
      * or this method is called on a closed result set
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public int getHoldability() throws SQLException {
 
@@ -5410,7 +5410,7 @@ public class JDBCResultSet implements ResultSet {
      *
      * @return true if this <code>ResultSet</code> object is closed; false if it is still open
      * @throws SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public boolean isClosed() throws SQLException {
         return navigator == null;
@@ -5434,7 +5434,7 @@ public class JDBCResultSet implements ResultSet {
      * or if a database access error occurs
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 
 //#ifdef JAVA6
@@ -5465,7 +5465,7 @@ public class JDBCResultSet implements ResultSet {
      *  or if a database access error occurs
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateNString(String columnLabel,
@@ -5491,7 +5491,7 @@ public class JDBCResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException {
@@ -5518,7 +5518,7 @@ public class JDBCResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateNClob(String columnLabel,
@@ -5542,7 +5542,7 @@ public class JDBCResultSet implements ResultSet {
      * or if a database access error occurs
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public NClob getNClob(int columnIndex) throws SQLException {
@@ -5571,7 +5571,7 @@ public class JDBCResultSet implements ResultSet {
      * or if a database access error occurs
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public NClob getNClob(String columnLabel) throws SQLException {
@@ -5591,7 +5591,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public SQLXML getSQLXML(int columnIndex) throws SQLException {
@@ -5723,7 +5723,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public SQLXML getSQLXML(String columnLabel) throws SQLException {
@@ -5754,7 +5754,7 @@ public class JDBCResultSet implements ResultSet {
      *  stream does not contain valid XML.
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateSQLXML(int columnIndex,
@@ -5789,7 +5789,7 @@ public class JDBCResultSet implements ResultSet {
      *  stream does not contain valid XML.
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateSQLXML(String columnLabel,
@@ -5814,7 +5814,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public String getNString(int columnIndex) throws SQLException {
@@ -5840,7 +5840,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public String getNString(String columnLabel) throws SQLException {
@@ -5865,7 +5865,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public java.io.Reader getNCharacterStream(
@@ -5893,7 +5893,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public java.io.Reader getNCharacterStream(
@@ -5924,7 +5924,7 @@ public class JDBCResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      * @revised JDK 1.6 b87 - length parameter changed from int to long
      */
 //#ifdef JAVA6
@@ -5960,7 +5960,7 @@ public class JDBCResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code> or this method is called on a closed result set
      *  @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      * @revised JDK 1.6 b87 - length parameter changed from int to long
      */
 //#ifdef JAVA6
@@ -5989,7 +5989,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateAsciiStream(int columnIndex, java.io.InputStream x,
@@ -6016,7 +6016,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateBinaryStream(int columnIndex, java.io.InputStream x,
@@ -6043,7 +6043,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateCharacterStream(int columnIndex, java.io.Reader x,
@@ -6072,7 +6072,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateAsciiStream(String columnLabel, java.io.InputStream x,
@@ -6104,7 +6104,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateBinaryStream(String columnLabel, java.io.InputStream x,
@@ -6137,7 +6137,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateCharacterStream(String columnLabel,
@@ -6179,7 +6179,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateBlob(int columnIndex, InputStream inputStream,
@@ -6219,7 +6219,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateBlob(String columnLabel, InputStream inputStream,
@@ -6259,7 +6259,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateClob(int columnIndex, Reader reader,
@@ -6298,7 +6298,7 @@ public class JDBCResultSet implements ResultSet {
      * or this method is called on a closed result set
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateClob(String columnLabel, Reader reader,
@@ -6340,7 +6340,7 @@ public class JDBCResultSet implements ResultSet {
      *  the result set concurrency is <code>CONCUR_READ_ONLY</code>
      *  @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      *  this method
-     *  @since JDK 1.6, HSQLDB 1.9.0
+     *  @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateNClob(int columnIndex, Reader reader,
@@ -6381,7 +6381,7 @@ public class JDBCResultSet implements ResultSet {
      * the result set concurrency is <code>CONCUR_READ_ONLY</code>
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public void updateNClob(String columnLabel, Reader reader,
@@ -6874,7 +6874,7 @@ public class JDBCResultSet implements ResultSet {
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
@@ -6902,7 +6902,7 @@ public class JDBCResultSet implements ResultSet {
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public boolean isWrapperFor(

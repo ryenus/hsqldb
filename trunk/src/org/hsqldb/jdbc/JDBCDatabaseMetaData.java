@@ -298,8 +298,8 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
- * @revised JDK 1.6, HSQLDB 1.9.0
+ * @version 2.0
+ * @revised JDK 1.6, HSQLDB 2.0
  * @see org.hsqldb.dbinfo.DatabaseInformation
  * @see org.hsqldb.dbinfo.DatabaseInformationMain
  * @see org.hsqldb.dbinfo.DatabaseInformationFull
@@ -1065,7 +1065,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports conversion according to SQL standards. In addition,
+     * HSQLDB 2.0 supports conversion according to SQL standards. In addition,
      * it supports conversion between values of BOOLEAN and BIT types.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1280,7 +1280,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Up to and including 1.9.0, HSQLDB does not support getting multiple
+     * Up to and including 2.0, HSQLDB does not support getting multiple
      * <code>ResultSet</code> objects from a single call to the method
      * <code>execute</code>; this method always returns <code>false</code>. <p>
      *
@@ -1344,7 +1344,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports the ODBC Minimum SQL grammar;
+     * From 2.0, HSQLDB supports the ODBC Minimum SQL grammar;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1362,7 +1362,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports the ODBC Core SQL grammar;
+     * From 2.0, HSQLDB supports the ODBC Core SQL grammar;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1380,7 +1380,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports the ODBC Extended SQL grammar;
+     * From 2.0, HSQLDB supports the ODBC Extended SQL grammar;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1399,7 +1399,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports the ANSI92 entry level SQL grammar;
+     * From 2.0, HSQLDB supports the ANSI92 entry level SQL grammar;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1417,7 +1417,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports the ANSI92 intermediate SQL grammar;
+     * From 2.0, HSQLDB supports the ANSI92 intermediate SQL grammar;
      * this method always returns <code>true</code>.
      * <p>
      * </div>
@@ -1436,7 +1436,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports the ANSI92 full SQL grammar. The exceptions,
+     * From 2.0, HSQLDB supports the ANSI92 full SQL grammar. The exceptions,
      * such as support for ASSERTION, are not considered grammer issues.
      * This method always returns <code>true</code>. <p>
      * </div>
@@ -1493,7 +1493,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports full nested outer
+     * From 2.0, HSQLDB supports full nested outer
      * joins; this method always returns <code>true</code>. <p>
      * </div>
      * <!-- end release-specific documentation -->
@@ -1548,7 +1548,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports declaration of
+     * From 2.0, HSQLDB supports declaration of
      * functions or procedures directly in SQL.<p>
      * </div>
      * <!-- end release-specific documentation -->
@@ -1624,7 +1624,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
      *
      * </div>
@@ -1646,7 +1646,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1667,7 +1667,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
      *
      * </div>
@@ -1689,7 +1689,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
      *
      * </div>
@@ -1711,7 +1711,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports schemas where allowed by the standard;
+     * From 2.0, HSQLDB supports schemas where allowed by the standard;
      * this method always returns <code>true</code>.
      *
      * </div>
@@ -1733,7 +1733,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1754,7 +1754,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1775,7 +1775,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1796,7 +1796,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1817,7 +1817,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * From 1.9.0, HSQLDB supports catalog names where allowed by the standard;
+     * From 2.0, HSQLDB supports catalog names where allowed by the standard;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1839,7 +1839,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports updateable result sets;
+     * HSQLDB 2.0 supports updateable result sets;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1858,7 +1858,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports updateable result sets;
+     * HSQLDB 2.0 supports updateable result sets;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1877,7 +1877,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports updateable result sets;
+     * HSQLDB 2.0 supports updateable result sets;
      * this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2062,7 +2062,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 supports keeping cursors open across commits.
+     * HSQLDB 2.0 supports keeping cursors open across commits.
      * This method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2082,7 +2082,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB 1.9.0 closes open cursors at rollback.
+     * HSQLDB 2.0 closes open cursors at rollback.
      * This method always returns <code>false</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2199,7 +2199,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the SQL standard, which is 128 for
+     * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2351,7 +2351,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the SQL standard, which is 128 for
+     * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2396,7 +2396,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the SQL standard, which is 128 for
+     * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2417,7 +2417,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the SQL standard, which is 128 for
+     * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2439,7 +2439,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the SQL standard, which is 128 for
+     * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2483,7 +2483,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Indormation:</h3><p>
      *
-     * Including 1.9.0, {@link #getMaxRowSize} <em>always</em> returns
+     * Including 2.0, {@link #getMaxRowSize} <em>always</em> returns
      * 0, indicating that the maximum row size is unknown or has no limit.
      * This applies to the above types as well; this method <em>always</em>
      * returns <code>true</code>.
@@ -2555,7 +2555,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (java.lang.Integer.MAX_VALUE); this method always returned
      * <code>0</code>.
      *
-     * Starting with 1.9.0, HSQLDB implements the SQL standard, which is 128 for
+     * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2599,7 +2599,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB implements the SQL standard, which is 128 for
+     * Starting with 2.0, HSQLDB implements the SQL standard, which is 128 for
      * all names.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2623,7 +2623,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information</h3>
      *
-     * Default isolation mode in version 1.9.0 is TRANSACTION_READ_COMMITED.
+     * Default isolation mode in version 2.0 is TRANSACTION_READ_COMMITED.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2738,7 +2738,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, a data definition statement within a transaction forces
+     * Including 2.0, a data definition statement within a transaction forces
      * the transaction to commit; this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
@@ -2759,7 +2759,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, a data definition statement is not ignored within a
+     * Including 2.0, a data definition statement is not ignored within a
      * transaction.  Rather, a data definition statement within a
      * transaction forces the transaction to commit; this method
      * <em>always</em> returns <code>false</code>.
@@ -4965,7 +4965,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Therefore, care must be taken to specify name arguments precisely
      * (including case) as they are stored in the database. <p>
      *
-     * From 1.9.0, this feature is supported by default and return supertypes
+     * From 2.0, this feature is supported by default and return supertypes
      * for DOMAIN and DISTINCT types.<p>
      *
      * If the jar is
@@ -5043,7 +5043,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * This method is intended for tables of structured types.
-     * From 1.9.0 this method returns an empty ResultSet.
+     * From 2.0 this method returns an empty ResultSet.
      * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
      * <!-- end release-specific documentation -->
@@ -5139,7 +5139,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * This method is intended for attributes of structured types.
-     * From 1.9.0 this method returns an empty ResultSet.
+     * From 2.0 this method returns an empty ResultSet.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5403,7 +5403,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports statement pooling when built under
+     * Starting with 2.0, HSQLDB supports statement pooling when built under
      * JDK 1.6+. <p>
      * </div>
      * <!-- end release-specific documentation -->

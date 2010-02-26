@@ -86,7 +86,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Previous to 1.9.0, the HSQLDB driver did not implement Blob using an SQL
+ * Previous to 2.0, the HSQLDB driver did not implement Blob using an SQL
  * locator(BLOB).  That is, an HSQLDB Blob object did not contain a logical
  * pointer to SQL BLOB data; rather it directly contained a representation of
  * the data (a byte array). As a result, an HSQLDB Blob object was itself
@@ -96,7 +96,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * were unsupported, with the exception of the truncate method,
  * in that it could be used to truncate the local value. <p>
  *
- * Starting with 1.9.0, the HSQLDB driver fully supports both local and remote
+ * Starting with 2.0, the HSQLDB driver fully supports both local and remote
  * SQL BLOB data implementations, meaning that an HSQLDB Blob object <em>may</em>
  * contain a logical pointer to remote SQL BLOB data (see {@link JDBCBlobClient
  * JDBCBlobClient}) or it may directly contain a local representation of the
@@ -117,9 +117,9 @@ import org.hsqldb.lib.java.JavaSystem;
  *
  * @author james house jhouse@part.net
  * @author boucherb@users
- * @version 1.9.0
+ * @version 2.0
  * @since JDK 1.2, HSQLDB 1.7.2
- * @revised JDK 1.6, HSQLDB 1.9.0
+ * @revised JDK 1.6, HSQLDB 2.0
  */
 public class JDBCBlob implements Blob {
 
@@ -382,7 +382,7 @@ public class JDBCBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
      * When built under JDK 1.6+ and the Blob instance is constructed as a
      * result of calling JDBCConnection.createBlob(), this operation affects
@@ -421,7 +421,7 @@ public class JDBCBlob implements Blob {
      * this method
      * @see #getBytes
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.9.0
+     * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setBytes(long pos, byte[] bytes) throws SQLException {
 
@@ -454,7 +454,7 @@ public class JDBCBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
      * When built under JDK 1.6+ and the Blob instance is constructed as a
      * result of calling JDBCConnection.createBlob(), this operation affects
@@ -503,7 +503,7 @@ public class JDBCBlob implements Blob {
      * this method
      * @see #getBytes
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.9.0
+     * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setBytes(long pos, byte[] bytes, int offset,
                         int len) throws SQLException {
@@ -575,7 +575,7 @@ public class JDBCBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
      * When built under JDK 1.6+ and the Blob instance is constructed as a
      * result of calling JDBCConnection.createBlob(), this operation affects
@@ -622,7 +622,7 @@ public class JDBCBlob implements Blob {
      * this method
      * @see #getBinaryStream
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.9.0
+     * @revised JDK 1.6, HSQLDB 2.0
      */
     public OutputStream setBinaryStream(final long pos) throws SQLException {
 
@@ -666,7 +666,7 @@ public class JDBCBlob implements Blob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is fully supported. <p>
+     * Starting with HSQLDB 2.0 this feature is fully supported. <p>
      *
      * When built under JDK 1.6+ and the Blob instance is constructed as a
      * result of calling JDBCConnection.createBlob(), this operation affects
@@ -688,7 +688,7 @@ public class JDBCBlob implements Blob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.9.0
+     * @revised JDK 1.6, HSQLDB 2.0
      */
     public void truncate(final long len) throws SQLException {
 
@@ -729,7 +729,7 @@ public class JDBCBlob implements Blob {
      * the Blob's resources
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public void free() throws SQLException {
         this.data = null;
@@ -749,7 +749,7 @@ public class JDBCBlob implements Blob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public InputStream getBinaryStream(long pos,
                                        long length) throws SQLException {

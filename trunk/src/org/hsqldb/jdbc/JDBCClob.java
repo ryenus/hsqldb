@@ -89,7 +89,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Previous to 1.9.0, the HSQLDB driver did not implement Clob using an SQL
+ * Previous to 2.0, the HSQLDB driver did not implement Clob using an SQL
  * locator(CLOB).  That is, an HSQLDB Clob object did not contain a logical
  * pointer to SQL CLOB data; rather it directly contained a representation of
  * the data (a String). As a result, an HSQLDB Clob object was itself
@@ -99,7 +99,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * were unsupported, with the exception of the truncate method,
  * in that it could be used to truncate the local value. <p>
  *
- * Starting with 1.9.0, the HSQLDB driver fully supports both local and remote
+ * Starting with 2.0, the HSQLDB driver fully supports both local and remote
  * SQL CLOB data implementations, meaning that an HSQLDB Clob object <em>may</em>
  * contain a logical pointer to remote SQL CLOB data (see {@link JDBCClobClient
  * JDBCClobClient}) or it may directly contain a local representation of the
@@ -118,9 +118,9 @@ import org.hsqldb.lib.java.JavaSystem;
  * <!-- end release-specific documentation -->
  *
  * @author  boucherb@users
- * @version 1.9.0
+ * @version 2.0
  * @since JDK 1.2, HSQLDB 1.7.2
- * @revised JDK 1.6, HSQLDB 1.9.0
+ * @revised JDK 1.6, HSQLDB 2.0
  */
 public class JDBCClob implements Clob {
 
@@ -376,7 +376,7 @@ public class JDBCClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
      * result of calling JDBCConnection.createClob(), this operation affects
@@ -416,7 +416,7 @@ public class JDBCClob implements Clob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.9.0
+     * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setString(long pos, String str) throws SQLException {
 
@@ -446,7 +446,7 @@ public class JDBCClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
      * result of calling JDBCConnection.createClob(), this operation affects
@@ -494,7 +494,7 @@ public class JDBCClob implements Clob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.9.0
+     * @revised JDK 1.6, HSQLDB 2.0
      */
     public int setString(long pos, String str, int offset,
                          int len) throws SQLException {
@@ -579,7 +579,7 @@ public class JDBCClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
      * result of calling JDBCConnection.createClob(), this operation affects
@@ -626,7 +626,7 @@ public class JDBCClob implements Clob {
      * @see #getAsciiStream
      *
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.9.0
+     * @revised JDK 1.6, HSQLDB 2.0
      */
     public java.io.OutputStream setAsciiStream(
             final long pos) throws SQLException {
@@ -678,7 +678,7 @@ public class JDBCClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is supported. <p>
+     * Starting with HSQLDB 2.0 this feature is supported. <p>
      *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
      * result of calling JDBCConnection.createClob(), this operation affects
@@ -726,7 +726,7 @@ public class JDBCClob implements Clob {
      * @see #getCharacterStream
      *
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.9.0
+     * @revised JDK 1.6, HSQLDB 2.0
      */
     public java.io.Writer setCharacterStream(
             final long pos) throws SQLException {
@@ -772,7 +772,7 @@ public class JDBCClob implements Clob {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with HSQLDB 1.9.0 this feature is fully supported. <p>
+     * Starting with HSQLDB 2.0 this feature is fully supported. <p>
      *
      * When built under JDK 1.6+ and the Clob instance is constructed as a
      * result of calling JDBCConnection.createClob(), this operation affects
@@ -800,7 +800,7 @@ public class JDBCClob implements Clob {
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
      * @since JDK 1.4, HSQLDB 1.7.2
-     * @revised JDK 1.6, HSQLDB 1.9.0
+     * @revised JDK 1.6, HSQLDB 2.0
      */
     public void truncate(final long len) throws SQLException {
 
@@ -839,7 +839,7 @@ public class JDBCClob implements Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public void free() throws SQLException {
         this.data = null;
@@ -859,7 +859,7 @@ public class JDBCClob implements Clob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public Reader getCharacterStream(long pos,
                                      long length) throws SQLException {

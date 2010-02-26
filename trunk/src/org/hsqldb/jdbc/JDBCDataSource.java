@@ -103,8 +103,8 @@ import javax.sql.CommonDataSource;
  * @since JDK 1.4
  * @author deforest@users
  * @author boucherb@users
- * @version 1.9.0
- * @revised JDK 1.6, HSQLDB 1.9.0
+ * @version 2.0
+ * @revised JDK 1.6, HSQLDB 2.0
  */
 //#ifdef JAVA6
 @SuppressWarnings("serial")
@@ -198,7 +198,7 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
      * @param ifc The Query interface that will be created
      * @return A concrete implementation of a Query interface
      * @exception SQLException if a database access error occurs.
-     *  @since JDK 1.6, HSQLDB 1.9.0
+     *  @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6BETA
 /*
@@ -245,7 +245,7 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
      * @return The QueryObjectGenerator for this JDBC Driver or NULL if the driver does not provide its own
      * implementation
      * @exception SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JDBC4BETA
 /*
@@ -272,7 +272,7 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
@@ -300,7 +300,7 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public boolean isWrapperFor(

@@ -83,7 +83,7 @@ import org.hsqldb.result.ResultProperties;
  * <!-- start release-specific documentation -->
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3><p>
- * From version 1.9.0, the implementation meets the JDBC specification
+ * From version 2.0, the implementation meets the JDBC specification
  * requirment that any existing ResultSet is closed when execute() or
  * executeQuery() methods are called.
  * <p>
@@ -132,8 +132,8 @@ import org.hsqldb.result.ResultProperties;
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
- * @revised JDK 1.6, HSQLDB 1.9.0
+ * @version 2.0
+ * @revised JDK 1.6, HSQLDB 2.0
  * @see JDBCConnection#createStatement
  * @see JDBCResultSet
  */
@@ -160,7 +160,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      *
      * This method should not be used for statements other than SELECT queries.<p>
      *
-     * From 1.9.0, HSQLDB throws an exception when the statement
+     * From 2.0, HSQLDB throws an exception when the statement
      * is a DDL statement or an UPDATE or DELETE statement.
      * </div>
      * <!-- end release-specific documentation -->
@@ -447,7 +447,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * The maximum value is Short.MAX_VALUE. The minimum is 0, indicating no limit.
-     * In 1.9.0, calls to this method are ignored; HSQLDB waits an
+     * In version 2.0, calls to this method are ignored; HSQLDB waits an
      * unlimited amount of time for statement execution
      * requests to return.
      * </div>
@@ -482,7 +482,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, HSQLDB does <i>not</i> support aborting an SQL
+     * Including 2.0, HSQLDB does <i>not</i> support aborting an SQL
      * statement; calls to this method are ignored.
      * </div>
      * <!-- end release-specific documentation -->
@@ -517,7 +517,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, HSQLDB never produces Statement warnings;
+     * In 2.0, HSQLDB may produces Statement warnings;
      * this method always returns null.
      * </div>
      * <!-- end release-specific documentation -->
@@ -547,9 +547,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including HSQLDB 1.9.0, <code>SQLWarning</code> objects are
-     * never produced for Statement Objects; calls to this method are
-     * ignored.
+     * In HSQLDB 2.0, <code>SQLWarning</code> objects may
+     * be produced for Statement Objects; calls to this method clear the warnings.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -588,7 +587,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 1.9.0, HSQLDB does not support named cursors;
+     * Including 2.0, HSQLDB does not support named cursors;
      * calls to this method are ignored.
      * </div>
      * <!-- end release-specific documentation -->
@@ -1206,7 +1205,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 1.9.0.x <p>
+     * Supported in version 2.0 <p>
      *
      * If column names or indexes provided by the user in the executeUpdate()
      * method calls are not correct, an empty result is returned.
@@ -1243,7 +1242,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports this feature.
+     * Starting with version 2.0, HSQLDB supports this feature.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1303,7 +1302,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports this feature with single-row and
+     * Starting with version 2.0, HSQLDB supports this feature with single-row and
      * multi-row inserts. <p>
      * CHECKME: possibly change method depending to final GENERATED column support.
      *
@@ -1358,7 +1357,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports this feature.
+     * Starting with 2.0, HSQLDB supports this feature.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1423,7 +1422,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports this feature.
+     * Starting with 2.0, HSQLDB supports this feature.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1495,7 +1494,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports this feature.
+     * Starting with 2.0, HSQLDB supports this feature.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1560,7 +1559,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 1.9.0, HSQLDB supports this feature.
+     * Starting with 2.0, HSQLDB supports this feature.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1631,7 +1630,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * method close has been called on it, or if it is automatically closed.
      * @return true if this <code>Statement</code> object is closed; false if it is still open
      * @throws SQLException if a database access error occurs
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized boolean isClosed() throws SQLException {
         return isClosed;
@@ -1660,7 +1659,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @throws SQLException if this method is called on a closed
      * <code>Statement</code>
      * <p>
-     * @since JDK 1.6 Build 81, HSQLDB 1.9.0
+     * @since JDK 1.6 Build 81, HSQLDB 2.0
      */
 
 //#ifdef JAVA6
@@ -1683,7 +1682,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @throws SQLException if this method is called on a closed
      * <code>Statement</code>
      * <p>
-     * @since JDK 1.6 Build 81, HSQLDB 1.9.0
+     * @since JDK 1.6 Build 81, HSQLDB 2.0
      * <p>
      * @see #setPoolable(boolean) setPoolable(boolean)
      */
@@ -1713,7 +1712,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
@@ -1741,7 +1740,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @throws java.sql.SQLException  if an error occurs while determining whether this is a wrapper
      * for an object with the given interface.
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
 //#ifdef JAVA6
     public boolean isWrapperFor(

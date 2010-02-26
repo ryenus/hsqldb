@@ -46,8 +46,8 @@ import org.hsqldb.types.BlobDataID;
  *
  * Instances of this class are returnd by calls to ResultSet methods.
  *
- * @author fredt
- * @version 1.9.0
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0
  * @since 1.9.0
  */
 public class JDBCBlobClient implements Blob {
@@ -279,7 +279,7 @@ public class JDBCBlobClient implements Blob {
      * the Blob's resources
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized void free() throws SQLException {
         isClosed = true;
@@ -299,7 +299,7 @@ public class JDBCBlobClient implements Blob {
      *
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since JDK 1.6, HSQLDB 1.9.0
+     * @since JDK 1.6, HSQLDB 2.0
      */
     public synchronized InputStream getBinaryStream(long pos,
             long length) throws SQLException {
