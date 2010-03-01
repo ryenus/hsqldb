@@ -413,8 +413,6 @@ public class TextCache extends DataFileCache {
         }
 
         row = cache.release(pos);
-
-        clearRowImage(row);
     }
 
     public synchronized void removePersistence(int pos,
@@ -422,11 +420,9 @@ public class TextCache extends DataFileCache {
 
         CachedObject row = (CachedObject) uncommittedCache.remove(pos);
 
-        if (row != null) {
-            return;
+        if (row == null) {
+            row = get(pos, store, false);
         }
-
-        row = get(pos, store, false);
 
         clearRowImage(row);
     }

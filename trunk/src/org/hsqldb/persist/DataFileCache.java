@@ -602,7 +602,6 @@ public class DataFileCache {
             int i = setFilePos(object);
 
             cache.put(i, object);
-
         } finally {
             writeLock.unlock();
         }
@@ -623,6 +622,19 @@ public class DataFileCache {
         }
 
         return readSize(i);
+    }
+
+    public void replace(CachedObject object) {
+
+        writeLock.lock();
+
+        try {
+            int pos = object.getPos();
+
+            cache.replace(pos, object);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     public CachedObject get(CachedObject object, PersistentStore store,

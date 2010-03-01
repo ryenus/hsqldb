@@ -178,7 +178,7 @@ public class IndexAVLMemory extends IndexAVL {
         NodeAVL        x;
         boolean        isleft        = true;
         int            compare       = -1;
-        final Object[] rowData       = row.rowData;
+        final Object[] rowData       = row.getData();
         boolean        compareRowId  = !isUnique || hasNulls(rowData);
         boolean        compareSimple = isSimple;
 
@@ -202,7 +202,7 @@ public class IndexAVLMemory extends IndexAVL {
                 if (compareSimple) {
                     compare =
                         colTypes[0].compare(session, rowData[colIndex[0]],
-                                            currentRow.rowData[colIndex[0]]);
+                                            currentRow.getData()[colIndex[0]]);
 
                     if (compare == 0 && compareRowId) {
                         compare = compareRowForInsertOrDelete(session, row,
