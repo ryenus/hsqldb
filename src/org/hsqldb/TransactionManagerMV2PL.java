@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -288,8 +288,10 @@ implements TransactionManager {
 
         session.rowActionList.add(action);
 
-        if (newAction && !row.isMemory()) {
-            rowActionMap.put(action.getPos(), action);
+        if (newAction) {
+            if (!row.isMemory()) {
+                rowActionMap.put(action.getPos(), action);
+            }
         }
 
         return action;

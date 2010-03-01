@@ -63,12 +63,12 @@ public final class NumberType extends Type {
     static final int        bigintSquareNumericPrecision = 40;
 
     //
-    static final int TINYINT_WIDTH  = 8;
-    static final int SMALLINT_WIDTH = 16;
-    static final int INTEGER_WIDTH  = 32;
-    static final int BIGINT_WIDTH   = 64;
-    static final int DOUBLE_WIDTH   = 128;    // nominal width
-    static final int DECIMAL_WIDTH  = 256;    // nominal width
+    public static final int TINYINT_WIDTH  = 8;
+    public static final int SMALLINT_WIDTH = 16;
+    public static final int INTEGER_WIDTH  = 32;
+    public static final int BIGINT_WIDTH   = 64;
+    public static final int DOUBLE_WIDTH   = 128;    // nominal width
+    public static final int DECIMAL_WIDTH  = 256;    // nominal width
 
     //
     public static final Type SQL_NUMERIC_DEFAULT_INT =
@@ -398,6 +398,10 @@ public final class NumberType extends Type {
             default :
                 return true;
         }
+    }
+
+    public int getNominalWidth() {
+        return typeWidth;
     }
 
     public int precedenceDegree(Type other) {

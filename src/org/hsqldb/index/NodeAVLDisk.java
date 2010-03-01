@@ -464,17 +464,29 @@ public class NodeAVLDisk extends NodeAVL {
 
     public void replace(PersistentStore store, Index index, NodeAVL n) {
 
-        if (isRoot(store)) {
+        NodeAVLDisk node = this;
+        RowAVLDisk  row  = this.row;
+
+        if (!row.keepInMemory(true)) {
+            row  = (RowAVLDisk) store.get(this.row, true);
+            node = (NodeAVLDisk) row.getNode(iId);
+        }
+
+
+        if (node.iParent == NO_POS) {
             if (n != null) {
                 n = n.setParent(store, null);
             }
 
             store.setAccessor(index, n);
         } else {
-            boolean isFromLeft = isFromLeft(store);
+            boolean isFromLeft = node.isFromLeft(store);
 
-            getParent(store).set(store, isFromLeft, n);
+            node.getParent(store).set(store, isFromLeft, n);
         }
+
+        row.keepInMemory(false);
+
     }
 
     boolean equals(NodeAVL n) {

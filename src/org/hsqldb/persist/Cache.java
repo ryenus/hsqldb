@@ -151,6 +151,16 @@ public class Cache extends BaseHashMap {
         return r;
     }
 
+    /**
+     * Replace a row in the cache.
+     */
+    synchronized void replace(int key, CachedObject row) {
+        int lookup = super.getLookup(key);
+
+        super.objectValueTable[lookup] = row;
+
+    }
+
     private void updateAccessCounts() {
 
         CachedObject r;

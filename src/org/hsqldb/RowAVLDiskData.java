@@ -35,6 +35,7 @@ import java.io.IOException;
 
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.index.NodeAVLMemoryPointer;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
 
@@ -52,21 +53,24 @@ import org.hsqldb.rowio.RowOutputInterface;
  */
 public class RowAVLDiskData extends RowAVLDisk {
 
+    PersistentStore store;
+
     /**
      *  Constructor for new rows.
      */
-    public RowAVLDiskData(TableBase t, Object[] o) {
+    public RowAVLDiskData(PersistentStore store, TableBase t, Object[] o) {
 
         super(t, o);
 
         hasDataChanged = true;
+        this.store     = store;
     }
 
     /**
      *  Constructor when read from the disk into the Cache. The link with
      *  the Nodes is made separetly.
      */
-    public RowAVLDiskData(TableBase t,
+    public RowAVLDiskData(PersistentStore store, TableBase t,
                           RowInputInterface in) throws IOException {
 
         super(t, (Object[]) null);
@@ -75,6 +79,22 @@ public class RowAVLDiskData extends RowAVLDisk {
         storageSize    = in.getSize();
         rowData        = in.readData(table.getColumnTypes());
         hasDataChanged = false;
+        this.store     = store;
+    }
+
+    public void setData(Object[] data) {
+        this.rowData = data;
+    }
+
+    public Object[] getData() {
+
+        if (rowData == null) {
+            store.get(this, false);
+
+            super.usageCount++;
+        }
+
+        return rowData;
     }
 
     /**
@@ -169,16 +189,25 @@ public class RowAVLDiskData extends RowAVLDisk {
      *   <code>false</code> otherwise.
      */
     public boolean equals(Object obj) {
+        return obj == this;
+    }
 
-        if (obj == this) {
-            return true;
-        }
+    public boolean isInMemory() {
+        return rowData != null;
+    }
 
-        if (obj instanceof RowAVLDiskData) {
-            return ((RowAVLDiskData) obj).position == position
-                   && ((RowAVLDiskData) obj).table == table;
-        }
-
+    public boolean isKeepInMemory() {
         return false;
+    }
+
+    public boolean keepInMemory(boolean keep) {
+        return true;
+    }
+
+    public void setInMemory(boolean in) {
+
+        if (!in) {
+            rowData = null;
+        }
     }
 }

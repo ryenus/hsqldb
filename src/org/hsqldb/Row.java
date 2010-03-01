@@ -45,7 +45,7 @@ import org.hsqldb.rowio.RowOutputInterface;
 public class Row implements CachedObject {
 
     int                       position;
-    public Object[]           rowData;
+    Object[]                  rowData;
     public volatile RowAction rowAction;
     protected TableBase       table;
 
@@ -57,9 +57,10 @@ public class Row implements CachedObject {
      *  Default constructor used only in subclasses.
      */
     public Row(TableBase table, Object[] data) {
-        this.table = table;
+        this.table   = table;
         this.rowData = data;
     }
+
     /**
      * Returns the array of fields in the database row.
      */
@@ -69,8 +70,7 @@ public class Row implements CachedObject {
 
     boolean isDeleted(Session session, PersistentStore store) {
 
-        Row row = (Row) store.get(this, false);
-
+        Row       row    = (Row) store.get(this, false);
         RowAction action = row.rowAction;
 
         if (action == null) {
