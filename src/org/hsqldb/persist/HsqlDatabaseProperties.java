@@ -545,18 +545,18 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             Object[] row          = (Object[]) dbMeta.get(propertyName);
             boolean  valid        = false;
             boolean  validVal     = false;
+
             if (row != null
                     && ((Integer) row[HsqlProperties.indexType]).intValue()
                        == SQL_PROPERTY) {
                 valid = true;
                 validVal = setDatabaseProperty(propertyName,
-                                            p.getProperty(propertyName));
+                                               p.getProperty(propertyName));
             }
 
             if (propertyName.startsWith("sql.")
-                        || propertyName.startsWith("hsqldb.")
-                        || propertyName.startsWith("textdb.")) {
-
+                    || propertyName.startsWith("hsqldb.")
+                    || propertyName.startsWith("textdb.")) {
                 if (strict && !valid) {
                     throw Error.error(ErrorCode.X_42555, propertyName);
                 }
@@ -564,7 +564,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 if (strict && !validVal) {
                     throw Error.error(ErrorCode.X_42556, propertyName);
                 }
-
             }
         }
     }
@@ -784,5 +783,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         }
 
         return "";
+    }
+
+    public boolean isVersion18() {
+
+        String version =
+            getStringProperty(HsqlDatabaseProperties.hsqldb_version);
+
+        return version.substring(0, 4).equals("1.8.");
     }
 }

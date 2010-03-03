@@ -34,6 +34,7 @@ package org.hsqldb.rowio;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Scanner;
 import org.hsqldb.Tokens;
@@ -46,6 +47,7 @@ import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
@@ -70,12 +72,21 @@ implements RowInputInterface {
     String  schemaName = null;
     int     statementType;
     Object  value;
+    boolean version18;
 
     public RowInputTextLog() {
 
         super(new byte[0]);
 
         scanner = new Scanner();
+    }
+
+    public RowInputTextLog(boolean version18) {
+
+        super(new byte[0]);
+
+        scanner        = new Scanner();
+        this.version18 = version18;
     }
 
     public void setSource(String text) {
@@ -275,6 +286,16 @@ implements RowInputInterface {
             return null;
         }
 
+        if (version18) {
+            java.sql.Time dateTime = java.sql.Time.valueOf((String) value);
+            long millis = HsqlDateTime.convertMillisFromCalendar(
+                HsqlDateTime.tempCalDefault, dateTime.getTime());
+
+            millis = HsqlDateTime.getNormalisedTime(millis);
+
+            return new TimeData((int) millis / 1000, 0, 0);
+        }
+
         return scanner.newTime((String) value);
     }
 
@@ -286,6 +307,17 @@ implements RowInputInterface {
             return null;
         }
 
+        if (version18) {
+            java.sql.Date dateTime =
+                java.sql.Date.valueOf((String) value);
+            long millis = HsqlDateTime.convertMillisFromCalendar(
+                HsqlDateTime.tempCalDefault, dateTime.getTime());
+
+            millis = HsqlDateTime.getNormalisedDate(millis);
+
+            return new TimestampData(millis / 1000);
+        }
+
         return scanner.newDate((String) value);
     }
 
@@ -295,6 +327,18 @@ implements RowInputInterface {
 
         if (value == null) {
             return null;
+        }
+
+        if (version18) {
+            java.sql.Timestamp dateTime =
+                java.sql.Timestamp.valueOf((String) value);
+            long millis = HsqlDateTime.convertMillisFromCalendar(
+                HsqlDateTime.tempCalDefault, dateTime.getTime());
+            int nanos = dateTime.getNanos();
+
+            nanos = ((DateTimeType) type).normaliseFraction(nanos, type.scale);
+
+            return new TimestampData(millis / 1000, nanos, 0);
         }
 
         return scanner.newTimestamp((String) value);

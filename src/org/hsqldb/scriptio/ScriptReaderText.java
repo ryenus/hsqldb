@@ -81,7 +81,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         dataStreamIn = new BufferedReader(
             new InputStreamReader(new BufferedInputStream(d)));
-        rowIn = new RowInputTextLog();
+        rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());
     }
 
     protected void readDDL(Session session) throws IOException {

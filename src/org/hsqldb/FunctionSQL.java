@@ -594,6 +594,8 @@ public class FunctionSQL extends Expression {
 
                 int part = ((Number) nodes[0].valueData).intValue();
 
+                part = DTIType.getFieldNameTypeForToken(part);
+
                 switch (part) {
 
                     case Types.SQL_INTERVAL_SECOND : {
@@ -1107,9 +1109,8 @@ public class FunctionSQL extends Expression {
                 int     part = ((Number) nodes[0].valueData).intValue();
                 DTIType type = (DTIType) nodes[1].dataType;
 
-                part               = DTIType.getFieldNameTypeForToken(part);
-                nodes[0].valueData = ValuePool.getInt(part);
-                dataType           = type.getExtractType(part);
+                part     = DTIType.getFieldNameTypeForToken(part);
+                dataType = type.getExtractType(part);
 
                 break;
             }
