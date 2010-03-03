@@ -308,6 +308,10 @@
     an unlimited number of databases that are specified at the time of running
     the server, or optionally, as a connection request is received.</para>
 
+    <para>A Sever mode is also the prefered mode of running the database
+    during development. It allows you to query the database from a separate
+    database access utility while your application is running.</para>
+
     <para>There are three server modes, based on the protocol used for
     communications between the client and server. They are briefly discussed
     below. More details on servers is provided in a separate chapter.</para>

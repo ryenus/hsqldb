@@ -925,8 +925,8 @@
     MINUTE | DAY_OF_WEEK | WEEK_OF_YEAR | QUARTER | DAY_OF_YEAR | DAY_OF_MONTH
     |</literal></para>
 
-    <para><literal>TIMEZONE_HOUR | TIMEZONE_MINUTE | SECOND | SECONDS_MIDNIGHT
-    |</literal></para>
+    <para><literal>TIMEZONE_HOUR | TIMEZONE_MINUTE | SECOND |
+    SECONDS_SINCE_MIDNIGHT |</literal></para>
 
     <para><literal>DAY_NAME | MONTH_NAME</literal></para>
 
@@ -937,12 +937,13 @@
     <literal>&lt;extract source&gt;</literal>. The <literal>&lt;extract
     source&gt;</literal> is a datetime or interval expression. The type of the
     return value is BIGINT for most of the<literal> &lt;extract
-    field&gt;</literal> options, except for <literal>SECOND </literal>where a
-    DECIMAL value is returned and <literal>DAY_NAME </literal>or<literal>
-    MONTH_NAME </literal>where a character string is returned. When
-    <literal>MONTH_NAME</literal> is specified, a string in the range January
-    - December is returned. When <literal>DAY_NAME </literal>is specified, a
-    string in the range Sunday -Saturday is returned.</para>
+    field&gt;</literal> options. The exceptions is <literal>SECOND
+    </literal>where a DECIMAL value is returned which has the same precision
+    as the datetime or interval expression. The field values <literal>DAY_NAME
+    </literal>or<literal> MONTH_NAME </literal>result in a character string.
+    When <literal>MONTH_NAME</literal> is specified, a string in the range
+    January - December is returned. When <literal>DAY_NAME </literal>is
+    specified, a string in the range Sunday -Saturday is returned.</para>
 
     <para>If the <literal>&lt;extract source&gt;</literal> is <literal>FROM
     &lt;datatime value expr&gt;</literal>, different groups of
@@ -958,8 +959,8 @@
     &lt;interval value expr&gt;</literal>, the <literal>&lt;extract
     field&gt;</literal> must be one of the fields of the INTERVAL type of the
     expressions. The <literal>YEAR | MONTH</literal> options may be valid for
-    INTERVAL types based on months. The<literal>DAY | HOUR | MINUTE | SECOND |
-    SECONDS_MIDNIGHT</literal> options may be valid for INTERVAL types based
+    INTERVAL types based on months. The <literal>DAY | HOUR | MINUTE | SECOND
+    | SECONDS_MIDNIGHT</literal> options may be valid for INTERVAL types based
     on seconds. For example,<literal> DAY | HOUR | MINUTE</literal> are the
     only valid fields for the INTERVAL DAY TO MINUTE data type. (Foundation
     with HyperSQL extensions)</para>
@@ -1163,7 +1164,8 @@
     <para><literal>SECOND ( &lt;datatime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to <literal>EXTRACT ( SECOND FROM ... )
-    </literal>Returns an integer in the range of 0 - 59. (JDBC)</para>
+    </literal>Returns an integer or decimal in the range of 0 - 59, with the
+    same precision as the &lt;datatime value expr&gt;. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SECONDS_SINCE_MIDNIGHT function</primary>
@@ -1292,8 +1294,9 @@
     <para>The format is internally translated to a
     <classname>java.text.SimpleDateFormat</classname> format string. Any
     character sequences not listed below are included in the Java format
-    string and may cause unexpected results or errors. The supported format
-    components are as follows:</para>
+    string and may cause unexpected results or errors. Therefore unsupported
+    format strings should not be used. The supported format components are as
+    follows:</para>
 
     <table colsep="1" frame="all" pgwide="0">
       <title>TO CHAR Values</title>
