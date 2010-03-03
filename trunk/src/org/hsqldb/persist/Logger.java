@@ -246,10 +246,9 @@ public class Logger {
         logsStatements = propLogData && !database.isFilesReadOnly();
         loggingEnabled = logsStatements;
 
-        String version = database.databaseProperties.getStringProperty(
-            HsqlDatabaseProperties.hsqldb_version);
+        boolean version18 = database.databaseProperties.isVersion18();
 
-        if (version.substring(0, 4).equals("1.8.")) {
+        if (version18) {
             HsqlName name = database.schemaManager.findSchemaHsqlName(
                 SqlInvariants.PUBLIC_SCHEMA);
 
@@ -306,10 +305,9 @@ public class Logger {
             }
         }
 
-        String version = database.databaseProperties.getStringProperty(
-            HsqlDatabaseProperties.hsqldb_version);
+        boolean version18 = database.databaseProperties.isVersion18();
 
-        if (!isNewDatabase && !version.substring(0, 4).equals("1.8.")) {
+        if (!isNewDatabase && !version18) {
             return;
         }
 

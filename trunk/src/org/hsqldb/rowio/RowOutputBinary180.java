@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 
 package org.hsqldb.rowio;
 
+import org.hsqldb.HsqlDateTime;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
@@ -48,13 +49,26 @@ public class RowOutputBinary180 extends RowOutputBinary {
     }
 
     protected void writeDate(TimestampData o, Type type) {
+
+        long millis = o.getSeconds() * 1000L;
+
+        millis =
+            HsqlDateTime.convertMillisToCalendar(HsqlDateTime.tempCalDefault,
+                millis);
+
+        writeLong(millis);
         writeLong(o.getSeconds() * 1000L);
     }
 
     protected void writeTime(TimeData o, Type type) {
 
         if (type.typeCode == Types.SQL_TIME) {
-            writeLong(o.getSeconds() * 1000L);
+            long millis = o.getSeconds() * 1000L;
+
+            millis = HsqlDateTime.convertMillisToCalendar(
+                HsqlDateTime.tempCalDefault, millis);
+
+            writeLong(millis);
         } else {
             writeInt(o.getSeconds());
             writeInt(o.getNanos());
@@ -65,7 +79,12 @@ public class RowOutputBinary180 extends RowOutputBinary {
     protected void writeTimestamp(TimestampData o, Type type) {
 
         if (type.typeCode == Types.SQL_TIMESTAMP) {
-            writeLong(o.getSeconds() * 1000L);
+            long millis = o.getSeconds() * 1000L;
+
+            millis = HsqlDateTime.convertMillisToCalendar(
+                HsqlDateTime.tempCalDefault, millis);
+
+            writeLong(millis);
             writeInt(o.getNanos());
         } else {
             writeLong(o.getSeconds());
