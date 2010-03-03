@@ -380,7 +380,7 @@ public class FunctionCustom extends FunctionSQL {
             switch (tokenType) {
 
                 case Tokens.DAYNAME :
-                    function.extractSpec = Tokens.DAY_OF_WEEK;
+                    function.extractSpec = Tokens.DAY_NAME;
                     break;
 
                 case Tokens.MONTHNAME :
