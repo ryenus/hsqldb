@@ -316,8 +316,6 @@ public class RowAVLDisk extends RowAVL {
 
             n = n.nNext;
         }
-
-        RowAction action = rowAction;
     }
 
     /**

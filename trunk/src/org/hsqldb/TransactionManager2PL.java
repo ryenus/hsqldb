@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -232,28 +232,6 @@ implements TransactionManager {
             int type = action.mergeRollback(session, timestamp, row);
 
             action.store.rollbackRow(session, row, type, txModel);
-/*
-            if (action.table.tableType == TableBase.TEXT_TABLE) {
-                if (type == RowActionBase.ACTION_INSERT) {
-                    store.removePersistence(action.getPos());
-                } else if (type == RowActionBase.ACTION_INSERT_DELETE) {
-                    store.removePersistence(action.getPos());
-                }
-            } else {
-                if (type == RowActionBase.ACTION_DELETE) {
-                    row = (Row) store.get(row, true);
-
-                    row.delete();
-                    row.keepInMemory(false);
-                    store.indexRow(session, row);
-                } else if (type == RowActionBase.ACTION_INSERT) {
-                    store.delete(row);
-                    store.remove(action.getPos());
-                } else if (type == RowActionBase.ACTION_INSERT_DELETE) {
-                    store.remove(action.getPos());
-                }
-            }
-*/
         }
 
         session.rowActionList.setSize(start);

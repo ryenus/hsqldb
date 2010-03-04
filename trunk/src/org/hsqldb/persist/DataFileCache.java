@@ -571,7 +571,7 @@ public class DataFileCache {
      * Free space is requested from the block manager if it exists.
      * Otherwise the file is grown to accommodate it.
      */
-    private int setFilePos(CachedObject r) {
+    int setFilePos(CachedObject r) {
 
         int rowSize = r.getStorageSize();
         int i       = freeBlocks == null ? -1
