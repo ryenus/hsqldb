@@ -158,7 +158,7 @@ public class DoubleIntIndex implements IntLookup {
                     sorted = false;
                 }
             } else {
-                if (value < keys[count - 1]) {
+                if (key < keys[count - 1]) {
                     sorted = false;
                 }
             }
@@ -192,8 +192,16 @@ public class DoubleIntIndex implements IntLookup {
             }
         }
 
-        if (count != 0 && value < values[count - 1]) {
-            return false;
+        if (count != 0) {
+            if (sortOnValues) {
+                if (value < values[count - 1]) {
+                    return false;
+                }
+            } else {
+                if (key < keys[count - 1]) {
+                    return false;
+                }
+            }
         }
 
         hasChanged    = true;
@@ -309,8 +317,7 @@ public class DoubleIntIndex implements IntLookup {
         return getValue(i);
     }
 
-    public int lookupFirstGreaterEqual(int key)
-    throws NoSuchElementException {
+    public int lookupFirstGreaterEqual(int key) throws NoSuchElementException {
 
         if (sortOnValues) {
             sorted       = false;
@@ -574,7 +581,7 @@ public class DoubleIntIndex implements IntLookup {
         }
     }
 
-    private void moveAndInsertRow(int i, int j) {
+    protected void moveAndInsertRow(int i, int j) {
 
         int col1 = keys[i];
         int col2 = values[i];
@@ -585,14 +592,7 @@ public class DoubleIntIndex implements IntLookup {
         values[j] = col2;
     }
 
-    private void doubleCapacity() {
-
-        keys     = (int[]) ArrayUtil.resizeArray(keys, capacity * 2);
-        values   = (int[]) ArrayUtil.resizeArray(values, capacity * 2);
-        capacity *= 2;
-    }
-
-    private void swap(int i1, int i2) {
+    protected void swap(int i1, int i2) {
 
         int col1 = keys[i1];
         int col2 = values[i1];
@@ -603,9 +603,62 @@ public class DoubleIntIndex implements IntLookup {
         values[i2] = col2;
     }
 
-    private void moveRows(int fromIndex, int toIndex, int rows) {
+    /**
+     * Check if targeted column value in the row indexed i is less than the
+     * search target object.
+     * @param i the index
+     * @return -1, 0 or +1
+     */
+    protected int compare(int i) {
+
+        if (sortOnValues) {
+            if (targetSearchValue > values[i]) {
+                return 1;
+            } else if (targetSearchValue < values[i]) {
+                return -1;
+            }
+        } else {
+            if (targetSearchValue > keys[i]) {
+                return 1;
+            } else if (targetSearchValue < keys[i]) {
+                return -1;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Check if row indexed i is less than row indexed j
+     * @param i the first index
+     * @param j the second index
+     * @return true or false
+     */
+    protected boolean lessThan(int i, int j) {
+
+        if (sortOnValues) {
+            if (values[i] < values[j]) {
+                return true;
+            }
+        } else {
+            if (keys[i] < keys[j]) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected void moveRows(int fromIndex, int toIndex, int rows) {
         System.arraycopy(keys, fromIndex, keys, toIndex, rows);
         System.arraycopy(values, fromIndex, values, toIndex, rows);
+    }
+
+    protected void doubleCapacity() {
+
+        keys     = (int[]) ArrayUtil.resizeArray(keys, capacity * 2);
+        values   = (int[]) ArrayUtil.resizeArray(values, capacity * 2);
+        capacity *= 2;
     }
 
     public void removeRange(int start, int limit) {
@@ -625,31 +678,6 @@ public class DoubleIntIndex implements IntLookup {
         count = 0;
     }
 
-    /**
-     * Check if targeted column value in the row indexed i is less than the
-     * search target object.
-     * @param i the index
-     * @return -1, 0 or +1
-     */
-    private int compare(int i) {
-
-        if (sortOnValues) {
-            if (targetSearchValue > values[i]) {
-                return 1;
-            } else if (targetSearchValue < values[i]) {
-                return -1;
-            }
-        } else {
-            if (targetSearchValue > keys[i]) {
-                return 1;
-            } else if (targetSearchValue < keys[i]) {
-                return -1;
-            }
-        }
-
-        return 0;
-    }
-
     public final synchronized void remove(int position) {
 
         hasChanged = true;
@@ -660,26 +688,5 @@ public class DoubleIntIndex implements IntLookup {
 
         keys[count]   = 0;
         values[count] = 0;
-    }
-
-    /**
-     * Check if row indexed i is less than row indexed j
-     * @param i the first index
-     * @param j the second index
-     * @return true or false
-     */
-    private boolean lessThan(int i, int j) {
-
-        if (sortOnValues) {
-            if (values[i] < values[j]) {
-                return true;
-            }
-        } else {
-            if (keys[i] < keys[j]) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

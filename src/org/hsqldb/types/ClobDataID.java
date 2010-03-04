@@ -33,10 +33,9 @@ package org.hsqldb.types;
 
 import java.io.Reader;
 
+import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.HsqlException;
-import org.hsqldb.SessionInterface;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 
@@ -112,7 +111,8 @@ public class ClobDataID implements ClobData {
     }
 
     public Reader getCharacterStream(SessionInterface session) {
-        return null;
+        long length = length(session);
+        return new ClobInputStream(session, this, 0, length);
     }
 
     public long setCharacterStream(SessionInterface session, long pos,
@@ -197,7 +197,7 @@ public class ClobDataID implements ClobData {
 
     public Reader getCharacterStream(SessionInterface session, long pos,
                                      long length) {
-        return null;
+        return new ClobInputStream(session, this, pos, length);
     }
 
     public long getId() {

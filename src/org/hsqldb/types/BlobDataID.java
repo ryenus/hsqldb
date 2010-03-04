@@ -34,8 +34,8 @@ package org.hsqldb.types;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.hsqldb.error.Error;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.error.Error;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 
@@ -54,12 +54,15 @@ public class BlobDataID implements BlobData {
     public void free() {}
 
     public InputStream getBinaryStream(SessionInterface session) {
-        return null;
+
+        long length = length(session);
+
+        return new BlobInputStream(session, this, 0, length);
     }
 
     public InputStream getBinaryStream(SessionInterface session, long pos,
                                        long length) {
-        return null;
+        return new BlobInputStream(session, this, pos, length);
     }
 
     public byte[] getBytes() {
