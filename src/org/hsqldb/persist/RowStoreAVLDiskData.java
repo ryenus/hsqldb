@@ -87,9 +87,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
         object.setStorageSize(size);
 
-        if (cache != null) {
-            cache.add(object);
-        }
+        cache.add(object);
     }
 
     public CachedObject get(RowInputInterface in) {
@@ -151,23 +149,16 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
     public void remove(int i) {
 
-        if (cache != null) {
-            cache.remove(i, this);
-        }
+        cache.remove(i, this);
     }
 
     public void removePersistence(int i) {
-
-        if (cache != null) {
-            cache.removePersistence(i, this);
-        }
+        cache.removePersistence(i, this);
     }
 
     public void release(int i) {
 
-        if (cache != null) {
-            cache.release(i);
-        }
+        cache.release(i);
     }
 
     public CachedObject getAccessor(Index key) {
@@ -184,9 +175,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
     public void commitPersistence(CachedObject row) {
 
         try {
-            if (cache != null) {
-                cache.saveRow(row);
-            }
+            cache.saveRow(row);
         } catch (HsqlException e1) {}
     }
 
@@ -242,7 +231,6 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
                     row = (Row) get(row, true);
 
                     row.delete(this);
-                    row.keepInMemory(false);
                     indexRow(session, row);
                 }
                 break;

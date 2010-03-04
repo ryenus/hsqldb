@@ -62,6 +62,10 @@ import org.hsqldb.store.ObjectCacheHashMap;
  * compatible pair of org.hsqldb.rowio input/output class instances.
  *
  *
+ *  fredt - this used to write rows as soon as they are inserted
+ *  but now this is subject to transaction management.
+ *  A memory buffer contains the rows not yet committed.
+ *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @version 1.9.0
  * @since 1.7.0
@@ -94,10 +98,6 @@ public class TextCache extends DataFileCache {
      *  Settings are used in this order: (1) settings specified in the
      *  source string for the table (2) global database settings in
      *  *.properties file (3) program defaults
-     *
-     *  fredt - this used to write rows as soon as they are inserted
-     *  but now this is subject to session autoCommit / or commit
-     *  storeOnInsert = true;
      */
     TextCache(Table table, String name) {
 
@@ -664,8 +664,26 @@ public class TextCache extends DataFileCache {
     }
 
     public synchronized void add(CachedObject object) {
-        super.add(object);
+
+        setFilePos(object);
+        uncommittedCache.put(object.getPos(), object);
         clearRowImage(object);
+    }
+
+    public CachedObject get(CachedObject object, PersistentStore store,
+                            boolean keep) {
+
+        if (object == null) {
+            return null;
+        }
+
+        CachedObject o = (CachedObject) uncommittedCache.get(object.getPos());
+
+        if (o == null) {
+            o = super.get(object.getPos(), store, keep);
+        }
+
+        return o;
     }
 
     public synchronized CachedObject get(int i, PersistentStore store,
@@ -690,11 +708,7 @@ public class TextCache extends DataFileCache {
     }
 
     /**
-     * This is called internally when old rows need to be removed from the
-     * cache. Text table rows that have not been saved are those that have not
-     * been committed yet. So we don't save them but add them to the
-     * uncommitted cache until such time that they are committed or rolled
-     * back- fredt
+     * this is no longer called- fredt
      */
     protected synchronized void saveRows(CachedObject[] rows, int offset,
                                          int count) {
@@ -713,12 +727,14 @@ public class TextCache extends DataFileCache {
     }
 
     /**
-     * In case the row has been moved to the uncommittedCache, removes it.
-     * Then saves the row as normal.
+     * The row is always in uncommittedCache.
+     * Saves the row as normal and removes it
      */
     public synchronized void saveRow(CachedObject row) {
-        uncommittedCache.remove(row.getPos());
+
         super.saveRow(row);
+        uncommittedCache.remove(row.getPos());
+        row.setInMemory(false);
     }
 
     public String getHeader() {

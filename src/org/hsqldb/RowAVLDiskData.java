@@ -147,7 +147,7 @@ public class RowAVLDiskData extends RowAVLDisk {
     public void write(RowOutputInterface out) {
 
         out.writeSize(storageSize);
-        out.writeData(rowData, table.colTypes);
+        out.writeData(getData(), table.colTypes);
         out.writeEnd();
 
         hasDataChanged = false;
