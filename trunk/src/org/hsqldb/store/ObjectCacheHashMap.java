@@ -55,7 +55,7 @@ public final class ObjectCacheHashMap extends BaseHashMap {
 
     public Object get(int key) {
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
             resetAccessCount();
         }
 
@@ -72,7 +72,7 @@ public final class ObjectCacheHashMap extends BaseHashMap {
 
     public Object put(int key, Object value) {
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
             resetAccessCount();
         }
 

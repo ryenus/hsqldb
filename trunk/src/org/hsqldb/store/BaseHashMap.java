@@ -107,7 +107,7 @@ public class BaseHashMap {
     protected long[]   longValueTable;
 
     //
-    int                 accessMin;
+    protected int       accessMin;
     protected int       accessCount;
     protected int[]     accessTable;
     protected boolean[] multiValueTable;
@@ -136,6 +136,9 @@ public class BaseHashMap {
     protected static final int PURGE_ALL     = 1;
     protected static final int PURGE_HALF    = 2;
     protected static final int PURGE_QUARTER = 3;
+
+    //
+    public final static int ACCESS_MAX = Integer.MAX_VALUE - 1024 * 1024;
 
     protected BaseHashMap(int initialCapacity, int keyType, int valueType,
                           boolean hasAccessCount)
@@ -342,7 +345,7 @@ public class BaseHashMap {
             }
 
             if (accessTable != null) {
-                accessTable[lookup] = accessCount++;
+                accessTable[lookup] = ++accessCount;
             }
 
             return returnValue;
@@ -395,7 +398,7 @@ public class BaseHashMap {
 
         //
         if (accessTable != null) {
-            accessTable[lookup] = accessCount++;
+            accessTable[lookup] = ++accessCount;
         }
 
         return returnValue;
@@ -583,7 +586,7 @@ public class BaseHashMap {
 
         //
         if (accessTable != null) {
-            accessTable[lookup] = accessCount++;
+            accessTable[lookup] = ++accessCount;
         }
 
         return returnValue;
@@ -654,7 +657,7 @@ public class BaseHashMap {
             }
 
             if (accessTable != null) {
-                accessTable[lookup] = accessCount++;
+                accessTable[lookup] = ++accessCount;
             }
 
             return returnValue;
@@ -694,7 +697,7 @@ public class BaseHashMap {
         }
 
         if (accessTable != null) {
-            accessTable[lookup] = accessCount++;
+            accessTable[lookup] = ++accessCount;
         }
 
         return returnValue;
@@ -1168,17 +1171,17 @@ public class BaseHashMap {
 
     protected void resetAccessCount() {
 
-        if (accessCount < Integer.MAX_VALUE) {
+        if (accessCount < ACCESS_MAX ) {
             return;
         }
 
-        accessMin   >>= 2;
-        accessCount >>= 2;
+        accessMin   >>= 8;
+        accessCount >>= 8;
 
         int i = accessTable.length;
 
         while (--i >= 0) {
-            accessTable[i] >>= 2;
+            accessTable[i] >>= 8;
         }
     }
 

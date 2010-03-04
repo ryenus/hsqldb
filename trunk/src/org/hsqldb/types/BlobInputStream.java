@@ -65,6 +65,7 @@ public class BlobInputStream extends InputStream {
             throw new IndexOutOfBoundsException();
         }
 
+        this.session         = session;
         this.blob            = blob;
         this.availableLength = offset + length;
         this.currentPosition = offset;

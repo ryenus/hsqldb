@@ -96,8 +96,10 @@ public class Cache extends BaseHashMap {
      */
     public synchronized CachedObject get(int pos) {
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
+            updateAccessCounts();
             resetAccessCount();
+            updateObjectAccessCounts();
         }
 
         int lookup = getLookup(pos);
@@ -106,9 +108,11 @@ public class Cache extends BaseHashMap {
             return null;
         }
 
-        accessTable[lookup] = accessCount++;
+        accessTable[lookup] = ++accessCount;
 
-        return (CachedObject) objectValueTable[lookup];
+        CachedObject object = (CachedObject) objectValueTable[lookup];
+
+        return object;
     }
 
     /**
@@ -123,8 +127,10 @@ public class Cache extends BaseHashMap {
             cleanUp();
         }
 
-        if (accessCount == Integer.MAX_VALUE) {
-            super.resetAccessCount();
+        if (accessCount > ACCESS_MAX) {
+            updateAccessCounts();
+            resetAccessCount();
+            updateObjectAccessCounts();
         }
 
         super.addOrRemove(key, row, null, false);
@@ -155,10 +161,10 @@ public class Cache extends BaseHashMap {
      * Replace a row in the cache.
      */
     synchronized void replace(int key, CachedObject row) {
+
         int lookup = super.getLookup(key);
 
         super.objectValueTable[lookup] = row;
-
     }
 
     private void updateAccessCounts() {
@@ -179,6 +185,22 @@ public class Cache extends BaseHashMap {
         }
     }
 
+    private void updateObjectAccessCounts() {
+
+        CachedObject r;
+        int          count;
+
+        for (int i = 0; i < objectValueTable.length; i++) {
+            r = (CachedObject) objectValueTable[i];
+
+            if (r != null) {
+                count = accessTable[i];
+
+                r.updateAccessCount(count);
+            }
+        }
+    }
+
     /**
      * Reduces the number of rows held in this Cache object. <p>
      *
@@ -193,14 +215,14 @@ public class Cache extends BaseHashMap {
 
         updateAccessCounts();
 
-        int                          removeCount     = size() / 2;
+        int                          removeCount = size() / 2;
         int accessTarget = getAccessCountCeiling(removeCount, removeCount / 8);
-        BaseHashMap.BaseHashIterator it              = new BaseHashIterator();
-        int                          savecount       = 0;
+        BaseHashMap.BaseHashIterator it          = new BaseHashIterator();
+        int                          savecount   = 0;
 
         for (; it.hasNext(); ) {
-            CachedObject row = (CachedObject) it.next();
-            int currentAccessCount = it.getAccessCount();
+            CachedObject row                = (CachedObject) it.next();
+            int          currentAccessCount = it.getAccessCount();
 
             if (currentAccessCount <= accessTarget) {
                 synchronized (row) {

@@ -42,7 +42,6 @@ import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
-import org.hsqldb.SqlInvariants;
 import org.hsqldb.Statement;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
@@ -188,7 +187,7 @@ public class LobManager {
         this.database = database;
     }
 
-    public void createSchema() {
+    synchronized public void createSchema() {
 
         sysLobSession = database.sessionManager.getSysLobSession();
 
@@ -248,7 +247,7 @@ public class LobManager {
                 ResultProperties.defaultPropsValue);
     }
 
-    public void initialiseLobSpace() {
+    synchronized public void initialiseLobSpace() {
 
         Statement statement =
             sysLobSession.compileStatement(initialiseBlocksSQL,
@@ -262,7 +261,7 @@ public class LobManager {
         sysLobSession.executeCompiledStatement(statement, params);
     }
 
-    public void open() {
+    synchronized public void open() {
 
         lobBlockSize = database.logger.getLobBlockSize();
 
@@ -275,7 +274,7 @@ public class LobManager {
         }
     }
 
-    public void close() {
+    synchronized public void close() {
         lobStore.close();
     }
 
@@ -333,7 +332,7 @@ public class LobManager {
         return data;
     }
 
-    public BlobData getBlob(long lobID) {
+    synchronized public BlobData getBlob(long lobID) {
 
         Object[] data = getLobHeader(lobID);
 
@@ -346,7 +345,7 @@ public class LobManager {
         return blob;
     }
 
-    public ClobData getClob(long lobID) {
+    synchronized public ClobData getClob(long lobID) {
 
         Object[] data = getLobHeader(lobID);
 
@@ -359,7 +358,7 @@ public class LobManager {
         return clob;
     }
 
-    public long createBlob(long length) {
+    synchronized public long createBlob(long length) {
 
         long           lobID    = getNewLobID();
         ResultMetaData meta     = createLob.getParametersMetaData();
@@ -376,7 +375,7 @@ public class LobManager {
         return lobID;
     }
 
-    public long createClob(long length) {
+    synchronized public long createClob(long length) {
 
         long           lobID    = getNewLobID();
         ResultMetaData meta     = createLob.getParametersMetaData();
@@ -393,7 +392,7 @@ public class LobManager {
         return lobID;
     }
 
-    public Result deleteLob(long lobID) {
+    synchronized public Result deleteLob(long lobID) {
 
         ResultMetaData meta     = deleteLobCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
@@ -407,7 +406,7 @@ public class LobManager {
         return result;
     }
 
-    public Result getLength(long lobID) {
+    synchronized public Result getLength(long lobID) {
 
         try {
             Object[] data = getLobHeader(lobID);
@@ -425,7 +424,7 @@ public class LobManager {
         }
     }
 
-    public int compare(BlobData a, byte[] b) {
+    synchronized public int compare(BlobData a, byte[] b) {
 
         Object[] data    = getLobHeader(a.getId());
         long     aLength = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
@@ -475,7 +474,7 @@ public class LobManager {
         return -1;
     }
 
-    public int compare(BlobData a, BlobData b) {
+    synchronized public int compare(BlobData a, BlobData b) {
 
         if (a.getId() == b.getId()) {
             return 0;
@@ -511,7 +510,7 @@ public class LobManager {
     }
 
     // todo - implement as compareText()
-    public int compare(ClobData a, String b) {
+    synchronized public int compare(ClobData a, String b) {
 
         Object[] data    = getLobHeader(a.getId());
         long     aLength = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
@@ -565,7 +564,7 @@ public class LobManager {
         return 0;
     }
 
-    public int compare(ClobData a, ClobData b) {
+    synchronized public int compare(ClobData a, ClobData b) {
 
         if (a.getId() == b.getId()) {
             return 0;
@@ -574,7 +573,7 @@ public class LobManager {
         return compareText(a.getId(), b.getId());
     }
 
-    int compareBytes(long aID, long bID) {
+    synchronized int compareBytes(long aID, long bID) {
 
         int[][] aAddresses = getBlockAddresses(aID, 0, Integer.MAX_VALUE);
         int[][] bAddresses = getBlockAddresses(bID, 0, Integer.MAX_VALUE);
@@ -623,7 +622,7 @@ public class LobManager {
     }
 
     /** @todo - word-separator and end block zero issues */
-    int compareText(long aID, long bID) {
+    synchronized int compareText(long aID, long bID) {
 
         Object[] data    = getLobHeader(aID);
         long     aLength = ((Long) data[LOB_IDS.LOB_LENGTH]).longValue();
@@ -695,11 +694,11 @@ public class LobManager {
     /**
      * Used for SUBSTRING
      */
-    public Result getLob(long lobID, long offset, long length) {
+    synchronized public Result getLob(long lobID, long offset, long length) {
         throw Error.runtimeError(ErrorCode.U_S0500, "LobManager");
     }
 
-    public Result createDuplicateLob(long lobID) {
+    synchronized public Result createDuplicateLob(long lobID) {
 
         Object[] data = getLobHeader(lobID);
 
@@ -787,7 +786,7 @@ public class LobManager {
         }
     }
 
-    public Result getChars(long lobID, long offset, int length) {
+    synchronized public Result getChars(long lobID, long offset, int length) {
 
         Result result = getBytes(lobID, offset * 2, length * 2);
 
@@ -813,7 +812,7 @@ public class LobManager {
         return ResultLob.newLobGetCharsResponse(lobID, offset, chars);
     }
 
-    public Result getBytes(long lobID, long offset, int length) {
+    synchronized public Result getBytes(long lobID, long offset, int length) {
 
         int blockOffset     = (int) (offset / lobBlockSize);
         int byteBlockOffset = (int) (offset % lobBlockSize);
@@ -902,8 +901,8 @@ public class LobManager {
         return ResultLob.newLobGetBytesResponse(lobID, offset, dataBytes);
     }
 
-    public Result setBytesBA(long lobID, byte[] dataBytes, long offset,
-                             int length) {
+    synchronized public Result setBytesBA(long lobID, byte[] dataBytes,
+                                          long offset, int length) {
 
         int blockOffset     = (int) (offset / lobBlockSize);
         int byteBlockOffset = (int) (offset % lobBlockSize);
@@ -1046,7 +1045,8 @@ public class LobManager {
         return ResultLob.newLobSetResponse(lobID, 0);
     }
 
-    public Result setBytes(long lobID, byte[] dataBytes, long offset) {
+    synchronized public Result setBytes(long lobID, byte[] dataBytes,
+                                        long offset) {
 
         if (dataBytes.length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
@@ -1068,8 +1068,8 @@ public class LobManager {
         return result;
     }
 
-    public Result setBytesForNewBlob(long lobID, InputStream inputStream,
-                                     long length) {
+    synchronized public Result setBytesForNewBlob(long lobID,
+            InputStream inputStream, long length) {
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
@@ -1080,7 +1080,8 @@ public class LobManager {
         return result;
     }
 
-    public Result setChars(long lobID, long offset, char[] chars) {
+    synchronized public Result setChars(long lobID, long offset,
+                                        char[] chars) {
 
         if (chars.length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
@@ -1119,8 +1120,8 @@ public class LobManager {
         return ResultLob.newLobSetResponse(lobID, 0);
     }
 
-    public Result setCharsForNewClob(long lobID, InputStream inputStream,
-                                     long length) {
+    synchronized public Result setCharsForNewClob(long lobID,
+            InputStream inputStream, long length) {
 
         if (length == 0) {
             return ResultLob.newLobSetResponse(lobID, 0);
@@ -1135,7 +1136,7 @@ public class LobManager {
         return ResultLob.newLobSetResponse(lobID, 0);
     }
 
-    public Result truncate(long lobID, long offset) {
+    synchronized public Result truncate(long lobID, long offset) {
 
         Object[] data = getLobHeader(lobID);
 
@@ -1163,7 +1164,7 @@ public class LobManager {
         return ResultLob.newLobTruncateResponse(lobID);
     }
 
-    Result setLength(long lobID, long length) {
+    synchronized Result setLength(long lobID, long length) {
 
         ResultMetaData meta     = updateLobLength.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
@@ -1177,7 +1178,7 @@ public class LobManager {
         return result;
     }
 
-    public Result adjustUsageCount(long lobID, int delta) {
+    synchronized public Result adjustUsageCount(long lobID, int delta) {
 
         Object[] data  = getLobHeader(lobID);
         int      count = ((Number) data[LOB_IDS.LOB_USAGE_COUNT]).intValue();
@@ -1207,7 +1208,7 @@ public class LobManager {
         return result;
     }
 
-    int[][] getBlockAddresses(long lobID, int offset, int limit) {
+    private int[][] getBlockAddresses(long lobID, int offset, int limit) {
 
         ResultMetaData meta     = getLobPart.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
@@ -1244,7 +1245,7 @@ public class LobManager {
         return blocks;
     }
 
-    void deleteBlockAddresses(long lobID, int offset, int limit) {
+    private void deleteBlockAddresses(long lobID, int offset, int limit) {
 
         ResultMetaData meta     = deleteLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
@@ -1259,7 +1260,7 @@ public class LobManager {
             sysLobSession.executeCompiledStatement(deleteLobPartCall, params);
     }
 
-    void divideBlockAddresses(long lobID, int offset) {
+    private void divideBlockAddresses(long lobID, int offset) {
 
         ResultMetaData meta     = divideLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
@@ -1271,7 +1272,7 @@ public class LobManager {
             sysLobSession.executeCompiledStatement(divideLobPartCall, params);
     }
 
-    void createBlockAddresses(long lobID, int offset, int count) {
+    private void createBlockAddresses(long lobID, int offset, int count) {
 
         ResultMetaData meta     = createLobPartCall.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
@@ -1284,7 +1285,7 @@ public class LobManager {
             sysLobSession.executeCompiledStatement(createLobPartCall, params);
     }
 
-    public int getLobCount() {
+    synchronized public int getLobCount() {
 
         sysLobSession.sessionContext.pushDynamicArguments(new Object[]{});
 

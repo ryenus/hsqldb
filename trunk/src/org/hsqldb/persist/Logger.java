@@ -230,7 +230,7 @@ public class Logger {
         }
 
         checkpointRequired = false;
-        loggingEnabled     = false;
+        logsStatements     = false;
 
         boolean useLock = database.getProperties().isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_lock_file);
@@ -243,8 +243,8 @@ public class Logger {
 
         log.open();
 
-        logsStatements = propLogData && !database.isFilesReadOnly();
-        loggingEnabled = logsStatements;
+        logsStatements = true;
+        loggingEnabled = propLogData && !database.isFilesReadOnly();
 
         boolean version18 = database.databaseProperties.isVersion18();
 
@@ -653,7 +653,7 @@ public class Logger {
      */
     public synchronized void writeToLog(Session session, String statement) {
 
-        if (loggingEnabled && log != null) {
+        if (loggingEnabled) {
             log.writeStatement(session, statement);
         }
     }
@@ -723,7 +723,7 @@ public class Logger {
      */
     public synchronized void checkpoint(boolean mode) {
 
-        if (loggingEnabled) {
+        if (logsStatements) {
             logInfoEvent("Checkpoint start");
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
@@ -756,7 +756,8 @@ public class Logger {
      */
     public synchronized void setLogData(boolean mode) {
         propLogData    = mode;
-        logsStatements = propLogData && !database.isFilesReadOnly();
+        loggingEnabled = propLogData && !database.isFilesReadOnly();
+        loggingEnabled &= logsStatements;
     }
 
     /**

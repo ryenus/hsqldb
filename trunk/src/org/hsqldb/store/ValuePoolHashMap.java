@@ -111,7 +111,7 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (Integer) objectKeyTable[lookup];
 
             if (testValue.intValue() == intKey) {
-                if (accessCount == Integer.MAX_VALUE) {
+                if (accessCount > ACCESS_MAX) {
                     resetAccessCount();
                 }
 
@@ -131,7 +131,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         testValue              = new Integer(intKey);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
             resetAccessCount();
         }
 
@@ -153,7 +153,7 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (Long) objectKeyTable[lookup];
 
             if (testValue.longValue() == longKey) {
-                if (accessCount == Integer.MAX_VALUE) {
+                if (accessCount > ACCESS_MAX) {
                     resetAccessCount();
                 }
 
@@ -173,7 +173,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         testValue              = new Long(longKey);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
             resetAccessCount();
         }
 
@@ -212,7 +212,7 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (String) objectKeyTable[lookup];
 
             if (key.equals(testValue)) {
-                if (accessCount == Integer.MAX_VALUE) {
+                if (accessCount > ACCESS_MAX) {
                     resetAccessCount();
                 }
 
@@ -232,7 +232,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         lookup                 = hashIndex.linkNode(index, lastLookup);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
             resetAccessCount();
         }
 
@@ -257,7 +257,7 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (String) objectKeyTable[lookup];
 
             if (key.equals(testValue)) {
-                if (accessCount == Integer.MAX_VALUE) {
+                if (accessCount > ACCESS_MAX) {
                     resetAccessCount();
                 }
 
@@ -277,7 +277,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         lookup                 = hashIndex.linkNode(index, lastLookup);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
             resetAccessCount();
         }
 
@@ -300,7 +300,7 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (TimestampData) objectKeyTable[lookup];
 
             if (testValue.getSeconds() == longKey) {
-                if (accessCount == Integer.MAX_VALUE) {
+                if (accessCount > ACCESS_MAX) {
                     resetAccessCount();
                 }
 
@@ -320,7 +320,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         testValue              = new TimestampData(longKey);
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
             resetAccessCount();
         }
 
@@ -342,7 +342,7 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = (Double) objectKeyTable[lookup];
 
             if (Double.doubleToLongBits(testValue.doubleValue()) == longKey) {
-                if (accessCount == Integer.MAX_VALUE) {
+                if (accessCount > ACCESS_MAX) {
                     resetAccessCount();
                 }
 
@@ -362,7 +362,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         testValue              = new Double(Double.longBitsToDouble(longKey));
         objectKeyTable[lookup] = testValue;
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
             resetAccessCount();
         }
 
@@ -384,7 +384,7 @@ public class ValuePoolHashMap extends BaseHashMap {
             testValue = objectKeyTable[lookup];
 
             if (testValue.equals(key)) {
-                if (accessCount == Integer.MAX_VALUE) {
+                if (accessCount > ACCESS_MAX) {
                     resetAccessCount();
                 }
 
@@ -403,7 +403,7 @@ public class ValuePoolHashMap extends BaseHashMap {
         lookup                 = hashIndex.linkNode(index, lastLookup);
         objectKeyTable[lookup] = key;
 
-        if (accessCount == Integer.MAX_VALUE) {
+        if (accessCount > ACCESS_MAX) {
             resetAccessCount();
         }
 
