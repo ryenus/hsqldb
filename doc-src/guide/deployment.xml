@@ -219,8 +219,8 @@
     large memory tables are used, or when the average size of rows in cached
     tables is larger than a few hundred bytes. The maximum amount of allocated
     memory can be set on the java command line that is used for running
-    HyperSQL. For example, with Sun JVM version 1.3.0 the parameter -Xmx256m
-    increases the amount to 256 MB.</para>
+    HyperSQL. For example, with Sun JVM, parameter -Xmx256m increases the
+    amount to 256 MB.</para>
 
     <section>
       <title>Table Memory Allocation</title>
@@ -434,12 +434,12 @@
       done, you can SHUTDOWN this database, which will shutdown the
       server.</para>
 
-      <para>The Server has an option that allows databases to be created
-      remotely (see the Listeners Chapter). This option is useful for testing,
-      as your server is never shut down. Each time you connect to the
-      <glossterm>mem:</glossterm> database that is served by the Server, the
-      database is created if it does not exist (i.e. has been previously shut
-      down).</para>
+      <para>The Server has an option that allows databases to be created as
+      needed by making a connection (see the Listeners Chapter). This option
+      is useful for testing, as your server is never shut down. Each time you
+      connect to the <glossterm>mem:</glossterm> database that is served by
+      the Server, the database is created if it does not exist (i.e. has been
+      previously shut down).</para>
 
       <para>If you do not want to run a Server instance, and you need
       persistence between tests in different processes, then you should use a
@@ -487,25 +487,54 @@
     <section>
       <title>Embedded Databases in Server Applications</title>
 
-      <para>In this usage, the database is often accessed heavily, therefore
-      performance and latency is a consideration. If the database is updated
-      heavily, the default value of the WRITE DELAY property (1 sec) is often
-      enough, as it is assumed the server or the applicaton does not go down
-      frequently. If it is necessary, you can reduce the WRITE DELAY to a
-      small value (20 ms) without impacing the update speed. If you reduce
-      WRITE DELAY to zero, perfomance drops to the speed of disk file sync
-      operation.</para>
-
-      <para>Your server applications can use a database as a temporary disk
-      data cache which is not persisted past the lifetime of the application.
-      For these applications you can set the property
-      <literal>hsqldb.log_data=false</literal> to disable the recovery log and
-      speed up data change performance.</para>
+      <para>This usage involves a server application, such as a web
+      application, connecting to an embedded HyperSQL instance. In this usage,
+      the database is often accessed heavily, therefore performance and
+      latency is a consideration. If the database is updated heavily, the
+      default value of the WRITE DELAY property (1 sec) is often enough, as it
+      is assumed the server or the applicaton does not go down frequently. If
+      it is necessary, you can reduce the WRITE DELAY to a small value (20 ms)
+      without impacing the update speed. If you reduce WRITE DELAY to zero,
+      perfomance drops to the speed of disk file sync operation.</para>
 
       <para>Alternatively, a server application can use an all-in-mem database
       instance for fast access, while sending the data changes to a
       persistent, disk based instance either periodically or in real
       time.</para>
+    </section>
+
+    <section>
+      <title>Using HyperSQL Without Logging </title>
+
+      <para>All file database that are not readonly store changes in the .log
+      file. There are scenarios where log file can be turned off to improve
+      performance, especially with larger databases. For these applications
+      you can set the property <literal>hsqldb.log_data=false</literal> to
+      disable the recovery log and speed up data change performance. The
+      equivalent SQL command is SET FILES LOG FALSE.</para>
+
+      <para>With this setting, no data is logged, but all the changes to
+      cached tables are written to the .data file. To persist the data changes
+      up to date, you can use the CHECKPOINT command. If you perform SHUTDOWN,
+      the data is als persisted correctly.</para>
+
+      <para>Your server applications can use a database as a temporary disk
+      data cache which is not persisted past the lifetime of the application.
+      For this usage, delete the database files when the application
+      ends.</para>
+
+      <para>On some platforms, such as embedded devices which are reliable,
+      this is also a useful option. Your application issues CHECKPOINT to save
+      the changes so far.</para>
+    </section>
+
+    <section>
+      <title>Server Databases</title>
+
+      <para>Running databases in a HyperSQL server is the best overall method
+      of access. As the JVM process is separate from the application, this
+      method is the most reliable as well as the most accessible method of
+      running databases. </para>
     </section>
   </section>
 
