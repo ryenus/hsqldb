@@ -33,7 +33,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
+      <para>Copyright 2010 Fred Toussi. Permission is granted to distribute
       this document without any alteration under the terms of the HSQLDB
       license. Additional permission is granted to the HSQL Development Group
       to distribute this document with or without alterations under the terms
@@ -162,7 +162,7 @@
     levels avoid the "dirty read" phenomenon and do not read uncommitted
     changes made to rows by other transactions.</para>
 
-    <para>HyperSQL is fully multithreaded in all transaction models. Sessions
+    <para>HyperSQL is fully multi threaded in all transaction models. Sessions
     continue to work simultaneously and can fully utilise multi-core
     processors.</para>
 
@@ -195,8 +195,8 @@
       transaction.</para>
 
       <para>The READ UNCOMMITTED isolation level can be used in 2PL modes for
-      read-only operations. It is the same as READ COMMITTED plus
-      readonly.</para>
+      read-only operations. It is the same as READ COMMITTED plus read
+      only.</para>
 
       <para>The READ COMMITTED isolation level is the default. It keeps write
       locks on tables until commit, but releases the read locks after each
@@ -218,10 +218,10 @@
 
       <para>SNAPSHOT ISOLATION is a multiversion concurrency strategy which
       uses the snapshot of the whole database at the time of the start of the
-      transaction. In this model, readonly transactions use SNAPSHOT
-      ISOLATION. While other sessions are busy changing the database, the
-      readonly session sees a consistent view of the database and can access
-      all the tables even when they are locked by other sessions during
+      transaction. In this model, read only transactions use SNAPSHOT
+      ISOLATION. While other sessions are busy changing the database, the read
+      only session sees a consistent view of the database and can access all
+      the tables even when they are locked by other sessions for
       updates.</para>
 
       <para>There are many applications for this mode of operation. In heavily
@@ -257,7 +257,7 @@
       statements in the transaction can be executed and the transaction
       committed. The commit will remove all the locks.</para>
 
-      <para>HyperSQL is fully multithreaded. It therefore allows different
+      <para>HyperSQL is fully multi threaded. It therefore allows different
       transactions to execute concurrently so long as they are not modifying
       the same table.</para>
     </section>
@@ -377,6 +377,27 @@
       operation and locks the objects to prevents any other session from
       accessing the locked objects. As soon as the operation is complete, the
       locks are all removed.</para>
+    </section>
+
+    <section>
+      <title>Simultaneous Access to Tables</title>
+
+      <para>It was mentioned that there is no limit on the number of sessions
+      that can access the tables and all sessions work simultaneously in multi
+      threaded execution. However there are internal resources that are
+      shared. Simultaneous access to these resources reduces the overall
+      efficiency of the system. MEMORY and TEXT tables do not share resources
+      and do not block multi threaded access. With CACHED tables, each write
+      operation blocks the file and its cache until the operation is finished.
+      With CACHED tables, SELECT operations do not block each other, but
+      selecting from different tables and different parts of a large table
+      causes the row cache to be updated frequently and will reduce overall
+      performance.</para>
+
+      <para>The new access pattern is the opposite of the access pattern of
+      version 1.8.x. In the old version, even when 20 sessions are actively
+      reading and writing, only a single session at a time performs an SQL
+      statement completely, before the next session is allowed access.</para>
     </section>
   </section>
 

@@ -34,7 +34,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2010 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -346,8 +346,11 @@
       tables for the lob catalog (not the data). The lob data is stored on
       disk with file: databases. Therefore it is paractical to store about
       100,000 individual lobs in the database with the default JVM memory
-      allocation. More lobs can be stored with larger JVM memory
-      allocations.</para>
+      allocation. More lobs can be stored with larger JVM memory allocations.
+      The realistic maximum number of lobs stored in the database is probably
+      about a million. The actual total size of lobs is almost unlimited. We
+      have tested with over 100 GB of lobs without any loss of
+      performance.</para>
     </section>
   </section>
 
@@ -504,19 +507,22 @@
     </section>
 
     <section>
-      <title>Using HyperSQL Without Logging </title>
+      <title>Using HyperSQL Without Logging</title>
 
-      <para>All file database that are not readonly store changes in the .log
-      file. There are scenarios where log file can be turned off to improve
-      performance, especially with larger databases. For these applications
-      you can set the property <literal>hsqldb.log_data=false</literal> to
-      disable the recovery log and speed up data change performance. The
-      equivalent SQL command is SET FILES LOG FALSE.</para>
+      <para>All file database that are not readonly, write changes to the .log
+      file. There are scenarios where writing to the .log file can be turned
+      off to improve performance, especially with larger databases. For these
+      applications you can set the property
+      <literal>hsqldb.log_data=false</literal> to disable the recovery log and
+      speed up data change performance. The equivalent SQL command is SET
+      FILES LOG FALSE.</para>
 
       <para>With this setting, no data is logged, but all the changes to
-      cached tables are written to the .data file. To persist the data changes
-      up to date, you can use the CHECKPOINT command. If you perform SHUTDOWN,
-      the data is als persisted correctly.</para>
+      cached tables are written to the .data file. To persist all the data
+      changes up to date, you can use the CHECKPOINT command. If you perform
+      SHUTDOWN, the data is also persisted correctly. If you do not use
+      CHECKPOINT or SHUTDOWN. All the changes are lost and the database
+      reverts to its original state when it is opened.</para>
 
       <para>Your server applications can use a database as a temporary disk
       data cache which is not persisted past the lifetime of the application.
@@ -525,7 +531,8 @@
 
       <para>On some platforms, such as embedded devices which are reliable,
       this is also a useful option. Your application issues CHECKPOINT to save
-      the changes so far.</para>
+      the changes so far. This method of use reduces write operations on SSD
+      devices. For this usage, the lock file should also be disabled.</para>
     </section>
 
     <section>
@@ -534,7 +541,7 @@
       <para>Running databases in a HyperSQL server is the best overall method
       of access. As the JVM process is separate from the application, this
       method is the most reliable as well as the most accessible method of
-      running databases. </para>
+      running databases.</para>
     </section>
   </section>
 
@@ -568,6 +575,9 @@
       must issue the SET SCRIPTFORMAT TEXT and SHUTDOWN SCRIPT commands with
       the old version, then open with the new version of the engine. In most
       cases the upgrade is successful and complete.</para>
+
+      <para>It is strongly recommended to execute SHTUDOWN COMPACT after an
+      automatic upgrade from previous versions.</para>
 
       <para>If your database has been created with version 1.7.2 or 1.7.3,
       first upgrade to version 1.8.1 and perform a SHTUDOWN COMPACT with this
@@ -629,7 +639,7 @@
 
       <para>In HyperSQL 2.0 the full range of ALTER TABLE commands is
       available to change the data structures and their names. However, if an
-      old database cannot be opened due to data inconsistencies, or the use of
+      old database cannot be opened due to data inconsistencies, or it uses
       index or column names that are not compatible with 2.0, manual editing
       of the <literal>*.script</literal> file can be performed.</para>
 
@@ -881,7 +891,7 @@
 
     <para>HyperSQL supports encrypted databases. Encryption services use the
     Java Cryptography Extensions (JCE) and uses the ciphers installed with the
-    JRE.</para>
+    JRE. HyperSQL itself does not contain any cryptography code.</para>
 
     <para>Three elements are involved in specifying the encryption method and
     key. A cipher, together with its configuation is identified by a string
@@ -1041,7 +1051,8 @@
     COMPACT | SCRIPT]</literal></simpara>
 
     <simpara>Shutdown the database. If the optional qualifier is not used, a
-    normal SHUTDOWN is performed.</simpara>
+    normal SHUTDOWN is performed. A normal SHUTDOWN ensures all data is saved
+    correctly and the database opens without delay on next use.</simpara>
 
     <variablelist>
       <varlistentry>
@@ -1405,7 +1416,7 @@
     <simpara>Set the concurrency control system for the database. It can be
     issued only when all sessions have been committed or rolled back. This
     command and its modes is discussed in the <link endterm="sessions-title"
-    xlink:href="#sessions-chapt"></link> chapter.</simpara>
+    xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1422,7 +1433,9 @@
     <simpara>Older versions of HSQLDB perform a backup of the .data file
     before its contents are modified and the whole .data file is saved in a
     compressed form when a CHECKPOINT or SHUTDOWN is performed. This takes a
-    long time when the size of the database exceeds 100 MB or so.</simpara>
+    long time when the size of the database exceeds 100 MB or so (on an
+    average 2010 computer, you can expect a backup speed of 20MB / s or
+    more).</simpara>
 
     <simpara>The alternative is backup in increments, just before some part of
     the .data file is modified. In this this mode, no backup is performed at
@@ -1430,7 +1443,7 @@
     are opened and closed frequently.</simpara>
 
     <simpara>The default mode is TRUE. If the old method of backup is
-    required, the mode can be set FALSE.</simpara>
+    prefered, the mode can be set FALSE.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>

@@ -7,15 +7,18 @@
 <appendix version="5.0" xml:id="lists-app"
           xmlns="http://docbook.org/ns/docbook"
           xmlns:xlink="http://www.w3.org/1999/xlink"
-          xmlns:xi="http://www.w3.org/2001/XInclude">
+          xmlns:xi="http://www.w3.org/2001/XInclude"
+          xmlns:ns5="http://www.w3.org/1999/xhtml"
+          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+          xmlns:ns3="http://www.w3.org/2000/svg"
+          xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
   <info>
-    <title xml:id="lists-title">Lists of Keywords and SQL STATE
-    Messages</title>
+    <title xml:id="lists-title">Lists of Keywords</title>
 
-    <subtitle>List of SQL Keywords and SQL STATE messages</subtitle>
+    <subtitle>List of SQL Keywords</subtitle>
 
     <author>
       <personname><firstname>Fred</firstname>
