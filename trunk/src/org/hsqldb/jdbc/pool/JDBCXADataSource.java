@@ -122,9 +122,10 @@ public class JDBCXADataSource extends JDBCConnectionPoolDataSource implements XA
     public XAConnection getXAConnection() throws SQLException {
 
         // Comment out before public release:
+/*
         System.err.print("Executing " + getClass().getName()
                          + ".getXAConnection()...");
-
+*/
         try {
             Class.forName(driver).newInstance();
         } catch (ClassNotFoundException e) {
@@ -142,8 +143,9 @@ public class JDBCXADataSource extends JDBCConnectionPoolDataSource implements XA
             (JDBCConnection) DriverManager.getConnection(url, connProperties);
 
         // Comment out before public release:
+/*
         System.err.print("New phys:  " + connection);
-
+*/
         JDBCXAResource xaResource = new JDBCXAResource(connection, this);
         JDBCXAConnectionWrapper xaWrapper =
             new JDBCXAConnectionWrapper(connection, xaResource,
