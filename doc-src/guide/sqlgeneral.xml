@@ -41,7 +41,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2010 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -272,7 +272,7 @@
 
       <para>Note: If a database has been set to ignore type precision limits
       with the SET DATABASE SQL SIZE FALSE command, then a type definition of
-      DECIMAL with no precision and scale is treated as DECIMAL(100,6). In
+      DECIMAL with no precision and scale is treated as DECIMAL(100,10). In
       normal operation, it is treated as DECIMAL(100).</para>
 
       <simpara><emphasis role="bold">Integral Types</emphasis></simpara>
@@ -381,7 +381,7 @@
       <methodname>setFloat()</methodname> is used, the value is treated as a
       DOUBLE automatically.</para>
 
-      <para>In short, </para>
+      <para>In short,</para>
 
       <simpara><literal>&lt;numeric type&gt; ::= &lt;exact numeric type&gt; |
       &lt;approximate numeric type&gt;</literal></simpara>
@@ -1338,19 +1338,20 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     has a narrowing condition should be the first table in the query.</para>
 
     <para>HyperSQL optimises queries to use indexes, for all types of range
-    and equality conditions, including NOT NULL conditions. Conditions can be
-    in join or WHERE clauses, including all types of joins. In addition,
-    HyperSQL will always use an index (if one exists) for IN conditions,
-    whether constants, variable, or subqueries are used on the right hand side
-    of the IN predicate. HyperSQL has always used indexes when several
-    conditions are combined with the AND operator, choosing a conditions which
-    can use an index. This is now extended to all equality conditions on
-    multiple columns that are part of an index. HyperSQL 2.0 will also use
-    indexes when several conditions are combined with the OR operator and each
-    condition can use an index (each condition may use a different index). For
-    example, if a huge table has two separate columns for first name and last
-    name, and both columns are indexed, a query such as the following example
-    will use the indexes and complete in a short time:</para>
+    and equality conditions, including IS NULL and NOT NULL conditions.
+    Conditions can be in join or WHERE clauses, including all types of joins.
+    In addition, HyperSQL will always use an index (if one exists) for IN
+    conditions, whether constants, variable, or subqueries are used on the
+    right hand side of the IN predicate. HyperSQL has always used indexes when
+    several conditions are combined with the AND operator, choosing a
+    conditions which can use an index. This is now extended to all equality
+    conditions on multiple columns that are part of an index. HyperSQL 2.0
+    will also use indexes when several conditions are combined with the OR
+    operator and each condition can use an index (each condition may use a
+    different index). For example, if a huge table has two separate columns
+    for first name and last name, and both columns are indexed, a query such
+    as the following example will use the indexes and complete in a short
+    time:</para>
 
     <informalexample>
       <programlisting>    (TC is a very large table)

@@ -33,7 +33,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
+      <para>Copyright 2010 Fred Toussi. Permission is granted to distribute
       this document without any alteration under the terms of the HSQLDB
       license. Additional permission is granted to the HSQL Development Group
       to distribute this document with or without alterations under the terms
@@ -308,8 +308,9 @@
 
     <simpara><literal>&lt;trigger definition&gt; ::= CREATE TRIGGER
     &lt;trigger name&gt; &lt;trigger action time&gt; &lt;trigger event&gt; ON
-    &lt;table name&gt; [ REFERENCING &lt;transition table or variable list&gt;
-    ] &lt;triggered action&gt;</literal></simpara>
+    &lt;table name&gt; [BEFORE &lt;other trigger name&gt;] [ REFERENCING
+    &lt;transition table or variable list&gt; ] &lt;triggered
+    action&gt;</literal></simpara>
 
     <simpara><literal>&lt;trigger action time&gt; ::= BEFORE | AFTER | INSTEAD
     OF</literal></simpara>
@@ -421,11 +422,49 @@
     include SET statements to modify the inserted or updated rows. In AFTER
     triggers, you can include INSERT, DELETE and UPDATE statements to change
     the data in other database tables. SELECT and CALL statements are allowed
-    in BEFORE and AFTER triggers.</simpara>
+    in BEFORE and AFTER triggers. CALL statements in BEFORE triggers should
+    not modify data.</simpara>
 
     <simpara>The third form specifies a call to a Java method.</simpara>
 
-    <simpara>Example.</simpara>
+    <simpara>An example of a tirgger with a block is given below. The block
+    can include elements discussed the <link endterm="sessions-title"
+    ns2:href="#sessions-chapt"></link> chapter, including local variables,
+    loops and conditionals. You can also raise an exception in such blocks in
+    order to terminate the execution of the SQL statement that caused the
+    trigger to execute.</simpara>
+
+    <programlisting>create trigger trig after insert on testtrig 
+   referencing new row as newrow
+   for each row when (newrow.id &gt; 1)
+   begin atomic
+   insert into triglog values (newrow.id, newrow.data, 'inserted');
+   /* more statements can be included */
+   end
+</programlisting>
+
+    <simpara></simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRIGGER EXECUTION ORDER</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRIGGER EXECUTION
+    ORDER</emphasis></simpara>
+
+    <simpara><emphasis>trigger execution order</emphasis></simpara>
+
+    <simpara><literal>HyperSQL extends the SQL Standard to all the order of
+    execution of a trigger to be defined. By specifying [BEFORE &lt;other
+    trigger name&gt;] in the defintionThe &lt;triggered SQL
+    statement&gt;</literal> has three forms.</simpara>
+
+    <simpara>HyperSQL extends the SQL Standard to allow the order of execution
+    of a trigger to be specified by using [BEFORE &lt;other trigger name&gt;]
+    in the definition. The newly defined trigger will be executed before the
+    specified other trigger. If this clause is not used, the new trigger is
+    executed after all the previously defined triggers of the same scope
+    (BEFORE, AFTER, EACH ROW, EACH STATEMENT). </simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>DROP TRIGGER</primary>

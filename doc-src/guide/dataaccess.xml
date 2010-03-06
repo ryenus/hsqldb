@@ -32,7 +32,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
+      <para>Copyright 2010 Fred Toussi. Permission is granted to distribute
       this document without any alteration under the terms of the HSQLDB
       license. Additional permission is granted to the HSQL Development Group
       to distribute this document with or without alterations under the terms
@@ -2521,7 +2521,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
 
     <simpara>The <literal>&lt;override clause&gt;</literal> must be used when
     a value is explicitly assigned to a column that has been defined as
-    GENERATED ALWAYS AS IDENTITY. </simpara>
+    GENERATED ALWAYS AS IDENTITY.</simpara>
 
     <simpara>The rows that are inserted into the table are checked against all
     the constraints that have been declared on the table. The whole INSERT
@@ -2609,6 +2609,10 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inser
     second example uses a SELECT statement as the source of the values for the
     MERGE.</simpara>
 
+    <simpara>In the third example, a new row in inserted into the table only
+    when the primary key for the new row does not exist. This example uses
+    parameters and should be executed as a JDBC PreparedStatement.</simpara>
+
     <programlisting>CREATE TABLE t (id INT PRIMARY KEY, description VARCHAR(100))
 INSERT INTO t VALUES (1, 'dining table'), (2, 'deck chair')
 MERGE INTO t USING (VALUES(1, 'conference table'), (14, 'sofa'), (5, 'coffee table')) 
@@ -2619,6 +2623,9 @@ MERGE INTO t USING (VALUES(1, 'conference table'), (14, 'sofa'), (5, 'coffee tab
 MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals.x
    WHEN MATCHED THEN UPDATE SET t.description = vals.y
    WHEN NOT MATCHED THEN INSERT VALUES vals.x, vals.y
+
+MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
+   WHEN NOT MATCHED THEN INSERT VALUES vals.x, ?
 </programlisting>
 
     <indexterm significance="preferred" type="sql">

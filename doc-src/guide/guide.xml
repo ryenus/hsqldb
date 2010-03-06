@@ -6,7 +6,11 @@
 ]>
 <book version="5.0" xml:id="guide" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
-      xmlns:xi="http://www.w3.org/2001/XInclude">
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:ns5="http://www.w3.org/1999/xhtml"
+      xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+      xmlns:ns3="http://www.w3.org/2000/svg"
+      xmlns:ns="http://docbook.org/ns/docbook">
   <!-- We declare the default namespace + those for prefixes xlink: and xi: in
        the root element, so we can use them anywhere in this file. -->
 
@@ -70,15 +74,13 @@
     It supports all core features and many of the optional features of
     SQL:2008.</para>
 
-    <para>The first versions of HSQLDB were released in 2001. Versions 1.9 and
-    2.0, first released in 2009, includes a complete rewrite of most parts of
-    the database engine.</para>
+    <para>The first versions of HSQLDB were released in 2001. Version 2.0,
+    first released in 2010, includes a complete rewrite of most parts of the
+    database engine.</para>
 
-    <para>This documentation covers HyperSQL versions 1.9 and 2.0. Any
-    reference to version 2.0 in this documentation also applies to version 1.9
-    unless it is stated otherwise. This documentation is regularly imroved and
-    undated. The latest, updated version can be found at
-    http://hsqldb.org/doc/2.0/</para>
+    <para>This documentation covers HyperSQL version 2.0. This documentation
+    is regularly imroved and undated. The latest, updated version can be found
+    at http://hsqldb.org/doc/2.0/</para>
 
     <para>If you notice any mistakes in this document, please email the author
     listed at the beginning of the chapter. You can find the emails in the

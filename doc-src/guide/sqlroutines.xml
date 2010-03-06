@@ -32,7 +32,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2009 Fred Toussi. Permission is granted to distribute
+      <para>Copyright 2010 Fred Toussi. Permission is granted to distribute
       this document without any alteration under the terms of the HSQLDB
       license. Additional permission is granted to the HSQL Development Group
       to distribute this document with or without alterations under the terms
@@ -104,7 +104,7 @@
     </listitem>
 
     <listitem>
-      <para>can have parameter</para>
+      <para>can have parameters</para>
     </listitem>
 
     <listitem>
@@ -1168,8 +1168,8 @@ RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
     This is considered redundant as all operations on data can be performed
     with non-cursor SQL statements.</para>
 
-    <para>(feature to be implemented) HyperSQL supports returning single or
-    multiple result sets from SQL/PSM procedures only via the JDBC
+    <para>(feature to be implemented) HyperSQL will support returning single
+    or multiple result sets from SQL/PSM procedures only via the JDBC
     CallableStatement interface. Cursors are declared and opened within the
     body of the procedure. No further operation is performed on the cursors
     within the procedure. When the execution of the procedure is complete, the

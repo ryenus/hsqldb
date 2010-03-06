@@ -85,6 +85,10 @@
     <simpara>The only current limitation is that OpenOffice.org only works
     with the PUBLIC schema. This limitation will hopefully removed in the
     future versions of OOo.</simpara>
+
+    <simpara>When using of HyperSQL with OOo, you must use the HyperSQL jar
+    that is supplied with OOo. This wil hopefuly be a version 2.0 jar in the
+    future versions of OOo.</simpara>
   </section>
 
   <section>
