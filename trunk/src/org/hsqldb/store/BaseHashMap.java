@@ -138,7 +138,7 @@ public class BaseHashMap {
     protected static final int PURGE_QUARTER = 3;
 
     //
-    public final static int ACCESS_MAX = Integer.MAX_VALUE - 1024 * 1024;
+    public final static int ACCESS_MAX = Integer.MAX_VALUE - (1 << 20);
 
     protected BaseHashMap(int initialCapacity, int keyType, int valueType,
                           boolean hasAccessCount)
@@ -1171,18 +1171,26 @@ public class BaseHashMap {
 
     protected void resetAccessCount() {
 
-        if (accessCount < ACCESS_MAX ) {
+        if (accessCount < ACCESS_MAX) {
             return;
         }
 
-        accessMin   >>= 8;
-        accessCount >>= 8;
+        if (accessMin < Integer.MAX_VALUE - (1 << 24)) {
+            accessMin = Integer.MAX_VALUE - (1 << 24);
+        }
 
         int i = accessTable.length;
 
         while (--i >= 0) {
-            accessTable[i] >>= 8;
+            if (accessTable[i] <= accessMin) {
+                accessTable[i] = 0;
+            } else {
+                accessTable[i] -= accessMin;
+            }
         }
+
+        accessCount -= accessMin;
+        accessMin   = 0;
     }
 
     public int capacity() {

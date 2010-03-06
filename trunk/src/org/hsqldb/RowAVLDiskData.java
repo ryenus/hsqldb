@@ -34,7 +34,6 @@ package org.hsqldb;
 import java.io.IOException;
 
 import org.hsqldb.index.NodeAVL;
-import org.hsqldb.index.NodeAVLMemoryPointer;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputInterface;
@@ -90,8 +89,8 @@ public class RowAVLDiskData extends RowAVLDisk {
 
         if (rowData == null) {
             store.get(this, false);
-
-            super.usageCount++;
+        } else {
+            super.accessCount++;
         }
 
         return rowData;
@@ -105,12 +104,12 @@ public class RowAVLDiskData extends RowAVLDisk {
 
         int index = table.getIndexCount();
 
-        nPrimaryNode = new NodeAVLMemoryPointer(this);
+        nPrimaryNode = new NodeAVL(this);
 
         NodeAVL n = nPrimaryNode;
 
         for (int i = 1; i < index; i++) {
-            n.nNext = new NodeAVLMemoryPointer(this);
+            n.nNext = new NodeAVL(this);
             n       = n.nNext;
         }
     }
@@ -118,7 +117,7 @@ public class RowAVLDiskData extends RowAVLDisk {
     public NodeAVL insertNode(int index) {
 
         NodeAVL backnode = getNode(index - 1);
-        NodeAVL newnode  = new NodeAVLMemoryPointer(this);
+        NodeAVL newnode  = new NodeAVL(this);
 
         newnode.nNext  = backnode.nNext;
         backnode.nNext = newnode;
@@ -166,13 +165,6 @@ public class RowAVLDiskData extends RowAVLDisk {
     public void setPos(int pos) {
 
         position = pos;
-
-        NodeAVL n = nPrimaryNode;
-
-        while (n != null) {
-            ((NodeAVLMemoryPointer) n).iData = position;
-            n                                = n.nNext;
-        }
     }
 
     public boolean isMemory() {

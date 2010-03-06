@@ -109,6 +109,7 @@ public class TestJDBCGeneratedColumns extends TestBase {
                 System.out.println("" + rs.getInt(1));
 
                 successPrepared &= rs.getInt(1) == 36;
+                successPrepared &= rs.getBigDecimal(1).intValue() == 36;
             }
 
             ps.close();
@@ -117,7 +118,6 @@ public class TestJDBCGeneratedColumns extends TestBase {
         }
 
         assertTrue(successPrepared);
-
         assertTrue(successDirect);
     }
 }

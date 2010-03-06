@@ -110,7 +110,7 @@ public class RowAVLDisk extends RowAVL {
     int     storageSize;
     int     keepCount;
     boolean isInMemory;
-    int     usageCount;
+    int     accessCount;
 
     /**
      *  Flag indicating unwritten data.
@@ -183,11 +183,11 @@ public class RowAVLDisk extends RowAVL {
     }
 
     public void updateAccessCount(int count) {
-        usageCount = count;
+        accessCount = count;
     }
 
     public int getAccessCount() {
-        return usageCount;
+        return accessCount;
     }
 
     public int getStorageSize() {
