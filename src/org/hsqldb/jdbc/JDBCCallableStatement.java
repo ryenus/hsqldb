@@ -750,10 +750,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             throw Util.outOfRangeArgument();
         }
 
-        Type targetType = NumberType.getNumberType(Types.SQL_DECIMAL,
-            NumberType.defaultNumericPrecision, scale);
-        BigDecimal bd = (BigDecimal) getColumnInType(parameterIndex,
-            targetType);
+        BigDecimal bd = getBigDecimal(parameterIndex);
 
         if (bd != null) {
             bd = bd.setScale(scale, BigDecimal.ROUND_DOWN);
@@ -1031,9 +1028,22 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
 
         Type targetType = resultMetaData.columnTypes[parameterIndex - 1];
 
-        if (targetType.typeCode != Types.SQL_NUMERIC
-                && targetType.typeCode != Types.SQL_DECIMAL) {
-            targetType = Type.SQL_DECIMAL_DEFAULT;
+        switch (targetType.typeCode) {
+           case Types.SQL_NUMERIC :
+           case Types.SQL_DECIMAL :
+               break;
+
+           case Types.TINYINT :
+           case Types.SQL_SMALLINT :
+           case Types.SQL_INTEGER :
+           case Types.SQL_BIGINT :
+               targetType = Type.SQL_DECIMAL;
+               break;
+
+           case Types.SQL_DOUBLE:
+           default :
+               targetType = Type.SQL_DECIMAL_DEFAULT;
+               break;
         }
 
         return (BigDecimal) getColumnInType(parameterIndex, targetType);
