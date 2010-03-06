@@ -43,6 +43,9 @@ import org.hsqldb.jdbc.JDBCConnection;
 
 import java.sql.SQLException;
 
+import org.hsqldb.SessionInterface;
+import org.hsqldb.HsqlException;
+
 // @(#)$Id$
 
 /**
@@ -150,10 +153,11 @@ public class JDBCXAResource implements XAResource {
     public void commit(Xid xid, boolean onePhase) throws XAException {
 
         // Comment out following debug statement before public release:
+/*
         System.err.println("Performing a " + (onePhase ? "1-phase"
                                                        : "2-phase") + " commit on "
                                                        + xid);
-
+*/
         JDBCXAResource resource = xaDataSource.getResource(xid);
 
         if (resource == null) {
@@ -225,6 +229,11 @@ public class JDBCXAResource implements XAResource {
             throw new XAException("Invalid XAResource state");
         }
 
+        /** @todo - probably all flags can be ignored */
+        if (flags == XAResource.TMSUCCESS) {
+
+        }
+
         try {
             connection.setAutoCommit(originalAutoCommitMode);    // real/phys.
         } catch (SQLException se) {
@@ -288,13 +297,22 @@ public class JDBCXAResource implements XAResource {
 
     /**
      * Vote on whether to commit the global transaction.
-     *
+     * We assume Xid may be different from this, as in commit() method.
      * @throws XAException to vote negative.
      * @return commitType of XA_RDONLY or XA_OK.  (Actually only XA_OK now).
      */
     public int prepare(Xid xid) throws XAException {
 
-        validateXid(xid);
+        JDBCXAResource resource = xaDataSource.getResource(xid);
+
+        if (resource == null) {
+            throw new XAException("The XADataSource has no such Xid:  " + xid);
+        }
+
+        return resource.prepareThis();
+    }
+
+    public int prepareThis() throws XAException {
 
         /**
          * @todo:  This is where the real 2-phase work should be done to
@@ -310,6 +328,14 @@ public class JDBCXAResource implements XAResource {
          */
         if (state != XA_STATE_ENDED) {
             throw new XAException("Invalid XAResource state");
+        }
+
+        try {
+            ((SessionInterface) connection).prepareCommit();
+        } catch (HsqlException e) {
+            state = XA_STATE_PREPARED;
+
+            throw new XAException(e.getMessage());
         }
 
         // throw new XAException(
@@ -388,8 +414,9 @@ public class JDBCXAResource implements XAResource {
     public void start(Xid xid, int flags) throws XAException {
 
         // Comment out following debug statement before public release:
+/*
         System.err.println("STARTING NEW Xid: " + xid);
-
+*/
         if (state != XA_STATE_INITIAL && state != XA_STATE_DISPOSED) {
             throw new XAException("Invalid XAResource state");
         }
