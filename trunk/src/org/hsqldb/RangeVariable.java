@@ -181,6 +181,8 @@ public final class RangeVariable {
         usedColumns[columnIndex] = true;
     }
 
+    public void addAllColumns() {}
+
     void addNamedJoinColumnExpression(String name, Expression e) {
 
         if (namedJoinColumnExpressions == null) {
@@ -844,7 +846,7 @@ public final class RangeVariable {
 
                     if (range == 0) {
                         it = conditions[condIndex].rangeIndex.findFirstRow(
-                            session, store, value, exprType);
+                            session, store, value, exprType, null);
                     } else if (range < 0) {
                         switch (exprType) {
 
@@ -883,7 +885,7 @@ public final class RangeVariable {
                 it = conditions[condIndex].rangeIndex.findFirstRow(session,
                         store, currentJoinData,
                         conditions[condIndex].indexedColumnCount,
-                        conditions[condIndex].opType);
+                        conditions[condIndex].opType, null);
             }
         }
 
@@ -1057,7 +1059,8 @@ public final class RangeVariable {
 
             RowIterator lookupIterator =
                 lookupTable.indexList[0].findFirstRow(session, lookupStore,
-                    ValuePool.getInt(currentRow.getPos()), OpTypes.EQUAL);
+                    ValuePool.getInt(currentRow.getPos()), OpTypes.EQUAL,
+                    null);
             boolean result = !lookupIterator.hasNext();
 
             lookupIterator.release();

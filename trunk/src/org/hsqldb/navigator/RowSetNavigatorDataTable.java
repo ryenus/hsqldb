@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -314,7 +314,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     public Object[] getData(Long rowId) {
 
         RowIterator it = idIndex.findFirstRow(session, store, rowId,
-                                              OpTypes.EQUAL);
+                                              OpTypes.EQUAL, null);
 
         return it.getNext();
     }

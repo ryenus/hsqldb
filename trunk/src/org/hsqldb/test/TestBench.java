@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -783,7 +783,7 @@ class TestBench {
                 int account = TestBench.getRandomID(ACCOUNT);
                 int branch  = TestBench.getRandomID(BRANCH);
                 int teller  = TestBench.getRandomID(TELLER);
-                int delta   = TestBench.getRandomInt(0, 1000);
+                int delta   = TestBench.getRandomInt(-1000, 1000);
 
                 doOne(branch, teller, account, delta);
                 incrementTransactionCount();

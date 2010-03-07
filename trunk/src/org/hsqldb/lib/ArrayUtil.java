@@ -944,6 +944,17 @@ public class ArrayUtil {
     }
 
     /**
+     * Fills the int array with a value
+     */
+    public static void fillArray(boolean[] array, boolean value) {
+        int to = array.length;
+
+        while (--to >= 0) {
+            array[to] = value;
+        }
+    }
+
+    /**
      * Returns a duplicates of an array.
      */
     public static Object duplicateArray(Object source) {

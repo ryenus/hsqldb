@@ -738,7 +738,7 @@ public class IndexAVL implements Index {
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata, int matchCount,
-                                    int compareType) {
+                                    int compareType, boolean[] map) {
 
         NodeAVL node = findNode(session, store, rowdata, defaultColMap,
                                 matchCount, compareType,
@@ -797,7 +797,8 @@ public class IndexAVL implements Index {
      * @return iterator
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object value, int compareType) {
+                                    Object value, int compareType,
+                                    boolean[] map) {
 
         NodeAVL node = findNode(session, store, value, compareType,
                                 TransactionManager.ACTION_READ);

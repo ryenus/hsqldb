@@ -228,7 +228,6 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
-                    row = (Row) get(row, true);
 
                     row.delete(this);
                     indexRow(session, row);

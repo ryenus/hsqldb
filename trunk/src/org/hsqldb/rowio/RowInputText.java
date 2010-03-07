@@ -228,18 +228,30 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
     protected String readChar(Type type) throws IOException {
 
+        String s = null;;
         switch (type.typeCode) {
 
             case Types.SQL_CHAR :
-                return readString();
+                s =readString();
+				break;
 
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE :
-                return readVarString();
+                s = readVarString();
+                break; 
 
             default :
-                return readLongVarString();
+                s = readLongVarString();
+                break;
         }
+
+        if (s == null) {
+            return null;
+        }
+
+        // cut down size
+        return new String(s);
+
     }
 
     protected Integer readSmallint() throws IOException {
