@@ -146,11 +146,34 @@
       CLOB objects. These objects can have huge sizes. BLOB or CLOB is
       specified as the type of a column of the table. Afterwards, rows can be
       inserted into the table using a PreparedStatement for efficient transfer
-      of large BLOB of CLOB data to the database. In
-      <glossterm>mem:</glossterm> catalogs, CLOB and BLOB data is stored in
-      memory. In <glossterm>file:</glossterm> catalogs, this data is stored in
-      a single separate file which has the extension *.lobs. The size of this
-      file can grow to huge, terabyte figures.</para>
+      of large LOB data to the database. In <glossterm>mem:</glossterm>
+      catalogs, CLOB and BLOB data is stored in memory. In
+      <glossterm>file:</glossterm> catalogs, this data is stored in a single
+      separate file which has the extension *.lobs. The size of this file can
+      grow to huge, terabyte figures.</para>
+
+      <para>LOB data should be store in the database using a JDBC
+      PreparedStatement object. The streaming methods send the LOB to the
+      database in one operation as a binary or character stream. Inside the
+      database, the disk space is allocated as needed and the data is saved as
+      it is being received. LOB data should be retrieved from the database
+      using a JDBC ResultSet method. When a streaming method is used to
+      retrieve a LOB, it is retrieved in large chunks in a transparent manner.
+      LOB data can also be stored by calling a JDBC method with String or
+      byte[] argument, but these methods limit the size of the LOB that can be
+      stored or retrieved.</para>
+
+      <para>LOB data is not duplicated in the database when a lob is copied
+      from one table to another. The disk space is reused when a LOB is
+      deleted and is not contained in any table.</para>
+
+      <para>By using a dedicated LOB store, HyperSQL achieves consistently
+      high speeds (usually over 20MB / s) for both storage and retrieval of
+      LOBs.</para>
+
+      <para>The LOB catalog is stored in the database as a memory table.
+      Therefore the amount of JVM memory should be increased when more than
+      tens of thousands of LOBs are stored in the database.</para>
     </section>
 
     <section>
