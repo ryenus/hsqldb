@@ -50,9 +50,12 @@ import org.hsqldb.rowio.RowOutputInterface;
  * @version 1.9.0
  * @version 1.7.0
  */
-public class RowAVLDiskData extends RowAVLDisk {
+public class RowAVLDiskData extends RowAVL {
 
     PersistentStore store;
+    int             accessCount;
+    boolean         hasDataChanged;
+    int             storageSize;
 
     /**
      *  Constructor for new rows.
@@ -60,6 +63,8 @@ public class RowAVLDiskData extends RowAVLDisk {
     public RowAVLDiskData(PersistentStore store, TableBase t, Object[] o) {
 
         super(t, o);
+
+        setNewNodes();
 
         hasDataChanged = true;
         this.store     = store;
@@ -73,6 +78,8 @@ public class RowAVLDiskData extends RowAVLDisk {
                           RowInputInterface in) throws IOException {
 
         super(t, (Object[]) null);
+
+        setNewNodes();
 
         position       = in.getPos();
         storageSize    = in.getSize();
@@ -90,7 +97,7 @@ public class RowAVLDiskData extends RowAVLDisk {
         if (rowData == null) {
             store.get(this, false);
         } else {
-            super.accessCount++;
+            accessCount++;
         }
 
         return rowData;
@@ -135,7 +142,7 @@ public class RowAVLDiskData extends RowAVLDisk {
     }
 
     public int getRealSize(RowOutputInterface out) {
-        return out.getSize((RowAVLDisk) this);
+        return out.getSize((RowAVL) this);
     }
 
     /**
@@ -156,6 +163,21 @@ public class RowAVLDiskData extends RowAVLDisk {
         return hasDataChanged;
     }
 
+    public void updateAccessCount(int count) {
+        accessCount = count;
+    }
+
+    public int getAccessCount() {
+        return accessCount;
+    }
+
+    public int getStorageSize() {
+        return storageSize;
+    }
+
+    public void setStorageSize(int size) {
+        storageSize = size;
+    }
     /**
      * Sets the file position for the row and registers the row with
      * the table.
@@ -163,7 +185,6 @@ public class RowAVLDiskData extends RowAVLDisk {
      * @param pos position in data file
      */
     public void setPos(int pos) {
-
         position = pos;
     }
 

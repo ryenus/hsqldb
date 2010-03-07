@@ -734,7 +734,7 @@ public class TextCache extends DataFileCache {
 
         super.saveRow(row);
         uncommittedCache.remove(row.getPos());
-        row.setInMemory(false);
+        cache.put(row.getPos(), row);
     }
 
     public String getHeader() {

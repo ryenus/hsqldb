@@ -90,6 +90,8 @@ public class StatementDML extends StatementDMQL {
         if (type == StatementTypes.TRUNCATE) {
             isTruncate = true;
         }
+
+        targetRangeVariables[0].addAllColumns();
     }
 
     /**
@@ -115,6 +117,7 @@ public class StatementDML extends StatementDMQL {
         setDatabseObjects(compileContext);
         checkAccessRights(session);
         setupChecks();
+        targetRangeVariables[0].addAllColumns();
     }
 
     /**
@@ -910,7 +913,7 @@ public class StatementDML extends StatementDMQL {
             while (it.hasNext()) {
                 Row row = it.getNextRow();
 
-                session.addDeleteAction( (Table) row.getTable(), row, null);
+                session.addDeleteAction((Table) row.getTable(), row, null);
             }
 
             if (restartIdentity && targetTable.identitySequence != null) {
@@ -919,6 +922,7 @@ public class StatementDML extends StatementDMQL {
         } finally {
             it.release();
         }
+
         return Result.updateOneResult;
     }
 
