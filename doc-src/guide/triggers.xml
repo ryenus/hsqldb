@@ -454,10 +454,8 @@
 
     <simpara><emphasis>trigger execution order</emphasis></simpara>
 
-    <simpara><literal>HyperSQL extends the SQL Standard to all the order of
-    execution of a trigger to be defined. By specifying [BEFORE &lt;other
-    trigger name&gt;] in the defintionThe &lt;triggered SQL
-    statement&gt;</literal> has three forms.</simpara>
+    <simpara><literal>&lt;trigger execution order&gt; ::= BEFORE &lt;other
+    trigger name&gt;</literal></simpara>
 
     <simpara>HyperSQL extends the SQL Standard to allow the order of execution
     of a trigger to be specified by using [BEFORE &lt;other trigger name&gt;]
