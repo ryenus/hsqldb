@@ -1516,6 +1516,7 @@ public class BaseHashMap {
             }
 
             if (isList) {
+                removeRow(lookup);
                 lookup--;
             }
         }

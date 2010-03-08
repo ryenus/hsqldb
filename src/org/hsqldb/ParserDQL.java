@@ -38,9 +38,9 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
-import org.hsqldb.lib.IntKeyHashMap;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.OrderedIntKeyHashMap;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.store.BitMap;
@@ -4731,16 +4731,16 @@ public class ParserDQL extends ParserBase {
         final ParserBase parser;
 
         //
-        private int           subQueryDepth;
-        private IntKeyHashMap parameters     = new IntKeyHashMap();
-        private HsqlArrayList subQueryList   = new HsqlArrayList(true);
-        private HsqlArrayList usedSequences  = new HsqlArrayList(true);
-        private HsqlArrayList usedRoutines   = new HsqlArrayList(true);
-        private HsqlArrayList rangeVariables = new HsqlArrayList(true);
-        private HsqlArrayList usedObjects    = new HsqlArrayList(true);
-        Type                  currentDomain;
-        boolean               contextuallyTypedExpression;
-        Routine               callProcedure;
+        private int                  subQueryDepth;
+        private OrderedIntKeyHashMap parameters = new OrderedIntKeyHashMap();
+        private HsqlArrayList        subQueryList   = new HsqlArrayList(true);
+        private HsqlArrayList        usedSequences  = new HsqlArrayList(true);
+        private HsqlArrayList        usedRoutines   = new HsqlArrayList(true);
+        private HsqlArrayList        rangeVariables = new HsqlArrayList(true);
+        private HsqlArrayList        usedObjects    = new HsqlArrayList(true);
+        Type                         currentDomain;
+        boolean                      contextuallyTypedExpression;
+        Routine                      callProcedure;
 
         //
         private int rangeVarIndex = 0;
@@ -4882,7 +4882,9 @@ public class ParserDQL extends ParserBase {
         }
 
         private void addSubquery(SubQuery subquery, int position) {
+
             subquery.parsePosition = position;
+
             subQueryList.add(subquery);
         }
 
