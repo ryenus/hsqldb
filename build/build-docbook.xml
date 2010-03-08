@@ -360,7 +360,7 @@ ${_for.automation.blurb}</fail>
       <param name="tablecolumns.extension" expression="0"/>
 
       <!-- Docbook-supplied png nav icons suck -->
-      <param name="navig.graphics.extension" expression=".gif"/>
+      <param name="navig.graphics.extension" expression=".png"/>
 
       <!-- "fop.extensions" for old FOP versions -->
       <param name="fop1.extensions" expression="1" if="fop.format"/>
