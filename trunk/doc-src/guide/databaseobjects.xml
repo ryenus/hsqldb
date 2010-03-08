@@ -1723,18 +1723,20 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
       <simpara>Define a view. The <literal>&lt;query expression&gt;</literal>
       is a SELECT or similar statement. The <literal>&lt;view column
-      list&gt;</literal> is list of unique names for the columns of the view.
-      The number of columns in the <literal>&lt;view column list&gt;</literal>
-      must match the number of columns returned by the <literal>&lt;query
-      expression&gt;</literal>. If <literal>&lt;view column list&gt;</literal>
-      is not specified, then the columns of the <literal>&lt;query
-      expression&gt;</literal> should have unique names.</simpara>
+      list&gt;</literal> is the list of unique names for the columns of the
+      view. The number of columns in the <literal>&lt;view column
+      list&gt;</literal> must match the number of columns returned by the
+      <literal>&lt;query expression&gt;</literal>. If <literal>&lt;view column
+      list&gt;</literal> is not specified, then the columns of the
+      <literal>&lt;query expression&gt;</literal> should have unique names and
+      are used as the names of the view column.</simpara>
 
-      <simpara>Some views are updatable. For updatable views, the optional
-      <literal>CHECK OPTION</literal> clause can be specified. If this option
-      is specified, then if a row of the view is updated or a new row is
-      inserted into the view, then it should contain such values that the row
-      would be included in the view after the change. If <literal>WITH
+      <simpara>Some views are updatable. As covered elsewhere, an updatable
+      view is based on a single table or updatable view. For updatable views,
+      the optional <literal>CHECK OPTION</literal> clause can be specified. If
+      this option is specified, then if a row of the view is updated or a new
+      row is inserted into the view, then it should contain such values that
+      the row would be included in the view after the change. If <literal>WITH
       CASCADED CHECK OPTION</literal> is specified, then if the
       <literal>&lt;query expression&gt;</literal> of the view references
       another view, then the search condition of the underlying view should
@@ -1788,7 +1790,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       type.</simpara>
 
       <informalexample>
-        <programlisting>CREATE DOMAIN valid_string AS VARCHAR(20) DEFAULT '  ' CHECK (value IS NOT NULL AND CHARACTER_LENGTH(value) &gt; 2) 
+        <programlisting>CREATE DOMAIN valid_string AS VARCHAR(20) DEFAULT 'NO VALUE' CHECK (value IS NOT NULL AND CHARACTER_LENGTH(value) &gt; 2) 
 </programlisting>
       </informalexample>
 

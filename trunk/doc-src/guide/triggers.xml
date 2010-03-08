@@ -428,11 +428,11 @@
     <simpara>The third form specifies a call to a Java method.</simpara>
 
     <simpara>An example of a tirgger with a block is given below. The block
-    can include elements discussed the <link endterm="sessions-title"
-    ns2:href="#sessions-chapt"></link> chapter, including local variables,
-    loops and conditionals. You can also raise an exception in such blocks in
-    order to terminate the execution of the SQL statement that caused the
-    trigger to execute.</simpara>
+    can include elements discussed the <link endterm="sqlroutines-title"
+    ns2:href="#sqlroutines-chapt" ns2:title=""></link> chapter, including
+    local variables, loops and conditionals. You can also raise an exception
+    in such blocks in order to terminate the execution of the SQL statement
+    that caused the trigger to execute.</simpara>
 
     <programlisting>create trigger trig after insert on testtrig 
    referencing new row as newrow
@@ -464,7 +464,7 @@
     in the definition. The newly defined trigger will be executed before the
     specified other trigger. If this clause is not used, the new trigger is
     executed after all the previously defined triggers of the same scope
-    (BEFORE, AFTER, EACH ROW, EACH STATEMENT). </simpara>
+    (BEFORE, AFTER, EACH ROW, EACH STATEMENT).</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>DROP TRIGGER</primary>
