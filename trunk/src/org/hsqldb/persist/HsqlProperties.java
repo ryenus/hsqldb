@@ -167,9 +167,9 @@ public class HsqlProperties {
         Enumeration keys = props.propertyNames();
 
         while (keys.hasMoreElements()) {
-            Object key = keys.nextElement();
-
-            this.stringProps.put(key, props.get(key));
+            String key = (String) keys.nextElement();
+            String value = props.getProperty(key);
+            this.stringProps.put(key, value);
         }
     }
 
