@@ -104,9 +104,11 @@ public class FunctionSQLInvoked extends Expression {
             }
         }
 
+        Type[] dataTypes = routine.getParameterTypes();
+
         for (int i = 0; i < nodes.length; i++) {
             Expression e     = nodes[i];
-            Object     value = e.getValue(session, e.dataType);
+            Object     value = e.getValue(session, dataTypes[i]);
 
             if (value == null) {
                 if (routine.isNullInputOutput()) {
@@ -131,24 +133,28 @@ public class FunctionSQLInvoked extends Expression {
         }
 
         if (routine.isPSM()) {
-            session.sessionContext.routineArguments = data;
-            session.sessionContext.routineVariables =
-                ValuePool.emptyObjectArray;
-
-            if (variableCount > 0) {
+            try {
+                session.sessionContext.routineArguments = data;
                 session.sessionContext.routineVariables =
-                    new Object[variableCount];
-            }
+                    ValuePool.emptyObjectArray;
 
-            result = routine.statement.execute(session);
+                if (variableCount > 0) {
+                    session.sessionContext.routineVariables =
+                        new Object[variableCount];
+                }
 
-            if (result.isError()) {}
-            else if (result.isSimpleValue()) {
-                returnValue = result.getValueObject();
-            } else {
-                result = Result.newErrorResult(
-                    Error.error(ErrorCode.X_2F005, routine.getName().name),
-                    null);
+                result = routine.statement.execute(session);
+
+                if (result.isError()) {}
+                else if (result.isSimpleValue()) {
+                    returnValue = result.getValueObject();
+                } else {
+                    result = Result.newErrorResult(
+                        Error.error(
+                            ErrorCode.X_2F005, routine.getName().name), null);
+                }
+            } catch (Throwable e) {
+                result = Result.newErrorResult(e);
             }
         } else {
             try {

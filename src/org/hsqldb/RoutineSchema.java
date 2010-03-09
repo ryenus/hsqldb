@@ -37,8 +37,8 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.StringUtil;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 
 /**
@@ -213,7 +213,8 @@ public class RoutineSchema implements SchemaObject {
                 typeDifference =
                     types[j].precedenceDegree(routines[i].parameterTypes[j]);
 
-                if (typeDifference < 0) {
+                if (typeDifference < -NumberType.DOUBLE_WIDTH) {
+                    // accept numeric type narrowing
                     continue outerLoop;
                 } else if (typeDifference == 0) {
                     if (matchCount == j) {
