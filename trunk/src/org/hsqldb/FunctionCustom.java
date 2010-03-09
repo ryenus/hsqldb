@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -706,6 +707,9 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
+                data[1] = Type.SQL_BIGINT.convertToType(session, data[1],
+                        nodes[1].getDataType());
+
                 int           part = ((Number) nodes[0].valueData).intValue();
                 long          units  = ((Number) data[1]).longValue();
                 TimestampData source = (TimestampData) data[2];
@@ -874,6 +878,9 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
+                data[1] = Type.SQL_INTEGER.convertToType(session, data[1],
+                        nodes[1].getDataType());
+
                 return ((NumberType) dataType).truncate(data[0],
                         ((Number) data[1]).intValue());
             }
@@ -930,6 +937,9 @@ public class FunctionCustom extends FunctionSQL {
                 if (nodes[0] == null) {
                     return new Double(session.random());
                 } else {
+                    data[0] = Type.SQL_BIGINT.convertToType(session, data[0],
+                            nodes[0].getDataType());
+
                     long seed = ((Number) data[0]).longValue();
 
                     return new Double(session.random(seed));
@@ -1072,6 +1082,9 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
+                data[0] = Type.SQL_INTEGER.convertToType(session, data[0],
+                        nodes[0].getDataType());
+
                 int arg = ((Number) data[0]).intValue();
 
                 if (Character.isValidCodePoint(arg)
@@ -1111,6 +1124,11 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 if (nodes[0].dataType.isIntegralType()) {
+                    data[0] = Type.SQL_BIGINT.convertToType(session, data[0],
+                            nodes[0].getDataType());
+                    data[1] = Type.SQL_BIGINT.convertToType(session, data[1],
+                            nodes[1].getDataType());
+
                     long v = 0;
                     long a = ((Number) data[0]).longValue();
                     long b = ((Number) data[1]).longValue();
@@ -1131,6 +1149,10 @@ public class FunctionCustom extends FunctionSQL {
                     }
 
                     switch (dataType.typeCode) {
+
+                        case Types.SQL_NUMERIC :
+                        case Types.SQL_DECIMAL :
+                            return BigDecimal.valueOf(v);
 
                         case Types.SQL_BIGINT :
                             return ValuePool.getLong(v);
@@ -1230,6 +1252,9 @@ public class FunctionCustom extends FunctionSQL {
                     }
                 }
 
+                data[1] = Type.SQL_INTEGER.convertToType(session, data[1],
+                        nodes[1].getDataType());
+
                 String       string = (String) data[0];
                 int          i      = ((Number) data[1]).intValue();
                 StringBuffer sb     = new StringBuffer(string.length() * i);
@@ -1287,6 +1312,9 @@ public class FunctionCustom extends FunctionSQL {
                 if (data[0] == null) {
                     return null;
                 }
+
+                data[0] = Type.SQL_INTEGER.convertToType(session, data[0],
+                        nodes[0].getDataType());
 
                 int    count = ((Number) data[0]).intValue();
                 char[] array = new char[count];
