@@ -197,7 +197,7 @@ public final class BitType extends BinaryType {
 
         int i = super.compare(session, a, b);
 
-        if (i == 0) {
+        if (i == 0 && a != null) {
             if (((BinaryData) a).bitLength(null)
                     == ((BinaryData) b).bitLength(null)) {
                 return 0;
