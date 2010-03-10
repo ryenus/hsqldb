@@ -37,6 +37,15 @@
 
     <section xml:id="sqltool_book_purpose-sect">
         <title>Purpose, Coverage, Changes in Behavior</title>
+      <note> <simpara>
+        Due to many important improvements to SqlTool, both in terms of
+        stability and features, all users of SqlTool are advised to use the
+        latest version of SqlTool, even if your database instances run with an
+        older HSQLDB version.
+        How to do this is documented in the
+      <link xlink:href='#sqltool_olderaccess-sect' endterm='olderaccess-title'/>
+        section below.
+      </simpara> </note>
         <simpara>
             This document explains how to use SqlTool, the main purpose of
             which is to read your SQL text file or stdin, and execute the SQL
@@ -497,14 +506,15 @@
                     running your SqlTool command from a shell
                     <emphasis>command-line</emphasis> (as opposed to by
                     using icons or the Windows'
-                    <guimenuitem>Start/Run... or Start/Search...</guimenuitem>).
+                    <guimenuitem>Start/Run...</guimenuitem> or
+                    <guimenuitem>Start/Start Search</guimenuitem>).
                     This way, you will be sure to see error messages if you
                     type the command wrong or if SqlTool can't start up for
                     some reason.
                     On recent versions of Windows, you can get a shell by
                     running <literal>cmd</literal> from
                     <guimenuitem>Start/Run...</guimenuitem> or
-                    <guimenuitem>Start/Search...</guimenuitem>).
+                    <guimenuitem>Start/Start Search</guimenuitem>).
                     On UNIX or Linux, any real or virtual terminal will work.
                     </para><para>
                     On your shell command line, run
@@ -787,20 +797,53 @@
         This section explains how to satisfy the CLASSPATH requirements for
         other setups and use cases.
       </simpara>
-      <section>
-        <title>Connecting to older HSQLDB Databases with SqlTool</title>
+      <section xml:id='sqltool_olderaccess-sect'>
+        <title xml:id='olderaccess-title'>
+          Accessing older HSQLDB Databases with SqlTool</title>
         <simpara>
-          <emphasis>Don't try it.</emphasis>
-          Due to SqlTool itself using classes which the JDBC network driver
-          uses, and  which the HSQLDB engine uses, you need to use a version of
-          SqlTool for the point version of the HSQLDB engine that you will
-          connect to.
-        </simpara> <simpara>
-          This limitation doesn't apply to any database engine other than
-          HSQLDB/HyperSQL.
-          You can use any SqlTool release to connect to any version of
-          non-HSQLDB databases.
-        </simpara>
+          If you are using SqlTool to access non-HSQLDB database(s), then you
+          should use the latest and greatest-- just
+          grab the newest public release of SqlTool (like from the latest
+          public HyperSQL release) and skip this subsection.
+        </simpara> <para>
+          You are strongly encouraged to use the latest SqlTool release to
+          access older HSQLDB databases, to enjoy greatly improved SqlTool
+          robustness and features.
+          It is very easy to do this.
+          <procedure>
+            <step><simpara>
+            Obtain the latest <filename>sqltool.jar</filename> file.
+            One way to obtain the latest <filename>sqltool.jar</filename> file
+            is to download the latest HyperSQL distribution and extract that
+            single file
+            </simpara></step>
+            <step><simpara>
+                Place (or copy) your new <filename>sqltool.jar</filename> file
+                right alongside the <filename>hsqldb.jar</filename> file for
+                your target database version.
+                If you don't have a local copy of the
+                <filename>hsqldb.jar</filename> file for your target database,
+                just copy it from your database server, or download the full
+                distribution for that server version and extract it.
+            </simpara></step>
+            <step><para>
+                Run SqlTool like this.
+                <informalexample>
+                  <screen>    java -jar path/to/sqltool.jar --driver=org.hsqldb.jdbcDriver...</screen>
+                </informalexample>
+                where you must specify the pre-2.x JDBC driver name
+                <classname>org.hsqldb.jdbcDriver</classname> if your target
+                database is pre-2.x (otherwise just skip that argument).
+                Give any other SqlTool parameters as you usually would.
+                <emphasis>
+                  (If you have used older versions of SqlTool before, notice
+                  that you now invoke SqlTool by specifying the
+                  <filename>sqltool.jar</filename> file instead of the
+                  <filename>hsqldb.jar</filename>).
+                </emphasis>
+            </para></step>
+          </procedure>
+        </para>
       </section>
       <section>
         <title>App-specific Classes, Embedding, and non-HyperSQL Databases</title>
