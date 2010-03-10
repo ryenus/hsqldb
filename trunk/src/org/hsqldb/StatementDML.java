@@ -500,7 +500,7 @@ public class StatementDML extends StatementDMQL {
             rangeIterators[i] = joinRangeIterators[i].getIterator(session);
         }
 
-        for (int currentIndex = 0; 0 <= currentIndex; ) {
+        for (int currentIndex = 0; currentIndex >= 0; ) {
             RangeIterator it          = rangeIterators[currentIndex];
             boolean       beforeFirst = it.isBeforeFirst();
 

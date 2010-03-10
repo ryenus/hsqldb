@@ -1663,6 +1663,10 @@ public class QuerySpecification extends QueryExpression {
         Table         table     = rangeVar.getTable();
         Table         baseTable = table.getBaseTable();
 
+        if (baseTable == null) {
+            return;
+        }
+
         isInsertable = table.isInsertable();
         isUpdatable  = table.isUpdatable();
 
