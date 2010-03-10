@@ -784,7 +784,8 @@ examples:
                   org/hsqldb/lib/AppendableException*
                   org/hsqldb/lib/FileAccess*
                   org/hsqldb/lib/StringUtil*
-                  org/hsqldb/lib/*Log*
+                  org/hsqldb/lib/BasicTextJdkLogFormatter*
+                  org/hsqldb/lib/FrameworkLogger*
                   org/hsqldb/resources/jdklogging-default.properties
                   '/>
     <fileset id='sqltoolres' dir='classes'
