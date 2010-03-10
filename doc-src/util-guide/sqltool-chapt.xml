@@ -29,6 +29,7 @@
         <keywordset>
             <keyword>SqlTool</keyword>
             <keyword>HSQLDB</keyword>
+            <keyword>HyperSQL</keyword>
             <keyword>SQL</keyword>
             <keyword>JDBC</keyword>
         </keywordset>
@@ -173,7 +174,7 @@
             I use forward slashes because they can be used consistently, and
             I don't have to contort my fingers to type them :).
         </simpara> <simpara>
-            If you are using SqlTool from a HSQLDB distribution of version
+            If you are using SqlTool from a HyperSQL distribution of version
             1.8.x or earlier, you should use the documentation with that
             distribution, because this manual documents many new features,
             several significant changes to interactive-only commands, and
@@ -198,7 +199,7 @@
             <footnote label='1' xml:id='samplelocFn'><simpara>
             To reduce the time I will need to spend maintaining this document,
             in this chapter I am giving the path to the
-            <filename>sample</filename> directory as it is in HSQLDB 2.0.x
+            <filename>sample</filename> directory as it is in HyperSQL 2.0.x
             distributions, namely, <filename>HSQLDB_HOME/sample</filename>.
             Users of HSQLDB before 2.0.x should translate these sample
             directory paths
@@ -425,8 +426,8 @@
         <simpara>
             If you want to use SqlTool, then you either have an SQL text file,
             or you want to interactively type in SQL commands.
-            If neither case applies to you, then you are looking at the wrong
-            program.
+            If neither case applies to you, then you are probably
+            looking at the wrong program.
         </simpara>
             <procedure>
                 <title>To run SqlTool...</title>
@@ -435,14 +436,14 @@
                     <filename xlink:href="#sqltool.rc-link">
                     sample/sqltool.rc</filename>
                     <footnoteref linkend='samplelocFn'/>
-                    of your HSQLDB distribution to your home directory and
+                    of your HyperSQL distribution to your home directory and
                     secure access to it if your computer is accessible
                     to anybody else (most likely from the network).
                     This file will work as-is for a Memory Only database
-                    instance; or if your target is a HSQLDB Server
+                    instance; or if your target is a HyperSQL Server
                     running on your local computer with default settings
                     and the password for the "SA" account is blank
-                    (the SA password is blank when new HSQLDB database
+                    (the SA password is blank when new HyperSQL database
                     instances are created).
                     Edit the file if you need to change the target Server URL,
                     username, password, character set, JDBC driver, or TLS
@@ -459,7 +460,7 @@
                     It typically resides at
             <varname>HSQLDB_HOME</varname><filename>/lib/sqltool.jar</filename>
                     where <varname>HSQLDB_HOME</varname> is the
-                    "hsqldb" directory inside the root level of your HSQLDB
+                    "hsqldb" directory inside the root level of your HyperSQL
                     software installation.
                     (For example, if you extract
                     <filename>hsqldb-9.1.0.zip</filename> into
@@ -636,7 +637,7 @@
               class directly. The file
               <filename xlink:href="#SqlFileEmbedder.java-link">
                 src/org/hsqldb/sample/SqlFileEmbedder.java</filename>
-              in the HSQLDB distribution provides an example for this latter
+              in the HyperSQL distribution provides an example for this latter
               strategy. 
             </emphasis>
           </simpara>
@@ -2056,7 +2057,7 @@
                 You can use the following SQL file,
                 <filename xlink:href="#sample.sql-link">
                   sample/sample.sql</filename>,
-                from your HSQLDB distribution
+                from your HyperSQL distribution
                 <footnoteref linkend='samplelocFn'/>.
                 It contains SQL as well as Special Commands making good
                 use of most of the Special Commands documented below.
@@ -2497,7 +2498,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             language can probably learn everything they need to know by
             looking at (and running!) the sample script
             <filename xlink:href="#pl.sql-link">
-              sample/pl.sql</filename> in your HSQLDB distribution
+              sample/pl.sql</filename> in your HyperSQL distribution
             <footnoteref linkend='samplelocFn'/> and
             using the <varname>*?</varname> command from within an interactive
             SqlTool session as a reference.  (By
@@ -2962,7 +2963,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
         <para>
             The following sample SQL file resides at
             <filename xlink:href="#plsql.sql-link">sample/plsql.sql</filename>
-            in your HSQLDB distribution
+            in your HyperSQL distribution
             <footnoteref linkend='samplelocFn'/>.
             This script will only work with Oracle, only if you have
             permission to create the table
@@ -3031,11 +3032,11 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
           whether to commit or roll back the inserts.
         </para>
         <note><simpara>
-            This feature is independent of HSQLDB Text Tables.
+            This feature is independent of HyperSQL Text Tables.
             (See the Text Tables chapter of the
               <link xlink:href="&distro_baseurl;/guide/index.html">
                 HyperSQL User Guide</link> for details about them).
-            a server-side feature of HSQLDB.
+            a server-side feature of HyperSQL.
             It makes no difference to SqlTool whether the source or target
             table of your export/import is a memory, cache, or text table.
             Indeed, like all features of SqlTool, it works fine with other
@@ -3059,8 +3060,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             To make this CSV / Delimiter-separated-value dintinction clear,
             I use the suffix ".dsv" for my data files.
             This leads me to stipulate the abbreviation DSV for the
-            <emphasis>Delimiter Separated Value</emphasis> feature of
-            HSQLDB.
+            <emphasis>Delimiter Separated Value</emphasis> feature of HyperSQL.
         </simpara><simpara>
             Use the <literal>\x</literal> command to eXport a table to a
             DSV file, and the <literal>\m</literal> command to iMport a
@@ -3095,7 +3095,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
             constraints (non-null, indexes, keys, etc.)
             One specific reason to omit columns is if you want values of
             some columns to be created automatically by column DEFAULT
-            settings, triggers, HSQLDB identity sequences, etc.
+            settings, triggers, HyperSQL identity sequences, etc.
             Another reason would be to skip binary columns.
         </simpara>
         <section>
@@ -3104,7 +3104,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 Even if you need to change delimiters, table names, or file
                 names from the defaults, I suggest that you run one export
                 and import with default settings as a practice run.
-                A memory-only HSQLDB instance is ideal for test runs like this.
+                A memory-only HyperSQL instance is ideal for test runs like this.
             </simpara> <para>
                 This command exports the table <literal>icf.projects</literal>
                 to the file <filename>projects.dsv</filename> in the current
@@ -3340,7 +3340,7 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
         <title>Unit Testing SqlTool</title>
         <simpara>
           The SqlTool unit tests reside at testrun/sqltool in the
-          HSQLDB source code repository.
+          HyperSQL source code repository.
           Just run the <filename>runtests.bash</filename> script from
           that directory to execute all of the tests.
           As you can see, the test runner, unfortunately, requires a Bash
