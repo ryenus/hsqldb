@@ -537,8 +537,12 @@ public class StatementDML extends StatementDMQL {
                                                updateExpressions, colTypes,
                                                row.getData());
 
-                updateRowSet.addRow(session, row, data, colTypes,
-                                    updateColumnMap);
+                try {
+                    updateRowSet.addRow(session, row, data, colTypes,
+                                        updateColumnMap);
+                } catch (HsqlException e) {
+                    throw Error.error(ErrorCode.X_21000);
+                }
             }
         }
 

@@ -344,7 +344,7 @@ public class ExpressionOp extends Expression {
 
                     if (nodes[RIGHT].dataType.typeCode
                             != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                     }
                 }
 
@@ -368,7 +368,7 @@ public class ExpressionOp extends Expression {
                         break;
 
                     default :
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                 }
 
                 // no constant optimisation as value dependent on session zone

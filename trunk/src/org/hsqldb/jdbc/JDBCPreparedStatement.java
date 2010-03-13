@@ -4111,7 +4111,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } catch (HsqlException e) {
                     Util.throwError(e);
                 }
-                Util.throwError(Error.error(ErrorCode.X_42565));
+                Util.throwError(Error.error(ErrorCode.X_42563));
 
                 break;
             case Types.SQL_BIT :
@@ -4143,7 +4143,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } catch (HsqlException e) {
                     Util.throwError(e);
                 }
-                Util.throwError(Error.error(ErrorCode.X_42565));
+                Util.throwError(Error.error(ErrorCode.X_42563));
 
             // fall through
             case Types.SQL_BINARY :
@@ -4163,7 +4163,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 } catch (HsqlException e) {
                     Util.throwError(e);
                 }
-                Util.throwError(Error.error(ErrorCode.X_42565));
+                Util.throwError(Error.error(ErrorCode.X_42563));
 
                 break;
             case Types.SQL_BLOB :
@@ -4337,7 +4337,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.OTHER :
-                throw Util.sqlException(Error.error(ErrorCode.X_42565));
+                throw Util.sqlException(Error.error(ErrorCode.X_42563));
             default :
                 setParameter(i, new Integer(value));
         }
@@ -4368,7 +4368,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.SQL_BINARY :
             case Types.SQL_VARBINARY :
             case Types.OTHER :
-                throw Util.sqlException(Error.error(ErrorCode.X_42565));
+                throw Util.sqlException(Error.error(ErrorCode.X_42563));
             default :
                 setParameter(i, new Long(value));
         }

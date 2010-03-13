@@ -176,7 +176,7 @@ public class SetFunction implements Serializable {
                         return;
 
                     default :
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                 }
             }
             case OpTypes.MIN : {
@@ -207,7 +207,7 @@ public class SetFunction implements Serializable {
             }
             case OpTypes.EVERY :
                 if (!(item instanceof Boolean)) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 every = every && ((Boolean) item).booleanValue();
@@ -216,7 +216,7 @@ public class SetFunction implements Serializable {
 
             case OpTypes.SOME :
                 if (!(item instanceof Boolean)) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 some = some || ((Boolean) item).booleanValue();
@@ -399,7 +399,7 @@ public class SetFunction implements Serializable {
                         return type;
 
                     default :
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                 }
             }
             case OpTypes.SUM : {
@@ -429,13 +429,13 @@ public class SetFunction implements Serializable {
                             type.scale);
 
                     default :
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                 }
             }
             case OpTypes.MIN :
             case OpTypes.MAX :
                 if (type.isLobType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
                 return type;
 
@@ -459,7 +459,7 @@ public class SetFunction implements Serializable {
                 throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
         }
 
-        throw Error.error(ErrorCode.X_42565);
+        throw Error.error(ErrorCode.X_42563);
     }
 
     // long sum - originally a separate class

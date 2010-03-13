@@ -268,7 +268,7 @@ public class ExpressionArithmetic extends Expression {
                 dataType = nodes[LEFT].dataType;
 
                 if (!dataType.isNumberType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 if (nodes[LEFT].opType == OpTypes.VALUE) {
@@ -340,7 +340,7 @@ public class ExpressionArithmetic extends Expression {
             if (dataType.isDateTimeType()) {
                 if (nodes[LEFT].dataType.isIntervalType()) {
                     if (opType != OpTypes.ADD) {
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                     }
 
                     Expression temp = nodes[LEFT];
@@ -375,7 +375,7 @@ public class ExpressionArithmetic extends Expression {
 
         if (nodes[LEFT].dataType.isBinaryType()
                 ^ nodes[RIGHT].dataType.isBinaryType()) {
-            throw Error.error(ErrorCode.X_42565);
+            throw Error.error(ErrorCode.X_42563);
         }
 
         // conversion of right argument to character for backward compatibility

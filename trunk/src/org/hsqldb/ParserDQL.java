@@ -1172,7 +1172,7 @@ public class ParserDQL extends ParserBase {
             e2 = XreadSimpleValueSpecificationOrNull();
 
             if (e2 == null) {
-                throw Error.error(ErrorCode.X_42565,
+                throw Error.error(ErrorCode.X_42563,
                                   ErrorCode.M_INVALID_LIMIT);
             }
         } else if (token.tokenType == Tokens.TOP) {
@@ -1216,7 +1216,7 @@ public class ParserDQL extends ParserBase {
             return sortAndSlice;
         }
 
-        throw Error.error(ErrorCode.X_42565, ErrorCode.M_INVALID_LIMIT);
+        throw Error.error(ErrorCode.X_42563, ErrorCode.M_INVALID_LIMIT);
     }
 
     private void XreadLimit(SortAndSlice sortAndSlice) {
@@ -1230,8 +1230,13 @@ public class ParserDQL extends ParserBase {
             e1 = XreadSimpleValueSpecificationOrNull();
 
             if (e1 == null) {
-                throw Error.error(ErrorCode.X_42565,
+                throw Error.error(ErrorCode.X_42563,
                                   ErrorCode.M_INVALID_LIMIT);
+            }
+
+            if (token.tokenType == Tokens.ROW
+                    || token.tokenType == Tokens.ROWS) {
+                read();
             }
         }
 
@@ -1241,7 +1246,7 @@ public class ParserDQL extends ParserBase {
             e2 = XreadSimpleValueSpecificationOrNull();
 
             if (e2 == null) {
-                throw Error.error(ErrorCode.X_42565,
+                throw Error.error(ErrorCode.X_42563,
                                   ErrorCode.M_INVALID_LIMIT);
             }
 
@@ -1305,7 +1310,7 @@ public class ParserDQL extends ParserBase {
             return;
         }
 
-        throw Error.error(ErrorCode.X_42565, ErrorCode.M_INVALID_LIMIT);
+        throw Error.error(ErrorCode.X_42563, ErrorCode.M_INVALID_LIMIT);
     }
 
     private SortAndSlice XreadOrderBy() {

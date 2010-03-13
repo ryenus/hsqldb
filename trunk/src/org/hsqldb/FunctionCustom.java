@@ -1478,7 +1478,7 @@ public class FunctionCustom extends FunctionSQL {
                 int part;
 
                 if (!nodes[0].dataType.isCharacterType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 if ("yy".equalsIgnoreCase((String) nodes[0].valueData)) {
@@ -1530,7 +1530,7 @@ public class FunctionCustom extends FunctionSQL {
 
                     case Types.SQL_DATE :
                         if (nodes[2].dataType.typeCode != Types.SQL_DATE) {
-                            throw Error.error(ErrorCode.X_42565);
+                            throw Error.error(ErrorCode.X_42563);
                         }
 
                         switch (((Integer) nodes[0].valueData).intValue()) {
@@ -1543,7 +1543,7 @@ public class FunctionCustom extends FunctionSQL {
                                 break;
 
                             default :
-                                throw Error.error(ErrorCode.X_42565);
+                                throw Error.error(ErrorCode.X_42563);
                         }
                         break;
 
@@ -1552,12 +1552,12 @@ public class FunctionCustom extends FunctionSQL {
                         if (nodes[2].dataType.typeCode != Types.SQL_TIMESTAMP
                                 && nodes[2].dataType.typeCode
                                    != Types.SQL_TIMESTAMP_WITH_TIME_ZONE) {
-                            throw Error.error(ErrorCode.X_42565);
+                            throw Error.error(ErrorCode.X_42563);
                         }
                         break;
 
                     default :
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = Type.SQL_BIGINT;
@@ -1572,11 +1572,11 @@ public class FunctionCustom extends FunctionSQL {
                 if (nodes[1].dataType == null) {
                     nodes[1].dataType = Type.SQL_INTEGER;
                 } else if (!nodes[1].dataType.isIntegralType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 if (!nodes[0].dataType.isNumberType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = nodes[0].dataType;
@@ -1595,7 +1595,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 if (!nodes[0].dataType.isExactNumberType()
                         && !nodes[0].dataType.isDateTimeType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 // fixed maximum as format is a variable
@@ -1668,7 +1668,7 @@ public class FunctionCustom extends FunctionSQL {
                     if (nodes[0].dataType == null) {
                         nodes[0].dataType = Type.SQL_BIGINT;
                     } else if (!nodes[0].dataType.isExactNumberType()) {
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                     }
                 }
 

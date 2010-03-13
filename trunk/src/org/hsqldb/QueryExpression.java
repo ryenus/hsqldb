@@ -239,6 +239,14 @@ public class QueryExpression {
                 int    index = ArrayUtil.find(rightNames, name);
 
                 if (name.length() > 0 && index != -1) {
+                    if (!leftQueryExpression.accessibleColumns[i]) {
+                        throw Error.error(ErrorCode.X_42578);
+                    }
+
+                    if (!rightQueryExpression.accessibleColumns[index]) {
+                        throw Error.error(ErrorCode.X_42578);
+                    }
+
                     leftColumns.add(i);
                     rightColumns.add(index);
                     unionCorrespondingColumns.add(name);
@@ -246,7 +254,7 @@ public class QueryExpression {
             }
 
             if (unionCorrespondingColumns.isEmpty()) {
-                throw Error.error(ErrorCode.X_42579);
+                throw Error.error(ErrorCode.X_42578);
             }
 
             leftQueryExpression.unionColumnMap  = leftColumns.toArray();
@@ -262,14 +270,22 @@ public class QueryExpression {
                 int    index = ArrayUtil.find(leftNames, name);
 
                 if (index == -1) {
-                    throw Error.error(ErrorCode.X_42579);
+                    throw Error.error(ErrorCode.X_42501);
+                }
+
+                if (!leftQueryExpression.accessibleColumns[index]) {
+                    throw Error.error(ErrorCode.X_42578);
                 }
 
                 leftQueryExpression.unionColumnMap[i] = index;
                 index = ArrayUtil.find(rightNames, name);
 
                 if (index == -1) {
-                    throw Error.error(ErrorCode.X_42579);
+                    throw Error.error(ErrorCode.X_42501);
+                }
+
+                if (!rightQueryExpression.accessibleColumns[index]) {
+                    throw Error.error(ErrorCode.X_42578);
                 }
 
                 rightQueryExpression.unionColumnMap[i] = index;
@@ -524,12 +540,12 @@ public class QueryExpression {
         }
 
         if (sortAndSlice.hasOrder()) {
-            RowSetNavigatorData nav =
-                (RowSetNavigatorData) first.getNavigator();
+            navigator.sortUnion(sortAndSlice);
+        }
 
-            nav.sortUnion(sortAndSlice);
-            nav.trim(sortAndSlice.getLimitStart(session),
-                     sortAndSlice.getLimitCount(session, maxRows));
+        if (sortAndSlice.hasLimit()) {
+            navigator.trim(sortAndSlice.getLimitStart(session),
+                           sortAndSlice.getLimitCount(session, maxRows));
         }
 
         navigator.reset();

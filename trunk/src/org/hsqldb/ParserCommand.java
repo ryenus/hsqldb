@@ -467,13 +467,13 @@ public class ParserCommand extends ParserDDL {
             value = Boolean.TRUE;
 
             if (!isboolean) {
-                throw Error.error(ErrorCode.X_42565, token.tokenString);
+                throw Error.error(ErrorCode.X_42563, token.tokenString);
             }
         } else if (token.tokenType == Tokens.FALSE) {
             value = Boolean.FALSE;
 
             if (!isboolean) {
-                throw Error.error(ErrorCode.X_42565, token.tokenString);
+                throw Error.error(ErrorCode.X_42563, token.tokenString);
             }
         } else {
             checkIsValue();
@@ -481,7 +481,7 @@ public class ParserCommand extends ParserDDL {
             value = token.tokenValue;
 
             if (token.dataType.typeCode != typeCode) {
-                throw Error.error(ErrorCode.X_42565, token.tokenString);
+                throw Error.error(ErrorCode.X_42563, token.tokenString);
             }
         }
 
@@ -1514,7 +1514,7 @@ public class ParserCommand extends ParserDDL {
             }
 
             if (e.dataType == null || !e.dataType.isCharacterType()) {
-                throw Error.error(ErrorCode.X_42565);
+                throw Error.error(ErrorCode.X_42563);
             }
 
             Expression[] args = new Expression[] {
@@ -1580,11 +1580,11 @@ public class ParserCommand extends ParserDDL {
             e.resolveTypes(session, null);
 
             if (e.dataType == null) {
-                throw Error.error(ErrorCode.X_42565);
+                throw Error.error(ErrorCode.X_42563);
             }
 
             if (e.dataType.typeCode != Types.SQL_INTERVAL_HOUR_TO_MINUTE) {
-                throw Error.error(ErrorCode.X_42565);
+                throw Error.error(ErrorCode.X_42563);
             }
         }
 

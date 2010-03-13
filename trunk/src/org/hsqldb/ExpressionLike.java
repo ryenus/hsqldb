@@ -159,7 +159,7 @@ public final class ExpressionLike extends ExpressionLogical {
                             break;
 
                         default :
-                            throw Error.error(ErrorCode.X_42565);
+                            throw Error.error(ErrorCode.X_42563);
                     }
 
                     if (length != 1) {
@@ -202,7 +202,7 @@ public final class ExpressionLike extends ExpressionLogical {
                        || nodes[ESCAPE].dataType.isBinaryType())) {
             likeObject.isBinary = true;
         } else {
-            throw Error.error(ErrorCode.X_42565);
+            throw Error.error(ErrorCode.X_42563);
         }
 
         likeObject.dataType = nodes[LEFT].dataType;

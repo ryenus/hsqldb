@@ -575,7 +575,7 @@ public class ExpressionLogical extends Expression {
             }
             case OpTypes.IS_NULL :
                 if (nodes[LEFT].isParam) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 if (nodes[LEFT].opType == OpTypes.VALUE) {
@@ -596,13 +596,13 @@ public class ExpressionLogical extends Expression {
 
                         break;
                     } else {
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                     }
                 }
 
                 if (nodes[LEFT].dataType == null
                         || !nodes[LEFT].dataType.isBooleanType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = Type.SQL_BOOLEAN;
@@ -849,7 +849,7 @@ public class ExpressionLogical extends Expression {
                     .dataType, nodes[LEFT].nodes[1].dataType) || !DTIType
                         .isValidDatetimeRange(nodes[RIGHT].nodes[0]
                             .dataType, nodes[RIGHT].nodes[1].dataType)) {
-            throw Error.error(ErrorCode.X_42565);
+            throw Error.error(ErrorCode.X_42563);
         }
 
         if (!DTIType.isValidDatetimeRange(nodes[LEFT].nodes[0].dataType,

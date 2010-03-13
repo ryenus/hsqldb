@@ -313,7 +313,10 @@ public class ExpressionColumn extends Expression {
 
             case OpTypes.PARAMETER :
             case OpTypes.VARIABLE :
-            case OpTypes.COLUMN :
+            case OpTypes.COLUMN : {
+                boolean resolved       = false;
+                boolean tableQualified = tableName != null;
+
                 if (rangeVariable != null) {
                     return unresolvedSet;
                 }
@@ -325,9 +328,27 @@ public class ExpressionColumn extends Expression {
                         continue;
                     }
 
-                    if (resolveColumnReference(rangeVar)) {
-                        return unresolvedSet;
+                    if (resolved) {
+                        if (resolvesDuplicateColumnReference(rangeVar)) {
+                            resolvesDuplicateColumnReference(rangeVar);
+
+                            throw Error.error(ErrorCode.X_42578);
+                        }
+                    } else {
+                        if (resolveColumnReference(rangeVar)) {
+                            if (tableQualified) {
+                                return unresolvedSet;
+                            }
+
+                            resolved = true;
+
+                            continue;
+                        }
                     }
+                }
+
+                if (resolved) {
+                    return unresolvedSet;
                 }
 
                 if (unresolvedSet == null) {
@@ -335,6 +356,7 @@ public class ExpressionColumn extends Expression {
                 }
 
                 unresolvedSet.add(this);
+            }
         }
 
         return unresolvedSet;
@@ -385,6 +407,46 @@ public class ExpressionColumn extends Expression {
         if (colIndex != -1) {
             setAttributesAsColumn(rangeVar, colIndex);
 
+            return true;
+        }
+
+        return false;
+    }
+
+    boolean resolvesDuplicateColumnReference(RangeVariable rangeVar) {
+
+        if (tableName == null) {
+            Expression e = rangeVar.getColumnExpression(columnName);
+
+            if (e != null) {
+                return false;
+            }
+
+            if (rangeVar.variables != null) {
+                int colIndex = rangeVar.findColumn(columnName);
+
+                if (colIndex == -1) {
+                    return false;
+                }
+
+                ColumnSchema column = rangeVar.getColumn(colIndex);
+
+                if (column.getParameterMode()
+                        == SchemaObject.ParameterModes.PARAM_OUT) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        if (!rangeVar.resolvesTableName(this)) {
+            return false;
+        }
+
+        int colIndex = rangeVar.findColumn(columnName);
+
+        if (colIndex != -1) {
             return true;
         }
 

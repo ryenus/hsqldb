@@ -129,7 +129,7 @@ public final class NumberSequence implements SchemaObject {
 
             // fall through
             default :
-                throw Error.error(ErrorCode.X_42565);
+                throw Error.error(ErrorCode.X_42563);
         }
 
         minValue  = min;
