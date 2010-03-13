@@ -613,7 +613,7 @@ U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
 
       <programlisting>DATE '2008-08-08'
 TIME '20:08:08'
-TIMESTAMP '2008-08-08 20:08:08'
+TIMESTAMP '2008-08-08 20:08:08.235'
 
 INTERVAL '10' DAY
 INTERVAL -'08:08' MINUTE TO SECOND
@@ -1101,7 +1101,8 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
 
       <simpara>Specify a function that returns a character string or binary
       string. The supported character value functions are listed and described
-      in Built-In Functions chapter.</simpara>
+      in the <link endterm="builtinfunctions-title"
+      xlink:href="#builtinfunctions-chapt"></link> chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>datetime value expression</primary>
@@ -1746,8 +1747,9 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <simpara><literal>&lt;SQL argument&gt; ::= &lt;value expression&gt; |
       &lt;target specification&gt;</literal></simpara>
 
-      <simpara>Invoke an SQL-invoked routine. Examples are given in the
-      Routines chapter.</simpara>
+      <simpara>Invoke an SQL-invoked routine. Examples are given in the <link
+      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"></link>
+      chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>COLLATE</primary>
@@ -1853,8 +1855,9 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       otherwise FALSE. ANY and SOME are the same operation and return TRUE if
       one of the values is TRUE, otherwise it returns FALSE.</simpara>
 
-      <simpara>The other operations perform the statistical functions on
-      numeric values.</simpara>
+      <simpara>The other operations perform the statistical functions
+      STDDEV_POP, STDDEV_SAMP, VAR_SAMP, VAR_POP on numeric values. NULL
+      values are ignored in calculations..</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>sort specification list</primary>
@@ -1916,6 +1919,9 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
     <para><glossterm>GROUPING</glossterm> and
     <glossterm>AGGREGATION</glossterm></para>
 
+    <para><glossterm>SELECTION AFTER GROUPING OR
+    AGGREGATION</glossterm></para>
+
     <para><glossterm>SET and MULTISET (COLLECTION)
     OPERATIONS</glossterm></para>
 
@@ -1940,8 +1946,10 @@ SELECT (d + e) / f FROM atable WHERE a + b = c
 /* in the next two SELECT statements, column naming is performed in different ways*/
 SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c
 SELECT dcol, ecol, fcol FROM atable(acol, bcol, ccol, dcol, ecol, fcol) WHERE acol + bcol = ccol
-/* in the next SELECT, both grouping and aggregation is is performed */
+/* in the next SELECT, both grouping and aggregation is performed */
 SELECT d, e, SUM(f) FROM atable GROUP BY d, e
+/* in the next SELECT, selection is performed after grouping and aggregation is performed */
+SELECT d, e, SUM(f) FROM atable GROUP BY d, e HAVING SUM(f) &gt; 10
 /* in the next SELECT, a UNION is performed on two selects from the same table */
 SELECT d, e, f FROM atable WHERE d = 3 UNION SELECT a, b, c FROM atable WHERE a = 30
 /* in the next SELECT, ordering is performed */
@@ -1968,12 +1976,12 @@ SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c ORDER BY calc D
       <simpara><literal>| &lt;parenthesized joined table&gt;
       </literal></simpara>
 
-      <para>The &lt;table or query name&gt; indicates either the name of a
-      database table, or a query that has been introduced with the WITH
-      keyword and given a name. A &lt;derived table&gt; is a subquery, which
-      consists of a query enclosed in parenthses. A &lt;parenthesized joined
-      table&gt; is simply a set of joined tables enclosed in
-      parentheses.</para>
+      <para>The <literal>&lt;table or query name&gt;</literal> indicates
+      either the name of a database table, or a query that has been introduced
+      with the WITH keyword and given a name. A <literal>&lt;derived
+      table&gt;</literal> is a subquery, which consists of a query enclosed in
+      parenthses. A <literal>&lt;parenthesized joined table&gt;</literal> is
+      simply a set of joined tables enclosed in parentheses.</para>
 
       <para>Tables can also be formed by specifying the values that are
       contained in them:</para>
@@ -2008,6 +2016,142 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
     </section>
 
     <section>
+      <title>Query Specification</title>
+
+      <para>A query specification is a SELECT statement. It is the most common
+      form of <literal>&lt;derived table&gt;</literal> . A <literal>&lt;table
+      expression&gt;</literal> is a base table, a view or any form of allowed
+      derived table. The SELECT statement performs projection, naming,
+      computing or aggregation on the rows of the <literal>&lt;table
+      expression&gt;</literal> .</para>
+
+      <simpara><literal>&lt;query specification&gt; ::= SELECT [ DISTINCT |
+      ALL ] &lt;select list&gt; &lt;table expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;select list&gt; ::= &lt;asterisk&gt; | &lt;select
+      sublist&gt; [ { &lt;comma&gt; &lt;select sublist&gt; }... ]
+      </literal></simpara>
+
+      <simpara><literal>&lt;select sublist&gt; ::= &lt;derived column&gt; |
+      &lt;qualified asterisk&gt; </literal></simpara>
+
+      <simpara><literal>&lt;qualified asterisk&gt; ::= &lt;asterisked
+      identifier chain&gt; &lt;period&gt; &lt;asterisk&gt;</literal></simpara>
+
+      <simpara><literal>&lt;asterisked identifier chain&gt; ::= &lt;asterisked
+      identifier&gt; [ { &lt;period&gt; &lt;asterisked identifier&gt; }... ]
+      </literal></simpara>
+
+      <simpara><literal>&lt;asterisked identifier&gt; ::=
+      &lt;identifier&gt;</literal></simpara>
+
+      <simpara><literal>&lt;derived column&gt; ::= &lt;value expression&gt; [
+      &lt;as clause&gt; ] </literal></simpara>
+
+      <simpara><literal>&lt;as clause&gt; ::= [ AS ] &lt;column name&gt;
+      </literal></simpara>
+
+      <para>The qualifier DISTINCT or ALL apply to the results of the SELECT
+      statement after all other operations have been performed. ALL simply
+      returns the rows, while DISTINCT compares the rows and removes the
+      duplicate ones.</para>
+
+      <para>Projection is performed by the <literal>&lt;select
+      list&gt;</literal>.</para>
+
+      <para>A single <literal>&lt;asterisk&gt;</literal> means all columns of
+      the <literal>&lt;table expression&gt;</literal> are included, in the
+      same order as they appear in the <literal>&lt;table
+      expression&gt;</literal>. An asterisk qualified by a table name means
+      all the columns of the qualifier table name are included.</para>
+
+      <para>A derived column is a <literal>&lt;value expression&gt;</literal>,
+      optionally named with the <literal>&lt;as clause&gt;</literal>. A
+      <literal>&lt;value expression&gt;</literal> can be many things. Common
+      types include: the name of a column in the <literal>&lt;table
+      expression&gt;</literal>; an expression based on different columns or
+      constant values; a function call; an aggregate function; a CASE WHEN
+      expression.</para>
+    </section>
+
+    <section>
+      <title>Table Expression</title>
+
+      <para>A table expression is part of the SELECT statement and consists of
+      the FROM clause with optional other clauses that performs selection (of
+      rows) and grouping from the table(s) in the FROM clause.</para>
+
+      <simpara><literal>&lt;table expression&gt; ::= &lt;from clause&gt; [
+      &lt;where clause&gt; ] [ &lt;group by clause&gt; ] [ &lt;having
+      clause&gt; ]</literal></simpara>
+
+      <para><literal>&lt;from clause&gt; ::= FROM &lt;table reference&gt; [ {
+      &lt;comma&gt; &lt;table reference&gt; }... ]</literal></para>
+
+      <simpara><literal>&lt;table reference&gt; ::= &lt;table primary&gt; |
+      &lt;joined table&gt;</literal></simpara>
+
+      <simpara><literal>&lt;table primary&gt; ::= &lt;table or query name&gt;
+      [ [ AS ] &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived
+      column list&gt; &lt;right paren&gt; ] ] </literal></simpara>
+
+      <simpara><literal>| &lt;derived table&gt; [ AS ] &lt;correlation
+      name&gt; [ &lt;left paren&gt; &lt;derived column list&gt; &lt;right
+      paren&gt; ] </literal></simpara>
+
+      <simpara><literal>| &lt;table function derived table&gt; [ AS ]
+      &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived column
+      list&gt; &lt;right paren&gt; ]</literal></simpara>
+
+      <simpara><literal>&lt;where clause&gt; ::= WHERE &lt;boolean value
+      expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;group by clause&gt; ::= GROUP BY [ &lt;set
+      quantifier&gt; ] &lt;grouping element&gt; [ { &lt;comma&gt; &lt;grouping
+      element&gt; }... ]</literal></simpara>
+
+      <simpara><literal>&lt;having clause&gt; ::= HAVING &lt;boolean value
+      expression&gt;</literal></simpara>
+
+      <para>The &lt;from clause&gt; contains one or more <literal>&lt;table
+      reference&gt;</literal> separated by commas. A table reference is often
+      a table or view name or a joined table.</para>
+
+      <para>The <literal>&lt;where clause&gt;</literal> filters the rows of
+      the table in the &lt;from clause&gt; and removes the rows for which the
+      search condition is not TRUE.</para>
+
+      <para>The <literal>&lt;group by clause&gt;</literal> is a comma
+      separated list of columns of the table in the <literal>&lt;from
+      clause&gt;</literal> or expressions based on the columns.</para>
+
+      <para>When a <literal>&lt;group by clause&gt;</literal> is used, only
+      the columns used in the <literal>&lt;group by clause&gt;</literal> or
+      expressions used there, can be used in the <literal>&lt;select
+      list&gt;</literal>, together with any <literal>&lt;aggregate
+      function&gt;</literal> on other columns. A <literal>&lt;group by
+      clause&gt;</literal> compares the rows and groups together the rows that
+      have the same values in the columns of the <literal>&lt;group by
+      clause&gt;</literal>. Then any <literal>&lt;aggregate
+      function&gt;</literal> in the <literal>&lt;select list&gt;</literal> is
+      performed on each group, and for each group, a row is formed that
+      contains the values of the columns of the <literal>&lt;group by
+      clause&gt;</literal> and the values returned from each
+      <literal>&lt;aggregate function&gt;. In the first example below, a
+      simple column reference is used in GROUP BY, while in the second
+      example, an expression is used.</literal><programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+SELECT d, e, f FROM atable WHERE a + b = c GROUP BY d, e, f
+SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &gt; 2 AND d + e &gt; 4
+</programlisting></para>
+
+      <para>A <literal>&lt;having clause&gt;</literal> filters the rows of the
+      table that is formed after applying the <literal>&lt;group by
+      clause&gt;</literal> using its search condition. The search condition
+      must be an expression base on the expressions in the GROUP BY list or
+      the aggregate functions used.</para>
+    </section>
+
+    <section>
       <title>Joined Table</title>
 
       <para>Joins are operators with two table as the operands, resulting in a
@@ -2036,7 +2180,7 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
 
       <para>The CROSS JOIN can be expressed in two forms. The first form is
       <literal>A CROSS JOIN B</literal>. The second form is <literal>A,
-      B</literal>. This type of join is not genrally very useful, as it
+      B</literal>. This type of join is not generally very useful, as it
       returns large result tables.</para>
 
       <indexterm significance="preferred" type="sql">
@@ -2092,7 +2236,7 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       USING (&lt;comma separated column name list&gt;)</literal>.</para>
 
       <para>The columns of the joined table are formed by the following
-      prodecures: In JOIN ... USING the shared columns are added to the joined
+      procedures: In JOIN ... USING the shared columns are added to the joined
       table in the same order as they appear in the column name list. In
       NATURAL JOIN the shared columns are added to the joined table in the
       same order as they appear in the first table. In bother forms of join,
@@ -2212,7 +2356,8 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       query, the table and its columns are renamed and the new names are used
       in the WHERE clauses:</simpara>
 
-      <programlisting>SELECT d, e, f FROM atable WHERE a + b = c
+      <programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+SELECT d, e, f FROM atable WHERE a + b = c
 SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -2240,14 +2385,14 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       list.</para>
 
       <indexterm significance="preferred" type="sql">
-        <primary>name reslution</primary>
+        <primary>name resolution</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">Name Resolution</emphasis></simpara>
 
       <simpara>In a joined table, if a column name appears in tables on both
       sides then any reference to the name must use the table name in order to
-      specify which table is being refered to.</simpara>
+      specify which table is being referred to.</simpara>
     </section>
 
     <section>
@@ -2264,7 +2409,7 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       form of grouping is performed by the use of DISTINCT after SELECT. This
       eliminates all the duplicate rows (rows that have the same value in each
       of their columns when compared to another row). The other form of
-      grouping is performed with the GROUP BY clause. This form is usaully
+      grouping is performed with the GROUP BY clause. This form is usually
       used together with aggregation.</para>
     </section>
 
@@ -2306,7 +2451,7 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       [DISTINCT] B</literal>, <literal>A INTERSECT [DISTINCT] B</literal> and
       <literal>A EXCEPT [DISTINCT] B</literal>. The result table is formed in
       the following way: The UNION operation adds all the rows from A and B
-      into the new table, but avoids copying duplicate rows. The INTERSET
+      into the new table, but avoids copying duplicate rows. The INTERSECT
       operation copies only those rows from each table that also exist in the
       other table, but avoids copying duplicate rows. The EXCEPT operation
       copies those rows from the first table which do not exist in the second
@@ -2316,7 +2461,7 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       can return duplicate rows. They are <literal>A UNION ALL B</literal>,
       <literal>A INTERSECT ALL B</literal> and <literal>A EXCEPT ALL
       B</literal>. The UNION ALL operation adds all the rows from A and B into
-      the new table. The INTERSET operation copies only those rows from each
+      the new table. The INTERSECT operation copies only those rows from each
       table that also exist in the other table. If n copies of a rows exists
       in one table, and m copies in the other table, the number of copies in
       the result table is the smaller of n and m. The EXCEPT operation copies
@@ -2329,25 +2474,46 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     <section>
       <title>Query Expression</title>
 
-      <para>A query exparession refers to a table formed by using UNION and
-      other set operations. The INTERSECT operator has precedence over the
-      UNION and EXCEPT operators. A simplified BNF is given below:</para>
+      <para>A query expression refers to a table formed by using UNION and
+      other set operations. The query expression is evaluated from left to
+      right and the INTERSECT operator has precedence over the UNION and
+      EXCEPT operators. A simplified BNF is given below:</para>
 
-      <simpara><literal>&lt;query term&gt; INTERSECT | UNION | EXCEPT [ ALL |
-      DISTINCT ] [ &lt;corresponding spec&gt; ] &lt;query
-      primary&gt;</literal></simpara>
+      <simpara><literal>&lt;query expression body&gt; ::= &lt;query term&gt; |
+      &lt;query expression body&gt; UNION | EXCEPT [ ALL | DISTINCT ] [
+      &lt;corresponding spec&gt; ] &lt;query term&gt;</literal></simpara>
+
+      <simpara><literal>&lt;query term&gt; ::= &lt;query primary&gt; |
+      &lt;query term&gt; INTERSECT [ ALL | DISTINCT ] [ &lt;corresponding
+      spec&gt; ] &lt;query term&gt;</literal></simpara>
+
+      <simpara><literal>&lt;query primary&gt; ::= &lt;simple table&gt; |
+      &lt;left paren&gt; &lt;query expression body&gt; [ &lt;order by
+      clause&gt; ] [ &lt;result offset clause&gt; ] [ &lt;fetch first
+      clause&gt; ] &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;simple table&gt; ::= &lt;query specification&gt; |
+      &lt;table value constructor&gt; | &lt;explicit table&gt; &lt;explicit
+      table&gt; ::= TABLE &lt;table or query name&gt;</literal></simpara>
 
       <para>&lt;corresponding spec&gt; ::= CORRESPONDING [ BY &lt;left
       paren&gt; &lt;column name list&gt; &lt;right paren&gt; ]</para>
 
       <para>A &lt;query term&gt; and a &lt;query primary&gt; can be a SELECT
       statement, an &lt;explicit table&gt;, or a &lt;table value
-      constructor&gt;. The CORRESPONDING clause is optional and allows you to
-      select only some columns of the tables on the left and right side to
-      create the new table. If no column list is used with CORRESPONDING, then
-      all the column names that are common in the tables on two sides are
-      used. In the example below the columns named u and v from the two SELECT
-      statements are used to create the UNION table.</para>
+      constructor&gt;.</para>
+
+      <para>The CORRESPONDING clause is optional. If it is not specified, then
+      the <literal>&lt;query term&gt;</literal> and the <literal>&lt;query
+      primary&gt;</literal> must have the same number of columns. If
+      CORRESPONDING is specified, the two sides need not have the same number
+      of columns. If no column list is used with CORRESPONDING, then all the
+      column names that are common in the tables on two sides are used in the
+      order in which they appear in the first table. If a columns list is
+      used, it allows you to select only some columns of the tables on the
+      left and right side to create the new table. In the example below the
+      columns named u and v from the two SELECT statements are used to create
+      the UNION table.</para>
 
       <para><programlisting>SELECT * FROM atable UNION CORRESPONDING BY (u, v) SELECT * FROM anothertable
 </programlisting>The type of each column of the query expression is determined
@@ -2364,18 +2530,19 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       ascending or descending ordering is used. It can also specify whether
       NULL values are returned first or last.</para>
 
-      <programlisting>SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum, yzsum</programlisting>
+      <programlisting>SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum NULLS LAST, yzsum NULLS FIRST</programlisting>
 
       <para>The ORDER BY clause specifies one or more &lt;value
       expressions&gt;. The list of rows is sorted according to the first
       &lt;value expression&gt;. When some rows are sorted equal then they are
       sorted according to the next &lt;value expression&gt; and so on.</para>
 
-      <para>&lt;order by clause&gt; ::= ORDER BY &lt;sort specification&gt; [
-      { &lt;comma&gt; &lt;sort specification&gt; }... ]</para>
+      <para><literal>&lt;order by clause&gt; ::= ORDER BY &lt;sort
+      specification&gt; [ { &lt;comma&gt; &lt;sort specification&gt; }...
+      ]</literal></para>
 
-      <para>&lt;sort specification&gt; ::= &lt;value expression&gt; [ ASC |
-      DESC ] [ NULLS FIRST | NULLS LAST ]</para>
+      <para><literal>&lt;sort specification&gt; ::= &lt;value expression&gt; [
+      ASC | DESC ] [ NULLS FIRST | NULLS LAST ]</literal></para>
     </section>
 
     <section>
@@ -2388,6 +2555,15 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       form, the specified OFFSET rows are removed from start of the table,
       then up to the specified FETCH rows are kept and the rest of the rows
       are discarded.</para>
+
+      <para><literal>&lt;result offset clause&gt; ::= OFFSET &lt;offset row
+      count&gt; { ROW | ROWS } </literal></para>
+
+      <para><literal>&lt;fetch first clause&gt; ::= FETCH { FIRST | NEXT } [
+      &lt;fetch first row count&gt; ] { ROW | ROWS } ONLY</literal></para>
+
+      <para><literal>&lt;limit clause&gt; ::= LIMIT [ &lt;fetch first row
+      count&gt; ]</literal></para>
 
       <para>A slicing operation takes the result set that has been already
       processed and ordered. It then discards the specified number of rows
@@ -2423,7 +2599,7 @@ SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* altern
     the selected rows are deleted. When used in JDBC, the number of rows
     returned by the implicit SELECT is returned as the update count.</simpara>
 
-    <simpara>If there are FOREIGN KEY constraints on other other tables that
+    <simpara>If there are FOREIGN KEY constraints on other tables that
     reference the subject table, and the FOREIGN KEY constraints have
     referential actions, then rows from those other tables that reference the
     deleted rows are either deleted, or updated, according to the specified
@@ -2454,12 +2630,16 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
     <simpara>Delete all rows of a table without firing its triggers. This
     statement can only be used on base tables (not views). If the table is
     referenced in a FOREIGN KEY constraint, the statement causes an exception.
-    The default for <literal>&lt;identity column restart option&gt;</literal>
-    is <literal>CONTINUE IDENTITY</literal>. This means no change to the
-    IDENTITY sequence of the table. If <literal>RESTART IDENTITY</literal> is
+    Triggers defined on the table are not executed with this statement. The
+    default for <literal>&lt;identity column restart option&gt;</literal> is
+    <literal>CONTINUE IDENTITY</literal>. This means no change to the IDENTITY
+    sequence of the table. If <literal>RESTART IDENTITY</literal> is
     specified, then the sequence is reset to its start value.</simpara>
 
-    <simpara>This command is faster than odinary DELETE.</simpara>
+    <simpara>TRUNCATE is faster than ordinary DELETE. The TRUNCTATE statement
+    is an SQL Standard data change statement, therefore it is performed under
+    transaction control and can be rolled back if the connection is not in the
+    auto-commit mode. </simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>INSERT INTO</primary>
@@ -2502,7 +2682,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
 
     <simpara>With the other forms of INSERT, the optional <literal>(&lt;insert
     column list&gt;)</literal> specifies to which columns of the table the new
-    values are assgined.</simpara>
+    values are assigned.</simpara>
 
     <simpara>In one form, the inserted values are from a <literal>&lt;query
     expression&gt;</literal> and all the rows that are returned by the
@@ -2583,20 +2763,28 @@ INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inser
     rows or to insert rows, but usually both update and insert are
     specified.</simpara>
 
-    <simpara>The <literal>&lt;search condition&gt;</literal> matches a row of
-    the <literal>&lt;table reference&gt;</literal> with each row of the
-    <literal>&lt;target table&gt;</literal>. If two rows match then the UPDATE
-    clause is used to update the matching rows of the target table. Those rows
-    of <literal>&lt;table reference&gt;</literal> that have no matching rows
-    are then used to insert new rows into the <literal>&lt;target
-    table&gt;</literal>. Therefore, a MERGE statement can update between 0 and
-    all the rows of the <literal>&lt;target table&gt;</literal> and can insert
-    between 0 an the number of the rows in <literal>&lt;table
-    reference&gt;</literal> into the <literal>&lt;target table&gt;</literal>.
-    The total number of inserted and unpdated rows is always the same as the
-    number of rows in <literal>&lt;table reference&gt;</literal>. The
-    constraints and referential actions specified on the database tables are
-    enforced the same way as for an update and an insert statement.</simpara>
+    <simpara>The <literal>&lt;search condition&gt;</literal> matches each row
+    of the <literal>&lt;table reference&gt;</literal> with each row of the
+    <literal>&lt;target table&gt;</literal>. If the two rows match then the
+    UPDATE clause is used to update the matching row of the target table.
+    Those rows of <literal>&lt;table reference&gt;</literal> that have no
+    matching rows are then used to insert new rows into the
+    <literal>&lt;target table&gt;</literal>. Therefore, a MERGE statement can
+    update between 0 and all the rows of the <literal>&lt;target
+    table&gt;</literal> and can insert between 0 and the number of the rows in
+    <literal>&lt;table reference&gt;</literal> into the <literal>&lt;target
+    table&gt;</literal>. If any row in the <literal>&lt;target
+    table&gt;</literal> matches more than one row in <literal>&lt;table
+    reference&gt;</literal> a cardinality error is raised. On the other hand,
+    several rows in the <literal>&lt;target table&gt;</literal> can matches a
+    single row in <literal>&lt;table reference&gt;</literal> without any
+    error. The constraints and referential actions specified on the database
+    tables are enforced the same way as for an update and an insert
+    statement.</simpara>
+
+    <simpara>The MERGE statement can be used with only the WHEN NOT MATCHED
+    clause as a conditional INSERT statement that inserts a row if no existing
+    rows match a condition.</simpara>
 
     <simpara>In the first example below, the table originally contains two
     rows for different furniture. The <literal>&lt;table
@@ -2655,7 +2843,7 @@ MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
     When used in JDBC, the number of rows returned by the implicit SELECT is
     returned as the update count.</simpara>
 
-    <simpara>If there are FOREIGN KEY constraints on other other tables that
+    <simpara>If there are FOREIGN KEY constraints on other tables that
     reference the subject table, and the FOREIGN KEY constraints have
     referential actions, then rows from those other tables that reference the
     updated rows are updated, according to the specified referential
