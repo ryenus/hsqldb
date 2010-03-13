@@ -172,6 +172,21 @@ public class QuerySpecification extends QueryExpression {
             throw Error.error(ErrorCode.X_42564);
         }
 
+        if (indexLimitVisible > 0) {
+            if (e.opType == OpTypes.MULTICOLUMN) {
+                if (((ExpressionColumn) e).getTableName() == null) {
+                    throw Error.error(ErrorCode.X_42578);
+                }
+            }
+
+            Expression first = ((Expression) exprColumnList.get(0));
+
+            if (first.opType == OpTypes.MULTICOLUMN
+                    && ((ExpressionColumn) first).getTableName() == null) {
+                throw Error.error(ErrorCode.X_42578);
+            }
+        }
+
         exprColumnList.add(e);
 
         indexLimitVisible++;
@@ -214,9 +229,8 @@ public class QuerySpecification extends QueryExpression {
         resolveColumnReferences();
 
         unionColumnTypes = new Type[indexLimitVisible];
-        unionColumnMap   = new int[indexLimitVisible];
 
-        ArrayUtil.fillSequence(unionColumnMap);
+        setReferenceableColumns();
     }
 
     /**
@@ -730,9 +744,7 @@ public class QuerySpecification extends QueryExpression {
         setRangeVariableConditions();
         resolveAggregates();
 
-        for (int i = 0;
-                i < unionColumnMap.length && i < unionColumnTypes.length;
-                i++) {
+        for (int i = 0; i < unionColumnTypes.length; i++) {
             unionColumnTypes[i] = Type.getAggregateType(unionColumnTypes[i],
                     exprColumns[i].getDataType());
         }
@@ -742,16 +754,14 @@ public class QuerySpecification extends QueryExpression {
 
         resolveGroups();
 
-        for (int i = 0;
-                i < unionColumnMap.length && i < unionColumnTypes.length;
-                i++) {
-            Type type = unionColumnTypes[unionColumnMap[i]];
+        for (int i = 0; i < unionColumnTypes.length; i++) {
+            Type type = unionColumnTypes[i];
 
             if (type == null) {
                 throw Error.error(ErrorCode.X_42567);
             }
 
-            exprColumns[unionColumnMap[i]].setDataType(session, type);
+            exprColumns[i].setDataType(session, type);
         }
 
         for (int i = 0; i < indexStartHaving; i++) {
@@ -761,7 +771,6 @@ public class QuerySpecification extends QueryExpression {
         }
 
         checkLobUsage();
-        setReferenceableColumns();
         setUpdatability();
         createResultMetaData();
         createTable(session);
@@ -1023,23 +1032,6 @@ public class QuerySpecification extends QueryExpression {
         }
 
         return set == null;
-    }
-
-    private int getLimitStart(Session session) {
-
-        if (sortAndSlice.limitCondition != null) {
-            Integer limit =
-                (Integer) sortAndSlice.limitCondition.getLeftNode().getValue(
-                    session);
-
-            if (limit == null || limit.intValue() < 0) {
-                throw Error.error(ErrorCode.X_2201X);
-            }
-
-            return limit.intValue();
-        }
-
-        return 0;
     }
 
     int[] getLimits(Session session, int maxRows) {

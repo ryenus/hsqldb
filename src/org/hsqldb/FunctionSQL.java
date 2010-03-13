@@ -1080,12 +1080,12 @@ public class FunctionSQL extends Expression {
                            && nodes[1].dataType.isBinaryType()) {
                     if (nodes[0].dataType.isBitType()
                             || nodes[1].dataType.isBitType()) {
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                     }
 
                     funcType = FUNC_POSITION_BINARY;
                 } else {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = Type.SQL_BIGINT;
@@ -1103,7 +1103,7 @@ public class FunctionSQL extends Expression {
 
                 if (!nodes[1].dataType.isDateTimeType()
                         && !nodes[1].dataType.isIntervalType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 int     part = ((Number) nodes[0].valueData).intValue();
@@ -1121,7 +1121,7 @@ public class FunctionSQL extends Expression {
 
                 if (!nodes[0].dataType.isCharacterType()
                         && !nodes[0].dataType.isBinaryType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = Type.SQL_BIGINT;
@@ -1130,7 +1130,7 @@ public class FunctionSQL extends Expression {
             }
             case FUNC_CHAR_LENGTH :
                 if (!nodes[0].dataType.isCharacterType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
             // fall through
@@ -1141,7 +1141,7 @@ public class FunctionSQL extends Expression {
 
                 if (!nodes[0].dataType.isCharacterType()
                         && !nodes[0].dataType.isBinaryType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = Type.SQL_BIGINT;
@@ -1168,7 +1168,7 @@ public class FunctionSQL extends Expression {
 
                 if (!nodes[0].dataType.isNumberType()
                         || !nodes[1].dataType.isNumberType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 nodes[0].dataType =
@@ -1194,7 +1194,7 @@ public class FunctionSQL extends Expression {
 
                 if (!nodes[0].dataType.isNumberType()
                         || !nodes[1].dataType.isNumberType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 nodes[0].dataType = Type.SQL_DOUBLE;
@@ -1211,7 +1211,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 if (!nodes[0].dataType.isNumberType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 nodes[0].dataType = Type.SQL_DOUBLE;
@@ -1235,7 +1235,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 if (!nodes[0].dataType.isNumberType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = nodes[0].dataType;
@@ -1253,7 +1253,7 @@ public class FunctionSQL extends Expression {
                         || !nodes[1].dataType.isNumberType()
                         || !nodes[2].dataType.isNumberType()
                         || !nodes[3].dataType.isIntegralType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 dataType = nodes[3].dataType;
@@ -1273,7 +1273,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 if (!nodes[1].dataType.isNumberType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 if (nodes[2] != null) {
@@ -1282,7 +1282,7 @@ public class FunctionSQL extends Expression {
                     }
 
                     if (!nodes[2].dataType.isNumberType()) {
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                     }
 
                     nodes[2].dataType =
@@ -1302,7 +1302,7 @@ public class FunctionSQL extends Expression {
                 } else if (dataType.isBinaryType()) {
                     funcType = FUNC_SUBSTRING_BINARY;
                 } else {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 if (nodes.length > 3 && nodes[3] != null) {
@@ -1327,7 +1327,7 @@ public class FunctionSQL extends Expression {
                 dataType = nodes[0].dataType;
 
                 if (!dataType.isCharacterType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
                 break;
 
@@ -1374,7 +1374,7 @@ public class FunctionSQL extends Expression {
                             Type.SQL_BINARY);
                     }
                 } else {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
                 break;
 
@@ -1435,7 +1435,7 @@ public class FunctionSQL extends Expression {
                             + nodes[1].dataType.precision);
                     }
                 } else {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 if (nodes[2].dataType == null) {
@@ -1443,7 +1443,7 @@ public class FunctionSQL extends Expression {
                 }
 
                 if (!nodes[2].dataType.isNumberType()) {
-                    throw Error.error(ErrorCode.X_42565);
+                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 nodes[2].dataType =
@@ -1455,7 +1455,7 @@ public class FunctionSQL extends Expression {
                     }
 
                     if (!nodes[3].dataType.isNumberType()) {
-                        throw Error.error(ErrorCode.X_42565);
+                        throw Error.error(ErrorCode.X_42563);
                     }
 
                     nodes[3].dataType =

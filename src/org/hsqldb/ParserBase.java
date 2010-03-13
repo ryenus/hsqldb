@@ -402,7 +402,7 @@ public class ParserBase {
     String readQuotedString() {
 
         if (token.dataType.typeCode != Types.SQL_CHAR) {
-            throw Error.error(ErrorCode.X_42565);
+            throw Error.error(ErrorCode.X_42563);
         }
 
         String value = token.tokenString;
@@ -462,7 +462,7 @@ public class ParserBase {
         }
 
         if (token.dataType.typeCode != Types.SQL_INTEGER) {
-            throw Error.error(ErrorCode.X_42565);
+            throw Error.error(ErrorCode.X_42563);
         }
 
         int val = ((Number) token.tokenValue).intValue();
@@ -497,7 +497,7 @@ public class ParserBase {
 
         if (token.dataType.typeCode != Types.SQL_INTEGER
                 && token.dataType.typeCode != Types.SQL_BIGINT) {
-            throw Error.error(ErrorCode.X_42565);
+            throw Error.error(ErrorCode.X_42563);
         }
 
         long val = ((Number) token.tokenValue).longValue();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,7 +119,7 @@ class TransactionManagerCommon {
         try {
             session.logSequences();
 
-            if (limit >= 0) {
+            if (limit > 0) {
                 database.logger.writeCommitStatement(session);
             }
         } catch (HsqlException e) {}

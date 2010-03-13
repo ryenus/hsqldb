@@ -708,7 +708,7 @@ public class ParserDML extends ParserDQL {
                 ColumnSchema column = readColumnName(rangeVars);
 
                 if (!colNames.add(column.getName().name)) {
-                    throw Error.error(ErrorCode.X_42578,
+                    throw Error.error(ErrorCode.X_42579,
                                       column.getName().name);
                 }
 
