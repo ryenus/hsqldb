@@ -150,5 +150,33 @@ insert into hist values (current_date, 1, 10);
 select SUBSTR(CAST (MYDATE AS VARCHAR(20)),1,10), SUM(FILES), SUM(SPACE)
  from hist
  group by SUBSTR(CAST (MYDATE AS VARCHAR(20)),1,10)
+
+---
+CREATE TABLE group_by_bug
+ ( order_id INTEGER NOT NULL
+ , item_id INTEGER NOT NULL
+ , price FLOAT NOT NULL
+ , tax_rate FLOAT NOT NULL
+ , quantity INTEGER NOT NULL );
+
+INSERT INTO group_by_bug ( order_id, item_id, price, tax_rate, quantity )
+ VALUES ( 1000, 100, 10, 10, 5 );
+INSERT INTO group_by_bug ( order_id, item_id, price, tax_rate, quantity )
+ VALUES ( 1001, 100, 10.45, 15, 3 );
+
+/*r
+ 100,9.09E0,8
+*/SELECT item_id, ROUND(price / (1+(tax_rate/100)),2) AS price_net,
+ SUM(quantity) AS quantity
+ FROM group_by_bug
+ GROUP BY item_id, ROUND(price / (1+(tax_rate/100)),2)
+
+/*r
+ 100,9.09E0,8
+*/SELECT item_id, ROUND(price / (1+(tax_rate/100)),2) AS price, SUM(quantity)
+ AS quantity
+ FROM group_by_bug
+ GROUP BY item_id, ROUND(price / (1+(tax_rate/100)),2)
+
 SHUTDOWN;
 
