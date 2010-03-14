@@ -217,6 +217,28 @@ public final class RangeVariable {
         }
     }
 
+    /**
+     * Used for sort
+     */
+    boolean setIndex(Index index) {
+
+        if (joinConditions.length == 1) {
+            if (joinConditions[0].rangeIndex.getColumnCount() == 0) {
+                joinConditions[0].rangeIndex = index;
+
+                return true;
+            }
+        } else if (whereConditions.length == 1) {
+            if (whereConditions[0].rangeIndex.getColumnCount() == 0) {
+                whereConditions[0].rangeIndex = index;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public OrderedHashSet getColumnNames() {
 
         if (columnNames == null) {
