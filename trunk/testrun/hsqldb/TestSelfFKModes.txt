@@ -160,6 +160,13 @@ drop table testA if exists cascade;
 drop table testB if exists cascade;
 drop table testC if exists cascade;
 --
+create cached table testA(id integer primary key, ref integer, foreign key (ref) references testA(id));
+insert into testA values 10, 10
+insert into testA values 11, 10
+insert into testA values 12, 10
+insert into testA values 13, 12
+delete from testA
+
 CREATE TABLE user(
  USER_ID VARCHAR(15) NOT NULL
  ,PASSWD_TX VARCHAR(15) NOT NULL
@@ -189,4 +196,11 @@ INSERT INTO user_roles VALUES('JOE_USER', 'SUPERSTAR');
 
 UPDATE user SET USER_ID='JOE_USER', PASSWD_TX = 'eat@joes37' WHERE USER_ID = 'JOE_USER'
 
+--
+
+create table department (depid identity primary key,depname varchar(20),parentid int)
+ALTER TABLE department ADD FOREIGN KEY (parentid) REFERENCES department(depid)
+insert into department (depid,depname) values(1,'dep1')
+insert into department values(2,'depchild',1)
+delete from department
 

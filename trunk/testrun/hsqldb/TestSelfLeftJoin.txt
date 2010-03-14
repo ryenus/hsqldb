@@ -186,7 +186,7 @@ insert into CHILD values (1,1)
 create table emp(company_id varchar(10),id varchar(20),supervisor_id varchar(20), primary key (company_id,id));
 insert into emp values ('01','1000',null);
 insert into emp values ('01','1001','1000');
-/*c2*/select id,supervisor_id from emp e left join emp s on
+/*c2*/select e.id,e.supervisor_id from emp e left join emp s on
  e.company_id = s.company_id and e.supervisor_id = s.id;
 --
 --bug #676083
