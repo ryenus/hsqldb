@@ -139,6 +139,10 @@ public final class SortAndSlice {
 
     void setSortRange(QuerySpecification select) {
 
+        if (exprList.size() == 0 && limitCondition == null) {
+            return;
+        }
+
         int[] colIndexes;
         Index rangeIndex = select.rangeVariables[0].getIndex();
 
@@ -150,7 +154,8 @@ public final class SortAndSlice {
 
         if (columnIndexes == null) {
             if (!hasOrder()) {
-                if (select.isDistinctSelect || select.isGrouped) {
+                if (select.isDistinctSelect || select.isGrouped
+                        || select.isAggregated) {
                     return;
                 }
 
@@ -160,8 +165,18 @@ public final class SortAndSlice {
             return;
         }
 
-        if (ArrayUtil.haveEqualArrays(columnIndexes, colIndexes,
-                                      columnIndexes.length)) {
+        if (colIndexes.length == 0) {
+            Table table = select.rangeVariables[0].getTable();
+            Index index = table.getFullIndexForColumns(columnIndexes);
+
+            if (index != null) {
+                if (select.rangeVariables[0].setIndex(index)) {
+                    skipSort       = true;
+                    skipFullResult = true;
+                }
+            }
+        } else if (ArrayUtil.haveEqualArrays(columnIndexes, colIndexes,
+                                             columnIndexes.length)) {
             skipSort       = true;
             skipFullResult = true;
         }
