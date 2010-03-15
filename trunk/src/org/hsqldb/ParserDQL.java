@@ -1889,6 +1889,15 @@ public class ParserDQL extends ParserBase {
 
                 return e;
 
+            case Tokens.LEAST :
+                return readLeastExpression();
+
+            case Tokens.GREATEST :
+                return readGreatestExpression();
+
+            case Tokens.DECODE :
+                return readDecodeExpression();
+
             case Tokens.CASEWHEN :
                 return readCaseWhenExpression();
 
@@ -4032,6 +4041,114 @@ public class ParserDQL extends ParserBase {
         recordedToken.setExpression(routineSchema);
 
         return function;
+    }
+
+    private Expression readDecodeExpression() {
+
+        // turn into a CASEWHEN
+        read();
+        readThis(Tokens.OPENBRACKET);
+
+        Expression casewhen    = null;
+        Expression alternative = null;
+        Expression main        = XreadValueExpression();
+
+        readThis(Tokens.COMMA);
+
+        do {
+            Expression v = XreadValueExpression();
+
+            if (token.tokenType == Tokens.COMMA) {
+                readThis(Tokens.COMMA);
+            } else {
+                alternative.setRightNode(v);
+
+                break;
+            }
+
+            Expression l = new ExpressionLogical(main, v);
+            Expression r = XreadValueExpression();
+            Expression a = new ExpressionOp(OpTypes.ALTERNATIVE, r, null);
+            Expression c = new ExpressionOp(OpTypes.CASEWHEN, l, a);
+
+            if (casewhen == null) {
+                casewhen = c;
+            } else {
+                alternative.setRightNode(c);
+            }
+
+            alternative = a;
+
+            if (token.tokenType == Tokens.COMMA) {
+                readThis(Tokens.COMMA);
+            } else {
+                break;
+            }
+        } while (true);
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return casewhen;
+    }
+
+    private Expression readLeastExpression() {
+
+        // turn into a CASEWHEN
+        read();
+        readThis(Tokens.OPENBRACKET);
+
+        Expression casewhen = null;
+
+        do {
+            casewhen = readValue(casewhen, OpTypes.SMALLER);
+
+            if (token.tokenType == Tokens.COMMA) {
+                readThis(Tokens.COMMA);
+            } else {
+                break;
+            }
+        } while (true);
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return casewhen;
+    }
+
+    private Expression readGreatestExpression() {
+
+        // turn into a CASEWHEN
+        read();
+        readThis(Tokens.OPENBRACKET);
+
+        Expression casewhen = null;
+
+        do {
+            casewhen = readValue(casewhen, OpTypes.GREATER);
+
+            if (token.tokenType == Tokens.COMMA) {
+                readThis(Tokens.COMMA);
+            } else {
+                break;
+            }
+        } while (true);
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return casewhen;
+    }
+
+    private Expression readValue(Expression e, int opType) {
+
+        Expression r = XreadValueExpression();
+
+        if (e == null) {
+            return r;
+        }
+
+        Expression l = new ExpressionLogical(opType, e, r);
+        Expression a = new ExpressionOp(OpTypes.ALTERNATIVE, e, r);
+
+        return new ExpressionOp(OpTypes.CASEWHEN, l, a);
     }
 
     /**
