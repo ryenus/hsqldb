@@ -115,8 +115,7 @@ class TransferTable implements Serializable {
 
         if (Stmts.sType.compareTo("TABLE") == 0) {
             Stmts.sSourceSelect = "SELECT * FROM "
-                                  + src.helper.formatName(Stmts.sSourceTable)
-                                  + ";";
+                                  + src.helper.formatName(Stmts.sSourceTable);
         } else if (Stmts.sType.compareTo("VIEW") == 0) {
             Stmts.sSourceSelect = "";
         }
@@ -389,9 +388,8 @@ class TransferTable implements Serializable {
                 int nextsemicolon = Stmts.sDestCreateIndex.indexOf(';');
 
                 while (nextsemicolon > lastsemicolon) {
-                    Statement =
-                        Stmts.sDestCreateIndex.substring(lastsemicolon,
-                                                         nextsemicolon);
+                    Statement = Stmts.sDestCreateIndex.substring(lastsemicolon,
+                            nextsemicolon);
 
                     while (Statement.charAt(Statement.length() - 1) == ';') {
                         Statement = Statement.substring(0, Statement.length()

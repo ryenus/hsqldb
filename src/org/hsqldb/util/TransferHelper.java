@@ -83,6 +83,10 @@ class TransferHelper {
             return id;
         }
 
+        if (!id.toLowerCase().equals(id) && !id.toUpperCase().equals(id)) {
+            return (quote + id + quote);
+        }
+
         if (!Character.isLetter(id.charAt(0)) || (id.indexOf(' ') != -1)) {
             return (quote + id + quote);
         }
@@ -128,8 +132,9 @@ class TransferHelper {
 
                     if (hTypes.get(intobj) == null) {
                         try {
-                            hTypes.put(intobj,
-                                       JDBCT.toString(result.getShort(2)));
+                            int typeNumber = result.getShort(2);
+
+                            hTypes.put(intobj, JDBCT.toString(typeNumber));
                         } catch (Exception e) {}
                     }
                 }

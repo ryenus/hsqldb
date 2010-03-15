@@ -442,6 +442,8 @@ class TransferDb extends DataAccessPoint {
         String    foreignKeyName = new String("");
         String    columnName     = new String("");
 
+        Dest.helper.setSchema(TTable.Stmts.sSchema);
+
         TTable.Stmts.sDestDrop =
             "DROP " + TTable.Stmts.sType + " "
             + Dest.helper.formatName(TTable.Stmts.sDestTable) + ";";
@@ -791,7 +793,7 @@ class TransferDb extends DataAccessPoint {
                                  + type + " source: " + source);
                 }
 
-                if (type == Types.NUMERIC) {
+                if (type == Types.NUMERIC || type == Types.DECIMAL) {
                     datatype += "(" + Integer.toString(rsmdata_precision);
 
                     if (rsmdata_scale > 0) {
@@ -799,7 +801,7 @@ class TransferDb extends DataAccessPoint {
                     }
 
                     datatype += ")";
-                } else if (type == Types.CHAR) {
+                } else if (type == Types.CHAR || type == Types.VARCHAR || type == Types.BINARY || type == Types.VARBINARY) {
                     datatype += "(" + Integer.toString(column_size) + ")";
                 } else if (rsmdata_isAutoIncrement) {
                     datatype = "SERIAL";
@@ -810,7 +812,9 @@ class TransferDb extends DataAccessPoint {
                             || type == Types.LONGVARCHAR
                             || type == Types.BINARY || type == Types.DATE
                             || type == Types.TIME || type == Types.TIMESTAMP) {
-                        DefaultVal = "\'" + DefaultVal + "\'";
+                        if (!DefaultVal.startsWith("'")) {
+                            DefaultVal = "\'" + DefaultVal + "\'";
+                        }
                     }
 
                     datatype += " DEFAULT " + DefaultVal;

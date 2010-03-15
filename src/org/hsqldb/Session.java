@@ -1103,7 +1103,7 @@ public class Session implements SessionInterface {
 
         try {
             list = parser.compileStatements(sql, cmd);
-        } catch (HsqlException e) {
+        } catch (Exception e) {
             return Result.newErrorResult(e);
         }
 
