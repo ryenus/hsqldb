@@ -62,8 +62,10 @@
           often use keywords instead of commas to separate the parameters.
           Many functions are overloaded. Among these, some have one or more
           optional parameters that can be omitted, while the return type of
-          some functions is dependent upon the type of one of the
-          parameters.</para>
+          some functions is dependent upon the type of one of the parameters.
+          The usage of SQL Standard Functions (where they can be used) is
+          covered more extensively in the <link endterm="dataaccess-title"
+          xlink:href="#dataaccess-chapt"></link> chapter</para>
         </listitem>
 
         <listitem>
@@ -92,7 +94,9 @@
 
           <para>Several additional built-in functions are available for some
           useful operations. Some of these functions return the current
-          setting for the session and the database.</para>
+          setting for the session and the database. The General Functions
+          accept arguments of different types and return values based on
+          comparison between the arguments.</para>
         </listitem>
       </itemizedlist></para>
 
@@ -913,6 +917,40 @@
     <title>Date Time and Interval Functions</title>
 
     <indexterm significance="preferred" type="sql">
+      <primary>TIMEZONE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TIMEZONE</emphasis></simpara>
+
+    <para><literal>TIMEZONE()</literal></para>
+
+    <para>Returns the current time zone for the session. Returns an INTERVAL
+    HOUR TO MINUTE value. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SESSION_TIMEZONE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SESSION_TIMEZONE</emphasis></simpara>
+
+    <para><literal>SESSION_TIMEZONE()</literal></para>
+
+    <para>Returns the default time zone for the current session. Returns an
+    INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATABASE_TIMEZONE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DATABASE_TIMEZONE</emphasis></simpara>
+
+    <para><literal>DATABASE_TIMEZONE()</literal></para>
+
+    <para>Returns the time zone for the database engine. This is based on
+    where the database server process is located. Returns an INTERVAL HOUR TO
+    MINUTE value. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>EXTRACT function</primary>
     </indexterm>
 
@@ -1454,8 +1492,11 @@
     </table>
   </section>
 
-  <section xml:id="builtin_functions_sysfunc-sect">
-    <title>System Functions</title>
+  <section>
+    <title>General Functions</title>
+
+    <para>General functions can take different types of arguments. Some
+    General Functions accept a variable number of arguments.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>COALESCE function</primary>
@@ -1463,77 +1504,12 @@
 
     <simpara><emphasis role="bold">COALESCE</emphasis></simpara>
 
-    <para><literal>COALESCE( &lt;value expr 1&gt;, &lt;value expr 2&gt;
-    )</literal></para>
+    <para><literal>COALESCE( &lt;value expr 1&gt;, &lt;value expr 2&gt; [,
+    ...] )</literal></para>
 
     <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
-    otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of
-    both arguments must be the same. (Foundation)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>DATABASE function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">DATABASE</emphasis></simpara>
-
-    <para><literal>DATABASE ()</literal></para>
-
-    <para>Returns the file name (without directory information) of the
-    database. (JDBC)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>DATABASE_VERSION function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">DATABASE_VERSION</emphasis></simpara>
-
-    <para><literal>DATABASE_VERSION ()</literal></para>
-
-    <para>Returns the full version string for the database engine. For
-    example, 2.0.1. (JDBC)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>IDENTITY function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">IDENTITY</emphasis></simpara>
-
-    <para><literal>IDENTITY ()</literal></para>
-
-    <para>Returns the last IDENTITY value inserted into a row by the current
-    session. The statement, CALL IDENTITY() can be made after an INSERT
-    statement that inserts a row into a table with an IDENTITY column. The
-    CALL IDENTITY() statement returns the last IDENTITY value that was
-    inserted into a table by the current session. Each session manages this
-    function call separetly and is not affected by inserts in other sessions.
-    The statement can be executed as a direct statement or a prepared
-    statement. (HyperSQL)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>IFNULL function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">IFNULL</emphasis></simpara>
-
-    <para><literal>IFNULL( &lt;value expr 1&gt;, &lt;value expr 2&gt;
-    )</literal></para>
-
-    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
-    otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of
-    both arguments must be the same. Equivalent to SQL Standard
-    <literal>COALESCE(&lt;value expr 1&gt;, &lt;value expr 2&gt;)</literal>
-    function. (JDBC)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>USER function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">USER</emphasis></simpara>
-
-    <para><literal>USER ()</literal></para>
-
-    <para>Equivalent to the SQL function <literal>CURRENT_USER</literal>.
-    (JDBC)</para>
+    otherwise returns <literal>&lt;value expr 2&gt;</literal> if not null and
+    so on. The type of both arguments must be comparable. (Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CONVERT functionGr</primary>
@@ -1570,6 +1546,172 @@
     the use of precision, scale or length for the type definition when they
     are valid for the type definition. HyperSQL also allows the use of real
     type names (without the <literal>SQL_</literal> prefix). (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DECODE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DECODE</emphasis></simpara>
+
+    <para><literal>DECODE( &lt;value expr main&gt;, &lt;value expr match
+    1&gt;, &lt;value expr result 1&gt;, [...,] [&lt;value expr default&gt;]
+    )</literal></para>
+
+    <para>DECODE takes at least 4 arguments. The <literal>&lt;value expr
+    main&gt;</literal> is compared with <literal>&lt;value expr match
+    1&gt;</literal> and if it matches, <literal>&lt;value expr result
+    1&gt;</literal> is returned. If there are additional pairs of ith
+    <literal>&lt;value expr match ...&gt;</literal> and <literal>&lt;value
+    expr result ... &gt;</literal>, comparison is repeated until a match is
+    found the the result is returned. If no match is found, the
+    <literal>&lt;value expr default&gt;</literal> is returned if it is
+    specified, otherwise NULL is returned. The type of the return value is a
+    combination of the types of the <literal>&lt;value expr result ...
+    &gt;</literal> arguments. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>GREATEST function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">GREATEST</emphasis></simpara>
+
+    <para><literal>GREATEST( &lt;value expr 1&gt;, [&lt;value expr ...&gt;,
+    ...] )</literal></para>
+
+    <para>The GREATEST function takes one or more arguments. It compares the
+    arguments with each other and returns the greatest argument. The return
+    type is the combined type of the arguments. Arguments can be of any type,
+    so long as they are comparable. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>IFNULL function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">IFNULL</emphasis></simpara>
+
+    <para><literal>IFNULL( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
+    otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of
+    both arguments must be the same. Equivalent to SQL Standard
+    <literal>COALESCE(&lt;value expr 1&gt;, &lt;value expr 2&gt;)</literal>
+    function. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LEAST function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LEAST</emphasis></simpara>
+
+    <para><literal>LEAST( &lt;value expr 1&gt;, [&lt;value expr ...&gt;, ...]
+    )</literal></para>
+
+    <para>The LEAST function takes one or more arguments. It compares the
+    arguments with each other and returns the smallest argument. The return
+    type is the combined type of the arguments. Arguments can be of any type,
+    so long as they are comparable. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>NULLIF function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">NULLIF</emphasis></simpara>
+
+    <para><literal>NULLIF( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not equal
+    to <literal>&lt;value expr 2&gt;</literal>, otherwise returns null. The
+    type of both arguments must be the same. This function is a shorthand for
+    a specific CASE expression. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>NVL function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">NVL</emphasis></simpara>
+
+    <para><literal>NVL( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not null,
+    otherwise returns <literal>&lt;value expr 2&gt;</literal>. The type of the
+    return value is the combined type of the two value expressions. For
+    example, if &lt;value expr 1&gt; is an INTEGER column and
+    <literal>&lt;value expr 2&gt;</literal> is a DOUBLE constant, the return
+    type is DOUBLE. This function is the same as IFNULL and COALESCE
+    (HyperSQL)</para>
+  </section>
+
+  <section xml:id="builtin_functions_sysfunc-sect">
+    <title>System Functions</title>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CRYPT_KEY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CRYPT_KEY</emphasis></simpara>
+
+    <para><literal>CRYPT_KEY( &lt;value expr 1&gt;, &lt;value expr 2&gt;
+    )</literal></para>
+
+    <para>Returns a binary string representation of a cryptography key for the
+    given cipher and cyptography provider. The cipher specification is
+    specified by <literal>&lt;value expr 1&gt;</literal> and the provider by
+    <literal>&lt;value expr 2&gt;</literal>. To use the default provider,
+    specify null for <literal>&lt;value expr 2&gt;</literal>.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>IDENTITY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">IDENTITY</emphasis></simpara>
+
+    <para><literal>IDENTITY ()</literal></para>
+
+    <para>Returns the last IDENTITY value inserted into a row by the current
+    session. The statement, CALL IDENTITY() can be made after an INSERT
+    statement that inserts a row into a table with an IDENTITY column. The
+    CALL IDENTITY() statement returns the last IDENTITY value that was
+    inserted into a table by the current session. Each session manages this
+    function call separetly and is not affected by inserts in other sessions.
+    The statement can be executed as a direct statement or a prepared
+    statement. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATABASE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DATABASE</emphasis></simpara>
+
+    <para><literal>DATABASE ()</literal></para>
+
+    <para>Returns the file name (without directory information) of the
+    database. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>DATABASE_VERSION function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DATABASE_VERSION</emphasis></simpara>
+
+    <para><literal>DATABASE_VERSION ()</literal></para>
+
+    <para>Returns the full version string for the database engine. For
+    example, 2.0.1. (JDBC)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>USER function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">USER</emphasis></simpara>
+
+    <para><literal>USER ()</literal></para>
+
+    <para>Equivalent to the SQL function <literal>CURRENT_USER</literal>.
+    (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CURRENT_USER function</primary>
@@ -1728,69 +1870,5 @@
 
     <para>Returns the current transaction model for the database. Returns
     LOCKS, MVLOCKS or MVCC as a string. (HyperSQL)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>TIMEZONE function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">TIMEZONE</emphasis></simpara>
-
-    <para><literal>TIMEZONE()</literal></para>
-
-    <para>Returns the current time zone for the session. Returns an INTERVAL
-    HOUR TO MINUTE value. (HyperSQL)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SESSION_TIMEZONE function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SESSION_TIMEZONE</emphasis></simpara>
-
-    <para><literal>SESSION_TIMEZONE()</literal></para>
-
-    <para>Returns the default time zone for the current session. Returns an
-    INTERVAL HOUR TO MINUTE value. (HyperSQL)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>DATABASE_TIMEZONE function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">DATABASE_TIMEZONE</emphasis></simpara>
-
-    <para><literal>DATABASE_TIMEZONE()</literal></para>
-
-    <para>Returns the time zone for the database engine. This is based on
-    where the database server process is located. Returns an INTERVAL HOUR TO
-    MINUTE value. (HyperSQL)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>NULLIF function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">NULLIF</emphasis></simpara>
-
-    <para><literal>NULLIF( &lt;value expr 1&gt;, &lt;value expr 2&gt;
-    )</literal></para>
-
-    <para>Returns <literal>&lt;value expr 1&gt;</literal> if it is not equal
-    to <literal>&lt;value expr 2&gt;</literal>, otherwise returns null. The
-    type of both arguments must be the same. This function is a shorthand for
-    a specific CASE expression. (Foundation)</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>CRYPT_KEY function</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">CRYPT_KEY</emphasis></simpara>
-
-    <para><literal>CRYPT_KEY( &lt;value expr 1&gt;, &lt;value expr 2&gt;
-    )</literal></para>
-
-    <para>Returns a binary string representation of a cryptography key for the
-    given cipher and cyptography provider. The cipher specification is
-    specified by <literal>&lt;value expr 1&gt;</literal> and the provider by
-    <literal>&lt;value expr 2&gt;</literal>. To use the default provider,
-    specify null for <literal>&lt;value expr 2&gt;</literal>.
-    (HyperSQL)</para>
   </section>
 </chapter>

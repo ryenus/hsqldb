@@ -1055,8 +1055,9 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       ...</literal></simpara>
 
       <simpara>Specify a function yielding a value of type numeric. The
-      supported numeric value functions are listed and described in Built-In
-      Functions chapter.</simpara>
+      supported numeric value functions are listed and described in the <link
+      endterm="builtinfunctions-title"
+      xlink:href="#builtinfunctions-chapt"></link> chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>string value expression</primary>
@@ -1629,8 +1630,9 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       matches.</simpara>
 
       <simpara>Note that MATCH can also used be used in FOREIGN KEY constraint
-      definitions. The exact meaning is described in the relevant
-      chapter.</simpara>
+      definitions. The exact meaning is described in the <link
+      endterm="databaseobjects-title"
+      xlink:href="#databaseobjects-chapt"></link> chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>OVERLAPS predicate</primary>
@@ -2639,7 +2641,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
     <simpara>TRUNCATE is faster than ordinary DELETE. The TRUNCTATE statement
     is an SQL Standard data change statement, therefore it is performed under
     transaction control and can be rolled back if the connection is not in the
-    auto-commit mode. </simpara>
+    auto-commit mode.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>INSERT INTO</primary>
