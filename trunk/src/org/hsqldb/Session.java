@@ -79,10 +79,10 @@ public class Session implements SessionInterface {
     private volatile boolean isClosed;
 
     //
-    public Database database;
-    private User    sessionUser;
-    private User    user;
-    private Grantee role;
+    public Database    database;
+    private final User sessionUser;
+    private User       user;
+    private Grantee    role;
 
     // transaction support
     boolean          isReadOnlyDefault;
@@ -156,6 +156,7 @@ public class Session implements SessionInterface {
         sessionId                   = id;
         database                    = db;
         this.user                   = user;
+        this.sessionUser            = user;
         this.zoneString             = zoneString;
         this.sessionTimeZoneSeconds = timeZoneSeconds;
         this.timeZoneSeconds        = timeZoneSeconds;
@@ -594,10 +595,27 @@ public class Session implements SessionInterface {
     }
 
     /**
-     * @todo no-op in this implementation. To be implemented for connection pooling
+     * Clear structures and reset variables to original.
      */
     public synchronized void resetSession() {
-        throw Error.error(ErrorCode.X_0A000);
+
+        rollback(false);
+        sessionData.closeAllNavigators();
+        sessionData.persistentStoreCollection.clearAllTables();
+        sessionData.closeResultCache();
+        statementManager.reset();
+
+        lastIdentity = ValuePool.INTEGER_0;
+
+        setResultMemoryRowCount(database.getResultMaxMemoryRows());
+
+        user = sessionUser;
+
+        resetSchema();
+        setZoneSeconds(sessionTimeZoneSeconds);
+
+        sessionMaxRows = 0;
+        ignoreCase     = false;
     }
 
     /**
@@ -877,8 +895,9 @@ public class Session implements SessionInterface {
 
                 Statement cs = cmd.statement;
 
-                if (cs == null || cs.compileTimestamp
-                        < database.schemaManager.schemaChangeTimestamp) {
+                if (cs == null
+                        || cs.compileTimestamp
+                           < database.schemaManager.schemaChangeTimestamp) {
                     long csid = cmd.getStatementID();
 
                     cs = statementManager.getStatement(this, csid);
@@ -1169,7 +1188,7 @@ public class Session implements SessionInterface {
         sessionContext.currentStatement = cs;
 
         if (!cs.isTransactionStatement()) {
-            r                = cs.execute(this);
+            r                               = cs.execute(this);
             sessionContext.currentStatement = null;
 
             return r;

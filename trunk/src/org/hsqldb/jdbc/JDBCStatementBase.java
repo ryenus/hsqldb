@@ -128,6 +128,9 @@ class JDBCStatementBase {
     /** Query timeout in seconds */
     protected int queryTimeout;
 
+    /** connection generation */
+    int connectionIncarnation;
+
     /** Implementation in subclasses */
     public synchronized void close() throws SQLException {}
 
@@ -145,6 +148,10 @@ class JDBCStatementBase {
         if (connection.isClosed) {
             close();
 
+            throw Util.sqlException(ErrorCode.X_08503);
+        }
+
+        if (connectionIncarnation != connection.incarnation ) {
             throw Util.sqlException(ErrorCode.X_08503);
         }
     }

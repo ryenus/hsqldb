@@ -359,7 +359,7 @@ class ServerConnection implements Runnable {
                 throw cleanExit;
             }
             case ResultConstants.RESETSESSION : {
-                resetSession();
+                session.resetSession();
 
                 return;
             }
@@ -1556,14 +1556,6 @@ class ServerConnection implements Runnable {
 
             return Result.newErrorResult(e);
         }
-    }
-
-    /**
-     * Used by pooled connections to close the existing SQL session and open
-     * a new one.
-     */
-    private void resetSession() {
-        session.close();
     }
 
     /**

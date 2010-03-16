@@ -51,12 +51,17 @@ import java.util.Set;
  * Calling <code>close()</code> on this wrapper marks the wrappers as closed,
  * and puts the encapsulated connection back in the queue of idle connections.
  *
- * <br/><br/>
+ * <br>
  * This version doesn't wrap Statement, PreparedStatement, CallableStatement
  * and ResultSet instances. In order to behave 100% correctly it probably should.
  * That way this wrapper can close all of these instances when the wrapper is closed,
  * before the connection is given back to the pool. Normally the wrapped connection
  * would do this, but since it's never closed... someone has to do it.
+ * <br>
+ * The connection.reset() call is to reset the JDBC Connection,
+ * the Statement and ResultSet objects. It also resets the session settings
+ * to its initial state.
+ *
  *
  * @author Jakob Jenkov
  */
@@ -120,8 +125,8 @@ public class LifeTimeConnectionWrapper extends BaseConnectionWrapper {
         try {
             this.connection.rollback();
             this.connection.clearWarnings();
-            this.connectionDefaults.setDefaults(this.connection);
             this.connection.reset();
+            this.connectionDefaults.setDefaults(this.connection);
             fireCloseEvent();
         } catch (SQLException e) {
             fireSqlExceptionEvent(e);
