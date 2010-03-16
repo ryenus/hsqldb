@@ -85,6 +85,6 @@
       <xi:include href="../doc-src/branding-frag.xhtml"/>
     </td>
   </tr></table>
-</xsl:template>/ad-
-/
+</xsl:template>
+
 </xsl:stylesheet> 
