@@ -3844,6 +3844,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         isResult   = false;
         connection = c;
+        connectionIncarnation = connection.incarnation;
         session    = c.sessionProxy;
         sql        = c.nativeSQL(sql);
 
@@ -3931,6 +3932,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         isResult   = true;
         connection = c;
+        connectionIncarnation = connection.incarnation;
         session    = c.sessionProxy;
 
         int paramCount = result.metaData.getExtendedColumnCount();

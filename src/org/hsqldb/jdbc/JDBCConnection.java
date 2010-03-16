@@ -3174,6 +3174,9 @@ public class JDBCConnection implements Connection {
     /** ID sequence for unnamed savepoints */
     private int savepointIDSequence;
 
+    /** reuse count in ConnectionPool */
+    int incarnation;
+
     /**
      * Constructs a new external <code>Connection</code> to an HSQLDB
      * <code>Database</code>. <p>
@@ -3378,8 +3381,8 @@ public class JDBCConnection implements Connection {
      * @throws SQLException if a database access error occurs
      */
     public void reset() throws SQLException {
-
         try {
+            incarnation++;
             this.sessionProxy.resetSession();
         } catch (HsqlException e) {
             throw Util.sqlException(ErrorCode.X_08006, e.getMessage(), e);

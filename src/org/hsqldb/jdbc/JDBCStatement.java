@@ -1763,6 +1763,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
 
         resultOut    = Result.newExecuteDirectRequest();
         connection   = c;
+        connectionIncarnation = connection.incarnation;
         rsProperties = props;
     }
 
