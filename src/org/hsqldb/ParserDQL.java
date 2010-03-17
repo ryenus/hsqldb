@@ -4082,6 +4082,9 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType == Tokens.COMMA) {
                 readThis(Tokens.COMMA);
             } else {
+
+                alternative.setRightNode(new ExpressionValue(null, null));;
+
                 break;
             }
         } while (true);
