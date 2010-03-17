@@ -1554,10 +1554,10 @@
     <simpara><emphasis role="bold">DECODE</emphasis></simpara>
 
     <para><literal>DECODE( &lt;value expr main&gt;, &lt;value expr match
-    1&gt;, &lt;value expr result 1&gt;, [...,] [&lt;value expr default&gt;]
+    1&gt;, &lt;value expr result 1&gt; [...,] [, &lt;value expr default&gt;]
     )</literal></para>
 
-    <para>DECODE takes at least 4 arguments. The <literal>&lt;value expr
+    <para>DECODE takes at least 3 arguments. The <literal>&lt;value expr
     main&gt;</literal> is compared with <literal>&lt;value expr match
     1&gt;</literal> and if it matches, <literal>&lt;value expr result
     1&gt;</literal> is returned. If there are additional pairs of ith

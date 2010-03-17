@@ -229,6 +229,15 @@
 
             <entry>IP address of server</entry>
           </row>
+
+          <row>
+            <entry><property>server.remote_open</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>Allows opening a database path remotely when the first
+            connection is made</entry>
+          </row>
         </tbody>
       </tgroup>
     </table>
@@ -415,10 +424,33 @@
     <para>The Server object has several alternative methods for setting
     databases and their public names. The server should be shutdown using the
     shutdown() method.</para>
+  </section>
 
-    <para>**todo** restart on shutdown etc. modes</para>
+  <section>
+    <title>Allowing a Connection to Open a Database</title>
 
-    <para></para>
+    <para>If the <literal>server.remote_open</literal> property is true, the
+    Server works differently from the normal mode. In this mode, it is not
+    necessary to have any databases listed as server.database.0 etc. in the
+    Server startup properties. If there are databases listed, they are opened
+    as normal. The server does not shutdown when the last database is closed.
+    </para>
+
+    <para>In this mode, a connection can be established to a database that is
+    not open or does not exist. The server will open the database or create
+    it, then return a connection to the database.</para>
+
+    <para>The connection URL must include the path to the database, separated
+    with a semicolon from the alias. In the example below, the database path
+    specified as <literal>file:C:/files/mydatabase</literal> is opened and the
+    database alias <literal>xdb</literal> is assigned to the database. After
+    this, the next connection to the specified alias will connect to the same
+    database.</para>
+
+    <programlisting>Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;file:C:/files/mydatabase", "SA", "");
+</programlisting>
+
+    <para>The path can be a file: or mem: database.</para>
   </section>
 
   <section xml:id="listeners_tls-sect">

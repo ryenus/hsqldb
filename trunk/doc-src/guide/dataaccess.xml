@@ -45,7 +45,7 @@
 
     <para>HyperSQL data access and data change statements are fully compatible
     with the latest SQL:2008 Standard. There are a few extensions and some
-    relaxation or rules, but these do not affect statements that are written
+    relaxation of rules, but these do not affect statements that are written
     to the Standard syntax. There is full support for classic SQL, as
     specified by SQL-92, and many enhancements added in later versions of the
     standard.</para>
