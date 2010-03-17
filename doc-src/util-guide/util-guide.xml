@@ -95,24 +95,19 @@
 
     <para>The <classname>org.hsqldb.test</classname> package contains a number
     of tests for various functions of the database engine. Among these, the
-    <classname>TestSelf</classname> class performs the tests that are based on
+    <classname>TestUtil</classname> class performs the tests that are based on
     scripts. To run the tests, you should compile the
     <filename>hsqldbtest.jar</filename> target with Ant and JUnit.</para>
 
-    <para>For <classname>TestSelf</classname>, a batch file is provided in the
-    testrun/hsqldb directory, together with a set of TestSelf*.txt files. To
-    start the application in Windows, change to the directory and type:</para>
+    <para>The <classname>TestUtil</classname> class should be run in the
+    /testrun/hsqldb directory of the distributed files. It then runs the set
+    of TestSelf*.txt files in the directory. To start the application in
+    Windows, change to the directory and type:</para>
 
-    <screen>    runtest TestSelf</screen>
+    <screen> java org.hsqldb.test.TestUtil</screen>
 
-    <para>In Unix / Linux, type:</para>
-
-    <screen>    ./runTest.sh TestSelf</screen>
-
-    <para>The new version of <classname>TestSelf</classname> runs multiple SQL
-    test files to test different SQL operations of the database. All files in
-    the working directory with names matching TestSelf*.txt are processed in
-    alphabetical order.</para>
+    <para>All files in the working directory with names matching TestSelf*.txt
+    are processed in alphabetical order.</para>
 
     <para>You can add your own scripts to test different series of SQL
     queries. The format of the TestSelf*.txt file is simple text, with some
@@ -140,7 +135,7 @@
 
       <listitem>
         <para>Lines starting with spaces are the continuation of the previous
-        line</para>
+        line (for long SQL statements)</para>
       </listitem>
 
       <listitem>
@@ -186,10 +181,11 @@
         <informalexample>
           <simpara>The /*e*/ option asserts that the given query results in an
           erros. It is mainly used for testing the error detection
-          capabilities of the engine. It can also be used with syntactically
-          valid queries to assert a certain state in the database. For example
-          a CREATE TABLE can be used to assert the table of the same name
-          already exists.</simpara>
+          capabilities of the engine. The SQL State of the expected error can
+          be defined, for example /*e42578*/, to verify the returned error.
+          This option can be used with syntactically valid queries to assert a
+          certain state in the database. For example a CREATE TABLE can be
+          used to assert the table of the same name already exists.</simpara>
 
           <programlisting>/*e*/ SQL statement that should produce an error when executing</programlisting>
         </informalexample>
@@ -361,6 +357,12 @@
       which will appear if you hold the mouse cursor still over the desired
       menu item. (Assuming that you don't turn Tooltips off under the
       <guimenu>Help</guimenu> menu.</simpara>
+
+      <simpara>The database object tree in the SWING version allows you to
+      right click on the name of a table or column and choose from common SQL
+      statements for the object, for example SELECT * FROM thistable ... If
+      you click on one of the given choices, the sample statement is copied to
+      the command window, where you can modify and complete it.</simpara>
 
       <simpara>The DatabaseManagers do work with HSQLDB servers serving
       TLS-encrypted JDBC data. See the TLS section of the Listeners chapter of
@@ -706,6 +708,16 @@ java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</screen>
       HSQLDB, this means memory should be available for the result sets
       returned from the queries. Therefore, the memory allocation of the java
       process in which Transfer Tool is executed may have to be high.</para>
+
+      <para>The current version of Transfer is far from ideal, as it has not
+      been actively developed for several years. The program also lacks the
+      ability to create UNIQUE constraints and creates UNIQUE indexes instead.
+      However, some bugs have been fixed in the latest version and the program
+      can be used with most of the supported databases. The best way to use
+      the program is the DUMP and RESTORE modes, which allow you to manually
+      change the SQL statements in the dump file before restoring to a
+      database. A useful idea is to dump and restore the database definition
+      separately from the database data.</para>
     </section>
   </chapter>
 
