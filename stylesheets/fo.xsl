@@ -9,6 +9,7 @@
 
   <xsl:import
     href="http://docbook.sourceforge.net/release/xsl-ns/current/fo/docbook.xsl"/>
+  <xsl:import href="pagesetup.xsl"/>
 
   <!-- See http://www.sagehill.net/docbookxsl/BordersAndShading.html -->
   <xsl:attribute-set name="admonition.properties">
