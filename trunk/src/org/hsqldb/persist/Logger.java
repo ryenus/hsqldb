@@ -89,7 +89,7 @@ public class Logger {
     public boolean   checkpointRequired;
     public boolean   checkpointDue;
     public boolean   checkpointDisabled;
-    private boolean  logsStatements;
+    private boolean  logsStatements;    // false indicates Log is being opened
     private boolean  loggingEnabled;
     private boolean  syncFile = false;
 
@@ -481,6 +481,9 @@ public class Logger {
 
         appLog.close();
 
+        logsStatements = false;
+        loggingEnabled = false;
+
         return true;
     }
 
@@ -749,12 +752,12 @@ public class Logger {
     }
 
     /**
-     *  Sets the maximum size to which the log file can grow
-     *  before being automatically checkpointed.
+     *  Sets logging on or off.
      *
      * @param  megas size in MB
      */
     public synchronized void setLogData(boolean mode) {
+
         propLogData    = mode;
         loggingEnabled = propLogData && !database.isFilesReadOnly();
         loggingEnabled &= logsStatements;
