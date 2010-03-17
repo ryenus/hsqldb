@@ -1535,6 +1535,23 @@
     statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
+      <primary>SET FILES LOG</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES LOG</emphasis></simpara>
+
+    <simpara><emphasis>set files log statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set files log statement&gt; ::= SET FILES LOG { TRUE
+    | FALSE }</literal></simpara>
+
+    <simpara>Sets logging of database operations on or off. Turning logging
+    off is for special usage, such as temporary cache usage.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
       <primary>SET FILES LOG SIZE</primary>
     </indexterm>
 
@@ -1549,8 +1566,7 @@
     to the specified value. The default maximum size is 50 MB. If the value is
     zero, no limit is used for the size of the file. When the size of the file
     reaches this value, a CHECKPOINT is performed and the the
-    <literal>*.log</literal> file is cleared to size 0. Only a user with the
-    DBA role can execute this statement.</simpara>
+    <literal>*.log</literal> file is cleared to size 0.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>

@@ -766,6 +766,27 @@
           </row>
 
           <row>
+            <entry><property>hsqldb.log_data</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>logging data change</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>When
+            <literal>false</literal> is specified, no data logging takes
+            place. A checkpoint or shutdown still rewrites the
+            <literal>.script</literal> file and saves the
+            <literal>.backup</literal> file according to the other
+            settings.</para><para><programlisting>SET FILES LOG  { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><property>hsqldb.log_size</property></entry>
 
             <entry><literal>50</literal></entry>

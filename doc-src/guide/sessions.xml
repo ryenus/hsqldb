@@ -111,8 +111,9 @@
       <para>The named attributes such as CURRENT_USER, CURRENT_SCHEMA, etc.
       are SQL Standard functions.Other attributes of the session, such as
       auto-commit or read-only modes can be read using other built-in
-      functions. All these functions are listed in the Built-in Functions
-      chapter.</para>
+      functions. All these functions are listed in the <link
+      endterm="builtinfunctions-title"
+      ns6:href="#builtinfunctions-chapt"></link> chapter.</para>
     </section>
 
     <section>
@@ -123,8 +124,9 @@
       variables cannot be used in general SQL statements. They can be assigned
       to IN, INOUT and OUT arguments of stored procedures. This allows calling
       stored procedures which have INOUT or OUT arguments and is useful for
-      development and debugging. See the example in the SQL Invoked Routines
-      Chapter, under Formal Parameters.</para>
+      development and debugging. See the example in the <link
+      endterm="sqlroutines-title" ns6:href="#sqlroutines-chapt"></link>
+      chapter, under Formal Parameters.</para>
 
       <example>
         <title>User-defined Session Variables</title>
@@ -397,7 +399,13 @@
       <para>The new access pattern is the opposite of the access pattern of
       version 1.8.x. In the old version, even when 20 sessions are actively
       reading and writing, only a single session at a time performs an SQL
-      statement completely, before the next session is allowed access.</para>
+      statement completely, before the next session is allowed access. In the
+      new version, while a session is performing a SELECT statement and
+      reading rows of a CACHED table to build a result set, another session
+      may perform an UPDATE statement that reads and writes rows of the same
+      table. The two operations are performed without any conflict, but the
+      row cache is updated more frequently than when one operation is
+      performed after the other operation has finished.</para>
     </section>
   </section>
 
