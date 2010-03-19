@@ -31,20 +31,21 @@
 
 package org.hsqldb.test;
 
-import java.sql.*;
-import java.sql.SQLException;
-
-import org.hsqldb.navigator.RowSetNavigatorClient;
-import org.hsqldb.navigator.RowSetNavigator;
-import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.types.Type;
-import org.hsqldb.result.Result;
-import org.hsqldb.jdbc.JDBCResultSet;
-import org.hsqldb.jdbc.JDBCConnection;
-
 import java.math.BigInteger;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
+import org.hsqldb.jdbc.JDBCConnection;
+import org.hsqldb.jdbc.JDBCResultSet;
+import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.navigator.RowSetNavigatorClient;
+import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.BinaryData;
+import org.hsqldb.types.Type;
 
 public class TestJavaFunctions extends TestBase {
 
