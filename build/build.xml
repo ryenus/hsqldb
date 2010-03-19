@@ -79,7 +79,6 @@ sqltool.jar     ant sqltool     SqlTool app (no JDBC driver)</echo>
    <target name='jarmin' depends='hsqldbmin'/>
    <target name='jartest' depends='hsqldbtest'/>
    <target name='jarutil' depends='hsqldbutil'/>
-   <target name='jarzaurus' depends='hsqldbz'/>
 
    <target name="help" description="Top-level help message">
      <echo>Ant version: ${ant.version} </echo>
@@ -512,54 +511,6 @@ examples:
       </javac>
       <antcall inheritall='true' target='-test14'/>
    </target>
-
-    <target name="hsqldbz" depends="classes16, util, -prep-license-files"
-            description="Build the hsqldbz.jar for Zaurus">
-        <fail if="ant.java.iscjava14"
-              message="Zarus jar must be built with JDK 1.3 or previous"/>
-        <jar jarfile="lib/hsqldbz.jar"
-             basedir="classes"
-         >
-         <metainf dir="doc" includes="*_lic.txt"/>
-         <service type="java.sql.Driver" provider="org.hsqldb.jdbc.JDBCDriver"/>
-         <manifest>
-             <attribute name='Specification-Title' value='${hsqldb.title}'/>
-             <attribute name='Specification-Version' value='${hsqldb.version}'/>
-             <attribute name='Specification-Vendor' value='${hsqldb.vendor}'/>
-             <attribute name='Implementation-Title'
-                        value='Zaurus runtime'/>
-             <attribute name='Implementation-Version' value='${build.label}'/>
-             <attribute name='Implementation-Vendor' value='${build.vendor}'/>
-         </manifest>
-         <exclude name="org/hsqldb/jmx/**"/>
-         <exclude name="org/hsqldb/util/*Transfer*"/>
-         <exclude name="org/hsqldb/util/*Swing*"/>
-         <exclude name="org/hsqldb/util/DataAccess*"/>
-         <exclude name="org/hsqldb/util/*Helper*"/>
-         <exclude name="org/hsqldb/util/JDBCTypes.*"/>
-         <exclude name="org/hsqldb/util/SQLStatements.*"/>
-         <exclude name="org/hsqldb/util/QueryTool.*"/>
-         <exclude name="org/hsqldb/util/ShutdownServer.*"/>
-         <exclude name="org/hsqldb/util/CodeSwitcher.*"/>
-         <exclude name="org/hsqldb/test/*"/>
-         <exclude name="org/hsqldb/sample/*"/>
-         <exclude name="hsqlServlet.class"/>
-         <exclude name="org/hsqldb/server/Servlet.class"/>
-         <exclude name="org/hsqldb/server/HsqlServerFactory.class"/>
-         <exclude name="org/hsqldb/server/HsqlServerProperties.class"/>
-         <exclude name="org/hsqldb/server/HsqlSocketRequestHandler.class"/>
-         <exclude name="org/hsqldb/server/HsqlSocketRequestHandlerImpl.class"/>
-         <exclude name="org/hsqldb/jdbc/JDBCDataSource.class"/>
-         <exclude name="org/hsqldb/jdbc/jDBCDataSourceFactory.class"/>
-         <exclude name="org/hsqldb/server/Server.class"/>
-         <exclude name="org/hsqldb/server/Server$ServerThread.class"/>
-         <exclude name="org/hsqldb/server/ServerConnection.class"/>
-         <exclude name="org/hsqldb/server/ServerConfiguration.class"/>
-         <exclude name="org/hsqldb/server/WebServer.class"/>
-         <exclude name="org/hsqldb/server/WebServerConnection.class"/>
-         <exclude name="org/hsqldb/jdbc/pool/*.class"/>
-       </jar>
-    </target>
 
     <target name="hsqldbtest" depends="test,swing, -prep-license-files"
             description="Build the hsqldbtest.jar (default plus test classes)">
