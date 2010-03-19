@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -667,10 +667,6 @@ public class Types {
             } else if (java.io.Serializable.class.isAssignableFrom(c)) {
                 type = OTHER;
             }
-        }
-
-        if (type == Integer.MIN_VALUE) {
-            throw Error.error(ErrorCode.X_42561);
         }
 
         return type;

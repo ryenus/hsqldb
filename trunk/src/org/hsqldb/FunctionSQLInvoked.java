@@ -35,6 +35,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.jdbc.JDBCResultSet;
 import org.hsqldb.lib.Set;
 import org.hsqldb.result.Result;
 import org.hsqldb.store.ValuePool;
@@ -86,8 +87,9 @@ public class FunctionSQLInvoked extends Expression {
         dataType = routine.getReturnType();
     }
 
-    public Object getValue(Session session) {
+    private Object getValueInternal(Session session) {
 
+        boolean  isValue       = false;
         int      variableCount = routine.getVariableCount();
         Result   result;
         int      extraArg    = routine.javaMethodWithConnection ? 1
@@ -106,26 +108,31 @@ public class FunctionSQLInvoked extends Expression {
 
         Type[] dataTypes = routine.getParameterTypes();
 
-        for (int i = 0; i < nodes.length; i++) {
-            Expression e     = nodes[i];
-            Object     value = e.getValue(session, dataTypes[i]);
+        try {
+            for (int i = 0; i < nodes.length; i++) {
+                Expression e     = nodes[i];
+                Object     value = e.getValue(session, dataTypes[i]);
 
-            if (value == null) {
-                if (routine.isNullInputOutput()) {
-                    return null;
+                if (value == null) {
+                    if (routine.isNullInputOutput()) {
+                        return null;
+                    }
+
+                    if (!routine.getParameter(i).isNullable()) {
+                        return Result.newErrorResult(
+                            Error.error(ErrorCode.X_39004));
+                    }
                 }
 
-                if (!routine.getParameter(i).isNullable()) {
-                    throw Error.error(ErrorCode.X_39004);
+                if (routine.isPSM()) {
+                    data[i] = value;
+                } else {
+                    data[i + extraArg] = e.dataType.convertSQLToJava(session,
+                            value);
                 }
             }
-
-            if (routine.isPSM()) {
-                data[i] = value;
-            } else {
-                data[i + extraArg] = e.dataType.convertSQLToJava(session,
-                        value);
-            }
+        } catch (Throwable e) {
+            result = Result.newErrorResult(e);
         }
 
         if (push) {
@@ -144,15 +151,6 @@ public class FunctionSQLInvoked extends Expression {
                 }
 
                 result = routine.statement.execute(session);
-
-                if (result.isError()) {}
-                else if (result.isSimpleValue()) {
-                    returnValue = result.getValueObject();
-                } else {
-                    result = Result.newErrorResult(
-                        Error.error(
-                            ErrorCode.X_2F005, routine.getName().name), null);
-                }
             } catch (Throwable e) {
                 result = Result.newErrorResult(e);
             }
@@ -171,14 +169,19 @@ public class FunctionSQLInvoked extends Expression {
                 returnValue = routine.javaMethod.invoke(null, data);
 
                 if (routine.returnsTable()) {
-
-                    // convert ResultSet to table
+                    if (returnValue instanceof JDBCResultSet) {
+                        result = ((JDBCResultSet) returnValue).result;
+                    } else {
+                        // convert ResultSet to table
+                        result = null;
+                    }
                 } else {
                     returnValue = dataType.convertJavaToSQL(session,
                             returnValue);
+                    isValue = true;
+                    result  = Result.updateZeroResult;
                 }
 
-                result = Result.updateZeroResult;
             } catch (InvocationTargetException e) {
                 result = Result.newErrorResult(
                     Error.error(ErrorCode.X_46000, routine.getName().name),
@@ -198,11 +201,43 @@ public class FunctionSQLInvoked extends Expression {
             session.sessionContext.pop();
         }
 
-        if (result.isError()) {
-            throw result.getException();
+        if (isValue) {
+            return returnValue;
+        } else {
+            return result;
+        }
+    }
+
+    public Object getValue(Session session) {
+
+        Object returnValue = getValueInternal(session);
+
+        if (returnValue instanceof Result) {
+            Result result = (Result) returnValue;
+
+            if (result.isError()) {
+                throw result.getException();
+            } else if (result.isSimpleValue()) {
+                returnValue = result.getValueObject();
+            } else if (result.isData()) {
+                returnValue = result;
+            } else {
+                throw Error.error(ErrorCode.X_2F005, routine.getName().name);
+            }
         }
 
         return returnValue;
+    }
+
+    public Result getResult(Session session) {
+
+        Object value = getValueInternal(session);
+
+        if (value instanceof Result) {
+            return (Result) value;
+        }
+
+        return Result.newPSMResult(value);
     }
 
     void collectObjectNames(Set set) {

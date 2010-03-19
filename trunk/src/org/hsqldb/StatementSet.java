@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -321,7 +321,7 @@ public class StatementSet extends StatementDMQL {
 
         if (expression.getType() == OpTypes.ROW) {
             values = expression.getRowValue(session);
-        } else if (expression.getType() == OpTypes.TABLE_SUBQUERY) {
+        } else if (expression.getType() == OpTypes.ROW_SUBQUERY) {
             values = expression.subQuery.queryExpression.getSingleRowValues(
                 session);
 

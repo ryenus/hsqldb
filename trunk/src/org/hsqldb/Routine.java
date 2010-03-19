@@ -110,8 +110,8 @@ public class Routine implements SchemaObject {
 
     //
     Table triggerTable;
-    int triggerType;
-    int triggerOperation;
+    int   triggerType;
+    int   triggerOperation;
 
     public Routine(int type) {
 
@@ -122,14 +122,14 @@ public class Routine implements SchemaObject {
     }
 
     public Routine(Table table, RangeVariable[] ranges, int impact,
-        int triggerType, int operationType) {
+                   int triggerType, int operationType) {
 
-        routineType       = SchemaObject.TRIGGER;
-        returnType        = Type.SQL_ALL_TYPES;
-        dataImpact        = impact;
-        this.ranges       = ranges;
-        this.triggerTable = table;
-        this.triggerType = triggerType;
+        routineType           = SchemaObject.TRIGGER;
+        returnType            = Type.SQL_ALL_TYPES;
+        dataImpact            = impact;
+        this.ranges           = ranges;
+        this.triggerTable     = table;
+        this.triggerType      = triggerType;
         this.triggerOperation = operationType;
     }
 
@@ -212,7 +212,14 @@ public class Routine implements SchemaObject {
         if (routineType == SchemaObject.FUNCTION) {
             sb.append(Tokens.T_RETURNS);
             sb.append(' ');
-            sb.append(returnType.getTypeDefinition());
+
+            if (returnsTable) {
+                sb.append(Tokens.T_TABLE);
+                sb.append(returnTable.getColumnListWithTypeSQL());
+            } else {
+                sb.append(returnType.getTypeDefinition());
+            }
+
             sb.append(' ');
         }
 
@@ -477,7 +484,8 @@ public class Routine implements SchemaObject {
         if (methodName != null && javaMethod == null) {
             boolean[] hasConnection = new boolean[1];
 
-            javaMethod = getMethod(methodName, this, hasConnection);
+            javaMethod = getMethod(methodName, this, hasConnection,
+                                   returnsTable);
 
             if (javaMethod == null) {
                 throw Error.error(ErrorCode.X_46103);
@@ -590,7 +598,7 @@ public class Routine implements SchemaObject {
     }
 
     static Method getMethod(String name, Routine routine,
-                            boolean[] hasConnection) {
+                            boolean[] hasConnection, boolean returnsTable) {
 
         int i = name.indexOf(':');
 
@@ -607,8 +615,11 @@ public class Routine implements SchemaObject {
         int      firstMismatch = -1;
 
         for (i = 0; i < methods.length; i++) {
-            int     offset = 0;
-            Class[] params = methods[i].getParameterTypes();
+            int offset = 0;
+
+            method = methods[i];
+
+            Class[] params = method.getParameterTypes();
 
             if (params.length > 0
                     && params[0].equals(java.sql.Connection.class)) {
@@ -620,18 +631,23 @@ public class Routine implements SchemaObject {
                 continue;
             }
 
-            Type methodReturnType = Type.getDefaultTypeWithSize(
-                Types.getParameterSQLTypeNumber(methods[i].getReturnType()));
+            if (returnsTable) {
+                if (!java.sql.ResultSet.class.isAssignableFrom(
+                        method.getReturnType())) {
+                    continue;
+                }
+            } else {
+                Type methodReturnType = Type.getDefaultTypeWithSize(
+                    Types.getParameterSQLTypeNumber(method.getReturnType()));
 
-            if (methodReturnType == null) {
-                continue;
+                if (methodReturnType == null) {
+                    continue;
+                }
+
+                if (methodReturnType.typeCode != routine.returnType.typeCode) {
+                    continue;
+                }
             }
-
-            if (methodReturnType.typeCode != routine.returnType.typeCode) {
-                continue;
-            }
-
-            method = methods[i];
 
             for (int j = 0; j < routine.parameterTypes.length; j++) {
                 Class param = params[j + offset];
@@ -696,10 +712,10 @@ public class Routine implements SchemaObject {
 
         for (i = 0; i < methods.length; i++) {
             int    offset    = 0;
-            Method m         = methods[i];
-            int    modifiers = m.getModifiers();
+            Method method    = methods[i];
+            int    modifiers = method.getModifiers();
 
-            if (!m.getName().equals(methodname)
+            if (!method.getName().equals(methodname)
                     || !Modifier.isStatic(modifiers)
                     || !Modifier.isPublic(modifiers)) {
                 continue;
@@ -718,21 +734,26 @@ public class Routine implements SchemaObject {
                     Types.getParameterSQLTypeNumber(param));
 
                 if (methodParamType == null) {
-                    m = null;
+                    method = null;
 
                     break;
                 }
             }
 
-            if (m == null) {
+            if (method == null) {
                 continue;
             }
 
-            Type methodReturnType = Type.getDefaultTypeWithSize(
-                Types.getParameterSQLTypeNumber(m.getReturnType()));
-
-            if (methodReturnType != null) {
+            if (java.sql.ResultSet.class.isAssignableFrom(
+                    method.getReturnType())) {
                 list.add(methods[i]);
+            } else {
+                Type methodReturnType = Type.getDefaultTypeWithSize(
+                    Types.getParameterSQLTypeNumber(method.getReturnType()));
+
+                if (methodReturnType != null) {
+                    list.add(methods[i]);
+                }
             }
         }
 

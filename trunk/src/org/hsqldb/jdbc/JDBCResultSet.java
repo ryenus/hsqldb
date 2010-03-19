@@ -6951,7 +6951,7 @@ public class JDBCResultSet implements ResultSet {
     protected SQLWarning rootWarning;
 
     /** The underlying result. */
-    private Result result;
+    public Result result;
 
     //-------------------------- Package Attributes ----------------------------
 

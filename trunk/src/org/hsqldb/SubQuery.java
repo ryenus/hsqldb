@@ -243,6 +243,13 @@ class SubQuery implements Comparator {
         return data[0];
     }
 
+    public RowSetNavigatorData getNavigator(Session session) {
+        RowSetNavigatorData navigator = new RowSetNavigatorDataTable(session,
+            table);
+
+        return navigator;
+
+    }
     /**
      * This results in the following sort order:
      *
