@@ -1,0 +1,36 @@
+PROCEDURAL LANGUAGE COMMANDS
+    *?                            PL Help
+    *                             Expand PL variables from now on.
+                                  (this is also implied by all the following).
+    * VARNAME = Variable value    Set variable value
+    * VARNAME =                   Unset variable
+    * VARNAME ~                   Set variable value to the value of the very
+                                  next SQL value or count fetched (see details
+                                  at the bottom of this listing).
+    * VARNAME _                   Same as * VARNAME _, except the query is
+                                  done silently (i.e, no rows to screen)
+    * break [foreach|if|while|file] Exits a PL block or file early
+    * continue [foreach|while]    Exits a PL block iteration early
+    * dump VARNAME path.txt       Dump variable value to text file
+    * end foreach|if|while        Ends a PL block
+    * foreach VARNAME ([val1...]) Repeat the following PL block with the
+                                  variable set to each value in turn.
+    * if (logical expr)           Execute following PL block only if expr true
+    * list[values] [VARNAME1...]  List PL variable(s) (defaults to all)
+    * listsysprops [VARNAME1...]  List Java System property(s) (defaults to all)
+    * load VARNAME path.txt       Load variable value from text file
+    * prepare VARNAME             Use ? in next SQL statement to upload val.
+                                  (Just "?", "*{?}" would mean the auto var.).
+    * while (logical expr)        Repeat following PL block while expr true
+
+Use PL variable values (which have been set) like: *{VARNAME}.
+Use System Property values (which you may not set) like: ${property.name}.
+You may use /VARNAME instead iff /VARNAME is the first word of a SQL command.
+Use PL variables in logical expressions, like (*VARNAME == 1).
+Auto. variable ? is set to the very next SQL datum fetched (or update count).
+    Query:  The value of the first field of the first row returned.
+    other:  Return status of the command (for updates this will be
+            the number of rows updated).
+'* VARNAME ~' or '* VARNAME _' sets the specified variable's value exactly
+like ?.  (~ will echo the value, _ will do it silently).
+

@@ -1,0 +1,21 @@
+<ivysettings>
+<!--
+$Id$
+
+Edit your copy of this file (named "ivysettings.xml"), or replace it completely.
+This file will work with any directory on any web server which
+holds the plain jar files with names like BASENAME-VERSION.jar.
+-->
+
+  <caches checkUpToDate="false" resolutionCacheDir="${user.home}/.ivycache"
+          ivyPattern="[module]-[revision].xml"
+          defaultCacheDir="${user.home}/.ivycache"
+          repositoryCacheDir="${user.home}/lib-repos"
+          artifactPattern="[artifact]-[revision].[ext]"/>
+  <settings defaultResolver="default"/>
+  <resolvers>
+    <url name="default">
+      <artifact pattern="${repos.url}/[artifact]-[revision].[ext]"/>
+    </url>
+  </resolvers>
+</ivysettings>

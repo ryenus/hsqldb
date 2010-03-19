@@ -1,0 +1,6 @@
+        <TR class='%{1}'>
+            <TD class='rejnum_col right'>%{2}</TD>
+            <TD class='inline_col right'>%{3}</TD>
+            <TD class='incol_col center'>%{4}</TD>
+            <TD><PRE class='reason'>%{5}</PRE></TD>
+        </TR>
