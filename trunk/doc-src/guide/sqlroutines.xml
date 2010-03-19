@@ -686,6 +686,49 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
 
       <para>more ..</para>
     </section>
+
+    <section>
+      <title>Returning Data From Procedures</title>
+
+      <para>The OUT or INOUT parameters of a procedure are used to assign
+      simple values to dynamic parameters or to variables in the calling
+      context. In addition, a SQL/PSM procedure may return result sets to the
+      calling context. These result sets are dynamic in the sense that a
+      procedure may return a different number of result sets or none at all in
+      different invocations.</para>
+
+      <para>The SQL Standard uses a mechanism called CURSORS for accessing and
+      modifying rows of a result set one by one. This mechanism is absolutely
+      necessary when the database is accessed from an external application
+      program. The JDBC ResultSet interface allows this method of access from
+      Java programs and is supported by HyperSQL.</para>
+
+      <para>The SQL Standard uses cursors within the body of a procedure to
+      return result sets. It specifies a somewhat complex mechanism to allow
+      access to these cursors from the calling contexts. HyperSQL does not
+      support access to such result sets within a calling SQL/PSM procedure.
+      This is considered redundant as all operations on data can be performed
+      with non-cursor SQL statements.</para>
+
+      <para>(feature to be implemented) HyperSQL will support returning single
+      or multiple result sets from SQL/PSM procedures only via the JDBC
+      CallableStatement interface. Cursors are declared and opened within the
+      body of the procedure. No further operation is performed on the cursors
+      within the procedure. When the execution of the procedure is complete,
+      the cursors become available as Java ResultSet objects via the
+      CallableStatement instance that called the SQL/PSM procedure.</para>
+
+      <para>Currently, a single result can be returned from FUNCTION routines,
+      when the function is defined as RETURNS TABLE ( .. )</para>
+
+      <para>The JDBC CallableStatement class is used with the SQL statement
+      <literal>CALL &lt;routine name&gt; ( &lt;argument 1&gt;, ... )</literal>
+      is used to call both functions and procedures. The
+      <literal>getXXX()</literal> methods can be used to retrieve INOUT or OUT
+      arguments after the call. The <literal>getResultSet()</literal> call can
+      be used to access the ResultSet returned from a function that returns a
+      result set.</para>
+    </section>
   </section>
 
   <section>
@@ -1156,44 +1199,21 @@ RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
     <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
     LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
 
-    <para>ResultSets</para>
+    <indexterm significance="preferred" type="sql">
+      <primary>DYNAMIC RESULT SETS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DYNAMIC RESULT SETS</emphasis></simpara>
+
+    <simpara><emphasis>returned result sets
+    characteristic</emphasis></simpara>
 
     <para>The <literal>&lt;returned result sets characteristic&gt;</literal>
     is used only for SQL/PSM procedures. The maximum number of result sets
     that a procedure may return can be specified with the clause below. The
-    default is zero. Details are discussed in the next section.</para>
+    default is zero. Details are discussed in the previous sections.</para>
 
     <simpara><literal>&lt;returned result sets characteristic&gt; ::= DYNAMIC
     RESULT SETS &lt;maximum returned result sets&gt;</literal></simpara>
-
-    <para>Cursor Operations and Returning Data From Procedures</para>
-
-    <para>The OUT or INOUT parameters of a procedure are used to assign simple
-    values to dynamic parameters or to variables in the calling context. In
-    addition, a SQL/PSM procedure may return result sets to the calling
-    context. These result sets are dynamic in the sense that a procedure may
-    return a different number of result sets or none at all in different
-    invocations.</para>
-
-    <para>The SQL Standard uses a mechanism called CURSORS for accessing and
-    modifying rows of a result set one by one. This mechanism is absolutely
-    necessary when the database is accessed from an external application
-    program. The JDBC ResultSet interface allows this method of access from
-    Java programs and is supported by HyperSQL.</para>
-
-    <para>The SQL Standard uses cursors within the body of a procedure to
-    return result sets. It specifies a somewhat complex mechanism to allow
-    access to these cursors from the calling contexts. HyperSQL does not
-    support access to such result sets within a calling SQL/PSM procedure.
-    This is considered redundant as all operations on data can be performed
-    with non-cursor SQL statements.</para>
-
-    <para>(feature to be implemented) HyperSQL will support returning single
-    or multiple result sets from SQL/PSM procedures only via the JDBC
-    CallableStatement interface. Cursors are declared and opened within the
-    body of the procedure. No further operation is performed on the cursors
-    within the procedure. When the execution of the procedure is complete, the
-    cursors become available as Java ResultSet objects via the
-    CallableStatement instance that called the SQL/PSM procedure.</para>
   </section>
 </chapter>
