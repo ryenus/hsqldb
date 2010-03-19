@@ -7,7 +7,7 @@
     and PDF DocBook output documents from DocBook source located under a
     doc-src subdirectory.
 
-    Must have Ivy v. 2.0 in Ant invocation CLASSPATH.
+    Must have Ivy v. 2.0 or later in Ant invocation CLASSPATH.
     We suggest that you change-control a copy if the Ivy jar file in
     the bootstrap-libs subdirectory, so things will work according to the
     displayed message below (search below for "bootstrap-libs").
@@ -402,11 +402,11 @@ Obtain a 2.x version of an Apache Ivy jar file (perhaps at
 http://ant.apache.org/ivy/), and run a command like the following, changing the
 jar file path to wherever you have it saved.  For any Bourne shell (incl. Bash):
 
-    export ANT_ARGS; ANT_ARGS='-lib $HOME/ivy-2.0.0.jar -noclasspath'
+    export ANT_ARGS; ANT_ARGS='-lib $HOME/ivy-2.1.0.jar -noclasspath'
 
 OR for any CMD-like Windows shell:
 
-    SET ANT_ARGS=-lib "%HOMEDRIVE%%HOMEPATH%/ivy-2.0.0.jar" -noclasspath</fail>
+    SET ANT_ARGS=-lib "%HOMEDRIVE%%HOMEPATH%/ivy-2.1.0.jar" -noclasspath</fail>
 
     <available property="_ivysettings.present" file="build/ivysettings.xml"
                type="file"/>
