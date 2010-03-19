@@ -196,10 +196,9 @@ class JDBCStatementBase {
         }
 
         if (resultIn.isData()) {
-            currentResultSet = new JDBCResultSet(connection.sessionProxy,
+            currentResultSet = new JDBCResultSet(connection,
                                                  this, resultIn,
-                                                 resultIn.metaData,
-                                                 connection);
+                                                 resultIn.metaData);
         }
     }
 
@@ -264,10 +263,9 @@ class JDBCStatementBase {
             generatedResult = Result.emptyGeneratedResult;
         }
 
-        generatedResultSet = new JDBCResultSet(connection.sessionProxy, null,
+        generatedResultSet = new JDBCResultSet(connection, null,
                                                generatedResult,
-                                               generatedResult.metaData,
-                                               connection);
+                                               generatedResult.metaData);
 
         return generatedResultSet;
     }

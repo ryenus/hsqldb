@@ -7314,22 +7314,20 @@ public class JDBCResultSet implements ResultSet {
     /**
      * Constructs a new <code>JDBCResultSet</code> object using the specified
      * navigator and <code>org.hsqldb.result.ResultMetaData</code>.
-     *
      * <p>
      *
+     * @param conn JDBCConnection
      * @param s the statement
      * @param r the internal result form that the new
      *   <code>JDBCResultSet</code> represents
-     * @param metaData ResultMetaData
-     * @param props the connection properties
+     * @param metaData the connection properties
      * @throws SQLException when the supplied Result is of type
      *   org.hsqldb.Result.ERROR
      */
-    JDBCResultSet(SessionInterface session, JDBCStatementBase s, Result r,
-                  ResultMetaData metaData,
-                  JDBCConnection conn) throws SQLException {
+    public JDBCResultSet(JDBCConnection conn, JDBCStatementBase s, Result r,
+                  ResultMetaData metaData) throws SQLException {
 
-        this.session     = session;
+        this.session     = conn.sessionProxy;
         this.statement   = s;
         this.result      = r;
         this.connnection = conn;

@@ -4559,8 +4559,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (statementRetType == StatementTypes.RETURN_RESULT
                 && resultIn.isData()) {
-            currentResultSet = new JDBCResultSet(connection.sessionProxy,
-                    this, resultIn, resultIn.metaData, connection);
+            currentResultSet = new JDBCResultSet(connection,
+                    this, resultIn, resultIn.metaData);
         }
     }
 
