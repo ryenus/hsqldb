@@ -559,6 +559,18 @@ public class Result {
     }
 
     /**
+     * For interval PSM return values
+     */
+    public static Result newPSMResult(Object value) {
+
+        Result result = newResult(ResultConstants.VALUE);
+
+        result.valueData = value;
+
+        return result;
+    }
+
+    /**
      * For SQLPREPARE
      * For parparation of SQL parepared statements.
      */
@@ -629,10 +641,10 @@ public class Result {
     public void setPreparedExecuteProperties(Object[] parameterValues,
             int maxRows, int fetchSize, int resultProps) {
 
-        mode           = ResultConstants.EXECUTE;
-        valueData      = parameterValues;
-        updateCount    = maxRows;
-        this.fetchSize = fetchSize;
+        mode              = ResultConstants.EXECUTE;
+        valueData         = parameterValues;
+        updateCount       = maxRows;
+        this.fetchSize    = fetchSize;
         this.rsProperties = resultProps;
     }
 
@@ -851,7 +863,7 @@ public class Result {
         this.fetchSize           = fetchSize;
         this.statementReturnType = statementReturnType;
         this.queryTimeout        = timeout;
-        rsProperties          = resultSetProperties;
+        rsProperties             = resultSetProperties;
         generateKeys             = keyMode;
         generatedMetaData =
             ResultMetaData.newGeneratedColumnsMetaData(generatedIndexes,
@@ -895,8 +907,7 @@ public class Result {
      * initially, only used for updatability
      */
     public int getExecuteProperties() {
-
-        return  rsProperties;
+        return rsProperties;
     }
 
     /**
@@ -907,12 +918,10 @@ public class Result {
                                         int resultSetConcurrency,
                                         int resultSetHoldability) {
 
-        updateCount     = maxRows;
-        this.fetchSize  = fetchSize;
-        rsProperties = ResultProperties.getValueForJDBC(
-        resultSetScrollability,
-         resultSetConcurrency,
-         resultSetHoldability);
+        updateCount    = maxRows;
+        this.fetchSize = fetchSize;
+        rsProperties = ResultProperties.getValueForJDBC(resultSetScrollability,
+                resultSetConcurrency, resultSetHoldability);
     }
 
     public static Result newDataHeadResult(SessionInterface session,

@@ -42,7 +42,9 @@ import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.lib.Set;
+import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.result.Result;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.NullType;
 import org.hsqldb.types.Type;
@@ -189,8 +191,22 @@ public class Expression {
      */
     Expression(int exprType, SubQuery sq) {
 
-        this(OpTypes.TABLE_SUBQUERY);
+        switch (exprType) {
 
+            case OpTypes.TABLE_SUBQUERY :
+                opType = OpTypes.TABLE_SUBQUERY;
+                break;
+
+            case OpTypes.ROW_SUBQUERY :
+            case OpTypes.SCALAR_SUBQUERY :
+                opType = OpTypes.ROW_SUBQUERY;
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+        }
+
+        nodes    = emptyArray;
         subQuery = sq;
     }
 
@@ -1174,6 +1190,7 @@ public class Expression {
             case OpTypes.ROW :
                 return nodes.length;
 
+            case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
                 return subQuery.queryExpression.getColumnCount();
 
@@ -1255,8 +1272,8 @@ public class Expression {
 
                 return row;
             }
-            case OpTypes.ROW_SUBQUERY :
-            case OpTypes.TABLE_SUBQUERY : {
+            case OpTypes.TABLE_SUBQUERY :
+            case OpTypes.ROW_SUBQUERY : {
                 subQuery.materialiseCorrelated(session);
 
                 Object[] value = subQuery.getValues(session);
@@ -1269,6 +1286,26 @@ public class Expression {
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+        }
+    }
+
+    public Result getResult(Session session) {
+
+        switch (opType) {
+
+            case OpTypes.TABLE_SUBQUERY : {
+                RowSetNavigatorData navigator = subQuery.getNavigator(session);
+                Result result = Result.newResult(navigator);
+
+                result.metaData = subQuery.queryExpression.getMetaData();
+
+                return result;
+            }
+            default : {
+                Object value = getValue(session);
+
+                return Result.newPSMResult(value);
+            }
         }
     }
 

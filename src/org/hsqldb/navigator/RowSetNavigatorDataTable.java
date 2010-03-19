@@ -141,6 +141,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         mainIndex          = table.getPrimaryIndex();
         fullIndex          = table.getFullIndex();
         this.size          = mainIndex.size(store);
+        reset();
     }
 
     public void sortFull() {

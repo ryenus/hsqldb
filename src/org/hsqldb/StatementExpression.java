@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,16 @@ public class StatementExpression extends StatementDMQL {
                         int type, Expression expression) {
 
         super(type, StatementTypes.X_SQL_CONTROL, null);
+
+        switch (type) {
+
+            case StatementTypes.RETURN :
+            case StatementTypes.CONDITION :
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "");
+        }
 
         isTransactionStatement = false;
         this.expression        = expression;
@@ -122,7 +132,7 @@ public class StatementExpression extends StatementDMQL {
 
             case StatementTypes.RETURN :
             case StatementTypes.CONDITION :
-                return this.getResultValue(session);
+                return expression.getResult(session);
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "");
@@ -133,21 +143,6 @@ public class StatementExpression extends StatementDMQL {
 
     String describeImpl(Session session) throws Exception {
         return getSQL();
-    }
-
-    private Result getResultValue(Session session) {
-
-        try {
-            Object value = null;
-
-            if (expression != null) {
-                value = expression.getValue(session);
-            }
-
-            return Result.newPSMResult(type, null, value);
-        } catch (HsqlException e) {
-            return Result.newErrorResult(e);
-        }
     }
 
     void collectTableNamesForRead(OrderedHashSet set) {

@@ -628,7 +628,7 @@ public class ParserDML extends ParserDQL {
                         e.resolveTypes(session, null);
                     }
                 }
-            } else if (expr.getType() == OpTypes.TABLE_SUBQUERY) {
+            } else if (expr.getType() == OpTypes.ROW_SUBQUERY) {
                 unresolved = expr.resolveColumnReferences(outerRanges, null);
                 unresolved = Expression.resolveColumnSet(rangeVariables,
                         unresolved, null);

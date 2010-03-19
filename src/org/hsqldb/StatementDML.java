@@ -426,7 +426,7 @@ public class StatementDML extends StatementDMQL {
                     data[colIndex] = colTypes[colIndex].convertToType(session,
                             values[j], e.dataType);
                 }
-            } else if (expr.getType() == OpTypes.TABLE_SUBQUERY) {
+            } else if (expr.getType() == OpTypes.ROW_SUBQUERY) {
                 Object[] values = expr.getRowValue(session);
 
                 for (int j = 0; j < values.length; j++, i++) {

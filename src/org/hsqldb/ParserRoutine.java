@@ -173,13 +173,14 @@ public class ParserRoutine extends ParserDML {
         OrderedHashSet     variableNames = new OrderedHashSet();
         QuerySpecification select        = XreadSelect();
         Type[]             targetTypes;
+
         readThis(Tokens.INTO);
         readColumnNamesForSelectInto(variableNames, rangeVars);
         XreadTableExpression(select);
         select.setReturningResult();
 
-        int[]              indexes   = new int[variableNames.size()];
-        ColumnSchema[]     variables = new ColumnSchema[variableNames.size()];
+        int[]          indexes   = new int[variableNames.size()];
+        ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
 
         setVariables(rangeVars, variableNames, indexes, variables);
 
@@ -372,6 +373,10 @@ public class ParserRoutine extends ParserDML {
                 } else {
                     while (true) {
                         ColumnSchema newcolumn = readRoutineParameter(routine);
+
+                        if (newcolumn.getName() == null) {
+                            throw super.unexpectedToken();
+                        }
 
                         table.addColumn(newcolumn);
 

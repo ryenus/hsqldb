@@ -321,7 +321,8 @@ public class StatementCompound extends Statement {
                 break;
             }
 
-            if (result.getType() == ResultConstants.VALUE) {
+            if (result.getType() == ResultConstants.VALUE
+                    || result.getType() == ResultConstants.DATA) {
                 break;
             }
         }
@@ -381,7 +382,7 @@ public class StatementCompound extends Statement {
                             session.rollbackToSavepoint();
 
                             result = Result.newPSMResult(StatementTypes.LEAVE,
-                                                         null, null);
+                                                         label.name, null);
                             break;
 
                         case StatementHandler.EXIT :
@@ -441,6 +442,11 @@ public class StatementCompound extends Statement {
                 if (result.getType() == ResultConstants.VALUE) {
                     break;
                 }
+
+                if (result.getType() == ResultConstants.DATA) {
+                    break;
+                }
+
             }
 
             if (result.isError()) {
@@ -474,9 +480,12 @@ public class StatementCompound extends Statement {
                     break;
                 }
 
-                if (result.getErrorCode() == StatementTypes.RETURN) {
-                    break;
-                }
+                // return
+                break;
+            }
+
+            if (result.getType() == ResultConstants.DATA) {
+                break;
             }
 
             if (type == StatementTypes.REPEAT) {

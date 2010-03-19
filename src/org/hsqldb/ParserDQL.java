@@ -1949,6 +1949,16 @@ public class ParserDQL extends ParserBase {
                 // CLI function names
                 break;
 
+            case Tokens.TABLE : {
+                read();
+                readThis(Tokens.OPENBRACKET);
+
+                SubQuery sq = XreadTableSubqueryBody();
+
+                readThis(Tokens.CLOSEBRACKET);
+
+                return new Expression(OpTypes.TABLE_SUBQUERY, sq);
+            }
             default :
                 if (isCoreReservedKey()) {
                     throw unexpectedToken();
@@ -4082,7 +4092,6 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType == Tokens.COMMA) {
                 readThis(Tokens.COMMA);
             } else {
-
                 alternative.setRightNode(new ExpressionValue(null, null));;
 
                 break;

@@ -216,6 +216,11 @@ public class Table extends TableBase implements SchemaObject {
                 isSessionBased   = true;
                 break;
 
+            case TableBase.FUNCTION_TABLE :
+                persistenceScope = SCOPE_SESSION;
+                isSessionBased   = true;
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Table");
         }
@@ -565,6 +570,31 @@ public class Table extends TableBase implements SchemaObject {
             if (i < len - 1) {
                 sb.append(',');
             }
+        }
+
+        sb.append(')');
+
+        return sb.toString();
+    }
+
+    public String getColumnListWithTypeSQL() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append('(');
+
+        for (int j = 0; j < columnCount; j++) {
+            ColumnSchema column  = getColumn(j);
+            String       colname = column.getName().statementName;
+            Type         type    = column.getDataType();
+
+            if (j > 0) {
+                sb.append(',');
+            }
+
+            sb.append(colname);
+            sb.append(' ');
+            sb.append(type.getTypeDefinition());
         }
 
         sb.append(')');

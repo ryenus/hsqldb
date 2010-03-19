@@ -627,7 +627,7 @@ public interface ErrorCode {
     int X_4600D = 6010;                                  // invalid path
     int X_4600E = 6011;                                  // self-referencing path
     int X_46102 = 6012;                                  // invalid JAR name in path
-    int X_46103 = 6013;                                  // unresolved class name
+    int X_46103 = 6013;                                  // unresolved class or method name
 
     // HSQLDB - SQL/JRT
     int X_46511 = 6021;                                  // declared parameter types do not match method signature
