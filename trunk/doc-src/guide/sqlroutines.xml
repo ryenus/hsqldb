@@ -564,9 +564,12 @@ CALL the_new_id;
       <simpara><literal>&lt;return value&gt; ::= &lt;value expression&gt; |
       NULL</literal></simpara>
 
-      <simpara>Return a value from an SQL function. The value expression can
-      be any scalar expression. In the examples below, the same function is
-      written with or without a BEGIN END block.</simpara>
+      <simpara>Return a value from an SQL function. If the function is defined
+      as RETURNS TABLE, then the value is a TABLE expression such as RETURN
+      TABLE(SELECT ...) otherwise, the value expression can be any scalar
+      expression. In the examples below, the same function is written with or
+      without a BEGIN END block. In both versions, the RETURN value is a
+      scalar expression.</simpara>
 
       <programlisting>CREATE FUNCTION an_hour_before_max (e_type INT)
 RETURNS TIMESTAMP
@@ -814,9 +817,12 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     <para>If two versions of the same SQL invoked routine with different
     parameter types are required, they can be defined to point to the same
     method name or different method names, or even methods in different
-    classes. In the example below, both definitions refer to the same method
-    name in the same class. In the Java class, the two static methods are
-    defined with corresponding method signatures:</para>
+    classes. In the example below, the first two definitions refer to the same
+    method name in the same class. In the Java class, the two static methods
+    are defined with corresponding method signatures.</para>
+
+    <para>In the third example, the Java function returns a result set and the
+    SQL declaration includes RETURNS TABLE.</para>
 
     <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIME)
     RETURNS TIME
@@ -828,12 +834,26 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
     RETURNS TIMESTAMP
     NO SQL
     LANGUAGE JAVA PARAMETER STYLE JAVA
-    EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'</programlisting>
+    EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
+
+CREATE FUNCTION testquery(INTEGER) 
+    RETURNS TABLE(n VARCHAR(20), i INT) 
+    READS SQL DATA
+    LANGUAGE JAVA
+    EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getQueryResult'
+</programlisting>
 
     <para>In the Java class:</para>
 
     <programlisting>    public static java.sql.Time nowLessAnHour(java.sql.Time value)
-    public static java.sql.Timestamp nowLessAnHour(java.sql.Timestamp value)</programlisting>
+    public static java.sql.Timestamp nowLessAnHour(java.sql.Timestamp value)
+
+    public static ResultSet getQueryResult(Connection connection, int i) throws SQLException {
+        Statement st = connection.createStatement();
+        return st.executeQuery("SELECT * FROM T WHERE I &lt; " + i);
+    }
+
+</programlisting>
 
     <para>Legacy Support</para>
 
