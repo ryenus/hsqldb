@@ -295,13 +295,7 @@ public class ParserCommand extends ParserDDL {
         read();
 
         if (token.tokenType == Tokens.X_VALUE) {
-            if (token.dataType.typeCode != Types.SQL_CHAR) {
-                throw Error.error(ErrorCode.X_42581);
-            }
-
-            name = token.tokenString;
-
-            read();
+            name = readQuotedString();
         }
 
         Object[] args = new Object[]{ name };
@@ -668,7 +662,7 @@ public class ParserCommand extends ParserDDL {
 
                 Table    t    = readTableName();
                 Object[] args = new Object[] {
-                    t.tableName, null
+                    t.getName(), null
                 };
 
                 switch (token.tokenType) {
@@ -1648,7 +1642,6 @@ public class ParserCommand extends ParserDDL {
         read();
         readThis(Tokens.DATABASE);
         readThis(Tokens.TO);
-        checkIsValue();
 
         String  path         = readQuotedString();
         Boolean blockingMode = null;    // Default to non-blocking
@@ -1803,7 +1796,7 @@ public class ParserCommand extends ParserDDL {
         readThis(Tokens.PLAN);
         readThis(Tokens.FOR);
 
-        cs                 = compilePart(ResultProperties.defaultPropsValue);
+        cs = compilePart(ResultProperties.defaultPropsValue);
 
         cs.setDescribe();
 
@@ -1817,7 +1810,7 @@ public class ParserCommand extends ParserDDL {
         String   source;
         Object[] args = new Object[5];
 
-        args[0] = t.tableName;
+        args[0] = t.getName();
 
         if (!t.isText()) {
             Exception e = Error.error(ErrorCode.X_S0522);
@@ -1848,15 +1841,13 @@ public class ParserCommand extends ParserDDL {
             isSourceHeader = true;
         }
 
-        if (token.tokenType != Tokens.X_DELIMITED_IDENTIFIER
-                && (token.tokenType != Tokens.X_VALUE
-                    || !token.dataType.isCharacterType())) {
-            throw Error.error(ErrorCode.X_42581);
+        if (token.tokenType == Tokens.X_DELIMITED_IDENTIFIER) {
+            source = token.tokenString;
+
+            read();
+        } else {
+            source = readQuotedString();
         }
-
-        source = token.tokenString;
-
-        read();
 
         if (!isSourceHeader && token.tokenType == Tokens.DESC) {
             isDesc = true;

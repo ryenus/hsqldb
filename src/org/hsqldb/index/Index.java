@@ -39,6 +39,12 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.types.Type;
 
+/**
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 1.9.0
+ * @since 1.9.0
+ */
 public interface Index extends SchemaObject {
 
     Index[] emptyArray = new Index[]{};

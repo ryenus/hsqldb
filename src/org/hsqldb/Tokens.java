@@ -176,6 +176,7 @@ public class Tokens {
     public static final String T_HOUR              = "HOUR";
     static final String        T_IDENTITY          = "IDENTITY";
     static final String        T_IF                = "IF";
+    static final String        T_IMPORT            = "IMPORT";
     static final String        T_IN                = "IN";
     static final String        T_INDICATOR         = "INDICATOR";
     static final String        T_INNER             = "INNER";
@@ -495,6 +496,7 @@ public class Tokens {
     static final String        T_LAST                 = "LAST";
     static final String        T_LENGTH               = "LENGTH";
     public static final String T_LEVEL                = "LEVEL";
+    static final String        T_LIBRARY              = "LIBRARY";
     static final String        T_LOCATOR              = "LOCATOR";
     public static final String T_M_FACTOR             = "M";
     static final String        T_MAP                  = "MAP";
@@ -567,6 +569,7 @@ public class Tokens {
     static final String        T_SELF                 = "SELF";
     public static final String T_SEQUENCE             = "SEQUENCE";
     public static final String T_SERIALIZABLE         = "SERIALIZABLE";
+    static final String        T_SERVER               = "SERVER";
     static final String        T_SERVER_NAME          = "SERVER_NAME";
     public static final String T_SESSION              = "SESSION";
     static final String        T_SETS                 = "SETS";
@@ -609,10 +612,11 @@ public class Tokens {
     static final String T_USER_DEFINED_TYPE_NAME = "USER_DEFINED_TYPE_NAME";
     static final String T_USER_DEFINED_TYPE_SCHEMA =
         "USER_DEFINED_TYPE_SCHEMA";
-    static final String        T_VIEW  = "VIEW";
-    static final String        T_WORK  = "WORK";
-    public static final String T_WRITE = "WRITE";
-    public static final String T_ZONE  = "ZONE";
+    static final String        T_VIEW    = "VIEW";
+    static final String        T_WORK    = "WORK";
+    static final String        T_WRAPPER = "WRAPPER";
+    public static final String T_WRITE   = "WRITE";
+    public static final String T_ZONE    = "ZONE";
 
     // other tokens
     static final String        T_ADD                 = "ADD";
@@ -631,7 +635,7 @@ public class Tokens {
     public static final String T_CONTROL             = "CONTROL";
     static final String        T_CURDATE             = "CURDATE";
     static final String        T_CURTIME             = "CURTIME";
-    static final String        T_DATABASE            = "DATABASE";
+    public static final String T_DATABASE            = "DATABASE";
     public static final String T_DEFRAG              = "DEFRAG";
     public static final String T_DELAY               = "DELAY";
     static final String        T_EXPLAIN             = "EXPLAIN";
@@ -1127,6 +1131,9 @@ public class Tokens {
     public static final int WHILE                            = 320;
     public static final int YEAR                             = 321;
 
+    //
+    public static final int IMPORT = 322;
+
     //SQL 200n Standard non-reserved keywords - full set
     public static final int A                           = 330;
     public static final int ABSOLUTE                    = 331;
@@ -1345,6 +1352,11 @@ public class Tokens {
     public static final int WORK                        = 544;
     public static final int WRITE                       = 545;
     public static final int ZONE                        = 546;
+
+    //
+    public static final int LIBRARY = 547;
+    public static final int SERVER  = 548;
+    public static final int WRAPPER = 549;
 
     // other token values used as switch cases
     static final int ALIAS        = 551;
@@ -1709,6 +1721,7 @@ public class Tokens {
         reservedKeys.put(Tokens.T_HOUR, HOUR);
         reservedKeys.put(Tokens.T_IDENTITY, IDENTITY);
         reservedKeys.put(Tokens.T_IF, IF);
+        reservedKeys.put(Tokens.T_IMPORT, IMPORT);
         reservedKeys.put(Tokens.T_IN, IN);
         reservedKeys.put(Tokens.T_INDICATOR, INDICATOR);
         reservedKeys.put(Tokens.T_INNER, INNER);
@@ -1978,6 +1991,7 @@ public class Tokens {
         commandSet.put(T_LAST, LAST);
         commandSet.put(T_LENGTH, LENGTH);
         commandSet.put(T_LEVEL, LEVEL);
+        commandSet.put(T_LIBRARY, LIBRARY);
         commandSet.put(T_LIMIT, LIMIT);
         commandSet.put(T_LOB, LOB);
         commandSet.put(T_LOCK, LOCK);
@@ -2024,6 +2038,7 @@ public class Tokens {
         commandSet.put(T_SCRIPTFORMAT, SCRIPTFORMAT);
         commandSet.put(T_SEQUENCE, SEQUENCE);
         commandSet.put(T_SERIALIZABLE, SERIALIZABLE);
+        commandSet.put(T_SERVER, SERVER);
         commandSet.put(T_SESSION, SESSION);
         commandSet.put(T_SHUTDOWN, SHUTDOWN);
         commandSet.put(T_SIMPLE, SIMPLE);
@@ -2084,6 +2099,7 @@ public class Tokens {
         commandSet.put(T_USAGE, USAGE);
         commandSet.put(T_VIEW, VIEW);
         commandSet.put(T_WORK, WORK);
+        commandSet.put(T_WRAPPER, WRAPPER);
         commandSet.put(T_WRITE, WRITE);
         commandSet.put(T_WRITE_DELAY, WRITE_DELAY);
         commandSet.put(T_ZONE, ZONE);

@@ -52,7 +52,6 @@ public class SchemaObjectSet {
 
     HashMap       map;
     int           type;
-    SchemaManager manager;
 
     SchemaObjectSet(int type) {
 

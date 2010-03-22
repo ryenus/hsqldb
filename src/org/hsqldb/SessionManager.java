@@ -258,7 +258,7 @@ public class SessionManager {
         for (int i = 0; it.hasNext(); i++) {
             Session session = (Session) it.next();
 
-            if (session.getCurrentSchemaHsqlName() == schema.name) {
+            if (session.getCurrentSchemaHsqlName() == schema.getName()) {
                 session.resetSchema();
             }
         }

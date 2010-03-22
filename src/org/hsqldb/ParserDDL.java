@@ -2517,7 +2517,7 @@ public class ParserDDL extends ParserRoutine {
 
                         Type type = readTypeDefinition(true);
 
-                        sequence.setDefaults(sequence.name, type);
+                        sequence.setDefaults(sequence.getName(), type);
 
                         break;
                     }

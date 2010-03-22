@@ -107,8 +107,8 @@ public class Table extends TableBase implements SchemaObject {
     public static final Table[] emptyArray = new Table[]{};
 
     // main properties
-    protected HsqlName tableName;
-    protected long     changeTimestamp;
+    private HsqlName tableName;
+    protected long   changeTimestamp;
 
     //
     public HashMappedList columnList;          // columns in table
@@ -482,7 +482,7 @@ public class Table extends TableBase implements SchemaObject {
         return array;
     }
 
-    String getSQLForReadOnly() {
+    public String getSQLForReadOnly() {
 
         if (isReadOnly) {
             StringBuffer sb = new StringBuffer(64);
@@ -499,7 +499,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    String[] getSQLForTextSource(boolean withHeader) {
+    public String[] getSQLForTextSource(boolean withHeader) {
 
         // readonly for TEXT tables only
         if (isText()) {
@@ -534,7 +534,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    String[] getTriggerSQL() {
+    public String[] getTriggerSQL() {
 
         String[] array = new String[triggerList.length];
 
@@ -845,6 +845,13 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
+     *  Returns the list of FK constraints.
+     */
+    public Constraint[] getFKConstraints() {
+        return fkConstraints;
+    }
+
+    /**
      *  Returns the primary constraint.
      */
     public Constraint getPrimaryConstraint() {
@@ -1089,6 +1096,10 @@ public class Table extends TableBase implements SchemaObject {
         if (column.getDataType().isLobType()) {
             hasLobColumn = true;
         }
+    }
+
+    public boolean hasLobColumn() {
+        return hasLobColumn;
     }
 
     public boolean hasIdentityColumn() {
@@ -1794,7 +1805,7 @@ public class Table extends TableBase implements SchemaObject {
             for (int i = 0; i < list.length; i++) {
                 TriggerDef trigger = list[i];
 
-                if (trigger.name.name.equals(otherName.name)) {
+                if (trigger.getName().name.equals(otherName.name)) {
                     index = i + 1;
 
                     break;
@@ -1812,7 +1823,7 @@ public class Table extends TableBase implements SchemaObject {
     TriggerDef getTrigger(String name) {
 
         for (int i = triggerList.length - 1; i >= 0; i--) {
-            if (triggerList[i].name.name.equals(name)) {
+            if (triggerList[i].getName().name.equals(name)) {
                 return triggerList[i];
             }
         }
@@ -1823,7 +1834,7 @@ public class Table extends TableBase implements SchemaObject {
     public int getTriggerIndex(String name) {
 
         for (int i = 0; i < triggerList.length; i++) {
-            if (triggerList[i].name.name.equals(name)) {
+            if (triggerList[i].getName().name.equals(name)) {
                 return i;
             }
         }
@@ -1841,7 +1852,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int i = 0; i < triggerList.length; i++) {
             td = triggerList[i];
 
-            if (td.name.name.equals(trigger.name.name)) {
+            if (td.getName().name.equals(trigger.getName().name)) {
                 td.terminate();
 
                 triggerList =
@@ -1862,7 +1873,7 @@ public class Table extends TableBase implements SchemaObject {
         for (int j = 0; j < triggerLists[index].length; j++) {
             td = triggerLists[index][j];
 
-            if (td.name.name.equals(trigger.name.name)) {
+            if (td.getName().name.equals(trigger.getName().name)) {
                 td.terminate();
 
                 triggerLists[index] = (TriggerDef[]) ArrayUtil.toAdjustedArray(
