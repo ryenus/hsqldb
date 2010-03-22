@@ -87,18 +87,18 @@ public class TriggerDef implements Runnable, SchemaObject {
     int[]                     updateColumns;
 
     // other variables
-    HsqlName name;
-    long     changeTimestamp;
-    int      actionTiming;
-    int      operationType;
-    boolean  forEachRow;
-    boolean  nowait;                                           // block or overwrite if queue full
-    int      maxRowsQueued;                                    // max size of queue of pending triggers
-    Table    table;
-    Trigger  trigger;
-    String   triggerClassName;
-    int      triggerType;
-    Thread   thread;
+    private HsqlName name;
+    long             changeTimestamp;
+    int              actionTiming;
+    int              operationType;
+    boolean          forEachRow;
+    boolean          nowait;                                   // block or overwrite if queue full
+    int              maxRowsQueued;                            // max size of queue of pending triggers
+    Table            table;
+    Trigger          trigger;
+    String           triggerClassName;
+    int              triggerType;
+    Thread           thread;
 
     //protected boolean busy;               // firing trigger in progress
     protected HsqlDeque        pendingQueue;                   // row triggers pending

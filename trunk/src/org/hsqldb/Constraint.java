@@ -125,9 +125,9 @@ public final class Constraint implements SchemaObject {
      */
     public Constraint(HsqlName name, Table t, Index index, int type) {
 
-        core           = new ConstraintCore();
         this.name      = name;
         constType      = type;
+        core           = new ConstraintCore();
         core.mainTable = t;
         core.mainIndex = index;
         core.mainCols  = index.getColumns();
@@ -140,6 +140,16 @@ public final class Constraint implements SchemaObject {
             }
         }
     }
+
+    public Constraint(HsqlName name, Table table, int[] cols, int type) {
+
+        this.name      = name;
+        constType      = type;
+        core           = new ConstraintCore();
+        core.mainTable = table;
+        core.mainCols  = cols;
+    }
+
 
     /**
      *  Constructor for main constraints (foreign key references in PK table)
@@ -168,13 +178,13 @@ public final class Constraint implements SchemaObject {
                       OrderedHashSet mainCols, int type, int deleteAction,
                       int updateAction, int matchType) {
 
-        core               = new ConstraintCore();
         this.name          = name;
         constType          = type;
         mainColSet         = mainCols;
+        refColSet          = refCols;
+        core               = new ConstraintCore();
         core.refTableName  = refTableName;
         core.mainTableName = mainTableName;
-        refColSet          = refCols;
         core.deleteAction  = deleteAction;
         core.updateAction  = updateAction;
         core.matchType     = matchType;
@@ -194,15 +204,36 @@ public final class Constraint implements SchemaObject {
             case SchemaObject.ReferentialAction.SET_NULL :
                 core.hasUpdateAction = true;
         }
-
     }
 
     public Constraint(HsqlName name, OrderedHashSet mainCols, int type) {
 
-        core       = new ConstraintCore();
         this.name  = name;
         constType  = type;
         mainColSet = mainCols;
+        core       = new ConstraintCore();
+    }
+
+    public Constraint(HsqlName uniqueName, HsqlName mainName,
+                      HsqlName refName, Table mainTable, Table refTable,
+                      int[] mainCols, int[] refCols, Index mainIndex,
+                      Index refIndex, int deleteAction,
+                      int updateAction) throws HsqlException {
+
+        this.name       = refName;
+        constType       = SchemaObject.ConstraintTypes.FOREIGN_KEY;
+        core            = new ConstraintCore();
+        core.uniqueName = uniqueName;
+        core.mainName   = mainName;
+        core.refName    = refName;
+        core.mainTable  = mainTable;
+        core.refTable   = refTable;
+        core.mainCols     = mainCols;
+        core.refCols      = refCols;
+        core.mainIndex    = mainIndex;
+        core.refIndex     = refIndex;
+        core.deleteAction = deleteAction;
+        core.updateAction = updateAction;
     }
 
     Constraint duplicate() {
@@ -806,7 +837,7 @@ public final class Constraint implements SchemaObject {
 
         if (nomatch) {
             String[] info = new String[] {
-                name.name, table.tableName.name
+                name.name, table.getName().name
             };
 
             throw Error.error(null, ErrorCode.X_23513, ErrorCode.CONSTRAINT,
@@ -827,7 +858,7 @@ public final class Constraint implements SchemaObject {
                 throw Error.error(ErrorCode.X_23513, name.name);
             } else {
                 String[] info = new String[] {
-                    name.name, table.tableName.name
+                    name.name, table.getName().name
                 };
 
                 throw Error.error(null, ErrorCode.X_23513,

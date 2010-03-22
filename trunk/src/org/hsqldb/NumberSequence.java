@@ -54,7 +54,7 @@ public final class NumberSequence implements SchemaObject {
     public final static NumberSequence[] emptyArray = new NumberSequence[]{};
 
     //
-    HsqlName name;
+    private HsqlName name;
 
     // present value
     private long currValue;
@@ -89,9 +89,8 @@ public final class NumberSequence implements SchemaObject {
     public void setDefaults(HsqlName name, Type type) {
 
         this.name = name;
-        dataType  = type;
+        this.dataType  = type;
         this.name = name;
-        dataType  = type;
 
         long min;
         long max;

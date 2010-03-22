@@ -483,6 +483,10 @@ public class TableBase {
         setBestRowIdentifiers();
     }
 
+    public final void setIndexes(Index[] indexes) {
+        this.indexList = indexes;
+    }
+
     public final Object[] getEmptyRowData() {
         return new Object[getDataColumnCount()];
     }

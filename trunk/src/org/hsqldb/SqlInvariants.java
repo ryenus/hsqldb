@@ -226,17 +226,26 @@ public class SqlInvariants {
 
     public static final void checkSchemaNameNotSystem(String name) {
 
-        if (isSchemaNameSystem(name)) {
+        if (isSystemSchemaName(name)) {
             throw Error.error(ErrorCode.X_42503, name);
         }
     }
 
-    public static final boolean isSchemaNameSystem(String name) {
+    public static final boolean isSystemSchemaName(String name) {
 
         if (SqlInvariants.DEFINITION_SCHEMA.equals(name)
                 || SqlInvariants.INFORMATION_SCHEMA.equals(name)
                 || SqlInvariants.SYSTEM_SCHEMA.equals(name)
                 || SqlInvariants.SQLJ_SCHEMA.equals(name)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static final boolean isLobsSchemaName(String name) {
+
+        if (SqlInvariants.LOBS_SCHEMA.equals(name)) {
             return true;
         }
 

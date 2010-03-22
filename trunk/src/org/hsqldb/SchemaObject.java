@@ -68,6 +68,8 @@ public interface SchemaObject {
     int VARIABLE         = 22;
     int PARAMETER        = 23;
     int SPECIFIC_ROUTINE = 24;
+    int WRAPPER          = 25;
+    int SERVER           = 26;
 
     //
     SchemaObject[] emptyArray = new SchemaObject[]{};

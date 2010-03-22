@@ -174,14 +174,14 @@ public class ParserBase {
 
     String getStatementForRoutine(int startPosition, short[] startTokens) {
 
-        int tokenIndex = 0;;
-        int semiIndex = - 1;
+        int tokenIndex   = 0;;
+        int semiIndex    = -1;
         int semiPosition = -1;
 
         while (true) {
             if (token.tokenType == Tokens.SEMICOLON) {
                 semiPosition = scanner.getTokenPosition();
-                semiIndex = tokenIndex;
+                semiIndex    = tokenIndex;
             } else if (token.tokenType == Tokens.X_ENDPARSE) {
                 if (semiIndex > 0 && semiIndex == tokenIndex - 1) {
                     rewind(semiPosition);
@@ -195,6 +195,7 @@ public class ParserBase {
             }
 
             read();
+
             tokenIndex++;
         }
 
@@ -399,7 +400,20 @@ public class ParserBase {
         }
     }
 
+    void readUnquotedIdentifier(String ident) {
+
+        checkIsSimpleName();
+
+        if (!token.tokenString.equals(ident)) {
+            throw unexpectedToken();
+        }
+
+        read();
+    }
+
     String readQuotedString() {
+
+        checkIsValue();
 
         if (token.dataType.typeCode != Types.SQL_CHAR) {
             throw Error.error(ErrorCode.X_42563);

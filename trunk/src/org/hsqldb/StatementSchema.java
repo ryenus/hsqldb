@@ -1164,7 +1164,7 @@ public class StatementSchema extends Statement {
             return;
         }
 
-        if (session.database.schemaManager.isSystemSchema(schema.name)) {
+        if (SqlInvariants.isSystemSchemaName(schema.name)) {
             throw Error.error(ErrorCode.X_42503);
         }
 

@@ -339,15 +339,15 @@ public final class RangeVariable {
 
         if (e.schema == null) {
             if (tableAlias == null) {
-                if (e.tableName.equals(rangeTable.tableName.name)) {
+                if (e.tableName.equals(rangeTable.getName().name)) {
                     return true;
                 }
             } else if (e.tableName.equals(tableAlias.name)) {
                 return true;
             }
         } else {
-            if (e.tableName.equals(rangeTable.tableName.name)
-                    && e.schema.equals(rangeTable.tableName.schema.name)) {
+            if (e.tableName.equals(rangeTable.getName().name)
+                    && e.schema.equals(rangeTable.getSchemaName().name)) {
                 return true;
             }
         }
@@ -362,7 +362,7 @@ public final class RangeVariable {
         }
 
         if (tableAlias == null) {
-            if (name.equals(rangeTable.tableName.name)) {
+            if (name.equals(rangeTable.getName().name)) {
                 return true;
             }
         } else if (name.equals(tableAlias.name)) {
@@ -382,7 +382,7 @@ public final class RangeVariable {
             return false;
         }
 
-        return name.equals(rangeTable.tableName.schema.name);
+        return name.equals(rangeTable.getSchemaName().name);
     }
 
     /**

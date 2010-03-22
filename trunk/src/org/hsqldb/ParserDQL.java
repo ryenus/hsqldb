@@ -4482,6 +4482,18 @@ public class ParserDQL extends ParserBase {
 
                     break;
                 }
+
+                case SchemaObject.SERVER :
+                case SchemaObject.WRAPPER : {
+                    checkValidCatalogName(token.namePrefix);
+
+                    if (token.namePrePrefix != null) {
+                        throw tooManyIdentifiers();
+                    }
+
+                    break;
+                }
+
                 case SchemaObject.COLUMN : {
                     if (token.namePrefix != null) {
                         throw tooManyIdentifiers();

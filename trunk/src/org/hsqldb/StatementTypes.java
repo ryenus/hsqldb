@@ -151,6 +151,22 @@ public interface StatementTypes {
     int CREATE_MODULE                    = 51;
     int WHILE                            = 97;
 
+    //
+    int ALTER_FOREIGN_TABLE         = 104;
+    int ALTER_USER_MAPPING          = 123;
+    int DROP_FOREIGN_DATA_WRAPPER   = 121;
+    int DROP_SERVER                 = 110;
+    int DROP_FOREIGN_TABLE          = 105;
+    int DROP_ROUTINE_MAPPING        = 131;
+    int DROP_USER_MAPPING           = 124;
+    int CREATE_FOREIGN_DATA_WRAPPER = 119;
+    int CREATE_SERVER               = 107;
+    int CREATE_FOREIGN_TABLE        = 103;
+    int IMPORT_FOREIGN_SCHEMA       = 125;
+    int CREATE_ROUTINE_MAPPING      = 132;
+    int SET_PASSTHROUGH             = 126;
+    int CREATE_USER_MAPPING         = 122;
+
     // hsqldb database
     int DATABASE_BACKUP     = 1001;
     int DATABASE_CHECKPOINT = 1002;
@@ -174,7 +190,6 @@ public interface StatementTypes {
     int SET_DATABASE_FILES_SCRIPT_FORMAT       = 1024;
     int SET_DATABASE_FILES_TEMP_PATH           = 1025;
     int SET_DATABASE_FILES_WRITE_DELAY         = 1026;
-
     int SET_DATABASE_DEFAULT_INITIAL_SCHEMA    = 1031;
     int SET_DATABASE_DEFAULT_TABLE_TYPE        = 1032;
     int SET_DATABASE_GC                        = 1033;

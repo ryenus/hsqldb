@@ -43,23 +43,23 @@ import org.hsqldb.rights.Grantee;
 
 public final class Schema implements SchemaObject {
 
-    HsqlName        name;
-    SchemaObjectSet triggerLookup;
-    SchemaObjectSet constraintLookup;
-    SchemaObjectSet indexLookup;
-    SchemaObjectSet tableLookup;
-    SchemaObjectSet sequenceLookup;
-    SchemaObjectSet typeLookup;
-    SchemaObjectSet charsetLookup;
-    SchemaObjectSet collationLookup;
-    SchemaObjectSet procedureLookup;
-    SchemaObjectSet functionLookup;
-    SchemaObjectSet specificRoutineLookup;
-    SchemaObjectSet assertionLookup;
-    HashMappedList  tableList;
-    HashMappedList  sequenceList;
-    Grantee         owner;
-    long            changeTimestamp;
+    private HsqlName name;
+    SchemaObjectSet  triggerLookup;
+    SchemaObjectSet  constraintLookup;
+    SchemaObjectSet  indexLookup;
+    SchemaObjectSet  tableLookup;
+    SchemaObjectSet  sequenceLookup;
+    SchemaObjectSet  typeLookup;
+    SchemaObjectSet  charsetLookup;
+    SchemaObjectSet  collationLookup;
+    SchemaObjectSet  procedureLookup;
+    SchemaObjectSet  functionLookup;
+    SchemaObjectSet  specificRoutineLookup;
+    SchemaObjectSet  assertionLookup;
+    HashMappedList   tableList;
+    HashMappedList   sequenceList;
+    Grantee          owner;
+    long             changeTimestamp;
 
     Schema(HsqlName name, Grantee owner) {
 
@@ -123,9 +123,9 @@ public final class Schema implements SchemaObject {
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(name.statementName).append(' ');
+        sb.append(getName().statementName).append(' ');
         sb.append(Tokens.T_AUTHORIZATION).append(' ');
-        sb.append(owner.getStatementName());
+        sb.append(getOwner().getStatementName());
 
         return sb.toString();
     }
@@ -136,9 +136,9 @@ public final class Schema implements SchemaObject {
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(name.statementName).append(' ');
+        sb.append(getName().statementName).append(' ');
         sb.append(Tokens.T_AUTHORIZATION).append(' ');
-        sb.append(owner.getStatementName());
+        sb.append(getOwner().getStatementName());
 
         return sb.toString();
     }
