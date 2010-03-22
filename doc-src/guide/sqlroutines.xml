@@ -981,19 +981,32 @@ CREATE FUNCTION testquery(INTEGER)
     <para>The <literal>&lt;returns clause&gt;</literal> specifies the type of
     the return value of a function. For all SQL/PSM functions and ordinary
     SQL/JRT functions, this is simply a type definition which can be a
-    built-in type, a DOMAIN type or a DISTINCT type. For example, RETURNS
-    INTEGER.</para>
+    built-in type, a DOMAIN type or a DISTINCT type, or alternatively, a TABLE
+    definition. For example, RETURNS INTEGER.</para>
 
-    <para>(feature to be implemented) For a SQL/JRT function, it is possible
-    to define a <literal>&lt;returns table type&gt;</literal> for a Java
-    method that returns a <classname>java.sql.ResultSet</classname> object.
-    Such SQL/JRT functions are called <glossterm>table functions</glossterm>.
-    Table functions are used differently from normal functions. A table
-    function can be used in an SQL query expression exactly where a normal
-    table or view is allowed. At the time of invocation, the Java method is
-    called and the returned ResultSet is transformed into an SQL table. The
-    column types of the declared TABLE must match those of the ResultSet,
-    otherwise an exception is raised at the time of invocation.</para>
+    <para>For a SQL/JRT function, it is possible to define a
+    <literal>&lt;returns table type&gt;</literal> for a Java method that
+    returns a <classname>java.sql.ResultSet</classname> object. Such SQL/JRT
+    functions are called <glossterm>table functions</glossterm>. Table
+    functions are used differently from normal functions. A table function can
+    be used in an SQL query expression exactly where a normal table or view is
+    allowed. At the time of invocation, the Java method is called and the
+    returned ResultSet is transformed into an SQL table. The column types of
+    the declared TABLE must match those of the ResultSet, otherwise an
+    exception is raised at the time of invocation.</para>
+
+    <para>If a <literal>&lt;returns table type&gt;</literal> is defined for an
+    SQL/PSM function, the the following expression is used inside the function
+    to return a table: <literal>RETURN TABLE ( &lt;query expression&gt;
+    );</literal> In the example blow, a table with two columns is
+    returned.</para>
+
+    <programlisting>RETURN TABLE ( SELECT a, b FROM atable WHERE e = 10 );</programlisting>
+
+    <para>If a JDBC <literal>CallableStatement</literal> is used to CALL the
+    function, the table returned from the function call is returned and can be
+    accessed with the <literal>getResultSet()</literal> method of the
+    <literal>CallableStatement</literal>.</para>
 
     <simpara><literal>&lt;returns clause&gt; ::= RETURNS &lt;returns
     type&gt;</literal></simpara>
