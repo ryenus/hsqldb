@@ -827,20 +827,36 @@
                 distribution for that server version and extract it.
             </simpara></step>
             <step><para>
-                Run SqlTool like this.
-                <informalexample>
-                  <screen>    java -jar path/to/sqltool.jar --driver=org.hsqldb.jdbcDriver...</screen>
-                </informalexample>
-                where you must specify the pre-2.x JDBC driver name
-                <classname>org.hsqldb.jdbcDriver</classname> if your target
-                database is pre-2.x (otherwise just skip that argument).
-                Give any other SqlTool parameters as you usually would.
                 <emphasis>
                   (If you have used older versions of SqlTool before, notice
                   that you now invoke SqlTool by specifying the
                   <filename>sqltool.jar</filename> file instead of the
                   <filename>hsqldb.jar</filename>).
                 </emphasis>
+                If your target database is a previous 2.x version of HyperSQL,
+                then you are finished and can use the new SqlTool for your older
+                database.  Users upgrading from a pre-2.x version please
+                continue...
+              </para><para>
+                Run SqlTool like this.
+                <informalexample>
+                  <screen>    java -jar path/to/sqltool.jar --driver=org.hsqldb.jdbcDriver...</screen>
+                </informalexample>
+                where you specify the pre-2.x JDBC driver name
+                <classname>org.hsqldb.jdbcDriver</classname>.
+                Give any other SqlTool parameters as you usually would.
+              </para><para>
+                Once you have verified that you can access your database using
+                the <literal>--driver</literal> paramater as explained above,
+                edit your <filename>sqltool.rc</filename> file, and add a
+                new line
+                <informalexample>
+                  <programlisting>    driver org.hsqldb.jdbcDriver</programlisting>
+                </informalexample>
+                after each urlid that is for a pre-2.x database.
+                Once you do this, you can invoke SqlTool as usual (i.e. you
+                no longer need the <literal>--driver</literal>
+                argument for your invocations).
             </para></step>
           </procedure>
         </para>
