@@ -1811,7 +1811,7 @@ public class SchemaManager {
                 continue;
             }
 
-            list.add(schema.getDefinitionSQL());
+            list.add(schema.getSQL());
             schema.addSimpleObjects(unresolved);
         }
 

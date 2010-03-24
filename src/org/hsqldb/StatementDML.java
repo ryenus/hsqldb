@@ -622,7 +622,7 @@ public class StatementDML extends StatementDMQL {
         while (newData.hasNext()) {
             Object[] data = (Object[]) newData.getNext();
 
-            performIntegrityChecks(session, baseTable, null, data);
+            performIntegrityChecks(session, baseTable, null, data, null);
         }
 
         newData.beforeFirst();
@@ -652,7 +652,7 @@ public class StatementDML extends StatementDMQL {
         }
 
         baseTable.insertSingleRow(session, store, data, null);
-        performIntegrityChecks(session, baseTable, null, data);
+        performIntegrityChecks(session, baseTable, null, data, null);
 
         if (session.database.isReferentialIntegrity()) {
             for (int i = 0, size = baseTable.fkConstraints.length; i < size;
@@ -825,12 +825,13 @@ public class StatementDML extends StatementDMQL {
             table.triggerLists[Trigger.UPDATE_AFTER_ROW].length > 0;
 
         for (int i = 0; i < navigator.getSize(); i++) {
-            Row      row          = navigator.getNextRow();
-            Object[] changedData  = navigator.getCurrentChangedData();
-            Table    currentTable = ((Table) row.getTable());
+            Row      row            = navigator.getNextRow();
+            Table    currentTable   = ((Table) row.getTable());
+            Object[] changedData    = navigator.getCurrentChangedData();
+            int[]    changedColumns = navigator.getCurrentChangedColumns();
 
             performIntegrityChecks(session, currentTable, row.getData(),
-                                   changedData);
+                                   changedData, changedColumns);
 
             if (currentTable != table) {
                 if (extraUpdateTables == null) {
@@ -1028,13 +1029,15 @@ public class StatementDML extends StatementDMQL {
             while (navigator.hasNext()) {
                 navigator.next();
 
-                Row      row          = navigator.getCurrentRow();
-                Object[] changedData  = navigator.getCurrentChangedData();
-                Table    currentTable = ((Table) row.getTable());
+                Row      row            = navigator.getCurrentRow();
+                Object[] changedData    = navigator.getCurrentChangedData();
+                int[]    changedColumns = navigator.getCurrentChangedColumns();
+                Table    currentTable   = ((Table) row.getTable());
 
                 if (changedData != null) {
                     performIntegrityChecks(session, currentTable,
-                                           row.getData(), changedData);
+                                           row.getData(), changedData,
+                                           changedColumns);
                 }
 
                 if (currentTable != table) {
@@ -1114,7 +1117,12 @@ public class StatementDML extends StatementDMQL {
     }
 
     static void performIntegrityChecks(Session session, Table table,
-                                       Object[] oldData, Object[] newData) {
+                                       Object[] oldData, Object[] newData,
+                                       int[] updatedColumns) {
+
+        if (newData == null) {
+            return;
+        }
 
         for (int i = 0, size = table.checkConstraints.length; i < size; i++) {
             table.checkConstraints[i].checkInsert(session, table, newData,
@@ -1126,25 +1134,12 @@ public class StatementDML extends StatementDMQL {
         }
 
         for (int i = 0, size = table.fkConstraints.length; i < size; i++) {
+            boolean    check = oldData == null;
             Constraint c     = table.fkConstraints[i];
-            Type[]     types = table.getColumnTypes();
-            boolean    check;
 
-            if (oldData == null) {
-                check = true;
-            } else if (newData == null) {
-                check = false;
-            } else {
-                check = false;
-
-                for (int j = 0; j < types.length; j++) {
-                    if (types[j].compare(session, newData[j], oldData[j])
-                            != 0) {
-                        check = true;
-
-                        break;
-                    }
-                }
+            if (!check) {
+                check = ArrayUtil.haveCommonElement(c.getRefColumns(),
+                                                    updatedColumns);
             }
 
             if (check) {

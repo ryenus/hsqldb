@@ -113,7 +113,7 @@ public class SchemaObjectSet {
         }
     }
 
-    SchemaObject getObject(String name) {
+    public SchemaObject getObject(String name) {
 
         switch (type) {
 
@@ -137,7 +137,7 @@ public class SchemaObjectSet {
         }
     }
 
-    boolean contains(String name) {
+    public boolean contains(String name) {
         return map.containsKey(name);
     }
 
@@ -163,7 +163,7 @@ public class SchemaObjectSet {
         }
     }
 
-    void add(SchemaObject object) {
+    public void add(SchemaObject object) {
 
         HsqlName name = object.getName();
 
