@@ -61,7 +61,7 @@ public final class Schema implements SchemaObject {
     Grantee          owner;
     long             changeTimestamp;
 
-    Schema(HsqlName name, Grantee owner) {
+    public Schema(HsqlName name, Grantee owner) {
 
         this.name        = name;
         triggerLookup    = new SchemaObjectSet(SchemaObject.TRIGGER);
@@ -118,19 +118,6 @@ public final class Schema implements SchemaObject {
     }
 
     public String getSQL() {
-
-        StringBuffer sb = new StringBuffer(128);
-
-        sb.append(Tokens.T_CREATE).append(' ');
-        sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(getName().statementName).append(' ');
-        sb.append(Tokens.T_AUTHORIZATION).append(' ');
-        sb.append(getOwner().getStatementName());
-
-        return sb.toString();
-    }
-
-    public String getDefinitionSQL() {
 
         StringBuffer sb = new StringBuffer(128);
 
@@ -258,6 +245,56 @@ public final class Schema implements SchemaObject {
         return sequenceLookup.isEmpty() && tableLookup.isEmpty()
                && typeLookup.isEmpty() && charsetLookup.isEmpty()
                && collationLookup.isEmpty() && specificRoutineLookup.isEmpty();
+    }
+
+    public SchemaObjectSet getObjectSet(int type) {
+
+        switch (type) {
+
+            case SchemaObject.SEQUENCE :
+                return sequenceLookup;
+
+            case SchemaObject.TABLE :
+            case SchemaObject.VIEW :
+                return tableLookup;
+
+            case SchemaObject.CHARSET :
+                return charsetLookup;
+
+            case SchemaObject.COLLATION :
+                return collationLookup;
+
+            case SchemaObject.PROCEDURE :
+                return procedureLookup;
+
+            case SchemaObject.FUNCTION :
+                return functionLookup;
+
+            case SchemaObject.ROUTINE :
+                return functionLookup;
+
+            case SchemaObject.SPECIFIC_ROUTINE :
+                return specificRoutineLookup;
+
+            case SchemaObject.DOMAIN :
+            case SchemaObject.TYPE :
+                return typeLookup;
+
+            case SchemaObject.ASSERTION :
+                return assertionLookup;
+
+            case SchemaObject.TRIGGER :
+                return triggerLookup;
+
+            case SchemaObject.INDEX :
+                return indexLookup;
+
+            case SchemaObject.CONSTRAINT :
+                return constraintLookup;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "Schema");
+        }
     }
 
     Iterator schemaObjectIterator(int type) {
