@@ -230,6 +230,19 @@
    for each row when (newrow.id &gt; 1)
    insert into triglog values (newrow.id, newrow.data, 'inserted')
 </programlisting>
+
+      <para>In the example blow, the trigger code modifies the updated data if
+      a condition is true. This type of trigger is useful when the application
+      does not perform the necessary checks and modifications to data.</para>
+
+      <programlisting>create trigger t before update on customer
+   referencing new as newrow for each row
+   begin atomic
+   if length(newrow.firstname ) &gt; 10 then
+   set newrow.firstname = lower(newrow.firstname);
+   end if;
+   end
+</programlisting>
     </section>
 
     <section>
@@ -283,14 +296,28 @@
       org.hsqldb.test.TriggerClass and the associated text script
       TestTriggers.txt in /testrun/hsqldb/ directory. In the example below,
       the trigger is activated only if the update statement includes SET
-      clauses that modify any of the specified columns. Furthermore, the
-      trigger is not activated if the c2 column in the updated row is
-      null.</para>
+      clauses that modify any of the specified columns (c1, c2, c3).
+      Furthermore, the trigger is not activated if the c2 column in the
+      updated row is null.</para>
 
       <programlisting>create trigger trigbur before update of c1, c2, c3 on testtrig 
    referencing new row as newrow
-   for each row when (newro.c2 is not null)
+   for each row when (newrow.c2 is not null)
    call "org.hsqldb.test.TriggerClass"
+</programlisting>
+
+      <para>Java functions can be called from an SQL trigger. So it is
+      possible to define the Java function to perform any external
+      communication that are necessary for the trigger, and use SQL code for
+      checks and alterations to data.</para>
+
+      <programlisting>create trigger t before update on customer
+   referencing new as newrow for each row
+   begin atomic
+   if length(newrow.firstname ) &gt; 10 then
+   call my_java_function(newrow.firstname, newrow.lastname);
+   end if;
+   end
 </programlisting>
     </section>
   </section>
