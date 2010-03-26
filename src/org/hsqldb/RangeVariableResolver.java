@@ -447,24 +447,12 @@ public class RangeVariableResolver {
                     assignToRangeVariable(rangeVariables[i], conditions, i,
                                           whereExpressions[i]);
                 }
-
-                conditions = rangeVariables[i].whereConditions[0];
-
-                if (conditions.hasIndexCondition()) {
-                    hasIndex = true;
-                }
             } else {
                 conditions = rangeVariables[i].joinConditions[0];
 
                 joinExpressions[i].addAll(whereExpressions[i]);
                 assignToRangeVariable(rangeVariables[i], conditions, i,
                                       joinExpressions[i]);
-
-                conditions = rangeVariables[i].joinConditions[0];
-
-                if (conditions.hasIndexCondition()) {
-                    hasIndex = true;
-                }
             }
         }
 
@@ -494,17 +482,6 @@ public class RangeVariableResolver {
             return;
         }
 
-        for (int j = 0, size = exprList.size(); j < size; j++) {
-            Expression e = (Expression) exprList.get(j);
-
-            if (!e.isIndexable(rangeVar)) {
-                conditions.addCondition(e);
-                exprList.set(j, null);
-
-                continue;
-            }
-        }
-
         setIndexConditions(conditions, exprList, rangeVarIndex, true);
     }
 
@@ -526,9 +503,6 @@ public class RangeVariableResolver {
 
             // repeat check required for OR
             if (!e.isIndexable(conditions.rangeVar)) {
-                conditions.addCondition(e);
-                exprList.set(j, null);
-
                 continue;
             }
 
@@ -606,76 +580,88 @@ public class RangeVariableResolver {
         hasIndex = conditions.hasIndexCondition();
 
         // no index found
-        for (int j = 0, size = exprList.size(); j < size; j++) {
-            Expression e = (Expression) exprList.get(j);
+        boolean isOR = false;
+
+        if (!hasIndex && includeOr) {
+            for (int j = 0, size = exprList.size(); j < size; j++) {
+                Expression e = (Expression) exprList.get(j);
+
+                if (e == null) {
+                    continue;
+                }
+
+                if (e.getType() == OpTypes.OR) {
+
+                    //
+                    hasIndex = ((ExpressionLogical) e).isIndexable(
+                        conditions.rangeVar);
+
+                    if (hasIndex) {
+                        hasIndex = setOrConditions(conditions,
+                                                   (ExpressionLogical) e,
+                                                   rangeVarIndex);
+                    }
+
+                    if (hasIndex) {
+                        exprList.set(j, null);
+
+                        isOR = true;
+
+                        break;
+                    }
+                } else if (e.getType() == OpTypes.EQUAL
+                           && e.exprSubType == OpTypes.ANY_QUANTIFIED) {
+                    OrderedIntHashSet set = new OrderedIntHashSet();
+
+                    ((ExpressionLogical) e).addLeftColumnsForAllAny(set);
+
+                    Index index =
+                        conditions.rangeVar.rangeTable.getIndexForColumns(set,
+                            false);
+
+                    // code to disable IN optimisation
+                    // index = null;
+                    if (index != null
+                            && inExpressions[rangeVarIndex] == null) {
+                        inExpressions[rangeVarIndex] = e;
+                        inInJoin[rangeVarIndex]      = conditions.isJoin;
+
+                        inExpressionCount++;
+
+                        exprList.set(j, null);
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0, size = exprList.size(); i < size; i++) {
+            Expression e = (Expression) exprList.get(i);
 
             if (e == null) {
                 continue;
             }
 
-            if (hasIndex) {
-                conditions.addCondition(e);
-                exprList.set(j, null);
-
-                continue;
-            }
-
-            if (!includeOr) {
-
-                // no IN changes in OR
-                conditions.addCondition(e);
-                exprList.set(j, null);
-
-                continue;
-            }
-
-            if (e.getType() == OpTypes.OR) {
-
-                //
-                hasIndex =
-                    ((ExpressionLogical) e).isIndexable(conditions.rangeVar);
-
-                if (hasIndex) {
-                    hasIndex = setOrConditions(conditions,
-                                               (ExpressionLogical) e,
-                                               rangeVarIndex);
+            if (isOR) {
+                for (int j = 0; j < conditions.rangeVar.joinConditions.length;
+                        j++) {
+                    if (conditions.isJoin) {
+                        conditions.rangeVar.joinConditions[j]
+                            .nonIndexCondition =
+                                ExpressionLogical
+                                    .andExpressions(e, conditions.rangeVar
+                                        .joinConditions[j].nonIndexCondition);
+                    } else {
+                        conditions.rangeVar.whereConditions[j]
+                            .nonIndexCondition =
+                                ExpressionLogical
+                                    .andExpressions(e, conditions.rangeVar
+                                        .joinConditions[j].nonIndexCondition);
+                    }
                 }
-
-                if (!hasIndex) {
-                    conditions.addCondition(e);
-                }
-
-                exprList.set(j, null);
-            } else if (e.getType() == OpTypes.EQUAL
-                       && e.exprSubType == OpTypes.ANY_QUANTIFIED) {
-                OrderedIntHashSet set = new OrderedIntHashSet();
-
-                ((ExpressionLogical) e).addLeftColumnsForAllAny(set);
-
-                Index index =
-                    conditions.rangeVar.rangeTable.getIndexForColumns(set,
-                        false);
-
-                // code to disable IN optimisation
-                // index = null;
-                if (index != null && inExpressions[rangeVarIndex] == null) {
-                    inExpressions[rangeVarIndex] = e;
-                    inInJoin[rangeVarIndex]      = conditions.isJoin;
-
-                    inExpressionCount++;
-
-                    exprList.set(j, null);
-
-                    hasIndex = true;
-                } else {
-                    conditions.addCondition(e);
-                    exprList.set(j, null);
-                }
-
-                continue;
             } else {
                 conditions.addCondition(e);
-                exprList.set(j, null);
             }
         }
     }

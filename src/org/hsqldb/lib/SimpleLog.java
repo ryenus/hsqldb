@@ -173,7 +173,9 @@ public class SimpleLog {
             message = "";
         }
 
-        writer.println(info + " " + t.toString() + " " + message);
+        if (writer != null) {
+            writer.println(info + " " + t.toString() + " " + message);
+        }
     }
 
     public void flush() {

@@ -323,15 +323,11 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
 
-                    // index node count may have changed
-                    Row newRow = (Row) getNewCachedObject(session,
-                                                          row.getData());
+                    row = (Row) get(row, true);
 
-                    newRow.setPos(row.getPos());
-
-                    newRow.rowAction = null;
-
-                    indexRow(session, newRow);
+                    ((RowAVL) row).setNewNodes();
+                    row.keepInMemory(false);
+                    indexRow(session, row);
                 }
                 break;
 
