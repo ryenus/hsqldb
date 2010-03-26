@@ -151,7 +151,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
             case RowAction.ACTION_DELETE :
                 database.logger.writeDeleteStatement(session, (Table) table,
                                                      data);
-
                 break;
 
             case RowAction.ACTION_INSERT :
@@ -177,8 +176,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
-                    row.delete(this);
-                    row.keepInMemory(false);
+                    ((RowAVL) row).setNewNodes();
                     indexRow(session, row);
                 }
                 break;

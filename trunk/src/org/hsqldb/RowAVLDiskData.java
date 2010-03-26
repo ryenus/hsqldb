@@ -107,7 +107,7 @@ public class RowAVLDiskData extends RowAVL {
      *  Used when data is read from the disk into the Cache the first time.
      *  New Nodes are created which are then indexed.
      */
-    void setNewNodes() {
+    public void setNewNodes() {
 
         int index = table.getIndexCount();
 

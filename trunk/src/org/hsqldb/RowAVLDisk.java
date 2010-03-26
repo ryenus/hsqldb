@@ -322,7 +322,7 @@ public class RowAVLDisk extends RowAVL {
     /**
      * used in CachedDataRow
      */
-    void setNewNodes() {
+    public void setNewNodes() {
 
         int indexcount = table.getIndexCount();
 

@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
+import org.hsqldb.RowAVL;
 import org.hsqldb.RowAVLDiskData;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
@@ -229,7 +230,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
 
-                    row.delete(this);
+                    ((RowAVL) row).setNewNodes();
                     indexRow(session, row);
                 }
                 break;

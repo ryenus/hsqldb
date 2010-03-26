@@ -108,8 +108,17 @@ public class RowAVL extends Row {
                   int position) {
 
         super(table, data);
+
         this.position = position;
-        nPrimaryNode  = new NodeAVL(this);
+
+        setNewNodes();
+    }
+
+    public void setNewNodes() {
+
+        int indexCount = table.getIndexCount();
+
+        nPrimaryNode = new NodeAVL(this);
 
         NodeAVL n = nPrimaryNode;
 

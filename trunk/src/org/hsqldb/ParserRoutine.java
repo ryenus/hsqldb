@@ -1171,19 +1171,11 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.IF : {
-                if (routine.isTrigger() || label != null) {
-                    throw unexpectedToken();
-                }
-
                 cs = compileIf(routine, context);
 
                 break;
             }
             case Tokens.CASE : {
-                if (routine.isTrigger() || label != null) {
-                    throw unexpectedToken();
-                }
-
                 cs = compileCase(routine, context);
 
                 break;
