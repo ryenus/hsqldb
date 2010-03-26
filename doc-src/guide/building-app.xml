@@ -201,7 +201,7 @@
 
       <simpara>A jar built with an older JRE is compatible for use with a
       newer JRE (you can compile with Java 1.5 and run with 1.6). But the
-      newer JDBC capabilities of the JRE will be be available.</simpara>
+      newer JDBC capabilities of the JRE will be not be available.</simpara>
 
       <simpara>The client jar (<filename>hsqljdbc.jar</filename>) contains
       only the HSQLDB JDBC Driver client. The smallest engine jar
