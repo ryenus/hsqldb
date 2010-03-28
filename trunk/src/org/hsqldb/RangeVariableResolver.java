@@ -42,6 +42,8 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
+import org.hsqldb.lib.IntValueHashMap;
+import org.hsqldb.lib.IntKeyIntValueHashMap;
 
 /**
  * Determines how JOIN and WHERE expressions are used in query
@@ -73,10 +75,10 @@ public class RangeVariableResolver {
     boolean hasOuterJoin = false;
 
     //
-    OrderedIntHashSet colIndexSetEqual = new OrderedIntHashSet();
-    OrderedIntHashSet colIndexSetOther = new OrderedIntHashSet();
-    OrderedHashSet    tempSet          = new OrderedHashSet();
-    MultiValueHashMap tempMap          = new MultiValueHashMap();
+    OrderedIntHashSet     colIndexSetEqual = new OrderedIntHashSet();
+    IntKeyIntValueHashMap colIndexSetOther = new IntKeyIntValueHashMap();
+    OrderedHashSet        tempSet          = new OrderedHashSet();
+    MultiValueHashMap     tempMap          = new MultiValueHashMap();
 
     RangeVariableResolver(RangeVariable[] rangeVars, Expression conditions,
                           CompileContext compileContext) {
@@ -537,20 +539,23 @@ public class RangeVariableResolver {
                 case OpTypes.NOT : {
                     int colIndex =
                         e.getLeftNode().getLeftNode().getColumnIndex();
+                    int count = colIndexSetOther.get(colIndex, 0);
 
-                    colIndexSetOther.add(colIndex);
+                    colIndexSetOther.put(colIndex, count + 1);
 
                     break;
                 }
                 case OpTypes.SMALLER :
                 case OpTypes.SMALLER_EQUAL :
                 case OpTypes.GREATER :
-                case OpTypes.GREATER_EQUAL :
+                case OpTypes.GREATER_EQUAL : {
                     int colIndex = e.getLeftNode().getColumnIndex();
+                    int count    = colIndexSetOther.get(colIndex, 0);
 
-                    colIndexSetOther.add(colIndex);
+                    colIndexSetOther.put(colIndex, count + 1);
+
                     break;
-
+                }
                 default : {
                     Error.runtimeError(ErrorCode.U_S0500,
                                        "RangeVariableResolver");
@@ -558,23 +563,12 @@ public class RangeVariableResolver {
             }
         }
 
-        Index idx =
-            conditions.rangeVar.rangeTable.getIndexForColumns(colIndexSetEqual,
-                false);
-
-        if (idx != null) {
-            setEqaulityConditions(conditions, exprList, idx);
-        }
+        setEqaulityConditions(conditions, exprList);
 
         hasIndex = conditions.hasIndexCondition();
 
         if (!hasIndex) {
-            idx = conditions.rangeVar.rangeTable.getIndexForColumns(
-                colIndexSetOther, false);
-
-            if (idx != null) {
-                setNonEqualityConditions(conditions, exprList, idx);
-            }
+            setNonEqualityConditions(conditions, exprList);
         }
 
         hasIndex = conditions.hasIndexCondition();
@@ -611,6 +605,10 @@ public class RangeVariableResolver {
                     }
                 } else if (e.getType() == OpTypes.EQUAL
                            && e.exprSubType == OpTypes.ANY_QUANTIFIED) {
+                    if (e.getRightNode().isCorrelated()) {
+                        continue;
+                    }
+
                     OrderedIntHashSet set = new OrderedIntHashSet();
 
                     ((ExpressionLogical) e).addLeftColumnsForAllAny(set);
@@ -736,7 +734,15 @@ public class RangeVariableResolver {
     }
 
     private void setEqaulityConditions(RangeVariableConditions conditions,
-                                       HsqlArrayList exprList, Index idx) {
+                                       HsqlArrayList exprList) {
+
+        Index idx =
+            conditions.rangeVar.rangeTable.getIndexForColumns(colIndexSetEqual,
+                false);
+
+        if (idx == null) {
+            return;
+        }
 
         int[]        cols                = idx.getColumns();
         int          colCount            = cols.length;
@@ -791,7 +797,48 @@ public class RangeVariableResolver {
     }
 
     private void setNonEqualityConditions(RangeVariableConditions conditions,
-                                          HsqlArrayList exprList, Index idx) {
+                                          HsqlArrayList exprList) {
+
+        if (colIndexSetOther.isEmpty()) {
+            return;
+        }
+
+        int      currentCount = 0;
+        int      currentIndex = 0;
+        Iterator it           = colIndexSetOther.keySet().iterator();
+
+        while (it.hasNext()) {
+            int colIndex = it.nextInt();
+            int colCount = colIndexSetOther.get(colIndex);
+
+            if (colCount > currentCount) {
+                currentIndex = colIndex;
+            }
+        }
+
+        Index idx =
+            conditions.rangeVar.rangeTable.getIndexForColumn(currentIndex);
+
+        if (idx == null) {
+            it = colIndexSetOther.keySet().iterator();
+
+            while (it.hasNext()) {
+                int colIndex = it.nextInt();
+
+                if (colIndex != currentIndex) {
+                    idx = conditions.rangeVar.rangeTable.getIndexForColumn(
+                        colIndex);
+
+                    if (idx != null) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (idx == null) {
+            return;
+        }
 
         int[] cols = idx.getColumns();
 
@@ -802,33 +849,40 @@ public class RangeVariableResolver {
                 continue;
             }
 
-            if (conditions.hasIndexCondition()) {
-                break;
-            }
-
             boolean isIndexed = false;
 
-            if (e.getType() == OpTypes.NOT
-                    && e.getLeftNode().getType() == OpTypes.IS_NULL
-                    && cols[0]
-                       == e.getLeftNode().getLeftNode().getColumnIndex()) {
-                isIndexed = true;
-            }
+            switch (e.getType()) {
 
-            if (cols[0] == e.getLeftNode().getColumnIndex()) {
-                if (e.getRightNode() != null
-                        && !e.getRightNode().isCorrelated()) {
-                    isIndexed = true;
+                case OpTypes.NOT : {
+                    if (e.getLeftNode().getType() == OpTypes.IS_NULL
+                            && cols[0]
+                               == e.getLeftNode().getLeftNode()
+                                   .getColumnIndex()) {
+                        isIndexed = true;
+                    }
+
+                    break;
                 }
+                case OpTypes.SMALLER :
+                case OpTypes.SMALLER_EQUAL :
+                case OpTypes.GREATER :
+                case OpTypes.GREATER_EQUAL : {
+                    if (cols[0] == e.getLeftNode().getColumnIndex()) {
+                        if (e.getRightNode() != null
+                                && !e.getRightNode().isCorrelated()) {
+                            isIndexed = true;
+                        }
+                    }
 
-                if (e.getType() == OpTypes.IS_NULL) {
-                    isIndexed = true;
+                    break;
                 }
             }
 
             if (isIndexed) {
                 conditions.addIndexCondition(new Expression[]{ e }, idx, 1);
                 exprList.set(j, null);
+
+                break;
             }
         }
     }
