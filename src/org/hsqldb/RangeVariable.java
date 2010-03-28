@@ -41,6 +41,7 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
@@ -705,8 +706,10 @@ public final class RangeVariable {
         int                       condIndex = 0;
 
         //
-        Table           lookupTable;
-        PersistentStore lookupStore;
+        OrderedIntHashSet lookup;
+
+        //
+        Object[] currentJoinData = null;
 
         RangeIteratorMain() {
             super();
@@ -722,8 +725,7 @@ public final class RangeVariable {
             isBeforeFirst      = true;
 
             if (rangeVar.isRightJoin) {
-                lookupTable = TableUtil.newLookupTable(session.database);
-                lookupStore = session.sessionData.getRowStore(lookupTable);
+                lookup = new OrderedIntHashSet();
             }
 
             conditions = rangeVar.joinConditions;
@@ -776,7 +778,6 @@ public final class RangeVariable {
             it              = null;
             currentData     = rangeVar.emptyData;
             currentRow      = null;
-            hasLeftOuterRow = false;
             isBeforeFirst   = true;
         }
 
@@ -788,9 +789,7 @@ public final class RangeVariable {
          */
         protected void initialiseIterator() {
 
-            hasLeftOuterRow = false;
-
-            if (condIndex == conditions.length - 1) {
+            if (condIndex == 0) {
                 hasLeftOuterRow = rangeVar.isLeftJoin;
             }
 
@@ -802,22 +801,8 @@ public final class RangeVariable {
                     it = conditions[condIndex].rangeIndex.findFirstRowNotNull(
                         session, store);
                 }
-            } else if (conditions[condIndex].isFindFirstRowArg) {
-                getFirstRow();
-
-                if (!conditions[condIndex].isJoin) {
-                    hasLeftOuterRow = false;
-                }
             } else {
-
-                // only NOT NULL
-                if (conditions[condIndex].indexCond[0].getType()
-                        == OpTypes.NOT) {
-                    it = conditions[condIndex].rangeIndex.findFirstRowNotNull(
-                        session, store);
-                } else {
-                    getFirstRow();
-                }
+                getFirstRow();
 
                 if (!conditions[condIndex].isJoin) {
                     hasLeftOuterRow = false;
@@ -827,19 +812,19 @@ public final class RangeVariable {
 
         private void getFirstRow() {
 
-            Object[] currentJoinData = null;
-
-            if (conditions[condIndex].isFindFirstRowArg) {
+            if (currentJoinData == null
+                    || currentJoinData.length
+                       < conditions[condIndex].indexedColumnCount) {
                 currentJoinData =
-                    new Object[conditions[condIndex].rangeIndex.getVisibleColumns()];
+                    new Object[conditions[condIndex].indexedColumnCount];
             }
 
             for (int i = 0; i < conditions[condIndex].indexedColumnCount;
                     i++) {
-                int range = 0;
+                int range  = 0;
+                int opType = conditions[condIndex].indexCond[i].getType();
 
-                if (conditions[condIndex].indexCond[i].getType()
-                        == OpTypes.IS_NULL) {
+                if (opType == OpTypes.IS_NULL || opType == OpTypes.NOT) {
                     continue;
                 }
 
@@ -862,53 +847,51 @@ public final class RangeVariable {
                     }
                 }
 
-                if (conditions[condIndex].indexedColumnCount == 1) {
+                if (i == 0) {
                     int exprType =
                         conditions[condIndex].indexCond[0].getType();
 
-                    if (range == 0) {
-                        it = conditions[condIndex].rangeIndex.findFirstRow(
-                            session, store, value, exprType, null);
-                    } else if (range < 0) {
+                    if (range < 0) {
                         switch (exprType) {
 
                             case OpTypes.GREATER_EQUAL :
                             case OpTypes.GREATER :
                                 it = conditions[condIndex].rangeIndex
                                     .findFirstRowNotNull(session, store);
-                                break;
+
+                                return;
 
                             default :
                                 it = conditions[condIndex].rangeIndex
                                     .emptyIterator();
+
+                                return;
                         }
-                    } else {
+                    } else if (range > 0) {
                         switch (exprType) {
 
                             case OpTypes.SMALLER_EQUAL :
                             case OpTypes.SMALLER :
                                 it = conditions[condIndex].rangeIndex
                                     .findFirstRowNotNull(session, store);
-                                break;
+
+                                return;
 
                             default :
                                 it = conditions[condIndex].rangeIndex
                                     .emptyIterator();
+
+                                return;
                         }
                     }
-
-                    return;
                 }
 
                 currentJoinData[i] = value;
             }
 
-            if (conditions[condIndex].isFindFirstRowArg) {
-                it = conditions[condIndex].rangeIndex.findFirstRow(session,
-                        store, currentJoinData,
-                        conditions[condIndex].indexedColumnCount,
-                        conditions[condIndex].opType, null);
-            }
+            it = conditions[condIndex].rangeIndex.findFirstRow(session, store,
+                    currentJoinData, conditions[condIndex].indexedColumnCount,
+                    conditions[condIndex].opType, null);
         }
 
         /**
@@ -971,14 +954,14 @@ public final class RangeVariable {
             currentRow  = null;
             currentData = rangeVar.emptyData;
 
-            if (hasLeftOuterRow) {
+            if (hasLeftOuterRow && condIndex == conditions.length - 1) {
                 result =
                     (whereConditions[condIndex].nonIndexCondition == null
                      || whereConditions[condIndex].nonIndexCondition
                          .testCondition(session));
-            }
 
-            hasLeftOuterRow = false;
+                hasLeftOuterRow = false;
+            }
 
             return result;
         }
@@ -986,11 +969,7 @@ public final class RangeVariable {
         protected void addFoundRow() {
 
             if (rangeVar.isRightJoin) {
-                try {
-                    lookupTable.insertData(
-                        lookupStore,
-                        new Object[]{ ValuePool.getInt(currentRow.getPos()) });
-                } catch (HsqlException e) {}
+                lookup.add(currentRow.getPos());
             }
         }
     }
@@ -1079,13 +1058,7 @@ public final class RangeVariable {
 
         private boolean lookupAndTest() {
 
-            RowIterator lookupIterator =
-                lookupTable.indexList[0].findFirstRow(session, lookupStore,
-                    ValuePool.getInt(currentRow.getPos()), OpTypes.EQUAL,
-                    null);
-            boolean result = !lookupIterator.hasNext();
-
-            lookupIterator.release();
+            boolean result = !lookup.contains(currentRow.getPos());
 
             if (result) {
                 currentData = currentRow.getData();
@@ -1176,7 +1149,6 @@ public final class RangeVariable {
         final RangeVariable rangeVar;
         Expression[]        indexCond;
         Expression          indexEndCondition;
-        boolean             isFindFirstRowArg;    // findFirst() uses multi-columns
         int                 indexedColumnCount;
         Index               rangeIndex;
         final boolean       isJoin;
@@ -1321,8 +1293,7 @@ public final class RangeVariable {
                                                              e);
                     }
 
-                    indexCond         = exprList;
-                    isFindFirstRowArg = true;
+                    indexCond = exprList;
                     break;
 
                 default :

@@ -1504,8 +1504,23 @@ public class Table extends TableBase implements SchemaObject {
 
         int i = bestIndexForColumn[col];
 
-        return i == -1 ? null
-                       : this.indexList[i];
+        if (i > -1) {
+            return indexList[i];
+        }
+
+        switch (tableType) {
+
+            case TableBase.SYSTEM_SUBQUERY :
+            case TableBase.SYSTEM_TABLE :
+            case TableBase.VIEW_TABLE :
+            case TableBase.TEMP_TABLE : {
+                Index index = createIndexForColumns(new int[]{ col });
+
+                return index;
+            }
+        }
+
+        return null;
     }
 
     boolean isIndexed(int colIndex) {

@@ -142,6 +142,9 @@ public class IndexAVL implements Index {
     int                 position;
 
     //
+    Object[] nullData;
+
+    //
     ReadWriteLock lock      = new ReentrantReadWriteLock();
     Lock          readLock  = lock.readLock();
     Lock          writeLock = lock.writeLock();
@@ -198,6 +201,7 @@ public class IndexAVL implements Index {
 
         isSimpleOrder = simpleOrder;
         isSimple      = isSimpleOrder && colIndex.length == 1;
+        nullData      = new Object[colIndex.length];
     }
 
     // SchemaObject implementation
@@ -321,6 +325,10 @@ public class IndexAVL implements Index {
 
     public boolean[] getColumnDesc() {
         return colDesc;
+    }
+
+    public int[] getDefaultColumnMap() {
+        return this.defaultColMap;
     }
 
     /**
@@ -787,28 +795,6 @@ public class IndexAVL implements Index {
     }
 
     /**
-     * Finds the first node that is larger or equal to the given one based on
-     * the first column of the index only.
-     *
-     * @param session session object
-     * @param store store object
-     * @param value value to match
-     * @param compareType comparison Expression type
-     * @return iterator
-     */
-    public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object value, int compareType,
-                                    boolean[] map) {
-
-        NodeAVL node = findNode(session, store, value, compareType,
-                                TransactionManager.ACTION_READ);
-
-        return getIterator(session, store, node,
-                           isUnique && this.colIndex.length == 1
-                           && compareType == OpTypes.EQUAL);
-    }
-
-    /**
      * Finds the first node where the data is not null.
      *
      * @return iterator
@@ -816,7 +802,8 @@ public class IndexAVL implements Index {
     public RowIterator findFirstRowNotNull(Session session,
                                            PersistentStore store) {
 
-        NodeAVL node = findNode(session, store, null, OpTypes.NOT,
+        NodeAVL node = findNode(session, store, nullData, this.defaultColMap,
+                                1, OpTypes.NOT,
                                 TransactionManager.ACTION_READ);
 
         return getIterator(session, store, node, false);

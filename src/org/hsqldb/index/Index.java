@@ -90,6 +90,11 @@ public interface Index extends SchemaObject {
     public boolean[] getColumnDesc();
 
     /**
+     * Returns the array containing 0, 1, .. column indexes
+     */
+    public int[] getDefaultColumnMap();
+
+    /**
      * Returns a value indicating the order of different types of index in
      * the list of indexes for a table. The position of the groups of Indexes
      * in the list in ascending order is as follows:
@@ -171,20 +176,6 @@ public interface Index extends SchemaObject {
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata, int[] rowColMap);
-
-    /**
-     * Finds the first node that is larger or equal to the given one based
-     * on the first column of the index only.
-     *
-     * @param session session object
-     * @param store store object
-     * @param value value to match
-     * @param compare comparison Expression type
-     *
-     * @return iterator
-     */
-    public RowIterator findFirstRow(Session session, PersistentStore store,
-                                    Object value, int compare, boolean[] map);
 
     /**
      * Finds the first node where the data is not null.

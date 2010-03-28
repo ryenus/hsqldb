@@ -68,6 +68,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
     boolean                isAggregate;
     boolean                isSimpleAggregate;
     Object[]               simpleAggregateData;
+    Object[]               tempRowData;
 
     //
     boolean reindexTable;
@@ -99,6 +100,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         orderIndex        = select.orderIndex;
         groupIndex        = select.groupIndex;
         idIndex           = select.idIndex;
+        tempRowData       = new Object[1];
     }
 
     public RowSetNavigatorDataTable(Session session,
@@ -141,6 +143,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         mainIndex          = table.getPrimaryIndex();
         fullIndex          = table.getFullIndex();
         this.size          = mainIndex.size(store);
+
         reset();
     }
 
@@ -314,8 +317,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
     public Object[] getData(Long rowId) {
 
-        RowIterator it = idIndex.findFirstRow(session, store, rowId,
-                                              OpTypes.EQUAL, null);
+        tempRowData[0] = rowId;
+
+        RowIterator it = idIndex.findFirstRow(session, store, tempRowData,
+                                              idIndex.getDefaultColumnMap());
 
         return it.getNext();
     }
