@@ -1315,7 +1315,7 @@ public final class RangeVariable {
                     sb.append("start conditions=[");
 
                     for (int j = 0; j < indexedColumnCount; j++) {
-                        if (indexCond[j] != null) {
+                        if (indexCond != null && indexCond[j] != null) {
                             sb.append(indexCond[j].describe(session));
                         }
                     }

@@ -423,44 +423,43 @@ public class ExpressionLogical extends Expression {
                     return sb.toString();
                 }
 
-                sb.append("NOT ");
+                sb.append(Tokens.T_NOT);
                 break;
 
             case OpTypes.NOT_DISTINCT :
-                sb.append("NOT ");
-                sb.append("DISTINCT ");
+                sb.append(Tokens.T_NOT).append(' ').append(Tokens.T_DISTINCT);
                 break;
 
             case OpTypes.EQUAL :
-                sb.append("EQUAL ");
+                sb.append("EQUAL");
                 break;
 
             case OpTypes.GREATER_EQUAL :
-                sb.append("GREATER_EQUAL ");
+                sb.append("GREATER_EQUAL");
                 break;
 
             case OpTypes.GREATER :
-                sb.append("GREATER ");
+                sb.append("GREATER");
                 break;
 
             case OpTypes.SMALLER :
-                sb.append("SMALLER ");
+                sb.append("SMALLER");
                 break;
 
             case OpTypes.SMALLER_EQUAL :
-                sb.append("SMALLER_EQUAL ");
+                sb.append("SMALLER_EQUAL");
                 break;
 
             case OpTypes.NOT_EQUAL :
-                sb.append("NOT_EQUAL ");
+                sb.append("NOT_EQUAL");
                 break;
 
             case OpTypes.AND :
-                sb.append("AND ");
+                sb.append(Tokens.T_AND);
                 break;
 
             case OpTypes.OR :
-                sb.append("OR ");
+                sb.append(Tokens.T_OR);
                 break;
 
             case OpTypes.MATCH_SIMPLE :
@@ -469,33 +468,38 @@ public class ExpressionLogical extends Expression {
             case OpTypes.MATCH_UNIQUE_SIMPLE :
             case OpTypes.MATCH_UNIQUE_PARTIAL :
             case OpTypes.MATCH_UNIQUE_FULL :
-                sb.append("MATCH ");
+                sb.append(Tokens.T_MATCH);
                 break;
 
             case OpTypes.IS_NULL :
-                sb.append("IS_NULL ");
+                sb.append(Tokens.T_IS).append(' ').append(Tokens.T_NULL);
                 break;
 
             case OpTypes.UNIQUE :
-                sb.append("UNIQUE ");
+                sb.append(Tokens.T_UNIQUE);
                 break;
 
             case OpTypes.EXISTS :
-                sb.append("EXISTS ");
+                sb.append(Tokens.T_EXISTS);
                 break;
+
+            case OpTypes.OVERLAPS :
+                sb.append(Tokens.T_OVERLAPS);
+                break;
+
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "ExpressionLogical");
         }
 
-        if (nodes[LEFT] != null) {
+        if (getLeftNode() != null) {
             sb.append(" arg_left=[");
             sb.append(nodes[LEFT].describe(session, blanks + 1));
             sb.append(']');
         }
 
-        if (nodes[RIGHT] != null) {
+        if (getRightNode() != null) {
             sb.append(" arg_right=[");
             sb.append(nodes[RIGHT].describe(session, blanks + 1));
             sb.append(']');

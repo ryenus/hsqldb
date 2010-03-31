@@ -402,8 +402,6 @@ public class DataFileCache {
                 return;
             }
 
-            StopWatch sw = new StopWatch();
-
             database.logger.logInfoEvent("DataFileCache.close(" + write
                                          + ") : start");
 
@@ -1155,6 +1153,9 @@ public class DataFileCache {
                 dataFile.seek(FLAGS_POS);
                 dataFile.writeInt(flags);
                 dataFile.synch();
+                Error.printSystemOut(
+                    cache.saveAllTimer.currentElapsedTimeToMessage(
+                        "flags set time: "));
 
                 fileModified = true;
             }

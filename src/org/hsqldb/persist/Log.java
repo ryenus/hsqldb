@@ -623,8 +623,10 @@ public class Log {
         writeDelay = delay;
 
         if (dbLogWriter != null) {
-            synchLog();
+            dbLogWriter.forceSync();
+            dbLogWriter.stop();
             dbLogWriter.setWriteDelay(delay);
+            dbLogWriter.start();
         }
     }
 

@@ -187,6 +187,28 @@ public abstract class ScriptWriterBase implements Runnable {
         }
     }
 
+    public synchronized void forceSync() {
+
+        if (isClosed) {
+            return;
+        }
+
+        synchronized (fileStreamOut) {
+            try {
+                fileStreamOut.flush();
+                outDescriptor.sync();
+
+                syncCount++;
+            }
+            catch (IOException e) {
+                Error.printSystemOut("flush() or sync() error: " + e.toString());
+            }
+
+            needsSync = false;
+            forceSync = false;
+        }
+    }
+
     public void close() {
 
         stop();
@@ -341,7 +363,8 @@ public abstract class ScriptWriterBase implements Runnable {
 
     protected abstract void writeDataTerm() throws IOException;
 
-    protected abstract void writeSessionIdAndSchema(Session session) throws IOException;
+    protected abstract void writeSessionIdAndSchema(Session session)
+    throws IOException;
 
     public abstract void writeLogStatement(Session session,
                                            String s) throws IOException;
@@ -380,22 +403,15 @@ public abstract class ScriptWriterBase implements Runnable {
     }
 
     public void setWriteDelay(int delay) {
-
         writeDelay = delay;
-
-        int period = writeDelay == 0 ? 1000
-                                     : writeDelay;
-
-        HsqlTimer.setPeriod(timerTask, period);
     }
 
     public void start() {
 
-        int period = writeDelay == 0 ? 1000
-                                     : writeDelay;
-
-        timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(0,
-                period, this, false);
+        if (writeDelay > 0) {
+            timerTask = DatabaseManager.getTimer().schedulePeriodicallyAfter(0,
+                    writeDelay, this, false);
+        }
     }
 
     public void stop() {

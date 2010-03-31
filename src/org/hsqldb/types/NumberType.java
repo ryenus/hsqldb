@@ -700,21 +700,22 @@ public final class NumberType extends Type {
                 return a;
 
             case Types.SQL_NUMERIC :
-            case Types.SQL_DECIMAL :
+            case Types.SQL_DECIMAL : {
                 BigDecimal dec = (BigDecimal) a;
 
                 if (scale != dec.scale()) {
                     dec = dec.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
                 }
 
-                int valuePrecision = JavaSystem.precision(dec);
+                int        p   = JavaSystem.precision(dec);
 
-                if (valuePrecision > precision) {
+
+                if (p > precision) {
                     throw Error.error(ErrorCode.X_22003);
                 }
 
                 return dec;
-
+            }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }
@@ -888,13 +889,17 @@ public final class NumberType extends Type {
             } else if (a instanceof BigDecimal) {
                 if (typeCode == Types.SQL_DECIMAL
                         || typeCode == Types.SQL_NUMERIC) {
-                    return convertToTypeLimits(session, a);
+                    BigDecimal dec = (BigDecimal) a;
+
+                    dec = dec.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
+
+                    return convertToTypeLimits(session, dec);
                 }
 
-                BigDecimal val = (BigDecimal) a;
+                BigDecimal dec = (BigDecimal) a;
 
                 otherType = getNumberType(Types.SQL_DECIMAL,
-                                          JavaSystem.precision(val), scale);
+                                          JavaSystem.precision(dec), scale);
             } else {
                 throw Error.error(ErrorCode.X_42561);
             }
@@ -1191,7 +1196,27 @@ public final class NumberType extends Type {
                     return 0;
 
                 case Types.SQL_DECIMAL :
-                case Types.SQL_NUMERIC :
+                case Types.SQL_NUMERIC : {
+                    if (precision - scale > 18) {
+                        return 0;
+                    }
+
+                    if (precision - scale > 9 && o instanceof Integer) {
+                        return 0;
+                    }
+
+                    BigDecimal dec = convertToDecimal(o);
+                    int        s   = dec.scale();
+                    int        p   = JavaSystem.precision(dec);
+
+                    if (s < 0) {
+                        p -= s;
+                        s = 0;
+                    }
+
+                    return (precision - scale >= p - s) ? 0
+                                                        : dec.signum();
+                }
                 default :
                     return 0;
             }

@@ -267,9 +267,6 @@ public class RowAVLDisk extends RowAVL {
         }
 
         super.delete(store);
-
-        hasNodesChanged = true;
-
         row.keepInMemory(false);
     }
 

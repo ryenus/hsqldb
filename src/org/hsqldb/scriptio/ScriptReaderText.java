@@ -46,6 +46,7 @@ import org.hsqldb.StatementTypes;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.rowio.RowInputTextLog;
@@ -118,6 +119,8 @@ public class ScriptReaderText extends ScriptReaderBase {
                 else if (cs.getType() == StatementTypes.GRANT) {
                     continue;
                 } else if (cs.getType() == StatementTypes.CREATE_ROUTINE) {
+
+                    // ignore legacy references
                     if (result.getMainString().contains(
                             "org.hsqldb.Library")) {
                         continue;
@@ -276,7 +279,7 @@ public class ScriptReaderText extends ScriptReaderBase {
                 throw e;
             }
         } catch (Exception e) {
-            throw new IOException(e.toString());
+            throw JavaSystem.toIOException(e);
         }
     }
 

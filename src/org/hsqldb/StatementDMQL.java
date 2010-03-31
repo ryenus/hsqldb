@@ -710,8 +710,11 @@ public abstract class StatementDMQL extends Statement {
         for (int i = 0; i < columnMap.length; i++) {
             sb.append('\n').append(columnMap[i]).append(':').append(
                 ' ').append(
-                targetTable.getColumn(columnMap[i]).getNameString()).append(
-                '[').append(updateExpressions[i]).append(']');
+                targetTable.getColumn(columnMap[i]).getNameString());
+        }
+
+        for (int i = 0; i < updateExpressions.length; i++) {
+            sb.append('[').append(updateExpressions[i]).append(']');
         }
 
         sb.append(']');
