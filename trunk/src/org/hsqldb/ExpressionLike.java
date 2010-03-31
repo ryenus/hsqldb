@@ -362,7 +362,10 @@ public final class ExpressionLike extends ExpressionLogical {
         }
 
         sb.append("LIKE ");
-        sb.append(likeObject.describe(session));
+
+        if (likeObject != null) {
+            sb.append(likeObject.describe(session));
+        }
 
         return sb.toString();
     }

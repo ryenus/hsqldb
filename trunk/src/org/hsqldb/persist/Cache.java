@@ -321,10 +321,6 @@ public class Cache extends BaseHashMap {
 
         saveRows(savecount);
 
-        if (savecount == 0) {
-            return;
-        }
-
         Error.printSystemOut(
             saveAllTimer.elapsedTimeToMessage(
                 "Cache.saveRows() total row save time"));

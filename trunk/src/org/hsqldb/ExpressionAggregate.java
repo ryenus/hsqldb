@@ -196,7 +196,7 @@ public class ExpressionAggregate extends Expression {
                 break;
         }
 
-        if (nodes[LEFT] != null) {
+        if (getLeftNode() != null) {
             sb.append(" arg=[");
             sb.append(nodes[LEFT].describe(session, blanks + 1));
             sb.append(']');

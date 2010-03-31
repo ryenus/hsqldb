@@ -344,6 +344,8 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         if (!row.isInMemory()) {
+            row.keepInMemory(false);
+
             throw Error.runtimeError(ErrorCode.U_S0500, "NodeAVLDisk");
         }
 
@@ -473,7 +475,6 @@ public class NodeAVLDisk extends NodeAVL {
             node = (NodeAVLDisk) row.getNode(iId);
         }
 
-
         if (node.iParent == NO_POS) {
             if (n != null) {
                 n = n.setParent(store, null);
@@ -487,7 +488,6 @@ public class NodeAVLDisk extends NodeAVL {
         }
 
         row.keepInMemory(false);
-
     }
 
     boolean equals(NodeAVL n) {

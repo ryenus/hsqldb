@@ -39,7 +39,6 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.StringConverter;
 
 /**
  * Type subclass for various typs of INTERVAL.<p>
@@ -631,9 +630,8 @@ public final class IntervalType extends DTIType {
 
         StringBuffer sb = new StringBuffer(32);
 
-        sb.append(Tokens.T_INTERVAL);
-        sb.append(StringConverter.toQuotedString(convertToString(a), '\'',
-                false));
+        sb.append(Tokens.T_INTERVAL).append(' ');
+        sb.append('\'').append(convertToString(a)).append('\'').append(' ');
         sb.append(Tokens.SQL_INTERVAL_FIELD_NAMES[startPartIndex]);
         sb.append(' ');
         sb.append(Tokens.T_TO);
@@ -663,6 +661,32 @@ public final class IntervalType extends DTIType {
 
         return !(isYearMonthIntervalType()
                  ^ ((IntervalType) otherType).isYearMonthIntervalType());
+    }
+
+    public int compareToTypeRange(Object o) {
+
+        long max = precisionLimits[(int) precision];
+        long units;
+
+        if (o instanceof IntervalMonthData) {
+            units = ((IntervalMonthData) o).units;
+        } else if (o instanceof IntervalSecondData) {
+            units = ((IntervalSecondData) o).units;
+        } else {
+            return 0;
+        }
+
+        if (units >= max) {
+            return 1;
+        }
+
+        if (units < 0) {
+            if (-units >= max) {
+                return -1;
+            }
+        }
+
+        return 0;
     }
 
     public Object absolute(Object a) {
