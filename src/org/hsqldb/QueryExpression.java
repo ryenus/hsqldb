@@ -47,6 +47,7 @@ import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.navigator.RowSetNavigatorDataTable;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -576,8 +577,54 @@ public class QueryExpression {
     }
 
     /** @todo 1.9.0 review */
-    public String describe(Session session) {
-        return leftQueryExpression.describe(session);
+    public String describe(Session session, int blanks) {
+
+        StringBuffer sb;
+        String       temp;
+        String       b = ValuePool.spaceString.substring(0, blanks);
+
+        sb = new StringBuffer();
+
+        switch (unionType) {
+
+            case UNION :
+                temp = Tokens.T_UNION;
+                break;
+
+            case UNION_ALL :
+                temp = Tokens.T_UNION + ' ' + Tokens.T_ALL;
+                break;
+
+            case INTERSECT :
+                temp = Tokens.T_INTERSECT;
+                break;
+
+            case INTERSECT_ALL :
+                temp = Tokens.T_INTERSECT + ' ' + Tokens.T_ALL;
+                break;
+
+            case EXCEPT :
+                temp = Tokens.T_EXCEPT;
+                break;
+
+            case EXCEPT_ALL :
+                temp = Tokens.T_EXCEPT + ' ' + Tokens.T_ALL;
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "QueryExpression");
+        }
+
+        sb.append(b).append(temp).append("\n");
+        sb.append(b).append("Left Query=[\n");
+        sb.append(b).append(leftQueryExpression.describe(session, blanks + 2));
+        sb.append(b).append("]\n");
+        sb.append(b).append("Right Query=[\n");
+        sb.append(b).append(rightQueryExpression.describe(session,
+                blanks + 2));
+        sb.append(b).append("]\n");
+
+        return sb.toString();
     }
 
     public HsqlList getUnresolvedExpressions() {
@@ -834,5 +881,15 @@ public class QueryExpression {
     void getBaseTableNames(OrderedHashSet set) {
         leftQueryExpression.getBaseTableNames(set);
         rightQueryExpression.getBaseTableNames(set);
+    }
+
+    boolean isEquivalent(QueryExpression other) {
+
+        return leftQueryExpression.isEquivalent(other.leftQueryExpression)
+               && unionType == other.unionType
+               && (rightQueryExpression == null
+                   ? other.rightQueryExpression == null
+                   : rightQueryExpression.isEquivalent(
+                       other.rightQueryExpression));
     }
 }

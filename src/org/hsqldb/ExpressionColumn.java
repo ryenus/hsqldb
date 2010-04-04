@@ -661,15 +661,15 @@ public class ExpressionColumn extends Expression {
                 break;
 
             case OpTypes.COLUMN :
-                sb.append(Tokens.T_COLUMN).append(": ");
-                sb.append(column.getName().name);
 
+                sb.append(Tokens.T_COLUMN).append(": ");
+
+
+                sb.append(column.getName().getSchemaQualifiedStatementName());
                 if (alias != null) {
                     sb.append(" AS ").append(alias.name);
                 }
 
-                sb.append(' ').append(Tokens.T_TABLE).append(": ").append(
-                    tableName);
                 break;
 
             case OpTypes.DYNAMIC_PARAM :
@@ -773,7 +773,7 @@ public class ExpressionColumn extends Expression {
         if (rangeVariable != null) {
             for (int i = 0; i < rangeVariables.length; i++) {
                 if (rangeVariables[i] == rangeVariable) {
-                    set.add(rangeVariables[i]);
+                    set.add(rangeVariable);
 
                     break;
                 }

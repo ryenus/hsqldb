@@ -1257,7 +1257,7 @@ public class IndexAVL implements Index {
             NodeAVL result     = null;
             Row     currentRow = null;
 
-            if (compareType != OpTypes.EQUAL) {
+            if (compareType != OpTypes.EQUAL && compareType != OpTypes.IS_NULL) {
                 fieldCount--;
             }
 
@@ -1299,6 +1299,34 @@ public class IndexAVL implements Index {
                                               fieldCount);
 
                             if (i > 0) {
+                                n = x.getRight(store);
+                            } else {
+                                result = x;
+                                n      = x.getLeft(store);
+                            }
+
+                            break;
+                        }
+                        case OpTypes.SMALLER : {
+                            i = compareObject(session, rowdata, rowColMap,
+                                              currentRow.getData(),
+                                              fieldCount);
+
+                            if (i <= 0) {
+                                n = x.getRight(store);
+                            } else {
+                                result = x;
+                                n      = x.getLeft(store);
+                            }
+
+                            break;
+                        }
+                        case OpTypes.SMALLER_EQUAL : {
+                            i = compareObject(session, rowdata, rowColMap,
+                                              currentRow.getData(),
+                                              fieldCount);
+
+                            if (i < 0) {
                                 n = x.getRight(store);
                             } else {
                                 result = x;

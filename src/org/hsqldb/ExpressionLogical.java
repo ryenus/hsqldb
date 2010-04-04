@@ -225,7 +225,8 @@ public class ExpressionLogical extends Expression {
         return new ExpressionLogical(OpTypes.OR, e1, e2);
     }
 
-    public void addLeftColumnsForAllAny(OrderedIntHashSet set) {
+    public void addLeftColumnsForAllAny(RangeVariable range,
+                                        OrderedIntHashSet set) {
 
         if (nodes.length == 0) {
             return;
@@ -233,10 +234,13 @@ public class ExpressionLogical extends Expression {
 
         for (int j = 0; j < nodes[LEFT].nodes.length; j++) {
             int index = nodes[LEFT].nodes[j].getColumnIndex();
+            if (index < 0 || nodes[LEFT].nodes[j].getRangeVariable() != range) {
+                set.clear();
 
-            if (index >= 0) {
-                set.add(index);
+                return;
             }
+
+            set.add(index);
         }
     }
 
@@ -486,7 +490,6 @@ public class ExpressionLogical extends Expression {
             case OpTypes.OVERLAPS :
                 sb.append(Tokens.T_OVERLAPS);
                 break;
-
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,
@@ -904,7 +907,7 @@ public class ExpressionLogical extends Expression {
                 throw Error.error(ErrorCode.X_42567);
             }
 
-            nodes[LEFT].nodeDataTypes[i] = type;
+            nodes[LEFT].nodeDataTypes[i]  = type;
             nodes[LEFT].nodes[i].dataType = type;
         }
     }
@@ -1037,11 +1040,10 @@ public class ExpressionLogical extends Expression {
                                          (Object[]) o2);
                 } else {
                     if (o2 instanceof Object[]) {
-                        o2 = ((Object[]) o2) [0];
+                        o2 = ((Object[]) o2)[0];
                     }
 
                     return compareValues(session, o1, o2);
-
                 }
             }
             default :

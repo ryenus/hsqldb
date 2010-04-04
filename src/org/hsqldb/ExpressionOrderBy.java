@@ -126,8 +126,7 @@ public class ExpressionOrderBy extends Expression {
             sb.append(' ');
         }
 
-        sb.append(Tokens.T_ORDER).append(' ').append(Tokens.T_BY);
-        sb.append(' ');
+        sb.append(getLeftNode().describe(session, blanks));
 
         if (isDescending) {
             sb.append(Tokens.T_DESC).append(' ');

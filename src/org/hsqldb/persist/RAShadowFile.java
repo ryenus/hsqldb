@@ -160,6 +160,7 @@ public class RAShadowFile {
     void close() throws IOException {
 
         if (dest != null) {
+            dest.synch();
             dest.close();
 
             dest = null;

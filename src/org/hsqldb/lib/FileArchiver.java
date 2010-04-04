@@ -43,6 +43,8 @@ import java.util.zip.InflaterInputStream;
 
 import org.hsqldb.lib.java.JavaSystem;
 
+import java.io.FileOutputStream;
+
 /**
  * Creates a direct, compressed or decompressed copy of a file.
  *
@@ -87,6 +89,7 @@ public class FileArchiver {
 
         InputStream          in        = null;
         OutputStream         f         = null;
+        OutputStream         fOut      = null;
         DeflaterOutputStream deflater  = null;
         boolean              completed = false;
 
@@ -98,8 +101,9 @@ public class FileArchiver {
         try {
             byte[] b = new byte[COPY_BLOCK_SIZE];
 
-            in = storage.openInputStreamElement(infilename);
-            f  = storage.openOutputStreamElement(outfilename);
+            in   = storage.openInputStreamElement(infilename);
+            f    = storage.openOutputStreamElement(outfilename);
+            fOut = f;
 
             switch (compressionType) {
 
@@ -142,6 +146,10 @@ public class FileArchiver {
                 if (f != null) {
                     if (deflater != null) {
                         deflater.finish();
+                    }
+
+                    if (fOut instanceof FileOutputStream) {
+                        storage.getFileSync(fOut).sync();
                     }
 
                     f.close();
@@ -216,6 +224,11 @@ public class FileArchiver {
 
                 if (outstream != null) {
                     outstream.flush();
+
+                    if (outstream instanceof FileOutputStream) {
+                        storage.getFileSync(outstream).sync();
+                    }
+
                     outstream.close();
                 }
 
