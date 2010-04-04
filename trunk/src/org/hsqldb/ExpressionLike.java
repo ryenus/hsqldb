@@ -334,6 +334,10 @@ public final class ExpressionLike extends ExpressionLogical {
 
     public String getSQL() {
 
+        if (likeObject == null) {
+            return super.getSQL();
+        }
+
         String       left  = getContextSQL(nodes[LEFT]);
         String       right = getContextSQL(nodes[RIGHT]);
         StringBuffer sb    = new StringBuffer();
@@ -353,6 +357,10 @@ public final class ExpressionLike extends ExpressionLogical {
 
     protected String describe(Session session, int blanks) {
 
+        if (likeObject == null) {
+            return super.describe(session, blanks);
+        }
+
         StringBuffer sb = new StringBuffer();
 
         sb.append('\n');
@@ -363,9 +371,7 @@ public final class ExpressionLike extends ExpressionLogical {
 
         sb.append("LIKE ");
 
-        if (likeObject != null) {
-            sb.append(likeObject.describe(session));
-        }
+        sb.append(likeObject.describe(session));
 
         return sb.toString();
     }

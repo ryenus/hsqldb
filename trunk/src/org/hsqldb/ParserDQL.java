@@ -988,7 +988,7 @@ public class ParserDQL extends ParserBase {
 
                     read();
 
-                    type = Tokens.CROSS;
+                    type = Tokens.COMMA;
                     break;
 
                 default :
@@ -1009,6 +1009,12 @@ public class ParserDQL extends ParserBase {
             Expression condition = null;
 
             switch (type) {
+
+                case Tokens.COMMA :
+                    range.isBoundary = true;
+
+                    select.addRangeVariable(range);
+                    break;
 
                 case Tokens.CROSS :
                     select.addRangeVariable(range);
@@ -1053,10 +1059,6 @@ public class ParserDQL extends ParserBase {
                         condition = XreadBooleanValueExpression();
 
                         select.addRangeVariable(range);
-
-                        // must ensure references are limited to the current table
-//                        select.finaliseRangeVariables();
-//                        select.resolveColumnReferencesAndAllocate(condition);
                     } else {
                         throw Error.error(ErrorCode.X_42581);
                     }
@@ -1442,7 +1444,6 @@ public class ParserDQL extends ParserBase {
             if (table.isView()) {
                 SubQuery sq = getViewSubquery((View) table);
 
-//                sq.queryExpression = ((View) table).queryExpression;
                 table = sq.getTable();
             }
         }
@@ -4482,7 +4483,6 @@ public class ParserDQL extends ParserBase {
 
                     break;
                 }
-
                 case SchemaObject.SERVER :
                 case SchemaObject.WRAPPER : {
                     checkValidCatalogName(token.namePrefix);
@@ -4493,7 +4493,6 @@ public class ParserDQL extends ParserBase {
 
                     break;
                 }
-
                 case SchemaObject.COLUMN : {
                     if (token.namePrefix != null) {
                         throw tooManyIdentifiers();

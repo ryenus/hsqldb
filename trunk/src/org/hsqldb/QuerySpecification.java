@@ -54,6 +54,7 @@ import org.hsqldb.navigator.RowSetNavigatorDataTable;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.result.ResultProperties;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -712,8 +713,6 @@ public class QuerySpecification extends QueryExpression {
         rangeResolver.processConditions();
 
         rangeVariables = rangeResolver.rangeVariables;
-
-//        queryCondition = null;
     }
 
     public void resolveTypes(Session session) {
@@ -1152,6 +1151,9 @@ public class QuerySpecification extends QueryExpression {
 
         for (int currentIndex = 0; ; ) {
             if (currentIndex < fullJoinIndex) {
+
+                // finished current span
+                // or finished outer rows on right navigator
                 boolean end = true;
 
                 for (int i = fullJoinIndex + 1; i < rangeVariables.length;
@@ -1551,43 +1553,20 @@ public class QuerySpecification extends QueryExpression {
         return resultMetaData;
     }
 
-    public String describe(Session session) {
+    public String describe(Session session, int blanks) {
 
         StringBuffer sb;
         String       temp;
+        String       b = ValuePool.spaceString.substring(0, blanks);
 
-/*
-        // temporary :  it is currently unclear whether this may affect
-        // later attempts to retrieve an actual result (calls getResult(1)
-        // in preProcess mode).  Thus, toString() probably should not be called
-        // on Select objects that will actually be used to retrieve results,
-        // only on Select objects used by EXPLAIN PLAN FOR
-        try {
-            getResult(session, 1);
-        } catch (HsqlException e) {}
-*/
         sb = new StringBuffer();
 
-        sb.append(super.toString()).append("[\n");
-
-        if (sortAndSlice.limitCondition != null) {
-            if (sortAndSlice.limitCondition.getLeftNode() != null) {
-                sb.append("offset=[").append(
-                    sortAndSlice.limitCondition.getLeftNode().describe(
-                        session)).append("]\n");
-            }
-
-            if (sortAndSlice.limitCondition.getRightNode() != null) {
-                sb.append("limit=[").append(
-                    sortAndSlice.limitCondition.getRightNode().describe(
-                        session)).append("]\n");
-            }
-        }
-
-        sb.append("isDistinctSelect=[").append(isDistinctSelect).append("]\n");
-        sb.append("isGrouped=[").append(isGrouped).append("]\n");
-        sb.append("isAggregated=[").append(isAggregated).append("]\n");
-        sb.append("columns=[");
+        sb.append(b).append("isDistinctSelect=[").append(
+            isDistinctSelect).append("]\n");
+        sb.append(b).append("isGrouped=[").append(isGrouped).append("]\n");
+        sb.append(b).append("isAggregated=[").append(isAggregated).append(
+            "]\n");
+        sb.append(b).append("columns=[");
 
         for (int i = 0; i < indexLimitVisible; i++) {
             int index = i;
@@ -1596,42 +1575,75 @@ public class QuerySpecification extends QueryExpression {
                 index = exprColumns[i].columnIndex;
             }
 
-            sb.append(exprColumns[index].describe(session));
+            sb.append(b).append(exprColumns[index].describe(session, 2));
         }
 
-        sb.append("\n]\n");
-        sb.append("range variables=[\n");
+        sb.append("\n");
+        sb.append(b).append("]\n");
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            sb.append("[\n");
-            sb.append(rangeVariables[i].describe(session));
-            sb.append("\n]");
+            sb.append(b).append("[");
+            sb.append("range variable ").append(i + 1).append("\n");
+            sb.append(rangeVariables[i].describe(session, blanks + 2));
+            sb.append(b).append("]");
         }
 
-        sb.append("]\n");
+        sb.append(b).append("]\n");
 
         temp = queryCondition == null ? "null"
-                                      : queryCondition.describe(session);
+                                      : queryCondition.describe(session,
+                                      blanks);
 
-        sb.append("groupColumns=[");
+        if (isGrouped) {
+            sb.append(b).append("groupColumns=[");
 
-        for (int i = indexLimitRowId; i < indexLimitRowId + groupByColumnCount;
-                i++) {
-            int index = i;
+            for (int i = indexLimitRowId;
+                    i < indexLimitRowId + groupByColumnCount; i++) {
+                int index = i;
 
-            if (exprColumns[i].getType() == OpTypes.SIMPLE_COLUMN) {
-                index = exprColumns[i].columnIndex;
+                if (exprColumns[i].getType() == OpTypes.SIMPLE_COLUMN) {
+                    index = exprColumns[i].columnIndex;
+                }
+
+                sb.append(exprColumns[index].describe(session, blanks));
             }
 
-            sb.append(exprColumns[index].describe(session));
+            sb.append(b).append("]\n");
         }
 
-        sb.append("]\n");
+        if (havingCondition != null) {
+            temp = havingCondition.describe(session, blanks);
 
-        temp = havingCondition == null ? "null"
-                                       : havingCondition.describe(session);
+            sb.append(b).append("havingCondition=[").append(temp).append(
+                "]\n");
+        }
 
-        sb.append("havingCondition=[").append(temp).append("]\n");
+        if (sortAndSlice.hasOrder()) {
+            sb.append(b).append("order by=[\n");
+
+            for (int i = 0; i < sortAndSlice.exprList.size(); i++) {
+                sb.append(b).append(
+                    ((Expression) sortAndSlice.exprList.get(i)).describe(
+                        session, blanks));
+                sb.append(b).append("\n]");
+            }
+
+            sb.append(b).append("]\n");
+        }
+
+        if (sortAndSlice.hasLimit()) {
+            if (sortAndSlice.limitCondition.getLeftNode() != null) {
+                sb.append(b).append("offset=[").append(
+                    sortAndSlice.limitCondition.getLeftNode().describe(
+                        session, 0)).append("]\n");
+            }
+
+            if (sortAndSlice.limitCondition.getRightNode() != null) {
+                sb.append(b).append("limit=[").append(
+                    sortAndSlice.limitCondition.getRightNode().describe(
+                        session, 0)).append("]\n");
+            }
+        }
 
         return sb.toString();
     }
@@ -1960,5 +1972,38 @@ public class QuerySpecification extends QueryExpression {
 
             set.add(name);
         }
+    }
+
+    /**
+     * returns true if almost equivalent
+     */
+    boolean isEquivalent(QueryExpression other) {
+
+        if (!(other instanceof QuerySpecification)) {
+            return false;
+        }
+
+        QuerySpecification otherSpec = (QuerySpecification) other;
+
+        if (!Expression.equals(exprColumns, otherSpec.exprColumns)) {
+            return false;
+        }
+
+        if (!Expression.equals(queryCondition, otherSpec.queryCondition)) {
+            return false;
+        }
+
+        if (rangeVariables.length != otherSpec.rangeVariables.length) {
+            return false;
+        }
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            if (rangeVariables[i].getTable()
+                    != otherSpec.rangeVariables[i].getTable()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

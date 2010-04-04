@@ -264,8 +264,8 @@ public class FunctionSQLInvoked extends Expression {
         return sb.toString();
     }
 
-    public String describe(Session session) {
-        return super.describe(session);
+    public String describe(Session session, int blanks) {
+        return super.describe(session, blanks);
     }
 
     public boolean isDeterministic() {

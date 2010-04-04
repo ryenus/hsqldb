@@ -467,7 +467,6 @@ public abstract class StatementDMQL extends Statement {
             case StatementTypes.INSERT :
             case StatementTypes.UPDATE_WHERE :
             case StatementTypes.MERGE :
-
                 return ResultMetaData.emptyResultMetaData;
 
             default :
@@ -552,7 +551,7 @@ public abstract class StatementDMQL extends Statement {
 
         try {
             return describeImpl(session);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
 
             return e.toString();
@@ -568,12 +567,14 @@ public abstract class StatementDMQL extends Statement {
 
         sb = new StringBuffer();
 
+        int blanks = 0;
+
         switch (type) {
 
             case StatementTypes.SELECT_CURSOR : {
-                sb.append(queryExpression.describe(session));
+                sb.append(queryExpression.describe(session, 0));
                 appendParms(sb).append('\n');
-                appendSubqueries(session, sb);
+                appendSubqueries(session, sb, 2);
 
                 return sb.toString();
             }
@@ -584,7 +585,7 @@ public abstract class StatementDMQL extends Statement {
                     appendMultiColumns(sb, insertColumnMap).append('\n');
                     appendTable(sb).append('\n');
                     appendParms(sb).append('\n');
-                    appendSubqueries(session, sb).append(']');
+                    appendSubqueries(session, sb, 2).append(']');
 
                     return sb.toString();
                 } else {
@@ -592,9 +593,10 @@ public abstract class StatementDMQL extends Statement {
                     sb.append('[').append('\n');
                     appendColumns(sb, insertColumnMap).append('\n');
                     appendTable(sb).append('\n');
-                    sb.append(queryExpression.describe(session)).append('\n');
+                    sb.append(queryExpression.describe(session,
+                                                       blanks)).append('\n');
                     appendParms(sb).append('\n');
-                    appendSubqueries(session, sb).append(']');
+                    appendSubqueries(session, sb, 2).append(']');
 
                     return sb.toString();
                 }
@@ -607,13 +609,12 @@ public abstract class StatementDMQL extends Statement {
                 appendCondition(session, sb);
 
                 for (int i = 0; i < targetRangeVariables.length; i++) {
-                    sb.append(
-                        targetRangeVariables[i].describe(session)).append(
-                        '\n');
+                    sb.append(targetRangeVariables[i].describe(session,
+                            blanks)).append('\n');
                 }
 
                 appendParms(sb).append('\n');
-                appendSubqueries(session, sb).append(']');
+                appendSubqueries(session, sb, 2).append(']');
 
                 return sb.toString();
             }
@@ -624,13 +625,12 @@ public abstract class StatementDMQL extends Statement {
                 appendCondition(session, sb);
 
                 for (int i = 0; i < targetRangeVariables.length; i++) {
-                    sb.append(
-                        targetRangeVariables[i].describe(session)).append(
-                        '\n');
+                    sb.append(targetRangeVariables[i].describe(session,
+                            blanks)).append('\n');
                 }
 
                 appendParms(sb).append('\n');
-                appendSubqueries(session, sb).append(']');
+                appendSubqueries(session, sb, 2).append(']');
 
                 return sb.toString();
             }
@@ -649,13 +649,12 @@ public abstract class StatementDMQL extends Statement {
                 appendCondition(session, sb);
 
                 for (int i = 0; i < targetRangeVariables.length; i++) {
-                    sb.append(
-                        targetRangeVariables[i].describe(session)).append(
-                        '\n');
+                    sb.append(targetRangeVariables[i].describe(session,
+                            blanks)).append('\n');
                 }
 
                 appendParms(sb).append('\n');
-                appendSubqueries(session, sb).append(']');
+                appendSubqueries(session, sb, 2).append(']');
 
                 return sb.toString();
             }
@@ -665,7 +664,8 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
-    private StringBuffer appendSubqueries(Session session, StringBuffer sb) {
+    private StringBuffer appendSubqueries(Session session, StringBuffer sb,
+                                          int blanks) {
 
         sb.append("SUBQUERIES[");
 
@@ -673,7 +673,8 @@ public abstract class StatementDMQL extends Statement {
             sb.append("\n[level=").append(subqueries[i].level).append('\n');
 
             if (subqueries[i].queryExpression != null) {
-                sb.append(subqueries[i].queryExpression.describe(session));
+                sb.append(subqueries[i].queryExpression.describe(session,
+                        blanks));
             }
 
             sb.append("]");
@@ -762,7 +763,7 @@ public abstract class StatementDMQL extends Statement {
 
         return condition == null ? sb.append("CONDITION[]\n")
                                  : sb.append("CONDITION[").append(
-                                     condition.describe(session)).append(
+                                     condition.describe(session, 0)).append(
                                      "]\n");
     }
 

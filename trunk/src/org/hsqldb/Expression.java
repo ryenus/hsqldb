@@ -220,10 +220,6 @@ public class Expression {
         this.nodes = list;
     }
 
-    public String describe(Session session) {
-        return describe(session, 0);
-    }
-
     static String getContextSQL(Expression expression) {
 
         if (expression == null) {
@@ -349,7 +345,7 @@ public class Expression {
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
                 sb.append("QUERY ");
-                sb.append(subQuery.queryExpression.describe(session));
+                sb.append(subQuery.queryExpression.describe(session, blanks));
 
                 return sb.toString();
 
@@ -409,6 +405,11 @@ public class Expression {
 
             case OpTypes.VALUE :
                 return equals(valueData, other.valueData);
+
+            case OpTypes.ROW_SUBQUERY :
+            case OpTypes.TABLE_SUBQUERY :
+                return (subQuery.queryExpression.isEquivalent(
+                    other.subQuery.queryExpression));
 
             default :
                 return equals(nodes, other.nodes)
@@ -1295,7 +1296,7 @@ public class Expression {
 
             case OpTypes.TABLE_SUBQUERY : {
                 RowSetNavigatorData navigator = subQuery.getNavigator(session);
-                Result result = Result.newResult(navigator);
+                Result              result    = Result.newResult(navigator);
 
                 result.metaData = subQuery.queryExpression.getMetaData();
 

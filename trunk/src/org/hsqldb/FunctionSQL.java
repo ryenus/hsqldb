@@ -1858,7 +1858,7 @@ public class FunctionSQL extends Expression {
                 continue;
             }
 
-            sb.append("[").append(nodes[i].describe(session)).append("]");
+            sb.append("[").append(nodes[i].describe(session, blanks)).append("]");
         }
 
         sb.append(") returns ").append(dataType.getNameString());

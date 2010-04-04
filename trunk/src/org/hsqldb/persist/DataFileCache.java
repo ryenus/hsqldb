@@ -440,6 +440,7 @@ public class DataFileCache {
             }
 
             if (dataFile != null) {
+                dataFile.synch();
                 dataFile.close();
                 database.logger.logInfoEvent("DataFileCache.close() : close");
 

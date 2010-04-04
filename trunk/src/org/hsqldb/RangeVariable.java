@@ -84,6 +84,7 @@ public final class RangeVariable {
     //
     boolean isLeftJoin;     // table joined with LEFT / FULL OUTER JOIN
     boolean isRightJoin;    // table joined with RIGHT / FULL OUTER JOIN
+    boolean isBoundary;
 
     //
     int level;
@@ -99,6 +100,9 @@ public final class RangeVariable {
 
     // variable v.s. argument
     boolean isVariable;
+
+    //
+    boolean isGenerated;
 
     RangeVariable(HashMappedList variables, boolean isVariable) {
 
@@ -502,51 +506,51 @@ public final class RangeVariable {
      *
      * @return a String representation of this object
      */
-    public String describe(Session session) {
+    public String describe(Session session, int blanks) {
 
         RangeVariableConditions[] conditionsArray = joinConditions;
         StringBuffer              sb;
+        String b = ValuePool.spaceString.substring(0, blanks);
 
         sb = new StringBuffer();
 
+        String temp = "INNER";
+
+        if (isLeftJoin) {
+            temp = "LEFT OUTER";
+
+            if (isRightJoin) {
+                temp = "FULL";
+            }
+        } else if (isRightJoin) {
+            temp = "RIGHT OUTER";
+        }
+
+        sb.append(b).append("join type=").append(temp).append("\n");
+        sb.append(b).append("table=").append(rangeTable.getName().name).append(
+            "\n");
+
+        if (tableAlias != null) {
+            sb.append(b).append("alias=").append(tableAlias.name).append("\n");
+        }
+
+        boolean fullScan = !conditionsArray[0].hasIndexCondition();
+
+        sb.append(b).append("access=").append(fullScan ? "FULL SCAN"
+                                                       : "INDEX PRED").append(
+                                                       "\n");
+
         for (int i = 0; i < conditionsArray.length; i++) {
             RangeVariableConditions conditions = this.joinConditions[i];
-            boolean                 fullScan;
 
             if (i > 0) {
-                sb.append("\nOR condition = [");
-                sb.append(conditions.describe(session)).append("]\n");
-
-                continue;
+                sb.append(b).append("OR condition = [");
+            } else {
+                sb.append(b).append("condition = [");
             }
 
-            fullScan = !conditions.hasIndexCondition();
-
-            sb.append("table=[").append(rangeTable.getName().name).append(
-                "]\n");
-
-            if (tableAlias != null) {
-                sb.append("alias=[").append(tableAlias.name).append("]\n");
-            }
-
-            sb.append("access=[").append(fullScan ? "FULL SCAN"
-                                                  : "INDEX PRED").append(
-                                                  "]\n");
-
-            String temp = "INNER";
-
-            if (isLeftJoin) {
-                temp = "LEFT OUTER";
-
-                if (isRightJoin) {
-                    temp = "FULL";
-                }
-            } else if (isRightJoin) {
-                temp = "RIGHT OUTER";
-            }
-
-            sb.append("join type=[").append(temp).append("]\n");
-            sb.append(conditions.describe(session));
+            sb.append(conditions.describe(session, blanks + 2));
+            sb.append(b).append("]\n");
         }
 
         return sb.toString();
@@ -775,10 +779,10 @@ public final class RangeVariable {
                 it.release();
             }
 
-            it              = null;
-            currentData     = rangeVar.emptyData;
-            currentRow      = null;
-            isBeforeFirst   = true;
+            it            = null;
+            currentData   = rangeVar.emptyData;
+            currentRow    = null;
+            isBeforeFirst = true;
         }
 
         public int getRangePosition() {
@@ -794,13 +798,7 @@ public final class RangeVariable {
             }
 
             if (conditions[condIndex].indexCond == null) {
-                if (conditions[condIndex].indexEndCondition == null) {
-                    it = conditions[condIndex].rangeIndex.firstRow(session,
-                            store);
-                } else {
-                    it = conditions[condIndex].rangeIndex.findFirstRowNotNull(
-                        session, store);
-                }
+                it = conditions[condIndex].rangeIndex.firstRow(session, store);
             } else {
                 getFirstRow();
 
@@ -933,6 +931,8 @@ public final class RangeVariable {
                             .testCondition(session)) {
                     hasLeftOuterRow = false;
 
+                    addFoundRow();
+
                     continue;
                 }
 
@@ -959,7 +959,6 @@ public final class RangeVariable {
                     (whereConditions[condIndex].nonIndexCondition == null
                      || whereConditions[condIndex].nonIndexCondition
                          .testCondition(session));
-
                 hasLeftOuterRow = false;
             }
 
@@ -988,7 +987,6 @@ public final class RangeVariable {
 
         public void setOnOuterRows() {
 
-            // temp code - will be done by resolver
             conditions         = rangeVar.whereConditions;
             isOnRightOuterRows = true;
             hasLeftOuterRow    = false;
@@ -1185,22 +1183,31 @@ public final class RangeVariable {
                 return;
             }
 
+            if (indexedColumnCount == 0) {
+                return;
+            }
+
+            if (e.getIndexableExpression(rangeVar) == null) {
+                return;
+            }
+
+            int colIndex = e.getLeftNode().getColumnIndex();
+
             switch (e.getType()) {
 
                 case OpTypes.GREATER :
                 case OpTypes.GREATER_EQUAL : {
-                    if (e.getIndexableExpression(rangeVar) == null) {
-                        break;
-                    }
 
-                    if (indexCond == null) {
-                        if (opType == OpTypes.SMALLER
-                                || opType == OpTypes.SMALLER_EQUAL) {
-                            if (rangeIndex.getColumns()[0]
-                                    == e.getLeftNode().getColumnIndex()) {
-                                indexCond = new Expression[]{ e };
-                                opType    = e.opType;
-                            }
+                    // replaces existing condition
+                    if (opType == OpTypes.NOT) {
+                        if (rangeIndex.getColumns()[indexedColumnCount - 1]
+                                == colIndex) {
+                            nonIndexCondition =
+                                ExpressionLogical.andExpressions(
+                                    nonIndexCondition,
+                                    indexCond[indexedColumnCount - 1]);
+                            indexCond[indexedColumnCount - 1] = e;
+                            opType                            = e.opType;
                         }
                     } else {
                         addToIndexConditions(e);
@@ -1210,23 +1217,29 @@ public final class RangeVariable {
                 }
                 case OpTypes.SMALLER :
                 case OpTypes.SMALLER_EQUAL : {
-                    if (e.getIndexableExpression(rangeVar) == null) {
-                        break;
-                    }
-
-                    if (indexedColumnCount < rangeIndex.getColumnCount()) {
-                        if (rangeIndex.getColumns()[indexedColumnCount]
-                                == e.getLeftNode().getColumnIndex()) {
+                    if (opType == OpTypes.GREATER
+                            || opType == OpTypes.GREATER_EQUAL
+                            || opType == OpTypes.NOT) {
+                        if (rangeIndex.getColumns()[indexedColumnCount - 1]
+                                == colIndex) {
                             indexEndCondition =
                                 ExpressionLogical.andExpressions(
                                     indexEndCondition, e);
                         }
-                    } else {
-                        if (rangeIndex.getColumns()[indexedColumnCount - 1]
-                                == e.getLeftNode().getColumnIndex()) {
+                    } else if (opType == OpTypes.EQUAL
+                               || opType == OpTypes.IS_NULL) {
+                        if (indexedColumnCount < rangeIndex.getColumnCount()
+                                && colIndex
+                                   == rangeIndex
+                                       .getColumns()[indexedColumnCount]) {
                             indexEndCondition =
                                 ExpressionLogical.andExpressions(
                                     indexEndCondition, e);
+                            e = e.getLeftNode();
+                            e = new ExpressionLogical(OpTypes.IS_NULL, e);
+                            e = new ExpressionLogical(OpTypes.NOT, e);
+
+                            addToIndexConditions(e);
                         }
                     }
 
@@ -1238,17 +1251,18 @@ public final class RangeVariable {
 
         boolean addToIndexConditions(Expression e) {
 
-            if (opType == OpTypes.EQUAL
-                    && indexedColumnCount < rangeIndex.getColumnCount()) {
-                if (rangeIndex.getColumns()[indexedColumnCount]
-                        == e.getLeftNode().getColumnIndex()) {
-                    indexCond[indexedColumnCount] = e;
+            if (opType == OpTypes.EQUAL || opType == OpTypes.IS_NULL) {
+                if (indexedColumnCount < rangeIndex.getColumnCount()) {
+                    if (rangeIndex.getColumns()[indexedColumnCount]
+                            == e.getLeftNode().getColumnIndex()) {
+                        indexCond[indexedColumnCount] = e;
 
-                    indexedColumnCount++;
+                        indexedColumnCount++;
 
-                    opType = e.opType;
+                        opType = e.opType;
 
-                    return true;
+                        return true;
+                    }
                 }
             }
 
@@ -1279,12 +1293,19 @@ public final class RangeVariable {
                     break;
 
                 case OpTypes.SMALLER :
-                case OpTypes.SMALLER_EQUAL :
-                    indexEndCondition = exprList[0];
-                    break;
+                case OpTypes.SMALLER_EQUAL : {
+                    Expression e = exprList[0].getLeftNode();
 
+                    e = new ExpressionLogical(OpTypes.IS_NULL, e);
+                    e                 = new ExpressionLogical(OpTypes.NOT, e);
+                    indexCond         = new Expression[]{ e };
+                    indexEndCondition = exprList[0];
+                    opType            = OpTypes.NOT;
+
+                    break;
+                }
                 case OpTypes.IS_NULL :
-                case OpTypes.EQUAL :
+                case OpTypes.EQUAL : {
                     for (int i = 0; i < colCount; i++) {
                         Expression e = exprList[i];
 
@@ -1294,8 +1315,9 @@ public final class RangeVariable {
                     }
 
                     indexCond = exprList;
-                    break;
 
+                    break;
+                }
                 default :
                     Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
             }
@@ -1303,20 +1325,21 @@ public final class RangeVariable {
             indexedColumnCount = colCount;
         }
 
-        String describe(Session session) {
+        String describe(Session session, int blanks) {
 
             StringBuffer sb = new StringBuffer();
+            String       b  = ValuePool.spaceString.substring(0, blanks);
 
-            sb.append("index=[").append(rangeIndex.getName().name).append(
-                "]\n");
+            sb.append(b).append("index=").append(
+                rangeIndex.getName().name).append("\n");
 
             if (hasIndexCondition()) {
                 if (indexedColumnCount > 0) {
-                    sb.append("start conditions=[");
+                    sb.append(b).append("start conditions=[");
 
                     for (int j = 0; j < indexedColumnCount; j++) {
                         if (indexCond != null && indexCond[j] != null) {
-                            sb.append(indexCond[j].describe(session));
+                            sb.append(indexCond[j].describe(session, blanks));
                         }
                     }
 
@@ -1324,16 +1347,18 @@ public final class RangeVariable {
                 }
 
                 if (indexEndCondition != null) {
-                    String temp = indexEndCondition.describe(session);
+                    String temp = indexEndCondition.describe(session, blanks);
 
-                    sb.append("end condition=[").append(temp).append("]\n");
+                    sb.append(b).append("end condition=[").append(temp).append(
+                        "]\n");
                 }
             }
 
             if (nonIndexCondition != null) {
-                String temp = nonIndexCondition.describe(session);
+                String temp = nonIndexCondition.describe(session, blanks);
 
-                sb.append("other condition=[").append(temp).append("]\n");
+                sb.append(b).append("other condition=[").append(temp).append(
+                    "]\n");
             }
 
             return sb.toString();

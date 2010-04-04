@@ -93,6 +93,7 @@ public class ValuePool {
     public final static String[] emptyStringArray = new String[]{};
     public final static Object[] emptyObjectArray = new Object[]{};
     public final static int[]    emptyIntArray    = new int[]{};
+    public static String         spaceString;
 
     //
     private static void initPool() {
@@ -124,7 +125,7 @@ public class ValuePool {
                 c[i] = ' ';
             }
 
-            String s = new String(c);
+            spaceString = new String(c);
         }
     }
 
