@@ -42,22 +42,27 @@ import org.hsqldb.types.Type;
  * Implementation of ORDER BY and LIMIT properties of query expressions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.9.0
  */
 public final class SortAndSlice {
 
     final static SortAndSlice noSort = new SortAndSlice();
-    public int[]              sortOrder;
-    public boolean[]          sortDescending;
-    public boolean[]          sortNullsLast;
-    boolean                   sortUnion;
-    HsqlArrayList             exprList = new HsqlArrayList();
-    Expression                limitCondition;
-    public boolean            skipSort       = false;    // true when result can be used as is
-    public boolean            skipFullResult = false;    // true when result can be sliced as is
-    int[]        columnIndexes;
-    public Index index;
+
+    //
+    public int[]     sortOrder;
+    public boolean[] sortDescending;
+    public boolean[] sortNullsLast;
+    boolean          sortUnion;
+    HsqlArrayList    exprList = new HsqlArrayList();
+    Expression       limitCondition;
+    int              columnCount;
+    boolean          hasNullsLast;
+    public boolean   skipSort       = false;    // true when result can be used as is
+    public boolean   skipFullResult = false;    // true when result can be sliced as is
+    int[]          columnIndexes;
+    public Index   index;
+    public boolean isGenerated;
 
     SortAndSlice() {}
 
@@ -83,8 +88,7 @@ public final class SortAndSlice {
 
     public void prepare(QuerySpecification select) {
 
-        int     columnCount  = exprList.size();
-        boolean hasQualifier = false;
+        columnCount = exprList.size();
 
         if (columnCount == 0) {
             return;
@@ -105,15 +109,15 @@ public final class SortAndSlice {
 
             sortDescending[i] = sort.isDescending();
             sortNullsLast[i]  = sort.isNullsLast();
-            hasQualifier      |= sortDescending[i];
-            hasQualifier      |= sortNullsLast[i];
+            hasNullsLast      |= sortNullsLast[i];
         }
 
-        if (select == null || hasQualifier) {
+        if (select == null || hasNullsLast) {
             return;
         }
 
-        if (select.isDistinctSelect || select.isGrouped) {
+        if (select.isDistinctSelect || select.isGrouped
+                || select.isAggregated) {
             return;
         }
 
@@ -139,12 +143,40 @@ public final class SortAndSlice {
 
     void setSortRange(QuerySpecification select) {
 
-        if (exprList.size() == 0 && limitCondition == null) {
+        if (isGenerated) {
+            return;
+        }
+
+        if (columnCount == 0) {
+            if (limitCondition == null) {
+                return;
+            }
+
+            if (select.isDistinctSelect || select.isGrouped
+                    || select.isAggregated) {
+                return;
+            }
+
+            skipFullResult = true;
+
+            return;
+        }
+
+        for (int i = 0; i < columnCount; i++) {
+            ExpressionOrderBy sort     = (ExpressionOrderBy) exprList.get(i);
+            Type              dataType = sort.getLeftNode().getDataType();
+
+            if (dataType.isLobType()) {
+                throw Error.error(ErrorCode.X_42534);
+            }
+        }
+
+        if (columnIndexes == null) {
             return;
         }
 
         int[] colIndexes;
-        Index rangeIndex = select.rangeVariables[0].getIndex();
+        Index rangeIndex = select.rangeVariables[0].getSortIndex();
 
         if (rangeIndex == null) {
             return;
@@ -152,16 +184,10 @@ public final class SortAndSlice {
 
         colIndexes = rangeIndex.getColumns();
 
-        if (columnIndexes == null) {
-            if (!hasOrder()) {
-                if (select.isDistinctSelect || select.isGrouped
-                        || select.isAggregated) {
-                    return;
-                }
+        int     count         = ArrayUtil.countTrueElements(sortDescending);
+        boolean allDescending = count == columnCount;
 
-                skipFullResult = true;
-            }
-
+        if (!allDescending && count > 0) {
             return;
         }
 
@@ -170,25 +196,92 @@ public final class SortAndSlice {
             Index index = table.getFullIndexForColumns(columnIndexes);
 
             if (index != null) {
-                if (select.rangeVariables[0].setIndex(index)) {
+                if (select.rangeVariables[0].setSortIndex(index,
+                        allDescending)) {
                     skipSort       = true;
                     skipFullResult = true;
                 }
             }
         } else if (ArrayUtil.haveEqualArrays(columnIndexes, colIndexes,
                                              columnIndexes.length)) {
+            if (allDescending) {
+                boolean reversed = select.rangeVariables[0].reverseOrder();
+
+                if (!reversed) {
+                    return;
+                }
+            }
+
             skipSort       = true;
             skipFullResult = true;
         }
+    }
 
-        for (int i = 0; i < exprList.size(); i++) {
-            ExpressionOrderBy sort     = (ExpressionOrderBy) exprList.get(i);
-            Type              dataType = sort.getLeftNode().getDataType();
+    public boolean prepareSpecial(QuerySpecification select) {
 
-            if (dataType.isLobType()) {
-                throw Error.error(ErrorCode.X_42534);
+        if (select.indexLimitVisible != 1) {
+            return false;
+        }
+
+        Expression e      = select.exprColumns[select.indexStartAggregates];
+        int        opType = e.getType();
+
+        if (opType != OpTypes.MAX && opType != OpTypes.MIN) {
+            return false;
+        }
+
+        e = e.getLeftNode();
+
+        if (e.getType() != OpTypes.COLUMN) {
+            return false;
+        }
+
+        if (((ExpressionColumn) e).getRangeVariable()
+                != select.rangeVariables[0]) {
+            return false;
+        }
+
+        Index rangeIndex = select.rangeVariables[0].getSortIndex();
+
+        if (rangeIndex == null) {
+            return false;
+        }
+
+        int[] colIndexes = rangeIndex.getColumns();
+
+        if (select.rangeVariables[0].hasIndexCondition()) {
+            if (colIndexes[0] != ((ExpressionColumn) e).getColumnIndex()) {
+                return false;
+            }
+
+            if (opType == OpTypes.MAX) {
+                select.rangeVariables[0].reverseOrder();
+            }
+        } else {
+            Table table = select.rangeVariables[0].getTable();
+            Index index = table.getIndexForColumn(
+                ((ExpressionColumn) e).getColumnIndex());
+
+            if (index == null) {
+                return false;
+            }
+
+            if (!select.rangeVariables[0].setSortIndex(index,
+                    opType == OpTypes.MAX)) {
+                return false;
             }
         }
+
+        columnCount      = 1;
+        sortOrder        = new int[columnCount];
+        sortDescending   = new boolean[columnCount];
+        sortNullsLast    = new boolean[columnCount];
+        columnIndexes    = new int[columnCount];
+        columnIndexes[0] = e.columnIndex;
+        skipSort         = true;
+        skipFullResult   = true;
+
+        return true;
     }
 
     public int getLimitStart(Session session) {

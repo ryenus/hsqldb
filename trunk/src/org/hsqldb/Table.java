@@ -2105,40 +2105,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     void fireTriggers(Session session, int trigVecIndex,
-                      HashMappedList rowSet) {
-
-        TriggerDef[] trigVec = triggerLists[trigVecIndex];
-
-        for (int i = 0, size = trigVec.length; i < size; i++) {
-            TriggerDef td         = trigVec[i];
-            boolean    sqlTrigger = td instanceof TriggerDefSQL;
-
-            if (td.isForEachRow()) {
-                for (int j = 0; j < rowSet.size(); j++) {
-                    Object[] oldData = ((Row) rowSet.getKey(j)).getData();
-                    Object[] newData = (Object[]) rowSet.get(j);
-
-                    switch (td.triggerType) {
-
-                        case Trigger.UPDATE_AFTER_ROW :
-                            if (!sqlTrigger) {
-                                oldData = (Object[]) ArrayUtil.duplicateArray(
-                                    oldData);
-                                newData = (Object[]) ArrayUtil.duplicateArray(
-                                    newData);
-                            }
-                            break;
-                    }
-
-                    td.pushPair(session, oldData, newData);
-                }
-            } else {
-                td.pushPair(session, null, null);
-            }
-        }
-    }
-
-    void fireTriggers(Session session, int trigVecIndex,
                       RowSetNavigator rowSet) {
 
         if (!database.isReferentialIntegrity()) {
@@ -2156,41 +2122,7 @@ public class Table extends TableBase implements SchemaObject {
                 //
             }
 
-            if (td.isForEachRow()) {
-                while (rowSet.hasNext()) {
-                    Object[] oldData = null;
-                    Object[] newData = null;
-
-                    switch (td.triggerType) {
-
-                        case Trigger.DELETE_BEFORE_ROW :
-                        case Trigger.DELETE_AFTER_ROW :
-                            oldData = rowSet.getNext();
-
-                            if (!sqlTrigger) {
-                                oldData = (Object[]) ArrayUtil.duplicateArray(
-                                    oldData);
-                            }
-                            break;
-
-                        case Trigger.INSERT_BEFORE_ROW :
-                        case Trigger.INSERT_AFTER_ROW :
-                            newData = rowSet.getNext();
-
-                            if (!sqlTrigger) {
-                                newData = (Object[]) ArrayUtil.duplicateArray(
-                                    newData);
-                            }
-                            break;
-                    }
-
-                    td.pushPair(session, oldData, newData);
-                }
-
-                rowSet.beforeFirst();
-            } else {
-                td.pushPair(session, null, null);
-            }
+            td.pushPair(session, null, null);
         }
     }
 
@@ -2732,7 +2664,7 @@ public class Table extends TableBase implements SchemaObject {
 
                 // reached end of range
                 if (bestIndex.compareRowNonUnique(
-                        session, data, bestIndex.getColumns(), rowdata) != 0) {
+                        session, rowdata, data, bestIndex.getColumns()) != 0) {
                     row = null;
 
                     break;

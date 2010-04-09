@@ -1228,8 +1228,9 @@ class ExceptionParsedSection extends ParsedSection {
                 return true;
             }
 
-            message = "SQLState '" + sqlX.getSQLState() + "' instead of '"
-                      + expectedState + "': " + sqlX.getMessage();
+            message = "SQLState '" + sqlX.getSQLState() + "' : "
+                      + sqlX.getMessage() + " instead of '" + expectedState
+                      + "'";
         } catch (Exception x) {
             caught  = x;
             message = x.getMessage();

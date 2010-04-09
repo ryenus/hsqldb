@@ -52,7 +52,7 @@ import org.hsqldb.types.Type;
  * Implementation of Statement for DML statements.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.9.0
  */
 
@@ -371,14 +371,12 @@ public class StatementDML extends StatementDMQL {
 //* debug 190 */
         rowset.beforeFirst();
 
-        if (rowset.getSize() > 0) {
-            count = update(session, baseTable, rowset);
-        } else {
-            return Result.updateZeroResult;
-        }
+        count = update(session, baseTable, rowset);
 
         if (count == 1) {
             return Result.updateOneResult;
+        } else if (count == 0) {
+            return Result.updateZeroResult;
         }
 
         return new Result(ResultConstants.UPDATECOUNT, count);
@@ -548,7 +546,7 @@ public class StatementDML extends StatementDMQL {
 
         // run the transaction as a whole, updating and inserting where needed
         // update any matched rows
-        if (updateRowSet.getSize() > 0) {
+        if (updateExpressions != null) {
             count = update(session, baseTable, updateRowSet);
         }
 
@@ -557,6 +555,11 @@ public class StatementDML extends StatementDMQL {
             insertRowSet(session, generatedNavigator, newData);
 
             count += newData.getSize();
+        }
+
+        if (insertExpression != null
+                && baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
+            baseTable.fireTriggers(session, Trigger.INSERT_AFTER, newData);
         }
 
         if (resultOut == null) {
@@ -637,10 +640,6 @@ public class StatementDML extends StatementDMQL {
 
             newData.beforeFirst();
         }
-
-        if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
-            baseTable.fireTriggers(session, Trigger.INSERT_AFTER, newData);
-        }
     }
 
     Result insertSingleRow(Session session, PersistentStore store,
@@ -668,8 +667,8 @@ public class StatementDML extends StatementDMQL {
         }
 
         if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
-            baseTable.fireTriggers(session, Trigger.INSERT_AFTER, null, null,
-                                   null);
+            baseTable.fireTriggers(session, Trigger.INSERT_AFTER,
+                                   (RowSetNavigator) null);
         }
 
         return Result.updateOneResult;
@@ -1171,7 +1170,7 @@ public class StatementDML extends StatementDMQL {
                 }
 
                 if (c.core.mainIndex.compareRowNonUnique(
-                        session, row.getData(), c.core.mainCols, data) == 0) {
+                        session, row.getData(), data, c.core.mainCols) == 0) {
                     continue;
                 }
             }
@@ -1188,8 +1187,8 @@ public class StatementDML extends StatementDMQL {
 
                 /** @todo use MATCH */
                 if (c.core.refIndex.compareRowNonUnique(
-                        session, row.getData(), c.core.mainCols,
-                        refRow.getData()) != 0) {
+                        session, refRow.getData(), row.getData(),
+                        c.core.mainCols) != 0) {
                     break;
                 }
 

@@ -1417,7 +1417,7 @@ public class ExpressionLogical extends Expression {
         RowIterator     it;
         Row             firstrow;
         PersistentStore store   = session.sessionData.getRowStore(table);
-        Row             lastrow = index.lastRow(session, store);
+        Row             lastrow = index.lastRow(session, store).getNextRow();
         Object[]        lastdata;
         Object[]        firstdata;
 

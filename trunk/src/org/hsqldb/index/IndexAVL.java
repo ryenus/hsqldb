@@ -137,7 +137,8 @@ public class IndexAVL implements Index {
     private final boolean    isForward;
     private int              depth;
     private static final IndexRowIterator emptyIterator =
-        new IndexRowIterator(null, (PersistentStore) null, null, null, false);
+        new IndexRowIterator(null, (PersistentStore) null, null, null, false,
+                             false);
     protected TableBase table;
     int                 position;
 
@@ -728,7 +729,7 @@ public class IndexAVL implements Index {
 
         NodeAVL node = findNode(session, store, rowdata, rowColMap,
                                 rowColMap.length, OpTypes.EQUAL,
-                                TransactionManager.ACTION_REF);
+                                TransactionManager.ACTION_REF, false);
 
         return node != null;
     }
@@ -746,13 +747,18 @@ public class IndexAVL implements Index {
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata, int matchCount,
-                                    int compareType, boolean[] map) {
+                                    int compareType, boolean reversed,
+                                    boolean[] map) {
+
+        if (compareType == OpTypes.MAX) {
+            return lastRow(session, store);
+        }
 
         NodeAVL node = findNode(session, store, rowdata, defaultColMap,
                                 matchCount, compareType,
-                                TransactionManager.ACTION_READ);
+                                TransactionManager.ACTION_READ, reversed);
 
-        return getIterator(session, store, node, false);
+        return getIterator(session, store, node, false, reversed);
     }
 
     /**
@@ -769,9 +775,9 @@ public class IndexAVL implements Index {
 
         NodeAVL node = findNode(session, store, rowdata, colIndex,
                                 colIndex.length, OpTypes.EQUAL,
-                                TransactionManager.ACTION_READ);
+                                TransactionManager.ACTION_READ, false);
 
-        return getIterator(session, store, node, false);
+        return getIterator(session, store, node, false, false);
     }
 
     /**
@@ -789,9 +795,9 @@ public class IndexAVL implements Index {
 
         NodeAVL node = findNode(session, store, rowdata, rowColMap,
                                 rowColMap.length, OpTypes.EQUAL,
-                                TransactionManager.ACTION_READ);
+                                TransactionManager.ACTION_READ, false);
 
-        return getIterator(session, store, node, false);
+        return getIterator(session, store, node, false, false);
     }
 
     /**
@@ -804,9 +810,9 @@ public class IndexAVL implements Index {
 
         NodeAVL node = findNode(session, store, nullData, this.defaultColMap,
                                 1, OpTypes.NOT,
-                                TransactionManager.ACTION_READ);
+                                TransactionManager.ACTION_READ, false);
 
-        return getIterator(session, store, node, false);
+        return getIterator(session, store, node, false, false);
     }
 
     /**
@@ -842,7 +848,7 @@ public class IndexAVL implements Index {
                 x = next(store, x);
             }
 
-            return getIterator(session, store, x, false);
+            return getIterator(session, store, x, false, false);
         } finally {
             depth = tempDepth;
 
@@ -867,7 +873,7 @@ public class IndexAVL implements Index {
                 tempDepth++;
             }
 
-            return getIterator(null, store, x, false);
+            return getIterator(null, store, x, false, false);
         } finally {
             depth = tempDepth;
 
@@ -880,7 +886,7 @@ public class IndexAVL implements Index {
      *
      * @return last row
      */
-    public Row lastRow(Session session, PersistentStore store) {
+    public RowIterator lastRow(Session session, PersistentStore store) {
 
         readLock.lock();
 
@@ -904,8 +910,7 @@ public class IndexAVL implements Index {
                 x = last(store, x);
             }
 
-            return x == null ? null
-                             : x.getRow(store);
+            return getIterator(null, store, x, false, true);
         } finally {
             readLock.unlock();
         }
@@ -913,10 +918,6 @@ public class IndexAVL implements Index {
 
     /**
      * Returns the node after the given one
-     *
-     * @param x node
-     *
-     * @return next node
      */
     NodeAVL next(Session session, PersistentStore store, NodeAVL x) {
 
@@ -929,6 +930,38 @@ public class IndexAVL implements Index {
         try {
             while (true) {
                 x = next(store, x);
+
+                if (x == null) {
+                    return x;
+                }
+
+                if (session == null) {
+                    return x;
+                }
+
+                Row row = x.getRow(store);
+
+                if (session.database.txManager.canRead(
+                        session, row, TransactionManager.ACTION_READ, null)) {
+                    return x;
+                }
+            }
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    NodeAVL last(Session session, PersistentStore store, NodeAVL x) {
+
+        if (x == null) {
+            return null;
+        }
+
+        readLock.lock();
+
+        try {
+            while (true) {
+                x = last(store, x);
 
                 if (x == null) {
                     return x;
@@ -1088,14 +1121,14 @@ public class IndexAVL implements Index {
      * @param b a full row in this table
      * @return comparison result, -1,0,+1
      */
-    public int compareRowNonUnique(Session session, Object[] a,
-                                   int[] rowColMap, Object[] b) {
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                                   int[] rowColMap) {
 
         int fieldcount = rowColMap.length;
 
         for (int j = 0; j < fieldcount; j++) {
-            int i = colTypes[j].compare(session, a[rowColMap[j]],
-                                        b[colIndex[j]]);
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[rowColMap[j]]);
 
             if (i != 0) {
                 return i;
@@ -1105,13 +1138,12 @@ public class IndexAVL implements Index {
         return 0;
     }
 
-    public int compareRowNonUnique(Session session, Object[] a,
-                                   int[] rowColMap, Object[] b,
-                                   int fieldCount) {
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                                   int[] rowColMap, int fieldCount) {
 
         for (int j = 0; j < fieldCount; j++) {
-            int i = colTypes[j].compare(session, a[rowColMap[j]],
-                                        b[colIndex[j]]);
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[rowColMap[j]]);
 
             if (i != 0) {
                 return i;
@@ -1121,10 +1153,10 @@ public class IndexAVL implements Index {
         return 0;
     }
 
-    public int compareObject(Session session, Object[] a, int[] rowColMap,
-                             Object[] b, int position) {
-        return colTypes[position].compare(session, a[rowColMap[position]],
-                                          b[colIndex[position]]);
+    public int compareObject(Session session, Object[] a, Object[] b,
+                             int[] rowColMap, int position) {
+        return colTypes[position].compare(session, a[colIndex[position]],
+                                          b[rowColMap[position]]);
     }
 
     /**
@@ -1247,7 +1279,7 @@ public class IndexAVL implements Index {
      */
     NodeAVL findNode(Session session, PersistentStore store, Object[] rowdata,
                      int[] rowColMap, int fieldCount, int compareType,
-                     int readMode) {
+                     int readMode, boolean reversed) {
 
         readLock.lock();
 
@@ -1257,16 +1289,20 @@ public class IndexAVL implements Index {
             NodeAVL result     = null;
             Row     currentRow = null;
 
-            if (compareType != OpTypes.EQUAL && compareType != OpTypes.IS_NULL) {
+            if (compareType != OpTypes.EQUAL
+                    && compareType != OpTypes.IS_NULL) {
                 fieldCount--;
             }
 
             while (x != null) {
                 currentRow = x.getRow(store);
 
-                int i = this.compareRowNonUnique(session, rowdata, rowColMap,
-                                                 currentRow.getData(),
-                                                 fieldCount);
+                int i = 0;
+
+                if (fieldCount > 0) {
+                    i = compareRowNonUnique(session, currentRow.getData(),
+                                            rowdata, rowColMap, fieldCount);
+                }
 
                 if (i == 0) {
                     switch (compareType) {
@@ -1280,37 +1316,8 @@ public class IndexAVL implements Index {
                         }
                         case OpTypes.NOT :
                         case OpTypes.GREATER : {
-                            i = compareObject(session, rowdata, rowColMap,
-                                              currentRow.getData(),
-                                              fieldCount);
-
-                            if (i >= 0) {
-                                n = x.getRight(store);
-                            } else {
-                                result = x;
-                                n      = x.getLeft(store);
-                            }
-
-                            break;
-                        }
-                        case OpTypes.GREATER_EQUAL : {
-                            i = compareObject(session, rowdata, rowColMap,
-                                              currentRow.getData(),
-                                              fieldCount);
-
-                            if (i > 0) {
-                                n = x.getRight(store);
-                            } else {
-                                result = x;
-                                n      = x.getLeft(store);
-                            }
-
-                            break;
-                        }
-                        case OpTypes.SMALLER : {
-                            i = compareObject(session, rowdata, rowColMap,
-                                              currentRow.getData(),
-                                              fieldCount);
+                            i = compareObject(session, currentRow.getData(),
+                                              rowdata, rowColMap, fieldCount);
 
                             if (i <= 0) {
                                 n = x.getRight(store);
@@ -1321,10 +1328,9 @@ public class IndexAVL implements Index {
 
                             break;
                         }
-                        case OpTypes.SMALLER_EQUAL : {
-                            i = compareObject(session, rowdata, rowColMap,
-                                              currentRow.getData(),
-                                              fieldCount);
+                        case OpTypes.GREATER_EQUAL : {
+                            i = compareObject(session, currentRow.getData(),
+                                              rowdata, rowColMap, fieldCount);
 
                             if (i < 0) {
                                 n = x.getRight(store);
@@ -1335,12 +1341,38 @@ public class IndexAVL implements Index {
 
                             break;
                         }
+                        case OpTypes.SMALLER : {
+                            i = compareObject(session, currentRow.getData(),
+                                              rowdata, rowColMap, fieldCount);
+
+                            if (i < 0) {
+                                result = x;
+                                n      = x.getRight(store);
+                            } else {
+                                n = x.getLeft(store);
+                            }
+
+                            break;
+                        }
+                        case OpTypes.SMALLER_EQUAL : {
+                            i = compareObject(session, currentRow.getData(),
+                                              rowdata, rowColMap, fieldCount);
+
+                            if (i <= 0) {
+                                result = x;
+                                n      = x.getRight(store);
+                            } else {
+                                n = x.getLeft(store);
+                            }
+
+                            break;
+                        }
                         default :
                             Error.runtimeError(ErrorCode.U_S0500, "Index");
                     }
-                } else if (i > 0) {
-                    n = x.getRight(store);
                 } else if (i < 0) {
+                    n = x.getRight(store);
+                } else if (i > 0) {
                     n = x.getLeft(store);
                 }
 
@@ -1364,11 +1396,19 @@ public class IndexAVL implements Index {
                     break;
                 }
 
-                result = next(store, result);
+                result = reversed ? last(store, result)
+                                  : next(store, result);
 
-                if (compareRowNonUnique(
-                        session, rowdata, rowColMap, currentRow.getData(),
-                        fieldCount) != 0) {
+                if (result == null) {
+                    break;
+                }
+
+                currentRow = result.getRow(store);
+
+                if (fieldCount > 0
+                        && compareRowNonUnique(
+                            session, currentRow.getData(), rowdata, rowColMap,
+                            fieldCount) != 0) {
                     result = null;
 
                     break;
@@ -1558,13 +1598,13 @@ public class IndexAVL implements Index {
     }
 
     IndexRowIterator getIterator(Session session, PersistentStore store,
-                                 NodeAVL x, boolean single) {
+                                 NodeAVL x, boolean single, boolean reversed) {
 
         if (x == null) {
             return emptyIterator;
         } else {
             IndexRowIterator it = new IndexRowIterator(session, store, this,
-                x, single);
+                x, single, reversed);
 
             return it;
         }
@@ -1578,6 +1618,7 @@ public class IndexAVL implements Index {
         NodeAVL               nextnode;
         Row                   lastrow;
         boolean               single;
+        boolean               reversed;
         IndexRowIterator      last;
         IndexRowIterator      next;
         IndexRowIterator      lastInSession;
@@ -1587,12 +1628,14 @@ public class IndexAVL implements Index {
          * When session == null, rows from all sessions are returned
          */
         public IndexRowIterator(Session session, PersistentStore store,
-                                IndexAVL index, NodeAVL node, boolean single) {
+                                IndexAVL index, NodeAVL node, boolean single,
+                                boolean reversed) {
 
-            this.session = session;
-            this.store   = store;
-            this.index   = index;
-            this.single  = single;
+            this.session  = session;
+            this.store    = store;
+            this.index    = index;
+            this.single   = single;
+            this.reversed = reversed;
 
             if (index == null) {
                 return;
@@ -1613,9 +1656,15 @@ public class IndexAVL implements Index {
                 return null;
             }
 
-            lastrow  = nextnode.getRow(store);
-            nextnode = single ? null
-                              : index.next(session, store, nextnode);
+            lastrow = nextnode.getRow(store);
+
+            if (single) {
+                nextnode = null;
+            } else if (reversed) {
+                nextnode = index.last(session, store, nextnode);
+            } else {
+                nextnode = index.next(session, store, nextnode);
+            }
 
             return lastrow;
         }
