@@ -664,23 +664,4 @@ implements Comparator {
     public int compare(Object a, Object b) {
         return mainIndex.compareRow(session, (Object[]) a, (Object[]) b);
     }
-
-    public static class RowDataCorrespondingComparator implements Comparator {
-
-        Session session;
-        Index   index;
-        int[]   colIndex;
-
-        public void setParams(Session session, Index index, int[] colIndex) {
-
-            this.session  = session;
-            this.index    = index;
-            this.colIndex = colIndex;
-        }
-
-        public int compare(Object a, Object b) {
-            return index.compareRowNonUnique(session, (Object[]) a, colIndex,
-                                             (Object[]) b);
-        }
-    }
 }

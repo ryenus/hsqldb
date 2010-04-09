@@ -34,23 +34,29 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
 /**
- * Implementation of CASE, LIMIT and ZONE operations.
+ * Implementation of CAST, CASE, LIMIT and ZONE operations.
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.9.0
  */
 public class ExpressionOp extends Expression {
 
+    static final ExpressionOp limitOneExpression = new ExpressionOp(
+        OpTypes.LIMIT,
+        new ExpressionValue(ValuePool.INTEGER_0, Type.SQL_INTEGER),
+        new ExpressionValue(ValuePool.INTEGER_1, Type.SQL_INTEGER));
+
     /**
-     * Creates a binary operation expression
+     * Creates a special binary operation expression
      */
     ExpressionOp(int type, Expression left, Expression right) {
 
@@ -389,6 +395,9 @@ public class ExpressionOp extends Expression {
             case OpTypes.ALTERNATIVE :
                 break;
 
+            case OpTypes.LIMIT :
+                break;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }
@@ -524,6 +533,9 @@ public class ExpressionOp extends Expression {
                         nodes[LEFT].dataType, (int) zoneSeconds,
                         session.getZoneSeconds());
             }
+            case OpTypes.LIMIT :
+
+            // fall through
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionOp");
         }

@@ -138,11 +138,11 @@ public class StatementInsert extends StatementDML {
 
         if (newDataNavigator.getSize() > 0) {
             insertRowSet(session, generatedNavigator, newDataNavigator);
+        }
 
-            if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
-                baseTable.fireTriggers(session, Trigger.INSERT_AFTER, null,
-                                       null, null);
-            }
+        if (baseTable.triggerLists[Trigger.INSERT_AFTER].length > 0) {
+            baseTable.fireTriggers(session, Trigger.INSERT_AFTER,
+                                   newDataNavigator);
         }
 
         if (resultOut == null) {

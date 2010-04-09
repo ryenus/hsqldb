@@ -63,7 +63,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -90,7 +90,7 @@ public class QuerySpecification extends QueryExpression {
     private int           havingColumnCount;     // columns in 'having' (0 or 1)
     private int           indexStartHaving;
     public int            indexStartOrderBy;
-    private int           indexStartAggregates;
+    public int            indexStartAggregates;
     private int           indexLimitExpressions;
     private int           indexLimitData;
     private boolean       hasRowId;
@@ -307,6 +307,16 @@ public class QuerySpecification extends QueryExpression {
             e.replaceAliasInOrderBy(exprColumns, indexLimitVisible);
             resolveColumnReferencesAndAllocate(e, rangeVariables.length,
                                                false);
+
+            if (isAggregated || isGrouped) {
+                boolean check = e.getLeftNode().isComposedOf(exprColumns, 0,
+                    indexLimitVisible + groupByColumnCount,
+                    Expression.emptyExpressionSet);
+
+                if (!check) {
+                    throw Error.error(ErrorCode.X_42576);
+                }
+            }
         }
 
         sortAndSlice.prepare(this);
@@ -998,6 +1008,19 @@ public class QuerySpecification extends QueryExpression {
                 e.convertToSimpleColumn(expressions, columnExpressions);
             }
         }
+
+        if (isAggregated && !isGrouped && orderCount == 0
+                && !sortAndSlice.hasLimit() && aggregateSet.size() == 1) {
+            SortAndSlice slice = new SortAndSlice();
+
+            slice.isGenerated = true;
+
+            slice.addLimitCondition(ExpressionOp.limitOneExpression);
+
+            if (slice.prepareSpecial(this)) {
+                this.sortAndSlice = slice;
+            }
+        }
     }
 
     boolean resolveForGroupBy(HsqlList unresolvedSet) {
@@ -1245,7 +1268,9 @@ public class QuerySpecification extends QueryExpression {
             }
 
             if (isAggregated || isGrouped) {
-                continue;
+                if (!sortAndSlice.isGenerated) {
+                    continue;
+                }
             }
 
             if (rowCount >= limitcount) {

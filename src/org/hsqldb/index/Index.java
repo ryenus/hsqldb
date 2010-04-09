@@ -151,7 +151,7 @@ public interface Index extends SchemaObject {
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata, int matchCount,
-                                    int compareType, boolean[] map);
+                                    int compareType, boolean reversed, boolean[] map);
 
     /**
      * Return the first node equal to the rowdata object.
@@ -199,7 +199,7 @@ public interface Index extends SchemaObject {
      *
      * @return last row
      */
-    public Row lastRow(Session session, PersistentStore store);
+    public RowIterator lastRow(Session session, PersistentStore store);
 
     /**
      * Compares two table rows based on the columns of this index. The rowColMap
@@ -214,10 +214,10 @@ public interface Index extends SchemaObject {
      * @return comparison result, -1,0,+1
      */
     public int compareRowNonUnique(Session session, Object[] a,
-                                   int[] rowColMap, Object[] b);
+                                   Object[] b, int[] rowColMap);
 
     public int compareRowNonUnique(Session session, Object[] a,
-                                   int[] rowColMap, Object[] b,
+                                   Object[] b, int[] rowColMap,
                                    int fieldCount);
 
     /**

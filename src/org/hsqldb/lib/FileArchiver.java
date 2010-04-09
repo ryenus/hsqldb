@@ -31,6 +31,7 @@
 
 package org.hsqldb.lib;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -42,8 +43,6 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import org.hsqldb.lib.java.JavaSystem;
-
-import java.io.FileOutputStream;
 
 /**
  * Creates a direct, compressed or decompressed copy of a file.
