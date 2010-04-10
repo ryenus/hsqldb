@@ -211,8 +211,10 @@ public final class NumberType extends Type {
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER :
-            case Types.SQL_BIGINT :
                 return "java.lang.Integer";
+
+            case Types.SQL_BIGINT :
+                return "java.lang.Long";
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
