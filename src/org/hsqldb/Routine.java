@@ -610,15 +610,15 @@ public class Routine implements SchemaObject {
             name = name.substring(i + 1);
         }
 
-        Method   method        = null;
         Method[] methods       = getMethods(name);
         int      firstMismatch = -1;
 
         for (i = 0; i < methods.length; i++) {
             int offset = 0;
 
-            method = methods[i];
+            hasConnection[0] = false;
 
+            Method  method = methods[i];
             Class[] params = method.getParameterTypes();
 
             if (params.length > 0
@@ -655,10 +655,12 @@ public class Routine implements SchemaObject {
                     Types.getParameterSQLTypeNumber(param));
 
                 if (methodParamType == null) {
+                    method = null;
+
                     break;
                 }
 
-                routine.getParameter(j).setNullable(!params[i].isPrimitive());
+                routine.getParameter(j).setNullable(!param.isPrimitive());
 
                 if (routine.parameterTypes[j].typeCode
                         != methodParamType.typeCode) {
@@ -673,7 +675,7 @@ public class Routine implements SchemaObject {
             }
 
             if (method != null) {
-                break;
+                return method;
             }
         }
 
@@ -683,7 +685,7 @@ public class Routine implements SchemaObject {
             throw Error.error(ErrorCode.X_46511, param.getNameString());
         }
 
-        return method;
+        return null;
     }
 
     static Method[] getMethods(String name) {
