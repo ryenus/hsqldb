@@ -121,6 +121,7 @@ public class TestJavaFunctions extends TestBase {
 
         try {
             s.execute();
+
             r = s.getResultSet();
 
             fail("exception not thrown");
@@ -139,6 +140,16 @@ public class TestJavaFunctions extends TestBase {
         Statement st = connection.createStatement();
 
         return st.executeQuery("SELECT * FROM T WHERE I < " + i);
+    }
+
+    public static ResultSet getQueryResult(Connection connection,
+                                           String p1) throws SQLException {
+        return getQueryResult(connection, 13);
+    }
+
+    public static ResultSet getQueryResult(Connection connection, String p1,
+                                           String p2) throws SQLException {
+        return getQueryResult(connection, 20);
     }
 
     private static Result newTwoColumnResult() {
@@ -177,7 +188,6 @@ public class TestJavaFunctions extends TestBase {
         if (end > start + 100) {
             end = start + 100;
         }
-
 
         for (long i = start; i < end; i++) {
             Object[] row = new Object[2];
