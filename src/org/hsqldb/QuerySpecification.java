@@ -1824,7 +1824,7 @@ public class QuerySpecification extends QueryExpression {
 
             indexLimitRowId++;
 
-            isSimpleCount = true;
+            hasRowID = true;
 
             if (!baseTable.isFileBased()) {
                 indexLimitRowId++;

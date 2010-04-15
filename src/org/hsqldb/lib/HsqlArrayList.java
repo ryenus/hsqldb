@@ -311,6 +311,9 @@ public class HsqlArrayList extends BaseList implements HsqlList {
         elementCount = 0;
     }
 
+    /**
+     * Increase or reduce the size, setting discarded or added elements to null.
+     */
     public void setSize(int newSize) {
 
         if (newSize == 0) {
