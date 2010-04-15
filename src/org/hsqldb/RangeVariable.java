@@ -802,6 +802,12 @@ public final class RangeVariable {
                 hasLeftOuterRow = rangeVar.isLeftJoin;
             }
 
+            if (conditions[condIndex].isFalse) {
+                it = conditions[condIndex].rangeIndex.emptyIterator();
+
+                return;
+            }
+
             if (conditions[condIndex].indexCond == null) {
                 it = conditions[condIndex].reversed
                      ? conditions[condIndex].rangeIndex.lastRow(session, store)
@@ -1167,6 +1173,7 @@ public final class RangeVariable {
         Expression          nonIndexCondition;
         int                 opType;
         int                 opTypeEnd;
+        boolean             isFalse;
         boolean             reversed;
 
         RangeVariableConditions(RangeVariable rangeVar, boolean isJoin) {
@@ -1193,6 +1200,10 @@ public final class RangeVariable {
 
             nonIndexCondition =
                 ExpressionLogical.andExpressions(nonIndexCondition, e);
+
+            if (Expression.EXPR_FALSE.equals(nonIndexCondition)) {
+                isFalse = true;
+            }
 
             if (rangeIndex == null || rangeIndex.getColumnCount() == 0) {
                 return;

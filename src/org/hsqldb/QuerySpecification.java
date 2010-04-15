@@ -51,6 +51,7 @@ import org.hsqldb.lib.Set;
 import org.hsqldb.navigator.RangeIterator;
 import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.navigator.RowSetNavigatorDataTable;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.result.ResultProperties;
@@ -93,7 +94,8 @@ public class QuerySpecification extends QueryExpression {
     public int            indexStartAggregates;
     private int           indexLimitExpressions;
     private int           indexLimitData;
-    private boolean       hasRowId;
+    private boolean       hasRowID;
+    private boolean       isSimpleCount;
     private boolean       hasMemoryRow;
 
     //
@@ -311,7 +313,7 @@ public class QuerySpecification extends QueryExpression {
             if (isAggregated || isGrouped) {
                 boolean check = e.getLeftNode().isComposedOf(exprColumns, 0,
                     indexLimitVisible + groupByColumnCount,
-                    Expression.emptyExpressionSet);
+                    Expression.aggregateFunctionSet);
 
                 if (!check) {
                     throw Error.error(ErrorCode.X_42576);
@@ -750,7 +752,6 @@ public class QuerySpecification extends QueryExpression {
     void resolveTypesPartOne(Session session) {
 
         resolveExpressionTypes(session);
-        setRangeVariableConditions();
         resolveAggregates();
 
         for (int i = 0; i < unionColumnTypes.length; i++) {
@@ -786,6 +787,39 @@ public class QuerySpecification extends QueryExpression {
 
         if (isUpdatable) {
             getMergedSelect();
+        }
+
+        setRangeVariableConditions();
+
+        if (isAggregated && !isGrouped && !sortAndSlice.hasOrder()
+                && !sortAndSlice.hasLimit() && aggregateSet.size() == 1
+                && indexLimitVisible == 1) {
+            Expression e      = exprColumns[indexStartAggregates];
+            int        opType = e.getType();
+
+            switch (opType) {
+
+                case OpTypes.MAX :
+                case OpTypes.MIN : {
+                    SortAndSlice slice = new SortAndSlice();
+
+                    slice.isGenerated = true;
+
+                    slice.addLimitCondition(ExpressionOp.limitOneExpression);
+
+                    if (slice.prepareSpecial(this)) {
+                        this.sortAndSlice = slice;
+                    }
+
+                    break;
+                }
+                case OpTypes.COUNT : {
+                    if (rangeVariables.length == 1 && queryCondition == null
+                            && e.getLeftNode().getType() == OpTypes.ASTERISK) {
+                        isSimpleCount = true;
+                    }
+                }
+            }
         }
 
         sortAndSlice.setSortRange(this);
@@ -1008,19 +1042,6 @@ public class QuerySpecification extends QueryExpression {
                 e.convertToSimpleColumn(expressions, columnExpressions);
             }
         }
-
-        if (isAggregated && !isGrouped && orderCount == 0
-                && !sortAndSlice.hasLimit() && aggregateSet.size() == 1) {
-            SortAndSlice slice = new SortAndSlice();
-
-            slice.isGenerated = true;
-
-            slice.addLimitCondition(ExpressionOp.limitOneExpression);
-
-            if (slice.prepareSpecial(this)) {
-                this.sortAndSlice = slice;
-            }
-        }
     }
 
     boolean resolveForGroupBy(HsqlList unresolvedSet) {
@@ -1162,6 +1183,19 @@ public class QuerySpecification extends QueryExpression {
 
         if (isUpdatable) {
             result.rsProperties = ResultProperties.updatablePropsValue;
+        }
+
+        if (this.isSimpleCount) {
+            Object[]        data  = new Object[indexLimitData];
+            Table           table = rangeVariables[0].getTable();
+            PersistentStore store = session.sessionData.getRowStore(table);
+            int             count = table.getIndex(0).size(session, store);
+
+            data[0] = data[indexStartAggregates] = ValuePool.getInt(count);
+
+            navigator.add(data);
+
+            return result;
         }
 
         int fullJoinIndex = 0;
@@ -1790,7 +1824,7 @@ public class QuerySpecification extends QueryExpression {
 
             indexLimitRowId++;
 
-            hasRowId = true;
+            isSimpleCount = true;
 
             if (!baseTable.isFileBased()) {
                 indexLimitRowId++;
@@ -1919,10 +1953,6 @@ public class QuerySpecification extends QueryExpression {
                     checkQueryCondition = queryCondition;
                     break;
             }
-        }
-
-        if (table instanceof TableDerived) {
-            setRangeVariableConditions();
         }
     }
 

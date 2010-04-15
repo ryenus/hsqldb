@@ -219,16 +219,8 @@ public final class SortAndSlice {
 
     public boolean prepareSpecial(QuerySpecification select) {
 
-        if (select.indexLimitVisible != 1) {
-            return false;
-        }
-
         Expression e      = select.exprColumns[select.indexStartAggregates];
         int        opType = e.getType();
-
-        if (opType != OpTypes.MAX && opType != OpTypes.MIN) {
-            return false;
-        }
 
         e = e.getLeftNode();
 

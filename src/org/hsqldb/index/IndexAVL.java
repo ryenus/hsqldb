@@ -376,14 +376,36 @@ public class IndexAVL implements Index {
     /**
      * Returns the node count.
      */
-    public int size(PersistentStore store) {
+    public int size(Session session, PersistentStore store) {
+
+        readLock.lock();
+
+        try {
+            return store.elementCount(session);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public int sizeUnique(PersistentStore store) {
+
+        readLock.lock();
+
+        try {
+            return store.elementCountUnique(this);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public int getNodeCount(Session session, PersistentStore store) {
 
         int count = 0;
 
         readLock.lock();
 
         try {
-            RowIterator it = firstRow(null, store);
+            RowIterator it = firstRow(session, store);
 
             while (it.hasNext()) {
                 it.getNextRow();
@@ -398,6 +420,9 @@ public class IndexAVL implements Index {
     }
 
     public int sizeEstimate(PersistentStore store) {
+
+        firstRow(null, store);
+
         return (int) (1L << depth);
     }
 
@@ -463,6 +488,163 @@ public class IndexAVL implements Index {
     }
 
     /**
+     * Compares two table rows based on the columns of this index. The rowColMap
+     * parameter specifies which columns of the other table are to be compared
+     * with the colIndex columns of this index. The rowColMap can cover all or
+     * only some columns of this index.
+     *
+     * @param session Session
+     * @param a row from another table
+     * @param rowColMap column indexes in the other table
+     * @param b a full row in this table
+     * @return comparison result, -1,0,+1
+     */
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                                   int[] rowColMap) {
+
+        int fieldcount = rowColMap.length;
+
+        for (int j = 0; j < fieldcount; j++) {
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[rowColMap[j]]);
+
+            if (i != 0) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                                   int[] rowColMap, int fieldCount) {
+
+        for (int j = 0; j < fieldCount; j++) {
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[rowColMap[j]]);
+
+            if (i != 0) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * As above but use the index column data
+     */
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                                   int fieldCount) {
+
+        for (int j = 0; j < fieldCount; j++) {
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[colIndex[j]]);
+
+            if (i != 0) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    public int compareRow(Session session, Object[] a, Object[] b) {
+
+        for (int j = 0; j < colIndex.length; j++) {
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[colIndex[j]]);
+
+            if (i != 0) {
+                if (isSimpleOrder) {
+                    return i;
+                }
+
+                boolean nulls = a[colIndex[j]] == null
+                                || b[colIndex[j]] == null;
+
+                if (colDesc[j] && !nulls) {
+                    i = -i;
+                }
+
+                if (nullsLast[j] && nulls) {
+                    i = -i;
+                }
+
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Compare two rows of the table for inserting rows into unique indexes
+     * Supports descending columns.
+     *
+     * @param session Session
+     * @param newRow data
+     * @param existingRow data
+     * @param useRowId boolean
+     * @param start int
+     * @return comparison result, -1,0,+1
+     */
+    int compareRowForInsertOrDelete(Session session, Row newRow,
+                                    Row existingRow, boolean useRowId,
+                                    int start) {
+
+        Object[] a = newRow.getData();
+        Object[] b = existingRow.getData();
+
+        for (int j = start; j < colIndex.length; j++) {
+            int i = colTypes[j].compare(session, a[colIndex[j]],
+                                        b[colIndex[j]]);
+
+            if (i != 0) {
+                if (isSimpleOrder) {
+                    return i;
+                }
+
+                boolean nulls = a[colIndex[j]] == null
+                                || b[colIndex[j]] == null;
+
+                if (colDesc[j] && !nulls) {
+                    i = -i;
+                }
+
+                if (nullsLast[j] && nulls) {
+                    i = -i;
+                }
+
+                return i;
+            }
+        }
+
+        if (useRowId) {
+            return newRow.getPos() - existingRow.getPos();
+        }
+
+        return 0;
+    }
+
+    int compareObject(Session session, Object[] a, Object[] b,
+                      int[] rowColMap, int position) {
+        return colTypes[position].compare(session, a[colIndex[position]],
+                                          b[rowColMap[position]]);
+    }
+
+    boolean hasNulls(Object[] rowData) {
+
+        for (int j = 0; j < colIndex.length; j++) {
+            if (rowData[colIndex[j]] == null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Insert a node into the index
      */
     public void insert(Session session, PersistentStore store, Row row) {
@@ -482,6 +664,7 @@ public class IndexAVL implements Index {
 
             if (n == null) {
                 store.setAccessor(this, ((RowAVL) row).getNode(position));
+                store.setElementCount(this, 1, 1);
 
                 return;
             }
@@ -532,6 +715,7 @@ public class IndexAVL implements Index {
             x = x.set(store, isleft, ((RowAVL) row).getNode(position));
 
             balance(store, x, isleft);
+            store.updateElementCount(this, 1, 1);
         } finally {
             store.unlock();
             writeLock.unlock();
@@ -546,10 +730,13 @@ public class IndexAVL implements Index {
 
         NodeAVL node = ((RowAVL) row).getNode(position);
 
-        delete(store, node);
+        if (node != null) {
+            delete(store, node);
+            store.updateElementCount(this, -1, -1);
+        }
     }
 
-    public void delete(PersistentStore store, NodeAVL x) {
+    void delete(PersistentStore store, NodeAVL x) {
 
         if (x == null) {
             return;
@@ -1104,162 +1291,6 @@ public class IndexAVL implements Index {
             }
 
             break;
-        }
-
-        return false;
-    }
-
-    /**
-     * Compares two table rows based on the columns of this index. The rowColMap
-     * parameter specifies which columns of the other table are to be compared
-     * with the colIndex columns of this index. The rowColMap can cover all or
-     * only some columns of this index.
-     *
-     * @param session Session
-     * @param a row from another table
-     * @param rowColMap column indexes in the other table
-     * @param b a full row in this table
-     * @return comparison result, -1,0,+1
-     */
-    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
-                                   int[] rowColMap) {
-
-        int fieldcount = rowColMap.length;
-
-        for (int j = 0; j < fieldcount; j++) {
-            int i = colTypes[j].compare(session, a[colIndex[j]],
-                                        b[rowColMap[j]]);
-
-            if (i != 0) {
-                return i;
-            }
-        }
-
-        return 0;
-    }
-
-    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
-                                   int[] rowColMap, int fieldCount) {
-
-        for (int j = 0; j < fieldCount; j++) {
-            int i = colTypes[j].compare(session, a[colIndex[j]],
-                                        b[rowColMap[j]]);
-
-            if (i != 0) {
-                return i;
-            }
-        }
-
-        return 0;
-    }
-
-    public int compareObject(Session session, Object[] a, Object[] b,
-                             int[] rowColMap, int position) {
-        return colTypes[position].compare(session, a[colIndex[position]],
-                                          b[rowColMap[position]]);
-    }
-
-    /**
-     * As above but use the index column data
-     */
-    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
-                                   int fieldcount) {
-
-        for (int j = 0; j < fieldcount; j++) {
-            int i = colTypes[j].compare(session, a[j], b[colIndex[j]]);
-
-            if (i != 0) {
-                return i;
-            }
-        }
-
-        return 0;
-    }
-
-    public int compareRow(Session session, Object[] a, Object[] b) {
-
-        for (int j = 0; j < colIndex.length; j++) {
-            int i = colTypes[j].compare(session, a[colIndex[j]],
-                                        b[colIndex[j]]);
-
-            if (i != 0) {
-                if (isSimpleOrder) {
-                    return i;
-                }
-
-                boolean nulls = a[colIndex[j]] == null
-                                || b[colIndex[j]] == null;
-
-                if (colDesc[j] && !nulls) {
-                    i = -i;
-                }
-
-                if (nullsLast[j] && nulls) {
-                    i = -i;
-                }
-
-                return i;
-            }
-        }
-
-        return 0;
-    }
-
-    /**
-     * Compare two rows of the table for inserting rows into unique indexes
-     * Supports descending columns.
-     *
-     * @param session Session
-     * @param newRow data
-     * @param existingRow data
-     * @param useRowId boolean
-     * @param start int
-     * @return comparison result, -1,0,+1
-     */
-    int compareRowForInsertOrDelete(Session session, Row newRow,
-                                    Row existingRow, boolean useRowId,
-                                    int start) {
-
-        Object[] a = newRow.getData();
-        Object[] b = existingRow.getData();
-
-        for (int j = start; j < colIndex.length; j++) {
-            int i = colTypes[j].compare(session, a[colIndex[j]],
-                                        b[colIndex[j]]);
-
-            if (i != 0) {
-                if (isSimpleOrder) {
-                    return i;
-                }
-
-                boolean nulls = a[colIndex[j]] == null
-                                || b[colIndex[j]] == null;
-
-                if (colDesc[j] && !nulls) {
-                    i = -i;
-                }
-
-                if (nullsLast[j] && nulls) {
-                    i = -i;
-                }
-
-                return i;
-            }
-        }
-
-        if (useRowId) {
-            return newRow.getPos() - existingRow.getPos();
-        }
-
-        return 0;
-    }
-
-    boolean hasNulls(Object[] rowData) {
-
-        for (int j = 0; j < colIndex.length; j++) {
-            if (rowData[colIndex[j]] == null) {
-                return true;
-            }
         }
 
         return false;

@@ -46,6 +46,7 @@ import org.hsqldb.TableBase;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.types.Type;
 import org.hsqldb.ColumnSchema;
+import org.hsqldb.index.IndexAVL;
 
 public abstract class RowStoreAVL implements PersistentStore {
 
@@ -53,6 +54,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;
     TableBase                 table;
+    int                       elementCount;
 
     // for result tables
     long timestamp;
@@ -188,6 +190,36 @@ public abstract class RowStoreAVL implements PersistentStore {
     public abstract void setAccessor(Index key, int accessor);
 
     public abstract void resetAccessorKeys(Index[] keys);
+
+    public int elementCount(Session session) {
+
+        if (elementCount < 0) {
+            Index index = this.indexList[0];
+
+            if (index == null) {
+                elementCount = 0;
+            } else {
+                elementCount = ((IndexAVL) index).getNodeCount(session, this);
+            }
+        }
+
+        return elementCount;
+    }
+
+    public int elementCountUnique(Index index) {
+        return 0;
+    }
+
+    public void setElementCount(Index key, int size, int uniqueSize) {
+        elementCount = size;
+    }
+
+    public void updateElementCount(Index key, int size, int uniqueSize) {
+
+        if (key.getPosition() == 0 && elementCount > -1) {
+            elementCount += size;
+        }
+    }
 
     /**
      * Moves the data from an old store to new after changes to table

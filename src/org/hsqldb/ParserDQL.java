@@ -502,18 +502,18 @@ public class ParserDQL extends ParserBase {
 
         readThis(Tokens.OPENBRACKET);
 
-        OrderedHashSet set = readColumnNameList(quotedFlags, readAscDesc);
+        OrderedHashSet set = new OrderedHashSet();
 
+        readColumnNameList(set, quotedFlags, readAscDesc);
         readThis(Tokens.CLOSEBRACKET);
 
         return set;
     }
 
-    OrderedHashSet readColumnNameList(BitMap quotedFlags,
-                                      boolean readAscDesc) {
+    void readColumnNameList(OrderedHashSet set, BitMap quotedFlags,
+                            boolean readAscDesc) {
 
-        int            i   = 0;
-        OrderedHashSet set = new OrderedHashSet();
+        int i = 0;
 
         while (true) {
             if (session.isProcessingScript) {
@@ -551,8 +551,27 @@ public class ParserDQL extends ParserBase {
 
             break;
         }
+    }
 
-        return set;
+    SimpleName[] readColumnNameList(OrderedHashSet set) {
+
+        BitMap columnNameQuoted = new BitMap(32);
+
+        readThis(Tokens.OPENBRACKET);
+        readColumnNameList(set, columnNameQuoted, false);
+        readThis(Tokens.CLOSEBRACKET);
+
+        SimpleName[] columnNameList = new SimpleName[set.size()];
+
+        for (int i = 0; i < set.size(); i++) {
+            SimpleName name =
+                HsqlNameManager.getSimpleName((String) set.get(i),
+                                              columnNameQuoted.isSet(i));
+
+            columnNameList[i] = name;
+        }
+
+        return columnNameList;
     }
 
     SubQuery getViewSubquery(View v) {
@@ -641,7 +660,41 @@ public class ParserDQL extends ParserBase {
     QueryExpression XreadQueryExpression() {
 
         if (token.tokenType == Tokens.WITH) {
-            throw super.unsupportedFeature();
+            read();
+
+            if (token.tokenType == Tokens.RECURSIVE) {
+                throw super.unsupportedFeature();
+            }
+
+            while (true) {
+                checkIsSimpleName();
+
+                SimpleName queryName = database.nameManager.getSimpleName(
+                    token.tokenString, isDelimitedIdentifier());
+
+                read();
+
+                if (token.tokenType == Tokens.OPENBRACKET) {
+                    OrderedHashSet names = new OrderedHashSet();
+
+                    SimpleName[] nameList = readColumnNameList(names);
+                }
+
+                readThis(Tokens.AS);
+                readThis(Tokens.OPENBRACKET);
+
+                SubQuery subQuery = XreadTableSubqueryBody();
+
+                readThis(Tokens.CLOSEBRACKET);
+
+                if (token.tokenType == Tokens.COMMA) {
+                    read();
+
+                    continue;
+                }
+
+                break;
+            }
         }
 
         QueryExpression queryExpression = XreadQueryExpressionBody();
@@ -1428,11 +1481,10 @@ public class ParserDQL extends ParserBase {
      */
     protected RangeVariable readTableOrSubquery() {
 
-        Table          table            = null;
-        SimpleName     alias            = null;
-        OrderedHashSet columnList       = null;
-        BitMap         columnNameQuoted = null;
-        SimpleName[]   columnNameList   = null;
+        Table          table          = null;
+        SimpleName     alias          = null;
+        SimpleName[]   columnNameList = null;
+        OrderedHashSet columnList     = null;
 
         if (token.tokenType == Tokens.OPENBRACKET) {
             Expression e = XreadTableSubqueryOrJoinedTable();
@@ -1469,8 +1521,12 @@ public class ParserDQL extends ParserBase {
             read();
 
             if (token.tokenType == Tokens.OPENBRACKET) {
-                columnNameQuoted = new BitMap(32);
-                columnList       = readColumnNames(columnNameQuoted, false);
+                columnList     = new OrderedHashSet();
+                columnNameList = readColumnNameList(columnList);
+
+                if (table.getColumnCount() != columnNameList.length) {
+                    throw Error.error(ErrorCode.X_42593);
+                }
             } else if (!hasAs && limit) {
                 if (token.tokenType == Tokens.COLON
                         || token.tokenType == Tokens.QUESTION
@@ -1479,22 +1535,6 @@ public class ParserDQL extends ParserBase {
 
                     rewind(position);
                 }
-            }
-        }
-
-        if (columnList != null) {
-            if (table.getColumnCount() != columnList.size()) {
-                throw Error.error(ErrorCode.X_42593);
-            }
-
-            columnNameList = new SimpleName[columnList.size()];
-
-            for (int i = 0; i < columnList.size(); i++) {
-                SimpleName name =
-                    HsqlNameManager.getSimpleName((String) columnList.get(i),
-                                                  columnNameQuoted.isSet(i));
-
-                columnNameList[i] = name;
             }
         }
 
@@ -4797,7 +4837,9 @@ public class ParserDQL extends ParserBase {
                 if (token.tokenType == Tokens.OF) {
                     readThis(Tokens.OF);
 
-                    colNames = readColumnNameList(null, false);
+                    colNames = new OrderedHashSet();
+
+                    readColumnNameList(colNames, null, false);
                 }
             }
         }
@@ -4874,6 +4916,8 @@ public class ParserDQL extends ParserBase {
 
         final Session    session;
         final ParserBase parser;
+
+        //
 
         //
         private int                  subQueryDepth;

@@ -142,7 +142,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         store              = session.sessionData.getRowStore(table);
         mainIndex          = table.getPrimaryIndex();
         fullIndex          = table.getFullIndex();
-        this.size          = mainIndex.size(store);
+        this.size          = mainIndex.size(null, store);
 
         reset();
     }

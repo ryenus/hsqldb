@@ -38,10 +38,12 @@ import org.hsqldb.RowAVL;
 import org.hsqldb.RowAction;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
+import org.hsqldb.TableBase;
 import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
 
@@ -261,5 +263,26 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
             throw e;
         }
+    }
+
+    public int elementCount(Session session) {
+
+        Index index = this.indexList[0];
+
+        if (elementCount < 0) {
+            if (index == null) {
+                elementCount = 0;
+            } else {
+                elementCount = ((IndexAVL) index).getNodeCount(session, this);
+            }
+        }
+
+        if (session != null && index != null
+                && (table.getTableType() == TableBase.SYSTEM_TABLE || database.txManager.getTransactionControl()
+                   != TransactionManager.LOCKS)) {
+            return ((IndexAVL) index).getNodeCount(session, this);
+        }
+
+        return elementCount;
     }
 }

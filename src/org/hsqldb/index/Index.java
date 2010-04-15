@@ -121,9 +121,9 @@ public interface Index extends SchemaObject {
     /**
      * Returns the node count.
      */
-    public int size(PersistentStore store);
+    public int size(Session session, PersistentStore store);
 
-    public int sizeEstimate(PersistentStore store);
+    public int sizeUnique(PersistentStore store);
 
     public boolean isEmpty(PersistentStore store);
 

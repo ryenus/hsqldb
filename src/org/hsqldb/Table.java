@@ -552,7 +552,7 @@ public class Table extends TableBase implements SchemaObject {
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
         sb.append(getName().getSchemaQualifiedStatementName());
         sb.append(' ').append(Tokens.T_INDEX).append(' ').append('\'');
-        sb.append(getIndexRoots(roots));
+        sb.append(StringUtil.getList(roots, " ", ""));
         sb.append('\'');
 
         return sb.toString();
@@ -2351,33 +2351,23 @@ public class Table extends TableBase implements SchemaObject {
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
-        int[] roots = new int[getIndexCount()];
+        int[] roots = new int[indexList.length * 2 + 1];
+        int   i     = 0;
 
-        for (int i = 0; i < getIndexCount(); i++) {
-            CachedObject accessor = store.getAccessor(indexList[i]);
+        for (int index = 0; index < indexList.length; index++) {
+            CachedObject accessor = store.getAccessor(indexList[index]);
 
-            roots[i] = accessor == null ? -1
-                                        : accessor.getPos();
+            roots[i++] = accessor == null ? -1
+                                          : accessor.getPos();
         }
 
+        for (int index = 0; index < indexList.length; index++) {
+            roots[i++] = indexList[index].sizeUnique(store);
+        }
+
+        roots[i] = indexList[0].size(null, store);
+
         return roots;
-    }
-
-    /**
-     * Returns the string consisting of file pointers to roots of indexes
-     * plus the next identity value (hidden or user defined). This is used
-     * with CACHED tables.
-     */
-    static String getIndexRoots(int[] rootsArray) {
-
-        String       roots = StringUtil.getList(rootsArray, " ", "");
-        StringBuffer s     = new StringBuffer(roots);
-
-/*
-        s.append(' ');
-        s.append(identitySequence.peek());
-*/
-        return s.toString();
     }
 
     /**
@@ -2395,14 +2385,21 @@ public class Table extends TableBase implements SchemaObject {
 
         PersistentStore store =
             database.persistentStoreCollection.getStore(this);
+        int i = 0;
 
-        for (int i = 0; i < getIndexCount(); i++) {
-            store.setAccessor(indexList[i], roots[i]);
+        for (int index = 0; index < indexList.length; index++) {
+            store.setAccessor(indexList[index], roots[i++]);
+        }
+
+        int size = roots[indexList.length * 2];
+
+        for (int index = 0; index < indexList.length; index++) {
+            store.setElementCount(indexList[index], size, roots[i++]);
         }
     }
 
     /**
-     *  Sets the index roots and next identity.
+     *  Sets the index roots.
      */
     void setIndexRoots(Session session, String s) {
 
@@ -2411,14 +2408,28 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         ParserDQL p     = new ParserDQL(session, new Scanner(s));
-        int[]     roots = new int[getIndexCount()];
+        int[]     roots = new int[getIndexCount() * 2 + 1];
 
         p.read();
 
-        for (int i = 0; i < getIndexCount(); i++) {
+        int i = 0;
+
+        for (int index = 0; index < getIndexCount(); index++) {
             int v = p.readInteger();
 
-            roots[i] = v;
+            roots[i++] = v;
+        }
+
+        try {
+            for (int index = 0; index < getIndexCount() + 1; index++) {
+                int v = p.readInteger();
+
+                roots[i++] = v;
+            }
+        } catch (Exception e) {
+            for (i = getIndexCount(); i < roots.length; i++) {
+                roots[i] = -1;
+            }
         }
 
         setIndexRoots(roots);

@@ -773,5 +773,4 @@ class TransactionManagerCommon {
             writeLock.unlock();
         }
     }
-
 }

@@ -45,6 +45,7 @@ import org.hsqldb.TransactionManager;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.index.IndexAVL;
 import org.hsqldb.index.NodeAVL;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputInterface;
@@ -341,6 +342,27 @@ public class RowStoreAVLDisk extends RowStoreAVL {
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLDisk");
+    }
+
+    public int elementCount(Session session) {
+
+        Index index = this.indexList[0];
+
+        if (elementCount < 0) {
+            if (index == null) {
+                elementCount = 0;
+            } else {
+                elementCount = ((IndexAVL) index).getNodeCount(session, this);
+            }
+        }
+
+        if (session != null && index != null
+                && database.txManager.getTransactionControl()
+                   != TransactionManager.LOCKS) {
+            return ((IndexAVL) index).getNodeCount(session, this);
+        }
+
+        return elementCount;
     }
 
     public void lock() {
