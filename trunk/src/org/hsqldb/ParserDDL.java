@@ -1975,7 +1975,8 @@ public class ParserDDL extends ParserRoutine {
                         && beforeOrAfterType != TriggerDef.INSTEAD) {
                     read();
 
-                    columns = readColumnNameList(null, false);
+                    columns = new OrderedHashSet();
+                    readColumnNameList(columns, null, false);
                 }
                 break;
 

@@ -347,7 +347,8 @@ public class SchemaManager {
     /**
      * drop all schemas with the given authorisation
      */
-    public void dropSchemas(Session session, Grantee grantee, boolean cascade) {
+    public void dropSchemas(Session session, Grantee grantee,
+                            boolean cascade) {
 
         HsqlArrayList list = getSchemas(grantee);
         Iterator      it   = list.iterator();
@@ -622,7 +623,8 @@ public class SchemaManager {
      *   silently, else throw
      * @param cascade true if the name argument refers to a View
      */
-    public void dropTableOrView(Session session, Table table, boolean cascade) {
+    public void dropTableOrView(Session session, Table table,
+                                boolean cascade) {
 
 // ft - concurrent
         session.commit(false);
@@ -846,7 +848,8 @@ public class SchemaManager {
         }
     }
 
-    public NumberSequence getSequence(String name, String schemaName, boolean raise) {
+    public NumberSequence getSequence(String name, String schemaName,
+                                      boolean raise) {
 
         Schema schema = (Schema) schemaMap.get(schemaName);
 
@@ -1184,11 +1187,16 @@ public class SchemaManager {
 
         for (int i = 0; i < set.size(); i++) {
             HsqlName referenced = (HsqlName) set.get(i);
+            HsqlName name       = object.getName();
 
-            referenceMap.remove(referenced, object.getName());
+            if (object instanceof Routine) {
+                name = ((Routine) object).getSpecificName();
+            }
 
-            if (object.getName().parent != null) {
-                referenceMap.remove(referenced, object.getName().parent);
+            referenceMap.remove(referenced, name);
+
+            if (name.parent != null) {
+                referenceMap.remove(referenced, name.parent);
             }
         }
     }
@@ -1207,7 +1215,8 @@ public class SchemaManager {
         return set;
     }
 
-    public OrderedHashSet getReferencingObjectNames(HsqlName table, HsqlName column) {
+    public OrderedHashSet getReferencingObjectNames(HsqlName table,
+            HsqlName column) {
 
         OrderedHashSet set = new OrderedHashSet();
         Iterator       it  = referenceMap.get(table);
@@ -1253,7 +1262,8 @@ public class SchemaManager {
     }
 
     //
-    private void getCascadingSchemaReferences(HsqlName schema, OrderedHashSet set) {
+    private void getCascadingSchemaReferences(HsqlName schema,
+            OrderedHashSet set) {
 
         Iterator mainIterator = referenceMap.keySet().iterator();
 
@@ -1279,8 +1289,8 @@ public class SchemaManager {
     }
 
     //
-    public HsqlName getSchemaObjectName(HsqlName schemaName, String name, int type,
-                                 boolean raise) {
+    public HsqlName getSchemaObjectName(HsqlName schemaName, String name,
+                                        int type, boolean raise) {
 
         Schema          schema = (Schema) schemaMap.get(schemaName.name);
         SchemaObjectSet set    = null;

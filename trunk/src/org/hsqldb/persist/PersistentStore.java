@@ -39,11 +39,11 @@ import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
 
 /**
- * Interface for a store for CachedObject object.
+ * Interface for a store for CachedObject objects.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
- * @since 1.8.0
+ * @version 2.0.0
+ * @since 1.9.0
  */
 public interface PersistentStore {
 
@@ -124,6 +124,14 @@ public interface PersistentStore {
     void setAccessor(Index key, CachedObject accessor);
 
     void setAccessor(Index key, int accessor);
+
+    int elementCount(Session session);
+
+    int elementCountUnique(Index index);
+
+    void setElementCount(Index key, int size, int uniqueSize);
+
+    void updateElementCount(Index key, int size, int uniqueSize);
 
     void resetAccessorKeys(Index[] keys);
 

@@ -607,7 +607,7 @@ public class LobManager {
                 aIndex++;
             }
 
-            if (bOffset == bAddresses[aIndex][LOBS.BLOCK_COUNT]) {
+            if (bOffset == bAddresses[bIndex][LOBS.BLOCK_COUNT]) {
                 bOffset = 0;
 
                 bIndex++;
@@ -677,7 +677,7 @@ public class LobManager {
                 aIndex++;
             }
 
-            if (bOffset == bAddresses[aIndex][LOBS.BLOCK_COUNT]) {
+            if (bOffset == bAddresses[bIndex][LOBS.BLOCK_COUNT]) {
                 bOffset = 0;
 
                 bIndex++;

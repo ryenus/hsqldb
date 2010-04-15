@@ -209,6 +209,11 @@ public class ExpressionLogical extends Expression {
             return e1;
         }
 
+        if (ExpressionLogical.EXPR_FALSE.equals(e1)
+                || ExpressionLogical.EXPR_FALSE.equals(e2)) {
+            return ExpressionLogical.EXPR_FALSE;
+        }
+
         return new ExpressionLogical(OpTypes.AND, e1, e2);
     }
 
@@ -234,7 +239,9 @@ public class ExpressionLogical extends Expression {
 
         for (int j = 0; j < nodes[LEFT].nodes.length; j++) {
             int index = nodes[LEFT].nodes[j].getColumnIndex();
-            if (index < 0 || nodes[LEFT].nodes[j].getRangeVariable() != range) {
+
+            if (index < 0
+                    || nodes[LEFT].nodes[j].getRangeVariable() != range) {
                 set.clear();
 
                 return;
