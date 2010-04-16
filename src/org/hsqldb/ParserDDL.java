@@ -1663,6 +1663,8 @@ public class ParserDDL extends ParserRoutine {
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
+        checkSchemaUpdateAuthorisation(name.schema);
+
         HsqlName[] colList = null;
 
         if (token.tokenType == Tokens.OPENBRACKET) {
@@ -1705,8 +1707,6 @@ public class ParserDDL extends ParserRoutine {
         queryExpression.setView(view);
         queryExpression.resolve(session);
         view.compile(session, null);
-        checkSchemaUpdateAuthorisation(name.schema);
-        database.schemaManager.checkSchemaObjectNotExists(name);
 
         view.statement = Token.getSQL(tokenisedStatement);
 

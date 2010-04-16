@@ -535,7 +535,7 @@ public class TableWorks {
         checkModifyTable();
 
         if (table.isEmpty(session) || table.isIndexingMutable()) {
-            PersistentStore store = session.sessionData.getRowStore(table);
+            PersistentStore store = table.getRowStore(session);
 
             newindex = table.createIndex(name, col, null, null, unique, false,
                                          false);
