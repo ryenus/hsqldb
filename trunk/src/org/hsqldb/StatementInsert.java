@@ -116,7 +116,7 @@ public class StatementInsert extends StatementDML {
 
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
-        PersistentStore store = session.sessionData.getRowStore(baseTable);
+        PersistentStore store = baseTable.getRowStore(session);
 
         if (generatedIndexes != null) {
             resultOut = Result.newUpdateCountResult(generatedResultMetaData,

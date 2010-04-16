@@ -1510,6 +1510,7 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
+//            case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.SYSTEM_TABLE :
             case TableBase.VIEW_TABLE :
@@ -2241,6 +2242,7 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
+//            case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.SYSTEM_TABLE :
             case TableBase.VIEW_TABLE :
@@ -2265,6 +2267,7 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
+//            case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.SYSTEM_TABLE :
             case TableBase.VIEW_TABLE :
@@ -2332,6 +2335,7 @@ public class Table extends TableBase implements SchemaObject {
 
         switch (tableType) {
 
+//            case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.SYSTEM_TABLE :
             case TableBase.VIEW_TABLE :
@@ -2712,5 +2716,20 @@ public class Table extends TableBase implements SchemaObject {
         if (identitySequence != null) {
             identitySequence.reset();
         }
+    }
+
+    /**
+     * Path used for INFORMATION_SCHEMA tables
+     */
+    public PersistentStore getRowStore(Session session) {
+
+        if (tableType == TableBase.SYSTEM_TABLE) {
+            database.dbInfo.getSystemTable(session, this.getName().name);
+
+            return store;
+        }
+
+        return store == null ? session.sessionData.getRowStore(this)
+                             : store;
     }
 }

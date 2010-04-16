@@ -727,7 +727,7 @@ public final class RangeVariable {
         private RangeIteratorMain(Session session, RangeVariable rangeVar) {
 
             this.rangePosition = rangeVar.rangePosition;
-            this.store = session.sessionData.getRowStore(rangeVar.rangeTable);
+            this.store = rangeVar.rangeTable.getRowStore(session);
             this.session       = session;
             this.rangeVar      = rangeVar;
             currentData        = rangeVar.emptyData;

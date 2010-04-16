@@ -578,7 +578,7 @@ public class StatementDML extends StatementDMQL {
     void insertRowSet(Session session, RowSetNavigator generatedNavigator,
                       RowSetNavigator newData) {
 
-        PersistentStore store = session.sessionData.getRowStore(baseTable);
+        PersistentStore store = baseTable.getRowStore(session);
         RangeIterator   checkIterator = null;
 
         if (updatableTableCheck != null) {
@@ -804,8 +804,7 @@ public class StatementDML extends StatementDMQL {
             Object[] data           = navigator.getCurrentChangedData();
             Table    currentTable   = ((Table) row.getTable());
             int[]    changedColumns = navigator.getCurrentChangedColumns();
-            PersistentStore store =
-                session.sessionData.getRowStore(currentTable);
+            PersistentStore store = currentTable.getRowStore(session);
 
             if (data == null) {
                 continue;
@@ -910,7 +909,7 @@ public class StatementDML extends StatementDMQL {
 
     Result executeDeleteTruncateStatement(Session session) {
 
-        PersistentStore store = session.sessionData.getRowStore(targetTable);
+        PersistentStore store = targetTable.getRowStore(session);
         RowIterator it = targetTable.getPrimaryIndex().firstRow(store, true);
 
         try {
@@ -1003,8 +1002,7 @@ public class StatementDML extends StatementDMQL {
                 Object[] data           = navigator.getCurrentChangedData();
                 Table    currentTable   = ((Table) row.getTable());
                 int[]    changedColumns = navigator.getCurrentChangedColumns();
-                PersistentStore store =
-                    session.sessionData.getRowStore(currentTable);
+                PersistentStore store = currentTable.getRowStore(session);
 
                 if (data == null) {
                     continue;

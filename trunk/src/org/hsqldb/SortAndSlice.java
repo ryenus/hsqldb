@@ -191,7 +191,7 @@ public final class SortAndSlice {
             return;
         }
 
-        if (colIndexes.length == 0) {
+        if (!select.rangeVariables[0].hasIndexCondition()) {
             Table table = select.rangeVariables[0].getTable();
             Index index = table.getFullIndexForColumns(columnIndexes);
 

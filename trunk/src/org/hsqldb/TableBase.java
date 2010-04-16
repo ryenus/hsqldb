@@ -535,4 +535,9 @@ public class TableBase {
     public int getRowCount(PersistentStore store) {
         return getPrimaryIndex().size(null, store);
     }
+
+    public PersistentStore getRowStore(Session session) {
+        return store == null ? session.sessionData.getRowStore(this)
+                             : store;
+    }
 }

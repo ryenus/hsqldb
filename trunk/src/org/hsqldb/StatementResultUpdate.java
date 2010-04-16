@@ -73,7 +73,7 @@ public class StatementResultUpdate extends StatementDML {
 
         Object[]        args = session.sessionContext.dynamicArguments;
         Row             row;
-        PersistentStore store = session.sessionData.getRowStore(baseTable);
+        PersistentStore store = baseTable.getRowStore(session);
 
         switch (actionType) {
 
@@ -145,7 +145,7 @@ public class StatementResultUpdate extends StatementDML {
 
         int             rowIdIndex = result.metaData.getColumnCount();
         Long            rowId      = (Long) args[rowIdIndex];
-        PersistentStore store = session.sessionData.getRowStore(baseTable);
+        PersistentStore store = baseTable.getRowStore(session);
         Row             row        = null;
 
         if (rowIdIndex + 2 == result.metaData.getExtendedColumnCount()) {
