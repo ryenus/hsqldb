@@ -75,6 +75,8 @@ implements PersistentStoreCollection {
                 }
                 break;
 
+            // SYSTEM_TABLE
+            case TableBase.SCOPE_FULL :
             case TableBase.SCOPE_TRANSACTION :
                 if (store == null) {
                     rowStoreMapTransaction.remove(table.getPersistenceId());
@@ -117,6 +119,8 @@ implements PersistentStoreCollection {
 
                     return store;
 
+                // SYSTEM_TABLE
+                case TableBase.SCOPE_FULL :
                 case TableBase.SCOPE_TRANSACTION :
                     store = (PersistentStore) rowStoreMapTransaction.get(
                         table.getPersistenceId());
@@ -163,7 +167,7 @@ implements PersistentStoreCollection {
         while (it.hasNext()) {
             PersistentStore store = (PersistentStore) it.next();
 
-            if (store.getCreationTimestamp() == actionTimestamp) {
+            if (store.getTimestamp() == actionTimestamp) {
                 store.release();
             }
         }

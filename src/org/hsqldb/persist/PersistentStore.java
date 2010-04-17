@@ -53,7 +53,9 @@ public interface PersistentStore {
 
     TableBase getTable();
 
-    long getCreationTimestamp();
+    long getTimestamp();
+
+    void setTimestamp(long timestamp);
 
     boolean isMemory();
 

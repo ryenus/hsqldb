@@ -57,14 +57,19 @@ public abstract class RowStoreAVL implements PersistentStore {
     int                       elementCount;
 
     // for result tables
+    // for INFORMATION SCHEMA tables
     long timestamp;
 
     public TableBase getTable() {
         return table;
     }
 
-    public long getCreationTimestamp() {
+    public long getTimestamp() {
         return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public boolean isMemory() {

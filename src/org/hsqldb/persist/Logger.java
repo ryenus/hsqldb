@@ -418,8 +418,6 @@ public class Logger {
             HsqlDatabaseProperties.runtime_gc_interval);
         propRefIntegrity = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_ref_integrity);
-
-        database.setMetaDirty(false);
     }
 
 // fredt@users 20020130 - patch 495484 by boucherb@users

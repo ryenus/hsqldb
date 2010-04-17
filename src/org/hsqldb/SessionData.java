@@ -90,6 +90,14 @@ public class SessionData {
     // transitional feature
     public PersistentStore getRowStore(TableBase table) {
 
+        if (table.tableType == TableBase.SYSTEM_TABLE ) {
+            if (session.isAdmin()) {
+                return table.store;
+            }
+
+            return persistentStoreCollection.getStore(table);
+        }
+
         if (table.store != null) {
             return table.store;
         }
