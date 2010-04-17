@@ -2726,7 +2726,7 @@ public class Table extends TableBase implements SchemaObject {
         if (tableType == TableBase.SYSTEM_TABLE) {
             database.dbInfo.getSystemTable(session, this.getName().name);
 
-            return store;
+            return session.sessionData.getRowStore(this);
         }
 
         return store == null ? session.sessionData.getRowStore(this)

@@ -274,7 +274,6 @@ public class StatementSchema extends Statement {
             return result;
         }
 
-        session.database.setMetaDirty(true);
         session.database.schemaManager.setSchemaChangeTimestamp();
 
         try {

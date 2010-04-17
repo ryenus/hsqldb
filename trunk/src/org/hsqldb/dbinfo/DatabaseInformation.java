@@ -275,12 +275,6 @@ public class DatabaseInformation {
     protected final Database database;
 
     /**
-     * Simple object-wide flag indicating that all of this object's cached
-     * data is dirty.
-     */
-    protected boolean isDirty = true;
-
-    /**
      * state flag -- if true, contentful tables are to be produced, else
      * empty (surrogate) tables are to be produced.  This allows faster
      * database startup where user views reference system tables and faster
@@ -358,26 +352,6 @@ public class DatabaseInformation {
      */
     public synchronized Table getSystemTable(Session session, String name) {
         return null;
-    }
-
-    /**
-     * Controls caching of all tables produced by this object. <p>
-     *
-     * Subclasses are free to ignore this, since they may choose an
-     * implementation that does not dynamically generate and/or cache
-     * table content on an as-needed basis. <p>
-     *
-     * If not ignored, this call indicates to this object that all cached
-     * table data may be dirty, requiring a complete cache clear at some
-     * point.<p>
-     *
-     * Subclasses are free to delay cache clear until next getSystemTable().
-     * However, subclasses may have to be aware of additional methods with
-     * semantics similar to getSystemTable() and act accordingly (e.g.
-     * clearing earlier than next invocation of getSystemTable()).
-     */
-    public synchronized final void setDirty() {
-        isDirty = true;
     }
 
     /**

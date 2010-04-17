@@ -502,29 +502,6 @@ public class Database {
         }
     }
 
-    /**
-     * Ensures system table producer's table cache, if it exists, is set dirty.
-     * After this call up-to-date versions are generated in response to
-     * system table requests. <p>
-     *
-     * Also resets all prepared statements if a change to database structure
-     * can possibly affect any existing prepared statement's validity.<p>
-     *
-     * The argument is false if the change to the database structure does not
-     * affect the prepared statement, such as when a new table is added.<p>
-     *
-     * The argument is typically true when a database object is dropped,
-     * altered or a permission was revoked.
-     *
-     * @param  resetPrepared If true, reset all prepared statements.
-     */
-    public void setMetaDirty(boolean resetPrepared) {
-
-        if (dbInfo != null) {
-            dbInfo.setDirty();
-        }
-    }
-
     private synchronized void setState(int state) {
         dbState = state;
     }

@@ -426,7 +426,6 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.setMetaDirty(false);
                     session.database.logger.setWriteDelay(value);
 
                     return Result.updateZeroResult;
@@ -442,7 +441,7 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
                     session.database.collation.setCollation(name);
-                    session.database.setMetaDirty(false);
+                    session.database.schemaManager.setSchemaChangeTimestamp();
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -476,7 +475,7 @@ public class StatementCommand extends Statement {
                 //
                 session.database.schemaManager.setDefaultSchemaHsqlName(
                     schema);
-                session.database.setMetaDirty(true);
+                session.database.schemaManager.setSchemaChangeTimestamp();
 
                 //
                 return Result.updateZeroResult;
@@ -667,7 +666,7 @@ public class StatementCommand extends Statement {
                     session.checkAdmin();
                     session.checkDDLWrite();
                     table.setDataReadOnly(mode);
-                    session.database.setMetaDirty(false);
+                    session.database.schemaManager.setSchemaChangeTimestamp();
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -698,7 +697,7 @@ public class StatementCommand extends Statement {
                             ((TextTable) table).disconnect();
                         }
 
-                        session.database.setMetaDirty(false);
+                        session.database.schemaManager.setSchemaChangeTimestamp();
 
                         return Result.updateZeroResult;
                     }
@@ -752,7 +751,7 @@ public class StatementCommand extends Statement {
                     TableWorks tw = new TableWorks(session, table);
 
                     tw.setTableType(session, type);
-                    session.database.setMetaDirty(false);
+                    session.database.schemaManager.setSchemaChangeTimestamp();
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -784,7 +783,7 @@ public class StatementCommand extends Statement {
 
                     //
                     user.setInitialSchema(schema);
-                    session.database.setMetaDirty(false);
+                    session.database.schemaManager.setSchemaChangeTimestamp();
 
                     //
                     return Result.updateZeroResult;
