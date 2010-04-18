@@ -142,6 +142,10 @@ public class Token {
                         String       name;
 
                         if (e.opType == OpTypes.COALESCE) {
+                            if (i > 0) {
+                                sb.append(',');
+                            }
+
                             sb.append(e.getColumnName());
 
                             continue;
@@ -205,6 +209,7 @@ public class Token {
                 sb.append('"');
             } else {
                 sb.append(namePrePrefix);
+
                 isDelimiter = false;
             }
 
@@ -218,6 +223,7 @@ public class Token {
                 sb.append('"');
             } else {
                 sb.append(namePrefix);
+
                 isDelimiter = false;
             }
 

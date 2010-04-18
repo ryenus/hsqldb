@@ -54,6 +54,7 @@ import org.hsqldb.lib.OrderedIntHashSet;
  */
 public class RangeVariableResolver {
 
+    Session         session;
     RangeVariable[] rangeVariables;
     Expression      conditions;
     OrderedHashSet  rangeVarSet = new OrderedHashSet();
@@ -117,7 +118,9 @@ public class RangeVariableResolver {
         }
     }
 
-    void processConditions() {
+    void processConditions(Session session) {
+
+        this.session = session;
 
         decomposeAndConditions(conditions, queryExpressions);
 
@@ -137,6 +140,7 @@ public class RangeVariableResolver {
         assignToLists();
 
         if (!hasOuterJoin) {
+
 //            getIndexableColumn(whereExpressions[0], 0);
         }
 
@@ -524,7 +528,7 @@ public class RangeVariableResolver {
 
             int colIndex = e.getColumnIndex();
 
-            if (range.rangeTable.canGetIndexForColumn(colIndex)) {
+            if (range.rangeTable.canGetIndexForColumn(session, colIndex)) {
                 return e;
             }
         }
@@ -695,8 +699,8 @@ public class RangeVariableResolver {
                         conditions.rangeVar, set);
 
                     Index index =
-                        conditions.rangeVar.rangeTable.getIndexForColumns(set,
-                            false);
+                        conditions.rangeVar.rangeTable.getIndexForColumns(
+                            session, set, false);
 
                     // code to disable IN optimisation
                     // index = null;
@@ -828,9 +832,8 @@ public class RangeVariableResolver {
     private void setEqaulityConditions(RangeVariableConditions conditions,
                                        HsqlArrayList exprList) {
 
-        Index idx =
-            conditions.rangeVar.rangeTable.getIndexForColumns(colIndexSetEqual,
-                false);
+        Index idx = conditions.rangeVar.rangeTable.getIndexForColumns(session,
+            colIndexSetEqual, false);
 
         if (idx == null) {
             return;
@@ -913,8 +916,8 @@ public class RangeVariableResolver {
             }
         }
 
-        Index idx =
-            conditions.rangeVar.rangeTable.getIndexForColumn(currentIndex);
+        Index idx = conditions.rangeVar.rangeTable.getIndexForColumn(session,
+            currentIndex);
 
         if (idx == null) {
             it = colIndexSetOther.keySet().iterator();
@@ -924,7 +927,7 @@ public class RangeVariableResolver {
 
                 if (colIndex != currentIndex) {
                     idx = conditions.rangeVar.rangeTable.getIndexForColumn(
-                        colIndex);
+                        session, colIndex);
 
                     if (idx != null) {
                         break;
@@ -1003,8 +1006,8 @@ public class RangeVariableResolver {
 
                 in.addLeftColumnsForAllAny(rangeVar, set);
 
-                Index index = rangeVar.rangeTable.getIndexForColumns(set,
-                    false);
+                Index index = rangeVar.rangeTable.getIndexForColumns(session,
+                    set, false);
                 int colCount = 0;
 
                 for (int j = 0; j < index.getColumnCount(); j++) {

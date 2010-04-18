@@ -109,7 +109,7 @@ public class TableUtil {
 
             ArrayUtil.fillSequence(colIndexes);
 
-            table.fullIndex = table.createIndexForColumns(colIndexes);
+            table.fullIndex = table.createIndexForColumns(null, colIndexes);
         }
     }
 
@@ -133,7 +133,7 @@ public class TableUtil {
         if (uniqueRows) {
             table.fullIndex = table.getPrimaryIndex();
         } else if (fullIndex) {
-            table.fullIndex = table.createIndexForColumns(cols);
+            table.fullIndex = table.createIndexForColumns(null, cols);
         }
     }
 

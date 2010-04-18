@@ -250,8 +250,8 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 return getNewCachedObject(session, object);
             }
 
-            Row row = new RowAVL(table, indexList.length, (Object[]) object,
-                                 id);
+            Row row = new RowAVL(table, (Object[]) object, id
+                                 );
 
             if (isTempTable) {
                 RowAction action = new RowAction(session, table,

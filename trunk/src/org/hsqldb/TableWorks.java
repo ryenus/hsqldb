@@ -325,8 +325,9 @@ public class TableWorks {
                                                          SchemaObject.INDEX);
 
                     // create an autonamed index
-                    index = table.createAndAddIndexStructure(indexName,
-                            c.getMainColumns(), null, null, true, true, false);
+                    index = table.createAndAddIndexStructure(session,
+                            indexName, c.getMainColumns(), null, null, true,
+                            true, false);
                     c.core.mainTable = table;
                     c.core.mainIndex = index;
 
@@ -373,9 +374,9 @@ public class TableWorks {
                                                          table.getName(),
                                                          SchemaObject.INDEX);
 
-                    index = table.createAndAddIndexStructure(indexName,
-                            c.getRefColumns(), null, null, false, true,
-                            isForward);
+                    index = table.createAndAddIndexStructure(session,
+                            indexName, c.getRefColumns(), null, null, false,
+                            true, isForward);
                     c.core.uniqueName = uniqueConstraint.getName();
                     c.core.mainName = database.nameManager.newAutoName("REF",
                             c.core.refName.name, table.getSchemaName(),
@@ -537,8 +538,8 @@ public class TableWorks {
         if (table.isEmpty(session) || table.isIndexingMutable()) {
             PersistentStore store = table.getRowStore(session);
 
-            newindex = table.createIndex(name, col, null, null, unique, false,
-                                         false);
+            newindex = table.createIndex(session, name, col, null, null,
+                                         unique, false, false);
         } else {
             newindex = table.createIndexStructure(name, col, null, null,
                                                   unique, false, false);

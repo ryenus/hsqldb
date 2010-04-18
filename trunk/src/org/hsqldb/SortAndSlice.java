@@ -217,7 +217,7 @@ public final class SortAndSlice {
         }
     }
 
-    public boolean prepareSpecial(QuerySpecification select) {
+    public boolean prepareSpecial(Session session, QuerySpecification select) {
 
         Expression e      = select.exprColumns[select.indexStartAggregates];
         int        opType = e.getType();
@@ -252,7 +252,7 @@ public final class SortAndSlice {
         } else {
             Table table = select.rangeVariables[0].getTable();
             Index index = table.getIndexForColumn(
-                ((ExpressionColumn) e).getColumnIndex());
+                session, ((ExpressionColumn) e).getColumnIndex());
 
             if (index == null) {
                 return false;
@@ -310,10 +310,10 @@ public final class SortAndSlice {
         return limitCount;
     }
 
-    public void setIndex(TableBase table) {
+    public void setIndex(Session session, TableBase table) {
 
         try {
-            index = table.createAndAddIndexStructure(null, sortOrder,
+            index = table.createAndAddIndexStructure(session, null, sortOrder,
                     sortDescending, sortNullsLast, false, false, false);
         } catch (Throwable t) {
             throw Error.runtimeError(ErrorCode.U_S0500, "SortAndSlice");

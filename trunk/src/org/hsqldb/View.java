@@ -82,13 +82,11 @@ public class View extends TableDerived {
     boolean isTriggerUpdatable;
     boolean isTriggerDeletable;
 
-    View(Session session, Database db, HsqlName name, HsqlName[] columnNames,
-            String definition, int check) {
+    View(Database db, HsqlName name, HsqlName[] columnNames, int check) {
 
         super(db, name, TableBase.VIEW_TABLE);
 
         this.columnNames = columnNames;
-        this.statement   = definition;
         this.check       = check;
     }
 
@@ -279,6 +277,10 @@ public class View extends TableDerived {
      */
     public String getStatement() {
         return statement;
+    }
+
+    public void setStatement(String sql) {
+        statement = sql;
     }
 
     /**

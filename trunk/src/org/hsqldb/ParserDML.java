@@ -459,7 +459,7 @@ public class ParserDML extends ParserDQL {
                 new RangeVariableResolver(rangeVariables, condition,
                                           compileContext);
 
-            resolver.processConditions();
+            resolver.processConditions(session);
 
             rangeVariables = resolver.rangeVariables;
         }
@@ -543,7 +543,7 @@ public class ParserDML extends ParserDQL {
                 new RangeVariableResolver(rangeVariables, condition,
                                           compileContext);
 
-            resolver.processConditions();
+            resolver.processConditions(session);
 
             rangeVariables = resolver.rangeVariables;
         }
@@ -888,7 +888,7 @@ public class ParserDML extends ParserDQL {
             new RangeVariableResolver(fullRangeVars, mergeCondition,
                                       compileContext);
 
-        resolver.processConditions();
+        resolver.processConditions(session);
 
         fullRangeVars = resolver.rangeVariables;
 

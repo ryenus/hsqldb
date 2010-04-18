@@ -716,13 +716,13 @@ public class QuerySpecification extends QueryExpression {
                || unresolvedExpressions.isEmpty();
     }
 
-    private void setRangeVariableConditions() {
+    private void setRangeVariableConditions(Session session) {
 
         RangeVariableResolver rangeResolver =
             new RangeVariableResolver(rangeVariables, queryCondition,
                                       compileContext);
 
-        rangeResolver.processConditions();
+        rangeResolver.processConditions(session);
 
         rangeVariables = rangeResolver.rangeVariables;
     }
@@ -789,7 +789,7 @@ public class QuerySpecification extends QueryExpression {
             getMergedSelect();
         }
 
-        setRangeVariableConditions();
+        setRangeVariableConditions(session);
 
         if (isAggregated && !isGrouped && !sortAndSlice.hasOrder()
                 && !sortAndSlice.hasLimit() && aggregateSet.size() == 1
@@ -807,7 +807,7 @@ public class QuerySpecification extends QueryExpression {
 
                     slice.addLimitCondition(ExpressionOp.limitOneExpression);
 
-                    if (slice.prepareSpecial(this)) {
+                    if (slice.prepareSpecial(session, this)) {
                         this.sortAndSlice = slice;
                     }
 
@@ -1454,9 +1454,8 @@ public class QuerySpecification extends QueryExpression {
         mainIndex = resultTable.getPrimaryIndex();
 
         if (sortAndSlice.hasOrder() && !sortAndSlice.skipSort) {
-            orderIndex = resultTable.createAndAddIndexStructure(null,
-                    sortAndSlice.sortOrder, sortAndSlice.sortDescending,
-                    sortAndSlice.sortNullsLast, false, false, false);
+            orderIndex = resultTable.createAndAddIndexStructure(session, null, sortAndSlice.sortOrder,
+                    sortAndSlice.sortDescending, sortAndSlice.sortNullsLast, false, false, false);
         }
 
         if (isDistinctSelect || isFullOrder) {
@@ -1464,8 +1463,8 @@ public class QuerySpecification extends QueryExpression {
 
             ArrayUtil.fillSequence(fullCols);
 
-            fullIndex = resultTable.createAndAddIndexStructure(null, fullCols,
-                    null, null, false, false, false);
+            fullIndex = resultTable.createAndAddIndexStructure(session, null,
+                    fullCols, null, null, false, false, false);
             resultTable.fullIndex = fullIndex;
         }
 
@@ -1476,8 +1475,7 @@ public class QuerySpecification extends QueryExpression {
                 groupCols[i] = indexLimitVisible + i;
             }
 
-            groupIndex = resultTable.createAndAddIndexStructure(null,
-                    groupCols, null, null, false, false, false);
+            groupIndex = resultTable.createAndAddIndexStructure(session, null, groupCols, null, null, false, false, false);
         } else if (isAggregated) {
             groupIndex = mainIndex;
         }
@@ -1485,8 +1483,8 @@ public class QuerySpecification extends QueryExpression {
         if (isUpdatable && view == null) {
             int[] idCols = new int[]{ indexLimitVisible };
 
-            idIndex = resultTable.createAndAddIndexStructure(null, idCols,
-                    null, null, false, false, false);
+            idIndex = resultTable.createAndAddIndexStructure(session, null,
+                    idCols, null, null, false, false, false);
         }
     }
 
