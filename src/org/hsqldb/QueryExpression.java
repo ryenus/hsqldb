@@ -411,7 +411,8 @@ public class QueryExpression {
             while (true) {
                 if (queryExpression.leftQueryExpression == null
                         || queryExpression.unionCorresponding) {
-                    sortAndSlice.setIndex(queryExpression.resultTable);
+                    sortAndSlice.setIndex(session,
+                                          queryExpression.resultTable);
 
                     break;
                 }
@@ -728,7 +729,7 @@ public class QueryExpression {
         mainIndex = resultTable.getPrimaryIndex();
 
         if (sortAndSlice.hasOrder()) {
-            orderIndex = resultTable.createAndAddIndexStructure(null,
+            orderIndex = resultTable.createAndAddIndexStructure(session, null,
                     sortAndSlice.sortOrder, sortAndSlice.sortDescending,
                     sortAndSlice.sortNullsLast, false, false, false);
         }
@@ -737,8 +738,8 @@ public class QueryExpression {
 
         ArrayUtil.fillSequence(fullCols);
 
-        fullIndex = resultTable.createAndAddIndexStructure(null, fullCols,
-                null, null, false, false, false);
+        fullIndex = resultTable.createAndAddIndexStructure(session, null,
+                fullCols, null, null, false, false, false);
         resultTable.fullIndex = fullIndex;
     }
 

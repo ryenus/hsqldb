@@ -969,17 +969,7 @@ public class StatementSchema extends Statement {
                 return Result.updateZeroResult;
 
             case StatementTypes.CREATE_VIEW : {
-                try {
-                    session.parser.reset(sql);
-                    session.parser.read();
-                    session.parser.read();
-                    session.parser.processCreateView();
 
-                    break;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
-/*
                 View view = (View) arguments[0];
 
                 try {
@@ -987,14 +977,15 @@ public class StatementSchema extends Statement {
                                                    view.getSchemaName());
                     session.database.schemaManager.checkSchemaObjectNotExists(
                         view.getName());
-                    session.database.schemaManager.addSchemaObject(view);
-                    session.database.logger.writeToLog(session, sql);
 
-                    return Result.updateZeroResult;
+                    view.compile(session, null);
+
+                    session.database.schemaManager.addSchemaObject(view);
+
+                    break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
-*/
             }
             case StatementTypes.CREATE_INDEX : {
                 Table    table;

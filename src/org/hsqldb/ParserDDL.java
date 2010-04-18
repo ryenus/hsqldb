@@ -1330,8 +1330,9 @@ public class ParserDDL extends ParserRoutine {
                             c.getName().name, table.getSchemaName(),
                             table.getName(), SchemaObject.INDEX);
 
-                    Index index = table.createAndAddIndexStructure(indexName,
-                        c.core.mainCols, null, null, true, true, false);
+                    Index index = table.createAndAddIndexStructure(session,
+                        indexName, c.core.mainCols, null, null, true, true,
+                        false);
                     Constraint newconstraint = new Constraint(c.getName(),
                         table, index, SchemaObject.ConstraintTypes.UNIQUE);
 
@@ -1430,7 +1431,7 @@ public class ParserDDL extends ParserRoutine {
 
         HsqlName refIndexName = session.database.nameManager.newAutoName("IDX",
             table.getSchemaName(), table.getName(), SchemaObject.INDEX);
-        Index index = table.createAndAddIndexStructure(refIndexName,
+        Index index = table.createAndAddIndexStructure(session, refIndexName,
             c.core.refCols, null, null, false, true, isForward);
         HsqlName mainName = session.database.nameManager.newAutoName("REF",
             c.getName().name, table.getSchemaName(), table.getName(),
@@ -1645,16 +1646,6 @@ public class ParserDDL extends ParserRoutine {
         return name;
     }
 
-    void processCreateView() {
-
-        StatementSchema cs   = compileCreateView();
-        View            view = (View) cs.arguments[0];
-
-        checkSchemaUpdateAuthorisation(view.getSchemaName());
-        database.schemaManager.checkSchemaObjectNotExists(view.getName());
-        database.schemaManager.addSchemaObject(view);
-    }
-
     StatementSchema compileCreateView() {
 
         read();
@@ -1662,7 +1653,6 @@ public class ParserDDL extends ParserRoutine {
         HsqlName name = readNewSchemaObjectName(SchemaObject.VIEW, true);
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
-
         checkSchemaUpdateAuthorisation(name.schema);
 
         HsqlName[] colList = null;
@@ -1684,7 +1674,6 @@ public class ParserDDL extends ParserRoutine {
         }
 
         Token[] tokenisedStatement = getRecordedStatement();
-        String  sql                = getLastPart(position);
         int     check              = SchemaObject.ViewCheckModes.CHECK_NONE;
 
         if (token.tokenType == Tokens.WITH) {
@@ -1702,13 +1691,11 @@ public class ParserDDL extends ParserRoutine {
             readThis(Tokens.OPTION);
         }
 
-        View view = new View(session, database, name, colList, sql, check);
+        View view = new View(database, name, colList, check);
 
         queryExpression.setView(view);
         queryExpression.resolve(session);
-        view.compile(session, null);
-
-        view.statement = Token.getSQL(tokenisedStatement);
+        view.setStatement(Token.getSQL(tokenisedStatement));
 
         String   fullSQL = getLastPart();
         Object[] args    = new Object[]{ view };
@@ -1976,6 +1963,7 @@ public class ParserDDL extends ParserRoutine {
                     read();
 
                     columns = new OrderedHashSet();
+
                     readColumnNameList(columns, null, false);
                 }
                 break;

@@ -1221,11 +1221,11 @@ public class Table extends TableBase implements SchemaObject {
                                           idx.isUnique(), idx.isConstraint(),
                                           idx.isForward());
 
-            tn.addIndex(idx);
+            tn.addIndex(session, idx);
         }
 
         if (index != null) {
-            tn.addIndex(index);
+            tn.addIndex(session, index);
         }
 
         HsqlArrayList newList = new HsqlArrayList();
@@ -1500,7 +1500,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Finds an existing index for a column
      */
-    Index getIndexForColumn(int col) {
+    Index getIndexForColumn(Session session, int col) {
 
         int i = bestIndexForColumn[col];
 
@@ -1515,7 +1515,7 @@ public class Table extends TableBase implements SchemaObject {
             case TableBase.SYSTEM_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
-                Index index = createIndexForColumns(new int[]{ col });
+                Index index = createIndexForColumns(session, new int[]{ col });
 
                 return index;
             }
@@ -2081,23 +2081,14 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Used to create an index automatically for system tables.
      */
-    Index createIndexForColumns(int[] columns) {
+    Index createIndexForColumns(Session session, int[] columns) {
 
         HsqlName indexName = database.nameManager.newAutoName("IDX_T",
             getSchemaName(), getName(), SchemaObject.INDEX);
 
         try {
-            Index index = createAndAddIndexStructure(indexName, columns, null,
-                null, false, false, false);
-
-            if (tableType == TableBase.TEMP_TABLE) {
-                Session sessions[] = database.sessionManager.getAllSessions();
-
-                for (int i = 0; i < sessions.length; i++) {
-                    sessions[i].sessionData.persistentStoreCollection
-                        .registerIndex(this);
-                }
-            }
+            Index index = createAndAddIndexStructure(session, indexName, columns,
+                null, null, false, false, false);
 
             return index;
         } catch (Throwable t) {
@@ -2232,7 +2223,7 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
-    boolean canGetIndexForColumn(int col) {
+    boolean canGetIndexForColumn(Session session, int col) {
 
         int i = bestIndexForColumn[col];
 
@@ -2257,7 +2248,7 @@ public class Table extends TableBase implements SchemaObject {
     /**
      *  Finds an existing index for a column group
      */
-    Index getIndexForColumns(int[] cols) {
+    Index getIndexForColumns(Session session, int[] cols) {
 
         int i = bestIndexForColumn[cols[0]];
 
@@ -2272,7 +2263,7 @@ public class Table extends TableBase implements SchemaObject {
             case TableBase.SYSTEM_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
-                Index index = createIndexForColumns(cols);
+                Index index = createIndexForColumns(session, cols);
 
                 return index;
             }
@@ -2300,7 +2291,7 @@ public class Table extends TableBase implements SchemaObject {
      * Finds an existing index for a column set or create one for temporary
      * tables
      */
-    Index getIndexForColumns(OrderedIntHashSet set, boolean ordered) {
+    Index getIndexForColumns(Session session, OrderedIntHashSet set, boolean ordered) {
 
         int   maxMatchCount = 0;
         Index selected      = null;
@@ -2340,7 +2331,7 @@ public class Table extends TableBase implements SchemaObject {
             case TableBase.SYSTEM_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
-                selected = createIndexForColumns(set.toArray());
+                selected = createIndexForColumns(session, set.toArray());
             }
         }
 

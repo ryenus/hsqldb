@@ -104,8 +104,7 @@ public class RowAVL extends Row {
      *  Constructor for MEMORY table Row. The result is a Row with Nodes that
      *  are not yet linked with other Nodes in the AVL indexes.
      */
-    public RowAVL(TableBase table, int indexCount, Object[] data,
-                  int position) {
+    public RowAVL(TableBase table, Object[] data, int position) {
 
         super(table, data);
 

@@ -377,19 +377,20 @@ public class TableBase {
             false);
 
         try {
-            addIndex(newIndex);
+            addIndex(null, newIndex);
         } catch (HsqlException e) {}
     }
 
-    public final Index createAndAddIndexStructure(HsqlName name,
-            int[] columns, boolean[] descending, boolean[] nullsLast,
-            boolean unique, boolean constraint, boolean forward) {
+    public final Index createAndAddIndexStructure(Session session,
+            HsqlName name, int[] columns, boolean[] descending,
+            boolean[] nullsLast, boolean unique, boolean constraint,
+            boolean forward) {
 
         Index newindex = createIndexStructure(name, columns, descending,
                                               nullsLast, unique, constraint,
                                               forward);
 
-        addIndex(newindex);
+        addIndex(session, newindex);
 
         return newindex;
     }
@@ -440,7 +441,7 @@ public class TableBase {
         }
     }
 
-    final void addIndex(Index index) {
+    final void addIndex(Session session, Index index) {
 
         int i = 0;
 
@@ -461,7 +462,25 @@ public class TableBase {
             indexList[i].setPosition(i);
         }
 
-        if (store != null) {
+        if (tableType == TableBase.TEMP_TABLE) {
+            Session sessions[] = database.sessionManager.getAllSessions();
+
+            for (i = 0; i < sessions.length; i++) {
+                sessions[i].sessionData.persistentStoreCollection
+                    .registerIndex((Table) this);
+            }
+        } else if (tableType == TableBase.SYSTEM_TABLE) {
+            store.resetAccessorKeys(indexList);
+
+            if (session != null) {
+                PersistentStore rowStore =
+                    session.sessionData.getRowStore(this);
+
+                if (rowStore != store) {
+                    rowStore.resetAccessorKeys(indexList);
+                }
+            }
+        } else if (store != null) {
             try {
                 store.resetAccessorKeys(indexList);
             } catch (HsqlException e) {
@@ -494,13 +513,13 @@ public class TableBase {
     /**
      *  Create new memory-resident index. For MEMORY and TEXT tables.
      */
-    public final Index createIndex(HsqlName name, int[] columns,
-                                   boolean[] descending, boolean[] nullsLast,
-                                   boolean unique, boolean constraint,
-                                   boolean forward) {
+    public final Index createIndex(Session session, HsqlName name,
+                                   int[] columns, boolean[] descending,
+                                   boolean[] nullsLast, boolean unique,
+                                   boolean constraint, boolean forward) {
 
-        Index newIndex = createAndAddIndexStructure(name, columns, descending,
-            nullsLast, unique, constraint, forward);
+        Index newIndex = createAndAddIndexStructure(session, name, columns,
+            descending, nullsLast, unique, constraint, forward);
 
         return newIndex;
     }

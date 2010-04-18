@@ -118,7 +118,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
             id = rowIdSequence++;
         }
 
-        Row row = new RowAVL(table, indexList.length, (Object[]) object, id);
+        Row row = new RowAVL(table, (Object[]) object, id);
 
         if (session != null) {
             RowAction action = new RowAction(session, table,
