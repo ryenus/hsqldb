@@ -63,13 +63,14 @@ class SubQuery implements Comparator {
     private TableDerived table;
     View                 view;
     View                 parentView;
+    String               sql;
 
     // IN condition optimisation
     Expression dataExpression;
     boolean    isDataExpression;
 
     //
-    int                  parsePosition;
+    int parsePosition;
 
     //
     public final static SubQuery[] emptySubqueryArray = new SubQuery[]{};
@@ -244,12 +245,13 @@ class SubQuery implements Comparator {
     }
 
     public RowSetNavigatorData getNavigator(Session session) {
+
         RowSetNavigatorData navigator = new RowSetNavigatorDataTable(session,
             table);
 
         return navigator;
-
     }
+
     /**
      * This results in the following sort order:
      *

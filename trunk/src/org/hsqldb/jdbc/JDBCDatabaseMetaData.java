@@ -438,7 +438,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB sorts null low; this method always returns <code>false</code>.
+     * By default HSQLDB sorts null at start; this method always returns <code>false</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -462,7 +462,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB sorts null low; this method always returns <code>true</code>.
+     * By default HSQLDB sorts null at the start; this method always returns <code>false</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -471,7 +471,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean nullsAreSortedLow() throws SQLException {
-        return true;
+        return false;
     }
 
     /**
@@ -482,7 +482,8 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB sorts null low; this method always returns <code>false</code>.
+     * By default HSQLDB sorts null at the start; this method always returns <code>true</code>.
+     * Use NULLS LAST in the ORDER BY clause to sort null at the end.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -490,7 +491,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * @exception SQLException if a database access error occurs
      */
     public boolean nullsAreSortedAtStart() throws SQLException {
-        return false;
+        return true;
     }
 
     /**
@@ -501,7 +502,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB sorts null low; this method always returns <code>false</code>.
+     * By default HSQLDB sorts null at the start; this method always returns <code>true</code>.
      * </div>
      * <!-- end release-specific documentation -->
      *

@@ -1454,8 +1454,9 @@ public class QuerySpecification extends QueryExpression {
         mainIndex = resultTable.getPrimaryIndex();
 
         if (sortAndSlice.hasOrder() && !sortAndSlice.skipSort) {
-            orderIndex = resultTable.createAndAddIndexStructure(session, null, sortAndSlice.sortOrder,
-                    sortAndSlice.sortDescending, sortAndSlice.sortNullsLast, false, false, false);
+            orderIndex = resultTable.createAndAddIndexStructure(session, null,
+                    sortAndSlice.sortOrder, sortAndSlice.sortDescending,
+                    sortAndSlice.sortNullsLast, false, false, false);
         }
 
         if (isDistinctSelect || isFullOrder) {
@@ -1475,7 +1476,8 @@ public class QuerySpecification extends QueryExpression {
                 groupCols[i] = indexLimitVisible + i;
             }
 
-            groupIndex = resultTable.createAndAddIndexStructure(session, null, groupCols, null, null, false, false, false);
+            groupIndex = resultTable.createAndAddIndexStructure(session, null,
+                    groupCols, null, null, false, false, false);
         } else if (isAggregated) {
             groupIndex = mainIndex;
         }
@@ -1745,6 +1747,16 @@ public class QuerySpecification extends QueryExpression {
         int[]           baseColumnMap = table.getBaseTableColumnMap();
         int[]           columnMap     = new int[indexLimitVisible];
 
+        if (queryCondition != null) {
+            tempSet.clear();
+
+            if (hasSubQueryTableReference(table.getName(), tempSet,
+                                          queryCondition)) {
+                isUpdatable  = false;
+                isInsertable = false;
+            }
+        }
+
         for (int i = 0; i < indexLimitVisible; i++) {
             Expression expression = exprColumns[i];
 
@@ -1758,6 +1770,15 @@ public class QuerySpecification extends QueryExpression {
                 }
 
                 columns.put(name, 0);
+            } else {
+                tempSet.clear();
+
+                if (hasSubQueryTableReference(table.getName(), tempSet,
+                                              expression)) {
+                    isInsertable = isUpdatable = false;
+
+                    return;
+                }
             }
         }
 
@@ -1832,6 +1853,29 @@ public class QuerySpecification extends QueryExpression {
 
             indexLimitData = indexLimitRowId;
         }
+    }
+
+    static boolean hasSubQueryTableReference(HsqlName name,
+            OrderedHashSet set, Expression expression) {
+
+        set.clear();
+        Expression.collectAllExpressions(set, expression,
+                                         Expression.subqueryExpressionSet,
+                                         Expression.emptyExpressionSet);
+
+        int size = set.size();
+
+        for (int i = 0; i < size; i++) {
+            Expression e = (Expression) set.get(i);
+
+            e.collectObjectNames(set);
+        }
+
+        if (set.contains(name)) {
+            return true;
+        }
+
+        return false;
     }
 
     public Table getBaseTable() {
