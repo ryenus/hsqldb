@@ -57,7 +57,7 @@ import org.hsqldb.types.Type;
  * @version 1.9.0
  * @since 1.9.0
  */
-public class Expression {
+public class Expression implements Cloneable {
 
     public static final int LEFT   = 0;
     public static final int RIGHT  = 1;
@@ -167,8 +167,7 @@ public class Expression {
     protected Type dataType;
 
     //
-    int     queryTableColumnIndex = -1;    // >= 0 when it is used for order by
-    boolean isParam;
+    int queryTableColumnIndex = -1;    // >= 0 when it is used for order by
 
     // index of a session-dependent field
     int parameterIndex = -1;
@@ -610,30 +609,6 @@ public class Expression {
         return result;
     }
 
-    Expression replace(OrderedHashSet expressions,
-                       OrderedHashSet replacements) {
-
-        if (opType == OpTypes.VALUE) {
-            return this;
-        }
-
-        int index = expressions.getIndex(this);
-
-        if (index != -1) {
-            return (Expression) replacements.get(index);
-        }
-
-        for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] == null) {
-                continue;
-            }
-
-            nodes[i] = nodes[i].replace(expressions, replacements);
-        }
-
-        return this;
-    }
-
     Expression replaceColumnReferences(RangeVariable range,
                                        Expression[] list) {
 
@@ -645,7 +620,27 @@ public class Expression {
             nodes[i] = nodes[i].replaceColumnReferences(range, list);
         }
 
+        if (subQuery != null && subQuery.queryExpression != null) {
+            subQuery.queryExpression.replaceColumnReference(range, list);
+        }
+
         return this;
+    }
+
+    void replaceRangeVariables(RangeVariable[] ranges,
+                               RangeVariable[] newRanges) {
+
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] == null) {
+                continue;
+            }
+
+            nodes[i].replaceRangeVariables(ranges, newRanges);
+        }
+
+        if (subQuery != null && subQuery.queryExpression != null) {
+            subQuery.queryExpression.replaceRangeVariables(ranges, newRanges);
+        }
     }
 
     void resetColumnReferences() {
@@ -1067,12 +1062,12 @@ public class Expression {
 
             nodeDataTypes[j] = type;
 
-            if (row != null && row.nodes[j].isParam) {
+            if (row != null && row.nodes[j].isParam()) {
                 row.nodes[j].dataType = type;
             }
 
             for (int i = 0; i < nodes.length; i++) {
-                if (nodes[i].nodes[j].isParam) {
+                if (nodes[i].nodes[j].isParam()) {
                     nodes[i].nodes[j].dataType = nodeDataTypes[j];
 
                     continue;
@@ -1380,17 +1375,15 @@ public class Expression {
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         resolveTypes(session, null);
-        Expression.collectAllExpressions(
-            set, this, Expression.subqueryAggregateExpressionSet,
-            Expression.emptyExpressionSet);
+        collectAllExpressions(set, Expression.subqueryAggregateExpressionSet,
+                              Expression.emptyExpressionSet);
 
         if (!set.isEmpty()) {
             throw Error.error(ErrorCode.X_42512);
         }
 
-        Expression.collectAllExpressions(set, this,
-                                         Expression.functionExpressionSet,
-                                         Expression.emptyExpressionSet);
+        collectAllExpressions(set, Expression.functionExpressionSet,
+                              Expression.emptyExpressionSet);
 
         for (int i = 0; i < set.size(); i++) {
             Expression current = (Expression) set.get(i);
@@ -1545,15 +1538,19 @@ public class Expression {
     }
 
     boolean isParam() {
-        return isParam;
+        return false;
     }
 
     boolean hasNonDeterministicFunction() {
 
-        HsqlArrayList list = new HsqlArrayList();
+        OrderedHashSet list = null;
 
-        collectAllExpressions(list, this, Expression.emptyExpressionSet,
-                              Expression.emptyExpressionSet);
+        list = collectAllExpressions(list, Expression.functionExpressionSet,
+                                     Expression.emptyExpressionSet);
+
+        if (list == null) {
+            return false;
+        }
 
         for (int j = 0; j < list.size(); j++) {
             Expression current = (Expression) list.get(j);
@@ -1593,33 +1590,68 @@ public class Expression {
     }
 
     /**
-     * collect all extrassions of a set of expression types appearing anywhere
+     * collect all expressions of a set of expression types appearing anywhere
      * in a select statement and its subselects, etc.
      */
-    static void collectAllExpressions(HsqlList set, Expression e,
-                                      OrderedIntHashSet typeSet,
-                                      OrderedIntHashSet stopAtTypeSet) {
+    OrderedHashSet collectAllExpressions(OrderedHashSet set,
+                                         OrderedIntHashSet typeSet,
+                                         OrderedIntHashSet stopAtTypeSet) {
 
-        if (e == null) {
-            return;
+        if (stopAtTypeSet.contains(opType)) {
+            return set;
         }
 
-        if (stopAtTypeSet.contains(e.opType)) {
-            return;
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] != null) {
+                set = nodes[i].collectAllExpressions(set, typeSet,
+                                                     stopAtTypeSet);
+            }
         }
 
-        for (int i = 0; i < e.nodes.length; i++) {
-            collectAllExpressions(set, e.nodes[i], typeSet, stopAtTypeSet);
+        if (typeSet.contains(opType)) {
+            if (set == null) {
+                set = new OrderedHashSet();
+            }
+
+            set.add(this);
         }
 
-        if (typeSet.contains(e.opType)) {
-            set.add(e);
-        }
-
-        if (e.subQuery != null && e.subQuery.queryExpression != null) {
-            e.subQuery.queryExpression.collectAllExpressions(set, typeSet,
+        if (subQuery != null && subQuery.queryExpression != null) {
+            set = subQuery.queryExpression.collectAllExpressions(set, typeSet,
                     stopAtTypeSet);
         }
+
+        return set;
+    }
+
+    public OrderedHashSet getSubqueries() {
+        return collectAllSubqueries(null);
+    }
+
+    OrderedHashSet collectAllSubqueries(OrderedHashSet set) {
+
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] != null) {
+                set = nodes[i].collectAllSubqueries(set);
+            }
+        }
+
+        if (subQuery != null) {
+            if (set == null) {
+                set = new OrderedHashSet();
+            }
+
+            set.add(subQuery);
+
+            if (subQuery.queryExpression != null) {
+                OrderedHashSet tempSet =
+                    subQuery.queryExpression.getSubqueries();
+
+                set = OrderedHashSet.addAll(set, tempSet);
+            }
+        }
+
+        return set;
     }
 
     /**
@@ -1640,13 +1672,12 @@ public class Expression {
      */
     public void checkValidCheckConstraint() {
 
-        HsqlArrayList set = new HsqlArrayList();
+        OrderedHashSet set = null;
 
-        Expression.collectAllExpressions(set, this,
-                                         subqueryAggregateExpressionSet,
-                                         emptyExpressionSet);
+        set = collectAllExpressions(set, subqueryAggregateExpressionSet,
+                                    emptyExpressionSet);
 
-        if (!set.isEmpty()) {
+        if (set != null && !set.isEmpty()) {
             throw Error.error(ErrorCode.X_0A000,
                               "subquery in check constraint");
         }
@@ -1670,5 +1701,25 @@ public class Expression {
 
     Expression getIndexableExpression(RangeVariable rangeVar) {
         return null;
+    }
+
+    public Expression duplicate() {
+
+        Expression e = null;
+
+        try {
+            e       = (Expression) super.clone();
+            e.nodes = nodes.clone();
+
+            for (int i = 0; i < nodes.length; i++) {
+                if (nodes[i] != null) {
+                    e.nodes[i] = nodes[i].duplicate();
+                }
+            }
+        } catch (CloneNotSupportedException ex) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+        }
+
+        return e;
     }
 }

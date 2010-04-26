@@ -926,7 +926,9 @@ implements ActionListener, WindowListener, KeyListener {
                         if (r.wasNull()) {
                             h[i - 1] = "(null)";
                         }
-                    } catch (SQLException e) {}
+                    } catch (SQLException e) {
+                        h[i - 1] = "(binary data)";
+                    }
                 }
 
                 gResult.addRow(h);

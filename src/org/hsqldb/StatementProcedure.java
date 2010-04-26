@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
@@ -56,7 +57,7 @@ public class StatementProcedure extends StatementDMQL {
     Routine procedure;
 
     /** arguments to Routine */
-    Expression[]   arguments;
+    Expression[]   arguments = Expression.emptyArray;
     ResultMetaData resultMetaData;
 
     /**
@@ -70,7 +71,7 @@ public class StatementProcedure extends StatementDMQL {
 
         this.expression = expression;
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
 
         if (procedure != null) {
@@ -90,7 +91,7 @@ public class StatementProcedure extends StatementDMQL {
         this.procedure = procedure;
         this.arguments = arguments;
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
@@ -131,11 +132,8 @@ public class StatementProcedure extends StatementDMQL {
                 new Object[variableCount];
         }
 
-        // fixed? temp until assignment of dynamicArguments in materialiseSubqueries is fixed
-//        Object[] args   = session.sessionContext.dynamicArguments;
         Result result = procedure.statement.execute(session);
 
-//        session.sessionContext.dynamicArguments = args;
         if (!result.isError()) {
             result = Result.updateZeroResult;
         }
@@ -155,7 +153,7 @@ public class StatementProcedure extends StatementDMQL {
             int          mode  = param.getParameterMode();
 
             if (mode != SchemaObject.ParameterModes.PARAM_IN) {
-                if (this.arguments[i].isParam) {
+                if (this.arguments[i].isParam()) {
                     int paramIndex = arguments[i].parameterIndex;
 
                     session.sessionContext.dynamicArguments[paramIndex] =
@@ -196,15 +194,6 @@ public class StatementProcedure extends StatementDMQL {
             getResultMetaData();
         }
 
-        /**
-         * @todo 1.9.0 For table functions implment handling of Result objects
-         * returned from Java functions. Review and document instantiation and usage
-         * of relevant implementation of Result and JDBCResultSet for returning
-         * from Java functions?
-         * else if (o instanceof JDBCResultSet) {
-         *   return ((JDBCResultSet) o).getResult();
-         * }
-         */
         r = Result.newSingleColumnResult(resultMetaData);
 
         Object[] row;
@@ -219,6 +208,35 @@ public class StatementProcedure extends StatementDMQL {
         r.getNavigator().add(row);
 
         return r;
+    }
+
+    SubQuery[] getSubqueries(Session session) {
+
+        OrderedHashSet subQueries = null;
+
+        if (expression != null) {
+            subQueries = expression.collectAllSubqueries(subQueries);
+        }
+
+        for (int i = 0; i < arguments.length; i++) {
+            subQueries = arguments[i].collectAllSubqueries(subQueries);
+        }
+
+        if (subQueries == null || subQueries.size() == 0) {
+            return SubQuery.emptySubqueryArray;
+        }
+
+        SubQuery[] subQueryArray = new SubQuery[subQueries.size()];
+
+        subQueries.toArray(subQueryArray);
+        ArraySort.sort(subQueryArray, 0, subQueryArray.length,
+                       subQueryArray[0]);
+
+        for (int i = 0; i < subqueries.length; i++) {
+            subQueryArray[i].prepareTable(session);
+        }
+
+        return subQueryArray;
     }
 
     public ResultMetaData getResultMetaData() {

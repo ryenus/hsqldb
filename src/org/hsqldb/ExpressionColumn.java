@@ -64,6 +64,9 @@ public class ExpressionColumn extends Expression {
     NumberSequence sequence;
     boolean        isWritable;    // = false; true if column of writable table
 
+    //
+    boolean isParam;
+
     /**
      * Creates a OpCodes.COLUMN expression
      */
@@ -661,15 +664,12 @@ public class ExpressionColumn extends Expression {
                 break;
 
             case OpTypes.COLUMN :
-
                 sb.append(Tokens.T_COLUMN).append(": ");
-
-
                 sb.append(column.getName().getSchemaQualifiedStatementName());
+
                 if (alias != null) {
                     sb.append(" AS ").append(alias.name);
                 }
-
                 break;
 
             case OpTypes.DYNAMIC_PARAM :
@@ -908,6 +908,22 @@ public class ExpressionColumn extends Expression {
         }
     }
 
+    void replaceRangeVariables(RangeVariable[] ranges,
+                               RangeVariable[] newRanges) {
+
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i].replaceRangeVariables(ranges, newRanges);
+        }
+
+        for (int i = 0; i < ranges.length; i++) {
+            if (rangeVariable == ranges[i]) {
+                rangeVariable = newRanges[i];
+
+                break;
+            }
+        }
+    }
+
     void resetColumnReferences() {
         rangeVariable = null;
         columnIndex   = -1;
@@ -920,5 +936,9 @@ public class ExpressionColumn extends Expression {
         }
 
         return false;
+    }
+
+    public boolean isParam() {
+        return isParam;
     }
 }

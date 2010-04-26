@@ -175,7 +175,8 @@ public class ScriptReaderText extends ScriptReaderBase {
                                 currentTable);
                     }
 
-                    currentTable.insertFromScript(currentStore, rowData);
+                    currentTable.insertFromScript(session, currentStore,
+                                                  rowData);
                 } else {
                     throw Error.error(ErrorCode.ERROR_IN_SCRIPT_FILE);
                 }

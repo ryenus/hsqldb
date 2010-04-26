@@ -166,7 +166,7 @@ public abstract class Type implements SchemaObject, Cloneable {
     public Type duplicate() {
 
         try {
-            return (Type) clone();
+            return (Type) super.clone();
         } catch (CloneNotSupportedException e) {
             throw Error.runtimeError(ErrorCode.U_S0500, "Type");
         }

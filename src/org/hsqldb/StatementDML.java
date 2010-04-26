@@ -84,7 +84,7 @@ public class StatementDML extends StatementDMQL {
         this.targetRangeVariables = rangeVars;
         this.restartIdentity      = restartIdentity;
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
 
         if (type == StatementTypes.TRUNCATE) {
@@ -114,7 +114,7 @@ public class StatementDML extends StatementDMQL {
         this.updateCheckColumns   = checkColumns;
         this.targetRangeVariables = rangeVars;
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
         setupChecks();
         targetRangeVariables[0].addAllColumns();
@@ -145,7 +145,7 @@ public class StatementDML extends StatementDMQL {
         this.targetRangeVariables = targetRangeVars;
         this.condition            = mergeCondition;
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
         setupChecks();
     }
@@ -528,7 +528,7 @@ public class StatementDML extends StatementDMQL {
             }
 
             // row matches!
-            if (updateExpressions != null) {
+            if (updateExpressions.length  != 0) {
                 Row row = it.getCurrentRow();    // this is always the second iterator
                 Object[] data = getUpdatedData(session, baseTable,
                                                updateColumnMap,
@@ -546,7 +546,7 @@ public class StatementDML extends StatementDMQL {
 
         // run the transaction as a whole, updating and inserting where needed
         // update any matched rows
-        if (updateExpressions != null) {
+        if (updateExpressions.length  != 0) {
             count = update(session, baseTable, updateRowSet);
         }
 

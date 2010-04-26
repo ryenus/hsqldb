@@ -93,7 +93,7 @@ public class QuerySpecification extends QueryExpression {
     public int            indexStartOrderBy;
     public int            indexStartAggregates;
     private int           indexLimitExpressions;
-    private int           indexLimitData;
+    public int            indexLimitData;
     private boolean       hasRowID;
     private boolean       isSimpleCount;
     private boolean       hasMemoryRow;
@@ -138,6 +138,9 @@ public class QuerySpecification extends QueryExpression {
         indexLimitVisible = exprColumnList.size();
 
         addRangeVariable(range);
+
+        isMergeable = false;
+
         resolveReferences(session);
         resolveTypes(session);
 
@@ -153,6 +156,7 @@ public class QuerySpecification extends QueryExpression {
         rangeVariableList   = new HsqlArrayList();
         exprColumnList      = new HsqlArrayList();
         sortAndSlice        = SortAndSlice.noSort;
+        isMergeable         = true;
     }
 
     void addRangeVariable(RangeVariable rangeVar) {
@@ -743,10 +747,6 @@ public class QuerySpecification extends QueryExpression {
                 throw Error.error(ErrorCode.X_42567);
             }
         }
-
-        isResolved = true;
-
-        return;
     }
 
     void resolveTypesPartOne(Session session) {
@@ -781,12 +781,13 @@ public class QuerySpecification extends QueryExpression {
         }
 
         checkLobUsage();
+        setMergeability();
         setUpdatability();
         createResultMetaData();
         createTable(session);
 
-        if (isUpdatable) {
-            getMergedSelect();
+        if (isMergeable) {
+            mergeQuery();
         }
 
         setRangeVariableConditions(session);
@@ -823,6 +824,8 @@ public class QuerySpecification extends QueryExpression {
         }
 
         sortAndSlice.setSortRange(this);
+
+        isResolved = true;
     }
 
     void checkLobUsage() {
@@ -874,8 +877,8 @@ public class QuerySpecification extends QueryExpression {
         if (isGrouped) {
             for (int i = indexLimitVisible;
                     i < indexLimitVisible + groupByColumnCount; i++) {
-                Expression.collectAllExpressions(
-                    tempSet, exprColumns[i], Expression.aggregateFunctionSet,
+                exprColumns[i].collectAllExpressions(
+                    tempSet, Expression.aggregateFunctionSet,
                     Expression.subqueryExpressionSet);
 
                 if (!tempSet.isEmpty()) {
@@ -899,8 +902,8 @@ public class QuerySpecification extends QueryExpression {
             }
         } else if (isAggregated) {
             for (int i = 0; i < indexLimitVisible; i++) {
-                Expression.collectAllExpressions(
-                    tempSet, exprColumns[i], Expression.columnExpressionSet,
+                exprColumns[i].collectAllExpressions(
+                    tempSet, Expression.columnExpressionSet,
                     Expression.aggregateFunctionSet);
 
                 if (!tempSet.isEmpty()) {
@@ -1523,7 +1526,7 @@ public class QuerySpecification extends QueryExpression {
         try {
             resultTable = new TableDerived(session.database, tableName,
                                            tableType, columnTypes, columnList,
-                                           null);
+                                           null, null);
         } catch (Exception e) {}
     }
 
@@ -1707,6 +1710,27 @@ public class QuerySpecification extends QueryExpression {
         return sb.toString();
     }
 
+    void setMergeability() {
+
+        if (isGrouped || isDistinctSelect) {
+            isMergeable = false;
+
+            return;
+        }
+
+        if (sortAndSlice.hasLimit() || sortAndSlice.hasOrder()) {
+            isMergeable = false;
+
+            return;
+        }
+
+        if (rangeVariables.length != 1) {
+            isMergeable = false;
+
+            return;
+        }
+    }
+
     void setUpdatability() {
 
         if (!isUpdatable) {
@@ -1715,15 +1739,19 @@ public class QuerySpecification extends QueryExpression {
 
         isUpdatable = false;
 
-        if (isAggregated || isGrouped || isDistinctSelect || !isTopLevel) {
+        if (!isMergeable) {
+            return;
+        }
+
+        if (!isTopLevel) {
+            return;
+        }
+
+        if (isAggregated) {
             return;
         }
 
         if (sortAndSlice.hasLimit() || sortAndSlice.hasOrder()) {
-            return;
-        }
-
-        if (rangeVariables.length != 1) {
             return;
         }
 
@@ -1749,11 +1777,14 @@ public class QuerySpecification extends QueryExpression {
 
         if (queryCondition != null) {
             tempSet.clear();
+            collectSubQueriesAndReferences(tempSet, queryCondition);
 
-            if (hasSubQueryTableReference(table.getName(), tempSet,
-                                          queryCondition)) {
+            if (tempSet.contains(table.getName())
+                    || tempSet.contains(baseTable.getName())) {
                 isUpdatable  = false;
                 isInsertable = false;
+
+                return;
             }
         }
 
@@ -1772,10 +1803,11 @@ public class QuerySpecification extends QueryExpression {
                 columns.put(name, 0);
             } else {
                 tempSet.clear();
+                collectSubQueriesAndReferences(tempSet, expression);
 
-                if (hasSubQueryTableReference(table.getName(), tempSet,
-                                              expression)) {
-                    isInsertable = isUpdatable = false;
+                if (tempSet.contains(table.getName())) {
+                    isUpdatable  = false;
+                    isInsertable = false;
 
                     return;
                 }
@@ -1855,11 +1887,139 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    static boolean hasSubQueryTableReference(HsqlName name,
-            OrderedHashSet set, Expression expression) {
+    void mergeQuery() {
 
-        set.clear();
-        Expression.collectAllExpressions(set, expression,
+        RangeVariable rangeVar            = rangeVariables[0];
+        Table         table               = rangeVar.getTable();
+        Expression    localQueryCondition = queryCondition;
+
+        if (table instanceof TableDerived) {
+            QueryExpression baseQueryExpression =
+                ((TableDerived) table).getQueryExpression();
+
+            if (!baseQueryExpression.isMergeable) {
+                isMergeable = false;
+
+                return;
+            }
+
+            QuerySpecification baseSelect =
+                baseQueryExpression.getMainSelect();
+
+            if (baseQueryExpression.view == null) {
+                rangeVariables[0] = baseSelect.rangeVariables[0];
+
+                rangeVariables[0].resetConditions();
+
+                Expression[] newExprColumns = new Expression[indexLimitData];
+
+                for (int i = 0; i < indexLimitData; i++) {
+                    Expression e = exprColumns[i];
+
+                    newExprColumns[i] = e.replaceColumnReferences(rangeVar,
+                            baseSelect.exprColumns);
+                }
+
+                exprColumns = newExprColumns;
+
+                if (localQueryCondition != null) {
+                    localQueryCondition =
+                        localQueryCondition.replaceColumnReferences(rangeVar,
+                            baseSelect.exprColumns);
+                }
+
+                Expression baseQueryCondition = baseSelect.queryCondition;
+
+                checkQueryCondition = baseSelect.checkQueryCondition;
+                queryCondition =
+                    ExpressionLogical.andExpressions(baseQueryCondition,
+                                                     localQueryCondition);
+            } else {
+                RangeVariable[] newRangeVariables = new RangeVariable[1];
+
+                newRangeVariables[0] =
+                    baseSelect.rangeVariables[0].duplicate();
+
+                Expression[] newBaseExprColumns =
+                    new Expression[baseSelect.indexLimitData];
+
+                for (int i = 0; i < baseSelect.indexLimitData; i++) {
+                    Expression e = baseSelect.exprColumns[i].duplicate();
+
+                    newBaseExprColumns[i] = e;
+
+                    e.replaceRangeVariables(baseSelect.rangeVariables, newRangeVariables);
+                }
+
+                for (int i = 0; i < indexLimitData; i++) {
+                    Expression e = exprColumns[i];
+
+                    exprColumns[i] = e.replaceColumnReferences(rangeVar,
+                            newBaseExprColumns);
+                }
+
+                Expression baseQueryCondition = baseSelect.queryCondition;
+
+                if (baseQueryCondition != null) {
+                    baseQueryCondition = baseQueryCondition.duplicate();
+
+                    baseQueryCondition.replaceRangeVariables(
+                        baseSelect.rangeVariables, newRangeVariables);
+                }
+
+                if (localQueryCondition != null) {
+                    localQueryCondition =
+                        localQueryCondition.replaceColumnReferences(rangeVar,
+                            newBaseExprColumns);
+                }
+
+                checkQueryCondition = baseSelect.checkQueryCondition;
+
+                if (checkQueryCondition != null) {
+                    checkQueryCondition = checkQueryCondition.duplicate();
+
+                    checkQueryCondition.replaceRangeVariables(
+                        baseSelect.rangeVariables, newRangeVariables);
+                }
+
+
+                queryCondition =
+                    ExpressionLogical.andExpressions(baseQueryCondition,
+                                                     localQueryCondition);
+                rangeVariables = newRangeVariables;
+            }
+        }
+
+        if (view != null) {
+            switch (view.getCheckOption()) {
+
+                case SchemaObject.ViewCheckModes.CHECK_LOCAL :
+                    if (!isUpdatable) {
+                        throw Error.error(ErrorCode.X_42537);
+                    }
+
+                    checkQueryCondition = localQueryCondition;
+                    break;
+
+                case SchemaObject.ViewCheckModes.CHECK_CASCADE :
+                    if (!isUpdatable) {
+                        throw Error.error(ErrorCode.X_42537);
+                    }
+
+                    checkQueryCondition = queryCondition;
+                    break;
+            }
+        }
+
+        if (isAggregated) {
+            isMergeable = false;
+        }
+    }
+
+    static void collectSubQueriesAndReferences(OrderedHashSet set,
+            Expression expression) {
+
+        expression.collectAllExpressions(set,
                                          Expression.subqueryExpressionSet,
                                          Expression.emptyExpressionSet);
 
@@ -1870,30 +2030,60 @@ public class QuerySpecification extends QueryExpression {
 
             e.collectObjectNames(set);
         }
+    }
 
-        if (set.contains(name)) {
-            return true;
+    public OrderedHashSet getSubqueries() {
+
+        OrderedHashSet set = null;
+
+        for (int i = 0; i < indexStartAggregates; i++) {
+            set = exprColumns[i].collectAllSubqueries(set);
         }
 
-        return false;
+        if (queryCondition != null) {
+            set = queryCondition.collectAllSubqueries(set);
+        }
+
+        if (havingCondition != null) {
+            set = havingCondition.collectAllSubqueries(set);
+        }
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            OrderedHashSet temp = rangeVariables[i].getSubqueries();
+
+            set = OrderedHashSet.addAll(set, temp);
+        }
+
+        return set;
     }
 
     public Table getBaseTable() {
         return baseTable;
     }
 
-    public void collectAllExpressions(HsqlList set, OrderedIntHashSet typeSet,
-                                      OrderedIntHashSet stopAtTypeSet) {
+    public OrderedHashSet collectAllSubqueries(OrderedHashSet set) {
+        return set;
+    }
+
+    public OrderedHashSet collectAllExpressions(OrderedHashSet set,
+            OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
-            Expression.collectAllExpressions(set, exprColumns[i], typeSet,
-                                             stopAtTypeSet);
+            set = exprColumns[i].collectAllExpressions(set, typeSet,
+                    stopAtTypeSet);
         }
 
-        Expression.collectAllExpressions(set, queryCondition, typeSet,
-                                         stopAtTypeSet);
-        Expression.collectAllExpressions(set, havingCondition, typeSet,
-                                         stopAtTypeSet);
+        if (queryCondition != null) {
+            set = queryCondition.collectAllExpressions(set, typeSet,
+                    stopAtTypeSet);
+        }
+
+        if (havingCondition != null) {
+            set = havingCondition.collectAllExpressions(set, typeSet,
+                    stopAtTypeSet);
+        }
+
+        return set;
     }
 
     public void collectObjectNames(Set set) {
@@ -1917,84 +2107,41 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    void getMergedSelect() {
-
-        RangeVariable rangeVar            = rangeVariables[0];
-        Table         table               = rangeVar.getTable();
-        Expression    localQueryCondition = queryCondition;
-        Expression    baseQueryCondition  = null;
-
-        if (table instanceof TableDerived) {
-            QuerySpecification baseSelect =
-                ((TableDerived) table).queryExpression.getMainSelect();
-            RangeVariable baseRangeVariable = baseSelect.rangeVariables[0];
-
-            rangeVariables    = new RangeVariable[1];
-            rangeVariables[0] = new RangeVariable(baseRangeVariable);
-
-            Expression[] newExprColumns = new Expression[indexLimitRowId];
-
-            for (int i = 0; i < indexLimitVisible; i++) {
-                Expression e = exprColumns[i];
-
-                newExprColumns[i] = e.replaceColumnReferences(rangeVar,
-                        baseSelect.exprColumns);
-            }
-
-            exprColumns = newExprColumns;
-
-            if (localQueryCondition != null) {
-                localQueryCondition =
-                    localQueryCondition.replaceColumnReferences(rangeVar,
-                        baseSelect.exprColumns);
-            }
-
-            baseQueryCondition  = baseSelect.queryCondition;
-            checkQueryCondition = baseSelect.checkQueryCondition;
+    public void replaceColumnReference(RangeVariable range,
+                                       Expression[] list) {
+        for (int i = 0; i < indexStartAggregates; i++) {
+            exprColumns[i].replaceColumnReferences(range, list);
         }
 
-        queryCondition = ExpressionLogical.andExpressions(baseQueryCondition,
-                localQueryCondition);
-
-        if (queryCondition != null && (isUpdatable || isInsertable)) {
-            tempSet.clear();
-            Expression.collectAllExpressions(tempSet, queryCondition,
-                                             Expression.subqueryExpressionSet,
-                                             Expression.emptyExpressionSet);
-
-            int size = tempSet.size();
-
-            for (int i = 0; i < size; i++) {
-                Expression e = (Expression) tempSet.get(i);
-
-                e.collectObjectNames(tempSet);
-            }
-
-            if (tempSet.contains(baseTable.getName())) {
-                isUpdatable  = false;
-                isInsertable = false;
-            }
+        if (queryCondition != null) {
+            queryCondition.replaceColumnReferences(range, list);
         }
 
-        if (view != null) {
-            switch (view.getCheckOption()) {
+        if (havingCondition != null) {
+            havingCondition.replaceColumnReferences(range, list);
+        }
 
-                case SchemaObject.ViewCheckModes.CHECK_LOCAL :
-                    if (!isUpdatable) {
-                        throw Error.error(ErrorCode.X_42537);
-                    }
+        for (int i = 0, len = rangeVariables.length; i < len; i++) {
+            //
+        }
+    }
 
-                    checkQueryCondition = localQueryCondition;
-                    break;
+    public void replaceRangeVariables(RangeVariable[] ranges,
+                                      RangeVariable[] newRanges) {
+        for (int i = 0; i < indexStartAggregates; i++) {
+            exprColumns[i].replaceRangeVariables(ranges, newRanges);
+        }
 
-                case SchemaObject.ViewCheckModes.CHECK_CASCADE :
-                    if (!isUpdatable) {
-                        throw Error.error(ErrorCode.X_42537);
-                    }
+        if (queryCondition != null) {
+            queryCondition.replaceRangeVariables(ranges, newRanges);
+        }
 
-                    checkQueryCondition = queryCondition;
-                    break;
-            }
+        if (havingCondition != null) {
+            havingCondition.replaceRangeVariables(ranges, newRanges);
+        }
+
+        for (int i = 0, len = rangeVariables.length; i < len; i++) {
+            rangeVariables[i].getSubqueries();
         }
     }
 

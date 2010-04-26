@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
@@ -83,7 +84,7 @@ public class StatementSet extends StatementDMQL {
         this.targetRangeVariables = rangeVars;
         isTransactionStatement    = false;
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
@@ -99,7 +100,7 @@ public class StatementSet extends StatementDMQL {
         variableIndexes        = indexes;
         sourceTypes            = expression.getNodeDataTypes();
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
@@ -116,8 +117,33 @@ public class StatementSet extends StatementDMQL {
         variableIndexes        = indexes;
         sourceTypes            = query.getColumnTypes();
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
+    }
+
+    SubQuery[] getSubqueries(Session session) {
+
+        OrderedHashSet subQueries = null;
+
+        if (expression != null) {
+            subQueries = expression.collectAllSubqueries(subQueries);
+        }
+
+        if (subQueries == null || subQueries.size() == 0) {
+            return SubQuery.emptySubqueryArray;
+        }
+
+        SubQuery[] subQueryArray = new SubQuery[subQueries.size()];
+
+        subQueries.toArray(subQueryArray);
+        ArraySort.sort(subQueryArray, 0, subQueryArray.length,
+                       subQueryArray[0]);
+
+        for (int i = 0; i < subqueries.length; i++) {
+            subQueryArray[i].prepareTable(session);
+        }
+
+        return subQueryArray;
     }
 
     Result getResult(Session session) {

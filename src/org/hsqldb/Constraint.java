@@ -150,7 +150,6 @@ public final class Constraint implements SchemaObject {
         core.mainCols  = cols;
     }
 
-
     /**
      *  Constructor for main constraints (foreign key references in PK table)
      */
@@ -220,14 +219,14 @@ public final class Constraint implements SchemaObject {
                       Index refIndex, int deleteAction,
                       int updateAction) throws HsqlException {
 
-        this.name       = refName;
-        constType       = SchemaObject.ConstraintTypes.FOREIGN_KEY;
-        core            = new ConstraintCore();
-        core.uniqueName = uniqueName;
-        core.mainName   = mainName;
-        core.refName    = refName;
-        core.mainTable  = mainTable;
-        core.refTable   = refTable;
+        this.name         = refName;
+        constType         = SchemaObject.ConstraintTypes.FOREIGN_KEY;
+        core              = new ConstraintCore();
+        core.uniqueName   = uniqueName;
+        core.mainName     = mainName;
+        core.refName      = refName;
+        core.mainTable    = mainTable;
+        core.refTable     = refTable;
         core.mainCols     = mainCols;
         core.refCols      = refCols;
         core.mainIndex    = mainIndex;
@@ -976,9 +975,8 @@ public final class Constraint implements SchemaObject {
 
         OrderedHashSet set = new OrderedHashSet();
 
-        Expression.collectAllExpressions(set, check,
-                                         Expression.columnExpressionSet,
-                                         Expression.emptyExpressionSet);
+        check.collectAllExpressions(set, Expression.columnExpressionSet,
+                                    Expression.emptyExpressionSet);
 
         return set;
     }

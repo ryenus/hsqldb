@@ -55,6 +55,7 @@ public class StatementInsert extends StatementDML {
     int            generatedType;
     ResultMetaData generatedInputMetaData;
     boolean        isSimpleInsert;
+    int            overrideUserValue = -1;
 
     /**
      * Instantiate this as an INSERT_VALUES statement.
@@ -74,7 +75,7 @@ public class StatementInsert extends StatementDML {
         this.insertCheckColumns = checkColumns;
         this.insertExpression   = insertExpression;
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
         setupChecks();
 
@@ -88,7 +89,7 @@ public class StatementInsert extends StatementDML {
      */
     StatementInsert(Session session, Table targetTable, int[] columnMap,
                     boolean[] checkColumns, QueryExpression queryExpression,
-                    CompileContext compileContext) {
+                    CompileContext compileContext, int override) {
 
         super(StatementTypes.INSERT, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
@@ -100,8 +101,9 @@ public class StatementInsert extends StatementDML {
         this.insertColumnMap    = columnMap;
         this.insertCheckColumns = checkColumns;
         this.queryExpression    = queryExpression;
+        this.overrideUserValue  = override;
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
         setupChecks();
     }
@@ -116,7 +118,7 @@ public class StatementInsert extends StatementDML {
 
         Result          resultOut          = null;
         RowSetNavigator generatedNavigator = null;
-        PersistentStore store = baseTable.getRowStore(session);
+        PersistentStore store              = baseTable.getRowStore(session);
 
         if (generatedIndexes != null) {
             resultOut = Result.newUpdateCountResult(generatedResultMetaData,
@@ -171,7 +173,12 @@ public class StatementInsert extends StatementDML {
             Object[] sourceData = (Object[]) nav.getNext();
 
             for (int i = 0; i < columnMap.length; i++) {
-                int  j          = columnMap[i];
+                int j = columnMap[i];
+
+                if (j == this.overrideUserValue) {
+                    continue;
+                }
+
                 Type sourceType = sourceTypes[i];
 
                 data[j] = colTypes[j].convertToType(session, sourceData[i],

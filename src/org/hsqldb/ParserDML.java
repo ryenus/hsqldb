@@ -174,10 +174,12 @@ public class ParserDML extends ParserDQL {
                     } else {
                         unexpectedToken();
                     }
-                }
 
-                if (token.tokenType != Tokens.VALUES) {
-                    break;
+                    readThis(Tokens.VALUE);
+
+                    if (token.tokenType != Tokens.VALUES) {
+                        break;
+                    }
                 }
             }
 
@@ -225,13 +227,11 @@ public class ParserDML extends ParserDQL {
                                     if (!overridingUser && !overridingSystem) {
                                         throw Error.error(ErrorCode.X_42543);
                                     }
-                                } else {
-/*
-                                    if (overridingUser) {
-                                        throw Trace.error(
-                                            Trace.SQL_DEFAULT_CLAUSE_REQUITED);
-                                    }
-*/
+                                }
+
+                                if (overridingUser) {
+                                    rowArgs[i] =
+                                        new ExpressionColumn(OpTypes.DEFAULT);
                                 }
                             }
                         } else if (column.hasDefault()) {}
@@ -286,6 +286,7 @@ public class ParserDML extends ParserDQL {
         }
 
         int enforcedDefaultIndex = table.getIdentityColumnIndex();
+        int overrideIndex        = -1;
 
         if (enforcedDefaultIndex != -1
                 && ArrayUtil.find(columnMap, enforcedDefaultIndex) > -1) {
@@ -293,13 +294,10 @@ public class ParserDML extends ParserDQL {
                 if (!overridingUser && !overridingSystem) {
                     throw Error.error(ErrorCode.X_42543);
                 }
-            } else {
-/*
-                if (overridingUser) {
-                    throw Trace.error(
-                        Trace.SQL_DEFAULT_CLAUSE_REQUITED);
-                }
-*/
+            }
+
+            if (overridingUser) {
+                overrideIndex = enforcedDefaultIndex;
             }
         } else if (overridingUser || overridingSystem) {
             unexpectedTokenRequire(Tokens.T_OVERRIDING);
@@ -321,7 +319,7 @@ public class ParserDML extends ParserDQL {
         StatementDMQL cs = new StatementInsert(session, table, columnMap,
                                                columnCheckList,
                                                queryExpression,
-                                               compileContext);
+                                               compileContext, overrideIndex);
 
         return cs;
     }
@@ -440,23 +438,51 @@ public class ParserDML extends ParserDQL {
 
             //
         } else if (table != baseTable) {
-            QuerySpecification select =
+            QuerySpecification baseSelect =
                 ((TableDerived) table).getQueryExpression().getMainSelect();
+            RangeVariable[] newRangeVariables =
+                (RangeVariable[]) ArrayUtil.duplicateArray(
+                    baseSelect.rangeVariables);
+
+            newRangeVariables[0] = baseSelect.rangeVariables[0].duplicate();
+
+            Expression[] newBaseExprColumns =
+                new Expression[baseSelect.indexLimitData];
+
+            for (int i = 0; i < baseSelect.indexLimitData; i++) {
+                Expression e = baseSelect.exprColumns[i].duplicate();
+
+                newBaseExprColumns[i] = e;
+
+                e.replaceRangeVariables(baseSelect.rangeVariables,
+                                        newRangeVariables);
+            }
+
+            Expression baseQueryCondition = baseSelect.queryCondition;
+
+            if (baseQueryCondition != null) {
+                baseQueryCondition = baseQueryCondition.duplicate();
+
+                baseQueryCondition.replaceRangeVariables(rangeVariables,
+                        newRangeVariables);
+            }
 
             if (condition != null) {
                 condition =
                     condition.replaceColumnReferences(rangeVariables[0],
-                                                      select.exprColumns);
+                                                      newBaseExprColumns);
             }
 
-            rangeVariables[0] = new RangeVariable(select.rangeVariables[0]);
-            condition = ExpressionLogical.andExpressions(select.queryCondition,
+            rangeVariables = newRangeVariables;
+            condition = ExpressionLogical.andExpressions(baseQueryCondition,
                     condition);
         }
 
         if (condition != null) {
+            rangeVariables[0].addJoinCondition(condition);
+
             RangeVariableResolver resolver =
-                new RangeVariableResolver(rangeVariables, condition,
+                new RangeVariableResolver(rangeVariables, null,
                                           compileContext);
 
             resolver.processConditions(session);
@@ -524,23 +550,57 @@ public class ParserDML extends ParserDQL {
                                  updateExpressions, outerRanges);
 
         if (table != baseTable) {
-            QuerySpecification select =
+            QuerySpecification baseSelect =
                 ((TableDerived) table).getQueryExpression().getMainSelect();
+            RangeVariable[] newRangeVariables =
+                (RangeVariable[]) ArrayUtil.duplicateArray(
+                    baseSelect.rangeVariables);
+
+            newRangeVariables[0] = baseSelect.rangeVariables[0].duplicate();
+
+            Expression[] newBaseExprColumns =
+                new Expression[baseSelect.indexLimitData];
+
+            for (int i = 0; i < baseSelect.indexLimitData; i++) {
+                Expression e = baseSelect.exprColumns[i].duplicate();
+
+                newBaseExprColumns[i] = e;
+
+                e.replaceRangeVariables(baseSelect.rangeVariables,
+                                        newRangeVariables);
+            }
+
+            Expression baseQueryCondition = baseSelect.queryCondition;
+
+            if (baseQueryCondition != null) {
+                baseQueryCondition = baseQueryCondition.duplicate();
+
+                baseQueryCondition.replaceRangeVariables(rangeVariables,
+                        newRangeVariables);
+            }
 
             if (condition != null) {
                 condition =
                     condition.replaceColumnReferences(rangeVariables[0],
-                                                      select.exprColumns);
+                                                      newBaseExprColumns);
             }
 
-            rangeVariables[0] = new RangeVariable(select.rangeVariables[0]);
-            condition = ExpressionLogical.andExpressions(select.queryCondition,
+            for (int i = 0; i < updateExpressions.length; i++) {
+                updateExpressions[i] =
+                    updateExpressions[i].replaceColumnReferences(
+                        rangeVariables[0], newBaseExprColumns);
+            }
+
+            rangeVariables = newRangeVariables;
+            condition = ExpressionLogical.andExpressions(baseQueryCondition,
                     condition);
         }
 
         if (condition != null) {
+            rangeVariables[0].addJoinCondition(condition);
+
             RangeVariableResolver resolver =
-                new RangeVariableResolver(rangeVariables, condition,
+                new RangeVariableResolver(rangeVariables, null,
                                           compileContext);
 
             resolver.processConditions(session);
@@ -673,19 +733,6 @@ public class ParserDML extends ParserDQL {
                 i++;
             }
         }
-
-        if (!targetTable.isView) {
-            return;
-        }
-
-        QuerySpecification select =
-            ((TableDerived) targetTable).getQueryExpression().getMainSelect();
-
-        for (int i = 0; i < colExpressions.length; i++) {
-            colExpressions[i] =
-                colExpressions[i].replaceColumnReferences(rangeVariables[0],
-                    select.exprColumns);
-        }
     }
 
     void readSetClauseList(RangeVariable[] rangeVars, OrderedHashSet colNames,
@@ -791,7 +838,7 @@ public class ParserDML extends ParserDQL {
         RangeVariable sourceRange;
         Expression    mergeCondition;
         HsqlArrayList updateList        = new HsqlArrayList();
-        Expression[]  updateExpressions = null;
+        Expression[]  updateExpressions = Expression.emptyArray;
         HsqlArrayList insertList        = new HsqlArrayList();
         Expression    insertExpression  = null;
 
@@ -852,7 +899,7 @@ public class ParserDML extends ParserDQL {
             updateColumnMap = table.getColumnIndexes(updateColNames);
         }
 
-        if (updateExpressions != null) {
+        if (updateExpressions.length != 0) {
             Table baseTable = table.getBaseTable();
 
             baseUpdateColumnMap = updateColumnMap;
@@ -958,6 +1005,7 @@ public class ParserDML extends ParserDQL {
 
             if (brackets == 1) {
                 readSimpleColumnNames(insertColumnNames, targetRangeVars[0]);
+                columnCount = insertColumnNames.size();
                 readThis(Tokens.CLOSEBRACKET);
 
                 brackets = 0;

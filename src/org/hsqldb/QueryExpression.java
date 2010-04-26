@@ -103,6 +103,7 @@ public class QueryExpression {
 
     //
     View    view;
+    boolean isMergeable;
     boolean isUpdatable;
     boolean isInsertable;
     boolean isCheckable;
@@ -422,7 +423,8 @@ public class QueryExpression {
         }
 
         ResultMetaData meta = getMetaData();
-
+/*
+        // disallow lobs
         for (int i = 0, count = meta.getColumnCount(); i < count; i++) {
             Type dataType = meta.columnTypes[i];
 
@@ -430,6 +432,7 @@ public class QueryExpression {
                 throw Error.error(ErrorCode.X_42534);
             }
         }
+*/
     }
 
     public Object[] getValues(Session session) {
@@ -555,6 +558,14 @@ public class QueryExpression {
         return first;
     }
 
+    public OrderedHashSet getSubqueries() {
+
+        OrderedHashSet subqueries = leftQueryExpression.getSubqueries();
+
+        return OrderedHashSet.addAll(subqueries,
+                                     rightQueryExpression.getSubqueries());
+    }
+
     public boolean isSingleColumn() {
         return leftQueryExpression.isSingleColumn();
     }
@@ -670,15 +681,18 @@ public class QueryExpression {
         return unionCorrespondingColumns.size();
     }
 
-    public void collectAllExpressions(HsqlList set, OrderedIntHashSet typeSet,
-                                      OrderedIntHashSet stopAtTypeSet) {
+    public OrderedHashSet collectAllExpressions(OrderedHashSet set,
+            OrderedIntHashSet typeSet, OrderedIntHashSet stopAtTypeSet) {
 
-        leftQueryExpression.collectAllExpressions(set, typeSet, stopAtTypeSet);
+        set = leftQueryExpression.collectAllExpressions(set, typeSet,
+                stopAtTypeSet);
 
         if (rightQueryExpression != null) {
-            rightQueryExpression.collectAllExpressions(set, typeSet,
+            set = rightQueryExpression.collectAllExpressions(set, typeSet,
                     stopAtTypeSet);
         }
+
+        return set;
     }
 
     public void collectObjectNames(Set set) {
@@ -758,7 +772,7 @@ public class QueryExpression {
         try {
             resultTable = new TableDerived(session.database, tableName,
                                            tableType, unionColumnTypes,
-                                           columnList, null);
+                                           columnList, null, null);
         } catch (Exception e) {}
     }
 
@@ -892,5 +906,17 @@ public class QueryExpression {
                    ? other.rightQueryExpression == null
                    : rightQueryExpression.isEquivalent(
                        other.rightQueryExpression));
+    }
+
+    public void replaceColumnReference(RangeVariable range,
+                                       Expression[] list) {
+        leftQueryExpression.replaceColumnReference(range, list);
+        rightQueryExpression.replaceColumnReference(range, list);
+    }
+
+    public void replaceRangeVariables(RangeVariable[] ranges,
+                                      RangeVariable[] newRanges) {
+        leftQueryExpression.replaceRangeVariables(ranges, newRanges);
+        rightQueryExpression.replaceRangeVariables(ranges, newRanges);
     }
 }

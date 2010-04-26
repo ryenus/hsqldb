@@ -55,7 +55,7 @@ import org.hsqldb.types.Type;
  * @version 2.0.0
  * @since 1.9.0
  */
-public final class RangeVariable {
+public final class RangeVariable implements Cloneable {
 
     static final RangeVariable[] emptyArray = new RangeVariable[]{};
 
@@ -152,20 +152,19 @@ public final class RangeVariable {
             new RangeVariableConditions(this, false) };
     }
 
-    RangeVariable(RangeVariable range) {
+    public RangeVariable duplicate() {
 
-        rangeTable       = range.rangeTable;
-        tableAlias       = null;
-        emptyData        = rangeTable.getEmptyRowData();
-        columnsInGroupBy = rangeTable.getNewColumnCheckList();
-        usedColumns      = rangeTable.getNewColumnCheckList();
-        rangePosition    = range.rangePosition;
-        level            = range.level;
-        joinConditions = new RangeVariableConditions[]{
-            new RangeVariableConditions(this, true) };
-        joinConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
-        whereConditions = new RangeVariableConditions[]{
-            new RangeVariableConditions(this, false) };
+        RangeVariable r = null;
+
+        try {
+            r = (RangeVariable) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
+        }
+
+        r.resetConditions();
+
+        return r;
     }
 
     void setJoinType(boolean isLeft, boolean isRight) {
@@ -503,6 +502,65 @@ public final class RangeVariable {
         joinCondition = ExpressionLogical.andExpressions(joinCondition, e);
     }
 
+    void resetConditions() {
+
+        Index index = joinConditions[0].rangeIndex;
+
+        joinConditions = new RangeVariableConditions[]{
+            new RangeVariableConditions(this, true) };
+        joinConditions[0].rangeIndex = index;
+        whereConditions = new RangeVariableConditions[]{
+            new RangeVariableConditions(this, false) };
+    }
+
+    OrderedHashSet getSubqueries() {
+
+        OrderedHashSet set = null;
+
+        if (joinCondition != null) {
+            set = joinCondition.collectAllSubqueries(set);
+        }
+
+        if (rangeTable instanceof TableDerived) {
+            QueryExpression baseQueryExpression =
+                ((TableDerived) rangeTable).getQueryExpression();
+
+            if (((TableDerived) rangeTable).view != null) {
+                if (set == null) {
+                    set = new OrderedHashSet();
+                }
+
+                set.addAll(((TableDerived) rangeTable).view.viewSubqueries);
+            } else if (baseQueryExpression == null) {
+                set = OrderedHashSet.add(
+                    set, ((TableDerived) rangeTable).getSubQuery());
+            } else {
+                OrderedHashSet temp = baseQueryExpression.getSubqueries();
+
+                set = OrderedHashSet.addAll(set, temp);
+                set = OrderedHashSet.add(
+                    set, ((TableDerived) rangeTable).getSubQuery());
+            }
+        }
+
+        return set;
+    }
+
+    public void replaceColumnReference(RangeVariable range,
+                                       Expression[] list) {
+        if (joinCondition != null) {
+            joinCondition.replaceColumnReferences(range, list);
+        }
+    }
+
+    public void replaceRangeVariables(RangeVariable[] ranges,
+                                      RangeVariable[] newRanges) {
+
+        if (joinCondition != null) {
+            joinCondition.replaceRangeVariables(ranges, newRanges);
+        }
+    }
+
     /**
      * Retreives a String representation of this obejct. <p>
      *
@@ -727,7 +785,7 @@ public final class RangeVariable {
         private RangeIteratorMain(Session session, RangeVariable rangeVar) {
 
             this.rangePosition = rangeVar.rangePosition;
-            this.store = rangeVar.rangeTable.getRowStore(session);
+            this.store         = rangeVar.rangeTable.getRowStore(session);
             this.session       = session;
             this.rangeVar      = rangeVar;
             currentData        = rangeVar.emptyData;

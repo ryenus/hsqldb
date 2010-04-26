@@ -2087,8 +2087,8 @@ public class Table extends TableBase implements SchemaObject {
             getSchemaName(), getName(), SchemaObject.INDEX);
 
         try {
-            Index index = createAndAddIndexStructure(session, indexName, columns,
-                null, null, false, false, false);
+            Index index = createAndAddIndexStructure(session, indexName,
+                columns, null, null, false, false, false);
 
             return index;
         } catch (Throwable t) {
@@ -2291,7 +2291,8 @@ public class Table extends TableBase implements SchemaObject {
      * Finds an existing index for a column set or create one for temporary
      * tables
      */
-    Index getIndexForColumns(Session session, OrderedIntHashSet set, boolean ordered) {
+    Index getIndexForColumns(Session session, OrderedIntHashSet set,
+                             boolean ordered) {
 
         int   maxMatchCount = 0;
         Index selected      = null;
@@ -2476,7 +2477,7 @@ public class Table extends TableBase implements SchemaObject {
             Object[] newData =
                 (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
-            insertData(store, newData);
+            insertData(session, store, newData);
         }
     }
 
@@ -2516,7 +2517,7 @@ public class Table extends TableBase implements SchemaObject {
      * Used for subquery inserts. No checks. No identity
      * columns.
      */
-    void insertResult(PersistentStore store, Result ins) {
+    void insertResult(Session session, PersistentStore store, Result ins) {
 
         RowSetNavigator nav = ins.initialiseNavigator();
 
@@ -2525,7 +2526,7 @@ public class Table extends TableBase implements SchemaObject {
             Object[] newData =
                 (Object[]) ArrayUtil.resizeArrayIfDifferent(data, columnCount);
 
-            insertData(store, newData);
+            insertData(session, store, newData);
         }
     }
 
@@ -2534,19 +2535,21 @@ public class Table extends TableBase implements SchemaObject {
      * Used by ScriptReader to unconditionally insert a row into
      * the table when the .script file is read.
      */
-    public void insertFromScript(PersistentStore store, Object[] data) {
+    public void insertFromScript(Session session, PersistentStore store,
+                                 Object[] data) {
         systemUpdateIdentityValue(data);
-        insertData(store, data);
+        insertData(session, store, data);
     }
 
     /**
      * For system operations outside transaction constrol
      */
-    public void insertData(PersistentStore store, Object[] data) {
+    public void insertData(Session session, PersistentStore store,
+                           Object[] data) {
 
         Row row = (Row) store.getNewCachedObject(null, data);
 
-        store.indexRow(null, row);
+        store.indexRow(session, row);
     }
 
     /**

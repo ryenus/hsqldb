@@ -60,13 +60,14 @@ public class TableUtil {
     }
 
     static TableDerived newSubqueryTable(Database database,
-                                         QueryExpression queryExpression) {
+                                         QueryExpression queryExpression,
+                                         SubQuery subQuery) {
 
         HsqlName name = database.nameManager.getSubqueryTableName();
 
         try {
             return new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,
-                                    queryExpression);
+                                    queryExpression, subQuery);
         } catch (Exception e) {
             return null;
         }
@@ -75,7 +76,8 @@ public class TableUtil {
     static Table newLookupTable(Database database) {
 
         try {
-            TableDerived table = TableUtil.newSubqueryTable(database, null);
+            TableDerived table = TableUtil.newSubqueryTable(database, null,
+                null);
             ColumnSchema column =
                 new ColumnSchema(HsqlNameManager.getAutoColumnName(0),
                                  Type.SQL_INTEGER, false, true, null);

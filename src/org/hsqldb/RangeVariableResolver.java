@@ -131,8 +131,6 @@ public class RangeVariableResolver {
 
             decomposeAndConditions(rangeVariables[i].joinCondition,
                                    tempJoinExpressions[i]);
-
-            rangeVariables[i].joinCondition = null;
         }
 
         conditions = null;
