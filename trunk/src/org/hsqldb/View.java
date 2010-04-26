@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.OrderedHashSet;
 
 // fredt@users 20020420 - patch523880 by leptipre@users - VIEW support - modified
@@ -130,12 +131,26 @@ public class View extends TableDerived {
         }
 
         //
-        viewSubqueries = p.compileContext.getSubqueries();
+        OrderedHashSet set = queryExpression.getSubqueries();
+
+        if (set == null) {
+            viewSubqueries = new SubQuery[]{ viewSubQuery };
+        } else {
+            set.add(viewSubQuery);
+
+            viewSubqueries = new SubQuery[set.size()];
+
+            set.toArray(viewSubqueries);
+            ArraySort.sort(viewSubqueries, 0, viewSubqueries.length,
+                           viewSubqueries[0]);
+        }
 
         for (int i = 0; i < viewSubqueries.length; i++) {
             if (viewSubqueries[i].parentView == null) {
                 viewSubqueries[i].parentView = this;
             }
+
+            viewSubqueries[i].prepareTable(session);
         }
 
         //

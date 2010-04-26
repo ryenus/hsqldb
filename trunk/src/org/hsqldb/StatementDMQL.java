@@ -35,6 +35,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
@@ -67,7 +68,7 @@ public abstract class StatementDMQL extends Statement {
 
     /** column map of query expression */
     int[]           baseColumnMap;
-    RangeVariable[] targetRangeVariables;
+    RangeVariable[] targetRangeVariables = RangeVariable.emptyArray;
 
     /** source table for MERGE */
     Table sourceTable;
@@ -86,7 +87,7 @@ public abstract class StatementDMQL extends Statement {
     int[] baseUpdateColumnMap = ValuePool.emptyIntArray;
 
     /** Column value Expressions for UPDATE and MERGE. */
-    Expression[] updateExpressions;
+    Expression[] updateExpressions = Expression.emptyArray;
 
     /** Column value Expressions for MERGE */
     Expression[][] multiColumnValues;
@@ -173,39 +174,7 @@ public abstract class StatementDMQL extends Statement {
         }
 
         if (isExplain) {
-            result = Result.newSingleColumnStringResult("OPERATION",
-                    describe(session));
-
-            OrderedHashSet set = getReferences();
-
-            result.navigator.add(new Object[]{ "Object References" });
-
-            for (int i = 0; i < set.size(); i++) {
-                HsqlName name = (HsqlName) set.get(i);
-
-                result.navigator.add(new Object[]{
-                    name.getSchemaQualifiedStatementName() });
-            }
-
-            result.navigator.add(new Object[]{ "Read Locks" });
-
-            for (int i = 0; i < readTableNames.length; i++) {
-                HsqlName name = readTableNames[i];
-
-                result.navigator.add(new Object[]{
-                    name.getSchemaQualifiedStatementName() });
-            }
-
-            result.navigator.add(new Object[]{ "WriteLocks" });
-
-            for (int i = 0; i < writeTableNames.length; i++) {
-                HsqlName name = writeTableNames[i];
-
-                result.navigator.add(new Object[]{
-                    name.getSchemaQualifiedStatementName() });
-            }
-
-            return result;
+            return getExplainResult(session);
         }
 
         try {
@@ -221,6 +190,42 @@ public abstract class StatementDMQL extends Statement {
         }
 
         session.sessionContext.clearStructures(this);
+
+        return result;
+    }
+
+    private Result getExplainResult(Session session) {
+
+        Result result = Result.newSingleColumnStringResult("OPERATION",
+            describe(session));
+        OrderedHashSet set = getReferences();
+
+        result.navigator.add(new Object[]{ "Object References" });
+
+        for (int i = 0; i < set.size(); i++) {
+            HsqlName name = (HsqlName) set.get(i);
+
+            result.navigator.add(new Object[]{
+                name.getSchemaQualifiedStatementName() });
+        }
+
+        result.navigator.add(new Object[]{ "Read Locks" });
+
+        for (int i = 0; i < readTableNames.length; i++) {
+            HsqlName name = readTableNames[i];
+
+            result.navigator.add(new Object[]{
+                name.getSchemaQualifiedStatementName() });
+        }
+
+        result.navigator.add(new Object[]{ "WriteLocks" });
+
+        for (int i = 0; i < writeTableNames.length; i++) {
+            HsqlName name = writeTableNames[i];
+
+            result.navigator.add(new Object[]{
+                name.getSchemaQualifiedStatementName() });
+        }
 
         return result;
     }
@@ -301,29 +306,64 @@ public abstract class StatementDMQL extends Statement {
         }
     }
 
-    public void clearVariables() {
+    SubQuery[] getSubqueries(Session session) {
 
-        isValid            = false;
-        targetTable        = null;
-        baseTable          = null;
-        condition          = null;
-        insertColumnMap    = ValuePool.emptyIntArray;
-        updateColumnMap    = ValuePool.emptyIntArray;
-        updateExpressions  = null;
-        insertExpression   = null;
-        insertCheckColumns = null;
-        parameters         = null;
-        subqueries         = null;
+        OrderedHashSet subQueries = null;
+
+
+        for (int i = 0; i < targetRangeVariables.length; i++) {
+            if (targetRangeVariables[i] == null) {
+                continue;
+            }
+
+            OrderedHashSet set = targetRangeVariables[i].getSubqueries();
+
+            subQueries = OrderedHashSet.addAll(subQueries, set);
+        }
+
+        for (int i = 0; i < updateExpressions.length; i++) {
+            subQueries = updateExpressions[i].collectAllSubqueries(subQueries);
+        }
+
+        if (insertExpression != null) {
+            subQueries = insertExpression.collectAllSubqueries(subQueries);
+        }
+
+        if (condition != null) {
+            subQueries = condition.collectAllSubqueries(subQueries);
+        }
+
+        if (queryExpression != null) {
+            OrderedHashSet set = queryExpression.getSubqueries();
+
+            subQueries = OrderedHashSet.addAll(subQueries, set);
+        }
+
+        if (subQueries == null || subQueries.size() == 0) {
+            return SubQuery.emptySubqueryArray;
+        }
+
+        SubQuery[] subQueryArray = new SubQuery[subQueries.size()];
+
+        subQueries.toArray(subQueryArray);
+        ArraySort.sort(subQueryArray, 0, subQueryArray.length,
+                       subQueryArray[0]);
+
+        for (int i = 0; i < subQueryArray.length; i++) {
+            subQueryArray[i].prepareTable(session);
+        }
+
+        return subQueryArray;
     }
 
-    void setDatabseObjects(CompileContext compileContext) {
+    void setDatabseObjects(Session session, CompileContext compileContext) {
 
         parameters = compileContext.getParameters();
 
         setParameters();
         setParameterMetaData();
 
-        subqueries         = compileContext.getSubqueries();
+        subqueries         = getSubqueries(session);
         rangeIteratorCount = compileContext.getRangeVarCount();
         rangeVariables     = compileContext.getRangeVariables();
         sequences          = compileContext.getSequences();
@@ -702,7 +742,7 @@ public abstract class StatementDMQL extends Statement {
 
     private StringBuffer appendColumns(StringBuffer sb, int[] columnMap) {
 
-        if (columnMap == null || updateExpressions == null) {
+        if (columnMap == null || updateExpressions.length == 0) {
             return sb;
         }
 

@@ -36,6 +36,7 @@ import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Iterator;
@@ -666,6 +667,8 @@ public class ParserDQL extends ParserBase {
                 throw super.unsupportedFeature();
             }
 
+            compileContext.initSubqueryNames();
+
             while (true) {
                 checkIsSimpleName();
 
@@ -675,9 +678,8 @@ public class ParserDQL extends ParserBase {
                 read();
 
                 if (token.tokenType == Tokens.OPENBRACKET) {
-                    OrderedHashSet names = new OrderedHashSet();
-
-                    SimpleName[] nameList = readColumnNameList(names);
+                    OrderedHashSet names    = new OrderedHashSet();
+                    SimpleName[]   nameList = readColumnNameList(names);
                 }
 
                 readThis(Tokens.AS);
@@ -686,6 +688,7 @@ public class ParserDQL extends ParserBase {
                 SubQuery subQuery = XreadTableSubqueryBody();
 
                 readThis(Tokens.CLOSEBRACKET);
+                compileContext.registerSubquery(queryName.name, subQuery);
 
                 if (token.tokenType == Tokens.COMMA) {
                     read();
@@ -1899,7 +1902,7 @@ public class ParserDQL extends ParserBase {
 
                             readThis(Tokens.CLOSEBRACKET);
                         } catch (HsqlException ex) {
-                            ex.setLevel(compileContext.subQueryDepth);
+                            ex.setLevel(compileContext.subqueryDepth);
 
                             if (lastError == null
                                     || lastError.getLevel() < ex.getLevel()) {
@@ -2671,7 +2674,7 @@ public class ParserDQL extends ParserBase {
 
             return e;
         } catch (HsqlException ex) {
-            ex.setLevel(compileContext.subQueryDepth);
+            ex.setLevel(compileContext.subqueryDepth);
 
             if (lastError == null || lastError.getLevel() < ex.getLevel()) {
                 lastError = ex;
@@ -2794,7 +2797,7 @@ public class ParserDQL extends ParserBase {
                 try {
                     e = XreadAllTypesCommonValueExpression(false);
                 } catch (HsqlException ex) {
-                    ex.setLevel(compileContext.subQueryDepth);
+                    ex.setLevel(compileContext.subqueryDepth);
 
                     if (lastError == null
                             || lastError.getLevel() < ex.getLevel()) {
@@ -2815,7 +2818,7 @@ public class ParserDQL extends ParserBase {
 
                 readThis(Tokens.CLOSEBRACKET);
             } catch (HsqlException ex) {
-                ex.setLevel(compileContext.subQueryDepth);
+                ex.setLevel(compileContext.subqueryDepth);
 
                 if (lastError == null
                         || lastError.getLevel() < ex.getLevel()) {
@@ -3505,7 +3508,7 @@ public class ParserDQL extends ParserBase {
 
         int position = getPosition();
 
-        compileContext.subQueryDepth++;
+        compileContext.subqueryDepth++;
 
         QueryExpression queryExpression = XreadJoinedTable();
 
@@ -3515,12 +3518,14 @@ public class ParserDQL extends ParserBase {
             throw unexpectedTokenRequire(Tokens.T_JOIN);
         }
 
-        SubQuery sq = new SubQuery(database, compileContext.subQueryDepth,
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
                                    queryExpression, OpTypes.TABLE_SUBQUERY);
+
+        sq.sql = getLastPart(position);
 
         sq.prepareTable(session);
 
-        compileContext.subQueryDepth--;
+        compileContext.subqueryDepth--;
 
         compileContext.addSubquery(sq, position);
 
@@ -3567,7 +3572,7 @@ public class ParserDQL extends ParserBase {
 
         int position = getPosition();
 
-        compileContext.subQueryDepth++;
+        compileContext.subqueryDepth++;
 
         QueryExpression queryExpression = XreadQueryExpression();
 
@@ -3577,12 +3582,14 @@ public class ParserDQL extends ParserBase {
             queryExpression.resolveReferences(session);
         }
 
-        SubQuery sq = new SubQuery(database, compileContext.subQueryDepth,
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
                                    queryExpression, mode);
+
+        sq.sql = getLastPart(position);
 
         compileContext.addSubquery(sq, position);
 
-        compileContext.subQueryDepth--;
+        compileContext.subqueryDepth--;
 
         return sq;
     }
@@ -3591,7 +3598,7 @@ public class ParserDQL extends ParserBase {
 
         int position = getPosition();
 
-        compileContext.subQueryDepth++;
+        compileContext.subqueryDepth++;
 
         QueryExpression queryExpression;
 
@@ -3604,12 +3611,12 @@ public class ParserDQL extends ParserBase {
         queryExpression.setView(view);
         queryExpression.resolve(session);
 
-        SubQuery sq = new SubQuery(database, compileContext.subQueryDepth,
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
                                    queryExpression, view);
 
         compileContext.addSubquery(sq, position);
 
-        compileContext.subQueryDepth--;
+        compileContext.subqueryDepth--;
 
         return sq;
     }
@@ -3742,15 +3749,17 @@ public class ParserDQL extends ParserBase {
 
         int position = getPosition();
 
-        compileContext.subQueryDepth++;
+        compileContext.subqueryDepth++;
 
         Expression e = XreadInValueList(degree);
-        SubQuery sq = new SubQuery(database, compileContext.subQueryDepth, e,
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
                                    OpTypes.IN);
+
+        sq.sql = getLastPart(position);
 
         compileContext.addSubquery(sq, position);
 
-        compileContext.subQueryDepth--;
+        compileContext.subqueryDepth--;
 
         return e;
     }
@@ -3759,7 +3768,7 @@ public class ParserDQL extends ParserBase {
 
         int position = getPosition();
 
-        compileContext.subQueryDepth++;
+        compileContext.subqueryDepth++;
 
         Expression e = XreadRowValueExpressionListBody();
         HsqlList unresolved =
@@ -3769,13 +3778,13 @@ public class ParserDQL extends ParserBase {
         e.resolveTypes(session, null);
         e.prepareTable(session, null, e.nodes[0].nodes.length);
 
-        SubQuery sq = new SubQuery(database, compileContext.subQueryDepth, e,
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
                                    OpTypes.TABLE);
 
         sq.prepareTable(session);
         compileContext.addSubquery(sq, position);
 
-        compileContext.subQueryDepth--;
+        compileContext.subqueryDepth--;
 
         return sq;
     }
@@ -3996,7 +4005,7 @@ public class ParserDQL extends ParserBase {
                         return e;
                     }
                 } catch (HsqlException ex) {
-                    ex.setLevel(compileContext.subQueryDepth);
+                    ex.setLevel(compileContext.subqueryDepth);
 
                     if (lastError == null
                             || lastError.getLevel() < ex.getLevel()) {
@@ -4362,7 +4371,7 @@ public class ParserDQL extends ParserBase {
                         readExpression(exprList, parseList, i, elementCount,
                                        true);
                     } catch (HsqlException ex) {
-                        ex.setLevel(compileContext.subQueryDepth);
+                        ex.setLevel(compileContext.subqueryDepth);
 
                         if (lastError == null
                                 || lastError.getLevel() < ex.getLevel()) {
@@ -4918,9 +4927,10 @@ public class ParserDQL extends ParserBase {
         final ParserBase parser;
 
         //
+        private int           subqueryDepth;
+        private HsqlArrayList namedSubqueries;
 
         //
-        private int                  subQueryDepth;
         private OrderedIntKeyHashMap parameters = new OrderedIntKeyHashMap();
         private HsqlArrayList        subQueryList   = new HsqlArrayList(true);
         private HsqlArrayList        usedSequences  = new HsqlArrayList(true);
@@ -4949,7 +4959,7 @@ public class ParserDQL extends ParserBase {
             rangeVariables.clear();
             subQueryList.clear();
 
-            subQueryDepth = 0;
+            subqueryDepth = 0;
 
             parameters.clear();
             usedSequences.clear();
@@ -4972,15 +4982,9 @@ public class ParserDQL extends ParserBase {
                 if (range.parsePosition > position) {
                     rangeVariables.remove(i);
                 }
-/*
-                else {
-                    rangeVarIndex = rangeVariables.size();
-
-                    break;
-                }
-*/
             }
 
+//            rangeVarIndex = rangeVariables.size();
             for (int i = subQueryList.size() - 1; i >= 0; i--) {
                 SubQuery subQuery = (SubQuery) subQueryList.get(i);
 
@@ -5005,7 +5009,7 @@ public class ParserDQL extends ParserBase {
             range.parsePosition = parser == null ? 0
                                                  : parser.getPosition();
             range.rangePosition = getNextRangeVarIndex();
-            range.level         = subQueryDepth;
+            range.level         = subqueryDepth;
 
             rangeVariables.add(range);
         }
@@ -5066,15 +5070,46 @@ public class ParserDQL extends ParserBase {
             return array;
         }
 
-        private void addParameter(Expression e, int position) {
-            parameters.put(position, e);
-        }
-
         private void addSubquery(SubQuery subquery, int position) {
 
             subquery.parsePosition = position;
 
             subQueryList.add(subquery);
+        }
+
+        private void initSubqueryNames() {
+
+            if (namedSubqueries == null) {
+                namedSubqueries = new HsqlArrayList();
+            }
+
+            if (namedSubqueries.size() <= subqueryDepth) {
+                namedSubqueries.setSize(subqueryDepth + 1);
+            }
+
+            HashMappedList set =
+                (HashMappedList) namedSubqueries.get(subqueryDepth);
+
+            if (set == null) {
+                set = new HashMappedList();
+            } else {
+                set.clear();
+            }
+        }
+
+        private void registerSubquery(String name, SubQuery subquery) {
+
+            HashMappedList set =
+                (HashMappedList) namedSubqueries.get(subqueryDepth);
+            boolean added = set.add(name, subquery);
+
+            if (!added) {
+                throw Error.error(ErrorCode.X_42504);
+            }
+        }
+
+        private void addParameter(Expression e, int position) {
+            parameters.put(position, e);
         }
 
         private void addSchemaObject(SchemaObject object) {
@@ -5091,65 +5126,6 @@ public class ParserDQL extends ParserBase {
 
         void addProcedureCall(Routine procedure) {
             callProcedure = procedure;
-        }
-
-        void resetSubQueryLevel(int position) {
-
-            for (int i = rangeVariables.size() - 1; i >= 0; i--) {
-                RangeVariable range = (RangeVariable) rangeVariables.get(i);
-
-                if (range.level > subQueryDepth) {
-                    rangeVariables.remove(i);
-                } else {
-                    rangeVarIndex = rangeVariables.size();
-
-                    break;
-                }
-            }
-
-            for (int i = subQueryList.size() - 1; i >= 0; i--) {
-                SubQuery subQuery = (SubQuery) subQueryList.get(i);
-
-                if (subQuery.level > subQueryDepth) {
-                    subQueryList.remove(i);
-                } else {
-                    break;
-                }
-            }
-
-            Iterator it = parameters.keySet().iterator();
-
-            while (it.hasNext()) {
-                int pos = it.nextInt();
-
-                if (pos >= position) {
-                    it.remove();
-                }
-            }
-        }
-
-        /**
-         * Return the list of subqueries as an array sorted according to the
-         * order of materialization
-         */
-        SubQuery[] getSubqueries() {
-
-            if (subQueryList.size() == 0) {
-                return SubQuery.emptySubqueryArray;
-            }
-
-            subQueryList.sort((SubQuery) subQueryList.get(0));
-
-            SubQuery[] subqueries = new SubQuery[subQueryList.size()];
-
-            subQueryList.toArray(subqueries);
-            subQueryList.clear();
-
-            for (int i = 0; i < subqueries.length; i++) {
-                subqueries[i].prepareTable(session);
-            }
-
-            return subqueries;
         }
 
         ExpressionColumn[] getParameters() {

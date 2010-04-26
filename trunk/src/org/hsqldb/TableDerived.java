@@ -50,6 +50,7 @@ public class TableDerived extends Table {
 
     QueryExpression queryExpression;
     View            view;
+    SubQuery        subQuery;
 
     public TableDerived(Database database, HsqlName name, int type) {
 
@@ -67,7 +68,7 @@ public class TableDerived extends Table {
     }
 
     public TableDerived(Database database, HsqlName name, int type,
-                        QueryExpression queryExpression) {
+                        QueryExpression queryExpression, SubQuery subQuery) {
 
         super(database, name, type);
 
@@ -83,13 +84,14 @@ public class TableDerived extends Table {
         }
 
         this.queryExpression = queryExpression;
+        this.subQuery        = subQuery;
     }
 
     public TableDerived(Database database, HsqlName name, int type,
                         Type[] columnTypes, HashMappedList columnList,
-                        QueryExpression queryExpression) {
+                        QueryExpression queryExpression, SubQuery subQuery) {
 
-        this(database, name, type, queryExpression);
+        this(database, name, type, queryExpression, subQuery);
 
         this.colTypes          = columnTypes;
         this.columnList        = columnList;
@@ -143,8 +145,8 @@ public class TableDerived extends Table {
                                            .getBaseTableColumnMap();
     }
 
-    public void setQueryExpression(QueryExpression qe) {
-        queryExpression = qe;
+    public SubQuery getSubQuery() {
+        return subQuery;
     }
 
     public QueryExpression getQueryExpression() {

@@ -150,7 +150,8 @@ class SubQuery implements Comparator {
         }
 
         if (view == null) {
-            table = TableUtil.newSubqueryTable(database, null);
+            table = TableUtil.newSubqueryTable(database, queryExpression,
+                                               this);
 
             if (isDataExpression) {
                 TableUtil.setTableColumnsForSubquery(
@@ -163,7 +164,8 @@ class SubQuery implements Comparator {
             }
         } else {
             table = new TableDerived(database, view.getName(),
-                                     TableBase.VIEW_TABLE, queryExpression);
+                                     TableBase.VIEW_TABLE, queryExpression,
+                                     this);
             table.columnList  = view.columnList;
             table.columnCount = table.columnList.size();
 
@@ -207,7 +209,7 @@ class SubQuery implements Comparator {
 
         store = session.sessionData.getSubqueryRowStore(table);
 
-        table.insertResult(store, result);
+        table.insertResult(session, store, result);
         result.getNavigator().close();
     }
 

@@ -397,7 +397,8 @@ public class TextTable extends org.hsqldb.Table {
     /**
      * Adds commitPersistence() call
      */
-    public void insertData(PersistentStore store, Object[] data) {
+    public void insertData(Session session, PersistentStore store,
+                           Object[] data) {
 
         Row row = (Row) store.getNewCachedObject(null, data);
 

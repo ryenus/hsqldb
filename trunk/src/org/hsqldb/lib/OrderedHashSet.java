@@ -150,6 +150,38 @@ public class OrderedHashSet extends HashSet implements HsqlList, Set {
         return count;
     }
 
+    public static OrderedHashSet addAll(OrderedHashSet first,
+                                          OrderedHashSet second) {
+
+        if (second == null) {
+            return first;
+        }
+
+        if (first == null) {
+            first = new OrderedHashSet();
+        }
+
+        first.addAll(second);
+
+        return first;
+    }
+
+    public static OrderedHashSet add(OrderedHashSet first,
+                                          Object value) {
+
+        if (value == null) {
+            return first;
+        }
+
+        if (first == null) {
+            first = new OrderedHashSet();
+        }
+
+        first.add(value);
+
+        return first;
+    }
+
     private void checkRange(int i) {
 
         if (i < 0 || i >= size()) {

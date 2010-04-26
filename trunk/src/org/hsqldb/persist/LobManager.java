@@ -263,6 +263,10 @@ public class LobManager {
 
     synchronized public void open() {
 
+        if (lobStore != null) {
+            return;
+        }
+
         lobBlockSize = database.logger.getLobBlockSize();
 
         if (database.getType() == DatabaseURL.S_RES) {
@@ -278,6 +282,13 @@ public class LobManager {
         lobStore.close();
     }
 
+    LobStore getLobStore() {
+        if (lobStore == null) {
+            open();
+        }
+
+        return lobStore;
+    }
     //
     private long getNewLobID() {
 
@@ -436,7 +447,7 @@ public class LobManager {
 
         while (true) {
             int aBlockOffset = aAddresses[aIndex][LOBS.BLOCK_ADDR] + aOffset;
-            byte[] aBytes    = lobStore.getBlockBytes(aBlockOffset, 1);
+            byte[] aBytes    = getLobStore().getBlockBytes(aBlockOffset, 1);
 
             for (int i = 0; i < aBytes.length; i++) {
                 if (bOffset + i >= b.length) {
@@ -522,7 +533,7 @@ public class LobManager {
 
         while (true) {
             int aBlockOffset = aAddresses[aIndex][LOBS.BLOCK_ADDR] + aOffset;
-            byte[] aBytes    = lobStore.getBlockBytes(aBlockOffset, 1);
+            byte[] aBytes    = getLobStore().getBlockBytes(aBlockOffset, 1);
             long aLimit = aLength
                           - (aAddresses[aIndex][LOBS.BLOCK_OFFSET] + aOffset)
                             * lobBlockSize / 2;
@@ -585,8 +596,8 @@ public class LobManager {
         while (true) {
             int aBlockOffset = aAddresses[aIndex][LOBS.BLOCK_ADDR] + aOffset;
             int bBlockOffset = bAddresses[bIndex][LOBS.BLOCK_ADDR] + bOffset;
-            byte[] aBytes    = lobStore.getBlockBytes(aBlockOffset, 1);
-            byte[] bBytes    = lobStore.getBlockBytes(bBlockOffset, 1);
+            byte[] aBytes    = getLobStore().getBlockBytes(aBlockOffset, 1);
+            byte[] bBytes    = getLobStore().getBlockBytes(bBlockOffset, 1);
 
             for (int i = 0; i < aBytes.length; i++) {
                 if (aBytes[i] == bBytes[i]) {
@@ -640,8 +651,8 @@ public class LobManager {
         while (true) {
             int aBlockOffset = aAddresses[aIndex][LOBS.BLOCK_ADDR] + aOffset;
             int bBlockOffset = bAddresses[bIndex][LOBS.BLOCK_ADDR] + bOffset;
-            byte[] aBytes    = lobStore.getBlockBytes(aBlockOffset, 1);
-            byte[] bBytes    = lobStore.getBlockBytes(bBlockOffset, 1);
+            byte[] aBytes    = getLobStore().getBlockBytes(aBlockOffset, 1);
+            byte[] bBytes    = getLobStore().getBlockBytes(bBlockOffset, 1);
             long aLimit = aLength
                           - (aAddresses[aIndex][LOBS.BLOCK_OFFSET] + aOffset)
                             * lobBlockSize / 2;
@@ -761,9 +772,9 @@ public class LobManager {
                                + sourceIndex;
             int targetOffset = target[targetIndex][LOBS.BLOCK_OFFSET]
                                + targetIndex;
-            byte[] bytes = lobStore.getBlockBytes(sourceOffset, 1);
+            byte[] bytes = getLobStore().getBlockBytes(sourceOffset, 1);
 
-            lobStore.setBlockBytes(bytes, targetOffset, 1);
+            getLobStore().setBlockBytes(bytes, targetOffset, 1);
 
             sourceOffset++;
             targetOffset++;
@@ -849,7 +860,7 @@ public class LobManager {
         byte[] bytes;
 
         try {
-            bytes = lobStore.getBlockBytes(blockAddresses[i][LOBS.BLOCK_ADDR]
+            bytes = getLobStore().getBlockBytes(blockAddresses[i][LOBS.BLOCK_ADDR]
                                            + blockOffset, blockCount);
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
@@ -880,7 +891,7 @@ public class LobManager {
 
             try {
                 bytes =
-                    lobStore.getBlockBytes(blockAddresses[i][LOBS.BLOCK_ADDR],
+                    getLobStore().getBlockBytes(blockAddresses[i][LOBS.BLOCK_ADDR],
                                            blockCount);
             } catch (HsqlException e) {
                 return Result.newErrorResult(e);
@@ -925,7 +936,7 @@ public class LobManager {
                                   - blockAddresses[0][LOBS.BLOCK_OFFSET]);
 
             try {
-                byte[] block = lobStore.getBlockBytes(blockAddress, 1);
+                byte[] block = getLobStore().getBlockBytes(blockAddress, 1);
 
                 System.arraycopy(block, 0, newBytes, 0, lobBlockSize);
 
@@ -935,7 +946,7 @@ public class LobManager {
                         + (blockLimit
                            - blockAddresses[blockAddresses.length - 1][LOBS.BLOCK_OFFSET]
                            - 1);
-                    block = lobStore.getBlockBytes(blockAddress, 1);
+                    block = getLobStore().getBlockBytes(blockAddress, 1);
 
                     System.arraycopy(block, 0, newBytes,
                                      blockLimit - blockOffset - 1,
@@ -945,7 +956,7 @@ public class LobManager {
                                    + (blockLimit
                                       - blockAddresses[0][LOBS.BLOCK_OFFSET]
                                       - 1);
-                    block = lobStore.getBlockBytes(blockAddress, 1);
+                    block = getLobStore().getBlockBytes(blockAddress, 1);
 
                     System.arraycopy(block, 0, newBytes,
                                      (blockLimit - blockOffset - 1)
@@ -969,7 +980,7 @@ public class LobManager {
         //
         try {
             for (int i = 0; i < blockAddresses.length; i++) {
-                lobStore.setBlockBytes(newBytes, blockAddresses[i][0],
+                getLobStore().setBlockBytes(newBytes, blockAddresses[i][0],
                                        blockAddresses[i][1]);
             }
         } catch (HsqlException e) {
@@ -1033,7 +1044,7 @@ public class LobManager {
                 }
 
                 try {
-                    lobStore.setBlockBytes(dataBytes,
+                    getLobStore().setBlockBytes(dataBytes,
                                            blockAddresses[i][LOBS.BLOCK_ADDR]
                                            + j, 1);
                 } catch (HsqlException e) {

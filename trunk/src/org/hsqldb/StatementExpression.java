@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 
@@ -69,7 +70,7 @@ public class StatementExpression extends StatementDMQL {
         isTransactionStatement = false;
         this.expression        = expression;
 
-        setDatabseObjects(compileContext);
+        setDatabseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
@@ -88,6 +89,31 @@ public class StatementExpression extends StatementDMQL {
         }
 
         return sb.toString();
+    }
+
+    SubQuery[] getSubqueries(Session session) {
+
+        OrderedHashSet subQueries = null;
+
+        if (expression != null) {
+            subQueries = expression.collectAllSubqueries(subQueries);
+        }
+
+        if (subQueries == null || subQueries.size() == 0) {
+            return SubQuery.emptySubqueryArray;
+        }
+
+        SubQuery[] subQueryArray = new SubQuery[subQueries.size()];
+
+        subQueries.toArray(subQueryArray);
+        ArraySort.sort(subQueryArray, 0, subQueryArray.length,
+                       subQueryArray[0]);
+
+        for (int i = 0; i < subqueries.length; i++) {
+            subQueryArray[i].prepareTable(session);
+        }
+
+        return subQueryArray;
     }
 
     protected String describe(Session session, int blanks) {
