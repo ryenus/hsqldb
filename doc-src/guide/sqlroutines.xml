@@ -129,8 +129,8 @@
     below:</para>
 
     <programlisting>CREATE FUNCTION an_hour_before (t TIMESTAMP)
-RETURNS TIMESTAMP
-RETURN t - 1 HOUR
+    RETURNS TIMESTAMP
+    RETURN t - 1 HOUR
 </programlisting>
 
     <para>An example of the use of the function in an SQL statement is given
@@ -141,8 +141,8 @@ RETURN t - 1 HOUR
     <para>A simple example of a procedure is given below:</para>
 
     <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname VARCHAR(50))
-MODIFIES SQL DATA
-INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
+    MODIFIES SQL DATA
+    INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
 </programlisting>
 
     <para>The procedure inserts a row into an existing table with the
@@ -236,6 +236,20 @@ INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
 
       <simpara><literal>&lt;variable name list&gt; ::= &lt;variable name&gt; [
       { &lt;comma&gt; &lt;variable name&gt; }... ]</literal></simpara>
+
+      <para>Examples of variable declaration are given below. Note that in a
+      DECLARE statement with multiple comma-separated variable names, the type
+      and the default value applies to all the variables in the list:</para>
+
+      <programlisting>    BEGIN ATOMIC
+    DECLARE temp_zero DATE;
+    DECLARE temp_one, temp_two INTEGER DEFAULT 2;
+    DECLARE temp_three VARCHAR(20) DEFAULT 'no name';
+    -- more statements ...
+    SET temp_zero = DATE '2010-03-18';
+    SET temp_two = 5;
+    -- more statements ...
+    END</programlisting>
     </section>
 
     <section>
@@ -446,6 +460,18 @@ CALL the_new_id;
 
       <simpara><literal>REPEAT &lt;SQL statement list&gt; UNTIL &lt;search
       condition&gt; END REPEAT [ &lt;ending label&gt;</literal></simpara>
+
+      <para>In the example below, a multiple rows are inserted into a table in
+      a WHILE loop:</para>
+
+      <programlisting>loop_label: WHILE my_var &gt; 0 DO
+    INSERT INTO CUSTOMERS VALUES (DEFAULT, my_var);
+    SET my_var = my_var - 1;
+    IF my_var = 10 THEN SET my_var = 8; END IF;
+    IF my_var = 22 THEN LEAVE loop_label; END IF;
+END WHILE loop_label;
+
+</programlisting>
     </section>
 
     <section>
@@ -483,15 +509,15 @@ CALL the_new_id;
       <para>A skeletal example is given below. The variable var_one is first
       tested for equality with 22 or 23 and if the test evaluates to TRUE,
       then the INSERT statement is performed and the statement ends. If the
-      tests does not evaluate to TRUE, the next condition, with is an IN
-      predicate is performed with var_one and so on. The statement after the
+      test does not evaluate to TRUE, the next condition test, which is an IN
+      predicate, is performed with var_one and so on. The statement after the
       ELSE clause is performed if none the previous tests returns TRUE.</para>
 
       <programlisting>CASE var_one
-   WHEN 22, 23 THEN INSERT INTO t_one ...;
-   WHEN IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
-   ELSE UPDATE t_one ...;
-   END CASE</programlisting>
+    WHEN 22, 23 THEN INSERT INTO t_one ...;
+    WHEN IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
+    ELSE UPDATE t_one ...;
+    END CASE</programlisting>
 
       <para>The searched case statement uses one or more search conditions,
       and for each search condition, it specifies one or more SQL statements
@@ -510,11 +536,11 @@ CALL the_new_id;
       <para>The example below is partly a rewrite of the previous example, but
       a new condition is added:</para>
 
-      <programlisting>CASE var_one = 22 OR var_one = 23 THEN INSERT INTO t_one ...;
-   WHEN var_one IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
-   WHEN var_two IS NULL THEN UPDATE t_one ...;
-   ELSE UPDATE t_one ...;
-   END CASE</programlisting>
+      <programlisting>CASE WHEN var_one = 22 OR var_one = 23 THEN INSERT INTO t_one ...;
+    WHEN var_one IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
+    WHEN var_two IS NULL THEN UPDATE t_one ...;
+    ELSE UPDATE t_one ...;
+END CASE</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>IF STATEMENT</primary>
@@ -572,16 +598,16 @@ CALL the_new_id;
       scalar expression.</simpara>
 
       <programlisting>CREATE FUNCTION an_hour_before_max (e_type INT)
-RETURNS TIMESTAMP
-RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
+    RETURNS TIMESTAMP
+    RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
 
 CREATE FUNCTION an_hour_before_max (e_type INT)
-RETURNS TIMESTAMP
-BEGIN ATOMIC
-DECLAR max_event TIMESTAMP;
-SET max_event = SELECT MAX(event_time) FROM atable WHERE event_type = e_type;
-RETURN max_event - 1 HOUR;
-END
+    RETURNS TIMESTAMP
+    BEGIN ATOMIC
+    DECLAR max_event TIMESTAMP;
+    SET max_event = SELECT MAX(event_time) FROM atable WHERE event_type = e_type;
+    RETURN max_event - 1 HOUR;
+    END
 </programlisting>
     </section>
 
@@ -1151,8 +1177,8 @@ CREATE FUNCTION testquery(INTEGER)
     EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
 
 CREATE FUNCTION an_hour_before_max (e_type INT)
-RETURNS TIMESTAMP SPECIFIC an_hour_before_max_with_int
-RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
+    RETURNS TIMESTAMP SPECIFIC an_hour_before_max_with_int
+    RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
 
 </programlisting>
 
