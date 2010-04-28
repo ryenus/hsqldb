@@ -2149,7 +2149,7 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para>A <literal>&lt;having clause&gt;</literal> filters the rows of the
       table that is formed after applying the <literal>&lt;group by
       clause&gt;</literal> using its search condition. The search condition
-      must be an expression base on the expressions in the GROUP BY list or
+      must be an expression based on the expressions in the GROUP BY list or
       the aggregate functions used.</para>
     </section>
 

@@ -1253,12 +1253,18 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     conditions are used e.g. <literal>SELECT ... WHERE acol &gt; 10 AND bcol =
     0</literal>, an index should exist on one of the columns that has a
     condition. In this example, the <literal>bcol</literal> column is the best
-    candidate. Queries always return results whether indexes exist or not, but
-    they return much faster when an index exists. As a rule of thumb, HSQLDB
-    is capable of internal processing of queries at over 100,000 rows per
-    second. Any query that runs into several seconds should be checked and
-    indexes should be added to the relevant columns of the tables if
-    necessary.</para>
+    candidate. HyperSQL always uses the best condition and index. If there are
+    two indexes, one on acol, and another on bcol, it will choose the index on
+    bcol.</para>
+
+    <para>Queries always return results whether indexes exist or not, but they
+    return much faster when an index exists. As a rule of thumb, HSQLDB is
+    capable of internal processing of queries at over 100,000 rows per second.
+    Any query that runs into several seconds is clearly accessing thousads of
+    rows. The query should be checked and indexes should be added to the
+    relevant columns of the tables if necessary. The EXPLAIN PLAN
+    &lt;query&gt; statement can be used to see which indexes are used to
+    process the query.</para>
 
     <para>When executing a DELETE or UPDATE statement, the engine needs to
     find the rows that are to be deleted or updated. If there is an index on
@@ -1339,19 +1345,24 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
 
     <para>HyperSQL optimises queries to use indexes, for all types of range
     and equality conditions, including IS NULL and NOT NULL conditions.
-    Conditions can be in join or WHERE clauses, including all types of joins.
-    In addition, HyperSQL will always use an index (if one exists) for IN
-    conditions, whether constants, variable, or subqueries are used on the
-    right hand side of the IN predicate. HyperSQL has always used indexes when
-    several conditions are combined with the AND operator, choosing a
-    conditions which can use an index. This is now extended to all equality
-    conditions on multiple columns that are part of an index. HyperSQL 2.0
-    will also use indexes when several conditions are combined with the OR
-    operator and each condition can use an index (each condition may use a
-    different index). For example, if a huge table has two separate columns
-    for first name and last name, and both columns are indexed, a query such
-    as the following example will use the indexes and complete in a short
-    time:</para>
+    Conditions can be in join or WHERE clauses, including all types of
+    joins.</para>
+
+    <para>In addition, HyperSQL will always use an index (if one exists) for
+    IN conditions, whether constants, variable, or subqueries are used on the
+    right hand side of the IN predicate.</para>
+
+    <para>HyperSQL can always use indexes when several conditions are combined
+    with the AND operator, choosing a conditions which can use an index. This
+    now extended to all equality conditions on multiple columns that are part
+    of an index.</para>
+
+    <para>HyperSQL 2.0 will also use indexes when several conditions are
+    combined with the OR operator and each condition can use an index (each
+    condition may use a different index). For example, if a huge table has two
+    separate columns for first name and last name, and both columns are
+    indexed, a query such as the following example will use the indexes and
+    complete in a short time:</para>
 
     <informalexample>
       <programlisting>    (TC is a very large table)
@@ -1360,7 +1371,36 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
 </programlisting>
     </informalexample>
 
-    <para></para>
+    <para>HyperSQL 2.0 optimises simple row count queries in the form of
+    SELECT COUNT(*) FROM &lt;table&gt; and returns the result immediately
+    (this optimisation does not take place in MVCC mode).</para>
+
+    <para>HyperSQL 2.0 can use an index on a column for SELECT
+    MAX(&lt;column&gt;) FROM &lt;table&gt; and SELECT MIN(&lt;column&gt;) FROM
+    &lt;table&gt; queries. There should be an index on the &lt;column&gt; and
+    the query can have a WHERE condition on the same column. In the example
+    below the maximum value for the TB.COL3 below 1000000 is returned.</para>
+
+    <informalexample>
+      <programlisting>    SELECT MAX(TB.COL3) FROM TB WHERE TB.COL &lt; 1000000
+</programlisting>
+    </informalexample>
+
+    <para>HyperSQL 2.0 can use an index on an ORDER BY clause if all the
+    columns in ORDER BY are in a single column or multicolumn index (in the
+    exact order). This is important if there is a LIMIT n (or FETCH n ROWS
+    ONLY) clause. This also works for joined tables when the ORDER BY clause
+    is on the columns of the first table in a join. In the two examples below,
+    the index on TB.COL3 is used and only up to 1000 rows are processed and
+    returned.</para>
+
+    <informalexample>
+      <programlisting>    (TB is a very large table with an index on TB.COL3
+
+    SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 WHERE TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000;
+    SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 WHERE TB.COL3 &gt; 40000 AND TB.COL3 &lt; 100000 ORDER BY TB.COL3 DESC LIMIT 1000;
+</programlisting>
+    </informalexample>
 
     <para></para>
   </section>
