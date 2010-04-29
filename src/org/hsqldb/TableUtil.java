@@ -59,37 +59,23 @@ public class TableUtil {
         }
     }
 
-    static TableDerived newSubqueryTable(Database database,
-                                         QueryExpression queryExpression,
-                                         SubQuery subQuery) {
-
-        HsqlName name = database.nameManager.getSubqueryTableName();
-
-        try {
-            return new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,
-                                    queryExpression, subQuery);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     static Table newLookupTable(Database database) {
 
-        try {
-            TableDerived table = TableUtil.newSubqueryTable(database, null,
-                null);
-            ColumnSchema column =
-                new ColumnSchema(HsqlNameManager.getAutoColumnName(0),
-                                 Type.SQL_INTEGER, false, true, null);
+        TableDerived table;
+        HsqlName     name = database.nameManager.getSubqueryTableName();
 
-            table.addColumn(column);
-            table.createPrimaryKeyConstraint(table.getName(), new int[]{ 0 },
-                                             true);
+        table = new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,
+                                 null, null);
 
-            return table;
-        } catch (HsqlException e) {
-            return null;
-        }
+        ColumnSchema column =
+            new ColumnSchema(HsqlNameManager.getAutoColumnName(0),
+                             Type.SQL_INTEGER, false, true, null);
+
+        table.addColumn(column);
+        table.createPrimaryKeyConstraint(table.getName(), new int[]{ 0 },
+                                         true);
+
+        return table;
     }
 
     /**

@@ -66,7 +66,6 @@ import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.JavaObjectData;
-import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;

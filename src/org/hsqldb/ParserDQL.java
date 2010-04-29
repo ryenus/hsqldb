@@ -575,17 +575,6 @@ public class ParserDQL extends ParserBase {
         return columnNameList;
     }
 
-    SubQuery getViewSubquery(View v) {
-
-        SubQuery sq = v.viewSubQuery;
-
-        for (int i = 0; i < v.viewSubqueries.length; i++) {
-            compileContext.addSubquery(v.viewSubqueries[i], 0);
-        }
-
-        return sq;
-    }
-
     int XreadUnionType() {
 
         int unionType = QueryExpression.NOUNION;
@@ -672,20 +661,25 @@ public class ParserDQL extends ParserBase {
             while (true) {
                 checkIsSimpleName();
 
-                SimpleName queryName = database.nameManager.getSimpleName(
-                    token.tokenString, isDelimitedIdentifier());
+                HsqlName[] nameList = null;
+                HsqlName queryName =
+                    database.nameManager.newHsqlName(token.tokenString,
+                                                     isDelimitedIdentifier(),
+                                                     SchemaObject.SUBQUERY);
+
+                queryName.schema = SqlInvariants.SYSTEM_SUBQUERY_HSQLNAME;
 
                 read();
 
                 if (token.tokenType == Tokens.OPENBRACKET) {
-                    OrderedHashSet names    = new OrderedHashSet();
-                    SimpleName[]   nameList = readColumnNameList(names);
+                    nameList = readColumnNames(queryName);
                 }
 
                 readThis(Tokens.AS);
                 readThis(Tokens.OPENBRACKET);
 
-                SubQuery subQuery = XreadTableSubqueryBody();
+                SubQuery subQuery = XreadTableNamedSubqueryBody(queryName,
+                    nameList);
 
                 readThis(Tokens.CLOSEBRACKET);
                 compileContext.registerSubquery(queryName.name, subQuery);
@@ -1468,15 +1462,30 @@ public class ParserDQL extends ParserBase {
                     throw Error.error(ErrorCode.X_42545);
             }
 
-            SubQuery sq = getViewSubquery((View) table);
-
-            table = sq.getTable();
+            table = ((View) table).getSubqueryTable();
         }
 
         RangeVariable range = new RangeVariable(table, alias, null, null,
             compileContext);
 
         return range;
+    }
+
+    protected Table readNamedSubqueryOrNull() {
+
+        if (!isSimpleName()) {
+            return null;
+        }
+
+        SubQuery sq = compileContext.getNamedSubQuery(token.tokenString);
+
+        if (sq == null) {
+            return null;
+        }
+
+        read();
+
+        return sq.getTable();
     }
 
     /**
@@ -1494,12 +1503,14 @@ public class ParserDQL extends ParserBase {
 
             table = e.subQuery.getTable();
         } else {
-            table = readTableName();
+            table = readNamedSubqueryOrNull();
+
+            if (table == null) {
+                table = readTableName();
+            }
 
             if (table.isView()) {
-                SubQuery sq = getViewSubquery((View) table);
-
-                table = sq.getTable();
+                table = ((View) table).getSubqueryTable();
             }
         }
 
@@ -3527,8 +3538,6 @@ public class ParserDQL extends ParserBase {
 
         compileContext.subqueryDepth--;
 
-        compileContext.addSubquery(sq, position);
-
         return sq;
     }
 
@@ -3541,6 +3550,16 @@ public class ParserDQL extends ParserBase {
         XreadTableReference(select);
 
         return select;
+    }
+
+    SubQuery XreadTableNamedSubqueryBody(HsqlName name,
+                                         HsqlName[] columnNames) {
+
+        SubQuery sq = XreadSubqueryBody(true, OpTypes.TABLE_SUBQUERY);
+
+        sq.prepareTable(session, name, columnNames);
+
+        return sq;
     }
 
     SubQuery XreadTableSubqueryBody() {
@@ -3587,16 +3606,12 @@ public class ParserDQL extends ParserBase {
 
         sq.sql = getLastPart(position);
 
-        compileContext.addSubquery(sq, position);
-
         compileContext.subqueryDepth--;
 
         return sq;
     }
 
     SubQuery XreadViewSubquery(View view) {
-
-        int position = getPosition();
 
         compileContext.subqueryDepth++;
 
@@ -3613,8 +3628,6 @@ public class ParserDQL extends ParserBase {
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
                                    queryExpression, view);
-
-        compileContext.addSubquery(sq, position);
 
         compileContext.subqueryDepth--;
 
@@ -3757,16 +3770,12 @@ public class ParserDQL extends ParserBase {
 
         sq.sql = getLastPart(position);
 
-        compileContext.addSubquery(sq, position);
-
         compileContext.subqueryDepth--;
 
         return e;
     }
 
     private SubQuery XreadRowValueExpressionList() {
-
-        int position = getPosition();
 
         compileContext.subqueryDepth++;
 
@@ -3782,7 +3791,6 @@ public class ParserDQL extends ParserBase {
                                    OpTypes.TABLE);
 
         sq.prepareTable(session);
-        compileContext.addSubquery(sq, position);
 
         compileContext.subqueryDepth--;
 
@@ -5070,13 +5078,6 @@ public class ParserDQL extends ParserBase {
             return array;
         }
 
-        private void addSubquery(SubQuery subquery, int position) {
-
-            subquery.parsePosition = position;
-
-            subQueryList.add(subquery);
-        }
-
         private void initSubqueryNames() {
 
             if (namedSubqueries == null) {
@@ -5092,6 +5093,8 @@ public class ParserDQL extends ParserBase {
 
             if (set == null) {
                 set = new HashMappedList();
+
+                namedSubqueries.set(subqueryDepth, set);
             } else {
                 set.clear();
             }
@@ -5106,6 +5109,33 @@ public class ParserDQL extends ParserBase {
             if (!added) {
                 throw Error.error(ErrorCode.X_42504);
             }
+        }
+
+        private SubQuery getNamedSubQuery(String name) {
+
+            if (namedSubqueries == null) {
+                return null;
+            }
+
+            for (int i = subqueryDepth; i >= 0; i--) {
+                if (namedSubqueries.size() <= i) {
+                    continue;
+                }
+
+                HashMappedList set = (HashMappedList) namedSubqueries.get(i);
+
+                if (set == null) {
+                    continue;
+                }
+
+                SubQuery sq = (SubQuery) set.get(name);
+
+                if (sq != null) {
+                    return sq;
+                }
+            }
+
+            return null;
         }
 
         private void addParameter(Expression e, int position) {

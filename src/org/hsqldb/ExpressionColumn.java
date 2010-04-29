@@ -175,7 +175,8 @@ public class ExpressionColumn extends Expression {
             dataType    = column.getDataType();
             columnName  = column.getName().name;
             tableName   = t.getName().name;
-            schema      = t.getSchemaName().name;
+            schema      = t.getSchemaName() == null ? null
+                                                    : t.getSchemaName().name;
 
             if (alias == null && range.hasColumnAlias()) {
                 alias = range.getColumnAliasName(i);

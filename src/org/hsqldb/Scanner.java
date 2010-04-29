@@ -184,6 +184,9 @@ public class Scanner {
 
     //
     private boolean hasNonSpaceSeparator;
+    private int     eolPosition;
+    private int     lineNumber;
+    private int     eolCode;
 
     //
     private static final int maxPooledStringLength =
@@ -211,6 +214,8 @@ public class Scanner {
         tokenPosition        = 0;
         limit                = sqlString.length();
         hasNonSpaceSeparator = false;
+        eolPosition          = -1;
+        lineNumber           = 1;
 
         token.reset();
 
@@ -292,6 +297,10 @@ public class Scanner {
 
     public Type getDataType() {
         return token.dataType;
+    }
+
+    public int getLineNumber() {
+        return lineNumber;
     }
 
     int getTokenPosition() {
@@ -1180,6 +1189,8 @@ public class Scanner {
                 hasNonSpaceSeparator = true;
                 result               = true;
 
+                setLineNumber(c);
+
                 continue;
             }
 
@@ -1187,6 +1198,25 @@ public class Scanner {
         }
 
         return result;
+    }
+
+    private void setLineNumber(int c) {
+
+        if (c == '\r' || c == '\n') {
+            if (currentPosition == eolPosition + 1) {
+                if (c == '\n' && eolCode != c) {
+
+                    //
+                } else {
+                    lineNumber++;
+                }
+            } else {
+                lineNumber++;
+            }
+
+            eolPosition = currentPosition;
+            eolCode     = c;
+        }
     }
 
     void scanCharacterString() {

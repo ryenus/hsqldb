@@ -70,6 +70,7 @@ public interface SchemaObject {
     int SPECIFIC_ROUTINE = 24;
     int WRAPPER          = 25;
     int SERVER           = 26;
+    int SUBQUERY         = 27;
 
     //
     SchemaObject[] emptyArray = new SchemaObject[]{};
