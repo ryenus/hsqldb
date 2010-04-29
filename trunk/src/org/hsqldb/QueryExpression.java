@@ -161,6 +161,10 @@ public class QueryExpression {
         isFullOrder = true;
 
         if (leftQueryExpression == null) {
+            if (isResolved) {
+                ((QuerySpecification) this).createFullIndex(null);
+            }
+
             return;
         }
 

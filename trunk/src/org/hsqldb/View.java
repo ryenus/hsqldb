@@ -45,16 +45,16 @@ import org.hsqldb.lib.OrderedHashSet;
  *
  * @author leptipre@users
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.7.0
  */
 public class View extends TableDerived {
 
-    SubQuery viewSubQuery;
-    String   statement;
+    SubQuery       viewSubQuery;
+    private String statement;
 
     //
-    HsqlName[] columnNames;
+    private HsqlName[] columnNames;
 
     /**
      * List of subqueries in this view in order of materialization. Last
@@ -65,12 +65,12 @@ public class View extends TableDerived {
     /**
      * Names of SCHEMA objects referenced in VIEW
      */
-    OrderedHashSet schemaObjectNames;
+    private OrderedHashSet schemaObjectNames;
 
     /**
      * check option
      */
-    int check;
+    private int check;
 
     //
     private Table baseTable;
@@ -308,5 +308,13 @@ public class View extends TableDerived {
     public void collectAllFunctionExpressions(OrderedHashSet collector) {
 
         // filter schemaObjectNames
+    }
+
+    public Table getSubqueryTable() {
+        return viewSubQuery.getTable();
+    }
+
+    public SubQuery[] getSubqueries() {
+        return viewSubqueries;
     }
 }

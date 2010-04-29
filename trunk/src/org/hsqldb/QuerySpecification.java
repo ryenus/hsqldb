@@ -1398,6 +1398,17 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
+    void setColumnAliases(SimpleName[] names) {
+
+        if (names.length != indexLimitVisible) {
+            throw Error.error(ErrorCode.X_42593);
+        }
+
+        for (int i = 0; i < indexLimitVisible; i++) {
+            exprColumns[i].setAlias(names[i]);
+        }
+    }
+
     private void createResultMetaData() {
 
         columnTypes = new Type[indexLimitData];
@@ -1463,13 +1474,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         if (isDistinctSelect || isFullOrder) {
-            int[] fullCols = new int[indexLimitVisible];
-
-            ArrayUtil.fillSequence(fullCols);
-
-            fullIndex = resultTable.createAndAddIndexStructure(session, null,
-                    fullCols, null, null, false, false, false);
-            resultTable.fullIndex = fullIndex;
+            createFullIndex(session);
         }
 
         if (isGrouped) {
@@ -1491,6 +1496,17 @@ public class QuerySpecification extends QueryExpression {
             idIndex = resultTable.createAndAddIndexStructure(session, null,
                     idCols, null, null, false, false, false);
         }
+    }
+
+    void createFullIndex(Session session) {
+
+        int[] fullCols = new int[indexLimitVisible];
+
+        ArrayUtil.fillSequence(fullCols);
+
+        fullIndex = resultTable.createAndAddIndexStructure(session, null,
+                fullCols, null, null, false, false, false);
+        resultTable.fullIndex = fullIndex;
     }
 
     void createResultTable(Session session) {
@@ -1948,7 +1964,8 @@ public class QuerySpecification extends QueryExpression {
 
                     newBaseExprColumns[i] = e;
 
-                    e.replaceRangeVariables(baseSelect.rangeVariables, newRangeVariables);
+                    e.replaceRangeVariables(baseSelect.rangeVariables,
+                                            newRangeVariables);
                 }
 
                 for (int i = 0; i < indexLimitData; i++) {
@@ -1981,7 +1998,6 @@ public class QuerySpecification extends QueryExpression {
                     checkQueryCondition.replaceRangeVariables(
                         baseSelect.rangeVariables, newRangeVariables);
                 }
-
 
                 queryCondition =
                     ExpressionLogical.andExpressions(baseQueryCondition,
@@ -2109,6 +2125,7 @@ public class QuerySpecification extends QueryExpression {
 
     public void replaceColumnReference(RangeVariable range,
                                        Expression[] list) {
+
         for (int i = 0; i < indexStartAggregates; i++) {
             exprColumns[i].replaceColumnReferences(range, list);
         }
@@ -2122,12 +2139,14 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0, len = rangeVariables.length; i < len; i++) {
+
             //
         }
     }
 
     public void replaceRangeVariables(RangeVariable[] ranges,
                                       RangeVariable[] newRanges) {
+
         for (int i = 0; i < indexStartAggregates; i++) {
             exprColumns[i].replaceRangeVariables(ranges, newRanges);
         }

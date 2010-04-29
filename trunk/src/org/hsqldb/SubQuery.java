@@ -33,6 +33,8 @@ package org.hsqldb;
 
 import java.util.Comparator;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.navigator.RowIterator;
@@ -68,6 +70,9 @@ class SubQuery implements Comparator {
     // IN condition optimisation
     Expression dataExpression;
     boolean    isDataExpression;
+
+    //
+    SimpleName[] columnNames;
 
     //
     int parsePosition;
@@ -143,6 +148,20 @@ class SubQuery implements Comparator {
         return table;
     }
 
+    public void prepareTable(Session session, HsqlName name,
+                             HsqlName[] columns) {
+
+        table = new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,
+                                 queryExpression, this);
+
+        if (columns != null) {
+            queryExpression.getMainSelect().setColumnAliases(columns);
+        }
+
+        TableUtil.setTableColumnsForSubquery(table, queryExpression,
+                                             uniqueRows || isUniquePredicate);
+    }
+
     public void prepareTable(Session session) {
 
         if (table != null) {
@@ -150,8 +169,11 @@ class SubQuery implements Comparator {
         }
 
         if (view == null) {
-            table = TableUtil.newSubqueryTable(database, queryExpression,
-                                               this);
+            HsqlName name = database.nameManager.getSubqueryTableName();
+
+            table = new TableDerived(database, name,
+                                     TableBase.SYSTEM_SUBQUERY,
+                                     queryExpression, this);
 
             if (isDataExpression) {
                 TableUtil.setTableColumnsForSubquery(
@@ -171,6 +193,14 @@ class SubQuery implements Comparator {
 
             table.createPrimaryKey();
         }
+    }
+
+    public void setColumnNames(SimpleName[] names) {
+        columnNames = names;
+    }
+
+    public SimpleName[] gtColumnNames() {
+        return columnNames;
     }
 
     public void materialiseCorrelated(Session session) {

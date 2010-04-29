@@ -734,14 +734,16 @@ public class ParserBase {
     }
 
     HsqlException unexpectedToken(String tokenS) {
-        return Error.error(ErrorCode.X_42581, tokenS);
+        return Error.parseError(ErrorCode.X_42581, tokenS,
+                                scanner.getLineNumber());
     }
 
     HsqlException unexpectedTokenRequire(String required) {
 
         if (token.tokenType == Tokens.X_ENDPARSE) {
-            return Error.error(null, ErrorCode.X_42590,
-                               ErrorCode.TOKEN_REQUIRED, new Object[] {
+            return Error.parseError(ErrorCode.X_42590,
+                                    ErrorCode.TOKEN_REQUIRED,
+                                    scanner.getLineNumber(), new Object[] {
                 "", required
             });
         }
@@ -760,8 +762,8 @@ public class ParserBase {
             tokenS = token.tokenString;
         }
 
-        return Error.error(null, ErrorCode.X_42581, ErrorCode.TOKEN_REQUIRED,
-                           new Object[] {
+        return Error.parseError(ErrorCode.X_42581, ErrorCode.TOKEN_REQUIRED,
+                                scanner.getLineNumber(), new Object[] {
             tokenS, required
         });
     }
@@ -769,7 +771,8 @@ public class ParserBase {
     HsqlException unexpectedToken() {
 
         if (token.tokenType == Tokens.X_ENDPARSE) {
-            return Error.error(ErrorCode.X_42590);
+            return Error.parseError(ErrorCode.X_42590, null,
+                                    scanner.getLineNumber());
         }
 
         String tokenS;
@@ -786,7 +789,8 @@ public class ParserBase {
             tokenS = token.tokenString;
         }
 
-        return Error.error(ErrorCode.X_42581, tokenS);
+        return Error.parseError(ErrorCode.X_42581, tokenS,
+                                scanner.getLineNumber());
     }
 
     HsqlException tooManyIdentifiers() {
@@ -803,7 +807,8 @@ public class ParserBase {
             tokenS = token.tokenString;
         }
 
-        return Error.error(ErrorCode.X_42551, tokenS);
+        return Error.parseError(ErrorCode.X_42551, tokenS,
+                                scanner.getLineNumber());
     }
 
     HsqlException unsupportedFeature() {

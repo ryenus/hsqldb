@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,6 +78,25 @@ public class Error {
                                  s.substring(0, SQL_STATE_DIGITS), -code);
     }
 
+    public static HsqlException parseError(int code, String add,
+                                           int lineNumber) {
+
+        String s = getMessage(code);
+
+        if (add != null) {
+            s = s + ": " + add;
+        }
+
+        if (lineNumber > 1) {
+            add = getMessage(ErrorCode.M_parse_line);
+            s = s + " :" + add + String.valueOf(lineNumber);
+        }
+
+        return new HsqlException(null, s.substring(0, SQL_STATE_DIGITS),
+                                 s.substring(0, SQL_STATE_DIGITS),
+                                 -code);
+    }
+
     public static HsqlException error(int code) {
         return error(null, code, 0, null);
     }
@@ -110,6 +129,27 @@ public class Error {
                                                    : subCode;
 
         return new HsqlException(t, message.substring(SQL_STATE_DIGITS + 1),
+                                 message.substring(0, SQL_STATE_DIGITS),
+                                 -sqlCode);
+    }
+
+    public static HsqlException parseError(int code, int subCode,
+                                           int lineNumber,
+                                           final Object[] add) {
+
+        String message = getMessage(code, subCode, add);
+
+        if (lineNumber > 1) {
+            String sub = getMessage(ErrorCode.M_parse_line);
+
+            message = message + " :" + sub + String.valueOf(lineNumber);
+        }
+
+        int sqlCode = subCode < ERROR_CODE_BASE ? code
+                                                : subCode;
+
+        return new HsqlException(null,
+                                 message.substring(SQL_STATE_DIGITS + 1),
                                  message.substring(0, SQL_STATE_DIGITS),
                                  -sqlCode);
     }
@@ -182,7 +222,8 @@ public class Error {
      * @return  the error message associated with the error code
      */
     public static String getMessage(final int errorCode) {
-        return getMessage(errorCode, 0, null);
+        return getResourceString(errorCode);
+
     }
 
     /**

@@ -530,7 +530,7 @@ public final class RangeVariable implements Cloneable {
                     set = new OrderedHashSet();
                 }
 
-                set.addAll(((TableDerived) rangeTable).view.viewSubqueries);
+                set.addAll(((TableDerived) rangeTable).view.getSubqueries());
             } else if (baseQueryExpression == null) {
                 set = OrderedHashSet.add(
                     set, ((TableDerived) rangeTable).getSubQuery());
@@ -548,6 +548,7 @@ public final class RangeVariable implements Cloneable {
 
     public void replaceColumnReference(RangeVariable range,
                                        Expression[] list) {
+
         if (joinCondition != null) {
             joinCondition.replaceColumnReferences(range, list);
         }

@@ -139,7 +139,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
                 throw Error.error(result.getException(),
                                   ErrorCode.ERROR_IN_SCRIPT_FILE,
-                                  ErrorCode.M_DatabaseScriptReader_readDDL,
+                                  ErrorCode.M_DatabaseScriptReader_read,
                                   new Object[] {
                     new Integer(lineCount), result.getMainString()
                 });
@@ -188,7 +188,7 @@ public class ScriptReaderText extends ScriptReaderBase {
 
             throw Error.error(
                 t, ErrorCode.ERROR_IN_SCRIPT_FILE,
-                ErrorCode.M_DatabaseScriptReader_readExistingData,
+                ErrorCode.M_DatabaseScriptReader_read,
                 new Object[] {
                 t.getMessage(), new Integer(lineCount)
             });
