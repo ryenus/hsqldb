@@ -413,7 +413,13 @@ public class BinaryType extends Type {
         }
 
         if (otherType.typeCode == Types.SQL_BLOB) {
-            byte[] bytes = b.getBytes(session, 0, (int) precision);
+            long blobLength = b.length(session);
+
+            if (blobLength > precision) {
+                throw Error.error(ErrorCode.X_22501);
+            }
+
+            byte[] bytes = b.getBytes(session, 0, (int) blobLength);
 
             b = new BinaryData(bytes, false);
         }

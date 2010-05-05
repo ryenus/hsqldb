@@ -199,7 +199,11 @@ public class Database {
             isNew = logger.isNewDatabase;
 
             if (isNew) {
-                userManager.createSAUser();
+                String username = urlProperties.getProperty("user", "SA");
+
+                String password = urlProperties.getProperty("password", "");
+
+                userManager.createFirstUser(username, password);
                 schemaManager.createPublicSchema();
                 lobManager.initialiseLobSpace();
                 logger.checkpoint(false);

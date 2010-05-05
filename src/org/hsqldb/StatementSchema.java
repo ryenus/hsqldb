@@ -899,13 +899,8 @@ public class StatementSchema extends Statement {
                             Row      row  = it.getNextRow();
                             Object[] data = row.getData();
 
-                            for (int i = 0; i < data.length; i++) {
-                                if (data[i] instanceof LobData) {
-                                    session.database.lobManager
-                                        .adjustUsageCount(((LobData) data[i])
-                                            .getId(), +1);
-                                }
-                            }
+                            session.sessionData.adjustLobUsageCount(table,
+                                    data, 1);
                         }
                     }
 
@@ -969,7 +964,6 @@ public class StatementSchema extends Statement {
                 return Result.updateZeroResult;
 
             case StatementTypes.CREATE_VIEW : {
-
                 View view = (View) arguments[0];
 
                 try {
@@ -977,9 +971,7 @@ public class StatementSchema extends Statement {
                                                    view.getSchemaName());
                     session.database.schemaManager.checkSchemaObjectNotExists(
                         view.getName());
-
                     view.compile(session, null);
-
                     session.database.schemaManager.addSchemaObject(view);
 
                     break;

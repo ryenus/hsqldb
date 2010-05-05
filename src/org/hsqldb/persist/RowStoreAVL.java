@@ -31,22 +31,22 @@
 
 package org.hsqldb.persist;
 
+import org.hsqldb.ColumnSchema;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.Session;
+import org.hsqldb.Table;
+import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.index.IndexAVL;
+import org.hsqldb.index.NodeAVL;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowInputInterface;
-import org.hsqldb.index.NodeAVL;
-import org.hsqldb.Table;
-import org.hsqldb.TableBase;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.types.Type;
-import org.hsqldb.ColumnSchema;
-import org.hsqldb.index.IndexAVL;
 
 public abstract class RowStoreAVL implements PersistentStore {
 
@@ -234,20 +234,19 @@ public abstract class RowStoreAVL implements PersistentStore {
     public final void moveData(Session session, PersistentStore other,
                                int colindex, int adjust) {
 
-        Object colvalue = null;
         Type   oldtype  = null;
         Type   newtype  = null;
+        Object colvalue = null;
 
         if (adjust >= 0 && colindex != -1) {
             ColumnSchema column = ((Table) table).getColumn(colindex);
 
             colvalue = column.getDefaultValue(session);
+            newtype  = ((Table) table).getColumnTypes()[colindex];
+        }
 
-            if (adjust == 0) {
-                oldtype =
-                    ((Table) other.getTable()).getColumnTypes()[colindex];
-                newtype = ((Table) table).getColumnTypes()[colindex];
-            }
+        if (adjust <= 0 && colindex != -1) {
+            oldtype = ((Table) other.getTable()).getColumnTypes()[colindex];
         }
 
         RowIterator it    = other.rowIterator();
@@ -255,16 +254,28 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         try {
             while (it.hasNext()) {
-                Row      row  = it.getNextRow();
-                Object[] o    = row.getData();
-                Object[] data = table.getEmptyRowData();
+                Row      row      = it.getNextRow();
+                Object[] olddata  = row.getData();
+                Object[] data     = table.getEmptyRowData();
+                Object   oldvalue = null;
 
                 if (adjust == 0 && colindex != -1) {
-                    colvalue = newtype.convertToType(session, o[colindex],
+                    oldvalue = olddata[colindex];
+                    colvalue = newtype.convertToType(session, oldvalue,
                                                      oldtype);
                 }
 
-                ArrayUtil.copyAdjustArray(o, data, colvalue, colindex, adjust);
+                if (colvalue != null && newtype.isLobType()) {
+                    session.sessionData.adjustLobUsageCount(colvalue, +1);
+                }
+
+                if (oldvalue != null && oldtype != null
+                        && oldtype.isLobType()) {
+                    session.sessionData.adjustLobUsageCount(oldvalue, -1);
+                }
+
+                ArrayUtil.copyAdjustArray(olddata, data, colvalue, colindex,
+                                          adjust);
                 table.systemSetIdentityColumn(session, data);
                 table.enforceTypeLimits(session, data);
                 table.enforceRowConstraints(session, data);

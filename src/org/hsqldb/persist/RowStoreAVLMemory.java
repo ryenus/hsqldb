@@ -278,8 +278,9 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
         }
 
         if (session != null && index != null
-                && (table.getTableType() == TableBase.SYSTEM_TABLE || database.txManager.getTransactionControl()
-                   != TransactionManager.LOCKS)) {
+                && (table.getTableType() == TableBase.SYSTEM_TABLE
+                    || database.txManager.getTransactionControl()
+                       != TransactionManager.LOCKS)) {
             return ((IndexAVL) index).getNodeCount(session, this);
         }
 

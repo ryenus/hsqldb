@@ -589,7 +589,7 @@ public class CharacterType extends Type {
             return a;
         }
 
-        if (otherType.isLobType()) {
+        if (otherType.typeCode == Types.SQL_BLOB) {
             throw Error.error(ErrorCode.X_42561);
         }
 

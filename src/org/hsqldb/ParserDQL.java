@@ -1110,7 +1110,7 @@ public class ParserDQL extends ParserBase {
 
                         select.addRangeVariable(range);
                     } else {
-                        throw Error.error(ErrorCode.X_42581);
+                        throw unexpectedToken();
                     }
 
                     range.setJoinType(left, right);

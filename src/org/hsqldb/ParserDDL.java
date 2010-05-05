@@ -2723,7 +2723,7 @@ public class ParserDDL extends ParserRoutine {
             }
             default : {
                 if (constName != null) {
-                    throw Error.error(ErrorCode.X_42581);
+                    throw super.unexpectedToken();
                 }
             }
         }
@@ -4023,8 +4023,7 @@ public class ParserDDL extends ParserRoutine {
                             break;
 
                         default :
-                            throw Error.error(ErrorCode.X_42581,
-                                              token.tokenString);
+                            throw super.unexpectedToken();
                     }
                     break;
 

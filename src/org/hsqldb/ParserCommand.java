@@ -732,7 +732,7 @@ public class ParserCommand extends ParserDDL {
                         } else if (token.tokenType == Tokens.MEMORY) {
                             newType = TableBase.MEMORY_TABLE;
                         } else {
-                            throw Error.error(ErrorCode.X_42581);
+                            throw super.unexpectedToken();
                         }
 
                         read();
