@@ -815,8 +815,8 @@ public class TableWorks {
                 Object[] data = row.getData();
 
                 if (data[colIndex] != null) {
-                    database.lobManager.adjustUsageCount(
-                        ((LobData) data[colIndex]).getId(), -1);
+                    session.sessionData.adjustLobUsageCount(data[colIndex],
+                            -1);
                 }
             }
         }
@@ -1014,8 +1014,6 @@ public class TableWorks {
 
             switch (oldType) {
 
-                case Types.SQL_BLOB :
-                case Types.SQL_CLOB :
                 case Types.OTHER :
                 case Types.JAVA_OBJECT :
                     allowed = false;

@@ -988,54 +988,43 @@ public class DataFileCache {
 
             // OOo end
             if (fa.isStreamElement(dataFileName)) {
+
+//#ifdef JAVA2FULL
+                try {
+                    File   file = new File(database.getCanonicalPath());
+                    File[] list = file.getParentFile().listFiles();
+
+                    for (int i = 0; i < list.length; i++) {
+                        if (list[i].getName().endsWith(".old")
+                                && list[i].getName().startsWith(
+                                    file.getName())) {
+                            list[i].delete();
+                        }
+                    }
+                } catch (Throwable t) {}
+
+//#endif JAVA2FULL
                 fa.removeElement(dataFileName);
 
                 if (fa.isStreamElement(dataFileName)) {
+                    String discardName = newDiscardFileName();
 
-//#ifdef JAVA2FULL
-                    try {
-                        File   file = new File(database.getCanonicalPath());
-                        File[] list = file.getParentFile().listFiles();
-
-                        for (int i = 0; i < list.length; i++) {
-                            if (list[i].getName().endsWith(".old")
-                                    && list[i].getName().startsWith(
-                                        file.getName())) {
-                                list[i].delete();
-                            }
-                        }
-                    } catch (Throwable t) {}
-
-//#endif JAVA2FULL
-                    String oldName = dataFileName + ".old";
-
-                    fa.removeElement(oldName);
-
-                    if (fa.isStreamElement(oldName)) {
-                        String timestamp = StringUtil.toPaddedString(
-                            Integer.toHexString(
-                                (int) System.currentTimeMillis()), 8, '0',
-                                    true);
-                        String discardName = dataFileName + "." + timestamp
-                                             + ".old";
-
-                        fa.renameElement(oldName, discardName);
-
-                        File discardFile = new File(discardName);
-
-                        FileUtil.getFileUtil().deleteOnExit(discardFile);
-                    }
-
-                    fa.renameElement(dataFileName, oldName);
-
-                    File oldfile = new File(oldName);
-
-                    FileUtil.getFileUtil().deleteOnExit(oldfile);
+                    fa.renameElement(dataFileName, discardName);
                 }
             }
         } finally {
             writeLock.unlock();
         }
+    }
+
+    String newDiscardFileName() {
+
+        String timestamp = StringUtil.toPaddedString(
+            Integer.toHexString((int) System.currentTimeMillis()), 8, '0',
+            true);
+        String discardName = dataFileName + "." + timestamp + ".old";
+
+        return discardName;
     }
 
     void deleteBackup() {

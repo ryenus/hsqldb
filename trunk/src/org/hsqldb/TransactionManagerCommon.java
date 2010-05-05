@@ -88,15 +88,16 @@ class TransactionManagerCommon {
                 switch (type) {
 
                     case RowActionBase.ACTION_INSERT :
-                        session.sessionData.addLobUsageCount(action.table,
-                                                             row.getData());
+                        session.sessionData.adjustLobUsageCount(action.table,
+                                row.getData(), 1);
                         break;
 
                     case RowActionBase.ACTION_DELETE :
-                        if (action.table.getTableType()
-                                == TableBase.TEMP_TABLE) {
-                            session.sessionData.removeLobUsageCount(
-                                action.table, row.getData());
+                        if (txModel == TransactionManager.LOCKS
+                                || action.table.getTableType()
+                                   == TableBase.TEMP_TABLE) {
+                            session.sessionData.adjustLobUsageCount(
+                                action.table, row.getData(), -1);
                         }
                         break;
 
@@ -112,7 +113,7 @@ class TransactionManagerCommon {
                     action.setAsNoOp();
                 }
             } catch (HsqlException e) {
-                database.logger.logWarningEvent("logging problem", e);
+                database.logger.logWarningEvent("data commit failed", e);
             }
         }
 
@@ -170,8 +171,8 @@ class TransactionManagerCommon {
                     if (commit && action.table.hasLobColumn) {
                         Object[] data = row.getData();
 
-                        action.session.sessionData.removeLobUsageCount(
-                            action.table, data);
+                        action.session.sessionData.adjustLobUsageCount(
+                            action.table, data, -1);
                     }
 
                     action.store.commitRow(session, row, action.type, txModel);

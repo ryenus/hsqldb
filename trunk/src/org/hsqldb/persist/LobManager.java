@@ -283,12 +283,14 @@ public class LobManager {
     }
 
     LobStore getLobStore() {
+
         if (lobStore == null) {
             open();
         }
 
         return lobStore;
     }
+
     //
     private long getNewLobID() {
 
@@ -413,6 +415,17 @@ public class LobManager {
 
         Result result = sysLobSession.executeCompiledStatement(deleteLobCall,
             params);
+
+        return result;
+    }
+
+    synchronized public Result deleteUnusedLobs() {
+
+        Result result =
+            sysLobSession.executeCompiledStatement(deleteUnusedLobs,
+                ValuePool.emptyObjectArray);
+
+        deletedLobCount = 0;
 
         return result;
     }
@@ -860,8 +873,9 @@ public class LobManager {
         byte[] bytes;
 
         try {
-            bytes = getLobStore().getBlockBytes(blockAddresses[i][LOBS.BLOCK_ADDR]
-                                           + blockOffset, blockCount);
+            bytes =
+                getLobStore().getBlockBytes(blockAddresses[i][LOBS.BLOCK_ADDR]
+                                            + blockOffset, blockCount);
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
         }
@@ -890,9 +904,8 @@ public class LobManager {
             }
 
             try {
-                bytes =
-                    getLobStore().getBlockBytes(blockAddresses[i][LOBS.BLOCK_ADDR],
-                                           blockCount);
+                bytes = getLobStore().getBlockBytes(
+                    blockAddresses[i][LOBS.BLOCK_ADDR], blockCount);
             } catch (HsqlException e) {
                 return Result.newErrorResult(e);
             }
@@ -981,7 +994,7 @@ public class LobManager {
         try {
             for (int i = 0; i < blockAddresses.length; i++) {
                 getLobStore().setBlockBytes(newBytes, blockAddresses[i][0],
-                                       blockAddresses[i][1]);
+                                            blockAddresses[i][1]);
             }
         } catch (HsqlException e) {
             return Result.newErrorResult(e);
@@ -1044,9 +1057,8 @@ public class LobManager {
                 }
 
                 try {
-                    getLobStore().setBlockBytes(dataBytes,
-                                           blockAddresses[i][LOBS.BLOCK_ADDR]
-                                           + j, 1);
+                    getLobStore().setBlockBytes(
+                        dataBytes, blockAddresses[i][LOBS.BLOCK_ADDR] + j, 1);
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e);
                 }
@@ -1201,18 +1213,12 @@ public class LobManager {
         ResultMetaData meta     = updateLobUsage.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[UPDATE_USAGE.BLOCK_COUNT] = ValuePool.getLong(count + delta);
+        params[UPDATE_USAGE.BLOCK_COUNT] = ValuePool.getInt(count + delta);
         params[UPDATE_USAGE.LOB_ID]      = ValuePool.getLong(lobID);
 
         sysLobSession.sessionContext.pushDynamicArguments(params);
 
         Result result = updateLobUsage.execute(sysLobSession);
-
-        if (deletedLobCount > 100) {
-            deleteUnusedLobs.execute(sysLobSession);
-
-            deletedLobCount = 0;
-        }
 
         sysLobSession.sessionContext.pop();
 

@@ -159,7 +159,12 @@ public final class BlobType extends BinaryType {
 
         if (otherType.typeCode == Types.SQL_BINARY
                 || otherType.typeCode == Types.SQL_VARBINARY) {
-            return new BinaryData(((BinaryData) a).data, false);
+            BlobData b    = (BlobData) a;
+            BlobData blob = session.createBlob(b.length(session));
+
+            blob.setBytes(session, 0, b.getBytes());
+
+            return blob;
         }
 
         throw Error.error(ErrorCode.X_42561);

@@ -157,6 +157,18 @@ public class BlobDataID implements BlobData {
     public int setBytes(SessionInterface session, long pos, byte[] bytes,
                         int offset, int len) {
 
+        if (offset != 0 || len != bytes.length) {
+            if (!BinaryData.isInLimits(bytes.length, offset, len)) {
+                throw new IndexOutOfBoundsException();
+            }
+
+            byte[] newbytes = new byte[len];
+
+            System.arraycopy(bytes, offset, newbytes, 0, len);
+
+            bytes = newbytes;
+        }
+
         ResultLob resultOut = ResultLob.newLobSetBytesRequest(id, pos, bytes);
         Result    resultIn  = (ResultLob) session.execute(resultOut);
 
@@ -168,7 +180,7 @@ public class BlobDataID implements BlobData {
     }
 
     public int setBytes(SessionInterface session, long pos, byte[] bytes) {
-        return 0;
+        return setBytes(session, pos, bytes, 0, bytes.length);
     }
 
     public long setBinaryStream(SessionInterface session, long pos,

@@ -250,8 +250,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 return getNewCachedObject(session, object);
             }
 
-            Row row = new RowAVL(table, (Object[]) object, id
-                                 );
+            Row row = new RowAVL(table, (Object[]) object, id);
 
             if (isTempTable) {
                 RowAction action = new RowAction(session, table,
@@ -322,7 +321,6 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             case RowAction.ACTION_DELETE :
                 if (txModel == TransactionManager.LOCKS) {
-
                     row = (Row) get(row, true);
 
                     ((RowAVL) row).setNewNodes();

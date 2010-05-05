@@ -737,12 +737,7 @@ public class SchemaManager {
                 Row      row  = it.getNextRow();
                 Object[] data = row.getData();
 
-                for (int i = 0; i < data.length; i++) {
-                    if (data[i] instanceof LobData) {
-                        database.lobManager.adjustUsageCount(
-                            ((LobData) data[i]).getId(), -1);
-                    }
-                }
+                session.sessionData.adjustLobUsageCount(table, data, -1);
             }
         }
 

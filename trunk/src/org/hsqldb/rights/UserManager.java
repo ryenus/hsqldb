@@ -153,13 +153,19 @@ public final class UserManager {
         }
     }
 
-    public void createSAUser() {
+    public void createFirstUser(String username, String password) {
 
-        HsqlName name = granteeManager.database.nameManager.newHsqlName("SA", false,
-            SchemaObject.GRANTEE);
+        boolean isQuoted = true;
+        if (username.equalsIgnoreCase("SA")) {
+            username = "SA";
+            isQuoted = false;
+        }
 
-        createUser(name, "");
+        HsqlName name =
+            granteeManager.database.nameManager.newHsqlName(username, isQuoted,
+                SchemaObject.GRANTEE);
 
+        createUser(name, password);
         granteeManager.grant(name.name, SqlInvariants.DBA_ADMIN_ROLE_NAME,
                              granteeManager.getDBARole());
     }

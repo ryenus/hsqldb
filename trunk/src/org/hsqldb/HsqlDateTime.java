@@ -402,7 +402,7 @@ public class HsqlDateTime {
         "MMM", "MMMMM",
         "EEEE", "EE",
         "w", "dd", "D",
-        "k", "K", "K",
+        "HH", "KK", "KK",
         "mm", "ss",
         "aaa", "aaa", "aaa", "aaa",
         "S"

@@ -92,7 +92,7 @@ public class Error {
             s = s + " :" + add + String.valueOf(lineNumber);
         }
 
-        return new HsqlException(null, s.substring(0, SQL_STATE_DIGITS),
+        return new HsqlException(null, s.substring(SQL_STATE_DIGITS + 1),
                                  s.substring(0, SQL_STATE_DIGITS),
                                  -code);
     }
