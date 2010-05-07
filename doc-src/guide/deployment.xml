@@ -554,8 +554,9 @@
 
       <para>On some platforms, such as embedded devices which are reliable,
       this is also a useful option. Your application issues CHECKPOINT to save
-      the changes so far. This method of use reduces write operations on SSD
-      devices. For this usage, the lock file should also be disabled.</para>
+      the changes made so far. This method of use reduces write operations on
+      SSD devices. For this usage, the lock file should also be disabled with
+      the connection property hsqldb.lock_file=false.</para>
     </section>
 
     <section>
