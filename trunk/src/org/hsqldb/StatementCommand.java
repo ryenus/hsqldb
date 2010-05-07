@@ -254,7 +254,6 @@ public class StatementCommand extends Statement {
                 boolean defrag = ((Boolean) parameters[0]).booleanValue();
 
                 try {
-                    session.database.lobManager.deleteUnusedLobs();
                     session.database.logger.checkpoint(defrag);
 
                     return Result.updateZeroResult;

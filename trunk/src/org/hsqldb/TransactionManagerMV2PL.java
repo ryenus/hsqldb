@@ -37,7 +37,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
-import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.persist.CachedObject;
 
@@ -50,11 +49,6 @@ import org.hsqldb.persist.CachedObject;
  */
 public class TransactionManagerMV2PL extends TransactionManagerCommon
 implements TransactionManager {
-
-    // functional unit - sessions involved in live transactions
-
-    /** live transactions keeping committed transactions from being merged */
-    LongDeque liveTransactionTimestamps = new LongDeque();
 
     // functional unit - merged committed transactions
     HsqlDeque committedTransactions          = new HsqlDeque();
@@ -416,6 +410,8 @@ implements TransactionManager {
             session.isTransaction        = true;
 
             liveTransactionTimestamps.addLast(session.transactionTimestamp);
+
+            transactionCount++;
         } finally {
             writeLock.unlock();
         }
@@ -468,6 +464,8 @@ implements TransactionManager {
                 session.isTransaction        = true;
 
                 liveTransactionTimestamps.addLast(session.actionTimestamp);
+
+                transactionCount++;
             }
         } finally {
             writeLock.unlock();
@@ -489,18 +487,11 @@ implements TransactionManager {
         int index = liveTransactionTimestamps.indexOf(timestamp);
 
         if (index >= 0) {
+            transactionCount--;
             liveTransactionTimestamps.remove(index);
             mergeExpiredTransactions(session);
         }
-    }
 
-    long getFirstLiveTransactionTimestamp() {
-
-        if (liveTransactionTimestamps.isEmpty()) {
-            return Long.MAX_VALUE;
-        }
-
-        return liveTransactionTimestamps.get(0);
     }
 
 // functional unit - list actions and translate id's

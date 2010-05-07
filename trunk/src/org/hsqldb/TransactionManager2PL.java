@@ -289,6 +289,8 @@ implements TransactionManager {
         session.actionTimestamp      = nextChangeTimestamp();
         session.transactionTimestamp = session.actionTimestamp;
         session.isTransaction        = true;
+
+        transactionCount++;
     }
 
     /**
@@ -328,13 +330,18 @@ implements TransactionManager {
         if (!session.isTransaction) {
             session.transactionTimestamp = session.actionTimestamp;
             session.isTransaction        = true;
+
+            transactionCount++;
         }
 
         return;
     }
 
     void endTransaction(Session session) {
+
         session.isTransaction = false;
+
+        transactionCount--;
     }
 
 // functional unit - list actions and translate id's

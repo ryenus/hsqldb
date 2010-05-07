@@ -53,16 +53,6 @@ import org.hsqldb.persist.CachedObject;
 public class TransactionManagerMVCC extends TransactionManagerCommon
 implements TransactionManager {
 
-    //
-    ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
-    ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
-
-    // functional unit - sessions involved in live transactions
-
-    /** live transactions keeping committed transactions from being merged */
-    LongDeque  liveTransactionTimestamps = new LongDeque();
-    AtomicLong globalChangeTimestamp     = new AtomicLong();
-
     // functional unit - merged committed transactions
     HsqlDeque committedTransactions          = new HsqlDeque();
     LongDeque committedTransactionTimestamps = new LongDeque();
@@ -70,7 +60,6 @@ implements TransactionManager {
     // locks
     boolean isLockedMode;
     Session catalogWriteSession;
-    int     transactionCount = 0;
 
     //
     int redoCount = 0;
@@ -595,6 +584,7 @@ implements TransactionManager {
             session.isTransaction        = true;
 
             liveTransactionTimestamps.addLast(session.transactionTimestamp);
+            transactionCount++;
         } finally {
             writeLock.unlock();
         }
@@ -645,6 +635,7 @@ implements TransactionManager {
                 session.isTransaction        = true;
 
                 liveTransactionTimestamps.addLast(session.actionTimestamp);
+                transactionCount++;
             }
 
             session.isPreTransaction = false;
@@ -745,18 +736,11 @@ implements TransactionManager {
         int index = liveTransactionTimestamps.indexOf(timestamp);
 
         if (index >= 0) {
+            transactionCount--;
             liveTransactionTimestamps.remove(index);
             mergeExpiredTransactions(session);
         }
-    }
 
-    long getFirstLiveTransactionTimestamp() {
-
-        if (liveTransactionTimestamps.isEmpty()) {
-            return Long.MAX_VALUE;
-        }
-
-        return liveTransactionTimestamps.get(0);
     }
 
 // functional unit - list actions and translate id's

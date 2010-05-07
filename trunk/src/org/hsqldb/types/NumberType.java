@@ -709,8 +709,7 @@ public final class NumberType extends Type {
                     dec = dec.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
                 }
 
-                int        p   = JavaSystem.precision(dec);
-
+                int p = JavaSystem.precision(dec);
 
                 if (p > precision) {
                     throw Error.error(ErrorCode.X_22003);
@@ -1729,12 +1728,8 @@ public final class NumberType extends Type {
                 BigDecimal value = ((BigDecimal) a).setScale(0,
                     BigDecimal.ROUND_CEILING);
 
-                if (JavaSystem.precision(value) > precision) {
-                    throw Error.error(ErrorCode.X_22003);
-                }
+                return value;
             }
-
-            // fall through
             default :
                 return a;
         }
@@ -1764,9 +1759,7 @@ public final class NumberType extends Type {
                 BigDecimal value = ((BigDecimal) a).setScale(0,
                     BigDecimal.ROUND_FLOOR);
 
-                if (JavaSystem.precision(value) > precision) {
-                    throw Error.error(ErrorCode.X_22003);
-                }
+                return value;
             }
 
             // fall through
