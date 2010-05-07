@@ -43,6 +43,7 @@ import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.LongDeque;
 
 class TransactionManagerCommon {
 
@@ -53,11 +54,17 @@ class TransactionManagerCommon {
     HsqlName[] catalogNameList;
 
     //
-    ReentrantReadWriteLock           lock = new ReentrantReadWriteLock(true);
+    ReentrantReadWriteLock           lock      = new ReentrantReadWriteLock();
     ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+
+    // functional unit - sessions involved in live transactions
+
+    /** live transactions keeping committed transactions from being merged */
+    LongDeque liveTransactionTimestamps = new LongDeque();
 
     /** live transactions keeping committed transactions from being merged */
     AtomicLong globalChangeTimestamp = new AtomicLong();
+    int        transactionCount      = 0;
 
     //
     HashMap           tableWriteLocks = new HashMap();
@@ -69,6 +76,8 @@ class TransactionManagerCommon {
     public IntKeyHashMapConcurrent rowActionMap;
 
     void persistCommit(Session session, Object[] list, int limit) {
+
+        boolean deletedLobs = false;
 
         for (int i = 0; i < limit; i++) {
             RowAction action = (RowAction) list[i];
@@ -93,12 +102,10 @@ class TransactionManagerCommon {
                         break;
 
                     case RowActionBase.ACTION_DELETE :
-                        if (txModel == TransactionManager.LOCKS
-                                || action.table.getTableType()
-                                   == TableBase.TEMP_TABLE) {
-                            session.sessionData.adjustLobUsageCount(
-                                action.table, row.getData(), -1);
-                        }
+                        session.sessionData.adjustLobUsageCount(action.table,
+                                row.getData(), -1);
+
+                        deletedLobs = true;
                         break;
 
                     case RowActionBase.ACTION_INSERT_DELETE :
@@ -118,6 +125,10 @@ class TransactionManagerCommon {
         }
 
         try {
+            if (deletedLobs && transactionCount == 0) {
+                database.lobManager.deleteUnusedLobs();
+            }
+
             session.logSequences();
 
             if (limit > 0) {
@@ -128,6 +139,8 @@ class TransactionManagerCommon {
 
     void finaliseRows(Session session, Object[] list, int start, int limit,
                       boolean commit) {
+
+        boolean deletedLobs = false;
 
         for (int i = start; i < limit; i++) {
             RowAction action = (RowAction) list[i];
@@ -169,10 +182,7 @@ class TransactionManagerCommon {
                     }
 
                     if (commit && action.table.hasLobColumn) {
-                        Object[] data = row.getData();
-
-                        action.session.sessionData.adjustLobUsageCount(
-                            action.table, data, -1);
+                        deletedLobs = true;
                     }
 
                     action.store.commitRow(session, row, action.type, txModel);
@@ -181,6 +191,10 @@ class TransactionManagerCommon {
 //                    throw unexpectedException(e.getMessage());
                 }
             }
+        }
+
+        if (deletedLobs && transactionCount == 0 ) {
+            database.lobManager.deleteUnusedLobs();
         }
     }
 
@@ -640,6 +654,15 @@ class TransactionManagerCommon {
         }
 
         return true;
+    }
+
+    long getFirstLiveTransactionTimestamp() {
+
+        if (liveTransactionTimestamps.isEmpty()) {
+            return Long.MAX_VALUE;
+        }
+
+        return liveTransactionTimestamps.get(0);
     }
 
     /**

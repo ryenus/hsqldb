@@ -449,6 +449,8 @@ public class Logger {
             return true;
         }
 
+        database.lobManager.deleteUnusedLobs();
+
         try {
             switch (closemode) {
 
@@ -723,6 +725,8 @@ public class Logger {
      *      database
      */
     public synchronized void checkpoint(boolean mode) {
+
+        database.lobManager.deleteUnusedLobs();
 
         if (logsStatements) {
             logInfoEvent("Checkpoint start");

@@ -1240,6 +1240,15 @@ public class FunctionSQL extends Expression {
 
                 dataType = nodes[0].dataType;
 
+                if (dataType.typeCode == Types.SQL_DECIMAL
+                        || dataType.typeCode == Types.SQL_NUMERIC) {
+                    if (dataType.scale > 0) {
+                        dataType = NumberType.getNumberType(dataType.typeCode,
+                                                            dataType.precision
+                                                            + 1, 0);
+                    }
+                }
+
                 break;
             }
             case FUNC_WIDTH_BUCKET : {
@@ -1858,7 +1867,8 @@ public class FunctionSQL extends Expression {
                 continue;
             }
 
-            sb.append("[").append(nodes[i].describe(session, blanks)).append("]");
+            sb.append("[").append(nodes[i].describe(session,
+                    blanks)).append("]");
         }
 
         sb.append(") returns ").append(dataType.getNameString());
