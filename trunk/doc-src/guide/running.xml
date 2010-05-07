@@ -595,6 +595,12 @@
     an <glossterm>in-process</glossterm> database, a new, empty database is
     created if no database exists at the given path.</para>
 
+    <para>With HyperSQL 2.0 the username and password that are specified for
+    the connection are used for the new database. Both the username and
+    password are case-sensitive. (The exception is the default SA user, which
+    is not case-sensitive). If no username or password is specified, the
+    default SA user and an empty password are used.</para>
+
     <para>This feature has a side effect that can confuse new users. If a
     mistake is made in specifying the path for connecting to an existing
     database, a connection is nevertheless established to a new database. For

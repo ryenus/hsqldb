@@ -1277,12 +1277,12 @@
 
     <para>The two JDBC functions, <literal>TIMESTAMPADD </literal>and
     <literal>TIMESTAMPDIFF</literal> perform the same function as above SQL
-    expressions. The field names are different from those used in the EXTRACT
-    functions. These names are valid for use only when calling these two
-    functions. The return value for TIMESTAMPADD is of the same type as the
-    datetime argument used. The return type for TIMESTAMPDIFF is always
-    BIGINT, regardless of the type of arguments. The two datetime arguments of
-    TIMESTAMPDIFF should be of the same type. (JDBC)</para>
+    expressions. The field names are keywords and are different from those
+    used in the EXTRACT functions. These names are valid for use only when
+    calling these two functions. The return value for TIMESTAMPADD is of the
+    same type as the datetime argument used. The return type for TIMESTAMPDIFF
+    is always BIGINT, regardless of the type of arguments. The two datetime
+    arguments of TIMESTAMPDIFF should be of the same type. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DATEADD function</primary>
@@ -1306,9 +1306,9 @@
     'ms'</literal></para>
 
     <para>The DATEADD and DATEDIFF functions are alternatives to TIMESTAMPADD
-    and TIMESTAMPDIFF, with fewer available field options. The fields
-    translate to YEAR, MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND.
-    (HyperSQL}</para>
+    and TIMESTAMPDIFF, with fewer available field options. The field names are
+    specified as strings, rather than keywords. The fields translate to YEAR,
+    MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND. (HyperSQL}</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TO_CHAR function</primary>
@@ -1512,7 +1512,7 @@
     so on. The type of both arguments must be comparable. (Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>CONVERT functionGr</primary>
+      <primary>CONVERT function</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">CONVERT</emphasis></simpara>
@@ -1560,14 +1560,14 @@
     <para>DECODE takes at least 3 arguments. The <literal>&lt;value expr
     main&gt;</literal> is compared with <literal>&lt;value expr match
     1&gt;</literal> and if it matches, <literal>&lt;value expr result
-    1&gt;</literal> is returned. If there are additional pairs of ith
-    <literal>&lt;value expr match ...&gt;</literal> and <literal>&lt;value
-    expr result ... &gt;</literal>, comparison is repeated until a match is
-    found the the result is returned. If no match is found, the
-    <literal>&lt;value expr default&gt;</literal> is returned if it is
-    specified, otherwise NULL is returned. The type of the return value is a
-    combination of the types of the <literal>&lt;value expr result ...
-    &gt;</literal> arguments. (HyperSQL)</para>
+    1&gt;</literal> is returned. If there are additional pairs of
+    <literal>&lt;value expr match n&gt;</literal> and <literal>&lt;value expr
+    result n&gt;</literal>, comparison is repeated until a match is found the
+    the result is returned. If no match is found, the <literal>&lt;value expr
+    default&gt;</literal> is returned if it is specified, otherwise NULL is
+    returned. The type of the return value is a combination of the types of
+    the <literal>&lt;value expr result ... &gt;</literal> arguments.
+    (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>GREATEST function</primary>
