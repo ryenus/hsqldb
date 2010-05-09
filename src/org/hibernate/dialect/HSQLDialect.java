@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
  * Note this version supports HSQLDB version 1.8 and higher, only.
  * <p/>
  * Enhancements to version 3.5.0 GA to provide basic support for both HSQLDB 1.8.x and 2.0
+ * Should work with Hibernate 3.2 and later
  *
  * @author Christoph Sturm
  * @author Phillip Baird
