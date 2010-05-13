@@ -158,27 +158,59 @@
     can contain one or more SQL statements, which can include control
     statements, as well as nested compound statements.</para>
 
-    <para>ROUTINE STATEMENTS</para>
+    <section>
+      <title>Routine Statements</title>
 
-    <para>The following SQL Statements can be used only in routines.</para>
+      <para>The following SQL Statements can be used only in routines.</para>
 
-    <simpara><literal>&lt;assignment statement&gt;</literal></simpara>
+      <simpara><literal>&lt;handler declaration&gt;</literal></simpara>
 
-    <simpara><literal>&lt;compound statement&gt;</literal></simpara>
+      <simpara><literal>&lt;assignment statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;case statement&gt;</literal></simpara>
+      <simpara><literal>&lt;compound statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;if statement&gt;</literal></simpara>
+      <simpara><literal>&lt;case statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;while statement&gt;</literal></simpara>
+      <simpara><literal>&lt;if statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;repeat statement&gt;</literal></simpara>
+      <simpara><literal>&lt;while statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;for statement&gt;</literal></simpara>
+      <simpara><literal>&lt;repeat statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;loop statement&gt;</literal></simpara>
+      <simpara><literal>&lt;for statement&gt;</literal></simpara>
 
-    <simpara><literal>&lt;signal statement&gt;</literal></simpara>
+      <simpara><literal>&lt;loop statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;iterate statement</literal></simpara>
+
+      <simpara><literal>&lt;leave statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;signal statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;resignal statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;return statement&gt;</literal></simpara>
+
+      <simpara><literal>&lt;select statement: single
+      row&gt;</literal></simpara>
+
+      <para>The following SQL Statements can be used in procedures but not in
+      functions.</para>
+
+      <para><literal>&lt;call statement&gt;</literal></para>
+
+      <para><literal>&lt;delete statement&gt;</literal></para>
+
+      <para><literal>&lt;insert statement&gt;</literal></para>
+
+      <para><literal>&lt;update statement&gt;</literal></para>
+
+      <para><literal>&lt;merge statement&gt;</literal></para>
+
+      <para>As shown in the examples below, the formal parameters and the
+      variables of the routine can be used in statements, similar to the way a
+      column reference is used.</para>
+    </section>
 
     <section>
       <title>Compound Statement</title>
@@ -652,25 +684,6 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
       <simpara><literal>&lt;resignal statement&gt; ::= RESIGNAL SQL_STATE
       &lt;state value&gt;</literal></simpara>
-    </section>
-
-    <section>
-      <title>General SQL Statements</title>
-
-      <para><literal>&lt;call statement&gt;</literal></para>
-
-      <para><literal>&lt;delete statement&gt;</literal></para>
-
-      <para><literal>&lt;insert statement&gt;</literal></para>
-
-      <para><literal>&lt;update statement&gt;</literal></para>
-
-      <para><literal>&lt;merge statement&gt;</literal></para>
-
-      <para>These statements can be used only in procedures and have the same
-      effect as when they are used outside routines. As shown in the examples
-      of procedures, the formal parameters and the variables of the procedure
-      can be used in these statements.</para>
     </section>
 
     <section>
