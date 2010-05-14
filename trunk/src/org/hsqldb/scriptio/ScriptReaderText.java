@@ -102,12 +102,6 @@ public class ScriptReaderText extends ScriptReaderBase {
                     statement, ResultProperties.defaultPropsValue);
                 result = session.executeCompiledStatement(cs,
                         ValuePool.emptyObjectArray);
-
-                if (cs.getType() == StatementTypes.CREATE_SCHEMA) {
-                    HsqlName name = cs.getSchemaName();
-
-                    session.setSchema(name.name);
-                }
             } catch (HsqlException e) {
                 result = Result.newErrorResult(e);
             }

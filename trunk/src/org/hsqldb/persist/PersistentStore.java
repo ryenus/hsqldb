@@ -100,7 +100,7 @@ public interface PersistentStore {
     void commitPersistence(CachedObject object);
 
     //
-    void delete(Row row);
+    void delete(Session session, Row row);
 
     void indexRow(Session session, Row row);
 

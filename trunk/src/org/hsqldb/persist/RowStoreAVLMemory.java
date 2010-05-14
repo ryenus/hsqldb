@@ -166,7 +166,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
-                delete(row);
+                delete(session, row);
                 break;
         }
     }
@@ -185,7 +185,7 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
 
             case RowAction.ACTION_INSERT :
                 if (txModel == TransactionManager.LOCKS) {
-                    delete(row);
+                    delete(session, row);
                     remove(row.getPos());
                 }
                 break;
@@ -219,51 +219,6 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     }
 
     public void setAccessor(Index key, int accessor) {}
-
-    public void resetAccessorKeys(Index[] keys) {
-
-        if (indexList.length == 0 || indexList[0] == null
-                || accessorList[0] == null) {
-            indexList    = keys;
-            accessorList = new CachedObject[indexList.length];
-
-            return;
-        }
-
-        CachedObject[] oldAccessors = accessorList;
-        Index[]        oldIndexList = indexList;
-        int            limit        = indexList.length;
-        int            diff         = 1;
-        int            position     = 0;
-
-        if (keys.length < indexList.length) {
-            diff  = -1;
-            limit = keys.length;
-        }
-
-        for (; position < limit; position++) {
-            if (indexList[position] != keys[position]) {
-                break;
-            }
-        }
-
-        accessorList = (CachedObject[]) ArrayUtil.toAdjustedArray(accessorList,
-                null, position, diff);
-        indexList = keys;
-
-        try {
-            if (diff > 0) {
-                insertIndexNodes(indexList[0], indexList[position]);
-            } else {
-                dropIndexFromRows(indexList[0], oldIndexList[position]);
-            }
-        } catch (HsqlException e) {
-            accessorList = oldAccessors;
-            indexList    = oldIndexList;
-
-            throw e;
-        }
-    }
 
     public int elementCount(Session session) {
 

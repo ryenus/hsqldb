@@ -134,7 +134,7 @@ public interface Index extends SchemaObject {
      */
     public void insert(Session session, PersistentStore store, Row row);
 
-    public void delete(PersistentStore store, Row row);
+    public void delete(Session session, PersistentStore store, Row row);
 
     public boolean existsParent(Session session, PersistentStore store,
                                 Object[] rowdata, int[] rowColMap);
@@ -151,7 +151,8 @@ public interface Index extends SchemaObject {
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata, int matchCount,
-                                    int compareType, boolean reversed, boolean[] map);
+                                    int compareType, boolean reversed,
+                                    boolean[] map);
 
     /**
      * Return the first node equal to the rowdata object.
@@ -185,7 +186,7 @@ public interface Index extends SchemaObject {
     public RowIterator findFirstRowNotNull(Session session,
                                            PersistentStore store);
 
-    public RowIterator firstRow(PersistentStore store, boolean forDelete);
+    public RowIterator firstRow(PersistentStore store);
 
     /**
      * Returns the row for the first node of the index
@@ -213,12 +214,11 @@ public interface Index extends SchemaObject {
      *
      * @return comparison result, -1,0,+1
      */
-    public int compareRowNonUnique(Session session, Object[] a,
-                                   Object[] b, int[] rowColMap);
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                                   int[] rowColMap);
 
-    public int compareRowNonUnique(Session session, Object[] a,
-                                   Object[] b, int[] rowColMap,
-                                   int fieldCount);
+    public int compareRowNonUnique(Session session, Object[] a, Object[] b,
+                                   int[] rowColMap, int fieldCount);
 
     /**
      * As above but use the index column data

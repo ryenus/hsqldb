@@ -74,7 +74,7 @@ public class StatementSchemaDefinition extends StatementSchema {
 
     Result getResult(Session session) {
 
-        schemaName = statements[0].getSchemaName();
+        HsqlName schemaDefinitionName = statements[0].getSchemaName();
 
         if (this.isExplain) {
             return Result.newSingleColumnStringResult("OPERATION",
@@ -95,10 +95,10 @@ public class StatementSchemaDefinition extends StatementSchema {
 
         for (int i = 1; i < statements.length; i++) {
             try {
-                session.setSchema(schemaName.name);
+                session.setSchema(schemaDefinitionName.name);
             } catch (HsqlException e) {}
 
-            statements[i].setSchemaHsqlName(schemaName);
+            statements[i].setSchemaHsqlName(schemaDefinitionName);
             session.parser.reset(statements[i].getSQL());
 
             try {
@@ -115,7 +115,7 @@ public class StatementSchemaDefinition extends StatementSchema {
                         cs                    = session.parser.compileCreate();
                         cs.isSchemaDefinition = true;
 
-                        cs.setSchemaHsqlName(schemaName);
+                        cs.setSchemaHsqlName(schemaDefinitionName);
 
                         if (session.parser.token.tokenType
                                 != Tokens.X_ENDPARSE) {
@@ -155,7 +155,7 @@ public class StatementSchemaDefinition extends StatementSchema {
                         cs                    = session.parser.compileCreate();
                         cs.isSchemaDefinition = true;
 
-                        cs.setSchemaHsqlName(schemaName);
+                        cs.setSchemaHsqlName(schemaDefinitionName);
 
                         if (session.parser.token.tokenType
                                 != Tokens.X_ENDPARSE) {
@@ -207,9 +207,9 @@ public class StatementSchemaDefinition extends StatementSchema {
         if (result.isError()) {
             try {
                 session.database.schemaManager.dropSchema(session,
-                        schemaName.name, true);
+                        schemaDefinitionName.name, true);
                 session.database.logger.writeToLog(
-                    session, getDropSchemaStatement(schemaName));
+                    session, getDropSchemaStatement(schemaDefinitionName));
             } catch (HsqlException e) {}
         }
 

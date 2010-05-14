@@ -250,7 +250,7 @@ implements TransactionManager {
 
         PersistentStore store = session.sessionData.getRowStore(table);
 
-        store.delete(row);
+        store.delete(session, row);
 
         return action;
     }

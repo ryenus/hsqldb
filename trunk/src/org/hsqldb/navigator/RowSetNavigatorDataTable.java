@@ -275,7 +275,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
 
         super.reset();
 
-        iterator = mainIndex.firstRow(store, false);
+        iterator = mainIndex.firstRow(store);
     }
 
     public void close() {

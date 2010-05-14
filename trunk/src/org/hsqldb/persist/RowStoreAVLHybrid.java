@@ -309,7 +309,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
-                delete(row);
+                delete(session, row);
                 break;
         }
     }
@@ -331,7 +331,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             case RowAction.ACTION_INSERT :
                 if (txModel == TransactionManager.LOCKS) {
-                    delete(row);
+                    delete(session, row);
                     remove(row.getPos());
                 }
                 break;
@@ -396,39 +396,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVLHybrid");
         }
 
-        CachedObject[] oldAccessors = accessorList;
-        Index[]        oldIndexList = indexList;
-        int            limit        = indexList.length;
-        int            diff         = 1;
-        int            position     = 0;
-
-        if (keys.length < indexList.length) {
-            diff  = -1;
-            limit = keys.length;
-        }
-
-        for (; position < limit; position++) {
-            if (indexList[position] != keys[position]) {
-                break;
-            }
-        }
-
-        accessorList = (CachedObject[]) ArrayUtil.toAdjustedArray(accessorList,
-                null, position, diff);
-        indexList = keys;
-
-        try {
-            if (diff > 0) {
-                insertIndexNodes(indexList[0], indexList[position]);
-            } else {
-                dropIndexFromRows(indexList[0], oldIndexList[position]);
-            }
-        } catch (HsqlException e) {
-            accessorList = oldAccessors;
-            indexList    = oldIndexList;
-
-            throw e;
-        }
+        super.resetAccessorKeys(keys);
     }
 
     public void changeToDiskTable() {

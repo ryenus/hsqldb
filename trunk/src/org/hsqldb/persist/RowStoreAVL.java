@@ -129,12 +129,12 @@ public abstract class RowStoreAVL implements PersistentStore {
     /**
      * Basic delete with no logging or referential checks.
      */
-    public void delete(Row row) {
+    public void delete(Session session, Row row) {
 
         row = (Row) get(row, false);
 
         for (int i = indexList.length - 1; i >= 0; i--) {
-            indexList[i].delete(this, row);
+            indexList[i].delete(session, this, row);
         }
 
         row.delete(this);
@@ -152,7 +152,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
             // unique index violation - rollback insert
             for (--i; i >= 0; i--) {
-                indexList[i].delete(this, row);
+                indexList[i].delete(session, this, row);
             }
 
             remove(row.getPos());
@@ -187,14 +187,57 @@ public abstract class RowStoreAVL implements PersistentStore {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
         }
 
-        return indexList[0].firstRow(this, false);
+        return indexList[0].firstRow(this);
     }
 
     public abstract void setAccessor(Index key, CachedObject accessor);
 
     public abstract void setAccessor(Index key, int accessor);
 
-    public abstract void resetAccessorKeys(Index[] keys);
+    public void resetAccessorKeys(Index[] keys) {
+
+        if (indexList.length == 0 || indexList[0] == null
+                || accessorList[0] == null) {
+            indexList    = keys;
+            accessorList = new CachedObject[indexList.length];
+
+            return;
+        }
+
+        CachedObject[] oldAccessors = accessorList;
+        Index[]        oldIndexList = indexList;
+        int            limit        = indexList.length;
+        int            diff         = 1;
+        int            position     = 0;
+
+        if (keys.length < indexList.length) {
+            diff  = -1;
+            limit = keys.length;
+        }
+
+        for (; position < limit; position++) {
+            if (indexList[position] != keys[position]) {
+                break;
+            }
+        }
+
+        accessorList = (CachedObject[]) ArrayUtil.toAdjustedArray(accessorList,
+                null, position, diff);
+        indexList = keys;
+
+        try {
+            if (diff > 0) {
+                insertIndexNodes(indexList[0], indexList[position]);
+            } else {
+                dropIndexFromRows(indexList[0], oldIndexList[position]);
+            }
+        } catch (HsqlException e) {
+            accessorList = oldAccessors;
+            indexList    = oldIndexList;
+
+            throw e;
+        }
+    }
 
     public int elementCount(Session session) {
 
@@ -296,7 +339,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     void dropIndexFromRows(Index primaryIndex, Index oldIndex) {
 
-        RowIterator it       = primaryIndex.firstRow(this, false);
+        RowIterator it       = primaryIndex.firstRow(this);
         int         position = oldIndex.getPosition() - 1;
 
         while (it.hasNext()) {
@@ -315,7 +358,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     boolean insertIndexNodes(Index primaryIndex, Index newIndex) {
 
         int           position = newIndex.getPosition();
-        RowIterator   it       = primaryIndex.firstRow(this, false);
+        RowIterator   it       = primaryIndex.firstRow(this);
         int           rowCount = 0;
         HsqlException error    = null;
 
@@ -340,7 +383,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
         // backtrack on error
         // rowCount rows have been modified
-        it = primaryIndex.firstRow(this, false);
+        it = primaryIndex.firstRow(this);
 
         for (int i = 0; i < rowCount; i++) {
             Row     row      = it.getNextRow();

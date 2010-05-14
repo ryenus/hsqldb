@@ -264,11 +264,11 @@ public class DoubleIntIndex implements IntLookup {
      * @param value the value
      * @return true or false depending on success
      */
-    public synchronized boolean add(int key, int value) {
+    public synchronized int add(int key, int value) {
 
         if (count == capacity) {
             if (fixedSize) {
-                return false;
+                return -1;
             } else {
                 doubleCapacity();
             }
@@ -284,7 +284,7 @@ public class DoubleIntIndex implements IntLookup {
         int i = binarySlotSearch();
 
         if (i == -1) {
-            return false;
+            return i;
         }
 
         hasChanged = true;
@@ -298,7 +298,7 @@ public class DoubleIntIndex implements IntLookup {
 
         count++;
 
-        return true;
+        return i;
     }
 
     public int lookupFirstEqual(int key) throws NoSuchElementException {
