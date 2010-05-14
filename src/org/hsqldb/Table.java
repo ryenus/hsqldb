@@ -2079,21 +2079,43 @@ public class Table extends TableBase implements SchemaObject {
 //
 
     /**
-     *  Used to create an index automatically for system tables.
+     *  Used to create an index automatically for system and temp tables.
      */
     Index createIndexForColumns(Session session, int[] columns) {
 
+        Index index = null;
         HsqlName indexName = database.nameManager.newAutoName("IDX_T",
             getSchemaName(), getName(), SchemaObject.INDEX);
 
         try {
-            Index index = createAndAddIndexStructure(session, indexName,
-                columns, null, null, false, false, false);
-
-            return index;
+            index = createAndAddIndexStructure(session, indexName, columns,
+                                               null, null, false, false,
+                                               false);
         } catch (Throwable t) {
             return null;
         }
+
+        switch (tableType) {
+
+            case TableBase.TEMP_TABLE : {
+                Session sessions[] = database.sessionManager.getAllSessions();
+
+                for (int i = 0; i < sessions.length; i++) {
+                    sessions[i].sessionData.persistentStoreCollection
+                        .registerIndex((Table) this);
+                }
+
+                break;
+            }
+            case TableBase.SYSTEM_TABLE : {
+                session.sessionData.persistentStoreCollection.registerIndex(
+                    (Table) this);
+
+                break;
+            }
+        }
+
+        return index;
     }
 
     void fireTriggers(Session session, int trigVecIndex,
@@ -2643,6 +2665,8 @@ public class Table extends TableBase implements SchemaObject {
                 data, primaryKeyColsSequence);
 
             row = it.getNextRow();
+
+            it.release();
         } else if (bestIndex == null) {
             RowIterator it = rowIterator(session);
 
@@ -2659,6 +2683,8 @@ public class Table extends TableBase implements SchemaObject {
                     break;
                 }
             }
+
+            it.release();
         } else {
             RowIterator it = bestIndex.findFirstRow(session, store, data);
 
@@ -2685,6 +2711,8 @@ public class Table extends TableBase implements SchemaObject {
                     break;
                 }
             }
+
+            it.release();
         }
 
         if (row == null) {

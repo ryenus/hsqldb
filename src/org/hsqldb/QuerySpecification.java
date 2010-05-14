@@ -1317,6 +1317,10 @@ public class QuerySpecification extends QueryExpression {
 
         navigator.reset();
 
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeIterators[i].reset();
+        }
+
         if (!isGrouped && !isAggregated) {
             return result;
         }

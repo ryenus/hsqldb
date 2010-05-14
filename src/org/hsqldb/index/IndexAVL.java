@@ -722,7 +722,7 @@ public class IndexAVL implements Index {
         }
     }
 
-    public void delete(PersistentStore store, Row row) {
+    public void delete(Session session, PersistentStore store, Row row) {
 
         if (!row.isInMemory()) {
             row = (Row) store.get(row, false);
@@ -1043,7 +1043,7 @@ public class IndexAVL implements Index {
         }
     }
 
-    public RowIterator firstRow(PersistentStore store, boolean forDelete) {
+    public RowIterator firstRow(PersistentStore store) {
 
         int tempDepth = 0;
 
@@ -1709,7 +1709,7 @@ public class IndexAVL implements Index {
         }
 
         public void remove() {
-            store.delete(lastrow);
+            store.delete(session, lastrow);
             store.remove(lastrow.getPos());
         }
 

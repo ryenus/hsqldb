@@ -226,36 +226,54 @@ implements PersistentStoreCollection {
 
     public void registerIndex(Table table) {
 
-        Iterator it = rowStoreMapSession.values().iterator();
+        PersistentStore store = findStore(table);
 
-        while (it.hasNext()) {
-            PersistentStore store = (PersistentStore) it.next();
-
-            if (store.getTable() instanceof Table) {
-                Table current = (Table) store.getTable();
-
-                if (current.getName().equals(table.getName())) {
-                    store.resetAccessorKeys(table.getIndexList());
-                }
-            }
-        }
-
-        if (rowStoreMapTransaction.isEmpty()) {
+        if (store == null) {
             return;
         }
 
-        it = rowStoreMapTransaction.values().iterator();
+        store.resetAccessorKeys(table.getIndexList());
+    }
 
-        while (it.hasNext()) {
-            PersistentStore store = (PersistentStore) it.next();
+    public PersistentStore findStore(Table table) {
 
-            if (store.getTable() instanceof Table) {
-                Table current = (Table) store.getTable();
+        PersistentStore store = null;
 
-                if (current.getName().equals(table.getName())) {
-                    store.resetAccessorKeys(table.getIndexList());
-                }
-            }
+        switch (table.persistenceScope) {
+
+            case TableBase.SCOPE_STATEMENT :
+                store = (PersistentStore) rowStoreMapStatement.get(
+                    table.getPersistenceId());
+                break;
+
+            // SYSTEM_TABLE
+            case TableBase.SCOPE_FULL :
+            case TableBase.SCOPE_TRANSACTION :
+                store = (PersistentStore) rowStoreMapTransaction.get(
+                    table.getPersistenceId());
+                break;
+
+            case TableBase.SCOPE_SESSION :
+                store = (PersistentStore) rowStoreMapSession.get(
+                    table.getPersistenceId());
+                break;
         }
+
+        return store;
+    }
+
+    public void moveData(Table oldTable, Table newTable, int colIndex,
+                         int adjust) {
+
+        PersistentStore oldStore = findStore(oldTable);
+
+        if (oldStore == null) {
+            return;
+        }
+
+        PersistentStore newStore = getStore(newTable);
+
+        newStore.moveData(session, oldStore, colIndex, adjust);
+        setStore(oldTable, null);
     }
 }

@@ -133,7 +133,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
             // unique index violation - rollback insert
             for (--i; i >= 0; i--) {
-                indexList[i].delete(this, row);
+                indexList[i].delete(session, this, row);
             }
 
             remove(row.getPos());
@@ -180,10 +180,10 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         } catch (HsqlException e1) {}
     }
 
-    public void delete(Row row) {
+    public void delete(Session session, Row row) {
 
         for (int j = indexList.length - 1; j >= 0; j--) {
-            indexList[j].delete(this, row);
+            indexList[j].delete(session, this, row);
         }
 
         row.delete(this);
@@ -208,14 +208,14 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
                 if (txModel == TransactionManager.LOCKS) {
                     remove(row.getPos());
                 } else {
-                    delete(row);
+                    delete(session, row);
                     remove(row.getPos());
                 }
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
                 if (txModel != TransactionManager.LOCKS) {
-                    delete(row);
+                    delete(session, row);
                     remove(row.getPos());
                 }
                 break;
@@ -237,7 +237,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
 
             case RowAction.ACTION_INSERT :
                 if (txModel == TransactionManager.LOCKS) {
-                    delete(row);
+                    delete(session, row);
                     remove(row.getPos());
                 } else {}
                 break;
@@ -248,7 +248,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
                 if (txModel == TransactionManager.LOCKS) {
                     remove(row.getPos());
                 } else {
-                    delete(row);
+                    delete(session, row);
                     remove(row.getPos());
                 }
                 break;

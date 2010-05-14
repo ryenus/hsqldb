@@ -167,7 +167,7 @@ public class TableBase {
     }
 
     public final RowIterator rowIterator(PersistentStore store) {
-        return getPrimaryIndex().firstRow(store, false);
+        return getPrimaryIndex().firstRow(store);
     }
 
     public final int getIndexCount() {
@@ -462,25 +462,7 @@ public class TableBase {
             indexList[i].setPosition(i);
         }
 
-        if (tableType == TableBase.TEMP_TABLE) {
-            Session sessions[] = database.sessionManager.getAllSessions();
-
-            for (i = 0; i < sessions.length; i++) {
-                sessions[i].sessionData.persistentStoreCollection
-                    .registerIndex((Table) this);
-            }
-        } else if (tableType == TableBase.SYSTEM_TABLE) {
-            store.resetAccessorKeys(indexList);
-
-            if (session != null) {
-                PersistentStore rowStore =
-                    session.sessionData.getRowStore(this);
-
-                if (rowStore != store) {
-                    rowStore.resetAccessorKeys(indexList);
-                }
-            }
-        } else if (store != null) {
+        if (store != null) {
             try {
                 store.resetAccessorKeys(indexList);
             } catch (HsqlException e) {

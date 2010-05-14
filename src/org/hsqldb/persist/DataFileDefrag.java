@@ -280,7 +280,7 @@ final class DataFileDefrag {
             }
         }
 
-        for (int i = 0; i < table.getIndexList().length; i++) {
+        for (int i = 0; i < table.getIndexCount(); i++) {
             if (rootsArray[i] == -1) {
                 continue;
             }

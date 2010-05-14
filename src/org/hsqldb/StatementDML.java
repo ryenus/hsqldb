@@ -352,6 +352,8 @@ public class StatementDML extends StatementDMQL {
                 boolean check = updatableTableCheck.testCondition(session);
 
                 if (!check) {
+                    it.release();
+
                     throw Error.error(ErrorCode.X_44000);
                 }
             }
@@ -359,6 +361,7 @@ public class StatementDML extends StatementDMQL {
             rowset.addRow(session, row, newData, colTypes, updateColumnMap);
         }
 
+        it.release();
 /* debug 190
         if (rowset.size() == 0) {
             System.out.println(targetTable.getName().name + " zero update: session "
@@ -528,7 +531,7 @@ public class StatementDML extends StatementDMQL {
             }
 
             // row matches!
-            if (updateExpressions.length  != 0) {
+            if (updateExpressions.length != 0) {
                 Row row = it.getCurrentRow();    // this is always the second iterator
                 Object[] data = getUpdatedData(session, baseTable,
                                                updateColumnMap,
@@ -539,14 +542,22 @@ public class StatementDML extends StatementDMQL {
                     updateRowSet.addRow(session, row, data, colTypes,
                                         updateColumnMap);
                 } catch (HsqlException e) {
+                    for (int i = 0; i < joinRangeIterators.length; i++) {
+                        rangeIterators[i].reset();
+                    }
+
                     throw Error.error(ErrorCode.X_21000);
                 }
             }
         }
 
+        for (int i = 0; i < joinRangeIterators.length; i++) {
+            rangeIterators[i].reset();
+        }
+
         // run the transaction as a whole, updating and inserting where needed
         // update any matched rows
-        if (updateExpressions.length  != 0) {
+        if (updateExpressions.length != 0) {
             count = update(session, baseTable, updateRowSet);
         }
 
@@ -578,7 +589,7 @@ public class StatementDML extends StatementDMQL {
     void insertRowSet(Session session, RowSetNavigator generatedNavigator,
                       RowSetNavigator newData) {
 
-        PersistentStore store = baseTable.getRowStore(session);
+        PersistentStore store         = baseTable.getRowStore(session);
         RangeIterator   checkIterator = null;
 
         if (updatableTableCheck != null) {
@@ -800,11 +811,11 @@ public class StatementDML extends StatementDMQL {
         navigator.beforeFirst();
 
         for (int i = 0; i < navigator.getSize(); i++) {
-            Row      row            = navigator.getNextRow();
-            Object[] data           = navigator.getCurrentChangedData();
-            Table    currentTable   = ((Table) row.getTable());
-            int[]    changedColumns = navigator.getCurrentChangedColumns();
-            PersistentStore store = currentTable.getRowStore(session);
+            Row             row          = navigator.getNextRow();
+            Object[]        data         = navigator.getCurrentChangedData();
+            Table           currentTable = ((Table) row.getTable());
+            int[] changedColumns = navigator.getCurrentChangedColumns();
+            PersistentStore store        = currentTable.getRowStore(session);
 
             if (data == null) {
                 continue;
@@ -894,6 +905,8 @@ public class StatementDML extends StatementDMQL {
             navigator.addRow(currentRow);
         }
 
+        it.release();
+
         if (navigator.getSize() > 0) {
             count = delete(session, baseTable, navigator);
         } else {
@@ -910,7 +923,7 @@ public class StatementDML extends StatementDMQL {
     Result executeDeleteTruncateStatement(Session session) {
 
         PersistentStore store = targetTable.getRowStore(session);
-        RowIterator it = targetTable.getPrimaryIndex().firstRow(store, true);
+        RowIterator     it    = targetTable.getPrimaryIndex().firstRow(store);
 
         try {
             while (it.hasNext()) {
@@ -998,10 +1011,10 @@ public class StatementDML extends StatementDMQL {
 
         if (hasUpdate) {
             for (int i = 0; i < navigator.getSize(); i++) {
-                Row      row            = navigator.getNextRow();
-                Object[] data           = navigator.getCurrentChangedData();
-                Table    currentTable   = ((Table) row.getTable());
-                int[]    changedColumns = navigator.getCurrentChangedColumns();
+                Row             row          = navigator.getNextRow();
+                Object[]        data = navigator.getCurrentChangedData();
+                Table           currentTable = ((Table) row.getTable());
+                int[] changedColumns = navigator.getCurrentChangedColumns();
                 PersistentStore store = currentTable.getRowStore(session);
 
                 if (data == null) {
@@ -1176,6 +1189,8 @@ public class StatementDML extends StatementDMQL {
             RowIterator refiterator = c.findFkRef(session, row.getData());
 
             if (!refiterator.hasNext()) {
+                refiterator.release();
+
                 continue;
             }
 
@@ -1262,6 +1277,8 @@ public class StatementDML extends StatementDMQL {
                             c.core.refName.name, c.core.refTable.getName().name
                         };
 
+                        refiterator.release();
+
                         throw Error.error(null, errorCode,
                                           ErrorCode.CONSTRAINT, info);
                     }
@@ -1282,6 +1299,8 @@ public class StatementDML extends StatementDMQL {
                                           path);
                 path.remove(c);
             }
+
+            refiterator.release();
         }
     }
 }

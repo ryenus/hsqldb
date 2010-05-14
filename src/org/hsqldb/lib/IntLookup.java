@@ -41,7 +41,7 @@ import java.util.NoSuchElementException;
  */
 public interface IntLookup {
 
-    boolean add(int key, int value);
+    int add(int key, int value);
 
     int lookupFirstEqual(int key) throws NoSuchElementException;
 

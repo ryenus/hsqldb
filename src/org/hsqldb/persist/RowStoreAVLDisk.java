@@ -180,7 +180,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
             // unique index violation - rollback insert
             for (--i; i >= 0; i--) {
-                indexList[i].delete(this, row);
+                indexList[i].delete(session, this, row);
             }
 
             remove(row.getPos());
@@ -236,7 +236,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                 break;
 
             case RowAction.ACTION_DELETE_FINAL :
-                delete(row);
+                delete(session, row);
 
                 // remove after delete
                 database.txManager.removeTransactionInfo(row);
@@ -262,7 +262,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
             case RowAction.ACTION_INSERT :
                 if (txModel == TransactionManager.LOCKS) {
-                    delete(row);
+                    delete(session, row);
                     remove(row.getPos());
                 }
                 break;

@@ -761,7 +761,11 @@ public final class RangeVariable implements Cloneable {
             throw Error.runtimeError(ErrorCode.U_S0500, "RangeVariable");
         }
 
-        public void release() {}
+        public void release() {
+            if (it != null) {
+                it.release();
+            }
+        }
     }
 
     public static class RangeIteratorMain extends RangeIteratorBase {
@@ -1200,6 +1204,17 @@ public final class RangeVariable implements Cloneable {
         }
 
         public void remove() {}
+
+        public void release() {
+
+            if (it != null) {
+                it.release();
+            }
+
+            for (int i = 0; i < rangeIterators.length; i++) {
+                rangeIterators[i].reset();
+            }
+        }
 
         public void reset() {
 
