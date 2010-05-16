@@ -92,6 +92,9 @@ public class Routine implements SchemaObject {
     Statement        statement;
 
     //
+    boolean isAggregate;
+
+    //
     private String  methodName;
     Method          javaMethod;
     boolean         javaMethodWithConnection;
@@ -184,6 +187,10 @@ public class Routine implements SchemaObject {
         StringBuffer sb = new StringBuffer();
 
         sb.append(Tokens.T_CREATE).append(' ');
+
+        if (isAggregate) {
+            sb.append(Tokens.T_AGGREGATE).append(' ');
+        }
 
         if (routineType == SchemaObject.PROCEDURE) {
             sb.append(Tokens.T_PROCEDURE);
@@ -433,6 +440,14 @@ public class Routine implements SchemaObject {
         return returnsTable;
     }
 
+    public void setAggregate(boolean isAggregate) {
+        this.isAggregate = isAggregate;
+    }
+
+    public boolean isAggregate() {
+        return isAggregate;
+    }
+
     public void resolve(Session session) {
 
         if (routineType == SchemaObject.PROCEDURE && isNewSavepointLevel
@@ -497,6 +512,33 @@ public class Routine implements SchemaObject {
 
             if (className.equals("java.lang.Math")) {
                 isLibraryRoutine = true;
+            }
+        }
+
+        if (isAggregate) {
+            if (parameterTypes.length != 4) {
+                throw Error.error(ErrorCode.X_42610);
+            }
+
+            boolean check = parameterTypes[1].typeCode == Types.BOOLEAN;
+
+            //
+            ColumnSchema param = (ColumnSchema) parameterList.get(0);
+
+            check &= param.getParameterMode()
+                     == SchemaObject.ParameterModes.PARAM_IN;
+            param = (ColumnSchema) parameterList.get(1);
+            check &= param.getParameterMode()
+                     == SchemaObject.ParameterModes.PARAM_IN;
+            param = (ColumnSchema) parameterList.get(2);
+            check &= param.getParameterMode()
+                     == SchemaObject.ParameterModes.PARAM_INOUT;
+            param = (ColumnSchema) parameterList.get(3);
+            check &= param.getParameterMode()
+                     == SchemaObject.ParameterModes.PARAM_INOUT;
+
+            if (!check) {
+                throw Error.error(ErrorCode.X_42610);
             }
         }
 

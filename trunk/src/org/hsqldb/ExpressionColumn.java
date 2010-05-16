@@ -571,8 +571,6 @@ public class ExpressionColumn extends Expression {
                 return "*";
 
             case OpTypes.COALESCE :
-
-//                return columnName;
                 return alias.getStatementName();
 
             case OpTypes.VARIABLE :
@@ -879,6 +877,9 @@ public class ExpressionColumn extends Expression {
         return false;
     }
 
+    /**
+     * SIMPLE_COLUMN expressions can be of different Java types
+     */
     public boolean equals(Expression other) {
 
         if (other == this) {
@@ -889,20 +890,20 @@ public class ExpressionColumn extends Expression {
             return false;
         }
 
-        if (opType != other.opType) {
+        if (opType != ((Expression) other).opType) {
             return false;
         }
 
         switch (opType) {
 
             case OpTypes.SIMPLE_COLUMN :
-                return this.columnIndex == other.columnIndex;
+                return this.columnIndex == ((Expression) other).columnIndex;
 
             case OpTypes.COALESCE :
-                return nodes == other.nodes;
+                return nodes == ((Expression) other).nodes;
 
             case OpTypes.COLUMN :
-                return column == other.getColumn();
+                return column == ((Expression) other).getColumn();
 
             default :
                 return false;

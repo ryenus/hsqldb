@@ -98,6 +98,7 @@ public interface OpTypes {
         ORDER_BY             = 94,
         LIMIT                = 95,
         ALTERNATIVE          = 96,
-        MULTICOLUMN          = 97
+        MULTICOLUMN          = 97,
+        USER_AGGREGATE       = 98
     ;
 }

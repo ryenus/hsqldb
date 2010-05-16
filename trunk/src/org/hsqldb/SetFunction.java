@@ -231,6 +231,10 @@ public class SetFunction implements Serializable {
 
                 return;
 
+            case OpTypes.USER_AGGREGATE :
+                currentValue = item;
+                return;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
         }
@@ -361,6 +365,9 @@ public class SetFunction implements Serializable {
             case OpTypes.VAR_SAMP :
                 return getVariance();
 
+            case OpTypes.USER_AGGREGATE :
+                return currentValue;
+
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");
         }
@@ -454,6 +461,9 @@ public class SetFunction implements Serializable {
                     return Type.SQL_DOUBLE;
                 }
                 break;
+
+            case OpTypes.USER_AGGREGATE :
+                return type;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "SetFunction");

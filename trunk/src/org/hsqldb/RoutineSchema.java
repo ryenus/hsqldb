@@ -136,6 +136,10 @@ public class RoutineSchema implements SchemaObject {
                     throw Error.error(ErrorCode.X_42605);
                 }
 
+                if (routines[i].isAggregate() != routine.isAggregate()) {
+                    throw Error.error(ErrorCode.X_42605);
+                }
+
                 boolean match = true;
 
                 for (int j = 0; j < types.length; j++) {
@@ -194,6 +198,46 @@ public class RoutineSchema implements SchemaObject {
         for (int i = 0; i < this.routines.length; i++) {
             int matchCount = 0;
 
+            if (routines[i].isAggregate()) {
+                if (types.length == 1) {
+                    if (types[0] == null) {
+                        return routines[i];
+                    }
+
+                    int typeDifference = types[0].precedenceDegree(
+                        routines[i].parameterTypes[0]);
+
+                    if (typeDifference < -NumberType.DOUBLE_WIDTH) {
+                        if (matchIndex == -1) {
+                            continue;
+                        }
+
+                        int oldDiff = types[0].precedenceDegree(
+                            routines[matchIndex].parameterTypes[0]);
+                        int newDiff = types[0].precedenceDegree(
+                            routines[i].parameterTypes[0]);
+
+                        if (oldDiff == newDiff) {
+                            continue outerLoop;
+                        }
+
+                        if (newDiff < oldDiff) {
+                            matchIndex = i;
+                        }
+
+                        continue outerLoop;
+                    } else if (typeDifference == 0) {
+                        return routines[i];
+                    } else {
+                        matchIndex = i;
+
+                        continue outerLoop;
+                    }
+                }
+
+                // treat routine as non-aggregate
+            }
+
             if (routines[i].parameterTypes.length != types.length) {
                 continue;
             }
@@ -214,6 +258,7 @@ public class RoutineSchema implements SchemaObject {
                     types[j].precedenceDegree(routines[i].parameterTypes[j]);
 
                 if (typeDifference < -NumberType.DOUBLE_WIDTH) {
+
                     // accept numeric type narrowing
                     continue outerLoop;
                 } else if (typeDifference == 0) {
@@ -286,5 +331,9 @@ public class RoutineSchema implements SchemaObject {
         }
 
         throw Error.error(ErrorCode.X_42501);
+    }
+
+    public boolean isAggregate() {
+        return routines[0].isAggregate;
     }
 }

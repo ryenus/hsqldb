@@ -36,6 +36,8 @@ import java.lang.reflect.InvocationTargetException;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCResultSet;
+import org.hsqldb.lib.ArrayListIdentity;
+import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Set;
 import org.hsqldb.result.Result;
 import org.hsqldb.store.ValuePool;
@@ -55,13 +57,32 @@ public class FunctionSQLInvoked extends Expression {
 
     FunctionSQLInvoked(RoutineSchema routineSchema) {
 
-        super(OpTypes.FUNCTION);
+        super(routineSchema.isAggregate() ? OpTypes.USER_AGGREGATE
+                                          : OpTypes.FUNCTION);
 
         this.routineSchema = routineSchema;
     }
 
     public void setArguments(Expression[] newNodes) {
         this.nodes = newNodes;
+    }
+
+    public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
+            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
+
+        if (isSelfAggregate()) {
+            if (unresolvedSet == null) {
+                unresolvedSet = new ArrayListIdentity();
+            }
+
+            unresolvedSet.add(this);
+
+            return unresolvedSet;
+        } else {
+            return super.resolveColumnReferences(rangeVarArray, rangeCount,
+                                                 unresolvedSet,
+                                                 acceptsSequences);
+        }
     }
 
     public void resolveTypes(Session session, Expression parent) {
@@ -87,7 +108,7 @@ public class FunctionSQLInvoked extends Expression {
         dataType = routine.getReturnType();
     }
 
-    private Object getValueInternal(Session session) {
+    private Object getValueInternal(Session session, Object[] aggregateData) {
 
         boolean  isValue       = false;
         int      variableCount = routine.getVariableCount();
@@ -99,7 +120,15 @@ public class FunctionSQLInvoked extends Expression {
         boolean  push        = true;
 
         if (extraArg + nodes.length > 0) {
-            data = new Object[nodes.length + extraArg];
+            if (opType == OpTypes.USER_AGGREGATE) {
+                data = new Object[routine.getParameterCount()];
+
+                for (int i = 0; i < aggregateData.length; i++) {
+                    data[i + 1] = aggregateData[i];
+                }
+            } else {
+                data = new Object[nodes.length + extraArg];
+            }
 
             if (extraArg > 0) {
                 data[0] = session.getInternalConnection();
@@ -151,6 +180,12 @@ public class FunctionSQLInvoked extends Expression {
                 }
 
                 result = routine.statement.execute(session);
+
+                if (aggregateData != null) {
+                    for (int i = 0; i < aggregateData.length; i++) {
+                        aggregateData[i] = data[i + 1];
+                    }
+                }
             } catch (Throwable e) {
                 result = Result.newErrorResult(e);
             }
@@ -172,6 +207,7 @@ public class FunctionSQLInvoked extends Expression {
                     if (returnValue instanceof JDBCResultSet) {
                         result = ((JDBCResultSet) returnValue).result;
                     } else {
+
                         // convert ResultSet to table
                         result = null;
                     }
@@ -181,7 +217,6 @@ public class FunctionSQLInvoked extends Expression {
                     isValue = true;
                     result  = Result.updateZeroResult;
                 }
-
             } catch (InvocationTargetException e) {
                 result = Result.newErrorResult(
                     Error.error(ErrorCode.X_46000, routine.getName().name),
@@ -210,7 +245,15 @@ public class FunctionSQLInvoked extends Expression {
 
     public Object getValue(Session session) {
 
-        Object returnValue = getValueInternal(session);
+        if (opType == OpTypes.SIMPLE_COLUMN) {
+            Object[] data =
+                session.sessionContext.rangeIterators[rangePosition]
+                    .getCurrent();
+
+            return data[columnIndex];
+        }
+
+        Object returnValue = getValueInternal(session, null);
 
         if (returnValue instanceof Result) {
             Result result = (Result) returnValue;
@@ -231,7 +274,7 @@ public class FunctionSQLInvoked extends Expression {
 
     public Result getResult(Session session) {
 
-        Object value = getValueInternal(session);
+        Object value = getValueInternal(session, null);
 
         if (value instanceof Result) {
             return (Result) value;
@@ -251,7 +294,13 @@ public class FunctionSQLInvoked extends Expression {
         sb.append(routineSchema.getName().getSchemaQualifiedStatementName());
         sb.append('(');
 
-        for (int i = 0; i < nodes.length; i++) {
+        int nodeCount = nodes.length;
+
+        if (opType == OpTypes.USER_AGGREGATE) {
+            nodeCount = 1;
+        }
+
+        for (int i = 0; i < nodeCount; i++) {
             if (i != 0) {
                 sb.append(',');
             }
@@ -268,7 +317,46 @@ public class FunctionSQLInvoked extends Expression {
         return super.describe(session, blanks);
     }
 
+    boolean isSelfAggregate() {
+        return routineSchema.isAggregate();
+    }
+
     public boolean isDeterministic() {
         return routine.isDeterministic();
+    }
+
+    public Object updateAggregatingValue(Session session, Object currValue) {
+
+        Object[] array = (Object[]) currValue;
+
+        if (array == null) {
+            array = new Object[3];
+        }
+
+        array[0] = Boolean.FALSE;
+
+        getValueInternal(session, array);
+
+        return array;
+    }
+
+    public Object getAggregatedValue(Session session, Object currValue) {
+
+        Object[] array = (Object[]) currValue;
+
+        if (array == null) {
+            array = new Object[3];
+        }
+
+        array[0] = Boolean.TRUE;
+
+        Result result = (Result) getValueInternal(session, array);
+        Object returnValue;
+
+        if (result.isError()) {
+            throw result.getException();
+        } else {
+            return result.getValueObject();
+        }
     }
 }

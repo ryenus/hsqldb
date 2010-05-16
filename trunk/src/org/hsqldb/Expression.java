@@ -88,6 +88,7 @@ public class Expression implements Cloneable {
         aggregateFunctionSet.add(OpTypes.STDDEV_SAMP);
         aggregateFunctionSet.add(OpTypes.VAR_POP);
         aggregateFunctionSet.add(OpTypes.VAR_SAMP);
+        aggregateFunctionSet.add(OpTypes.USER_AGGREGATE);
     }
 
     static final OrderedIntHashSet columnExpressionSet =
@@ -120,6 +121,7 @@ public class Expression implements Cloneable {
         subqueryAggregateExpressionSet.add(OpTypes.STDDEV_SAMP);
         subqueryAggregateExpressionSet.add(OpTypes.VAR_POP);
         subqueryAggregateExpressionSet.add(OpTypes.VAR_SAMP);
+        subqueryAggregateExpressionSet.add(OpTypes.USER_AGGREGATE);
 
         //
         subqueryAggregateExpressionSet.add(OpTypes.TABLE_SUBQUERY);
@@ -147,7 +149,7 @@ public class Expression implements Cloneable {
     SimpleName alias;
 
     // aggregate
-    protected boolean isAggregate;
+    private boolean isAggregate;
 
     // VALUE
     protected Object       valueData;
@@ -681,6 +683,14 @@ public class Expression implements Cloneable {
 
             nodes[i].convertToSimpleColumn(expressions, replacements);
         }
+    }
+
+    boolean isAggregate() {
+        return isAggregate;
+    }
+
+    void setAggregate() {
+        isAggregate = true;
     }
 
     boolean isSelfAggregate() {
@@ -1722,4 +1732,13 @@ public class Expression implements Cloneable {
 
         return e;
     }
+
+    public Object updateAggregatingValue(Session session, Object currValue) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+    }
+
+    public Object getAggregatedValue(Session session, Object currValue) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+    }
+
 }
