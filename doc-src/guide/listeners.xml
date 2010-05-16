@@ -231,6 +231,22 @@
           </row>
 
           <row>
+            <entry><property>server.tls</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>Whether to encrypt network stream.
+              If this is set to <literal>true</literal>, then in normal
+              situations you will also need to set properties
+              <varname>system.javax.net.ssl.keyStore</varname> and
+              <varname>system.javax.net.ssl.keyStorePassword</varname>, as
+              documented elsewhere.
+              The value of <varname>server.tls</varname> impacts the default
+              value of <varname>server.port</varname>.
+            </entry>
+          </row>
+
+          <row>
             <entry><property>server.remote_open</property></entry>
 
             <entry><literal>false</literal></entry>
@@ -242,7 +258,7 @@
       </tgroup>
     </table>
 
-    <para>In HyperSQL version 2.0, each server can serve an unlimited number
+    <para>In HyperSQL version 2.0, each server can serve an unlimited number of
     databases simultaneously. The <property>server.database.0</property>
     property defines the filename / path whereas the
     <property>server.dbname.0</property> defines the lowercase alias used by
@@ -328,7 +344,7 @@
           <row>
             <entry><property>server.port</property></entry>
 
-            <entry><literal>80</literal></entry>
+            <entry><literal>80 (normal) or 443 (if TLS encrypted)</literal></entry>
 
             <entry>TCP/IP port used for talking to clients</entry>
           </row>
@@ -653,15 +669,20 @@
 
         <simpara>Get yourself a <link xlink:href="#privatekey-sect"> JKS
         keystore containing a private key</link>. Then set properties
+        <varname>server.tls</varname>,
         <varname>system.javax.net.ssl.keyStore</varname> and
         <varname>system.javax.net.ssl.keyStorePassword</varname> in your
         <filename>server.properties</filename> or
         <filename>webserver.properties</filename> file. Set
+        <varname>server.tls</varname> to <literal>true</literal>,
         <varname>system.javax.net.ssl.keyStore</varname> to the path of the
-        private key JKD keystore, and
+        private key JKS keystore, and
         <varname>system.javax.net.ssl.keyStorePassword</varname> to the
         password (of both the keystore and the private key record-- they must
-        be the same).</simpara>
+        be the same).
+        If you specify relative file path values, they will be resolved
+        relative to the <varname>${user.dir}</varname> when the JRE is started.
+        </simpara>
 
         <caution xml:id="tlspassword-caution">
           <para>If you set any password in a .properties (or any other) file,
@@ -671,16 +692,16 @@
             </informalexample></para>
         </caution>
 
-        <simpara>The values and behavior of these .properties settings exactly
-        match the usage documented for
+        <simpara>The values and behavior of the <literal>system.*</literal>
+        settings above match the usage documented for
         <varname>javax.net.ssl.keyStorePassword</varname> and
-        <varname>avax.net.ssl.keyStore</varname> in the JSSE docs.</simpara>
+        <varname>javax.net.ssl.keyStore</varname> in the JSSE docs.</simpara>
 
         <note>
           <simpara>Before version 2.0, HyperSQL depended on directly setting
           the corresponding JSSE properties. The new idiom is more secure and
-          easier to manage. If you have an old password in your config file,
-          you should remove it.</simpara>
+          easier to manage. If you have an old password in a UNIX init script
+          config file, you should remove it.</simpara>
         </note>
       </section>
     </section>

@@ -1067,6 +1067,9 @@
                 You usually only need to set this if the server is using a
                 non-publicly-certified certificate (like a self-signed
                 self-ca'd cert).
+                Relative paths will be resolved relative to the
+                <varname>${user.dir}</varname>
+                system property at JRE invocation time.
             </simpara></listitem></varlistentry>
             <varlistentry><term>transiso</term><listitem><simpara>
                 Specify the Transaction Isolation Level with an all-caps
@@ -1136,6 +1139,7 @@
             </simpara></listitem></varlistentry>
             <varlistentry><term><varname>truststore</varname></term><listitem><simpara>
                 The TLS trust keystore file path as documented in the TLS chapter.
+                Relative paths will be resolved relative to the current directory.
             </simpara></listitem></varlistentry>
             <varlistentry><term><varname>transiso</varname></term><listitem><simpara>
                 <classname>java.sql.Connection</classname> transaction
