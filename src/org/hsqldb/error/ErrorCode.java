@@ -607,6 +607,7 @@ public interface ErrorCode {
     int X_42607 = 5607;                            // invalid SQLSTATE value
     int X_42608 = 5608;                            // wrong or missing data impact clause in declaration
     int X_42609 = 5609;                            // routine signature not found for
+    int X_42610 = 5610;                            // wrong arguments for AGGREGATE functions
 
     // with check option violation - 200x
     int X_44000 = 5700;                            // with check option violation

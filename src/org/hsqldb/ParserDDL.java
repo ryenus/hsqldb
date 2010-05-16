@@ -193,6 +193,7 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.INDEX :
                 return compileCreateIndex(false);
 
+            case Tokens.AGGREGATE :
             case Tokens.FUNCTION :
             case Tokens.PROCEDURE :
                 return compileCreateProcedureOrFunction();

@@ -325,9 +325,23 @@ public class ParserRoutine extends ParserDML {
     // SQL-invoked routine
     StatementSchema compileCreateProcedureOrFunction() {
 
-        int routineType = token.tokenType == Tokens.PROCEDURE
-                          ? SchemaObject.PROCEDURE
-                          : SchemaObject.FUNCTION;
+        int     routineType;
+        boolean isAggregate = false;
+
+        if (token.tokenType == Tokens.AGGREGATE) {
+            isAggregate = true;
+
+            read();
+
+            if (token.tokenType == Tokens.PROCEDURE) {
+                throw super.unexpectedToken();
+            }
+        }
+
+        routineType = token.tokenType == Tokens.PROCEDURE
+                      ? SchemaObject.PROCEDURE
+                      : SchemaObject.FUNCTION;
+
         HsqlName name;
 
         read();
@@ -337,6 +351,7 @@ public class ParserRoutine extends ParserDML {
         Routine routine = new Routine(routineType);
 
         routine.setName(name);
+        routine.setAggregate(isAggregate);
         readThis(Tokens.OPENBRACKET);
 
         if (token.tokenType == Tokens.CLOSEBRACKET) {
@@ -575,6 +590,11 @@ public class ParserRoutine extends ParserDML {
                 case Tokens.RETURNS : {
                     if (!set.add(Tokens.NULL) || routine.isProcedure()) {
                         throw unexpectedToken();
+                    }
+
+                    if (routine.isAggregate()) {
+                        throw Error.error(ErrorCode.X_42604,
+                                          token.tokenString);
                     }
 
                     read();
@@ -1671,7 +1691,9 @@ public class ParserRoutine extends ParserDML {
 
             case Tokens.INOUT :
                 if (routine.getType() != SchemaObject.PROCEDURE) {
-                    throw unexpectedToken();
+                    if (!routine.isAggregate()) {
+                        throw unexpectedToken();
+                    }
                 }
 
                 read();

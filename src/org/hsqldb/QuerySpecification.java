@@ -420,7 +420,7 @@ public class QuerySpecification extends QueryExpression {
                         aggregateSet.add(e);
 
                         isAggregated           = true;
-                        expression.isAggregate = true;
+                        expression.setAggregate();
                     }
 
                     if (resolvedSubqueryExpressions == null) {
@@ -705,9 +705,10 @@ public class QuerySpecification extends QueryExpression {
 
             for (int i = indexStartAggregates, j = 0;
                     i < indexLimitExpressions; i++, j++) {
-                ExpressionAggregate e = (ExpressionAggregate) tempSet.get(j);
+                Expression e = (Expression) tempSet.get(j);
 
-                exprColumns[i]          = new ExpressionAggregate(e);
+                exprColumns[i]          = e.duplicate();
+                exprColumns[i].nodes = e.nodes; // keep original nodes
                 exprColumns[i].dataType = e.dataType;
             }
 
@@ -960,7 +961,7 @@ public class QuerySpecification extends QueryExpression {
                     continue;
                 }
 
-                if (!e.isAggregate
+                if (!e.isAggregate()
                         && !e.isComposedOf(
                             exprColumns, 0,
                             indexLimitVisible + groupByColumnCount,
@@ -990,7 +991,7 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0; i < indexStartHaving; i++) {
-            if (exprColumns[i].isAggregate) {
+            if (exprColumns[i].isAggregate()) {
                 continue;
             }
 
@@ -1009,21 +1010,21 @@ public class QuerySpecification extends QueryExpression {
         for (int i = 0; i < orderCount; i++) {
             Expression e = (Expression) sortAndSlice.exprList.get(i);
 
-            if (e.getLeftNode().isAggregate) {
-                e.isAggregate = true;
+            if (e.getLeftNode().isAggregate()) {
+                e.setAggregate();
             }
         }
 
         for (int i = indexStartOrderBy; i < indexStartAggregates; i++) {
-            if (exprColumns[i].getLeftNode().isAggregate) {
-                exprColumns[i].isAggregate = true;
+            if (exprColumns[i].getLeftNode().isAggregate()) {
+                exprColumns[i].setAggregate();
             }
         }
 
         for (int i = 0; i < indexStartAggregates; i++) {
             Expression e = exprColumns[i];
 
-            if (!e.isAggregate) {
+            if (!e.isAggregate()) {
                 continue;
             }
 
@@ -1283,9 +1284,8 @@ public class QuerySpecification extends QueryExpression {
 
             for (int i = indexStartAggregates; i < indexLimitExpressions;
                     i++) {
-                data[i] =
-                    ((ExpressionAggregate) exprColumns[i])
-                        .updateAggregatingValue(session, data[i]);
+                data[i] = exprColumns[i].updateAggregatingValue(session,
+                        data[i]);
             }
 
             if (groupData == null) {
@@ -1340,10 +1340,8 @@ public class QuerySpecification extends QueryExpression {
 
                 for (int i = indexStartAggregates; i < indexLimitExpressions;
                         i++) {
-                    ExpressionAggregate aggregate =
-                        (ExpressionAggregate) exprColumns[i];
-
-                    data[i] = aggregate.getAggregatedValue(session, data[i]);
+                    data[i] = exprColumns[i].getAggregatedValue(session,
+                            data[i]);
                 }
 
                 for (int i = 0; i < indexStartAggregates; i++) {

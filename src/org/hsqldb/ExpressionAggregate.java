@@ -57,14 +57,6 @@ public class ExpressionAggregate extends Expression {
         nodes[LEFT]         = e;
     }
 
-    ExpressionAggregate(ExpressionAggregate e) {
-
-        super(e.opType);
-
-        isDistinctAggregate = e.isDistinctAggregate;
-        nodes               = e.nodes;
-    }
-
     boolean isSelfAggregate() {
         return true;
     }
@@ -238,20 +230,18 @@ public class ExpressionAggregate extends Expression {
         dataType = SetFunction.getType(opType, nodes[LEFT].dataType);
     }
 
-    public boolean equals(Expression other) {
+    public boolean equals(Object other) {
 
-        if (other == this) {
-            return true;
-        }
-
-        if (other == null) {
+        if (!(other instanceof ExpressionAggregate)) {
             return false;
         }
 
-        return opType == other.opType && exprSubType == other.exprSubType
+        return opType == ((ExpressionAggregate) other).opType
+               && exprSubType == ((ExpressionAggregate) other).exprSubType
                && isDistinctAggregate
                   == ((ExpressionAggregate) other)
-                      .isDistinctAggregate && equals(nodes, other.nodes);
+                      .isDistinctAggregate && equals(nodes,
+                          ((ExpressionAggregate) other).nodes);
     }
 
     public Object updateAggregatingValue(Session session, Object currValue) {
