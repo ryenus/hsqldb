@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
-         xml:id="dataaccess-chapt"
+<chapter version="5.0" xml:id="dataaccess-chapt"
+         xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns5="http://www.w3.org/2000/svg"
@@ -276,6 +276,38 @@ Statement st;
 c.setAutoCommit(false);
 st = c.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
 st = c.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);</programlisting>
+    </section>
+
+    <section>
+      <title>JDBC Parameters</title>
+
+      <para>When a JDBC PreparedStatement or CallableStatement is used with an
+      SQL statement that contains dynamic parameters, the data types of the
+      parameters are resolved and determined by the engine when the statement
+      is prepared. The SQL Standard has detailed rules to determine the data
+      types and imposes limits on the maximum length or precision of the
+      parameter. HyperSQL applies the standard rules with two exceptions for
+      parameters with String and BigDecimal Java types. HyperSQL ignores the
+      limits when the parameter value is set, and only enforces the necessary
+      limits when the PreparedStatement is executed. In all other cases,
+      parameter type limits are checked and enforce when the parameter is
+      set.</para>
+
+      <para>In the example below the setString() calls do not raise an
+      exception, but one of the execute() statements does.</para>
+
+      <programlisting>// table definition: CREATE TABLE T (NAME VARCHAR(12), ...)
+Connection c = newConnection();
+PreparedStatement st = c.prepareStatement("SELECT * FROM T WHERE NAME = ?");
+// type of the parameter is VARCHAR(12), which limits length to 12 characters
+st.setString(1, "Eyjafjallajokull"); // string is longer than type, but no exception is raised here
+set.execute(); // executes with no exception and does not find any rows
+// but if an UPDATE is attempted, an exception is raised
+st = c.prepareStatement("UPDATE T SET NAME = ? WHERE ID = 10");
+st.setString(1, "Eyjafjallajokull"); // string is longer than type, but no exception is raised here
+st.execute(); // exception is thrown when HyperSQL checks the value for update
+
+</programlisting>
     </section>
   </section>
 

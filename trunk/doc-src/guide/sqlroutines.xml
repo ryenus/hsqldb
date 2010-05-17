@@ -49,6 +49,9 @@
   definition is retained and enhanced in the latest version by extending the
   SQL/JRT specification.</para>
 
+  <para>HyperSQL also supports user defined aggregate functions written in the
+  SQL language. This feature is an extension to the SQL Standard.</para>
+
   <para>SQL-invoked routines are schema objects. Naming and referencing
   follows conventions common to all schema objects. The same routine name can
   be defined in two different schemas and used with schema-qualified
@@ -80,7 +83,7 @@
     </listitem>
 
     <listitem>
-      <para>can be overloaded</para>
+      <para>can be polymorphic</para>
     </listitem>
   </itemizedlist>
 
@@ -108,7 +111,7 @@
     </listitem>
 
     <listitem>
-      <para>can be overloaded</para>
+      <para>can be polymorphic</para>
     </listitem>
   </itemizedlist>
 
@@ -249,7 +252,7 @@
       next example, a variable is used to hold the IDENTITY value. In
       addition, the formal parameters of the procedure are identified as input
       parameters with the use of the optional IN keyword. This procedure does
-      exactly the same job as the other procedure.</para>
+      exactly the same job as the procedure in the previous example.</para>
 
       <programlisting>CREATE PROCEDURE new_customer(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
     MODIFIES SQL DATA
@@ -385,7 +388,7 @@
       expression&gt;</literal></simpara>
 
       <para>In the example below, the result of the SELECT is assigned to two
-      OUT or INOUT  parameters. The SELECT must return one row. If it returns
+      OUT or INOUT arguments. The SELECT must return one row. If it returns
       more than one, an exception is raised. If it returns no row, no change
       is made to ARG1 and ARG2.</para>
 
@@ -401,7 +404,7 @@
       <title>Select Statement : Single Row</title>
 
       <para>A special form of SELECT can also be used for assigning values
-      from a query to one or more parameters or variables. This works similar
+      from a query to one or more arguments or variables. This works similar
       to a SET statement that has a SELECT statement as the source.</para>
 
       <indexterm significance="preferred" type="sql">
@@ -434,10 +437,10 @@
       An IN parameter is an input to the procedure and is passed by value. The
       value cannot be modified inside the procedure body. An OUT parameter is
       a reference for output. An INOUT parameter is a reference for both input
-      and output. An OUT or INOUT parameter is passed by reference, therefore
-      only a dynamic parameter argument or a variable within an enclosing
-      procedure can be passed for it. The assignment statement is used to
-      assign a value to an OUT or INOUT parameter.</para>
+      and output. An OUT or INOUT parameter argument is passed by reference,
+      therefore only a dynamic parameter argument or a variable within an
+      enclosing procedure can be passed for it. The assignment statement is
+      used to assign a value to an OUT or INOUT parameter.</para>
 
       <para>In the example below, the procedure is declared with an OUT
       parameter.</para>
@@ -458,7 +461,7 @@
       inside the procedure.</para>
 
       <para>In the example below, a session variable,
-      <literal>the_new_id</literal> is declared. Afther the call to
+      <literal>the_new_id</literal> is declared. After the call to
       <literal>new_customer</literal>, the value for the identity is stored in
       <literal>the_new_id</literal> variable. This is returned via the next
       CALL statement. Alternatively, <literal>the_new_id</literal> can be used
@@ -670,7 +673,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       <simpara>Signal and Resignal Statements</simpara>
 
       <para>The SIGNAL statement is used to throw an exception (or force an
-      excpetion). When invoked, any exception handler for the given exception
+      exception). When invoked, any exception handler for the given exception
       is in turn invoked. If there is no handler, the exception is propagated
       to the enclosing context.</para>
 
@@ -687,7 +690,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
     </section>
 
     <section>
-      <title>Routine Overloading</title>
+      <title>Routine Polymorphism</title>
 
       <para>More than one version of a routine can be created.</para>
 
@@ -771,6 +774,121 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
   </section>
 
   <section>
+    <title>SQL Language Aggregate Functions</title>
+
+    <para>HyperSQL adds an extension to the SQL Standard to allow user defined
+    aggregate functions. A user defined aggregate function has a single
+    parameter when it is used in SQL statements. Unlike the predefined
+    aggregate functions, the keyword DISTINCT cannot be used when a user
+    defined aggregate function is invoked. Like all user defined functions, an
+    aggregate function belongs to a schema and can be polymorphic.</para>
+
+    <para>A user defined aggregate function can be used in SQL statements
+    where a predefined aggregate function is allowed.</para>
+
+    <section>
+      <title>Definition of Aggregate Functions</title>
+
+      <para>An aggregate function is always defined with 4 parameters. The
+      first parameter is the parameter that is used when the function is
+      invoked in SQL statements, the rest of the parameter are invisible to
+      the invoking statement. The type of the first parameter is user defined.
+      The type of the second parameter must be BOOLEAN. The third and fourth
+      parameters have user defined types and must be defined as INOUT
+      parameters. The defined return type of the function determines the type
+      of the value returned when the function is invoked.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE AGGREGATE FUNCTION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE AGGREGATE
+      FUNCTION</emphasis></simpara>
+
+      <simpara><emphasis>user defined aggregate function
+      definition</emphasis></simpara>
+
+      <para>Aggregate function definition is similar to normal function
+      definition and has the mandatory <literal>&lt;returns
+      clause&gt;</literal>. The BNF is given below.</para>
+
+      <simpara><literal>&lt;user defined aggregate function&gt; ::= CREATE
+      AGGREGATE FUNCTION &lt;schema qualified routine name&gt; &lt;SQL
+      aggregate parameter declaration list&gt; &lt;returns clause&gt;
+      &lt;routine characteristics&gt; &lt;routine body&gt;</literal></simpara>
+
+      <para>The parameter declaration list BNF is given below. The type of the
+      first parameter is used when the function is invoked as part of an SQL
+      statement. When multiple versions of a function are required, each
+      version will have the first parameter of a different type.</para>
+
+      <simpara><literal>&lt;SQL aggregate declaration list&gt; ::= &lt;left
+      paren&gt; [IN] [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt;
+      &lt;comma&gt; [IN] &lt;SQL parameter name&gt; BOOLEAN &lt;comma&gt;
+      INOUT [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt;
+      &lt;comma&gt; INOUT [ &lt;SQL parameter name&gt; ] &lt;parameter
+      type&gt; &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;SQL parameter declaration&gt; ::= [ &lt;parameter
+      mode&gt; ] [ &lt;SQL parameter name&gt; ] &lt;parameter
+      type&gt;</literal></simpara>
+
+      <para>The return type is user defined. This is the type of the resulting
+      value when the function is called. Usually an aggregate function is
+      defined with CONTAINS SQL, as it normally does not read the data in
+      database tables, but it is possible to define the function with READS
+      SQL DATA and access the database tables.</para>
+
+      <para>HyperSQL invokes the aggregate function, with all the arguments
+      set, once per each row in order to compute the values. Finally, it
+      invokes the function once more to return the final result.</para>
+
+      <para>In the computation phase, the first argument is the value of the
+      user argument as specified in the SQL statement, computed for the
+      current row. The second argument is the boolean FALSE. The third and
+      fourth argument values are initially null, but they can be updated in
+      the body of the function during each invocation. The third and fourth
+      arguments act as registers and hold their values between invocation. The
+      return value of the function is ignored during the computation phase
+      (when the second parameter is FALSE).</para>
+
+      <para>After the computation phase, the function is invoked once more to
+      get the final result. In this invocation, the first parameter is NULL
+      and the second argument is boolean TRUE. The third and fourth parameters
+      hold the values they held at the end of the last invocation. The value
+      returned by the function in this invocation is used as the result of the
+      aggregate function computation in the invoking SQL statement. In SQL
+      queries with GROUP BY, the call sequence is repeated for each separate
+      group.</para>
+
+      <para>The example below features a user defined version of the Standard
+      AVG(&lt;value expression&gt;) aggregate function for INTEGER input and
+      output types. This function behaves differently from the Standard AVG
+      function as it returns 0 when all the input values are null.</para>
+
+      <programlisting>CREATE AGGREGATE FUNCTION udavg(IN x INTEGER, IN flag BOOLEAN, INOUT addup BIGINT, INOUT counter INT)
+    RETURNS INTEGER
+    CONTAINS SQL
+    BEGIN ATOMIC
+      IF flag THEN
+        RETURN addup / counter;
+      ELSE
+        SET counter = COALESCE(counter, 0) + 1;
+        SET addup = COALESCE(addup, 0) + COALESCE(x, 0);
+        RETURN NULL;
+      END IF;
+    END
+</programlisting>
+
+      <para>The example below the user defined aggregate function is used in a
+      select statement. Only the first parameter is visible and utilised in
+      the select statement.</para>
+
+      <programlisting>SELECT udavg(id) FROM customers GROUP BY lastname;</programlisting>
+    </section>
+  </section>
+
+  <section>
     <title>Java Language Routines (SQL/JRT)</title>
 
     <para>The body of a Java language routine is a static method of a Java
@@ -782,11 +900,11 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     the function is invoked.</para>
 
     <programlisting>CREATE FUNCTION zero_pad(x BIGINT, digits INT, maxsize INT)
-   RETURNS CHAR VARYING(100)
-   NO SQL
-   LANGUAGE JAVA PARAMETER STYLE JAVA
-   EXTERNAL NAME
-   'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString'</programlisting>
+    RETURNS CHAR VARYING(100)
+    NO SQL
+    LANGUAGE JAVA PARAMETER STYLE JAVA
+    EXTERNAL NAME
+    'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString'</programlisting>
 
     <para>The signature of the Java method (used in the Java code but not in
     SQL code to create the function) is given below:</para>
@@ -894,19 +1012,20 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     fraction is silently truncated and no exception of warning is
     raised.</para>
 
-    <para>Overloading</para>
+    <section>
+      <title>Polymorphism</title>
 
-    <para>If two versions of the same SQL invoked routine with different
-    parameter types are required, they can be defined to point to the same
-    method name or different method names, or even methods in different
-    classes. In the example below, the first two definitions refer to the same
-    method name in the same class. In the Java class, the two static methods
-    are defined with corresponding method signatures.</para>
+      <para>If two versions of the same SQL invoked routine with different
+      parameter types are required, they can be defined to point to the same
+      method name or different method names, or even methods in different
+      classes. In the example below, the first two definitions refer to the
+      same method name in the same class. In the Java class, the two static
+      methods are defined with corresponding method signatures.</para>
 
-    <para>In the third example, the Java function returns a result set and the
-    SQL declaration includes RETURNS TABLE.</para>
+      <para>In the third example, the Java function returns a result set and
+      the SQL declaration includes RETURNS TABLE.</para>
 
-    <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIME)
+      <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIME)
     RETURNS TIME
     NO SQL
     LANGUAGE JAVA PARAMETER STYLE JAVA
@@ -925,10 +1044,14 @@ CREATE FUNCTION testquery(INTEGER)
     EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getQueryResult'
 </programlisting>
 
-    <para>In the Java class:</para>
+      <para>In the Java class:</para>
 
-    <programlisting>    public static java.sql.Time nowLessAnHour(java.sql.Time value)
+      <programlisting>    public static java.sql.Time nowLessAnHour(java.sql.Time value) {
+        ...
+    }
     public static java.sql.Timestamp nowLessAnHour(java.sql.Timestamp value)
+        ...
+    }
 
     public static ResultSet getQueryResult(Connection connection, int i) throws SQLException {
         Statement st = connection.createStatement();
@@ -936,19 +1059,22 @@ CREATE FUNCTION testquery(INTEGER)
     }
 
 </programlisting>
+    </section>
 
-    <para>Legacy Support</para>
+    <section>
+      <title>Legacy Support</title>
 
-    <para>The legacy HyperSQL statement, <literal>CREATE ALIAS &lt;name&gt;
-    FOR &lt;fully qualified java method name&gt;</literal> is no longer
-    supported directly. It is supported when importing databases and
-    translates to a special <literal>CREATE FUNCTION &lt;name&gt;</literal>
-    statement that creates the function in the PUBLIC schema.</para>
+      <para>The legacy HyperSQL statement, <literal>CREATE ALIAS &lt;name&gt;
+      FOR &lt;fully qualified java method name&gt;</literal> is no longer
+      supported directly. It is supported when importing databases and
+      translates to a special <literal>CREATE FUNCTION &lt;name&gt;</literal>
+      statement that creates the function in the PUBLIC schema.</para>
 
-    <para>The direct use of a Java method as a function is still supported but
-    deprecated. It is internally translated to a special <literal>CREATE
-    FUNCTION</literal> statement where the name of the function is the double
-    quoted, fully qualified name of the Java method used.</para>
+      <para>The direct use of a Java method as a function is still supported
+      but deprecated. It is internally translated to a special <literal>CREATE
+      FUNCTION</literal> statement where the name of the function is the
+      double quoted, fully qualified name of the Java method used.</para>
+    </section>
   </section>
 
   <section>
@@ -1035,8 +1161,8 @@ CREATE FUNCTION testquery(INTEGER)
     exception is raised at the time of invocation.</para>
 
     <para>If a <literal>&lt;returns table type&gt;</literal> is defined for an
-    SQL/PSM function, the the following expression is used inside the function
-    to return a table: <literal>RETURN TABLE ( &lt;query expression&gt;
+    SQL/PSM function, the following expression is used inside the function to
+    return a table: <literal>RETURN TABLE ( &lt;query expression&gt;
     );</literal> In the example blow, a table with two columns is
     returned.</para>
 
@@ -1119,9 +1245,10 @@ CREATE FUNCTION testquery(INTEGER)
 
     <para>External name specifies the qualified name of the Java method
     associated with this routine. Early releases of HyperSQL 2.0 only supports
-    Java methods within the classpath. The &lt;external Java reference
-    string&gt; is a quoted string which starts with CLASSPATH: and is followed
-    by the java package, class and method names seperated with dots.</para>
+    Java methods within the classpath. The <literal>&lt;external Java
+    reference string&gt;</literal> is a quoted string which starts with
+    CLASSPATH: and is followed by the java package, class and method names
+    separated with dots.</para>
 
     <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL NAME
     &lt;external Java reference string&gt; ]</literal></simpara>
