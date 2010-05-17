@@ -860,7 +860,7 @@ public final class NumberType extends Type {
     }
 
     /**
-     * Converts a value to this type
+     * Relaxes SQL parameter type enforcement for DECIMAL, allowing long values.
      */
     public Object convertToDefaultType(SessionInterface session, Object a) {
 
@@ -890,17 +890,10 @@ public final class NumberType extends Type {
             } else if (a instanceof BigDecimal) {
                 if (typeCode == Types.SQL_DECIMAL
                         || typeCode == Types.SQL_NUMERIC) {
-                    BigDecimal dec = (BigDecimal) a;
+                    return a;
 
-                    dec = dec.setScale(scale, BigDecimal.ROUND_HALF_DOWN);
-
-                    return convertToTypeLimits(session, dec);
                 }
-
-                BigDecimal dec = (BigDecimal) a;
-
-                otherType = getNumberType(Types.SQL_DECIMAL,
-                                          JavaSystem.precision(dec), scale);
+                otherType = Type.SQL_DECIMAL_DEFAULT;
             } else {
                 throw Error.error(ErrorCode.X_42561);
             }

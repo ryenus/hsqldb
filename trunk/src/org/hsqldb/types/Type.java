@@ -255,7 +255,7 @@ public abstract class Type implements SchemaObject, Cloneable {
                                          Type type);
 
     /**
-     * Convert type for JDBC. Same as convertToType, but supports non-standard
+     * Convert type for JDBC reads. Same as convertToType, but supports non-standard
      * SQL conversions supported by JDBC
      */
     public Object convertToTypeJDBC(SessionInterface session, Object a,
@@ -277,7 +277,7 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     /**
-     * Converts the object to the given type. Used for JDBC conversions.
+     * Converts the object to the given type without limit checks. Used for JDBC writes.
      */
     public abstract Object convertToDefaultType(
         SessionInterface sessionInterface, Object o);

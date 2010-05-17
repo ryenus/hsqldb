@@ -596,39 +596,38 @@ public class CharacterType extends Type {
         return convertToType(session, a, otherType);
     }
 
+    /**
+     * Relaxes SQL parameter type enforcement, allowing long strings.
+     */
     public Object convertToDefaultType(SessionInterface session, Object a) {
 
         if (a == null) {
             return a;
         }
 
+        String s;
+
         if (a instanceof Boolean) {
-            return convertToType(session, a, Type.SQL_BOOLEAN);
+            s = a.toString();
         } else if (a instanceof BigDecimal) {
-            a = JavaSystem.toString((BigDecimal) a);
-
-            return convertToType(session, a, Type.SQL_VARCHAR);
+            s = JavaSystem.toString((BigDecimal) a);
         } else if (a instanceof Number) {
-            a = a.toString();    // use shortcut
-
-            return convertToType(session, a, Type.SQL_VARCHAR);
+            s = a.toString();    // use shortcut
         } else if (a instanceof String) {
-            return convertToType(session, a, Type.SQL_VARCHAR);
+            s = (String) a;
         } else if (a instanceof java.sql.Date) {
-            String s = ((java.sql.Date) a).toString();
-
-            return convertToType(session, s, Type.SQL_VARCHAR);
+            s = ((java.sql.Date) a).toString();
         } else if (a instanceof java.sql.Time) {
-            String s = ((java.sql.Time) a).toString();
-
-            return convertToType(session, s, Type.SQL_VARCHAR);
+            s = ((java.sql.Time) a).toString();
         } else if (a instanceof java.sql.Timestamp) {
-            String s = ((java.sql.Timestamp) a).toString();
-
-            return convertToType(session, s, Type.SQL_VARCHAR);
+            s = ((java.sql.Timestamp) a).toString();
         } else {
             throw Error.error(ErrorCode.X_42561);
         }
+
+        return s;
+
+        // return convertToType(session, a, Type.SQL_VARCHAR);
     }
 
     public String convertToString(Object a) {
