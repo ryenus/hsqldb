@@ -134,6 +134,7 @@
     <programlisting>CREATE FUNCTION an_hour_before (t TIMESTAMP)
     RETURNS TIMESTAMP
     RETURN t - 1 HOUR
+
 </programlisting>
 
     <para>An example of the use of the function in an SQL statement is given
@@ -146,6 +147,7 @@
     <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname VARCHAR(50))
     MODIFIES SQL DATA
     INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
+
 </programlisting>
 
     <para>The procedure inserts a row into an existing table with the
@@ -241,7 +243,9 @@
     BEGIN ATOMIC
     INSERT INTO customers VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     INSERT INTO addresses VALUES (DEFAULT, IDENTITY(), address);
-    END</programlisting>
+    END
+
+</programlisting>
     </section>
 
     <section>
@@ -261,7 +265,9 @@
     INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     SET temp_id = IDENTITY();
     INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
-    END</programlisting>
+    END
+
+</programlisting>
 
       <para>The BNF for variable declaration is given below:</para>
 
@@ -321,7 +327,9 @@
     INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     SET temp_id = IDENTITY();
     INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
-    END</programlisting>
+    END
+
+</programlisting>
 
       <para>Other types of hander are CONTINUE and EXIT handlers. A CONTINUE
       handler ignores any exception and proceeds to the next statement in the
@@ -453,7 +461,9 @@
     SET temp_id = IDENTITY();
     INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
     SET newid = temp_id;
-    END</programlisting>
+    END
+
+</programlisting>
 
       <para>In the SQL session, or in the body of another stored procedure, a
       variable must be assigned to the OUT parameter. After the procedure
@@ -470,6 +480,7 @@
       <programlisting>DECLARE the_new_id INT DEFAULT NULL;
 CALL new_customer(the_new_id, 'John', 'Smith', '10 Parliament Square'); 
 CALL the_new_id;
+
 </programlisting>
     </section>
 
@@ -504,7 +515,7 @@ CALL the_new_id;
     SET my_var = my_var - 1;
     IF my_var = 10 THEN SET my_var = 8; END IF;
     IF my_var = 22 THEN LEAVE loop_label; END IF;
-END WHILE loop_label;
+    END WHILE loop_label;
 
 </programlisting>
     </section>
@@ -552,7 +563,9 @@ END WHILE loop_label;
     WHEN 22, 23 THEN INSERT INTO t_one ...;
     WHEN IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
     ELSE UPDATE t_one ...;
-    END CASE</programlisting>
+    END CASE
+
+</programlisting>
 
       <para>The searched case statement uses one or more search conditions,
       and for each search condition, it specifies one or more SQL statements
@@ -575,7 +588,9 @@ END WHILE loop_label;
     WHEN var_one IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
     WHEN var_two IS NULL THEN UPDATE t_one ...;
     ELSE UPDATE t_one ...;
-END CASE</programlisting>
+    END CASE
+
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>IF STATEMENT</primary>
@@ -643,6 +658,7 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
     SET max_event = SELECT MAX(event_time) FROM atable WHERE event_type = e_type;
     RETURN max_event - 1 HOUR;
     END
+
 </programlisting>
     </section>
 
@@ -724,7 +740,9 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     RETURN t - 1 HOUR;
     ELSE
     RETURN CURRENT_TIME;
-    END CASE</programlisting>
+    END CASE
+
+</programlisting>
 
       <para>more ..</para>
     </section>
@@ -829,10 +847,6 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       &lt;comma&gt; INOUT [ &lt;SQL parameter name&gt; ] &lt;parameter
       type&gt; &lt;right paren&gt;</literal></simpara>
 
-      <simpara><literal>&lt;SQL parameter declaration&gt; ::= [ &lt;parameter
-      mode&gt; ] [ &lt;SQL parameter name&gt; ] &lt;parameter
-      type&gt;</literal></simpara>
-
       <para>The return type is user defined. This is the type of the resulting
       value when the function is called. Usually an aggregate function is
       defined with CONTAINS SQL, as it normally does not read the data in
@@ -862,9 +876,10 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       group.</para>
 
       <para>The example below features a user defined version of the Standard
-      AVG(&lt;value expression&gt;) aggregate function for INTEGER input and
-      output types. This function behaves differently from the Standard AVG
-      function as it returns 0 when all the input values are null.</para>
+      <literal>AVG(&lt;value expression&gt;)</literal> aggregate function for
+      INTEGER input and output types. This function behaves differently from
+      the Standard AVG function as it returns 0 when all the input values are
+      null.</para>
 
       <programlisting>CREATE AGGREGATE FUNCTION udavg(IN x INTEGER, IN flag BOOLEAN, INOUT addup BIGINT, INOUT counter INT)
     RETURNS INTEGER
@@ -878,6 +893,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
         RETURN NULL;
       END IF;
     END
+
 </programlisting>
 
       <para>The example below the user defined aggregate function is used in a
@@ -904,7 +920,9 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     NO SQL
     LANGUAGE JAVA PARAMETER STYLE JAVA
     EXTERNAL NAME
-    'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString'</programlisting>
+    'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString'
+
+</programlisting>
 
     <para>The signature of the Java method (used in the Java code but not in
     SQL code to create the function) is given below:</para>
@@ -1042,6 +1060,7 @@ CREATE FUNCTION testquery(INTEGER)
     READS SQL DATA
     LANGUAGE JAVA
     EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getQueryResult'
+
 </programlisting>
 
       <para>In the Java class:</para>
@@ -1197,6 +1216,8 @@ CREATE FUNCTION testquery(INTEGER)
       <primary>routine body</primary>
     </indexterm>
 
+    <simpara><emphasis role="bold">routine body</emphasis></simpara>
+
     <simpara><emphasis>routine body</emphasis></simpara>
 
     <para>Routine body is either one or more SQL statements or a Java
@@ -1226,6 +1247,8 @@ CREATE FUNCTION testquery(INTEGER)
     <indexterm significance="preferred" type="sql">
       <primary>SQL routine body</primary>
     </indexterm>
+
+    <simpara><emphasis role="bold">SQL routine body</emphasis></simpara>
 
     <simpara><emphasis>SQL routine body</emphasis></simpara>
 
@@ -1322,16 +1345,33 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
 </programlisting>
 
-    <para>Determinism and Data Impact</para>
+    <indexterm significance="preferred" type="sql">
+      <primary>DETERMINISTIC characteristic</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">DETERMINISTIC</emphasis></simpara>
+
+    <simpara><emphasis>deterministic characteristic</emphasis></simpara>
 
     <para>The <literal>&lt;deterministic characteristic&gt;</literal> clause
-    indicates that an SQL/JRT routine is deterministic or not. Deterministic
-    means the routine does not reference random values, external variables, or
-    time of invocation. The default is <literal>NOT
-    DETERMINISTIC</literal>.</para>
+    indicates that a routine is deterministic or not. Deterministic means the
+    routine does not reference random values, external variables, or time of
+    invocation. The default is <literal>NOT DETERMINISTIC</literal>. It is
+    essential to declare this characteristics correctly for an SQL/JRT
+    routine, as the engine does not know the contents of the Java code, which
+    could include calls to methods returning random or time sensitive
+    values.</para>
 
     <simpara><literal>&lt;deterministic characteristic&gt; ::= DETERMINISTIC |
     NOT DETERMINISTIC</literal></simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SQL DATA access characteristic</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SQL DATA access</emphasis></simpara>
+
+    <simpara><emphasis>SQL DATA access characteristic</emphasis></simpara>
 
     <para>The <literal>&lt;SQL-data access indication&gt;</literal>  clause
     indicates the extent to which a routine interacts with the database or the
@@ -1365,7 +1405,13 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
     <simpara><literal>&lt;null-call clause&gt; ::= RETURNS NULL ON NULL INPUT
     | CALLED ON NULL INPUT</literal></simpara>
 
-    <para>Transaction Impact</para>
+    <indexterm significance="preferred" type="sql">
+      <primary>SAVEPOINT LEVEL</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SAVEPOINT LEVEL</emphasis></simpara>
+
+    <simpara><emphasis>transaction impact</emphasis></simpara>
 
     <para>The <literal>&lt;savepoint level indication&gt;</literal> is used
     only for procedures and refers to the visibility of existing savepoints
