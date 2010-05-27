@@ -308,6 +308,38 @@ st.setString(1, "Eyjafjallajokull"); // string is longer than type, but no excep
 st.execute(); // exception is thrown when HyperSQL checks the value for update
 
 </programlisting>
+
+      <para>All of the above also applies to setting the values in new and
+      updated rows in updatable ResultSet objects.</para>
+
+      <para>JDBC parameters can be set with any compatible type, as supported
+      by the JDBC specification. For CLOB and BLOB types, you can use streams,
+      or create instances of BLOB or CLOB before assigning them to the
+      parameters. You can even use CLOB or BLOB objects returned from
+      connections to other RDBMS servers. The Connection.createBlob() and
+      createClob() methods can be used to create the new LOBs. For very large
+      LOB's the stream methods are preferable as they they less memory.</para>
+
+      <para>For array parameters, you must use a java.sql.Array object that
+      contains the array elements before assigning to JDBC parameters. The
+      Connection.createArrayOf(...) method can be used to create a new object,
+      or you can use an Array returned from connections to other RDBMS
+      servers.</para>
+    </section>
+
+    <section>
+      <title>JDBC Returned Values</title>
+
+      <para>The methods of the JDBC ResultSet interface can be used to return
+      values and to convert value to different types as supported by the JDBC
+      specification.</para>
+
+      <para>When a CLOB and BLOB object is returned from a ResultSet, no data
+      is transfered until the data is read by various methods of java.sql.CLOB
+      and java.sql.BLOB. Data is streamed in large blocks to avoid excessive
+      memory use.</para>
+
+      <para>Array objects are returned as instances of java.sql.Array.</para>
     </section>
   </section>
 
@@ -705,7 +737,7 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       chain&gt; | MODULE &lt;period&gt; &lt;qualified identifier&gt;
       &lt;period&gt; &lt;column name&gt;</literal></simpara>
 
-      <simpara>Reference a column.</simpara>
+      <simpara>Reference a column or a routine variable.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SQL parameter reference</primary>
@@ -719,7 +751,7 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       <simpara><literal>&lt;SQL parameter reference&gt; ::= &lt;basic
       identifier chain&gt;</literal></simpara>
 
-      <simpara>Reference an SQL parameter.</simpara>
+      <simpara>Reference an SQL routine parameter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>contextually typed value specification</primary>
@@ -753,6 +785,10 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
 
     <section>
       <title>Value Expression</title>
+
+      <para>Value expression is a general name for all expressions that return
+      a value. Different types of expressions are allowed in different
+      contexts.</para>
 
       <indexterm significance="preferred" type="sql">
         <primary>value expression primary</primary>
@@ -831,13 +867,17 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
 
       <simpara><literal>&lt;explicit row value constructor&gt; ::= &lt;left
       paren&gt; &lt;row value constructor element&gt; &lt;comma&gt; &lt;row
-      value constructor element list&gt; &lt;right paren&gt; | ROW &lt;left
-      paren&gt; &lt;row value constructor element list&gt; &lt;right paren&gt;
-      | &lt;row subquery&gt;</literal></simpara>
+      value constructor element list&gt; &lt;right paren&gt;
+      |</literal></simpara>
+
+      <simpara><literal> ROW &lt;left paren&gt; &lt;row value constructor
+      element list&gt; &lt;right paren&gt; | &lt;row
+      subquery&gt;</literal></simpara>
 
       <simpara>Specify a row consisting of one or more elements. A comma
       separated list of expressions, enclosed in brackets, with the optional
-      keyword ROW.</simpara>
+      keyword ROW. In SQL, a row containing a single element can often be used
+      where a single value is expected.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>set function specification</primary>
@@ -881,7 +921,8 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       <simpara>The type of the return value of a COALESCE expression is the
       aggregate type of the types of all the <literal>&lt;value
       expression&gt;</literal> instances. Therefore, any value returned is
-      implicitly cast to this type.</simpara>
+      implicitly cast to this type. HyperSQL also features built-in functions
+      with similar functionality.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>NULLIF expression</primary>
@@ -996,6 +1037,9 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       is a literal representation of the value in the target type. Special
       conversions are possible between numeric and interval types, which are
       described in the section covering interval types.</simpara>
+
+      <simpara>The examples below show examples of cast with their
+      result:</simpara>
 
       <programlisting>CAST (NULL AS TIMESTAMP)
 CAST ('   199  ' AS INTEGER) = 199
@@ -1429,7 +1473,11 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       NOT ] IN &lt;in predicate value&gt;</literal></simpara>
 
       <simpara><literal>&lt;in predicate value&gt; ::= &lt;table subquery&gt;
-      | &lt;left paren&gt; &lt;in value list&gt; &lt;right
+      | &lt;left paren&gt; &lt;in value list&gt; &lt;right paren&gt;
+      </literal></simpara>
+
+      <simpara><literal>| &lt;left paren&gt; UNNEST &lt;left paren&gt;
+      &lt;array value expression&gt; &lt;right paren&gt; &lt;right
       paren&gt;</literal></simpara>
 
       <simpara><literal>&lt;in value list&gt; ::= &lt;row value expression&gt;
@@ -1451,6 +1499,15 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <simpara>If the comparison is TRUE for at least one row, the result is
       TRUE. If the comparison is FALSE for all rows, the result is FALSE.
       Otherwise the result is UNKNOWN.</simpara>
+
+      <simpara>HyperSQL supports an extension to the SQL Standard to allow an
+      array to be used in the &lt;in predicate value&gt;. This is intended to
+      be used with prepared statements where a variable length array of values
+      can be used as the parameter value for each call. The example below
+      shows how this is used.</simpara>
+
+      <programlisting>SELECT * from customer where firstname in ( UNNEST(?) )
+</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>LIKE predicate</primary>
@@ -1483,11 +1540,11 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       <simpara><literal>&lt;escape octet&gt; ::= &lt;binary value
       expression&gt;</literal></simpara>
 
-      <simpara>Specify a pattern-match comparison. The <literal>&lt;row value
-      predicand&gt;</literal> is always a <literal>&lt;string value
-      expression&gt;</literal> of character or binary type. The
-      <literal>&lt;character pattern&gt;</literal> or <literal>&lt;octet
-      pattern&gt;</literal> is a <literal>&lt;string value
+      <simpara>Specify a pattern-match comparison for character or binary
+      strings. The <literal>&lt;row value predicand&gt;</literal> is always a
+      <literal>&lt;string value expression&gt;</literal> of character or
+      binary type. The <literal>&lt;character pattern&gt;</literal> or
+      <literal>&lt;octet pattern&gt;</literal> is a <literal>&lt;string value
       expression&gt;</literal> in which the underscore and percent characters
       have special meanings. The underscore means match any one character,
       while the percent means match a sequence of zero or more characters. The
@@ -1892,7 +1949,12 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
 
       <simpara>The other operations perform the statistical functions
       STDDEV_POP, STDDEV_SAMP, VAR_SAMP, VAR_POP on numeric values. NULL
-      values are ignored in calculations..</simpara>
+      values are ignored in calculations.</simpara>
+
+      <simpara>User defined aggregate functions can be defined and used
+      instead of the built-in aggregate functions. Syntax and examples are
+      given in the <link endterm="sqlroutines-title"
+      xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>sort specification list</primary>
@@ -1922,10 +1984,10 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
     <title>Data Access Statements</title>
 
     <para>HyperSQL fully supports all of SQL-92 data access statements, plus
-    some additions from the more recent versions of the standard. Due to time
-    constraints, the current version of this Guide does not cover the subject
-    fully. You are advised to consult an SQL book such as the recent O'Reilly
-    title "SQL and Relational Theory" by C. J. Date.</para>
+    some additions from SQL:2008. Due to time constraints, the current version
+    of this Guide does not cover the subject fully. You are advised to consult
+    an SQL book such as the recent O'Reilly title "SQL and Relational Theory"
+    by C. J. Date.</para>
 
     <para>Database queries are data access statements. The most commonly used
     data access statement is the SELECT statement, but there are other
@@ -1989,6 +2051,8 @@ SELECT d, e, SUM(f) FROM atable GROUP BY d, e HAVING SUM(f) &gt; 10
 SELECT d, e, f FROM atable WHERE d = 3 UNION SELECT a, b, c FROM atable WHERE a = 30
 /* in the next SELECT, ordering is performed */
 SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c ORDER BY calc DESC, div NULLS LAST
+/* in the next SELECT, slicing is performed after ordering */
+SELECT * FROM atable WHERE a + b = c ORDER BY a FETCH 5 ROWS ONLY
 
 </programlisting>The next sections discuss various types of tables and
     operations involved in data access statements.</para>
@@ -1999,24 +2063,8 @@ SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c ORDER BY calc D
       <para>In data access statements, a table can be a database table (or
       view) or an ephemeral table formed for the duration of the query. Some
       types of table are &lt;table primary&gt; and can participate in joins
-      without the use of extra parentheses. The BNF below lists different
-      types of &lt;table primary&gt;:</para>
-
-      <simpara><literal>&lt;table primary&gt; ::= { &lt;table or query
-      name&gt; | &lt;derived table&gt; } </literal></simpara>
-
-      <simpara><literal>[ [ AS ] &lt;correlation name&gt; [ &lt;left paren&gt;
-      &lt;derived column list&gt; &lt;right paren&gt; ] ]</literal></simpara>
-
-      <simpara><literal>| &lt;parenthesized joined table&gt;
-      </literal></simpara>
-
-      <para>The <literal>&lt;table or query name&gt;</literal> indicates
-      either the name of a database table, or a query that has been introduced
-      with the WITH keyword and given a name. A <literal>&lt;derived
-      table&gt;</literal> is a subquery, which consists of a query enclosed in
-      parenthses. A <literal>&lt;parenthesized joined table&gt;</literal> is
-      simply a set of joined tables enclosed in parentheses.</para>
+      without the use of extra parentheses. The BNF in the Table Primary
+      section below lists different types of &lt;table primary&gt;:</para>
 
       <para>Tables can also be formed by specifying the values that are
       contained in them:</para>
@@ -2033,8 +2081,8 @@ SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c ORDER BY calc D
 
       <programlisting>VALUES (12, 14, null), (10, 11, CURRENT_DATE)</programlisting>
 
-      <simpara>When a table is used in a UNION or similar operation, the
-      keyword TABLE is used with the name:</simpara>
+      <simpara>When a table is used directly in a UNION or similar operation,
+      the keyword TABLE is used with the name:</simpara>
 
       <simpara><literal>&lt;explicit table&gt; ::= TABLE &lt;table or query
       name&gt;</literal></simpara>
@@ -2046,8 +2094,6 @@ SELECT (a + e) / f AS calc, f AS div FROM atable WHERE a + b = c ORDER BY calc D
       <programlisting>TABLE atable UNION TABLE anothertable
 SELECT * FROM atable UNION SELECT * FROM anothertable
 </programlisting>
-
-      <simpara></simpara>
     </section>
 
     <section>
@@ -2124,7 +2170,7 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       &lt;comma&gt; &lt;table reference&gt; }... ]</literal></para>
 
       <simpara><literal>&lt;table reference&gt; ::= &lt;table primary&gt; |
-      &lt;joined table&gt;</literal></simpara>
+      &lt;joined table&gt; </literal></simpara>
 
       <simpara><literal>&lt;table primary&gt; ::= &lt;table or query name&gt;
       [ [ AS ] &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived
@@ -2134,9 +2180,20 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       name&gt; [ &lt;left paren&gt; &lt;derived column list&gt; &lt;right
       paren&gt; ] </literal></simpara>
 
+      <simpara><literal>| &lt;lateral derived table&gt; [ AS ] &lt;correlation
+      name&gt; [ &lt;left paren&gt; &lt;derived column list&gt; &lt;right
+      paren&gt; ] </literal></simpara>
+
+      <simpara><literal>| &lt;collection derived table&gt; [ AS ]
+      &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived column
+      list&gt; &lt;right paren&gt; ] </literal></simpara>
+
       <simpara><literal>| &lt;table function derived table&gt; [ AS ]
       &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived column
-      list&gt; &lt;right paren&gt; ]</literal></simpara>
+      list&gt; &lt;right paren&gt; ] </literal></simpara>
+
+      <simpara><literal>| &lt;parenthesized joined
+      table&gt;</literal></simpara>
 
       <simpara><literal>&lt;where clause&gt; ::= WHERE &lt;boolean value
       expression&gt;</literal></simpara>
@@ -2184,6 +2241,73 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       clause&gt;</literal> using its search condition. The search condition
       must be an expression based on the expressions in the GROUP BY list or
       the aggregate functions used.</para>
+    </section>
+
+    <section>
+      <title>Table Primary</title>
+
+      <para>Table primary refers to different forms of table reference in the
+      FROM clause.</para>
+
+      <para>The simplest form of reference is simply a name. This is the name
+      of a table, a view, a transition table in a trigger definition, or a
+      query name specified in the WITH clause of a query expression.</para>
+
+      <para><literal>&lt;table or query name&gt; ::= &lt;table name&gt; |
+      &lt;transition table name&gt; | &lt;query name&gt;</literal></para>
+
+      <para>A query expression that is enclosed in parantheses and returns
+      from zero to many rows is a &lt;table subquery&gt;. In a &lt;derived
+      table&gt; the query expression is self contained and cannot reference
+      the columns of other table references.</para>
+
+      <para><literal>&lt;derived table&gt; ::= &lt;table
+      subquery&gt;</literal></para>
+
+      <para><literal>When the word LITERAL is used before a &lt;table
+      subquery&gt;, it means the query expression can reference the columns of
+      other table references that precede it. </literal></para>
+
+      <para><literal>&lt;lateral derived table&gt; ::= LATERAL &lt;table
+      subquery&gt;</literal></para>
+
+      <para>UNNEST is similar to LATERAL, but instead of a query expression,
+      and expression that returns an array is used. This expression is
+      converted into a table wich has one column that contains the elements of
+      the array, and, if WITH ORDINALITY is used, a second column that
+      contains the index of each element. The array expression usually
+      contains a reference to a column of the table reference preceding the
+      current table reference.</para>
+
+      <para><literal>&lt;collection derived table&gt; ::= UNNEST &lt;left
+      paren&gt; &lt;array value expression&gt; &lt;right paren&gt; [ WITH
+      ORDINALITY ]</literal></para>
+
+      <para>When TABLE is used in this context, it also converts an array
+      value expression to a table, but this array must be the result of a
+      function call. A function that returns a MULTISET can also be used in
+      this context and each row of the multiset is expanded into a row of the
+      table.</para>
+
+      <para><literal>&lt;table function derived table&gt; ::= TABLE &lt;left
+      paren&gt; &lt;collection value expression&gt; &lt;right
+      paren&gt;</literal></para>
+
+      <para><literal>The column list that is specified for the table reference
+      must names that are unique within the list.</literal></para>
+
+      <para><literal>&lt;derived column list&gt; ::= &lt;column name
+      list&gt;</literal></para>
+
+      <para><literal>&lt;column name list&gt; ::= &lt;column name&gt; [ {
+      &lt;comma&gt; &lt;column name&gt; }... ] </literal></para>
+
+      <para>A paranthsized joined table is simply a joined table contained in
+      parentheses. Joined tables are discussed below.</para>
+
+      <para><literal>&lt;parenthesized joined table&gt; ::= &lt;left paren&gt;
+      &lt;parenthesized joined table&gt; &lt;right paren&gt; | &lt;left
+      paren&gt; &lt;joined table&gt; &lt;right paren&gt;</literal></para>
     </section>
 
     <section>
@@ -2509,10 +2633,31 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
     <section>
       <title>Query Expression</title>
 
-      <para>A query expression refers to a table formed by using UNION and
-      other set operations. The query expression is evaluated from left to
-      right and the INTERSECT operator has precedence over the UNION and
-      EXCEPT operators. A simplified BNF is given below:</para>
+      <para>A query expression consists of an optional WITH clause and a query
+      expression body. The WITH clause lists one or more name ephemeral tables
+      that can be referenced in the query expression body.</para>
+
+      <para><literal>&lt;query expression&gt; ::= [ &lt;with clause&gt; ]
+      &lt;query expression body&gt;</literal></para>
+
+      <para><literal>&lt;with clause&gt; ::= WITH &lt;with
+      list&gt;</literal></para>
+
+      <para><literal>&lt;with list&gt; ::= &lt;with list element&gt; [ {
+      &lt;comma&gt; &lt;with list element&gt; }... ] </literal></para>
+
+      <para><literal>&lt;with list element&gt; ::= &lt;query name&gt; [
+      &lt;left paren&gt; &lt;with column list&gt; &lt;right paren&gt; ] AS
+      &lt;left paren&gt; &lt;query expression&gt; &lt;right paren&gt;
+      </literal></para>
+
+      <para><literal>&lt;with column list&gt; ::= &lt;column name
+      list&gt;</literal></para>
+
+      <para>A query expression body refers to a table formed by using UNION
+      and other set operations. The query expression body is evaluated from
+      left to right and the INTERSECT operator has precedence over the UNION
+      and EXCEPT operators. A simplified BNF is given below:</para>
 
       <simpara><literal>&lt;query expression body&gt; ::= &lt;query term&gt; |
       &lt;query expression body&gt; UNION | EXCEPT [ ALL | DISTINCT ] [
@@ -2613,230 +2758,353 @@ SELECT a, b FROM atable WHERE d &lt; 5 ORDER BY absum OFFSET 3 LIMIT 2 /* altern
   <section>
     <title>Data Change Statements</title>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DELETE FROM</primary>
-    </indexterm>
+    <section>
+      <title>Delete Statement</title>
 
-    <simpara><emphasis role="bold">DELETE FROM</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>DELETE FROM</primary>
+      </indexterm>
 
-    <simpara><emphasis>delete statement: searched</emphasis></simpara>
+      <simpara><emphasis role="bold">DELETE FROM</emphasis></simpara>
 
-    <simpara><literal>&lt;delete statement: searched&gt; ::= DELETE FROM
-    &lt;target table&gt; [ [ AS ] &lt;correlation name&gt; ] [ WHERE
-    &lt;search condition&gt; ]</literal></simpara>
+      <simpara><emphasis>delete statement: searched</emphasis></simpara>
 
-    <simpara>Delete rows of a table. The search condition is a
-    <literal>&lt;boolean value expression&gt;</literal> that is evaluated for
-    each row of the table. If the condition is true, the row is deleted. If
-    the condition is not specified, all the rows of the table are deleted. In
-    fact, an implicit SELECT is performed in the form of <literal>SELECT *
-    FROM &lt;target table&gt; [ WHERE &lt;search condition&gt;]</literal> and
-    the selected rows are deleted. When used in JDBC, the number of rows
-    returned by the implicit SELECT is returned as the update count.</simpara>
+      <simpara><literal>&lt;delete statement: searched&gt; ::= DELETE FROM
+      &lt;target table&gt; [ [ AS ] &lt;correlation name&gt; ] [ WHERE
+      &lt;search condition&gt; ]</literal></simpara>
 
-    <simpara>If there are FOREIGN KEY constraints on other tables that
-    reference the subject table, and the FOREIGN KEY constraints have
-    referential actions, then rows from those other tables that reference the
-    deleted rows are either deleted, or updated, according to the specified
-    referential actions.</simpara>
+      <simpara>Delete rows of a table. The search condition is a
+      <literal>&lt;boolean value expression&gt;</literal> that is evaluated
+      for each row of the table. If the condition is true, the row is deleted.
+      If the condition is not specified, all the rows of the table are
+      deleted. In fact, an implicit SELECT is performed in the form of
+      <literal>SELECT * FROM &lt;target table&gt; [ WHERE &lt;search
+      condition&gt;]</literal> and the selected rows are deleted. When used in
+      JDBC, the number of rows returned by the implicit SELECT is returned as
+      the update count.</simpara>
 
-    <simpara>In the second example below the rows that have the maximum value
-    for column A are deleted;</simpara>
+      <simpara>If there are FOREIGN KEY constraints on other tables that
+      reference the subject table, and the FOREIGN KEY constraints have
+      referential actions, then rows from those other tables that reference
+      the deleted rows are either deleted, or updated, according to the
+      specified referential actions.</simpara>
 
-    <programlisting>DELETE FROM T WHERE C &gt; 5
+      <simpara>In the second example below the rows that have the maximum
+      value for column A are deleted;</simpara>
+
+      <programlisting>DELETE FROM T WHERE C &gt; 5
 DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
 </programlisting>
+    </section>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>TRUNCATE TABLE</primary>
-    </indexterm>
+    <section>
+      <title>Truncate Statement</title>
 
-    <simpara><emphasis role="bold">TRUNCATE TABLE</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>TRUNCATE TABLE</primary>
+      </indexterm>
 
-    <simpara><emphasis>truncate table statement</emphasis></simpara>
+      <simpara><emphasis role="bold">TRUNCATE TABLE</emphasis></simpara>
 
-    <simpara><literal>&lt;truncate table statement&gt; ::= TRUNCATE TABLE
-    &lt;target table&gt; [ &lt;identity column restart option&gt;
-    ]</literal></simpara>
+      <simpara><emphasis>truncate table statement</emphasis></simpara>
 
-    <simpara><literal>&lt;identity column restart option&gt; ::= CONTINUE
-    IDENTITY | RESTART IDENTITY</literal></simpara>
+      <simpara><literal>&lt;truncate table statement&gt; ::= TRUNCATE TABLE
+      &lt;target table&gt; [ &lt;identity column restart option&gt;
+      ]</literal></simpara>
 
-    <simpara>Delete all rows of a table without firing its triggers. This
-    statement can only be used on base tables (not views). If the table is
-    referenced in a FOREIGN KEY constraint, the statement causes an exception.
-    Triggers defined on the table are not executed with this statement. The
-    default for <literal>&lt;identity column restart option&gt;</literal> is
-    <literal>CONTINUE IDENTITY</literal>. This means no change to the IDENTITY
-    sequence of the table. If <literal>RESTART IDENTITY</literal> is
-    specified, then the sequence is reset to its start value.</simpara>
+      <simpara><literal>&lt;identity column restart option&gt; ::= CONTINUE
+      IDENTITY | RESTART IDENTITY</literal></simpara>
 
-    <simpara>TRUNCATE is faster than ordinary DELETE. The TRUNCTATE statement
-    is an SQL Standard data change statement, therefore it is performed under
-    transaction control and can be rolled back if the connection is not in the
-    auto-commit mode.</simpara>
+      <simpara>Delete all rows of a table without firing its triggers. This
+      statement can only be used on base tables (not views). If the table is
+      referenced in a FOREIGN KEY constraint, the statement causes an
+      exception. Triggers defined on the table are not executed with this
+      statement. The default for <literal>&lt;identity column restart
+      option&gt;</literal> is <literal>CONTINUE IDENTITY</literal>. This means
+      no change to the IDENTITY sequence of the table. If <literal>RESTART
+      IDENTITY</literal> is specified, then the sequence is reset to its start
+      value.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>INSERT INTO</primary>
-    </indexterm>
+      <simpara>TRUNCATE is faster than ordinary DELETE. The TRUNCTATE
+      statement is an SQL Standard data change statement, therefore it is
+      performed under transaction control and can be rolled back if the
+      connection is not in the auto-commit mode.</simpara>
+    </section>
 
-    <simpara><emphasis role="bold">INSERT INTO</emphasis></simpara>
+    <section>
+      <title>Insert Statement</title>
 
-    <simpara><emphasis>insert statement</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>INSERT INTO</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;insert statement&gt; ::= INSERT INTO &lt;target
-    table&gt; &lt;insert columns and source&gt;</literal></simpara>
+      <simpara><emphasis role="bold">INSERT INTO</emphasis></simpara>
 
-    <simpara><literal>&lt;insert columns and source&gt; ::= &lt;from
-    subquery&gt; | &lt;from constructor&gt; | &lt;from
-    default&gt;</literal></simpara>
+      <simpara><emphasis>insert statement</emphasis></simpara>
 
-    <simpara><literal>&lt;from subquery&gt; ::= [ &lt;left paren&gt;
-    &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override clause&gt;
-    ] &lt;query expression&gt;</literal></simpara>
+      <simpara><literal>&lt;insert statement&gt; ::= INSERT INTO &lt;target
+      table&gt; &lt;insert columns and source&gt;</literal></simpara>
 
-    <simpara><literal>&lt;from constructor&gt; ::= [ &lt;left paren&gt;
-    &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override clause&gt;
-    ] &lt;contextually typed table value constructor&gt;</literal></simpara>
+      <simpara><literal>&lt;insert columns and source&gt; ::= &lt;from
+      subquery&gt; | &lt;from constructor&gt; | &lt;from
+      default&gt;</literal></simpara>
 
-    <simpara><literal>&lt;override clause&gt; ::= OVERRIDING USER VALUE |
-    OVERRIDING SYSTEM VALUE</literal></simpara>
+      <simpara><literal>&lt;from subquery&gt; ::= [ &lt;left paren&gt;
+      &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override
+      clause&gt; ] &lt;query expression&gt;</literal></simpara>
 
-    <simpara><literal>&lt;from default&gt; ::= DEFAULT
-    VALUES</literal></simpara>
+      <simpara><literal>&lt;from constructor&gt; ::= [ &lt;left paren&gt;
+      &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override
+      clause&gt; ] &lt;contextually typed table value
+      constructor&gt;</literal></simpara>
 
-    <simpara><literal>&lt;insert column list&gt; ::= &lt;column name
-    list&gt;</literal></simpara>
+      <simpara><literal>&lt;override clause&gt; ::= OVERRIDING USER VALUE |
+      OVERRIDING SYSTEM VALUE</literal></simpara>
 
-    <simpara>Insert new rows in a table. An INSERT statement inserts one or
-    more rows into the table.</simpara>
+      <simpara><literal>&lt;from default&gt; ::= DEFAULT
+      VALUES</literal></simpara>
 
-    <simpara>The special form, <literal>INSERT INTO &lt;target table&gt;
-    DEFAULT VALUES</literal> can be used with tables which have a default
-    value for each column.</simpara>
+      <simpara><literal>&lt;insert column list&gt; ::= &lt;column name
+      list&gt;</literal></simpara>
 
-    <simpara>With the other forms of INSERT, the optional <literal>(&lt;insert
-    column list&gt;)</literal> specifies to which columns of the table the new
-    values are assigned.</simpara>
+      <simpara>Insert new rows in a table. An INSERT statement inserts one or
+      more rows into the table.</simpara>
 
-    <simpara>In one form, the inserted values are from a <literal>&lt;query
-    expression&gt;</literal> and all the rows that are returned by the
-    <literal>&lt;query expression&gt;</literal> are inserted into the table.
-    If the <literal>&lt;query expression&gt;</literal> returns no rows,
-    nothing is inserted.</simpara>
+      <simpara>The special form, <literal>INSERT INTO &lt;target table&gt;
+      DEFAULT VALUES</literal> can be used with tables which have a default
+      value for each column.</simpara>
 
-    <simpara>In the other form, a comma separated list of values called
-    <literal>&lt;contextually typed table value constructor&gt;</literal> is
-    used to insert one or more rows into the table. This list is contextually
-    typed, because the keywords NULL and DEFAULT can be used for the values
-    that are assigned to each column of the table. The keyword DEFAULT means
-    the default value of the column and can be used only if the target column
-    has a default value or is an IDENTITY or GENERATED column of the
-    table.</simpara>
+      <simpara>With the other forms of INSERT, the optional
+      <literal>(&lt;insert column list&gt;)</literal> specifies to which
+      columns of the table the new values are assigned.</simpara>
 
-    <simpara>The <literal>&lt;override clause&gt;</literal> must be used when
-    a value is explicitly assigned to a column that has been defined as
-    GENERATED ALWAYS AS IDENTITY.</simpara>
+      <simpara>In one form, the inserted values are from a <literal>&lt;query
+      expression&gt;</literal> and all the rows that are returned by the
+      <literal>&lt;query expression&gt;</literal> are inserted into the table.
+      If the <literal>&lt;query expression&gt;</literal> returns no rows,
+      nothing is inserted.</simpara>
 
-    <simpara>The rows that are inserted into the table are checked against all
-    the constraints that have been declared on the table. The whole INSERT
-    operation fails if any row fails to inserted due to constraint violation.
-    Examples:</simpara>
+      <simpara>In the other form, a comma separated list of values called
+      <literal>&lt;contextually typed table value constructor&gt;</literal> is
+      used to insert one or more rows into the table. This list is
+      contextually typed, because the keywords NULL and DEFAULT can be used
+      for the values that are assigned to each column of the table. The
+      keyword DEFAULT means the default value of the column and can be used
+      only if the target column has a default value or is an IDENTITY or
+      GENERATED column of the table.</simpara>
 
-    <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
+      <simpara>The <literal>&lt;override clause&gt;</literal> must be used
+      when a value is explicitly assigned to a column that has been defined as
+      GENERATED ALWAYS AS IDENTITY. The ORVERRIDE SYSTEM values means the
+      provided values are used for the insert, while OVERRIDE USER values
+      means the provided values are simply ignored and the values generated by
+      the system are used instead.</simpara>
+
+      <simpara>An array can be inserted into a column of the array type by
+      using literals, by specifying a parameter in a prepared statement or an
+      existing array returned by query expression. The last example below
+      inserts an array.</simpara>
+
+      <simpara>The rows that are inserted into the table are checked against
+      all the constraints that have been declared on the table. The whole
+      INSERT operation fails if any row fails to inserted due to constraint
+      violation. Examples:</simpara>
+
+      <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
 INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */
 INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inserted into table T */
+INSERT INTO T VALUES 3, ARRAY['hot','cold']
 </programlisting>
+    </section>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>MERGE INTO</primary>
-    </indexterm>
+    <section>
+      <title>Update Statement</title>
 
-    <simpara><emphasis role="bold">MERGE INTO</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>UPDATE</primary>
+      </indexterm>
 
-    <simpara><emphasis>merge statement</emphasis></simpara>
+      <simpara><emphasis role="bold">UPDATE</emphasis></simpara>
 
-    <simpara><literal>&lt;merge statement&gt; ::= MERGE INTO &lt;target
-    table&gt; [ [ AS ] &lt;merge correlation name&gt; ] USING &lt;table
-    reference&gt; ON &lt;search condition&gt; &lt;merge operation
-    specification&gt;</literal></simpara>
+      <simpara><emphasis>update statement: searched</emphasis></simpara>
 
-    <simpara><literal>&lt;merge correlation name&gt; ::= &lt;correlation
-    name&gt;</literal></simpara>
+      <simpara><literal>&lt;update statement: searched&gt; ::= UPDATE
+      &lt;target table&gt; [ [ AS ] &lt;correlation name&gt; ] SET &lt;set
+      clause list&gt; [ WHERE &lt;search condition&gt; ]</literal></simpara>
 
-    <simpara><literal>&lt;merge operation specification&gt; ::= &lt;merge when
-    clause&gt;...</literal></simpara>
+      <simpara>Update rows of a table. An UPDATE statement selects rows from
+      the <literal>&lt;target table&gt;</literal> using an implicit SELECT
+      statement formed in the following manner:</simpara>
 
-    <simpara><literal>&lt;merge when clause&gt; ::= &lt;merge when matched
-    clause&gt; | &lt;merge when not matched clause&gt;</literal></simpara>
+      <simpara><literal>SELECT * FROM &lt;target table&gt; [ [ AS ]
+      &lt;correlation name&gt; ] [ WHERE &lt;search condition&gt;
+      ]</literal></simpara>
 
-    <simpara><literal>&lt;merge when matched clause&gt; ::= WHEN MATCHED THEN
-    &lt;merge update specification&gt;</literal></simpara>
+      <simpara>Then it applies the <literal>SET &lt;set clause
+      list&gt;</literal> expression to each selected row.</simpara>
 
-    <simpara><literal>&lt;merge when not matched clause&gt; ::= WHEN NOT
-    MATCHED THEN &lt;merge insert specification&gt;</literal></simpara>
+      <simpara>If the implicit SELECT returns no rows, no update takes place.
+      When used in JDBC, the number of rows returned by the implicit SELECT is
+      returned as the update count.</simpara>
 
-    <simpara><literal>&lt;merge update specification&gt; ::= UPDATE SET
-    &lt;set clause list&gt;</literal></simpara>
+      <simpara>If there are FOREIGN KEY constraints on other tables that
+      reference the subject table, and the FOREIGN KEY constraints have
+      referential actions, then rows from those other tables that reference
+      the updated rows are updated, according to the specified referential
+      actions.</simpara>
 
-    <simpara><literal>&lt;merge insert specification&gt; ::= INSERT [ &lt;left
-    paren&gt; &lt;insert column list&gt; &lt;right paren&gt; ] [ &lt;override
-    clause&gt; ] VALUES &lt;merge insert value list&gt;</literal></simpara>
+      <simpara>The rows that are updated are checked against all the
+      constraints that have been declared on the table. The whole UPDATE
+      operation fails if any row violates any constraint.</simpara>
 
-    <simpara><literal>&lt;merge insert value list&gt; ::= &lt;left paren&gt;
-    &lt;merge insert value element&gt; [ { &lt;comma&gt; &lt;merge insert
-    value element&gt; }... ] &lt;right paren&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>set clause in UPDATE and MERGE statements</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;merge insert value element&gt; ::= &lt;value
-    expression&gt; | &lt;contextually typed value
-    specification&gt;</literal></simpara>
+      <simpara><emphasis role="bold">set clause list</emphasis></simpara>
 
-    <simpara>Update rows, or insert new rows into the <literal>&lt;target
-    table&gt;</literal>. The MERGE statement uses a second table, specified by
-    <literal>&lt;table reference&gt;</literal>, to determine the rows to be
-    updated or inserted. It is possible to use the statement only to update
-    rows or to insert rows, but usually both update and insert are
-    specified.</simpara>
+      <simpara><emphasis>set clause list</emphasis></simpara>
 
-    <simpara>The <literal>&lt;search condition&gt;</literal> matches each row
-    of the <literal>&lt;table reference&gt;</literal> with each row of the
-    <literal>&lt;target table&gt;</literal>. If the two rows match then the
-    UPDATE clause is used to update the matching row of the target table.
-    Those rows of <literal>&lt;table reference&gt;</literal> that have no
-    matching rows are then used to insert new rows into the
-    <literal>&lt;target table&gt;</literal>. Therefore, a MERGE statement can
-    update between 0 and all the rows of the <literal>&lt;target
-    table&gt;</literal> and can insert between 0 and the number of the rows in
-    <literal>&lt;table reference&gt;</literal> into the <literal>&lt;target
-    table&gt;</literal>. If any row in the <literal>&lt;target
-    table&gt;</literal> matches more than one row in <literal>&lt;table
-    reference&gt;</literal> a cardinality error is raised. On the other hand,
-    several rows in the <literal>&lt;target table&gt;</literal> can matches a
-    single row in <literal>&lt;table reference&gt;</literal> without any
-    error. The constraints and referential actions specified on the database
-    tables are enforced the same way as for an update and an insert
-    statement.</simpara>
+      <simpara><literal>&lt;set clause list&gt; ::= &lt;set clause&gt; [ {
+      &lt;comma&gt; &lt;set clause&gt; }... ]</literal></simpara>
 
-    <simpara>The MERGE statement can be used with only the WHEN NOT MATCHED
-    clause as a conditional INSERT statement that inserts a row if no existing
-    rows match a condition.</simpara>
+      <simpara><literal>&lt;set clause&gt; ::= &lt;multiple column
+      assignment&gt; | &lt;set target&gt; &lt;equals operator&gt; &lt;update
+      source&gt;</literal></simpara>
 
-    <simpara>In the first example below, the table originally contains two
-    rows for different furniture. The <literal>&lt;table
-    reference&gt;</literal> is the <literal>(VALUES(1, 'conference table'),
-    (14, 'sofa'), (5, 'coffee table'))</literal> expression, which evaluates
-    to a table with 3 rows. When the x value for a row matches an existing
-    row, then the existing row is updated. When the x value does not match,
-    the row is inserted. Therefore one row of table t is updated from 'dining
-    table' to 'conference table', and two rows are inserted into table t. The
-    second example uses a SELECT statement as the source of the values for the
-    MERGE.</simpara>
+      <simpara><literal>&lt;multiple column assignment&gt; ::= &lt;set target
+      list&gt; &lt;equals operator&gt; &lt;assigned
+      row&gt;</literal></simpara>
 
-    <simpara>In the third example, a new row in inserted into the table only
-    when the primary key for the new row does not exist. This example uses
-    parameters and should be executed as a JDBC PreparedStatement.</simpara>
+      <simpara><literal>&lt;set target list&gt; ::= &lt;left paren&gt; &lt;set
+      target&gt; [ { &lt;comma&gt; &lt;set target&gt; }... ] &lt;right
+      paren&gt;</literal></simpara>
 
-    <programlisting>CREATE TABLE t (id INT PRIMARY KEY, description VARCHAR(100))
+      <simpara><literal>&lt;assigned row&gt; ::= &lt;contextually typed row
+      value expression&gt;</literal></simpara>
+
+      <simpara><literal>&lt;set target&gt; ::= &lt;column
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;update source&gt; ::= &lt;value expression&gt; |
+      &lt;contextually typed value specification&gt;</literal></simpara>
+
+      <simpara>Specify a list of assignments. This is used in UPDATE, MERGE
+      and SET statements to assign values to a scalar or row target.</simpara>
+
+      <simpara>Apart from setting a whole target to a value, a SET statement
+      can set individual elements of an array to new values. The last example
+      below shows this form of assignment to the array in the column named
+      B.</simpara>
+
+      <simpara>In the examples given below, UPDATE statements with single and
+      multiple assignments are shown. Note in the third example, a SELECT
+      statement is used to provide the update values for columns A and C,
+      while the update value for column B is given separately. The SELECT
+      statement must return exactly one row . In this example the SELECT
+      statement refers to the existing value for column C in its search
+      condition.</simpara>
+
+      <programlisting>UPDATE T SET A = 5 WHERE ...
+UPDATE T SET (A, B) = (1, NULL) WHERE ...
+UPDATE T SET (A, C) = (SELECT X, Y FROM U WHERE Z = C), B = 10 WHERE ...
+UPDATE T SET A = 3, B[3] = 'warm'
+</programlisting>
+    </section>
+
+    <section>
+      <title>Merge Statement</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>MERGE INTO</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">MERGE INTO</emphasis></simpara>
+
+      <simpara><emphasis>merge statement</emphasis></simpara>
+
+      <simpara><literal>&lt;merge statement&gt; ::= MERGE INTO &lt;target
+      table&gt; [ [ AS ] &lt;merge correlation name&gt; ] USING &lt;table
+      reference&gt; ON &lt;search condition&gt; &lt;merge operation
+      specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge correlation name&gt; ::= &lt;correlation
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge operation specification&gt; ::= &lt;merge
+      when clause&gt;...</literal></simpara>
+
+      <simpara><literal>&lt;merge when clause&gt; ::= &lt;merge when matched
+      clause&gt; | &lt;merge when not matched clause&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge when matched clause&gt; ::= WHEN MATCHED
+      THEN &lt;merge update specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge when not matched clause&gt; ::= WHEN NOT
+      MATCHED THEN &lt;merge insert specification&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge update specification&gt; ::= UPDATE SET
+      &lt;set clause list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge insert specification&gt; ::= INSERT [
+      &lt;left paren&gt; &lt;insert column list&gt; &lt;right paren&gt; ] [
+      &lt;override clause&gt; ] VALUES &lt;merge insert value
+      list&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge insert value list&gt; ::= &lt;left paren&gt;
+      &lt;merge insert value element&gt; [ { &lt;comma&gt; &lt;merge insert
+      value element&gt; }... ] &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;merge insert value element&gt; ::= &lt;value
+      expression&gt; | &lt;contextually typed value
+      specification&gt;</literal></simpara>
+
+      <simpara>Update rows, or insert new rows into the <literal>&lt;target
+      table&gt;</literal>. The MERGE statement uses a second table, specified
+      by <literal>&lt;table reference&gt;</literal>, to determine the rows to
+      be updated or inserted. It is possible to use the statement only to
+      update rows or to insert rows, but usually both update and insert are
+      specified.</simpara>
+
+      <simpara>The <literal>&lt;search condition&gt;</literal> matches each
+      row of the <literal>&lt;table reference&gt;</literal> with each row of
+      the <literal>&lt;target table&gt;</literal>. If the two rows match then
+      the UPDATE clause is used to update the matching row of the target
+      table. Those rows of <literal>&lt;table reference&gt;</literal> that
+      have no matching rows are then used to insert new rows into the
+      <literal>&lt;target table&gt;</literal>. Therefore, a MERGE statement
+      can update between 0 and all the rows of the <literal>&lt;target
+      table&gt;</literal> and can insert between 0 and the number of the rows
+      in <literal>&lt;table reference&gt;</literal> into the
+      <literal>&lt;target table&gt;</literal>. If any row in the
+      <literal>&lt;target table&gt;</literal> matches more than one row in
+      <literal>&lt;table reference&gt;</literal> a cardinality error is
+      raised. On the other hand, several rows in the <literal>&lt;target
+      table&gt;</literal> can matches a single row in <literal>&lt;table
+      reference&gt;</literal> without any error. The constraints and
+      referential actions specified on the database tables are enforced the
+      same way as for an update and an insert statement.</simpara>
+
+      <simpara>The MERGE statement can be used with only the WHEN NOT MATCHED
+      clause as a conditional INSERT statement that inserts a row if no
+      existing rows match a condition.</simpara>
+
+      <simpara>In the first example below, the table originally contains two
+      rows for different furniture. The <literal>&lt;table
+      reference&gt;</literal> is the <literal>(VALUES(1, 'conference table'),
+      (14, 'sofa'), (5, 'coffee table'))</literal> expression, which evaluates
+      to a table with 3 rows. When the x value for a row matches an existing
+      row, then the existing row is updated. When the x value does not match,
+      the row is inserted. Therefore one row of table t is updated from
+      'dining table' to 'conference table', and two rows are inserted into
+      table t. The second example uses a SELECT statement as the source of the
+      values for the MERGE.</simpara>
+
+      <simpara>In the third example, a new row in inserted into the table only
+      when the primary key for the new row does not exist. This example uses
+      parameters and should be executed as a JDBC PreparedStatement.</simpara>
+
+      <programlisting>CREATE TABLE t (id INT PRIMARY KEY, description VARCHAR(100))
 INSERT INTO t VALUES (1, 'dining table'), (2, 'deck chair')
 MERGE INTO t USING (VALUES(1, 'conference table'), (14, 'sofa'), (5, 'coffee table')) 
    AS vals(x,y) ON t.id = vals.x
@@ -2850,92 +3118,6 @@ MERGE INTO t USING (SELECT * FROM tt WHERE acol = 2) AS vals(x,y) ON t.id = vals
 MERGE INTO t USING (VALUES(CAST(? AS INT))) AS vals(x) ON t.id = vals.x
    WHEN NOT MATCHED THEN INSERT VALUES vals.x, ?
 </programlisting>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>UPDATE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">UPDATE</emphasis></simpara>
-
-    <simpara><emphasis>update statement: searched</emphasis></simpara>
-
-    <simpara><literal>&lt;update statement: searched&gt; ::= UPDATE &lt;target
-    table&gt; [ [ AS ] &lt;correlation name&gt; ] SET &lt;set clause list&gt;
-    [ WHERE &lt;search condition&gt; ]</literal></simpara>
-
-    <simpara>Update rows of a table. An UPDATE statement selects rows from the
-    <literal>&lt;target table&gt;</literal> using an implicit SELECT statement
-    formed in the following manner:</simpara>
-
-    <simpara><literal>SELECT * FROM &lt;target table&gt; [ [ AS ]
-    &lt;correlation name&gt; ] [ WHERE &lt;search condition&gt;
-    ]</literal></simpara>
-
-    <simpara>Then it applies the <literal>SET &lt;set clause
-    list&gt;</literal> expression to each selected row.</simpara>
-
-    <simpara>If the implicit SELECT returns no rows, no update takes place.
-    When used in JDBC, the number of rows returned by the implicit SELECT is
-    returned as the update count.</simpara>
-
-    <simpara>If there are FOREIGN KEY constraints on other tables that
-    reference the subject table, and the FOREIGN KEY constraints have
-    referential actions, then rows from those other tables that reference the
-    updated rows are updated, according to the specified referential
-    actions.</simpara>
-
-    <simpara>The rows that are updated are checked against all the constraints
-    that have been declared on the table. The whole UPDATE operation fails if
-    any row violates any constraint.</simpara>
-
-    <programlisting>INSERT INTO T DEFAULT VALUES /* all columns of T have DEFAULT clauses */
-INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */
-INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* 3 rows are inserted */
-</programlisting>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>set clause in UPDATE and MERGE statements</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">set clause list</emphasis></simpara>
-
-    <simpara><emphasis>set clause list</emphasis></simpara>
-
-    <simpara><literal>&lt;set clause list&gt; ::= &lt;set clause&gt; [ {
-    &lt;comma&gt; &lt;set clause&gt; }... ]</literal></simpara>
-
-    <simpara><literal>&lt;set clause&gt; ::= &lt;multiple column
-    assignment&gt; | &lt;set target&gt; &lt;equals operator&gt; &lt;update
-    source&gt;</literal></simpara>
-
-    <simpara><literal>&lt;multiple column assignment&gt; ::= &lt;set target
-    list&gt; &lt;equals operator&gt; &lt;assigned row&gt;</literal></simpara>
-
-    <simpara><literal>&lt;set target list&gt; ::= &lt;left paren&gt; &lt;set
-    target&gt; [ { &lt;comma&gt; &lt;set target&gt; }... ] &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;assigned row&gt; ::= &lt;contextually typed row
-    value expression&gt;</literal></simpara>
-
-    <simpara><literal>&lt;set target&gt; ::= &lt;column
-    name&gt;</literal></simpara>
-
-    <simpara><literal>&lt;update source&gt; ::= &lt;value expression&gt; |
-    &lt;contextually typed value specification&gt;</literal></simpara>
-
-    <simpara>Specify a list of assignments. This is used in UPDATE, MERGE and
-    SET statements to assign values to a scalar or row target.</simpara>
-
-    <simpara>In the examples given below, UPDATE statements with single and
-    multiple assignments are shown. Note in the third example, a SELECT
-    statement is used to provide the update values for columns A and C, while
-    the update value for column B is given separately. The SELECT statement
-    must return exactly one row . In this example the SELECT statement refers
-    to the existing value for column C in its search condition.</simpara>
-
-    <programlisting>UPDATE T SET A = 5 WHERE ...
-UPDATE T SET (A, B) = (1, NULL) WHERE ...
-UPDATE T SET (A, C) = (SELECT X, Y FROM U WHERE Z = C), B = 10 WHERE ...</programlisting>
+    </section>
   </section>
 </chapter>

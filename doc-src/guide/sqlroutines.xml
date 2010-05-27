@@ -889,18 +889,58 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
         RETURN addup / counter;
       ELSE
         SET counter = COALESCE(counter, 0) + 1;
-        SET addup = COALESCE(addup, 0) + COALESCE(x, 0);
+        SET addup = COALESCE(addup, 0) || COALESCE(x, 0);
         RETURN NULL;
       END IF;
     END
 
 </programlisting>
 
-      <para>The example below the user defined aggregate function is used in a
-      select statement. Only the first parameter is visible and utilised in
-      the select statement.</para>
+      <para>The user defined aggregate function is used in a select statement
+      in the example below. Only the first parameter is visible and utilised
+      in the select statement.</para>
 
       <programlisting>SELECT udavg(id) FROM customers GROUP BY lastname;</programlisting>
+
+      <para>In the example below, the function returns an array that contains
+      all the values passed for the aggregated column. For use with longer
+      arrays, you can optimise the function by defining a larger array in the
+      first iteration, and using the TRIM_ARRAY function on the RETURN to cut
+      the array to size :</para>
+
+      <programlisting>CREATE AGGREGATE FUNCTION array_aggregate(IN val VARCHAR(100), IN flag boolean, INOUT buffer VARCHAR(100) ARRAY, INOUT counter INT)
+ RETURNS VARCHAR(100) ARRAY
+ CONTAINS SQL
+ BEGIN ATOMIC
+ IF flag THEN
+  RETURN buffer;
+ ELSE
+  IF val IS NULL THEN RETURN NULL; END IF;
+  IF counter IS NULL THEN SET counter = 0; END IF;
+  SET counter = counter + 1;
+  IF counter = 1 THEN SET buffer = ARRAY[val];
+   ELSE SET buffer[counter] = val; END IF;
+  RETURN NULL;
+ END IF;
+ END
+</programlisting>
+
+      <para>The tables and data for the select statement below is created with
+      the DatabaseManager or DatabaseManagerSwing GUI apps. Part of the output
+      is shown. Each row of the ouput includes an array containing the values
+      for the invoices for each customer.</para>
+
+      <programlisting>SELECT ID, FIRSTNAME, LASTNAME, ARRAY_AGGREGATE(CAST(INVOICE.TOTAL AS VARCHAR(100))) 
+  FROM customer JOIN INVOICE ON ID =CUSTOMERID
+  GROUP BY ID, FIRSTNAME, LASTNAME
+
+11 Susanne   Karsen    ARRAY['3988.20']                               
+12 John      Peterson  ARRAY['2903.10','4382.10','4139.70','3316.50'] 
+13 Michael   Clancy    ARRAY['6525.30']                               
+14 James     King      ARRAY['3665.40','905.10','498.00']             
+18 Sylvia    Clancy    ARRAY['634.20','4883.10']                      
+20 Bob       Clancy    ARRAY['3414.60','744.60']
+</programlisting>
     </section>
   </section>
 
