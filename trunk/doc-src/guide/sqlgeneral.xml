@@ -56,16 +56,19 @@
     92, 1999, 2003 and 2008. This means where a feature of the standard is
     supported, e.g. left outer join, the syntax is that specified by the
     standard text. Almost all syntactic features of SQL-92 up to Advanced
-    Level are supported, as well as SQL 2008 core and many optional features
+    Level are supported, as well as SQL:2008 core and many optional features
     of this standard. Work is in progress for a formal declaration of
     conformance.</para>
 
-    <para>Various chapters of this guide list the syntax that is supported.
-    When writing or converting existing SQL DDL (Data Definition Language),
-    DML (Data Manipulation Language) or DQL (Data Query Language) statements
-    for HSQLDB, you should consult the supported syntax and modify the
-    statements accordingly. Some statements written for older versions may
-    have to be modified.</para>
+    <para>At the time of this release, HyperSQL supports the widest range of
+    SQL standard features among all open source RDBMS.</para>
+
+    <para>Various chapters of this guide list the supported syntax. When
+    writing or converting existing SQL DDL (Data Definition Language), DML
+    (Data Manipulation Language) or DQL (Data Query Language) statements for
+    HSQLDB, you should consult the supported syntax and modify the statements
+    accordingly. Some statements written for older versions may have to be
+    modified.</para>
 
     <para>Over 300 words are reserved by the standard and should not be used
     as table or column names. For example, the word POSITION is reserved as it
@@ -88,7 +91,8 @@
     <literal>DROP TABLE mytable IF EXISTS</literal> are among such
     constructs.</para>
 
-    <para>For a well-written basic guide to SQL with examples, you can consult
+    <para>Many print books cover SQL Standard syntax and can be consulted. For
+    a well-written basic guide to SQL with examples, you can also consult
     <link
     xlink:href="http://www.postgresql.org/files/documentation/books/aw_pgsql/index.html">PostgreSQL:
     Introduction and Concepts</link> by Bruce Momjian, which is available on
@@ -1231,6 +1235,213 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     default behaviour.</para>
   </section>
 
+  <section>
+    <title>Arrays</title>
+
+    <para>Array are a powerful feature of SQL:2008 and can help solve many
+    common problems. Arrays should not be used as a substitute for
+    tables.</para>
+
+    <para>HyperSQL supports arrays of values according to the SQL:2008
+    Standard.</para>
+
+    <para>Elements of the array are either NULL, or of the same data type. It
+    is possible to define arrays of all supported types, including the types
+    covered in this chapter and user defined types, . An SQL array is one
+    dimensional and is addressed from position 1. An empty array can also be
+    used, which has no element.</para>
+
+    <para>Arrays can be stored in the database, as well as being used as
+    temporary containers of values for simplifying SQL statements. They
+    facilitate data exchange between the SQL engine and the user's
+    application.</para>
+
+    <para>The full range of supported syntax allows arrary to be created, used
+    in SELECT or other statements, combined with rows of tables and used in
+    routine calls.</para>
+
+    <section>
+      <title>Array Definition</title>
+
+      <para>The type of a table column, a routine parameter, a variable, or
+      the return value of a function can be defined as an array.</para>
+
+      <para><literal>&lt;array type&gt; ::= &lt;data type&gt; ARRAY [ &lt;left
+      bracket or trigraph&gt; &lt;maximum cardinality&gt; &lt;right bracket or
+      trigraph&gt; ]</literal></para>
+
+      <para>The word ARRAY is added to any valid type definition except BLOB
+      and CLOB type definitions. If the optional <literal>&lt;maximum
+      cardinality&gt;</literal> is not used, the default value is 1024. The
+      size of the array cannot be extended beyond maximum cardinality.</para>
+
+      <para>In the example below, the table contains a column of integer
+      arrays and a column of varchar arrays. The varchar array has an explicit
+      maximum size of 10, which means each array can have between 0 and 10
+      elements.</para>
+
+      <informalexample>
+        <programlisting>CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY, names VARCHAR(20) ARRAY[10])</programlisting>
+      </informalexample>
+
+      <para>An array can be constructed from value expressions or a query
+      expression.</para>
+
+      <para><literal>&lt;array value constructor by enumeration&gt; ::= ARRAY
+      &lt;left bracket or trigraph&gt; &lt;array element list&gt; &lt;right
+      bracket or trigraph&gt;</literal></para>
+
+      <para><literal>&lt;array element list&gt; ::= &lt;value expression&gt; [
+      { &lt;comma&gt; &lt;value expression&gt; }... ]</literal></para>
+
+      <para><literal>&lt;array value constructor by query&gt; ::= ARRAY
+      &lt;left paren&gt; &lt;query expression&gt; [ &lt;order by clause&gt; ]
+      &lt;right paren&gt;</literal></para>
+
+      <para>In the examples below, arrays are constructed from values, column
+      references or variables, function calls, or query expressions.</para>
+
+      <informalexample>
+        <programlisting>ARRAY [ 1, 2, 3 ]
+ARRAY [ 'HOT', 'COLD']
+ARRAY [ var1, var2, CURRENT_DATE]
+ARRAY (SELECT lastname FROM namestable ORDER BY id)
+</programlisting>
+      </informalexample>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>Array Reference</title>
+
+      <para>The most common operations on an array element reference and
+      assignment, which are used when reading or writing an element of the
+      array. Unlike Java and many other languages, arrays are extended if an
+      element is assigned to an index beyond the current length. This can
+      result in gaps containing NULL elements. Array length cannot exceed the
+      maximum cardinality.</para>
+
+      <para>Elements of all arrays, including thoses that are the result of
+      function calls or other operations can be referenced for reading.</para>
+
+      <para><literal>&lt;array element reference&gt; ::= &lt;array value
+      expression&gt; &lt;left bracket&gt; &lt;numeric value expression&gt;
+      &lt;right bracket&gt;</literal></para>
+
+      <para>Elements of arrays that are table columns or routine variables can
+      be referenced for writing. This is done in a SET statement, either
+      inside an UPDATE statement, or as a separate statement in the case of
+      routine variables, OUT and INOUT parameters.</para>
+
+      <para><literal>&lt;target array element specification&gt; ::= &lt;target
+      array reference&gt; &lt;left bracket or trigraph&gt; &lt;simple value
+      specification&gt; &lt;right bracket or trigraph&gt;</literal></para>
+
+      <para><literal>&lt;target array reference&gt; ::= &lt;SQL parameter
+      reference&gt; | &lt;column reference&gt;</literal></para>
+
+      <para>Note that only simple values or variables are allowed for the
+      array index when an assignment is performed. The examples below
+      demonstrates how elements of the array are referenced in SELECT and an
+      UPDATE statement.</para>
+
+      <para><informalexample>
+          <programlisting>SELECT scores[ranking], names[ranking] FROM t JOIN t1 on (t.id = t1.tid)
+UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
+</programlisting>
+        </informalexample></para>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>Array Operations</title>
+
+      <para>Several SQL operations and functions can be used with
+      arrays.</para>
+
+      <para><emphasis>CONCATENATION</emphasis></para>
+
+      <para>Array concatenation is performed similar to string concatenation.
+      All elements of the array on the right are appended to the array on
+      left.</para>
+
+      <para><literal>&lt;array concatenation&gt; ::= &lt;array value
+      expression 1&gt; &lt;concatenation operator&gt; &lt;array value
+      expression 2&gt;</literal></para>
+
+      <para><literal>&lt;concatenation operator&gt; ::= ||</literal></para>
+
+      <para><emphasis>FUNCTIONS</emphasis></para>
+
+      <para>Three functions operate on arrays. Details are described in the
+      <link endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
+      chapter.</para>
+
+      <para><literal>CARDINALITY &lt;left paren&gt; &lt;array value
+      expression&gt; &lt;right paren&gt;</literal></para>
+
+      <para><literal>MAX_CARDINALITY &lt;left paren&gt; &lt;array value
+      expression&gt; &lt;right paren&gt;</literal></para>
+
+      <para>Array cardinality and max cardinality are functions that return an
+      integer. CARDINALITY returns the element count, while MAX_CARDINALITY
+      returns the maximum declared cardinality of an array.</para>
+
+      <para><literal>TRIM_ARRAY &lt;left paren&gt; &lt;array value
+      expression&gt; &lt;comma&gt; &lt;numeric value expression&gt; &lt;right
+      paren&gt;</literal></para>
+
+      <para>The TRIM_ARRAY function returns a copy of an array with the
+      specified number of elements removed from the end of the array. The
+      <literal>&lt;array value expression&gt;</literal> can be any expression
+      that evaluates to an array.</para>
+
+      <para><emphasis>CAST</emphasis></para>
+
+      <para>An array can be cast into an array of a different type. Each
+      element of the array is cast into the element type of the target array
+      type.</para>
+
+      <para><emphasis>UNNEST</emphasis></para>
+
+      <para>Arrays can be converted into table references with the UNNEST
+      keyword.</para>
+
+      <para><literal>UNNEST(&lt;array value expression&gt;) [ WITH ORDINALITY
+      ]</literal></para>
+
+      <para>The <literal>&lt;array value expression&gt;</literal> can be any
+      expression that evaluates to an array. A table is returned that contains
+      one column when WITH ORDINALITY is not used, or two columns when WITH
+      ORDINALITY is used. The first column contains the elements of the array
+      (including all the nulls). When the table has two columns, the second
+      column contains the ordinal position of the element in the array. When
+      UNNEST is used in the FROM clause of a query, it implies the LATERAL
+      keyword, which means the array that is converted to table can belong to
+      any table that precedes the UNNEST in the FROM clause. This is explained
+      in the <link endterm="dataaccess-title" xlink:arcrole=""
+      xlink:href="#dataaccess-chapt"></link> chapter.</para>
+
+      <para><emphasis>COMPARISON</emphasis></para>
+
+      <para>Arrays can be compared for equality, but they cannot be compared
+      for ordering or ranges. Array expressions are therefore not allowed in
+      ORDER BY clauses, or expressions that involve GREATER THAN etc. Two
+      arrays are equal if they have the same length and the values at each
+      index position are either equal or both NULL.</para>
+
+      <para><emphasis>USER DEFINED FUNCTIONS and PROCEDURES</emphasis></para>
+
+      <para>Array parameters, variables and return values can be specified in
+      user defined functions and procedures, inclusing aggregate functions.
+      This allows a wider range of applications to be covered by user defined
+      functions and easier data exchange between the engine and the user's
+      application.</para>
+    </section>
+  </section>
+
   <section xml:id="sqlgeneral_constr_indexes-sect">
     <title>Indexes and Query Speed</title>
 
@@ -1357,12 +1568,12 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     now extended to all equality conditions on multiple columns that are part
     of an index.</para>
 
-    <para>HyperSQL 2.0 will also use indexes when several conditions are
-    combined with the OR operator and each condition can use an index (each
-    condition may use a different index). For example, if a huge table has two
-    separate columns for first name and last name, and both columns are
-    indexed, a query such as the following example will use the indexes and
-    complete in a short time:</para>
+    <para>HyperSQL will also use indexes when several conditions are combined
+    with the OR operator and each condition can use an index (each condition
+    may use a different index). For example, if a huge table has two separate
+    columns for first name and last name, and both columns are indexed, a
+    query such as the following example will use the indexes and complete in a
+    short time:</para>
 
     <informalexample>
       <programlisting>    (TC is a very large table)
@@ -1371,28 +1582,40 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
 </programlisting>
     </informalexample>
 
-    <para>HyperSQL 2.0 optimises simple row count queries in the form of
-    SELECT COUNT(*) FROM &lt;table&gt; and returns the result immediately
-    (this optimisation does not take place in MVCC mode).</para>
+    <para>HyperSQL optimises simple row count queries in the form of SELECT
+    COUNT(*) FROM &lt;table&gt; and returns the result immediately (this
+    optimisation does not take place in MVCC mode).</para>
 
-    <para>HyperSQL 2.0 can use an index on a column for SELECT
-    MAX(&lt;column&gt;) FROM &lt;table&gt; and SELECT MIN(&lt;column&gt;) FROM
-    &lt;table&gt; queries. There should be an index on the &lt;column&gt; and
-    the query can have a WHERE condition on the same column. In the example
-    below the maximum value for the TB.COL3 below 1000000 is returned.</para>
+    <para>HyperSQL can use an index on a column for SELECT MAX(&lt;column&gt;)
+    FROM &lt;table&gt; and SELECT MIN(&lt;column&gt;) FROM &lt;table&gt;
+    queries. There should be an index on the &lt;column&gt; and the query can
+    have a WHERE condition on the same column. In the example below the
+    maximum value for the TB.COL3 below 1000000 is returned.</para>
 
     <informalexample>
       <programlisting>    SELECT MAX(TB.COL3) FROM TB WHERE TB.COL &lt; 1000000
 </programlisting>
     </informalexample>
 
-    <para>HyperSQL 2.0 can use an index on an ORDER BY clause if all the
-    columns in ORDER BY are in a single column or multicolumn index (in the
-    exact order). This is important if there is a LIMIT n (or FETCH n ROWS
-    ONLY) clause. This also works for joined tables when the ORDER BY clause
-    is on the columns of the first table in a join. In the two examples below,
-    the index on TB.COL3 is used and only up to 1000 rows are processed and
-    returned.</para>
+    <para>HyperSQL can use an index on an ORDER BY clause if all the columns
+    in ORDER BY are in a single-column or multi-column index (in the exact
+    order). This is important if there is a LIMIT n (or FETCH n ROWS ONLY)
+    clause. In this situation, the use of index allows the query processor to
+    access only the number of rows specified in the LIMIT clause, instead of
+    building the whole result set, which can be huge. This also works for
+    joined tables when the ORDER BY clause is on the columns of the first
+    table in a join. Indexes are used in the same way when ORDER BY ... DESC
+    is specified in the query. Note that unlike other RDBMS, HyperSQL does not
+    create DESC indexes. It can use any index for ORDER BY ... DESC.</para>
+
+    <para>If there is an equality or range condition (e.g. EQUALS, GREATER
+    THAN) condition on the columns specified in the ORDER BY clause, the index
+    is still used. But if the query contains an eqaulity condition on another
+    indexed column in the table, this may take precedence and no index may be
+    used for ORDER BY.</para>
+
+    <para>In the two examples below, the index on TB.COL3 is used and only up
+    to 1000 rows are processed and returned.</para>
 
     <informalexample>
       <programlisting>    (TB is a very large table with an index on TB.COL3
@@ -1401,7 +1624,5 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 WHERE TB.COL3 &gt; 40000 AND TB.COL3 &lt; 100000 ORDER BY TB.COL3 DESC LIMIT 1000;
 </programlisting>
     </informalexample>
-
-    <para></para>
   </section>
 </chapter>

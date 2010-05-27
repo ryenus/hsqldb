@@ -1493,6 +1493,50 @@
   </section>
 
   <section>
+    <title>Array Functions</title>
+
+    <para>Array functions are specialized functions with ARRAY
+    parameters.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CARDINALITY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CARDINALITY</emphasis></simpara>
+
+    <para><literal>CARDINALITY( &lt;array value expr&gt; )</literal></para>
+
+    <para>Returns the element count for the given array argument.
+    (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>MAX_CARDINALITY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">MAX_CARDINALITY</emphasis></simpara>
+
+    <para><literal>MAX_CARDINALITY( &lt;array value expr&gt;
+    )</literal></para>
+
+    <para>Returns the maximum allowd element count for the given array
+    argument. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRIM_ARRAY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRIM_ARRAY</emphasis></simpara>
+
+    <para><literal>TRIM_ARRAY( &lt;array value expr&gt;, &lt;num value
+    expr&gt; )</literal></para>
+
+    <para>Returns a new array that contains the elements of the
+    <literal>&lt;array value expr&gt;</literal> minus the number of elements
+    specified by the <literal>&lt;num value expr&gt;. Elements are discarded
+    from the end of the array</literal>. (Foundation)</para>
+  </section>
+
+  <section>
     <title>General Functions</title>
 
     <para>General functions can take different types of arguments. Some
