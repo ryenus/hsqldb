@@ -190,9 +190,9 @@ DROP TABLE HLO
 /*c5*/ select p1.country from place p1,place p2 where p1.country=p2.country
 /*c1*/ select * from t_double where id>-10 and d>1.3 and d>.3
 /*c2*/ select * from t_double where d>-20 or f<10.2
-/*c2*/ select d,t,d from t_date where d>'1900-08-21';
-/*c1*/ select d,*,d from t_date where ts>'2000-01-01 00:00:00'
-/*c0*/ select t_date.*,* from t_date where t<='01:00:00'
+/*c2*/ select d,t from t_date where d>'1900-08-21';
+/*c1*/ select d from t_date where ts>'2000-01-01 00:00:00'
+/*c0*/ select t_date.* from t_date where t<='01:00:00'
 /*c2*/ select * from t_bit where b1<=false or b2>true
 /*c2*/ select * from t_bit where not(b1<=false or b2>true)
 /*c2*/ select P.*, C.Name ClassName from Problem P,Class C

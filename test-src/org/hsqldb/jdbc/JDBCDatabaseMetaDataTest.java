@@ -235,7 +235,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.nulls.are.sorted.low",
-                true);
+                false);
         boolean result = dbmd.nullsAreSortedLow();
         assertEquals(expResult, result);
     }
@@ -250,7 +250,7 @@ public class JDBCDatabaseMetaDataTest extends BaseJdbcTestCase {
 
         boolean expResult = getBooleanProperty(
                 "dbmd.nulls.are.sorted.at.start",
-                false);
+                true);
         boolean result = dbmd.nullsAreSortedAtStart();
         assertEquals(expResult, result);
     }
