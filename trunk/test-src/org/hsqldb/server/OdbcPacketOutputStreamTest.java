@@ -71,13 +71,13 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
          // the writeByteChar() method is explicitly not for ext. characters.
 
         int preLength = targetPacket.getSize();
-        targetPacket.write("Ein groß Baum\nwith blossom", false);
+        targetPacket.write("Ein gro\u00df Baum\nwith blossom", false);
         if (targetPacket.getSize() - preLength != 27) {
             throw new RuntimeException(
                  "Assertion failed.  Fix test because encoding size changed");
         }
         targetPacket.write("Another string", true);
-        targetPacket.writeSized("Ein groß Baum\nmit blossom");
+        targetPacket.writeSized("Ein gro\u00df Baum\nmit blossom");
         targetPacket.xmit('a', dos);
         dos.flush();
         dos.close();
@@ -297,7 +297,7 @@ public class OdbcPacketOutputStreamTest extends junit.framework.TestCase {
             new ByteArrayInputStream(ba, 5, ba.length - 5), "UTF-8"));
         char[] ca = new char[100];
         int charsRead;
-        
+
         assertTrue("Packet did not provide a good character stream (1)",
             utfReader.ready());
         charsRead = utfReader.read(ca, 0, testString1.length());
