@@ -122,21 +122,64 @@
       <para>Session variables are user-defined variables created the same way
       as the variables for stored procedures and functions. Currently, these
       variables cannot be used in general SQL statements. They can be assigned
-      to IN, INOUT and OUT arguments of stored procedures. This allows calling
-      stored procedures which have INOUT or OUT arguments and is useful for
-      development and debugging. See the example in the <link
+      to IN, INOUT and OUT parameters of stored procedures. This allows
+      calling stored procedures which have INOUT or OUT arguments and is
+      useful for development and debugging. See the example in the <link
       endterm="sqlroutines-title" ns6:href="#sqlroutines-chapt"></link>
       chapter, under Formal Parameters.</para>
 
       <example>
         <title>User-defined Session Variables</title>
 
-        <screen>    DECLARE counter INTEGER DEFAULT 3;
-    DECLARE result VARCHAR(20) DEFAULT NULL;
-    SET counter=15;
-    CALL myroutine(counter, result)
+        <screen>  DECLARE counter INTEGER DEFAULT 3;
+  DECLARE result VARCHAR(20) DEFAULT NULL;
+  SET counter=15;
+  CALL myroutine(counter, result)
 </screen>
       </example>
+    </section>
+
+    <section>
+      <title>Session Tables</title>
+
+      <para>With necessary access privileges, sessions can access all table,
+      including GLOBAL TEMPORARY tables, that are defined in schemas. Although
+      GLOBAL TEMPORARY tables have a single name and definition which applies
+      to all sessions that use them, the contents of the tables are different
+      for each session. The contents are cleared either at the end of each
+      transaction or when the session is closed.</para>
+
+      <para>Session tables are different because their definition is visible
+      only within the session that defines a table. The definition is dropped
+      when the session is closed. Session tables do not belong to
+      schemas.</para>
+
+      <para><literal>&lt;temporary table declaration&gt; ::= DECLARE LOCAL
+      TEMPORARY TABLE &lt;table name&gt; &lt;table element list&gt; [ ON
+      COMMIT { PRESERVE | DELETE } ROWS ]</literal></para>
+
+      <para>The syntax for declaration is based on the SQL Standard. A session
+      table cannot have FOREIGN KEY constraints, but it can have PRIMARY KEY,
+      UNIQUE or CHECK constraints. A session table definition cannot be
+      modified by adding or removing columns, indexes, etc.</para>
+
+      <para>It is possible to refer to a session table using its name, which
+      takes precedence over a schema table of the same name. To distinguish a
+      session table from schema tables, the pseudo schema name, MODULE can be
+      used. An example is given below:</para>
+
+      <para><example>
+          <title>User-defined Temporary Session Tables</title>
+
+          <screen>  DECLARE LOCAL TEMPORARY TABLE buffer (id INTEGER PRIMARY KEY, textdata VARCHAR(100)) ON COMMIT PRESERVE ROWS
+  INSERT INTO module.buffer SELECT id, firstname || ' ' || lastname FROM customers
+  -- do some more work
+  DROP TABLE module.buffer
+</screen>
+        </example>Session tables can be created inside a transaction.
+      Automatic indexes are created and used on session tables when necessary
+      for a query or other statement. By default, session table data is held
+      in memory. If the session property</para>
     </section>
   </section>
 
@@ -517,9 +560,9 @@
     <example>
       <title>Setting Transaction Characteristics</title>
 
-      <screen>    SET TRANSACTION READ ONLY
-    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
-    SET TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
+      <screen>  SET TRANSACTION READ ONLY
+  SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+  SET TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
 </screen>
     </example>
 
@@ -570,7 +613,7 @@
     <example>
       <title>Locking Tables</title>
 
-      <screen>    LOCK TABLE table_a WRITE, table_b READ</screen>
+      <screen>  LOCK TABLE table_a WRITE, table_b READ</screen>
     </example>
 
     <indexterm significance="preferred" type="sql">
@@ -658,11 +701,11 @@
     <example>
       <title>Rollback</title>
 
-      <screen>    -- perform some inserts, deletes, etc.
-    SAVEPOINT A
-    -- perform some inserts, deletes, selects etc.
-    ROLLBACK WORK TO SAVEPOINT A
-    -- all the work after the declaration of SAVEPOINT A is rolled back
+      <screen>  -- perform some inserts, deletes, etc.
+  SAVEPOINT A
+  -- perform some inserts, deletes, selects etc.
+  ROLLBACK WORK TO SAVEPOINT A
+  -- all the work after the declaration of SAVEPOINT A is rolled back
 </screen>
     </example>
 
@@ -718,9 +761,9 @@
     <example>
       <title>Setting Session Characteristics</title>
 
-      <screen>    SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY
-    SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
-    SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
+      <screen>  SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY
+  SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
+  SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE, ISOLATION LEVEL READ COMMITTED
 </screen>
     </example>
 
@@ -747,8 +790,8 @@
     <example>
       <title>Setting Session Authorization</title>
 
-      <screen>    SET SESSION AUTHORIZATION 'FELIX'
-    SET SESSION AUTHORIZATION SESSION_USER
+      <screen>  SET SESSION AUTHORIZATION 'FELIX'
+  SET SESSION AUTHORIZATION SESSION_USER
 </screen>
     </example>
 
@@ -892,6 +935,33 @@
     &lt;n&gt;. Therefore this command is not recommended for general use. The
     only legitimate use of this command is for checking and testing queries
     that may return very large numbers of rows.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET SESSION RESULT MEMORY ROWS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET SESSION RESULT MEMORY
+    ROWS</emphasis></simpara>
+
+    <simpara><emphasis>set session result memory rows
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set session result memory rows statement&gt; ::= SET
+    SESSION RESULT MEMORY ROWS &lt;unsigned integer
+    literal&gt;</literal></simpara>
+
+    <simpara>By default the session uses memory to build result sets, subquery
+    results and temporary tables. This command sets the maximum number of rows
+    of the result (and temporary tables) that should be kept in memory. If the
+    row count of the result or temporary table exceeds the setting, the result
+    is stored on disk. The default is 0, meaning all result sets are held in
+    memory.</simpara>
+
+    <simpara>This statement applies to the current session only. The general
+    database setting is:</simpara>
+
+    <simpara><literal>SET DATABASE DEFAULT RESULT MEMORY ROWS &lt;unsigned
+    integer literal&gt;</literal></simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET IGNORECASE</primary>
