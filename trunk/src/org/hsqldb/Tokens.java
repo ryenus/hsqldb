@@ -54,7 +54,7 @@ public class Tokens {
     static final String        T_AND              = "AND";
     static final String        T_ANY              = "ANY";
     static final String        T_ARE              = "ARE";
-    static final String        T_ARRAY            = "ARRAY";
+    public static final String T_ARRAY            = "ARRAY";
     public static final String T_AS               = "AS";
     static final String        T_ASENSITIVE       = "ASENSITIVE";
     static final String        T_ASYMMETRIC       = "ASYMMETRIC";
@@ -222,7 +222,7 @@ public class Tokens {
     static final String        T_MODIFIES          = "MODIFIES";
     static final String        T_MODULE            = "MODULE";
     public static final String T_MONTH             = "MONTH";
-    static final String        T_MULTISET          = "MULTISET";
+    public static final String T_MULTISET          = "MULTISET";
     static final String        T_NATIONAL          = "NATIONAL";
     static final String        T_NATURAL           = "NATURAL";
     static final String        T_NCHAR             = "NCHAR";
@@ -373,7 +373,7 @@ public class Tokens {
 
     // ops
     static final String        T_ASTERISK       = "*";
-    static final String        T_COMMA          = ",";
+    public static final String T_COMMA          = ",";
     static final String        T_CIRCUMFLEX     = "^";
     static final String        T_CLOSEBRACKET   = ")";
     static final String        T_COLON          = ":";
@@ -382,6 +382,7 @@ public class Tokens {
     static final String        T_EQUALS         = "=";
     static final String        T_GREATER        = ">";
     static final String        T_GREATER_EQUALS = ">=";
+    public static final String T_LEFTBRACKET    = "[";
     static final String        T_LESS           = "<";
     static final String        T_LESS_EQUALS    = "<=";
     static final String        T_PERCENT        = "%";
@@ -391,6 +392,7 @@ public class Tokens {
     static final String        T_NOT_EQUALS_ALT = "!=";
     static final String        T_OPENBRACKET    = "(";
     static final String        T_QUESTION       = "?";
+    public static final String T_RIGHTBRACKET   = "]";
     static final String        T_SEMICOLON      = ";";
     static final String        T_DOUBLE_COLON   = "::";
 
@@ -621,7 +623,7 @@ public class Tokens {
     // other tokens
     static final String        T_ADD                 = "ADD";
     static final String        T_ALIAS               = "ALIAS";
-    static final String        T_AGGREGATE            = "AGGREGATE";
+    static final String        T_AGGREGATE           = "AGGREGATE";
     static final String        T_AUTOCOMMIT          = "AUTOCOMMIT";
     public static final String T_BACKUP              = "BACKUP";
     public static final String T_BIT                 = "BIT";
@@ -1134,7 +1136,6 @@ public class Tokens {
     public static final int YEAR                             = 322;
 
     //
-
     //SQL 200n Standard non-reserved keywords - full set
     public static final int A                           = 330;
     public static final int ABSOLUTE                    = 331;
@@ -1357,7 +1358,6 @@ public class Tokens {
     public static final int WRAPPER                     = 548;
     public static final int ZONE                        = 549;
 
-
     // other token values used as switch cases
     static final int ALIAS        = 551;
     static final int AGGREGATE    = 552;
@@ -1499,25 +1499,27 @@ public class Tokens {
     static final int DATABASE_VERSION         = 688;
 
     //
-    static final int        ASTERISK         = 781;
-    static final int        CLOSEBRACKET     = 782;
-    static final int        COLON            = 783;
-    static final int        COMMA            = 784;
-    static final int        CONCAT           = 785;
-    static final int        DIVIDE           = 786;
-    static final int        DOUBLE_COLON_OP  = 787;
-    static final int        DOUBLE_PERIOD_OP = 788;
-    static final int        GREATER          = 789;
-    static final int        GREATER_EQUALS   = 790;
-    static final int        LESS             = 791;
-    static final int        LESS_EQUALS      = 792;
-    public static final int MINUS            = 793;
-    static final int        NOT_EQUALS       = 794;
-    static final int        OPENBRACKET      = 795;
-    static final int        PLUS             = 796;
-    static final int        QUESTION         = 797;
-    static final int        RIGHT_ARROW_OP   = 798;
-    static final int        SEMICOLON        = 799;
+    static final int        ASTERISK         = 771;
+    static final int        CLOSEBRACKET     = 772;
+    static final int        COLON            = 773;
+    static final int        COMMA            = 774;
+    static final int        CONCAT           = 775;
+    static final int        DIVIDE           = 776;
+    static final int        DOUBLE_COLON_OP  = 777;
+    static final int        DOUBLE_PERIOD_OP = 778;
+    static final int        GREATER          = 779;
+    static final int        GREATER_EQUALS   = 780;
+    static final int        LEFTBRACKET      = 781;
+    static final int        LESS             = 782;
+    static final int        LESS_EQUALS      = 783;
+    public static final int MINUS            = 784;
+    static final int        NOT_EQUALS       = 785;
+    static final int        OPENBRACKET      = 786;
+    static final int        PLUS             = 787;
+    static final int        QUESTION         = 788;
+    static final int        RIGHT_ARROW_OP   = 789;
+    static final int        RIGHTBRACKET     = 790;
+    static final int        SEMICOLON        = 791;
 
     //
     static final int SQL_BIGINT        = 801;
@@ -2015,6 +2017,7 @@ public class Tokens {
         commandSet.put(T_NULLS, NULLS);
         commandSet.put(T_OFF, OFF);
         commandSet.put(T_OPTION, OPTION);
+        commandSet.put(T_ORDINALITY, ORDINALITY);
         commandSet.put(T_OVERRIDING, OVERRIDING);
         commandSet.put(T_P_FACTOR, P);
         commandSet.put(T_PARTIAL, PARTIAL);
@@ -2191,6 +2194,7 @@ public class Tokens {
         commandSet.put(T_EQUALS, Tokens.EQUALS);
         commandSet.put(T_GREATER, Tokens.GREATER);
         commandSet.put(T_GREATER_EQUALS, Tokens.GREATER_EQUALS);
+        commandSet.put(T_LEFTBRACKET, LEFTBRACKET);
         commandSet.put(T_LESS, Tokens.LESS);
         commandSet.put(T_LESS_EQUALS, Tokens.LESS_EQUALS);
         commandSet.put(T_MINUS, Tokens.MINUS);
@@ -2199,6 +2203,7 @@ public class Tokens {
         commandSet.put(T_OPENBRACKET, OPENBRACKET);
         commandSet.put(T_PLUS, Tokens.PLUS);
         commandSet.put(T_QUESTION, Tokens.QUESTION);
+        commandSet.put(T_RIGHTBRACKET, RIGHTBRACKET);
         commandSet.put(T_SEMICOLON, SEMICOLON);
     }
 

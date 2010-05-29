@@ -441,7 +441,7 @@ public class SetFunction implements Serializable {
             }
             case OpTypes.MIN :
             case OpTypes.MAX :
-                if (type.isLobType()) {
+                if (type.isArrayType() || type.isLobType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
                 return type;

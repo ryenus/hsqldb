@@ -83,7 +83,9 @@ public class ExpressionColumn extends Expression {
 
         super(OpTypes.COLUMN);
 
-        columnName = column.getName().name;
+        this.column   = column;
+        this.dataType = column.getDataType();
+        columnName    = column.getName().name;
     }
 
     ExpressionColumn(RangeVariable rangeVar, ColumnSchema column) {
@@ -479,21 +481,6 @@ public class ExpressionColumn extends Expression {
                 break;
             }
         }
-    }
-
-    Object getValue(Session session, Type type) {
-
-        if (dataType == type) {
-            return getValue(session);
-        }
-
-        Object o = getValue(session);
-
-        if (o == null) {
-            return o;
-        }
-
-        return type.convertToType(session, o, dataType);
     }
 
     public Object getValue(Session session) {

@@ -54,9 +54,9 @@ public class StatementSet extends StatementDMQL {
     Expression expression;
 
     //
-    ColumnSchema[] variables;
-    int[]          variableIndexes;
-    Type[]         sourceTypes;
+    Expression[] targets;
+    int[]        variableIndexes;
+    Type[]       sourceTypes;
 
     //
     final int               operationType;
@@ -65,22 +65,22 @@ public class StatementSet extends StatementDMQL {
     public final static int VARIABLE_SET = 3;
 
     /**
-     * Instantiate this as a SET statement.
+     * Trigger SET statement.
      */
-    StatementSet(Session session, Table table, RangeVariable rangeVars[],
-                 int[] updateColumnMap, Expression[] colExpressions,
-                 CompileContext compileContext) {
+    StatementSet(Session session, Expression[] targets, Table table,
+                 RangeVariable rangeVars[], int[] indexes,
+                 Expression[] colExpressions, CompileContext compileContext) {
 
         super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
 
-        this.operationType     = TRIGGER_SET;
-        this.targetTable       = table;
-        this.baseTable         = targetTable.getBaseTable();
-        this.updateColumnMap   = updateColumnMap;
-        this.updateExpressions = colExpressions;
-        this.updateCheckColumns =
-            targetTable.getColumnCheckList(updateColumnMap);
+        this.operationType        = TRIGGER_SET;
+        this.targets              = targets;
+        this.targetTable          = table;
+        this.baseTable            = targetTable.getBaseTable();
+        this.updateColumnMap      = indexes;
+        this.updateExpressions    = colExpressions;
+        this.updateCheckColumns   = targetTable.getColumnCheckList(indexes);
         this.targetRangeVariables = rangeVars;
         isTransactionStatement    = false;
 
@@ -88,34 +88,39 @@ public class StatementSet extends StatementDMQL {
         checkAccessRights(session);
     }
 
-    StatementSet(Session session, CompileContext compileContext,
-                 ColumnSchema[] variables, Expression e, int[] indexes) {
+    /**
+     * PSM and session variable SET
+     */
+    StatementSet(Session session, Expression[] targets, Expression e,
+                 int[] indexes, CompileContext compileContext) {
 
         super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_CONTROL, null);
 
         this.operationType     = VARIABLE_SET;
-        isTransactionStatement = false;
+        this.targets           = targets;
         this.expression        = e;
-        this.variables         = variables;
         variableIndexes        = indexes;
         sourceTypes            = expression.getNodeDataTypes();
+        isTransactionStatement = false;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
     }
 
-    StatementSet(Session session, CompileContext compileContext,
-                 ColumnSchema[] variables, QueryExpression query,
-                 int[] indexes) {
+    /**
+     * Single row SELECT INTO
+     */
+    StatementSet(Session session, Expression[] targets, QueryExpression query,
+                 int[] indexes, CompileContext compileContext) {
 
         super(StatementTypes.ASSIGNMENT, StatementTypes.X_SQL_CONTROL, null);
 
         this.operationType     = SELECT_INTO;
-        isTransactionStatement = false;
         this.queryExpression   = query;
-        this.variables         = variables;
+        this.targets           = targets;
         variableIndexes        = indexes;
         sourceTypes            = query.getColumnTypes();
+        isTransactionStatement = false;
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -167,8 +172,8 @@ public class StatementSet extends StatementDMQL {
 
                 for (int i = 0; i < values.length; i++) {
                     values[i] =
-                        variables[i].getDataType().convertToType(session,
-                            values[i], sourceTypes[i]);
+                        targets[i].getColumn().getDataType().convertToType(
+                            session, values[i], sourceTypes[i]);
                 }
 
                 result = executeAssignment(session, values);
@@ -185,9 +190,18 @@ public class StatementSet extends StatementDMQL {
                 }
 
                 for (int i = 0; i < values.length; i++) {
-                    values[i] =
-                        variables[i].getDataType().convertToType(session,
-                            values[i], sourceTypes[i]);
+                    Type targetType;
+
+                    if (targets[i].getType() == OpTypes.ARRAY_ACCESS) {
+                        targetType =
+                            targets[i].getLeftNode().getColumn().getDataType()
+                                .collectionBaseType();
+                    } else {
+                        targetType = targets[i].getColumn().getDataType();
+                    }
+
+                    values[i] = targetType.convertToType(session, values[i],
+                                                         sourceTypes[i]);
                 }
 
                 result = executeAssignment(session, values);
@@ -243,8 +257,9 @@ public class StatementSet extends StatementDMQL {
 
                 /** @todo - cover row assignment */
                 sb.append(Tokens.T_SET).append(' ');
-                sb.append(variables[0].getName().statementName).append(' ');
-                sb.append('=').append(' ').append(expression.getSQL());
+                sb.append(targets[0].getColumn().getName().statementName);
+                sb.append(' ').append('=').append(' ').append(
+                    expression.getSQL());
 
                 break;
             }
@@ -302,8 +317,8 @@ public class StatementSet extends StatementDMQL {
         int index = targetRangeVariables[TriggerDef.NEW_ROW].rangePosition;
         Object[] oldData =
             session.sessionContext.rangeIterators[index].getCurrent();
-        Object[] data = StatementDML.getUpdatedData(session, table, colMap,
-            colExpressions, colTypes, oldData);
+        Object[] data = StatementDML.getUpdatedData(session, targets, table,
+            colMap, colExpressions, colTypes, oldData);
 
         ArrayUtil.copyArray(data, oldData, data.length);
 
@@ -369,7 +384,7 @@ public class StatementSet extends StatementDMQL {
         for (int j = 0; j < values.length; j++) {
             Object[] data = ValuePool.emptyObjectArray;
 
-            switch (variables[j].getType()) {
+            switch (targets[j].getColumn().getType()) {
 
                 case SchemaObject.PARAMETER :
                     data = session.sessionContext.routineArguments;
@@ -382,7 +397,13 @@ public class StatementSet extends StatementDMQL {
 
             int colIndex = variableIndexes[j];
 
-            data[colIndex] = values[j];
+            if (targets[j].getType() == OpTypes.ARRAY_ACCESS) {
+                data[colIndex] =
+                    ((ExpressionAccessor) targets[j]).getUpdatedArray(session,
+                        (Object[]) data[colIndex], values[j], true);
+            } else {
+                data[colIndex] = values[j];
+            }
         }
 
         return Result.updateZeroResult;

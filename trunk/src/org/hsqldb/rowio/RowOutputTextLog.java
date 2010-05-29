@@ -51,7 +51,7 @@ import org.hsqldb.types.Type;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @since 1.9.0
+ * @since 2.0.0
  * @version 1.7.2
  */
 public class RowOutputTextLog extends RowOutputBase {
@@ -61,7 +61,7 @@ public class RowOutputTextLog extends RowOutputBase {
     static byte[] BYTES_FALSE;
     static byte[] BYTES_AND;
     static byte[] BYTES_IS;
-
+    static byte[] BYTES_ARRAY;
 
     static {
         try {
@@ -70,6 +70,7 @@ public class RowOutputTextLog extends RowOutputBase {
             BYTES_FALSE = Tokens.T_FALSE.getBytes("ISO-8859-1");
             BYTES_AND   = " AND ".getBytes("ISO-8859-1");
             BYTES_IS    = " IS ".getBytes("ISO-8859-1");
+            BYTES_ARRAY = " ARRAY[".getBytes("ISO-8859-1");
         } catch (UnsupportedEncodingException e) {
             Error.runtimeError(ErrorCode.U_S0500, "RowOutputTextLog");
         }
@@ -79,6 +80,7 @@ public class RowOutputTextLog extends RowOutputBase {
     public static final int MODE_INSERT = 0;
     private boolean         isWritten;
     private int             logMode;
+    private boolean         noSeparators;
 
     public void setMode(int mode) {
         logMode = mode;
@@ -86,8 +88,10 @@ public class RowOutputTextLog extends RowOutputBase {
 
     protected void writeFieldPrefix() {
 
-        if (logMode == MODE_DELETE && isWritten) {
-            write(BYTES_AND);
+        if (!noSeparators) {
+            if (logMode == MODE_DELETE && isWritten) {
+                write(BYTES_AND);
+            }
         }
     }
 
@@ -139,6 +143,25 @@ public class RowOutputTextLog extends RowOutputBase {
         writeString(Long.toString(o.getId()));
     }
 
+    protected void writeArray(Object[] o, Type type) {
+
+        type = type.collectionBaseType();
+
+        noSeparators = true;
+        write(BYTES_ARRAY);
+
+        for (int i = 0; i < o.length; i++) {
+            if (i > 0) {
+                write(',');
+            }
+
+            writeData(type, o[i]);
+        }
+
+        write(']');
+        noSeparators = false;
+    }
+
     public void writeType(int type) {}
 
     public void writeSize(int size) {}
@@ -162,13 +185,15 @@ public class RowOutputTextLog extends RowOutputBase {
 //fredt@users - patch 1108647 by nkowalcz@users (NataliaK) fix for IS NULL
     protected void writeNull(Type type) {
 
-        if (logMode == MODE_DELETE) {
-            write(BYTES_IS);
-        } else if (isWritten) {
-            write(',');
-        }
+        if (!noSeparators) {
+            if (logMode == MODE_DELETE) {
+                write(BYTES_IS);
+            } else if (isWritten) {
+                write(',');
+            }
 
-        isWritten = true;
+            isWritten = true;
+        }
 
         write(BYTES_NULL);
     }
@@ -199,13 +224,15 @@ public class RowOutputTextLog extends RowOutputBase {
 
     protected void writeFieldType(Type type) {
 
-        if (logMode == MODE_DELETE) {
-            write('=');
-        } else if (isWritten) {
-            write(',');
-        }
+        if (!noSeparators) {
+            if (logMode == MODE_DELETE) {
+                write('=');
+            } else if (isWritten) {
+                write(',');
+            }
 
-        isWritten = true;
+            isWritten = true;
+        }
     }
 
     public void writeLong(long value) {

@@ -51,6 +51,7 @@ import org.hsqldb.types.Type;
 public class ExpressionLogical extends Expression {
 
     boolean noOptimisation;
+    boolean isQuantified;
 
     /**
      * For LIKE
@@ -248,6 +249,16 @@ public class ExpressionLogical extends Expression {
             }
 
             set.add(index);
+        }
+    }
+
+    public void setSubType(int type) {
+
+        exprSubType = type;
+
+        if (exprSubType == OpTypes.ALL_QUANTIFIED
+                || exprSubType == OpTypes.ANY_QUANTIFIED) {
+            isQuantified = true;
         }
     }
 
@@ -520,6 +531,22 @@ public class ExpressionLogical extends Expression {
 
     public void resolveTypes(Session session, Expression parent) {
 
+        // parametric ALL / ANY
+        if (isQuantified) {
+            if (nodes[RIGHT].opType == OpTypes.TABLE) {
+                if (nodes[RIGHT] instanceof ExpressionTable) {
+                    if (nodes[RIGHT].nodes[LEFT].opType
+                            == OpTypes.DYNAMIC_PARAM) {
+                        nodes[LEFT].resolveTypes(session, this);
+
+                        nodes[RIGHT].nodes[LEFT].dataType =
+                            Type.getDefaultArrayType(
+                                nodes[LEFT].dataType.typeCode);
+                    }
+                }
+            }
+        }
+
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
                 nodes[i].resolveTypes(session, this);
@@ -743,7 +770,8 @@ public class ExpressionLogical extends Expression {
 
             if (opType == OpTypes.EQUAL || opType == OpTypes.NOT_EQUAL) {}
             else {
-                if (nodes[LEFT].dataType.isLobType()
+                if (nodes[LEFT].dataType.isArrayType()
+                        || nodes[LEFT].dataType.isLobType()
                         || nodes[RIGHT].dataType.isLobType()) {
                     throw Error.error(ErrorCode.X_42534);
                 }
@@ -797,7 +825,8 @@ public class ExpressionLogical extends Expression {
             Type leftType  = nodes[LEFT].nodeDataTypes[i];
             Type rightType = nodes[RIGHT].nodeDataTypes[i];
 
-            if (leftType.isLobType() || rightType.isLobType()) {
+            if (leftType.isArrayType() || leftType.isLobType()
+                    || rightType.isLobType()) {
                 throw Error.error(ErrorCode.X_42534);
             }
         }
@@ -967,7 +996,7 @@ public class ExpressionLogical extends Expression {
                                           nodes[LEFT].getRowValue(session));
             }
             case OpTypes.UNIQUE : {
-                nodes[LEFT].subQuery.materialiseCorrelated(session);
+                nodes[LEFT].materialise(session);
 
                 return nodes[LEFT].subQuery.hasUniqueNotNullRows(session)
                        ? Boolean.TRUE
@@ -1309,19 +1338,18 @@ public class ExpressionLogical extends Expression {
             return hasMatch ? Boolean.TRUE
                             : Boolean.FALSE;
         } else if (nodes[RIGHT].opType == OpTypes.TABLE_SUBQUERY) {
-            PersistentStore store = session.sessionData.getRowStore(
-                nodes[RIGHT].subQuery.getTable());
+            PersistentStore store =
+                session.sessionData.getRowStore(nodes[RIGHT].getTable());
 
-            nodes[RIGHT].subQuery.materialiseCorrelated(session);
+            nodes[RIGHT].materialise(session);
             convertToType(session, data, nodes[LEFT].nodeDataTypes,
                           nodes[RIGHT].nodeDataTypes);
 
             if (nulls != 0
                     && (opType == OpTypes.MATCH_PARTIAL
                         || opType == OpTypes.MATCH_UNIQUE_PARTIAL)) {
-                boolean hasMatch = false;
-                RowIterator it =
-                    nodes[RIGHT].subQuery.getTable().rowIterator(session);
+                boolean     hasMatch = false;
+                RowIterator it = nodes[RIGHT].getTable().rowIterator(session);
 
                 while (it.hasNext()) {
                     Object[] rowData = it.getNextRow().getData();
@@ -1349,8 +1377,8 @@ public class ExpressionLogical extends Expression {
             }
 
             RowIterator it =
-                nodes[RIGHT].subQuery.getTable().getPrimaryIndex()
-                    .findFirstRow(session, store, data);
+                nodes[RIGHT].getTable().getPrimaryIndex().findFirstRow(session,
+                    store, data);
             boolean result = it.hasNext();
 
             if (!result) {
@@ -1387,20 +1415,10 @@ public class ExpressionLogical extends Expression {
 
     private Boolean testExistsCondition(Session session) {
 
-        SubQuery subQuery = nodes[LEFT].subQuery;
+        nodes[LEFT].materialise(session);
 
-        if (subQuery.isCorrelated()) {
-            subQuery.materialiseCorrelated(session);
-            /*
-                    Result r = subQuery.queryExpression.getResult(session, 1);    // 1 is already enough
-
-                    return r.getNavigator().isEmpty() ? Boolean.FALSE
-                                                      : Boolean.TRUE;
-        */
-        }
-
-        return subQuery.getTable().isEmpty(session) ? Boolean.FALSE
-                                                    : Boolean.TRUE;
+        return nodes[LEFT].getTable().isEmpty(session) ? Boolean.FALSE
+                                                       : Boolean.TRUE;
     }
 
     private Boolean testAllAnyCondition(Session session, Object[] o) {
@@ -1414,7 +1432,6 @@ public class ExpressionLogical extends Expression {
         return result;
     }
 
-    /** @todo - null value in rows */
     private Boolean getAllAnyValue(Session session, Object[] data,
                                    SubQuery subquery) {
 

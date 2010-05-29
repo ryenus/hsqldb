@@ -78,11 +78,13 @@ public class SqlInvariants {
     public static final String   SQLJ_SCHEMA        = "SQLJ";
     public static final String   PUBLIC_SCHEMA      = "PUBLIC";
     public static final String   CLASSPATH_NAME     = "CLASSPATH";
+    public static final String   MODULE             = "MODULE";
     public static final HsqlName INFORMATION_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SCHEMA_HSQLNAME;
     public static final HsqlName LOBS_SCHEMA_HSQLNAME;
     public static final HsqlName SQLJ_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SUBQUERY_HSQLNAME;
+    public static final HsqlName MODULE_HSQLNAME;
 
     static {
         INFORMATION_SCHEMA_HSQLNAME =
@@ -98,6 +100,8 @@ public class SqlInvariants {
         SYSTEM_SUBQUERY_HSQLNAME =
             HsqlNameManager.newSystemObjectName(SYSTEM_SUBQUERY,
                 SchemaObject.TABLE);
+        MODULE_HSQLNAME =
+            HsqlNameManager.newSystemObjectName(MODULE, SchemaObject.SCHEMA);
 
         SYSTEM_SUBQUERY_HSQLNAME.setSchemaIfNull(SYSTEM_SCHEMA_HSQLNAME);
     }

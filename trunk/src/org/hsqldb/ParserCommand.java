@@ -87,7 +87,7 @@ public class ParserCommand extends ParserDDL {
 
             cs = compilePart(cmd.getExecuteProperties());
 
-            if (cs.getParametersMetaData().getColumnCount() > 0) {
+            if (!cs.isExplain && cs.getParametersMetaData().getColumnCount() > 0) {
                 throw Error.error(ErrorCode.X_42575);
             }
 
@@ -273,7 +273,15 @@ public class ParserCommand extends ParserDDL {
     private Statement compileDeclare() {
 
         Statement    cs;
-        ColumnSchema variables[] = readLocalVariableDeclarationOrNull();
+        ColumnSchema variables[];
+
+        cs =  compileDeclareLocalTableOrNull();
+
+        if (cs != null) {
+            return cs;
+        }
+
+        variables = readLocalVariableDeclarationOrNull();
 
         if (variables != null) {
             Object[] args = new Object[]{ variables };

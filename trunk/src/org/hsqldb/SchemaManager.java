@@ -522,6 +522,14 @@ public class SchemaManager {
 
         Table t = null;
 
+        if (Tokens.T_MODULE.equals(schema)) {
+            t = findSessionTable(session, name, null);
+
+            if (t == null) {
+                throw Error.error(ErrorCode.X_42501, name);
+            }
+        }
+
         if (schema == null) {
             t = findSessionTable(session, name, null);
         }

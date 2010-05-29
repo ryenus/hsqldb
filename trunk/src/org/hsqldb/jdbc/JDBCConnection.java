@@ -63,6 +63,7 @@ import org.hsqldb.ClientConnectionHTTP;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringUtil;
@@ -70,7 +71,7 @@ import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
-import org.hsqldb.Tokens;
+import org.hsqldb.types.Type;
 
 import java.sql.SQLData;
 import java.sql.SQLOutput;
@@ -3048,7 +3049,24 @@ public class JDBCConnection implements Connection {
 
         checkClosed();
 
-        throw Util.notSupported();
+        if (typeName == null) {
+            throw Util.nullArgument();
+        }
+
+        typeName = typeName.toUpperCase();
+
+        int typeCode = Type.getTypeNr(typeName);
+
+        if (typeCode < 0) {
+            throw Util.invalidArgument(typeName);
+        }
+
+        Type type = Type.getDefaultType(typeCode);
+
+        for (int i = 0; i < elements.length; i++) {
+            elements[i] = type.convertJavaToSQL(sessionProxy, elements[i]);
+        }
+        return new JDBCArray(elements, type, this);
     }
 
 //#endif JAVA6

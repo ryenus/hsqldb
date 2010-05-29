@@ -330,7 +330,35 @@ public class ExpressionOp extends Expression {
                 }
 
                 if (nodes[LEFT].opType == OpTypes.VALUE) {
+                    Expression replacement = nodes[LEFT];
+
                     setAsConstantValue(session);
+
+                    replacement.dataType  = dataType;
+                    replacement.valueData = valueData;
+
+                    if (parent != null) {
+                        parent.replaceNode(this, replacement);
+                    }
+
+                    break;
+                }
+
+                if (nodes[LEFT].opType == OpTypes.DYNAMIC_PARAM) {
+                    nodes[LEFT].dataType = dataType;
+
+                    if (parent != null) {
+                        parent.replaceNode(this, nodes[LEFT]);
+                    }
+
+                    break;
+                }
+
+                if (dataType.equals(nodes[LEFT].dataType)) {
+
+                    if (parent != null) {
+                        parent.replaceNode(this, nodes[LEFT]);
+                    }
 
                     break;
                 }

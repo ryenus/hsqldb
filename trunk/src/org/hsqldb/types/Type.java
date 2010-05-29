@@ -62,6 +62,9 @@ public abstract class Type implements SchemaObject, Cloneable {
     public UserTypeModifier userTypeModifier;
 
     //
+    public final static int defaultArrayCardinality = 1024;
+
+    //
     Type(int typeGroup, int type, long precision, int scale) {
 
         this.typeComparisonGroup = typeGroup;
@@ -289,8 +292,26 @@ public abstract class Type implements SchemaObject, Cloneable {
     public abstract boolean canConvertFrom(Type otherType);
 
     public boolean canBeAssignedFrom(Type otherType) {
-        return otherType == null ? true :
-            this.typeComparisonGroup == otherType.typeComparisonGroup;
+
+        return otherType == null ? true
+                                 : this.typeComparisonGroup
+                                   == otherType.typeComparisonGroup;
+    }
+
+    public int arrayLimitCardinality() {
+        return 0;
+    }
+
+    public Type collectionBaseType() {
+        return null;
+    }
+
+    public boolean isArrayType() {
+        return false;
+    }
+
+    public boolean isMultisetType() {
+        return false;
     }
 
     public boolean isDistinctType() {
@@ -442,6 +463,10 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public Object concat(Session session, Object a, Object b) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+    }
+
+    public int cardinality(Session session, Object a) {
+        return 0;
     }
 
     public boolean equals(Object other) {
@@ -630,6 +655,16 @@ public abstract class Type implements SchemaObject, Cloneable {
         IntervalType.newIntervalType(Types.SQL_INTERVAL_SECOND,
                                      DTIType.maxIntervalPrecision,
                                      DTIType.maxFractionPrecision);
+
+    //
+    public static final ArrayType SQL_ARRAY_ALL_TYPES =
+        new ArrayType(SQL_ALL_TYPES, 0);
+
+
+    public static ArrayType getDefaultArrayType(int type) {
+        return new ArrayType(getDefaultType(type), Type.defaultArrayCardinality);
+    }
+
 
     public static Type getDefaultType(int type) {
 

@@ -378,6 +378,11 @@ public class ExpressionArithmetic extends Expression {
             throw Error.error(ErrorCode.X_42563);
         }
 
+        if (nodes[LEFT].dataType.isArrayType()
+                ^ nodes[RIGHT].dataType.isArrayType()) {
+            throw Error.error(ErrorCode.X_42563);
+        }
+
         // conversion of right argument to character for backward compatibility
         if (nodes[LEFT].dataType.isCharacterType()
                 && !nodes[RIGHT].dataType.isCharacterType()) {

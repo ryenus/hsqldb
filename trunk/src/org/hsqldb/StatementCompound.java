@@ -153,7 +153,7 @@ public class StatementCompound extends Statement {
 
                     if (variables[i].hasDefault()) {
                         sb.append(' ').append(Tokens.T_DEFAULT).append(' ');
-                        sb.append(variables[i].getDefaultDDL());
+                        sb.append(variables[i].getDefaultSQL());
                     }
 
                     sb.append(';');

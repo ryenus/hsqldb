@@ -39,13 +39,15 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.rowio.RowInputBinary;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
- * Meta data for a result set.
+ * Metadata for a result set.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.8.0
  */
 public final class ResultMetaData {
@@ -219,6 +221,7 @@ public final class ResultMetaData {
     }
 
     private static void decodeTableColumnAttrs(int in, ColumnBase column) {
+
         column.setNullability((byte) (in & 0x00000003));
         column.setIdentity((in & 0x00000004) != 0);
         column.setWriteable((in & 0x00000008) != 0);
@@ -265,9 +268,7 @@ public final class ResultMetaData {
                 columnTypes = new Type[columnCount];
 
                 for (int i = 0; i < columnCount; i++) {
-                    int type = in.readType();
-
-                    columnTypes[i] = Type.getDefaultType(type);
+                    columnTypes[i] = readDataTypeSimple(in);
                 }
 
                 return;
@@ -351,20 +352,59 @@ public final class ResultMetaData {
         }
     }
 
+    Type readDataTypeSimple(RowInputBinary in) throws IOException {
+
+        int     typeCode = in.readType();
+        boolean isArray  = typeCode == Types.SQL_ARRAY;
+
+        if (isArray) {
+            typeCode = in.readType();
+            return Type.getDefaultArrayType(typeCode);
+        }
+
+        return Type.getDefaultType(typeCode);
+    }
+
+
     Type readDataType(RowInputBinary in) throws IOException {
 
-        int  typeCode = in.readType();
-        long size     = in.readLong();
-        int  scale    = in.readInt();
+        int     typeCode = in.readType();
+        boolean isArray  = typeCode == Types.SQL_ARRAY;
 
-        return Type.getType(typeCode, 0, size, scale);
+        if (isArray) {
+            typeCode = in.readType();
+        }
+
+        long size  = in.readLong();
+        int  scale = in.readInt();
+        Type type  = Type.getType(typeCode, 0, size, scale);
+
+        if (isArray) {
+            type = new ArrayType(type, Type.defaultArrayCardinality);
+        }
+
+        return type;
     }
 
     void writeDataType(RowOutputInterface out, Type type) {
 
         out.writeType(type.typeCode);
+
+        if (type.isArrayType()) {
+            out.writeType(type.collectionBaseType().typeCode);
+        }
+
         out.writeLong(type.precision);
         out.writeInt(type.scale);
+    }
+
+    void writeDataTypeCodes(RowOutputInterface out, Type type) {
+
+        out.writeType(type.typeCode);
+
+        if (type.isArrayType()) {
+            out.writeType(type.collectionBaseType().typeCode);
+        }
     }
 
     void write(RowOutputInterface out) throws IOException {
@@ -377,7 +417,7 @@ public final class ResultMetaData {
             case UPDATE_RESULT_METADATA :
             case SIMPLE_RESULT_METADATA : {
                 for (int i = 0; i < columnCount; i++) {
-                    out.writeType(columnTypes[i].typeCode);
+                    writeDataTypeCodes(out, columnTypes[i]);
                 }
 
                 return;

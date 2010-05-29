@@ -56,10 +56,11 @@ import org.hsqldb.result.Result;
 class SubQuery implements Comparator {
 
     int                  level;
+    private boolean      isResolved;
     private boolean      isCorrelated;
     private boolean      isExistsPredicate;
     private boolean      uniqueRows;
-    private boolean      isUniquePredicate;
+    private boolean      fullOrder;
     QueryExpression      queryExpression;
     Database             database;
     private TableDerived table;
@@ -102,7 +103,7 @@ class SubQuery implements Comparator {
                 break;
 
             case OpTypes.UNIQUE :
-                isUniquePredicate = true;
+                fullOrder = true;
 
                 if (queryExpression != null) {
                     queryExpression.setFullOrder();
@@ -136,6 +137,10 @@ class SubQuery implements Comparator {
         }
     }
 
+    public boolean isResolved() {
+        return isResolved;
+    }
+
     public boolean isCorrelated() {
         return isCorrelated;
     }
@@ -144,45 +149,75 @@ class SubQuery implements Comparator {
         isCorrelated = true;
     }
 
+    public void setUniqueRows() {
+        uniqueRows = true;
+    }
+
     public TableDerived getTable() {
         return table;
+    }
+
+    public void createTable() {
+
+        HsqlName name = database.nameManager.getSubqueryTableName();
+
+        table = new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,
+                                 queryExpression, this);
     }
 
     public void prepareTable(Session session, HsqlName name,
                              HsqlName[] columns) {
 
-        table = new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,
-                                 queryExpression, this);
+        if (isResolved) {
+            return;
+        }
 
-        if (columns != null) {
+        if (table == null) {
+            table = new TableDerived(database, name,
+                                     TableBase.SYSTEM_SUBQUERY,
+                                     queryExpression, this);
+        }
+
+        if (columns != null && queryExpression != null) {
             queryExpression.getMainSelect().setColumnAliases(columns);
         }
 
-        TableUtil.setTableColumnsForSubquery(table, queryExpression,
-                                             uniqueRows || isUniquePredicate);
+        table.columnList  = queryExpression.getColumns();
+        table.columnCount = queryExpression.getColumnCount();
+
+        TableUtil.setTableIndexesForSubquery(table, uniqueRows || fullOrder,
+                                             uniqueRows);
+
+        isResolved = true;
     }
 
     public void prepareTable(Session session) {
 
-        if (table != null) {
+        if (isResolved) {
             return;
         }
 
         if (view == null) {
-            HsqlName name = database.nameManager.getSubqueryTableName();
+            if (table == null) {
+                HsqlName name = database.nameManager.getSubqueryTableName();
 
-            table = new TableDerived(database, name,
-                                     TableBase.SYSTEM_SUBQUERY,
-                                     queryExpression, this);
+                table = new TableDerived(database, name,
+                                         TableBase.SYSTEM_SUBQUERY,
+                                         queryExpression, this);
+            }
 
             if (isDataExpression) {
-                TableUtil.setTableColumnsForSubquery(
-                    table, dataExpression.nodeDataTypes,
-                    uniqueRows || isUniquePredicate, uniqueRows);
+                TableUtil.addAutoColumns(table, dataExpression.nodeDataTypes);
+                TableUtil.setTableIndexesForSubquery(table,
+                                                     uniqueRows || fullOrder,
+                                                     uniqueRows);
             } else {
-                TableUtil.setTableColumnsForSubquery(table, queryExpression,
-                                                     uniqueRows
-                                                     || isUniquePredicate);
+                table.columnList  = queryExpression.getColumns();
+                table.columnCount = queryExpression.getColumnCount();
+
+                TableUtil.setTableIndexesForSubquery(table,
+                                                     uniqueRows || fullOrder,
+                                                     uniqueRows);
             }
         } else {
             table = new TableDerived(database, view.getName(),
@@ -193,6 +228,8 @@ class SubQuery implements Comparator {
 
             table.createPrimaryKey();
         }
+
+        isResolved = true;
     }
 
     public void setColumnNames(SimpleName[] names) {

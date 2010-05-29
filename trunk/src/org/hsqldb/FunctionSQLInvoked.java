@@ -137,31 +137,27 @@ public class FunctionSQLInvoked extends Expression {
 
         Type[] dataTypes = routine.getParameterTypes();
 
-        try {
-            for (int i = 0; i < nodes.length; i++) {
-                Expression e     = nodes[i];
-                Object     value = e.getValue(session, dataTypes[i]);
+        for (int i = 0; i < nodes.length; i++) {
+            Expression e     = nodes[i];
+            Object     value = e.getValue(session, dataTypes[i]);
 
-                if (value == null) {
-                    if (routine.isNullInputOutput()) {
-                        return null;
-                    }
-
-                    if (!routine.getParameter(i).isNullable()) {
-                        return Result.newErrorResult(
-                            Error.error(ErrorCode.X_39004));
-                    }
+            if (value == null) {
+                if (routine.isNullInputOutput()) {
+                    return null;
                 }
 
-                if (routine.isPSM()) {
-                    data[i] = value;
-                } else {
-                    data[i + extraArg] = e.dataType.convertSQLToJava(session,
-                            value);
+                if (!routine.getParameter(i).isNullable()) {
+                    return Result.newErrorResult(
+                        Error.error(ErrorCode.X_39004));
                 }
             }
-        } catch (Throwable e) {
-            result = Result.newErrorResult(e);
+
+            if (routine.isPSM()) {
+                data[i] = value;
+            } else {
+                data[i + extraArg] = e.dataType.convertSQLToJava(session,
+                        value);
+            }
         }
 
         if (push) {
@@ -234,6 +230,10 @@ public class FunctionSQLInvoked extends Expression {
 
         if (push) {
             session.sessionContext.pop();
+        }
+
+        if (result.isError()) {
+            throw result.getException();
         }
 
         if (isValue) {

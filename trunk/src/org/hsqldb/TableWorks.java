@@ -1229,11 +1229,9 @@ public class TableWorks {
             Session sessions[] = database.sessionManager.getAllSessions();
 
             for (int i = 0; i < sessions.length; i++) {
-                sessions[i].sessionData.persistentStoreCollection.moveData(oldTable, newTable, colIndex, adjust);
+                sessions[i].sessionData.persistentStoreCollection.moveData(
+                    oldTable, newTable, colIndex, adjust);
             }
-
-
-
         } else {
             PersistentStore oldStore =
                 database.persistentStoreCollection.getStore(oldTable);

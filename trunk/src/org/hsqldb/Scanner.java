@@ -628,7 +628,7 @@ public class Scanner {
     /**
      * Only for identifiers that are part of known token sequences
      */
-    boolean scanSpecialIdentifier(String identifier) {
+    public boolean scanSpecialIdentifier(String identifier) {
 
         int length = identifier.length();
 
@@ -1301,6 +1301,26 @@ public class Scanner {
             case '}' :
                 break;
 */
+            case '[' :
+                token.tokenString = Tokens.T_LEFTBRACKET;
+                token.tokenType   = Tokens.LEFTBRACKET;
+
+                currentPosition++;
+
+                token.isDelimiter = true;
+
+                return;
+
+            case ']' :
+                token.tokenString = Tokens.T_RIGHTBRACKET;
+                token.tokenType   = Tokens.RIGHTBRACKET;
+
+                currentPosition++;
+
+                token.isDelimiter = true;
+
+                return;
+
             case '(' :
                 token.tokenString = Tokens.T_OPENBRACKET;
                 token.tokenType   = Tokens.OPENBRACKET;

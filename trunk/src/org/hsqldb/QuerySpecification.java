@@ -163,13 +163,18 @@ public class QuerySpecification extends QueryExpression {
         rangeVariableList.add(rangeVar);
     }
 
-    private void finaliseRangeVariables() {
+    // range variable sub queries are resolves fully
+    private void resolveRangeVariables(Session session) {
 
         if (rangeVariables == null
                 || rangeVariables.length < rangeVariableList.size()) {
             rangeVariables = new RangeVariable[rangeVariableList.size()];
 
             rangeVariableList.toArray(rangeVariables);
+        }
+
+        for (int i = 0; i < rangeVariables.length; i++) {
+            rangeVariables[i].resolveRangeTable(session, rangeVariables, i);
         }
     }
 
@@ -230,7 +235,7 @@ public class QuerySpecification extends QueryExpression {
 
     public void resolveReferences(Session session) {
 
-        finaliseRangeVariables();
+        resolveRangeVariables(session);
         resolveColumnReferencesForAsterisk();
         finaliseColumns();
         resolveColumnReferences();
@@ -419,7 +424,8 @@ public class QuerySpecification extends QueryExpression {
 
                         aggregateSet.add(e);
 
-                        isAggregated           = true;
+                        isAggregated = true;
+
                         expression.setAggregate();
                     }
 
@@ -708,7 +714,7 @@ public class QuerySpecification extends QueryExpression {
                 Expression e = (Expression) tempSet.get(j);
 
                 exprColumns[i]          = e.duplicate();
-                exprColumns[i].nodes = e.nodes; // keep original nodes
+                exprColumns[i].nodes    = e.nodes;    // keep original nodes
                 exprColumns[i].dataType = e.dataType;
             }
 

@@ -37,6 +37,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
+import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.result.ResultProperties;
@@ -66,6 +67,12 @@ public class ParserRoutine extends ParserDML {
 
         Expression e     = null;
         boolean    minus = false;
+
+        if (token.tokenType == Tokens.NULL) {
+            read();
+
+            return new ExpressionValue(null, dataType);
+        }
 
         if (dataType.isDateTimeType() || dataType.isIntervalType()) {
             switch (token.tokenType) {
@@ -132,40 +139,39 @@ public class ParserRoutine extends ParserDML {
 
                     return Expression.EXPR_FALSE;
             }
+        } else if (dataType.isArrayType()) {
+            e = readCollection(OpTypes.ARRAY);
+
+            resolveOuterReferencesAndTypes(RangeVariable.emptyArray, e);
+
+            return e;
         }
 
-        if (e == null) {
-            if (token.tokenType == Tokens.NULL) {
-                read();
+        if (e != null) {
+            e.resolveTypes(session, null);
 
-                return new ExpressionValue(null, dataType);
+            if (dataType.typeComparisonGroup
+                    != e.getDataType().typeComparisonGroup) {
+                throw Error.error(ErrorCode.X_42562);
             }
 
-            if (token.tokenType == Tokens.X_VALUE) {
-                Object value = dataType.convertToType(session,
-                                                      token.tokenValue,
-                                                      token.dataType);
+            return e;
+        }
 
-                read();
+        if (token.tokenType == Tokens.X_VALUE) {
+            Object value = dataType.convertToType(session, token.tokenValue,
+                                                  token.dataType);
 
-                if (minus) {
-                    value = dataType.negate(value);
-                }
+            read();
 
-                return new ExpressionValue(value, dataType);
-            } else {
-                throw unexpectedToken();
+            if (minus) {
+                value = dataType.negate(value);
             }
+
+            return new ExpressionValue(value, dataType);
+        } else {
+            throw unexpectedToken();
         }
-
-        e.resolveTypes(session, null);
-
-        if (dataType.typeComparisonGroup
-                != e.getDataType().typeComparisonGroup) {
-            throw Error.error(ErrorCode.X_42562);
-        }
-
-        return e;
     }
 
     Statement compileSelectSingleRowStatement(RangeVariable[] rangeVars) {
@@ -173,21 +179,25 @@ public class ParserRoutine extends ParserDML {
         OrderedHashSet     variableNames = new OrderedHashSet();
         QuerySpecification select        = XreadSelect();
         Type[]             targetTypes;
+        LongDeque          colIndexList = new LongDeque();
 
         readThis(Tokens.INTO);
-        readColumnNamesForSelectInto(variableNames, rangeVars);
+        readTargetSpecificationList(variableNames, rangeVars, colIndexList);
         XreadTableExpression(select);
         select.setReturningResult();
 
-        int[]          indexes   = new int[variableNames.size()];
-        ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
+        int[] columnMap = new int[colIndexList.size()];
 
-        setVariables(rangeVars, variableNames, indexes, variables);
+        colIndexList.toArray(columnMap);
+
+        Expression[] variables = new Expression[variableNames.size()];
+
+        variableNames.toArray(variables);
 
         targetTypes = new Type[variables.length];
 
         for (int i = 0; i < variables.length; i++) {
-            if (variables[i].getParameterMode()
+            if (variables[i].getColumn().getParameterMode()
                     == SchemaObject.ParameterModes.PARAM_IN) {
 
                 // todo - use more specific error message
@@ -203,8 +213,8 @@ public class ParserRoutine extends ParserDML {
             throw Error.error(ErrorCode.X_42564, Tokens.T_INTO);
         }
 
-        Statement statement = new StatementSet(session, compileContext,
-                                               variables, select, indexes);
+        Statement statement = new StatementSet(session, variables, select,
+                                               columnMap, compileContext);
 
         return statement;
     }
@@ -216,10 +226,11 @@ public class ParserRoutine extends ParserDML {
 
         read();
 
-        OrderedHashSet variableNames = new OrderedHashSet();
-        HsqlArrayList  exprList      = new HsqlArrayList();
+        OrderedHashSet targetSet    = new OrderedHashSet();
+        HsqlArrayList  exprList     = new HsqlArrayList();
+        LongDeque      colIndexList = new LongDeque();
 
-        readSetClauseList(rangeVars, variableNames, exprList);
+        readSetClauseList(rangeVars, targetSet, colIndexList, exprList);
 
         if (exprList.size() > 1) {
             throw Error.error(ErrorCode.X_42602);
@@ -227,39 +238,40 @@ public class ParserRoutine extends ParserDML {
 
         Expression expression = (Expression) exprList.get(0);
 
-        if (expression.getDegree() != variableNames.size()) {
+        if (expression.getDegree() != targetSet.size()) {
             throw Error.error(ErrorCode.X_42546, Tokens.T_SET);
         }
 
-        int[]          indexes   = new int[variableNames.size()];
-        ColumnSchema[] variables = new ColumnSchema[variableNames.size()];
+        int[] columnMap = new int[colIndexList.size()];
 
-        setVariables(rangeVars, variableNames, indexes, variables);
+        colIndexList.toArray(columnMap);
 
-        HsqlList unresolved = expression.resolveColumnReferences(rangeVars,
-            rangeVars.length, null, true);
+        Expression[] targets = new Expression[targetSet.size()];
 
-        unresolved = Expression.resolveColumnSet(rangeVars, unresolved, null);
+        targetSet.toArray(targets);
 
-        ExpressionColumn.checkColumnsResolved(unresolved);
-        expression.resolveTypes(session, null);
+        for (int i = 0; i < targets.length; i++) {
+            this.resolveOuterReferencesAndTypes(rangeVars, targets[i]);
+        }
 
-        for (int i = 0; i < variables.length; i++) {
-            if (variables[i].getParameterMode()
+        resolveOuterReferencesAndTypes(rangeVars, expression);
+
+        for (int i = 0; i < targets.length; i++) {
+            if (targets[i].getColumn().getParameterMode()
                     == SchemaObject.ParameterModes.PARAM_IN) {
 
                 // todo - use more specific error message
                 throw Error.error(ErrorCode.X_0U000);
             }
 
-            if (!variables[i].getDataType().canBeAssignedFrom(
+            if (!targets[i].getDataType().canBeAssignedFrom(
                     expression.getNodeDataType(i))) {
                 throw Error.error(ErrorCode.X_42561);
             }
         }
 
-        StatementSet cs = new StatementSet(session, compileContext, variables,
-                                           expression, indexes);
+        StatementSet cs = new StatementSet(session, targets, expression,
+                                           columnMap, compileContext);
 
         return cs;
     }
@@ -274,52 +286,38 @@ public class ParserRoutine extends ParserDML {
 
         Expression[]   updateExpressions;
         int[]          columnMap;
-        OrderedHashSet colNames = new OrderedHashSet();
-        HsqlArrayList  exprList = new HsqlArrayList();
+        OrderedHashSet targetSet = new OrderedHashSet();
+        HsqlArrayList  exprList  = new HsqlArrayList();
         RangeVariable[] targetRangeVars = new RangeVariable[]{
             rangeVars[TriggerDef.NEW_ROW] };
+        LongDeque colIndexList = new LongDeque();
 
-        readSetClauseList(targetRangeVars, colNames, exprList);
+        readSetClauseList(targetRangeVars, targetSet, colIndexList, exprList);
 
-        columnMap         = table.getColumnIndexes(colNames);
+        columnMap = new int[colIndexList.size()];
+
+        colIndexList.toArray(columnMap);
+
+        Expression[] targets = new Expression[targetSet.size()];
+
+        targetSet.toArray(targets);
+
+        for (int i = 0; i < targets.length; i++) {
+            this.resolveOuterReferencesAndTypes(RangeVariable.emptyArray,
+                                                targets[i]);
+        }
+
         updateExpressions = new Expression[exprList.size()];
 
         exprList.toArray(updateExpressions);
         resolveUpdateExpressions(table, rangeVars, columnMap,
                                  updateExpressions, RangeVariable.emptyArray);
 
-        StatementDMQL cs = new StatementSet(session, table, rangeVars,
-                                            columnMap, updateExpressions,
-                                            compileContext);
+        StatementDMQL cs = new StatementSet(session, targets, table,
+                                            rangeVars, columnMap,
+                                            updateExpressions, compileContext);
 
         return cs;
-    }
-
-    private static void setVariables(RangeVariable[] rangeVars,
-                                     OrderedHashSet colNames, int[] indexes,
-                                     ColumnSchema[] variables)
-                                     throws IndexOutOfBoundsException {
-
-        int index = -1;
-
-        for (int i = 0; i < variables.length; i++) {
-            String colName = (String) colNames.get(i);
-
-            for (int j = 0; j < rangeVars.length; j++) {
-                if (rangeVars[j] == null || rangeVars[j].variables == null) {
-                    continue;
-                }
-
-                index = rangeVars[j].variables.getIndex(colName);
-
-                if (index > -1) {
-                    indexes[i]   = index;
-                    variables[i] = rangeVars[j].getColumn(index);
-
-                    break;
-                }
-            }
-        }
     }
 
     // SQL-invoked routine
@@ -1728,12 +1726,6 @@ public class ParserRoutine extends ParserDML {
             rangeVars = context.getRangeVariables();
         }
 
-        HsqlList unresolved = e.resolveColumnReferences(rangeVars,
-            rangeVars.length, null, false);
-
-        unresolved = Expression.resolveColumnSet(rangeVars, unresolved, null);
-
-        ExpressionColumn.checkColumnsResolved(unresolved);
-        e.resolveTypes(session, null);
+        resolveOuterReferencesAndTypes(rangeVars, e);
     }
 }

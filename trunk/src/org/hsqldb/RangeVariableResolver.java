@@ -1015,8 +1015,8 @@ public class RangeVariableResolver {
                 }
 
                 RangeVariable newRangeVar =
-                    new RangeVariable(in.getRightNode().subQuery.getTable(),
-                                      null, null, null, compileContext);
+                    new RangeVariable(in.getRightNode().getTable(), null,
+                                      null, null, compileContext);
 
                 newRangeVar.isGenerated = true;
 
@@ -1048,7 +1048,10 @@ public class RangeVariableResolver {
                                             : rangeVar.joinConditions[0];
 
                 conditions.addIndexCondition(exprList, index, colCount);
-                conditions.addCondition(in);
+
+                if (isOuter) {
+                    conditions.addCondition(in);
+                }
             }
         }
     }

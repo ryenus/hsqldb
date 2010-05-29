@@ -43,6 +43,8 @@ public interface OpTypes {
         DYNAMIC_PARAM        = 8,
         ASTERISK             = 9,
         SEQUENCE             = 10,
+        ARRAY                = 19,
+        MULTISET             = 20,
         SCALAR_SUBQUERY      = 21,    // query based row or table
         ROW_SUBQUERY         = 22,
         TABLE_SUBQUERY       = 23,
@@ -99,6 +101,8 @@ public interface OpTypes {
         LIMIT                = 95,
         ALTERNATIVE          = 96,
         MULTICOLUMN          = 97,
-        USER_AGGREGATE       = 98
+        USER_AGGREGATE       = 98,
+        ARRAY_ACCESS         = 99,
+        ARRAY_SUBQUERY       = 100
     ;
 }

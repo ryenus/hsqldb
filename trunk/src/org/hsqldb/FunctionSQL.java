@@ -65,45 +65,47 @@ public class FunctionSQL extends Expression {
     protected final static int FUNC_CHAR_LENGTH                      = 7;
     protected final static int FUNC_OCTET_LENGTH                     = 8;
     private final static int   FUNC_CARDINALITY                      = 9;
-    private final static int   FUNC_ABS                              = 10;
-    private final static int   FUNC_MOD                              = 11;
-    protected final static int FUNC_LN                               = 12;
-    private final static int   FUNC_EXP                              = 13;
-    private final static int   FUNC_POWER                            = 14;
-    private final static int   FUNC_SQRT                             = 15;
-    private final static int   FUNC_FLOOR                            = 16;
-    private final static int   FUNC_CEILING                          = 17;
-    private final static int   FUNC_WIDTH_BUCKET                     = 20;
-    protected final static int FUNC_SUBSTRING_CHAR                   = 21;    // string
-    private final static int   FUNC_SUBSTRING_REG_EXPR               = 22;
-    private final static int   FUNC_SUBSTRING_REGEX                  = 23;
-    protected final static int FUNC_FOLD_LOWER                       = 24;
-    protected final static int FUNC_FOLD_UPPER                       = 25;
-    private final static int   FUNC_TRANSCODING                      = 26;
-    private final static int   FUNC_TRANSLITERATION                  = 27;
-    private final static int   FUNC_REGEX_TRANSLITERATION            = 28;
-    protected final static int FUNC_TRIM_CHAR                        = 29;
-    final static int           FUNC_OVERLAY_CHAR                     = 30;
-    private final static int   FUNC_CHAR_NORMALIZE                   = 31;
-    private final static int   FUNC_SUBSTRING_BINARY                 = 32;
-    private final static int   FUNC_TRIM_BINARY                      = 33;
-    private final static int   FUNC_OVERLAY_BINARY                   = 40;
-    protected final static int FUNC_CURRENT_DATE                     = 41;    // datetime
-    protected final static int FUNC_CURRENT_TIME                     = 42;
-    protected final static int FUNC_CURRENT_TIMESTAMP                = 43;
-    protected final static int FUNC_LOCALTIME                        = 44;
-    protected final static int FUNC_LOCALTIMESTAMP                   = 50;
-    private final static int   FUNC_CURRENT_CATALOG                  = 51;    // general
-    private final static int   FUNC_CURRENT_DEFAULT_TRANSFORM_GROUP  = 52;
-    private final static int   FUNC_CURRENT_PATH                     = 53;
-    private final static int   FUNC_CURRENT_ROLE                     = 54;
-    private final static int   FUNC_CURRENT_SCHEMA                   = 55;
-    private final static int   FUNC_CURRENT_TRANSFORM_GROUP_FOR_TYPE = 56;
-    private final static int   FUNC_CURRENT_USER                     = 57;
-    private final static int   FUNC_SESSION_USER                     = 58;
-    private final static int   FUNC_SYSTEM_USER                      = 59;
-    protected final static int FUNC_USER                             = 60;
-    private final static int   FUNC_VALUE                            = 61;
+    private final static int   FUNC_MAX_CARDINALITY                  = 10;
+    private final static int   FUNC_TRIM_ARRAY                       = 11;
+    private final static int   FUNC_ABS                              = 12;
+    private final static int   FUNC_MOD                              = 13;
+    protected final static int FUNC_LN                               = 14;
+    private final static int   FUNC_EXP                              = 15;
+    private final static int   FUNC_POWER                            = 16;
+    private final static int   FUNC_SQRT                             = 17;
+    private final static int   FUNC_FLOOR                            = 20;
+    private final static int   FUNC_CEILING                          = 21;
+    private final static int   FUNC_WIDTH_BUCKET                     = 22;
+    protected final static int FUNC_SUBSTRING_CHAR                   = 23;    // string
+    private final static int   FUNC_SUBSTRING_REG_EXPR               = 24;
+    private final static int   FUNC_SUBSTRING_REGEX                  = 25;
+    protected final static int FUNC_FOLD_LOWER                       = 26;
+    protected final static int FUNC_FOLD_UPPER                       = 27;
+    private final static int   FUNC_TRANSCODING                      = 28;
+    private final static int   FUNC_TRANSLITERATION                  = 29;
+    private final static int   FUNC_REGEX_TRANSLITERATION            = 30;
+    protected final static int FUNC_TRIM_CHAR                        = 31;
+    final static int           FUNC_OVERLAY_CHAR                     = 32;
+    private final static int   FUNC_CHAR_NORMALIZE                   = 33;
+    private final static int   FUNC_SUBSTRING_BINARY                 = 40;
+    private final static int   FUNC_TRIM_BINARY                      = 41;
+    private final static int   FUNC_OVERLAY_BINARY                   = 42;
+    protected final static int FUNC_CURRENT_DATE                     = 43;    // datetime
+    protected final static int FUNC_CURRENT_TIME                     = 44;
+    protected final static int FUNC_CURRENT_TIMESTAMP                = 50;
+    protected final static int FUNC_LOCALTIME                        = 51;
+    protected final static int FUNC_LOCALTIMESTAMP                   = 52;
+    private final static int   FUNC_CURRENT_CATALOG                  = 53;    // general
+    private final static int   FUNC_CURRENT_DEFAULT_TRANSFORM_GROUP  = 54;
+    private final static int   FUNC_CURRENT_PATH                     = 55;
+    private final static int   FUNC_CURRENT_ROLE                     = 56;
+    private final static int   FUNC_CURRENT_SCHEMA                   = 57;
+    private final static int   FUNC_CURRENT_TRANSFORM_GROUP_FOR_TYPE = 58;
+    private final static int   FUNC_CURRENT_USER                     = 59;
+    private final static int   FUNC_SESSION_USER                     = 60;
+    private final static int   FUNC_SYSTEM_USER                      = 61;
+    protected final static int FUNC_USER                             = 62;
+    private final static int   FUNC_VALUE                            = 63;
 
     //
     static final short[] noParamList             = new short[]{};
@@ -154,9 +156,9 @@ public class FunctionSQL extends Expression {
         regularFuncMap.put(Tokens.T_CHAR_LENGTH, FUNC_CHAR_LENGTH);
         regularFuncMap.put(Tokens.T_CHARACTER_LENGTH, FUNC_CHAR_LENGTH);
         regularFuncMap.put(Tokens.T_OCTET_LENGTH, FUNC_OCTET_LENGTH);
-        /*
-        regularFuncMap.put(Token.T_CARDINALITY, FUNC_CARDINALITY);
-        */
+        regularFuncMap.put(Tokens.T_CARDINALITY, FUNC_CARDINALITY);
+        regularFuncMap.put(Tokens.T_MAX_CARDINALITY, FUNC_MAX_CARDINALITY);
+        regularFuncMap.put(Tokens.T_TRIM_ARRAY, FUNC_TRIM_ARRAY);
         regularFuncMap.put(Tokens.T_ABS, FUNC_ABS);
         regularFuncMap.put(Tokens.T_MOD, FUNC_MOD);
         regularFuncMap.put(Tokens.T_LN, FUNC_LN);
@@ -320,7 +322,18 @@ public class FunctionSQL extends Expression {
                 break;
 
             case FUNC_CARDINALITY :
+                name      = Tokens.T_CARDINALITY;
                 parseList = singleParamList;
+                break;
+
+            case FUNC_MAX_CARDINALITY :
+                name      = Tokens.T_MAX_CARDINALITY;
+                parseList = singleParamList;
+                break;
+
+            case FUNC_TRIM_ARRAY :
+                name      = Tokens.T_TRIM_ARRAY;
+                parseList = doubleParamList;
                 break;
 
             case FUNC_ABS :
@@ -660,9 +673,46 @@ public class FunctionSQL extends Expression {
 
                 return ValuePool.getLong(result);
             }
-            /*
-            case FUNC_CARDINALITY :
-            */
+            case FUNC_CARDINALITY : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                int result = nodes[0].dataType.cardinality(session, data[0]);
+
+                return ValuePool.getInt(result);
+            }
+            case FUNC_MAX_CARDINALITY : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                int result = nodes[0].dataType.arrayLimitCardinality();
+
+                return ValuePool.getInt(result);
+            }
+            case FUNC_TRIM_ARRAY : {
+                if (data[0] == null) {
+                    return null;
+                }
+
+                if (data[1] == null) {
+                    return null;
+                }
+
+                Object[] array  = (Object[]) data[0];
+                int      length = ((Number) data[1]).intValue();
+
+                if (length < 0 || length > array.length) {
+                    throw Error.error(ErrorCode.X_2202E);
+                }
+
+                Object[] newArray = new Object[array.length - length];
+
+                System.arraycopy(array, 0, newArray, 0, newArray.length);
+
+                return newArray;
+            }
             case FUNC_ABS : {
                 if (data[0] == null) {
                     return null;
@@ -675,7 +725,7 @@ public class FunctionSQL extends Expression {
                     return null;
                 }
 
-                // result type is the same as argList[1]
+                // result type is the same as nodes[1]
                 return ((NumberType) dataType).modulo(data[0], data[1],
                                                       nodes[0].dataType);
             }
@@ -1149,7 +1199,49 @@ public class FunctionSQL extends Expression {
                 break;
             }
             case FUNC_CARDINALITY : {
-                dataType = Type.SQL_BIGINT;
+                if (nodes[0].dataType == null) {
+                    throw Error.error(ErrorCode.X_42567);
+                }
+
+                if (!nodes[0].dataType.isArrayType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = Type.SQL_INTEGER;
+
+                break;
+            }
+            case FUNC_MAX_CARDINALITY : {
+                if (nodes[0].dataType == null) {
+                    throw Error.error(ErrorCode.X_42567);
+                }
+
+                if (!nodes[0].dataType.isArrayType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = Type.SQL_INTEGER;
+
+                break;
+            }
+            case FUNC_TRIM_ARRAY : {
+                if (nodes[0].dataType == null) {
+                    throw Error.error(ErrorCode.X_42567);
+                }
+
+                if (!nodes[0].dataType.isArrayType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_INTEGER;
+                }
+
+                if (!nodes[1].dataType.isIntegralType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                dataType = nodes[0].dataType;
 
                 break;
             }
@@ -1611,14 +1703,25 @@ public class FunctionSQL extends Expression {
 
                 break;
             }
-            /*
-            case FUNC_CARDINALITY :{
-                buf.append(Token.T_CARDINALITY).append('(').append(
-                    argList[0].getSQL()).append(')');
+            case FUNC_CARDINALITY : {
+                sb.append(Tokens.T_CARDINALITY).append('(')              //
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }
-            */
+            case FUNC_MAX_CARDINALITY : {
+                sb.append(Tokens.T_MAX_CARDINALITY).append('(')          //
+                    .append(nodes[0].getSQL()).append(')');
+
+                break;
+            }
+            case FUNC_TRIM_ARRAY : {
+                sb.append(Tokens.T_TRIM_ARRAY).append('(')               //
+                    .append(nodes[0].getSQL()).append(',')               //
+                    .append(nodes[1].getSQL()).append(')');              //
+
+                break;
+            }
             case FUNC_ABS : {
                 sb.append(Tokens.T_ABS).append('(')                      //
                     .append(nodes[0].getSQL()).append(')');
@@ -1664,8 +1767,8 @@ public class FunctionSQL extends Expression {
                 break;
             }
             case FUNC_CEILING : {
-                sb.append(Tokens.T_CEILING).append('(').                 //
-                    append(nodes[0].getSQL()).append(')');
+                sb.append(Tokens.T_CEILING).append('(')                  //
+                    .append(nodes[0].getSQL()).append(')');
 
                 break;
             }

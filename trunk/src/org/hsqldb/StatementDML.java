@@ -59,6 +59,7 @@ import org.hsqldb.types.Type;
 // support for MERGE statement originally contributed by Justin Spadea (jzs9783@users dot sourceforge.net)
 public class StatementDML extends StatementDMQL {
 
+    Expression[]  targets;
     Expression    updatableTableCheck;
     RangeVariable checkRangeVariable;
     boolean       isTruncate;
@@ -97,7 +98,7 @@ public class StatementDML extends StatementDMQL {
     /**
      * Instantiate this as an UPDATE statement.
      */
-    StatementDML(Session session, Table targetTable,
+    StatementDML(Session session, Expression[] targets, Table targetTable,
                  RangeVariable rangeVars[], int[] updateColumnMap,
                  Expression[] colExpressions, boolean[] checkColumns,
                  CompileContext compileContext) {
@@ -105,6 +106,7 @@ public class StatementDML extends StatementDMQL {
         super(StatementTypes.UPDATE_WHERE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
 
+        this.targets     = targets;
         this.targetTable = targetTable;
         this.baseTable   = targetTable.getBaseTable() == null ? targetTable
                                                               : targetTable
@@ -123,15 +125,16 @@ public class StatementDML extends StatementDMQL {
     /**
      * Instantiate this as a MERGE statement.
      */
-    StatementDML(Session session, RangeVariable[] targetRangeVars,
-                 int[] insertColMap, int[] updateColMap,
-                 boolean[] checkColumns, Expression mergeCondition,
-                 Expression insertExpr, Expression[] updateExpr,
-                 CompileContext compileContext) {
+    StatementDML(Session session, Expression[] targets,
+                 RangeVariable[] targetRangeVars, int[] insertColMap,
+                 int[] updateColMap, boolean[] checkColumns,
+                 Expression mergeCondition, Expression insertExpr,
+                 Expression[] updateExpr, CompileContext compileContext) {
 
         super(StatementTypes.MERGE, StatementTypes.X_SQL_DATA_CHANGE,
               session.getCurrentSchemaHsqlName());
 
+        this.targets     = targets;
         this.sourceTable = targetRangeVars[0].rangeTable;
         this.targetTable = targetRangeVars[1].rangeTable;
         this.baseTable   = targetTable.getBaseTable() == null ? targetTable
@@ -342,7 +345,7 @@ public class StatementDML extends StatementDMQL {
 
             Row      row  = it.getCurrentRow();
             Object[] data = row.getData();
-            Object[] newData = getUpdatedData(session, baseTable,
+            Object[] newData = getUpdatedData(session, targets, baseTable,
                                               updateColumnMap, colExpressions,
                                               colTypes, data);
 
@@ -385,8 +388,8 @@ public class StatementDML extends StatementDMQL {
         return new Result(ResultConstants.UPDATECOUNT, count);
     }
 
-    static Object[] getUpdatedData(Session session, Table targetTable,
-                                   int[] columnMap,
+    static Object[] getUpdatedData(Session session, Expression[] targets,
+                                   Table targetTable, int[] columnMap,
                                    Expression[] colExpressions,
                                    Type[] colTypes, Object[] oldData) {
 
@@ -457,7 +460,16 @@ public class StatementDML extends StatementDMQL {
                     continue;
                 }
 
-                data[colIndex] = expr.getValue(session, colTypes[colIndex]);
+                Object value = expr.getValue(session);
+
+                if (targets[i].getType() == OpTypes.ARRAY_ACCESS) {
+                    data[colIndex] =
+                        ((ExpressionAccessor) targets[i]).getUpdatedArray(
+                            session, (Object[]) data[colIndex], value, true);
+                } else {
+                    data[colIndex] = colTypes[colIndex].convertToType(session,
+                            value, expr.dataType);
+                }
 
                 i++;
             }
@@ -533,7 +545,7 @@ public class StatementDML extends StatementDMQL {
             // row matches!
             if (updateExpressions.length != 0) {
                 Row row = it.getCurrentRow();    // this is always the second iterator
-                Object[] data = getUpdatedData(session, baseTable,
+                Object[] data = getUpdatedData(session, targets, baseTable,
                                                updateColumnMap,
                                                updateExpressions, colTypes,
                                                row.getData());

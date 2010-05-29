@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.7.0
  */
 abstract class RowInputBase extends HsqlByteArrayInputStream {
@@ -100,7 +100,7 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
     public abstract String readString() throws IOException;
 
 // fredt@users - comment - methods used for SQL types
-    protected abstract boolean checkNull() throws IOException;
+    protected abstract boolean readNull() throws IOException;
 
     protected abstract String readChar(Type type) throws IOException;
 
@@ -140,135 +140,143 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
 
     protected abstract BlobData readBlob() throws IOException;
 
+    protected abstract Object[] readArray(Type type) throws IOException;
+
     /**
      *  reads row data from a stream using the JDBC types in colTypes
      *
      * @param  colTypes
      * @throws  IOException
-     * @throws  HsqlException
      */
-    public Object[] readData(Type[] colTypes)
-    throws IOException, HsqlException {
+    public Object[] readData(Type[] colTypes) throws IOException {
 
         int      l    = colTypes.length;
         Object[] data = new Object[l];
-        Object   o;
-        Type     type;
 
         for (int i = 0; i < l; i++) {
-            if (checkNull()) {
-                continue;
-            }
+            Type type = colTypes[i];
 
-            o    = null;
-            type = colTypes[i];
-
-            switch (type.typeCode) {
-
-                case Types.SQL_ALL_TYPES :
-                    break;
-
-                case Types.SQL_CHAR :
-                case Types.SQL_VARCHAR :
-                case Types.VARCHAR_IGNORECASE :
-                    o = readChar(type);
-                    break;
-
-                case Types.TINYINT :
-                case Types.SQL_SMALLINT :
-                    o = readSmallint();
-                    break;
-
-                case Types.SQL_INTEGER :
-                    o = readInteger();
-                    break;
-
-                case Types.SQL_BIGINT :
-                    o = readBigint();
-                    break;
-
-                //fredt although REAL is now Double, it is read / written in
-                //the old format for compatibility
-                case Types.SQL_REAL :
-                case Types.SQL_FLOAT :
-                case Types.SQL_DOUBLE :
-                    o = readReal();
-                    break;
-
-                case Types.SQL_NUMERIC :
-                case Types.SQL_DECIMAL :
-                    o = readDecimal(type);
-                    break;
-
-                case Types.SQL_DATE :
-                    o = readDate(type);
-                    break;
-
-                case Types.SQL_TIME :
-                case Types.SQL_TIME_WITH_TIME_ZONE :
-                    o = readTime(type);
-                    break;
-
-                case Types.SQL_TIMESTAMP :
-                case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                    o = readTimestamp(type);
-                    break;
-
-                case Types.SQL_INTERVAL_YEAR :
-                case Types.SQL_INTERVAL_YEAR_TO_MONTH :
-                case Types.SQL_INTERVAL_MONTH :
-                    o = readYearMonthInterval(type);
-                    break;
-
-                case Types.SQL_INTERVAL_DAY :
-                case Types.SQL_INTERVAL_DAY_TO_HOUR :
-                case Types.SQL_INTERVAL_DAY_TO_MINUTE :
-                case Types.SQL_INTERVAL_DAY_TO_SECOND :
-                case Types.SQL_INTERVAL_HOUR :
-                case Types.SQL_INTERVAL_HOUR_TO_MINUTE :
-                case Types.SQL_INTERVAL_HOUR_TO_SECOND :
-                case Types.SQL_INTERVAL_MINUTE :
-                case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
-                case Types.SQL_INTERVAL_SECOND :
-                    o = readDaySecondInterval(type);
-                    break;
-
-                case Types.SQL_BOOLEAN :
-                    o = readBoole();
-                    break;
-
-                case Types.OTHER :
-                    o = readOther();
-                    break;
-
-                case Types.SQL_CLOB :
-                    o = readClob();
-                    break;
-
-                case Types.SQL_BLOB :
-                    o = readBlob();
-                    break;
-
-                case Types.SQL_BINARY :
-                case Types.SQL_VARBINARY :
-                    o = readBinary();
-                    break;
-
-                case Types.SQL_BIT :
-                case Types.SQL_BIT_VARYING :
-                    o = readBit();
-                    break;
-
-                default :
-                    throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "RowInputBase - "
-                                             + type.getNameString());
-            }
-
-            data[i] = o;
+            data[i] = readData(type);
         }
 
         return data;
+    }
+
+    public Object readData(Type type) throws IOException {
+
+        Object o = null;
+
+        if (readNull()) {
+            return null;
+        }
+
+        switch (type.typeCode) {
+
+            case Types.SQL_ALL_TYPES :
+                break;
+
+            case Types.SQL_CHAR :
+            case Types.SQL_VARCHAR :
+            case Types.VARCHAR_IGNORECASE :
+                o = readChar(type);
+                break;
+
+            case Types.TINYINT :
+            case Types.SQL_SMALLINT :
+                o = readSmallint();
+                break;
+
+            case Types.SQL_INTEGER :
+                o = readInteger();
+                break;
+
+            case Types.SQL_BIGINT :
+                o = readBigint();
+                break;
+
+            //fredt although REAL is now Double, it is read / written in
+            //the old format for compatibility
+            case Types.SQL_REAL :
+            case Types.SQL_FLOAT :
+            case Types.SQL_DOUBLE :
+                o = readReal();
+                break;
+
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                o = readDecimal(type);
+                break;
+
+            case Types.SQL_DATE :
+                o = readDate(type);
+                break;
+
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                o = readTime(type);
+                break;
+
+            case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                o = readTimestamp(type);
+                break;
+
+            case Types.SQL_INTERVAL_YEAR :
+            case Types.SQL_INTERVAL_YEAR_TO_MONTH :
+            case Types.SQL_INTERVAL_MONTH :
+                o = readYearMonthInterval(type);
+                break;
+
+            case Types.SQL_INTERVAL_DAY :
+            case Types.SQL_INTERVAL_DAY_TO_HOUR :
+            case Types.SQL_INTERVAL_DAY_TO_MINUTE :
+            case Types.SQL_INTERVAL_DAY_TO_SECOND :
+            case Types.SQL_INTERVAL_HOUR :
+            case Types.SQL_INTERVAL_HOUR_TO_MINUTE :
+            case Types.SQL_INTERVAL_HOUR_TO_SECOND :
+            case Types.SQL_INTERVAL_MINUTE :
+            case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
+            case Types.SQL_INTERVAL_SECOND :
+                o = readDaySecondInterval(type);
+                break;
+
+            case Types.SQL_BOOLEAN :
+                o = readBoole();
+                break;
+
+            case Types.OTHER :
+                o = readOther();
+                break;
+
+            case Types.SQL_CLOB :
+                o = readClob();
+                break;
+
+            case Types.SQL_BLOB :
+                o = readBlob();
+                break;
+
+            case Types.SQL_ARRAY :
+                o = readArray(type);
+                break;
+
+            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
+                o = readBinary();
+                break;
+
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
+                o = readBit();
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "RowInputBase - "
+                                         + type.getNameString());
+        }
+
+        return o;
     }
 
     /**

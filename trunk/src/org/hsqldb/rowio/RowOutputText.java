@@ -54,7 +54,7 @@ import org.hsqldb.types.Types;
  *  Class for writing the data for a database row in text table format.
  *
  * @author Bob Preston (sqlbob@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.7.0
  */
 public class RowOutputText extends RowOutputBase {
@@ -349,6 +349,10 @@ public class RowOutputText extends RowOutputBase {
 
     protected void writeBlob(BlobData o, Type type) {
         writeString(Long.toString(o.getId()));
+    }
+
+    protected void writeArray(Object[] o, Type type) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputText");
     }
 
     public int getSize(Row r) {
