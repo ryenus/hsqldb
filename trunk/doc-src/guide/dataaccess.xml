@@ -2205,9 +2205,9 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       <simpara><literal>&lt;having clause&gt; ::= HAVING &lt;boolean value
       expression&gt;</literal></simpara>
 
-      <para>The &lt;from clause&gt; contains one or more <literal>&lt;table
-      reference&gt;</literal> separated by commas. A table reference is often
-      a table or view name or a joined table.</para>
+      <para>The <literal>&lt;from clause&gt;</literal> contains one or more
+      <literal>&lt;table reference&gt;</literal> separated by commas. A table
+      reference is often a table or view name or a joined table.</para>
 
       <para>The <literal>&lt;where clause&gt;</literal> filters the rows of
       the table in the &lt;from clause&gt; and removes the rows for which the
@@ -2256,10 +2256,11 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para><literal>&lt;table or query name&gt; ::= &lt;table name&gt; |
       &lt;transition table name&gt; | &lt;query name&gt;</literal></para>
 
-      <para>A query expression that is enclosed in parantheses and returns
-      from zero to many rows is a &lt;table subquery&gt;. In a &lt;derived
-      table&gt; the query expression is self contained and cannot reference
-      the columns of other table references.</para>
+      <para>A query expression that is enclosed in parentheses and returns
+      from zero to many rows is a <literal>&lt;table subquery&gt;</literal>.
+      In a <literal>&lt;derived table&gt;</literal> the query expression is
+      self contained and cannot reference the columns of other table
+      references.</para>
 
       <para><literal>&lt;derived table&gt; ::= &lt;table
       subquery&gt;</literal></para>
@@ -2273,8 +2274,8 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
 
       <para>UNNEST is similar to LATERAL, but instead of a query expression,
       and expression that returns an array is used. This expression is
-      converted into a table wich has one column that contains the elements of
-      the array, and, if WITH ORDINALITY is used, a second column that
+      converted into a table which has one column that contains the elements
+      of the array, and, if WITH ORDINALITY is used, a second column that
       contains the index of each element. The array expression usually
       contains a reference to a column of the table reference preceding the
       current table reference.</para>
@@ -2293,8 +2294,8 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       paren&gt; &lt;collection value expression&gt; &lt;right
       paren&gt;</literal></para>
 
-      <para><literal>The column list that is specified for the table reference
-      must names that are unique within the list.</literal></para>
+      <para>The column list that is specified for the table reference must
+      contain names that are unique within the list</para>
 
       <para><literal>&lt;derived column list&gt; ::= &lt;column name
       list&gt;</literal></para>
@@ -2302,7 +2303,7 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para><literal>&lt;column name list&gt; ::= &lt;column name&gt; [ {
       &lt;comma&gt; &lt;column name&gt; }... ] </literal></para>
 
-      <para>A paranthsized joined table is simply a joined table contained in
+      <para>A parenthesized joined table is simply a joined table contained in
       parentheses. Joined tables are discussed below.</para>
 
       <para><literal>&lt;parenthesized joined table&gt; ::= &lt;left paren&gt;
@@ -2634,8 +2635,8 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       <title>Query Expression</title>
 
       <para>A query expression consists of an optional WITH clause and a query
-      expression body. The WITH clause lists one or more name ephemeral tables
-      that can be referenced in the query expression body.</para>
+      expression body. The WITH clause lists one or more named ephemeral
+      tables that can be referenced in the query expression body.</para>
 
       <para><literal>&lt;query expression&gt; ::= [ &lt;with clause&gt; ]
       &lt;query expression body&gt;</literal></para>
@@ -2676,12 +2677,14 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
       &lt;table value constructor&gt; | &lt;explicit table&gt; &lt;explicit
       table&gt; ::= TABLE &lt;table or query name&gt;</literal></simpara>
 
-      <para>&lt;corresponding spec&gt; ::= CORRESPONDING [ BY &lt;left
-      paren&gt; &lt;column name list&gt; &lt;right paren&gt; ]</para>
+      <para><literal>&lt;corresponding spec&gt; ::= CORRESPONDING [ BY
+      &lt;left paren&gt; &lt;column name list&gt; &lt;right paren&gt;
+      ]</literal></para>
 
-      <para>A &lt;query term&gt; and a &lt;query primary&gt; can be a SELECT
-      statement, an &lt;explicit table&gt;, or a &lt;table value
-      constructor&gt;.</para>
+      <para>A <literal>&lt;query term&gt;</literal> and a <literal>&lt;query
+      primary&gt;</literal> can be a SELECT statement, an
+      <literal>&lt;explicit table&gt;</literal>, or a <literal>&lt;table value
+      constructor&gt;</literal>.</para>
 
       <para>The CORRESPONDING clause is optional. If it is not specified, then
       the <literal>&lt;query term&gt;</literal> and the <literal>&lt;query
@@ -2712,10 +2715,11 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
 
       <programlisting>SELECT x + y AS xysum, y + z AS yzsum FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w ORDER BY xysum NULLS LAST, yzsum NULLS FIRST</programlisting>
 
-      <para>The ORDER BY clause specifies one or more &lt;value
-      expressions&gt;. The list of rows is sorted according to the first
-      &lt;value expression&gt;. When some rows are sorted equal then they are
-      sorted according to the next &lt;value expression&gt; and so on.</para>
+      <para>The ORDER BY clause specifies one or more <literal>&lt;value
+      expressions&gt;</literal>. The list of rows is sorted according to the
+      first <literal>&lt;value expression&gt;</literal>. When some rows are
+      sorted equal then they are sorted according to the next
+      <literal>&lt;value expression&gt;</literal> and so on.</para>
 
       <para><literal>&lt;order by clause&gt; ::= ORDER BY &lt;sort
       specification&gt; [ { &lt;comma&gt; &lt;sort specification&gt; }...
@@ -2895,8 +2899,8 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
 
       <simpara>The <literal>&lt;override clause&gt;</literal> must be used
       when a value is explicitly assigned to a column that has been defined as
-      GENERATED ALWAYS AS IDENTITY. The ORVERRIDE SYSTEM values means the
-      provided values are used for the insert, while OVERRIDE USER values
+      GENERATED ALWAYS AS IDENTITY. The clause, ORVERRIDE SYSTEM VALUE means
+      the provided values are used for the insert, while OVERRIDING USER VALUE
       means the provided values are simply ignored and the values generated by
       the system are used instead.</simpara>
 

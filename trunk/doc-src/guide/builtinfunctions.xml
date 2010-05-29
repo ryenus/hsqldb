@@ -1532,8 +1532,8 @@
 
     <para>Returns a new array that contains the elements of the
     <literal>&lt;array value expr&gt;</literal> minus the number of elements
-    specified by the <literal>&lt;num value expr&gt;. Elements are discarded
-    from the end of the array</literal>. (Foundation)</para>
+    specified by the <literal>&lt;num value expr&gt;. </literal>Elements are
+    discarded from the end of the array. (Foundation)</para>
   </section>
 
   <section>
