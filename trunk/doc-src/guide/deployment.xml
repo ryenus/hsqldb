@@ -1287,8 +1287,8 @@
     <simpara>Sets the maximum number of rows of each result set and other
     internal temporary table that is held in memory. This setting applies to
     all sessions. Individual sessions can change the value with the
-    <literal>SET RESULT MEMORY ROWS</literal> command. The default is 0,
-    meaning all result sets are held in memory.</simpara>
+    <literal>SET SESSION RESULT MEMORY ROWS</literal> command. The default is
+    0, meaning all result sets are held in memory.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1703,15 +1703,5 @@
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>*</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">*</emphasis></simpara>
-
-    <simpara><emphasis>*</emphasis><literal> </literal></simpara>
-
-    <simpara>**.</simpara>
   </section>
 </chapter>
