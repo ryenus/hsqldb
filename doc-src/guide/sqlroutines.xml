@@ -132,8 +132,8 @@
     below:</para>
 
     <programlisting>CREATE FUNCTION an_hour_before (t TIMESTAMP)
-    RETURNS TIMESTAMP
-    RETURN t - 1 HOUR
+  RETURNS TIMESTAMP
+  RETURN t - 1 HOUR
 
 </programlisting>
 
@@ -145,8 +145,8 @@
     <para>A simple example of a procedure is given below:</para>
 
     <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname VARCHAR(50))
-    MODIFIES SQL DATA
-    INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
+  MODIFIES SQL DATA
+  INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP)
 
 </programlisting>
 
@@ -239,11 +239,11 @@
       table.</para>
 
       <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname  VARCHAR(50), address VARCHAR(100))
-    MODIFIES SQL DATA
+  MODIFIES SQL DATA
     BEGIN ATOMIC
     INSERT INTO customers VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     INSERT INTO addresses VALUES (DEFAULT, IDENTITY(), address);
-    END
+  END
 
 </programlisting>
     </section>
@@ -259,13 +259,13 @@
       exactly the same job as the procedure in the previous example.</para>
 
       <programlisting>CREATE PROCEDURE new_customer(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
-    MODIFIES SQL DATA
-    BEGIN ATOMIC
+  MODIFIES SQL DATA
+  BEGIN ATOMIC
     DECLARE temp_id INTEGER;
     INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     SET temp_id = IDENTITY();
     INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
-    END
+  END
 
 </programlisting>
 
@@ -282,7 +282,7 @@
       DECLARE statement with multiple comma-separated variable names, the type
       and the default value applies to all the variables in the list:</para>
 
-      <programlisting>    BEGIN ATOMIC
+      <programlisting>  BEGIN ATOMIC
     DECLARE temp_zero DATE;
     DECLARE temp_one, temp_two INTEGER DEFAULT 2;
     DECLARE temp_three VARCHAR(20) DEFAULT 'no name';
@@ -290,7 +290,7 @@
     SET temp_zero = DATE '2010-03-18';
     SET temp_two = 5;
     -- more statements ...
-    END</programlisting>
+  END</programlisting>
     </section>
 
     <section>
@@ -321,13 +321,13 @@
 
       <programlisting>CREATE PROCEDURE NEW_CUSTOMER(IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
     MODIFIES SQL DATA
-    label_one: BEGIN ATOMIC
+  label_one: BEGIN ATOMIC
     DECLARE temp_id INTEGER;
     DECLARE UNDO HANDLER FOR SQLEXCEPTION LEAVE label_one;
     INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     SET temp_id = IDENTITY();
     INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
-    END
+  END
 
 </programlisting>
 
@@ -431,7 +431,7 @@
       specification&gt; [ { &lt;comma&gt; &lt;target specification&gt; }...
       ]</literal></simpara>
 
-      <simpara>Retrieve values from a specified row of a table assigns the
+      <simpara>Retrieve values from a specified row of a table and assign the
       fields to the specified targets. The example below has an identical
       effect to the example of SET statement given above.</simpara>
 
@@ -454,14 +454,14 @@
       parameter.</para>
 
       <programlisting>CREATE PROCEDURE new_customer(OUT newid INT, IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
-    MODIFIES SQL DATA
-    BEGIN ATOMIC
+  MODIFIES SQL DATA
+  BEGIN ATOMIC
     DECLARE temp_id INTEGER;
     INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     SET temp_id = IDENTITY();
     INSERT INTO ADDRESSES VALUES (DEFAULT, temp_id, address);
     SET newid = temp_id;
-    END
+  END
 
 </programlisting>
 
@@ -511,11 +511,11 @@ CALL the_new_id;
       a WHILE loop:</para>
 
       <programlisting>loop_label: WHILE my_var &gt; 0 DO
-    INSERT INTO CUSTOMERS VALUES (DEFAULT, my_var);
-    SET my_var = my_var - 1;
-    IF my_var = 10 THEN SET my_var = 8; END IF;
-    IF my_var = 22 THEN LEAVE loop_label; END IF;
-    END WHILE loop_label;
+  INSERT INTO CUSTOMERS VALUES (DEFAULT, my_var);
+  SET my_var = my_var - 1;
+  IF my_var = 10 THEN SET my_var = 8; END IF;
+  IF my_var = 22 THEN LEAVE loop_label; END IF;
+END WHILE loop_label;
 
 </programlisting>
     </section>
@@ -560,10 +560,10 @@ CALL the_new_id;
       ELSE clause is performed if none the previous tests returns TRUE.</para>
 
       <programlisting>CASE var_one
-    WHEN 22, 23 THEN INSERT INTO t_one ...;
-    WHEN IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
-    ELSE UPDATE t_one ...;
-    END CASE
+  WHEN 22, 23 THEN INSERT INTO t_one ...;
+  WHEN IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
+  ELSE UPDATE t_one ...;
+  END CASE
 
 </programlisting>
 
@@ -585,10 +585,10 @@ CALL the_new_id;
       a new condition is added:</para>
 
       <programlisting>CASE WHEN var_one = 22 OR var_one = 23 THEN INSERT INTO t_one ...;
-    WHEN var_one IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
-    WHEN var_two IS NULL THEN UPDATE t_one ...;
-    ELSE UPDATE t_one ...;
-    END CASE
+  WHEN var_one IN (2, 4, 5) THEN DELETE FROM t_one WHERE ...;
+  WHEN var_two IS NULL THEN UPDATE t_one ...;
+  ELSE UPDATE t_one ...;
+  END CASE
 
 </programlisting>
 
@@ -648,16 +648,16 @@ CALL the_new_id;
       scalar expression.</simpara>
 
       <programlisting>CREATE FUNCTION an_hour_before_max (e_type INT)
-    RETURNS TIMESTAMP
-    RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
+  RETURNS TIMESTAMP
+  RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
 
 CREATE FUNCTION an_hour_before_max (e_type INT)
-    RETURNS TIMESTAMP
-    BEGIN ATOMIC
+  RETURNS TIMESTAMP
+  BEGIN ATOMIC
     DECLAR max_event TIMESTAMP;
     SET max_event = SELECT MAX(event_time) FROM atable WHERE event_type = e_type;
     RETURN max_event - 1 HOUR;
-    END
+  END
 
 </programlisting>
     </section>
@@ -724,23 +724,23 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       version accepts TIMESTAMP while the other accepts TIME arguments.</para>
 
       <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
-    RETURNS TIMESTAMP
-    IF t &gt; CURRENT_TIMESTAMP THEN
+  RETURNS TIMESTAMP
+  IF t &gt; CURRENT_TIMESTAMP THEN
     RETURN CURRENT_TIMESTAMP;
-    ELSE
+  ELSE
     RETURN t - 1 HOUR;
-    END IF
+  END IF
 
 CREATE FUNCTION an_hour_before_or_now(t TIME)
-    RETURNS TIME
-    CASE t
+  RETURNS TIME
+  CASE t
     WHEN &gt; CURRENT_TIME THEN
-    RETURN CURRENT_TIME;
+      RETURN CURRENT_TIME;
     WHEN &gt;= TIME'01:00:00' THEN
-    RETURN t - 1 HOUR;
+      RETURN t - 1 HOUR;
     ELSE
-    RETURN CURRENT_TIME;
-    END CASE
+      RETURN CURRENT_TIME;
+  END CASE
 
 </programlisting>
 
@@ -748,7 +748,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     </section>
 
     <section>
-      <title>Returning Data From Procedures</title>
+      <title>Returning Data From Routines</title>
 
       <para>The OUT or INOUT parameters of a procedure are used to assign
       simple values to dynamic parameters or to variables in the calling
@@ -783,11 +783,10 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
 
       <para>The JDBC CallableStatement class is used with the SQL statement
       <literal>CALL &lt;routine name&gt; ( &lt;argument 1&gt;, ... )</literal>
-      is used to call both functions and procedures. The
-      <literal>getXXX()</literal> methods can be used to retrieve INOUT or OUT
-      arguments after the call. The <literal>getResultSet()</literal> call can
-      be used to access the ResultSet returned from a function that returns a
-      result set.</para>
+      to call both functions and procedures. The <literal>getXXX()</literal>
+      methods can be used to retrieve INOUT or OUT arguments after the call.
+      The <literal>getResultSet()</literal> call can be used to access the
+      ResultSet returned from a function that returns a result set.</para>
     </section>
   </section>
 
@@ -842,7 +841,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
 
       <simpara><literal>&lt;SQL aggregate declaration list&gt; ::= &lt;left
       paren&gt; [IN] [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt;
-      &lt;comma&gt; [IN] &lt;SQL parameter name&gt; BOOLEAN &lt;comma&gt;
+      &lt;comma&gt; [IN] [ &lt;SQL parameter name&gt; ] BOOLEAN &lt;comma&gt;
       INOUT [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt;
       &lt;comma&gt; INOUT [ &lt;SQL parameter name&gt; ] &lt;parameter
       type&gt; &lt;right paren&gt;</literal></simpara>
@@ -862,14 +861,14 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       current row. The second argument is the boolean FALSE. The third and
       fourth argument values are initially null, but they can be updated in
       the body of the function during each invocation. The third and fourth
-      arguments act as registers and hold their values between invocation. The
-      return value of the function is ignored during the computation phase
+      arguments act as registers and hold their values between invocations.
+      The return value of the function is ignored during the computation phase
       (when the second parameter is FALSE).</para>
 
       <para>After the computation phase, the function is invoked once more to
-      get the final result. In this invocation, the first parameter is NULL
-      and the second argument is boolean TRUE. The third and fourth parameters
-      hold the values they held at the end of the last invocation. The value
+      get the final result. In this invocation, the first argument is NULL and
+      the second argument is boolean TRUE. The third and fourth arguments hold
+      the values they held at the end of the last invocation. The value
       returned by the function in this invocation is used as the result of the
       aggregate function computation in the invoking SQL statement. In SQL
       queries with GROUP BY, the call sequence is repeated for each separate
@@ -882,17 +881,17 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       null.</para>
 
       <programlisting>CREATE AGGREGATE FUNCTION udavg(IN x INTEGER, IN flag BOOLEAN, INOUT addup BIGINT, INOUT counter INT)
-    RETURNS INTEGER
-    CONTAINS SQL
-    BEGIN ATOMIC
-      IF flag THEN
-        RETURN addup / counter;
-      ELSE
-        SET counter = COALESCE(counter, 0) + 1;
-        SET addup = COALESCE(addup, 0) || COALESCE(x, 0);
-        RETURN NULL;
-      END IF;
-    END
+  RETURNS INTEGER
+  CONTAINS SQL
+  BEGIN ATOMIC
+    IF flag THEN
+      RETURN addup / counter;
+    ELSE
+      SET counter = COALESCE(counter, 0) + 1;
+      SET addup = COALESCE(addup, 0) || COALESCE(x, 0);
+      RETURN NULL;
+    END IF;
+  END
 
 </programlisting>
 
@@ -909,20 +908,20 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       the array to size :</para>
 
       <programlisting>CREATE AGGREGATE FUNCTION array_aggregate(IN val VARCHAR(100), IN flag boolean, INOUT buffer VARCHAR(100) ARRAY, INOUT counter INT)
- RETURNS VARCHAR(100) ARRAY
- CONTAINS SQL
- BEGIN ATOMIC
- IF flag THEN
-  RETURN buffer;
- ELSE
-  IF val IS NULL THEN RETURN NULL; END IF;
-  IF counter IS NULL THEN SET counter = 0; END IF;
-  SET counter = counter + 1;
-  IF counter = 1 THEN SET buffer = ARRAY[val];
-   ELSE SET buffer[counter] = val; END IF;
-  RETURN NULL;
- END IF;
- END
+  RETURNS VARCHAR(100) ARRAY
+  CONTAINS SQL
+  BEGIN ATOMIC
+    IF flag THEN
+      RETURN buffer;
+    ELSE
+      IF val IS NULL THEN RETURN NULL; END IF;
+      IF counter IS NULL THEN SET counter = 0; END IF;
+      SET counter = counter + 1;
+      IF counter = 1 THEN SET buffer = ARRAY[val];
+      ELSE SET buffer[counter] = val; END IF;
+      RETURN NULL;
+    END IF;
+  END
 </programlisting>
 
       <para>The tables and data for the select statement below is created with
@@ -956,11 +955,11 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     the function is invoked.</para>
 
     <programlisting>CREATE FUNCTION zero_pad(x BIGINT, digits INT, maxsize INT)
-    RETURNS CHAR VARYING(100)
-    NO SQL
-    LANGUAGE JAVA PARAMETER STYLE JAVA
-    EXTERNAL NAME
-    'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString'
+  RETURNS CHAR VARYING(100)
+  NO SQL
+  LANGUAGE JAVA PARAMETER STYLE JAVA
+  EXTERNAL NAME
+  'CLASSPATH:org.hsqldb.lib.StringUtil.toZeroPaddedString'
 
 </programlisting>
 
@@ -1042,6 +1041,12 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
           </row>
 
           <row>
+            <entry>ARRAY of any type</entry>
+
+            <entry>java.sql.Array</entry>
+          </row>
+
+          <row>
             <entry><para>TABLE</para></entry>
 
             <entry><para>java.sql.ResultSet</para></entry>
@@ -1084,22 +1089,22 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       the SQL declaration includes RETURNS TABLE.</para>
 
       <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIME)
-    RETURNS TIME
-    NO SQL
-    LANGUAGE JAVA PARAMETER STYLE JAVA
-    EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
+  RETURNS TIME
+  NO SQL
+  LANGUAGE JAVA PARAMETER STYLE JAVA
+  EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
 
 CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
-    RETURNS TIMESTAMP
-    NO SQL
-    LANGUAGE JAVA PARAMETER STYLE JAVA
-    EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
+  RETURNS TIMESTAMP
+  NO SQL
+  LANGUAGE JAVA PARAMETER STYLE JAVA
+  EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
 
 CREATE FUNCTION testquery(INTEGER) 
-    RETURNS TABLE(n VARCHAR(20), i INT) 
-    READS SQL DATA
-    LANGUAGE JAVA
-    EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getQueryResult'
+  RETURNS TABLE(n VARCHAR(20), i INT) 
+  READS SQL DATA
+  LANGUAGE JAVA
+  EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestJavaFunctions.getQueryResult'
 
 </programlisting>
 
@@ -1373,15 +1378,15 @@ CREATE FUNCTION testquery(INTEGER)
     each function.</para>
 
     <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
-    RETURNS TIMESTAMP
-    NO SQL
-    LANGUAGE JAVA PARAMETER STYLE JAVA
-    SPECIFIC an_hour_before_or_now_with_timestamp
-    EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
+  RETURNS TIMESTAMP
+  NO SQL
+  LANGUAGE JAVA PARAMETER STYLE JAVA
+  SPECIFIC an_hour_before_or_now_with_timestamp
+  EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
 
 CREATE FUNCTION an_hour_before_max (e_type INT)
-    RETURNS TIMESTAMP SPECIFIC an_hour_before_max_with_int
-    RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
+  RETURNS TIMESTAMP SPECIFIC an_hour_before_max_with_int
+  RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
 
 </programlisting>
 

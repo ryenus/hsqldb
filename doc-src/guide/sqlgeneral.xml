@@ -1247,9 +1247,9 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
 
     <para>Elements of the array are either NULL, or of the same data type. It
     is possible to define arrays of all supported types, including the types
-    covered in this chapter and user defined types, . An SQL array is one
-    dimensional and is addressed from position 1. An empty array can also be
-    used, which has no element.</para>
+    covered in this chapter and user defined types, except LOB types. An SQL
+    array is one dimensional and is addressed from position 1. An empty array
+    can also be used, which has no element.</para>
 
     <para>Arrays can be stored in the database, as well as being used as
     temporary containers of values for simplifying SQL statements. They
@@ -1276,9 +1276,9 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
       size of the array cannot be extended beyond maximum cardinality.</para>
 
       <para>In the example below, the table contains a column of integer
-      arrays and a column of varchar arrays. The varchar array has an explicit
+      arrays and a column of varchar arrays. The VARCHAR array has an explicit
       maximum size of 10, which means each array can have between 0 and 10
-      elements.</para>
+      elements. The INTEGER array has the default maximum size of 1024.</para>
 
       <informalexample>
         <programlisting>CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY, names VARCHAR(20) ARRAY[10])</programlisting>
@@ -1303,8 +1303,8 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
 
       <informalexample>
         <programlisting>ARRAY [ 1, 2, 3 ]
-ARRAY [ 'HOT', 'COLD']
-ARRAY [ var1, var2, CURRENT_DATE]
+ARRAY [ 'HOT', 'COLD' ]
+ARRAY [ var1, var2, CURRENT_DATE ]
 ARRAY (SELECT lastname FROM namestable ORDER BY id)
 </programlisting>
       </informalexample>
@@ -1376,8 +1376,8 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
       <para><emphasis>FUNCTIONS</emphasis></para>
 
       <para>Three functions operate on arrays. Details are described in the
-      <link endterm="sqlgeneral-title" xlink:href="#sqlgeneral-chapt"></link>
-      chapter.</para>
+      <link endterm="builtinfunctions-title"
+      xlink:href="#builtinfunctions-chapt"></link> chapter.</para>
 
       <para><literal>CARDINALITY &lt;left paren&gt; &lt;array value
       expression&gt; &lt;right paren&gt;</literal></para>
@@ -1428,17 +1428,18 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 
       <para>Arrays can be compared for equality, but they cannot be compared
       for ordering or ranges. Array expressions are therefore not allowed in
-      ORDER BY clauses, or expressions that involve GREATER THAN etc. Two
-      arrays are equal if they have the same length and the values at each
+      an ORDER BY clause, or in a comparison expression such as GREATER THAN.
+      Two arrays are equal if they have the same length and the values at each
       index position are either equal or both NULL.</para>
 
       <para><emphasis>USER DEFINED FUNCTIONS and PROCEDURES</emphasis></para>
 
       <para>Array parameters, variables and return values can be specified in
-      user defined functions and procedures, inclusing aggregate functions.
-      This allows a wider range of applications to be covered by user defined
-      functions and easier data exchange between the engine and the user's
-      application.</para>
+      user defined functions and procedures, including aggregate functions. An
+      aggregate function can return an array that contains all the scalar
+      values that have been aggregated. These capabilities allow a wider range
+      of applications to be covered by user defined functions and easier data
+      exchange between the engine and the user's application.</para>
     </section>
   </section>
 
