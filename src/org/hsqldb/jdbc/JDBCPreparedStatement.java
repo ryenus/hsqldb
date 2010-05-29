@@ -1417,8 +1417,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Incuding 2.0, HSQLDB does not support the SQL ARRAY type. Calling this method
-     * throws an exception.
+     * From version 2.0, HSQLDB supports the SQL ARRAY type.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1433,7 +1432,49 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     public synchronized void setArray(int parameterIndex,
                                       Array x) throws SQLException {
-        throw Util.notSupported();
+
+        checkParameterIndex(parameterIndex);
+
+        Type type = this.parameterMetaData.columnTypes[parameterIndex -1];
+
+        if (!type.isArrayType()) {
+            throw Util.sqlException(ErrorCode.X_42561);
+        }
+
+        if (x == null) {
+            checkSetParameterIndex(parameterIndex, false);
+            setParameter(parameterIndex, null);
+            return;
+        }
+
+        Object[] data = null;
+
+        if (x instanceof JDBCArray) {
+           data = (Object[]) ((JDBCArray) x).getArrayInternal();
+        } else {
+            Object object = x.getArray();
+
+            if (object instanceof Object[]) {
+                Type baseType  = type.collectionBaseType();
+                Object[] array = (Object[]) object;
+                data           = new Object[array.length];
+
+                for (int i = 0; i < data.length; i++) {
+                    data[i] = baseType.convertJavaToSQL(session, array[i]);
+                }
+
+            } else {
+
+                // if foreign data is not Object[]
+                throw Util.notSupported();
+            }
+        }
+
+
+
+        checkSetParameterIndex(parameterIndex, false);
+        parameterValues[parameterIndex - 1] = data;
+        return;
     }
 
     /**
@@ -3975,6 +4016,19 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             } else {
                 throw Util.sqlException(ErrorCode.X_07504);
             }
+        }
+    }
+
+    protected void checkParameterIndex(int i) throws SQLException {
+
+        if (isClosed || connection.isClosed) {
+            checkClosed();
+        }
+
+        if (i < 1 || i > parameterValues.length) {
+            String msg = "parameter index out of range: " + i;
+
+            throw Util.outOfRangeArgument(msg);
         }
     }
 

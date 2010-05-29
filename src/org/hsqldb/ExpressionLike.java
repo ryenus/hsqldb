@@ -225,12 +225,12 @@ public final class ExpressionLike extends ExpressionLogical {
         }
 
         Object pattern = isRightArgFixedConstant
-                         ? nodes[RIGHT].getConstantValue(session)
+                         ? nodes[RIGHT].getValue(session)
                          : null;
         boolean constantEscape = isEscapeFixedConstant
                                  && nodes[ESCAPE] != null;
         Object escape = constantEscape
-                        ? nodes[ESCAPE].getConstantValue(session)
+                        ? nodes[ESCAPE].getValue(session)
                         : null;
 
         likeObject.setPattern(session, pattern, escape, nodes[ESCAPE] != null);

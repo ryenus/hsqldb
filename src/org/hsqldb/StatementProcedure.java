@@ -198,7 +198,10 @@ public class StatementProcedure extends StatementDMQL {
 
         Object[] row;
 
-        if (o instanceof Object[]) {
+        if (expression.getDataType().isArrayType() ) {
+            row    = new Object[1];
+            row[0] = o;
+        } else if (o instanceof Object[]) {
             row = (Object[]) o;
         } else {
             row    = new Object[1];

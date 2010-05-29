@@ -45,6 +45,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CountUpDownLatch;
+import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.OrderedHashSet;
@@ -1840,21 +1841,35 @@ public class Session implements SessionInterface {
     }
 
 // session tables
-    Table[] transitionTables = Table.emptyArray;
+    HashMappedList sessionTables;
 
-    public void setSessionTables(Table[] tables) {
-        transitionTables = tables;
+    public void addSessionTable(Table table) {
+
+        if (sessionTables == null) {
+            sessionTables = new HashMappedList();
+        }
+
+        if(sessionTables.containsKey(table.getName().name)) {
+            throw Error.error(ErrorCode.X_42504);
+        }
+
+
+        sessionTables.add(table.getName().name, table);
     }
+
+    public void setSessionTables(Table[] tables) {}
 
     public Table findSessionTable(String name) {
 
-        for (int i = 0; i < transitionTables.length; i++) {
-            if (name.equals(transitionTables[i].getName().name)) {
-                return transitionTables[i];
-            }
+        if (sessionTables == null) {
+            return null;
         }
 
-        return null;
+        return (Table) sessionTables.get(name);
+    }
+
+    public void dropSessionTable(String name) {
+        sessionTables.remove(name);
     }
 
 //

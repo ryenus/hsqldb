@@ -40,6 +40,7 @@ import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.navigator.RangeIterator;
@@ -67,10 +68,10 @@ public final class RangeVariable implements Cloneable {
     private OrderedHashSet columnNames;
     OrderedHashSet         namedJoinColumns;
     HashMap                namedJoinColumnExpressions;
-    private final Object[] emptyData;
-    final boolean[]        columnsInGroupBy;
+    private Object[]       emptyData;
+    boolean[]              columnsInGroupBy;
     boolean                hasKeyedColumnInGroupBy;
-    final boolean[]        usedColumns;
+    boolean[]              usedColumns;
     boolean[]              updatedColumns;
 
     //
@@ -126,16 +127,18 @@ public final class RangeVariable implements Cloneable {
         tableAlias       = alias;
         columnAliases    = columnList;
         columnAliasNames = columnNameList;
-        emptyData        = rangeTable.getEmptyRowData();
-        columnsInGroupBy = rangeTable.getNewColumnCheckList();
-        usedColumns      = rangeTable.getNewColumnCheckList();
         joinConditions = new RangeVariableConditions[]{
             new RangeVariableConditions(this, true) };
-        joinConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
         whereConditions = new RangeVariableConditions[]{
             new RangeVariableConditions(this, false) };
 
         compileContext.registerRangeVariable(this);
+
+        SubQuery subQuery = rangeTable.getSubQuery();
+
+        if (subQuery == null || subQuery.isResolved()) {
+            setRangeTableVariables();
+        }
     }
 
     RangeVariable(Table table, int position) {
@@ -150,6 +153,19 @@ public final class RangeVariable implements Cloneable {
             new RangeVariableConditions(this, true) };
         whereConditions = new RangeVariableConditions[]{
             new RangeVariableConditions(this, false) };
+    }
+
+    public void setRangeTableVariables() {
+
+        if (columnAliasNames != null
+                && rangeTable.getColumnCount() != columnAliasNames.length) {
+            throw Error.error(ErrorCode.X_42593);
+        }
+
+        emptyData                    = rangeTable.getEmptyRowData();
+        columnsInGroupBy             = rangeTable.getNewColumnCheckList();
+        usedColumns                  = rangeTable.getNewColumnCheckList();
+        joinConditions[0].rangeIndex = rangeTable.getPrimaryIndex();
     }
 
     public RangeVariable duplicate() {
@@ -494,10 +510,6 @@ public final class RangeVariable implements Cloneable {
         return joinCondition;
     }
 
-    /**
-     *
-     * @param e a join condition
-     */
     void addJoinCondition(Expression e) {
         joinCondition = ExpressionLogical.andExpressions(joinCondition, e);
     }
@@ -532,14 +544,12 @@ public final class RangeVariable implements Cloneable {
 
                 set.addAll(((TableDerived) rangeTable).view.getSubqueries());
             } else if (baseQueryExpression == null) {
-                set = OrderedHashSet.add(
-                    set, ((TableDerived) rangeTable).getSubQuery());
+                set = OrderedHashSet.add(set, rangeTable.getSubQuery());
             } else {
                 OrderedHashSet temp = baseQueryExpression.getSubqueries();
 
                 set = OrderedHashSet.addAll(set, temp);
-                set = OrderedHashSet.add(
-                    set, ((TableDerived) rangeTable).getSubQuery());
+                set = OrderedHashSet.add(set, rangeTable.getSubQuery());
             }
         }
 
@@ -559,6 +569,60 @@ public final class RangeVariable implements Cloneable {
 
         if (joinCondition != null) {
             joinCondition.replaceRangeVariables(ranges, newRanges);
+        }
+    }
+
+    public void resolveRangeTable(Session session,
+                                  RangeVariable[] rangeVariables,
+                                  int rangeCount) {
+
+        Table    table    = rangeTable;
+        SubQuery subQuery = table.getSubQuery();
+
+        if (subQuery != null && !subQuery.isResolved()) {
+            if (subQuery.dataExpression != null) {
+                HsqlList unresolved =
+                    subQuery.dataExpression.resolveColumnReferences(
+                        RangeVariable.emptyArray, null);
+
+                if (unresolved != null) {
+                    unresolved =
+                        subQuery.dataExpression.resolveColumnReferences(
+                            rangeVariables, rangeCount, null, true);
+                }
+
+                if (unresolved != null) {
+                    throw Error.error(
+                        ErrorCode.X_42501,
+                        ((Expression) unresolved.get(0)).getSQL());
+                }
+
+                subQuery.dataExpression.resolveTypes(session, null);
+                setRangeTableVariables();
+            }
+
+            if (subQuery.queryExpression != null) {
+                subQuery.queryExpression.resolveReferences(session);
+
+                HsqlList list =
+                    subQuery.queryExpression.getUnresolvedExpressions();
+
+                // todo resove against i ranges
+                HsqlList unresolved =
+                    Expression.resolveColumnSet(rangeVariables, rangeCount,
+                                                list, null);
+
+                if (unresolved != null) {
+                    throw Error.error(
+                        ErrorCode.X_42501,
+                        ((Expression) unresolved.get(0)).getSQL());
+                }
+
+                subQuery.queryExpression.resolveTypes(session);
+                subQuery.prepareTable(session);
+                subQuery.setCorrelated();
+                setRangeTableVariables();
+            }
         }
     }
 
@@ -762,6 +826,7 @@ public final class RangeVariable implements Cloneable {
         }
 
         public void release() {
+
             if (it != null) {
                 it.release();
             }
@@ -869,6 +934,12 @@ public final class RangeVariable implements Cloneable {
                 it = conditions[condIndex].rangeIndex.emptyIterator();
 
                 return;
+            }
+
+            SubQuery subQuery = rangeVar.rangeTable.getSubQuery();
+
+            if (subQuery != null) {
+                subQuery.materialiseCorrelated(session);
             }
 
             if (conditions[condIndex].indexCond == null) {

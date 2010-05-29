@@ -34,6 +34,8 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.rights.User;
@@ -165,6 +167,11 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_TRANSACTION :
             case StatementTypes.START_TRANSACTION :
                 group = StatementTypes.X_SQL_TRANSACTION;
+                break;
+
+            case StatementTypes.DECLARE_SESSION_TABLE :
+            case StatementTypes.DROP_TABLE :
+                group = StatementTypes.X_SQL_SESSION;
                 break;
 
             default :
@@ -582,8 +589,10 @@ public class StatementSession extends Statement {
 
                 try {
                     for (int i = 0; i < variables.length; i++) {
-                        session.sessionContext.addSessionVariable(variables[i]);
+                        session.sessionContext.addSessionVariable(
+                            variables[i]);
                     }
+
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -606,12 +615,68 @@ public class StatementSession extends Statement {
             case StatementTypes.SET_SESSION_SQL_IGNORECASE : {
                 try {
                     boolean mode = ((Boolean) parameters[0]).booleanValue();
+
                     session.setIgnoreCase(mode);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
+            }
+            case StatementTypes.DECLARE_SESSION_TABLE : {
+                Table         table           = (Table) parameters[0];
+                HsqlArrayList tempConstraints = (HsqlArrayList) parameters[1];
+                StatementDMQL statement       = (StatementDMQL) parameters[2];
+
+                try {
+                    if (tempConstraints != null) {
+                        table =
+                            ParserDDL.addTableConstraintDefinitions(session,
+                                table, tempConstraints, null, false);
+                    }
+
+                    table.compile(session, null);
+                    session.addSessionTable(table);
+
+                    if (statement != null) {
+                        Result result = statement.execute(session);
+
+                        table.insertIntoTable(session, result);
+                    }
+
+                    if (table.hasLobColumn) {
+                        RowIterator it = table.rowIterator(session);
+
+                        while (it.hasNext()) {
+                            Row      row  = it.getNextRow();
+                            Object[] data = row.getData();
+
+                            session.sessionData.adjustLobUsageCount(table,
+                                    data, 1);
+                        }
+                    }
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.DROP_TABLE : {
+                HsqlName name     = (HsqlName) parameters[0];
+                Boolean  ifExists = (Boolean) parameters[1];
+                Table    table    = session.findSessionTable(name.name);
+
+                if (table == null) {
+                    if (ifExists.booleanValue()) {
+                        return Result.updateZeroResult;
+                    } else {
+                        throw Error.error(ErrorCode.X_42501, name.name);
+                    }
+                }
+
+                session.dropSessionTable(name.name);
+
+                return Result.updateZeroResult;
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500,

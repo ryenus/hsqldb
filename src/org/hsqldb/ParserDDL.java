@@ -550,6 +550,23 @@ public class ParserDDL extends ParserRoutine {
 
                 break;
             }
+            case Tokens.TABLE : {
+                boolean isModule = token.namePrePrefix == null
+                                   && Tokens.T_MODULE.equals(token.namePrefix);
+
+                name = readNewSchemaObjectName(objectType, false);
+
+                if (isModule) {
+                    Object[] args = new Object[] {
+                        name, Boolean.valueOf(ifExists)
+                    };
+
+                    return new StatementSession(StatementTypes.DROP_TABLE,
+                                                args);
+                }
+
+                break;
+            }
             default :
                 name = readNewSchemaObjectName(objectType, false);
         }
@@ -992,14 +1009,74 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
+    StatementSession compileDeclareLocalTableOrNull() {
+
+        int position = super.getPosition();
+
+        try {
+            readThis(Tokens.DECLARE);
+            readThis(Tokens.LOCAL);
+            readThis(Tokens.TEMPORARY);
+            readThis(Tokens.TABLE);
+        } catch (Exception e) {
+
+            // may be cursor
+            rewind(position);
+
+            return null;
+        }
+
+        if (token.namePrePrefix != null) {
+            throw unexpectedToken();
+        }
+
+        if (token.namePrePrefix == null
+                && (token.namePrefix == null
+                    || Tokens.T_MODULE.equals(token.namePrefix))) {
+
+            // valid name
+        } else {
+            throw unexpectedToken();
+        }
+
+        HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
+
+        name.schema = SqlInvariants.MODULE_HSQLNAME;
+
+        Table table = TableUtil.newTable(database, TableBase.TEMP_TABLE, name);
+        StatementSchema cs          = compileCreateTableBody(table);
+        HsqlArrayList   constraints = (HsqlArrayList) cs.arguments[1];
+
+        for (int i = 0; i < constraints.size(); i++) {
+            Constraint c = (Constraint) constraints.get(i);
+
+            if (c.getConstraintType()
+                    == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
+                throw unexpectedToken(Tokens.T_FOREIGN);
+            }
+        }
+
+        StatementSession ss =
+            new StatementSession(StatementTypes.DECLARE_SESSION_TABLE,
+                                 cs.arguments);
+
+        return ss;
+    }
+
     StatementSchema compileCreateTable(int type) {
 
         HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
-        HsqlArrayList tempConstraints = new HsqlArrayList();
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
         Table table = TableUtil.newTable(database, type, name);
+
+        return compileCreateTableBody(table);
+    }
+
+    StatementSchema compileCreateTableBody(Table table) {
+
+        HsqlArrayList tempConstraints = new HsqlArrayList();
 
         if (token.tokenType == Tokens.AS) {
             return readTableAsSubqueryDefinition(table);
@@ -1074,7 +1151,7 @@ public class ParserDDL extends ParserRoutine {
                     checkIsSchemaObjectName();
 
                     HsqlName hsqlName =
-                        database.nameManager.newColumnHsqlName(name,
+                        database.nameManager.newColumnHsqlName(table.getName(),
                             token.tokenString, isDelimitedIdentifier());
 
                     read();
@@ -1292,7 +1369,8 @@ public class ParserDDL extends ParserRoutine {
      * Adds a list of temp constraints to a new table
      */
     static Table addTableConstraintDefinitions(Session session, Table table,
-            HsqlArrayList tempConstraints, HsqlArrayList constraintList) {
+            HsqlArrayList tempConstraints, HsqlArrayList constraintList,
+            boolean addToSchema) {
 
         Constraint c        = (Constraint) tempConstraints.get(0);
         String     namePart = c.getName() == null ? null
@@ -1310,7 +1388,10 @@ public class ParserDDL extends ParserRoutine {
                 SchemaObject.ConstraintTypes.PRIMARY_KEY);
 
             table.addConstraint(newconstraint);
-            session.database.schemaManager.addSchemaObject(newconstraint);
+
+            if (addToSchema) {
+                session.database.schemaManager.addSchemaObject(newconstraint);
+            }
         }
 
         for (int i = 1; i < tempConstraints.size(); i++) {
@@ -1338,8 +1419,11 @@ public class ParserDDL extends ParserRoutine {
                         table, index, SchemaObject.ConstraintTypes.UNIQUE);
 
                     table.addConstraint(newconstraint);
-                    session.database.schemaManager.addSchemaObject(
-                        newconstraint);
+
+                    if (addToSchema) {
+                        session.database.schemaManager.addSchemaObject(
+                            newconstraint);
+                    }
 
                     break;
                 }
@@ -1369,7 +1453,9 @@ public class ParserDDL extends ParserRoutine {
                         table.setColumnTypeVars(c.notNullColumnIndex);
                     }
 
-                    session.database.schemaManager.addSchemaObject(c);
+                    if (addToSchema) {
+                        session.database.schemaManager.addSchemaObject(c);
+                    }
 
                     break;
                 }

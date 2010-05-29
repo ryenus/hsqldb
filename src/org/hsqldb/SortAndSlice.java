@@ -166,7 +166,7 @@ public final class SortAndSlice {
             ExpressionOrderBy sort     = (ExpressionOrderBy) exprList.get(i);
             Type              dataType = sort.getLeftNode().getDataType();
 
-            if (dataType.isLobType()) {
+            if (dataType.isArrayType() || dataType.isLobType()) {
                 throw Error.error(ErrorCode.X_42534);
             }
         }

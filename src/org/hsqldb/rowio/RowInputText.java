@@ -220,7 +220,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         return 0;
     }
 
-    protected boolean checkNull() {
+    protected boolean readNull() {
 
         // Return null on each column read instead.
         return false;
@@ -229,16 +229,17 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
     protected String readChar(Type type) throws IOException {
 
         String s = null;;
+
         switch (type.typeCode) {
 
             case Types.SQL_CHAR :
-                s =readString();
-				break;
+                s = readString();
+                break;
 
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE :
                 s = readVarString();
-                break; 
+                break;
 
             default :
                 s = readLongVarString();
@@ -251,7 +252,6 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
 
         // cut down size
         return new String(s);
-
     }
 
     protected Integer readSmallint() throws IOException {
@@ -440,8 +440,9 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         if (s.length() == 0) {
             return null;
         }
+
         return s.equalsIgnoreCase(Tokens.T_TRUE) ? Boolean.TRUE
-                                          : Boolean.FALSE;
+                                                 : Boolean.FALSE;
     }
 
     protected Object readOther() throws IOException {
@@ -523,6 +524,10 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
         long id = Long.parseLong(s);
 
         return new BlobDataID(id);
+    }
+
+    protected Object[] readArray(Type type) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "RowInputText");
     }
 
     public int getLineNumber() {

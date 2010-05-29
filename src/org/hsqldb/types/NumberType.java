@@ -782,8 +782,9 @@ public final class NumberType extends Type {
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE : {
                 a = session.getScanner().convertToNumber((String) a, this);
+                a = convertToDefaultType(session, a);
 
-                return convertToDefaultType(session, a);
+                return convertToTypeLimits(session, a);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -891,8 +892,8 @@ public final class NumberType extends Type {
                 if (typeCode == Types.SQL_DECIMAL
                         || typeCode == Types.SQL_NUMERIC) {
                     return a;
-
                 }
+
                 otherType = Type.SQL_DECIMAL_DEFAULT;
             } else {
                 throw Error.error(ErrorCode.X_42561);
@@ -1255,7 +1256,9 @@ public final class NumberType extends Type {
                 BigDecimal abd = (BigDecimal) a;
                 BigDecimal bbd = (BigDecimal) b;
 
-                return abd.add(bbd);
+                abd = abd.add(bbd);
+
+                return convertToTypeLimits(null, abd);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -1300,7 +1303,9 @@ public final class NumberType extends Type {
                 BigDecimal abd = (BigDecimal) a;
                 BigDecimal bbd = (BigDecimal) b;
 
-                return abd.subtract(bbd);
+                abd = abd.subtract(bbd);
+
+                return convertToTypeLimits(null, abd);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -1352,7 +1357,7 @@ public final class NumberType extends Type {
                 BigDecimal bbd = (BigDecimal) b;
                 BigDecimal bd  = abd.multiply(bbd);
 
-                return convertToDefaultType(null, bd);
+                return convertToTypeLimits(null, bd);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -1412,7 +1417,7 @@ public final class NumberType extends Type {
 
                 BigDecimal bd = abd.divide(bbd, scale, BigDecimal.ROUND_DOWN);
 
-                return convertToDefaultType(null, bd);
+                return convertToTypeLimits(null, bd);
             }
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
@@ -1453,7 +1458,7 @@ public final class NumberType extends Type {
         temp = convertToDefaultType(null, temp);
         temp = subtract(a, temp, this);
 
-        return temp;
+        return convertToTypeLimits(null, temp);
     }
 
     public Object absolute(Object a) {
@@ -1775,8 +1780,9 @@ public final class NumberType extends Type {
 
         dec = dec.setScale(s, BigDecimal.ROUND_DOWN);
         dec = dec.setScale(scale, BigDecimal.ROUND_DOWN);
+        a   = convertToDefaultType(null, dec);
 
-        return convertToDefaultType(null, dec);
+        return convertToTypeLimits(null, a);
     }
 
     public static NumberType getNumberType(int type, long precision,

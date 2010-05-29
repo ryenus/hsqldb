@@ -40,12 +40,14 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntKeyHashMap;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.BlobType;
 import org.hsqldb.types.Charset;
 import org.hsqldb.types.DTIType;
@@ -58,7 +60,7 @@ import org.hsqldb.types.Types;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -389,6 +391,30 @@ public class ParserDQL extends ParserBase {
             }
         }
 
+        if (token.tokenType == Tokens.ARRAY) {
+            if (typeObject.isLobType()) {
+                throw unexpectedToken();
+            }
+
+            read();
+
+            int maxCardinality = Type.defaultArrayCardinality;
+
+            if (token.tokenType == Tokens.LEFTBRACKET) {
+                read();
+
+                maxCardinality = readInteger();
+
+                if (scale < 0) {
+                    throw Error.error(ErrorCode.X_42592);
+                }
+
+                readThis(Tokens.RIGHTBRACKET);
+            }
+
+            typeObject = new ArrayType(typeObject, maxCardinality);
+        }
+
         return typeObject;
     }
 
@@ -414,12 +440,17 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    void readColumnNames(OrderedHashSet columns, RangeVariable[] rangeVars) {
+    void readTargetSpecificationList(OrderedHashSet targets,
+                                     RangeVariable[] rangeVars,
+                                     LongDeque colIndexList) {
 
         while (true) {
-            ColumnSchema col = readColumnName(rangeVars);
+            Expression target = XreadTargetSpecification(rangeVars,
+                colIndexList);
 
-            if (!columns.add(col.getName().name)) {
+            if (!targets.add(target)) {
+                ColumnSchema col = target.getColumn();
+
                 throw Error.error(ErrorCode.X_42579, col.getName().name);
             }
 
@@ -429,24 +460,6 @@ public class ParserDQL extends ParserBase {
 
             if (token.tokenType == Tokens.CLOSEBRACKET) {
                 break;
-            }
-
-            throw unexpectedToken();
-        }
-    }
-
-    void readColumnNamesForSelectInto(OrderedHashSet columns,
-                                      RangeVariable[] rangeVars) {
-
-        while (true) {
-            ColumnSchema col = readColumnName(rangeVars);
-
-            if (!columns.add(col.getName().name)) {
-                throw Error.error(ErrorCode.X_42579, col.getName().name);
-            }
-
-            if (readIfThis(Tokens.COMMA)) {
-                continue;
             }
 
             if (token.tokenType == Tokens.FROM) {
@@ -1498,19 +1511,44 @@ public class ParserDQL extends ParserBase {
         SimpleName[]   columnNameList = null;
         OrderedHashSet columnList     = null;
 
-        if (token.tokenType == Tokens.OPENBRACKET) {
-            Expression e = XreadTableSubqueryOrJoinedTable();
+        switch (token.tokenType) {
 
-            table = e.subQuery.getTable();
-        } else {
-            table = readNamedSubqueryOrNull();
+            case Tokens.OPENBRACKET : {
+                Expression e = XreadTableSubqueryOrJoinedTable();
 
-            if (table == null) {
-                table = readTableName();
+                table = e.getTable();
+
+                break;
             }
+            case Tokens.UNNEST : {
+                Expression e = XreadCollectionDerivedTable();
 
-            if (table.isView()) {
-                table = ((View) table).getSubqueryTable();
+                table = e.getTable();
+
+                break;
+            }
+            case Tokens.LATERAL : {
+                Expression e = XreadLateralDerivedTable();
+
+                table = e.getTable();
+
+                break;
+            }
+            case Tokens.TABLE : {
+                Expression e = XreadTableFunctionDerivedTable();
+
+                table = e.getTable();
+            }
+            default : {
+                table = readNamedSubqueryOrNull();
+
+                if (table == null) {
+                    table = readTableName();
+                }
+
+                if (table.isView()) {
+                    table = ((View) table).getSubqueryTable();
+                }
             }
         }
 
@@ -1537,10 +1575,6 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType == Tokens.OPENBRACKET) {
                 columnList     = new OrderedHashSet();
                 columnNameList = readColumnNameList(columnList);
-
-                if (table.getColumnCount() != columnNameList.length) {
-                    throw Error.error(ErrorCode.X_42593);
-                }
             } else if (!hasAs && limit) {
                 if (token.tokenType == Tokens.COLON
                         || token.tokenType == Tokens.QUESTION
@@ -1763,7 +1797,7 @@ public class ParserDQL extends ParserBase {
         return null;
     }
 
-    // <unsigned literl> | <parameter>
+    // <unsigned literl> | <dynamic parameter> | <variable>
     Expression XreadSimpleValueSpecificationOrNull() {
 
         Expression e;
@@ -1794,6 +1828,14 @@ public class ParserDQL extends ParserBase {
                 read();
 
                 return e;
+
+            case Tokens.X_IDENTIFIER :
+            case Tokens.X_DELIMITED_IDENTIFIER :
+                checkValidCatalogName(token.namePrePrePrefix);
+
+                return new ExpressionColumn(token.namePrePrefix,
+                                            token.namePrefix,
+                                            token.tokenString);
 
             default :
                 return null;
@@ -1981,6 +2023,9 @@ public class ParserDQL extends ParserBase {
                 }
                 break;
 
+            case Tokens.ARRAY :
+                return readCollection(OpTypes.ARRAY);
+
             case Tokens.ANY :
             case Tokens.SOME :
             case Tokens.EVERY :
@@ -2020,7 +2065,9 @@ public class ParserDQL extends ParserBase {
                 }
         }
 
-        return readColumnOrFunctionExpression();
+        e = readColumnOrFunctionExpression();
+
+        return e;
     }
 
     // OK - composite production -
@@ -2161,7 +2208,24 @@ public class ParserDQL extends ParserBase {
     }
 
     Expression XreadValueExpressionOrNull() {
-        return XreadAllTypesCommonValueExpression(true);
+
+        Expression e = XreadAllTypesCommonValueExpression(true);
+
+        if (e == null) {
+            return null;
+        }
+
+        if (token.tokenType == Tokens.LEFTBRACKET) {
+            read();
+
+            Expression e1 = XreadNumericValueExpression();
+
+            readThis(Tokens.RIGHTBRACKET);
+
+            e = new ExpressionAccessor(e, e1);
+        }
+
+        return e;
     }
 
     /**
@@ -2172,7 +2236,20 @@ public class ParserDQL extends ParserBase {
      *
      */
     Expression XreadValueExpression() {
-        return XreadAllTypesCommonValueExpression(true);
+
+        Expression e = XreadAllTypesCommonValueExpression(true);
+
+        if (token.tokenType == Tokens.LEFTBRACKET) {
+            read();
+
+            Expression e1 = XreadNumericValueExpression();
+
+            readThis(Tokens.RIGHTBRACKET);
+
+            e = new ExpressionAccessor(e, e1);
+        }
+
+        return e;
     }
 
     // union of <numeric | datetime | string | interval value expression>
@@ -3123,7 +3200,7 @@ public class ParserDQL extends ParserBase {
 
         ExpressionLogical r = new ExpressionLogical(exprType, l, e);
 
-        r.exprSubType = exprSubType;
+        r.setSubType(exprSubType);
 
         return r;
     }
@@ -3137,10 +3214,17 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.OPENBRACKET);
 
         int position = getPosition();
-
-        readOpenBrackets();
+        int brackets = readOpenBrackets();
 
         switch (token.tokenType) {
+
+            case Tokens.UNNEST :
+                e = XreadCollectionDerivedTable();
+
+                e.getTable().getSubQuery().setUniqueRows();
+                readThis(Tokens.CLOSEBRACKET);
+                this.readCloseBrackets(brackets);
+                break;
 
             case Tokens.TABLE :
             case Tokens.VALUES :
@@ -3171,8 +3255,9 @@ public class ParserDQL extends ParserBase {
         if (isCheckOrTriggerCondition) {
             r = new ExpressionLogical(OpTypes.IN, l, e);
         } else {
-            r             = new ExpressionLogical(OpTypes.EQUAL, l, e);
-            r.exprSubType = OpTypes.ANY_QUANTIFIED;
+            r = new ExpressionLogical(OpTypes.EQUAL, l, e);
+
+            r.setSubType(OpTypes.ANY_QUANTIFIED);
         }
 
         return r;
@@ -3566,22 +3651,6 @@ public class ParserDQL extends ParserBase {
 
         SubQuery sq = XreadSubqueryBody(true, OpTypes.TABLE_SUBQUERY);
 
-/*
-        Select   select = sq.queryExpression.getMainSelect();
-
-        for (int i = 0; i < select.indexLimitVisible; i++) {
-            String colname = select.exprColumns[i].getAlias();
-
-            if (colname == null || colname.length() == 0) {
-
-                // fredt - this does not guarantee the uniqueness of column
-                // names but addColumns() will throw later if names are not unique.
-                colname = HsqlNameManager.getAutoColumnNameString(i);
-
-                select.exprColumns[i].setAlias(colname, false);
-            }
-        }
-*/
         sq.prepareTable(session);
 
         return sq;
@@ -3632,59 +3701,6 @@ public class ParserDQL extends ParserBase {
         compileContext.subqueryDepth--;
 
         return sq;
-    }
-
-// Additional Common Elements
-// returns null
-    SchemaObject readCollateClauseOrNull() {
-
-        if (token.tokenType == Tokens.COLLATE) {
-            read();
-
-            SchemaObject collation =
-                database.schemaManager.getSchemaObject(token.namePrefix,
-                    token.tokenString, SchemaObject.COLLATION);
-
-            return collation;
-        }
-
-        return null;
-    }
-
-    Expression readRow() {
-
-        Expression r = null;
-
-        while (true) {
-            Expression e = XreadValueExpressionWithContext();
-
-            if (r == null) {
-                r = e;
-            } else if (r.getType() == OpTypes.ROW) {
-                if (e.getType() == OpTypes.ROW
-                        && r.nodes[0].getType() != OpTypes.ROW) {
-                    r = new Expression(OpTypes.ROW, new Expression[] {
-                        r, e
-                    });
-                } else {
-                    r.nodes = (Expression[]) ArrayUtil.resizeArray(r.nodes,
-                            r.nodes.length + 1);
-                    r.nodes[r.nodes.length - 1] = e;
-                }
-            } else {
-                r = new Expression(OpTypes.ROW, new Expression[] {
-                    r, e
-                });
-            }
-
-            if (token.tokenType != Tokens.COMMA) {
-                break;
-            }
-
-            read();
-        }
-
-        return r;
     }
 
     Expression XreadContextuallyTypedTable(int degree) {
@@ -3844,6 +3860,230 @@ public class ParserDQL extends ParserBase {
                 list[i] = new Expression(OpTypes.ROW,
                                          new Expression[]{ list[i] });
             }
+        }
+
+        return r;
+    }
+
+    Expression XreadTargetSpecification(RangeVariable[] rangeVars,
+                                        LongDeque colIndexList) {
+
+        ColumnSchema column = null;
+        int          index  = -1;
+
+        checkIsIdentifier();
+
+        if (token.namePrePrePrefix != null) {
+            checkValidCatalogName(token.namePrePrePrefix);
+        }
+
+        for (int i = 0; i < rangeVars.length; i++) {
+            if (rangeVars[i] == null) {
+                continue;
+            }
+
+            index = rangeVars[i].findColumn(token.tokenString);
+
+            if (index > -1 && rangeVars[i].resolvesTableName(token.namePrefix)
+                    && rangeVars[i].resolvesSchemaName(token.namePrePrefix)) {
+                column = rangeVars[i].getColumn(index);
+
+                read();
+
+                break;
+            }
+        }
+
+        if (column == null) {
+            throw Error.error(ErrorCode.X_42501, token.tokenString);
+        }
+
+        colIndexList.add(index);
+
+        if (token.tokenType == Tokens.LEFTBRACKET) {
+            if (!column.getDataType().isArrayType()) {
+                throw unexpectedToken();
+            }
+
+            read();
+
+            Expression e = XreadNumericValueExpression();
+
+            if (e == null) {
+                throw Error.error(ErrorCode.X_42501, token.tokenString);
+            }
+
+            e = new ExpressionAccessor(column.getAccessor(), e);
+
+            readThis(Tokens.RIGHTBRACKET);
+
+            return e;
+        }
+
+        return column.getAccessor();
+    }
+
+    Expression XreadCollectionDerivedTable() {
+
+        boolean ordinality = false;
+        int     position   = getPosition();
+
+        readThis(Tokens.UNNEST);
+        readThis(Tokens.OPENBRACKET);
+
+        compileContext.subqueryDepth++;
+
+        Expression e = XreadValueExpression();
+
+        compileContext.subqueryDepth--;
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        if (token.tokenType == Tokens.WITH) {
+            read();
+            readThis(Tokens.ORDINALITY);
+
+            ordinality = true;
+        }
+
+        e = new ExpressionTable(e, null, ordinality);
+
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
+                                   OpTypes.TABLE_SUBQUERY);
+
+        sq.createTable();
+
+        sq.sql = getLastPart(position);
+
+        return e;
+    }
+
+    Expression XreadTableFunctionDerivedTable() {
+
+        int position = getPosition();
+
+        readThis(Tokens.UNNEST);
+        readThis(Tokens.OPENBRACKET);
+
+        compileContext.subqueryDepth++;
+
+        Expression e = XreadValueExpression();
+
+        if (e.getType() != OpTypes.FUNCTION) {
+            throw this.unexpectedToken(Tokens.T_TABLE);
+        }
+
+        compileContext.subqueryDepth--;
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        e = new ExpressionTable(e, null, false);
+
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
+                                   OpTypes.TABLE_SUBQUERY);
+
+        sq.createTable();
+
+        sq.sql = getLastPart(position);
+
+        return e;
+    }
+
+    Expression XreadLateralDerivedTable() {
+
+        readThis(Tokens.LATERAL);
+        readThis(Tokens.OPENBRACKET);
+
+        int position = getPosition();
+
+        compileContext.subqueryDepth++;
+
+        QueryExpression queryExpression = XreadQueryExpression();
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
+                                   queryExpression, OpTypes.TABLE_SUBQUERY);
+
+        sq.createTable();
+
+        sq.sql = getLastPart(position);
+
+        compileContext.subqueryDepth--;
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return new Expression(OpTypes.TABLE_SUBQUERY, sq);
+    }
+
+    Expression XreadArrayConstructor() {
+
+        readThis(Tokens.OPENBRACKET);
+
+        int position = getPosition();
+
+        compileContext.subqueryDepth++;
+
+        QueryExpression queryExpression = XreadQueryExpression();
+
+        queryExpression.resolveReferences(session);
+
+        SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
+                                   queryExpression, OpTypes.TABLE_SUBQUERY);
+
+        sq.sql = getLastPart(position);
+
+        compileContext.subqueryDepth--;
+
+        readThis(Tokens.CLOSEBRACKET);
+
+        return new Expression(OpTypes.ARRAY_SUBQUERY, sq);
+    }
+
+    // Additional Common Elements
+    SchemaObject readCollateClauseOrNull() {
+
+        if (token.tokenType == Tokens.COLLATE) {
+            read();
+
+            SchemaObject collation =
+                database.schemaManager.getSchemaObject(token.namePrefix,
+                    token.tokenString, SchemaObject.COLLATION);
+
+            return collation;
+        }
+
+        return null;
+    }
+
+    Expression readRow() {
+
+        Expression r = null;
+
+        while (true) {
+            Expression e = XreadValueExpressionWithContext();
+
+            if (r == null) {
+                r = e;
+            } else if (r.getType() == OpTypes.ROW) {
+                if (e.getType() == OpTypes.ROW
+                        && r.nodes[0].getType() != OpTypes.ROW) {
+                    r = new Expression(OpTypes.ROW, new Expression[] {
+                        r, e
+                    });
+                } else {
+                    r.nodes = (Expression[]) ArrayUtil.resizeArray(r.nodes,
+                            r.nodes.length + 1);
+                    r.nodes[r.nodes.length - 1] = e;
+                }
+            } else {
+                r = new Expression(OpTypes.ROW, new Expression[] {
+                    r, e
+                });
+            }
+
+            if (token.tokenType != Tokens.COMMA) {
+                break;
+            }
+
+            read();
         }
 
         return r;
@@ -4109,6 +4349,41 @@ public class ParserDQL extends ParserBase {
         recordedToken.setExpression(routineSchema);
 
         return function;
+    }
+
+    Expression readCollection(int type) {
+
+        read();
+
+        if (token.tokenType == Tokens.OPENBRACKET) {
+            return XreadArrayConstructor();
+        } else {
+            readThis(Tokens.LEFTBRACKET);
+
+            HsqlArrayList list = new HsqlArrayList();
+
+            for (int i = 0; ; i++) {
+                if (token.tokenType == Tokens.RIGHTBRACKET) {
+                    read();
+
+                    break;
+                }
+
+                if (i > 0) {
+                    readThis(Tokens.COMMA);
+                }
+
+                Expression e = XreadValueExpressionOrNull();
+
+                list.add(e);
+            }
+
+            Expression[] array = new Expression[list.size()];
+
+            list.toArray(array);
+
+            return new Expression(OpTypes.ARRAY, array);
+        }
     }
 
     private Expression readDecodeExpression() {
@@ -4721,36 +4996,6 @@ public class ParserDQL extends ParserBase {
         read();
 
         return column;
-    }
-
-    ColumnSchema readColumnName(RangeVariable[] rangeVars) {
-
-        ColumnSchema column = null;
-
-        checkIsIdentifier();
-
-        if (token.namePrePrePrefix != null) {
-            checkValidCatalogName(token.namePrePrePrefix);
-        }
-
-        for (int i = 0; i < rangeVars.length; i++) {
-            if (rangeVars[i] == null) {
-                continue;
-            }
-
-            int index = rangeVars[i].findColumn(token.tokenString);
-
-            if (index > -1 && rangeVars[i].resolvesTableName(token.namePrefix)
-                    && rangeVars[i].resolvesSchemaName(token.namePrePrefix)) {
-                column = rangeVars[i].getColumn(index);
-
-                read();
-
-                return column;
-            }
-        }
-
-        throw Error.error(ErrorCode.X_42501, token.tokenString);
     }
 
     StatementDMQL compileDeclareCursor() {

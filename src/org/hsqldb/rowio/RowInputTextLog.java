@@ -40,6 +40,7 @@ import org.hsqldb.Scanner;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
@@ -61,7 +62,7 @@ import org.hsqldb.types.Type;
  * Class for reading the data for a database row from the script file.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.7.3
  */
 public class RowInputTextLog extends RowInputBase
@@ -73,6 +74,7 @@ implements RowInputInterface {
     int     statementType;
     Object  value;
     boolean version18;
+    boolean noSeparators;
 
     public RowInputTextLog() {
 
@@ -171,11 +173,13 @@ implements RowInputInterface {
 
     protected void readFieldPrefix() {
 
-        scanner.scanNext();
+        if (!noSeparators) {
+            scanner.scanNext();
 
-        if (statementType == ScriptReaderBase.DELETE_STATEMENT) {
-            scanner.scanNext();
-            scanner.scanNext();
+            if (statementType == ScriptReaderBase.DELETE_STATEMENT) {
+                scanner.scanNext();
+                scanner.scanNext();
+            }
         }
     }
 
@@ -202,7 +206,7 @@ implements RowInputInterface {
         return 0;
     }
 
-    protected boolean checkNull() {
+    protected boolean readNull() {
 
         // Return null on each column read instead.
         return false;
@@ -275,7 +279,9 @@ implements RowInputInterface {
             return null;
         }
 
-        return (BigDecimal) type.convertToDefaultType(null, value);
+        BigDecimal bd = (BigDecimal) type.convertToDefaultType(null, value);
+
+        return (BigDecimal) type.convertToTypeLimits(null, bd);
     }
 
     protected TimeData readTime(Type type) throws IOException {
@@ -308,8 +314,7 @@ implements RowInputInterface {
         }
 
         if (version18) {
-            java.sql.Date dateTime =
-                java.sql.Date.valueOf((String) value);
+            java.sql.Date dateTime = java.sql.Date.valueOf((String) value);
             long millis = HsqlDateTime.convertMillisFromCalendar(
                 HsqlDateTime.tempCalDefault, dateTime.getTime());
 
@@ -469,5 +474,59 @@ implements RowInputInterface {
         long id = ((Number) value).longValue();
 
         return new BlobDataID(id);
+    }
+
+    protected Object[] readArray(Type type) throws IOException {
+
+        type = type.collectionBaseType();
+
+        readFieldPrefix();
+        scanner.scanNext();
+
+        String token = scanner.getString();
+
+        value = null;
+
+        if (token.equalsIgnoreCase(Tokens.T_NULL)) {
+            return null;
+        } else if (!token.equalsIgnoreCase(Tokens.T_ARRAY)) {
+            throw Error.error(ErrorCode.X_42584);
+        }
+
+        scanner.scanNext();
+
+        token = scanner.getString();
+
+        if (!token.equalsIgnoreCase(Tokens.T_LEFTBRACKET)) {
+            throw Error.error(ErrorCode.X_42584);
+        }
+
+        HsqlArrayList list = new HsqlArrayList();
+
+        noSeparators = true;
+
+        for (int i = 0; ; i++) {
+            if (scanner.scanSpecialIdentifier(Tokens.T_RIGHTBRACKET)) {
+                break;
+            }
+
+            if (i > 0) {
+                if (!scanner.scanSpecialIdentifier(Tokens.T_COMMA)) {
+                    throw Error.error(ErrorCode.X_42584);
+                }
+            }
+
+            Object value = readData(type);
+
+            list.add(value);
+        }
+
+        noSeparators = false;
+
+        Object[] data = new Object[list.size()];
+
+        list.toArray(data);
+
+        return data;
     }
 }

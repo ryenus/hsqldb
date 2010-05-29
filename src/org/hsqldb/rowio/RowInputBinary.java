@@ -97,7 +97,7 @@ implements org.hsqldb.rowio.RowInputInterface {
         return s;
     }
 
-    protected boolean checkNull() throws IOException {
+    protected boolean readNull() throws IOException {
 
         int b = readByte();
 
@@ -211,6 +211,19 @@ implements org.hsqldb.rowio.RowInputInterface {
         long id = super.readLong();
 
         return new BlobDataID(id);
+    }
+
+    protected Object[] readArray(Type type) throws IOException {
+        type = type.collectionBaseType();
+        int size = readInt();
+
+        Object[] data = new Object[size];
+
+        for (int i = 0; i < size; i++) {
+            data[i] = readData(type);
+        }
+
+        return data;
     }
 
     public Object[] readData(Type[] colTypes) throws IOException {

@@ -2754,4 +2754,13 @@ public class Table extends TableBase implements SchemaObject {
         return store == null ? session.sessionData.getRowStore(this)
                              : store;
     }
+
+    public SubQuery getSubQuery() {
+        return null;
+    }
+
+    public QueryExpression getQueryExpression() {
+        return null;
+    }
+
 }

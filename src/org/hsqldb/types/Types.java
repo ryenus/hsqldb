@@ -47,7 +47,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author  boucherb@users
- * @version 1.8.x
+ * @version 2.0.0
  * @since 1.7.2
  */
 public class Types {
@@ -292,6 +292,13 @@ public class Types {
      * <code>LONGVARCHAR</code>.
      */
     public static final int LONGVARCHAR = -1;
+
+    /**
+     * <P>The constant in the Java programming language, sometimes referred
+     * to as a type code, that identifies the generic SQL type
+     * <code>MULTISET</code>.
+     */
+    public static final int MULTISET = 0;                           // no java.sql.Types definition
 
     /**
      * <P>The constant in the Java programming language, sometimes referred
@@ -582,34 +589,6 @@ public class Types {
     }
 
     /**
-     * Returns SQL type string for a java.sql.Types int value
-     */
-/*
-    public static String getTypeString(int type, int precision, int scale) {
-
-        String s = (String) typeNames.get(type);
-
-        if (precision != 0 && acceptsPrecisionCreateParam(type)) {
-            StringBuffer sb = new StringBuffer(s);
-
-            sb.append(Token.T_OPENBRACKET);
-            sb.append(precision);
-
-            if (scale != 0 && acceptsScaleCreateParam(type)) {
-                sb.append(Token.T_COMMA);
-                sb.append(scale);
-            }
-
-            sb.append(Token.T_CLOSEBRACKET);
-
-            return sb.toString();
-        }
-
-        return s;
-    }
-*/
-
-    /**
      * Retieves the type number corresponding to the class
      * of an IN, IN OUT or OUT parameter.  <p>
      *
@@ -713,6 +692,7 @@ public class Types {
 
             case Types.LONGVARCHAR :
             case Types.LONGVARBINARY :
+            case Types.SQL_ARRAY :
             case Types.SQL_BINARY :
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
@@ -766,114 +746,6 @@ public class Types {
         }
     }
 
-    public static String getTypeName(int type) {
-
-        switch (type) {
-
-            case Types.SQL_ARRAY :
-                return "ARRAY";
-
-            case Types.SQL_BIGINT :
-                return "BIGINT";
-
-            case Types.SQL_BINARY :
-                return "BINARY";
-
-            case Types.SQL_BLOB :
-                return "BLOB";
-
-            case Types.SQL_BOOLEAN :
-                return "BOOLEAN";
-
-            case Types.SQL_CHAR :
-                return "CHAR";
-
-            case Types.SQL_NCHAR :
-                return "NCHAR";
-
-            case Types.SQL_CLOB :
-                return "CLOB";
-
-            case Types.NCLOB :
-                return "NCLOB";
-
-            case Types.SQL_DATALINK :
-                return "DATALINK";
-
-            case Types.SQL_DATE :
-                return "DATE";
-
-            case Types.SQL_DECIMAL :
-                return "DECIMAL";
-
-            case Types.DISTINCT :
-                return "DISTINCT";
-
-            case Types.SQL_DOUBLE :
-                return "DOUBLE";
-
-            case Types.SQL_FLOAT :
-                return "FLOAT";
-
-            case Types.SQL_INTEGER :
-                return "INTEGER";
-
-            case Types.JAVA_OBJECT :
-                return "JAVA_OBJECT";
-
-            case Types.SQL_ALL_TYPES :
-                return "NULL";
-
-            case Types.SQL_NUMERIC :
-                return "NUMERIC";
-
-            case Types.OTHER :
-                return "OTHER";
-
-            case Types.SQL_REAL :
-                return "REAL";
-
-            case Types.SQL_REF :
-                return "REF";
-
-            case Types.ROWID :
-                return "ROWID";
-
-            case Types.SQL_SMALLINT :
-                return "SMALLINT";
-
-            case Types.STRUCT :
-                return "STRUCT";
-
-            case Types.SQL_TIME :
-                return "TIME";
-
-            case Types.SQL_TIMESTAMP :
-                return "TIMESTAMP";
-
-            case Types.TINYINT :
-                return "TINYINT";
-
-            case Types.SQL_VARBINARY :
-                return "VARBINARY";
-
-            case Types.SQL_VARCHAR :
-                return "VARCHAR";
-
-            case Types.SQL_NVARCHAR :
-                return "NVARCHAR";
-
-            case Types.VARCHAR_IGNORECASE :
-                return "VARCHAR_IGNORECASE";
-
-            case Types.SQL_XML :
-                return "XML";
-
-            default :
-                return null;
-        }
-    }
-
     /**
      * A reasonable/customizable number to avoid the shortcomings/defects
      * associated with doing a dynamic scan of results to determine
@@ -922,72 +794,6 @@ public class Types {
         }
     }
 
-    public static int getMaxDisplaySize(int type) {
-
-        switch (type) {
-
-            case Types.SQL_BLOB :
-            case Types.SQL_CLOB :
-                return Integer.MAX_VALUE;
-
-            case Types.SQL_BINARY :
-            case Types.SQL_LONGVARBINARY :
-            case Types.OTHER :
-            case Types.SQL_VARBINARY :
-            case Types.SQL_XML :
-            case Types.ROWID :
-                return Integer.MAX_VALUE;    // max string length
-
-            case Types.SQL_CHAR :
-            case Types.SQL_NCHAR :
-            case Types.SQL_VARCHAR :
-            case Types.SQL_NVARCHAR :
-                return MAX_CHAR_OR_VARCHAR_DISPLAY_SIZE;
-
-            case Types.SQL_BIGINT :          // PowerBuilder barfs, wants 19
-
-                // ...not our problem, tho,
-                // according to JDBC
-                return 20;                   // precision + "-".length();
-
-            case Types.SQL_BOOLEAN :
-                return 5;                    // Math.max("true".length(),"false".length);
-
-            case Types.SQL_DATALINK :
-                return 20004;                // same as precision
-
-            case Types.SQL_DECIMAL :
-            case Types.SQL_NUMERIC :
-                return 646456995;            // precision + "-.".length()
-
-            case Types.SQL_DATE :
-                return 10;                   // same as precision
-
-            case Types.SQL_INTEGER :
-                return 11;                   // precision + "-".length();
-
-            case Types.SQL_FLOAT :
-            case Types.SQL_REAL :
-            case Types.SQL_DOUBLE :
-                return 23;                   // String.valueOf(-Double.MAX_VALUE).length();
-
-            case Types.SQL_TIME :
-                return 8;                    // same as precision
-
-            case Types.SQL_SMALLINT :
-                return 6;                    // precision + "-".length();
-
-            case Types.SQL_TIMESTAMP :
-                return 29;                   // same as precision
-
-            case Types.TINYINT :
-                return 4;                    // precision + "-".length();
-
-            default :
-                return 0;                    // unknown
-        }
-    }
-
     public static boolean isSearchable(int type) {
 
         switch (type) {
@@ -1004,189 +810,6 @@ public class Types {
 
             default :
                 return true;
-        }
-    }
-
-    public static Boolean isCaseSensitive(int type) {
-
-        switch (type) {
-
-            case Types.SQL_ARRAY :
-            case Types.SQL_BLOB :
-            case Types.SQL_CLOB :
-            case Types.NCLOB :
-            case Types.DISTINCT :
-            case Types.JAVA_OBJECT :
-            case Types.SQL_ALL_TYPES :
-            case Types.SQL_REF :
-            case Types.STRUCT :
-            case Types.ROWID :
-                return null;
-
-            case Types.SQL_CHAR :
-            case Types.SQL_NCHAR :
-            case Types.SQL_DATALINK :
-            case Types.SQL_VARCHAR :
-            case Types.SQL_NVARCHAR :
-            case Types.OTHER :
-            case Types.SQL_XML :
-                return Boolean.TRUE;
-
-            case Types.VARCHAR_IGNORECASE :
-            default :
-                return Boolean.FALSE;
-        }
-    }
-
-    public static Boolean isUnsignedAttribute(int type) {
-
-        switch (type) {
-
-            case Types.SQL_BIGINT :
-            case Types.SQL_DECIMAL :
-            case Types.SQL_DOUBLE :
-            case Types.SQL_FLOAT :
-            case Types.SQL_INTEGER :
-            case Types.SQL_NUMERIC :
-            case Types.SQL_REAL :
-            case Types.SQL_SMALLINT :
-            case Types.TINYINT :
-                return Boolean.FALSE;
-
-            default :
-                return null;
-        }
-    }
-
-    public static int getPrecision(int type) {
-
-        switch (type) {
-
-            case Types.SQL_BLOB :
-            case Types.SQL_CLOB :
-                return Integer.MAX_VALUE;
-
-            case Types.SQL_BINARY :
-            case Types.SQL_CHAR :
-            case Types.SQL_NCHAR :
-            case Types.OTHER :
-            case Types.SQL_VARBINARY :
-            case Types.SQL_VARCHAR :
-            case Types.SQL_NVARCHAR :
-            case Types.SQL_XML :
-                return Integer.MAX_VALUE;
-
-            case Types.SQL_BIGINT :
-                return 19;
-
-            case Types.SQL_BOOLEAN :
-                return 1;
-
-            case Types.DATALINK :
-
-                // from SQL CLI spec.  TODO:  Interpretation?
-                return 20004;
-
-            case Types.SQL_DECIMAL :
-            case Types.SQL_NUMERIC :
-
-// Integer.MAX_VALUE bit 2's complement number:
-// (Integer.MAX_VALUE-1) / ((ln(10)/ln(2)) bits per decimal digit)
-// See:  java.math.BigInteger
-// - the other alternative is that we could report the numprecradix as 2 and
-// report Integer.MAX_VALUE here
-                return 646456993;
-
-            case Types.SQL_DATE :
-            case Types.SQL_INTEGER :
-                return 10;
-
-            case Types.SQL_FLOAT :
-                return 53;    // Oops...52 in memory + 1 implicit bit
-
-            case Types.SQL_REAL :
-            case Types.SQL_DOUBLE :
-                return 17;
-
-            case Types.SQL_TIME :
-                return 8;
-
-            case Types.SQL_SMALLINT :
-                return 5;
-
-            case Types.SQL_TIMESTAMP :
-                return 29;
-
-            case Types.TINYINT :
-                return 3;
-
-            default :
-                return 0;
-        }
-    }
-
-    public static String getColStClsName(int type) {
-
-        switch (type) {
-
-            case Types.SQL_BLOB :
-                return BlobClassName;
-
-            case Types.SQL_CLOB :
-                return ClobClassName;
-
-            case Types.SQL_BIGINT :
-                return "java.lang.Long";
-
-            case Types.SQL_BINARY :
-            case Types.SQL_VARBINARY :
-
-                // but wrapped by org.hsqldb.Binary
-                return "[B";
-
-            case Types.OTHER :
-
-                // but wrapped by org.hsqldb.JavaObject
-                return "java.lang.Object";
-
-            case Types.SQL_BOOLEAN :
-                return "java.lang.Boolean";
-
-            case Types.SQL_CHAR :
-            case Types.SQL_NCHAR :
-            case Types.SQL_VARCHAR :
-            case Types.SQL_NVARCHAR :
-            case Types.SQL_XML :    //?
-                return "java.lang.String";
-
-            case Types.SQL_DATALINK :
-                return "java.net.URL";
-
-            case Types.SQL_DATE :
-                return DateClassName;
-
-            case Types.SQL_DECIMAL :
-            case Types.SQL_NUMERIC :
-                return DecimalClassName;
-
-            case Types.SQL_DOUBLE :
-            case Types.SQL_FLOAT :
-            case Types.SQL_REAL :
-                return "java.lang.Double";
-
-            case Types.SQL_INTEGER :
-            case Types.SQL_SMALLINT :
-            case Types.TINYINT :
-                return "java.lang.Integer";
-
-            case Types.SQL_TIME :
-                return TimeClassName;
-
-            case Types.SQL_TIMESTAMP :
-                return TimestampClassName;
-
-            default :
-                return null;
         }
     }
 }

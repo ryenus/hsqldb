@@ -149,6 +149,8 @@ implements RowOutputInterface {
 
     protected abstract void writeBlob(BlobData o, Type type);
 
+    protected abstract void writeArray(Object[] o, Type type);
+
     /**
      *  This method is called to write data for a table row.
      */
@@ -179,113 +181,123 @@ implements RowOutputInterface {
                 writeString(col.getName().statementName);
             }
 
-            if (o == null) {
-                writeNull(t);
+            writeData(t, o);
+        }
+    }
 
-                continue;
-            }
+    public void writeData(Type t, Object o) {
 
-            writeFieldType(t);
+        if (o == null) {
+            writeNull(t);
 
-            switch (t.typeCode) {
+            return;
+        }
 
-                case Types.SQL_ALL_TYPES :
-                    break;
+        writeFieldType(t);
 
-                case Types.SQL_CHAR :
-                case Types.SQL_VARCHAR :
-                case Types.VARCHAR_IGNORECASE :
-                    writeChar((String) o, t);
-                    break;
+        switch (t.typeCode) {
 
-                case Types.TINYINT :
-                case Types.SQL_SMALLINT :
-                    writeSmallint((Number) o);
-                    break;
+            case Types.SQL_ALL_TYPES :
+                break;
 
-                case Types.SQL_INTEGER :
-                    writeInteger((Number) o);
-                    break;
+            case Types.SQL_CHAR :
+            case Types.SQL_VARCHAR :
+            case Types.VARCHAR_IGNORECASE :
+                writeChar((String) o, t);
+                break;
 
-                case Types.SQL_BIGINT :
-                    writeBigint((Number) o);
-                    break;
+            case Types.TINYINT :
+            case Types.SQL_SMALLINT :
+                writeSmallint((Number) o);
+                break;
 
-                case Types.SQL_REAL :
-                case Types.SQL_FLOAT :
-                case Types.SQL_DOUBLE :
-                    writeReal((Double) o);
-                    break;
+            case Types.SQL_INTEGER :
+                writeInteger((Number) o);
+                break;
 
-                case Types.SQL_NUMERIC :
-                case Types.SQL_DECIMAL :
-                    writeDecimal((BigDecimal) o, t);
-                    break;
+            case Types.SQL_BIGINT :
+                writeBigint((Number) o);
+                break;
 
-                case Types.SQL_BOOLEAN :
-                    writeBoolean((Boolean) o);
-                    break;
+            case Types.SQL_REAL :
+            case Types.SQL_FLOAT :
+            case Types.SQL_DOUBLE :
+                writeReal((Double) o);
+                break;
 
-                case Types.SQL_DATE :
-                    writeDate((TimestampData) o, t);
-                    break;
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                writeDecimal((BigDecimal) o, t);
+                break;
 
-                case Types.SQL_TIME :
-                case Types.SQL_TIME_WITH_TIME_ZONE :
-                    writeTime((TimeData) o, t);
-                    break;
+            case Types.SQL_BOOLEAN :
+                writeBoolean((Boolean) o);
+                break;
 
-                case Types.SQL_TIMESTAMP :
-                case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                    writeTimestamp((TimestampData) o, t);
-                    break;
+            case Types.SQL_DATE :
+                writeDate((TimestampData) o, t);
+                break;
 
-                case Types.SQL_INTERVAL_YEAR :
-                case Types.SQL_INTERVAL_YEAR_TO_MONTH :
-                case Types.SQL_INTERVAL_MONTH :
-                    writeYearMonthInterval((IntervalMonthData) o, t);
-                    break;
+            case Types.SQL_TIME :
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+                writeTime((TimeData) o, t);
+                break;
 
-                case Types.SQL_INTERVAL_DAY :
-                case Types.SQL_INTERVAL_DAY_TO_HOUR :
-                case Types.SQL_INTERVAL_DAY_TO_MINUTE :
-                case Types.SQL_INTERVAL_DAY_TO_SECOND :
-                case Types.SQL_INTERVAL_HOUR :
-                case Types.SQL_INTERVAL_HOUR_TO_MINUTE :
-                case Types.SQL_INTERVAL_HOUR_TO_SECOND :
-                case Types.SQL_INTERVAL_MINUTE :
-                case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
-                case Types.SQL_INTERVAL_SECOND :
-                    writeDaySecondInterval((IntervalSecondData) o, t);
-                    break;
+            case Types.SQL_TIMESTAMP :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+                writeTimestamp((TimestampData) o, t);
+                break;
 
-                case Types.OTHER :
-                    writeOther((JavaObjectData) o);
-                    break;
+            case Types.SQL_INTERVAL_YEAR :
+            case Types.SQL_INTERVAL_YEAR_TO_MONTH :
+            case Types.SQL_INTERVAL_MONTH :
+                writeYearMonthInterval((IntervalMonthData) o, t);
+                break;
 
-                case Types.SQL_BLOB :
-                    writeBlob((BlobData) o, t);
-                    break;
+            case Types.SQL_INTERVAL_DAY :
+            case Types.SQL_INTERVAL_DAY_TO_HOUR :
+            case Types.SQL_INTERVAL_DAY_TO_MINUTE :
+            case Types.SQL_INTERVAL_DAY_TO_SECOND :
+            case Types.SQL_INTERVAL_HOUR :
+            case Types.SQL_INTERVAL_HOUR_TO_MINUTE :
+            case Types.SQL_INTERVAL_HOUR_TO_SECOND :
+            case Types.SQL_INTERVAL_MINUTE :
+            case Types.SQL_INTERVAL_MINUTE_TO_SECOND :
+            case Types.SQL_INTERVAL_SECOND :
+                writeDaySecondInterval((IntervalSecondData) o, t);
+                break;
 
-                case Types.SQL_CLOB :
-                    writeClob((ClobData) o, t);
-                    break;
+            case Types.OTHER :
+                writeOther((JavaObjectData) o);
+                break;
 
-                case Types.SQL_BINARY :
-                case Types.SQL_VARBINARY :
-                    writeBinary((BinaryData) o);
-                    break;
+            case Types.SQL_BLOB :
+                writeBlob((BlobData) o, t);
+                break;
 
-                case Types.SQL_BIT :
-                case Types.SQL_BIT_VARYING :
-                    writeBit((BinaryData) o);
-                    break;
+            case Types.SQL_CLOB :
+                writeClob((ClobData) o, t);
+                break;
 
-                default :
-                    throw Error.runtimeError(ErrorCode.U_S0500,
-                                             "RowOutputBase - "
-                                             + t.getNameString());
-            }
+            case Types.SQL_ARRAY :
+                writeArray((Object[]) o, t);
+                break;
+
+
+            case Types.SQL_BINARY :
+            case Types.SQL_VARBINARY :
+                writeBinary((BinaryData) o);
+                break;
+
+            case Types.SQL_BIT :
+            case Types.SQL_BIT_VARYING :
+                writeBit((BinaryData) o);
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "RowOutputBase - "
+                                         + t.getNameString());
         }
     }
 

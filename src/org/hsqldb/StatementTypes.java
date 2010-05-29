@@ -218,6 +218,7 @@ public interface StatementTypes {
     int SET_SESSION_RESULT_MAX_ROWS    = 1065;
     int SET_SESSION_RESULT_MEMORY_ROWS = 1066;
     int ROLLBACK_SAVEPOINT             = 1067;
+    int DECLARE_SESSION_TABLE          = 1068;
 
     // hsqldb schema
     int CREATE_ALIAS            = 1071;

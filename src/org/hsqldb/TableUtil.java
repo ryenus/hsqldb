@@ -78,39 +78,14 @@ public class TableUtil {
         return table;
     }
 
-    /**
-     * For table subqueries
-     */
-    static void setTableColumnsForSubquery(Table table,
-                                           QueryExpression queryExpression,
-                                           boolean fullIndex) {
-
-        table.columnList  = queryExpression.getColumns();
-        table.columnCount = queryExpression.getColumnCount();
-
-        table.createPrimaryKey();
-
-        if (fullIndex) {
-            int[] colIndexes = null;
-
-            colIndexes = table.getNewColumnMap();
-
-            ArrayUtil.fillSequence(colIndexes);
-
-            table.fullIndex = table.createIndexForColumns(null, colIndexes);
-        }
-    }
-
-    static void setTableColumnsForSubquery(Table table, Type[] types,
+    static void setTableIndexesForSubquery(Table table,
                                            boolean fullIndex,
                                            boolean uniqueRows) {
-
-        addAutoColumns(table, types);
 
         int[] cols = null;
 
         if (fullIndex) {
-            cols = new int[types.length];
+            cols = new int[table.getColumnCount()];
 
             ArrayUtil.fillSequence(cols);
         }

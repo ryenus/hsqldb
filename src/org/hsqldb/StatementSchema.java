@@ -879,7 +879,8 @@ public class StatementSchema extends Statement {
                     if (tempConstraints != null) {
                         table =
                             ParserDDL.addTableConstraintDefinitions(session,
-                                table, tempConstraints, foreignConstraints);
+                                table, tempConstraints, foreignConstraints,
+                                true);
                         arguments[1] = foreignConstraints;
                     }
 

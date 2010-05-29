@@ -76,7 +76,6 @@ import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.JavaObjectData;
-import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
@@ -1462,10 +1461,8 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not support this feature.  <p>
+     * HSQLDB supports this feature when the cursor has a name.<p>
      *
-     * Calling this method always throws an <code>SQLException</code>,
-     * stating that the operation is not supported.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -1477,6 +1474,10 @@ public class JDBCResultSet implements ResultSet {
     public String getCursorName() throws SQLException {
 
         checkClosed();
+
+        if (result == null) {
+            return "";
+        }
 
         return result.getMainString();
     }
@@ -1547,7 +1548,7 @@ public class JDBCResultSet implements ResultSet {
 
         if (resultSetMetaData == null) {
             resultSetMetaData = new JDBCResultSetMetaData(resultMetaData,
-                    isUpdatable, isInsertable, connnection);
+                    isUpdatable, isInsertable, connection);
         }
 
         return resultSetMetaData;
@@ -4435,9 +4436,8 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * HSQLDB does not support array types; this method always
-     * throws an <code>SQLException</code> stating that the operation is not
-     * supported.
+     * From version 2.0, HSQLDB supports array types.
+     *
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4452,7 +4452,22 @@ public class JDBCResultSet implements ResultSet {
      *  JDBCResultSet)
      */
     public Array getArray(int columnIndex) throws SQLException {
-        throw Util.notSupported();
+
+        checkColumn(columnIndex);
+
+        Type type = resultMetaData.columnTypes[columnIndex - 1];
+
+        if (!type.isArrayType()) {
+            throw Util.sqlException(ErrorCode.X_42561);
+        }
+
+        Object[] data = (Object[]) getCurrent()[columnIndex - 1];
+
+        if (data == null) {
+            return null;
+        }
+
+        return new JDBCArray(data, type.collectionBaseType(), connection);
     }
 
     /**
@@ -4596,9 +4611,7 @@ public class JDBCResultSet implements ResultSet {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Including 2.0, HSQLDB does not support array types; this method always
-     * throws an <code>SQLException</code> stating that the operation is not
-     * supported.
+     * From version 2.0, HSQLDB supports array types.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -5230,7 +5243,8 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateArray(int columnIndex,
                             java.sql.Array x) throws SQLException {
-        throw Util.notSupported();
+        startUpdate(columnIndex);
+        preparedStatement.setParameter(columnIndex, x);
     }
 
 //#endif JAVA4
@@ -5268,7 +5282,10 @@ public class JDBCResultSet implements ResultSet {
 //#ifdef JAVA4
     public void updateArray(String columnLabel,
                             java.sql.Array x) throws SQLException {
-        throw Util.notSupported();
+
+        int columnIndex = findColumn(columnLabel);
+
+        updateArray(columnIndex, x);
     }
 
 //#endif JAVA4
@@ -6942,7 +6959,7 @@ public class JDBCResultSet implements ResultSet {
     private ResultSetMetaData resultSetMetaData;
 
     /** JDBCConnection for this. */
-    private JDBCConnection connnection;
+    private JDBCConnection connection;
 
     /** Accelerates findColumn; Map<columnName, columnIndex> */
     private IntValueHashMap columnMap;
@@ -7078,6 +7095,10 @@ public class JDBCResultSet implements ResultSet {
      * @throws SQLException when this ResultSet has no such column
      */
     private void checkColumn(int columnIndex) throws SQLException {
+
+        if (navigator == null) {
+            throw Util.sqlException(ErrorCode.X_24501);
+        }
 
         if (columnIndex < 1 || columnIndex > columnCount) {
             throw Util.sqlException(ErrorCode.JDBC_COLUMN_NOT_FOUND,
@@ -7330,7 +7351,7 @@ public class JDBCResultSet implements ResultSet {
         this.session     = conn.sessionProxy;
         this.statement   = s;
         this.result      = r;
-        this.connnection = conn;
+        this.connection = conn;
         rsProperties     = r.rsProperties;
         navigator        = r.getNavigator();
         resultMetaData   = metaData;
@@ -7352,4 +7373,17 @@ public class JDBCResultSet implements ResultSet {
                     result);
         }
     }
+
+    public JDBCResultSet(JDBCConnection conn, Result r,
+                  ResultMetaData metaData) throws SQLException {
+
+        this.session     = conn.sessionProxy;
+        this.result      = r;
+        this.connection = conn;
+        rsProperties     = 0;
+        navigator        = r.getNavigator();
+        resultMetaData   = metaData;
+        columnCount      = resultMetaData.getColumnCount();
+    }
+
 }

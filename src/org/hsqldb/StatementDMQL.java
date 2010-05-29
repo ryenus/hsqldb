@@ -310,7 +310,6 @@ public abstract class StatementDMQL extends Statement {
 
         OrderedHashSet subQueries = null;
 
-
         for (int i = 0; i < targetRangeVariables.length; i++) {
             if (targetRangeVariables[i] == null) {
                 continue;
@@ -791,7 +790,7 @@ public abstract class StatementDMQL extends Statement {
 
         for (int i = 0; i < parameters.length; i++) {
             sb.append('\n').append('@').append(i).append('[').append(
-                parameters[i]).append(']');
+                parameters[i].describe(null, 0)).append(']');
         }
 
         sb.append(']');

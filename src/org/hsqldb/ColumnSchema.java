@@ -58,6 +58,7 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     private Expression     generatingExpression;
     private NumberSequence sequence;
     private OrderedHashSet references = new OrderedHashSet();
+    private Expression     accessor;
 
     /**
      * Creates a column defined in DDL statement.
@@ -134,7 +135,6 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         }
 
         generatingExpression.resetColumnReferences();
-
         generatingExpression.resolveCheckOrGenExpression(session,
                 ((Table) table).defaultRanges, false);
 
@@ -343,6 +343,15 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
         copy.setIdentity(sequence);
 
         return copy;
+    }
+
+    public Expression getAccessor() {
+
+        if (accessor == null) {
+            accessor = new ExpressionColumnAccessor(this);
+        }
+
+        return accessor;
     }
 
     private void setReferences() {
