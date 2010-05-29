@@ -22,7 +22,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="2.0.0-rc9"/>
+   <property name="hsqldb.version" value="2.0.0"/>
 
    <tstamp>
        <format property="_tmpstamp" pattern="yyyy/MM/dd-HH:mm:ss"
@@ -333,6 +333,7 @@ examples:
          <include name="org/hsqldb/store/*.java"/>
          <include name="org/hsqldb/types/*.java"/>
          <exclude name="org/hsqldb/server/HsqlSocketFactorySecure.java" unless="ant.java.hasjsse"/>
+         <exclude name="org/hsqldb/jdbc/JDBCArray.java"/>
          <exclude name="org/hsqldb/jdbc/JDBCBlob.java"/>
          <exclude name="org/hsqldb/jdbc/JDBCClob.java"/>
          <exclude name="org/hsqldb/jdbc/JDBCDataSource*.java"/>
@@ -365,6 +366,7 @@ examples:
                  debug="${build.debug}"
                  optimize="${build.optimize}"
        >
+         <include name="org/hsqldb/jdbc/JDBCArray.java"/>
          <include name="org/hsqldb/jdbc/JDBCBlob.java"/>
          <include name="org/hsqldb/jdbc/JDBCClob.java"/>
       </javac>
