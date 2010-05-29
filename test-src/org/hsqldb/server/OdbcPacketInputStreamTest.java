@@ -68,11 +68,11 @@ public class OdbcPacketInputStreamTest extends junit.framework.TestCase {
         assertEquals("Mungled byte", (byte) distinguishableLong,
                 inPacket.readByte());
         assertEquals("Mungled char", 'k', inPacket.readByteChar());
-        assertEquals("Mungled String", "Ein groß Baum\nwith blossom",
+        assertEquals("Mungled String", "Ein gro\u00df Baum\nwith blossom",
                 inPacket.readString(27));
           // I know this length from manual testing when writing the string.
         assertEquals("Mungled String", "Another string", inPacket.readString());
-        assertEquals("Mungled String", "Ein groß Baum\nmit blossom",
+        assertEquals("Mungled String", "Ein gro\u00df Baum\nmit blossom",
                 inPacket.readSizedString());
 
         assertEquals("Bytes left over", 0, inPacket.available());
