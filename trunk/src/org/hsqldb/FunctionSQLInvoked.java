@@ -205,7 +205,8 @@ public class FunctionSQLInvoked extends Expression {
                     } else {
 
                         // convert ResultSet to table
-                        result = null;
+                        throw Error.runtimeError(ErrorCode.U_S0500,
+                                                 "FunctionSQLInvoked");
                     }
                 } else {
                     returnValue = dataType.convertJavaToSQL(session,

@@ -1449,6 +1449,7 @@ public class Expression implements Cloneable {
                 return Result.newPSMResult(array);
             }
             case OpTypes.TABLE_SUBQUERY : {
+                subQuery.materialiseCorrelated(session);
                 RowSetNavigatorData navigator = subQuery.getNavigator(session);
                 Result              result    = Result.newResult(navigator);
 

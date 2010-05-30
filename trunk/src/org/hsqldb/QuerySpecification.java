@@ -1921,7 +1921,7 @@ public class QuerySpecification extends QueryExpression {
             QueryExpression baseQueryExpression =
                 ((TableDerived) table).getQueryExpression();
 
-            if (!baseQueryExpression.isMergeable) {
+            if (baseQueryExpression == null || !baseQueryExpression.isMergeable) {
                 isMergeable = false;
 
                 return;
