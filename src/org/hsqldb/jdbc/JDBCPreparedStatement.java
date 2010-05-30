@@ -4222,6 +4222,15 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 Util.throwError(Error.error(ErrorCode.X_42563));
 
                 break;
+
+            case Types.SQL_ARRAY :
+                if ( o instanceof Array) {
+                    setArray(i + 1, (Array) o);
+
+                    return;
+                }
+                Util.throwError(Error.error(ErrorCode.X_42563));
+
             case Types.SQL_BLOB :
                 setBlobParameter(i + 1, o);
 

@@ -40,7 +40,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.store.ValuePool;
 
 /**
- * Class for ARRAY objects.<p>
+ * Class for ARRAY type objects.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.0
@@ -60,7 +60,7 @@ public class ArrayType extends Type {
     }
 
     public int displaySize() {
-        return 0;
+        return 7 + (dataType.displaySize() + 1) * maxCardinality ;
     }
 
     public int getJDBCTypeCode() {
@@ -157,6 +157,11 @@ public class ArrayType extends Type {
         }
 
         Object[] arra = (Object[]) a;
+
+        if (arra.length > maxCardinality) {
+            throw Error.error(ErrorCode.X_2202F);
+        }
+
         Object[] arrb = new Object[arra.length];
 
         for (int i = 0; i < arra.length; i++) {
@@ -181,13 +186,18 @@ public class ArrayType extends Type {
             throw Error.error(ErrorCode.X_42562);
         }
 
+        Object[] arra = (Object[]) a;
+
+        if (arra.length > maxCardinality) {
+            throw Error.error(ErrorCode.X_2202F);
+        }
+
         Type otherComponent = otherType.collectionBaseType();
 
         if (dataType.equals(otherComponent)) {
             return a;
         }
 
-        Object[] arra = (Object[]) a;
         Object[] arrb = new Object[arra.length];
 
         for (int i = 0; i < arra.length; i++) {

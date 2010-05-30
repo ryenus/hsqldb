@@ -314,22 +314,12 @@ public abstract class Type implements SchemaObject, Cloneable {
         return false;
     }
 
-    public boolean isDistinctType() {
-
-        return userTypeModifier == null ? false
-                                        : userTypeModifier.schemaObjectType
-                                          == SchemaObject.TYPE;
+    public boolean isRowType() {
+        return false;
     }
 
     public boolean isStructuredType() {
         return false;
-    }
-
-    public boolean isDomainType() {
-
-        return userTypeModifier == null ? false
-                                        : userTypeModifier.schemaObjectType
-                                          == SchemaObject.DOMAIN;
     }
 
     public boolean isCharacterType() {
@@ -378,6 +368,20 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public boolean isObjectType() {
         return false;
+    }
+
+    public boolean isDistinctType() {
+
+        return userTypeModifier == null ? false
+                                        : userTypeModifier.schemaObjectType
+                                          == SchemaObject.TYPE;
+    }
+
+    public boolean isDomainType() {
+
+        return userTypeModifier == null ? false
+                                        : userTypeModifier.schemaObjectType
+                                          == SchemaObject.DOMAIN;
     }
 
     public boolean acceptsPrecision() {
