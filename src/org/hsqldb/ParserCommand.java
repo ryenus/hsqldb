@@ -87,7 +87,8 @@ public class ParserCommand extends ParserDDL {
 
             cs = compilePart(cmd.getExecuteProperties());
 
-            if (!cs.isExplain && cs.getParametersMetaData().getColumnCount() > 0) {
+            if (!cs.isExplain
+                    && cs.getParametersMetaData().getColumnCount() > 0) {
                 throw Error.error(ErrorCode.X_42575);
             }
 
@@ -275,7 +276,7 @@ public class ParserCommand extends ParserDDL {
         Statement    cs;
         ColumnSchema variables[];
 
-        cs =  compileDeclareLocalTableOrNull();
+        cs = compileDeclareLocalTableOrNull();
 
         if (cs != null) {
             return cs;
@@ -653,17 +654,6 @@ public class ParserCommand extends ParserDDL {
 
                 return new StatementCommand(
                     StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE, args);
-            }
-            case Tokens.RESULT : {
-                read();
-                readThis(Tokens.MEMORY);
-                readThis(Tokens.SIZE);
-
-                Integer  size = readIntegerObject();
-                Object[] args = new Object[]{ size };
-
-                return new StatementSession(
-                    StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS, args);
             }
             case Tokens.TABLE : {
                 read();
@@ -1491,43 +1481,58 @@ public class ParserCommand extends ParserDDL {
 
     private Statement compileSessionSettings() {
 
-        if (token.tokenType == Tokens.CHARACTERISTICS) {
-            read();
-            readThis(Tokens.AS);
-            readThis(Tokens.TRANSACTION);
+        switch (token.tokenType) {
 
-            Object[] args = processTransactionCharacteristics();
+            case Tokens.CHARACTERISTICS : {
+                read();
+                readThis(Tokens.AS);
+                readThis(Tokens.TRANSACTION);
 
-            return new StatementSession(
-                StatementTypes.SET_SESSION_CHARACTERISTICS, args);
-        } else if (token.tokenType == Tokens.AUTHORIZATION) {
-            read();
+                Object[] args = processTransactionCharacteristics();
 
-            Expression e = XreadValueSpecificationOrNull();
-
-            if (e == null) {
-                throw Error.error(ErrorCode.X_42584);
+                return new StatementSession(
+                    StatementTypes.SET_SESSION_CHARACTERISTICS, args);
             }
+            case Tokens.AUTHORIZATION : {
+                read();
 
-            e.resolveTypes(session, null);
+                Expression e = XreadValueSpecificationOrNull();
 
-            if (e.isParam()) {
-                e.dataType = Type.SQL_VARCHAR;
+                if (e == null) {
+                    throw Error.error(ErrorCode.X_42584);
+                }
+
+                e.resolveTypes(session, null);
+
+                if (e.isParam()) {
+                    e.dataType = Type.SQL_VARCHAR;
+                }
+
+                if (e.dataType == null || !e.dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                Expression[] args = new Expression[] {
+                    e, null
+                };
+
+                return new StatementSession(
+                    StatementTypes.SET_SESSION_AUTHORIZATION, args);
             }
+            case Tokens.RESULT : {
+                read();
+                readThis(Tokens.MEMORY);
+                readThis(Tokens.ROWS);
 
-            if (e.dataType == null || !e.dataType.isCharacterType()) {
-                throw Error.error(ErrorCode.X_42563);
+                Integer  size = readIntegerObject();
+                Object[] args = new Object[]{ size };
+
+                return new StatementCommand(
+                    StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS, args);
             }
-
-            Expression[] args = new Expression[] {
-                e, null
-            };
-
-            return new StatementSession(
-                StatementTypes.SET_SESSION_AUTHORIZATION, args);
+            default :
+                throw unexpectedToken();
         }
-
-        throw unexpectedToken();
     }
 
     private Statement compileSetRole() {

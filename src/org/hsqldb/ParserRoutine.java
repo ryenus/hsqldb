@@ -355,7 +355,7 @@ public class ParserRoutine extends ParserDML {
             read();
         } else {
             while (true) {
-                ColumnSchema newcolumn = readRoutineParameter(routine);
+                ColumnSchema newcolumn = readRoutineParameter(routine, true);
 
                 routine.addParameter(newcolumn);
 
@@ -380,28 +380,26 @@ public class ParserRoutine extends ParserDML {
 
                 readThis(Tokens.OPENBRACKET);
 
-                if (token.tokenType == Tokens.CLOSEBRACKET) {
-                    read();
-                } else {
-                    while (true) {
-                        ColumnSchema newcolumn = readRoutineParameter(routine);
+                for (int i = 0; ; i++) {
+                    ColumnSchema newcolumn = readRoutineParameter(routine,
+                        false);
 
-                        if (newcolumn.getName() == null) {
-                            throw super.unexpectedToken();
-                        }
+                    if (newcolumn.getName() == null) {
+                        throw super.unexpectedToken();
+                    }
 
-                        table.addColumn(newcolumn);
+                    table.addColumn(newcolumn);
 
-                        if (token.tokenType == Tokens.COMMA) {
-                            read();
-                        } else {
-                            readThis(Tokens.CLOSEBRACKET);
+                    if (token.tokenType == Tokens.COMMA) {
+                        read();
+                    } else {
+                        readThis(Tokens.CLOSEBRACKET);
 
-                            break;
-                        }
+                        break;
                     }
                 }
 
+                table.createPrimaryKey();
                 routine.setReturnTable(table);
             } else {
                 Type type = readTypeDefinition(true);
@@ -1665,40 +1663,43 @@ public class ParserRoutine extends ParserDML {
         return cs;
     }
 
-    private ColumnSchema readRoutineParameter(Routine routine) {
+    private ColumnSchema readRoutineParameter(Routine routine,
+            boolean isParam) {
 
         HsqlName hsqlName      = null;
         byte     parameterMode = SchemaObject.ParameterModes.PARAM_IN;
 
-        switch (token.tokenType) {
+        if (isParam) {
+            switch (token.tokenType) {
 
-            case Tokens.IN :
-                read();
-                break;
+                case Tokens.IN :
+                    read();
+                    break;
 
-            case Tokens.OUT :
-                if (routine.getType() != SchemaObject.PROCEDURE) {
-                    throw unexpectedToken();
-                }
-
-                read();
-
-                parameterMode = SchemaObject.ParameterModes.PARAM_OUT;
-                break;
-
-            case Tokens.INOUT :
-                if (routine.getType() != SchemaObject.PROCEDURE) {
-                    if (!routine.isAggregate()) {
+                case Tokens.OUT :
+                    if (routine.getType() != SchemaObject.PROCEDURE) {
                         throw unexpectedToken();
                     }
-                }
 
-                read();
+                    read();
 
-                parameterMode = SchemaObject.ParameterModes.PARAM_INOUT;
-                break;
+                    parameterMode = SchemaObject.ParameterModes.PARAM_OUT;
+                    break;
 
-            default :
+                case Tokens.INOUT :
+                    if (routine.getType() != SchemaObject.PROCEDURE) {
+                        if (!routine.isAggregate()) {
+                            throw unexpectedToken();
+                        }
+                    }
+
+                    read();
+
+                    parameterMode = SchemaObject.ParameterModes.PARAM_INOUT;
+                    break;
+
+                default :
+            }
         }
 
         if (!isReservedKey()) {
@@ -1710,7 +1711,9 @@ public class ParserRoutine extends ParserDML {
         ColumnSchema column = new ColumnSchema(hsqlName, typeObject, true,
                                                false, null);
 
-        column.setParameterMode(parameterMode);
+        if (isParam) {
+            column.setParameterMode(parameterMode);
+        }
 
         return column;
     }

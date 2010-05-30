@@ -1538,6 +1538,8 @@ public class ParserDQL extends ParserBase {
                 Expression e = XreadTableFunctionDerivedTable();
 
                 table = e.getTable();
+
+                break;
             }
             default : {
                 table = readNamedSubqueryOrNull();
@@ -2053,7 +2055,7 @@ public class ParserDQL extends ParserBase {
                 read();
                 readThis(Tokens.OPENBRACKET);
 
-                SubQuery sq = XreadTableSubqueryBody();
+                SubQuery sq = XreadTableSubqueryBody(false);
 
                 readThis(Tokens.CLOSEBRACKET);
 
@@ -3592,7 +3594,7 @@ public class ParserDQL extends ParserBase {
 
             return new Expression(OpTypes.TABLE_SUBQUERY, sq);
         } else {
-            SubQuery sq = XreadTableSubqueryBody();
+            SubQuery sq = XreadTableSubqueryBody(true);
 
             readThis(Tokens.CLOSEBRACKET);
 
@@ -3647,11 +3649,13 @@ public class ParserDQL extends ParserBase {
         return sq;
     }
 
-    SubQuery XreadTableSubqueryBody() {
+    SubQuery XreadTableSubqueryBody(boolean resolve) {
 
-        SubQuery sq = XreadSubqueryBody(true, OpTypes.TABLE_SUBQUERY);
+        SubQuery sq = XreadSubqueryBody(resolve, OpTypes.TABLE_SUBQUERY);
 
-        sq.prepareTable(session);
+        if (resolve) {
+            sq.prepareTable(session);
+        }
 
         return sq;
     }
@@ -3962,12 +3966,12 @@ public class ParserDQL extends ParserBase {
 
         int position = getPosition();
 
-        readThis(Tokens.UNNEST);
+        readThis(Tokens.TABLE);
         readThis(Tokens.OPENBRACKET);
 
         compileContext.subqueryDepth++;
 
-        Expression e = XreadValueExpression();
+        Expression e = this.XreadValueExpression();
 
         if (e.getType() != OpTypes.FUNCTION) {
             throw this.unexpectedToken(Tokens.T_TABLE);

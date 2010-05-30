@@ -191,6 +191,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     }
 
     public void removeAll() {
+        elementCount = 0;
         ArrayUtil.fillArray(accessorList, null);
     }
 

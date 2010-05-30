@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMappedList;
@@ -42,6 +43,7 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.BitMap;
+import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -79,7 +81,7 @@ public class Routine implements SchemaObject {
     int              typeGroups;
     Type             returnType;
     Type[]           tableType;
-    TableDerived     returnTable;
+    Table            returnTable;
     final int        routineType;
     int              language   = LANGUAGE_SQL;
     int              dataImpact = CONTAINS_SQL;
@@ -375,6 +377,10 @@ public class Routine implements SchemaObject {
         return tableType;
     }
 
+    public Table getTable() {
+        return returnTable;
+    }
+
     public void setProcedure(Statement statement) {
         this.statement = statement;
     }
@@ -434,6 +440,11 @@ public class Routine implements SchemaObject {
     public void setReturnTable(TableDerived table) {
         this.returnTable  = table;
         this.returnsTable = true;
+
+        SimpleName[] names = new SimpleName[table.getColumnCount() ];
+        Type[] types = table.getColumnTypes();
+
+        returnType = new RowType(types);
     }
 
     public boolean returnsTable() {

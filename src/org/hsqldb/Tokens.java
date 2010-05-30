@@ -291,7 +291,7 @@ public class Tokens {
     static final String        T_RIGHT             = "RIGHT";
     static final String        T_ROLLBACK          = "ROLLBACK";
     static final String        T_ROLLUP            = "ROLLUP";
-    static final String        T_ROW               = "ROW";
+    public static final String T_ROW               = "ROW";
     static final String        T_ROW_NUMBER        = "ROW_NUMBER";
     public static final String T_ROWS              = "ROWS";
     static final String        T_SAVEPOINT         = "SAVEPOINT";

@@ -33,12 +33,13 @@ package org.hsqldb;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.types.Type;
+import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorData;
-import org.hsqldb.result.Result;
-import org.hsqldb.types.ArrayType;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.result.Result;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.RowType;
+import org.hsqldb.types.Type;
 
 /**
  * Implementation of table conversion.
@@ -49,10 +50,11 @@ import org.hsqldb.store.ValuePool;
  */
 public class ExpressionTable extends Expression {
 
+    boolean isTable;
     boolean ordinality = false;
 
     /**
-     * Creates an UNNEST ARRAY expression
+     * Creates an UNNEST ARRAY or MULTISET expression
      */
     ExpressionTable(Expression e, SubQuery sq, boolean ordinality) {
 
@@ -65,13 +67,10 @@ public class ExpressionTable extends Expression {
 
     public String getSQL() {
 
-        switch (opType) {
-
-            case OpTypes.TABLE : {
-                return Tokens.T_TABLE;
-            }
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+        if (isTable) {
+            return Tokens.T_TABLE;
+        } else {
+            return Tokens.T_UNNEST;
         }
     }
 
@@ -85,17 +84,15 @@ public class ExpressionTable extends Expression {
             sb.append(' ');
         }
 
-        switch (opType) {
-
-            case OpTypes.TABLE :
-                sb.append(Tokens.T_UNNEST).append(' ');
-                sb.append(nodes[LEFT].describe(session, blanks));
-
-                return sb.toString();
-
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "ExpressionTable");
+        if (isTable) {
+            sb.append(Tokens.T_TABLE).append(' ');
+        } else {
+            sb.append(Tokens.T_UNNEST).append(' ');
         }
+
+        sb.append(nodes[LEFT].describe(session, blanks));
+
+        return sb.toString();
     }
 
     public void resolveTypes(Session session, Expression parent) {
@@ -106,25 +103,29 @@ public class ExpressionTable extends Expression {
             }
         }
 
-        int columnCount = ordinality ? 2
-                                     : 1;
+        if (nodes[LEFT].dataType.isRowType()) {
+            isTable       = true;
+            nodeDataTypes = ((RowType) nodes[LEFT].dataType).getTypesArray();
 
-        nodeDataTypes       = new Type[columnCount];
-        nodeDataTypes[LEFT] = nodes[LEFT].dataType.collectionBaseType();
+            subQuery.prepareTable(session);
 
-        if(ordinality) {
-            nodeDataTypes[RIGHT] = Type.SQL_INTEGER;
-        }
+            subQuery.getTable().columnList =
+                ((FunctionSQLInvoked) nodes[LEFT]).routine.getTable()
+                    .columnList;
+        } else {
+            isTable = false;
 
-        switch (opType) {
+            int columnCount = ordinality ? 2
+                                         : 1;
 
-            case OpTypes.TABLE : {
-                subQuery.prepareTable(session);
+            nodeDataTypes       = new Type[columnCount];
+            nodeDataTypes[LEFT] = nodes[LEFT].dataType.collectionBaseType();
 
-                break;
+            if (ordinality) {
+                nodeDataTypes[RIGHT] = Type.SQL_INTEGER;
             }
-            default :
-                throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+
+            subQuery.prepareTable(session);
         }
     }
 
@@ -185,24 +186,39 @@ public class ExpressionTable extends Expression {
     void insertValuesIntoSubqueryTable(Session session,
                                        PersistentStore store) {
 
-        Object[] array = (Object[]) nodes[LEFT].getValue(session);
+        if (isTable) {
+            Result          result = nodes[LEFT].getResult(session);
+            RowSetNavigator nav    = result.navigator;
+            int             size   = nav.getSize();
 
-        for (int i = 0; i < array.length; i++) {
-            Object[] data;
+            while (nav.hasNext()) {
+                Object[] data = nav.getNext();
+                Row      row  = (Row) store.getNewCachedObject(session, data);
 
-            if (ordinality) {
-                data = new Object[] {
-                    array[i], ValuePool.getInt(i)
-                };
-            } else {
-                data = new Object[]{ array[i] };
+                try {
+                    store.indexRow(session, row);
+                } catch (HsqlException e) {}
             }
+        } else {
+            Object[] array = (Object[]) nodes[LEFT].getValue(session);
 
-            Row row = (Row) store.getNewCachedObject(session, data);
+            for (int i = 0; i < array.length; i++) {
+                Object[] data;
 
-            try {
-                store.indexRow(session, row);
-            } catch (HsqlException e) {}
+                if (ordinality) {
+                    data = new Object[] {
+                        array[i], ValuePool.getInt(i)
+                    };
+                } else {
+                    data = new Object[]{ array[i] };
+                }
+
+                Row row = (Row) store.getNewCachedObject(session, data);
+
+                try {
+                    store.indexRow(session, row);
+                } catch (HsqlException e) {}
+            }
         }
     }
 }

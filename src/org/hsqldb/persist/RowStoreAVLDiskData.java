@@ -145,6 +145,7 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
     public void set(CachedObject object) {}
 
     public void removeAll() {
+        elementCount = 0;
         ArrayUtil.fillArray(accessorList, null);
     }
 
