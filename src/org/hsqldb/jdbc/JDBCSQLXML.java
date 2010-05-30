@@ -259,7 +259,7 @@ import org.xml.sax.SAXException;
  * <div class="ReleaseSpecificDocumentation">
  * <h3>HSQLDB-Specific Information:</h3> <p>
  *
- * Starting with HSQLDB 1.9.0, a rudimentary client-side SQLXML interface
+ * Starting with HSQLDB 2.0, a rudimentary client-side SQLXML interface
  * implementation (this class) is supported for local use when the product is
  * built and run under JDK 1.6+ and the SQLXML instance is constructed as the
  * result of calling JDBCConnection.createSQLXML(). <p>
@@ -346,7 +346,7 @@ import org.xml.sax.SAXException;
  * @see javax.xml.stream
  * @see javax.xml.transform
  * @see javax.xml.xpath
- * @since JDK 1.6, HSQLDB 1.9.0
+ * @since JDK 1.6, HSQLDB 2.0
  * @revised Mustang Build 79
  */
 public class JDBCSQLXML implements SQLXML {
@@ -1203,16 +1203,18 @@ public class JDBCSQLXML implements SQLXML {
             try {
                 os.close();
             } catch (IOException ex) {
-               throw Exceptions.transformFailed(ex);
+                throw Exceptions.transformFailed(ex);
             }
         }
 
         if (this.outputStream == null) {
             throw Exceptions.notReadable("No Data.");
         } else if (!this.outputStream.isClosed()) {
-             throw Exceptions.notReadable("Stream used for writing must be closed but is still open.");
-        } else if(this.outputStream.isFreed()) {
-             throw Exceptions.notReadable("Stream used for writing was freed and is no longer valid.");
+            throw Exceptions.notReadable(
+                "Stream used for writing must be closed but is still open.");
+        } else if (this.outputStream.isFreed()) {
+            throw Exceptions.notReadable(
+                "Stream used for writing was freed and is no longer valid.");
         }
 
         try {
@@ -1364,8 +1366,9 @@ public class JDBCSQLXML implements SQLXML {
     protected InputStream getBinaryStreamImpl() throws SQLException {
 
         try {
-            byte[] data = getGZipData();
+            byte[]               data = getGZipData();
             ByteArrayInputStream bais = new ByteArrayInputStream(data);
+
             return new GZIPInputStream(bais);
         } catch (IOException ex) {
             throw Exceptions.transformFailed(ex);
@@ -1558,7 +1561,6 @@ public class JDBCSQLXML implements SQLXML {
         } catch (TransformerException ex) {
             throw Exceptions.transformFailed(ex);
         }
-
         source.setNode(result.getNode());
         source.setSystemId(result.getSystemId());
 
@@ -1753,8 +1755,7 @@ public class JDBCSQLXML implements SQLXML {
             Class<T> resultClass) throws SQLException {
 
         try {
-            T result = (resultClass == null)
-                    ? ((T) new DOMResult())
+            T result = (resultClass == null) ? ((T) new DOMResult())
                     : resultClass.newInstance();
 
             this.domResult = (DOMResult) result;
@@ -1799,15 +1800,13 @@ public class JDBCSQLXML implements SQLXML {
             throw Exceptions.resultInstantiation(ex);
         }
 
-
         SAX2DOMBuilder handler = null;
 
         try {
             handler = new SAX2DOMBuilder();
         } catch (ParserConfigurationException ex) {
-           throw Exceptions.resultInstantiation(ex);
+            throw Exceptions.resultInstantiation(ex);
         }
-
         this.domResult = new DOMResult();
 
         result.setHandler(handler);
@@ -1832,15 +1831,19 @@ public class JDBCSQLXML implements SQLXML {
         StAXResult result = null;
 
         try {
-            this.domResult = new DOMResult((new SAX2DOMBuilder()).getDocument());
+            this.domResult =
+                new DOMResult((new SAX2DOMBuilder()).getDocument());
+
             XMLOutputFactory factory = XMLOutputFactory.newInstance();
-            XMLStreamWriter xmlStreamWriter = factory.createXMLStreamWriter(
-                this.domResult);
+            XMLStreamWriter xmlStreamWriter =
+                factory.createXMLStreamWriter(this.domResult);
 
             if (resultClass == null || resultClass == StAXResult.class) {
                 result = new StAXResult(xmlStreamWriter);
             } else {
-                Constructor ctor = resultClass.getConstructor(XMLStreamWriter.class);
+                Constructor ctor =
+                    resultClass.getConstructor(XMLStreamWriter.class);
+
                 result = (StAXResult) ctor.newInstance(xmlStreamWriter);
             }
         } catch (ParserConfigurationException ex) {
@@ -1887,11 +1890,13 @@ public class JDBCSQLXML implements SQLXML {
          * @param cause of the exception
          */
         static SQLException domInstantiation(Throwable cause) {
-            Exception ex  =(cause instanceof Exception)
-                    ? (Exception) cause
+
+            Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
+
             return Util.sqlException(ErrorCode.GENERAL_ERROR,
-                "SQLXML DOM instantiation failed: " + cause, ex);
+                                     "SQLXML DOM instantiation failed: "
+                                     + cause, ex);
         }
 
         /**
@@ -1901,11 +1906,13 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML source instantiation exception
          */
         static SQLException sourceInstantiation(Throwable cause) {
-            Exception ex  =(cause instanceof Exception)
-                    ? (Exception) cause
+
+            Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
+
             return Util.sqlException(ErrorCode.GENERAL_ERROR,
-                "SQLXML Source instantiation failed: " + cause, ex);
+                                     "SQLXML Source instantiation failed: "
+                                     + cause, ex);
         }
 
         /**
@@ -1915,11 +1922,13 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML result instantiation exception
          */
         static SQLException resultInstantiation(Throwable cause) {
-            Exception ex  =(cause instanceof Exception)
-                    ? (Exception) cause
+
+            Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
+
             return Util.sqlException(ErrorCode.GENERAL_ERROR,
-                "SQLXML Result instantiation failed: " + cause, ex);
+                                     "SQLXML Result instantiation failed: "
+                                     + cause, ex);
         }
 
         /**
@@ -1929,11 +1938,12 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML parse failed exception
          */
         static SQLException parseFailed(Throwable cause) {
-            Exception ex  =(cause instanceof Exception)
-                    ? (Exception) cause
+
+            Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
+
             return Util.sqlException(ErrorCode.GENERAL_ERROR,
-                "parse failed: " + cause, ex);
+                                     "parse failed: " + cause, ex);
         }
 
         /**
@@ -1943,11 +1953,12 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML parse failed exception
          */
         static SQLException transformFailed(Throwable cause) {
-            Exception ex  =(cause instanceof Exception)
-                    ? (Exception) cause
+
+            Exception ex = (cause instanceof Exception) ? (Exception) cause
                     : new Exception(cause);
+
             return Util.sqlException(ErrorCode.GENERAL_ERROR,
-                "transform failed: "  + cause, ex);
+                                     "transform failed: " + cause, ex);
         }
 
         /**
@@ -1966,8 +1977,10 @@ public class JDBCSQLXML implements SQLXML {
          * @return a new SQLXML not readable exception
          */
         static SQLException notReadable(String reason) {
+
             return Util.sqlException(ErrorCode.GENERAL_IO_ERROR,
-                                     "SQLXML in not readable state: " + reason);
+                                     "SQLXML in not readable state: "
+                                     + reason);
         }
 
         /**
@@ -2495,8 +2508,10 @@ public class JDBCSQLXML implements SQLXML {
         /**
          * Frees the DOMBuilder.
          */
-        public void free(){
+        public void free() {
+
             close();
+
             this.document       = null;
             this.currentElement = null;
             this.currentNode    = null;
