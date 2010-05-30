@@ -1280,7 +1280,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             return null;
         }
 
-        return new JDBCArray(data, type.collectionBaseType(), connection);
+        return new JDBCArray(data, type.collectionBaseType(), type, connection);
     }
 
     /**

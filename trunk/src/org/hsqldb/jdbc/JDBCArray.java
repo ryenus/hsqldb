@@ -450,6 +450,16 @@ public class JDBCArray implements Array{
     }
 
     /**
+     * Returns a string representation in the form <code>ARRAY[..., ...]</code>
+     */
+    public String toString() {
+        if (arrayType == null) {
+            arrayType = Type.getDefaultArrayType(elementType.typeCode);
+        }
+
+        return arrayType.convertToString(data);
+    }
+    /**
      * This method frees the <code>Array</code> object and releases the resources that
      * it holds. The object is invalid once the <code>free</code>
      * method is called.
@@ -469,14 +479,28 @@ public class JDBCArray implements Array{
     public void free() throws SQLException {}
 
     //-------------
+    Type           arrayType;
     Type           elementType;
     Object[]       data;
     JDBCConnection connection;
 
-    JDBCArray(Object[] data, Type type, JDBCConnection connection) {
+    /**
+     * Constructors reject unsupported types.
+     */
+    JDBCArray(Object[] data, Type type, JDBCConnection connection) throws SQLException {
+        this(data, type, null, connection);
+    }
+
+
+    JDBCArray(Object[] data, Type type, Type arrayType, JDBCConnection connection) throws SQLException {
+
+        if (type.isArrayType() || type.isLobType() || type.isRowType() ) {
+            throw Util.notSupported();
+        }
 
         this.data        = data;
         this.elementType = type;
+        this.arrayType   = arrayType;
         this.connection  = connection;
     }
 
