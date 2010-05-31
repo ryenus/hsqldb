@@ -217,6 +217,8 @@ public class SqlFile {
             Pattern.compile("(?is)(?:set\\s+autocommit.*)|(commit\\s*)");
     private static Pattern logPattern =
         Pattern.compile("(?i)(FINER|WARNING|SEVERE|INFO|FINEST)\\s+(.*\\S)");
+    private static Pattern   arrayPattern =
+            Pattern.compile("ARRAY\\s*\\[\\s*(.*\\S)?\\s*\\]");
 
     private static Map<String, Pattern> nestingPLCommands =
             new HashMap<String, Pattern>();
@@ -1846,7 +1848,7 @@ public class SqlFile {
                 }
 
                 stdprintln(SqltoolRB.exectime_reporting.getString(
-                        Boolean.toString(reportTimes))); 
+                        Boolean.toString(reportTimes)));
                 return;
 
             case '*' :
@@ -2046,7 +2048,7 @@ public class SqlFile {
 
             varName = s.substring(b + (permitUnset ? 3 : 2), e);
             if (iterations++ > 10000)
-                throw new 
+                throw new
                     SqlToolError(SqltoolRB.var_infinite.getString(varName));
 
             varValue = System.getProperty(varName);
@@ -2797,7 +2799,7 @@ public class SqlFile {
                         statement.execute(
                             "SELECT sequence_schema, sequence_name FROM "
                             + "information_schema."
-                            + ((minorVersion> 8 || majorVersion > 1) 
+                            + ((minorVersion> 8 || majorVersion > 1)
                             ? "sequences" : "system_sequences") + narrower);
                     } else {
                         types[0] = "SEQUENCE";
@@ -2810,7 +2812,7 @@ public class SqlFile {
 
                         statement.execute(
                             "SELECT authorization_name FROM information_schema."
-                            + ((minorVersion> 8 || majorVersion > 1) 
+                            + ((minorVersion> 8 || majorVersion > 1)
                             ? "authorizations" : "system_authorizations")
                             + "\nWHERE authorization_type = 'ROLE'\n"
                             + "ORDER BY authorization_name");
@@ -2839,7 +2841,7 @@ public class SqlFile {
                         statement = shared.jdbcConn.createStatement();
 
                         statement.execute("SELECT "
-                            + ((minorVersion> 8 || majorVersion > 1) 
+                            + ((minorVersion> 8 || majorVersion > 1)
                             ? "user_name" : "user") + ", admin FROM "
                             + "information_schema.system_users\n"
                             + "ORDER BY user_name");
@@ -4849,9 +4851,11 @@ public class SqlFile {
                     case java.sql.Types.BOOLEAN:
                         parseBool[i] = true;
                         break;
-                    case java.sql.Types.VARCHAR :
                     case java.sql.Types.ARRAY :
-                        // Guessing at how to handle ARRAY.
+                        autonulls[i] = true;
+                        readFormat[i] = 'a';
+                        break;
+                    case java.sql.Types.VARCHAR :
                     case java.sql.Types.BLOB :
                     case java.sql.Types.CLOB :
                     case java.sql.Types.LONGVARCHAR :
@@ -4944,7 +4948,9 @@ public class SqlFile {
             // Length is number of cols to insert INTO, not nec. # in DSV file.
             int      readColCount;
             int      storeColCount;
+            Matcher  arMatcher;
             String   currentFieldName = null;
+            String[] arVals;
 
             // Insert data rows 1-row-at-a-time
             while (lineCount < lines.length) try { try {
@@ -5064,6 +5070,23 @@ public class SqlFile {
                                     (dataVals[i].length() < 1) ? null
                                     : SqlFile.hexCharOctetsToBytes(
                                         dataVals[i]));
+                                break;
+                            case 'a' :
+                                arMatcher = arrayPattern.matcher(dataVals[i]);
+                                if (!arMatcher.matches()) {
+                                    throw new RowError(
+                                            //SqltoolRB.boolean_bad.getString(
+                                        "Malformatted ARRAY value: ("
+                                        + dataVals[i] + ')');
+                                }
+                                arVals = (arMatcher.group(1) == null)
+                                       ? (new String[0])
+                                       : arMatcher.group(1).split("\\s*,\\s*");
+                                // N.b. THIS DOES NOT HANDLE commas WITHIN
+                                // Array ELEMENT VALUES.
+                                ps.setArray(i + 1, shared.jdbcConn
+                                        .createArrayOf("VARCHAR", arVals));
+                                // createArrayOf is Java-6-specific!
                                 break;
                             default:
                                 ps.setString(
