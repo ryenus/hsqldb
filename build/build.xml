@@ -857,6 +857,7 @@ examples:
                         src/org/hsqldb/lib/tar/DbBackup.java,
                         src/org/hsqldb/test/TestScriptRunner.java,
                         src/org/hsqldb/cmdline/SqlFile.java,
+                        src/org/hsqldb/util/MainInvoker.java,
                         src/org/hsqldb/cmdline/SqlTool.java"
            destdir="doc/apidocs"
            stylesheetfile="doc-src/apidocs/javadoc.css"
