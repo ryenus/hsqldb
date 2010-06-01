@@ -1,6 +1,6 @@
 /*
     $Id$
-    Examplifies use of SqlTool.
+    Exemplifies use of SqlTool.
     PCTASK Table creation
 */
 
