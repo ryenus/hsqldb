@@ -68,6 +68,13 @@
       </simpara> <simpara>
         <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/jdbc/JDBCPreparedStatement.html"/>
       </simpara>
+    </listitem> <listitem xml:id="MainInvoker.html-link">
+      <simpara>
+        Local:
+        <link xlink:href="../apidocs/org/hsqldb/util/MainInvoker.html"/>
+      </simpara> <simpara>
+      <link xlink:href="&distro_baseurl;/apidocs/org/hsqldb/util/MainInvoker.html"/>
+      </simpara>
     </listitem> <listitem xml:id="javadoc-link">
       <simpara>
         Local:
@@ -116,6 +123,13 @@
         <link xlink:href="../verbatim/src/org/hsqldb/sample/TriggerSample.java"/>
       </simpara> <simpara>
         <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/test/sample/TriggerSample.java"/>
+      </simpara>
+    </listitem> <listitem xml:id="MainInvoker.java-link">
+      <simpara>
+        Local:
+        <link xlink:href="../verbatim/src/org/hsqldb/util/MainInvoker.java"/>
+      </simpara> <simpara>
+      <link xlink:href="&distro_baseurl;/verbatim/src/org/hsqldb/util/MainInvoker.java"/>
       </simpara>
     </listitem> <listitem xml:id="hsqldb.cfg-link">
       <simpara>
