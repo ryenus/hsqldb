@@ -3296,6 +3296,7 @@ public class SqlFile {
                     dataType[insi]      = m.getColumnType(i);
                     rightJust[insi]     = false;
                     autonulls[insi]     = true;
+                    // This is what we want for java.sql.Types.ARRAY :
 
                     switch (dataType[insi]) {
                         case java.sql.Types.BIGINT :
@@ -3313,8 +3314,6 @@ public class SqlFile {
 
                         case java.sql.Types.VARBINARY :
                         case java.sql.Types.VARCHAR :
-                        case java.sql.Types.ARRAY :
-                            // Guessing at how to handle ARRAY.
                         case java.sql.Types.BLOB :
                         case java.sql.Types.CLOB :
                         case java.sql.Types.LONGVARBINARY :
@@ -5087,6 +5086,10 @@ public class SqlFile {
                                         "SqlTool requires += Java 1.6 at "
                                         + "runtime in order to import Array "
                                         + "values");
+                                }
+                                if (dataVals[i].length() < 1) {
+                                    ps.setArray(i + 1, null);
+                                    break;
                                 }
                                 arMatcher = arrayPattern.matcher(dataVals[i]);
                                 if (!arMatcher.matches()) {
