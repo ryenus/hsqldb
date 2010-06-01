@@ -540,33 +540,30 @@
       <title>Embedding a Database Listener</title>
 
       <para>Since you won't be able to access
-        <glossterm>in-process</glossterm> database instances from other
-        processes, you will often want to run a Listener in your server
-        applications with embedded databases.
-        You can do this by starting up a Server or WebServer instance
-        programmatically, but you could also use the class
-        <classname>org.hsqldb.util.MainInvoker</classname> to start up your
-        application and a Server or WebServer without any programming.
-       <example>
+      <glossterm>in-process</glossterm> database instances from other
+      processes, you will often want to run a Listener in your server
+      applications with embedded databases. You can do this by starting up a
+      Server or WebServer instance programmatically, but you could also use
+      the class <classname>org.hsqldb.util.MainInvoker</classname> to start up
+      your application and a Server or WebServer without any programming.
+      <example>
           <title>MainInvoker Example</title>
 
           <screen>  java -cp path/to/your/app.jar:path/to/hsqldb.jar your.App "" org.hsqldb.server.Server</screen>
-        </example>
-        (Use ; instead of : to delimit classpath elements on Windows).
-        Specify the same <glossterm>in-process</glossterm> JDBC URL to your
-        app and in the <filename>server.properties</filename> file.
-        You can then connect to the database from outside using a JDBC URL
-        like <literal>jdbc:hsqldb:hsql://hostname</literal>.
-      </para>
-      <simpara>
-        This tactic can be used to run off-the shelf server applications with
-        an embedded HyperSQL Server, without doing any coding.
-      </simpara> <simpara>
-        <classname>MainInvoker</classname> can be used to run any number of
-        Java class main method invocations in a single JVM.
-        See the API spec for <classname xlink:href="#MainInvoker.html-link">
-        MainInvoker</classname> for details on its usage.
-      </simpara>
+        </example> (Use ; instead of : to delimit classpath elements on
+      Windows). Specify the same <glossterm>in-process</glossterm> JDBC URL to
+      your app and in the <filename>server.properties</filename> file. You can
+      then connect to the database from outside using a JDBC URL like
+      <literal>jdbc:hsqldb:hsql://hostname</literal>.</para>
+
+      <simpara>This tactic can be used to run off-the-shelf server
+      applications with an embedded HyperSQL Server, without doing any
+      coding.</simpara>
+
+      <simpara><classname>MainInvoker</classname> can be used to run any
+      number of Java class main method invocations in a single JVM. See the
+      API spec for <classname xlink:href="#MainInvoker.html-link">
+      MainInvoker</classname> for details on its usage.</simpara>
     </section>
 
     <section>
@@ -783,7 +780,7 @@
   </section>
 
   <section>
-    <title>Compatibility Issues</title>
+    <title>Backward Compatibility Issues</title>
 
     <para>HyperSQL 2.0 conforms to the SQL Standard better than previous
     versions and supports more features. For these reasons, there may be some
@@ -825,6 +822,13 @@
         <para>Column names in a GROUP BY clause were previously resolved to
         the column label. They are now resolved to column name first, and if
         the name does not match, to the column label.</para>
+      </listitem>
+
+      <listitem>
+        <para>If two or more tables in a join contain columns with the same
+        name, the columns cannot be referenced in join and where conditions.
+        Use table names before column names to qualify the references to such
+        columns.</para>
       </listitem>
 
       <listitem>
@@ -1077,10 +1081,10 @@
       framework.</para>
 
       <para>The internally-generated, individual log for the database can be
-      enabled with the SET DATABASE EVENT LOG LEVEL statement, described in
-      the next section. This method of logging is very useful for desktop
-      application deployment, as it provides an ongoing record of database
-      operations.</para>
+      enabled with the <literal>SET DATABASE EVENT LOG LEVEL</literal>
+      statement, described in the next section. This method of logging is very
+      useful for desktop application deployment, as it provides an ongoing
+      record of database operations.</para>
 
       <para>HyperSQL also supports log4J and JDK logging. The same event
       information that is passed to the internal log, is passed to external
