@@ -201,7 +201,7 @@
       unnecessary trigger activation for rows that do not need it.</para>
 
       <para>For UPDATE trigger, you can specify a list of columns of the
-      table. If a list of columns is spedified, then if the UPDATE statement
+      table. If a list of columns is specified, then if the UPDATE statement
       does not change the columns with SET clauses, then the trigger is not
       activated at all.</para>
     </section>
@@ -280,7 +280,7 @@
       specified, the action is performed immediately by calling the Java
       method. This is similar to SQL trigger actions. When QUEUE n is
       specified with n larger than 0, the engine uses a separate thread to
-      execute the java method, using a queue with the size n. For certain
+      execute the Java method, using a queue with the size n. For certain
       applications, such as real-time systems this allows asynchronous
       notifications to be sent by the trigger event, without introducing
       delays in the engine. With asynchronous triggers, an extra parameter,
@@ -454,7 +454,7 @@
 
     <simpara>The third form specifies a call to a Java method.</simpara>
 
-    <simpara>An example of a tirgger with a block is given below. The block
+    <simpara>An example of a trigger with a block is given below. The block
     can include elements discussed the <link endterm="sqlroutines-title"
     ns2:href="#sqlroutines-chapt" ns2:title=""></link> chapter, including
     local variables, loops and conditionals. You can also raise an exception

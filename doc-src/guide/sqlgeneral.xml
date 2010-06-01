@@ -466,7 +466,7 @@
       CHARACTER type altogether. With the rest of the types, the strings are
       not padded when assigned to columns or variables of the given type. The
       trailing spaces are still considered discardable for all character
-      types. Therefore if a string with trailing spaces is too long to assigne
+      types. Therefore if a string with trailing spaces is too long to assign
       to a column or variable of a given length, the spaces beyond the type
       length are discarded and the assignment succeeds (provided all the
       characters beyond the type length are spaces).</para>
@@ -589,7 +589,7 @@ LONGVARBINARY
       or 1. The BIT type represents a fixed width-string. Each shorter string
       is padded with zeros to fill the fixed with. If BIT is used without
       specifying the length, the length defaults to 1. The BIT VARYING type
-      represents a maximumn width and shorter strings are not padded.</para>
+      has a maximum width and shorter strings are not padded.</para>
 
       <para>Before the introduction of the BOOLEAN type to the SQL Standard, a
       sigle-bit string of the type BIT(1) was commonly used. For compatibility
@@ -600,15 +600,15 @@ LONGVARBINARY
 
       <para>For the same reason, numeric values can be assigned to columns and
       variables of the type BIT(1). For assignment, the numeric value zero is
-      converted to B'0', while all other values are converted to to B'1'. For
+      converted to B'0', while all other values are converted to B'1'. For
       comparison, numeric values 1 is considered equal to B'1' and numeric
       value zero is considered equal to B'0'.</para>
 
       <para>It is not allowed to perform other arithmetic or boolean
       operations involving BIT(1) and BIT VARYING(1). The kid of operations
       allowed on bit strings are analogous to those allowed on BINARY and
-      CHARACTER strings and several built-in functions supposrt all three
-      types of string.</para>
+      CHARACTER strings. Several built-in functions support all three types of
+      string.</para>
 
       <simpara><literal>&lt;bit string type&gt; ::= BIT [ &lt;left paren&gt;
       &lt;length&gt; &lt;right paren&gt; ] | BIT VARYING &lt;left paren&gt;
@@ -994,7 +994,7 @@ CAST (&lt;value&gt; AS TIME WITH TIME ZONE)</programlisting>
     The setTime(...) and setTimestamp(...) methods of the PreparedStatement
     interface which have a Calendar parameter can be used to assign the
     values. The time zone of the given Calendar argument is used as the time
-    zone. Conversly, the getTime(...) and getTimestamp(...) methods of the
+    zone. Conversely, the getTime(...) and getTimestamp(...) methods of the
     ResultSet interface which have a Calendar parameter can be used with a
     Calendar argument to retrieve the values.</para>
 
@@ -1152,8 +1152,8 @@ CAST(INTERVAL '145 23' DAY TO HOUR AS INTERVAL DAY TO SECOND) = INTERVAL '145 23
     <literal>&lt;expression&gt; &lt;interval qualifier&gt;</literal> is a cast
     of the result of the <literal>&lt;expression&gt;</literal> into the
     INTERVAL type specified by the <literal>&lt;interval qualifier&gt;. The
-    cast can be formed by adding the keywords and prentheses as follows: CAST
-    ( &lt;expression&gt; AS INTERVAL &lt;interval qualitifer&gt;
+    cast can be formed by adding the keywords and parentheses as follows: CAST
+    ( &lt;expression&gt; AS INTERVAL &lt;interval qualifier&gt;
     ).</literal></para>
 
     <para><literal>The examples below feature different forms of expression
@@ -1256,7 +1256,7 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
     facilitate data exchange between the SQL engine and the user's
     application.</para>
 
-    <para>The full range of supported syntax allows arrary to be created, used
+    <para>The full range of supported syntax allows array to be created, used
     in SELECT or other statements, combined with rows of tables and used in
     routine calls.</para>
 
@@ -1278,10 +1278,13 @@ CURRENT_DATE - 2 DAY /* the date of the day before yesterday */
       <para>In the example below, the table contains a column of integer
       arrays and a column of varchar arrays. The VARCHAR array has an explicit
       maximum size of 10, which means each array can have between 0 and 10
-      elements. The INTEGER array has the default maximum size of 1024.</para>
+      elements. The INTEGER array has the default maximum size of 1024. The id
+      column has a default clause with an empty array. The default clause can
+      be defined only as DEFAULT NULL or DEFAULT ARRAY[] and does not allow
+      arrays containing elements.</para>
 
       <informalexample>
-        <programlisting>CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY, names VARCHAR(20) ARRAY[10])</programlisting>
+        <programlisting>CREATE TABLE t (id INT PRIMARY KEY, scores INT ARRAY DEFAULT ARRAY[], names VARCHAR(20) ARRAY[10])</programlisting>
       </informalexample>
 
       <para>An array can be constructed from value expressions or a query
@@ -1322,7 +1325,7 @@ ARRAY (SELECT lastname FROM namestable ORDER BY id)
       result in gaps containing NULL elements. Array length cannot exceed the
       maximum cardinality.</para>
 
-      <para>Elements of all arrays, including thoses that are the result of
+      <para>Elements of all arrays, including those that are the result of
       function calls or other operations can be referenced for reading.</para>
 
       <para><literal>&lt;array element reference&gt; ::= &lt;array value
@@ -1472,7 +1475,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     <para>Queries always return results whether indexes exist or not, but they
     return much faster when an index exists. As a rule of thumb, HSQLDB is
     capable of internal processing of queries at over 100,000 rows per second.
-    Any query that runs into several seconds is clearly accessing thousads of
+    Any query that runs into several seconds is clearly accessing thousands of
     rows. The query should be checked and indexes should be added to the
     relevant columns of the tables if necessary. The EXPLAIN PLAN
     &lt;query&gt; statement can be used to see which indexes are used to
@@ -1611,7 +1614,7 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 
     <para>If there is an equality or range condition (e.g. EQUALS, GREATER
     THAN) condition on the columns specified in the ORDER BY clause, the index
-    is still used. But if the query contains an eqaulity condition on another
+    is still used. But if the query contains an equality condition on another
     indexed column in the table, this may take precedence and no index may be
     used for ORDER BY.</para>
 

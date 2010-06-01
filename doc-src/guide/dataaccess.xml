@@ -193,7 +193,7 @@ SELECT X FROM V WHERE Y = 5
       at a time. The <methodname>deleteRow()</methodname> is called when the
       <classname>ResultSet</classname> is positioned on a row.</para>
 
-      <para>While using an updatabale ResultSet to modify data, it is
+      <para>While using an updatable ResultSet to modify data, it is
       recommended not to change the same data using another ResultSet and not
       to execute SQL data change statements that modify the same data.</para>
     </section>
@@ -259,7 +259,7 @@ SELECT X FROM V WHERE Y = 5
       <para>The JDBC settings, ResultSet.TYPE_FORWARD_ONLY,
       ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.TYPE_SCROLL_SENSITIVE are
       the alternatives for both scrollability (navigation) and sensitivity.
-      HYperSQL does not support ResultSet.TYPE_SCROLL_SENSITIVE. The two other
+      HyperSQL does not support ResultSet.TYPE_SCROLL_SENSITIVE. The two other
       alternatives can be used for both updatable and read-only result
       sets.</para>
 
@@ -268,7 +268,7 @@ SELECT X FROM V WHERE Y = 5
       of the result set. The default is ResultSet.CLOSE_CURSORS_AT_COMMIT. The
       other setting can only be used for read-only result sets.</para>
 
-      <para>Examples of creating statements for updatabase result sets are
+      <para>Examples of creating statements for updatable result sets are
       given below:</para>
 
       <programlisting>Connection c = newConnection();
@@ -318,7 +318,7 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
       parameters. You can even use CLOB or BLOB objects returned from
       connections to other RDBMS servers. The Connection.createBlob() and
       createClob() methods can be used to create the new LOBs. For very large
-      LOB's the stream methods are preferable as they they less memory.</para>
+      LOB's the stream methods are preferable as they use less memory.</para>
 
       <para>For array parameters, you must use a java.sql.Array object that
       contains the array elements before assigning to JDBC parameters. The
@@ -335,9 +335,9 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
       specification.</para>
 
       <para>When a CLOB and BLOB object is returned from a ResultSet, no data
-      is transfered until the data is read by various methods of java.sql.CLOB
-      and java.sql.BLOB. Data is streamed in large blocks to avoid excessive
-      memory use.</para>
+      is transferred until the data is read by various methods of
+      java.sql.CLOB and java.sql.BLOB. Data is streamed in large blocks to
+      avoid excessive memory use.</para>
 
       <para>Array objects are returned as instances of java.sql.Array.</para>
     </section>
@@ -470,7 +470,7 @@ U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
 
       <simpara>The type of a binary literal is BINARY. The octect length of
       the binary literal is the length of the type. Case-insensitive
-      hexadecimal charaters are used in the binary string. Each pair of
+      hexadecimal characters are used in the binary string. Each pair of
       characters in the literal represents a byte in the binary string. Long
       literals can be divided into multiple quoted strings, separated with a
       space or end-of-line character.</simpara>
@@ -493,7 +493,7 @@ U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
 
       <simpara>The type of a binary literal is BIT. The bit length of the bit
       literal is the length of the type. Digits 0 and 1 are used to represent
-      the bits. Long literals can be devided into multiple quoted strings,
+      the bits. Long literals can be divided into multiple quoted strings,
       separated with a space or end-of-line character.</simpara>
 
       <programlisting>B'10001001' '00010'</programlisting>
@@ -538,7 +538,7 @@ U&amp;'Unicode string with Greek delta \0394 and phi \03a6 letters'
       INTEGER, BIGINT, or DECIMAL, depending on the value of the literal (the
       smallest type that can represent the value is the type).</simpara>
 
-      <simpara>The type of an exact numeric literal with a decimal piont is
+      <simpara>The type of an exact numeric literal with a decimal point is
       DECIMAL. The precision of a decimal literal is the total number of
       digits of the literal. The scale of the literal is the total number of
       digits to the right of the decimal point.</simpara>
@@ -689,7 +689,7 @@ INTERVAL -'08:08' MINUTE TO SECOND
       <title>References, etc.</title>
 
       <para>References are identifier chains, which can be a single
-      identifiers or identifiers chains composed of sinle identifiers chained
+      identifiers or identifiers chains composed of single identifiers chained
       together with the period symbol.</para>
 
       <indexterm significance="preferred" type="sql">
@@ -708,7 +708,7 @@ INTERVAL -'08:08' MINUTE TO SECOND
 
       <simpara>A period-separated chain of identifiers. The identifiers in an
       identifier chain can refer to database objects in a hierarchy. The
-      possible hierarchies ars as follows. In each hierarchy, elements from
+      possible hierarchies are as follows. In each hierarchy, elements from
       the start or the end can be missing, but the order of elements cannot be
       changed.</simpara>
 
@@ -778,7 +778,7 @@ ALTER SEQUENCE MYCAT.MYSCHEMA.MYSEQUENCE RESTART WITH 100
       default value, or to table columns that are generated either as an
       IDENTITY value or as an expression. NULL can be used only in a context
       where the type of the value is known. For example, a NULL can be
-      assigned to a a column of the table in an INSERT or UPDATE statement,
+      assigned to a column of the table in an INSERT or UPDATE statement,
       because the type of the column is known. But if NULL is used in a SELECT
       list, it must be used in a CAST statement.</simpara>
     </section>
@@ -1290,7 +1290,7 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       paren&gt;</literal></simpara>
 
       <simpara>Specify a function that returns the absolute value of an
-      interval. If the interval is neagive, it is negated, otherwise the
+      interval. If the interval is negative, it is negated, otherwise the
       original value is returned.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -1776,7 +1776,7 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       elements are NOT equal, then the result of the expression is TRUE. If no
       comparison result is TRUE, then the result of the predicate is FALSE.
       The expression <literal>X IS NOT DISTINCT FROM Y</literal> is equivalent
-      to <literal>NOT (X IS DISTINCT FORM Y)</literal>. The follwing check
+      to <literal>NOT (X IS DISTINCT FORM Y)</literal>. The following check
       returns true if startdate is not equal to enddate. It also returns true
       if either startdate or enddate is NULL. It returns false in other
       cases.</simpara>
@@ -1910,7 +1910,7 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       WHERE &lt;search condition&gt; &lt;right paren&gt;</literal></simpara>
 
       <simpara>Specify a value computed from a collection of rows. An
-      aggretate function is used exclusively in a <literal>&lt;query
+      aggregate function is used exclusively in a <literal>&lt;query
       specification&gt;</literal> and its use transforms a normal query into
       an aggregate query returning a single row instead of the group of
       multiple rows that the original query returns. For example,
@@ -1970,7 +1970,7 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       LAST]</literal></simpara>
 
       <simpara>Specify a sort order. A sort operation is performed on the
-      result of a <literal>&lt;query expresssion&gt;</literal> or
+      result of a <literal>&lt;query expression&gt;</literal> or
       <literal>&lt;query specification&gt;</literal> and sorts the result
       according to one or more <literal>&lt;value expression&gt;</literal>.
       The <literal>&lt;value expression&gt;</literal> is usually a single
@@ -2335,7 +2335,7 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       by all the columns of the second table, in the original order. Each row
       of the first table is combined with each row of the second table to fill
       the rows of the new table. If the rows of each table form a set, then
-      the rows of the CROSS JOIN table form the cartesian product of the rows
+      the rows of the CROSS JOIN table form the Cartesian product of the rows
       of the two table operands.</para>
 
       <para>The CROSS JOIN can be expressed in two forms. The first form is
@@ -2829,10 +2829,10 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
       IDENTITY</literal> is specified, then the sequence is reset to its start
       value.</simpara>
 
-      <simpara>TRUNCATE is faster than ordinary DELETE. The TRUNCTATE
-      statement is an SQL Standard data change statement, therefore it is
-      performed under transaction control and can be rolled back if the
-      connection is not in the auto-commit mode.</simpara>
+      <simpara>TRUNCATE is faster than ordinary DELETE. The TRUNCATE statement
+      is an SQL Standard data change statement, therefore it is performed
+      under transaction control and can be rolled back if the connection is
+      not in the auto-commit mode.</simpara>
     </section>
 
     <section>
@@ -2899,7 +2899,7 @@ DELETE FROM T AS TT WHERE TT.A = (SELECT MAX(A) FROM T)
 
       <simpara>The <literal>&lt;override clause&gt;</literal> must be used
       when a value is explicitly assigned to a column that has been defined as
-      GENERATED ALWAYS AS IDENTITY. The clause, ORVERRIDE SYSTEM VALUE means
+      GENERATED ALWAYS AS IDENTITY. The clause, OVERRIDE SYSTEM VALUE means
       the provided values are used for the insert, while OVERRIDING USER VALUE
       means the provided values are simply ignored and the values generated by
       the system are used instead.</simpara>

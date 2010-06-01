@@ -47,7 +47,7 @@
     <para>Apart from schemas and their object, each HyperSQL catalog has USER
     and ROLE objects. These objects are collectively called
     <emphasis>authorizations</emphasis>. Each AUTHORIZATION has some access
-    rights on some of the schemas or the objects they contain.The persistent
+    rights on some of the schemas or the objects they contain. The persistent
     elements of an SQL environment are database objects</para>
 
     <para>Each database object has a name. A name is an identifier and is

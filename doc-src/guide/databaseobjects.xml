@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter version="5.0" xmlns="http://docbook.org/ns/docbook"
-         xml:id="databaseobjects-chapt"
+<chapter version="5.0" xml:id="databaseobjects-chapt"
+         xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns5="http://www.w3.org/2000/svg"
@@ -312,7 +312,7 @@
       keyword for the IDENTITY column, which results in an auto-generated
       value for the column. The <literal>IDENTITY() </literal>function returns
       the last value inserted into any IDENTITY column by this session. Each
-      session manages this function call separetly and is not affected by
+      session manages this function call separately and is not affected by
       inserts in other sessions. Use <literal>CALL IDENTITY() </literal>as an
       SQL statement to retrieve this value. If you want to use the value for a
       field in a child table, you can use <literal>INSERT INTO
@@ -320,7 +320,7 @@
       call to<literal> IDENTITY()</literal> must be made before any additional
       update or insert statements are issued by the session.</para>
 
-      <para>The last inserted IDENTITY value can also be retreived via JDBC,
+      <para>The last inserted IDENTITY value can also be retrieved via JDBC,
       by specifying the Statement or PreparedStatement object to return the
       generated value.</para>
 
@@ -409,7 +409,9 @@ INSERT INTO movies (starid, movieid, title) VALUES (IDENTITY(), 10, 'Felix in Ho
       <glossterm>updatable</glossterm> views are
       <glossterm>insertable-into</glossterm>. When rows of an updatable view
       are updated, or new rows are inserted, these changes are reflected in
-      the base table. More.. on updatability.</simpara>
+      the base table. A VIEW definition may specify that the inserted or
+      updated rows conform to the search condition of the view. This is done
+      with the CHECK OPTION clause.</simpara>
 
       <simpara>Views share a name-space with tables.</simpara>
     </section>
@@ -1178,15 +1180,15 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       is deleted or modified with any SQL statement. The default is NO ACTION.
       This means the SQL statement that causes the DELETE or UPDATE is
       terminated with an exception. The RESTRICT option is similar and works
-      exactly the same without deferable constraints (which are not allowed by
-      HyperSQL). The other three options, CASCADE, SET NULL and SET DEFAULT
+      exactly the same without deferrable constraints (which are not allowed
+      by HyperSQL). The other three options, CASCADE, SET NULL and SET DEFAULT
       all allow the DELETE or UPDATE statement to complete. With DELETE
-      statements the CASCALE option results in the referencing rows to be
-      deleted. With UPDATE statments, the changes to the values of the
+      statements the CASCADE option results in the referencing rows to be
+      deleted. With UPDATE statements, the changes to the values of the
       referenced columns are copied to the referencing rows. With both DELETE
       or UPDATE statement, the SET NULL option results in the columns of the
       referencing rows to be set to NULL. Similarly, the SET DEFAULT option
-      results in the columns of the referending rows to be set to their
+      results in the columns of the referencing rows to be set to their
       default values.</simpara>
 
       <indexterm significance="preferred" type="sql">
@@ -1220,7 +1222,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 </programlisting>
       </informalexample>
 
-      <simpara>The seach condition of a CHECK constraint cannot contain any
+      <simpara>The search condition of a CHECK constraint cannot contain any
       function that is not deterministic. A check constraint is a data
       integrity constraint, therefore it must hold with respect to the rest of
       the data in the database. It cannot use values that are temporal or
@@ -1249,8 +1251,8 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;set table read only statement&gt; ::= SET TABLE
       &lt;table name&gt; { READ ONLY | READ WRITE }</literal></simpara>
 
-      <simpara>Set the writabality property of a table. Tables are writable by
-      default. This statement can be used to change the property between
+      <simpara>Set the writeability property of a table. Tables are writable
+      by default. This statement can be used to change the property between
       <literal>READ ONLY</literal> and <literal>READ WRITE</literal>. This is
       a feature of HyperSQL.</simpara>
 
@@ -1986,7 +1988,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       limited to INSERT, DELETE, UPDATE and MERGE statements.</simpara>
 
       <simpara>The <literal>&lt;HSQLDB trigger class FQN&gt;</literal> is a
-      delimited identifer that contains the fully qualified name of a Java
+      delimited identifier that contains the fully qualified name of a Java
       class that implements the <classname>org.hsqldb.Trigger</classname>
       interface.</simpara>
 
@@ -2665,7 +2667,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       TIME_STAMP</simpara>
 
       <simpara>All available collations are in the INFORMATION
-      SCHMA.</simpara>
+      SCHEMA.</simpara>
     </section>
 
     <section>

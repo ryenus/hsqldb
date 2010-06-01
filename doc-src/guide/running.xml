@@ -224,7 +224,7 @@
     command to run your application was issued, the following code is used for
     the connection:</para>
 
-    <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:testdb", "SA", "");</programlisting>
+    <programlisting>  Connection c = DriverManager.getConnection("jdbc:hsqldb:file:testdb", "SA", "");</programlisting>
 
     <para>The database file path format can be specified using forward slashes
     in Windows hosts as well as Linux hosts. So relative paths or paths that
@@ -234,7 +234,7 @@
     structure on the <literal>C:</literal> drive of a Windows host, you can
     use the same URL in both Windows and Linux:</para>
 
-    <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb", "SA", "");</programlisting>
+    <programlisting>  Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb", "SA", "");</programlisting>
 
     <para>When using relative paths, these paths will be taken relative to the
     directory in which the shell command to start the Java Virtual Machine was
@@ -255,7 +255,7 @@
     databases can exist at the same time and distinguished by their names. In
     the example below, the database is called "mymemdb":</para>
 
-    <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:mymemdb", "SA", "");</programlisting>
+    <programlisting>  Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:mymemdb", "SA", "");</programlisting>
 
     <para>A <glossterm>res:</glossterm> database, is specified by the
     <glossterm>res:</glossterm> protocol. As it is a Java resource, the
@@ -267,7 +267,7 @@
     database should not contain large amounts of data and is always
     read-only.</para>
 
-    <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:res:org.my.path.resdb", "SA", "");</programlisting>
+    <programlisting>  Connection c = DriverManager.getConnection("jdbc:hsqldb:res:org.my.path.resdb", "SA", "");</programlisting>
 
     <para>The first time <glossterm>in-process</glossterm> connection is made
     to a database, some general data structures are initialised and a few
@@ -314,7 +314,9 @@
 
     <para>There are three server modes, based on the protocol used for
     communications between the client and server. They are briefly discussed
-    below. More details on servers is provided in a separate chapter.</para>
+    below. More details on servers is provided in the <link
+    endterm="listeners-title" xlink:arcrole=""
+    xlink:href="#listeners-chapt"></link> chapter.</para>
 
     <section xml:id="running_hsqlserver-sect">
       <title>HyperSQL HSQL Server</title>
@@ -328,7 +330,7 @@
       public name hides the file names from users.</para>
 
       <informalexample>
-        <screen>    java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
+        <screen>  java -cp ../lib/hsqldb.jar org.hsqldb.server.Server --database.0 file:mydb --dbname.0 xdb</screen>
       </informalexample>
 
       <para>The command line argument <literal>--help</literal> can be used to
@@ -350,7 +352,7 @@
       the example command line above with the following:</para>
 
       <informalexample>
-        <screen>    org.hsqldb.server.WebServer</screen>
+        <screen>  org.hsqldb.server.WebServer</screen>
       </informalexample>
 
       <para>The command line argument <literal>--help</literal> can be used to
@@ -396,15 +398,15 @@
       <example>
         <title>Java code to connect to the local hsql Server</title>
 
-        <programlisting>    try {
-        Class.forName("org.hsqldb.jdbc.JDBCDriver" );
-    } catch (Exception e) {
-        System.err.println("ERROR: failed to load HSQLDB JDBC driver.");
-        e.printStackTrace();
-        return;
-    }
+        <programlisting>  try {
+      Class.forName("org.hsqldb.jdbc.JDBCDriver" );
+  } catch (Exception e) {
+      System.err.println("ERROR: failed to load HSQLDB JDBC driver.");
+      e.printStackTrace();
+      return;
+  }
 
-    Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");</programlisting>
+  Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "SA", "");</programlisting>
       </example>
 
       <para>If the HyperSQL HTTP server is used, the protocol is
@@ -413,7 +415,7 @@
       <example>
         <title>Java code to connect to the local http Server</title>
 
-        <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:http://localhost/xdb", "SA", "");</programlisting>
+        <programlisting>  Connection c = DriverManager.getConnection("jdbc:hsqldb:http://localhost/xdb", "SA", "");</programlisting>
       </example>
 
       <para>Note in the above connection URL, there is no mention of the
@@ -454,8 +456,8 @@
           <title>Java code to connect to the local secure SSL hsql and http
           Servers</title>
 
-          <programlisting>    Connection c = DriverManager.getConnection("jdbc:hsqldb:hsqls://localhost/xdb", "SA", "");
-    Connection c = DriverManager.getConnection("jdbc:hsqldb:https://localhost/xdb", "SA", "");
+          <programlisting>  Connection c = DriverManager.getConnection("jdbc:hsqldb:hsqls://localhost/xdb", "SA", "");
+  Connection c = DriverManager.getConnection("jdbc:hsqldb:https://localhost/xdb", "SA", "");
 </programlisting>
         </example>The security features are discussed in detail in the <link
       endterm="listeners-title" xlink:href="#listeners-chapt">listeners</link>
@@ -581,8 +583,8 @@
         <title>specifying a connection property to shutdown the database when
         the last connection is closed</title>
 
-        <programlisting>    Connection c = DriverManager.getConnection(
-            "jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
+        <programlisting>  Connection c = DriverManager.getConnection(
+          "jdbc:hsqldb:file:/opt/db/testdb;shutdown=true", "SA", "");</programlisting>
       </example>This feature is useful for running tests, where it may not be
     practical to shutdown the database after each test. But it is not
     recommended for application programs.</para>
@@ -615,13 +617,16 @@
         <title>specifying a connection property to disallow creating a new
         database</title>
 
-        <programlisting>    Connection c = DriverManager.getConnection(
-            "jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
+        <programlisting>  Connection c = DriverManager.getConnection(
+          "jdbc:hsqldb:file:/opt/db/testdb;ifexists=true", "SA", "");</programlisting>
       </example></para>
 
-    <para>A database has many optional properties, described in the Deplyment
-    chapter. You can specifiy most of these properties on the URL or in the
-    connection properties for the first connection that creates the database.
-    See the Database Properties chapter.</para>
+    <para>A database has many optional properties, described in the <link
+    endterm="deployment-title" xlink:arcrole=""
+    xlink:href="#deployment-chapt"></link> chapter. You can specify most of
+    these properties on the URL or in the connection properties for the first
+    connection that creates the database. See the <link
+    endterm="dbproperties-title" xlink:arcrole=""
+    xlink:href="#deployment-chapt"></link> chapter.</para>
   </section>
 </chapter>

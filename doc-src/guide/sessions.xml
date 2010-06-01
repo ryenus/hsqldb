@@ -109,7 +109,7 @@
       statement.</para>
 
       <para>The named attributes such as CURRENT_USER, CURRENT_SCHEMA, etc.
-      are SQL Standard functions.Other attributes of the session, such as
+      are SQL Standard functions. Other attributes of the session, such as
       auto-commit or read-only modes can be read using other built-in
       functions. All these functions are listed in the <link
       endterm="builtinfunctions-title"
@@ -216,10 +216,10 @@
     user with the DBA role.</para>
 
     <section>
-      <title>Two Phased Locking</title>
+      <title>Two Phase Locking</title>
 
-      <para>The two-phased locking model is the default mode. It is referred
-      to by the keyword, LOCKS. In the 2PL model, each table that is read by a
+      <para>The two-phase locking model is the default mode. It is referred to
+      by the keyword, LOCKS. In the 2PL model, each table that is read by a
       transaction is locked with a shared lock, and each table that is written
       to is locked with an exclusive lock. If two sessions read and modify
       different tables then both go through simultaneously. If one session
@@ -253,10 +253,15 @@
       <para>It is possible to perform some critical operations at the
       SERIALIZABLE level, while the rest of the operations are performed at
       the READ COMMITTED level.</para>
+
+      <para>Note: two phase locking refers to two periods in the life of a
+      transaction. In the first period, locks are acquired, in the second
+      period locks are released. No new lock is acquired after releasing a
+      lock.</para>
     </section>
 
     <section>
-      <title>Two Phased Locking with Snapshot Isolation</title>
+      <title>Two Phase Locking with Snapshot Isolation</title>
 
       <para>This model is referred to as MVLOCKS. It works the same way as
       normal 2PL as far as updates are concerned.</para>
