@@ -83,6 +83,7 @@ public class QuerySpecification extends QueryExpression {
     Expression            queryCondition;
     Expression            checkQueryCondition;
     private Expression    havingCondition;
+    Expression            rowExpression;
     Expression[]          exprColumns;
     private HsqlArrayList exprColumnList;
     public int            indexLimitVisible;
@@ -597,6 +598,8 @@ public class QuerySpecification extends QueryExpression {
                     (Expression) sortAndSlice.exprList.get(i);
             }
         }
+
+        rowExpression = new Expression(OpTypes.ROW, exprColumns);
     }
 
     private void replaceColumnIndexInOrderBy(Expression orderBy) {
@@ -654,12 +657,12 @@ public class QuerySpecification extends QueryExpression {
     /**
      * Sets the types of all the expressions used in this SELECT list.
      */
-    public void resolveExpressionTypes(Session session) {
+    public void resolveExpressionTypes(Session session, Expression parent) {
 
         for (int i = 0; i < indexStartAggregates; i++) {
             Expression e = exprColumns[i];
 
-            e.resolveTypes(session, null);
+            e.resolveTypes(session, parent);
 
             if (e.getType() == OpTypes.ROW) {
                 throw Error.error(ErrorCode.X_42564);
@@ -758,7 +761,7 @@ public class QuerySpecification extends QueryExpression {
 
     void resolveTypesPartOne(Session session) {
 
-        resolveExpressionTypes(session);
+        resolveExpressionTypes(session, rowExpression);
         resolveAggregates();
 
         for (int i = 0; i < unionColumnTypes.length; i++) {

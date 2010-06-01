@@ -886,7 +886,7 @@ public class Session implements SessionInterface {
                 return performLOBOperation((ResultLob) cmd);
             }
             case ResultConstants.EXECUTE : {
-                int maxRows = cmd.updateCount;
+                int maxRows = cmd.getUpdateCount();
 
                 if (maxRows == -1) {
                     sessionContext.currentMaxRows = 0;
@@ -1086,7 +1086,7 @@ public class Session implements SessionInterface {
         if (sqlWarnings != null && sqlWarnings.size() > 0) {
             if (result.mode == ResultConstants.UPDATECOUNT) {
                 result = new Result(ResultConstants.UPDATECOUNT,
-                                    result.updateCount);
+                                    result.getUpdateCount());
             }
 
             HsqlException[] warnings = getAndClearWarnings();

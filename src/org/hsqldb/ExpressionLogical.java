@@ -691,10 +691,12 @@ public class ExpressionLogical extends Expression {
         }
 
         if (nodes[LEFT].opType == OpTypes.ROW
-                || nodes[RIGHT].opType == OpTypes.ROW
-                || Type.SQL_BOOLEAN != nodes[LEFT].dataType
+                || nodes[RIGHT].opType == OpTypes.ROW) {
+            throw Error.error(ErrorCode.X_42565);
+        }
+        if( Type.SQL_BOOLEAN != nodes[LEFT].dataType
                 || Type.SQL_BOOLEAN != nodes[RIGHT].dataType) {
-            throw Error.error(ErrorCode.X_42564);
+            throw Error.error(ErrorCode.X_42568);
         }
     }
 

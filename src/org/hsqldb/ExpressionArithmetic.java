@@ -285,7 +285,7 @@ public class ExpressionArithmetic extends Expression {
                                                     .isCharacterType())) {
                     opType = OpTypes.CONCAT;
 
-                    resolveTypesForConcat(session);
+                    resolveTypesForConcat(session, parent);
 
                     break;
                 }
@@ -298,7 +298,7 @@ public class ExpressionArithmetic extends Expression {
                 break;
 
             case OpTypes.CONCAT :
-                resolveTypesForConcat(session);
+                resolveTypesForConcat(session, parent);
                 break;
 
             default :
@@ -357,7 +357,7 @@ public class ExpressionArithmetic extends Expression {
         }
     }
 
-    void resolveTypesForConcat(Session session) {
+    void resolveTypesForConcat(Session session, Expression parent) {
 
         if (dataType != null) {
             return;
@@ -378,8 +378,25 @@ public class ExpressionArithmetic extends Expression {
             throw Error.error(ErrorCode.X_42563);
         }
 
+        if (nodes[LEFT].dataType.isArrayType() ) {
+            Expression e = nodes[RIGHT];
+
+            if (e.opType == OpTypes.ARRAY_ACCESS) {
+
+                if (parent == null) {
+                    throw Error.error(ErrorCode.X_42563);
+                }
+
+                nodes[RIGHT] = e.getLeftNode();
+
+                e.nodes[LEFT] = this;
+                parent.replaceNode(this, e);
+            }
+        }
+
         if (nodes[LEFT].dataType.isArrayType()
                 ^ nodes[RIGHT].dataType.isArrayType()) {
+
             throw Error.error(ErrorCode.X_42563);
         }
 

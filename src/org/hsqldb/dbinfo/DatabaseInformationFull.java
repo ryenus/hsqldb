@@ -1912,17 +1912,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "SCOPE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "SCOPE_NAME", SQL_IDENTIFIER);              //30
-            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);    // NULL (only for array tyes)
+            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);    // (only for array tyes)
             addColumn(t, "DTD_IDENTIFIER", SQL_IDENTIFIER);
             addColumn(t, "IS_SELF_REFERENCING", YES_OR_NO);
             addColumn(t, "IS_IDENTITY", YES_OR_NO);
-            addColumn(t, "IDENTITY_GENERATION", CHARACTER_DATA);     // ALLWAYS / BY DEFAULT
+            addColumn(t, "IDENTITY_GENERATION", CHARACTER_DATA);     // ALWAYS / BY DEFAULT
             addColumn(t, "IDENTITY_START", CHARACTER_DATA);
             addColumn(t, "IDENTITY_INCREMENT", CHARACTER_DATA);
             addColumn(t, "IDENTITY_MAXIMUM", CHARACTER_DATA);
             addColumn(t, "IDENTITY_MINIMUM", CHARACTER_DATA);
             addColumn(t, "IDENTITY_CYCLE", YES_OR_NO);               //40
-            addColumn(t, "IS_GENERATED", CHARACTER_DATA);            // ALLWAYS / NEVER
+            addColumn(t, "IS_GENERATED", CHARACTER_DATA);            // ALWAYS / NEVER
             addColumn(t, "GENERATION_EXPRESSION", CHARACTER_DATA);
             addColumn(t, "IS_UPDATABLE", YES_OR_NO);
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
@@ -2069,8 +2069,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
                     row[numeric_precision_radix] =
                         ValuePool.getLong(type.getPrecisionRadix());
-                } else if (type.isBooleanType()) {}
-                else if (type.isDateTimeType()) {
+                } else if (type.isBooleanType()) {
+
+                    //
+                } else if (type.isDateTimeType()) {
                     row[datetime_precision] = ValuePool.getLong(type.scale);
                 } else if (type.isIntervalType()) {
                     row[data_type] = "INTERVAL";
@@ -2089,6 +2091,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         ValuePool.getLong(type.precision);
                     row[character_octet_length] =
                         ValuePool.getLong(type.precision);
+                } else if (type.isArrayType()) {
+                    row[maximum_cardinality] =
+                        ValuePool.getLong(type.arrayLimitCardinality());
                 }
 
                 if (type.isDomainType()) {
@@ -2106,7 +2111,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[scope_catalog]       = null;
                 row[scope_schema]        = null;
                 row[scope_name]          = null;
-                row[maximum_cardinality] = null;
                 row[dtd_identifier]      = null;
                 row[is_self_referencing] = null;
                 row[is_identity]         = column.isIdentity() ? "YES"
@@ -2527,7 +2531,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "SCOPE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "SCOPE_NAME", SQL_IDENTIFIER);
-            addColumn(t, "MAXIMUM_CARDINALITY", SQL_IDENTIFIER);
+            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);
             t.createPrimaryKeyConstraint(null, new int[] {
                 0, 1, 2, 4, 5, 6
             }, false);
@@ -2687,7 +2691,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "INTERVAL_TYPE", CHARACTER_DATA);
             addColumn(t, "INTERVAL_PRECISION", CARDINAL_NUMBER);
             addColumn(t, "DOMAIN_DEFAULT", CHARACTER_DATA);
-            addColumn(t, "MAXIMUM_CARDINALITY", SQL_IDENTIFIER);
+            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);
             addColumn(t, "DTD_IDENTIFIER", SQL_IDENTIFIER);
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
             addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
@@ -2783,8 +2787,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
                 row[numeric_precision_radix] =
                     ValuePool.getLong(type.getPrecisionRadix());
-            } else if (type.isBooleanType()) {}
-            else if (type.isDateTimeType()) {
+            } else if (type.isBooleanType()) {
+                //
+            } else if (type.isDateTimeType()) {
                 row[datetime_precision] = ValuePool.getLong(type.scale);
             } else if (type.isIntervalType()) {
                 row[data_type] = "INTERVAL";
@@ -2802,6 +2807,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     ValuePool.getLong(type.precision);
                 row[character_octet_length] =
                     ValuePool.getLong(type.precision);
+            } else if (type.isArrayType()) {
+                row[maximum_cardinality] =
+                    ValuePool.getLong(type.arrayLimitCardinality());
             }
 
             // end common block
@@ -3173,7 +3181,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "SCOPE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "SCOPE_NAME", SQL_IDENTIFIER);
-            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);    // NULL
+            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);
             addColumn(t, "DTD_IDENTIFIER", SQL_IDENTIFIER);
             addColumn(t, "DECLARED_DATA_TYPE", CHARACTER_DATA);
             addColumn(t, "DECLARED_NUMERIC_PRECISION", CARDINAL_NUMBER);
@@ -3312,8 +3320,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                             ((NumberType) type).getNumericPrecisionInRadix());
                         row[numeric_precision_radix] =
                             ValuePool.getLong(type.getPrecisionRadix());
-                    } else if (type.isBooleanType()) {}
-                    else if (type.isDateTimeType()) {
+                    } else if (type.isBooleanType()) {
+                        //
+                    } else if (type.isDateTimeType()) {
                         row[datetime_precision] =
                             ValuePool.getLong(type.scale);
                     } else if (type.isIntervalType()) {
@@ -3334,6 +3343,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                             ValuePool.getLong(type.precision);
                         row[character_octet_length] =
                             ValuePool.getLong(type.precision);
+                    } else if (type.isArrayType()) {
+                        row[maximum_cardinality] =
+                            ValuePool.getLong(type.arrayLimitCardinality());
                     }
 
                     if (type.isDistinctType()) {
@@ -4277,7 +4289,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             addColumn(t, "SCOPE_CATALOG", SQL_IDENTIFIER);
             addColumn(t, "SCOPE_SCHEMA", SQL_IDENTIFIER);
             addColumn(t, "SCOPE_NAME", SQL_IDENTIFIER);                //
-            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);      // NULL (only for array tyes)
+            addColumn(t, "MAXIMUM_CARDINALITY", CARDINAL_NUMBER);      // (only for array tyes)
             addColumn(t, "DTD_IDENTIFIER", SQL_IDENTIFIER);
             addColumn(t, "ROUTINE_BODY", CHARACTER_DATA);
             addColumn(t, "ROUTINE_DEFINITION", CHARACTER_DATA);
@@ -4515,8 +4527,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
                         row[numeric_precision_radix] =
                             ValuePool.getLong(type.getPrecisionRadix());
-                    } else if (type.isBooleanType()) {}
-                    else if (type.isDateTimeType()) {
+                    } else if (type.isBooleanType()) {
+                        //
+                    } else if (type.isDateTimeType()) {
                         row[datetime_precision] =
                             ValuePool.getLong(type.scale);
                     } else if (type.isIntervalType()) {
@@ -4537,6 +4550,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                             ValuePool.getLong(type.precision);
                         row[character_octet_length] =
                             ValuePool.getLong(type.precision);
+                    } else if (type.isArrayType()) {
+                        row[maximum_cardinality] =
+                            ValuePool.getLong(type.arrayLimitCardinality());
                     }
 
                     // end common block
@@ -4548,7 +4564,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[scope_catalog]       = null;
                 row[scope_schema]        = null;
                 row[scope_name]          = null;
-                row[maximum_cardinality] = null;
                 row[dtd_identifier]      = null;    //**
                 row[routine_body] = specific.getLanguage()
                                     == Routine.LANGUAGE_JAVA ? "EXTERNAL"

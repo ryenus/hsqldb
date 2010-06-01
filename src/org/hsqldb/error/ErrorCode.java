@@ -555,7 +555,7 @@ public interface ErrorCode {
     int X_42562 = 5562;                            // incompatible data types in combination
     int X_42563 = 5563;                            // incompatible data type in operation
     int X_42564 = 5564;                            // row column count mismatch
-    int X_42565 = 5565;                            //
+    int X_42565 = 5565;                            // row expression not allowed
     int X_42566 = 5566;                            // interval qualifier missing
     int X_42567 = 5567;                            // data type cast needed for parameter or null literal
     int X_42568 = 5568;                            // data type of expression is not boolean

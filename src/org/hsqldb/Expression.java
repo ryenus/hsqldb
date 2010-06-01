@@ -1888,8 +1888,8 @@ public class Expression implements Cloneable {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == existing) {
+                replacement.alias = nodes[i].alias;
                 nodes[i] = replacement;
-
                 return;
             }
         }
