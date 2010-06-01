@@ -1,2 +1,2 @@
 call setenv.cmd
-ant clean hsqldb
+ant clean hsqldb hsqldbtest
