@@ -141,6 +141,10 @@ public class ParserRoutine extends ParserDML {
         } else if (dataType.isArrayType()) {
             e = readCollection(OpTypes.ARRAY);
 
+            if (e.nodes.length > 0) {
+                throw Error.error(ErrorCode.X_42562);
+            }
+
             resolveOuterReferencesAndTypes(RangeVariable.emptyArray, e);
 
             return e;

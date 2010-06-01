@@ -1875,6 +1875,10 @@ public class ParserDQL extends ParserBase {
 
             default :
                 e = XreadSimpleValueExpressionPrimary();
+
+                if (e != null) {
+                    e = XreadArrayElementReference(e);
+                }
         }
 
         if (e == null && token.tokenType == Tokens.OPENBRACKET) {
@@ -1902,6 +1906,8 @@ public class ParserDQL extends ParserBase {
         e = XreadSimpleValueExpressionPrimary();
 
         if (e != null) {
+            e = XreadArrayElementReference(e);
+
             return e;
         }
 
@@ -2215,16 +2221,6 @@ public class ParserDQL extends ParserBase {
 
         if (e == null) {
             return null;
-        }
-
-        if (token.tokenType == Tokens.LEFTBRACKET) {
-            read();
-
-            Expression e1 = XreadNumericValueExpression();
-
-            readThis(Tokens.RIGHTBRACKET);
-
-            e = new ExpressionAccessor(e, e1);
         }
 
         return e;
@@ -2944,7 +2940,13 @@ public class ParserDQL extends ParserBase {
 
             return e;
         } else {
-            return XreadSimpleValueExpressionPrimary();
+            e = XreadSimpleValueExpressionPrimary();
+
+            if (e != null) {
+                e = XreadArrayElementReference(e);
+            }
+
+            return e;
         }
     }
 
@@ -3429,7 +3431,14 @@ public class ParserDQL extends ParserBase {
     }
 
     Expression XreadRowValueSpecialCase() {
-        return XreadSimpleValueExpressionPrimary();
+
+        Expression e = XreadSimpleValueExpressionPrimary();
+
+        if (e != null) {
+            e = XreadArrayElementReference(e);
+        }
+
+        return e;
     }
 
     // <row value constructor>
@@ -4055,6 +4064,21 @@ public class ParserDQL extends ParserBase {
         }
 
         return null;
+    }
+
+    Expression XreadArrayElementReference(Expression e) {
+
+        if (token.tokenType == Tokens.LEFTBRACKET) {
+            read();
+
+            Expression e1 = XreadNumericValueExpression();
+
+            readThis(Tokens.RIGHTBRACKET);
+
+            e = new ExpressionAccessor(e, e1);
+        }
+
+        return e;
     }
 
     Expression readRow() {

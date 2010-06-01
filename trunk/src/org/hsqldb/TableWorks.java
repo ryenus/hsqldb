@@ -71,6 +71,25 @@ public class TableWorks {
 
     void checkCreateForeignKey(Constraint c) {
 
+        boolean check =
+            c.core.updateAction == SchemaObject.ReferentialAction
+                .SET_DEFAULT || c.core.updateAction == SchemaObject
+                .ReferentialAction.SET_NULL || c.core
+                .updateAction == SchemaObject.ReferentialAction.CASCADE || c
+                .core.deleteAction == SchemaObject.ReferentialAction
+                .SET_DEFAULT || c.core.deleteAction == SchemaObject
+                .ReferentialAction.SET_NULL;
+
+        if (check) {
+            for (int i = 0; i < c.core.refCols.length; i++) {
+                ColumnSchema col = table.getColumn(c.core.refCols[i]);
+
+                if (col.isGenerated()) {
+                    throw Error.error(ErrorCode.X_42524, col.getNameString());
+                }
+            }
+        }
+
         if (c.core.mainName == table.getName()) {
             if (ArrayUtil.haveCommonElement(c.core.refCols, c.core.mainCols)) {
                 throw Error.error(ErrorCode.X_42527);
@@ -78,7 +97,7 @@ public class TableWorks {
         }
 
         // column defaults
-        boolean check =
+        check =
             c.core.updateAction == SchemaObject.ReferentialAction.SET_DEFAULT
             || c.core.deleteAction
                == SchemaObject.ReferentialAction.SET_DEFAULT;
