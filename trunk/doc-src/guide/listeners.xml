@@ -235,15 +235,14 @@
 
             <entry><literal>false</literal></entry>
 
-            <entry>Whether to encrypt network stream.
-              If this is set to <literal>true</literal>, then in normal
-              situations you will also need to set properties
-              <varname>system.javax.net.ssl.keyStore</varname> and
-              <varname>system.javax.net.ssl.keyStorePassword</varname>, as
-              documented elsewhere.
-              The value of <varname>server.tls</varname> impacts the default
-              value of <varname>server.port</varname>.
-            </entry>
+            <entry>Whether to encrypt network stream. If this is set to
+            <literal>true</literal>, then in normal situations you will also
+            need to set properties
+            <varname>system.javax.net.ssl.keyStore</varname> and
+            <varname>system.javax.net.ssl.keyStorePassword</varname>, as
+            documented elsewhere. The value of <varname>server.tls</varname>
+            impacts the default value of
+            <varname>server.port</varname>.</entry>
           </row>
 
           <row>
@@ -258,8 +257,8 @@
       </tgroup>
     </table>
 
-    <para>In HyperSQL version 2.0, each server can serve an unlimited number of
-    databases simultaneously. The <property>server.database.0</property>
+    <para>In HyperSQL version 2.0, each server can serve an unlimited number
+    of databases simultaneously. The <property>server.database.0</property>
     property defines the filename / path whereas the
     <property>server.dbname.0</property> defines the lowercase alias used by
     clients to connect to that database. The digit 0 is incremented for the
@@ -344,7 +343,8 @@
           <row>
             <entry><property>server.port</property></entry>
 
-            <entry><literal>80 (normal) or 443 (if TLS encrypted)</literal></entry>
+            <entry><literal>80 (normal) or 443 (if TLS
+            encrypted)</literal></entry>
 
             <entry>TCP/IP port used for talking to clients</entry>
           </row>
@@ -449,8 +449,8 @@
     Server works differently from the normal mode. In this mode, it is not
     necessary to have any databases listed as server.database.0 etc. in the
     Server startup properties. If there are databases listed, they are opened
-    as normal. The server does not shutdown when the last database is closed.
-    </para>
+    as normal. The server does not shutdown when the last database is
+    closed.</para>
 
     <para>In this mode, a connection can be established to a database that is
     not open or does not exist. The server will open the database or create
@@ -595,7 +595,7 @@
 
         <para>First, you need to obtain the cert (only the "public" part of
         it). Since this cert is passed to all clients, you could obtain it by
-        writing a java client that dumps it to file, or perhaps by using
+        writing a Java client that dumps it to file, or perhaps by using
         <emphasis>openssl s_client</emphasis>. Since in most cases, if you
         want to trust a non-commercial cert, you probably have access to the
         server keystore, I'll show an example of how to get what you need from
@@ -679,10 +679,9 @@
         private key JKS keystore, and
         <varname>system.javax.net.ssl.keyStorePassword</varname> to the
         password (of both the keystore and the private key record-- they must
-        be the same).
-        If you specify relative file path values, they will be resolved
-        relative to the <varname>${user.dir}</varname> when the JRE is started.
-        </simpara>
+        be the same). If you specify relative file path values, they will be
+        resolved relative to the <varname>${user.dir}</varname> when the JRE
+        is started.</simpara>
 
         <caution xml:id="tlspassword-caution">
           <para>If you set any password in a .properties (or any other) file,

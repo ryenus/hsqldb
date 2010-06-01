@@ -44,10 +44,10 @@
   HyperSQL 2.0 supports routines conforming to two parts of the SQL Standard.
   Routines written in the SQL language are supported in conformance to SQL/PSM
   (Persistent Stored Modules) specification. Routines written in Java are
-  supported in conformance to SQL/JRT specification. In addition, HyperSQL’s
-  previous non-standard support for calling Java routines without prior method
-  definition is retained and enhanced in the latest version by extending the
-  SQL/JRT specification.</para>
+  supported in (loose) conformance to SQL/JRT specification. In addition,
+  HyperSQL’s previous non-standard support for calling Java routines without
+  prior method definition is retained and enhanced in the latest version by
+  extending the SQL/JRT specification.</para>
 
   <para>HyperSQL also supports user defined aggregate functions written in the
   SQL language. This feature is an extension to the SQL Standard.</para>
@@ -781,6 +781,12 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       <para>Currently, a single result can be returned from FUNCTION routines,
       when the function is defined as RETURNS TABLE ( .. )</para>
 
+      <para>To return a table from a SELECT statement, you should use a return
+      statement such as RETURN TABLE( SELECT ...); in a SQL/PSM function. A
+      Java function should return a JDBCResultSet instance. For an example of
+      how to construct a JDBCResultSet for this purpose, see the source code
+      for the org.hsqldb.jdbc.JDBCArray class.</para>
+
       <para>The JDBC CallableStatement class is used with the SQL statement
       <literal>CALL &lt;routine name&gt; ( &lt;argument 1&gt;, ... )</literal>
       to call both functions and procedures. The <literal>getXXX()</literal>
@@ -926,7 +932,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
 
       <para>The tables and data for the select statement below is created with
       the DatabaseManager or DatabaseManagerSwing GUI apps. Part of the output
-      is shown. Each row of the ouput includes an array containing the values
+      is shown. Each row of the output includes an array containing the values
       for the invoices for each customer.</para>
 
       <programlisting>SELECT ID, FIRSTNAME, LASTNAME, ARRAY_AGGREGATE(CAST(INVOICE.TOTAL AS VARCHAR(100))) 
@@ -1129,7 +1135,7 @@ CREATE FUNCTION testquery(INTEGER)
       <title>Legacy Support</title>
 
       <para>The legacy HyperSQL statement, <literal>CREATE ALIAS &lt;name&gt;
-      FOR &lt;fully qualified java method name&gt;</literal> is no longer
+      FOR &lt;fully qualified Java method name&gt;</literal> is no longer
       supported directly. It is supported when importing databases and
       translates to a special <literal>CREATE FUNCTION &lt;name&gt;</literal>
       statement that creates the function in the PUBLIC schema.</para>
@@ -1315,7 +1321,7 @@ CREATE FUNCTION testquery(INTEGER)
     associated with this routine. Early releases of HyperSQL 2.0 only supports
     Java methods within the classpath. The <literal>&lt;external Java
     reference string&gt;</literal> is a quoted string which starts with
-    CLASSPATH: and is followed by the java package, class and method names
+    CLASSPATH: and is followed by the Java package, class and method names
     separated with dots.</para>
 
     <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL NAME
@@ -1368,7 +1374,7 @@ CREATE FUNCTION testquery(INTEGER)
 
     <simpara><emphasis>specific name</emphasis></simpara>
 
-    <para>The SPECIFIC <literal>&lt;specific name&gt;</literal> clause is
+    <para>The <literal>SPECIFIC &lt;specific name&gt;</literal> clause is
     optional but the engine will creates an automatic name if it is not
     present. When there are several versions of the same routine, the
     <literal>&lt;specific name&gt;</literal> is used in schema manipulation

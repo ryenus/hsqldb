@@ -256,7 +256,7 @@
               compatibility with other JDBC driver implementations. When true
               (the default), <methodname>ResultSet.getColumnName(int
               c)</methodname> returns the underlying column name. This
-              property can be specified differntly for different connections
+              property can be specified differently for different connections
               to the same database.</para><para>The default is true. When the
               property is false, the above method returns the same value as
               <methodname>ResultSet.getColumnLabel(int column)</methodname>
@@ -631,7 +631,7 @@
             <entry nameend="c3" namest="c1"><para>The default level 0
             indicates no logging. Level 1 results in events related to
             persistence to be logged, including any failures. Level 2
-            indicates all events, including ordinary events.The events are
+            indicates all events, including ordinary events. The events are
             logged in a file ending with
             ".app.log".</para><para><programlisting>SET DATABASE EVENT LOG LEVEL { 0 | 1 | 2 }</programlisting></para></entry>
           </row>
@@ -667,7 +667,7 @@
           </row>
 
           <row>
-            <entry nameend="c3" namest="c1"><para>Indicates the trasaction
+            <entry nameend="c3" namest="c1"><para>Indicates the transaction
             control mode for the database. The values, locks, mvlocks and mvcc
             are allowed.</para><para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</programlisting></para></entry>
           </row>
@@ -869,8 +869,7 @@
             default WRITE DELAY property of the database is used, which is
             1000 milliseconds. If the property is false, the WRITE DELAY is
             set to 0 seconds. The SQL command for this property allows more
-            precise control over the the
-            property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
+            precise control over the property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
           </row>
 
           <row>
@@ -887,9 +886,9 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>If the property is used, the
-            WRITE DELAY property of the database is set the the given value.
-            The SQL command for this property allows the same level of control
-            over the the property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
+            WRITE DELAY property of the database is set the given value. The
+            SQL command for this property allows the same level of control
+            over the property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
           </row>
 
           <row>

@@ -179,7 +179,7 @@
 
       <screen>    First field data|Second field data.Third field data</screen>
 
-      <para>This facitity in effect offers an extra, special separator which
+      <para>This facility in effect offers an extra, special separator which
       can be used in addition to the global separator. The following example
       shows how to change the default separator to the pipe (|), VARCHAR
       separator to the period (.) within a SET TABLE SOURCE statement:</para>

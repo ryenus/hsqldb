@@ -206,7 +206,7 @@
       <title>Readonly Databases</title>
 
       <para>A <glossterm>file:</glossterm> catalog can be made readonly
-      premanently, or it can be opened as readonly. To make the database
+      permanently, or it can be opened as readonly. To make the database
       readonly, the property, value pair, readonly=true can be added to the
       .properties file of the database.</para>
 
@@ -241,7 +241,7 @@
     (usually 64 MB by default). This amount is generally not adequate when
     large memory tables are used, or when the average size of rows in cached
     tables is larger than a few hundred bytes. The maximum amount of allocated
-    memory can be set on the java command line that is used for running
+    memory can be set on the Java command line that is used for running
     HyperSQL. For example, with Sun JVM, parameter -Xmx256m increases the
     amount to 256 MB.</para>
 
@@ -276,14 +276,16 @@
       client.</para>
 
       <para>HyperSQL 2.0 supports disk-based result sets. The commands,
-      <literal>SET RESULT MEMORY ROWS &lt;integer&gt;</literal> and
+      <literal>SET SESSION RESULT MEMORY ROWS &lt;integer&gt;</literal> and
       <literal>SET DATABASE DEFAULT RESULT MEMORY ROWS
       &lt;integer&gt;</literal> specify a threshold for the number of rows.
-      Results with row counts above the threshold are stored on disk. When the
-      setFetchSize() method of the Statement interface is used to limit the
-      number rows fetched, the whole result is held by the engine and is
-      returnd to the JDBC ResultSet in blocks of rows of the specified fetch
-      size. Disk-based result sets slow down the database operations and
+      Results with row counts above the threshold are stored on disk. These
+      settings also apply to temporary tables and subquery tables.</para>
+
+      <para>When the setFetchSize() method of the Statement interface is used
+      to limit the number rows fetched, the whole result is held by the engine
+      and is returned to the JDBC ResultSet in blocks of rows of the specified
+      fetch size. Disk-based result sets slow down the database operations and
       should be used only when absolutely necessary, perhaps with result sets
       that are larger than tens of thousands of rows.</para>
     </section>
@@ -304,14 +306,14 @@
       the transaction information is held in memory, not the actual rows that
       have changed. Transactions that span thousands of modification to data
       will take up a lot of memory until the next COMMIT or ROLLBACK clears
-      the list. Each row modifcation uses less than 100 bytes until
+      the list. Each row modification uses less than 100 bytes until
       COMMIT.</para>
 
-      <para>When subquries or views are used in SELECT and other statements,
+      <para>When subqueries or views are used in SELECT and other statements,
       transient tables are created and populated by the engine. If the
-      <literal>SET RESULT MEMORY ROWS &lt;integer&gt;</literal> statement has
-      been used, these transient tables are stored on disk when they are
-      larger than the threshold.</para>
+      <literal>SET SESSION RESULT MEMORY ROWS &lt;integer&gt;</literal>
+      statement has been used, these transient tables are stored on disk when
+      they are larger than the threshold.</para>
     </section>
 
     <section>
@@ -346,6 +348,11 @@
 
       <para>Data for CLOB and BLOB columns is not cached and does not affect
       the CACHED table memory cache.</para>
+
+      <para>The use of Java nio file access method also increases memory
+      usage. Access with nio improves database update speed and is used by
+      default for data files up to 256 MB. For minimal memory use, nio access
+      should be disabled.</para>
     </section>
 
     <section>
@@ -367,7 +374,7 @@
       possible to store and access a CLOB or BLOB that is larger than the JVM
       memory allocation. Early versions of HyperSQL 2.0 use memory-based
       tables for the lob catalog (not the data). The lob data is stored on
-      disk with file: databases. Therefore it is paractical to store about
+      disk with file: databases. Therefore it is practical to store about
       100,000 individual lobs in the database with the default JVM memory
       allocation. More lobs can be stored with larger JVM memory allocations.
       The realistic maximum number of lobs stored in the database is probably
@@ -404,8 +411,8 @@
         database for performance reasons. With HSQLDB this can be useful if
         your application is designed in a way that opens and closes
         connections for each small task. Also, the overall performance may be
-        higher when fewer simultanous connections are used. If you want to
-        reduce the number of simultanous sessions, you can use a connection
+        higher when fewer simultaneous connections are used. If you want to
+        reduce the number of simultaneous sessions, you can use a connection
         pool with fewer pooled connections.</para>
       </listitem>
     </itemizedlist>
@@ -518,10 +525,10 @@
       the database is often accessed heavily, therefore performance and
       latency is a consideration. If the database is updated heavily, the
       default value of the WRITE DELAY property (1 sec) is often enough, as it
-      is assumed the server or the applicaton does not go down frequently. If
+      is assumed the server or the application does not go down frequently. If
       it is necessary, you can reduce the WRITE DELAY to a small value (20 ms)
-      without impacing the update speed. If you reduce WRITE DELAY to zero,
-      perfomance drops to the speed of disk file sync operation.</para>
+      without impacting the update speed. If you reduce WRITE DELAY to zero,
+      performance drops to the speed of disk file sync operation.</para>
 
       <para>Alternatively, a server application can use an all-in-mem database
       instance for fast access, while sending the data changes to a
@@ -586,7 +593,7 @@
     previous versions of HyperSQL.</para>
 
     <para>If your database has been created with version 1.7.x, first upgrade
-    to version 1.8.1 and perform a SHTUDOWN COMPACT with this version. You can
+    to version 1.8.1 and perform a SHUTDOWN COMPACT with this version. You can
     then open and upgrade the database with version 2.0.</para>
 
     <section xml:id="upgrade_via_script-sect">
@@ -600,11 +607,11 @@
       the old version, then open with the new version of the engine. In most
       cases the upgrade is successful and complete.</para>
 
-      <para>It is strongly recommended to execute SHTUDOWN COMPACT after an
+      <para>It is strongly recommended to execute SHUTDOWN COMPACT after an
       automatic upgrade from previous versions.</para>
 
       <para>If your database has been created with version 1.7.2 or 1.7.3,
-      first upgrade to version 1.8.1 and perform a SHTUDOWN COMPACT with this
+      first upgrade to version 1.8.1 and perform a SHUTDOWN COMPACT with this
       version. You can then upgrade the database to version 2.0.</para>
 
       <para>To upgrade from older version database files (1.7.1 and older)
@@ -686,7 +693,7 @@
 
       <para>Other manual changes are also possible. Note that the
       <literal>*.script</literal> file must be the result of a SHUTDOWN SCRIPT
-      and must contain the full data for the database.The following changes
+      and must contain the full data for the database. The following changes
       can be applied so long as they do not affect the integrity of existing
       data.</para>
 
@@ -790,8 +797,9 @@
       <listitem>
         <para>Table definitions containing GENERATED BY DEFAULT AS IDENTITY
         but with no PRIMARY KEY do not automatically create a primary key.
-        Database .scripts files made with 1.8 are fine, as the PRIMARY KEY
-        clause is always included.</para>
+        Database .script files made with 1.8 are fine, as the PRIMARY KEY
+        clause is always included. But your application program may assume an
+        automatic primary key is created.</para>
       </listitem>
 
       <listitem>
@@ -846,7 +854,7 @@
       simple form, the command format below will backup the database as a
       single <literal>.tar.gz</literal> file to the given directory.</simpara>
 
-      <programlisting>BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
+      <programlisting>  BACKUP DATABASE TO &lt;directory name&gt; BLOCKING</programlisting>
 
       <simpara>See the next section under Statements for details about the
       command and its options. See the sections below about restoring a
@@ -860,8 +868,8 @@
       state. You will run a Java command like this <example>
           <title>Offline Backup Example</title>
 
-          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
-    tar/path.tar db/base/path</screen>
+          <screen>  java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --save  \
+  tar/path.tar db/base/path</screen>
         </example>where <filename>tar/path.tar</filename> is a file path to
       the <literal>*.tar</literal> or <literal>*.tar.gz</literal> file to be
       created, and <filename>db/base/path</filename> is the file path to the
@@ -879,7 +887,7 @@
       <example>
           <title>Listing a Backup with DbBackup</title>
 
-          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
+          <screen>  java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --list tar/path.tar</screen>
         </example>You can also give regular expressions at the end of the
       command line if you are only interested in some of the file entries in
       the backup. Note that these are real regular expressions, not shell
@@ -898,8 +906,8 @@
       command line to restore a catalog from a backup. <example>
           <title>Restoring a Backup with DbBackup</title>
 
-          <screen>    java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
-    tar/path.tar db/dir</screen>
+          <screen>  java -cp path/to/hsqldb.jar org.hsqldb.lib.tar.DbBackup --extract  \
+      tar/path.tar db/dir</screen>
         </example>where <filename>tar/path.tar</filename> is a file path to
       the *.tar or *.tar.gz file to be read, and <filename>db/dir</filename>
       is the target directory to extract the catalog files into. Note that
@@ -918,7 +926,7 @@
     JRE. HyperSQL itself does not contain any cryptography code.</para>
 
     <para>Three elements are involved in specifying the encryption method and
-    key. A cipher, together with its configuation is identified by a string
+    key. A cipher, together with its configuration is identified by a string
     which includes the name of the cipher and optional parameters. A provider
     is the fully qualified class name of the cipher provider. A key is
     represented as a hexadecimal string.</para>
@@ -943,7 +951,7 @@
       <para><literal>jdbc:hsqldb:file:&lt;database
       path&gt;;crypt_key=604a6105889da65326bf35790a923932;crypt_type=blowfish</literal></para>
 
-      <para>The third propery name is crypt_provider. This is specified only
+      <para>The third property name is crypt_provider. This is specified only
       when the provider is not the default provider.</para>
 
       <para>HyperSQL works with any symmetric cipher that may be available
@@ -971,7 +979,7 @@
       <para>Security considerations for encrypted databases have been
       discussed at length in HSQLDB discussion groups. Development team
       members have commented that encryption is not a panacea for all security
-      needs. The following issues should be taken to account:</para>
+      needs. The following issues should be taken into account:</para>
 
       <para><itemizedlist>
           <listitem>
@@ -1031,18 +1039,22 @@
       conditions are examples of logged events.</para>
 
       <para>HyperSQL supports two methods of logging. One method is specific
-      to the individual database and is mangaged internally by HyperSQL. The
+      to the individual database and is managed internally by HyperSQL. The
       other method is specific to JVM and is managed by a logging
       framework.</para>
 
       <para>The internally-generated, individual log for the database can be
       enabled with the SET DATABASE EVENT LOG LEVEL statement, described in
-      the next section.</para>
+      the next section. This method of logging is very useful for desktop
+      application deployment, as it provides an ongoing record of database
+      operations.</para>
 
       <para>HyperSQL also supports log4J and JDK logging. The same event
       information that is passed to the internal log, is passed to external
-      logging frameworks. These frameworks are configured outside
-      HyperSQL.</para>
+      logging frameworks. These frameworks are configured outside HyperSQL.
+      The log messages include the unique id of the database that generated
+      the message, so it can be identified in a multi-database server
+      context.</para>
     </section>
 
     <section>
@@ -1198,10 +1210,11 @@
     <simpara><literal>&lt;crypt_key function&gt; ::= CRYPT_KEY ( &lt;cipher
     spec&gt;, &lt;provider&gt; )</literal></simpara>
 
-    <simpara>The statement, CALL CRYPT_KEY( &lt;cipher spec&gt;,
-    &lt;provider&gt; ) returns a binary string representing a valid key for
-    the giver cipher and provider. The &lt;provider&gt; argument is specified
-    as NULL for the default provider.</simpara>
+    <simpara>The statement, <literal>CALL CRYPT_KEY( &lt;cipher spec&gt;,
+    &lt;provider&gt; )</literal> returns a binary string representing a valid
+    key for the giver cipher and provider. The
+    <literal>&lt;provider&gt;</literal> argument is specified as NULL for the
+    default provider.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SCRIPT</primary>
@@ -1214,7 +1227,7 @@
     <simpara><literal>&lt;script statement&gt; ::= SCRIPT [&lt;file
     name&gt;]</literal></simpara>
 
-    <simpara>Returns a script containing SQL statments that define the
+    <simpara>Returns a script containing SQL statements that define the
     database, its users, and its schema objects. If <literal>&lt;file
     name&gt;</literal> is not specified, the statements are returned in a
     ResultSet, with each row containing an SQL statement. No data statements
@@ -1331,7 +1344,7 @@
     specified number of row operations. The default value for this property is
     0, which means no System.gc() calls. Usual values for this property range
     from 10000 depending on the system and the memory allocation. This
-    property may be useful in some in-process deployments, expecially with
+    property may be useful in some in-process deployments, especially with
     older JVM implementations.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
@@ -1401,6 +1414,17 @@
     queries to verify all rows conform to the FOREIGN KEY constraints and take
     appropriate actions for the rows that do not conform.</simpara>
 
+    <simpara>A query example to return the rows in a foreign key table that
+    have no parent is given below:</simpara>
+
+    <example>
+      <title>Finding foreign key rows with no parents after a bulk
+      import</title>
+
+      <screen>  SELECT * FROM foreign_key_table LEFT OUTER JOIN primary_key_table 
+    ON foreign_key_table.fk_col = primary_key_table.pk_col WHERE primary_key_table.pk_col IS NULL</screen>
+    </example>
+
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
 
@@ -1414,8 +1438,8 @@
     <simpara><emphasis>set database unique name</emphasis><literal>
     </literal></simpara>
 
-    <simpara>&lt;set database unique name statement&gt; ::= SET DATABASE
-    UNIQUE NAME &lt;identifier&gt;</simpara>
+    <simpara><literal>&lt;set database unique name statement&gt; ::= SET
+    DATABASE UNIQUE NAME &lt;identifier&gt;</literal></simpara>
 
     <simpara>Each HyperSQL catalog (database) has an engine-generated internal
     name. This name is based on the time of creation of the database and is
@@ -1462,12 +1486,12 @@
     more).</simpara>
 
     <simpara>The alternative is backup in increments, just before some part of
-    the .data file is modified. In this this mode, no backup is performed at
-    CHECKPIONT or SHUTDOWN. This mode is prefered for large databases which
+    the .data file is modified. In this mode, no backup is performed at
+    CHECKPIONT or SHUTDOWN. This mode is preferred for large databases which
     are opened and closed frequently.</simpara>
 
     <simpara>The default mode is TRUE. If the old method of backup is
-    prefered, the mode can be set FALSE.</simpara>
+    preferred, the mode can be set FALSE.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1519,7 +1543,7 @@
     <simpara><literal>&lt;set files defrag statement&gt; ::= SET FILES DEFRAG
     &lt;unsigned integer literal&gt;</literal></simpara>
 
-    <simpara>Sets the threshold for perfoming a DEFRAG during a checkpoint.
+    <simpara>Sets the threshold for performing a DEFRAG during a checkpoint.
     The <literal>&lt;unsigned integer literal&gt;</literal> is the percentage
     of abandoned space in the <literal>*.data</literal> file. When a
     CHECKPOINT is performed either as a result of the <literal>.log</literal>

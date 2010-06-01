@@ -47,7 +47,7 @@
     <para>HyperSQL supports a wide range of built-in functions and allows
     user-defined functions written in SQL and Java languages. User defined
     functions are covered in a separate chapter. If a built-in function is not
-    avaliable, you can write your own using SQL. Aggregate functions are
+    available, you can write your own using SQL. Aggregate functions are
     discussed in chapters that cover SQL in general.</para>
 
     <para>The built-in functions fall into three groups:</para>
@@ -211,7 +211,7 @@
     and letters in the &lt;<literal>char value expr&gt;</literal>. Each
     character of the <literal>&lt;char value expr&gt;</literal> must be a
     digit or a letter in the A | B | C | D | E | F set. Each byte of the
-    retured binary string is formed by translating two hex digits into one
+    retired binary string is formed by translating two hex digits into one
     byte. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -1096,7 +1096,7 @@
 
     <simpara><emphasis role="bold">DAYOFMONTH</emphasis></simpara>
 
-    <para><literal>DAYOFMONTH ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>DAYOFMONTH ( &lt;datetime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to<literal> EXTRACT ( DAY_OF_MONTH FROM
     ... ) </literal>Returns an integer value in the range of 1-31.
@@ -1108,7 +1108,7 @@
 
     <simpara><emphasis role="bold">DAYOFWEEK</emphasis></simpara>
 
-    <para><literal>DAYOFWEEK ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>DAYOFWEEK ( &lt;datetime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to <literal>EXTRACT ( DAY_OF_WEEK FROM
     ... ) </literal>Returns an integer value in the range of 1-7. The first
@@ -1120,7 +1120,7 @@
 
     <simpara><emphasis role="bold">DAYOFYEAR</emphasis></simpara>
 
-    <para><literal>DAYOFYEAR ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>DAYOFYEAR ( &lt;datetime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to <literal>EXTRACT ( DAY_OF_YEAR FROM
     ... ) </literal>Returns an integer value in the range of 1-366.
@@ -1132,7 +1132,7 @@
 
     <simpara><emphasis role="bold">HOUR</emphasis></simpara>
 
-    <para><literal>HOUR ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>HOUR ( &lt;datetime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to <literal>EXTRACT ( HOUR FROM ... )
     </literal>Returns an integer value in the range of 0-23. (JDBC)</para>
@@ -1143,7 +1143,7 @@
 
     <simpara><emphasis role="bold">MINUTE</emphasis></simpara>
 
-    <para><literal>MINUTE ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>MINUTE ( &lt;datetime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to<literal> EXTRACT ( MINUTE FROM ... )
     </literal>Returns an integer value in the range of 0 - 59. (JDBC)</para>
@@ -1154,7 +1154,7 @@
 
     <simpara><emphasis role="bold">MONTH</emphasis></simpara>
 
-    <para><literal>MONTH ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>MONTH ( &lt;datetime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to <literal>EXTRACT ( MONTH FROM ... )
     </literal>Returns an integer value in the range of 1-12. (JDBC)</para>
@@ -1165,7 +1165,7 @@
 
     <simpara><emphasis role="bold">MONTHNAME</emphasis></simpara>
 
-    <para><literal>MONTHNAME ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>MONTHNAME ( &lt;datetime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to <literal>EXTRACT ( NAME_OF_MONTH FROM
     ... ) </literal>Returns a string in the range of January - December.
@@ -1188,7 +1188,7 @@
 
     <simpara><emphasis role="bold">QUARTER</emphasis></simpara>
 
-    <para><literal>QUARTER ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>QUARTER ( &lt;datetime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to <literal>EXTRACT ( QUARTER FROM ... )
     </literal>Returns an integer in the range of 1 - 4. (JDBC)</para>
@@ -1199,11 +1199,11 @@
 
     <simpara><emphasis role="bold">SECOND</emphasis></simpara>
 
-    <para><literal>SECOND ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>SECOND ( &lt;datetime value expr&gt; )</literal></para>
 
     <para>This function is equivalent to <literal>EXTRACT ( SECOND FROM ... )
     </literal>Returns an integer or decimal in the range of 0 - 59, with the
-    same precision as the &lt;datatime value expr&gt;. (JDBC)</para>
+    same precision as the &lt;datetime value expr&gt;. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SECONDS_SINCE_MIDNIGHT function</primary>
@@ -1211,10 +1211,10 @@
 
     <simpara><emphasis role="bold">SECONDS_SINCE_MIDNIGHT</emphasis></simpara>
 
-    <para><literal>SECONDS_SINCE_MIDNIGHT ( &lt;datatime value expr&gt;
+    <para><literal>SECONDS_SINCE_MIDNIGHT ( &lt;datetime value expr&gt;
     )</literal></para>
 
-    <para>This function is equvalent to<literal> EXTRACT (
+    <para>This function is equivalent to<literal> EXTRACT (
     SECONDS_SINCE_MIDNIGHT FROM ... ) </literal>Returns an integer in the
     range of 0 - 86399. (HyperSQL)</para>
 
@@ -1224,9 +1224,9 @@
 
     <simpara><emphasis role="bold">WEEK</emphasis></simpara>
 
-    <para><literal>WEEK ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>WEEK ( &lt;datetime value expr&gt; )</literal></para>
 
-    <para>This function is equvalent to<literal> EXTRACT ( WEEK_OF_YEAR FROM
+    <para>This function is equivalent to<literal> EXTRACT ( WEEK_OF_YEAR FROM
     ... ) </literal>Returns an integer in the range of 1 - 54. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -1235,9 +1235,9 @@
 
     <simpara><emphasis role="bold">YEAR</emphasis></simpara>
 
-    <para><literal>YEAR ( &lt;datatime value expr&gt; )</literal></para>
+    <para><literal>YEAR ( &lt;datetime value expr&gt; )</literal></para>
 
-    <para>This function is equvalent to<literal> EXTRACT ( YEAR FROM ... )
+    <para>This function is equivalent to<literal> EXTRACT ( YEAR FROM ... )
     </literal>Returns an integer in the range of 1 - 9999. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -1263,7 +1263,7 @@
     SQL_TSI_WEEK | SQL_TSI_MONTH | SQL_TSI_QUARTER |
     SQL_TSI_YEAR</literal></para>
 
-    <para>HyperSQL supports full SQL Standard dateteime features. It supports
+    <para>HyperSQL supports full SQL Standard datetime features. It supports
     adding integers representing units of time directly to datetime values
     using the arithmetic plus operator. It also supports subtracting one
     <literal>&lt;datetime value expr&gt;</literal> from another in the given
@@ -1495,7 +1495,7 @@
   <section>
     <title>Array Functions</title>
 
-    <para>Array functions are specialized functions with ARRAY
+    <para>Array functions are specialised functions with ARRAY
     parameters.</para>
 
     <indexterm significance="preferred" type="sql">
@@ -1518,7 +1518,7 @@
     <para><literal>MAX_CARDINALITY( &lt;array value expr&gt;
     )</literal></para>
 
-    <para>Returns the maximum allowd element count for the given array
+    <para>Returns the maximum allowed element count for the given array
     argument. (Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
@@ -1578,7 +1578,7 @@
     returns the value. The <literal>&lt;data type&gt;</literal> options are
     synthetic names made by prefixing type names with <literal>SQL_</literal>.
     Some of the <literal>&lt;data type&gt;</literal> options represent valid
-    SQL types, but some are are based on non-standard type names, namely
+    SQL types, but some are based on non-standard type names, namely
     <literal>{ SQL_LONGNVARCHAR | SQL_LONGVARBINARY |SQL_LONGVARCHAR |
     SQL_TINYINT }</literal>. None of the synthetic names can be used in any
     other context than the CONVERT function.</para>
@@ -1607,7 +1607,7 @@
     1&gt;</literal> is returned. If there are additional pairs of
     <literal>&lt;value expr match n&gt;</literal> and <literal>&lt;value expr
     result n&gt;</literal>, comparison is repeated until a match is found the
-    the result is returned. If no match is found, the <literal>&lt;value expr
+    result is returned. If no match is found, the <literal>&lt;value expr
     default&gt;</literal> is returned if it is specified, otherwise NULL is
     returned. The type of the return value is a combination of the types of
     the <literal>&lt;value expr result ... &gt;</literal> arguments.
@@ -1720,7 +1720,7 @@
     statement that inserts a row into a table with an IDENTITY column. The
     CALL IDENTITY() statement returns the last IDENTITY value that was
     inserted into a table by the current session. Each session manages this
-    function call separetly and is not affected by inserts in other sessions.
+    function call separately and is not affected by inserts in other sessions.
     The statement can be executed as a direct statement or a prepared
     statement. (HyperSQL)</para>
 
