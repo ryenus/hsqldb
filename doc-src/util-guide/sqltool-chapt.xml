@@ -411,6 +411,10 @@
                     SqlTool can be started and used without any data source,
                     though you'll obviously need to connect to a data source
                     before issuing SQL commands.
+                </simpara></listitem><listitem><simpara>
+                  Array types are now supported, including in DSV imports and
+                  exports, with the exception that DSV imports do not support
+                  element values containing commas.
                 </simpara></listitem>
             </itemizedlist>
         </section>
@@ -3199,7 +3203,16 @@ java -jar $HSQLDB_HOME/lib/sqltool.jar urlid > /tmp/log.html 2>&1]]></screen>
                 is <literal>[null]</literal>.
                 See the next section for how to change these from their default
                 values.
-            </simpara> <para>
+            </simpara>
+            <warning><simpara>
+                You can not DSV import Array values where any Array elements
+                contain commas, for example an Array of VARCHARs which contain
+                one or more commas.
+                There is no such limitation on DSV exports, which you can use
+                for purposes other than SqlTool importing, or you could use
+                a script to change the commas to some other character.
+            </simpara></warning>
+            <para>
                 This command imports the data from the file
                 <filename>projects.dsv</filename> in the current
                 directory (where you invoked SqlTool from) into the table
