@@ -65,6 +65,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.logging.Level;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.Charset;
 import org.hsqldb.lib.AppendableException;
 import org.hsqldb.lib.RCData;
@@ -153,6 +155,7 @@ public class SqlFile {
     private boolean          interactive;
     private String           primaryPrompt    = "sql> ";
     private static String    rawPrompt;
+    private static Method    createArrayOfMethod;
     private String           contPrompt       = "  +> ";
     private boolean          htmlMode;
     private TokenList        history;
@@ -237,6 +240,12 @@ public class SqlFile {
         DSV_X_SYNTAX_MSG = SqltoolRB.dsv_x_syntax.getString();
         DSV_M_SYNTAX_MSG = SqltoolRB.dsv_m_syntax.getString();
         nobufferYetString = SqltoolRB.nobuffer_yet.getString();
+        try {
+            SqlFile.createArrayOfMethod = Connection.class.getDeclaredMethod(
+                    "createArrayOf", String.class, Object[].class);
+        } catch (Exception expectedException) {
+            // Purposeful no-op.  Leave createArrayOfMethod null.
+        }
     }
     // This can throw a runtime exception, but since the pattern
     // Strings are constant, one test run of the program will tell
@@ -5072,6 +5081,13 @@ public class SqlFile {
                                         dataVals[i]));
                                 break;
                             case 'a' :
+                                if (SqlFile.createArrayOfMethod == null) {
+                                    throw new SqlToolError(
+                                            //SqltoolRB.boolean_bad.getString(
+                                        "SqlTool requires += Java 1.6 at "
+                                        + "runtime in order to import Array "
+                                        + "values");
+                                }
                                 arMatcher = arrayPattern.matcher(dataVals[i]);
                                 if (!arMatcher.matches()) {
                                     throw new RowError(
@@ -5084,9 +5100,27 @@ public class SqlFile {
                                        : arMatcher.group(1).split("\\s*,\\s*");
                                 // N.b. THIS DOES NOT HANDLE commas WITHIN
                                 // Array ELEMENT VALUES.
-                                ps.setArray(i + 1, shared.jdbcConn
-                                        .createArrayOf("VARCHAR", arVals));
-                                // createArrayOf is Java-6-specific!
+                                try {
+                                    ps.setArray(i + 1, (java.sql.Array)
+                                            SqlFile.createArrayOfMethod.invoke(
+                                            shared.jdbcConn,
+                                            "VARCHAR", arVals));
+                                } catch (IllegalAccessException iae) {
+                                    throw new RuntimeException(iae);
+                                } catch (InvocationTargetException ite) {
+                                    if (ite.getCause() != null
+                                            &&  ite.getCause()
+                                            instanceof AbstractMethodError) {
+                                        throw new SqlToolError(
+                                            //SqltoolRB.boolean_bad.getString(
+                                            "SqlTool binary is not "
+                                            + "Array-compatible with your "
+                                            + "runtime JRE.  Array imports "
+                                            + "not possible.");
+                                    }
+                                    throw new RuntimeException(ite);
+                                }
+                                // createArrayOf method is Java-6-specific!
                                 break;
                             default:
                                 ps.setString(
