@@ -42,7 +42,7 @@
         build.properties file. -->
    <property name="build.debug" value="true"/>
    <property name="build.optimize" value="false"/>
-   <!-- N.b. Compliation optimization only has effect with JDK 1.1 and 1.2 -->
+   <!-- N.b. Compilation optimization only has effect with JDK 1.1 and 1.2 -->
 
    <property name="servletapi.lib" value="lib/servlet-2_3-fcs-classfiles.zip"/>
    <property name="junit38.lib" value="lib/junit.jar"/>
