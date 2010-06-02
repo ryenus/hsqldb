@@ -347,7 +347,7 @@ public class ExpressionOp extends Expression {
                 if (nodes[LEFT].opType == OpTypes.DYNAMIC_PARAM) {
                     nodes[LEFT].dataType = dataType;
 
-                    if (parent != null) {
+                    if (parent != null && !parent.isSelfAggregate()) {
                         parent.replaceNode(this, nodes[LEFT]);
                     }
 
@@ -356,10 +356,7 @@ public class ExpressionOp extends Expression {
 
                 if (dataType.equals(nodes[LEFT].dataType)) {
 
-                    if (parent != null) {
-                        parent.replaceNode(this, nodes[LEFT]);
-                    }
-
+                    // issues with aggregates
                     break;
                 }
 

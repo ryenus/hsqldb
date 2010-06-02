@@ -349,6 +349,7 @@ public final class HsqlNameManager {
         //
         HsqlNameManager   manager;
         public String     statementName;
+        public String     comment;
         public HsqlName   schema;
         public HsqlName   parent;
         public Grantee    owner;

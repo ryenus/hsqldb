@@ -218,6 +218,10 @@ public class ParserCommand extends ParserDDL {
                 cs = compileGrantOrRevoke();
                 break;
 
+            case Tokens.COMMENT :
+                cs = compileComment();
+                break;
+
             // HSQL SESSION
             case Tokens.LOCK :
                 cs = compileLock();
