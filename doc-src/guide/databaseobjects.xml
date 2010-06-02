@@ -705,6 +705,10 @@ INSERT INTO movies (starid, movieid, title) VALUES (IDENTITY(), 10, 'Felix in Ho
       the multiple versions of an overloaded routine. The
       <literal>&lt;specific name&gt;</literal> is the one specified in the
       <literal>&lt;routine definition&gt;</literal> statement.</simpara>
+    </section>
+
+    <section>
+      <title>Renaming Objects</title>
 
       <indexterm significance="preferred" type="sql">
         <primary>RENAME</primary>
@@ -725,11 +729,40 @@ INSERT INTO movies (starid, movieid, title) VALUES (IDENTITY(), 10, 'Felix in Ho
       &lt;table name&gt; ALTER COLUMN &lt;name&gt; RENAME TO &lt;new
       name&gt;</literal></simpara>
 
-      <simpara>This command is not part of the SQL Standard and is a HyperSQL
-      extension. The specified <literal>&lt;name&gt;</literal> is the existing
-      name, which can be qualified with a schema name, while the
-      <literal>&lt;new name&gt;</literal> is the new name for the
+      <simpara>This statement is used to rename an existing object. It is not
+      part of the SQL Standard. The specified <literal>&lt;name&gt;</literal>
+      is the existing name, which can be qualified with a schema name, while
+      the <literal>&lt;new name&gt;</literal> is the new name for the
       object.</simpara>
+    </section>
+
+    <section>
+      <title>Commenting Objects</title>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COMMENT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">COMMENT</emphasis></simpara>
+
+      <simpara><emphasis>comment statement (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;comment statement&gt; ::= COMMENT ON { TABLE |
+      COLUMN | ROUTINE } &lt;name&gt; IS &lt;character string
+      literal&gt;</literal></simpara>
+
+      <simpara>Adds a comment to the object metadata, which can later be read
+      from an INFORMATION_SCHEMA view. This command is not part of the SQL
+      Standard. The strange syntax is due to compatibility with other database
+      engines that support the statement.<literal> The &lt;name&gt;</literal>
+      is the name of a table, column or routine. The name of the column
+      consists of dot-separated<literal> &lt;table name&gt; . &lt;column
+      name&gt;</literal>. The name of the table or routine can be a simple
+      name. All names can be qualified with a schema name.</simpara>
+
+      <para>The comments appear in the results returned JDBC DatabaseMetaData
+      methods, getTables() and getColumns(). The
+      INFORMATION_SCHEMA.SYSTEM_COMMENTS view contains the comments.</para>
     </section>
 
     <section>
@@ -2400,8 +2433,9 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
       <simpara>Creates an index on a group of columns of a table. The optional
       [ASC | DESC] specifies if the column is indexed in the ascending or
-      descending order, but has no effect on how the index is
-      created.</simpara>
+      descending order, but has no effect on how the index is created (it is
+      allowed for compatibility with other database engines). HyperSQL can use
+      all indexes in ascending or descending order as needed.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP INDEX</primary>
