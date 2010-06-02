@@ -173,3 +173,4 @@ insert into test_routes (agencyId, id) values ('a','r1'),('a','r2');
 insert into test_trips (agencyId, id,route_agencyId,route_id) values
  ('a','1','a','r1'),('a','2','a','r2');
 /*c1*/select * from test_trips where (route_agencyId, route_id) in (('a','r1'));
+/*c2*/select * from test_trips where (route_agencyId, route_id) in (values('a','r1'), ('a','r2'));

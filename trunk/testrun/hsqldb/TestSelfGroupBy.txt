@@ -178,5 +178,5 @@ INSERT INTO group_by_bug ( order_id, item_id, price, tax_rate, quantity )
  FROM group_by_bug
  GROUP BY item_id, ROUND(price / (1+(tax_rate/100)),2)
 
-SHUTDOWN;
+SHUTDOWN COMPACT;
 
