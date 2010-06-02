@@ -40,7 +40,7 @@
 
    <!-- It is safe to override these with settings in your own
         build.properties file. -->
-   <property name="build.debug" value="false"/>
+   <property name="build.debug" value="true"/>
    <property name="build.optimize" value="false"/>
    <!-- N.b. Compliation optimization only has effect with JDK 1.1 and 1.2 -->
 
