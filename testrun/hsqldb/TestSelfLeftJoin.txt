@@ -284,11 +284,11 @@ create index idx3 on testb(a_oid)
 drop table a if exists;
 drop table b if exists;
 create table a (a1 varchar(10), a2 integer);
+create table b (b1 varchar(10), b2 integer);
 insert into a values(null,12);
 insert into a values('a',22);
 insert into a values('b','32');
 
-create table b (b1 varchar(10), b2 integer);
 insert into b values(null,14);
 insert into b values('a',14);
 insert into b values('c',15);
