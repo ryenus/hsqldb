@@ -162,6 +162,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             case SYSTEM_CACHEINFO :
                 return SYSTEM_CACHEINFO(session);
 
+            case SYSTEM_COMMENTS :
+                return SYSTEM_COMMENTS(session);
+
             case SYSTEM_SESSIONINFO :
                 return SYSTEM_SESSIONINFO(session);
 
@@ -507,6 +510,123 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 ValuePool.getLong(cache.getTotalFreeBlockSize());
             row[ifree_count] = ValuePool.getLong(cache.getFreeBlockCount());
             row[ifree_pos]   = ValuePool.getLong(cache.getFileFreePos());
+
+            t.insertSys(store, row);
+        }
+
+        return t;
+    }
+
+    Table SYSTEM_COMMENTS(Session session) {
+
+        Table t = sysTables[SYSTEM_COMMENTS];
+
+        if (t == null) {
+            t = createBlankTable(sysTableHsqlNames[SYSTEM_COMMENTS]);
+
+            addColumn(t, "OBJECT_CATALOG", SQL_IDENTIFIER);
+            addColumn(t, "OBJECT_SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "OBJECT_NAME", SQL_IDENTIFIER);    // not null
+            addColumn(t, "OBJECT_TYPE", SQL_IDENTIFIER);
+            addColumn(t, "COLUMN_NAME", SQL_IDENTIFIER);
+            addColumn(t, "COMMENT", CHARACTER_DATA);
+
+            HsqlName name = HsqlNameManager.newInfoSchemaObjectName(
+                sysTableHsqlNames[SYSTEM_COMMENTS].name, false,
+                SchemaObject.INDEX);
+
+            t.createPrimaryKeyConstraint(name, new int[] {
+                0, 1, 2, 3, 4
+            }, false);
+
+            return t;
+        }
+
+        PersistentStore store = session.sessionData.getRowStore(t);
+
+        // column number mappings
+        final int catalog     = 0;
+        final int schema      = 1;
+        final int name        = 2;
+        final int type        = 3;
+        final int column_name = 4;
+        final int remark      = 5;
+        Iterator  it;
+        Object[]  row;
+
+        //
+        DITableInfo ti = new DITableInfo();
+
+        it = allTables();
+
+        while (it.hasNext()) {
+            Table table = (Table) it.next();
+
+            if (!session.getGrantee().isAccessible(table)) {
+                continue;
+            }
+
+            ti.setTable(table);
+
+            int colCount = table.getColumnCount();
+
+            for (int i = 0; i < colCount; i++) {
+                ColumnSchema column = table.getColumn(i);
+
+                if (column.getName().comment == null) {
+                    continue;
+                }
+
+                row              = t.getEmptyRowData();
+                row[catalog]     = database.getCatalogName().name;
+                row[schema]      = table.getSchemaName().name;
+                row[name]        = table.getName().name;
+                row[type]        = "COLUMN";
+                row[column_name] = column.getName().name;
+                row[remark]      = column.getName().comment;
+
+                t.insertSys(store, row);
+            }
+
+            if (table.getTableType() != Table.SYSTEM_TABLE
+                    && table.getName().comment == null) {
+                continue;
+            }
+
+            row          = t.getEmptyRowData();
+            row[catalog] = database.getCatalogName().name;
+            row[schema]  = table.getSchemaName().name;
+            row[name]    = table.getName().name;
+            row[type] = table.isView()
+                        || table.getTableType() == Table.SYSTEM_TABLE ? "VIEW"
+                                                                      : "TABLE";
+            row[column_name] = null;
+            row[remark]      = ti.getRemark();
+
+            t.insertSys(store, row);
+        }
+
+        it = database.schemaManager.databaseObjectIterator(
+            SchemaObject.ROUTINE);
+
+        while (it.hasNext()) {
+            SchemaObject object = (SchemaObject) it.next();
+
+            if (!session.getGrantee().isAccessible(object)) {
+                continue;
+            }
+
+            if (object.getName().comment == null) {
+                continue;
+            }
+
+            row              = t.getEmptyRowData();
+            row[catalog]     = database.getCatalogName().name;
+            row[schema]      = object.getSchemaName().name;
+            row[name]        = object.getName().name;
+            row[type]        = "ROUTINE";
+            row[column_name] = null;
+            row[remark]      = object.getName().comment;
 
             t.insertSys(store, row);
         }
@@ -1425,25 +1545,56 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         while (constraints.hasNext()) {
             HsqlName constraintName = (HsqlName) constraints.next();
-            Table    table;
 
             if (constraintName.parent == null) {
                 continue;
             }
 
-            try {
-                table = (Table) database.schemaManager.getSchemaObject(
-                    constraintName.parent.name,
-                    constraintName.parent.schema.name, SchemaObject.TABLE);
-            } catch (Exception e) {
+            if (!session.getGrantee().isFullyAccessibleByRole(
+                    constraintName.parent)) {
                 continue;
             }
 
-            constraint = table.getConstraint(constraintName.name);
+            switch (constraintName.parent.type) {
 
-            if (constraint.getConstraintType()
-                    != SchemaObject.ConstraintTypes.CHECK) {
-                continue;
+                case SchemaObject.TABLE : {
+                    Table table;
+
+                    try {
+                        table = (Table) database.schemaManager.getSchemaObject(
+                            constraintName.parent.name,
+                            constraintName.parent.schema.name,
+                            SchemaObject.TABLE);
+                    } catch (Exception e) {
+                        continue;
+                    }
+
+                    constraint = table.getConstraint(constraintName.name);
+
+                    if (constraint.getConstraintType()
+                            != SchemaObject.ConstraintTypes.CHECK) {
+                        continue;
+                    }
+
+                    break;
+                }
+                case SchemaObject.DOMAIN : {
+                    Type domain;
+
+                    try {
+                        domain = (Type) database.schemaManager.getSchemaObject(
+                            constraintName.parent.name,
+                            constraintName.parent.schema.name,
+                            SchemaObject.DOMAIN);
+                    } catch (Exception e) {
+                        continue;
+                    }
+
+                    constraint = domain.userTypeModifier.getConstraint(
+                        constraintName.name);
+                }
+                default :
+                    continue;
             }
 
             references = constraint.getReferences();
@@ -2788,6 +2939,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[numeric_precision_radix] =
                     ValuePool.getLong(type.getPrecisionRadix());
             } else if (type.isBooleanType()) {
+
                 //
             } else if (type.isDateTimeType()) {
                 row[datetime_precision] = ValuePool.getLong(type.scale);
@@ -3321,6 +3473,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         row[numeric_precision_radix] =
                             ValuePool.getLong(type.getPrecisionRadix());
                     } else if (type.isBooleanType()) {
+
                         //
                     } else if (type.isDateTimeType()) {
                         row[datetime_precision] =
@@ -4528,6 +4681,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         row[numeric_precision_radix] =
                             ValuePool.getLong(type.getPrecisionRadix());
                     } else if (type.isBooleanType()) {
+
                         //
                     } else if (type.isDateTimeType()) {
                         row[datetime_precision] =
@@ -4558,13 +4712,13 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     // end common block
                 }
 
-                row[type_udt_catalog]    = null;
-                row[type_udt_schema]     = null;
-                row[type_udt_name]       = null;
-                row[scope_catalog]       = null;
-                row[scope_schema]        = null;
-                row[scope_name]          = null;
-                row[dtd_identifier]      = null;    //**
+                row[type_udt_catalog] = null;
+                row[type_udt_schema]  = null;
+                row[type_udt_name]    = null;
+                row[scope_catalog]    = null;
+                row[scope_schema]     = null;
+                row[scope_name]       = null;
+                row[dtd_identifier]   = null;    //**
                 row[routine_body] = specific.getLanguage()
                                     == Routine.LANGUAGE_JAVA ? "EXTERNAL"
                                                              : "SQL";

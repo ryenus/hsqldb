@@ -221,22 +221,23 @@ public interface StatementTypes {
     int DECLARE_SESSION_TABLE          = 1068;
 
     // hsqldb schema
-    int CREATE_ALIAS            = 1071;
-    int CREATE_INDEX            = 1072;
-    int CREATE_USER             = 1073;
-    int DECLARE_VARIABLE        = 1074;
-    int DROP_COLUMN             = 1075;
-    int DROP_INDEX              = 1076;
-    int DROP_CONSTRAINT         = 1077;
-    int DROP_USER               = 1078;
-    int EXPLAIN_PLAN            = 1079;
-    int RENAME_OBJECT           = 1080;
-    int SET_TABLE_INDEX         = 1081;
-    int SET_TABLE_READONLY      = 1082;
-    int SET_TABLE_SOURCE        = 1083;
-    int SET_TABLE_SOURCE_HEADER = 1084;
-    int SET_TABLE_TYPE          = 1085;
-    int LOG_SCHEMA_STATEMENT    = 1086;
+    int COMMENT                 = 1071;
+    int CREATE_ALIAS            = 1072;
+    int CREATE_INDEX            = 1073;
+    int CREATE_USER             = 1074;
+    int DECLARE_VARIABLE        = 1075;
+    int DROP_COLUMN             = 1076;
+    int DROP_INDEX              = 1077;
+    int DROP_CONSTRAINT         = 1078;
+    int DROP_USER               = 1079;
+    int EXPLAIN_PLAN            = 1080;
+    int RENAME_OBJECT           = 1081;
+    int SET_TABLE_INDEX         = 1082;
+    int SET_TABLE_READONLY      = 1083;
+    int SET_TABLE_SOURCE        = 1084;
+    int SET_TABLE_SOURCE_HEADER = 1085;
+    int SET_TABLE_TYPE          = 1086;
+    int LOG_SCHEMA_STATEMENT    = 1087;
 
     // hsqldb sql implementation
     int CONDITION = 1101;                         // element of IF

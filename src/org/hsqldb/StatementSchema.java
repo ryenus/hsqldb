@@ -43,7 +43,6 @@ import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Charset;
-import org.hsqldb.types.LobData;
 import org.hsqldb.types.Type;
 
 /**
@@ -242,6 +241,11 @@ public class StatementSchema extends Statement {
             case StatementTypes.CREATE_INDEX :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 order = 4;
+                break;
+
+            case StatementTypes.COMMENT :
+                group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
+                order = 11;
                 break;
 
             case StatementTypes.CHECK :

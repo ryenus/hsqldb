@@ -207,7 +207,7 @@ final class DITableInfo {
 
         return (table.getTableType() == TableBase.SYSTEM_TABLE)
                ? BundleHandler.getString(hnd_table_remarks, getName())
-               : null;
+               : table.getName().comment;
     }
 
     /**

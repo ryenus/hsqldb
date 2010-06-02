@@ -963,7 +963,7 @@ public class SchemaManager {
 
             case SchemaObject.TABLE :
             case SchemaObject.VIEW :
-                return schema.sequenceLookup.getObject(name);
+                return schema.tableLookup.getObject(name);
 
             case SchemaObject.CHARSET :
                 if (name.equals("SQL_IDENTIFIER")) {
