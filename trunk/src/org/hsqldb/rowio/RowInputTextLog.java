@@ -230,6 +230,10 @@ implements RowInputInterface {
 
         readNumberField(Type.SQL_INTEGER);
 
+        if (value instanceof Long) {
+            value = Type.SQL_INTEGER.convertToDefaultType(null, value);
+        }
+
         return (Integer) value;
     }
 
@@ -239,6 +243,10 @@ implements RowInputInterface {
 
         if (value == null) {
             return null;
+        }
+
+        if (value instanceof BigDecimal) {
+            return (Long) Type.SQL_BIGINT.convertToDefaultType(null, value);
         }
 
         return ValuePool.getLong(((Number) value).longValue());
@@ -252,22 +260,29 @@ implements RowInputInterface {
             return null;
         }
 
-/*
-        if (tokenizer.isGetThis(Token.T_DIVIDE)) {
-            s = tokenizer.getString();
+        if (scanner.scanSpecialIdentifier(Tokens.T_DIVIDE)) {
+            scanner.scanNext();
 
-            // parse simply to ensure it's a number
-            double ii = JavaSystem.parseDouble(s);
+            Object divisor = scanner.getValue();
+            double i       = ((Number) divisor).doubleValue();
 
-            if (i == 0E0) {
-                i = Double.NaN;
-            } else if (i == -1E0) {
-                i = Double.NEGATIVE_INFINITY;
-            } else if (i == 1E0) {
-                i = Double.POSITIVE_INFINITY;
+            if (i == 0) {
+                if (((Number) value).doubleValue() == 1E0) {
+                    i = Double.NEGATIVE_INFINITY;
+                } else if (((Number) value).doubleValue() == -1E0) {
+                    i = Double.POSITIVE_INFINITY;
+                } else if (((Number) value).doubleValue() == 0E0) {
+                    i = Double.NaN;
+                } else {
+                    throw Error.error(ErrorCode.X_42584);
+                }
+            } else {
+                throw Error.error(ErrorCode.X_42584);
             }
+
+            value = Double.valueOf(i);
         }
-*/
+
         return (Double) value;
     }
 

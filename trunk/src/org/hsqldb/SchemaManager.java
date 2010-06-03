@@ -39,10 +39,10 @@ import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rights.Grantee;
-import org.hsqldb.types.LobData;
 import org.hsqldb.types.Type;
 
 /**
@@ -1973,6 +1973,80 @@ public class SchemaManager {
 
                 list.add(ddl);
             }
+        }
+
+        String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
+    public String[] getCommentsArray() {
+
+        HsqlArrayList tableList = getAllTables();
+        HsqlArrayList list      = new HsqlArrayList();
+        StringBuffer  sb        = new StringBuffer();
+
+        for (int i = 0; i < tableList.size(); i++) {
+            Table table = (Table) tableList.get(i);
+
+            if (table.getTableType() == Table.SYSTEM_TABLE) {
+                continue;
+            }
+
+            int colCount = table.getColumnCount();
+
+            for (int j = 0; j < colCount; j++) {
+                ColumnSchema column = table.getColumn(j);
+
+                if (column.getName().comment == null) {
+                    continue;
+                }
+
+                sb.setLength(0);
+                sb.append(Tokens.T_COMMENT).append(' ').append(Tokens.T_ON);
+                sb.append(' ').append(Tokens.T_COLUMN).append(' ');
+                sb.append(table.getName().getSchemaQualifiedStatementName());
+                sb.append('.').append(column.getName().statementName);
+                sb.append(' ').append(Tokens.T_IS).append(' ');
+                sb.append(
+                    StringConverter.toQuotedString(
+                        column.getName().comment, '\'', true));
+                list.add(sb.toString());
+            }
+
+            if (table.getName().comment == null) {
+                continue;
+            }
+
+            sb.setLength(0);
+            sb.append(Tokens.T_COMMENT).append(' ').append(Tokens.T_ON);
+            sb.append(' ').append(Tokens.T_TABLE).append(' ');
+            sb.append(table.getName().getSchemaQualifiedStatementName());
+            sb.append(' ').append(Tokens.T_IS).append(' ');
+            sb.append(StringConverter.toQuotedString(table.getName().comment,
+                    '\'', true));
+            list.add(sb.toString());
+        }
+
+        Iterator it = databaseObjectIterator(SchemaObject.ROUTINE);
+
+        while (it.hasNext()) {
+            SchemaObject object = (SchemaObject) it.next();
+
+            if (object.getName().comment == null) {
+                continue;
+            }
+
+            sb.setLength(0);
+            sb.append(Tokens.T_COMMENT).append(' ').append(Tokens.T_ON);
+            sb.append(' ').append(Tokens.T_ROUTINE).append(' ');
+            sb.append(object.getName().getSchemaQualifiedStatementName());
+            sb.append(' ').append(Tokens.T_IS).append(' ');
+            sb.append(StringConverter.toQuotedString(object.getName().comment,
+                    '\'', true));
+            list.add(sb.toString());
         }
 
         String[] array = new String[list.size()];

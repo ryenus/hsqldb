@@ -586,6 +586,11 @@ public class Database {
 
         addRows(r, list);
 
+        // optional comments on tables etc.
+        list = schemaManager.getCommentsArray();
+
+        addRows(r, list);
+
         // user session start schema names
         list = getUserManager().getInitialSchemaSQL();
 
