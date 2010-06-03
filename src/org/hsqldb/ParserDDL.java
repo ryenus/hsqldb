@@ -5009,7 +5009,7 @@ public class ParserDDL extends ParserRoutine {
                                                      token.isDelimitedPrefix,
                                                      SchemaObject.TABLE);
 
-                if (token.namePrefix == null) {
+                if (token.namePrePrefix == null) {
                     name.parent.schema = session.getCurrentSchemaHsqlName();
                 } else {
                     name.parent.schema = database.nameManager.newHsqlName(

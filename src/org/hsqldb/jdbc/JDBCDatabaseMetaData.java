@@ -149,18 +149,18 @@ import org.hsqldb.types.Type;
  *
  * <div class="GeneralExample">
  * <ol>
- * <li>If a class whose fully qualified name is org.hsqldb.DatabaseInformationFull
+ * <li>If a class whose fully qualified name is org.hsqldb.dbinfo.DatabaseInformationFull
  *     can be found and it has an accesible constructor that takes an
  *     org.hsqldb.Database object as its single parameter, then an instance of
  *     that class is reflectively instantiated and is used by the database
  *     instance to produce its system tables. <p>
  *
  * <li>If 1.) fails, then the process is repeated, attempting to create an
- *     instance of org.hsqldb.DatabaseInformationMain (which provides just the
+ *     instance of org.hsqldb.dbinfo.DatabaseInformationMain (which provides just the
  *     core set of system tables required to service this class, but now does
  *     so in a more security aware and comprehensive fashion). <p>
  *
- * <li>If 2.) fails, then an instance of org.hsqldb.DatabaseInformation is
+ * <li>If 2.) fails, then an instance of org.hsqldb.dbinfo.DatabaseInformation is
  *     installed (that, by default, produces no system tables, meaning that
  *     calls to all related methods in this class will fail, throwing an
  *     SQLException stating that a required system table is not found). <p>
@@ -2989,8 +2989,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
      * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
      * </div>
@@ -3076,18 +3075,15 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * Therefore, care must be taken to specify name arguments precisely
      * (including case) as they are stored in the database. <p>
      *
-     * Since 1.7.0, HSQLDB returns extra information on TEXT tables
-     * in the REMARKS column. <p>
+     * HSQLDB returns extra information on TEXT tables in the REMARKS column. <p>
      *
-     * Since 1.7.0, HSQLDB includes the new JDBC3 columns TYPE_CAT,
-     * TYPE_SCHEM, TYPE_NAME and SELF_REFERENCING_COL_NAME in anticipation
-     * of JDBC3 compliant tools. <p>
+     * HSQLDB includes the JDBC3 columns TYPE_CAT, TYPE_SCHEM, TYPE_NAME and
+     * SELF_REFERENCING_COL_NAME in anticipation of JDBC3 compliant tools. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3214,10 +3210,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3252,10 +3247,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * types.
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3359,8 +3353,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * This feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
      * {@link org.hsqldb.dbinfo.DatabaseInformation}.
      * </div>
@@ -3437,10 +3430,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3526,10 +3518,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3629,10 +3620,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * the column definition in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3746,10 +3736,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3815,10 +3804,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -3931,10 +3919,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4047,10 +4034,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4168,10 +4154,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4293,10 +4278,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4364,10 +4348,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * (including case) as they are stored in the database. <p>
      *
      * Since 1.7.2, this feature is supported by default. If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -4970,10 +4953,9 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      * for DOMAIN and DISTINCT types.<p>
      *
      * If the jar is
-     * compiled without org.hsqldb.DatabaseInformationFull or
-     * org.hsqldb.DatabaseInformationMain, the feature is
+     * compiled without org.hsqldb.dbinfo.DatabaseInformationMain, the feature is
      * not supported. The default implementation is
-     * {@link org.hsqldb.dbinfo.DatabaseInformationFull}.
+     * {@link org.hsqldb.dbinfo.DatabaseInformationMain}.
      * </div>
      * <!-- end release-specific documentation -->
      *
