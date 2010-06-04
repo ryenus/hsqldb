@@ -45,10 +45,9 @@
     <title>Overview</title>
 
     <para>The persistent elements of an SQL environment are database objects.
-    The database consists of catalogs plus authorizations. In HyperSQL, there
-    is only one catalog per database.</para>
+    The database consists of catalogs plus authorizations.</para>
 
-    <para>A catalog contains schemas while schemas contain the objects that
+    <para>A catalog contains schemas, while schemas contain the objects that
     contain data or govern the data.</para>
 
     <para>Each catalog contains a special schema called INFORMATION_SCHEMA.
@@ -62,6 +61,16 @@
 
   <section>
     <title>Schemas and Schema Objects</title>
+
+    <para>In HyperSQL, there is only one catalog per database. The name of the
+    catalog is PUBLIC. You can rename the catalog with the <literal>ALTER
+    CATALOG RENAME TO</literal> statement. All schemas belong the this
+    catalog. The catalog name has no relation to the file name of the
+    database.</para>
+
+    <para>Each database has also an internal "unique" name which is
+    automatically generated when the database is created. This name is used
+    for event logging. You can also change this unique name.</para>
 
     <para>Schema objects are database objects that contain data or govern or
     perform operations on data. By definition, each schema object belongs to a
@@ -755,14 +764,18 @@ INSERT INTO movies (starid, movieid, title) VALUES (IDENTITY(), 10, 'Felix in Ho
       from an INFORMATION_SCHEMA view. This command is not part of the SQL
       Standard. The strange syntax is due to compatibility with other database
       engines that support the statement.<literal> The &lt;name&gt;</literal>
-      is the name of a table, column or routine. The name of the column
+      is the name of a table, view, column or routine. The name of the column
       consists of dot-separated<literal> &lt;table name&gt; . &lt;column
-      name&gt;</literal>. The name of the table or routine can be a simple
-      name. All names can be qualified with a schema name.</simpara>
+      name&gt;</literal>. The name of the table, view or routine can be a
+      simple name. All names can be qualified with a schema name. If there is
+      alread a comment on the object, the new comment will replace
+      it.</simpara>
 
-      <para>The comments appear in the results returned JDBC DatabaseMetaData
-      methods, getTables() and getColumns(). The
-      INFORMATION_SCHEMA.SYSTEM_COMMENTS view contains the comments.</para>
+      <para>The comments appear in the results returned by JDBC
+      DatabaseMetaData methods, getTables() and getColumns(). The
+      INFORMATION_SCHEMA.SYSTEM_COMMENTS view contains the comments. You can
+      query this view using the schema, table, and column names to retreive
+      the comments.</para>
     </section>
 
     <section>
@@ -1736,7 +1749,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
     </section>
 
     <section>
-      <title>View Creation</title>
+      <title>View Creation and Manipulation</title>
 
       <indexterm significance="preferred" type="sql">
         <primary>CREATE VIEW</primary>
@@ -2223,7 +2236,8 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><literal>&lt;alter routine behavior&gt; ::=
       RESTRICT</literal></simpara>
 
-      <simpara>Alter a characteristic of an SQL-invoked routine.</simpara>
+      <simpara>Alter a characteristic of an SQL-invoked routine. Early
+      releases of HyperSQL 2.0 may not support this statement.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP routine</primary>
@@ -2322,8 +2336,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
       <simpara>The integer types: SMALLINT, INTEGER, BIGINT, DECIMAL and
       NUMERIC can be used as the type of the sequence. DECIMAL and NUMERIC
-      types must be used with a scale of 0 and a precision not exceeding
-      18.</simpara>
+      types must have a scale of 0 and a precision not exceeding 18.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>ALTER SEQUENCE</primary>
@@ -2797,7 +2810,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
       <para>ROUTINE_TABLE_USAGE</para>
 
-      <para>ROUTINES </para>
+      <para>ROUTINES</para>
 
       <para>SCHEMATA</para>
 
