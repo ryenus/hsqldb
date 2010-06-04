@@ -1794,6 +1794,24 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
       <simpara>Destroy a view. The <literal>&lt;drop behavior&gt;</literal> is
       similar to dropping a table.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ALTER view</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">ALTER VIEW</emphasis></simpara>
+
+      <simpara><emphasis>alter view statement</emphasis></simpara>
+
+      <simpara><literal>&lt;alter view statement&gt; ::= ALTER VIEW &lt;table
+      name&gt; &lt;view specification&gt; AS &lt;query expression&gt; [ WITH [
+      CASCADED | LOCAL ] CHECK OPTION ]</literal></simpara>
+
+      <simpara>Alter a view. The statement is otherwise identical to CREATE
+      VIEW. The new definition replaces the old. If there are database objects
+      such as routines or views that reference the view, then these objects
+      are recompiled with the new view definition. If the new definition is
+      not compatible, the statement fails.</simpara>
     </section>
 
     <section>
@@ -2711,7 +2729,9 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
       <para>ADMINISTRABLE_ROLE_AUTHORIZATIONS</para>
 
-      <para>APPLICABLE_ROLES ASSERTIONS</para>
+      <para>APPLICABLE_ROLES</para>
+
+      <para>ASSERTIONS</para>
 
       <para>AUTHORIZATIONS</para>
 
@@ -2749,27 +2769,59 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
       <para>KEY_COLUMN_USAGE</para>
 
+      <para>PARAMETERS</para>
+
       <para>REFERENTIAL_CONSTRAINTS</para>
 
       <para>ROLE_AUTHORIZATION_DESCRIPTORS</para>
 
       <para>ROLE_COLUMN_GRANTS</para>
 
-      <para>ROLE_ROUTINE_GRANTS ROLE_TABLE_GRANTS</para>
+      <para>ROLE_ROUTINE_GRANTS</para>
 
-      <para>ROLE_UDT_GRANTS ROLE_USAGE_GRANTS</para>
+      <para>ROLE_TABLE_GRANTS</para>
 
-      <para>SCHEMATA SEQUENCES SQL_FEATURES</para>
+      <para>ROLE_UDT_GRANTS</para>
 
-      <para>SQL_IMPLEMENTATION_INFO SQL_PACKAGES</para>
+      <para>ROLE_USAGE_GRANTS</para>
 
-      <para>SQL_PARTS SQL_SIZING</para>
+      <para>ROUTINE_COLUMN_USAGE</para>
 
-      <para>SQL_SIZING_PROFILES TABLES</para>
+      <para>ROUTINE_JAR_USAGE</para>
+
+      <para>ROUTINE_PRIVILEGES</para>
+
+      <para>ROUTINE_ROUTINE_USAGE</para>
+
+      <para>ROUTINE_SEQUENCE_USAGE</para>
+
+      <para>ROUTINE_TABLE_USAGE</para>
+
+      <para>ROUTINES </para>
+
+      <para>SCHEMATA</para>
+
+      <para>SEQUENCES</para>
+
+      <para>SQL_FEATURES</para>
+
+      <para>SQL_IMPLEMENTATION_INFO</para>
+
+      <para>SQL_PACKAGES</para>
+
+      <para>SQL_PARTS</para>
+
+      <para>SQL_SIZING</para>
+
+      <para>SQL_SIZING_PROFILES</para>
+
+      <para>TABLES</para>
 
       <para>TABLE_CONSTRAINTS</para>
 
-      <para>TABLE_PRIVILEGES TRANSLATIONS</para>
+      <para>TABLE_PRIVILEGES</para>
+
+      <para>TRANSLATIONS</para>
 
       <para>TRIGGERED_UPDATE_COLUMNS</para>
 
@@ -2802,6 +2854,8 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <para>SYSTEM_CACHEINFO</para>
 
       <para>SYSTEM_COLUMNS</para>
+
+      <para>SYSTEM_COMMENTS</para>
 
       <para>SYSTEM_CROSSREFERENCE</para>
 
