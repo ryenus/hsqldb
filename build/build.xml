@@ -596,6 +596,7 @@ examples:
          <include name="org/hsqldb/resources/sql-error-messages.properties"/>
          <exclude name="hsqlServlet.class"/>
          <exclude name="org/hsqldb/Servlet.class"/>
+         <exclude name="org/hsqldb/Server.class"/>
          <exclude name="org/hsqldb/server/HsqlSocketFactory.class"/>
          <exclude name="org/hsqldb/server/HsqlSocketFactorySecure.class"/>
          <exclude name="org/hsqldb/srever/HsqlServerFactory.class"/>
