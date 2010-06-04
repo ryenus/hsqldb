@@ -1567,6 +1567,9 @@ public class ParserDQL extends ParserBase {
             boolean limit = token.tokenType == Tokens.LIMIT
                             || token.tokenType == Tokens.OFFSET
                             || token.tokenType == Tokens.FETCH;
+
+            boolean minus = token.tokenType == Tokens.MINUS_EXCEPT;
+
             int position = getPosition();
 
             alias = HsqlNameManager.getSimpleName(token.tokenString,
@@ -1585,6 +1588,8 @@ public class ParserDQL extends ParserBase {
 
                     rewind(position);
                 }
+            } else if (!hasAs && minus) {
+                rewind(position);
             }
         }
 

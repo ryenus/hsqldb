@@ -63,7 +63,7 @@ class TransactionManagerCommon {
     LongDeque liveTransactionTimestamps = new LongDeque();
 
     /** live transactions keeping committed transactions from being merged */
-    AtomicLong globalChangeTimestamp = new AtomicLong();
+    AtomicLong globalChangeTimestamp = new AtomicLong(1);
     int        transactionCount      = 0;
 
     //
