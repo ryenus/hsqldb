@@ -108,6 +108,7 @@ public class StatementSchema extends Statement {
             case StatementTypes.ALTER_TYPE :
             case StatementTypes.ALTER_TABLE :
             case StatementTypes.ALTER_TRANSFORM :
+            case StatementTypes.ALTER_VIEW :
                 group = StatementTypes.X_SQL_SCHEMA_MANIPULATION;
                 break;
 
@@ -293,6 +294,8 @@ public class StatementSchema extends Statement {
 
     Result getResult(Session session) {
 
+        SchemaManager schemaManager = session.database.schemaManager;
+
         if (this.isExplain) {
             return Result.newSingleColumnStringResult("OPERATION",
                     describe(session));
@@ -322,9 +325,8 @@ public class StatementSchema extends Statement {
                      *  external view or trigger definitions
                      */
                     checkSchemaUpdateAuthorisation(session, name);
-                    session.database.schemaManager.checkSchemaNameCanChange(
-                        name);
-                    session.database.schemaManager.renameSchema(name, newName);
+                    schemaManager.checkSchemaNameCanChange(name);
+                    schemaManager.renameSchema(name, newName);
 
                     break;
                 }
@@ -333,16 +335,13 @@ public class StatementSchema extends Statement {
                     name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
                     if (name.type == SchemaObject.COLUMN) {
-                        Table table =
-                            session.database.schemaManager.getUserTable(
-                                session, name.parent);
+                        Table table = schemaManager.getUserTable(session,
+                            name.parent);
                         int index = table.getColumnIndex(name.name);
 
                         object = table.getColumn(index);
                     } else {
-                        object =
-                            session.database.schemaManager.getSchemaObject(
-                                name);
+                        object = schemaManager.getSchemaObject(name);
 
                         if (object == null) {
                             throw Error.error(ErrorCode.X_42501, name.name);
@@ -367,20 +366,17 @@ public class StatementSchema extends Statement {
                         case SchemaObject.COLUMN :
                             HsqlName parent = object.getName().parent;
 
-                            session.database.schemaManager
-                                .checkColumnIsReferenced(parent,
-                                                         object.getName());
+                            schemaManager.checkColumnIsReferenced(
+                                parent, object.getName());
 
-                            Table table =
-                                session.database.schemaManager.getUserTable(
-                                    session, parent);
+                            Table table = schemaManager.getUserTable(session,
+                                parent);
 
                             table.renameColumn((ColumnSchema) object, newName);
                             break;
 
                         default :
-                            session.database.schemaManager.renameSchemaObject(
-                                name, newName);
+                            schemaManager.renameSchemaObject(name, newName);
                     }
 
                     break;
@@ -417,15 +413,61 @@ public class StatementSchema extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+            case StatementTypes.ALTER_VIEW : {
+                View view = (View) arguments[0];
+
+                try {
+                    checkSchemaUpdateAuthorisation(session,
+                                                   view.getSchemaName());
+
+                    View oldView =
+                        (View) schemaManager.getSchemaObject(view.getName());
+
+                    if (oldView == null) {
+                        throw Error.error(ErrorCode.X_42501,
+                                          view.getName().name);
+                    }
+
+                    view.setName(oldView.getName());
+                    view.compile(session, null);
+
+                    OrderedHashSet dependents =
+                        schemaManager.getReferencingObjectNames(
+                            oldView.getName());
+
+                    if (dependents.getCommonElementCount(view.getReferences())
+                            > 0) {
+                        throw Error.error(ErrorCode.X_42502);
+                    }
+
+                    int i = schemaManager.getTableIndex(oldView);
+
+                    schemaManager.setTable(i, view);
+
+                    OrderedHashSet set = new OrderedHashSet();
+
+                    set.add(view);
+
+                    try {
+                        schemaManager.recompileDependentObjects(set);
+                    } catch (HsqlException e) {
+                        schemaManager.setTable(i, oldView);
+                        schemaManager.recompileDependentObjects(set);
+                    }
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.DROP_COLUMN : {
                 try {
                     HsqlName name       = (HsqlName) arguments[0];
                     int      objectType = ((Integer) arguments[1]).intValue();
                     boolean  cascade = ((Boolean) arguments[2]).booleanValue();
                     boolean ifExists = ((Boolean) arguments[3]).booleanValue();
-                    Table table =
-                        session.database.schemaManager.getUserTable(session,
-                            name.parent);
+                    Table table = schemaManager.getUserTable(session,
+                        name.parent);
                     int colindex = table.getColumnIndex(name.name);
 
                     if (table.getColumnCount() == 1) {
@@ -481,8 +523,7 @@ public class StatementSchema extends Statement {
                         case StatementTypes.DROP_SCHEMA :
                             checkSchemaUpdateAuthorisation(session, name);
 
-                            if (!session.database.schemaManager.schemaExists(
-                                    name.name)) {
+                            if (!schemaManager.schemaExists(name.name)) {
                                 if (ifExists) {
                                     return Result.updateZeroResult;
                                 }
@@ -494,24 +535,22 @@ public class StatementSchema extends Statement {
                                 name.schema =
                                     session.getCurrentSchemaHsqlName();
                             } else {
-                                if (!session.database.schemaManager
-                                        .schemaExists(name.schema.name)) {
+                                if (!schemaManager.schemaExists(
+                                        name.schema.name)) {
                                     if (ifExists) {
                                         return Result.updateZeroResult;
                                     }
                                 }
                             }
 
-                            name.schema =
-                                session.database.schemaManager
-                                    .getUserSchemaHsqlName(name.schema.name);
+                            name.schema = schemaManager.getUserSchemaHsqlName(
+                                name.schema.name);
 
                             checkSchemaUpdateAuthorisation(session,
                                                            name.schema);
 
                             SchemaObject object =
-                                session.database.schemaManager.getSchemaObject(
-                                    name);
+                                schemaManager.getSchemaObject(name);
 
                             if (object == null) {
                                 if (ifExists) {
@@ -530,8 +569,7 @@ public class StatementSchema extends Statement {
                     }
 
                     if (!cascade) {
-                        session.database.schemaManager.checkObjectIsReferenced(
-                            name);
+                        schemaManager.checkObjectIsReferenced(name);
                     }
 
                     switch (type) {
@@ -584,15 +622,14 @@ public class StatementSchema extends Statement {
                         case StatementTypes.DROP_INDEX :
                             checkSchemaUpdateAuthorisation(session,
                                                            name.schema);
-                            session.database.schemaManager.dropIndex(session,
-                                    name);
+                            schemaManager.dropIndex(session, name);
                             break;
 
                         case StatementTypes.DROP_CONSTRAINT :
                             checkSchemaUpdateAuthorisation(session,
                                                            name.schema);
-                            session.database.schemaManager.dropConstraint(
-                                session, name, cascade);
+                            schemaManager.dropConstraint(session, name,
+                                                         cascade);
                             break;
                     }
 
@@ -610,11 +647,11 @@ public class StatementSchema extends Statement {
 
                     this.setSchemaName(session, null, name);
 
-                    name = session.database.schemaManager.getSchemaObjectName(
-                        name.schema, name.name, name.type, true);
+                    name = schemaManager.getSchemaObjectName(name.schema,
+                            name.name, name.type, true);
 
                     SchemaObject schemaObject =
-                        session.database.schemaManager.getSchemaObject(name);
+                        schemaManager.getSchemaObject(name);
                     Right   right   = (Right) arguments[2];
                     Grantee grantor = (Grantee) arguments[3];
                     boolean cascade = ((Boolean) arguments[4]).booleanValue();
@@ -714,7 +751,7 @@ public class StatementSchema extends Statement {
                 try {
                     setOrCheckObjectName(session, null, charset.getName(),
                                          true);
-                    session.database.schemaManager.addSchemaObject(charset);
+                    schemaManager.addSchemaObject(charset);
 
                     break;
                 } catch (HsqlException e) {
@@ -767,8 +804,7 @@ public class StatementSchema extends Statement {
                 try {
                     session.checkDDLWrite();
 
-                    if (session.database.schemaManager.schemaExists(
-                            name.name)) {
+                    if (schemaManager.schemaExists(name.name)) {
                         if (session.isProcessingScript
                                 && SqlInvariants.PUBLIC_SCHEMA.equals(
                                     name.name)) {}
@@ -776,13 +812,10 @@ public class StatementSchema extends Statement {
                             throw Error.error(ErrorCode.X_42504, name.name);
                         }
                     } else {
-                        session.database.schemaManager.createSchema(name,
-                                owner);
+                        schemaManager.createSchema(name, owner);
 
                         // always include authorization
-                        Schema schema =
-                            session.database.schemaManager.findSchema(
-                                name.name);
+                        Schema schema = schemaManager.findSchema(name.name);
 
                         this.sql = schema.getSQL();
                     }
@@ -799,7 +832,7 @@ public class StatementSchema extends Statement {
                     routine.resolve(session);
                     setOrCheckObjectName(session, null, routine.getName(),
                                          false);
-                    session.database.schemaManager.addSchemaObject(routine);
+                    schemaManager.addSchemaObject(routine);
 
                     break;
                 } catch (HsqlException e) {
@@ -817,8 +850,7 @@ public class StatementSchema extends Statement {
                     if (name != null) {
                         for (int i = 0; i < routines.length; i++) {
                             routines[i].setName(name);
-                            session.database.schemaManager.addSchemaObject(
-                                routines[i]);
+                            schemaManager.addSchemaObject(routines[i]);
                         }
                     }
 
@@ -833,7 +865,7 @@ public class StatementSchema extends Statement {
                 try {
                     setOrCheckObjectName(session, null, sequence.getName(),
                                          true);
-                    session.database.schemaManager.addSchemaObject(sequence);
+                    schemaManager.addSchemaObject(sequence);
 
                     break;
                 } catch (HsqlException e) {
@@ -853,10 +885,10 @@ public class StatementSchema extends Statement {
 
                         setOrCheckObjectName(session, type.getName(),
                                              c.getName(), true);
-                        session.database.schemaManager.addSchemaObject(c);
+                        schemaManager.addSchemaObject(c);
                     }
 
-                    session.database.schemaManager.addSchemaObject(type);
+                    schemaManager.addSchemaObject(type);
 
                     break;
                 } catch (HsqlException e) {
@@ -889,7 +921,7 @@ public class StatementSchema extends Statement {
                     }
 
                     table.compile(session, null);
-                    session.database.schemaManager.addSchemaObject(table);
+                    schemaManager.addSchemaObject(table);
 
                     if (statement != null) {
                         Result result = statement.execute(session);
@@ -911,9 +943,8 @@ public class StatementSchema extends Statement {
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
-                    session.database.schemaManager.removeExportedKeys(table);
-                    session.database.schemaManager.removeDependentObjects(
-                        table.getName());
+                    schemaManager.removeExportedKeys(table);
+                    schemaManager.removeDependentObjects(table.getName());
 
                     return Result.newErrorResult(e, sql);
                 }
@@ -931,19 +962,18 @@ public class StatementSchema extends Statement {
                 try {
                     checkSchemaUpdateAuthorisation(session,
                                                    trigger.getSchemaName());
-                    session.database.schemaManager.checkSchemaObjectNotExists(
+                    schemaManager.checkSchemaObjectNotExists(
                         trigger.getName());
 
                     if (otherName != null) {
-                        if (session.database.schemaManager.getSchemaObject(
-                                otherName) == null) {
+                        if (schemaManager.getSchemaObject(otherName) == null) {
                             throw Error.error(ErrorCode.X_42501,
                                               otherName.name);
                         }
                     }
 
                     trigger.table.addTrigger(trigger, otherName);
-                    session.database.schemaManager.addSchemaObject(trigger);
+                    schemaManager.addSchemaObject(trigger);
 
                     break;
                 } catch (HsqlException e) {
@@ -958,7 +988,7 @@ public class StatementSchema extends Statement {
 
                 try {
                     setOrCheckObjectName(session, null, type.getName(), true);
-                    session.database.schemaManager.addSchemaObject(type);
+                    schemaManager.addSchemaObject(type);
 
                     break;
                 } catch (HsqlException e) {
@@ -974,10 +1004,9 @@ public class StatementSchema extends Statement {
                 try {
                     checkSchemaUpdateAuthorisation(session,
                                                    view.getSchemaName());
-                    session.database.schemaManager.checkSchemaObjectNotExists(
-                        view.getName());
+                    schemaManager.checkSchemaObjectNotExists(view.getName());
                     view.compile(session, null);
-                    session.database.schemaManager.addSchemaObject(view);
+                    schemaManager.addSchemaObject(view);
 
                     break;
                 } catch (HsqlException e) {
@@ -1017,6 +1046,67 @@ public class StatementSchema extends Statement {
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
+            }
+            case StatementTypes.COMMENT : {
+                HsqlName name    = (HsqlName) arguments[0];
+                String   comment = (String) arguments[1];
+
+                switch (name.type) {
+
+                    case SchemaObject.COLUMN : {
+                        Table table = (Table) schemaManager.getSchemaObject(
+                            name.parent.name, name.parent.schema.name,
+                            SchemaObject.TABLE);
+
+                        if (!session.getGrantee().isFullyAccessibleByRole(
+                                table.getName())) {
+                            throw Error.error(ErrorCode.X_42501);
+                        }
+
+                        int index = table.getColumnIndex(name.name);
+
+                        if (index < 0) {
+                            throw Error.error(ErrorCode.X_42501);
+                        }
+
+                        ColumnSchema column = table.getColumn(index);
+
+                        column.getName().comment = comment;
+
+                        break;
+                    }
+                    case SchemaObject.ROUTINE : {
+                        RoutineSchema routine =
+                            (RoutineSchema) schemaManager.getSchemaObject(
+                                name.name, name.schema.name,
+                                SchemaObject.ROUTINE);
+
+                        if (!session.getGrantee().isFullyAccessibleByRole(
+                                routine.getName())) {
+                            throw Error.error(ErrorCode.X_42501);
+                        }
+
+                        routine.getName().comment = comment;
+
+                        break;
+                    }
+                    case SchemaObject.TABLE : {
+                        Table table =
+                            (Table) schemaManager.getSchemaObject(name.name,
+                                name.schema.name, SchemaObject.TABLE);
+
+                        if (!session.getGrantee().isFullyAccessibleByRole(
+                                table.getName())) {
+                            throw Error.error(ErrorCode.X_42501);
+                        }
+
+                        table.getName().comment = comment;
+
+                        break;
+                    }
+                }
+
+                break;
             }
 
             // for logging only

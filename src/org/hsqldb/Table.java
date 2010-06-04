@@ -286,6 +286,10 @@ public class Table extends TableBase implements SchemaObject {
         return tableName;
     }
 
+    public final void setName(HsqlName name) {
+        tableName = name;
+    }
+
     /**
      * Returns the catalog name or null, depending on a database property.
      */
@@ -2762,5 +2766,4 @@ public class Table extends TableBase implements SchemaObject {
     public QueryExpression getQueryExpression() {
         return null;
     }
-
 }

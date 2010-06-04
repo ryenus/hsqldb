@@ -281,6 +281,7 @@ public class Server implements HsqlSocketRequestHandler {
     private volatile int       serverState;
     private volatile boolean   isSilent;
     protected volatile boolean isRemoteOpen;
+    protected boolean          isDaemon;
     private PrintWriter        logWriter;
     private PrintWriter        errWriter;
     private ServerAcl          acl = null;    // null means no access tests
@@ -1147,6 +1148,20 @@ public class Server implements HsqlSocketRequestHandler {
     }
 
     /**
+     * Sets whether server thread is a daemon. Used before starting
+     *
+     * @param trace if true, route JDBC trace messages to System.out
+     *
+     * @jmx.managed-attribute
+     */
+    public void setDaemon(boolean daemon) {
+
+        checkRunning(false);
+        printWithThread("setDaemon(" + daemon + ")");
+        serverProperties.setProperty(ServerConstants.SC_KEY_DAEMON, daemon);
+    }
+
+    /**
      * Sets the path of the root directory from which web content is served.
      *
      * @param root the root (context) directory from which web content
@@ -1197,6 +1212,8 @@ public class Server implements HsqlSocketRequestHandler {
             serverProperties.isPropertyTrue(ServerConstants.SC_KEY_SILENT);
         isRemoteOpen = serverProperties.isPropertyTrue(
             ServerConstants.SC_KEY_REMOTE_OPEN_DB);
+        isDaemon =
+            serverProperties.isPropertyTrue(ServerConstants.SC_KEY_DAEMON);
 
         String aclFilepath =
             serverProperties.getProperty(ServerConstants.SC_KEY_ACL_FILEPATH);
@@ -1240,6 +1257,10 @@ public class Server implements HsqlSocketRequestHandler {
         setState(ServerConstants.SERVER_STATE_OPENING);
 
         serverThread = new ServerThread("HSQLDB Server ");
+
+        if (isDaemon) {
+            serverThread.setDaemon(true);
+        }
 
         serverThread.start();
 
