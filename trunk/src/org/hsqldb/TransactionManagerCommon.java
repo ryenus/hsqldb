@@ -118,6 +118,7 @@ class TransactionManagerCommon {
 
                 if (txModel == TransactionManager.LOCKS) {
                     action.setAsNoOp();
+                    row.rowAction = null;
                 }
             } catch (HsqlException e) {
                 database.logger.logWarningEvent("data commit failed", e);

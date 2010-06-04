@@ -151,22 +151,29 @@ public class TriggerDef implements Runnable, SchemaObject {
         rowsQueued            = 0;
         pendingQueue          = new HsqlDeque();
 
-        Class cl;
+        Class cl = null;
 
         try {
-            cl = Class.forName(triggerClassName);
-        } catch (ClassNotFoundException e) {
-            valid = false;
-            cl    = DefaultTrigger.class;
+            cl = Class.forName(triggerClassName, true,
+                               Thread.currentThread().getContextClassLoader());
+        } catch (Throwable t1) {
+            try {
+                cl = Class.forName(triggerClassName);
+            } catch (Throwable t) {}
         }
 
-        try {
-
-            // dynamically instantiate it
-            trigger = (Trigger) cl.newInstance();
-        } catch (Exception e) {
+        if (cl == null) {
             valid   = false;
             trigger = new DefaultTrigger();
+        } else {
+            try {
+
+                // dynamically instantiate it
+                trigger = (Trigger) cl.newInstance();
+            } catch (Throwable t1) {
+                valid   = false;
+                trigger = new DefaultTrigger();
+            }
         }
     }
 

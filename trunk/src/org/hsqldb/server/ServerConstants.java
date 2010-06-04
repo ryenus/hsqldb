@@ -86,6 +86,7 @@ public interface ServerConstants {
     String SC_KEY_SILENT             = SC_KEY_PREFIX + ".silent";
     String SC_KEY_TLS                = SC_KEY_PREFIX + ".tls";
     String SC_KEY_TRACE              = SC_KEY_PREFIX + ".trace";
+    String SC_KEY_DAEMON             = SC_KEY_PREFIX + ".daemon";
     String SC_KEY_WEB_DEFAULT_PAGE   = SC_KEY_PREFIX + ".default_page";
     String SC_KEY_WEB_ROOT           = SC_KEY_PREFIX + ".root";
     String SC_KEY_MAX_CONNECTIONS    = SC_KEY_PREFIX + ".maxconnections";

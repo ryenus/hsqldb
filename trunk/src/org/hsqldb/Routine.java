@@ -438,11 +438,12 @@ public class Routine implements SchemaObject {
     }
 
     public void setReturnTable(TableDerived table) {
+
         this.returnTable  = table;
         this.returnsTable = true;
 
-        SimpleName[] names = new SimpleName[table.getColumnCount() ];
-        Type[] types = table.getColumnTypes();
+        SimpleName[] names = new SimpleName[table.getColumnCount()];
+        Type[]       types = table.getColumnTypes();
 
         returnType = new RowType(types);
     }
@@ -749,21 +750,35 @@ public class Routine implements SchemaObject {
             throw Error.error(ErrorCode.X_42501, name);
         }
 
-        String classname     = name.substring(0, i);
-        String methodname    = name.substring(i + 1);
-        Class  classinstance = null;
+        String   className  = name.substring(0, i);
+        String   methodname = name.substring(i + 1);
+        Class    cl;
+        Method[] methods = null;
 
         try {
-            classinstance = Class.forName(classname);
+            cl = Class.forName(className, true,
+                               Thread.currentThread().getContextClassLoader());
+        } catch (Throwable t1) {
+            try {
+                cl = Class.forName(className);
+            } catch (Throwable t) {
+                throw Error.error(t, ErrorCode.X_42501,
+                                  ErrorCode.M_Message_Pair, new Object[] {
+                    t.getMessage(), className
+                });
+            }
+        }
+
+        try {
+            methods = cl.getMethods();
         } catch (Throwable t) {
             throw Error.error(t, ErrorCode.X_42501, ErrorCode.M_Message_Pair,
                               new Object[] {
-                t.getMessage(), classname
+                t.getMessage(), className
             });
         }
 
-        Method[]      methods = classinstance.getMethods();
-        HsqlArrayList list    = new HsqlArrayList();
+        HsqlArrayList list = new HsqlArrayList();
 
         for (i = 0; i < methods.length; i++) {
             int    offset    = 0;

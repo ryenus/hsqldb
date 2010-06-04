@@ -31,19 +31,15 @@
 
 package org.hsqldb.server;
 
-import org.hsqldb.persist.HsqlProperties;
-import org.hsqldb.lib.HashMap;
-import org.hsqldb.lib.Iterator;
-import org.hsqldb.lib.HashSet;
-import org.hsqldb.lib.Set;
-
 import java.util.Enumeration;
 
-import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashMappedList;
+import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyHashMap;
-import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.persist.HsqlProperties;
 
 /**
  * A subclass HsqlProperties with functionality needed for the HSQLDB Server
@@ -97,6 +93,7 @@ public class ServerProperties extends HsqlProperties {
     final static String sc_key_remote_open_db   = "server.remote_open";
     final static String sc_key_max_databases    = "server.maxdatabases";
     final static String sc_key_acl              = "server.acl";
+    final static String sc_key_daemon           = "server.daemon";
     final static String sc_key_system           = "system.";
 
     // web server page defaults
@@ -299,6 +296,7 @@ public class ServerProperties extends HsqlProperties {
                  getMeta(sc_key_remote_open_db, SERVER_PROPERTY, false));
         meta.put(sc_key_no_system_exit,
                  getMeta(sc_key_no_system_exit, SERVER_PROPERTY, false));
+        meta.put(sc_key_daemon, getMeta(sc_key_daemon, SERVER_PROPERTY, false));
 
         //
         prefixes.add(sc_key_database);

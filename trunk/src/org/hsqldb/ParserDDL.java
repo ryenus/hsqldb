@@ -172,7 +172,7 @@ public class ParserDDL extends ParserRoutine {
                 return compileCreateRole();
 
             case Tokens.VIEW :
-                return compileCreateView();
+                return compileCreateView(false);
 
             case Tokens.DOMAIN :
                 return compileCreateDomain();
@@ -271,24 +271,19 @@ public class ParserDDL extends ParserRoutine {
                                            SchemaObject.CATALOG);
             }
             case Tokens.SEQUENCE : {
-                read();
-
                 return compileAlterSequence();
             }
             case Tokens.TABLE : {
-                read();
-
                 return compileAlterTable();
             }
             case Tokens.USER : {
-                read();
-
                 return compileAlterUser();
             }
             case Tokens.DOMAIN : {
-                read();
-
                 return compileAlterDomain();
+            }
+            case Tokens.VIEW : {
+                return compileCreateView(true);
             }
             default : {
                 throw unexpectedToken();
@@ -785,6 +780,8 @@ public class ParserDDL extends ParserRoutine {
     }
 
     Statement compileAlterTable() {
+
+        read();
 
         String   tableName = token.tokenString;
         HsqlName schema    = session.getSchemaHsqlName(token.namePrefix);
@@ -1733,7 +1730,7 @@ public class ParserDDL extends ParserRoutine {
         return name;
     }
 
-    StatementSchema compileCreateView() {
+    StatementSchema compileCreateView(boolean alter) {
 
         read();
 
@@ -1784,21 +1781,15 @@ public class ParserDDL extends ParserRoutine {
         queryExpression.resolve(session);
         view.setStatement(Token.getSQL(tokenisedStatement));
 
-        String   fullSQL = getLastPart();
-        Object[] args    = new Object[]{ view };
-        StatementSchema cs = new StatementSchema(fullSQL,
-            StatementTypes.CREATE_VIEW, args);
+        String          fullSQL = getLastPart();
+        Object[]        args    = new Object[]{ view };
+        int             type    = alter ? StatementTypes.ALTER_VIEW
+                                        : StatementTypes.CREATE_VIEW;
+        StatementSchema cs      = new StatementSchema(fullSQL, type, args);
+        StatementQuery s = new StatementQuery(session, queryExpression,
+                                              compileContext);
 
-        /** @todo - should also lock subquery tables */
-        OrderedHashSet set = new OrderedHashSet();
-
-        queryExpression.getBaseTableNames(set);
-
-        HsqlName[] names = new HsqlName[set.size()];
-
-        set.toArray(names);
-
-        cs.readTableNames = names;
+        cs.readTableNames = s.readTableNames;
 
         return cs;
     }
@@ -3984,6 +3975,8 @@ public class ParserDDL extends ParserRoutine {
 
     Statement compileAlterSequence() {
 
+        read();
+
         HsqlName schema = session.getSchemaHsqlName(token.namePrefix);
         NumberSequence sequence =
             database.schemaManager.getSequence(token.tokenString, schema.name,
@@ -4251,6 +4244,8 @@ public class ParserDDL extends ParserRoutine {
 
     Statement compileAlterUser() {
 
+        read();
+
         String   password;
         User     userObject;
         HsqlName userName = readNewUserIdentifier();
@@ -4389,6 +4384,8 @@ public class ParserDDL extends ParserRoutine {
     }
 
     Statement compileAlterDomain() {
+
+        read();
 
         HsqlName schema = session.getSchemaHsqlName(token.namePrefix);
         Type domain = database.schemaManager.getDomain(token.tokenString,
@@ -4994,7 +4991,6 @@ public class ParserDDL extends ParserRoutine {
             }
             case Tokens.COLUMN : {
                 read();
-
                 checkIsSchemaObjectName();
 
                 name = database.nameManager.newHsqlName(token.tokenString,
