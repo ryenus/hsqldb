@@ -54,6 +54,8 @@ import org.hsqldb.result.ResultProperties;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.LobData;
+import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.ClobDataID;
 
 /*
  * Session semi-persistent data structures
@@ -480,13 +482,13 @@ public class SessionData {
     private void registerLobsForRow(Object[] data) {
 
         for (int i = 0; i < data.length; i++) {
-            if (data[i] instanceof BlobData) {
-                BlobData blob = (BlobData) data[i];
+            if (data[i] instanceof BlobDataID) {
+                BlobData blob = (BlobDataID) data[i];
                 long     id   = resultLobs.get(blob.getId());
 
                 data[i] = database.lobManager.getBlob(id);
-            } else if (data[i] instanceof ClobData) {
-                ClobData clob = (ClobData) data[i];
+            } else if (data[i] instanceof ClobDataID) {
+                ClobData clob = (ClobDataID) data[i];
                 long     id   = resultLobs.get(clob.getId());
 
                 data[i] = database.lobManager.getClob(id);

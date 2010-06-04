@@ -58,6 +58,7 @@ public class TestStressInsert {
 
         String driver = "org.hsqldb.jdbc.JDBCDriver";
         String url    = "jdbc:hsqldb:file:/hsql/stress/test";
+//        String url    = "jdbc:hsqldb:hsql://localhost/test";
 
         Class.forName(driver);
 

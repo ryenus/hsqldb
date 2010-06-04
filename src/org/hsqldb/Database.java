@@ -194,6 +194,10 @@ public class Database {
             lobManager.createSchema();
             sessionManager.getSysLobSession().setSchema(
                 SqlInvariants.LOBS_SCHEMA);
+
+            schemaManager.setSchemaChangeTimestamp();
+
+            // completed metadata
             logger.openPersistence();
 
             isNew = logger.isNewDatabase;
