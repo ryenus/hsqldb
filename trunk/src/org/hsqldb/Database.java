@@ -86,6 +86,7 @@ public class Database {
 
     /** true means filesReadOnly but CACHED and TEXT tables are disallowed */
     private boolean               filesInJar;
+    public boolean                sqlEnforceRefs;
     public boolean                sqlEnforceSize;
     public boolean                sqlEnforceNames;
     private boolean               isReferentialIntegrity;
@@ -412,6 +413,10 @@ public class Database {
 
     public void setStrictColumnSize(boolean mode) {
         sqlEnforceSize = mode;
+    }
+
+    public void setStrictReferences(boolean mode) {
+        sqlEnforceRefs = mode;
     }
 
     public int getDefaultIsolationLevel() {

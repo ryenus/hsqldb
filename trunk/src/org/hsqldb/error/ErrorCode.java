@@ -572,9 +572,9 @@ public interface ErrorCode {
     int X_42577 = 5577;                            // duplicate name in column list
     int X_42578 = 5578;                            // duplicate column name in derived table
     int X_42579 = 5579;                            // duplicate update of column
+    int X_42580 = 5580;                            // ambiguous column reference
 
     // lexical elements
-    int X_42580 = 5580;                            // invalid identifer
     int X_42581 = 5581;                            // unexpected token
     int X_42582 = 5582;                            // unknown token
     int X_42583 = 5583;                            // malforemd quoted identifier

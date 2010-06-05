@@ -112,6 +112,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
             case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES :
             case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE :
+            case StatementTypes.SET_DATABASE_SQL_REFERENCES :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
             case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL :
             case StatementTypes.SET_DATABASE_GC :
@@ -466,6 +467,13 @@ public class StatementCommand extends Statement {
                 boolean mode = ((Boolean) parameters[0]).booleanValue();
 
                 session.database.setStrictColumnSize(mode);
+
+                return Result.updateZeroResult;
+            }
+            case StatementTypes.SET_DATABASE_SQL_REFERENCES : {
+                boolean mode = ((Boolean) parameters[0]).booleanValue();
+
+                session.database.setStrictReferences(mode);
 
                 return Result.updateZeroResult;
             }

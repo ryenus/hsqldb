@@ -184,7 +184,7 @@ public class ExpressionLogical extends Expression {
     }
 
     /**
-     * Creates a column not null expression
+     * Creates a column not null expression for check constraints
      */
     ExpressionLogical(ColumnSchema column) {
 

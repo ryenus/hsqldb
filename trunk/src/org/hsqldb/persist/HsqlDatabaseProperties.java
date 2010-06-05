@@ -221,6 +221,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_size      = "sql.enforce_size";
     public static final String sql_enforce_strict_size =
         "sql.enforce_strict_size";
+    public static final String sql_enforce_refs = "sql.enforce_refs";
     public static final String sql_enforce_names = "sql.enforce_names";
     public static final String jdbc_translate_dti_types =
         "jdbc.translate_dti_types";
@@ -319,9 +320,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(jdbc_translate_dti_types,
                    HsqlProperties.getMeta(jdbc_translate_dti_types,
                                           SQL_PROPERTY, true));
-        dbMeta.put(sql_identity_is_pk,
-                   HsqlProperties.getMeta(sql_identity_is_pk, SQL_PROPERTY,
-                                          false));
         dbMeta.put(hsqldb_inc_backup,
                    HsqlProperties.getMeta(hsqldb_inc_backup, SQL_PROPERTY,
                                           true));
@@ -336,9 +334,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           true));
 
         // char padding to size and exception if data is too long
+        dbMeta.put(sql_identity_is_pk,
+                   HsqlProperties.getMeta(sql_identity_is_pk, SQL_PROPERTY,
+                                          false));
         dbMeta.put(sql_ref_integrity,
                    HsqlProperties.getMeta(sql_ref_integrity, SQL_PROPERTY,
                                           true));
+        dbMeta.put(sql_enforce_refs,
+                   HsqlProperties.getMeta(sql_enforce_refs, SQL_PROPERTY,
+                                          false));
         dbMeta.put(sql_enforce_size,
                    HsqlProperties.getMeta(sql_enforce_size, SQL_PROPERTY,
                                           true));

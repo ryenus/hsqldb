@@ -914,6 +914,14 @@ public class ParserCommand extends ParserDDL {
 
                 switch (token.tokenType) {
 
+                    case Tokens.REFERENCES :
+                        read();
+
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT_SIZE;
+                        flag = processTrueOrFalseObject();
+                        break;
+
+
                     case Tokens.SIZE :
                         read();
 
