@@ -818,6 +818,12 @@ public class StatementSchema extends Statement {
                         Schema schema = schemaManager.findSchema(name.name);
 
                         this.sql = schema.getSQL();
+
+                        if (session.isProcessingScript()
+                                && session.database.getProperties()
+                                    .isVersion18()) {
+                            session.setSchema(schema.getName().name);
+                        }
                     }
 
                     break;

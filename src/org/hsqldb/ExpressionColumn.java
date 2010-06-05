@@ -67,16 +67,21 @@ public class ExpressionColumn extends Expression {
     //
     boolean isParam;
 
+    //
+    boolean strictReference;
+
     /**
      * Creates a OpCodes.COLUMN expression
      */
-    ExpressionColumn(String schema, String table, String column) {
+    ExpressionColumn(String schema, String table, String column,
+                     boolean strictReference) {
 
         super(OpTypes.COLUMN);
 
-        this.schema = schema;
-        tableName   = table;
-        columnName  = column;
+        this.schema          = schema;
+        this.tableName       = table;
+        this.columnName      = column;
+        this.strictReference = strictReference;
     }
 
     ExpressionColumn(ColumnSchema column) {
@@ -88,22 +93,13 @@ public class ExpressionColumn extends Expression {
         columnName    = column.getName().name;
     }
 
-    ExpressionColumn(RangeVariable rangeVar, ColumnSchema column) {
-
-        super(OpTypes.COLUMN);
-
-        columnIndex = rangeVar.rangeTable.findColumn(column.getName().name);
-
-        setAttributesAsColumn(rangeVar, columnIndex);
-    }
-
     ExpressionColumn(RangeVariable rangeVar, int index) {
 
         super(OpTypes.COLUMN);
 
         columnIndex = index;
 
-        setAttributesAsColumn(rangeVar, columnIndex);
+        setAutoAttributesAsColumn(rangeVar, columnIndex);
     }
 
     /**
@@ -162,6 +158,18 @@ public class ExpressionColumn extends Expression {
         dataType      = sequence.getDataType();
     }
 
+    void setAutoAttributesAsColumn(RangeVariable range, int i) {
+
+        columnIndex   = i;
+        column        = range.getColumn(i);
+        dataType      = column.getDataType();
+        columnName    = range.getColumnAlias(i);
+        tableName     = range.getTableAlias();
+        rangeVariable = range;
+
+        rangeVariable.addColumn(columnIndex);
+    }
+
     void setAttributesAsColumn(RangeVariable range, int i) {
 
         if (range.variables != null) {
@@ -170,20 +178,9 @@ public class ExpressionColumn extends Expression {
             dataType      = column.getDataType();
             rangeVariable = range;
         } else {
-            Table t = range.getTable();
-
-            columnIndex = i;
-            column      = range.getColumn(i);
-            dataType    = column.getDataType();
-            columnName  = column.getName().name;
-            tableName   = t.getName().name;
-            schema      = t.getSchemaName() == null ? null
-                                                    : t.getSchemaName().name;
-
-            if (alias == null && range.hasColumnAlias()) {
-                alias = range.getColumnAliasName(i);
-            }
-
+            columnIndex   = i;
+            column        = range.getColumn(i);
+            dataType      = column.getDataType();
             rangeVariable = range;
 
             rangeVariable.addColumn(columnIndex);
@@ -336,9 +333,21 @@ public class ExpressionColumn extends Expression {
 
                     if (resolved) {
                         if (resolvesDuplicateColumnReference(rangeVar)) {
-                            resolvesDuplicateColumnReference(rangeVar);
+                            if (strictReference) {
+                                String message = getColumnName();
 
-                            throw Error.error(ErrorCode.X_42578);
+                                if (alias != null) {
+                                    StringBuffer sb =
+                                        new StringBuffer(message);
+
+                                    sb.append(' ').append(Tokens.T_AS).append(
+                                        ' ').append(alias.getStatementName());
+
+                                    message = sb.toString();
+                                }
+
+                                throw Error.error(ErrorCode.X_42580, message);
+                            }
                         }
                     } else {
                         if (resolveColumnReference(rangeVar)) {
@@ -677,7 +686,7 @@ public class ExpressionColumn extends Expression {
     }
 
     /**
-     * Returns the table name for a column expression as a string
+     * Returns the table name used in query
      *
      * @return table name
      */

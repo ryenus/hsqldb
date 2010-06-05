@@ -329,10 +329,10 @@ public final class RangeVariable implements Cloneable {
 
     ColumnSchema getColumn(int i) {
 
-        if (variables != null) {
-            return (ColumnSchema) variables.get(i);
-        } else {
+        if (variables == null) {
             return rangeTable.getColumn(i);
+        } else {
+            return (ColumnSchema) variables.get(i);
         }
     }
 
@@ -345,15 +345,27 @@ public final class RangeVariable implements Cloneable {
 
     public SimpleName getColumnAliasName(int i) {
 
-        if (columnAliases != null) {
-            return columnAliasNames[i];
-        } else {
+        if (columnAliases == null) {
             return rangeTable.getColumn(i).getName();
+        } else {
+            return columnAliasNames[i];
         }
     }
 
     boolean hasColumnAlias() {
         return columnAliases != null;
+    }
+
+    String getTableAlias() {
+
+        SimpleName name = getTableAliasName();
+
+        return name.name;
+    }
+
+    SimpleName getTableAliasName() {
+        return tableAlias == null ? rangeTable.getName()
+                                  : tableAlias;
     }
 
     boolean resolvesTableName(ExpressionColumn e) {
@@ -371,9 +383,11 @@ public final class RangeVariable implements Cloneable {
                 return true;
             }
         } else {
-            if (e.tableName.equals(rangeTable.getName().name)
-                    && e.schema.equals(rangeTable.getSchemaName().name)) {
-                return true;
+            if (tableAlias == null) {
+                if (e.tableName.equals(rangeTable.getName().name)
+                        && e.schema.equals(rangeTable.getSchemaName().name)) {
+                    return true;
+                }
             }
         }
 

@@ -70,8 +70,6 @@ public class ParserDQL extends ParserBase {
     protected final CompileContext compileContext;
     HsqlException                  lastError;
 
-    //
-
     /**
      *  Constructs a new Parser object with the given context.
      *
@@ -1145,7 +1143,7 @@ public class ParserDQL extends ParserBase {
         for (int i = 0; i < elements.length; i++) {
             String name = (String) columnNames.get(i);
 
-            elements[i] = new ExpressionColumn(null, null, name);
+            elements[i] = new ExpressionColumn(null, null, name, false);
         }
 
         return new Expression(OpTypes.ROW, elements);
@@ -1567,10 +1565,8 @@ public class ParserDQL extends ParserBase {
             boolean limit = token.tokenType == Tokens.LIMIT
                             || token.tokenType == Tokens.OFFSET
                             || token.tokenType == Tokens.FETCH;
-
-            boolean minus = token.tokenType == Tokens.MINUS_EXCEPT;
-
-            int position = getPosition();
+            boolean minus    = token.tokenType == Tokens.MINUS_EXCEPT;
+            int     position = getPosition();
 
             alias = HsqlNameManager.getSimpleName(token.tokenString,
                                                   isDelimitedIdentifier());
@@ -1842,7 +1838,8 @@ public class ParserDQL extends ParserBase {
 
                 return new ExpressionColumn(token.namePrePrefix,
                                             token.namePrefix,
-                                            token.tokenString);
+                                            token.tokenString,
+                                            database.sqlEnforceRefs);
 
             default :
                 return null;
@@ -4313,7 +4310,8 @@ public class ParserDQL extends ParserBase {
         if (token.tokenType != Tokens.OPENBRACKET) {
             checkValidCatalogName(prePrePrefix);
 
-            Expression column = new ExpressionColumn(prePrefix, prefix, name);
+            Expression column = new ExpressionColumn(prePrefix, prefix, name,
+                database.sqlEnforceRefs);
 
             return column;
         }
@@ -5201,6 +5199,7 @@ public class ParserDQL extends ParserBase {
             throw Error.error(ErrorCode.X_42501, name);
         }
     }
+
 
     void rewind(int position) {
         super.rewind(position);

@@ -360,6 +360,8 @@ public class Logger {
                 SessionInterface.TX_READ_COMMITTED;
         }
 
+        database.sqlEnforceRefs = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_enforce_refs);
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_strict_size);
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
@@ -1120,6 +1122,12 @@ public class Logger {
         sb.append("SET DATABASE ").append(Tokens.T_EVENT).append(' ');
         sb.append(Tokens.T_LOG).append(' ').append(Tokens.T_LEVEL);
         sb.append(' ').append(propEventLogLevel);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_REFERENCES).append(' ');
+        sb.append(database.sqlEnforceRefs ? Tokens.T_TRUE
+                                          : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
