@@ -373,14 +373,23 @@
       <para>Access to lobs is always performed in chunks, so it is perfectly
       possible to store and access a CLOB or BLOB that is larger than the JVM
       memory allocation. Early versions of HyperSQL 2.0 use memory-based
-      tables for the lob catalog (not the data). The lob data is stored on
-      disk with file: databases. Therefore it is practical to store about
-      100,000 individual lobs in the database with the default JVM memory
-      allocation. More lobs can be stored with larger JVM memory allocations.
-      The realistic maximum number of lobs stored in the database is probably
-      about a million. The actual total size of lobs is almost unlimited. We
-      have tested with over 100 GB of lobs without any loss of
+      tables for the lob catalog (not the data). Therefore it is practical to
+      store about 100,000 individual lobs in the database with the default JVM
+      memory allocation. More lobs can be stored with larger JVM memory
+      allocations. The realistic maximum number of lobs stored in the database
+      is probably about a million. The actual total size of lobs is almost
+      unlimited. We have tested with over 100 GB of lobs without any loss of
       performance.</para>
+    </section>
+
+    <section>
+      <title>Disk Space</title>
+
+      <para>With file: database, the engine uses the disk for storage of data
+      and any change. For safely, the engine backs up the data internally
+      during operation. Spare space, at least equal to the size of the .data
+      and .script file is needed. The .lobs file is not backed up during
+      operation.</para>
     </section>
   </section>
 
