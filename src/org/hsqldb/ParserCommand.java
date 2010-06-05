@@ -917,7 +917,7 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.REFERENCES :
                         read();
 
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT_SIZE;
+                        type = StatementTypes.SET_DATABASE_SQL_REFERENCES;
                         flag = processTrueOrFalseObject();
                         break;
 
