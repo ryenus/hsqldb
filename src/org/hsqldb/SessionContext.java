@@ -101,7 +101,9 @@ public class SessionContext {
         sessionVariables         = new HashMappedList();
         sessionVariablesRange    = new RangeVariable[1];
         sessionVariablesRange[0] = new RangeVariable(sessionVariables, true);
-        isAutoCommit             = isReadOnly = noSQL = Boolean.FALSE;
+        isAutoCommit             = Boolean.FALSE;
+        isReadOnly               = Boolean.FALSE;
+        noSQL                    = Boolean.FALSE;
     }
 
     public void push() {

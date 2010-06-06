@@ -936,7 +936,11 @@ public class ExpressionColumn extends Expression {
         return false;
     }
 
-    public boolean isParam() {
+    public boolean isUnresolvedParam() {
+        return isParam && dataType == null;
+    }
+
+    boolean isDynamicParam() {
         return isParam;
     }
 }

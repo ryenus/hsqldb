@@ -56,8 +56,8 @@ public class TestSqlPersistent extends TestCase {
     String     url = "jdbc:hsqldb:/hsql/test/testpersistent";
     String     user;
     String     password;
-    Statement  sStatement;
-    Connection cConnection;
+    Statement  stmnt;
+    Connection connection;
 
     public TestSqlPersistent(String name) {
         super(name);
@@ -67,18 +67,18 @@ public class TestSqlPersistent extends TestCase {
 
         super.setUp();
 
-        user        = "sa";
-        password    = "";
-        sStatement  = null;
-        cConnection = null;
+        user       = "sa";
+        password   = "";
+        stmnt      = null;
+        connection = null;
 
         TestUtil.deleteDatabase("/hsql/test/testpersistent");
 
         try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver");
 
-            cConnection = DriverManager.getConnection(url, user, password);
-            sStatement  = cConnection.createStatement();
+            connection = DriverManager.getConnection(url, user, password);
+            stmnt      = connection.createStatement();
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("TestSqlPersistence.setUp() error: "
@@ -114,13 +114,13 @@ public class TestSqlPersistent extends TestCase {
                                + "DateCreated DATETIME DEFAULT NOW NOT NULL, "
                                + "PRIMARY KEY(User_Id, Pref_Name) )";
 
-            sStatement.execute(sqlString);
+            stmnt.execute(sqlString);
 
             sqlString = "INSERT INTO PREFERENCE "
                         + "(User_Id,Pref_Name,Pref_Value,DateCreated) "
                         + "VALUES (?,?,?,current_timestamp)";
 
-            PreparedStatement ps = cConnection.prepareStatement(sqlString);
+            PreparedStatement ps = connection.prepareStatement(sqlString);
 
             // initialise
             stringValue  = "String Value for Preference 1";
@@ -177,9 +177,8 @@ public class TestSqlPersistent extends TestCase {
             ps.setObject(3, bytearrayValue, Types.OTHER);
             ps.execute();
 
-            ResultSet rs =
-                sStatement.executeQuery("SELECT * FROM PREFERENCE");
-            boolean result = rs.next();
+            ResultSet rs     = stmnt.executeQuery("SELECT * FROM PREFERENCE");
+            boolean   result = rs.next();
 
             // a string can be retrieved as a String or a stream
             // as Unicode string
@@ -240,8 +239,7 @@ public class TestSqlPersistent extends TestCase {
             {
                 sqlString = "DELETE FROM PREFERENCE WHERE user_id = ?";
 
-                PreparedStatement st =
-                    cConnection.prepareStatement(sqlString);
+                PreparedStatement st = connection.prepareStatement(sqlString);
 
                 st.setString(1, "2");
 
@@ -251,7 +249,7 @@ public class TestSqlPersistent extends TestCase {
                 //conn.commit(); // not needed, as far as AUTO_COMMIT is set to TRUE
                 st.close();
 
-                st = cConnection.prepareStatement(
+                st = connection.prepareStatement(
                     "SELECT user_id FROM PREFERENCE WHERE user_id=?");
 
                 st.setString(1, "2");
@@ -295,12 +293,12 @@ public class TestSqlPersistent extends TestCase {
                                + "ID INTEGER NOT NULL IDENTITY, "
                                + "STOREDOBJECT OTHER, STOREDBIN BINARY(100) )";
 
-            sStatement.execute(sqlString);
+            stmnt.execute(sqlString);
 
             sqlString = "INSERT INTO TESTOBJECT "
                         + "(STOREDOBJECT, STOREDBIN) " + "VALUES (?,?)";
 
-            PreparedStatement ps = cConnection.prepareStatement(sqlString);
+            PreparedStatement ps = connection.prepareStatement(sqlString);
 
             // initialise
             stringValue  = "Test String Value";
@@ -338,9 +336,8 @@ public class TestSqlPersistent extends TestCase {
             */
             ps.execute();
 
-            ResultSet rs =
-                sStatement.executeQuery("SELECT * FROM TESTOBJECT");
-            boolean result = rs.next();
+            ResultSet rs     = stmnt.executeQuery("SELECT * FROM TESTOBJECT");
+            boolean   result = rs.next();
 
             // retrieving objects inserted into the third column
             stringValueResult = (String) rs.getObject(2);
@@ -369,7 +366,7 @@ public class TestSqlPersistent extends TestCase {
             ps.close();
 
             sqlString = "SELECT * FROM TESTOBJECT WHERE STOREDOBJECT = ?";
-            ps        = cConnection.prepareStatement(sqlString);
+            ps        = connection.prepareStatement(sqlString);
 
             ps.setObject(1, new Integer(1000));
 
@@ -393,31 +390,30 @@ public class TestSqlPersistent extends TestCase {
 
         try {
             String            sqlString = "drop table objects if exists";
-            PreparedStatement ps = cConnection.prepareStatement(sqlString);
+            PreparedStatement ps = connection.prepareStatement(sqlString);
 
             ps.execute();
 
             sqlString =
                 "create cached table objects (object_id INTEGER IDENTITY,"
                 + "object_name VARCHAR(128) NOT NULL,role_name VARCHAR(128) NOT NULL,"
-                + "value LONGVARBINARY(1000) NOT NULL,description LONGVARCHAR(1000)";
-            ps = cConnection.prepareStatement(sqlString);
+                + "value LONGVARBINARY(1000) NOT NULL,description LONGVARCHAR(1000))";
+            ps = connection.prepareStatement(sqlString);
 
             ps.execute();
 
             sqlString =
                 "INSERT INTO objects VALUES(1, 'name','role',?,'description')";
-            ps = cConnection.prepareStatement(sqlString);
+            ps = connection.prepareStatement(sqlString);
 
             ps.setBytes(1, new byte[] {
                 1, 2, 3, 4, 5
             });
             ps.executeUpdate();
 
-            sqlString =
-                "UPDATE objects SET value = ?, description = ? WHERE "
-                + "object_name = ? AND role_name = ?";
-            ps = cConnection.prepareStatement(sqlString);
+            sqlString = "UPDATE objects SET value = ?, description = ? WHERE "
+                        + "object_name = ? AND role_name = ?";
+            ps = connection.prepareStatement(sqlString);
 
             ps.setBytes(1, new byte[] {
                 1, 2, 3, 4, 5
@@ -431,11 +427,162 @@ public class TestSqlPersistent extends TestCase {
         }
     }
 
+    public void testDoubleNaN() {
+        doTestDoubleNan(false);
+    }
+
+    private void doTestDoubleNan(boolean shutdown) {
+
+        double  value    = 0;
+        boolean wasEqual = false;
+        String  message  = "DB operation completed";
+        String ddl1 =
+            "DROP TABLE t1 IF EXISTS;"
+            + "CREATE TABLE t1 ( d DECIMAL, f DOUBLE, l BIGINT, i INTEGER, s SMALLINT, t TINYINT, "
+            + "dt DATE DEFAULT CURRENT_DATE, ti TIME DEFAULT CURRENT_TIME, ts TIMESTAMP DEFAULT CURRENT_TIMESTAMP );";
+
+        try {
+            stmnt.execute(ddl1);
+
+            PreparedStatement ps = connection.prepareStatement(
+                "INSERT INTO t1 (d,f,l,i,s,t,dt,ti,ts) VALUES (?,?,?,?,?,?,?,?,?)");
+
+            ps.setString(1, "0.2");
+            ps.setDouble(2, 0.2);
+            ps.setLong(3, java.lang.Long.MAX_VALUE);
+            ps.setInt(4, Integer.MAX_VALUE);
+            ps.setInt(5, Short.MAX_VALUE);
+            ps.setInt(6, 0);
+            ps.setDate(7, new java.sql.Date(System.currentTimeMillis()));
+            ps.setTime(8, new java.sql.Time(System.currentTimeMillis()));
+            ps.setTimestamp(
+                9, new java.sql.Timestamp(System.currentTimeMillis()));
+            ps.execute();
+            ps.setInt(1, 0);
+            ps.setDouble(2, java.lang.Double.NaN);
+            ps.setLong(3, java.lang.Long.MIN_VALUE);
+            ps.setInt(4, Integer.MIN_VALUE);
+            ps.setInt(5, Short.MIN_VALUE);
+            ps.setInt(6, 0);
+
+            // allowed conversions
+            ps.setTimestamp(
+                7, new java.sql.Timestamp(System.currentTimeMillis() + 1));
+            ps.setTime(8, new java.sql.Time(System.currentTimeMillis() + 1));
+            ps.setDate(9, new java.sql.Date(System.currentTimeMillis() + 1));
+            ps.execute();
+
+            //
+            ps.setInt(1, 0);
+            ps.setDouble(2, java.lang.Double.POSITIVE_INFINITY);
+            ps.setInt(4, Integer.MIN_VALUE);
+
+            // test conversion
+            // ps.setObject(5, Boolean.TRUE); // no longer converts boolean to int
+            // ps.setBoolean(5, true);
+            ps.setObject(5, new Short((short) 2), Types.SMALLINT);
+            ps.setObject(6, new Integer(2), Types.TINYINT);
+
+            // allowed conversions
+            ps.setObject(7, new java.sql.Date(System.currentTimeMillis() + 2));
+            ps.setObject(8, new java.sql.Time(System.currentTimeMillis() + 2));
+            ps.setObject(9, new java.sql.Timestamp(System.currentTimeMillis()
+                                                   + 2));
+            ps.execute();
+            ps.setObject(1, new Float(0), Types.INTEGER);
+            ps.setObject(4, new Float(1), Types.INTEGER);
+            ps.setDouble(2, java.lang.Double.NEGATIVE_INFINITY);
+            ps.execute();
+
+            ResultSet rs =
+                stmnt.executeQuery("SELECT d, f, l, i, s*2, t FROM t1");
+            boolean result = rs.next();
+
+            value = rs.getDouble(2);
+
+//            int smallintValue = rs.getShort(3);
+            int integerValue = rs.getInt(4);
+
+            if (rs.next()) {
+                value        = rs.getDouble(2);
+                wasEqual     = Double.isNaN(value);
+                integerValue = rs.getInt(4);
+
+                // tests for conversion
+                // getInt on DECIMAL
+                integerValue = rs.getInt(1);
+            }
+
+            if (rs.next()) {
+                value    = rs.getDouble(2);
+                wasEqual = wasEqual && value == Double.POSITIVE_INFINITY;
+            }
+
+            if (rs.next()) {
+                value    = rs.getDouble(2);
+                wasEqual = wasEqual && value == Double.NEGATIVE_INFINITY;
+            }
+
+            rs = stmnt.executeQuery("SELECT MAX(i) FROM t1");
+
+            if (rs.next()) {
+                int max = rs.getInt(1);
+
+                System.out.println("Max value for i: " + max);
+            }
+
+            try {
+
+                // cause errors
+                ps.setString(5, "three");
+                assertTrue(false);
+            } catch (SQLException e) {
+                System.out.println("rubbish");
+            }
+
+            {
+                stmnt.execute("drop table CDTYPE if exists");
+
+                // test for the value MAX(column) in an empty table
+                stmnt.execute(
+                    "CREATE TABLE cdType (ID INTEGER NOT NULL, name VARCHAR(50), PRIMARY KEY(ID))");
+
+                rs = stmnt.executeQuery("SELECT MAX(ID) FROM cdType");
+
+                if (rs.next()) {
+                    int max = rs.getInt(1);
+
+                    System.out.println("Max value for ID: " + max);
+                } else {
+                    System.out.println("Max value for ID not returned");
+                }
+
+                stmnt.executeUpdate(
+                    "INSERT INTO cdType VALUES (10,'Test String');");
+                stmnt.execute("CALL IDENTITY();");
+
+                try {
+                    stmnt.executeUpdate(
+                        "INSERT INTO cdType VALUES (10,'Test String');");
+                } catch (SQLException e1) {
+                    connection.rollback();
+                }
+            }
+        } catch (SQLException e) {
+            fail(e.getMessage());
+        }
+
+        System.out.println("testDoubleNaN complete");
+
+        // assert new behaviour
+        assertEquals(true, wasEqual);
+    }
+
     protected void tearDown() {
 
         try {
-            sStatement.execute("SHUTDOWN");
-            cConnection.close();
+            stmnt.execute("SHUTDOWN");
+            connection.close();
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("TestSql.tearDown() error: " + e.getMessage());

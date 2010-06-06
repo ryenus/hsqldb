@@ -217,7 +217,7 @@ public class ExpressionAggregate extends Expression {
             }
         }
 
-        if (nodes[LEFT].isParam()) {
+        if (nodes[LEFT].isUnresolvedParam()) {
             throw Error.error(ErrorCode.X_42567);
         }
 

@@ -189,6 +189,8 @@ public abstract class Type implements SchemaObject, Cloneable {
      */
     public abstract String getJDBCClassName();
 
+    public abstract Class getJDBCClass();
+
     public Integer getJDBCScale() {
         return acceptsScale() ? ValuePool.getInt(scale)
                               : null;

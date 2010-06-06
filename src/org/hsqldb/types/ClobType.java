@@ -63,6 +63,10 @@ public final class ClobType extends CharacterType {
         return Types.CLOB;
     }
 
+    public Class getJDBCClass() {
+        return java.sql.Clob.class;
+    }
+
     public String getJDBCClassName() {
         return "java.sql.Clob";
     }

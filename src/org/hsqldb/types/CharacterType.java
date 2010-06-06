@@ -106,6 +106,10 @@ public class CharacterType extends Type {
         }
     }
 
+    public Class getJDBCClass() {
+        return String.class;
+    }
+
     public String getJDBCClassName() {
         return "java.lang.String";
     }

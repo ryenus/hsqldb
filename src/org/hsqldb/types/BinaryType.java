@@ -97,6 +97,10 @@ public class BinaryType extends Type {
                                             : Types.VARBINARY;
     }
 
+    public Class getJDBCClass() {
+        return byte[].class;
+    }
+
     public String getJDBCClassName() {
         return "[B";
     }

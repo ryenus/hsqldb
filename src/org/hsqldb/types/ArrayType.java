@@ -67,6 +67,10 @@ public class ArrayType extends Type {
         return Types.ARRAY;
     }
 
+    public Class getJDBCClass() {
+        return java.sql.Array.class;
+    }
+
     public String getJDBCClassName() {
         return "java.sql.Array";
     }

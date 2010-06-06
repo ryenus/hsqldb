@@ -615,40 +615,45 @@ public class Types {
      * @return java.sql.Types int value
      * @throws  HsqlException
      */
-    public static int getParameterSQLTypeNumber(Class c) {
+    public static Type getParameterSQLType(Class c) {
 
-        String name;
-        int    type;
+        String  name;
+        int     typeCode;
+        boolean isArray;
 
         if (c == null) {
             throw Error.runtimeError(ErrorCode.U_S0500, "Types");
         }
 
         if (Void.TYPE.equals(c)) {
-            return Types.SQL_ALL_TYPES;
+            return Type.SQL_ALL_TYPES;
         }
 
-        name = c.getName();
-        type = javaTypeNumbers.get(name, Integer.MIN_VALUE);
+        name     = c.getName();
+        typeCode = javaTypeNumbers.get(name, Integer.MIN_VALUE);
 
-        if (type == Integer.MIN_VALUE) {
+        if (typeCode != Integer.MIN_VALUE) {
+            return Type.getDefaultTypeWithSize(typeCode);
+        }
 
-            // byte[] is already covered as BINARY in typeAliases
-            if (c.isArray()) {
-                while (c.isArray()) {
-                    c = c.getComponentType();
-                }
+        if (c.isArray()) {
+            Class c1 = c.getComponentType();
 
-                if (c.isPrimitive()
-                        || java.io.Serializable.class.isAssignableFrom(c)) {
-                    type = OTHER;
-                }
-            } else if (java.io.Serializable.class.isAssignableFrom(c)) {
-                type = OTHER;
+            name     = c1.getName();
+            typeCode = javaTypeNumbers.get(name, Integer.MIN_VALUE);
+
+            if (typeCode != Integer.MIN_VALUE) {
+                return Type.getDefaultTypeWithSize(typeCode);
             }
+
+            if (typeCode == Types.SQL_ALL_TYPES) {
+                return null;
+            }
+
+            return Type.getDefaultTypeWithSize(typeCode);
         }
 
-        return type;
+        return null;
     }
 
     public static boolean acceptsZeroPrecision(int type) {
@@ -798,7 +803,6 @@ public class Types {
 
         switch (type) {
 
-            case Types.SQL_ARRAY :
             case Types.SQL_BLOB :
             case Types.SQL_CLOB :
             case Types.NCLOB :
@@ -808,6 +812,7 @@ public class Types {
             case Types.ROWID :
                 return false;
 
+            case Types.SQL_ARRAY :
             default :
                 return true;
         }

@@ -524,6 +524,10 @@ public class Session implements SessionInterface {
             return;
         }
 
+        if (sessionContext.depth > 0) {
+            return;
+        }
+
         if (!isTransaction) {
             sessionContext.isReadOnly =
                 ValuePool.getBoolean(isReadOnlyDefault);
@@ -559,6 +563,10 @@ public class Session implements SessionInterface {
 
         //        tempActionHistory.add("rollback " + actionTimestamp);
         if (isClosed) {
+            return;
+        }
+
+        if (sessionContext.depth > 0) {
             return;
         }
 
@@ -1173,11 +1181,18 @@ public class Session implements SessionInterface {
             return Result.newErrorResult(Error.error(ErrorCode.X_40001));
         }
 
+        if (sessionContext.depth > 0) {
+            if (sessionContext.noSQL || cs.isAutoCommitStatement()) {
+                return Result.newErrorResult(Error.error(ErrorCode.X_46000));
+            }
+        }
+
         if (cs.isAutoCommitStatement()) {
+            if (isReadOnly()) {
+                return Result.newErrorResult(Error.error(ErrorCode.X_25006));
+            }
+
             try {
-                if (isReadOnly()) {
-                    throw Error.error(ErrorCode.X_25006);
-                }
 
                 /** special autocommit for backward compatibility */
                 commit(false);
@@ -1849,10 +1864,9 @@ public class Session implements SessionInterface {
             sessionTables = new HashMappedList();
         }
 
-        if(sessionTables.containsKey(table.getName().name)) {
+        if (sessionTables.containsKey(table.getName().name)) {
             throw Error.error(ErrorCode.X_42504);
         }
-
 
         sessionTables.add(table.getName().name, table);
     }

@@ -1516,7 +1516,7 @@ public class ParserCommand extends ParserDDL {
 
                 e.resolveTypes(session, null);
 
-                if (e.isParam()) {
+                if (e.isUnresolvedParam()) {
                     e.dataType = Type.SQL_VARCHAR;
                 }
 

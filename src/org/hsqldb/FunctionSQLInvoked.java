@@ -31,11 +31,8 @@
 
 package org.hsqldb;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.jdbc.JDBCResultSet;
 import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.Set;
@@ -113,11 +110,10 @@ public class FunctionSQLInvoked extends Expression {
         boolean  isValue       = false;
         int      variableCount = routine.getVariableCount();
         Result   result;
-        int      extraArg    = routine.javaMethodWithConnection ? 1
-                                                                : 0;
-        Object[] data        = ValuePool.emptyObjectArray;
-        Object   returnValue = null;
-        boolean  push        = true;
+        int      extraArg = routine.javaMethodWithConnection ? 1
+                                                             : 0;
+        Object[] data     = ValuePool.emptyObjectArray;
+        boolean  push     = true;
 
         if (extraArg + nodes.length > 0) {
             if (opType == OpTypes.USER_AGGREGATE) {
@@ -186,46 +182,20 @@ public class FunctionSQLInvoked extends Expression {
                 result = Result.newErrorResult(e);
             }
         } else {
-            try {
-                if (routine.dataImpact == Routine.NO_SQL) {
-                    session.sessionContext.isReadOnly = Boolean.TRUE;
+            if (opType == OpTypes.USER_AGGREGATE) {
+                data = routine.convertArgsToJava(session, data);
+            }
 
-                    session.setNoSQL();
-                } else if (routine.dataImpact == Routine.CONTAINS_SQL) {
-                    session.sessionContext.isReadOnly = Boolean.TRUE;
-                } else if (routine.dataImpact == Routine.READS_SQL) {
-                    session.sessionContext.isReadOnly = Boolean.TRUE;
+            result = routine.invokeJavaMethod(session, data);
+
+            if (opType == OpTypes.USER_AGGREGATE) {
+                Object[] callResult = new Object[data.length];
+
+                routine.convertArgsToSQL(session, callResult, data);
+
+                for (int i = 0; i < aggregateData.length; i++) {
+                    aggregateData[i] = callResult[i + 1];
                 }
-
-                returnValue = routine.javaMethod.invoke(null, data);
-
-                if (routine.returnsTable()) {
-                    if (returnValue instanceof JDBCResultSet) {
-                        result = ((JDBCResultSet) returnValue).result;
-                    } else {
-
-                        // convert ResultSet to table
-                        throw Error.runtimeError(ErrorCode.U_S0500,
-                                                 "FunctionSQLInvoked");
-                    }
-                } else {
-                    returnValue = dataType.convertJavaToSQL(session,
-                            returnValue);
-                    isValue = true;
-                    result  = Result.updateZeroResult;
-                }
-            } catch (InvocationTargetException e) {
-                result = Result.newErrorResult(
-                    Error.error(ErrorCode.X_46000, routine.getName().name),
-                    null);
-            } catch (IllegalAccessException e) {
-                result = Result.newErrorResult(
-                    Error.error(ErrorCode.X_46000, routine.getName().name),
-                    null);
-            } catch (Throwable e) {
-                result = Result.newErrorResult(
-                    Error.error(ErrorCode.X_46000, routine.getName().name),
-                    null);
             }
         }
 
@@ -238,7 +208,7 @@ public class FunctionSQLInvoked extends Expression {
         }
 
         if (isValue) {
-            return returnValue;
+            return result.valueData;
         } else {
             return result;
         }

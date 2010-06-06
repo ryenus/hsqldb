@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -38,9 +39,11 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.jdbc.JDBCResultSet;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.types.RowType;
@@ -462,11 +465,6 @@ public class Routine implements SchemaObject {
 
     public void resolve(Session session) {
 
-        if (routineType == SchemaObject.PROCEDURE && isNewSavepointLevel
-                && dataImpact != MODIFIES_SQL) {
-            throw Error.error(ErrorCode.X_42604);
-        }
-
         setLanguage(language);
 
         if (language == Routine.LANGUAGE_SQL) {
@@ -651,6 +649,97 @@ public class Routine implements SchemaObject {
         return statement.getTableNamesForWrite();
     }
 
+    Object[] convertArgsToJava(Session session, Object[] callArguments) {
+
+        int      extraArg = javaMethodWithConnection ? 1
+                                                     : 0;
+        Object[] data     = new Object[callArguments.length + extraArg];
+        Type[]   types    = getParameterTypes();
+
+        for (int i = 0; i < callArguments.length; i++) {
+            Object       value = callArguments[i];
+            ColumnSchema param = getParameter(i);
+
+            if (param.parameterMode == SchemaObject.ParameterModes.PARAM_IN) {
+                data[i + extraArg] = types[i].convertSQLToJava(session, value);
+            } else {
+                Object jdbcValue = types[i].convertSQLToJava(session, value);
+                Class  cl        = types[i].getJDBCClass();
+                Object array     = java.lang.reflect.Array.newInstance(cl, 1);
+
+                java.lang.reflect.Array.set(array, 0, jdbcValue);
+
+                data[i + extraArg] = array;
+            }
+        }
+
+        return data;
+    }
+
+    void convertArgsToSQL(Session session, Object[] callArguments,
+                          Object[] data) {
+
+        int    extraArg = javaMethodWithConnection ? 1
+                                                   : 0;
+        Type[] types    = getParameterTypes();
+
+        for (int i = 0; i < callArguments.length; i++) {
+            Object       value = data[i + extraArg];
+            ColumnSchema param = getParameter(i);
+
+            if (param.parameterMode != SchemaObject.ParameterModes.PARAM_IN) {
+                value = java.lang.reflect.Array.get(value, 0);
+            }
+
+            callArguments[i] = types[i].convertJavaToSQL(session, value);
+        }
+    }
+
+    Result invokeJavaMethod(Session session, Object[] data) {
+
+        Result result;
+
+        try {
+            if (dataImpact == Routine.NO_SQL) {
+                session.sessionContext.isReadOnly = Boolean.TRUE;
+
+                session.setNoSQL();
+            } else if (dataImpact == Routine.CONTAINS_SQL) {
+                session.sessionContext.isReadOnly = Boolean.TRUE;
+            } else if (dataImpact == Routine.READS_SQL) {
+                session.sessionContext.isReadOnly = Boolean.TRUE;
+            }
+
+            Object returnValue = javaMethod.invoke(null, data);
+
+            if (returnsTable()) {
+                if (returnValue instanceof JDBCResultSet) {
+                    result = ((JDBCResultSet) returnValue).result;
+                } else {
+
+                    // convert ResultSet to table
+                    throw Error.runtimeError(ErrorCode.U_S0500,
+                                             "FunctionSQLInvoked");
+                }
+            } else {
+                returnValue = returnType.convertJavaToSQL(session,
+                        returnValue);
+                result = Result.newPSMResult(returnValue);
+            }
+        } catch (InvocationTargetException e) {
+            result = Result.newErrorResult(
+                Error.error(ErrorCode.X_46000, getName().name), null);
+        } catch (IllegalAccessException e) {
+            result = Result.newErrorResult(
+                Error.error(ErrorCode.X_46000, getName().name), null);
+        } catch (Throwable e) {
+            result = Result.newErrorResult(
+                Error.error(ErrorCode.X_46000, getName().name), null);
+        }
+
+        return result;
+    }
+
     static Method getMethod(String name, Routine routine,
                             boolean[] hasConnection, boolean returnsTable) {
 
@@ -691,8 +780,8 @@ public class Routine implements SchemaObject {
                     continue;
                 }
             } else {
-                Type methodReturnType = Type.getDefaultTypeWithSize(
-                    Types.getParameterSQLTypeNumber(method.getReturnType()));
+                Type methodReturnType =
+                    Types.getParameterSQLType(method.getReturnType());
 
                 if (methodReturnType == null) {
                     continue;
@@ -704,9 +793,24 @@ public class Routine implements SchemaObject {
             }
 
             for (int j = 0; j < routine.parameterTypes.length; j++) {
-                Class param = params[j + offset];
-                Type methodParamType = Type.getDefaultType(
-                    Types.getParameterSQLTypeNumber(param));
+                boolean isInOut = false;
+                Class   param   = params[j + offset];
+
+                if (param.isArray()) {
+                    if (!byte[].class.equals(param)) {
+                        param = param.getComponentType();
+
+                        if (param.isPrimitive()) {
+                            method = null;
+
+                            break;
+                        }
+
+                        isInOut = true;
+                    }
+                }
+
+                Type methodParamType = Types.getParameterSQLType(param);
 
                 if (methodParamType == null) {
                     method = null;
@@ -714,10 +818,22 @@ public class Routine implements SchemaObject {
                     break;
                 }
 
-                routine.getParameter(j).setNullable(!param.isPrimitive());
+                boolean result = routine.parameterTypes[j].typeComparisonGroup
+                                 == methodParamType.typeComparisonGroup;
 
-                if (routine.parameterTypes[j].typeCode
-                        != methodParamType.typeCode) {
+                // exact type for number
+                if (result && routine.parameterTypes[j].isNumberType()) {
+                    result = routine.parameterTypes[j].typeCode
+                             == methodParamType.typeCode;
+                }
+
+                if (isInOut
+                        && routine.getParameter(j).parameterMode
+                           == SchemaObject.ParameterModes.PARAM_IN) {
+                    result = false;
+                }
+
+                if (!result) {
                     method = null;
 
                     if (j + offset > firstMismatch) {
@@ -729,6 +845,11 @@ public class Routine implements SchemaObject {
             }
 
             if (method != null) {
+                for (int j = 0; j < routine.parameterTypes.length; j++) {
+                    routine.getParameter(j).setNullable(
+                        !params[j + offset].isPrimitive());
+                }
+
                 return method;
             }
         }
@@ -800,8 +921,20 @@ public class Routine implements SchemaObject {
 
             for (int j = offset; j < params.length; j++) {
                 Class param = params[j];
-                Type methodParamType = Type.getDefaultTypeWithSize(
-                    Types.getParameterSQLTypeNumber(param));
+
+                if (param.isArray()) {
+                    if (!byte[].class.equals(param)) {
+                        param = param.getComponentType();
+
+                        if (param.isPrimitive()) {
+                            method = null;
+
+                            break;
+                        }
+                    }
+                }
+
+                Type methodParamType = Types.getParameterSQLType(param);
 
                 if (methodParamType == null) {
                     method = null;
@@ -818,8 +951,8 @@ public class Routine implements SchemaObject {
                     method.getReturnType())) {
                 list.add(methods[i]);
             } else {
-                Type methodReturnType = Type.getDefaultTypeWithSize(
-                    Types.getParameterSQLTypeNumber(method.getReturnType()));
+                Type methodReturnType =
+                    Types.getParameterSQLType(method.getReturnType());
 
                 if (methodReturnType != null) {
                     list.add(methods[i]);
@@ -873,8 +1006,7 @@ public class Routine implements SchemaObject {
         }
 
         for (int j = offset; j < params.length; j++) {
-            Type methodParamType = Type.getDefaultTypeWithSize(
-                Types.getParameterSQLTypeNumber(params[j]));
+            Type methodParamType = Types.getParameterSQLType(params[j]);
             ColumnSchema param = new ColumnSchema(null, methodParamType,
                                                   !params[j].isPrimitive(),
                                                   false, null);
@@ -887,8 +1019,8 @@ public class Routine implements SchemaObject {
         routine.setMethodURL(name);
         routine.setDataImpact(Routine.NO_SQL);
 
-        Type methodReturnType = Type.getDefaultTypeWithSize(
-            Types.getParameterSQLTypeNumber(method.getReturnType()));
+        Type methodReturnType =
+            Types.getParameterSQLType(method.getReturnType());
 
         routine.javaMethodWithConnection = offset == 1;;
 
