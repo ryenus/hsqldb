@@ -4,6 +4,7 @@
 # $Id$
 
 # Sample PHP script accessing HyperSQL through the ODBC extension module.
+# (Therefore, you need to have the PHP ODBC module installed).
 
 # This test HyperSQL client uses the ODBC DSN "tstdsn" to connect up to a
 # HyperSQL server.  Just configure your own DSN to use the HyperSQL ODBC
@@ -13,6 +14,9 @@
 # Author:  Blaine Simpson  (blaine dot simpson at admc dot com)
 
 
+# Empty strings for the username or password parameter here will defer
+# to the ODBC manager for those values.  I.e. the blanks here do not mean to
+# send blanks to the database server.
 $conn_id = odbc_connect('tstdsn', '', '');
 if (!$conn_id) exit('Connection Failed: ' . $conn_id . "\n");
 
@@ -39,6 +43,8 @@ if (!odbc_exec($conn_id, "INSERT INTO tsttbl(id, vc) VALUES(1, 'one')"))
 $stmt = odbc_prepare($conn_id, "INSERT INTO tsttbl(id, vc) VALUES(?, ?)");
 if (!$stmt) exit("Preparation of INSERT statement failed \n");
 
+# With (default) debug mode, the following statements will generate
+# annoying "cursor updatability" warnings.
 $rv = odbc_execute($stmt, array(2, 'two'));
 if ($rv != 1) exit("2nd Insertion failed with  value $rv\n");
 $rv = odbc_execute($stmt, array(3, 'three'));

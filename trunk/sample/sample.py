@@ -32,6 +32,10 @@ try:
     cursor = conn.cursor();
 
     cursor.execute("DROP TABLE tsttbl IF EXISTS");
+    conn.commit();  # Some recent change to the HyperSQL server or to unixODBC
+                    # has made this necessary, at least on UNIX.  Some other
+                    # transaction control command would probably be more
+                    # appropriate here.
 
     cursor.execute(
         "CREATE TABLE tsttbl(\n"
