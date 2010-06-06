@@ -669,7 +669,7 @@ public class SqlFile {
                 scanner.setInteractive(true);
                 if (shared.jdbcConn == null)
                     stdprintln("To connect to a data source, use '\\j "
-                        + "ulid' or '\\j account password jdbc:url...'");
+                        + "urlid' or '\\j account password jdbc:url...'");
                 stdprint(primaryPrompt);
             }
             scanpass(scanner);
