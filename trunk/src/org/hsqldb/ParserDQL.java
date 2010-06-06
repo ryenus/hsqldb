@@ -1256,14 +1256,14 @@ public class ParserDQL extends ParserBase {
 
         boolean valid = true;
 
-        if (e1.isParam()) {
+        if (e1.isUnresolvedParam()) {
             e1.setDataType(session, Type.SQL_INTEGER);
         } else {
             valid = (e1.getDataType().typeCode == Types.SQL_INTEGER
                      && ((Integer) e1.getValue(null)).intValue() >= 0);
         }
 
-        if (e2.isParam()) {
+        if (e2.isUnresolvedParam()) {
             e2.setDataType(session, Type.SQL_INTEGER);
         } else {
             valid &= (e2.getDataType().typeCode == Types.SQL_INTEGER
@@ -1347,7 +1347,7 @@ public class ParserDQL extends ParserBase {
 
         boolean valid = true;
 
-        if (e1.isParam()) {
+        if (e1.isUnresolvedParam()) {
             e1.setDataType(session, Type.SQL_INTEGER);
         } else {
             valid = (e1.getDataType().typeCode == Types.SQL_INTEGER
@@ -1355,7 +1355,7 @@ public class ParserDQL extends ParserBase {
         }
 
         if (e2 != null) {
-            if (e2.isParam()) {
+            if (e2.isUnresolvedParam()) {
                 e2.setDataType(session, Type.SQL_INTEGER);
             } else {
                 valid &= (e2.getDataType().typeCode == Types.SQL_INTEGER);
@@ -3128,11 +3128,11 @@ public class ParserDQL extends ParserBase {
 
         Expression right = XreadRowValuePredicand();
 
-        if (a.isParam() && left.isParam()) {
+        if (a.isUnresolvedParam() && left.isUnresolvedParam()) {
             throw Error.error(ErrorCode.X_42567);
         }
 
-        if (a.isParam() && right.isParam()) {
+        if (a.isUnresolvedParam() && right.isUnresolvedParam()) {
             throw Error.error(ErrorCode.X_42567);
         }
 
@@ -4243,11 +4243,11 @@ public class ParserDQL extends ParserBase {
 
         Type typeObject = readTypeDefinition(true);
 
-        if (l.isParam()) {
+        if (l.isUnresolvedParam()) {
             l.setDataType(session, typeObject);
+        } else {
+            l = new ExpressionOp(l, typeObject);
         }
-
-        l = new ExpressionOp(l, typeObject);
 
         readThis(Tokens.CLOSEBRACKET);
 
@@ -5199,7 +5199,6 @@ public class ParserDQL extends ParserBase {
             throw Error.error(ErrorCode.X_42501, name);
         }
     }
-
 
     void rewind(int position) {
         super.rewind(position);

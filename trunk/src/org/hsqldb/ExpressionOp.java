@@ -311,18 +311,14 @@ public class ExpressionOp extends Expression {
 
     public void resolveTypes(Session session, Expression parent) {
 
-        for (int i = 0; i < nodes.length; i++) {
-            if (nodes[i] != null) {
-                nodes[i].resolveTypes(session, this);
-            }
-        }
-
         switch (opType) {
 
             case OpTypes.VALUE :
                 break;
 
             case OpTypes.CAST : {
+                nodes[LEFT].resolveTypes(session, this);
+
                 Type type = nodes[LEFT].dataType;
 
                 if (type != null && !dataType.canConvertFrom(type)) {
@@ -348,7 +344,7 @@ public class ExpressionOp extends Expression {
                     nodes[LEFT].dataType = dataType;
 
                     if (parent != null && !parent.isSelfAggregate()) {
-                        parent.replaceNode(this, nodes[LEFT]);
+//                        parent.replaceNode(this, nodes[LEFT]);
                     }
 
                     break;
@@ -363,11 +359,15 @@ public class ExpressionOp extends Expression {
                 break;
             }
             case OpTypes.ZONE_MODIFIER :
+                nodes[LEFT].resolveTypes(session, this);
+
                 if (nodes[LEFT].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
                 }
 
                 if (nodes[RIGHT] != null) {
+                    nodes[RIGHT].resolveTypes(session, this);
+
                     if (nodes[RIGHT].dataType == null) {
                         nodes[RIGHT].dataType =
                             Type.SQL_INTERVAL_HOUR_TO_MINUTE;
@@ -417,10 +417,19 @@ public class ExpressionOp extends Expression {
                 resolveTypesForCaseWhen(session);
                 break;
 
-            case OpTypes.ALTERNATIVE :
+            case OpTypes.LIMIT :
+                for (int i = 0; i < nodes.length; i++) {
+                    if (nodes[i] != null) {
+                        nodes[i].resolveTypes(session, this);
+
+                        if (nodes[i].dataType == null) {
+                            nodes[i].dataType = Type.SQL_INTEGER;
+                        }
+                    }
+                }
                 break;
 
-            case OpTypes.LIMIT :
+            case OpTypes.ALTERNATIVE :
                 break;
 
             default :
@@ -443,7 +452,7 @@ public class ExpressionOp extends Expression {
         while (expr.opType == OpTypes.CASEWHEN) {
             expr.nodes[LEFT].resolveTypes(session, expr);
 
-            if (expr.nodes[LEFT].isParam()) {
+            if (expr.nodes[LEFT].isUnresolvedParam()) {
                 expr.nodes[LEFT].dataType = Type.SQL_BOOLEAN;
             }
 

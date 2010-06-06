@@ -157,7 +157,11 @@ public class ExpressionColumnAccessor extends Expression {
         return false;
     }
 
-    public boolean isParam() {
+    public boolean isUnresolvedParam() {
+        return false;
+    }
+
+    boolean isDynamicParam() {
         return false;
     }
 

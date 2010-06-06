@@ -56,6 +56,10 @@ public final class BlobType extends BinaryType {
         return Types.BLOB;
     }
 
+    public Class getJDBCClass() {
+        return java.sql.Blob.class;
+    }
+
     public String getJDBCClassName() {
         return "java.sql.Blob";
     }

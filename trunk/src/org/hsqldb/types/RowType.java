@@ -65,6 +65,10 @@ public class RowType extends Type {
         return Types.NULL;
     }
 
+    public Class getJDBCClass() {
+        return java.sql.ResultSet.class;
+    }
+
     public String getJDBCClassName() {
         return "java.sql.ResultSet";
     }

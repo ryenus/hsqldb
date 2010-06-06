@@ -261,7 +261,8 @@ public class ExpressionArithmetic extends Expression {
                 break;
 
             case OpTypes.NEGATE :
-                if (nodes[LEFT].isParam() || nodes[LEFT].dataType == null) {
+                if (nodes[LEFT].isUnresolvedParam()
+                        || nodes[LEFT].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
                 }
 
@@ -308,13 +309,14 @@ public class ExpressionArithmetic extends Expression {
 
     void resolveTypesForArithmetic(Session session) {
 
-        if (nodes[LEFT].isParam() && nodes[RIGHT].isParam()) {
+        if (nodes[LEFT].isUnresolvedParam()
+                && nodes[RIGHT].isUnresolvedParam()) {
             throw Error.error(ErrorCode.X_42567);
         }
 
-        if (nodes[LEFT].isParam()) {
+        if (nodes[LEFT].isUnresolvedParam()) {
             nodes[LEFT].dataType = nodes[RIGHT].dataType;
-        } else if (nodes[RIGHT].isParam()) {
+        } else if (nodes[RIGHT].isUnresolvedParam()) {
             nodes[RIGHT].dataType = nodes[LEFT].dataType;
         }
 
@@ -363,9 +365,9 @@ public class ExpressionArithmetic extends Expression {
             return;
         }
 
-        if (nodes[LEFT].isParam()) {
+        if (nodes[LEFT].isUnresolvedParam()) {
             nodes[LEFT].dataType = nodes[RIGHT].dataType;
-        } else if (nodes[RIGHT].isParam()) {
+        } else if (nodes[RIGHT].isUnresolvedParam()) {
             nodes[RIGHT].dataType = nodes[LEFT].dataType;
         }
 
@@ -378,25 +380,23 @@ public class ExpressionArithmetic extends Expression {
             throw Error.error(ErrorCode.X_42563);
         }
 
-        if (nodes[LEFT].dataType.isArrayType() ) {
+        if (nodes[LEFT].dataType.isArrayType()) {
             Expression e = nodes[RIGHT];
 
             if (e.opType == OpTypes.ARRAY_ACCESS) {
-
                 if (parent == null) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                nodes[RIGHT] = e.getLeftNode();
-
+                nodes[RIGHT]  = e.getLeftNode();
                 e.nodes[LEFT] = this;
+
                 parent.replaceNode(this, e);
             }
         }
 
         if (nodes[LEFT].dataType.isArrayType()
                 ^ nodes[RIGHT].dataType.isArrayType()) {
-
             throw Error.error(ErrorCode.X_42563);
         }
 

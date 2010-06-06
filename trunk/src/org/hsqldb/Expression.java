@@ -375,6 +375,7 @@ public class Expression implements Cloneable {
                 sb.append("ARRAY SUBQUERY");
 
                 return sb.toString();
+
             //
             case OpTypes.ROW_SUBQUERY :
             case OpTypes.TABLE_SUBQUERY :
@@ -970,7 +971,7 @@ public class Expression implements Cloneable {
             case OpTypes.TABLE_SUBQUERY : {
                 QueryExpression queryExpression = subQuery.queryExpression;
 
-                if(!queryExpression.areColumnsResolved()) {
+                if (!queryExpression.areColumnsResolved()) {
                     isCorrelated = true;
 
                     subQuery.setCorrelated();
@@ -1162,12 +1163,12 @@ public class Expression implements Cloneable {
 
             nodeDataTypes[j] = type;
 
-            if (row != null && row.nodes[j].isParam()) {
+            if (row != null && row.nodes[j].isUnresolvedParam()) {
                 row.nodes[j].dataType = type;
             }
 
             for (int i = 0; i < nodes.length; i++) {
-                if (nodes[i].nodes[j].isParam()) {
+                if (nodes[i].nodes[j].isUnresolvedParam()) {
                     nodes[i].nodes[j].dataType = nodeDataTypes[j];
 
                     continue;
@@ -1450,6 +1451,7 @@ public class Expression implements Cloneable {
             }
             case OpTypes.TABLE_SUBQUERY : {
                 subQuery.materialiseCorrelated(session);
+
                 RowSetNavigatorData navigator = subQuery.getNavigator(session);
                 Result              result    = Result.newResult(navigator);
 
@@ -1697,7 +1699,11 @@ public class Expression implements Cloneable {
         set.clear();
     }
 
-    boolean isParam() {
+    boolean isUnresolvedParam() {
+        return false;
+    }
+
+    boolean isDynamicParam() {
         return false;
     }
 
@@ -1889,7 +1895,8 @@ public class Expression implements Cloneable {
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == existing) {
                 replacement.alias = nodes[i].alias;
-                nodes[i] = replacement;
+                nodes[i]          = replacement;
+
                 return;
             }
         }

@@ -60,6 +60,10 @@ public final class NullType extends Type {
         return typeCode;
     }
 
+    public Class getJDBCClass() {
+        return java.lang.Void.class;
+    }
+
     public String getJDBCClassName() {
         return "java.lang.Void";
     }

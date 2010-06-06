@@ -73,6 +73,10 @@ public final class BitType extends BinaryType {
         return Types.BIT;
     }
 
+    public Class getJDBCClass() {
+        return byte[].class;
+    }
+
     public String getJDBCClassName() {
         return "[B";
     }

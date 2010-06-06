@@ -120,22 +120,17 @@ public class StatementProcedure extends StatementDMQL {
             }
         }
 
-        int variableCount = procedure.getVariableCount();
-
         session.sessionContext.push();
 
         session.sessionContext.routineArguments = data;
         session.sessionContext.routineVariables = ValuePool.emptyObjectArray;
 
-        if (variableCount > 0) {
-            session.sessionContext.routineVariables =
-                new Object[variableCount];
-        }
+        Result result = Result.updateZeroResult;
 
-        Result result = procedure.statement.execute(session);
-
-        if (!result.isError()) {
-            result = Result.updateZeroResult;
+        if (procedure.isPSM()) {
+            result = executePSMProcedure(session);
+        } else {
+            result = executeJavaProcedure(session);
         }
 
         Object[] callArguments = session.sessionContext.routineArguments;
@@ -146,6 +141,10 @@ public class StatementProcedure extends StatementDMQL {
             return result;
         }
 
+        if (result.isSimpleValue()) {
+            result = Result.updateZeroResult;
+        }
+
         boolean returnParams = false;
 
         for (int i = 0; i < procedure.getParameterCount(); i++) {
@@ -153,7 +152,7 @@ public class StatementProcedure extends StatementDMQL {
             int          mode  = param.getParameterMode();
 
             if (mode != SchemaObject.ParameterModes.PARAM_IN) {
-                if (this.arguments[i].isParam()) {
+                if (this.arguments[i].isDynamicParam()) {
                     int paramIndex = arguments[i].parameterIndex;
 
                     session.sessionContext.dynamicArguments[paramIndex] =
@@ -173,6 +172,45 @@ public class StatementProcedure extends StatementDMQL {
                 this.getParametersMetaData().getParameterTypes(), this.id,
                 session.sessionContext.dynamicArguments);
         }
+
+        return result;
+    }
+
+    Result executePSMProcedure(Session session) {
+
+        int variableCount = procedure.getVariableCount();
+
+        if (variableCount > 0) {
+            session.sessionContext.routineVariables =
+                new Object[variableCount];
+        }
+
+        Result result = procedure.statement.execute(session);
+
+        if (!result.isError()) {
+            result = Result.updateZeroResult;
+        }
+
+        return result;
+    }
+
+    Result executeJavaProcedure(Session session) {
+
+        Result   result        = Result.updateZeroResult;
+        int      extraArg      = procedure.javaMethodWithConnection ? 1
+                                                                    : 0;
+        Object[] callArguments = session.sessionContext.routineArguments;
+        Object[] data          = new Object[callArguments.length + extraArg];
+
+        data = procedure.convertArgsToJava(session, callArguments);
+
+        if (procedure.javaMethodWithConnection) {
+            data[0] = session.getInternalConnection();
+        }
+
+        result = procedure.invokeJavaMethod(session, data);
+
+        procedure.convertArgsToSQL(session, callArguments, data);
 
         return result;
     }
@@ -198,7 +236,7 @@ public class StatementProcedure extends StatementDMQL {
 
         Object[] row;
 
-        if (expression.getDataType().isArrayType() ) {
+        if (expression.getDataType().isArrayType()) {
             row    = new Object[1];
             row[0] = o;
         } else if (o instanceof Object[]) {

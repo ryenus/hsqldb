@@ -64,6 +64,10 @@ public final class OtherType extends Type {
         return typeCode;
     }
 
+    public Class getJDBCClass() {
+        return java.lang.Object.class;
+    }
+
     public String getJDBCClassName() {
         return "java.lang.Object";
     }

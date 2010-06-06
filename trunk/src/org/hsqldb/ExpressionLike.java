@@ -125,7 +125,7 @@ public final class ExpressionLike extends ExpressionLogical {
         boolean isEscapeFixedConstant = true;
 
         if (nodes[ESCAPE] != null) {
-            if (nodes[ESCAPE].isParam()) {
+            if (nodes[ESCAPE].isUnresolvedParam()) {
                 throw Error.error(ErrorCode.X_42567);
             }
 
@@ -173,11 +173,11 @@ public final class ExpressionLike extends ExpressionLogical {
             throw Error.error(ErrorCode.X_42567);
         }
 
-        if (nodes[LEFT].isParam()) {
+        if (nodes[LEFT].isUnresolvedParam()) {
             nodes[LEFT].dataType = nodes[RIGHT].dataType.isBinaryType()
                                    ? (Type) Type.SQL_VARBINARY_DEFAULT
                                    : (Type) Type.SQL_VARCHAR_DEFAULT;
-        } else if (nodes[RIGHT].isParam()) {
+        } else if (nodes[RIGHT].isUnresolvedParam()) {
             nodes[RIGHT].dataType = nodes[LEFT].dataType.isBinaryType()
                                     ? (Type) Type.SQL_VARBINARY_DEFAULT
                                     : (Type) Type.SQL_VARCHAR_DEFAULT;

@@ -615,7 +615,7 @@ public class ExpressionLogical extends Expression {
                 break;
             }
             case OpTypes.IS_NULL :
-                if (nodes[LEFT].isParam()) {
+                if (nodes[LEFT].isUnresolvedParam()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
@@ -625,7 +625,7 @@ public class ExpressionLogical extends Expression {
                 break;
 
             case OpTypes.NOT :
-                if (nodes[LEFT].isParam()) {
+                if (nodes[LEFT].isUnresolvedParam()) {
                     nodes[LEFT].dataType = Type.SQL_BOOLEAN;
 
                     break;
@@ -678,11 +678,11 @@ public class ExpressionLogical extends Expression {
 
     private void resolveTypesForLogicalOp() {
 
-        if (nodes[LEFT].isParam()) {
+        if (nodes[LEFT].isUnresolvedParam()) {
             nodes[LEFT].dataType = Type.SQL_BOOLEAN;
         }
 
-        if (nodes[RIGHT].isParam()) {
+        if (nodes[RIGHT].isUnresolvedParam()) {
             nodes[RIGHT].dataType = Type.SQL_BOOLEAN;
         }
 
@@ -694,7 +694,8 @@ public class ExpressionLogical extends Expression {
                 || nodes[RIGHT].opType == OpTypes.ROW) {
             throw Error.error(ErrorCode.X_42565);
         }
-        if( Type.SQL_BOOLEAN != nodes[LEFT].dataType
+
+        if (Type.SQL_BOOLEAN != nodes[LEFT].dataType
                 || Type.SQL_BOOLEAN != nodes[RIGHT].dataType) {
             throw Error.error(ErrorCode.X_42568);
         }
@@ -725,9 +726,9 @@ public class ExpressionLogical extends Expression {
 
             return;
         } else {
-            if (nodes[LEFT].isParam()) {
+            if (nodes[LEFT].isUnresolvedParam()) {
                 nodes[LEFT].dataType = nodes[RIGHT].dataType;
-            } else if (nodes[RIGHT].isParam()) {
+            } else if (nodes[RIGHT].isUnresolvedParam()) {
                 nodes[RIGHT].dataType = nodes[LEFT].dataType;
             }
 
@@ -868,11 +869,11 @@ public class ExpressionLogical extends Expression {
 
     void resolveTypesForOverlaps() {
 
-        if (nodes[LEFT].nodes[0].isParam()) {
+        if (nodes[LEFT].nodes[0].isUnresolvedParam()) {
             nodes[LEFT].nodes[0].dataType = nodes[RIGHT].nodes[0].dataType;
         }
 
-        if (nodes[RIGHT].nodes[0].isParam()) {
+        if (nodes[RIGHT].nodes[0].isUnresolvedParam()) {
             nodes[RIGHT].nodes[0].dataType = nodes[LEFT].nodes[0].dataType;
         }
 
@@ -881,11 +882,11 @@ public class ExpressionLogical extends Expression {
                 Type.SQL_TIMESTAMP;
         }
 
-        if (nodes[LEFT].nodes[1].isParam()) {
+        if (nodes[LEFT].nodes[1].isUnresolvedParam()) {
             nodes[LEFT].nodes[1].dataType = nodes[RIGHT].nodes[0].dataType;
         }
 
-        if (nodes[RIGHT].nodes[1].isParam()) {
+        if (nodes[RIGHT].nodes[1].isUnresolvedParam()) {
             nodes[RIGHT].nodes[1].dataType = nodes[LEFT].nodes[0].dataType;
         }
 

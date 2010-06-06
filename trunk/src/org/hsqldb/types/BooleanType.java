@@ -62,6 +62,10 @@ public final class BooleanType extends Type {
         return Types.BOOLEAN;
     }
 
+    public Class getJDBCClass() {
+        return Boolean.class;
+    }
+
     public String getJDBCClassName() {
         return "java.lang.Boolean";
     }

@@ -354,8 +354,7 @@ public class TestSql extends TestBase {
      * Demonstration of a reported bug.<p>
      * Because all values were turned into strings with toString before
      * PreparedStatement.executeQuery() was called, special values such as
-     * NaN were not accepted. In 1.7.0 these values are inserted as nulls
-     * (fredt)<b>
+     * NaN were not accepted.
      *
      * This test can be extended to cover various conversions through JDBC
      *
@@ -918,6 +917,7 @@ public class TestSql extends TestBase {
     protected void tearDown() {
 
         try {
+            stmnt.execute("SHUTDOWN");
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();
