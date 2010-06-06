@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter version="5.0" xml:id="sqlroutines-chapt"
          xmlns="http://docbook.org/ns/docbook"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
          xmlns:ns6="http://www.w3.org/1999/xlink"
          xmlns:ns5="http://www.w3.org/2000/svg"
          xmlns:ns4="http://www.w3.org/1998/Math/MathML"
@@ -797,159 +798,6 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
   </section>
 
   <section>
-    <title>SQL Language Aggregate Functions</title>
-
-    <para>HyperSQL adds an extension to the SQL Standard to allow user defined
-    aggregate functions. A user defined aggregate function has a single
-    parameter when it is used in SQL statements. Unlike the predefined
-    aggregate functions, the keyword DISTINCT cannot be used when a user
-    defined aggregate function is invoked. Like all user defined functions, an
-    aggregate function belongs to a schema and can be polymorphic.</para>
-
-    <para>A user defined aggregate function can be used in SQL statements
-    where a predefined aggregate function is allowed.</para>
-
-    <section>
-      <title>Definition of Aggregate Functions</title>
-
-      <para>An aggregate function is always defined with 4 parameters. The
-      first parameter is the parameter that is used when the function is
-      invoked in SQL statements, the rest of the parameter are invisible to
-      the invoking statement. The type of the first parameter is user defined.
-      The type of the second parameter must be BOOLEAN. The third and fourth
-      parameters have user defined types and must be defined as INOUT
-      parameters. The defined return type of the function determines the type
-      of the value returned when the function is invoked.</para>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>CREATE AGGREGATE FUNCTION</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">CREATE AGGREGATE
-      FUNCTION</emphasis></simpara>
-
-      <simpara><emphasis>user defined aggregate function
-      definition</emphasis></simpara>
-
-      <para>Aggregate function definition is similar to normal function
-      definition and has the mandatory <literal>&lt;returns
-      clause&gt;</literal>. The BNF is given below.</para>
-
-      <simpara><literal>&lt;user defined aggregate function&gt; ::= CREATE
-      AGGREGATE FUNCTION &lt;schema qualified routine name&gt; &lt;SQL
-      aggregate parameter declaration list&gt; &lt;returns clause&gt;
-      &lt;routine characteristics&gt; &lt;routine body&gt;</literal></simpara>
-
-      <para>The parameter declaration list BNF is given below. The type of the
-      first parameter is used when the function is invoked as part of an SQL
-      statement. When multiple versions of a function are required, each
-      version will have the first parameter of a different type.</para>
-
-      <simpara><literal>&lt;SQL aggregate declaration list&gt; ::= &lt;left
-      paren&gt; [IN] [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt;
-      &lt;comma&gt; [IN] [ &lt;SQL parameter name&gt; ] BOOLEAN &lt;comma&gt;
-      INOUT [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt;
-      &lt;comma&gt; INOUT [ &lt;SQL parameter name&gt; ] &lt;parameter
-      type&gt; &lt;right paren&gt;</literal></simpara>
-
-      <para>The return type is user defined. This is the type of the resulting
-      value when the function is called. Usually an aggregate function is
-      defined with CONTAINS SQL, as it normally does not read the data in
-      database tables, but it is possible to define the function with READS
-      SQL DATA and access the database tables.</para>
-
-      <para>HyperSQL invokes the aggregate function, with all the arguments
-      set, once per each row in order to compute the values. Finally, it
-      invokes the function once more to return the final result.</para>
-
-      <para>In the computation phase, the first argument is the value of the
-      user argument as specified in the SQL statement, computed for the
-      current row. The second argument is the boolean FALSE. The third and
-      fourth argument values are initially null, but they can be updated in
-      the body of the function during each invocation. The third and fourth
-      arguments act as registers and hold their values between invocations.
-      The return value of the function is ignored during the computation phase
-      (when the second parameter is FALSE).</para>
-
-      <para>After the computation phase, the function is invoked once more to
-      get the final result. In this invocation, the first argument is NULL and
-      the second argument is boolean TRUE. The third and fourth arguments hold
-      the values they held at the end of the last invocation. The value
-      returned by the function in this invocation is used as the result of the
-      aggregate function computation in the invoking SQL statement. In SQL
-      queries with GROUP BY, the call sequence is repeated for each separate
-      group.</para>
-
-      <para>The example below features a user defined version of the Standard
-      <literal>AVG(&lt;value expression&gt;)</literal> aggregate function for
-      INTEGER input and output types. This function behaves differently from
-      the Standard AVG function as it returns 0 when all the input values are
-      null.</para>
-
-      <programlisting>CREATE AGGREGATE FUNCTION udavg(IN x INTEGER, IN flag BOOLEAN, INOUT addup BIGINT, INOUT counter INT)
-  RETURNS INTEGER
-  CONTAINS SQL
-  BEGIN ATOMIC
-    IF flag THEN
-      RETURN addup / counter;
-    ELSE
-      SET counter = COALESCE(counter, 0) + 1;
-      SET addup = COALESCE(addup, 0) || COALESCE(x, 0);
-      RETURN NULL;
-    END IF;
-  END
-
-</programlisting>
-
-      <para>The user defined aggregate function is used in a select statement
-      in the example below. Only the first parameter is visible and utilised
-      in the select statement.</para>
-
-      <programlisting>SELECT udavg(id) FROM customers GROUP BY lastname;</programlisting>
-
-      <para>In the example below, the function returns an array that contains
-      all the values passed for the aggregated column. For use with longer
-      arrays, you can optimise the function by defining a larger array in the
-      first iteration, and using the TRIM_ARRAY function on the RETURN to cut
-      the array to size :</para>
-
-      <programlisting>CREATE AGGREGATE FUNCTION array_aggregate(IN val VARCHAR(100), IN flag boolean, INOUT buffer VARCHAR(100) ARRAY, INOUT counter INT)
-  RETURNS VARCHAR(100) ARRAY
-  CONTAINS SQL
-  BEGIN ATOMIC
-    IF flag THEN
-      RETURN buffer;
-    ELSE
-      IF val IS NULL THEN RETURN NULL; END IF;
-      IF counter IS NULL THEN SET counter = 0; END IF;
-      SET counter = counter + 1;
-      IF counter = 1 THEN SET buffer = ARRAY[val];
-      ELSE SET buffer[counter] = val; END IF;
-      RETURN NULL;
-    END IF;
-  END
-</programlisting>
-
-      <para>The tables and data for the select statement below is created with
-      the DatabaseManager or DatabaseManagerSwing GUI apps. Part of the output
-      is shown. Each row of the output includes an array containing the values
-      for the invoices for each customer.</para>
-
-      <programlisting>SELECT ID, FIRSTNAME, LASTNAME, ARRAY_AGGREGATE(CAST(INVOICE.TOTAL AS VARCHAR(100))) 
-  FROM customer JOIN INVOICE ON ID =CUSTOMERID
-  GROUP BY ID, FIRSTNAME, LASTNAME
-
-11 Susanne   Karsen    ARRAY['3988.20']                               
-12 John      Peterson  ARRAY['2903.10','4382.10','4139.70','3316.50'] 
-13 Michael   Clancy    ARRAY['6525.30']                               
-14 James     King      ARRAY['3665.40','905.10','498.00']             
-18 Sylvia    Clancy    ARRAY['634.20','4883.10']                      
-20 Bob       Clancy    ARRAY['3414.60','744.60']
-</programlisting>
-    </section>
-  </section>
-
-  <section>
     <title>Java Language Routines (SQL/JRT)</title>
 
     <para>The body of a Java language routine is a static method of a Java
@@ -1132,6 +980,53 @@ CREATE FUNCTION testquery(INTEGER)
     </section>
 
     <section>
+      <title>Java Language Procedures</title>
+
+      <para>Java procedures are defined similarly to functions. The
+      differences are:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>The return type of the Java static method must be void.</para>
+        </listitem>
+
+        <listitem>
+          <para>If a parameter is defined as OUT or INOUT, the corresponding
+          Java static method parameter must be defined as an array of the JDBC
+          non-primitive type. </para>
+        </listitem>
+
+        <listitem>
+          <para>When the Java static method is invoked, the OUT and INOUT
+          arguments are passed as a single-element array.</para>
+        </listitem>
+
+        <listitem>
+          <para>The static method can modify the OUT or INOUT param by
+          assigning a value to the sole element of the argument array.</para>
+        </listitem>
+
+        <listitem>
+          <para>If the procedure contains SQL statements, only statements for
+          data access and manipulation are allowed. The java method should not
+          perform commit or rollback. The SQL statements should not change the
+          session settings and should not include statements at create or
+          modify tables definitions or other database objects. These rules are
+          generally enforced by the engine, but additional enforcement may be
+          added in future versions</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>An example of a procedure definition is given below:</para>
+
+      <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname  VARCHAR(50), address VARCHAR(100))
+  MODIFIES SQL DATA
+  LANGUAGE JAVA
+  EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.Test01.newCustomerProcedure'
+</programlisting>
+    </section>
+
+    <section>
       <title>Legacy Support</title>
 
       <para>The legacy HyperSQL statement, <literal>CREATE ALIAS &lt;name&gt;
@@ -1144,6 +1039,218 @@ CREATE FUNCTION testquery(INTEGER)
       but deprecated. It is internally translated to a special <literal>CREATE
       FUNCTION</literal> statement where the name of the function is the
       double quoted, fully qualified name of the Java method used.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>SQL Language Aggregate Functions</title>
+
+    <para>HyperSQL adds an extension to the SQL Standard to allow user defined
+    aggregate functions. A user defined aggregate function has a single
+    parameter when it is used in SQL statements. Unlike the predefined
+    aggregate functions, the keyword DISTINCT cannot be used when a user
+    defined aggregate function is invoked. Like all user defined functions, an
+    aggregate function belongs to a schema and can be polymorphic.</para>
+
+    <para>A user defined aggregate function can be used in SQL statements
+    where a predefined aggregate function is allowed.</para>
+
+    <section>
+      <title>Definition of Aggregate Functions</title>
+
+      <para>An aggregate function is always defined with 4 parameters. The
+      first parameter is the parameter that is used when the function is
+      invoked in SQL statements, the rest of the parameter are invisible to
+      the invoking statement. The type of the first parameter is user defined.
+      The type of the second parameter must be BOOLEAN. The third and fourth
+      parameters have user defined types and must be defined as INOUT
+      parameters. The defined return type of the function determines the type
+      of the value returned when the function is invoked.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CREATE AGGREGATE FUNCTION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">CREATE AGGREGATE
+      FUNCTION</emphasis></simpara>
+
+      <simpara><emphasis>user defined aggregate function
+      definition</emphasis></simpara>
+
+      <para>Aggregate function definition is similar to normal function
+      definition and has the mandatory <literal>&lt;returns
+      clause&gt;</literal>. The BNF is given below.</para>
+
+      <simpara><literal>&lt;user defined aggregate function&gt; ::= CREATE
+      AGGREGATE FUNCTION &lt;schema qualified routine name&gt; &lt;SQL
+      aggregate parameter declaration list&gt; &lt;returns clause&gt;
+      &lt;routine characteristics&gt; &lt;routine body&gt;</literal></simpara>
+
+      <para>The parameter declaration list BNF is given below. The type of the
+      first parameter is used when the function is invoked as part of an SQL
+      statement. When multiple versions of a function are required, each
+      version will have the first parameter of a different type.</para>
+
+      <simpara><literal>&lt;SQL aggregate declaration list&gt; ::= &lt;left
+      paren&gt; [IN] [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt;
+      &lt;comma&gt; [IN] [ &lt;SQL parameter name&gt; ] BOOLEAN &lt;comma&gt;
+      INOUT [ &lt;SQL parameter name&gt; ] &lt;parameter type&gt;
+      &lt;comma&gt; INOUT [ &lt;SQL parameter name&gt; ] &lt;parameter
+      type&gt; &lt;right paren&gt;</literal></simpara>
+
+      <para>The return type is user defined. This is the type of the resulting
+      value when the function is called. Usually an aggregate function is
+      defined with CONTAINS SQL, as it normally does not read the data in
+      database tables, but it is possible to define the function with READS
+      SQL DATA and access the database tables.</para>
+
+      <para>HyperSQL invokes the aggregate function, with all the arguments
+      set, once per each row in order to compute the values. Finally, it
+      invokes the function once more to return the final result.</para>
+
+      <para>In the computation phase, the first argument is the value of the
+      user argument as specified in the SQL statement, computed for the
+      current row. The second argument is the boolean FALSE. The third and
+      fourth argument values are initially null, but they can be updated in
+      the body of the function during each invocation. The third and fourth
+      arguments act as registers and hold their values between invocations.
+      The return value of the function is ignored during the computation phase
+      (when the second parameter is FALSE).</para>
+
+      <para>After the computation phase, the function is invoked once more to
+      get the final result. In this invocation, the first argument is NULL and
+      the second argument is boolean TRUE. The third and fourth arguments hold
+      the values they held at the end of the last invocation. The value
+      returned by the function in this invocation is used as the result of the
+      aggregate function computation in the invoking SQL statement. In SQL
+      queries with GROUP BY, the call sequence is repeated for each separate
+      group.</para>
+    </section>
+
+    <section>
+      <title>SQL PSM Aggregate Functions</title>
+
+      <para>The example below features a user defined version of the Standard
+      <literal>AVG(&lt;value expression&gt;)</literal> aggregate function for
+      INTEGER input and output types. This function behaves differently from
+      the Standard AVG function as it returns 0 when all the input values are
+      null.</para>
+
+      <programlisting>CREATE AGGREGATE FUNCTION udavg(IN x INTEGER, IN flag BOOLEAN, INOUT addup BIGINT, INOUT counter INT)
+  RETURNS INTEGER
+  CONTAINS SQL
+  BEGIN ATOMIC
+    IF flag THEN
+      RETURN addup / counter;
+    ELSE
+      SET counter = COALESCE(counter, 0) + 1;
+      SET addup = COALESCE(addup, 0) || COALESCE(x, 0);
+      RETURN NULL;
+    END IF;
+  END
+
+</programlisting>
+
+      <para>The user defined aggregate function is used in a select statement
+      in the example below. Only the first parameter is visible and utilised
+      in the select statement.</para>
+
+      <programlisting>SELECT udavg(id) FROM customers GROUP BY lastname;</programlisting>
+
+      <para>In the example below, the function returns an array that contains
+      all the values passed for the aggregated column. For use with longer
+      arrays, you can optimise the function by defining a larger array in the
+      first iteration, and using the TRIM_ARRAY function on the RETURN to cut
+      the array to size :</para>
+
+      <programlisting>CREATE AGGREGATE FUNCTION array_aggregate(IN val VARCHAR(100), IN flag boolean, INOUT buffer VARCHAR(100) ARRAY, INOUT counter INT)
+  RETURNS VARCHAR(100) ARRAY
+  CONTAINS SQL
+  BEGIN ATOMIC
+    IF flag THEN
+      RETURN buffer;
+    ELSE
+      IF val IS NULL THEN RETURN NULL; END IF;
+      IF counter IS NULL THEN SET counter = 0; END IF;
+      SET counter = counter + 1;
+      IF counter = 1 THEN SET buffer = ARRAY[val];
+      ELSE SET buffer[counter] = val; END IF;
+      RETURN NULL;
+    END IF;
+  END
+</programlisting>
+
+      <para>The tables and data for the select statement below are created
+      with the DatabaseManager or DatabaseManagerSwing GUI apps. Part of the
+      output is shown. Each row of the output includes an array containing the
+      values for the invoices for each customer.</para>
+
+      <programlisting>SELECT ID, FIRSTNAME, LASTNAME, ARRAY_AGGREGATE(CAST(INVOICE.TOTAL AS VARCHAR(100))) 
+  FROM customer JOIN INVOICE ON ID =CUSTOMERID
+  GROUP BY ID, FIRSTNAME, LASTNAME
+
+11 Susanne   Karsen    ARRAY['3988.20']                               
+12 John      Peterson  ARRAY['2903.10','4382.10','4139.70','3316.50'] 
+13 Michael   Clancy    ARRAY['6525.30']                               
+14 James     King      ARRAY['3665.40','905.10','498.00']             
+18 Sylvia    Clancy    ARRAY['634.20','4883.10']                      
+20 Bob       Clancy    ARRAY['3414.60','744.60']
+</programlisting>
+    </section>
+
+    <section>
+      <title>Java Aggregate Functions</title>
+
+      <para>A Java aggregate function is defined similarly to PSM functions,
+      apart from the routine body, which is defined as <literal>EXTERNAL NAME
+      ... The Java function signature must follow the rules for both nullable
+      and INOUT parameters, therefore:</literal></para>
+
+      <para><literal>No agrument is defined as a primitive or primitive array
+      type. This allows nulls to be passed to the function. The second and
+      third arguments must be defined as arrays of the JDBC non-primitive
+      types listed in the table in the previous section.</literal></para>
+
+      <para><literal>In the example below, a user-defined aggregate function
+      for geometric mean is defined.</literal></para>
+
+      <programlisting>CREATE AGGREGATE FUNCTION geometric_mean(IN val DOUBLE, IN flag BOOLEAN, INOUT register DOUBLE, INOUT counter INT)
+ RETURNS DOUBLE
+ NO SQL
+ LANGUAGE JAVA
+ EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.Test01.geometricMean'
+</programlisting>
+
+      <para><literal>The Java function definition is given
+      below:</literal></para>
+
+      <programlisting>public static Double geometricMean(Double in, Boolean flag,
+        Double[] register, Integer[] counter) {
+
+    if (flag) {
+        if (register[0] == null) { return null; }
+        double a = register[0].doubleValue();
+        double b = 1 / (double) counter[0];
+        return Double.valueOf(java.lang.Math.pow(a, b));
+    }
+    if (in == null) { return null; }
+    if (in.doubleValue() == 0) { return null; }
+    if (register[0] == null) {
+        register[0] = in;
+        counter[0]  = Integer.valueOf(1);
+    } else {
+        register[0] = Double.valueOf(register[0].doubleValue() * in.doubleValue());
+        counter[0] = Integer.valueOf(counter[0].intValue() + 1);
+    }
+    return null;
+}
+</programlisting>
+
+      <para><literal>In a select statement, the function is used like built in
+      aggregate functions:</literal></para>
+
+      <programlisting>SELECT geometric_mean(age) FROM  FROM customer
+</programlisting>
     </section>
   </section>
 
@@ -1322,68 +1429,75 @@ CREATE FUNCTION testquery(INTEGER)
     Java methods within the classpath. The <literal>&lt;external Java
     reference string&gt;</literal> is a quoted string which starts with
     CLASSPATH: and is followed by the Java package, class and method names
-    separated with dots.</para>
+    separated with dots. HyperSQL does not currently support the optional
+    <literal>&lt;Java parameter declaration list&gt;</literal>.</para>
 
     <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL NAME
-    &lt;external Java reference string&gt; ]</literal></simpara>
+    &lt;external Java reference string&gt;</literal></simpara>
 
     <simpara><literal>&lt;external Java reference string&gt; ::= &lt;jar and
     class name&gt; &lt;period&gt; &lt;Java method name&gt; [ &lt;Java
     parameter declaration list&gt; ]</literal></simpara>
 
-    <para>The &lt;routine characteristics&gt; clause covers several
-    sub-clauses</para>
+    <section>
+      <title>Routine Characteristics</title>
 
-    <simpara><literal>&lt;routine characteristics&gt; ::= [ &lt;routine
-    characteristic&gt;... ]</literal></simpara>
+      <para>The <literal>&lt;routine characteristics&gt;</literal> clause
+      covers several sub-clauses</para>
 
-    <simpara><literal>&lt;routine characteristic&gt; ::= &lt;language
-    clause&gt; | &lt;parameter style clause&gt; | SPECIFIC &lt;specific
-    name&gt; | &lt;deterministic characteristic&gt; | &lt;SQL-data access
-    indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
-    characteristic&gt; | &lt;savepoint level
-    indication&gt;</literal></simpara>
+      <simpara><literal>&lt;routine characteristics&gt; ::= [ &lt;routine
+      characteristic&gt;... ]</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>LANGUAGE</primary>
-    </indexterm>
+      <simpara><literal>&lt;routine characteristic&gt; ::= &lt;language
+      clause&gt; | &lt;parameter style clause&gt; | SPECIFIC &lt;specific
+      name&gt; | &lt;deterministic characteristic&gt; | &lt;SQL-data access
+      indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
+      characteristic&gt; | &lt;savepoint level
+      indication&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">LANGUAGE</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>LANGUAGE</primary>
+      </indexterm>
 
-    <simpara><emphasis>language clause</emphasis></simpara>
+      <simpara><emphasis role="bold">LANGUAGE</emphasis></simpara>
 
-    <para>The <literal>&lt;language clause&gt;</literal> refers to the
-    language in which the routine body is written. It is either SQL or Java.
-    The default is SQL, so JAVA must be specified for SQL/JRT routines.</para>
+      <simpara><emphasis>language clause</emphasis></simpara>
 
-    <simpara><literal>&lt;language clause&gt; ::= LANGUAGE &lt;language
-    name&gt;</literal></simpara>
+      <para>The <literal>&lt;language clause&gt;</literal> refers to the
+      language in which the routine body is written. It is either SQL or Java.
+      The default is SQL, so JAVA must be specified for SQL/JRT
+      routines.</para>
 
-    <simpara><literal>&lt;language name&gt; ::= SQL | JAVA</literal></simpara>
+      <simpara><literal>&lt;language clause&gt; ::= LANGUAGE &lt;language
+      name&gt;</literal></simpara>
 
-    <para>The parameter style is not allowed for SQL routines. It is optional
-    for Java routines and, in HyperSQL, the only value allowed is JAVA.</para>
+      <simpara><literal>&lt;language name&gt; ::= SQL |
+      JAVA</literal></simpara>
 
-    <simpara><literal>&lt;parameter style&gt; ::= JAVA</literal></simpara>
+      <para>The parameter style is not allowed for SQL routines. It is
+      optional for Java routines and, in HyperSQL, the only value allowed is
+      JAVA.</para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SPECIFIC NAME</primary>
-    </indexterm>
+      <simpara><literal>&lt;parameter style&gt; ::= JAVA</literal></simpara>
 
-    <simpara><emphasis role="bold">SPECIFIC NAME</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SPECIFIC NAME</primary>
+      </indexterm>
 
-    <simpara><emphasis>specific name</emphasis></simpara>
+      <simpara><emphasis role="bold">SPECIFIC NAME</emphasis></simpara>
 
-    <para>The <literal>SPECIFIC &lt;specific name&gt;</literal> clause is
-    optional but the engine will creates an automatic name if it is not
-    present. When there are several versions of the same routine, the
-    <literal>&lt;specific name&gt;</literal> is used in schema manipulation
-    statements to drop or alter a specific version. The <literal>&lt;specific
-    name&gt;</literal> is a user-defined name. It applies to both functions
-    and procedures. In the examples below, a specific name is specified for
-    each function.</para>
+      <simpara><emphasis>specific name</emphasis></simpara>
 
-    <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
+      <para>The <literal>SPECIFIC &lt;specific name&gt;</literal> clause is
+      optional but the engine will creates an automatic name if it is not
+      present. When there are several versions of the same routine, the
+      <literal>&lt;specific name&gt;</literal> is used in schema manipulation
+      statements to drop or alter a specific version. The
+      <literal>&lt;specific name&gt;</literal> is a user-defined name. It
+      applies to both functions and procedures. In the examples below, a
+      specific name is specified for each function.</para>
+
+      <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
   RETURNS TIMESTAMP
   NO SQL
   LANGUAGE JAVA PARAMETER STYLE JAVA
@@ -1396,100 +1510,103 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
 </programlisting>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DETERMINISTIC characteristic</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>DETERMINISTIC characteristic</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DETERMINISTIC</emphasis></simpara>
+      <simpara><emphasis role="bold">DETERMINISTIC</emphasis></simpara>
 
-    <simpara><emphasis>deterministic characteristic</emphasis></simpara>
+      <simpara><emphasis>deterministic characteristic</emphasis></simpara>
 
-    <para>The <literal>&lt;deterministic characteristic&gt;</literal> clause
-    indicates that a routine is deterministic or not. Deterministic means the
-    routine does not reference random values, external variables, or time of
-    invocation. The default is <literal>NOT DETERMINISTIC</literal>. It is
-    essential to declare this characteristics correctly for an SQL/JRT
-    routine, as the engine does not know the contents of the Java code, which
-    could include calls to methods returning random or time sensitive
-    values.</para>
+      <para>The <literal>&lt;deterministic characteristic&gt;</literal> clause
+      indicates that a routine is deterministic or not. Deterministic means
+      the routine does not reference random values, external variables, or
+      time of invocation. The default is <literal>NOT DETERMINISTIC</literal>.
+      It is essential to declare this characteristics correctly for an SQL/JRT
+      routine, as the engine does not know the contents of the Java code,
+      which could include calls to methods returning random or time sensitive
+      values.</para>
 
-    <simpara><literal>&lt;deterministic characteristic&gt; ::= DETERMINISTIC |
-    NOT DETERMINISTIC</literal></simpara>
+      <simpara><literal>&lt;deterministic characteristic&gt; ::= DETERMINISTIC
+      | NOT DETERMINISTIC</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SQL DATA access characteristic</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL DATA access characteristic</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">SQL DATA access</emphasis></simpara>
+      <simpara><emphasis role="bold">SQL DATA access</emphasis></simpara>
 
-    <simpara><emphasis>SQL DATA access characteristic</emphasis></simpara>
+      <simpara><emphasis>SQL DATA access characteristic</emphasis></simpara>
 
-    <para>The <literal>&lt;SQL-data access indication&gt;</literal>  clause
-    indicates the extent to which a routine interacts with the database or the
-    data stored in the database tables (SQL data).  NO SQL means no SQL
-    command is issued in the routine body and can be used only for SQL/JRT
-    functions. <literal>CONTAINS SQL</literal> means some SQL commands are
-    used, but they do not read or modify the SQL data. <literal>READS SQL
-    DATA</literal> and <literal>MODIFIES SQL DATA</literal> are self
-    explanatory.</para>
+      <para>The <literal>&lt;SQL-data access indication&gt;</literal>  clause
+      indicates the extent to which a routine interacts with the database or
+      the data stored in the database tables (SQL data).  NO SQL means no SQL
+      command is issued in the routine body and can be used only for SQL/JRT
+      functions. <literal>CONTAINS SQL</literal> means some SQL commands are
+      used, but they do not read or modify the SQL data. <literal>READS SQL
+      DATA</literal> and <literal>MODIFIES SQL DATA</literal> are self
+      explanatory.</para>
 
-    <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL | CONTAINS
-    SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
+      <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL |
+      CONTAINS SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>NULL INPUT</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>NULL INPUT</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">NULL INPUT</emphasis></simpara>
+      <simpara><emphasis role="bold">NULL INPUT</emphasis></simpara>
 
-    <simpara><emphasis>null call clause</emphasis></simpara>
+      <simpara><emphasis>null call clause</emphasis></simpara>
 
-    <para>Null Arguments</para>
+      <para>Null Arguments</para>
 
-    <para>The <literal>&lt;null-call clause&gt;</literal> is used only for
-    functions. If a function returns NULL when any of the calling arguments is
-    null, then by specifying <literal>RETURNS NULL ON NULL INPUT</literal>,
-    calls to the function are known to be redundant and do not take place when
-    an argument is null. This simplifies the coding of the SQL/JRT Java
-    methods and improves performance at the same time.</para>
+      <para>The <literal>&lt;null-call clause&gt;</literal> is used only for
+      functions. If a function returns NULL when any of the calling arguments
+      is null, then by specifying <literal>RETURNS NULL ON NULL
+      INPUT</literal>, calls to the function are known to be redundant and do
+      not take place when an argument is null. This simplifies the coding of
+      the SQL/JRT Java methods and improves performance at the same
+      time.</para>
 
-    <simpara><literal>&lt;null-call clause&gt; ::= RETURNS NULL ON NULL INPUT
-    | CALLED ON NULL INPUT</literal></simpara>
+      <simpara><literal>&lt;null-call clause&gt; ::= RETURNS NULL ON NULL
+      INPUT | CALLED ON NULL INPUT</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SAVEPOINT LEVEL</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>SAVEPOINT LEVEL</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">SAVEPOINT LEVEL</emphasis></simpara>
+      <simpara><emphasis role="bold">SAVEPOINT LEVEL</emphasis></simpara>
 
-    <simpara><emphasis>transaction impact</emphasis></simpara>
+      <simpara><emphasis>transaction impact</emphasis></simpara>
 
-    <para>The <literal>&lt;savepoint level indication&gt;</literal> is used
-    only for procedures and refers to the visibility of existing savepoints
-    within the body of the procedure. If <literal>NEW SAVEPOINT
-    LEVEL</literal> is specified, savepoints that have been declared prior to
-    calling the procedure become invisible within the body of the procedure.
-    HyperSQL’s implementation accepts only <literal>NEW SAVEPOINT
-    LEVEL</literal>, which must be specified.</para>
+      <para>The <literal>&lt;savepoint level indication&gt;</literal> is used
+      only for procedures and refers to the visibility of existing savepoints
+      within the body of the procedure. If <literal>NEW SAVEPOINT
+      LEVEL</literal> is specified, savepoints that have been declared prior
+      to calling the procedure become invisible within the body of the
+      procedure. HyperSQL’s implementation accepts only <literal>NEW SAVEPOINT
+      LEVEL</literal>, which must be specified.</para>
 
-    <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
-    LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
+      <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
+      LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>DYNAMIC RESULT SETS</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>DYNAMIC RESULT SETS</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">DYNAMIC RESULT SETS</emphasis></simpara>
+      <simpara><emphasis role="bold">DYNAMIC RESULT SETS</emphasis></simpara>
 
-    <simpara><emphasis>returned result sets
-    characteristic</emphasis></simpara>
+      <simpara><emphasis>returned result sets
+      characteristic</emphasis></simpara>
 
-    <para>The <literal>&lt;returned result sets characteristic&gt;</literal>
-    is used only for SQL/PSM procedures. The maximum number of result sets
-    that a procedure may return can be specified with the clause below. The
-    default is zero. Details are discussed in the previous sections.</para>
+      <para>The <literal>&lt;returned result sets characteristic&gt;</literal>
+      is used only for SQL/PSM procedures. The maximum number of result sets
+      that a procedure may return can be specified with the clause below. The
+      default is zero. Details are discussed in the previous sections.</para>
 
-    <simpara><literal>&lt;returned result sets characteristic&gt; ::= DYNAMIC
-    RESULT SETS &lt;maximum returned result sets&gt;</literal></simpara>
+      <simpara><literal>&lt;returned result sets characteristic&gt; ::=
+      DYNAMIC RESULT SETS &lt;maximum returned result
+      sets&gt;</literal></simpara>
+    </section>
   </section>
 </chapter>
