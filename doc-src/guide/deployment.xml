@@ -1386,12 +1386,12 @@
     <simpara><literal>&lt;set database gc statement&gt; ::= SET DATABASE GC
     &lt;unsigned integer literal&gt;</literal></simpara>
 
-    <simpara>An optional property which forces calls to System.gc() after the
-    specified number of row operations. The default value for this property is
-    0, which means no System.gc() calls. Usual values for this property range
-    from 10000 depending on the system and the memory allocation. This
-    property may be useful in some in-process deployments, especially with
-    older JVM implementations.</simpara>
+    <simpara>An optional property which forces calls to <literal>System.gc()
+    </literal>after the specified number of row operations. The default value
+    for this property is 0, which means no System.gc() calls. Usual values for
+    this property range from 10000 depending on the system and the memory
+    allocation. This property may be useful in some in-process deployments,
+    especially with older JVM implementations.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1408,9 +1408,10 @@
     <simpara><literal>&lt;set database sql size statement&gt; ::= SET DATABASE
     SQL SIZE { TRUE | FALSE }</literal></simpara>
 
-    <simpara>This command can enable or disable enforcement of column sizes
-    for CHAR and VARCHAR columns. The default is TRUE, meaning
-    enable.</simpara>
+    <simpara>Enable or disable enforcement of column sizes for CHAR and
+    VARCHAR columns. The default is TRUE, meaning table definition must
+    contain <literal>VARCHAR(n)</literal> instead of
+    <literal>VARCHAR</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1426,9 +1427,9 @@
     <simpara><literal>&lt;set database sql names statement&gt; ::= SET
     DATABASE SQL NAMES { TRUE | FALSE }</literal></simpara>
 
-    <simpara>This command can enable or disable full enforcement of the rule
-    that prevents SQL keywords being used for database object names such as
-    columns and tables. The default is FALSE, meaning disable.</simpara>
+    <simpara>Enable or disable full enforcement of the rule that prevents SQL
+    keywords being used for database object names such as columns and tables.
+    The default is FALSE, meaning disable.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1472,7 +1473,7 @@
     <simpara><literal>&lt;set database referential integrity statement&gt; ::=
     SET DATABASE REFERENTIAL INTEGRITY { TRUE | FALSE }</literal></simpara>
 
-    <simpara>This commands enables or disables the enforcement of referential
+    <simpara>This command enables or disables the enforcement of referential
     integrity constraints (foreign key constraints), check constraints apart
     from NOT NULL and triggers. By default, referential integrity constraints
     are checked.</simpara>
