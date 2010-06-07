@@ -54,7 +54,7 @@ public class Tokens {
     static final String        T_AND              = "AND";
     static final String        T_ANY              = "ANY";
     static final String        T_ARE              = "ARE";
-    static final String        T_ARRAY            = "ARRAY";
+    public static final String T_ARRAY            = "ARRAY";
     public static final String T_AS               = "AS";
     static final String        T_ASENSITIVE       = "ASENSITIVE";
     static final String        T_ASYMMETRIC       = "ASYMMETRIC";
@@ -222,7 +222,7 @@ public class Tokens {
     static final String        T_MODIFIES          = "MODIFIES";
     static final String        T_MODULE            = "MODULE";
     public static final String T_MONTH             = "MONTH";
-    static final String        T_MULTISET          = "MULTISET";
+    public static final String T_MULTISET          = "MULTISET";
     static final String        T_NATIONAL          = "NATIONAL";
     static final String        T_NATURAL           = "NATURAL";
     static final String        T_NCHAR             = "NCHAR";
@@ -291,7 +291,7 @@ public class Tokens {
     static final String        T_RIGHT             = "RIGHT";
     static final String        T_ROLLBACK          = "ROLLBACK";
     static final String        T_ROLLUP            = "ROLLUP";
-    static final String        T_ROW               = "ROW";
+    public static final String T_ROW               = "ROW";
     static final String        T_ROW_NUMBER        = "ROW_NUMBER";
     public static final String T_ROWS              = "ROWS";
     static final String        T_SAVEPOINT         = "SAVEPOINT";
@@ -373,7 +373,7 @@ public class Tokens {
 
     // ops
     static final String        T_ASTERISK       = "*";
-    static final String        T_COMMA          = ",";
+    public static final String T_COMMA          = ",";
     static final String        T_CIRCUMFLEX     = "^";
     static final String        T_CLOSEBRACKET   = ")";
     static final String        T_COLON          = ":";
@@ -382,6 +382,7 @@ public class Tokens {
     static final String        T_EQUALS         = "=";
     static final String        T_GREATER        = ">";
     static final String        T_GREATER_EQUALS = ">=";
+    public static final String T_LEFTBRACKET    = "[";
     static final String        T_LESS           = "<";
     static final String        T_LESS_EQUALS    = "<=";
     static final String        T_PERCENT        = "%";
@@ -391,6 +392,7 @@ public class Tokens {
     static final String        T_NOT_EQUALS_ALT = "!=";
     static final String        T_OPENBRACKET    = "(";
     static final String        T_QUESTION       = "?";
+    public static final String T_RIGHTBRACKET   = "]";
     static final String        T_SEMICOLON      = ";";
     static final String        T_DOUBLE_COLON   = "::";
 
@@ -621,6 +623,7 @@ public class Tokens {
     // other tokens
     static final String        T_ADD                 = "ADD";
     static final String        T_ALIAS               = "ALIAS";
+    static final String        T_AGGREGATE           = "AGGREGATE";
     static final String        T_AUTOCOMMIT          = "AUTOCOMMIT";
     public static final String T_BACKUP              = "BACKUP";
     public static final String T_BIT                 = "BIT";
@@ -630,6 +633,7 @@ public class Tokens {
     static final String        T_CASEWHEN            = "CASEWHEN";
     static final String        T_CHECKPOINT          = "CHECKPOINT";
     static final String        T_CLASS               = "CLASS";
+    static final String        T_COMMENT             = "COMMENT";
     static final String        T_COMPACT             = "COMPACT";
     public static final String T_COMPRESSED          = "COMPRESSED";
     public static final String T_CONTROL             = "CONTROL";
@@ -1133,7 +1137,6 @@ public class Tokens {
     public static final int YEAR                             = 322;
 
     //
-
     //SQL 200n Standard non-reserved keywords - full set
     public static final int A                           = 330;
     public static final int ABSOLUTE                    = 331;
@@ -1356,55 +1359,56 @@ public class Tokens {
     public static final int WRAPPER                     = 548;
     public static final int ZONE                        = 549;
 
-
     // other token values used as switch cases
     static final int ALIAS        = 551;
-    static final int AUTOCOMMIT   = 552;
-    static final int BACKUP       = 553;
-    static final int BIT          = 554;
-    static final int BLOCKING     = 555;
-    static final int CACHE        = 556;
-    static final int CACHED       = 557;
-    static final int CASEWHEN     = 558;
-    static final int CHECKPOINT   = 559;
-    static final int CLASS        = 560;
-    static final int COMPACT      = 561;
-    static final int COMPRESSED   = 562;
-    static final int CONTROL      = 563;
-    static final int DATABASE     = 564;
-    static final int DEFRAG       = 565;
-    static final int DELAY        = 566;
-    static final int EVENT        = 567;
-    static final int EXPLAIN      = 568;
-    static final int FILE         = 569;
-    static final int FILES        = 570;
-    static final int GC           = 571;
-    static final int HEADER       = 572;
-    static final int IGNORECASE   = 573;
-    static final int IMMEDIATELY  = 574;
-    static final int INTEGRITY    = 575;
-    static final int INDEX        = 576;
-    static final int INITIAL      = 577;
-    static final int LIMIT        = 578;
-    static final int LOCK         = 579;
-    static final int LOCKS        = 580;
-    static final int MAXROWS      = 581;
-    static final int MEMORY       = 582;
-    static final int MILLIS       = 583;
-    static final int MINUS_EXCEPT = 584;
-    static final int OFF          = 585;
-    static final int PASSWORD     = 586;
-    static final int PLAN         = 587;
-    static final int PROPERTY     = 588;
-    static final int READONLY     = 589;
-    static final int REFERENTIAL  = 590;
-    static final int RENAME       = 591;
-    static final int SCRIPT       = 592;
-    static final int SCRIPTFORMAT = 593;
-    static final int SHUTDOWN     = 594;
-    static final int TEMP         = 595;
-    static final int TEXT         = 596;
-    static final int WRITE_DELAY  = 597;
+    static final int AGGREGATE    = 552;
+    static final int AUTOCOMMIT   = 553;
+    static final int BACKUP       = 554;
+    static final int BIT          = 555;
+    static final int BLOCKING     = 556;
+    static final int CACHE        = 557;
+    static final int CACHED       = 558;
+    static final int CASEWHEN     = 559;
+    static final int CHECKPOINT   = 560;
+    static final int CLASS        = 561;
+    static final int COMMENT      = 562;
+    static final int COMPACT      = 563;
+    static final int COMPRESSED   = 564;
+    static final int CONTROL      = 565;
+    static final int DATABASE     = 566;
+    static final int DEFRAG       = 567;
+    static final int DELAY        = 568;
+    static final int EVENT        = 569;
+    static final int EXPLAIN      = 570;
+    static final int FILE         = 571;
+    static final int FILES        = 572;
+    static final int GC           = 573;
+    static final int HEADER       = 574;
+    static final int IGNORECASE   = 575;
+    static final int IMMEDIATELY  = 576;
+    static final int INTEGRITY    = 577;
+    static final int INDEX        = 578;
+    static final int INITIAL      = 579;
+    static final int LIMIT        = 580;
+    static final int LOCK         = 581;
+    static final int LOCKS        = 582;
+    static final int MAXROWS      = 583;
+    static final int MEMORY       = 584;
+    static final int MILLIS       = 585;
+    static final int MINUS_EXCEPT = 586;
+    static final int OFF          = 587;
+    static final int PASSWORD     = 588;
+    static final int PLAN         = 589;
+    static final int PROPERTY     = 590;
+    static final int READONLY     = 591;
+    static final int REFERENTIAL  = 592;
+    static final int RENAME       = 593;
+    static final int SCRIPT       = 594;
+    static final int SCRIPTFORMAT = 595;
+    static final int SHUTDOWN     = 596;
+    static final int TEMP         = 597;
+    static final int TEXT         = 598;
+    static final int WRITE_DELAY  = 599;
 
     //
     static final int        ACOS                    = 601;
@@ -1497,25 +1501,27 @@ public class Tokens {
     static final int DATABASE_VERSION         = 688;
 
     //
-    static final int        ASTERISK         = 781;
-    static final int        CLOSEBRACKET     = 782;
-    static final int        COLON            = 783;
-    static final int        COMMA            = 784;
-    static final int        CONCAT           = 785;
-    static final int        DIVIDE           = 786;
-    static final int        DOUBLE_COLON_OP  = 787;
-    static final int        DOUBLE_PERIOD_OP = 788;
-    static final int        GREATER          = 789;
-    static final int        GREATER_EQUALS   = 790;
-    static final int        LESS             = 791;
-    static final int        LESS_EQUALS      = 792;
-    public static final int MINUS            = 793;
-    static final int        NOT_EQUALS       = 794;
-    static final int        OPENBRACKET      = 795;
-    static final int        PLUS             = 796;
-    static final int        QUESTION         = 797;
-    static final int        RIGHT_ARROW_OP   = 798;
-    static final int        SEMICOLON        = 799;
+    static final int        ASTERISK         = 771;
+    static final int        CLOSEBRACKET     = 772;
+    static final int        COLON            = 773;
+    static final int        COMMA            = 774;
+    static final int        CONCAT           = 775;
+    static final int        DIVIDE           = 776;
+    static final int        DOUBLE_COLON_OP  = 777;
+    static final int        DOUBLE_PERIOD_OP = 778;
+    static final int        GREATER          = 779;
+    static final int        GREATER_EQUALS   = 780;
+    static final int        LEFTBRACKET      = 781;
+    static final int        LESS             = 782;
+    static final int        LESS_EQUALS      = 783;
+    public static final int MINUS            = 784;
+    static final int        NOT_EQUALS       = 785;
+    static final int        OPENBRACKET      = 786;
+    static final int        PLUS             = 787;
+    static final int        QUESTION         = 788;
+    static final int        RIGHT_ARROW_OP   = 789;
+    static final int        RIGHTBRACKET     = 790;
+    static final int        SEMICOLON        = 791;
 
     //
     static final int SQL_BIGINT        = 801;
@@ -1590,6 +1596,7 @@ public class Tokens {
 
     static {
         reservedKeys.put(Tokens.T_ABS, ABS);
+        reservedKeys.put(Tokens.T_AGGREGATE, AGGREGATE);
         reservedKeys.put(Tokens.T_ALL, ALL);
         reservedKeys.put(Tokens.T_ALLOCATE, ALLOCATE);
         reservedKeys.put(Tokens.T_ALTER, ALTER);
@@ -1941,6 +1948,7 @@ public class Tokens {
         commandSet.put(T_CLASS, CLASS);
         commandSet.put(T_COLLATE, COLLATE);
         commandSet.put(T_COLLATION, COLLATION);
+        commandSet.put(T_COMMENT, COMMENT);
         commandSet.put(T_COMMITTED, COMMITTED);
         commandSet.put(T_COMPACT, COMPACT);
         commandSet.put(T_COMPRESSED, COMPRESSED);
@@ -2012,6 +2020,7 @@ public class Tokens {
         commandSet.put(T_NULLS, NULLS);
         commandSet.put(T_OFF, OFF);
         commandSet.put(T_OPTION, OPTION);
+        commandSet.put(T_ORDINALITY, ORDINALITY);
         commandSet.put(T_OVERRIDING, OVERRIDING);
         commandSet.put(T_P_FACTOR, P);
         commandSet.put(T_PARTIAL, PARTIAL);
@@ -2188,6 +2197,7 @@ public class Tokens {
         commandSet.put(T_EQUALS, Tokens.EQUALS);
         commandSet.put(T_GREATER, Tokens.GREATER);
         commandSet.put(T_GREATER_EQUALS, Tokens.GREATER_EQUALS);
+        commandSet.put(T_LEFTBRACKET, LEFTBRACKET);
         commandSet.put(T_LESS, Tokens.LESS);
         commandSet.put(T_LESS_EQUALS, Tokens.LESS_EQUALS);
         commandSet.put(T_MINUS, Tokens.MINUS);
@@ -2196,6 +2206,7 @@ public class Tokens {
         commandSet.put(T_OPENBRACKET, OPENBRACKET);
         commandSet.put(T_PLUS, Tokens.PLUS);
         commandSet.put(T_QUESTION, Tokens.QUESTION);
+        commandSet.put(T_RIGHTBRACKET, RIGHTBRACKET);
         commandSet.put(T_SEMICOLON, SEMICOLON);
     }
 
