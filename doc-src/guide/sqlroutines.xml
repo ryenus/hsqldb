@@ -993,7 +993,7 @@ CREATE FUNCTION testquery(INTEGER)
         <listitem>
           <para>If a parameter is defined as OUT or INOUT, the corresponding
           Java static method parameter must be defined as an array of the JDBC
-          non-primitive type. </para>
+          non-primitive type.</para>
         </listitem>
 
         <listitem>
@@ -1203,16 +1203,16 @@ CREATE FUNCTION testquery(INTEGER)
 
       <para>A Java aggregate function is defined similarly to PSM functions,
       apart from the routine body, which is defined as <literal>EXTERNAL NAME
-      ... The Java function signature must follow the rules for both nullable
-      and INOUT parameters, therefore:</literal></para>
+      ...</literal> The Java function signature must follow the rules for both
+      nullable and INOUT parameters, therefore:</para>
 
-      <para><literal>No agrument is defined as a primitive or primitive array
-      type. This allows nulls to be passed to the function. The second and
-      third arguments must be defined as arrays of the JDBC non-primitive
-      types listed in the table in the previous section.</literal></para>
+      <para>No agrument is defined as a primitive or primitive array type.
+      This allows nulls to be passed to the function. The second and third
+      arguments must be defined as arrays of the JDBC non-primitive types
+      listed in the table in the previous section.</para>
 
-      <para><literal>In the example below, a user-defined aggregate function
-      for geometric mean is defined.</literal></para>
+      <para>In the example below, a user-defined aggregate function for
+      geometric mean is defined.</para>
 
       <programlisting>CREATE AGGREGATE FUNCTION geometric_mean(IN val DOUBLE, IN flag BOOLEAN, INOUT register DOUBLE, INOUT counter INT)
  RETURNS DOUBLE
@@ -1221,8 +1221,7 @@ CREATE FUNCTION testquery(INTEGER)
  EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.Test01.geometricMean'
 </programlisting>
 
-      <para><literal>The Java function definition is given
-      below:</literal></para>
+      <para>The Java function definition is given below:</para>
 
       <programlisting>public static Double geometricMean(Double in, Boolean flag,
         Double[] register, Integer[] counter) {
@@ -1246,8 +1245,8 @@ CREATE FUNCTION testquery(INTEGER)
 }
 </programlisting>
 
-      <para><literal>In a select statement, the function is used like built in
-      aggregate functions:</literal></para>
+      <para>In a select statement, the function is used like built in
+      aggregate functions:</para>
 
       <programlisting>SELECT geometric_mean(age) FROM  FROM customer
 </programlisting>
