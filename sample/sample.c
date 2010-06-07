@@ -26,7 +26,7 @@ extern int print2_ret(char* msg, char* msg2, int retval);
  * driver, specifying the HyperSQL server host name, database name, user,
  * password, etc.
  *
- * Sample Python script accessing HyperSQL through the Python pyodbc module.
+ * Sample C program accessing HyperSQL.
  *
  * ODBC C API ref at
  *  http://msdn.microsoft.com/en-us/library/ms714562(VS.85).aspx .
@@ -98,6 +98,14 @@ int main(int argc, char** argv) {
     cp = "DROP TABLE tsttbl IF EXISTS";
     detect = detectOdbcFailure(SQLExecDirect(stmt, cp, SQL_NTS), conn,
             "DROP statement failed");
+    if (detect) return detect;
+
+    // Some recent change to the HyperSQL server or to unixODBC
+    // has made this commit necessary, at least on UNIX.  Some other
+    // transaction control command would probably be more
+    // appropriate here.
+    detect = detectOdbcFailure(SQLEndTran(SQL_HANDLE_DBC, conn, SQL_COMMIT),
+            conn, "COMMIT failed");
     if (detect) return detect;
 
     cp = "CREATE TABLE tsttbl(\n\
