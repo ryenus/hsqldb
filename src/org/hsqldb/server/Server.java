@@ -1150,8 +1150,6 @@ public class Server implements HsqlSocketRequestHandler {
     /**
      * Sets whether server thread is a daemon. Used before starting
      *
-     * @param trace if true, route JDBC trace messages to System.out
-     *
      * @jmx.managed-attribute
      */
     public void setDaemon(boolean daemon) {

@@ -59,7 +59,7 @@ import org.hsqldb.types.Type;
  * are a UDT, they may be custom mapped.  To create a custom mapping,
  * a programmer must do two things:
  * <ul>
- * <li>create a class that implements the {@link SQLData}
+ * <li>create a class that implements the {@link java.sql.SQLData}
  * interface for the UDT to be custom mapped.
  * <li>make an entry in a type map that contains
  *   <ul>
