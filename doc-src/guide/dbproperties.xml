@@ -473,7 +473,7 @@
           </row>
 
           <row>
-            <entry><property>read_only</property></entry>
+            <entry><property>readonly</property></entry>
 
             <entry><literal>false</literal></entry>
 
@@ -489,7 +489,7 @@
           </row>
 
           <row>
-            <entry><property>files_read_only</property></entry>
+            <entry><property>files_readonly</property></entry>
 
             <entry><literal>false</literal></entry>
 
@@ -498,7 +498,7 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>This property is used
-            similarly to the hsqldb.read_only property. When this property is
+            similarly to the hsqldb.readonly property. When this property is
             true, CACHED and TEXT tables are readonly but memory files are
             not. Any change to the data is not persisted to database
             files.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
