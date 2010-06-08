@@ -1,0 +1,3 @@
+07 June 2008
+- fixed bug - SET FILES LOB SCALE did not change the store without a shutdown
+- fixed bug #3012585 - multi-column FOREIGN KEY with mismatched order of PK columns did not work correctly
