@@ -3,7 +3,7 @@
  *
  * HyperSQL Database Engine
  *
- * Copyright (c) 2009, The HSQL Development Group
+ * Copyright (c) 2009-2010, The HSQL Development Group
  */
 
 
