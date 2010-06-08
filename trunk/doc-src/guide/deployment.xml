@@ -510,7 +510,7 @@
       <para>Some types of tests start with a database that already contains
       the tables and data, and perform various operations on it during the
       tests. You can create and populate the initial database then set the
-      property "files_read_only=true" in the .properties file of the database.
+      property "files_readonly=true" in the .properties file of the database.
       The tests can then modify the database, but these modifications are not
       persisted after the tests have completed.</para>
     </section>
@@ -590,7 +590,7 @@
       cached tables are written to the .data file. To persist all the data
       changes up to date, you can use the CHECKPOINT command. If you perform
       SHUTDOWN, the data is also persisted correctly. If you do not use
-      CHECKPOINT or SHUTDOWN. All the changes are lost and the database
+      CHECKPOINT or SHUTDOWN, all the changes are lost and the database
       reverts to its original state when it is opened.</para>
 
       <para>Your server applications can use a database as a temporary disk
