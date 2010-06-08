@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- $Id$ -->
-<!-- author fredt@users.sourceforge.net 2001 - 2009 -->
-<!-- additional targets 2004-2009: blaine (dot) simpson (at) admc (dot) com -->
+<!-- author fredt@users.sourceforge.net 2001 - 2010 -->
+<!-- additional targets 2004-2010: blaine (dot) simpson (at) admc (dot) com -->
 <project name="hsqldb" default="help" basedir="../">
    <!-- This loads properties in the same exact way as if you ran
         "ant -Dprop1name=val1 -Dprop2name=val2...", etc.  To use all
@@ -871,7 +871,7 @@ examples:
            failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} API"
            doctitle="${hsqldb.title} ${hsqldb.version}"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2009 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2010 HSQL Development Group.&lt;/i&gt;">
            <classpath>
              <pathelement location="${servletapi.lib}"/>
              <pathelement location="${junit38.lib}"/>
@@ -909,7 +909,7 @@ examples:
            failonerror="true"
            windowtitle="${hsqldb.title} ${hsqldb.version} Product Dev. API"
            doctitle="${hsqldb.title} ${hsqldb.version} Product"
-           bottom="&lt;i&gt;Copyright &#169; 2001 - 2009 HSQL Development Group.&lt;/i&gt;">
+           bottom="&lt;i&gt;Copyright &#169; 2001 - 2010 HSQL Development Group.&lt;/i&gt;">
            <fileset dir="src" includes="**/*.java"/>
            <!-- Fileset is really good for maintenance and control purposes,
                 but it makes the generator produce an incredible amount of
