@@ -83,10 +83,6 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.types.Type;
 
-// fredt@users 20020225 - patch 1.7.0 by boucherb@users - named constraints
-// fredt@users 20020320 - doc 1.7.0 - update
-// tony_lai@users 20020820 - patch 595156 - violation of Integrity constraint name
-
 /**
  * Implementation of a table constraint with references to the indexes used
  * by the constraint.<p>
@@ -689,20 +685,23 @@ public final class Constraint implements SchemaObject {
         }
     }
 
-// fredt@users 20020225 - patch 1.7.0 by fredt - duplicate constraints
-
     /**
      * Compares this with another constraint column set. This is used only for
      * UNIQUE constraints.
      */
     boolean isUniqueWithColumns(int[] cols) {
 
-        if (constType != SchemaObject.ConstraintTypes.UNIQUE
-                || core.mainCols.length != cols.length) {
-            return false;
+        switch (constType) {
+
+            case SchemaObject.ConstraintTypes.PRIMARY_KEY :
+            case SchemaObject.ConstraintTypes.UNIQUE :
+                if (core.mainCols.length == cols.length) {
+                    return ArrayUtil.haveEqualSets(core.mainCols, cols,
+                                                   cols.length);
+                }
         }
 
-        return ArrayUtil.haveEqualSets(core.mainCols, cols, cols.length);
+        return false;
     }
 
     /**
@@ -712,17 +711,22 @@ public final class Constraint implements SchemaObject {
     boolean isEquivalent(Table mainTable, int[] mainCols, Table refTable,
                          int[] refCols) {
 
-        if (constType != SchemaObject.ConstraintTypes.MAIN
-                && constType != SchemaObject.ConstraintTypes.FOREIGN_KEY) {
-            return false;
+        switch (constType) {
+
+            case SchemaObject.ConstraintTypes.MAIN :
+            case SchemaObject.ConstraintTypes.FOREIGN_KEY :
+                if (mainTable != core.mainTable || refTable != core.refTable) {
+                    return false;
+                }
+
+                if (core.mainCols.length == mainCols.length
+                        && core.refCols.length == refCols.length) {
+                    return ArrayUtil.areEqualSets(core.mainCols, mainCols)
+                           && ArrayUtil.areEqualSets(core.refCols, refCols);
+                }
         }
 
-        if (mainTable != core.mainTable || refTable != core.refTable) {
-            return false;
-        }
-
-        return ArrayUtil.areEqualSets(core.mainCols, mainCols)
-               && ArrayUtil.areEqualSets(core.refCols, refCols);
+        return false;
     }
 
     /**

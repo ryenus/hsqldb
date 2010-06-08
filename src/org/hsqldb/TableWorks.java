@@ -148,8 +148,10 @@ public class TableWorks {
             throw Error.error(ErrorCode.X_42524, c.getName().statementName);
         }
 
-        if (c.core.mainTable.getUniqueConstraintForColumns(
-                c.core.mainCols, c.core.refCols) == null) {
+        Constraint unique =
+            c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols);
+
+        if (unique == null) {
             throw Error.error(ErrorCode.X_42529,
                               c.getMain().getName().statementName);
         }
@@ -157,11 +159,11 @@ public class TableWorks {
         // check after UNIQUE check
         c.core.mainTable.checkColumnsMatch(c.core.mainCols, table,
                                            c.core.refCols);
+        ArrayUtil.reorderMaps(unique.getMainColumns(), c.getMainColumns(),
+                              c.getRefColumns());
 
         boolean[] checkList =
             c.core.mainTable.getColumnCheckList(c.core.mainCols);
-
-//        Grantee   grantee   = table.getOwner();
         Grantee grantee = session.getGrantee();
 
         grantee.checkReferences(c.core.mainTable, checkList);
@@ -186,8 +188,7 @@ public class TableWorks {
         checkCreateForeignKey(c);
 
         Constraint uniqueConstraint =
-            c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols,
-                c.core.refCols);
+            c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols);
         Index mainIndex = uniqueConstraint.getMainIndex();
 
         uniqueConstraint.checkReferencedRows(session, table);
@@ -367,7 +368,7 @@ public class TableWorks {
 
                     Constraint uniqueConstraint =
                         c.core.mainTable.getUniqueConstraintForColumns(
-                            c.core.mainCols, c.core.refCols);
+                            c.core.mainCols);
                     boolean isForward = c.core.mainTable.getSchemaName()
                                         != table.getSchemaName();
                     int offset =

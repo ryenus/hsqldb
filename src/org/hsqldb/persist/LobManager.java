@@ -263,10 +263,6 @@ public class LobManager {
 
     synchronized public void open() {
 
-        if (lobStore != null) {
-            return;
-        }
-
         lobBlockSize = database.logger.getLobBlockSize();
 
         if (database.getType() == DatabaseURL.S_RES) {

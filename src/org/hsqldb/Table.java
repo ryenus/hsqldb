@@ -960,53 +960,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * Returns the UNIQUE or PK constraint with the given column signature.
-     * Modifies the composition of refTableCols if necessary.
-     */
-    Constraint getUniqueConstraintForColumns(int[] mainTableCols,
-            int[] refTableCols) {
-
-        for (int i = 0, size = constraintList.length; i < size; i++) {
-            Constraint c    = constraintList[i];
-            int        type = c.getConstraintType();
-
-            if (type != SchemaObject.ConstraintTypes.UNIQUE
-                    && type != SchemaObject.ConstraintTypes.PRIMARY_KEY) {
-                continue;
-            }
-
-            int[] constraintCols = c.getMainColumns();
-
-            if (constraintCols.length != mainTableCols.length) {
-                continue;
-            }
-
-            if (ArrayUtil.areEqual(constraintCols, mainTableCols,
-                                   mainTableCols.length, true)) {
-                return c;
-            }
-
-            if (ArrayUtil.areEqualSets(constraintCols, mainTableCols)) {
-                int[] newRefTableCols = new int[mainTableCols.length];
-
-                for (int j = 0; j < mainTableCols.length; j++) {
-                    int pos = ArrayUtil.find(constraintCols, mainTableCols[j]);
-
-                    newRefTableCols[pos] = refTableCols[j];
-                }
-
-                for (int j = 0; j < mainTableCols.length; j++) {
-                    refTableCols[j] = newRefTableCols[j];
-                }
-
-                return c;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      *  Returns any foreign key constraint equivalent to the column sets
      */
     Constraint getFKConstraintForColumns(Table tableMain, int[] mainCols,
