@@ -1148,7 +1148,10 @@ public class Server implements HsqlSocketRequestHandler {
     }
 
     /**
-     * Sets whether server thread is a daemon. Used before starting
+     * Sets whether server thread is a daemon. Used before starting.
+     * The default is false.
+     *
+     * @param daemon if true, start the thread as a daemon thread
      *
      * @jmx.managed-attribute
      */

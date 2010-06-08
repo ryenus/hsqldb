@@ -947,6 +947,7 @@ public class ArrayUtil {
      * Fills the int array with a value
      */
     public static void fillArray(boolean[] array, boolean value) {
+
         int to = array.length;
 
         while (--to >= 0) {
@@ -1223,6 +1224,26 @@ public class ArrayUtil {
             for (int j = 0; j < mainMap.length; j++) {
                 if (subMap[i] == mainMap[j]) {
                     newSubMap[i] = j;
+
+                    break;
+                }
+            }
+        }
+    }
+
+    public static void reorderMaps(int[] mainMap, int[] firstMap,
+                                   int[] secondMap) {
+
+        for (int i = 0; i < mainMap.length; i++) {
+            for (int j = i; j < firstMap.length; j++) {
+                if (mainMap[i] == firstMap[j]) {
+                    int temp = firstMap[i];
+
+                    firstMap[i]  = firstMap[j];
+                    firstMap[j]  = temp;
+                    temp         = secondMap[i];
+                    secondMap[i] = secondMap[j];
+                    secondMap[j] = temp;
 
                     break;
                 }

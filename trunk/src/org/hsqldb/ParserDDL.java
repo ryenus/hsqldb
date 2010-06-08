@@ -1489,19 +1489,18 @@ public class ParserDDL extends ParserRoutine {
 
         c.setColumnsIndexes(table);
 
+        TableWorks tableWorks = new TableWorks(session, table);
+
+        tableWorks.checkCreateForeignKey(c);
+
         Constraint uniqueConstraint =
-            c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols,
-                c.core.refCols);
+            c.core.mainTable.getUniqueConstraintForColumns(c.core.mainCols);
 
         if (uniqueConstraint == null) {
             throw Error.error(ErrorCode.X_42523);
         }
 
-        Index      mainIndex  = uniqueConstraint.getMainIndex();
-        TableWorks tableWorks = new TableWorks(session, table);
-
-        tableWorks.checkCreateForeignKey(c);
-
+        Index mainIndex = uniqueConstraint.getMainIndex();
         boolean isForward = c.core.mainTable.getSchemaName()
                             != table.getSchemaName();
         int offset = session.database.schemaManager.getTableIndex(table);
