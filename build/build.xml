@@ -1071,6 +1071,7 @@ To speed up XML validations, you should edit this file.</echo>
   </target>
 
   <target name="-prep-license-files">
+    <mkdir dir="doc"/>
     <fixcrlf destdir="doc" preservelastmodified='true' eol="crlf"
              srcdir="doc-src" includes="*_lic.txt"/>
   </target>
