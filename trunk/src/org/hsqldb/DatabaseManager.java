@@ -85,13 +85,16 @@ public class DatabaseManager {
      */
     public static Vector getDatabaseURIs() {
 
-        Vector   v  = new Vector();
-        Iterator it = databaseIDMap.values().iterator();
+        Vector v = new Vector();
 
-        while (it.hasNext()) {
-            Database db = (Database) it.next();
+        synchronized (databaseIDMap) {
+            Iterator it = databaseIDMap.values().iterator();
 
-            v.addElement(db.getURI());
+            while (it.hasNext()) {
+                Database db = (Database) it.next();
+
+                v.addElement(db.getURI());
+            }
         }
 
         return v;
@@ -107,14 +110,16 @@ public class DatabaseManager {
      */
     public static void closeDatabases(int mode) {
 
-        Iterator it = databaseIDMap.values().iterator();
+        synchronized (databaseIDMap) {
+            Iterator it = databaseIDMap.values().iterator();
 
-        while (it.hasNext()) {
-            Database db = (Database) it.next();
+            while (it.hasNext()) {
+                Database db = (Database) it.next();
 
-            try {
-                db.close(mode);
-            } catch (HsqlException e) {}
+                try {
+                    db.close(mode);
+                } catch (HsqlException e) {}
+            }
         }
     }
 
@@ -124,7 +129,11 @@ public class DatabaseManager {
     public static Session newSession(int dbID, String user, String password,
                                      String zoneString, int timeZoneSeconds) {
 
-        Database db = (Database) databaseIDMap.get(dbID);
+        Database db = null;
+
+        synchronized (databaseIDMap) {
+            db = (Database) databaseIDMap.get(dbID);
+        }
 
         if (db == null) {
             return null;
@@ -160,7 +169,11 @@ public class DatabaseManager {
      */
     public static Session getSession(int dbId, long sessionId) {
 
-        Database db = (Database) databaseIDMap.get(dbId);
+        Database db = null;
+
+        synchronized (databaseIDMap) {
+            db = (Database) databaseIDMap.get(dbId);
+        }
 
         return db == null ? null
                           : db.sessionManager.getSession(sessionId);
@@ -288,9 +301,11 @@ public class DatabaseManager {
             db            = new Database(type, path, key, props);
             db.databaseID = dbIDCounter;
 
-            databaseIDMap.put(dbIDCounter, db);
+            synchronized (databaseIDMap) {
+                databaseIDMap.put(dbIDCounter, db);
 
-            dbIDCounter++;
+                dbIDCounter++;
+            }
 
             databaseMap.put(key, db);
         }
@@ -342,7 +357,10 @@ public class DatabaseManager {
             throw Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager");
         }
 
-        databaseIDMap.put(db.databaseID, db);
+        synchronized (databaseIDMap) {
+            databaseIDMap.put(db.databaseID, db);
+        }
+
         databaseMap.put(key, db);
     }
 
@@ -370,10 +388,19 @@ public class DatabaseManager {
             throw (Error.runtimeError(ErrorCode.U_S0500, "DatabaseManager"));
         }
 
-        databaseIDMap.remove(dbID);
-        databaseMap.remove(key);
+        boolean isEmpty = false;
 
-        if (databaseIDMap.isEmpty()) {
+        synchronized (databaseIDMap) {
+            databaseIDMap.remove(dbID);
+
+            isEmpty = databaseIDMap.isEmpty();
+        }
+
+        synchronized (databaseMap) {
+            databaseMap.remove(key);
+        }
+
+        if (isEmpty) {
             ValuePool.resetPool();
         }
     }

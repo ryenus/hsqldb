@@ -43,6 +43,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCConnection;
+import org.hsqldb.jdbc.JDBCDriver;
 import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.CountUpDownLatch;
 import org.hsqldb.lib.HashMappedList;
@@ -822,7 +823,13 @@ public class Session implements SessionInterface {
             intConnection = new JDBCConnection(this);
         }
 
+        JDBCDriver.driverInstance.threadConnection.set(intConnection);
+
         return intConnection;
+    }
+
+    void releaseInternalConnection() {
+        JDBCDriver.driverInstance.threadConnection.set(null);
     }
 
 // boucherb@users 20020810 metadata 1.7.2

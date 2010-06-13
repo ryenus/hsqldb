@@ -311,14 +311,18 @@ public class ExpressionOp extends Expression {
 
     public void resolveTypes(Session session, Expression parent) {
 
+        for (int i = 0; i < nodes.length; i++) {
+            if (nodes[i] != null) {
+                nodes[i].resolveTypes(session, this);
+            }
+        }
+
         switch (opType) {
 
             case OpTypes.VALUE :
                 break;
 
             case OpTypes.CAST : {
-                nodes[LEFT].resolveTypes(session, this);
-
                 Type type = nodes[LEFT].dataType;
 
                 if (type != null && !dataType.canConvertFrom(type)) {
@@ -340,34 +344,14 @@ public class ExpressionOp extends Expression {
                     break;
                 }
 
-                if (nodes[LEFT].opType == OpTypes.DYNAMIC_PARAM) {
-                    nodes[LEFT].dataType = dataType;
-
-                    if (parent != null && !parent.isSelfAggregate()) {
-//                        parent.replaceNode(this, nodes[LEFT]);
-                    }
-
-                    break;
-                }
-
-                if (dataType.equals(nodes[LEFT].dataType)) {
-
-                    // issues with aggregates
-                    break;
-                }
-
                 break;
             }
             case OpTypes.ZONE_MODIFIER :
-                nodes[LEFT].resolveTypes(session, this);
-
                 if (nodes[LEFT].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
                 }
 
                 if (nodes[RIGHT] != null) {
-                    nodes[RIGHT].resolveTypes(session, this);
-
                     if (nodes[RIGHT].dataType == null) {
                         nodes[RIGHT].dataType =
                             Type.SQL_INTERVAL_HOUR_TO_MINUTE;
@@ -417,19 +401,10 @@ public class ExpressionOp extends Expression {
                 resolveTypesForCaseWhen(session);
                 break;
 
-            case OpTypes.LIMIT :
-                for (int i = 0; i < nodes.length; i++) {
-                    if (nodes[i] != null) {
-                        nodes[i].resolveTypes(session, this);
-
-                        if (nodes[i].dataType == null) {
-                            nodes[i].dataType = Type.SQL_INTEGER;
-                        }
-                    }
-                }
+            case OpTypes.ALTERNATIVE :
                 break;
 
-            case OpTypes.ALTERNATIVE :
+            case OpTypes.LIMIT :
                 break;
 
             default :

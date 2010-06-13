@@ -1155,6 +1155,19 @@ public class DataFileCache {
         }
     }
 
+    public int getFlags() {
+
+        try {
+            dataFile.seek(FLAGS_POS);
+
+            int flags = dataFile.readInt();
+
+            return flags;
+        } catch (Throwable t) {}
+
+        return 0;
+    }
+
     public boolean isDataReadOnly() {
         return this.cacheReadonly;
     }

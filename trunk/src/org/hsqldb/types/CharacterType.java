@@ -707,7 +707,7 @@ public class CharacterType extends Type {
         }
 
         if (otherType.typeCode == Types.SQL_CLOB) {
-            long otherLength = ((ClobData) data).length(session);
+            long otherLength = ((ClobData) otherData).length(session);
 
             if (offset + otherLength > ((String) data).length()) {
                 return -1;
@@ -718,7 +718,7 @@ public class CharacterType extends Type {
 
             return ((String) data).indexOf(otherString, (int) offset);
         } else if (otherType.isCharacterType()) {
-            long otherLength = ((String) data).length();
+            long otherLength = ((String) otherData).length();
 
             if (offset + otherLength > ((String) data).length()) {
                 return -1;
