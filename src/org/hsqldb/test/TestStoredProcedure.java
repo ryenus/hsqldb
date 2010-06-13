@@ -38,6 +38,9 @@ import java.sql.Statement;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 
+import java.sql.DriverManager;
+import java.sql.CallableStatement;
+
 /**
  * Tests for stored procedures.
  *
@@ -67,16 +70,24 @@ public class TestStoredProcedure extends TestBase {
             int cols = rs.getInt(1);
 
             assertFalse("test result not correct", false);
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         try {
             statement = conn.createStatement();
 
             statement.execute(
-            "create procedure proc1()"
-            + "SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.procTest1'");
+                "CREATE temp TABLE MYTABLE(COL1 INTEGER,COL2 VARCHAR(10));");
+            statement.execute(
+                "CREATE PROCEDURE proc1(IN P1 INT, IN P2 INT, OUT P3 INT) "
+                + "SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.procTest2'");
 
+            CallableStatement c = conn.prepareCall("call proc1(1,2,?)");
+
+            c.execute();
+
+            int value = c.getInt(1);
+
+            assertEquals(value, 2);
         } catch (Exception e) {
             assertTrue("unexpected error", true);
         } finally {
@@ -84,7 +95,7 @@ public class TestStoredProcedure extends TestBase {
         }
     }
 
-    public void testTwo() throws Exception {
+    public void atestTwo() throws Exception {
 
         Connection conn = newConnection();
         Statement  statement;
@@ -92,9 +103,12 @@ public class TestStoredProcedure extends TestBase {
 
         try {
             statement = conn.createStatement();
+
             statement.execute("create user testuser password 'test'");
             statement.execute("create table testtable(v varchar(20))");
-            statement.execute("insert into testtable values ('tennis'), ('tent'), ('television'), ('radio')");
+            statement.execute(
+                "insert into testtable values ('tennis'), ('tent'), ('television'), ('radio')");
+
             ResultSet rs = statement.executeQuery(
                 "call \"org.hsqldb.test.TestStoredProcedure.funcTest2\"('test')");
 
@@ -117,17 +131,16 @@ public class TestStoredProcedure extends TestBase {
             rs.close();
             assertTrue("test result not correct", b);
 
-            rs = statement.executeQuery("select count(*) from testtable where func2(v)");
+            rs = statement.executeQuery(
+                "select count(*) from testtable where func2(v)");
 
             rs.next();
 
             int count = rs.getInt(1);
 
             assertTrue("test result not correct", count == 3);
-
-            statement.execute("grant execute on specific function public.f2 to testuser");
-
-
+            statement.execute(
+                "grant execute on specific function public.f2 to testuser");
         } catch (Exception e) {
             assertTrue("unable to execute call to procedure", false);
         } finally {
@@ -135,13 +148,12 @@ public class TestStoredProcedure extends TestBase {
         }
     }
 
-    public static int procTest1(Connection conn) throws java.sql.SQLException {
+    public static void procTest1(Connection conn)
+    throws java.sql.SQLException {
 
         int                cols;
         java.sql.Statement stmt = conn.createStatement();
 
-        stmt.execute(
-            "CREATE temp TABLE MYTABLE(COL1 INTEGER,COL2 VARCHAR(10));");
         stmt.execute("INSERT INTO MYTABLE VALUES    (1,'test1');");
         stmt.execute("INSERT INTO MYTABLE VALUES(2,'test2');");
 
@@ -152,8 +164,26 @@ public class TestStoredProcedure extends TestBase {
 
         rs.close();
         stmt.close();
+    }
 
-        return cols;
+    public static void procTest2(int p1, int p2,
+                                 Integer[] p3) throws java.sql.SQLException {
+
+        Connection conn =
+            DriverManager.getConnection("jdbc:default:connection");
+        java.sql.Statement stmt = conn.createStatement();
+
+        stmt.execute("INSERT INTO MYTABLE VALUES(" + p1 + ",'test1')");
+        stmt.execute("INSERT INTO MYTABLE VALUES(" + p2 + ",'test2')");
+
+        java.sql.ResultSet rs = stmt.executeQuery("select * from MYTABLE");
+        java.sql.ResultSetMetaData meta = rs.getMetaData();
+
+        int cols  = meta.getColumnCount();
+        p3[0] = Integer.valueOf(cols);
+
+        rs.close();
+        stmt.close();
     }
 
     public static boolean funcTest2(Connection conn,

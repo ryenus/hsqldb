@@ -1022,7 +1022,7 @@ public class Routine implements SchemaObject {
         Type methodReturnType =
             Types.getParameterSQLType(method.getReturnType());
 
-        routine.javaMethodWithConnection = offset == 1;;
+        routine.javaMethodWithConnection = offset == 1;
 
         routine.setReturnType(methodReturnType);
         routine.resolve(session);

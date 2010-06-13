@@ -126,8 +126,12 @@ public class FunctionSQLInvoked extends Expression {
                 data = new Object[nodes.length + extraArg];
             }
 
-            if (extraArg > 0) {
-                data[0] = session.getInternalConnection();
+            if (!routine.isPSM) {
+                Object connection = session.getInternalConnection();
+
+                if (extraArg > 0) {
+                    data[0] = connection;
+                }
             }
         }
 
@@ -187,6 +191,8 @@ public class FunctionSQLInvoked extends Expression {
             }
 
             result = routine.invokeJavaMethod(session, data);
+
+            session.releaseInternalConnection();
 
             if (opType == OpTypes.USER_AGGREGATE) {
                 Object[] callResult = new Object[data.length];

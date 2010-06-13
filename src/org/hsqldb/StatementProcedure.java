@@ -204,12 +204,15 @@ public class StatementProcedure extends StatementDMQL {
 
         data = procedure.convertArgsToJava(session, callArguments);
 
+        Object connection = session.getInternalConnection();
+
         if (procedure.javaMethodWithConnection) {
-            data[0] = session.getInternalConnection();
+            data[0] = connection;
         }
 
         result = procedure.invokeJavaMethod(session, data);
 
+        session.releaseInternalConnection();
         procedure.convertArgsToSQL(session, callArguments, data);
 
         return result;

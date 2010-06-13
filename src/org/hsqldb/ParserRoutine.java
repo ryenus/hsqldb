@@ -148,6 +148,8 @@ public class ParserRoutine extends ParserDML {
             resolveOuterReferencesAndTypes(RangeVariable.emptyArray, e);
 
             return e;
+        } else if (dataType.isLobType()) {
+            throw Error.error(ErrorCode.X_42562);
         }
 
         if (e != null) {

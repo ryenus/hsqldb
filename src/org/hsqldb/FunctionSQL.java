@@ -566,9 +566,22 @@ public class FunctionSQL extends Expression {
                     return null;
                 }
 
+                long offset = 0;
+
+                if (nodes.length > 3) {
+                    Object value = nodes[3].getValue(session);
+
+                    offset = ((Number) value).longValue() - 1;
+
+                    if (offset < 0) {
+                        offset = 0;
+                    }
+                }
+
                 long result =
                     ((CharacterType) nodes[1].dataType).position(
-                        session, data[1], data[0], nodes[0].dataType, 0) + 1;
+                        session, data[1], data[0], nodes[0].dataType,
+                        offset) + 1;
 
                 if (nodes[2] != null
                         && ((Number) nodes[2].valueData).intValue()
@@ -1136,6 +1149,16 @@ public class FunctionSQL extends Expression {
                     funcType = FUNC_POSITION_BINARY;
                 } else {
                     throw Error.error(ErrorCode.X_42563);
+                }
+
+                if (nodes.length > 3) {
+                    if (nodes[3].isDynamicParam()) {
+                        nodes[3].dataType = Type.SQL_BIGINT;
+                    }
+
+                    if (!nodes[3].dataType.isNumberType()) {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
                 }
 
                 dataType = Type.SQL_BIGINT;

@@ -202,6 +202,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.IDENTITY, FUNC_IDENTITY);
         customRegularFuncMap.put(Tokens.TIMESTAMPADD, FUNC_TIMESTAMPADD);
         customRegularFuncMap.put(Tokens.TIMESTAMPDIFF, FUNC_TIMESTAMPDIFF);
+        customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNCATE);
         customRegularFuncMap.put(Tokens.TRUNCATE, FUNC_TRUNCATE);
         customRegularFuncMap.put(Tokens.TO_CHAR, FUNC_TO_CHAR);
         customRegularFuncMap.put(Tokens.TIMESTAMP, FUNC_TIMESTAMP);
@@ -350,16 +351,6 @@ public class FunctionCustom extends FunctionSQL {
 
                 return function;
             }
-            case Tokens.LOCATE :
-                FunctionSQL function = new FunctionSQL(id);
-
-                function.parseList = new short[] {
-                    Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
-                    Tokens.QUESTION, Tokens.CLOSEBRACKET
-                };
-
-                return function;
         }
 
         FunctionCustom function = new FunctionCustom(id);
@@ -428,6 +419,14 @@ public class FunctionCustom extends FunctionSQL {
         isDeterministic = !nonDeterministicFuncSet.contains(id);
 
         switch (id) {
+
+            case FUNC_POSITION_CHAR :
+                parseList = new short[] {
+                    Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.X_OPTION, 2, Tokens.COMMA,
+                    Tokens.QUESTION, Tokens.CLOSEBRACKET
+                };
+                break;
 
             case FUNC_CONCAT :
             case FUNC_LEFT :
@@ -500,7 +499,10 @@ public class FunctionCustom extends FunctionSQL {
                 break;
 
             case FUNC_TRUNCATE :
-                parseList = doubleParamList;
+                parseList = new short[] {
+                    Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.X_OPTION, 2,
+                    Tokens.COMMA, Tokens.QUESTION, Tokens.CLOSEBRACKET
+                };
                 break;
 
             case FUNC_TO_CHAR :
@@ -576,6 +578,18 @@ public class FunctionCustom extends FunctionSQL {
 
         switch (funcType) {
 
+            case FUNC_POSITION_CHAR : {
+
+                // LOCATE
+                Expression[] newNodes = new Expression[4];
+
+                newNodes[0] = nodes[0];
+                newNodes[1] = nodes[1];
+                newNodes[3] = nodes[2];
+                nodes       = newNodes;
+
+                break;
+            }
             case FUNC_OVERLAY_CHAR : {
                 Expression start  = nodes[1];
                 Expression length = nodes[2];
@@ -629,6 +643,7 @@ public class FunctionCustom extends FunctionSQL {
 
         switch (funcType) {
 
+            case FUNC_POSITION_CHAR :
             case FUNC_EXTRACT :
             case FUNC_TRIM_CHAR :
             case FUNC_OVERLAY_CHAR :
@@ -866,23 +881,24 @@ public class FunctionCustom extends FunctionSQL {
                                                  "FunctionCustom");
                 }
             }
-            case FUNC_SECONDS_MIDNIGHT : {
+            case FUNC_TRUNCATE : {
+                int offset = 0;
+
                 if (data[0] == null) {
                     return null;
                 }
-            }
 
-            // fall through
-            case FUNC_TRUNCATE : {
-                if (data[0] == null || data[1] == null) {
-                    return null;
+                if (nodes.length > 1) {
+                    if (data[1] == null) {
+                        return null;
+                    }
+
+                    data[1] = Type.SQL_INTEGER.convertToType(session, data[1],
+                            nodes[1].getDataType());
+                    offset = ((Number) data[1]).intValue();
                 }
 
-                data[1] = Type.SQL_INTEGER.convertToType(session, data[1],
-                        nodes[1].getDataType());
-
-                return ((NumberType) dataType).truncate(data[0],
-                        ((Number) data[1]).intValue());
+                return ((NumberType) dataType).truncate(data[0], offset);
             }
             case FUNC_TO_CHAR : {
                 if (data[0] == null || data[1] == null) {
@@ -1372,6 +1388,7 @@ public class FunctionCustom extends FunctionSQL {
 
         switch (funcType) {
 
+            case FUNC_POSITION_CHAR :
             case FUNC_EXTRACT :
             case FUNC_TRIM_CHAR :
             case FUNC_OVERLAY_CHAR :
@@ -1565,21 +1582,53 @@ public class FunctionCustom extends FunctionSQL {
                 return;
             }
             case FUNC_TRUNCATE : {
+                Number offset = null;
+
                 if (nodes[0].dataType == null) {
                     throw Error.error(ErrorCode.X_42567);
-                }
-
-                if (nodes[1].dataType == null) {
-                    nodes[1].dataType = Type.SQL_INTEGER;
-                } else if (!nodes[1].dataType.isIntegralType()) {
-                    throw Error.error(ErrorCode.X_42563);
                 }
 
                 if (!nodes[0].dataType.isNumberType()) {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
+                if (nodes[1] == null) {
+                    nodes[1] = new ExpressionValue(ValuePool.INTEGER_0,
+                                                   Type.SQL_INTEGER);
+                    offset = ValuePool.INTEGER_0;
+                } else {
+                    if (nodes[1].dataType == null) {
+                        nodes[1].dataType = Type.SQL_INTEGER;
+                    } else if (!nodes[1].dataType.isIntegralType()) {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
+
+                    if (nodes[1].opType == OpTypes.VALUE) {
+                        offset = (Number) nodes[1].getValue(session);
+                    }
+                }
+
                 dataType = nodes[0].dataType;
+
+                if (offset != null) {
+                    int scale = offset.intValue();
+
+                    if (scale < 0) {
+                        scale = 0;
+                    } else if (scale > dataType.scale) {
+                        scale = dataType.scale;
+                    }
+
+                    if (dataType.typeCode == Types.SQL_DECIMAL
+                            || dataType.typeCode == Types.SQL_NUMERIC) {
+                        if (scale != dataType.scale) {
+                            dataType = new NumberType(dataType.typeCode,
+                                                      dataType.precision
+                                                      - dataType.scale
+                                                      + scale, scale);
+                        }
+                    }
+                }
 
                 return;
             }
@@ -1982,6 +2031,22 @@ public class FunctionCustom extends FunctionSQL {
 
         switch (funcType) {
 
+            case FUNC_POSITION_CHAR : {
+
+                // LOCATE
+                StringBuffer sb = new StringBuffer(Tokens.T_LOCATE).append(
+                    Tokens.T_OPENBRACKET)                                   //
+                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())       //
+                    .append(Tokens.T_COMMA).append(nodes[2].getSQL());      //
+
+                if (nodes.length > 3) {
+                    sb.append(Tokens.T_COMMA).append(nodes[3].getSQL());    //
+                }
+
+                sb.append(Tokens.T_CLOSEBRACKET).toString();
+
+                return sb.toString();
+            }
             case FUNC_EXTRACT :
             case FUNC_TRIM_CHAR :
             case FUNC_OVERLAY_CHAR :
@@ -2011,9 +2076,9 @@ public class FunctionCustom extends FunctionSQL {
                     ((Number) nodes[0].getValue(null)).intValue());
 
                 return new StringBuffer(Tokens.T_TIMESTAMPADD).append(
-                    Tokens.T_OPENBRACKET).append(token)                  //
-                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())    //
-                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())    //
+                    Tokens.T_OPENBRACKET).append(token)                     //
+                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())       //
+                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())       //
                     .append(Tokens.T_CLOSEBRACKET).toString();
             }
             case FUNC_TIMESTAMPDIFF : {
@@ -2021,9 +2086,9 @@ public class FunctionCustom extends FunctionSQL {
                     ((Number) nodes[0].getValue(null)).intValue());
 
                 return new StringBuffer(Tokens.T_TIMESTAMPDIFF).append(
-                    Tokens.T_OPENBRACKET).append(token)                  //
-                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())    //
-                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())    //
+                    Tokens.T_OPENBRACKET).append(token)                     //
+                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())       //
+                    .append(Tokens.T_COMMA).append(nodes[2].getSQL())       //
                     .append(Tokens.T_CLOSEBRACKET).toString();
             }
             case FUNC_RAND : {
@@ -2056,7 +2121,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_REVERSE :
             case FUNC_HEXTORAW :
             case FUNC_RAWTOHEX : {
-                return new StringBuffer(name).append('(')                //
+                return new StringBuffer(name).append('(')                   //
                     .append(nodes[0].getSQL()).append(')').toString();
             }
             case FUNC_ATAN2 :
@@ -2073,14 +2138,14 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TIMESTAMP :
             case FUNC_TO_CHAR :
             case FUNC_REGEXP_MATCHES : {
-                return new StringBuffer(name).append('(')                //
-                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)    //
+                return new StringBuffer(name).append('(')                   //
+                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)       //
                     .append(nodes[1].getSQL()).append(')').toString();
             }
             case FUNC_REPLACE : {
-                return new StringBuffer(name).append('(')                //
-                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)    //
-                    .append(nodes[1].getSQL()).append(Tokens.T_COMMA)    //
+                return new StringBuffer(name).append('(')                   //
+                    .append(nodes[0].getSQL()).append(Tokens.T_COMMA)       //
+                    .append(nodes[1].getSQL()).append(Tokens.T_COMMA)       //
                     .append(nodes[2].getSQL()).append(')').toString();
             }
             default :

@@ -730,8 +730,6 @@ public class Tokens {
     static final String        T_TIMESTAMPADD        = "TIMESTAMPADD";
     static final String        T_TIMESTAMPDIFF       = "TIMESTAMPDIFF";
     public static final String T_TINYINT             = "TINYINT";
-    static final String        T_TO_CHAR             = "TO_CHAR";
-    static final String        T_TODAY               = "TODAY";
     static final String        T_TOP                 = "TOP";
     public static final String T_VARCHAR_IGNORECASE  = "VARCHAR_IGNORECASE";
     static final String        T_WRITE_DELAY         = "WRITE_DELAY";
@@ -798,6 +796,10 @@ public class Tokens {
     static final String        T_SUBSTR           = "SUBSTR";
     static final String        T_SYSDATE          = "SYSDATE";
     static final String        T_TAN              = "TAN";
+    static final String        T_TO_CHAR          = "TO_CHAR";
+    static final String        T_TO_DATE          = "TO_DATE";
+    static final String        T_TRUNC            = "TRUNC";
+    static final String        T_TODAY            = "TODAY";
     static final String        T_UCASE            = "UCASE";
 
     //
@@ -1484,11 +1486,13 @@ public class Tokens {
     static final int        TIMESTAMPADD            = 671;
     static final int        TIMESTAMPDIFF           = 672;
     static final int        TO_CHAR                 = 673;
-    static final int        TODAY                   = 674;
-    static final int        TOP                     = 675;
-    static final int        UCASE                   = 676;
-    static final int        WEEK                    = 677;
-    public static final int WEEK_OF_YEAR            = 678;
+    static final int        TO_DATE                 = 674;
+    static final int        TODAY                   = 675;
+    static final int        TOP                     = 676;
+    static final int        TRUNC                   = 677;
+    static final int        UCASE                   = 678;
+    static final int        WEEK                    = 679;
+    public static final int WEEK_OF_YEAR            = 680;
 
     //
     static final int ISOLATION_LEVEL          = 681;
@@ -2098,8 +2102,6 @@ public class Tokens {
         commandSet.put(T_TEXT, TEXT);
         commandSet.put(T_TIMESTAMPADD, TIMESTAMPADD);
         commandSet.put(T_TIMESTAMPDIFF, TIMESTAMPDIFF);
-        commandSet.put(T_TO_CHAR, TO_CHAR);
-        commandSet.put(T_TODAY, TODAY);
         commandSet.put(T_TOP, TOP);
         commandSet.put(T_TRANSACTION, TRANSACTION);
         commandSet.put(T_TYPE, TYPE);
@@ -2173,6 +2175,10 @@ public class Tokens {
         commandSet.put(T_SUBSTR, SUBSTR);
         commandSet.put(T_SYSDATE, SYSDATE);
         commandSet.put(T_TAN, TAN);
+        commandSet.put(T_TO_CHAR, TO_CHAR);
+        commandSet.put(T_TO_DATE, TO_DATE);
+        commandSet.put(T_TODAY, TODAY);
+        commandSet.put(T_TRUNC, TRUNC);
         commandSet.put(T_UCASE, UCASE);
         commandSet.put(T_WEEK, WEEK);
         commandSet.put(T_WEEK_OF_YEAR, WEEK_OF_YEAR);
