@@ -2035,11 +2035,10 @@ public class FunctionCustom extends FunctionSQL {
 
                 // LOCATE
                 StringBuffer sb = new StringBuffer(Tokens.T_LOCATE).append(
-                    Tokens.T_OPENBRACKET)                                   //
-                    .append(Tokens.T_COMMA).append(nodes[1].getSQL())       //
-                    .append(Tokens.T_COMMA).append(nodes[2].getSQL());      //
+                    Tokens.T_OPENBRACKET).append(nodes[0].getSQL())         //
+                    .append(Tokens.T_COMMA).append(nodes[1].getSQL());      //
 
-                if (nodes.length > 3) {
+                if (nodes.length > 3 && nodes[3] != null) {
                     sb.append(Tokens.T_COMMA).append(nodes[3].getSQL());    //
                 }
 

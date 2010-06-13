@@ -1151,7 +1151,7 @@ public class FunctionSQL extends Expression {
                     throw Error.error(ErrorCode.X_42563);
                 }
 
-                if (nodes.length > 3) {
+                if (nodes.length > 3 && nodes[3] != null) {
                     if (nodes[3].isDynamicParam()) {
                         nodes[3].dataType = Type.SQL_BIGINT;
                     }
