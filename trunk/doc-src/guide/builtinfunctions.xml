@@ -45,10 +45,12 @@
     <title>Overview</title>
 
     <para>HyperSQL supports a wide range of built-in functions and allows
-    user-defined functions written in SQL and Java languages. User defined
-    functions are covered in a separate chapter. If a built-in function is not
-    available, you can write your own using SQL. Aggregate functions are
-    discussed in chapters that cover SQL in general.</para>
+    user-defined functions written in SQL and Java languages. User-defined
+    functions are covered in the <link endterm="sqlroutines-title"
+    xlink:href="#sqlroutines-chapt"></link> chapter. If a built-in function is
+    not available, you can write your own using procedural SQL or Java.
+    Built-in aggregate functions are discussed in chapters that cover SQL in
+    general.</para>
 
     <para>The built-in functions fall into three groups:</para>
 
@@ -269,7 +271,9 @@
     position indicated by <literal>&lt;offset&gt;</literal>. If the search is
     not successful, 0 is returned. Equivalent to SQL/Foundation
     <literal>POSITION(&lt;char value expr 1&gt; IN &lt;char value expr
-    2&gt;)</literal>. (JDBC)</para>
+    2&gt;)</literal>. Without the third argument,<literal> LOCATE</literal> is
+    equivalent to the SQL Standard <literal>POSITION</literal> function.
+    (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>LTRIM function</primary>
@@ -504,7 +508,7 @@
     <para>The character and binary versions of POSITION search the string
     value of the second argument for the first occurrence of the first
     argument string. If the search is successful, the position in the string
-    is returned as a BIGINT. Otherwise zero is returned.</para>
+    is returned as a BIGINT. Otherwise zero is returned. (Foundation)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SUBSTRING function</primary>
@@ -894,6 +898,22 @@
     as a value of DOUBLE type. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>TRUNC function numeric</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
+
+    <para><literal>TRUNC ( &lt;num value expr&gt; [, &lt;int value expr&gt;] )
+    </literal></para>
+
+    <para>This is a similar to the <literal>TRUNCATE</literal> function when
+    the first argument is numeric. If the second argument is omitted, zero is
+    used in its place.</para>
+
+    <para>The datetime version is discussed in the next section.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>TRUNCATE function</primary>
     </indexterm>
 
@@ -903,14 +923,21 @@
     </literal></para>
 
     <para>Returns a value in the same type as <literal>&lt;num value
-    expr&gt;</literal>. The value is rounded by replacing digits with zeros
-    from <literal>&lt;int value expr&gt;</literal> places right of the decimal
-    point to the end. If <literal>&lt;int value expr&gt;</literal> is
-    negative, <literal>ABS( &lt;int value expr&gt; )</literal> digits to left
-    of the decimal point and all digits to the right of the decimal points are
-    replaced with zeros. Results of calling TRUNCATE with 12345.6789 with (-2,
-    0, 2, 4) are (12300.0000, 12345.0000, 12345.6700, 12345.6789).
-    (JDBC)</para>
+    expr&gt;</literal> but may reduce the scale of DECIMAL and NUMERIC values.
+    The value is rounded by replacing digits with zeros from <literal>&lt;int
+    value expr&gt;</literal> places right of the decimal point to the end. If
+    <literal>&lt;int value expr&gt;</literal> is negative, <literal>ABS(
+    &lt;int value expr&gt; )</literal> digits to left of the decimal point and
+    all digits to the right of the decimal points are replaced with zeros.
+    Results of calling TRUNCATE with 12345.6789 with (-2, 0, 2, 4) are (12300,
+    12345, 12345.67, 12345.6789). The function does not change the number if
+    the second argument is larger than or equal to the scale of the first
+    argument.</para>
+
+    <para>If the second argument is not a constant (when it is a parameter or
+    column reference) then the type of the return value is always the same as
+    the type of the first argument. In this case, the discarded digits are
+    replaced with zeros. (JDBC)</para>
   </section>
 
   <section xml:id="builtin_functions_datetime-sect">
@@ -1316,7 +1343,7 @@
 
     <simpara><emphasis role="bold">TO_CHAR</emphasis></simpara>
 
-    <para><literal>TO_CHAR( &lt;datetime value expr&gt;, &lt;char value
+    <para><literal>TO_CHAR ( &lt;datetime value expr&gt;, &lt;char value
     expr&gt; )</literal></para>
 
     <para>This function formats a datetime or numeric value to the format
@@ -1490,6 +1517,18 @@
         </tbody>
       </tgroup>
     </table>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRUNC function datetime</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
+
+    <para><literal>TRUNC ( &lt;datetime value expr&gt;, &lt;char value
+    expr&gt; ) </literal></para>
+
+    <para>This function is not supported in early version of HyperSQL 2.0.
+    (HyperSQL)</para>
   </section>
 
   <section>
