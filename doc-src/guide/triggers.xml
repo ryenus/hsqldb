@@ -69,14 +69,6 @@
     use a check constraint to prevent deletes. A trigger can be used to
     enforce the time when each operation is allowed.</simpara>
 
-    <simpara>A trigger can modify the values that are inserted into the
-    database, instead of rejecting them. For example, a badly formatted string
-    can be cleaned up by a trigger before INSERT.</simpara>
-
-    <simpara>Triggers can also perform additional data changes, for example
-    inserting an additional row into a different table for data
-    audits.</simpara>
-
     <simpara>A trigger is declared to activate when an UPDATE, INSERT or
     DELETE action is performed on a table. These actions may be direct or
     indirect. Indirect actions may arise from CASCADE actions of FOREIGN KEY
@@ -85,24 +77,57 @@
 
     <simpara>It is possible to declare multiple triggers on a single table.
     The triggers activate one by one according to the order in which they were
-    defined.</simpara>
+    defined. HyperSQL supports an extension to the CREATE TRIGGER statement,
+    which allows the user to specify the execution order of the new
+    trigger.</simpara>
 
     <simpara>A row level trigger allows access to the deleted or inserted
     rows. For UPDATE actions there is both an old and new version of each row.
     A trigger can be specified to activate before or after the action has been
-    performed. Triggers that are performed after the action cannot modify the
-    rows that have been modified. These triggers can perform other actions,
-    such as inserting rows into other tables. Triggers that are performed
-    before the action can modify the inserted or updated rows but not the
-    deleted rows.</simpara>
+    performed.</simpara>
 
-    <simpara>A TRIGGER that is declared on a VIEW, is an INSTEAD OF trigger.
-    This term means when an INSERT, UPDATE or DELETE statement is executed,
-    the trigger action is all that is performed, and no further data change
-    takes place on the VIEW. The trigger action can include all the statements
-    that are necessary to change the data in the tables that underlie the
-    VIEW. With the use of INSTEAD OF triggers a read-only view can effectively
-    become updatable or insertable-into.</simpara>
+    <section>
+      <title>BEFORE Triggers</title>
+
+      <simpara>A trigger that is declared as BEFORE DELETE cannot modify the
+      deleted row. In other words, it cannot decide to delete a different row
+      by changing the column values of the row. A trigger that is declared as
+      BEFORE INSERT and BEFORE UPDATE can modify the values that are inserted
+      into the database. For example, a badly formatted string can be cleaned
+      up by a trigger before INSERT or UPDATE. </simpara>
+
+      <simpara>BEFORE triggers cannot modify the other tables of the database.
+      All BEFORE triggers can veto the action by throwing an
+      exception.</simpara>
+
+      <simpara>Because BEFORE triggers can modify the inserted or updated
+      rows, all constrainst checks are performed after the execution of the
+      BEFORE triggers. The checks include NOT NULL constraints, length of
+      strings, CHECK constraints, and FOREIGN key constraints.</simpara>
+    </section>
+
+    <section>
+      <title>AFTER Triggers</title>
+
+      <simpara>AFTER triggers can also perform additional data changes, for
+      example inserting an additional row into a different table for data
+      audits. These triggers cannot modify the rows that have been modified by
+      the INSERT or UPDATE action.</simpara>
+    </section>
+
+    <section>
+      <title>INSTEAD OF Triggers</title>
+
+      <simpara>A trigger that is declared on a VIEW, is an INSTEAD OF trigger.
+      This term means when an INSERT, UPDATE or DELETE statement is executed
+      with the view as the target, the trigger action is all that is
+      performed, and no further data change takes place on the view. The
+      trigger action can include all the statements that are necessary to
+      change the data in the tables that underlie the view, or even other
+      tables, such as audit tables. With the use of INSTEAD OF triggers a
+      read-only view can effectively become updatable or
+      insertable-into.</simpara>
+    </section>
   </section>
 
   <section>

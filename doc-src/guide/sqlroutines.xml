@@ -751,18 +751,22 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     <section>
       <title>Returning Data From Routines</title>
 
-      <para>The OUT or INOUT parameters of a procedure are used to assign
+      <para>The OUT or INOUT parameters of a PROCEDURE are used to assign
       simple values to dynamic parameters or to variables in the calling
-      context. In addition, a SQL/PSM procedure may return result sets to the
-      calling context. These result sets are dynamic in the sense that a
-      procedure may return a different number of result sets or none at all in
-      different invocations.</para>
+      context. </para>
 
-      <para>The SQL Standard uses a mechanism called CURSORS for accessing and
-      modifying rows of a result set one by one. This mechanism is absolutely
-      necessary when the database is accessed from an external application
-      program. The JDBC ResultSet interface allows this method of access from
-      Java programs and is supported by HyperSQL.</para>
+      <para>The return value of a FUNCTION can be assigned to a variable, or
+      used inside an SQL statement.</para>
+
+      <para>According to the Standard, a SQL/PSM procedure may also return
+      result sets to the calling context. These result sets are dynamic in the
+      sense that a procedure may return a different number of result sets or
+      none at all in different invocations. The SQL Standard uses a mechanism
+      called CURSORS for accessing and modifying rows of a result set one by
+      one. This mechanism is absolutely necessary when the database is
+      accessed from an external application program. The JDBC ResultSet
+      interface allows this method of access from Java programs and is
+      supported by HyperSQL.</para>
 
       <para>The SQL Standard uses cursors within the body of a procedure to
       return result sets. It specifies a somewhat complex mechanism to allow
@@ -771,16 +775,18 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       This is considered redundant as all operations on data can be performed
       with non-cursor SQL statements.</para>
 
-      <para>(feature to be implemented) HyperSQL will support returning single
-      or multiple result sets from SQL/PSM procedures only via the JDBC
+      <para>The initial releases of HyperSQL do not support this method of
+      returning result sets. Future versions will support returning single or
+      multiple result sets from SQL/PSM procedures only via the JDBC
       CallableStatement interface. Cursors are declared and opened within the
       body of the procedure. No further operation is performed on the cursors
       within the procedure. When the execution of the procedure is complete,
       the cursors become available as Java ResultSet objects via the
       CallableStatement instance that called the SQL/PSM procedure.</para>
 
-      <para>Currently, a single result can be returned from FUNCTION routines,
-      when the function is defined as RETURNS TABLE ( .. )</para>
+      <para>In the current version, a single result can be returned from
+      FUNCTION routines, when the function is defined as RETURNS TABLE ( ..
+      )</para>
 
       <para>To return a table from a SELECT statement, you should use a return
       statement such as RETURN TABLE( SELECT ...); in a SQL/PSM function. A
@@ -1010,10 +1016,10 @@ CREATE FUNCTION testquery(INTEGER)
           <para>If the procedure contains SQL statements, only statements for
           data access and manipulation are allowed. The java method should not
           perform commit or rollback. The SQL statements should not change the
-          session settings and should not include statements at create or
-          modify tables definitions or other database objects. These rules are
-          generally enforced by the engine, but additional enforcement may be
-          added in future versions</para>
+          session settings and should not include statements that create or
+          alter tables or other database objects. These rules are generally
+          enforced by the engine, but additional enforcement may be added in
+          future versions</para>
         </listitem>
       </itemizedlist>
 
@@ -1024,6 +1030,105 @@ CREATE FUNCTION testquery(INTEGER)
   LANGUAGE JAVA
   EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.Test01.newCustomerProcedure'
 </programlisting>
+    </section>
+
+    <section>
+      <title>Java Static Methods</title>
+
+      <para>The static methods that are used for procedures and functions must
+      be declared in a public class. The methods must be declared as public
+      static. For functions, the method return type must be one of the JDBC
+      supported types. The IN parameters of the method must be declared as one
+      of the supported types. The OUT and INOUT parameters must be declared as
+      Java arrays of supported types. If the SQL definition of a function
+      includes RETURNS NULL ON NULL INPUT, then the IN parameters of the Java
+      static function can be int or long primitives, otherwise, they must be
+      Integer or Long. The declared Java arrays for OUT and INOUT parameters
+      for SQL INTEGER or BIGINT must be Integer[] or Long[]
+      respectively.</para>
+
+      <para>If the SQL definition of the routine includes NO SQL, then no JDBC
+      method call is allowed to execute in the method body. Otherwise, a JDBC
+      Connection can be used within the Java method to access the database. If
+      the definition includes CONTAINS SQL, then no table data can be read. If
+      the definition includes READS SQL DATA, then no table data can be
+      modified. If the definition includes MODIFIES SQL DATA, then data can be
+      modified. In all modes, it is not allowed to execute DDL statements that
+      change the schema definition.</para>
+
+      <para>It is possible to use DECLARE LOCAL TEMPORARY TABLE in a Java
+      method, as this is in the session scope.</para>
+
+      <para>There are two ways to use the JDBC Connection object. </para>
+
+      <orderedlist>
+        <listitem>
+          <para>Define the Java method with a Connection parameter as the
+          first parameter. This parameter is "hidden" and only visible to the
+          engine. The rest of the parameters, if any, are used to choose the
+          method according to the required types of parameters.</para>
+        </listitem>
+
+        <listitem>
+          <para>Use the SQL/JRT Standard
+          <literal>"jdbc:default:connection"</literal> method. With this
+          approach, the Java method does not include a Connection parameter.
+          In the method body, the connection is established with a method call
+          to DriverManager, as in the example below:</para>
+
+          <para><literal>Connection con =
+          DriverManager.getConnection("jdbc:default:connection");</literal></para>
+        </listitem>
+      </orderedlist>
+
+      <para>Both methods return a connection that is based on the current
+      session. This connection has some extra properties, for example, the
+      Close() method does not actually close it.</para>
+
+      <para>An example of an SQL PROCEDURE with its Java method definition is
+      given below. The CREATE PROCEDURE statement is the same with or without
+      the Connection parameter:</para>
+
+      <programlisting>CREATE PROCEDURE proc1(IN P1 INT, IN P2 INT, OUT P3 INT)
+SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.procTest2'");
+</programlisting>
+
+      <para>In the first example, the
+      <literal>"jdbc:default:connection"</literal> method is used. In the
+      second example, a connection parameter is used</para>
+
+      <programlisting>    public static void procTest2(int p1, int p2,
+                       Integer[] p3) throws java.sql.SQLException {
+
+        Connection conn =
+            DriverManager.getConnection("jdbc:default:connection");
+        java.sql.Statement stmt = conn.createStatement();
+
+        stmt.execute("INSERT INTO MYTABLE VALUES(" + p1 + ",'test1')");
+        stmt.execute("INSERT INTO MYTABLE VALUES(" + p2 + ",'test2')");
+
+        java.sql.ResultSet rs = stmt.executeQuery("select * from MYTABLE");
+        java.sql.ResultSetMetaData meta = rs.getMetaData();
+
+        int cols  = meta.getColumnCount();
+        p3[0] = Integer.valueOf(cols);
+
+        rs.close();
+        stmt.close();
+    }
+
+//  alternative declaration with Connection parameter
+//  public static void procTest2(Connection conn, int p1, int p2,
+//                    Integer[] p3) throws java.sql.SQLException {
+</programlisting>
+
+      <para>When the stored procedure is called by the user's program, the
+      value of the OUT parameter can be read after the call.<programlisting>    // a CallableStatement is used to prepare the call
+    // the OUT parameter contains the return value
+    CallableStatement c = conn.prepareCall("call proc1(1,2,?)");
+    c.execute();
+    int value = c.getInt(1);
+</programlisting></para>
     </section>
 
     <section>
@@ -1045,11 +1150,11 @@ CREATE FUNCTION testquery(INTEGER)
   <section>
     <title>SQL Language Aggregate Functions</title>
 
-    <para>HyperSQL adds an extension to the SQL Standard to allow user defined
-    aggregate functions. A user defined aggregate function has a single
+    <para>HyperSQL adds an extension to the SQL Standard to allow user-defined
+    aggregate functions. A user-defined aggregate function has a single
     parameter when it is used in SQL statements. Unlike the predefined
     aggregate functions, the keyword DISTINCT cannot be used when a user
-    defined aggregate function is invoked. Like all user defined functions, an
+    defined aggregate function is invoked. Like all user-defined functions, an
     aggregate function belongs to a schema and can be polymorphic.</para>
 
     <para>A user defined aggregate function can be used in SQL statements
@@ -1111,11 +1216,11 @@ CREATE FUNCTION testquery(INTEGER)
       <para>In the computation phase, the first argument is the value of the
       user argument as specified in the SQL statement, computed for the
       current row. The second argument is the boolean FALSE. The third and
-      fourth argument values are initially null, but they can be updated in
-      the body of the function during each invocation. The third and fourth
-      arguments act as registers and hold their values between invocations.
-      The return value of the function is ignored during the computation phase
-      (when the second parameter is FALSE).</para>
+      fourth argument values can have any type and are initially null, but
+      they can be updated in the body of the function during each invocation.
+      The third and fourth arguments act as registers and hold their values
+      between invocations. The return value of the function is ignored during
+      the computation phase (when the second parameter is FALSE).</para>
 
       <para>After the computation phase, the function is invoked once more to
       get the final result. In this invocation, the first argument is NULL and
@@ -1215,34 +1320,33 @@ CREATE FUNCTION testquery(INTEGER)
       geometric mean is defined.</para>
 
       <programlisting>CREATE AGGREGATE FUNCTION geometric_mean(IN val DOUBLE, IN flag BOOLEAN, INOUT register DOUBLE, INOUT counter INT)
- RETURNS DOUBLE
- NO SQL
- LANGUAGE JAVA
- EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.Test01.geometricMean'
+  RETURNS DOUBLE
+  NO SQL
+  LANGUAGE JAVA
+  EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.Test01.geometricMean'
 </programlisting>
 
       <para>The Java function definition is given below:</para>
 
-      <programlisting>public static Double geometricMean(Double in, Boolean flag,
-        Double[] register, Integer[] counter) {
-
-    if (flag) {
-        if (register[0] == null) { return null; }
-        double a = register[0].doubleValue();
-        double b = 1 / (double) counter[0];
-        return Double.valueOf(java.lang.Math.pow(a, b));
+      <programlisting>    public static Double geometricMean(Double in, Boolean flag,
+            Double[] register, Integer[] counter) {
+        if (flag) {
+            if (register[0] == null) { return null; }
+            double a = register[0].doubleValue();
+            double b = 1 / (double) counter[0];
+            return Double.valueOf(java.lang.Math.pow(a, b));
+        }
+        if (in == null) { return null; }
+        if (in.doubleValue() == 0) { return null; }
+        if (register[0] == null) {
+            register[0] = in;
+            counter[0]  = Integer.valueOf(1);
+        } else {
+            register[0] = Double.valueOf(register[0].doubleValue() * in.doubleValue());
+            counter[0] = Integer.valueOf(counter[0].intValue() + 1);
+        }
+        return null;
     }
-    if (in == null) { return null; }
-    if (in.doubleValue() == 0) { return null; }
-    if (register[0] == null) {
-        register[0] = in;
-        counter[0]  = Integer.valueOf(1);
-    } else {
-        register[0] = Double.valueOf(register[0].doubleValue() * in.doubleValue());
-        counter[0] = Integer.valueOf(counter[0].intValue() + 1);
-    }
-    return null;
-}
 </programlisting>
 
       <para>In a select statement, the function is used like built in

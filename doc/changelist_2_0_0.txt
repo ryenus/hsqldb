@@ -1,3 +1,8 @@
-07 June 2008 - SVN 3646
+13 June 2010 - SVN 3654
+- fixed issue with third parameter of LOCATE function
+- added TRUNC and changed return type of TRUNCATE function to reduce decimal scale
+- added synchronized blocks to allow mass creation of mem: databases
+- added support for jdbc:default:connection for Java functions
+07 June 2010 - SVN 3646
 - fixed bug - SET FILES LOB SCALE did not change the store without a shutdown
 - fixed bug #3012585 - multi-column FOREIGN KEY with mismatched order of PK columns did not work correctly
