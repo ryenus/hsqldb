@@ -55,7 +55,7 @@ import org.hsqldb.types.UserTypeModifier;
  * Parser for DDL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class ParserDDL extends ParserRoutine {
@@ -3116,7 +3116,7 @@ public class ParserDDL extends ParserRoutine {
 
         if (!session.getGrantee().isSchemaCreator()) {
             throw Error.error(ErrorCode.X_0L000,
-                              session.getGrantee().getNameString());
+                              session.getGrantee().getName().getNameString());
         }
 
         if (database.schemaManager.schemaExists(schemaName.name)) {

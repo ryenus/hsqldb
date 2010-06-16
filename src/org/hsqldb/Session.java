@@ -55,6 +55,7 @@ import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
@@ -72,7 +73,7 @@ import org.hsqldb.types.Type;
  * Implementation of SQL sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.0
  */
 public class Session implements SessionInterface {
@@ -313,7 +314,7 @@ public class Session implements SessionInterface {
      * @return the name of the user currently connected within this Session
      */
     public String getUsername() {
-        return user.getNameString();
+        return user.getName().getNameString();
     }
 
     /**
@@ -417,10 +418,10 @@ public class Session implements SessionInterface {
         database.txManager.addDeleteAction(this, table, row, colMap);
     }
 
-    void addInsertAction(Table table, Row row) {
+    void addInsertAction(Table table, PersistentStore store, Row row) {
 
 //        tempActionHistory.add("add insert to transaction " + actionTimestamp);
-        database.txManager.addInsertAction(this, table, row);
+        database.txManager.addInsertAction(this, table, store, row);
 
         // abort only after adding so that the new row gets removed from indexes
         if (abortTransaction) {

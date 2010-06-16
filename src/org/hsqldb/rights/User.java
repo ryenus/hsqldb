@@ -45,10 +45,10 @@ import org.hsqldb.lib.StringConverter;
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  *
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.8.0
  */
-public class User extends Grantee {
+public class User extends GranteeObject {
 
     /** password. */
     private String password;
@@ -119,7 +119,7 @@ public class User extends Grantee {
 
         HsqlName schema =
             granteeManager.database.schemaManager.findSchemaHsqlName(
-                getNameString());
+                getName().getNameString());
 
         if (schema == null) {
             return granteeManager.database.schemaManager
@@ -152,7 +152,7 @@ public class User extends Grantee {
 
         sb.append(Tokens.T_ALTER).append(' ');
         sb.append(Tokens.T_USER).append(' ');
-        sb.append(getStatementName()).append(' ');
+        sb.append(getName().getStatementName()).append(' ');
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_PASSWORD).append(' ');
         sb.append('"').append(password).append('"');
@@ -166,11 +166,11 @@ public class User extends Grantee {
 
         sb.append(Tokens.T_ALTER).append(' ');
         sb.append(Tokens.T_USER).append(' ');
-        sb.append(getStatementName()).append(' ');
+        sb.append(getName().getStatementName()).append(' ');
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_INITIAL).append(' ');
         sb.append(Tokens.T_SCHEMA).append(' ');
-        sb.append(initialSchema.statementName);
+        sb.append(initialSchema.getStatementName());
 
         return sb.toString();
     }
@@ -186,7 +186,7 @@ public class User extends Grantee {
 
         sb.append(Tokens.T_CREATE).append(' ');
         sb.append(Tokens.T_USER).append(' ');
-        sb.append(getStatementName()).append(' ');
+        sb.append(getName().getStatementName()).append(' ');
         sb.append(Tokens.T_PASSWORD).append(' ');
         sb.append(StringConverter.toQuotedString(password, '"', true));
 
@@ -207,7 +207,8 @@ public class User extends Grantee {
         sb.append(Tokens.T_SET).append(' ');
         sb.append(Tokens.T_SESSION).append(' ');
         sb.append(Tokens.T_AUTHORIZATION).append(' ');
-        sb.append(StringConverter.toQuotedString(getNameString(), '\'', true));
+        sb.append(StringConverter.toQuotedString(getName().getNameString(),
+                '\'', true));
 
         return sb.toString();
     }

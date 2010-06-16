@@ -42,6 +42,7 @@ import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.SqlInvariants;
 import org.hsqldb.Statement;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.error.Error;
@@ -68,7 +69,7 @@ import org.hsqldb.types.Type;
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class Result {
@@ -77,6 +78,10 @@ public class Result {
         ResultMetaData.newResultMetaData(SessionInterface.INFO_LIMIT);
 
     static {
+
+        // required for correct initialisation of static variables
+        SqlInvariants.isSystemSchemaName("SYSTEM");
+
         for (int i = 0; i < Session.INFO_LIMIT; i++) {
             sessionAttributesMetaData.columns[i] = new ColumnBase(null, null,
                     null, null);

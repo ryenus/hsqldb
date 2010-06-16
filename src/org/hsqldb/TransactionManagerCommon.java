@@ -41,10 +41,17 @@ import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.lib.Iterator;
+import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.MultiValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.lib.LongDeque;
 
+/**
+ * Shared code for TransactionManager classes
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since 2.0.0
+ */
 class TransactionManagerCommon {
 
     Database   database;

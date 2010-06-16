@@ -141,7 +141,7 @@ import org.hsqldb.types.Types;
  * (fredt@users) <p>
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 class DatabaseInformationMain extends DatabaseInformation {
@@ -479,9 +479,10 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        if (!session.isAdmin() ) {
+        if (!session.isAdmin()) {
             session.getUser();
         }
+
         long dbscts = database.schemaManager.getSchemaChangeTimestamp();
         PersistentStore store = session.sessionData.getRowStore(t);
 
@@ -2871,7 +2872,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             row           = t.getEmptyRowData();
             user          = (User) users.get(i);
             initialSchema = user.getInitialSchema();
-            row[0]        = user.getNameString();
+            row[0]        = user.getName().getNameString();
             row[1]        = ValuePool.getBoolean(user.isAdmin());
             row[2]        = ((initialSchema == null) ? null
                                                      : initialSchema.name);

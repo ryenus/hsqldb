@@ -52,7 +52,7 @@ import org.hsqldb.SqlInvariants;
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 1.8.0
+ * @version 2.0.1
  * @since 1.7.2
  * @see  User
  */
@@ -262,7 +262,7 @@ public final class UserManager {
                 continue;
             }
 
-            userName = user.getNameString();
+            userName = user.getName().getNameString();
 
             if (isAdmin) {
                 list.add(user);

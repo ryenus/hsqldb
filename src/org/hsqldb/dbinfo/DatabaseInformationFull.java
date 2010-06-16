@@ -47,6 +47,7 @@ import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
 import org.hsqldb.Routine;
 import org.hsqldb.RoutineSchema;
+import org.hsqldb.Schema;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.SchemaObjectSet;
 import org.hsqldb.Session;
@@ -82,7 +83,6 @@ import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
-import org.hsqldb.types.Types;
 
 // fredt@users - 1.7.2 - structural modifications to allow inheritance
 // boucherb@users - 1.7.2 - 20020225
@@ -109,7 +109,7 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 final class DatabaseInformationFull
@@ -1228,7 +1228,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 String   roleName = (String) it.next();
                 Object[] row      = t.getEmptyRowData();
 
-                row[grantee]      = role.getNameString();
+                row[grantee]      = role.getName().getNameString();
                 row[role_name]    = roleName;
                 row[is_grantable] = "YES";
 
@@ -1241,7 +1241,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 String   roleName = (String) roles.get(i);
                 Object[] row      = t.getEmptyRowData();
 
-                row[grantee]      = role.getNameString();
+                row[grantee]      = role.getName().getNameString();
                 row[role_name]    = roleName;
                 row[is_grantable] = Tokens.T_NO;
 
@@ -1368,7 +1368,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (grantees.hasNext()) {
             grantee = (Grantee) grantees.next();
             row     = t.getEmptyRowData();
-            row[0]  = grantee.getNameString();
+            row[0]  = grantee.getName().getNameString();
             row[1]  = grantee.isRole() ? "ROLE"
                                        : "USER";
 
@@ -3032,7 +3032,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         while (grantees.hasNext()) {
             grantee = (Grantee) grantees.next();
             row     = t.getEmptyRowData();
-            row[0]  = grantee.getNameString();
+            row[0]  = grantee.getName().getNameString();
 
             t.insertSys(store, row);
         }
@@ -4896,7 +4896,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // Intermediate holders
         Iterator schemas;
-        String   schema;
+        Schema   schema;
         String   dcsSchema = SqlInvariants.INFORMATION_SCHEMA;
         String   dcsName   = ValuePool.getString("UTF16");
         String   sqlPath   = null;
@@ -4913,21 +4913,21 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         final int sql_path                      = 6;
 
         // Initialization
-        schemas = database.schemaManager.fullSchemaNamesIterator();
+        schemas = database.schemaManager.allSchemasIterator();
 
         // Do it.
         while (schemas.hasNext()) {
-            schema = (String) schemas.next();
+            schema = (Schema) schemas.next();
 
-            if (!user.hasSchemaUpdateOrGrantRights(schema)) {
+            if (!user.hasSchemaUpdateOrGrantRights(
+                    schema.getName().getNameString())) {
                 continue;
             }
 
             row                 = t.getEmptyRowData();
             row[schema_catalog] = database.getCatalogName().name;
-            row[schema_name]    = schema;
-            row[schema_owner] =
-                database.schemaManager.toSchemaOwner(schema).getNameString();
+            row[schema_name]    = schema.getName().getNameString();
+            row[schema_owner]   = schema.getOwner().getName().getNameString();
             row[default_character_set_catalog] =
                 database.getCatalogName().name;
             row[default_character_set_schema] = dcsSchema;
@@ -6983,7 +6983,6 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Grantee  granteeObject;
         String   granteeName;
         Iterator roles;
-        String   roleName;
         String   isGrantable;
         Object[] row;
 
@@ -6999,7 +6998,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         //
         while (grantees.hasNext()) {
             granteeObject = (Grantee) grantees.next();
-            granteeName   = granteeObject.getNameString();
+            granteeName   = granteeObject.getName().getNameString();
             roles         = granteeObject.getDirectRoles().iterator();
             isGrantable   = granteeObject.isAdmin() ? Tokens.T_YES
                                                     : Tokens.T_NO;;
@@ -7008,7 +7007,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 Grantee role = (Grantee) roles.next();
 
                 row               = t.getEmptyRowData();
-                row[role_name]    = role.getNameString();
+                row[role_name]    = role.getName().getNameString();
                 row[grantee]      = granteeName;
                 row[grantor]      = grantorName;
                 row[is_grantable] = isGrantable;

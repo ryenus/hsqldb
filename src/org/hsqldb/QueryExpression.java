@@ -55,7 +55,7 @@ import org.hsqldb.types.Types;
  * Implementation of an SQL query expression
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 
@@ -228,6 +228,8 @@ public class QueryExpression {
             ArrayUtil.fillSequence(leftQueryExpression.unionColumnMap);
             resolveColumnRefernecesInUnionOrderBy();
 
+            accessibleColumns = leftQueryExpression.accessibleColumns;
+
             return;
         }
 
@@ -302,6 +304,10 @@ public class QueryExpression {
         unionColumnTypes = new Type[columnCount];
 
         resolveColumnRefernecesInUnionOrderBy();
+
+        accessibleColumns = new boolean[columnCount];
+
+        ArrayUtil.fillArray(accessibleColumns, true);
     }
 
     /**

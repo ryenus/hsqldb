@@ -49,7 +49,7 @@ import org.hsqldb.types.Type;
  * Manages all SCHEMA related database objects
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version  1.9.0
+ * @version  2.0.1
  * @since 1.8.0
  */
 public class SchemaManager {
@@ -228,6 +228,10 @@ public class SchemaManager {
         return schemaMap.keySet().iterator();
     }
 
+    public Iterator allSchemasIterator() {
+        return schemaMap.values().iterator();
+    }
+
     public HsqlName getUserSchemaHsqlName(String name) {
 
         Schema schema = (Schema) schemaMap.get(name);
@@ -245,15 +249,7 @@ public class SchemaManager {
 
     public Grantee toSchemaOwner(String name) {
 
-        // Note that INFORMATION_SCHEMA and DEFINITION_SCHEMA aren't in the
-        // backing map.
-        // This may not be the most elegant solution, but it is the safest
-        // (without doing a code review for implications of adding
-        // them to the map).
-        if (SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.name.equals(name)) {
-            return SqlInvariants.INFORMATION_SCHEMA_HSQLNAME.owner;
-        }
-
+        // Note that DEFINITION_SCHEMA isn't in the backing map.
         Schema schema = (Schema) schemaMap.get(name);
 
         return schema == null ? null
@@ -269,8 +265,7 @@ public class SchemaManager {
     }
 
     public boolean schemaExists(String name) {
-        return SqlInvariants.INFORMATION_SCHEMA.equals(name)
-               || schemaMap.containsKey(name);
+        return schemaMap.containsKey(name);
     }
 
     public HsqlName findSchemaHsqlName(String name) {
@@ -293,10 +288,6 @@ public class SchemaManager {
 
         if (name == null) {
             return defaultSchemaHsqlName;
-        }
-
-        if (SqlInvariants.INFORMATION_SCHEMA.equals(name)) {
-            return SqlInvariants.INFORMATION_SCHEMA_HSQLNAME;
         }
 
         Schema schema = ((Schema) schemaMap.get(name));
@@ -331,12 +322,12 @@ public class SchemaManager {
      */
     boolean isSchemaAuthorisation(Grantee grantee) {
 
-        Iterator schemas = allSchemaNameIterator();
+        Iterator schemas = allSchemasIterator();
 
         while (schemas.hasNext()) {
-            String schemaName = (String) schemas.next();
+            Schema schema = (Schema) schemas.next();
 
-            if (grantee.equals(toSchemaOwner(schemaName))) {
+            if (grantee.equals(schema.getOwner())) {
                 return true;
             }
         }

@@ -99,7 +99,7 @@ import org.hsqldb.types.Type;
  *
  * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since Hypersonic SQL
  */
 public class Table extends TableBase implements SchemaObject {
@@ -2437,8 +2437,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, data);
 
-        store.indexRow(session, row);
-        session.addInsertAction(this, row);
+        session.addInsertAction(this, store, row);
 
         return row;
     }
@@ -2470,8 +2469,7 @@ public class Table extends TableBase implements SchemaObject {
         PersistentStore store = session.sessionData.getRowStore(this);
         Row             row   = (Row) store.getNewCachedObject(session, data);
 
-        store.indexRow(session, row);
-        session.addInsertAction(this, row);
+        session.addInsertAction(this, store, row);
     }
 
     /**

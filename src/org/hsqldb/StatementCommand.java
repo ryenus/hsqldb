@@ -45,7 +45,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  * Implementation of Statement for SQL commands.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class StatementCommand extends Statement {
@@ -780,7 +780,7 @@ public class StatementCommand extends Statement {
                         session.checkDDLWrite();
 
                         user = session.database.userManager.get(
-                            user.getNameString());
+                            user.getName().getNameString());
                     }
 
                     if (schema != null) {
