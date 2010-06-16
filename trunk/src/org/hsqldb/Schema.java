@@ -41,6 +41,14 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.WrapperIterator;
 import org.hsqldb.rights.Grantee;
 
+/**
+ * Representation of a Schema.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ *
+ * @version 2.0.1
+ * @since 1.9.0
+*/
 public final class Schema implements SchemaObject {
 
     private HsqlName name;
@@ -58,7 +66,6 @@ public final class Schema implements SchemaObject {
     SchemaObjectSet  assertionLookup;
     HashMappedList   tableList;
     HashMappedList   sequenceList;
-    Grantee          owner;
     long             changeTimestamp;
 
     public Schema(HsqlName name, Grantee owner) {
@@ -79,7 +86,6 @@ public final class Schema implements SchemaObject {
         assertionLookup = new SchemaObjectSet(SchemaObject.ASSERTION);
         tableList       = (HashMappedList) tableLookup.map;
         sequenceList    = (HashMappedList) sequenceLookup.map;
-        this.owner      = owner;
         name.owner      = owner;
     }
 
@@ -100,7 +106,7 @@ public final class Schema implements SchemaObject {
     }
 
     public Grantee getOwner() {
-        return owner;
+        return name.owner;
     }
 
     public OrderedHashSet getReferences() {
@@ -125,7 +131,7 @@ public final class Schema implements SchemaObject {
         sb.append(Tokens.T_SCHEMA).append(' ');
         sb.append(getName().statementName).append(' ');
         sb.append(Tokens.T_AUTHORIZATION).append(' ');
-        sb.append(getOwner().getStatementName());
+        sb.append(getOwner().getName().getStatementName());
 
         return sb.toString();
     }

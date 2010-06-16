@@ -41,7 +41,6 @@ import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.index.IndexAVL;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StopWatch;
@@ -63,7 +62,7 @@ import org.hsqldb.store.BitMap;
  *  image after translating the old pointers to the new.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version    1.9.0
+ * @version    2.0.1
  * @since      1.7.2
  */
 final class DataFileDefrag {
@@ -234,8 +233,8 @@ final class DataFileDefrag {
         Session session = database.getSessionManager().getSysSession();
         PersistentStore    store  = session.sessionData.getRowStore(table);
         RowOutputInterface rowOut = cache.rowOut.duplicate();
-        DoubleIntIndex pointerLookup = new DoubleIntIndex(
-            ((IndexAVL) table.getPrimaryIndex()).sizeEstimate(store), false);
+        DoubleIntIndex pointerLookup =
+            new DoubleIntIndex(store.elementCount(session), false);
         int[] rootsArray = table.getIndexRootsArray();
         long  pos        = fileOffset;
         int   count      = 0;

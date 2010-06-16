@@ -22,7 +22,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="2.0.0"/>
+   <property name="hsqldb.version" value="2.0.1"/>
 
    <tstamp>
        <format property="_tmpstamp" pattern="yyyy/MM/dd-HH:mm:ss"
@@ -697,6 +697,7 @@ examples:
                   org/hsqldb/jdbc/JDBC*,
                   org/hsqldb/jdbc/Util*,
                   org/hsqldb/jdbc/pool/*,
+                  org/hsqldb/rights/Grantee.class,
                   org/hsqldb/rowio/RowOutputBase*,
                   org/hsqldb/rowio/RowInputBase*,
                   org/hsqldb/rowio/RowOutputBinary*,

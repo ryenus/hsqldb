@@ -45,7 +45,7 @@ import org.hsqldb.types.Type;
 /**
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class ExpressionLogical extends Expression {
@@ -749,17 +749,17 @@ public class ExpressionLogical extends Expression {
                                            nodes[RIGHT])) {
 
                     // compatibility for BIT with number and BOOLEAN - convert bit to other type
-                } else if (nodes[LEFT].dataType.isBitType()) {
-                    if (nodes[RIGHT].dataType.canConvertFrom(
-                            nodes[LEFT].dataType)) {
-                        nodes[LEFT] = ExpressionOp.getCastExpression(session,
-                                nodes[LEFT], nodes[RIGHT].dataType);
-                    }
-                } else if (nodes[RIGHT].dataType.isBitType()) {
+                } else if (nodes[LEFT].dataType.isBitType() || nodes[LEFT].dataType.isBooleanType()) {
                     if (nodes[LEFT].dataType.canConvertFrom(
                             nodes[RIGHT].dataType)) {
                         nodes[RIGHT] = ExpressionOp.getCastExpression(session,
                                 nodes[RIGHT], nodes[LEFT].dataType);
+                    }
+                } else if (nodes[RIGHT].dataType.isBitType() || nodes[RIGHT].dataType.isBooleanType()) {
+                    if (nodes[RIGHT].dataType.canConvertFrom(
+                            nodes[LEFT].dataType)) {
+                        nodes[LEFT] = ExpressionOp.getCastExpression(session,
+                                nodes[LEFT], nodes[RIGHT].dataType);
                     }
                 } else {
                     throw Error.error(ErrorCode.X_42562);

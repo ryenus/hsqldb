@@ -41,7 +41,7 @@ import org.hsqldb.rights.User;
  * Responsible for managing opening and closing of sessions.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 public class SessionManager {
@@ -243,7 +243,7 @@ public class SessionManager {
         for (int i = 0; it.hasNext(); i++) {
             Session session = (Session) it.next();
 
-            if (userName.equals(session.getUser().getNameString())) {
+            if (userName.equals(session.getUser().getName().getNameString())) {
                 return true;
             }
         }

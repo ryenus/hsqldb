@@ -51,7 +51,7 @@ import org.hsqldb.types.Types;
  * Implementation of SQL standard function calls
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class FunctionSQL extends Expression {
@@ -1054,7 +1054,7 @@ public class FunctionSQL extends Expression {
             */
             case FUNC_CURRENT_ROLE :
                 return session.getRole() == null ? null
-                                                 : session.getRole()
+                                                 : session.getRole().getName()
                                                      .getNameString();
 
             case FUNC_CURRENT_SCHEMA :
@@ -1064,16 +1064,16 @@ public class FunctionSQL extends Expression {
             case FUNC_CURRENT_TRANSFORM_GROUP_FOR_TYPE :
             */
             case FUNC_CURRENT_USER :
-                return session.getUser().getNameString();
+                return session.getUser().getName().getNameString();
 
             case FUNC_SESSION_USER :
-                return session.getUser().getNameString();
+                return session.getUser().getName().getNameString();
 
             case FUNC_SYSTEM_USER :
-                return session.getUser().getNameString();
+                return session.getUser().getName().getNameString();
 
             case FUNC_USER :
-                return session.getUser().getNameString();
+                return session.getUser().getName().getNameString();
 
             case FUNC_VALUE :
                 return session.sessionData.currentValue;

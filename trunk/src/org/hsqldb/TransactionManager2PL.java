@@ -39,7 +39,7 @@ import org.hsqldb.persist.PersistentStore;
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 2.0.0
  */
 public class TransactionManager2PL extends TransactionManagerCommon
@@ -255,7 +255,8 @@ implements TransactionManager {
         return action;
     }
 
-    public void addInsertAction(Session session, Table table, Row row) {
+    public void addInsertAction(Session session, Table table,
+                                PersistentStore store, Row row) {
 
         RowAction action = row.rowAction;
 
@@ -264,6 +265,7 @@ implements TransactionManager {
                                + session.actionTimestamp);
         }
 
+        store.indexRow(session, row);
         session.rowActionList.add(action);
     }
 

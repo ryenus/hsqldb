@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  * Parser for DQL statements
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class ParserDQL extends ParserBase {
@@ -836,6 +836,10 @@ public class ParserDQL extends ParserBase {
                 read();
 
                 Table table = readTableName();
+
+                if (table.isView()) {
+                    table = ((View) table).getSubqueryTable();
+                }
 
                 select = new QuerySpecification(session, table,
                                                 compileContext);

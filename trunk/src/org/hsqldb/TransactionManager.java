@@ -33,7 +33,15 @@ package org.hsqldb;
 
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.persist.CachedObject;
+import org.hsqldb.persist.PersistentStore;
 
+/**
+ * Manages rows involved in transactions
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since 2.0.0
+ */
 public interface TransactionManager {
 
     //
@@ -51,7 +59,8 @@ public interface TransactionManager {
     public RowAction addDeleteAction(Session session, Table table, Row row,
                                      int[] colMap);
 
-    public void addInsertAction(Session session, Table table, Row row);
+    public void addInsertAction(Session session, Table table,
+                                PersistentStore store, Row row);
 
     /**
      * add session to the end of queue when a transaction starts

@@ -31,7 +31,6 @@
 
 package org.hsqldb;
 
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.hsqldb.error.Error;
@@ -42,12 +41,13 @@ import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.IntKeyHashMapConcurrent;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.persist.CachedObject;
+import org.hsqldb.persist.PersistentStore;
 
 /**
  * Manages rows involved in transactions
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 2.0.0
  */
 public class TransactionManagerMVCC extends TransactionManagerCommon
@@ -388,7 +388,8 @@ implements TransactionManager {
         return action;
     }
 
-    public void addInsertAction(Session session, Table table, Row row) {
+    public void addInsertAction(Session session, Table table,
+                                PersistentStore store, Row row) {
 
         RowAction action = row.rowAction;
 
@@ -397,11 +398,12 @@ implements TransactionManager {
                                + session.actionTimestamp);
         }
 
-        session.rowActionList.add(action);
-
         if (!row.isMemory()) {
             rowActionMap.put(action.getPos(), action);
         }
+
+        store.indexRow(session, row);
+        session.rowActionList.add(action);
     }
 
 // functional unit - accessibility of rows
@@ -584,6 +586,7 @@ implements TransactionManager {
             session.isTransaction        = true;
 
             liveTransactionTimestamps.addLast(session.transactionTimestamp);
+
             transactionCount++;
         } finally {
             writeLock.unlock();
@@ -635,6 +638,7 @@ implements TransactionManager {
                 session.isTransaction        = true;
 
                 liveTransactionTimestamps.addLast(session.actionTimestamp);
+
                 transactionCount++;
             }
 
@@ -737,10 +741,10 @@ implements TransactionManager {
 
         if (index >= 0) {
             transactionCount--;
+
             liveTransactionTimestamps.remove(index);
             mergeExpiredTransactions(session);
         }
-
     }
 
 // functional unit - list actions and translate id's

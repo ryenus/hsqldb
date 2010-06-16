@@ -59,7 +59,7 @@ import org.hsqldb.error.ErrorCode;
  * than all the existing names.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 public final class HsqlNameManager {
@@ -340,6 +340,10 @@ public final class HsqlNameManager {
                    ? StringConverter.toQuotedString(name, '"', true)
                    : name;
         }
+
+        public String getNameString() {
+            return name;
+        }
     }
 
     public static final class HsqlName extends SimpleName {
@@ -377,8 +381,9 @@ public final class HsqlNameManager {
 
             this(man, type);
 
-            this.name         = this.statementName = name;
-            this.isNameQuoted = isQuoted;
+            this.name          = name;
+            this.statementName = name;
+            this.isNameQuoted  = isQuoted;
 
             if (isNameQuoted) {
                 statementName = StringConverter.toQuotedString(name, '"',
