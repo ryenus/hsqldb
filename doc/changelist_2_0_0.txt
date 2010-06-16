@@ -1,3 +1,7 @@
+16 June 2010 - SVN 3658
+- fixed bug #3016375 Server remote open with no initial database
+- fixed bugs #3016397, #3016481 multiple UNION CORRESPONDING and using TABLE T with views
+- minor improvement to MVCC transactions
 13 June 2010 - SVN 3654
 - fixed issue with third parameter of LOCATE function
 - added TRUNC and changed return type of TRUNCATE function to reduce decimal scale
