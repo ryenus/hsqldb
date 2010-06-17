@@ -598,11 +598,12 @@
       For this usage, delete the database files when the application
       ends.</para>
 
-      <para>On some platforms, such as embedded devices which are reliable,
-      this is also a useful option. Your application issues CHECKPOINT to save
-      the changes made so far. This method of use reduces write operations on
-      SSD devices. For this usage, the lock file should also be disabled with
-      the connection property hsqldb.lock_file=false.</para>
+      <para>On some platforms, such as embedded devices which have a reliable
+      storage device, this is also a useful option. Your application issues
+      CHECKPOINT to save the changes made so far. This method of use reduces
+      write operations on SSD devices. For this usage, the lock file should
+      also be disabled with the connection property
+      <literal>hsqldb.lock_file=false</literal>.</para>
     </section>
 
     <section>
@@ -612,6 +613,38 @@
       of access. As the JVM process is separate from the application, this
       method is the most reliable as well as the most accessible method of
       running databases.</para>
+    </section>
+
+    <section>
+      <title>Persistence and Reliability</title>
+
+      <para>HyperSQL 2.0 uses the same persistence mechanism as version 1.8,
+      but with important enhancements. The code has proven reliable, as the
+      last critical issue was fixed 2 years before the release of version 2.0.
+      There are further enhancements in version 2.0</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Locking mechanism has been added to code to support
+          multithreaded access.</para>
+        </listitem>
+
+        <listitem>
+          <para>Incremental backup (an internal mechanism for crash
+          protection) allows fast checkpoint and shutdown. </para>
+        </listitem>
+
+        <listitem>
+          <para>All files are now synced just before closing.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Persistence relies on the JVM, the operating system, and the
+      computer hardware. And a database system like HSQLDB can perform
+      millions of read and write operations in an hour. As it is impossible to
+      achieve zero failure rate, regular backups are recommended. HyperSQL 2.0
+      has built-in database backup and restore features, discussed elsewhere
+      in this chapter.</para>
     </section>
   </section>
 
@@ -624,16 +657,15 @@
 
     <para>Any database that is not produced with the release version of
     HyperSQL 2.0 must be upgraded to this version. Most catalogs created with
-    1.8.x can be upgraded simply by opening with HyperSQL 2. When this is not
-    possible due to errors, the rest of the procedures below should be
-    followed.</para>
+    1.8.x can be upgraded simply by opening with HyperSQL 2.0. After opening
+    with version 2.0, perform a SHTUDOWN COMPACT to rewrite the database in
+    the latest format.</para>
+
+    <para>When this is not possible due to errors, the rest of the procedures
+    below should be followed.</para>
 
     <para>Once a database is upgraded to 2.0, it can no longer be used with
     previous versions of HyperSQL.</para>
-
-    <para>If your database has been created with version 1.7.x, first upgrade
-    to version 1.8.1 and perform a SHUTDOWN COMPACT with this version. You can
-    then open and upgrade the database with version 2.0.</para>
 
     <section xml:id="upgrade_via_script-sect">
       <title xml:id="upgrade_via_script-title">Upgrading From Older
@@ -1041,10 +1073,10 @@
     <title>Backward Compatibility Issues</title>
 
     <para>HyperSQL 2.0 conforms to the SQL Standard better than previous
-    versions and supports more features. For these reasons, there may be some
+    versions and has many more features. For these reasons, there may be some
     compatibility issues when converting old database, or using applications
     that were written for version 1.8.x or earlier. Some of the potential
-    issues are listed here.</para>
+    issues (and enhancements) are listed here.</para>
 
     <itemizedlist>
       <listitem>
@@ -1052,6 +1084,11 @@
         file of a database for the correct case of user name and password and
         use this form in the connection properties or on connection
         URL.</para>
+      </listitem>
+
+      <listitem>
+        <para>It is now possible to specify the admin username and password
+        for a new database (instead of SA and the empty password).</para>
       </listitem>
 
       <listitem>
@@ -1072,8 +1109,9 @@
         the <literal>enforce_strict_size</literal> property, is now converted
         to version 2.0 with the engine supplying the missing size parameters.
         For example, a VARCHAR column declaration that has no size, is given a
-        32K size. Check these sizes are adequate for your use, and change the
-        column definition as necessary.</para>
+        32K size, a LONGVARCHAR column is given a 1MB size. Check these sizes
+        are adequate for your use, and change the column definition as
+        necessary.</para>
       </listitem>
 
       <listitem>
@@ -1086,20 +1124,23 @@
         <para>If two or more tables in a join contain columns with the same
         name, the columns cannot be referenced in join and where conditions.
         Use table names before column names to qualify the references to such
-        columns. The SET DATABASE SQL REFERENCES { TRUE | FALSE } enables and
-        disables this check.</para>
+        columns. The <literal>SET DATABASE SQL REFERENCES { TRUE | FALSE
+        }</literal> statement enables or disables this check.</para>
       </listitem>
 
       <listitem>
-        <para>Table definitions containing GENERATED BY DEFAULT AS IDENTITY
-        but with no PRIMARY KEY do not automatically create a primary key.
-        Database .script files made with 1.8 are fine, as the PRIMARY KEY
-        clause is always included. But your application program may assume an
-        automatic primary key is created. The old shortcut, IDENTITY, is
-        retained with the same meaning. So <literal>CREATE TABLE T (ID
-        IDENTITY, DAT VARCHAR(20))</literal> is translated into
-        <literal>CREATE TABLE T(ID INTEGER GENERATED BY DEFAULT AS IDENTITY
-        (START WITH 0) PRIMARY KEY, DAT VARCHAR(20))</literal>.</para>
+        <para>Table definitions containing <literal>GENERATED BY DEFAULT AS
+        IDENTITY</literal> but with no <literal>PRIMARY KEY</literal> do not
+        automatically create a primary key. Database .script files made with
+        1.8 are fine, as the <literal>PRIMARY KEY</literal> clause is always
+        included. But the <literal>CREATE TABLE</literal> statements in your
+        application program may assume an automatic primary key is created.
+        The old shortcut, IDENTITY, is retained with the same meaning. So
+        <literal>CREATE TABLE T (ID IDENTITY, DAT VARCHAR(20))</literal> is
+        translated into <literal>CREATE TABLE T(ID INTEGER GENERATED BY
+        DEFAULT AS IDENTITY PRIMARY KEY, DAT VARCHAR(20))</literal>. This last
+        form is the correct way of defining both autoincrement and primary key
+        in versions 1.8 and 2.0.</para>
       </listitem>
 
       <listitem>
