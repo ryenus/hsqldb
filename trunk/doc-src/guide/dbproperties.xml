@@ -284,9 +284,9 @@
               not already exist for the URL.</para><para>When the property is
               false (the default), a new <glossterm>mem:</glossterm> or
               <glossterm>file:</glossterm> database will be created if it does
-              not exist.</para> <para>Setting the property to true is useful
+              not exist</para><para>Setting the property to true is useful
               when troubleshooting as no database is created if the URL is
-              malformed. Example below:</para> <programlisting>    jdbc:hsqldb:file:enrollments;ifexists=true</programlisting></entry>
+              malformed. Example below:</para><programlisting>    jdbc:hsqldb:file:enrollments;ifexists=true</programlisting></entry>
             </row>
 
             <row>
@@ -357,13 +357,13 @@
     <programlisting>    jdbc:hsqldb:file:enrollments;hsqldb.cache_rows=10000;hsqldb.nio_data_file=false</programlisting>
 
     <para>In the table below, database properties that can be used as part of
-    the URL below are given. For each property that can also be set with an
-    SQL statement, the statement is also given. These statements are described
-    in the <link endterm="deployment-title"
+    the URL or in connection properties are listed. For each property that can
+    also be set with an SQL statement, the statement is also given. These
+    statements are described in the <link endterm="deployment-title"
     xlink:href="#deployment-chapt"></link> chapter.</para>
 
     <table frame="all" pgwide="1" tocentry="1">
-      <title>Database-specific Property File Properties</title>
+      <title>Database Settings Properties</title>
 
       <tgroup align="left" cols="3">
         <colspec colname="c1" colwidth="6.5cm" />
@@ -395,130 +395,7 @@
             <entry nameend="c3" namest="c1"><para>If the property is true,
             every database property that is specified on the URL or in
             connection properties is checked and if it is not used correctly,
-            an error is returned</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
-            <entry><property>crypt_lobs</property></entry>
-
-            <entry><literal>false</literal></entry>
-
-            <entry>encryption of lobs</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>If the property is true, the
-            contents of the .lobs file is encrypted as
-            well.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
-            <entry><property>crypt_key</property></entry>
-
-            <entry><literal>none</literal></entry>
-
-            <entry>encryption</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>The cipher key for an
-            encrypted database</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
-            <entry><property>crypt_provider</property></entry>
-
-            <entry><literal>none</literal></entry>
-
-            <entry>encryption</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>The fully-qualified class
-            name of the cryptography provider. This property is not used for
-            the default security provider.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
-            <entry><property>crypt_type</property></entry>
-
-            <entry><literal>none</literal></entry>
-
-            <entry>encryption</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>The cipher
-            specification.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
-            <entry><property>readonly</property></entry>
-
-            <entry><literal>false</literal></entry>
-
-            <entry>readonly database</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>This property is a special
-            property that can be added manually to the .properties file, or
-            included in the URL or connection properties. When this property
-            is true, the database becomes
-            readonly.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry><property>files_readonly</property></entry>
-
-            <entry><literal>false</literal></entry>
-
-            <entry>readonly files database</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>This property is used
-            similarly to the hsqldb.readonly property. When this property is
-            true, CACHED and TEXT tables are readonly but memory files are
-            not. Any change to the data is not persisted to database
-            files.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry><property>hsqldb.log_data</property></entry>
-
-            <entry><literal>true</literal></entry>
-
-            <entry>recovery log</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>This property can be set to
-            false when database recovery in the event of an unexpected crash
-            is not necessary. A database that is used as a temporary cache is
-            an example. Regardless of the value of this property, if there is
-            a proper shutdown of the database, all the change data is
-            stored.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            an error is returned.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
 
           <row>
@@ -537,6 +414,26 @@
             <entry nameend="c3" namest="c1"><para>This property, when set
             true, prevents SQL keywords being used for database object names
             such as columns and tables.</para><para><programlisting>SET DATABASE SQL NAMES { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>sql.enforce_refs</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>enforcing column reference disambiguation</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property, when set
+            true, causes an error when an SQL statements contains column
+            references that can be resovled by more than one table name or
+            alias. In effect forces such column references to have a table
+            name or table alias qualifier.</para><para><programlisting>SET DATABASE SQL REFERENCES { TRUE | FALSE }</programlisting></para></entry>
           </row>
 
           <row>
@@ -580,45 +477,6 @@
           </row>
 
           <row>
-            <entry><property>sql.enforce_refs</property></entry>
-
-            <entry><literal>false</literal></entry>
-
-            <entry>enforcing column reference disambiguation</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>This property, when set
-            true, causes an error when an SQL statements contains column
-            references that can be resovled by more than one table name or
-            alias. In effect forces such column references to have a table
-            name or table alias qualifier.</para><para><programlisting>SET DATABASE SQL REFERENCES { TRUE | FALSE }</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
-            <entry><property>runtime.gc_interval</property></entry>
-
-            <entry><literal>0</literal></entry>
-
-            <entry>forced garbage collection</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>This setting forces garbage
-            collection each time a set number of result set row or cache row
-            objects are created. The default, "0" means no garbage collection
-            is forced by the program.</para><para><programlisting>SET DATABASE GC &lt;numeric value&gt;</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
             <entry><property>hsqldb.default_table_type</property></entry>
 
             <entry><literal>memory</literal></entry>
@@ -633,27 +491,6 @@
             cached table by default. The qualified forms such as CREATE MEMORY
             TABLE or CREATE CACHED TABLE are not affected at all by this
             property.</para><para><programlisting>SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY }</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
-            <entry><property>hsqldb.applog</property></entry>
-
-            <entry><literal>0</literal></entry>
-
-            <entry>application logging level</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>The default level 0
-            indicates no logging. Level 1 results in events related to
-            persistence to be logged, including any failures. Level 2
-            indicates all events, including ordinary events. The events are
-            logged in a file ending with
-            ".app.log".</para><para><programlisting>SET DATABASE EVENT LOG LEVEL { 0 | 1 | 2 }</programlisting></para></entry>
           </row>
 
           <row>
@@ -690,6 +527,133 @@
             <entry nameend="c3" namest="c1"><para>Indicates the transaction
             control mode for the database. The values, locks, mvlocks and mvcc
             are allowed.</para><para><programlisting>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.translate_dti_types</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>usage of type codes for advanced type datetime
+            types</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>If the property is true, the
+            datetime WITH TIME ZONE types and INTERVAL types are represented
+            as JDBC datetime types without time zone and the VARCHAR type
+            respectively.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Database File and Memory Properties</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm" />
+
+        <colspec colname="c2" colwidth="1.5cm" />
+
+        <colspec colname="c3" />
+
+        <thead>
+          <row>
+            <entry>Value</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>readonly</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>readonly database</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property is a special
+            property that can be added manually to the .properties file, or
+            included in the URL or connection properties. When this property
+            is true, the database becomes readonly. This can be used with an
+            existing database to open it for readonly
+            operation.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>files_readonly</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>readonly files database</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property is used
+            similarly to the hsqldb.readonly property. When this property is
+            true, CACHED and TEXT tables are readonly but memory files are
+            not. Any change to the data is not persisted to database
+            files.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.log_data</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>recovery log</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property can be set to
+            false when database recovery in the event of an unexpected crash
+            is not necessary. A database that is used as a temporary cache is
+            an example. Regardless of the value of this property, if there is
+            a proper shutdown of the database, all the change data is
+            stored.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.applog</property></entry>
+
+            <entry><literal>0</literal></entry>
+
+            <entry>application logging level</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The default level 0
+            indicates no logging. Level 1 results in events related to
+            persistence to be logged, including any failures. Level 2
+            indicates all events, including ordinary events. The events are
+            logged in a file ending with
+            ".app.log".</para><para><programlisting>SET DATABASE EVENT LOG LEVEL { 0 | 1 | 2 }</programlisting></para></entry>
           </row>
 
           <row>
@@ -739,6 +703,45 @@
             default is 10,000, representing 10,000 kilobytes. If the value is
             set via SET FILES then it becomes effective after the next
             database SHUTDOWN or CHECKPOINT.</para><para><programlisting>SET FILES CACHE SIZE &lt;numeric value&gt;</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.cache_file_scale</property></entry>
+
+            <entry><literal>8</literal></entry>
+
+            <entry>unit used for storage of rows in the .data file</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The default value
+            corresponds to a maximum size of 16 GB for the .data file. This
+            can be increased to 16, 32, 64 or 128, resulting in up to 256 GB
+            storage size.</para><para><programlisting>SET FILES SCALE &lt;numeric value&gt;</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.lob_file_scale</property></entry>
+
+            <entry><literal>32</literal></entry>
+
+            <entry>unit used for storage of lobs in the .lobs file</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The default value represents
+            units of 32KB. When the average size of individual lobs in the
+            database is smaller, a smaller unit can be used to reduce the
+            overall size of the .lobs file. Values 1, 2, 4, 8, 16, 32 can be
+            used.</para><para><programlisting>SET FILES LOB SCLAE &lt;numeric value&gt;</programlisting></para></entry>
           </row>
 
           <row>
@@ -857,26 +860,6 @@
           </row>
 
           <row>
-            <entry><property>hsqldb.translate_dti_types</property></entry>
-
-            <entry><literal>true</literal></entry>
-
-            <entry>usage of type codes for advanced type datetime
-            types</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>If the property is true, the
-            datetime WITH TIME ZONE types and INTERVAL types are represented
-            as JDBC datetime types without time zone and the VARCHAR type
-            respectively.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
             <entry><property>hsqldb.write_delay</property></entry>
 
             <entry><literal>true</literal></entry>
@@ -932,6 +915,123 @@
             <property>textdb.*</property> properties are listed in the <link
             endterm="texttables-title" xlink:href="#texttables-chapt"></link>
             chapter.</para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>runtime.gc_interval</property></entry>
+
+            <entry><literal>0</literal></entry>
+
+            <entry>forced garbage collection</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This setting forces garbage
+            collection each time a set number of result set row or cache row
+            objects are created. The default, "0" means no garbage collection
+            is forced by the program.</para><para><programlisting>SET DATABASE GC &lt;numeric value&gt;</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Crypt Properties</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm" />
+
+        <colspec colname="c2" colwidth="1.5cm" />
+
+        <colspec colname="c3" />
+
+        <thead>
+          <row>
+            <entry>Value</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
+          <row>
+            <entry><property>crypt_lobs</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>encryption of lobs</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>If the property is true, the
+            contents of the .lobs file is encrypted as
+            well.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>crypt_key</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>encryption</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The cipher key for an
+            encrypted database</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>crypt_provider</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>encryption</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The fully-qualified class
+            name of the cryptography provider. This property is not used for
+            the default security provider.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>crypt_type</property></entry>
+
+            <entry><literal>none</literal></entry>
+
+            <entry>encryption</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The cipher
+            specification.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
           </row>
         </tbody>
       </tgroup>

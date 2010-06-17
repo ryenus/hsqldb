@@ -753,7 +753,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
 
       <para>The OUT or INOUT parameters of a PROCEDURE are used to assign
       simple values to dynamic parameters or to variables in the calling
-      context. </para>
+      context.</para>
 
       <para>The return value of a FUNCTION can be assigned to a variable, or
       used inside an SQL statement.</para>
@@ -1059,7 +1059,7 @@ CREATE FUNCTION testquery(INTEGER)
       <para>It is possible to use DECLARE LOCAL TEMPORARY TABLE in a Java
       method, as this is in the session scope.</para>
 
-      <para>There are two ways to use the JDBC Connection object. </para>
+      <para>There are two ways to use the JDBC Connection object.</para>
 
       <orderedlist>
         <listitem>
@@ -1144,6 +1144,32 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       but deprecated. It is internally translated to a special <literal>CREATE
       FUNCTION</literal> statement where the name of the function is the
       double quoted, fully qualified name of the Java method used.</para>
+    </section>
+
+    <section>
+      <title>Securing Access to Classes</title>
+
+      <para>By default, the static methods of any class that is on the
+      classpath are available to be used. This can compromise security in some
+      systems. The optional Java system property
+      <literal>hsqldb.method_class_names</literal> allows preventing access to
+      classe other than <literal>java.lang.Math</literal> or specifying a
+      semicolon-separated list of allowed classes. In the example below, the
+      property has been included as an argument to the java command.</para>
+
+      <programlisting>    java -Dhsqldb.method_class_names="org.me.MyClass;org.you.YourClass" [the rest of the command line]
+</programlisting>
+
+      <para>The above example allows access to the methods in the two classes
+      only: <literal>org.me.MyClass</literal> and org.you.YourClass. Note that
+      if the property is not defined, no access control is performed at this
+      level.</para>
+
+      <para>Once the routine has been defined, the normal database access
+      control still applies. The routine can be executed only by the users who
+      have been granted EXECUTE privileges on it. The user who executes a Java
+      routine must also have the relevant access privileges on the tables that
+      are used inside the Java method.</para>
     </section>
   </section>
 

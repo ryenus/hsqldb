@@ -631,7 +631,7 @@
 
         <listitem>
           <para>Incremental backup (an internal mechanism for crash
-          protection) allows fast checkpoint and shutdown. </para>
+          protection) allows fast checkpoint and shutdown.</para>
         </listitem>
 
         <listitem>
@@ -1391,7 +1391,9 @@
     DEFAULT TABLE TYPE { CACHED | MEMORY }</literal></simpara>
 
     <simpara>Sets the type of table created when the next CREATE TABLE
-    statement is executed. The default is MEMORY.</simpara>
+    statement is executed. The default is MEMORY. This is equivalent to the
+    connection property
+    <literal>hsqldb.default_table_type</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1411,10 +1413,14 @@
     literal&gt;</literal></simpara>
 
     <simpara>Sets the maximum number of rows of each result set and other
-    internal temporary table that is held in memory. This setting applies to
-    all sessions. Individual sessions can change the value with the
-    <literal>SET SESSION RESULT MEMORY ROWS</literal> command. The default is
-    0, meaning all result sets are held in memory.</simpara>
+    internal temporary table that is held in memory. This is equivalent to the
+    connection property
+    <literal>hsqldb.result_max_memory_rows</literal>.</simpara>
+
+    <simpara>This setting applies to all sessions. Individual sessions can
+    change the value with the <literal>SET SESSION RESULT MEMORY
+    ROWS</literal> command. The default is 0, meaning all result sets are held
+    in memory.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1437,7 +1443,8 @@
     important (error) events. Level 2 means more events, including both
     important and less important (normal) events. For readonly and
     <glossterm>mem:</glossterm> databases, if the level is set above 0, the
-    log messages are directed to stderr.</simpara>
+    log messages are directed to stderr. This is equivalent to the connection
+    property <literal>hsqldb.applog</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1469,8 +1476,7 @@
 
     <simpara><emphasis role="bold">SET DATABASE SQL SIZE</emphasis></simpara>
 
-    <simpara><emphasis>set database sql size statement</emphasis><literal>
-    </literal></simpara>
+    <simpara><emphasis>set database sql size statement</emphasis></simpara>
 
     <simpara><literal>&lt;set database sql size statement&gt; ::= SET DATABASE
     SQL SIZE { TRUE | FALSE }</literal></simpara>
@@ -1478,7 +1484,8 @@
     <simpara>Enable or disable enforcement of column sizes for CHAR and
     VARCHAR columns. The default is TRUE, meaning table definition must
     contain <literal>VARCHAR(n)</literal> instead of
-    <literal>VARCHAR</literal>.</simpara>
+    <literal>VARCHAR</literal>. This is equivalent to the connection property
+    <literal>sql.enforce_size</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1496,7 +1503,8 @@
 
     <simpara>Enable or disable full enforcement of the rule that prevents SQL
     keywords being used for database object names such as columns and tables.
-    The default is FALSE, meaning disable.</simpara>
+    The default is FALSE, meaning disable. This is equivalent to the
+    connection property <literal>sql.enforce_names</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1518,11 +1526,12 @@
     that prevents ambiguous column references in SQL statements (usually
     SELECT statements). A column reference is ambiguous when it is not
     qualified by a table name or table alias and can refer to more than one
-    column in a JOIN list.</simpara>
+    column in a JOIN list. This is equivalent to the connection property
+    <literal>sql.enforce_refs</literal>.</simpara>
 
-    <simpara>The property is FALSE by default. It is better to enable this
-    check while development, to improve the quality and correctness of SQL
-    statements.</simpara>
+    <simpara>The property is <literal>FALSE</literal> by default. It is better
+    to enable this check during development, to improve the quality and
+    correctness of SQL statements.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1542,8 +1551,8 @@
 
     <simpara>This command enables or disables the enforcement of referential
     integrity constraints (foreign key constraints), check constraints apart
-    from NOT NULL and triggers. By default, referential integrity constraints
-    are checked.</simpara>
+    from NOT NULL and execution of triggers. By default, all constraints are
+    checked.</simpara>
 
     <simpara>The only legitimate use of this statement is before importing
     large amounts of external data into tables that have existing FOREIGN KEY
@@ -1569,7 +1578,7 @@
     statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE UNIQUE NAME*</primary>
+      <primary>SET DATABASE UNIQUE NAME</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">SET DATABASE UNIQUE
@@ -1583,9 +1592,11 @@
 
     <simpara>Each HyperSQL catalog (database) has an engine-generated internal
     name. This name is based on the time of creation of the database and is
-    exactly 16 characters. The name is used for in log events sent to external
-    logging frameworks. This name can be changed by an administrator. The new
-    name must be exactly 16 characters long.</simpara>
+    exactly 16 characters. The name is used for the log events that are sent
+    to external logging frameworks. </simpara>
+
+    <simpara>Only a user with the DBA role can execute this statement.. The
+    new name must be exactly 16 characters long.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET DATABASE TRANSACTION CONTROL</primary>
@@ -1604,7 +1615,8 @@
     <simpara>Set the concurrency control system for the database. It can be
     issued only when all sessions have been committed or rolled back. This
     command and its modes is discussed in the <link endterm="sessions-title"
-    xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
+    xlink:href="#sqlroutines-chapt"></link> chapter. This is equivalent to the
+    connection property <literal>hsqldb.tx</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1630,8 +1642,10 @@
     CHECKPIONT or SHUTDOWN. This mode is preferred for large databases which
     are opened and closed frequently.</simpara>
 
-    <simpara>The default mode is TRUE. If the old method of backup is
-    preferred, the mode can be set FALSE.</simpara>
+    <simpara>The default mode is <literal>TRUE</literal>. If the old method of
+    backup is preferred, the mode can be set <literal>FALSE</literal>. This is
+    equivalent to the connection property
+    <literal>hsqldb.inc_backup</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1651,8 +1665,9 @@
     <simpara>Sets the maximum number of rows (of CACHED tables) held in the
     memory cache.</simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+    <simpara>Only a user with the DBA role can execute this statement. This is
+    equivalent to the connection property
+    <literal>hsqldb.cache_rows</literal>.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES CACHE SIZE</primary>
@@ -1669,8 +1684,9 @@
     <simpara>Sets maximum amount of data (of CACHED tables) in kilobytes held
     in the memory cache.</simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+    <simpara>Only a user with the DBA role can execute this statement. This is
+    equivalent to the connection property
+    <literal>hsqldb.cache_size</literal>.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET FILES DEFRAG</primary>
@@ -1694,7 +1710,8 @@
     CHECKPOINT.</simpara>
 
     <simpara>The default is 0, which indicates no DEFRAG. Useful values are
-    between 10 to 50</simpara>
+    between 10 to 50. This is equivalent to the connection property
+    <literal>hsqldb.defrag_limit</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1711,7 +1728,9 @@
     | FALSE }</literal></simpara>
 
     <simpara>Sets logging of database operations on or off. Turning logging
-    off is for special usage, such as temporary cache usage.</simpara>
+    off is for special usage, such as temporary cache usage. This is
+    equivalent to the connection property
+    <literal>hsqldb.log_data</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1731,36 +1750,8 @@
     to the specified value. The default maximum size is 50 MB. If the value is
     zero, no limit is used for the size of the file. When the size of the file
     reaches this value, a CHECKPOINT is performed and the the
-    <literal>*.log</literal> file is cleared to size 0.</simpara>
-
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES BACKUP INCREMENT</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET FILES BACKUP
-    INCREMENT</emphasis></simpara>
-
-    <simpara><emphasis>set files backup increment
-    statement</emphasis></simpara>
-
-    <simpara><literal>&lt;set files increment backup statement&gt; ::= SET
-    FILES INCREMENT BACKUP { TRUE | FALSE }</literal></simpara>
-
-    <simpara>This specifies the method for internal backup operation. The
-    default is true.</simpara>
-
-    <simpara>During updates, the contents of the .data file is modified. When
-    this property is true, the modified contents are backed up gradually. This
-    causes a marginal slowdown in operations, but allows fast checkpoint and
-    shutdown with large .data files.</simpara>
-
-    <simpara>When the property is false, the .data file is backed up entirely
-    at the time of checkpoint and shutdown. Up to version 1.8.0, HSQLDB
-    supported only full backup. Version 1.8.1 supports incremental
-    backup.</simpara>
+    <literal>*.log</literal> file is cleared to size 0. This is equivalent to
+    the connection property <literal>hsqldb.log_size</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1777,7 +1768,8 @@
     | FALSE }</literal></simpara>
 
     <simpara>Changes the access method of the .data file. The default is TRUE
-    and uses the Java nio classes to access the file.</simpara>
+    and uses the Java nio classes to access the file. This is equivalent to
+    the connection property <literal>hsqldb.nio_data_file</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1812,8 +1804,9 @@
     milliseconds.</para>
 
     <para>Each time the SET FILES WRITE DELAY statement is executed with any
-    value, a sync is immediately performed. Only a user with the DBA role can
-    execute this statement.</para>
+    value, a sync is immediately performed. This is equivalent to the
+    connection property <literal>hsqldb.write_delay</literal> and
+    <literal>hsqldb.write_delay_millis</literal>.</para>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1836,7 +1829,8 @@
     of 256GB.</simpara>
 
     <simpara>This command can be used only when there is no data in CACHED
-    tables.</simpara>
+    tables. This is equivalent to the connection property
+    <literal>hsqldb.cache_file_scale</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1860,7 +1854,8 @@
     16, 32 are allowed. For example if the average size of lobs is 4
     kilobytes, the default scale of 32 will result in 28KB wasted space for
     each lob. Reducing the lob scale to 2 will result in average 1KB wasted
-    space for each lob.</simpara>
+    space for each lob. This is equivalent to the connection property
+    <literal>hsqldb.lob_file_scale</literal>.</simpara>
 
     <simpara>This command can be used only when there is no lob in the
     database.</simpara>

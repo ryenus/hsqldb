@@ -179,7 +179,7 @@
         </example>Session tables can be created inside a transaction.
       Automatic indexes are created and used on session tables when necessary
       for a query or other statement. By default, session table data is held
-      in memory. If the session property</para>
+      in memory. This can be changed </para>
     </section>
   </section>
 
