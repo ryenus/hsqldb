@@ -2265,9 +2265,9 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para><literal>&lt;derived table&gt; ::= &lt;table
       subquery&gt;</literal></para>
 
-      <para><literal>When the word LITERAL is used before a &lt;table
+      <para><literal>When the word LATERAL is used before a &lt;table
       subquery&gt;, it means the query expression can reference the columns of
-      other table references that precede it. </literal></para>
+      other table references that go before it. </literal></para>
 
       <para><literal>&lt;lateral derived table&gt; ::= LATERAL &lt;table
       subquery&gt;</literal></para>

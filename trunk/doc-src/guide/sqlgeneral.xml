@@ -120,15 +120,33 @@
     <section>
       <title>Temporary Tables</title>
 
-      <para>TEMPORARY tables are not saved and last only for the lifetime of
-      the Connection object. The contents of each TEMP table is visible only
-      from the Connection that was used to populate it. The definition of TEMP
-      tables conforms to the GLOBAL TEMPORARY type in the SQL standard. The
-      definition of the table persists but each new connections sees its own
-      copy of the table, which is empty at the beginning. When the connection
-      commits, the contents of the table are cleared by default. If the table
-      definition statements includes ON COMMIT PRESERVE ROWS, then the
-      contents are kept when a commit takes place.</para>
+      <para>Data in TEMPORARY tables is not saved and lasts only for the
+      lifetime of the session. The contents of each TEMP table is visible only
+      from the session that is used to populate it. </para>
+
+      <para>HyperSQL supports two types of temporary tables.</para>
+
+      <para>The <literal>GLOBAL TEMPORARY</literal> type is a schema object.
+      It is created with the <literal>CREATE LOCAL TEMPORARY TABLE</literal>
+      statement. The definition of the table persists, and each session has
+      access to the table. But each session sees its own copy of the table,
+      which is empty at the beginning of the session. </para>
+
+      <para>The <literal>LOCAL TEMPORARY</literal> type is not a schema
+      object. It is created with the <literal>DECLARE LOCAL TEMPORARY
+      TABLE</literal> statement. The table definition lasts only for the
+      duration of the session and is not persisted in the database. The table
+      can be declared in the middle of a transaction without committing the
+      transaction.</para>
+
+      <para>When the session commits, the contents of all temporary tables are
+      cleared by default. If the table definition statements includes ON
+      COMMIT PRESERVE ROWS, then the contents are kept when a commit takes
+      place.</para>
+
+      <para>The rows in temporary tables are stored in memory by default. If
+      the hsqldb.max_result_memory_rows has been specified, tables with row
+      count above the setting are stored on disk.</para>
     </section>
 
     <section>
@@ -1586,15 +1604,17 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
 </programlisting>
     </informalexample>
 
-    <para>HyperSQL optimises simple row count queries in the form of SELECT
-    COUNT(*) FROM &lt;table&gt; and returns the result immediately (this
-    optimisation does not take place in MVCC mode).</para>
+    <para>HyperSQL optimises simple row count queries in the form of
+    <literal>SELECT COUNT(*) FROM &lt;table&gt;</literal> and returns the
+    result immediately (this optimisation does not take place in MVCC
+    mode).</para>
 
-    <para>HyperSQL can use an index on a column for SELECT MAX(&lt;column&gt;)
-    FROM &lt;table&gt; and SELECT MIN(&lt;column&gt;) FROM &lt;table&gt;
-    queries. There should be an index on the &lt;column&gt; and the query can
-    have a WHERE condition on the same column. In the example below the
-    maximum value for the TB.COL3 below 1000000 is returned.</para>
+    <para>HyperSQL can use an index on a column for <literal>SELECT
+    MAX(&lt;column&gt;) FROM &lt;table&gt;</literal> and <literal>SELECT
+    MIN(&lt;column&gt;) FROM &lt;table&gt;</literal> queries. There should be
+    an index on the &lt;column&gt; and the query can have a WHERE condition on
+    the same column. In the example below the maximum value for the TB.COL3
+    below 1000000 is returned.</para>
 
     <informalexample>
       <programlisting>    SELECT MAX(TB.COL3) FROM TB WHERE TB.COL &lt; 1000000
