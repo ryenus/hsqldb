@@ -591,7 +591,7 @@
             included in the URL or connection properties. When this property
             is true, the database becomes readonly. This can be used with an
             existing database to open it for readonly
-            operation.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            operation.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used in the .properties file</programlisting></para></entry>
           </row>
 
           <row>
@@ -609,9 +609,31 @@
           <row>
             <entry nameend="c3" namest="c1"><para>This property is used
             similarly to the hsqldb.readonly property. When this property is
-            true, CACHED and TEXT tables are readonly but memory files are
+            true, CACHED and TEXT tables are readonly but memory tables are
             not. Any change to the data is not persisted to database
-            files.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            files.</para><para><programlisting>this property cannot be set with an SQL statement - it can be used in the .properties file</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.max_result_memory_rows</property></entry>
+
+            <entry><literal>0</literal></entry>
+
+            <entry>storage of temporary results and tables in memory or on
+            disk</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property can be set to
+            specify how many rows of each results or temporary table are
+            stored in memory before the table is written to disk. The default
+            is zero and means data is always stored in memory. If this setting
+            is used, it should be set above 1000.
+            </para><para><programlisting>SET DATABASE DEFAULT RESULT MEMORY ROWS &lt;numeric value&gt;</programlisting></para></entry>
           </row>
 
           <row>
@@ -632,7 +654,7 @@
             is not necessary. A database that is used as a temporary cache is
             an example. Regardless of the value of this property, if there is
             a proper shutdown of the database, all the change data is
-            stored.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            stored.</para><para><programlisting>SET DATABASE FILES LOG { TRUE | FALSE }</programlisting></para></entry>
           </row>
 
           <row>
