@@ -159,7 +159,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "hsqldb.max_char_or_varchar_display_size";
 
     //
-    public static final String hsqldb_inc_backup = "hsqldb.incremental_backup";
+    public static final String hsqldb_inc_backup = "hsqldb.inc_backup";
 
     //
     public static final String  hsqldb_version  = "version";

@@ -43,6 +43,7 @@ import org.hsqldb.jdbc.JDBCResultSet;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.BitMap;
@@ -875,6 +876,10 @@ public class Routine implements SchemaObject {
         String   methodname = name.substring(i + 1);
         Class    cl;
         Method[] methods = null;
+
+        if (!HsqlDatabaseProperties.supportsJavaMethod(name)) {
+            throw Error.error(ErrorCode.X_42501, className);
+        }
 
         try {
             cl = Class.forName(className, true,
