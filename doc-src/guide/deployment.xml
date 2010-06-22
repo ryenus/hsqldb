@@ -1378,22 +1378,22 @@
     statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE DEFAULT TABLE TYPE</primary>
+      <primary>SET DATABASE DEFAULT ISOLATION LEVEL</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">SET DATABASE DEFAULT TABLE
-    TYPE</emphasis></simpara>
+    <simpara><emphasis role="bold">SET DATABASE DEFAULT ISOLATION
+    LEVEL</emphasis></simpara>
 
-    <simpara><emphasis>set database default table type
+    <simpara><emphasis>set database default isolation level
     statement</emphasis><literal> </literal></simpara>
 
-    <simpara><literal>&lt;set database default table type&gt; ::= SET DATABASE
-    DEFAULT TABLE TYPE { CACHED | MEMORY }</literal></simpara>
+    <simpara><literal>&lt;set database default isolation level&gt; ::= SET
+    DATABASE DEFAULT ISOLATION LEVEL { READ COMMITTED | SERIALIZABLE
+    }</literal></simpara>
 
-    <simpara>Sets the type of table created when the next CREATE TABLE
-    statement is executed. The default is MEMORY. This is equivalent to the
-    connection property
-    <literal>hsqldb.default_table_type</literal>.</simpara>
+    <simpara>Sets the transaction isolation level for new sessions. The
+    default is READ COMMITTED. Each session can also set its isolation
+    level.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1421,6 +1421,27 @@
     change the value with the <literal>SET SESSION RESULT MEMORY
     ROWS</literal> command. The default is 0, meaning all result sets are held
     in memory.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE DEFAULT TABLE TYPE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE DEFAULT TABLE
+    TYPE</emphasis></simpara>
+
+    <simpara><emphasis>set database default table type
+    statement</emphasis><literal> </literal></simpara>
+
+    <simpara><literal>&lt;set database default table type&gt; ::= SET DATABASE
+    DEFAULT TABLE TYPE { CACHED | MEMORY }</literal></simpara>
+
+    <simpara>Sets the type of table created when the next CREATE TABLE
+    statement is executed. The default is MEMORY. This is equivalent to the
+    connection property
+    <literal>hsqldb.default_table_type</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
@@ -1593,7 +1614,7 @@
     <simpara>Each HyperSQL catalog (database) has an engine-generated internal
     name. This name is based on the time of creation of the database and is
     exactly 16 characters. The name is used for the log events that are sent
-    to external logging frameworks. </simpara>
+    to external logging frameworks.</simpara>
 
     <simpara>Only a user with the DBA role can execute this statement.. The
     new name must be exactly 16 characters long.</simpara>
