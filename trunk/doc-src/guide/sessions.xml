@@ -179,7 +179,8 @@
         </example>Session tables can be created inside a transaction.
       Automatic indexes are created and used on session tables when necessary
       for a query or other statement. By default, session table data is held
-      in memory. This can be changed </para>
+      in memory. This can be changed with the <literal>SET SESSION RESULT
+      MEMORY ROWS</literal> statement.</para>
     </section>
   </section>
 
@@ -192,7 +193,7 @@
     implementation of the transaction manager that supports the legacy model,
     we thought this is no longer necessary. The new system allows you to
     select the transaction isolation model even while the engine is running
-    and choose different isolation modes for different simultaneous
+    and choose different isolation levels for different simultaneous
     sessions.</para>
 
     <para>HyperSQL 2.0 supports three concurrency control models,

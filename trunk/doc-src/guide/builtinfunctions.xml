@@ -1360,8 +1360,9 @@
     <classname>java.text.SimpleDateFormat</classname> format string. Any
     character sequences not listed below are included in the Java format
     string and may cause unexpected results or errors. Therefore unsupported
-    format strings should not be used. The supported format components are as
-    follows:</para>
+    format strings should not be used. You can include a string literal inside
+    the format string by enclosing it in double quotes. The supported format
+    components are all uppercase as follows:</para>
 
     <table colsep="1" frame="all" pgwide="0">
       <title>TO CHAR Values</title>
@@ -1394,7 +1395,9 @@
           <row>
             <entry><literal>IYYY</literal></entry>
 
-            <entry><para>4-digit year</para></entry>
+            <entry><para>4-digit year, corresponding to ISO week of the year.
+            The reported year for the last few days of the calendar year may
+            be the next year.</para></entry>
           </row>
 
           <row>
@@ -1406,7 +1409,8 @@
           <row>
             <entry><literal>IY</literal></entry>
 
-            <entry><para>2 digit year</para></entry>
+            <entry><para>2 digit year, corresponding to ISO week of the year
+            </para></entry>
           </row>
 
           <row>
@@ -1452,7 +1456,8 @@
             <entry><literal>IW</literal></entry>
 
             <entry><para>Week of year (1-52 or 1-53) based on the ISO
-            standard.</para></entry>
+            standard. Week starts on Monday. The first week may start near the
+            end of previous year.</para></entry>
           </row>
 
           <row>
@@ -1862,44 +1867,44 @@
     and indicates the name of the catalog.</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>ISAUTOCOMMIT function</primary>
+      <primary>IS_AUTOCOMMIT function</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">ISAUTOCOMMIT</emphasis></simpara>
+    <simpara><emphasis role="bold">IS_AUTOCOMMIT</emphasis></simpara>
 
-    <para><literal>ISAUTOCOMMIT()</literal></para>
+    <para><literal>IS_AUTOCOMMIT()</literal></para>
 
     <para>Returns TRUE if the session is in autocommit mode. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>ISREADONLYSESSION function</primary>
+      <primary>IS_READONLY_SESSION function</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">ISREADONLYSESSION</emphasis></simpara>
+    <simpara><emphasis role="bold">IS_READONLY_SESSION</emphasis></simpara>
 
-    <para><literal>ISREADONLYSESSION()</literal></para>
+    <para><literal>IS_READONLY_SESSION()</literal></para>
 
     <para>Returns TRUE if the session is in read only mode. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>ISREADONLYDATABASE function</primary>
+      <primary>IS_READONLY_DATABASE function</primary>
     </indexterm>
 
-    <simpara><emphasis role="bold">ISREADONLYDATABASE</emphasis></simpara>
+    <simpara><emphasis role="bold">IS_READONLY_DATABASE</emphasis></simpara>
 
-    <para><literal>ISREADONLYDATABASE()</literal></para>
+    <para><literal>IS_READONLY_DATABASE()</literal></para>
 
     <para>Returns TRUE if the database is a read only database.
     (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>ISREADONLYDATABASEFILES function</primary>
+      <primary>IS_READONLY_DATABASE_FILES function</primary>
     </indexterm>
 
     <simpara><emphasis
-    role="bold">ISREADONLYDATABASEFILES</emphasis></simpara>
+    role="bold">IS_READONLY_DATABASE_FILES</emphasis></simpara>
 
-    <para><literal>ISREADONLYDATABASEFILES()</literal></para>
+    <para><literal>IS_READONLY_DATABASE_FILES()</literal></para>
 
     <para>Returns TRUE if the database is a read-only files database. In this
     kind of database, it is possible to modify the data, but the changes are
