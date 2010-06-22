@@ -32,10 +32,11 @@ import org.hibernate.Hibernate;
 import org.hibernate.LockMode;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.JDBCException;
-import org.hibernate.dialect.function.AvgWithArgumentCastFunction;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.cfg.Environment;
+import org.hibernate.dialect.function.AvgWithArgumentCastFunction;
+import org.hibernate.dialect.function.SQLFunctionTemplate;
 import org.hibernate.dialect.function.NoArgSQLFunction;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.dialect.function.VarArgsSQLFunction;
@@ -84,7 +85,7 @@ public class HSQLDialect extends Dialect {
         registerColumnType( Types.BIGINT, "bigint" );
         registerColumnType( Types.BINARY, "binary" );
         registerColumnType( Types.BIT, "bit" );
-        registerColumnType( Types.CHAR, "char(1)" );
+        registerColumnType( Types.CHAR, "char($l)" );
         registerColumnType( Types.DATE, "date" );
 
         if (version < 20) {
@@ -113,10 +114,13 @@ public class HSQLDialect extends Dialect {
         }
 
         //HSQL has no Blob/Clob support .... but just put these here for now!
+        if (version < 20) {
         registerColumnType( Types.BLOB, "longvarbinary" );
         registerColumnType( Types.CLOB, "longvarchar" );
-        registerColumnType( Types.LONGVARBINARY, "longvarbinary" );
-        registerColumnType( Types.LONGVARCHAR, "longvarchar" );
+        } else {
+            registerColumnType( Types.BLOB, "blob" );
+            registerColumnType( Types.CLOB, "clob" );
+        }
 
         registerFunction( "avg", new AvgWithArgumentCastFunction( "double" ) );
 
@@ -133,7 +137,7 @@ public class HSQLDialect extends Dialect {
         registerFunction( "space", new StandardSQLFunction( "space", Hibernate.STRING ) );
         registerFunction( "rawtohex", new StandardSQLFunction( "rawtohex" ) );
         registerFunction( "hextoraw", new StandardSQLFunction( "hextoraw" ) );
-
+        registerFunction( "str", new SQLFunctionTemplate(Hibernate.STRING, "cast(?1 as varchar(24))") );
         registerFunction( "user", new NoArgSQLFunction( "user", Hibernate.STRING ) );
         registerFunction( "database", new NoArgSQLFunction( "database", Hibernate.STRING ) );
 
@@ -236,13 +240,13 @@ public class HSQLDialect extends Dialect {
         } else {
         return new StringBuffer( sql.length()+20 )
                         .append( sql )
-                        .append( hasOffset ? " limit ? offset ?" : " limit ?" )
+                .append(hasOffset ? " offset ? limit ?" : " limit ?")
                         .toString();
     }
     }
 
     public boolean bindLimitParametersFirst() {
-        return true;
+        return version < 20;
     }
 
     public boolean supportsIfExistsAfterTableName() {
@@ -472,7 +476,7 @@ public class HSQLDialect extends Dialect {
      * @return True if the current timestamp can be retrieved; false otherwise.
      */
     public boolean supportsCurrentTimestampSelection() {
-        return true;
+        return false;
     }
 
     /**
@@ -578,7 +582,7 @@ public class HSQLDialect extends Dialect {
      */
     @Override
     public boolean requiresCastingOfParametersInSelectClause() {
-        return version < 20;
+        return true;
     }
 
     @Override
