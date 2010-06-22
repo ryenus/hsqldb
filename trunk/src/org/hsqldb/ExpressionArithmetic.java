@@ -315,9 +315,25 @@ public class ExpressionArithmetic extends Expression {
         }
 
         if (nodes[LEFT].isUnresolvedParam()) {
-            nodes[LEFT].dataType = nodes[RIGHT].dataType;
+            if (nodes[RIGHT].dataType == null) {
+                throw Error.error(ErrorCode.X_42567);
+            }
+
+            if (nodes[RIGHT].dataType.isDecimalType()) {
+                nodes[LEFT].dataType = Type.SQL_DECIMAL_DEFAULT;
+            } else {
+                nodes[LEFT].dataType = nodes[RIGHT].dataType;
+            }
         } else if (nodes[RIGHT].isUnresolvedParam()) {
-            nodes[RIGHT].dataType = nodes[LEFT].dataType;
+            if (nodes[LEFT].dataType == null) {
+                throw Error.error(ErrorCode.X_42567);
+            }
+
+            if (nodes[LEFT].dataType.isDecimalType()) {
+                nodes[RIGHT].dataType = Type.SQL_DECIMAL_DEFAULT;
+            } else {
+                nodes[RIGHT].dataType = nodes[LEFT].dataType;
+            }
         }
 
         if (nodes[LEFT].dataType == null || nodes[RIGHT].dataType == null) {

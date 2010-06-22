@@ -102,6 +102,7 @@ public class ClobDataID implements ClobData {
     }
 
     public void truncate(SessionInterface session, long len) {
+
         ResultLob resultOut = ResultLob.newLobTruncateRequest(id, len);
         Result    resultIn  = session.execute(resultOut);
 
@@ -111,7 +112,9 @@ public class ClobDataID implements ClobData {
     }
 
     public Reader getCharacterStream(SessionInterface session) {
+
         long length = length(session);
+
         return new ClobInputStream(session, this, 0, length);
     }
 

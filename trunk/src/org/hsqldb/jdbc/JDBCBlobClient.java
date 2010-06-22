@@ -40,6 +40,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.BlobInputStream;
 
 /**
  * A wrapper for HSQLDB BlobData objects.
@@ -47,7 +48,7 @@ import org.hsqldb.types.BlobDataID;
  * Instances of this class are returnd by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0
+ * @version 2.0.0
  * @since 1.9.0
  */
 public class JDBCBlobClient implements Blob {
@@ -107,8 +108,7 @@ public class JDBCBlobClient implements Blob {
      *   <code>BLOB</code> value
      */
     public synchronized InputStream getBinaryStream() throws SQLException {
-        return new BlobInputStream(this, 0, length(),
-                                   session.getStreamBlockSize());
+        return new BlobInputStream(session, blob, 0, length());
     }
 
     /**
@@ -308,8 +308,7 @@ public class JDBCBlobClient implements Blob {
             throw Util.outOfRangeArgument();
         }
 
-        return new BlobInputStream(this, pos - 1, length,
-                                   session.getStreamBlockSize());
+        return new BlobInputStream(session, blob, pos - 1, length);
     }
 
     //--

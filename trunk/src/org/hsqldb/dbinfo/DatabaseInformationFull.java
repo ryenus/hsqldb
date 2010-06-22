@@ -972,18 +972,32 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         // Do it.
         for (int i = 0; i < sessions.length; i++) {
+            if (sessions[i].isClosed()) {
+                continue;
+            }
+
             s              = sessions[i];
             row            = t.getEmptyRowData();
             row[isid]      = ValuePool.getLong(s.getId());
             row[ict]       = new TimestampData(s.getConnectTime() / 1000);
             row[iuname]    = s.getUsername();
             row[iis_admin] = ValuePool.getBoolean(s.isAdmin());
-            row[iautocmt]  = ValuePool.getBoolean(s.isAutoCommit());
-            row[ireadonly] = ValuePool.getBoolean(s.isReadOnlyDefault());
-            row[ilast_id] =
-                ValuePool.getLong(((Number) s.getLastIdentity()).longValue());
-            row[it_size]   = ValuePool.getLong(s.getTransactionSize());
-            row[it_schema] = s.getCurrentSchemaHsqlName().name;
+            row[iautocmt]  = s.sessionContext.isAutoCommit;
+            row[ireadonly] = s.isReadOnlyDefault;
+
+            Number lastId = s.getLastIdentity();
+
+            if (lastId != null) {
+                row[ilast_id] = ValuePool.getLong(lastId.longValue());
+            }
+
+            row[it_size] = ValuePool.getLong(s.getTransactionSize());
+
+            HsqlName name = s.getCurrentSchemaHsqlName();
+
+            if (name != null) {
+                row[it_schema] = name.name;
+            }
 
             t.insertSys(store, row);
         }
@@ -4898,7 +4912,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         Iterator schemas;
         Schema   schema;
         String   dcsSchema = SqlInvariants.INFORMATION_SCHEMA;
-        String   dcsName   = ValuePool.getString("UTF16");
+        String   dcsName   = ValuePool.getString(Tokens.T_UTF16);
         String   sqlPath   = null;
         Grantee  user      = session.getGrantee();
         Object[] row;

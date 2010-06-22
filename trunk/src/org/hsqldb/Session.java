@@ -88,7 +88,7 @@ public class Session implements SessionInterface {
     private Grantee    role;
 
     // transaction support
-    boolean          isReadOnlyDefault;
+    public boolean   isReadOnlyDefault;
     int isolationLevelDefault       = SessionInterface.TX_READ_COMMITTED;
     int              isolationLevel = SessionInterface.TX_READ_COMMITTED;
     int              actionIndex;
@@ -218,9 +218,10 @@ public class Session implements SessionInterface {
         database.closeIfLast();
 
         // keep sessionContext and sessionData
+        rowActionList.clear();
+
         database                  = null;
         user                      = null;
-        rowActionList             = null;
         sessionContext.savepoints = null;
         intConnection             = null;
         lastIdentity              = null;

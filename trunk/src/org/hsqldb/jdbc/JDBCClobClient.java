@@ -41,6 +41,7 @@ import java.sql.SQLException;
 import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.ClobInputStream;
 
 /**
  * A wrapper for HSQLDB ClobData objects.
@@ -48,10 +49,9 @@ import org.hsqldb.types.ClobDataID;
  * Instances of this class are returnd by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0
+ * @version 2.0.0
  * @since 1.9.0
  */
-
 public class JDBCClobClient implements Clob {
 
     /**
@@ -78,8 +78,7 @@ public class JDBCClobClient implements Clob {
      *   <code>CLOB</code> value
      */
     public synchronized Reader getCharacterStream() throws SQLException {
-        return new ClobInputStream(this, 0, length(),
-                                   session.getStreamBlockSize());
+        return new ClobInputStream(session, clob, 0, length());
     }
 
     /**
@@ -314,8 +313,7 @@ public class JDBCClobClient implements Clob {
      */
     public synchronized Reader getCharacterStream(long pos,
             long length) throws SQLException {
-        return new ClobInputStream(this, pos - 1, length,
-                                   session.getStreamBlockSize());
+        return new ClobInputStream(session, clob, pos - 1, length);
     }
 
     char[] getChars(long position, int length) throws SQLException {

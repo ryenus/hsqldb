@@ -220,12 +220,12 @@ public class FunctionCustom extends FunctionSQL {
         //
         //
         customRegularFuncMap.put(Tokens.DATABASE, FUNC_DATABASE);
-        customRegularFuncMap.put(Tokens.ISAUTOCOMMIT, FUNC_ISAUTOCOMMIT);
-        customRegularFuncMap.put(Tokens.ISREADONLYSESSION,
+        customRegularFuncMap.put(Tokens.IS_AUTOCOMMIT, FUNC_ISAUTOCOMMIT);
+        customRegularFuncMap.put(Tokens.IS_READONLY_SESSION,
                                  FUNC_ISREADONLYSESSION);
-        customRegularFuncMap.put(Tokens.ISREADONLYDATABASE,
+        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE,
                                  FUNC_ISREADONLYDATABASE);
-        customRegularFuncMap.put(Tokens.ISREADONLYDATABASEFILES,
+        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE_FILES,
                                  FUNC_ISREADONLYDATABASEFILES);
         customRegularFuncMap.put(Tokens.ISOLATION_LEVEL, FUNC_ISOLATION_LEVEL);
         customRegularFuncMap.put(Tokens.SESSION_ISOLATION_LEVEL,
@@ -906,20 +906,12 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 SimpleDateFormat format = session.getSimpleDateFormatGMT();
-                String javaPattern =
-                    HsqlDateTime.toJavaDatePattern((String) data[1]);
-
-                try {
-                    format.applyPattern(javaPattern);
-                } catch (Exception e) {
-                    throw Error.error(ErrorCode.X_22511);
-                }
-
                 Date date =
                     (Date) ((DateTimeType) nodes[0].dataType)
                         .convertSQLToJavaGMT(session, data[0]);
 
-                return format.format(date);
+                return HsqlDateTime.toFormattedDate(date, (String) data[1],
+                                                    format);
             }
             case FUNC_TIMESTAMP : {
                 boolean unary = nodes[1] == null;

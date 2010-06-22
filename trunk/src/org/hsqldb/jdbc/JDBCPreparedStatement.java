@@ -82,10 +82,11 @@ import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.result.ResultProperties;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobDataID;
+import org.hsqldb.types.BlobInputStream;
 import org.hsqldb.types.ClobDataID;
+import org.hsqldb.types.ClobInputStream;
 import org.hsqldb.types.JavaObjectData;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -412,7 +413,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (parameterTypes[parameterIndex - 1].typeCode
                 == Types.SQL_SMALLINT) {
-            parameterValues[--parameterIndex] = ValuePool.getInt(x);
+            parameterValues[--parameterIndex] = Integer.valueOf(x);
 
             return;
         }
@@ -440,7 +441,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkSetParameterIndex(parameterIndex, false);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_INTEGER) {
-            parameterValues[--parameterIndex] = ValuePool.getInt(x);
+            parameterValues[--parameterIndex] = Integer.valueOf(x);
 
             return;
         }
@@ -468,7 +469,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         checkSetParameterIndex(parameterIndex, false);
 
         if (parameterTypes[parameterIndex - 1].typeCode == Types.SQL_BIGINT) {
-            parameterValues[--parameterIndex] = ValuePool.getLong(x);
+            parameterValues[--parameterIndex] = Long.valueOf(x);
 
             return;
         }
@@ -4386,14 +4387,14 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER : {
-                Object o = ValuePool.getInt(value);
+                Object o = Integer.valueOf(value);
 
                 parameterValues[i - 1] = o;
 
                 break;
             }
             case Types.SQL_BIGINT : {
-                Object o = ValuePool.getLong(value);
+                Object o = Long.valueOf(value);
 
                 parameterValues[i - 1] = o;
 

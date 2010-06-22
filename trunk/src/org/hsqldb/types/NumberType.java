@@ -428,6 +428,19 @@ public final class NumberType extends Type {
         }
     }
 
+    public boolean isDecimalType() {
+
+        switch (typeCode) {
+
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                return true;
+
+            default :
+                return false;
+        }
+    }
+
     public int getNominalWidth() {
         return typeWidth;
     }
@@ -915,14 +928,32 @@ public final class NumberType extends Type {
             } else if (a instanceof Double) {
                 otherType = Type.SQL_DOUBLE;
             } else if (a instanceof BigDecimal) {
-                if (typeCode == Types.SQL_DECIMAL
-                        || typeCode == Types.SQL_NUMERIC) {
-                    return a;
-                }
-
                 otherType = Type.SQL_DECIMAL_DEFAULT;
             } else {
                 throw Error.error(ErrorCode.X_42561);
+            }
+
+            switch (typeCode) {
+
+                case Types.TINYINT :
+                case Types.SQL_SMALLINT :
+                case Types.SQL_INTEGER :
+                    return convertToInt(a, Types.INTEGER);
+
+                case Types.SQL_BIGINT :
+                    return convertToLong(a);
+
+                case Types.SQL_REAL :
+                case Types.SQL_FLOAT :
+                case Types.SQL_DOUBLE :
+                    return convertToDouble(a);
+
+                case Types.SQL_NUMERIC :
+                case Types.SQL_DECIMAL :
+                    return convertToDecimal(a);
+
+                default :
+                    throw Error.error(ErrorCode.X_42561);
             }
         } else if (a instanceof String) {
             otherType = Type.SQL_VARCHAR;
@@ -993,7 +1024,7 @@ public final class NumberType extends Type {
             }
         }
 
-        return ValuePool.getInt(value);
+        return Integer.valueOf(value);
     }
 
     /**

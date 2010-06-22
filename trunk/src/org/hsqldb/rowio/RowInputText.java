@@ -38,6 +38,7 @@ import org.hsqldb.Scanner;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
@@ -78,6 +79,9 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
     protected int     next = 0;
     protected boolean allQuoted;
     protected Scanner scanner;
+
+    //
+    private int maxPooledStringLength = ValuePool.getMaxStringLength();
 
     /**
      * fredt@users - comment - in future may use a custom subclasse of
@@ -250,8 +254,11 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        // cut down size
-        return new String(s);
+        if (s.length() > this.maxPooledStringLength) {
+            return new String(s);
+        } else {
+            return ValuePool.getString(s);
+        }
     }
 
     protected Integer readSmallint() throws IOException {
@@ -268,7 +275,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return Integer.valueOf(s);
+        return ValuePool.getInt(Integer.parseInt(s));
     }
 
     protected Integer readInteger() throws IOException {
@@ -285,7 +292,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return Integer.valueOf(s);
+        return ValuePool.getInt(Integer.parseInt(s));
     }
 
     protected Long readBigint() throws IOException {
@@ -302,7 +309,7 @@ public class RowInputText extends RowInputBase implements RowInputInterface {
             return null;
         }
 
-        return Long.valueOf(s);
+        return ValuePool.getLong(Long.parseLong(s));
     }
 
     protected Double readReal() throws IOException {

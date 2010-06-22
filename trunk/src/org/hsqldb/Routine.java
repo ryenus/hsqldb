@@ -698,7 +698,8 @@ public class Routine implements SchemaObject {
 
     Result invokeJavaMethod(Session session, Object[] data) {
 
-        Result result;
+        Result   result;
+        HsqlName oldSessionSchema = session.getCurrentSchemaHsqlName();
 
         try {
             if (dataImpact == Routine.NO_SQL) {
@@ -710,6 +711,8 @@ public class Routine implements SchemaObject {
             } else if (dataImpact == Routine.READS_SQL) {
                 session.sessionContext.isReadOnly = Boolean.TRUE;
             }
+
+            session.setCurrentSchemaHsqlName(getSchemaName());
 
             Object returnValue = javaMethod.invoke(null, data);
 
@@ -737,6 +740,8 @@ public class Routine implements SchemaObject {
             result = Result.newErrorResult(
                 Error.error(ErrorCode.X_46000, getName().name), null);
         }
+
+        session.setCurrentSchemaHsqlName(oldSessionSchema);
 
         return result;
     }

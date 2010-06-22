@@ -54,7 +54,7 @@ public class SessionContext {
     Session session;
 
     //
-    Boolean isAutoCommit;
+    public Boolean isAutoCommit;
     Boolean isReadOnly;
     Boolean noSQL;
     int     currentMaxRows;

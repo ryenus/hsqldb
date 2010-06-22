@@ -31,6 +31,8 @@
 
 package org.hsqldb.test;
 
+import java.io.CharArrayReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -41,13 +43,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import javax.sql.rowset.serial.SerialBlob;
 
 import org.hsqldb.jdbc.JDBCBlob;
 import org.hsqldb.jdbc.JDBCClob;
-import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
+import org.hsqldb.lib.StopWatch;
 
 public class TestLobs extends TestBase {
 
@@ -57,8 +58,8 @@ public class TestLobs extends TestBase {
     public TestLobs(String name) {
 
         super(name);
-//        super(name, "jdbc:hsqldb:file:test3", false, false);
 
+//        super(name, "jdbc:hsqldb:file:test3", false, false);
 //        super(name, "jdbc:hsqldb:mem:test3", false, false);
     }
 
@@ -79,7 +80,7 @@ public class TestLobs extends TestBase {
         try {
             String ddl0 = "DROP TABLE BLOBTEST IF EXISTS";
             String ddl1 =
-                "CREATE TABLE BLOBTEST(ID IDENTITY, BLOBFIELD BLOB(1000))";
+                "CREATE TABLE BLOBTEST(ID IDENTITY, BLOBFIELD BLOB(100000))";
 
             statement.execute(ddl0);
             statement.execute(ddl1);
@@ -250,7 +251,7 @@ public class TestLobs extends TestBase {
         try {
             String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
             String ddl1 =
-                "CREATE TABLE CLOBTEST(ID IDENTITY, CLOBFIELD CLOB(1000))";
+                "CREATE TABLE CLOBTEST(ID IDENTITY, CLOBFIELD CLOB(100000))";
 
             statement.execute(ddl0);
             statement.execute(ddl1);
@@ -299,7 +300,7 @@ public class TestLobs extends TestBase {
         try {
             String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
             String ddl1 =
-                "CREATE TABLE CLOBTEST(ID IDENTITY, V VARCHAR(10), I INT, CLOBFIELD CLOB(1000))";
+                "CREATE TABLE CLOBTEST(ID IDENTITY, V VARCHAR(10), I INT, CLOBFIELD CLOB(100000))";
 
             statement.execute(ddl0);
             statement.execute(ddl1);
@@ -457,7 +458,7 @@ public class TestLobs extends TestBase {
             String ddl0 = "DROP TABLE VARIABLE IF EXISTS";
             String ddl1 =
                 "CREATE TABLE VARIABLE (stateid varchar(128), varid numeric(16,0), "
-                + "scalabilitypassivated char(1) DEFAULT 'N', value clob(2000), scopeguid varchar(128),"
+                + "scalabilitypassivated char(1) DEFAULT 'N', value clob(20000), scopeguid varchar(128),"
                 + "primary key (stateid, varid, scalabilitypassivated, scopeguid))";
 
             statement.execute(ddl0);
@@ -615,34 +616,74 @@ public class TestLobs extends TestBase {
         try {
             String ddl0 = "DROP TABLE CLOBTEST IF EXISTS";
             String ddl1 =
-                "CREATE TABLE CLOBTEST(ID IDENTITY, CLOBFIELD CLOB(1000))";
+                "CREATE TABLE CLOBTEST(ID IDENTITY, CLOBFIELD CLOB(100000))";
 
             statement.execute(ddl0);
             statement.execute(ddl1);
         } catch (SQLException e) {}
 
         try {
-            String dml0  = "insert into clobtest(clobfield) values('";
-            String value = "0123456789";
+            String dml0 = "insert into clobtest(clobfield) values ?";
+            String            value = "0123456789";
+            PreparedStatement ps    = connection.prepareStatement(dml0);
 
-            dml0 = dml0 + value + "')";
-
-            String dql0 = "select CHARACTER_LENGTH(clobfield) from clobtest;";
-            PreparedStatement ps = connection.prepareStatement(dml0);
-
-            //ps.setClob(1, clob);
+            ps.setString(1, value);
             ps.executeUpdate();
-            ps.close();
 
-            ps = connection.prepareStatement(dql0);
+            String dq1 = "select CHARACTER_LENGTH(clobfield) from clobtest;";
 
-            final ResultSet rs = ps.executeQuery();
+            ResultSet rs = statement.executeQuery(dq1);
 
             rs.next();
 
-            final int length = rs.getInt(1);
+            int length = rs.getInt(1);
 
             assertTrue(value.length() == length);
+
+            rs.close();
+
+            String dq3 = "delete from clobtest;";
+
+            statement.execute(dq3);
+
+            char[] testChars = new char[11111];
+
+            for (int i = 0, j = 32; i < testChars.length ; i++, j++) {
+                if (j > 255) {
+                    j = 32;
+                }
+
+                testChars[i] = (char) j;
+            }
+
+
+            ps.setCharacterStream(1, new CharArrayReader(testChars), testChars.length);
+
+            ps.executeUpdate();
+
+            String dq2 = "select clobfield from clobtest;";
+
+            rs = statement.executeQuery(dq2);
+
+            rs.next();
+
+            Reader reader = rs.getCharacterStream(1);
+
+            char[] newChars = new char[testChars.length];
+
+                try {
+                    reader.read(newChars);
+                } catch (IOException e) {
+                    fail("test failure");
+                }
+            for (int i = 0; i < testChars.length ; i++) {
+
+                if (testChars[i] != newChars[i]) {
+                    fail("test failure");
+                }
+            }
+
+
         } catch (SQLException e) {
             e.printStackTrace();
             fail("test failure");
