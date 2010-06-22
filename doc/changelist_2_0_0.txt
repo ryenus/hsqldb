@@ -1,3 +1,10 @@
+22 June 2010 - SVN 3667
+-- changed names of three system functions ISDATABASEREADONLY() to IS_DATABASE_READONLY(), etc.
+-- fixed bug with Clob.getInputStream()
+-- minor speed improvement
+-- improvement to TO_CHAR function
+-- some relaxation of DECIMAL dynamic params
+-- other minor improvements
 16 June 2010 - SVN 3658
 - fixed bug #3016375 Server remote open with no initial database
 - fixed bugs #3016397, #3016481 multiple UNION CORRESPONDING and using TABLE T with views
