@@ -443,7 +443,8 @@ public final class HsqlNameManager {
                 throw Error.error(ErrorCode.X_42501, name);
             }
 
-            this.name          = name;
+            // get rid of the excess
+            this.name          = new String(name);
             this.statementName = name;
             this.isNameQuoted  = isquoted;
 

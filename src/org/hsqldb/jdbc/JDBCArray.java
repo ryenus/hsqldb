@@ -39,7 +39,6 @@ import org.hsqldb.ColumnBase;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
-import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
 /**
@@ -545,7 +544,7 @@ public class JDBCArray implements Array{
         for (int i = (int) position; i < count; i++) {
             Object[] rowData = new Object[2];
 
-            rowData[0] = ValuePool.getInt(i + 1);
+            rowData[0] = Integer.valueOf(i + 1);
             rowData[1] = data[i];
             navigator.add(rowData);
         }

@@ -42,8 +42,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringUtil;
 
-// fredt@users 20020414 - patch 828957 by tjcrowder@users - JDK 1.3 compatibility
-
 /**
  * collection of static methods to convert Date and Timestamp strings
  * into corresponding Java objects and perform other Calendar related
@@ -52,13 +50,13 @@ import org.hsqldb.lib.StringUtil;
  * Was reviewed for 1.7.2 resulting in centralising all DATETIME related
  * operstions.<p>
  *
- * From version 1.9.0, HSQLDB supports TIME ZONE with datetime types. The
+ * From version 2.0.0, HSQLDB supports TIME ZONE with datetime types. The
  * values are stored internally as UTC seconds from 1970, regardless of the
  * time zone of the JVM, and converted as and when required, to the local
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -396,8 +394,8 @@ public class HsqlDateTime {
     };
 
     private static final String[] javaDateTokens = {
-        "yyyy", "yyyy", "yyyy",
-        "yy", "yy",
+        "yyyy", "'*IYYY'", "yyyy",
+        "'*IY'", "yy",
         "G", "G", "G", "G",
         "MMM", "MMMMM",
         "EEEE", "EE",
@@ -412,6 +410,54 @@ public class HsqlDateTime {
 
     /** Indicates end-of-input */
     private static final char e = 0xffff;
+
+    public static String toFormattedDate(Date date, String pattern,
+                                         SimpleDateFormat format) {
+
+        String javaPattern = HsqlDateTime.toJavaDatePattern(pattern);
+
+        try {
+            format.applyPattern(javaPattern);
+        } catch (Exception e) {
+            throw Error.error(ErrorCode.X_22511);
+        }
+
+        String result     = format.format(date);
+        int    matchIndex = result.indexOf("*IY");
+
+        if (matchIndex >= 0) {
+            Calendar cal         = format.getCalendar();
+            int      matchLength = 3;
+            int      temp        = result.indexOf("*IYYY");
+
+            if (temp >= 0) {
+                matchLength = 5;
+                matchIndex  = temp;
+            }
+
+            int year       = cal.get(Calendar.YEAR);
+            int weekOfYear = cal.get(Calendar.WEEK_OF_YEAR);
+
+            if (cal.get(Calendar.WEEK_OF_YEAR) == 1
+                    && cal.get(Calendar.DAY_OF_YEAR) > 360) {
+                year++;
+            }
+
+            String yearString = String.valueOf(year);
+
+            if (matchLength == 3) {
+                yearString = yearString.substring(yearString.length() - 2);
+            }
+
+            StringBuilder sb = new StringBuilder(result);
+
+            sb.replace(matchIndex, matchIndex + matchLength, yearString);
+
+            result = sb.toString();
+        }
+
+        return result;
+    }
 
     /**
      * Converts the given format into a pattern accepted by <code>java.text.SimpleDataFormat</code>
@@ -442,6 +488,10 @@ public class HsqlDateTime {
                 if (tokenizer.isConsumed()) {
                     continue;
                 }
+            }
+
+            if (ch == '\"') {
+                ch = '\'';
             }
 
             sb.append(ch);

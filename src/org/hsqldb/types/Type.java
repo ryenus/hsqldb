@@ -340,6 +340,10 @@ public abstract class Type implements SchemaObject, Cloneable {
         return false;
     }
 
+    public boolean isDecimalType() {
+        return false;
+    }
+
     public boolean isDateTimeType() {
         return false;
     }

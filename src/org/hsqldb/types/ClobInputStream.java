@@ -34,7 +34,6 @@ package org.hsqldb.types;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -45,7 +44,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * mark() and reset() are not supported.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.9.0
  */
 public final class ClobInputStream extends Reader {
@@ -56,24 +55,22 @@ public final class ClobInputStream extends Reader {
     long             currentPosition;
     char[]           buffer;
     boolean          isClosed;
+    int              streamBlockSize;
     SessionInterface session;
 
     public ClobInputStream(SessionInterface session, ClobData clob,
                            long offset, long length) {
 
-        long clobLength = clob.length(session);
-
-        if (!isInLimits(clobLength, offset, length)) {
-            throw new IndexOutOfBoundsException();
-        }
-
+        this.session         = session;
         this.clob            = clob;
         this.availableLength = offset + length;
         this.currentPosition = offset;
-        this.session         = session;
+        this.streamBlockSize = session.getStreamBlockSize();
     }
 
     public int read() throws IOException {
+
+        checkClosed();
 
         if (currentPosition >= availableLength) {
             return -1;
@@ -84,7 +81,7 @@ public final class ClobInputStream extends Reader {
             try {
                 checkClosed();
                 readIntoBuffer();
-            } catch (HsqlException e) {
+            } catch (Exception e) {
                 throw JavaSystem.toIOException(e);
             }
         }
@@ -100,8 +97,12 @@ public final class ClobInputStream extends Reader {
 
         checkClosed();
 
-        if (currentPosition + len >= availableLength) {
+        if (currentPosition == availableLength) {
             return -1;
+        }
+
+        if (currentPosition + len > availableLength) {
+            len = (int) (availableLength - currentPosition);
         }
 
         for (int i = off; i < len; i++) {
@@ -112,6 +113,8 @@ public final class ClobInputStream extends Reader {
     }
 
     public long skip(long n) throws IOException {
+
+        checkClosed();
 
         if (n <= 0) {
             return 0;
@@ -147,8 +150,8 @@ public final class ClobInputStream extends Reader {
 
         if (readLength <= 0) {}
 
-        if (readLength > session.getStreamBlockSize()) {
-            readLength = session.getStreamBlockSize();
+        if (readLength > streamBlockSize) {
+            readLength = streamBlockSize;
         }
 
         buffer = clob.getChars(session, currentPosition, (int) readLength);

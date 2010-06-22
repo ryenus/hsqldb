@@ -34,7 +34,6 @@ package org.hsqldb.types;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.hsqldb.HsqlException;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -45,7 +44,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * mark() and reset() are not supported.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.0
  * @since 1.9.0
  */
 public class BlobInputStream extends InputStream {
@@ -56,22 +55,22 @@ public class BlobInputStream extends InputStream {
     long             currentPosition;
     byte[]           buffer;
     boolean          isClosed;
+    int              streamBlockSize;
     SessionInterface session;
 
     public BlobInputStream(SessionInterface session, BlobData blob,
                            long offset, long length) {
 
-        if (!isInLimits(blob.length(session), offset, length)) {
-            throw new IndexOutOfBoundsException();
-        }
-
         this.session         = session;
         this.blob            = blob;
         this.availableLength = offset + length;
         this.currentPosition = offset;
+        this.streamBlockSize = session.getStreamBlockSize();
     }
 
     public int read() throws IOException {
+
+        checkClosed();
 
         if (currentPosition >= availableLength) {
             return -1;
@@ -82,7 +81,7 @@ public class BlobInputStream extends InputStream {
             try {
                 checkClosed();
                 readIntoBuffer();
-            } catch (HsqlException e) {
+            } catch (Exception e) {
                 throw JavaSystem.toIOException(e);
             }
         }
@@ -95,6 +94,8 @@ public class BlobInputStream extends InputStream {
     }
 
     public long skip(long n) throws IOException {
+
+        checkClosed();
 
         if (n <= 0) {
             return 0;
@@ -117,10 +118,10 @@ public class BlobInputStream extends InputStream {
         isClosed = true;
     }
 
-    private void checkClosed() {
+    private void checkClosed() throws IOException {
 
         if (isClosed || blob.isClosed()) {
-            throw Error.error(ErrorCode.X_0F503);
+            throw new IOException(Error.getMessage(ErrorCode.X_0F503));
         }
     }
 
@@ -130,8 +131,8 @@ public class BlobInputStream extends InputStream {
 
         if (readLength <= 0) {}
 
-        if (readLength > session.getStreamBlockSize()) {
-            readLength = session.getStreamBlockSize();
+        if (readLength > streamBlockSize) {
+            readLength = streamBlockSize;
         }
 
         buffer = blob.getBytes(session, currentPosition, (int) readLength);

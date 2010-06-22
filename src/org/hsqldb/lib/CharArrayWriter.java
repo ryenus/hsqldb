@@ -87,7 +87,7 @@ public class CharArrayWriter {
             count += read;
 
             if (count == buffer.length) {
-                ensureRoom(128);
+                ensureRoom(count * 2);
             }
         }
     }
