@@ -94,7 +94,7 @@
       by changing the column values of the row. A trigger that is declared as
       BEFORE INSERT and BEFORE UPDATE can modify the values that are inserted
       into the database. For example, a badly formatted string can be cleaned
-      up by a trigger before INSERT or UPDATE. </simpara>
+      up by a trigger before INSERT or UPDATE.</simpara>
 
       <simpara>BEFORE triggers cannot modify the other tables of the database.
       All BEFORE triggers can veto the action by throwing an
@@ -239,7 +239,7 @@
 
       <para>When a row level trigger is activated, there is an OLD ROW, or a
       NEW ROW, or both. An INSERT statement supplies a NEW ROW row to be
-      inserted into a table. A DELETE statement supplied an OLD ROW be
+      inserted into a table. A DELETE statement supplies an OLD ROW be
       deleted. An UPDATE statement supplies both OLD ROW and NEW ROW that
       represent the updated rows before and after the update. The REFERENCING
       clause gives names to these rows, so that the rows can be referenced in
@@ -317,13 +317,15 @@
       modify the database, e.g. insert new rows, etc.</para>
 
       <para>For sample trigger classes and test code see,
-      org.hsqldb.sample.TriggerSample, org.hsqldb.test.TestTriggers,
-      org.hsqldb.test.TriggerClass and the associated text script
-      TestTriggers.txt in /testrun/hsqldb/ directory. In the example below,
-      the trigger is activated only if the update statement includes SET
-      clauses that modify any of the specified columns (c1, c2, c3).
-      Furthermore, the trigger is not activated if the c2 column in the
-      updated row is null.</para>
+      <classname>org.hsqldb.sample.TriggerSample</classname>,
+      <classname>org.hsqldb.test.TestTriggers</classname>,
+      <classname>org.hsqldb.test.TriggerClass</classname> and the associated
+      text script <filename>TestTriggers.txt</filename> in the
+      <literal>/testrun/hsqldb/</literal> directory. In the example below, the
+      trigger is activated only if the update statement includes SET clauses
+      that modify any of the specified columns (c1, c2, c3). Furthermore, the
+      trigger is not activated if the c2 column in the updated row is
+      null.</para>
 
       <programlisting>create trigger trigbur before update of c1, c2, c3 on testtrig 
    referencing new row as newrow
@@ -480,7 +482,7 @@
     <simpara>The third form specifies a call to a Java method.</simpara>
 
     <simpara>An example of a trigger with a block is given below. The block
-    can include elements discussed the <link endterm="sqlroutines-title"
+    can include elements discussed in the <link endterm="sqlroutines-title"
     ns2:href="#sqlroutines-chapt" ns2:title=""></link> chapter, including
     local variables, loops and conditionals. You can also raise an exception
     in such blocks in order to terminate the execution of the SQL statement
