@@ -64,7 +64,7 @@ import org.hsqldb.types.Types;
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  *
- * @version 2.0.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class QuerySpecification extends QueryExpression {
@@ -778,7 +778,12 @@ public class QuerySpecification extends QueryExpression {
             Type type = unionColumnTypes[i];
 
             if (type == null) {
-                throw Error.error(ErrorCode.X_42567);
+                if (session.database.sqlEnforceTypes) {
+                    throw Error.error(ErrorCode.X_42567);
+                }
+
+                type                = Type.SQL_VARCHAR_DEFAULT;
+                unionColumnTypes[i] = type;
             }
 
             exprColumns[i].setDataType(session, type);
@@ -1033,7 +1038,7 @@ public class QuerySpecification extends QueryExpression {
         for (int i = 0; i < indexStartAggregates; i++) {
             Expression e = exprColumns[i];
 
-            if (!e.isAggregate() && !e.isCorrelated() ) {
+            if (!e.isAggregate() && !e.isCorrelated()) {
                 continue;
             }
 
@@ -1926,7 +1931,8 @@ public class QuerySpecification extends QueryExpression {
             QueryExpression baseQueryExpression =
                 ((TableDerived) table).getQueryExpression();
 
-            if (baseQueryExpression == null || !baseQueryExpression.isMergeable) {
+            if (baseQueryExpression == null
+                    || !baseQueryExpression.isMergeable) {
                 isMergeable = false;
 
                 return;

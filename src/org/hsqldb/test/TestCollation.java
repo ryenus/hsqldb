@@ -31,7 +31,7 @@
 
 package org.hsqldb.test;
 
-import org.hsqldb.Collation;
+import org.hsqldb.types.Collation;
 
 /**
  * Test HSQLDBs collation capabilities

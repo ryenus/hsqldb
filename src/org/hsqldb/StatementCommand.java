@@ -50,8 +50,7 @@ import org.hsqldb.scriptio.ScriptWriterText;
  */
 public class StatementCommand extends Statement {
 
-    Expression[] expressions;
-    Object[]     parameters;
+    Object[] parameters;
 
     StatementCommand(int type, Object[] args) {
         this(type, args, null, null);
@@ -112,7 +111,8 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
             case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES :
             case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE :
-            case StatementTypes.SET_DATABASE_SQL_REFERENCES :
+            case StatementTypes.SET_DATABASE_SQL_STRICT_REFS :
+            case StatementTypes.SET_DATABASE_SQL_STRICT_TYPES :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
             case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL :
             case StatementTypes.SET_DATABASE_GC :
@@ -161,6 +161,10 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_USER_PASSWORD :
                 group                       = StatementTypes.X_HSQLDB_SETTING;
                 this.isTransactionStatement = false;
+                break;
+
+            case StatementTypes.ALTER_SESSION :
+                group = StatementTypes.X_HSQLDB_SESSION;
                 break;
 
             default :
@@ -255,6 +259,8 @@ public class StatementCommand extends Statement {
                 boolean defrag = ((Boolean) parameters[0]).booleanValue();
 
                 try {
+                    session.checkAdmin();
+                    session.checkDDLWrite();
                     session.database.logger.checkpoint(defrag);
 
                     return Result.updateZeroResult;
@@ -307,11 +313,13 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.checkDDLWrite();
+
                     if (session.isProcessingScript) {
                         session.database.logger.setLobFileScaleNoCheck(value);
                     } else {
                         session.database.logger.setLobFileScale(value);
                     }
+
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -325,10 +333,12 @@ public class StatementCommand extends Statement {
                     session.checkDDLWrite();
 
                     if (session.isProcessingScript) {
-                        session.database.logger.setCacheFileScaleNoCheck(value);
+                        session.database.logger.setCacheFileScaleNoCheck(
+                            value);
                     } else {
                         session.database.logger.setCacheFileScale(value);
                     }
+
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
@@ -452,6 +462,8 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY : {
                 boolean mode = ((Boolean) parameters[0]).booleanValue();
 
+                session.checkAdmin();
+                session.checkDDLWrite();
                 session.database.setReferentialIntegrity(mode);
 
                 return Result.updateZeroResult;
@@ -459,6 +471,8 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES : {
                 boolean mode = ((Boolean) parameters[0]).booleanValue();
 
+                session.checkAdmin();
+                session.checkDDLWrite();
                 session.database.setStrictNames(mode);
 
                 return Result.updateZeroResult;
@@ -466,19 +480,35 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE : {
                 boolean mode = ((Boolean) parameters[0]).booleanValue();
 
+                session.checkAdmin();
+                session.checkDDLWrite();
                 session.database.setStrictColumnSize(mode);
 
                 return Result.updateZeroResult;
             }
-            case StatementTypes.SET_DATABASE_SQL_REFERENCES : {
+            case StatementTypes.SET_DATABASE_SQL_STRICT_TYPES : {
                 boolean mode = ((Boolean) parameters[0]).booleanValue();
 
+                session.checkAdmin();
+                session.checkDDLWrite();
+                session.database.setStrictTypes(mode);
+
+                return Result.updateZeroResult;
+            }
+            case StatementTypes.SET_DATABASE_SQL_STRICT_REFS : {
+                boolean mode = ((Boolean) parameters[0]).booleanValue();
+
+                session.checkAdmin();
+                session.checkDDLWrite();
                 session.database.setStrictReferences(mode);
 
                 return Result.updateZeroResult;
             }
             case StatementTypes.SET_DATABASE_DEFAULT_INITIAL_SCHEMA : {
                 HsqlName schema = (HsqlName) parameters[0];
+
+                session.checkAdmin();
+                session.checkDDLWrite();
 
                 //
                 session.database.schemaManager.setDefaultSchemaHsqlName(
@@ -490,6 +520,9 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_DEFAULT_TABLE_TYPE : {
                 Integer type = (Integer) parameters[0];
+
+                session.checkAdmin();
+                session.checkDDLWrite();
 
                 //
                 session.database.schemaManager.setDefaultTableType(
@@ -516,7 +549,6 @@ public class StatementCommand extends Statement {
                     int mode = ((Integer) parameters[0]).intValue();
 
                     session.checkAdmin();
-                    session.checkDDLWrite();
                     session.database.txManager.setTransactionControl(session,
                             mode);
 
@@ -530,7 +562,6 @@ public class StatementCommand extends Statement {
                     int mode = ((Integer) parameters[0]).intValue();
 
                     session.checkAdmin();
-                    session.checkDDLWrite();
 
                     session.database.defaultIsolationLevel = mode;
 
@@ -576,6 +607,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS : {
                 int size = ((Integer) parameters[0]).intValue();
 
+                session.checkAdmin();
                 session.database.getProperties().setProperty(
                     HsqlDatabaseProperties.hsqldb_result_max_memory_rows,
                     size);
@@ -587,6 +619,8 @@ public class StatementCommand extends Statement {
                 try {
                     String         source = (String) parameters[0];
                     HsqlProperties props  = null;
+
+                    session.checkAdmin();
 
                     if (source.length() > 0) {
                         props = HsqlProperties.delimitedArgPairsToProps(source,
@@ -610,6 +644,7 @@ public class StatementCommand extends Statement {
                 try {
                     String name = (String) parameters[0];
 
+                    session.checkAdmin();
                     session.database.setUniqueName(name);
 
                     return Result.updateZeroResult;
@@ -621,26 +656,29 @@ public class StatementCommand extends Statement {
                 ScriptWriterText dsw  = null;
                 String           name = (String) parameters[0];
 
-                if (name == null) {
-                    return session.database.getScript(false);
-                } else {
-                    try {
+                try {
+                    session.checkAdmin();
+
+                    if (name == null) {
+                        return session.database.getScript(false);
+                    } else {
                         dsw = new ScriptWriterText(session.database, name,
                                                    true, true, true);
 
                         dsw.writeAll();
                         dsw.close();
-                    } catch (HsqlException e) {
-                        return Result.newErrorResult(e, sql);
-                    }
 
-                    return Result.updateZeroResult;
+                        return Result.updateZeroResult;
+                    }
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
                 }
             }
             case StatementTypes.DATABASE_SHUTDOWN : {
                 try {
                     int mode = ((Integer) parameters[0]).intValue();
 
+                    session.checkAdmin();
                     session.database.close(mode);
 
                     return Result.updateZeroResult;
@@ -705,7 +743,8 @@ public class StatementCommand extends Statement {
                             ((TextTable) table).disconnect();
                         }
 
-                        session.database.schemaManager.setSchemaChangeTimestamp();
+                        session.database.schemaManager
+                            .setSchemaChangeTimestamp();
 
                         return Result.updateZeroResult;
                     }
@@ -810,6 +849,40 @@ public class StatementCommand extends Statement {
                     user.setPassword(password);
 
                     return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.ALTER_SESSION : {
+                try {
+                    long sessionID = ((Number) parameters[0]).longValue();
+                    int  action    = ((Number) parameters[1]).intValue();
+
+                    Session targetSession   = session.database.sessionManager.getSession(sessionID);
+
+                    if (targetSession == null) {
+                        throw Error.error(ErrorCode.X_2E000);
+                    }
+
+                    switch (action) {
+
+                        case Tokens.CLOSE :
+                            targetSession.abortTransaction = true;
+                            targetSession.latch.setCount(0);
+                            try {
+                                wait(1000);
+                            } catch (Exception e) {
+
+                            }
+
+                            targetSession.close();
+                            break;
+
+                        case Tokens.RELEASE :
+                            targetSession.abortTransaction = true;
+                            targetSession.latch.setCount(0);
+                            break;
+                    }
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }

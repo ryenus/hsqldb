@@ -732,6 +732,7 @@ public class Tokens {
     static final String        T_TIMESTAMPDIFF       = "TIMESTAMPDIFF";
     public static final String T_TINYINT             = "TINYINT";
     static final String        T_TOP                 = "TOP";
+    public static final String T_TYPES               = "TYPES";
     public static final String T_VARCHAR_IGNORECASE  = "VARCHAR_IGNORECASE";
     public static final String T_UTF16               = "UTF16";
     static final String        T_WRITE_DELAY         = "WRITE_DELAY";
@@ -1412,7 +1413,8 @@ public class Tokens {
     static final int SHUTDOWN     = 596;
     static final int TEMP         = 597;
     static final int TEXT         = 598;
-    static final int WRITE_DELAY  = 599;
+    static final int TYPES        = 599;
+    static final int WRITE_DELAY  = 600;
 
     //
     static final int        ACOS                       = 601;
@@ -2103,6 +2105,7 @@ public class Tokens {
         commandSet.put(T_TEMP, TEMP);
         commandSet.put(T_TEMPORARY, TEMPORARY);
         commandSet.put(T_TEXT, TEXT);
+        commandSet.put(T_TYPES, TYPES);
         commandSet.put(T_TIMESTAMPADD, TIMESTAMPADD);
         commandSet.put(T_TIMESTAMPDIFF, TIMESTAMPDIFF);
         commandSet.put(T_TOP, TOP);

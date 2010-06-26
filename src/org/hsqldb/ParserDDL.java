@@ -285,6 +285,9 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.VIEW : {
                 return compileCreateView(true);
             }
+            case Tokens.SESSION : {
+                return compileAlterSession();
+            }
             default : {
                 throw unexpectedToken();
             }
@@ -1825,7 +1828,7 @@ public class ParserDDL extends ParserRoutine {
 
         readIfThis(Tokens.AS);
 
-        Type       type          = readTypeDefinition(false).duplicate();
+        Type       type          = readTypeDefinition(false, false).duplicate();
         Expression defaultClause = null;
 
         if (readIfThis(Tokens.DEFAULT)) {
@@ -1886,7 +1889,7 @@ public class ParserDDL extends ParserRoutine {
 
         readThis(Tokens.AS);
 
-        Type type = readTypeDefinition(false).duplicate();
+        Type type = readTypeDefinition(false, false).duplicate();
 
         readIfThis(Tokens.FINAL);
 
@@ -2467,7 +2470,7 @@ public class ParserDDL extends ParserRoutine {
         } else if (token.tokenType == Tokens.CLOSEBRACKET) {
             return null;
         } else {
-            typeObject = readTypeDefinition(true);
+            typeObject = readTypeDefinition(true, true);
         }
 
         if (isGenerated || isIdentity) {}
@@ -2581,7 +2584,7 @@ public class ParserDDL extends ParserRoutine {
                     if (withType) {
                         read();
 
-                        Type type = readTypeDefinition(true);
+                        Type type = readTypeDefinition(false, true);
 
                         sequence.setDefaults(sequence.getName(), type);
 
@@ -3902,7 +3905,7 @@ public class ParserDDL extends ParserRoutine {
             ColumnSchema column) {
 
         HsqlName writeName  = null;
-        Type     typeObject = readTypeDefinition(false);
+        Type     typeObject = readTypeDefinition(false, false);
         String   sql        = getLastPart();
         Object[] args       = new Object[] {
             table, column, typeObject
@@ -4166,7 +4169,7 @@ public class ParserDDL extends ParserRoutine {
                 throw Error.error(ErrorCode.X_42524);
             }
         } else {
-            Type type = readTypeDefinition(true);
+            Type type = readTypeDefinition(false, true);
 
             if (oldCol.isIdentity()) {
                 if (!type.isIntegralType()) {
@@ -5028,5 +5031,39 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(null, StatementTypes.COMMENT, arguments);
+    }
+
+    Statement compileAlterSession() {
+
+        read();
+
+        long    sessionID = readBigint();
+        Session targetSession   = database.sessionManager.getSession(sessionID);
+
+        if (targetSession == null) {
+            throw Error.error(ErrorCode.X_2E000);
+        }
+
+        int action = token.tokenType;
+
+        switch (token.tokenType) {
+
+            case Tokens.CLOSE :
+                read();
+                break;
+
+            case Tokens.RELEASE :
+                read();
+                break;
+
+            default :
+                throw unexpectedToken();
+        }
+
+        Object[] args = new Object[] {
+            Long.valueOf(sessionID), Integer.valueOf(action)
+        };
+
+        return new StatementCommand(StatementTypes.ALTER_SESSION, args);
     }
 }

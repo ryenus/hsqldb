@@ -50,6 +50,7 @@ import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.BlobType;
 import org.hsqldb.types.Charset;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
@@ -107,11 +108,12 @@ public class ParserDQL extends ParserBase {
         }
     }
 
-    Type readTypeDefinition(boolean includeUserTypes) {
+    Type readTypeDefinition(boolean allowCollation, boolean includeUserTypes) {
 
-        int     typeNumber = Integer.MIN_VALUE;
-        boolean hasLength  = false;
-        boolean hasScale   = false;
+        int     typeNumber  = Integer.MIN_VALUE;
+        boolean hasLength   = false;
+        boolean hasScale    = false;
+        boolean isCharacter = false;
 
         checkIsIdentifier();
 
@@ -348,11 +350,23 @@ public class ParserDQL extends ParserBase {
 
                 break;
             }
+            case Types.SQL_CLOB :
+            case Types.VARCHAR_IGNORECASE :
             case Types.SQL_CHAR :
-            case Types.SQL_BINARY :
+                isCharacter = true;
                 break;
 
             case Types.SQL_VARCHAR :
+                isCharacter = true;
+
+                if (!hasLength) {
+                    length = 32 * 1024;
+                }
+                break;
+
+            case Types.SQL_BINARY :
+                break;
+
             case Types.SQL_VARBINARY :
                 if (!hasLength) {
                     length = 32 * 1024;
@@ -372,9 +386,9 @@ public class ParserDQL extends ParserBase {
             typeNumber = Types.VARCHAR_IGNORECASE;
         }
 
-        Type typeObject = Type.getType(typeNumber, 0, length, scale);
+        Collation collation = database.collation;
 
-        if (typeObject.isCharacterType()) {
+        if (isCharacter) {
             if (token.tokenType == Tokens.CHARACTER) {
                 read();
                 readThis(Tokens.SET);
@@ -386,8 +400,23 @@ public class ParserDQL extends ParserBase {
                         token.tokenString, schemaName, SchemaObject.CHARSET);
 
                 read();
+
+                throw unsupportedFeature();
+            }
+
+            if (token.tokenType == Tokens.COLLATE) {
+                read();
+                checkIsSimpleName();
+
+                collation = Collation.getCollation(token.tokenString);
+
+                read();
+
+                throw unsupportedFeature();
             }
         }
+
+        Type typeObject = Type.getType(typeNumber, collation, length, scale);
 
         if (token.tokenType == Tokens.ARRAY) {
             if (typeObject.isLobType()) {
@@ -4245,7 +4274,7 @@ public class ParserDQL extends ParserBase {
             readThis(Tokens.AS);
         }
 
-        Type typeObject = readTypeDefinition(true);
+        Type typeObject = readTypeDefinition(false, true);
 
         if (l.isUnresolvedParam()) {
             l.setDataType(session, typeObject);

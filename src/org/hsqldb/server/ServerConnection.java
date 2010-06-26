@@ -340,6 +340,7 @@ class ServerConnection implements Runnable {
     private void receiveResult(int resultMode)
     throws CleanExit, IOException, HsqlException {
 
+        boolean terminate = false;
         Result resultIn = Result.newResult(session, resultMode, dataInput,
                                            rowIn);
 
@@ -356,7 +357,10 @@ class ServerConnection implements Runnable {
                 break;
             }
             case ResultConstants.DISCONNECT : {
-                throw cleanExit;
+                resultOut = Result.updateZeroResult;
+                terminate = true;
+
+                break;
             }
             case ResultConstants.RESETSESSION : {
                 session.resetSession();
@@ -370,6 +374,10 @@ class ServerConnection implements Runnable {
         resultOut.write(dataOutput, rowOut);
         rowOut.setBuffer(mainBuffer);
         rowIn.resetRow(mainBuffer.length);
+
+        if (terminate) {
+            throw cleanExit;
+        }
     }
 
     private OdbcPacketOutputStream outPacket = null;

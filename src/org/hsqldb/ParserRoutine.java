@@ -408,7 +408,7 @@ public class ParserRoutine extends ParserDML {
                 table.createPrimaryKey();
                 routine.setReturnTable(table);
             } else {
-                Type type = readTypeDefinition(true);
+                Type type = readTypeDefinition(false, true);
 
                 routine.setReturnType(type);
             }
@@ -740,7 +740,7 @@ public class ParserRoutine extends ParserDML {
                 }
             }
 
-            type = readTypeDefinition(true);
+            type = readTypeDefinition(false, true);
         } catch (Exception e) {
 
             // may be cursor
@@ -1713,7 +1713,7 @@ public class ParserRoutine extends ParserDML {
                     SchemaObject.PARAMETER);
         }
 
-        Type typeObject = readTypeDefinition(true);
+        Type typeObject = readTypeDefinition(false, true);
         ColumnSchema column = new ColumnSchema(hsqlName, typeObject, true,
                                                false, null);
 

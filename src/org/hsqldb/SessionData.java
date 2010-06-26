@@ -238,9 +238,14 @@ public class SessionData {
 
     Result getDataResultSlice(long id, int offset, int count) {
 
-        RowSetNavigatorClient navigator = getRowSetSlice(id, offset, count);
+        Result          result = (Result) resultMap.get(id);
+        RowSetNavigator source = result.getNavigator();
 
-        return Result.newDataRowsResult(navigator);
+        if (offset + count > source.getSize()) {
+            count = source.getSize() - offset;
+        }
+
+        return Result.newDataRowsResult(result, offset, count);
     }
 
     Result getDataResult(long id) {

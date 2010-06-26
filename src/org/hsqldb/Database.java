@@ -45,12 +45,12 @@ import org.hsqldb.result.Result;
 import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.User;
 import org.hsqldb.rights.UserManager;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.Type;
 
 // incorporates following contributions
 // boucherb@users - javadoc comments
-// Brendan Ryan - data files in Jar
-// Ocke Jansen oj@openoffice.org - file access api
+// Ocke Jansen (oj@openoffice dot org) - file access api
 
 /**
  * Database is the root class for HSQL Database Engine database. <p>
@@ -58,7 +58,7 @@ import org.hsqldb.types.Type;
  * It holds the data structures that form an HSQLDB database instance.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class Database {
@@ -86,6 +86,7 @@ public class Database {
 
     /** true means filesReadOnly but CACHED and TEXT tables are disallowed */
     private boolean               filesInJar;
+    public boolean                sqlEnforceTypes;
     public boolean                sqlEnforceRefs;
     public boolean                sqlEnforceSize;
     public boolean                sqlEnforceNames;
@@ -188,14 +189,13 @@ public class Database {
                 new PersistentStoreCollectionDatabase();
             isReferentialIntegrity = true;
             sessionManager         = new SessionManager(this);
-            collation              = collation.getDefaultInstance();
+            collation              = collation.getDatabaseInstance();
             dbInfo = DatabaseInformation.newDatabaseInformation(this);
             txManager              = new TransactionManager2PL(this);
 
             lobManager.createSchema();
             sessionManager.getSysLobSession().setSchema(
                 SqlInvariants.LOBS_SCHEMA);
-
             schemaManager.setSchemaChangeTimestamp();
 
             // completed metadata
@@ -205,7 +205,6 @@ public class Database {
 
             if (isNew) {
                 String username = urlProperties.getProperty("user", "SA");
-
                 String password = urlProperties.getProperty("password", "");
 
                 userManager.createFirstUser(username, password);
@@ -419,6 +418,10 @@ public class Database {
         sqlEnforceRefs = mode;
     }
 
+    public void setStrictTypes(boolean mode) {
+        sqlEnforceTypes = mode;
+    }
+
     public int getDefaultIsolationLevel() {
         return defaultIsolationLevel;
     }
@@ -557,7 +560,7 @@ public class Database {
             list.add("ALTER CATALOG PUBLIC RENAME TO " + name);
         }
 
-        if (collation.collator != null) {
+        if (!collation.isDefaultCollation()) {
             String name = collation.getName().statementName;
 
             list.add("SET DATABASE COLLATION " + name);

@@ -56,7 +56,7 @@ import org.hsqldb.lib.StringUtil;
  * timezone.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 1.7.0
  */
 public class HsqlDateTime {
@@ -385,7 +385,7 @@ public class HsqlDateTime {
         { 'B', 'C' }, { 'B', '.', 'C', '.' }, { 'A', 'D' }, { 'A', '.', 'D', '.' },
         { 'M', 'O', 'N' }, { 'M', 'O', 'N', 'T', 'H' },
         { 'D', 'A', 'Y' }, { 'D', 'Y' },
-        { 'I', 'W' }, { 'D', 'D' }, { 'D', 'D', 'D' },
+        { 'W', 'W' }, { 'I', 'W' }, { 'D', 'D' }, { 'D', 'D', 'D' },
         { 'H', 'H', '2', '4' }, { 'H', 'H', '1', '2' }, { 'H', 'H' },
         { 'M', 'I' },
         { 'S', 'S' },
@@ -399,7 +399,7 @@ public class HsqlDateTime {
         "G", "G", "G", "G",
         "MMM", "MMMMM",
         "EEEE", "EE",
-        "w", "dd", "D",
+        "'*WW'", "w", "dd", "D",
         "HH", "KK", "KK",
         "mm", "ss",
         "aaa", "aaa", "aaa", "aaa",
@@ -438,8 +438,7 @@ public class HsqlDateTime {
             int year       = cal.get(Calendar.YEAR);
             int weekOfYear = cal.get(Calendar.WEEK_OF_YEAR);
 
-            if (cal.get(Calendar.WEEK_OF_YEAR) == 1
-                    && cal.get(Calendar.DAY_OF_YEAR) > 360) {
+            if (weekOfYear == 1 && cal.get(Calendar.DAY_OF_YEAR) > 360) {
                 year++;
             }
 
@@ -452,6 +451,21 @@ public class HsqlDateTime {
             StringBuilder sb = new StringBuilder(result);
 
             sb.replace(matchIndex, matchIndex + matchLength, yearString);
+
+            result = sb.toString();
+        }
+
+        matchIndex = result.indexOf("*WW");
+
+        if (matchIndex >= 0) {
+            Calendar      cal         = format.getCalendar();
+            int           matchLength = 3;
+            int dayOfYear = cal.get(Calendar.DAY_OF_YEAR);
+            int weekOfYear = ((dayOfYear - 1) / 7) + 1;
+            StringBuilder sb          = new StringBuilder(result);
+
+            sb.replace(matchIndex, matchIndex + matchLength,
+                       String.valueOf(weekOfYear));
 
             result = sb.toString();
         }

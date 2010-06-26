@@ -172,6 +172,7 @@ public interface StatementTypes {
     int DATABASE_CHECKPOINT = 1002;
     int DATABASE_SHUTDOWN   = 1003;
     int DATABASE_SCRIPT     = 1004;
+    int ALTER_SESSION       = 1005;
 
     // hsqldb database settings
     int SET_DATABASE_FILES_BACKUP_INCREMENT    = 1011;
@@ -203,11 +204,12 @@ public interface StatementTypes {
     int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1041;
     int SET_DATABASE_SQL_STRICT_NAMES          = 1042;
     int SET_DATABASE_SQL_STRICT_SIZE           = 1043;
-    int SET_DATABASE_SQL_REFERENCES            = 1044;
-    int SET_DATABASE_TEXT_SOURCE               = 1045;
-    int SET_DATABASE_TRANSACTION_CONTROL       = 1046;
-    int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1047;
-    int SET_DATABASE_UNIQUE_NAME               = 1048;
+    int SET_DATABASE_SQL_STRICT_REFS           = 1044;
+    int SET_DATABASE_SQL_STRICT_TYPES          = 1045;
+    int SET_DATABASE_TEXT_SOURCE               = 1046;
+    int SET_DATABASE_TRANSACTION_CONTROL       = 1047;
+    int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1048;
+    int SET_DATABASE_UNIQUE_NAME               = 1049;
 
     // hsqldb user settings
     int SET_USER_INITIAL_SCHEMA = 1061;

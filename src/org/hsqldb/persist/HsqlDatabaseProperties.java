@@ -47,7 +47,7 @@ import org.hsqldb.lib.StringUtil;
  * Manages a .properties file for a database.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.0
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
@@ -142,13 +142,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     // versions
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
-    public static final String THIS_VERSION         = "2.0.0";
-    public static final String THIS_FULL_VERSION    = "2.0.0";
+    public static final String THIS_VERSION         = "2.0.1";
+    public static final String THIS_FULL_VERSION    = "2.0.1";
     public static final String THIS_CACHE_VERSION   = "2.0.0";
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
     public static final int    MAJOR                = 2,
                                MINOR                = 0,
-                               REVISION             = 0;
+                               REVISION             = 1;
 
     /**
      * system properties supported by HSQLDB
@@ -221,8 +221,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_size      = "sql.enforce_size";
     public static final String sql_enforce_strict_size =
         "sql.enforce_strict_size";
-    public static final String sql_enforce_refs = "sql.enforce_refs";
+    public static final String sql_enforce_refs  = "sql.enforce_refs";
     public static final String sql_enforce_names = "sql.enforce_names";
+    public static final String sql_enforce_types = "sql.enforce_types";
     public static final String jdbc_translate_dti_types =
         "jdbc.translate_dti_types";
     public static final String sql_identity_is_pk = "sql.identity_is_pk";
@@ -343,6 +344,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_enforce_refs,
                    HsqlProperties.getMeta(sql_enforce_refs, SQL_PROPERTY,
                                           false));
+        dbMeta.put(sql_enforce_types,
+                   HsqlProperties.getMeta(sql_enforce_types, SQL_PROPERTY,
+                                          false));
         dbMeta.put(sql_enforce_size,
                    HsqlProperties.getMeta(sql_enforce_size, SQL_PROPERTY,
                                           true));
@@ -462,28 +466,28 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         filterLoadedProperties();
 
         String version = getStringProperty(hsqldb_version);
-        int    check = version.substring(0, 5).compareTo(VERSION_STRING_1_8_0);
+        int    check = version.substring(0, 3).compareTo(VERSION_STRING_1_8_0);
 
         // do not open early version databases
         if (check < 0) {
             throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
         }
 
-        check = version.substring(0, 5).compareTo(THIS_VERSION);
-
-        // do not open if the database belongs to a later (future) version
-        if (check > 0) {
-            throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
-        }
-
-        // do not open modified databases of compatible earlier versions
-        if (check < 0) {
+        // do not open modified databases of 1.8 versions
+        if (check == 0) {
             if (!MODIFIED_NO.equals(getStringProperty(hsqldb_modified))) {
                 throw Error.error(ErrorCode.SHUTDOWN_REQUIRED);
             }
+
+            if (getIntegerProperty(hsqldb_script_format) != 0) {
+                throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
+            }
         }
 
-        if (getIntegerProperty(hsqldb_script_format) != 0) {
+        check = version.substring(0, 3).compareTo(THIS_VERSION);
+
+        // do not open if the database belongs to a later (future) version
+        if (check > 0) {
             throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
         }
 

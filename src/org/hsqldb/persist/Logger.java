@@ -360,6 +360,8 @@ public class Logger {
                 SessionInterface.TX_READ_COMMITTED;
         }
 
+        database.sqlEnforceTypes = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_enforce_types);
         database.sqlEnforceRefs = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_refs);
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
@@ -1125,6 +1127,12 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_NAMES).append(' ');
+        sb.append(database.sqlEnforceNames ? Tokens.T_TRUE
+                                           : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_REFERENCES).append(' ');
         sb.append(database.sqlEnforceRefs ? Tokens.T_TRUE
                                           : Tokens.T_FALSE);
@@ -1137,8 +1145,8 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
-        sb.append(Tokens.T_NAMES).append(' ');
-        sb.append(database.sqlEnforceNames ? Tokens.T_TRUE
+        sb.append(Tokens.T_TYPES).append(' ');
+        sb.append(database.sqlEnforceTypes ? Tokens.T_TRUE
                                            : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
