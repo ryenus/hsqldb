@@ -679,7 +679,6 @@ examples:
                   org/hsqldb/lib/FileAccess*,
                   org/hsqldb/ClientConnection*,
                   org/hsqldb/SchemaObject*,
-                  org/hsqldb/Collation*,
                   org/hsqldb/HsqlNameManager*,
                   org/hsqldb/SqlInvariants*,
                   org/hsqldb/Constraint*,
