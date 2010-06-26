@@ -66,7 +66,7 @@ public class HSQLDialect extends Dialect {
     private static final Logger log = LoggerFactory.getLogger( HSQLDialect.class );
 
     /** version is 18 for 1.8 or 20 for 2.0 */
-    private int version = 18;
+    private int hsqldbVersion = 18;
 
 
     public HSQLDialect() {
@@ -76,8 +76,8 @@ public class HSQLDialect extends Dialect {
              Class props = ReflectHelper.classForName( "org.hsqldb.persist.HsqlDatabaseProperties" );
              String versionString = (String) props.getDeclaredField( "THIS_VERSION" ).get(null);
 
-             version = Integer.parseInt(versionString.substring(0, 1)) * 10;
-             version += Integer.parseInt(versionString.substring(2, 3));
+             hsqldbVersion = Integer.parseInt(versionString.substring(0, 1)) * 10;
+             hsqldbVersion += Integer.parseInt(versionString.substring(2, 3));
          } catch ( Throwable e ) {
              // must be a very old version
          }
@@ -88,7 +88,7 @@ public class HSQLDialect extends Dialect {
         registerColumnType( Types.CHAR, "char($l)" );
         registerColumnType( Types.DATE, "date" );
 
-        if (version < 20) {
+        if (hsqldbVersion < 20) {
             registerColumnType(Types.DECIMAL, "decimal");
         } else {
             registerColumnType( Types.DECIMAL, "decimal($p,$s)" );
@@ -107,14 +107,14 @@ public class HSQLDialect extends Dialect {
         registerColumnType( Types.VARCHAR, "varchar($l)" );
         registerColumnType( Types.VARBINARY, "varbinary($l)" );
 
-        if (version < 20) {
+        if (hsqldbVersion < 20) {
             registerColumnType(Types.NUMERIC, "numeric");
         } else {
             registerColumnType( Types.NUMERIC, "numeric($p,$s)" );
         }
 
         //HSQL has no Blob/Clob support .... but just put these here for now!
-        if (version < 20) {
+        if (hsqldbVersion < 20) {
         registerColumnType( Types.BLOB, "longvarbinary" );
         registerColumnType( Types.CLOB, "longvarchar" );
         } else {
@@ -211,7 +211,7 @@ public class HSQLDialect extends Dialect {
     }
 
     public String getIdentityInsertString() {
-        return version < 20 ? "null" : "default";
+        return hsqldbVersion < 20 ? "null" : "default";
     }
 
 	public boolean supportsLockTimeouts() {
@@ -231,7 +231,7 @@ public class HSQLDialect extends Dialect {
     }
 
     public String getLimitString(String sql, boolean hasOffset) {
-        if (version < 20) {
+        if (hsqldbVersion < 20) {
             return new StringBuffer(sql.length() + 10)
                 .append(sql)
                 .insert(sql.toLowerCase().indexOf("select") + 6,
@@ -246,7 +246,7 @@ public class HSQLDialect extends Dialect {
     }
 
     public boolean bindLimitParametersFirst() {
-        return version < 20;
+        return hsqldbVersion < 20;
     }
 
     public boolean supportsIfExistsAfterTableName() {
@@ -254,7 +254,7 @@ public class HSQLDialect extends Dialect {
     }
 
     public boolean supportsColumnCheck() {
-        return version >= 20;
+        return hsqldbVersion >= 20;
     }
 
     public boolean supportsSequences() {
@@ -287,7 +287,7 @@ public class HSQLDialect extends Dialect {
     }
 
     public ViolatedConstraintNameExtracter getViolatedConstraintNameExtracter() {
-        return version < 20 ? EXTRACTER_18 : EXTRACTER_20;
+        return hsqldbVersion < 20 ? EXTRACTER_18 : EXTRACTER_20;
     }
 
     private static ViolatedConstraintNameExtracter EXTRACTER_18 = new TemplatedViolatedConstraintNameExtracter() {
@@ -392,7 +392,7 @@ public class HSQLDialect extends Dialect {
      */
     public String generateTemporaryTableName(String baseTableName) {
 
-        if (version < 20 ) {
+        if (hsqldbVersion < 20 ) {
             return "HT_" + baseTableName;
         } else {
             return "MODULE.HT_" + baseTableName;
@@ -405,7 +405,7 @@ public class HSQLDialect extends Dialect {
      * @return The command used to create a temporary table.
      */
     public String getCreateTemporaryTableString() {
-        if (version < 20 ) {
+        if (hsqldbVersion < 20 ) {
             return "create global temporary table";
         } else {
             return "declare local temporary table";
@@ -446,7 +446,7 @@ public class HSQLDialect extends Dialect {
      * @return see the result matrix above.
      */
     public Boolean performTemporaryTableDDLInIsolation() {
-        if ( version < 20 ) {
+        if ( hsqldbVersion < 20 ) {
             return Boolean.TRUE;
         } else {
             return Boolean.FALSE;
@@ -464,7 +464,7 @@ public class HSQLDialect extends Dialect {
      * @return True if the table should be dropped.
      */
     public boolean dropTemporaryTableAfterUse() {
-        return version < 20;
+        return hsqldbVersion < 20;
     }
 
     // current timestamp support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -537,7 +537,7 @@ public class HSQLDialect extends Dialect {
                 return new OptimisticForceIncrementLockingStrategy( lockable, lockMode);
         }
 
-        if ( version < 20 ) {
+        if ( hsqldbVersion < 20 ) {
             return new ReadUncommittedLockingStrategy( lockable, lockMode );
         } else {
             return new SelectLockingStrategy(lockable, lockMode);
@@ -580,17 +580,35 @@ public class HSQLDialect extends Dialect {
      * @return True if select clause parameter must be cast()ed
      * @since 3.2
      */
-    @Override
     public boolean requiresCastingOfParametersInSelectClause() {
         return true;
     }
 
-    @Override
+    /**
+     * For the underlying database, is READ_COMMITTED isolation implemented by
+     * forcing readers to wait for write locks to be released?
+     *
+     * @return True if writers block readers to achieve READ_COMMITTED; false otherwise.
+     */
+    public boolean doesReadCommittedCauseWritersToBlockReaders() {
+        return hsqldbVersion >= 20;
+    }
+
+    /**
+     * For the underlying database, is REPEATABLE_READ isolation implemented by
+     * forcing writers to wait for read locks to be released?
+     *
+     * @return True if readers block writers to achieve REPEATABLE_READ; false otherwise.
+     */
+    public boolean doesRepeatableReadCauseReadersToBlockWriters() {
+        return hsqldbVersion >= 20;
+    }
+
+
     public boolean supportsLobValueChangePropogation() {
         return false;
     }
 
-	@Override
 	public boolean supportsTupleDistinctCounts() {
 		return false;
 	}
