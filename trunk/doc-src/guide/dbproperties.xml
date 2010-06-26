@@ -477,6 +477,25 @@
           </row>
 
           <row>
+            <entry><property>sql.enforce_types</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>enforcing type compatibility</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property, when set
+            true, causes an error when an SQL statements contains comparisons
+            that are illegal due to type
+            mismatch.</para><para><programlisting>SET DATABASE SQL TYPES { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><property>hsqldb.default_table_type</property></entry>
 
             <entry><literal>memory</literal></entry>

@@ -1558,6 +1558,31 @@
     statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE SQL TYPES</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE SQL TYPES</emphasis></simpara>
+
+    <simpara><emphasis>set database sql types statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database sql types statement&gt; ::= SET
+    DATABASE SQL TYPES { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This command can enable or disable full enforcement of the rules
+    that prevents illegal type conversions and parameters or nulls without
+    type in SQL statements (usually SELECT statements). For example an INTEGER
+    column cannot be compared to a character string when enforcement is TRUE.
+    This is equivalent to the connection property
+    <literal>sql.enforce_type</literal>.</simpara>
+
+    <simpara>The property is <literal>FALSE</literal> by default. It is better
+    to enable this check during development, to improve the quality and
+    correctness of SQL statements.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
       <primary>SET REFERENTIAL INTEGRITY</primary>
     </indexterm>
 

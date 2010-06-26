@@ -461,7 +461,28 @@
   <section>
     <title>Session and Transaction Control Statements</title>
 
-    <!-- From Foundation chapt. 17 -->
+    <indexterm significance="preferred" type="sql">
+      <primary>ALTER SESSION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ALTER SESSION</emphasis></simpara>
+
+    <simpara><emphasis>alter session statement</emphasis></simpara>
+
+    <simpara><literal>&lt;alter session statement&gt; ::= ALTER SESSION
+    &lt;numeric literal&gt; { CLOSE | RELEASE }</literal></simpara>
+
+    <simpara>The alter session statment is used by an administrator to close
+    another session or to release the transaction in another session. When a
+    session is released, its current transaction is terminated with a failure.
+    The session remains open. This statement is different from the other
+    statements discussed in this chapter as it is not used for changing the
+    settings of the current session.</simpara>
+
+    <simpara>The session ID is used as a <literal>&lt;numeric
+    literal&gt;</literal> in this statement. The administrator can use the
+    <literal>INFORMATION_SCHEMA.SYSTEM_SESSIONS</literal> tables to find the
+    session IDs of other sessions.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET AUTOCOMMIT</primary>
