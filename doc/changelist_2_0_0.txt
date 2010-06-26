@@ -1,3 +1,9 @@
+26 June 2010 - SVN 3674
+-- added property sql.enforce_types and related SQL statement
+-- added ALTER SESSION statement
+-- fixed bug #3021175 with setFetchSize()
+-- relaxtion of type comparison and null types - controlled by sql.enforce_type
+-- other minor improvements
 22 June 2010 - SVN 3667
 -- changed names of three system functions ISDATABASEREADONLY() to IS_DATABASE_READONLY(), etc.
 -- fixed bug with Clob.getInputStream()
