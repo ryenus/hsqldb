@@ -494,13 +494,14 @@ public class HSQLDialect extends Dialect {
     // current timestamp support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     /**
-     * HSQLDB supports current_timestamp and returns an up-to-date value,
-     * but when this function returns true, the tests show errors.
+     * HSQLDB 1.8.x requires CALL CURRENT_TIMESTAMP but this should not
+     * be treated as a callable statement. It is equivalent to 
+     * "select current_timestamp from dual" in some databases.
      *
      * @return True if the current timestamp can be retrieved; false otherwise.
      */
     public boolean supportsCurrentTimestampSelection() {
-        return false;
+        return hsqldbVersion >= 20;
     }
 
     /**
@@ -512,7 +513,7 @@ public class HSQLDialect extends Dialect {
      * is callable; false otherwise.
      */
     public boolean isCurrentTimestampSelectStringCallable() {
-        return true;
+        return false;
     }
 
     /**
