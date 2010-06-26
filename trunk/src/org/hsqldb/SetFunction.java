@@ -427,7 +427,7 @@ public class SetFunction implements Serializable {
 
                     case Types.SQL_NUMERIC :
                     case Types.SQL_DECIMAL :
-                        return Type.getType(type.typeCode, 0,
+                        return Type.getType(type.typeCode, null,
                                             type.precision * 2, type.scale);
 
                     case Types.SQL_INTERVAL :

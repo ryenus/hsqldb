@@ -101,8 +101,8 @@ public class Session implements SessionInterface {
     volatile boolean redoAction;
     HsqlArrayList    rowActionList;
     volatile boolean tempUnlocked;
-    OrderedHashSet   waitedSessions;
-    OrderedHashSet   waitingSessions;
+    public OrderedHashSet   waitedSessions;
+    public OrderedHashSet   waitingSessions;
     OrderedHashSet   tempSet;
     CountUpDownLatch latch = new CountUpDownLatch();
     Statement        lockStatement;
@@ -1212,7 +1212,16 @@ public class Session implements SessionInterface {
 
         sessionContext.currentStatement = cs;
 
-        if (!cs.isTransactionStatement()) {
+        boolean isTX = cs.isTransactionStatement();
+
+        if (database.txManager.isMVCC()) {
+            if (cs.readTableNames.length == 0
+                    && cs.writeTableNames.length == 0) {
+                isTX = false;
+            }
+        }
+
+        if (!isTX) {
             r                               = cs.execute(this);
             sessionContext.currentStatement = null;
 

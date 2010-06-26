@@ -33,7 +33,6 @@ package org.hsqldb.types;
 
 import java.math.BigDecimal;
 
-import org.hsqldb.Collation;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
@@ -71,7 +70,7 @@ public class CharacterType extends Type {
     }
 
     /**
-     * Always English collation
+     * Always ASCII collation
      */
     public CharacterType(int type, long precision) {
 
@@ -968,6 +967,10 @@ public class CharacterType extends Type {
         return a.toString() + b.toString();
     }
 */
+    public Type getCharacterType(long length) {
+        return new CharacterType(this.collation, this.typeCode, length);
+    }
+
     public static int getRightTrimSise(String s, char trim) {
 
         int endindex = s.length();
@@ -981,6 +984,24 @@ public class CharacterType extends Type {
     }
 
     public static Type getCharacterType(int type, long precision) {
+
+        switch (type) {
+
+            case Types.SQL_VARCHAR :
+            case Types.SQL_CHAR :
+            case Types.VARCHAR_IGNORECASE :
+                return new CharacterType(type, (int) precision);
+
+            case Types.SQL_CLOB :
+                return new ClobType(precision);
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");
+        }
+    }
+
+    public static Type getCharacterType(int type, long precision,
+                                        Collation collation) {
 
         switch (type) {
 

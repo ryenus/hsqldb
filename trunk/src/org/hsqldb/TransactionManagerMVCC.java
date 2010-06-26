@@ -82,6 +82,10 @@ implements TransactionManager {
         return true;
     }
 
+    public boolean isMVCC() {
+        return true;
+    }
+
     public int getTransactionControl() {
         return MVCC;
     }

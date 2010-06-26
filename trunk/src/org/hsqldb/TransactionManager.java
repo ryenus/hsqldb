@@ -97,6 +97,8 @@ public interface TransactionManager {
 
     public boolean isMVRows();
 
+    public boolean isMVCC();
+
     public boolean prepareCommitActions(Session session);
 
     public void rollback(Session session);

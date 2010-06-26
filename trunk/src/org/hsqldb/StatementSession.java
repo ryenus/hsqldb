@@ -503,6 +503,12 @@ public class StatementSession extends Statement {
                         return Result.updateZeroResult;
                     }
 
+                    if (password == null && !session.isProcessingLog()
+                            && userObject.isAdmin()
+                            && !session.getGrantee().isAdmin()) {
+                        throw Error.error(ErrorCode.X_28000);
+                    }
+
                     if (session.getGrantee().canChangeAuthorisation()) {
                         session.setUser((User) userObject);
                         session.setRole(null);

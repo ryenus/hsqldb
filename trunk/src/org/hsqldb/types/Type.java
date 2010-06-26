@@ -670,16 +670,15 @@ public abstract class Type implements SchemaObject, Cloneable {
     public static final ArrayType SQL_ARRAY_ALL_TYPES =
         new ArrayType(SQL_ALL_TYPES, 0);
 
-
     public static ArrayType getDefaultArrayType(int type) {
-        return new ArrayType(getDefaultType(type), Type.defaultArrayCardinality);
+        return new ArrayType(getDefaultType(type),
+                             Type.defaultArrayCardinality);
     }
-
 
     public static Type getDefaultType(int type) {
 
         try {
-            return getType(type, 0, 0, 0);
+            return getType(type, Type.SQL_VARCHAR.getCollation(), 0, 0);
         } catch (Exception e) {
             return null;
         }
@@ -876,7 +875,7 @@ public abstract class Type implements SchemaObject, Cloneable {
     /**
      * Enforces precision and scale limits on type
      */
-    public static Type getType(int type, int collation, long precision,
+    public static Type getType(int type, Collation collation, long precision,
                                int scale) {
 
         switch (type) {

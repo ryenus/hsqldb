@@ -73,6 +73,10 @@ implements TransactionManager {
         return true;
     }
 
+    public boolean isMVCC() {
+        return false;
+    }
+
     public int getTransactionControl() {
         return MVLOCKS;
     }

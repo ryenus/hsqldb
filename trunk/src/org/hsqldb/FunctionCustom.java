@@ -48,6 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.BinaryData;
+import org.hsqldb.types.BinaryType;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.DTIType;
@@ -1790,7 +1791,8 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                dataType = Type.getType(Types.SQL_VARCHAR, 0, 4, 0);
+                dataType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                        4);
 
                 break;
             }
@@ -1854,7 +1856,8 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42561);
                 }
 
-                dataType = Type.getType(Types.SQL_VARCHAR, 0, 1, 0);
+                dataType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                        1);
 
                 break;
             }
@@ -1882,8 +1885,9 @@ public class FunctionCustom extends FunctionSQL {
 
                 dataType = nodes[0].dataType.precision == 0
                            ? Type.SQL_VARBINARY_DEFAULT
-                           : Type.getType(Types.SQL_VARBINARY, 0,
-                                          nodes[0].dataType.precision / 2, 0);
+                           : BinaryType.getBinaryType(
+                               Types.SQL_VARBINARY,
+                               nodes[0].dataType.precision / 2);
 
                 break;
             }
@@ -1898,8 +1902,8 @@ public class FunctionCustom extends FunctionSQL {
 
                 dataType = nodes[0].dataType.precision == 0
                            ? Type.SQL_VARCHAR_DEFAULT
-                           : Type.getType(Types.SQL_VARCHAR, 0,
-                                          nodes[0].dataType.precision * 2, 0);
+                           : CharacterType.getCharacterType(Types.SQL_VARCHAR,
+                           nodes[0].dataType.precision * 2);
 
                 break;
             }
@@ -1956,8 +1960,8 @@ public class FunctionCustom extends FunctionSQL {
 
                 dataType = nodes[0].dataType.precision == 0
                            ? Type.SQL_VARCHAR_DEFAULT
-                           : Type.getType(Types.SQL_VARCHAR, 0,
-                                          nodes[0].dataType.precision, 0);
+                           : ((CharacterType) nodes[0].dataType)
+                               .getCharacterType(nodes[0].dataType.precision);
                 break;
 
             case FUNC_SPACE :

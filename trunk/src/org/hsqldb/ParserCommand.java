@@ -914,10 +914,17 @@ public class ParserCommand extends ParserDDL {
 
                 switch (token.tokenType) {
 
+                    case Tokens.NAMES :
+                        read();
+
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT_NAMES;
+                        flag = processTrueOrFalseObject();
+                        break;
+
                     case Tokens.REFERENCES :
                         read();
 
-                        type = StatementTypes.SET_DATABASE_SQL_REFERENCES;
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT_REFS;
                         flag = processTrueOrFalseObject();
                         break;
 
@@ -929,12 +936,13 @@ public class ParserCommand extends ParserDDL {
                         flag = processTrueOrFalseObject();
                         break;
 
-                    case Tokens.NAMES :
+                    case Tokens.TYPES :
                         read();
 
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT_NAMES;
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT_TYPES;
                         flag = processTrueOrFalseObject();
                         break;
+
 
                     default :
                         unexpectedToken();

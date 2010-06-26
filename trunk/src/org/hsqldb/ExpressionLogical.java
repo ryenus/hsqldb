@@ -616,7 +616,11 @@ public class ExpressionLogical extends Expression {
             }
             case OpTypes.IS_NULL :
                 if (nodes[LEFT].isUnresolvedParam()) {
-                    throw Error.error(ErrorCode.X_42563);
+                    if (session.database.sqlEnforceTypes) {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
+
+                    nodes[LEFT].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
 
                 if (nodes[LEFT].opType == OpTypes.VALUE) {
@@ -749,13 +753,35 @@ public class ExpressionLogical extends Expression {
                                            nodes[RIGHT])) {
 
                     // compatibility for BIT with number and BOOLEAN - convert bit to other type
-                } else if (nodes[LEFT].dataType.isBitType() || nodes[LEFT].dataType.isBooleanType()) {
+                } else if (nodes[LEFT].dataType.isBitType()
+                           || nodes[LEFT].dataType.isBooleanType()) {
                     if (nodes[LEFT].dataType.canConvertFrom(
                             nodes[RIGHT].dataType)) {
                         nodes[RIGHT] = ExpressionOp.getCastExpression(session,
                                 nodes[RIGHT], nodes[LEFT].dataType);
                     }
-                } else if (nodes[RIGHT].dataType.isBitType() || nodes[RIGHT].dataType.isBooleanType()) {
+                } else if (nodes[RIGHT].dataType.isBitType()
+                           || nodes[RIGHT].dataType.isBooleanType()) {
+                    if (nodes[RIGHT].dataType.canConvertFrom(
+                            nodes[LEFT].dataType)) {
+                        nodes[LEFT] = ExpressionOp.getCastExpression(session,
+                                nodes[LEFT], nodes[RIGHT].dataType);
+                    }
+                } else if (nodes[LEFT].dataType.isNumberType()) {
+                    if (session.database.sqlEnforceTypes) {
+                        throw Error.error(ErrorCode.X_42562);
+                    }
+
+                    if (nodes[LEFT].dataType.canConvertFrom(
+                            nodes[RIGHT].dataType)) {
+                        nodes[RIGHT] = ExpressionOp.getCastExpression(session,
+                                nodes[RIGHT], nodes[LEFT].dataType);
+                    }
+                } else if (nodes[RIGHT].dataType.isNumberType()) {
+                    if (session.database.sqlEnforceTypes) {
+                        throw Error.error(ErrorCode.X_42562);
+                    }
+
                     if (nodes[RIGHT].dataType.canConvertFrom(
                             nodes[LEFT].dataType)) {
                         nodes[LEFT] = ExpressionOp.getCastExpression(session,

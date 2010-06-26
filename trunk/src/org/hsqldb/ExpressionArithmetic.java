@@ -419,6 +419,11 @@ public class ExpressionArithmetic extends Expression {
         // conversion of right argument to character for backward compatibility
         if (nodes[LEFT].dataType.isCharacterType()
                 && !nodes[RIGHT].dataType.isCharacterType()) {
+
+            if (session.database.sqlEnforceTypes) {
+                throw Error.error(ErrorCode.X_42562);
+            }
+
             Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
                 nodes[RIGHT].dataType.displaySize());
 
@@ -428,6 +433,11 @@ public class ExpressionArithmetic extends Expression {
 
         if (nodes[RIGHT].dataType.isCharacterType()
                 && !nodes[LEFT].dataType.isCharacterType()) {
+
+            if (session.database.sqlEnforceTypes) {
+                throw Error.error(ErrorCode.X_42562);
+            }
+
             Type newType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
                 nodes[LEFT].dataType.displaySize());
 

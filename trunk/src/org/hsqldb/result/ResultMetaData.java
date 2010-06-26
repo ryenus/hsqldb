@@ -359,12 +359,12 @@ public final class ResultMetaData {
 
         if (isArray) {
             typeCode = in.readType();
+
             return Type.getDefaultArrayType(typeCode);
         }
 
         return Type.getDefaultType(typeCode);
     }
-
 
     Type readDataType(RowInputBinary in) throws IOException {
 
@@ -377,7 +377,8 @@ public final class ResultMetaData {
 
         long size  = in.readLong();
         int  scale = in.readInt();
-        Type type  = Type.getType(typeCode, 0, size, scale);
+        Type type = Type.getType(typeCode, Type.SQL_VARCHAR.getCollation(),
+                                 size, scale);
 
         if (isArray) {
             type = new ArrayType(type, Type.defaultArrayCardinality);

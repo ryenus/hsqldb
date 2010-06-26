@@ -35,7 +35,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 
-import org.hsqldb.Collation;
 import org.hsqldb.ColumnSchema;
 import org.hsqldb.Constraint;
 import org.hsqldb.Database;
@@ -79,6 +78,7 @@ import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.Charset;
+import org.hsqldb.types.Collation;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimestampData;
@@ -379,6 +379,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * Retrieves a <code>Table</code> object describing the current
      * state of all row caching objects for the accessible
      * tables defined within this database. <p>
@@ -893,6 +895,12 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
         t.insertSys(store, row);
 
+        row    = t.getEmptyRowData();
+        row[0] = "ISOLATION LEVEL";
+        row[1] = String.valueOf(session.getIsolation());
+
+        t.insertSys(store, row);
+
         return t;
     }
 
@@ -911,8 +919,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      * AUTOCOMMIT         BOOLEAN   is session in autocommit mode?
      * READONLY           BOOLEAN   is session in read-only mode?
      * LAST_IDENTITY      BIGINT    last identity value used by this session
-     * TRANSACTION_SIZE   BIGINT   # of undo items in current transaction
      * SCHEMA             VARCHAR   current schema for session
+     * TRANSACTION        BOOLEAN   is session in a transaction
+     * TRANSACTION_SIZE   BIGINT    # of undo items in current transaction
+     * WAITING_FOR_THIS   VARCHAR   comma separated list of sessions waiting for this one
+     * THIS_WAITING_FOR   VARCHAR   comma separated list of sessions this session is waiting for
      * </pre> <p>
      *
      * @return a <code>Table</code> object describing all visible
@@ -934,8 +945,11 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             // Note: some sessions may have a NULL LAST_IDENTITY value
             addColumn(t, "LAST_IDENTITY", CARDINAL_NUMBER);
-            addColumn(t, "TRANSACTION_SIZE", CARDINAL_NUMBER);
             addColumn(t, "SCHEMA", SQL_IDENTIFIER);
+            addColumn(t, "TRANSACTION", Type.SQL_BOOLEAN);
+            addColumn(t, "TRANSACTION_SIZE", CARDINAL_NUMBER);
+            addColumn(t, "WAITING_FOR_THIS", CHARACTER_DATA);
+            addColumn(t, "THIS_WAITING_FOR", CHARACTER_DATA);
 
             // order:  SESSION_ID
             // true primary key
@@ -949,15 +963,18 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         }
 
         // column number mappings
-        final int isid      = 0;
-        final int ict       = 1;
-        final int iuname    = 2;
-        final int iis_admin = 3;
-        final int iautocmt  = 4;
-        final int ireadonly = 5;
-        final int ilast_id  = 6;
-        final int it_size   = 7;
-        final int it_schema = 8;
+        final int isid       = 0;
+        final int ict        = 1;
+        final int iuname     = 2;
+        final int iis_admin  = 3;
+        final int iautocmt   = 4;
+        final int ireadonly  = 5;
+        final int ilast_id   = 6;
+        final int it_schema  = 7;
+        final int it_tx      = 8;
+        final int it_size    = 9;
+        final int it_waiting = 10;
+        final int it_waited  = 11;
 
         //
         PersistentStore store = session.sessionData.getRowStore(t);
@@ -991,12 +1008,50 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[ilast_id] = ValuePool.getLong(lastId.longValue());
             }
 
+            row[it_tx]   = Boolean.valueOf(s.isInMidTransaction());
             row[it_size] = ValuePool.getLong(s.getTransactionSize());
 
             HsqlName name = s.getCurrentSchemaHsqlName();
 
             if (name != null) {
                 row[it_schema] = name.name;
+            }
+
+            row[it_waiting] = "";
+            row[it_waited]  = "";
+
+            if (s.waitingSessions.size() > 0) {
+                StringBuffer sb    = new StringBuffer();
+                Session[]    array = new Session[s.waitingSessions.size()];
+
+                s.waitingSessions.toArray(array);
+
+                for (int j = 0; j < array.length; j++) {
+                    if (j > 0) {
+                        sb.append(',');
+                    }
+
+                    sb.append(array[i].getId());
+                }
+
+                row[it_waiting] = sb.toString();
+            }
+
+            if (s.waitedSessions.size() > 0) {
+                StringBuffer sb    = new StringBuffer();
+                Session[]    array = new Session[s.waitedSessions.size()];
+
+                s.waitedSessions.toArray(array);
+
+                for (int j = 0; j < array.length; j++) {
+                    if (j > 0) {
+                        sb.append(',');
+                    }
+
+                    sb.append(array[i].getId());
+                }
+
+                row[it_waited] = sb.toString();
             }
 
             t.insertSys(store, row);
@@ -1138,6 +1193,10 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 // SQL SCHEMATA VIEWS
 
     /**
+     * SQL:2008 VIEW<p>
+     *
+     * ADMINISTRABLE_ROLE_AUTHORIZATIONS<p>
+     *
      * Returns roles that are grantable by an admin user, which means all the
      * roles
      *
@@ -1174,9 +1233,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * APPLICABLE_ROLES<p>
+     * SQL:2008 VIEW<p>
      *
-     * <b>Function</b><p>
+     * APPLICABLE_ROLES<p>
      *
      * Identifies the applicable roles for the current user.<p>
      *
@@ -1301,9 +1360,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     *  SYSTEM_AUTHORIZATIONS<p>
+     * SQL:2008 VIEW<p>
      *
-     *  <b>Function</b><p>
+     *  SYSTEM_AUTHORIZATIONS<p>
      *
      *  The AUTHORIZATIONS table has one row for each &lt;role name&gt; and
      *  one row for each &lt;authorization identifier &gt; referenced in the
@@ -1464,6 +1523,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * The CHECK_CONSTRAINT_ROUTINE_USAGE view has one row for each
      * SQL-invoked routine identified as the subject routine of either a
      * &lt;routine invocation&gt;, a &lt;method reference&gt;, a
@@ -1636,6 +1697,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * The CHECK_CONSTRAINTS view has one row for each domain
      * constraint, table check constraint, and assertion. <p>
      *
@@ -1800,9 +1863,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * COLLATIONS<p>
+     * SQL:2008 VIEW<p>
      *
-     * <b>Function<b><p>
+     * COLLATIONS<p>
      *
      * The COLLATIONS view has one row for each character collation
      * descriptor. <p>
@@ -1905,6 +1968,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * For generated columns
      * <p>
      *
@@ -1944,6 +2009,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * Domains are shown if the authorization is the user or a role given to the
      * user.
      *
@@ -1992,6 +2059,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * UDT's are shown if the authorization is the user or a role given to the
      * user.
      *
@@ -2039,6 +2108,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         return t;
     }
 
+    /**
+     * SQL:2008 VIEW<p>
+     */
     Table COLUMNS(Session session) {
 
         Table t = sysTables[COLUMNS];
@@ -2323,6 +2395,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * The CONSTRAINT_COLUMN_USAGE view has one row for each column identified by
      * a table constraint or assertion.<p>
      *
@@ -2538,6 +2612,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * The CONSTRAINT_TABLE_USAGE view has one row for each table identified by a
      * &lt;table name&gt; simply contained in a &lt;table reference&gt;
      * contained in the &lt;search condition&gt; of a check constraint,
@@ -2740,6 +2816,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 */
 
     /**
+     * SQL:2008 VIEW<p>
      *
      * @return Table
      */
@@ -2821,8 +2898,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * The DOMAINS view has one row for each domain. <p>
+     * SQL:2008 VIEW<p>
      *
+     * The DOMAINS view has one row for each domain. <p>
      *
      * <pre class="SqlCodeExample">
      *
@@ -2993,9 +3071,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * ENABLED_ROLES<p>
+     * SQL:2008 VIEW<p>
      *
-     * <b>Function</b><p>
+     * ENABLED_ROLES<p>
      *
      * Identify the enabled roles for the current SQL-session.<p>
      *
@@ -3131,6 +3209,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * Retrieves a <code>Table</code> object describing the
      * primary key and unique constraint columns of each accessible table
      * defined within this database. <p>
@@ -3531,6 +3611,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * <ol>
      * <li> A constraint is shown in this view if the user has table level
      * privilege of at lease one of the types, INSERT, UPDATE, DELETE,
@@ -4157,6 +4239,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * needs to provide list of specific referenced routines
      */
     Table ROUTINE_ROUTINE_USAGE(Session session) {
@@ -4809,9 +4893,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
-     * SCHEMATA<p>
-     *
-     * <b>Function</b><p>
+     * SQL:2008 VIEW<p>
      *
      * The SCHEMATA view has one row for each accessible schema. <p>
      *
@@ -6007,6 +6089,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * The USAGE_PRIVILEGES view has one row for each usage privilege
      * descriptor. <p>
      *
@@ -6023,20 +6107,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
      *      OBJECT_SCHEMA   VARCHAR NULL,
      *      OBJECT_NAME     VARCHAR NOT NULL,
      *      OBJECT_TYPE     VARCHAR NOT NULL
-     *
-     *          CHECK ( OBJECT_TYPE IN (
-     *                      'DOMAIN',
-     *                      'CHARACTER SET',
-     *                      'COLLATION',
-     *                      'TRANSLATION',
-     *                      'SEQUENCE' ) ),
-     *
+     *      PRIVILEGE_TYPE  VARCHAR NOT NULL
      *      IS_GRANTABLE    VARCHAR NOT NULL
-     *
-     *          CHECK ( IS_GRANTABLE IN ( 'YES', 'NO' ) ),
-     *
-     *      UNIQUE( GRANTOR, GRANTEE, OBJECT_CATALOG,
-     *              OBJECT_SCHEMA, OBJECT_NAME, OBJECT_TYPE )
      * )
      * </pre>
      *
@@ -6384,6 +6456,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * The VIEW_COLUMN_USAGE table has one row for each column of a
      * table that is explicitly or implicitly referenced in the
      * &lt;query expression&gt; of the view being described. <p>
@@ -6522,6 +6596,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * The VIEW_ROUTINE_USAGE table has one row for each SQL-invoked
      * routine identified as the subject routine of either a &lt;routine
      * invocation&gt;, a &lt;method reference&gt;, a &lt;method invocation&gt;,
@@ -6646,6 +6722,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * The VIEW_TABLE_USAGE table has one row for each table identified
      * by a &lt;table name&gt; simply contained in a &lt;table reference&gt;
      * that is contained in the &lt;query expression&gt; of a view. <p>
@@ -6770,6 +6848,8 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
     }
 
     /**
+     * SQL:2008 VIEW<p>
+     *
      * The VIEWS view contains one row for each VIEW definition. <p>
      *
      * Each row is a description of the query expression that defines its view,
@@ -6898,9 +6978,9 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 // SQL SCHEMATA BASE TABLES
 
     /**
-     * ROLE_AUTHORIZATION_DESCRIPTORS<p>
+     * SQL:2008 VIEW<p>
      *
-     * <b>Function</b><p>
+     * ROLE_AUTHORIZATION_DESCRIPTORS<p>
      *
      * Contains a representation of the role authorization descriptors.<p>
      * <b>Definition</b>

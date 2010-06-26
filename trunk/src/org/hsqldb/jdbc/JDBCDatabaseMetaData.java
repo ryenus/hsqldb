@@ -414,7 +414,7 @@ public class JDBCDatabaseMetaData implements DatabaseMetaData {
      */
     public boolean isReadOnly() throws SQLException {
 
-        ResultSet rs = execute("CALL isReadOnlyDatabase()");
+        ResultSet rs = execute("CALL IS_READONLY_DATABASE()");
 
         rs.next();
 
