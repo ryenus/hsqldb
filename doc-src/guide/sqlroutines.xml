@@ -1154,15 +1154,21 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       systems. The optional Java system property
       <literal>hsqldb.method_class_names</literal> allows preventing access to
       classe other than <literal>java.lang.Math</literal> or specifying a
-      semicolon-separated list of allowed classes. In the example below, the
-      property has been included as an argument to the java command.</para>
+      semicolon-separated list of allowed classes. A property value that ends
+      with .* is treated as a wild card and allows access to all classe or
+      method names formed by substitution of the * (asterisk).</para>
 
-      <programlisting>    java -Dhsqldb.method_class_names="org.me.MyClass;org.you.YourClass" [the rest of the command line]
+      <para>In the example below, the property has been included as an
+      argument to the java command.</para>
+
+      <programlisting>    java -Dhsqldb.method_class_names="org.me.MyClass;org.you.YourClass;org.you.lib.*" [the rest of the command line]
 </programlisting>
 
-      <para>The above example allows access to the methods in the two classes
-      only: <literal>org.me.MyClass</literal> and org.you.YourClass. Note that
-      if the property is not defined, no access control is performed at this
+      <para>The above example allows access to the methods in the two classes:
+      <classname>org.me.MyClass</classname> and
+      <classname>org.you.YourClass</classname> together with all the classes
+      in the <classname>org.you.lib</classname> package. Note that if the
+      property is not defined, no access control is performed at this
       level.</para>
 
       <para>Once the routine has been defined, the normal database access
@@ -1174,14 +1180,16 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
   </section>
 
   <section>
-    <title>SQL Language Aggregate Functions</title>
+    <title>User Defined Aggregate Functions</title>
 
     <para>HyperSQL adds an extension to the SQL Standard to allow user-defined
     aggregate functions. A user-defined aggregate function has a single
     parameter when it is used in SQL statements. Unlike the predefined
     aggregate functions, the keyword DISTINCT cannot be used when a user
     defined aggregate function is invoked. Like all user-defined functions, an
-    aggregate function belongs to a schema and can be polymorphic.</para>
+    aggregate function belongs to a schema and can be polymorphic (using
+    multiple function definitions with the same name but different parameter
+    types).</para>
 
     <para>A user defined aggregate function can be used in SQL statements
     where a predefined aggregate function is allowed.</para>
