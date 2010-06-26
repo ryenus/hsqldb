@@ -141,6 +141,7 @@ public class HSQLDialect extends Dialect {
         registerFunction( "user", new NoArgSQLFunction( "user", Hibernate.STRING ) );
         registerFunction( "database", new NoArgSQLFunction( "database", Hibernate.STRING ) );
 
+        registerFunction( "sysdate", new NoArgSQLFunction( "sysdate", Hibernate.DATE, false ) );
         registerFunction( "current_date", new NoArgSQLFunction( "current_date", Hibernate.DATE, false ) );
         registerFunction( "curdate", new NoArgSQLFunction( "curdate", Hibernate.DATE ) );
         registerFunction( "current_timestamp", new NoArgSQLFunction( "current_timestamp", Hibernate.TIMESTAMP, false ) );
@@ -364,6 +365,29 @@ public class HSQLDialect extends Dialect {
         }
     };
 
+    public String getSelectClauseNullString(int sqlType) {
+        String literal;
+        switch(sqlType) {
+            case Types.VARCHAR:
+            case Types.CHAR:
+                literal = "cast(null as varchar(100))";
+                break;
+            case Types.DATE:
+                literal = "cast(null as date)";
+                break;
+            case Types.TIMESTAMP:
+                literal = "cast(null as timestamp)";
+                break;
+            case Types.TIME:
+                literal = "cast(null as time)";
+                break;
+            default:
+                literal = "cast(null as int)";
+        }        
+        return literal;
+    }
+
+
     // temporary table support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Hibernate uses this information for temporary tables that it uses for its own operations
     // therefore the appropriate strategy is taken with different versions of HSQLDB
@@ -558,6 +582,9 @@ public class HSQLDialect extends Dialect {
         }
     }
 
+    public boolean supportsCommentOn() {
+        return true;
+    }
 
     // Overridden informational metadata ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
