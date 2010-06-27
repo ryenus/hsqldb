@@ -488,7 +488,7 @@ public class HSQLDialect extends Dialect {
      * @return True if the table should be dropped.
      */
     public boolean dropTemporaryTableAfterUse() {
-        return hsqldbVersion < 20;
+        return true;
     }
 
     // current timestamp support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -497,11 +497,12 @@ public class HSQLDialect extends Dialect {
      * HSQLDB 1.8.x requires CALL CURRENT_TIMESTAMP but this should not
      * be treated as a callable statement. It is equivalent to 
      * "select current_timestamp from dual" in some databases.
+     * HSQLDB 2.0 also supports VALUES CURRENT_TIMESTAMP
      *
      * @return True if the current timestamp can be retrieved; false otherwise.
      */
     public boolean supportsCurrentTimestampSelection() {
-        return hsqldbVersion >= 20;
+        return true;
     }
 
     /**
