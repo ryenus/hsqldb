@@ -150,10 +150,12 @@
 
       <listitem>
         <para>Binary string types are BINARY(L), VARBINARY(L) and BLOB.
-        LONGVARBINARY is also supported. Do not use BINARY(L) unless you are
-        storing keys such as UUID. BINARY without the length L means a single
-        byte. You should apply the same considerations as with the character
-        string types.</para>
+        LONGVARBINARY is also supported as a synonym for a long VARBINARY. Do
+        not use BINARY(L) unless you are storing keys such as UUID. This type
+        pads short binary strings with zero bytes. BINARY without the length L
+        means a single byte. Use VARBINARY(L) for general binary strings. You
+        should apply the same considerations as with the character string
+        types.</para>
       </listitem>
 
       <listitem>
@@ -561,7 +563,9 @@
       Standard character string types. CHAR, VARCHAR and CHARACTER LARGE
       OBJECT are synonyms for these types. HyperSQL also supports LONGVARCHAR
       as a synonym for VARCHAR. If LONGVARCHAR is used without a length, then
-      a length of 1M is assigned.</para>
+      a length of 16M is assigned. If the property
+      <literal>sql.longvar_is_lob</literal> has been set true, then
+      LONGVARCHAR is translated to CLOB.</para>
 
       <para>HyperSQL's default character set is Unicode, therefore all
       possible character strings can be represented by these types.</para>
@@ -657,8 +661,9 @@ LONGVARCHAR
       defaults to 1. For the BLOB type, the length limit can be defined in
       units of kilobyte (K, 1024), megabyte (M, 1024 * 1024) or gigabyte (G,
       1024 * 1024 * 1024), using the <literal>&lt;multiplier&gt;</literal>. If
-      BLOB is used without specifying the length, the length defaults to
-      1M.</para>
+      BLOB is used without specifying the length, the length defaults to 16M.
+      If the property <literal>sql.longvar_is_lob</literal> has been set true,
+      then LONGVARCHAR is translated to CLOB.</para>
 
       <simpara><literal>&lt;binary string type&gt; ::= BINARY [ &lt;left
       paren&gt; &lt;length&gt; &lt;right paren&gt; ] | { BINARY VARYING |
