@@ -108,6 +108,95 @@
     <classname>org.hsqldb.jdbc.*</classname> classes.</para>
   </section>
 
+  <section>
+    <title>Short Guide to Types</title>
+
+    <para>Most other RDBMS's do not conform to the SQL Standard in all areas,
+    but they are gradually moving towards Standard conformance. When switching
+    from another SQL dialect, the following should be considered:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Numeric types TINYINT, SMALLINT, INTEGER and BIGINT are types
+        with fixed binary precision. These types are more efficient to store
+        and retrieve. NUMERIC and DECIMAL are types with user-defined decimal
+        precision. They can be used with zero scale to store very large
+        integers, or with a non-zero scale to store decimal fractions. The
+        DOUBLE type is a 64 bit, approximate floating point types. HyperSQL
+        even allows you to store infinity in this type.</para>
+      </listitem>
+
+      <listitem>
+        <para>The BOOLEAN type is for logical values and can hold TRUE, FALSE
+        or UNKNOWN. Although HyperSQL allows you to use one and zero in
+        assignment or comparison, you should use the standard values for this
+        type.</para>
+      </listitem>
+
+      <listitem>
+        <para>Character string types are CHAR(L), VARCHAR(L) and CLOB. CHAR is
+        for fixed width strings and any string that is assigned to this type
+        is padded with spaces at the end. Do not use this type for general
+        storage of strings. If you use CHAR without the length L, then it is
+        interpreted as a single character string. Use VARCHAR(L) for general
+        strings. There are only memory limits and performance implications for
+        the maximum length of VARCHAR(L). If the strings are larger than a few
+        kilobytes, consider using CLOB. The CLOB types is for very large
+        strings. Do not use this type for short strings as there are
+        performance implications. LONGVARCHAR is a synonym for a long VARCHAR.
+        The CLOB type is a better choice for the storage of long
+        strings.</para>
+      </listitem>
+
+      <listitem>
+        <para>Binary string types are BINARY(L), VARBINARY(L) and BLOB.
+        LONGVARBINARY is also supported. Do not use BINARY(L) unless you are
+        storing keys such as UUID. BINARY without the length L means a single
+        byte. You should apply the same considerations as with the character
+        string types.</para>
+      </listitem>
+
+      <listitem>
+        <para>The BIT(L) and BITVARYING(L) types are for bit maps. Do not use
+        them for other types of data. BIT without the length L argument means
+        a single bit and is sometimes used as a logical type. Use BOOLEAN
+        instead of this type.</para>
+      </listitem>
+
+      <listitem>
+        <para>The datetime types DATE, TIME and TIMESTAMP, together with their
+        WITH TIME ZONE variations are available. Read the details in this
+        chapter on how to use these types.</para>
+      </listitem>
+
+      <listitem>
+        <para>The INTERVAL type is very powerful when used together with the
+        datetime types. This is very easy to use, but is supported mainly by
+        "big iron" database systems. Note that functions that add days or
+        months to datetime values are not really a substitute for the INTERVAL
+        type. Expressions such as <literal>(datecol - 7 DAY) &gt;
+        CURRENT_DATE</literal> are optimised to use indexes when it is
+        possible, while the equivalent function calls are not
+        optimised.</para>
+      </listitem>
+
+      <listitem>
+        <para>The OTHER type is for storage of Java objects. If your objects
+        are large, serialize them in your application and store them as BLOB
+        in the database.</para>
+      </listitem>
+
+      <listitem>
+        <para>The ARRAY type supports all base types except LOB and OTHER
+        types. ARRAY data objects are held in memory while being processed. It
+        is therefore not recommended to store more than about a thousand
+        objects in an ARRAY in normal operations with disk based databases.
+        For specialised applications, use ARRAY with as many elements as your
+        memory allocation can support.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
   <section xml:id="sqlgeneral_tabletypes-sect">
     <title>SQL Data and Tables</title>
 
@@ -122,7 +211,7 @@
 
       <para>Data in TEMPORARY tables is not saved and lasts only for the
       lifetime of the session. The contents of each TEMP table is visible only
-      from the session that is used to populate it. </para>
+      from the session that is used to populate it.</para>
 
       <para>HyperSQL supports two types of temporary tables.</para>
 
@@ -130,7 +219,7 @@
       It is created with the <literal>CREATE LOCAL TEMPORARY TABLE</literal>
       statement. The definition of the table persists, and each session has
       access to the table. But each session sees its own copy of the table,
-      which is empty at the beginning of the session. </para>
+      which is empty at the beginning of the session.</para>
 
       <para>The <literal>LOCAL TEMPORARY</literal> type is not a schema
       object. It is created with the <literal>DECLARE LOCAL TEMPORARY
@@ -152,9 +241,9 @@
     <section>
       <title>Persistent Tables</title>
 
-      <para>HSQLDB supports the Standard definition of persistent base table,
-      but defines three types according to the way the data is stored. These
-      are MEMORY tables, CACHED tables and TEXT tables.</para>
+      <para>HyperSQL supports the Standard definition of persistent base
+      table, but defines three types according to the way the data is stored.
+      These are MEMORY tables, CACHED tables and TEXT tables.</para>
 
       <para>Memory tables are the default type when the CREATE TABLE command
       is used. Their data is held entirely in memory but any change to their
