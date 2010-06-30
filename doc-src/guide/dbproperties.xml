@@ -517,6 +517,26 @@
           </row>
 
           <row>
+            <entry><property>sql.longvar_is_lob</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>translating longvarchar and longvarbinary to lob</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property, when set
+            true, causes type declarations using LONGVARCHAR and LONGVARBINARY
+            to be translated to CLOB and BLOB respectively. By default, they
+            are translated to VARCHAR and
+            VARBINARY.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><property>hsqldb.result_max_memory_rows</property></entry>
 
             <entry><literal>0</literal></entry>
