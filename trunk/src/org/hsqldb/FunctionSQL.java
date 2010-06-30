@@ -1958,7 +1958,7 @@ public class FunctionSQL extends Expression {
         return sb.toString();
     }
 
-    public boolean equals(Object other) {
+    public boolean equals(Expression other) {
 
         if (other instanceof FunctionSQL
                 && funcType == ((FunctionSQL) other).funcType) {

@@ -410,8 +410,11 @@ public class QuerySpecification extends QueryExpression {
                 boolean    resolved;
 
                 if (e.isSelfAggregate()) {
-                    resolved = resolveColumnReferences(e.getLeftNode(), count,
-                                                       false);
+                    HsqlList colList =
+                        e.getLeftNode().resolveColumnReferences(rangeVariables,
+                            count, null, false);
+
+                    resolved = colList == null;
                 } else {
                     resolved = resolveColumnReferences(e, count,
                                                        withSequences);

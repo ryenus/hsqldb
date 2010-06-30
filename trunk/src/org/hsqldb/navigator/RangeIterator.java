@@ -49,6 +49,8 @@ public interface RangeIterator extends RowIterator {
 
     Object[] getCurrent();
 
+    Object getCurrent(int i);
+
     void setCurrent(Object[] data);
 
     Object getRowidObject();

@@ -230,18 +230,19 @@ public class ExpressionAggregate extends Expression {
         dataType = SetFunction.getType(opType, nodes[LEFT].dataType);
     }
 
-    public boolean equals(Object other) {
+    public boolean equals(Expression other) {
 
         if (!(other instanceof ExpressionAggregate)) {
             return false;
         }
 
-        return opType == ((ExpressionAggregate) other).opType
-               && exprSubType == ((ExpressionAggregate) other).exprSubType
-               && isDistinctAggregate
-                  == ((ExpressionAggregate) other)
-                      .isDistinctAggregate && equals(nodes,
-                          ((ExpressionAggregate) other).nodes);
+        if (opType == other.opType && exprSubType == other.exprSubType
+                && isDistinctAggregate
+                   == ((ExpressionAggregate) other).isDistinctAggregate) {
+            return super.equals(other);
+        }
+
+        return false;
     }
 
     public Object updateAggregatingValue(Session session, Object currValue) {

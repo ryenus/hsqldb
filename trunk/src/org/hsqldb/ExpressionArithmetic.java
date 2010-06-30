@@ -419,7 +419,6 @@ public class ExpressionArithmetic extends Expression {
         // conversion of right argument to character for backward compatibility
         if (nodes[LEFT].dataType.isCharacterType()
                 && !nodes[RIGHT].dataType.isCharacterType()) {
-
             if (session.database.sqlEnforceTypes) {
                 throw Error.error(ErrorCode.X_42562);
             }
@@ -433,7 +432,6 @@ public class ExpressionArithmetic extends Expression {
 
         if (nodes[RIGHT].dataType.isCharacterType()
                 && !nodes[LEFT].dataType.isCharacterType()) {
-
             if (session.database.sqlEnforceTypes) {
                 throw Error.error(ErrorCode.X_42562);
             }
@@ -462,11 +460,11 @@ public class ExpressionArithmetic extends Expression {
                 return valueData;
 
             case OpTypes.SIMPLE_COLUMN : {
-                Object[] data =
-                    (Object[]) session.sessionContext
-                        .rangeIterators[rangePosition].getCurrent();
+                Object value =
+                    session.sessionContext
+                        .rangeIterators[rangePosition].getCurrent(columnIndex);
 
-                return data[columnIndex];
+                return value;
             }
             case OpTypes.NEGATE :
                 return ((NumberType) dataType).negate(

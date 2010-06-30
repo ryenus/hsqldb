@@ -223,11 +223,11 @@ public class FunctionSQLInvoked extends Expression {
     public Object getValue(Session session) {
 
         if (opType == OpTypes.SIMPLE_COLUMN) {
-            Object[] data =
+            Object value =
                 session.sessionContext.rangeIterators[rangePosition]
-                    .getCurrent();
+                    .getCurrent(columnIndex);
 
-            return data[columnIndex];
+            return value;
         }
 
         Object returnValue = getValueInternal(session, null);

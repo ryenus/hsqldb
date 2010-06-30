@@ -989,11 +989,11 @@ public class ExpressionLogical extends Expression {
                 return valueData;
 
             case OpTypes.SIMPLE_COLUMN : {
-                Object[] data =
-                    (Object[]) session.sessionContext
-                        .rangeIterators[rangePosition].getCurrent();
+                Object value =
+                    session.sessionContext.rangeIterators[rangePosition]
+                        .getCurrent(columnIndex);
 
-                return data[columnIndex];
+                return value;
             }
             case OpTypes.NEGATE :
                 return ((NumberType) dataType).negate(

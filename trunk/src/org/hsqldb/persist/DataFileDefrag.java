@@ -159,6 +159,7 @@ final class DataFileDefrag {
 
             dest.seek(DataFileCache.FLAGS_POS);
             dest.writeInt(flags);
+            dest.synch();
             dest.close();
 
             dest = null;

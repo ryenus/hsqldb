@@ -159,26 +159,37 @@ public class TestPreparedSubQueries extends TestCase {
     }
 
     public void testGenerated() {
+
         boolean valid = false;
+
         try {
             Statement s = con.createStatement();
+
             s.execute("drop table a if exists");
             s.execute("create cached table a (a int identity,b int)");
-            s.execute("insert into a(b) values(1)", Statement.RETURN_GENERATED_KEYS);
+            s.execute("insert into a(b) values(1)",
+                      Statement.RETURN_GENERATED_KEYS);
+
             ResultSet r = s.getGeneratedKeys();
-            while(r.next()) {
+
+            while (r.next()) {
                 r.getInt(1);
+
                 valid = true;
             }
+
             r.close();
             assertTrue(valid);
+            s.execute("insert into a(b) values(2)", new int[]{ 1 });
 
-            s.execute("insert into a(b) values(2)",new int[]{1});
             r = s.getGeneratedKeys();
-            while(r.next()) {
+
+            while (r.next()) {
                 r.getInt(1);
+
                 valid = true;
             }
+
             assertTrue(valid);
         } catch (Exception e) {
             assertTrue(false);
@@ -186,38 +197,50 @@ public class TestPreparedSubQueries extends TestCase {
     }
 
     public void testIdentity() {
+
         boolean valid = false;
+
         try {
             Statement s = con.createStatement();
+
             s.execute("drop table a if exists");
             s.execute("create cached table a (a int identity, b int)");
-            PreparedStatement p1 = con.prepareStatement("insert into a(b) values ?");
+
+            PreparedStatement p1 =
+                con.prepareStatement("insert into a(b) values ?");
+
             p1.setInt(1, 10);
             p1.executeUpdate();
+
             PreparedStatement p2 = con.prepareStatement("call identity()");
-            ResultSet r = p2.executeQuery();
-            while(r.next()) {
+            ResultSet         r  = p2.executeQuery();
+
+            while (r.next()) {
                 r.getInt(1);
+
                 valid = true;
             }
+
             p1.setInt(1, 11);
             p1.executeUpdate();
 
-            PreparedStatement ps3 = con.prepareStatement("select count(*) from a where a in ((select a from a where b = ?) union (select ? from a))");
+            PreparedStatement ps3 = con.prepareStatement(
+                "select count(*) from a where a in ((select a from a where b = ?) union (select ? from a))");
+
             ps3.setInt(1, 10);
             ps3.setInt(2, 1);
 
             r = ps3.executeQuery();
 
-            while(r.next()) {
+            while (r.next()) {
                 int value = r.getInt(1);
+
                 valid = value == 2;
             }
 
             assertTrue(valid);
         } catch (Exception e) {
-        assertTrue(false);
+            assertTrue(false);
+        }
     }
-    }
-
 }

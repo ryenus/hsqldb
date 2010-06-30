@@ -703,6 +703,10 @@ public class Expression implements Cloneable {
             return;
         }
 
+        if (opType == OpTypes.SIMPLE_COLUMN) {
+            return;
+        }
+
         int index = expressions.getIndex(this);
 
         if (index != -1) {
@@ -1369,11 +1373,11 @@ public class Expression implements Cloneable {
                 return valueData;
 
             case OpTypes.SIMPLE_COLUMN : {
-                Object[] data =
+                Object value =
                     session.sessionContext.rangeIterators[rangePosition]
-                        .getCurrent();
+                        .getCurrent(columnIndex);
 
-                return data[columnIndex];
+                return value;
             }
             case OpTypes.ROW : {
                 if (nodes.length == 1) {

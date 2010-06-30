@@ -506,11 +506,10 @@ public class ExpressionColumn extends Expression {
                 return session.sessionContext.routineArguments[columnIndex];
             }
             case OpTypes.COLUMN : {
-                Object[] data =
-                    (Object[]) session.sessionContext
+                Object value =
+                    session.sessionContext
                         .rangeIterators[rangeVariable.rangePosition]
-                        .getCurrent();
-                Object value = data[columnIndex];
+                        .getCurrent(columnIndex);
 
                 if (dataType != column.dataType) {
                     value = dataType.convertToType(session, value,
@@ -520,11 +519,11 @@ public class ExpressionColumn extends Expression {
                 return value;
             }
             case OpTypes.SIMPLE_COLUMN : {
-                Object[] data =
-                    (Object[]) session.sessionContext
-                        .rangeIterators[rangePosition].getCurrent();
+                Object value =
+                    session.sessionContext.rangeIterators[rangePosition]
+                        .getCurrent(columnIndex);
 
-                return data[columnIndex];
+                return value;
             }
             case OpTypes.COALESCE : {
                 Object value = null;
@@ -727,6 +726,16 @@ public class ExpressionColumn extends Expression {
                 throw Error.error(ErrorCode.X_42501,
                                   sb.toString() + c.getColumnName());
             } else {
+                OrderedHashSet newSet = new OrderedHashSet();
+
+                e.collectAllExpressions(newSet,
+                                        Expression.columnExpressionSet,
+                                        Expression.emptyExpressionSet);
+
+                // throw with column name
+                checkColumnsResolved(newSet);
+
+                // throw anyway if not found
                 throw Error.error(ErrorCode.X_42501);
             }
         }
@@ -886,20 +895,21 @@ public class ExpressionColumn extends Expression {
             return false;
         }
 
-        if (opType != ((Expression) other).opType) {
+        if (opType != other.opType) {
             return false;
         }
 
         switch (opType) {
 
             case OpTypes.SIMPLE_COLUMN :
-                return this.columnIndex == ((Expression) other).columnIndex;
+                return this.columnIndex == other.columnIndex;
 
             case OpTypes.COALESCE :
-                return nodes == ((Expression) other).nodes;
+                return nodes == other.nodes;
 
             case OpTypes.COLUMN :
-                return column == ((Expression) other).getColumn();
+                return column == other.getColumn()
+                       && rangeVariable == other.getRangeVariable();
 
             default :
                 return false;

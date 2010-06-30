@@ -82,6 +82,17 @@ public abstract class RowSetNavigator implements RangeIterator {
      */
     public abstract Object[] getCurrent();
 
+    public Object getCurrent(int i) {
+
+        Object[] current = getCurrent();
+
+        if (current == null) {
+            return null;
+        }
+
+        return current[i];
+    }
+
     public void setCurrent(Object[] data) {}
 
     public long getRowid() {
