@@ -228,6 +228,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         "jdbc.translate_dti_types";
     public static final String sql_identity_is_pk = "sql.identity_is_pk";
 
+    public static final String sql_longvar_is_lob = "sql.longvar_is_lob";
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
     public static final String textdb_cache_size_scale =
@@ -334,19 +335,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(hsqldb_nio_data_file, SQL_PROPERTY,
                                           true));
 
-        // char padding to size and exception if data is too long
-        dbMeta.put(sql_identity_is_pk,
-                   HsqlProperties.getMeta(sql_identity_is_pk, SQL_PROPERTY,
-                                          false));
         dbMeta.put(sql_ref_integrity,
                    HsqlProperties.getMeta(sql_ref_integrity, SQL_PROPERTY,
                                           true));
+        // SQL reserved words not allowed as some identifiers
+        dbMeta.put(sql_enforce_names,
+                   HsqlProperties.getMeta(sql_enforce_names, SQL_PROPERTY,
+                                          false));
         dbMeta.put(sql_enforce_refs,
                    HsqlProperties.getMeta(sql_enforce_refs, SQL_PROPERTY,
                                           false));
-        dbMeta.put(sql_enforce_types,
-                   HsqlProperties.getMeta(sql_enforce_types, SQL_PROPERTY,
-                                          false));
+        // char padding to size and exception if data is too long
         dbMeta.put(sql_enforce_size,
                    HsqlProperties.getMeta(sql_enforce_size, SQL_PROPERTY,
                                           true));
@@ -354,12 +353,17 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(sql_enforce_strict_size,
                                           SQL_PROPERTY, true));
 
-        // SQL reserved words not allowed as some identifiers
-        dbMeta.put(sql_enforce_names,
-                   HsqlProperties.getMeta(sql_enforce_names, SQL_PROPERTY,
+        dbMeta.put(sql_enforce_types,
+                   HsqlProperties.getMeta(sql_enforce_types, SQL_PROPERTY,
                                           false));
         dbMeta.put(sql_compare_in_locale,
                    HsqlProperties.getMeta(sql_compare_in_locale, SQL_PROPERTY,
+                                          false));
+        dbMeta.put(sql_identity_is_pk,
+                   HsqlProperties.getMeta(sql_identity_is_pk, SQL_PROPERTY,
+                                          false));
+        dbMeta.put(sql_longvar_is_lob,
+                   HsqlProperties.getMeta(sql_longvar_is_lob, SQL_PROPERTY,
                                           false));
         dbMeta.put(hsqldb_write_delay,
                    HsqlProperties.getMeta(hsqldb_write_delay, SQL_PROPERTY,

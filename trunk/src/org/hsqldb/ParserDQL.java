@@ -43,6 +43,7 @@ import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntKeyHashMap;
+import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.store.BitMap;
@@ -50,6 +51,7 @@ import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.BlobType;
 import org.hsqldb.types.Charset;
+import org.hsqldb.types.ClobType;
 import org.hsqldb.types.Collation;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.IntervalType;
@@ -333,19 +335,29 @@ public class ParserDQL extends ParserBase {
         switch (typeNumber) {
 
             case Types.LONGVARCHAR : {
-                typeNumber = Types.SQL_VARCHAR;
+                if (database.databaseProperties.isPropertyTrue(
+                        HsqlDatabaseProperties.sql_longvar_is_lob)) {
+                    typeNumber = Types.SQL_CLOB;
+                } else {
+                    typeNumber = Types.SQL_VARCHAR;
+                }
 
                 if (!hasLength) {
-                    length = 1024 * 1024;
+                    length = ClobType.defaultClobSize;
                 }
 
                 break;
             }
             case Types.LONGVARBINARY : {
-                typeNumber = Types.SQL_VARBINARY;
+                if (database.databaseProperties.isPropertyTrue(
+                        HsqlDatabaseProperties.sql_longvar_is_lob)) {
+                    typeNumber = Types.SQL_BLOB;
+                } else {
+                    typeNumber = Types.SQL_VARBINARY;
+                }
 
                 if (!hasLength) {
-                    length = 1024 * 1024;
+                    length = BlobType.defaultBlobSize;
                 }
 
                 break;

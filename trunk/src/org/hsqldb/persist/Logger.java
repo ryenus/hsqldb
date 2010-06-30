@@ -360,16 +360,16 @@ public class Logger {
                 SessionInterface.TX_READ_COMMITTED;
         }
 
-        database.sqlEnforceTypes = database.databaseProperties.isPropertyTrue(
-            HsqlDatabaseProperties.sql_enforce_types);
+        database.sqlEnforceNames = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_enforce_names);
         database.sqlEnforceRefs = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_refs);
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_strict_size);
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_size);
-        database.sqlEnforceNames = database.databaseProperties.isPropertyTrue(
-            HsqlDatabaseProperties.sql_enforce_names);
+        database.sqlEnforceTypes = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_enforce_types);
 
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_compare_in_locale)) {
