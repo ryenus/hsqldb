@@ -786,6 +786,11 @@ public final class RangeVariable implements Cloneable {
             return currentData;
         }
 
+        public Object getCurrent(int i) {
+            return currentData == null ? null
+                                       : currentData[i];
+        }
+
         public void setCurrent(Object[] data) {
             currentData = data;
         }

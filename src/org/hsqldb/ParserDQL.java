@@ -400,8 +400,6 @@ public class ParserDQL extends ParserBase {
                         token.tokenString, schemaName, SchemaObject.CHARSET);
 
                 read();
-
-                throw unsupportedFeature();
             }
 
             if (token.tokenType == Tokens.COLLATE) {

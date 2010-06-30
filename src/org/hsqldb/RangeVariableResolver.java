@@ -602,6 +602,10 @@ public class RangeVariableResolver {
                         continue;
                     }
 
+                    if (conditions.rangeVar.isLeftJoin) {
+                        continue;
+                    }
+
                     int colIndex = e.getLeftNode().getColumnIndex();
 
                     colIndexSetEqual.add(colIndex);
@@ -611,6 +615,10 @@ public class RangeVariableResolver {
                 case OpTypes.NOT : {
                     if (e.getLeftNode().getLeftNode().getRangeVariable()
                             != conditions.rangeVar) {
+                        continue;
+                    }
+
+                    if (conditions.rangeVar.isLeftJoin) {
                         continue;
                     }
 

@@ -88,24 +88,24 @@ public class Session implements SessionInterface {
     private Grantee    role;
 
     // transaction support
-    public boolean   isReadOnlyDefault;
-    int isolationLevelDefault       = SessionInterface.TX_READ_COMMITTED;
-    int              isolationLevel = SessionInterface.TX_READ_COMMITTED;
-    int              actionIndex;
-    long             actionTimestamp;
-    long             transactionTimestamp;
-    boolean          isPreTransaction;
-    boolean          isTransaction;
-    boolean          isBatch;
-    volatile boolean abortTransaction;
-    volatile boolean redoAction;
-    HsqlArrayList    rowActionList;
-    volatile boolean tempUnlocked;
-    public OrderedHashSet   waitedSessions;
-    public OrderedHashSet   waitingSessions;
-    OrderedHashSet   tempSet;
-    CountUpDownLatch latch = new CountUpDownLatch();
-    Statement        lockStatement;
+    public boolean        isReadOnlyDefault;
+    int isolationLevelDefault            = SessionInterface.TX_READ_COMMITTED;
+    int                   isolationLevel = SessionInterface.TX_READ_COMMITTED;
+    int                   actionIndex;
+    long                  actionTimestamp;
+    long                  transactionTimestamp;
+    boolean               isPreTransaction;
+    boolean               isTransaction;
+    boolean               isBatch;
+    volatile boolean      abortTransaction;
+    volatile boolean      redoAction;
+    HsqlArrayList         rowActionList;
+    volatile boolean      tempUnlocked;
+    public OrderedHashSet waitedSessions;
+    public OrderedHashSet waitingSessions;
+    OrderedHashSet        tempSet;
+    CountUpDownLatch      latch = new CountUpDownLatch();
+    Statement             lockStatement;
 
     // current settings
     final String       zoneString;

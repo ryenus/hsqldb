@@ -1828,7 +1828,7 @@ public class ParserDDL extends ParserRoutine {
 
         readIfThis(Tokens.AS);
 
-        Type       type          = readTypeDefinition(false, false).duplicate();
+        Type       type = readTypeDefinition(false, false).duplicate();
         Expression defaultClause = null;
 
         if (readIfThis(Tokens.DEFAULT)) {
@@ -5037,8 +5037,8 @@ public class ParserDDL extends ParserRoutine {
 
         read();
 
-        long    sessionID = readBigint();
-        Session targetSession   = database.sessionManager.getSession(sessionID);
+        long    sessionID     = readBigint();
+        Session targetSession = database.sessionManager.getSession(sessionID);
 
         if (targetSession == null) {
             throw Error.error(ErrorCode.X_2E000);

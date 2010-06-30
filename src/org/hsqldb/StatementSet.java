@@ -158,7 +158,7 @@ public class StatementSet extends StatementDMQL {
         switch (operationType) {
 
             case StatementSet.TRIGGER_SET :
-                result = executeSetStatement(session);
+                result = executeTriggerSetStatement(session);
                 break;
 
             case StatementSet.SELECT_INTO : {
@@ -308,7 +308,7 @@ public class StatementSet extends StatementDMQL {
         return "";
     }
 
-    Result executeSetStatement(Session session) {
+    Result executeTriggerSetStatement(Session session) {
 
         Table        table          = targetTable;
         int[]        colMap         = updateColumnMap;    // column map
