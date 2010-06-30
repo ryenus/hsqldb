@@ -47,8 +47,8 @@ import org.hsqldb.lib.StringConverter;
  */
 public final class ClobType extends CharacterType {
 
-    static final long maxClobPrecision = 1024L * 1024 * 1024 * 1024;
-    static final int  defaultClobSize  = 1024 * 1024 * 16;
+    public static final long maxClobPrecision = 1024L * 1024 * 1024 * 1024;
+    public static final int  defaultClobSize  = 1024 * 1024 * 16;
 
     public ClobType(long precision) {
         super(Types.SQL_CLOB, precision);
