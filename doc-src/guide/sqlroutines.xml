@@ -1200,9 +1200,9 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       <para>An aggregate function is always defined with 4 parameters. The
       first parameter is the parameter that is used when the function is
       invoked in SQL statements, the rest of the parameter are invisible to
-      the invoking statement. The type of the first parameter is user defined.
-      The type of the second parameter must be BOOLEAN. The third and fourth
-      parameters have user defined types and must be defined as INOUT
+      the invoking SQL statement. The type of the first parameter is user
+      defined. The type of the second parameter must be BOOLEAN. The third and
+      fourth parameters have user defined types and must be defined as INOUT
       parameters. The defined return type of the function determines the type
       of the value returned when the function is invoked.</para>
 
@@ -1243,9 +1243,11 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       database tables, but it is possible to define the function with READS
       SQL DATA and access the database tables.</para>
 
-      <para>HyperSQL invokes the aggregate function, with all the arguments
-      set, once per each row in order to compute the values. Finally, it
-      invokes the function once more to return the final result.</para>
+      <para>When a SQL statement that uses the aggregate function is
+      executred, HyperSQL invokes the aggregate function, with all the
+      arguments set, once per each row in order to compute the values.
+      Finally, it invokes the function once more to return the final
+      result.</para>
 
       <para>In the computation phase, the first argument is the value of the
       user argument as specified in the SQL statement, computed for the
@@ -1262,8 +1264,8 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       the values they held at the end of the last invocation. The value
       returned by the function in this invocation is used as the result of the
       aggregate function computation in the invoking SQL statement. In SQL
-      queries with GROUP BY, the call sequence is repeated for each separate
-      group.</para>
+      queries with GROUP BY, the call sequence is repeated separately for each
+      separate group.</para>
     </section>
 
     <section>
@@ -1320,9 +1322,10 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
 </programlisting>
 
       <para>The tables and data for the select statement below are created
-      with the DatabaseManager or DatabaseManagerSwing GUI apps. Part of the
-      output is shown. Each row of the output includes an array containing the
-      values for the invoices for each customer.</para>
+      with the DatabaseManager or DatabaseManagerSwing GUI apps. (You can find
+      the SQL in the TestSelf.txt file in the zip). Part of the output is
+      shown. Each row of the output includes an array containing the values
+      for the invoices for each customer.</para>
 
       <programlisting>SELECT ID, FIRSTNAME, LASTNAME, ARRAY_AGGREGATE(CAST(INVOICE.TOTAL AS VARCHAR(100))) 
   FROM customer JOIN INVOICE ON ID =CUSTOMERID
@@ -1334,6 +1337,43 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
 14 James     King      ARRAY['3665.40','905.10','498.00']             
 18 Sylvia    Clancy    ARRAY['634.20','4883.10']                      
 20 Bob       Clancy    ARRAY['3414.60','744.60']
+</programlisting>
+
+      <para>In the example below, the function returns a string that contains
+      the comma-separated list of all the values passed for the aggregated
+      column:</para>
+
+      <programlisting>CREATE AGGREGATE FUNCTION group_concat(IN val VARCHAR(100), IN flag BOOLEAN, INOUT buffer VARCHAR(1000), INOUT counter INT
+ RETURNS VARCHAR(1000)
+ CONTAINS SQL
+ BEGIN ATOMIC
+ IF FLAG THEN
+  RETURN BUFFER;
+ ELSE
+  IF val IS NULL THEN RETURN NULL; END IF;
+  IF buffer IS NULL THEN SET BUFFER = ''; END IF;
+  IF counter IS NULL THEN SET COUNTER = 0; END IF;
+  IF counter &gt; 0 THEN SET buffer = buffer || ','; END IF;
+  SET buffer = buffer + val;
+  SET counter = counter + 1;
+  RETURN NULL;
+ END IF;
+ END
+</programlisting>
+
+      <para>The same tables and data as for the previous example is ued. Part
+      of the output is shown. Each row of the output is a comma-separated list
+      of names.</para>
+
+      <programlisting>SELECT group_concat(firstname || ' ' || lastname) FROM customer GROUP BY lastname
+  
+Laura Steel,John Steel,John Steel,Robert Steel                                   
+Robert King,Robert King,James King,George King,Julia King,George King            
+Robert Sommer,Janet Sommer                                                       
+Michael Smith,Anne Smith,Andrew Smith                                            
+Bill Fuller,Anne Fuller                                                          
+Laura White,Sylvia White                                                         
+Susanne Clancy,Michael Clancy,Sylvia Clancy,Bob Clancy,Susanne Clancy,John Clancy
 </programlisting>
     </section>
 
