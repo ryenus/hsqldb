@@ -153,9 +153,9 @@
         LONGVARBINARY is also supported as a synonym for a long VARBINARY. Do
         not use BINARY(L) unless you are storing keys such as UUID. This type
         pads short binary strings with zero bytes. BINARY without the length L
-        means a single byte. Use VARBINARY(L) for general binary strings. You
-        should apply the same considerations as with the character string
-        types.</para>
+        means a single byte. Use VARBINARY(L) for general binary strings, and
+        BLOB for large binary objects. You should apply the same
+        considerations as with the character string types.</para>
       </listitem>
 
       <listitem>
@@ -1657,7 +1657,8 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     <para>HyperSQL features automatic, on-the-fly indexes for views and
     subselects that are used in a query.</para>
 
-    <para>Indexes have no effect on some LIKE conditions.</para>
+    <para>Indexes are used when a LIKE condition searches from the start of
+    the string.</para>
 
     <para>Indexes are used for ORDER BY clauses if the same index is used for
     selection and ordering of rows.</para>
@@ -1670,77 +1671,112 @@ UPDATE t SET scores[2] = 123, names[2] = 'Reds' WHERE id = 10
     optimise processing. As mentioned in the previous section, the table that
     has a narrowing condition should be the first table in the query.</para>
 
-    <para>HyperSQL optimises queries to use indexes, for all types of range
-    and equality conditions, including IS NULL and NOT NULL conditions.
-    Conditions can be in join or WHERE clauses, including all types of
-    joins.</para>
+    <section>
+      <title>Indexes and Conditions</title>
 
-    <para>In addition, HyperSQL will always use an index (if one exists) for
-    IN conditions, whether constants, variable, or subqueries are used on the
-    right hand side of the IN predicate.</para>
+      <para>HyperSQL optimises queries to use indexes, for all types of range
+      and equality conditions, including IS NULL and NOT NULL conditions.
+      Conditions can be in join or WHERE clauses, including all types of
+      joins.</para>
 
-    <para>HyperSQL can always use indexes when several conditions are combined
-    with the AND operator, choosing a conditions which can use an index. This
-    now extended to all equality conditions on multiple columns that are part
-    of an index.</para>
+      <para>In addition, HyperSQL will always use an index (if one exists) for
+      IN conditions, whether constants, variable, or subqueries are used on
+      the right hand side of the IN predicate. Multicolumn IN conditions can
+      also use an index.</para>
 
-    <para>HyperSQL will also use indexes when several conditions are combined
-    with the OR operator and each condition can use an index (each condition
-    may use a different index). For example, if a huge table has two separate
-    columns for first name and last name, and both columns are indexed, a
-    query such as the following example will use the indexes and complete in a
-    short time:</para>
+      <para>HyperSQL can always use indexes when several conditions are
+      combined with the AND operator, choosing a conditions which can use an
+      index. This now extended to all equality conditions on multiple columns
+      that are part of an index.</para>
 
-    <informalexample>
-      <programlisting>    (TC is a very large table)
+      <para>HyperSQL will also use indexes when several conditions are
+      combined with the OR operator and each condition can use an index (each
+      condition may use a different index). For example, if a huge table has
+      two separate columns for first name and last name, and both columns are
+      indexed, a query such as the following example will use the indexes and
+      complete in a short time:</para>
+
+      <informalexample>
+        <programlisting>    -- TC is a very large table
 
     SELECT * FROM TC WHERE TC.FIRSTNAME = 'John' OR TC.LASTNAME = 'Smith' OR TC.LASTNAME = 'Williams'
 </programlisting>
-    </informalexample>
+      </informalexample>
+    </section>
 
-    <para>HyperSQL optimises simple row count queries in the form of
-    <literal>SELECT COUNT(*) FROM &lt;table&gt;</literal> and returns the
-    result immediately (this optimisation does not take place in MVCC
-    mode).</para>
+    <section>
+      <title>Indexes and Operations</title>
 
-    <para>HyperSQL can use an index on a column for <literal>SELECT
-    MAX(&lt;column&gt;) FROM &lt;table&gt;</literal> and <literal>SELECT
-    MIN(&lt;column&gt;) FROM &lt;table&gt;</literal> queries. There should be
-    an index on the &lt;column&gt; and the query can have a WHERE condition on
-    the same column. In the example below the maximum value for the TB.COL3
-    below 1000000 is returned.</para>
+      <para>HyperSQL optimises simple row count queries in the form of
+      <literal>SELECT COUNT(*) FROM &lt;table&gt;</literal> and returns the
+      result immediately (this optimisation does not take place in MVCC
+      mode).</para>
 
-    <informalexample>
-      <programlisting>    SELECT MAX(TB.COL3) FROM TB WHERE TB.COL &lt; 1000000
+      <para>HyperSQL can use an index on a column for <literal>SELECT
+      MAX(&lt;column&gt;) FROM &lt;table&gt;</literal> and <literal>SELECT
+      MIN(&lt;column&gt;) FROM &lt;table&gt;</literal> queries. There should
+      be an index on the &lt;column&gt; and the query can have a WHERE
+      condition on the same column. In the example below the maximum value for
+      the TB.COL3 below 1000000 is returned.</para>
+
+      <informalexample>
+        <programlisting>    SELECT MAX(TB.COL3) FROM TB WHERE TB.COL &lt; 1000000
 </programlisting>
-    </informalexample>
+      </informalexample>
 
-    <para>HyperSQL can use an index on an ORDER BY clause if all the columns
-    in ORDER BY are in a single-column or multi-column index (in the exact
-    order). This is important if there is a LIMIT n (or FETCH n ROWS ONLY)
-    clause. In this situation, the use of index allows the query processor to
-    access only the number of rows specified in the LIMIT clause, instead of
-    building the whole result set, which can be huge. This also works for
-    joined tables when the ORDER BY clause is on the columns of the first
-    table in a join. Indexes are used in the same way when ORDER BY ... DESC
-    is specified in the query. Note that unlike other RDBMS, HyperSQL does not
-    create DESC indexes. It can use any index for ORDER BY ... DESC.</para>
+      <para>HyperSQL can use an index for simple queries containing DISTINCT
+      or GROUP BY to avoid checking all the rows of the table. Note that
+      indexes are always used if the query has a condition, regardless of the
+      use of DISTINCT or GROUP BY. This particular optimisation applies to
+      cases in which all the columns in the SELECT list are from the same
+      table and are covered by a single index, and any join or query condition
+      uses this index.</para>
 
-    <para>If there is an equality or range condition (e.g. EQUALS, GREATER
-    THAN) condition on the columns specified in the ORDER BY clause, the index
-    is still used. But if the query contains an equality condition on another
-    indexed column in the table, this may take precedence and no index may be
-    used for ORDER BY.</para>
+      <para>For example, with the large table below, a DISTINCT or GROUP BY
+      query to return all the last names, can use an the index on the
+      TC.LASTNAME column. Similarly, a GROUP BY query on two columns can use
+      an index that covers the two columns.</para>
 
-    <para>In the two examples below, the index on TB.COL3 is used and only up
-    to 1000 rows are processed and returned.</para>
+      <para><programlisting>    -- TC is a very large table
 
-    <informalexample>
-      <programlisting>    (TB is a very large table with an index on TB.COL3
+    SELECT DISTINCT LASTNAME FROM TC WHERE TC.LASTNAME &gt; 'F'
+
+    SELECT STATE, LASTNAME FROM TC GROUP BY STATE, LASTNAME
+
+</programlisting></para>
+    </section>
+
+    <section>
+      <title>Indexes and ORDER BY, OFFSET and LIMIT</title>
+
+      <para>HyperSQL can use an index on an ORDER BY clause if all the columns
+      in ORDER BY are in a single-column or multi-column index (in the exact
+      order). This is important if there is a LIMIT n (or FETCH n ROWS ONLY)
+      clause. In this situation, the use of index allows the query processor
+      to access only the number of rows specified in the LIMIT clause, instead
+      of building the whole result set, which can be huge. This also works for
+      joined tables when the ORDER BY clause is on the columns of the first
+      table in a join. Indexes are used in the same way when ORDER BY ... DESC
+      is specified in the query. Note that unlike other RDBMS, HyperSQL does
+      not need or create DESC indexes. It can use any ordinary, ascending
+      index for ORDER BY ... DESC.</para>
+
+      <para>If there is an equality or range condition (e.g. EQUALS, GREATER
+      THAN) condition on the columns specified in the ORDER BY clause, the
+      index is still used. But if the query contains an equality condition on
+      another indexed column in the table, this may take precedence and no
+      index may be used for ORDER BY.</para>
+
+      <para>In the two examples below, the index on TB.COL3 is used and only
+      up to 1000 rows are processed and returned.</para>
+
+      <informalexample>
+        <programlisting>    (TB is a very large table with an index on TB.COL3
 
     SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 WHERE TB.COL3 &gt; 40000 ORDER BY TB.COL3 LIMIT 1000;
     SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 WHERE TB.COL3 &gt; 40000 AND TB.COL3 &lt; 100000 ORDER BY TB.COL3 DESC LIMIT 1000;
 </programlisting>
-    </informalexample>
+      </informalexample>
+    </section>
   </section>
 </chapter>
