@@ -31,6 +31,7 @@
 
 package org.hsqldb;
 
+import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
@@ -51,7 +52,7 @@ public class StatementResultUpdate extends StatementDML {
 
         super();
 
-        isTransactionStatement = true;
+        writeTableNames = new HsqlName[1];
     }
 
     public String describe(Session session) {
@@ -145,7 +146,7 @@ public class StatementResultUpdate extends StatementDML {
 
         int             rowIdIndex = result.metaData.getColumnCount();
         Long            rowId      = (Long) args[rowIdIndex];
-        PersistentStore store = baseTable.getRowStore(session);
+        PersistentStore store      = baseTable.getRowStore(session);
         Row             row        = null;
 
         if (rowIdIndex + 2 == result.metaData.getExtendedColumnCount()) {
@@ -170,11 +171,12 @@ public class StatementResultUpdate extends StatementDML {
     void setRowActionProperties(Result result, int action, Table table,
                                 Type[] types, int[] columnMap) {
 
-        this.result        = result;
-        this.actionType    = action;
-        this.baseTable     = table;
-        this.types         = types;
-        this.baseColumnMap = columnMap;
+        this.result             = result;
+        this.actionType         = action;
+        this.baseTable          = table;
+        this.types              = types;
+        this.baseColumnMap      = columnMap;
+        this.writeTableNames[0] = table.getName();
     }
 
     void checkAccessRights(Session session) {

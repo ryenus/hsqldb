@@ -151,8 +151,8 @@ public interface Index extends SchemaObject {
      */
     public RowIterator findFirstRow(Session session, PersistentStore store,
                                     Object[] rowdata, int matchCount,
-                                    int compareType, boolean reversed,
-                                    boolean[] map);
+                                    int distinctCount, int compareType,
+                                    boolean reversed, boolean[] map);
 
     /**
      * Return the first node equal to the rowdata object.

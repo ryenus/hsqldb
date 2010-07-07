@@ -2048,6 +2048,9 @@ public class ParserDQL extends ParserBase {
             case Tokens.DECODE :
                 return readDecodeExpression();
 
+            case Tokens.CONCAT_WORD :
+                return readConcatExpression();
+
             case Tokens.CASEWHEN :
                 return readCaseWhenExpression();
 
@@ -4478,6 +4481,10 @@ public class ParserDQL extends ParserBase {
             if (token.tokenType == Tokens.COMMA) {
                 readThis(Tokens.COMMA);
             } else {
+                if (alternative == null) {
+                    throw unexpectedToken();
+                }
+
                 alternative.setRightNode(v);
 
                 break;
@@ -4508,6 +4515,35 @@ public class ParserDQL extends ParserBase {
         readThis(Tokens.CLOSEBRACKET);
 
         return casewhen;
+    }
+
+    private Expression readConcatExpression() {
+
+        Expression root;
+        Expression r;
+
+        // turn into a concatenation
+        read();
+        readThis(Tokens.OPENBRACKET);
+
+        root = XreadValueExpression();
+
+        readThis(Tokens.COMMA);
+
+        do {
+            r    = XreadValueExpression();
+            root = new ExpressionArithmetic(OpTypes.CONCAT, root, r);
+
+            if (token.tokenType == Tokens.COMMA) {
+                readThis(Tokens.COMMA);
+            } else if (token.tokenType == Tokens.CLOSEBRACKET) {
+                readThis(Tokens.CLOSEBRACKET);
+
+                break;
+            }
+        } while (true);
+
+        return root;
     }
 
     private Expression readLeastExpression() {

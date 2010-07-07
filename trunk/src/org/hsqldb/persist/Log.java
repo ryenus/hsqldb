@@ -426,6 +426,8 @@ public class Log {
             return true;
         }
 
+        database.lobManager.deleteUnusedLobs();
+        synchLog();
         deleteNewAndOldFiles();
 
         try {
@@ -531,6 +533,9 @@ public class Log {
 */
 
 //
+            synchLog();
+            deleteNewAndOldFiles();
+
             DataFileDefrag dfd = cache.defrag();
         } catch (HsqlException e) {
             database.logger.logSevereEvent("defrag failure", e);

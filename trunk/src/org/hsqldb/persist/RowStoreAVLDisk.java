@@ -239,7 +239,7 @@ public class RowStoreAVLDisk extends RowStoreAVL {
             case RowAction.ACTION_DELETE_FINAL :
                 delete(session, row);
 
-                // remove after delete
+                // remove info after delete
                 database.txManager.removeTransactionInfo(row);
                 remove(row.getPos());
                 break;

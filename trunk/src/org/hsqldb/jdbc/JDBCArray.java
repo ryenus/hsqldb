@@ -36,6 +36,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.hsqldb.ColumnBase;
+import org.hsqldb.SessionInterface;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
@@ -82,7 +83,7 @@ import org.hsqldb.types.Type;
  *
  * @since 1.2
  */
-public class JDBCArray implements Array{
+public class JDBCArray implements Array {
 
     /**
      * Retrieves the SQL type name of the elements in
@@ -156,10 +157,11 @@ public class JDBCArray implements Array{
      * @since 1.2
      */
     public Object getArray() throws SQLException {
+
         Object[] array = new Object[data.length];
 
-        for (int i = 0; i <data.length; i++) {
-            array[i] = elementType.convertSQLToJava(connection.sessionProxy, data[i]);
+        for (int i = 0; i < data.length; i++) {
+            array[i] = elementType.convertSQLToJava(sessionProxy, data[i]);
         }
 
         return array;
@@ -219,7 +221,7 @@ public class JDBCArray implements Array{
      * a base type that maps to a primitive data type, then it is
      * implementation-defined whether the array returned is an array of
      * that primitive data type or an array of <code>Object</code>.
-
+     *
      * <!-- end generic documentation -->
      * <!-- start release-specific documentation -->
      * <div class="ReleaseSpecificDocumentation">
@@ -243,14 +245,15 @@ public class JDBCArray implements Array{
      */
     public Object getArray(long index, int count) throws SQLException {
 
-
         if (!JDBCClobClient.isInLimits(data.length, index - 1, count)) {
             throw Util.outOfRangeArgument();
         }
+
         Object[] slice = new Object[count];
 
         for (int i = 0; i < count; i++) {
-            slice[i] = elementType.convertSQLToJava(connection.sessionProxy, data[(int) index + i - 1]);
+            slice[i] = elementType.convertSQLToJava(sessionProxy,
+                    data[(int) index + i - 1]);
         }
 
         return slice;
@@ -332,7 +335,12 @@ public class JDBCArray implements Array{
      * @since 1.2
      */
     public ResultSet getResultSet() throws SQLException {
+
         Result result = this.newColumnResult(0, data.length);
+
+        if (connection == null) {
+            return new JDBCResultSet(sessionProxy, result, result.metaData);
+        }
 
         return new JDBCResultSet(connection, result, result.metaData);
     }
@@ -401,7 +409,12 @@ public class JDBCArray implements Array{
      * @since 1.2
      */
     public ResultSet getResultSet(long index, int count) throws SQLException {
+
         Result result = this.newColumnResult(index - 1, count);
+
+        if (connection == null) {
+            return new JDBCResultSet(sessionProxy, result, result.metaData);
+        }
 
         return new JDBCResultSet(connection, result, result.metaData);
     }
@@ -452,12 +465,14 @@ public class JDBCArray implements Array{
      * Returns a string representation in the form <code>ARRAY[..., ...]</code>
      */
     public String toString() {
+
         if (arrayType == null) {
             arrayType = Type.getDefaultArrayType(elementType.typeCode);
         }
 
         return arrayType.convertToString(data);
     }
+
     /**
      * This method frees the <code>Array</code> object and releases the resources that
      * it holds. The object is invalid once the <code>free</code>
@@ -478,38 +493,48 @@ public class JDBCArray implements Array{
     public void free() throws SQLException {}
 
     //-------------
-    Type           arrayType;
-    Type           elementType;
-    Object[]       data;
-    JDBCConnection connection;
+    Type             arrayType;
+    Type             elementType;
+    Object[]         data;
+    JDBCConnection   connection;
+    SessionInterface sessionProxy;
+
+    public JDBCArray(Object[] data, Type type, Type arrayType,
+              SessionInterface session) {
+        this(data, type, arrayType, (JDBCConnection) null);
+
+        this.sessionProxy = session;
+    }
 
     /**
-     * Constructors reject unsupported types.
+     * Constructor reject unsupported types.
      */
-    JDBCArray(Object[] data, Type type, JDBCConnection connection) throws SQLException {
+    JDBCArray(Object[] data, Type type,
+              JDBCConnection connection) throws SQLException {
         this(data, type, null, connection);
     }
 
+    JDBCArray(Object[] data, Type type, Type arrayType,
+              JDBCConnection connection) {
 
-    JDBCArray(Object[] data, Type type, Type arrayType, JDBCConnection connection) throws SQLException {
+        this.data         = data;
+        this.elementType  = type;
+        this.arrayType    = arrayType;
+        this.connection   = connection;
 
-        if (type.isArrayType() || type.isLobType() || type.isRowType() ) {
-            throw Util.notSupported();
+        if (connection != null) {
+            this.sessionProxy = connection.sessionProxy;
         }
-
-        this.data        = data;
-        this.elementType = type;
-        this.arrayType   = arrayType;
-        this.connection  = connection;
     }
 
     Object[] getArrayInternal() {
         return data;
     }
 
-    private Result newColumnResult(long position, int count) throws SQLException {
+    private Result newColumnResult(long position,
+                                   int count) throws SQLException {
 
-        if(!JDBCClobClient.isInLimits(data.length, position, count)) {
+        if (!JDBCClobClient.isInLimits(data.length, position, count)) {
             throw Util.outOfRangeArgument();
         }
 
@@ -546,6 +571,7 @@ public class JDBCArray implements Array{
 
             rowData[0] = Integer.valueOf(i + 1);
             rowData[1] = data[i];
+
             navigator.add(rowData);
         }
 

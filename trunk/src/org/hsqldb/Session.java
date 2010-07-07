@@ -419,10 +419,12 @@ public class Session implements SessionInterface {
         database.txManager.addDeleteAction(this, table, row, colMap);
     }
 
-    void addInsertAction(Table table, PersistentStore store, Row row) {
+    void addInsertAction(Table table, PersistentStore store, Row row,
+                         int[] changedColumns) {
 
 //        tempActionHistory.add("add insert to transaction " + actionTimestamp);
-        database.txManager.addInsertAction(this, table, store, row);
+        database.txManager.addInsertAction(this, table, store, row,
+                                           changedColumns);
 
         // abort only after adding so that the new row gets removed from indexes
         if (abortTransaction) {
@@ -1222,6 +1224,8 @@ public class Session implements SessionInterface {
         }
 
         if (!isTX) {
+            sessionContext.setDynamicArguments(pvals);
+
             r                               = cs.execute(this);
             sessionContext.currentStatement = null;
 

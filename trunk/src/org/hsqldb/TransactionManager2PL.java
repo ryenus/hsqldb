@@ -154,13 +154,6 @@ implements TransactionManager {
 
         session.tempSet.clear();
 
-        if (session != lobSession && lobSession.rowActionList.size() > 0) {
-            lobSession.isTransaction = true;
-            lobSession.actionIndex   = lobSession.rowActionList.size();
-
-            lobSession.commit(false);
-        }
-
         return true;
     }
 
@@ -256,11 +249,14 @@ implements TransactionManager {
 
         store.delete(session, row);
 
+        row.rowAction = null;
+
         return action;
     }
 
     public void addInsertAction(Session session, Table table,
-                                PersistentStore store, Row row) {
+                                PersistentStore store, Row row,
+                                int[] changedColumns) {
 
         RowAction action = row.rowAction;
 
@@ -271,6 +267,8 @@ implements TransactionManager {
 
         store.indexRow(session, row);
         session.rowActionList.add(action);
+
+        row.rowAction = null;
     }
 
 // functional unit - accessibility of rows
@@ -292,11 +290,13 @@ implements TransactionManager {
 
     public void beginTransaction(Session session) {
 
-        session.actionTimestamp      = nextChangeTimestamp();
-        session.transactionTimestamp = session.actionTimestamp;
-        session.isTransaction        = true;
+        if (!session.isTransaction) {
+            session.actionTimestamp      = nextChangeTimestamp();
+            session.transactionTimestamp = session.actionTimestamp;
+            session.isTransaction        = true;
 
-        transactionCount++;
+            transactionCount++;
+        }
     }
 
     /**
@@ -345,9 +345,11 @@ implements TransactionManager {
 
     void endTransaction(Session session) {
 
-        session.isTransaction = false;
+        if (session.isTransaction) {
+            session.isTransaction = false;
 
-        transactionCount--;
+            transactionCount--;
+        }
     }
 
 // functional unit - list actions and translate id's

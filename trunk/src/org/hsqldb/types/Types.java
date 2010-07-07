@@ -653,6 +653,10 @@ public class Types {
             return Type.getDefaultTypeWithSize(typeCode);
         }
 
+        if (name.equals("java.sql.Array") ) {
+            return Type.getDefaultArrayType(Types.SQL_ALL_TYPES);
+        }
+
         return null;
     }
 

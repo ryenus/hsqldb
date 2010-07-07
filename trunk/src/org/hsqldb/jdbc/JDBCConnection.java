@@ -3063,6 +3063,10 @@ public class JDBCConnection implements Connection {
 
         Type type = Type.getDefaultType(typeCode);
 
+        if (type.isArrayType() || type.isLobType() || type.isRowType()) {
+            throw Util.invalidArgument(typeName);
+        }
+
         Object[] newData = new Object[elements.length];
         for (int i = 0; i < elements.length; i++) {
             newData[i] = type.convertJavaToSQL(sessionProxy, elements[i]);

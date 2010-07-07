@@ -54,7 +54,7 @@ import org.hsqldb.rowio.RowOutputInterface;
  * Implementation of RowSetNavigator for result sets.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class RowSetNavigatorData extends RowSetNavigator
@@ -90,11 +90,11 @@ implements Comparator {
 
     public RowSetNavigatorData(Session session, QuerySpecification select) {
 
-        this.session       = session;
+        this.session         = session;
         this.queryExpression = select;
-        this.rangePosition = select.resultRangePosition;
-        visibleColumnCount = select.getColumnCount();
-        isSimpleAggregate  = select.isAggregated && !select.isGrouped;
+        this.rangePosition   = select.resultRangePosition;
+        visibleColumnCount   = select.getColumnCount();
+        isSimpleAggregate    = select.isAggregated && !select.isGrouped;
 
         if (select.isGrouped) {
             mainIndex = select.groupIndex;
@@ -108,9 +108,10 @@ implements Comparator {
 
     public RowSetNavigatorData(Session session,
                                QueryExpression queryExpression) {
-        this.session       = session;
+
+        this.session         = session;
         this.queryExpression = queryExpression;
-        visibleColumnCount = queryExpression.getColumnCount();
+        visibleColumnCount   = queryExpression.getColumnCount();
     }
 
     public void sortFull() {
@@ -166,6 +167,7 @@ implements Comparator {
     }
 
     public void update(Object[] oldData, Object[] newData) {
+
         // noop
     }
 
@@ -212,8 +214,10 @@ implements Comparator {
     }
 
     public void clear() {
+
         this.table = emptyTable;
         this.size  = table.length;
+
         reset();
     }
 
@@ -491,19 +495,29 @@ implements Comparator {
         sortFull();
         reset();
 
+        int      lastRowPos  = -1;
         Object[] lastRowData = null;
 
         while (hasNext()) {
             Object[] currentData = getNext();
 
-            if (lastRowData != null
-                    && queryExpression.fullIndex.compareRow(
-                        session, lastRowData, currentData) == 0) {
-                remove();
-            } else {
+            if (lastRowData == null) {
+                lastRowPos  = currentPos;
                 lastRowData = currentData;
+
+                continue;
+            }
+
+            if (queryExpression.fullIndex.compareRow(
+                    session, lastRowData, currentData) != 0) {
+                lastRowPos++;
+
+                lastRowData       = currentData;
+                table[lastRowPos] = currentData;
             }
         }
+
+        super.size = lastRowPos + 1;
 
         reset();
     }

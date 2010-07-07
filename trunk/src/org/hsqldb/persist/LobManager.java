@@ -83,9 +83,6 @@ public class LobManager {
     int totalBlockLimitCount = Integer.MAX_VALUE;
 
     //
-    int deletedLobCount;
-
-    //
     Statement getLob;
     Statement getLobPart;
     Statement deleteLobCall;
@@ -173,7 +170,7 @@ public class LobManager {
     private static String getSpanningBlockSQL =
         "SELECT * FROM SYSTEM_LOBS.LOBS WHERE LOB_ID = ? AND ? > BLOCK_OFFSET AND ? < BLOCK_OFFSET + BLOCK_COUNT";
     private static String updateLobUsageSQL =
-        "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_USAGE_COUNT = ? WHERE LOB_ID = ?";
+        "UPDATE SYSTEM_LOBS.LOB_IDS SET LOB_USAGE_COUNT = LOB_USAGE_COUNT + ? WHERE LOB_ID = ?";
     private static String getNextLobIdSQL =
         "VALUES NEXT VALUE FOR SYSTEM_LOBS.LOB_ID";
     private static String deleteLobCallSQL =
@@ -420,8 +417,6 @@ public class LobManager {
         Result result =
             sysLobSession.executeCompiledStatement(deleteUnusedLobs,
                 ValuePool.emptyObjectArray);
-
-        deletedLobCount = 0;
 
         return result;
     }
@@ -1197,26 +1192,19 @@ public class LobManager {
         return result;
     }
 
-    synchronized public Result adjustUsageCount(long lobID, int delta) {
-
-        Object[] data  = getLobHeader(lobID);
-        int      count = ((Number) data[LOB_IDS.LOB_USAGE_COUNT]).intValue();
-
-        if (count + delta == 0) {
-            deletedLobCount++;
-        }
+    synchronized public Result adjustUsageCount(Session session, long lobID, int delta) {
 
         ResultMetaData meta     = updateLobUsage.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];
 
-        params[UPDATE_USAGE.BLOCK_COUNT] = ValuePool.getInt(count + delta);
+        params[UPDATE_USAGE.BLOCK_COUNT] = ValuePool.getInt(delta);
         params[UPDATE_USAGE.LOB_ID]      = ValuePool.getLong(lobID);
 
-        sysLobSession.sessionContext.pushDynamicArguments(params);
+        session.sessionContext.pushDynamicArguments(params);
 
-        Result result = updateLobUsage.execute(sysLobSession);
+        Result result = updateLobUsage.execute(session);
 
-        sysLobSession.sessionContext.pop();
+        session.sessionContext.pop();
 
         return result;
     }

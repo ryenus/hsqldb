@@ -1890,8 +1890,6 @@ public class SchemaManager {
                 list.add(Schema.getSetSchemaSQL(schema.getName()));
                 list.addAll(t);
             }
-
-            list.addAll(schema.getSequenceRestartSQL());
         }
 
         schemas = schemaMap.values().iterator();

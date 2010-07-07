@@ -61,7 +61,7 @@ import org.hsqldb.types.ClobDataID;
  * Session semi-persistent data structures
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class SessionData {
@@ -366,7 +366,8 @@ public class SessionData {
             return;
         }
 
-        database.lobManager.adjustUsageCount(((LobData) value).getId(),
+        database.lobManager.adjustUsageCount(session,
+                                             ((LobData) value).getId(),
                                              adjust);
 
         hasLobOps = true;
@@ -391,7 +392,8 @@ public class SessionData {
                     continue;
                 }
 
-                database.lobManager.adjustUsageCount(((LobData) value).getId(),
+                database.lobManager.adjustUsageCount(session,
+                                                     ((LobData) value).getId(),
                                                      adjust);
 
                 hasLobOps = true;

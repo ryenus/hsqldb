@@ -252,7 +252,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
             Row row = new RowAVL(table, (Object[]) object, id);
 
-            if (isTempTable) {
+            if (isTempTable && session != null) {
                 RowAction action = new RowAction(session, table,
                                                  RowAction.ACTION_INSERT, row,
                                                  null);

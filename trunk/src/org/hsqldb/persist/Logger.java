@@ -730,8 +730,6 @@ public class Logger {
      */
     public synchronized void checkpoint(boolean mode) {
 
-        database.lobManager.deleteUnusedLobs();
-
         if (logsStatements) {
             logInfoEvent("Checkpoint start");
             log.checkpoint(mode);
