@@ -742,6 +742,36 @@ public class QuerySpecification extends QueryExpression {
         rangeResolver.processConditions(session);
 
         rangeVariables = rangeResolver.rangeVariables;
+
+        if (!isAggregated && (isDistinctSelect || isGrouped)) {
+            RangeVariable range = null;
+
+            tempSet.clear();
+
+            for (int i = 0; i < indexLimitVisible; i++) {
+                if (exprColumns[i].getType() != OpTypes.COLUMN) {
+                    return;
+                }
+
+                if (i == 0) {
+                    range = exprColumns[i].getRangeVariable();
+                } else {
+                    if (range != exprColumns[i].getRangeVariable()) {
+                        return;
+                    }
+                }
+
+                tempSet.add(exprColumns[i].getColumn().getName().name);
+            }
+
+            if (!range.hasIndexCondition()) {
+                return;
+            }
+
+            int[] colMap = range.rangeTable.getColumnIndexes(tempSet);
+
+            range.setDistinctColumnsOnIndex(colMap);
+        }
     }
 
     public void resolveTypes(Session session) {

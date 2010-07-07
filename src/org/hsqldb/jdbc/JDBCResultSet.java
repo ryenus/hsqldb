@@ -7386,4 +7386,16 @@ public class JDBCResultSet implements ResultSet {
         columnCount      = resultMetaData.getColumnCount();
     }
 
+    public JDBCResultSet(SessionInterface session, Result r,
+                  ResultMetaData metaData) throws SQLException {
+
+        this.session     = session;
+        this.result      = r;
+        this.connection  = null;
+        rsProperties     = 0;
+        navigator        = r.getNavigator();
+        resultMetaData   = metaData;
+        columnCount      = resultMetaData.getColumnCount();
+    }
+
 }

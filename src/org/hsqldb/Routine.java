@@ -793,7 +793,17 @@ public class Routine implements SchemaObject {
                     continue;
                 }
 
-                if (methodReturnType.typeCode != routine.returnType.typeCode) {
+                if (!routine.returnType.canBeAssignedFrom(methodReturnType)) {
+                    continue;
+                }
+
+                if (!methodReturnType.isLobType()
+                        && (methodReturnType.isBinaryType()
+                            || methodReturnType.isCharacterType())) {
+
+                    //
+                } else if (methodReturnType.typeCode
+                           != routine.returnType.typeCode) {
                     continue;
                 }
             }

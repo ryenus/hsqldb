@@ -184,7 +184,6 @@ public class Servlet extends javax.servlet.http.HttpServlet {
 
             try {
 
-// loosecannon1@users 1.7.2 patch properties on the JDBC URL
                 DatabaseManager.getDatabase(dbType, dbPath, dbURL);
             } catch (HsqlException e) {
                 errorStr = e.getMessage();

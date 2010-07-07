@@ -933,6 +933,10 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
         // default is true
         useColumnName = true;
 
+        if (conn == null) {
+            return;
+        }
+
         if (conn.connProperties != null) {
             useColumnName = conn.connProperties.isPropertyTrue(
                 HsqlDatabaseProperties.url_get_column_name, true);

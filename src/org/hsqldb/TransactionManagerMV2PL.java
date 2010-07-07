@@ -180,8 +180,20 @@ implements TransactionManager {
 
             persistCommit(session, list, limit);
 
+            int newLimit = session.rowActionList.size();
+
+            if (newLimit > limit) {
+                list = session.rowActionList.getArray();
+
+                mergeTransaction(session, list, limit, newLimit,
+                                 session.actionTimestamp);
+                finaliseRows(session, list, limit, newLimit, true);
+                session.rowActionList.setSize(limit);
+            }
+
             // session.actionTimestamp is the committed tx timestamp
-            if (getFirstLiveTransactionTimestamp() > session.actionTimestamp) {
+            if (getFirstLiveTransactionTimestamp() > session.actionTimestamp
+                    || session == lobSession) {
                 mergeTransaction(session, list, 0, limit,
                                  session.actionTimestamp);
                 finaliseRows(session, list, 0, limit, true);
@@ -197,13 +209,6 @@ implements TransactionManager {
         }
 
         session.tempSet.clear();
-
-        if (session != lobSession && lobSession.rowActionList.size() > 0) {
-            lobSession.isTransaction = true;
-            lobSession.actionIndex   = lobSession.rowActionList.size();
-
-            lobSession.commit(false);
-        }
 
         return true;
     }
@@ -297,7 +302,8 @@ implements TransactionManager {
     }
 
     public void addInsertAction(Session session, Table table,
-                                PersistentStore store, Row row) {
+                                PersistentStore store, Row row,
+                                int[] changedColumns) {
 
         RowAction action = row.rowAction;
 
@@ -412,13 +418,16 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            session.actionTimestamp      = nextChangeTimestamp();
-            session.transactionTimestamp = session.actionTimestamp;
-            session.isTransaction        = true;
+            if (!session.isTransaction) {
+                session.actionTimestamp      = nextChangeTimestamp();
+                session.transactionTimestamp = session.actionTimestamp;
+                session.isTransaction        = true;
 
-            liveTransactionTimestamps.addLast(session.transactionTimestamp);
+                transactionCount++;
 
-            transactionCount++;
+                liveTransactionTimestamps.addLast(
+                    session.transactionTimestamp);
+            }
         } finally {
             writeLock.unlock();
         }

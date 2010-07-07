@@ -1346,4 +1346,30 @@ public class ArrayUtil {
 
         return true;
     }
+
+    /**
+     * returns true if arra contains all elements of arrb at its start
+     *
+     * @param arra int[]
+     * @param arrb int[]
+     */
+    public static boolean containsAllAtStart(int[] arra, int[] arrb) {
+
+        mainLoop:
+        for (int i = 0; i < arra.length; i++) {
+            if (i == arrb.length) {
+                return true;
+            }
+
+            for (int j = 0; j < arrb.length; j++) {
+                if (arra[i] == arrb[j]) {
+                    continue mainLoop;
+                }
+            }
+
+            return false;
+        }
+
+        return true;
+    }
 }

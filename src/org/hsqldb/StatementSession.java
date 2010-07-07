@@ -635,7 +635,7 @@ public class StatementSession extends Statement {
                 StatementDMQL statement       = (StatementDMQL) parameters[2];
 
                 try {
-                    if (tempConstraints != null) {
+                    if (tempConstraints.size() != 0) {
                         table =
                             ParserDDL.addTableConstraintDefinitions(session,
                                 table, tempConstraints, null, false);
@@ -644,22 +644,14 @@ public class StatementSession extends Statement {
                     table.compile(session, null);
                     session.addSessionTable(table);
 
+                    if (table.hasLobColumn) {
+                        throw Error.error(ErrorCode.X_07000);
+                    }
+
                     if (statement != null) {
                         Result result = statement.execute(session);
 
                         table.insertIntoTable(session, result);
-                    }
-
-                    if (table.hasLobColumn) {
-                        RowIterator it = table.rowIterator(session);
-
-                        while (it.hasNext()) {
-                            Row      row  = it.getNextRow();
-                            Object[] data = row.getData();
-
-                            session.sessionData.adjustLobUsageCount(table,
-                                    data, 1);
-                        }
                     }
 
                     return Result.updateZeroResult;

@@ -1060,10 +1060,6 @@ public class Table extends TableBase implements SchemaObject {
         columnList.add(column.getName().name, column);
 
         columnCount++;
-
-        if (column.getDataType().isLobType()) {
-            hasLobColumn = true;
-        }
     }
 
     public boolean hasLobColumn() {
@@ -1614,6 +1610,10 @@ public class Table extends TableBase implements SchemaObject {
 
         if (dataType.isDomainType()) {
             hasDomainColumns = true;
+        }
+
+        if (dataType.isLobType()) {
+            hasLobColumn = true;
         }
 
         colTypes[i]         = dataType;
@@ -2448,7 +2448,7 @@ public class Table extends TableBase implements SchemaObject {
 
         Row row = (Row) store.getNewCachedObject(session, data);
 
-        session.addInsertAction(this, store, row);
+        session.addInsertAction(this, store, row, changedCols);
 
         return row;
     }
@@ -2480,7 +2480,7 @@ public class Table extends TableBase implements SchemaObject {
         PersistentStore store = session.sessionData.getRowStore(this);
         Row             row   = (Row) store.getNewCachedObject(session, data);
 
-        session.addInsertAction(this, store, row);
+        session.addInsertAction(this, store, row, null);
     }
 
     /**

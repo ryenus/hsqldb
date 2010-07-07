@@ -43,8 +43,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
-import org.hsqldb.lib.FileUtil;
-import org.hsqldb.lib.StopWatch;
 import org.hsqldb.lib.Storage;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.rowio.RowInputBinary180;
@@ -64,22 +62,19 @@ import org.hsqldb.store.BitMap;
  * Rewritten for 1.8.0 together with Cache.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 public class DataFileCache {
 
     protected FileAccess fa;
 
-    // We are using persist.Logger-instance-specific FrameworkLogger
-    // because it is Database-instance specific.
-    // If add any static level logging, should instantiate a standard,
-    // context-agnostic FrameworkLogger for that purpose.
     // flags
     public static final int FLAG_ISSHADOWED = 1;
     public static final int FLAG_ISSAVED    = 2;
     public static final int FLAG_ROWINFO    = 3;
     public static final int FLAG_190        = 4;
+    public static final int FLAG_HX         = 5;
 
     // file format fields
     static final int LONG_EMPTY_SIZE      = 4;     // empty space size

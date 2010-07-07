@@ -84,8 +84,6 @@ class TransactionManagerCommon {
 
     void persistCommit(Session session, Object[] list, int limit) {
 
-        boolean deletedLobs = false;
-
         for (int i = 0; i < limit; i++) {
             RowAction action = (RowAction) list[i];
 
@@ -111,12 +109,24 @@ class TransactionManagerCommon {
                     case RowActionBase.ACTION_DELETE :
                         session.sessionData.adjustLobUsageCount(action.table,
                                 row.getData(), -1);
-
-                        deletedLobs = true;
                         break;
 
                     case RowActionBase.ACTION_INSERT_DELETE :
                     default :
+                }
+
+                int newLimit = session.rowActionList.size();
+
+                if (newLimit > limit) {
+                    list = session.rowActionList.getArray();
+
+                    for (int j = limit; j < newLimit; j++) {
+                        RowAction lobAction = (RowAction) list[j];
+
+                        lobAction.commit(session);
+                    }
+
+                    limit = newLimit;
                 }
             }
 
@@ -125,6 +135,7 @@ class TransactionManagerCommon {
 
                 if (txModel == TransactionManager.LOCKS) {
                     action.setAsNoOp();
+
                     row.rowAction = null;
                 }
             } catch (HsqlException e) {
@@ -133,22 +144,18 @@ class TransactionManagerCommon {
         }
 
         try {
-            if (deletedLobs && transactionCount == 0) {
-                database.lobManager.deleteUnusedLobs();
-            }
-
             session.logSequences();
 
             if (limit > 0) {
                 database.logger.writeCommitStatement(session);
             }
-        } catch (HsqlException e) {}
+        } catch (HsqlException e) {
+            database.logger.logWarningEvent("data commit failed", e);
+        }
     }
 
     void finaliseRows(Session session, Object[] list, int start, int limit,
                       boolean commit) {
-
-        boolean deletedLobs = false;
 
         for (int i = start; i < limit; i++) {
             RowAction action = (RowAction) list[i];
@@ -189,20 +196,12 @@ class TransactionManagerCommon {
                         row = (Row) action.store.get(action.getPos(), false);
                     }
 
-                    if (commit && action.table.hasLobColumn) {
-                        deletedLobs = true;
-                    }
-
                     action.store.commitRow(session, row, action.type, txModel);
                 } catch (Exception e) {
 
 //                    throw unexpectedException(e.getMessage());
                 }
             }
-        }
-
-        if (deletedLobs && transactionCount == 0 ) {
-            database.lobManager.deleteUnusedLobs();
         }
     }
 

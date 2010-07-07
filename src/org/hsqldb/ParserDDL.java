@@ -1283,6 +1283,10 @@ public class ParserDDL extends ParserRoutine {
                 column.setGeneratingExpression(null);
             }
 
+            if (table.isTemp() && column.getDataType().isLobType()) {
+                throw Error.error(ErrorCode.X_42534, column.getNameString());
+            }
+
             columnList[i] = column;
         }
 
@@ -1349,6 +1353,10 @@ public class ParserDDL extends ParserRoutine {
                                           queryExpression.getColumnTypes());
         table.createPrimaryKey();
 
+        if (table.isTemp() && table.hasLobColumn()) {
+            throw Error.error(ErrorCode.X_42534);
+        }
+
         if (withData) {
             statement = new StatementQuery(session, queryExpression,
                                            compileContext);
@@ -1356,7 +1364,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         Object[] args = new Object[] {
-            table, null, statement
+            table, new HsqlArrayList(), statement
         };
         String   sql  = getLastPart();
         StatementSchema st = new StatementSchema(sql,
@@ -2473,8 +2481,10 @@ public class ParserDDL extends ParserRoutine {
             typeObject = readTypeDefinition(true, true);
         }
 
-        if (isGenerated || isIdentity) {}
-        else if (token.tokenType == Tokens.DEFAULT) {
+        if (isGenerated || isIdentity) {
+
+            //
+        } else if (token.tokenType == Tokens.DEFAULT) {
             read();
 
             defaultExpr = readDefaultClause(typeObject);
@@ -2519,6 +2529,10 @@ public class ParserDDL extends ParserRoutine {
             isIdentity   = true;
             isPKIdentity = true;
             sequence     = new NumberSequence(null, 0, 1, typeObject);
+        }
+
+        if (table.isTemp() && typeObject.isLobType()) {
+            throw Error.error(ErrorCode.X_42534, hsqlName.name);
         }
 
         if (isGenerated) {

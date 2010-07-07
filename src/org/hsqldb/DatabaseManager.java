@@ -183,7 +183,6 @@ public class DatabaseManager {
      * Used by server to open or create a database
      */
 
-// loosecannon1@users 1.7.2 patch properties on the JDBC URL
     public static int getDatabase(String type, String path, Server server,
                                   HsqlProperties props) {
 
@@ -209,7 +208,6 @@ public class DatabaseManager {
      *
      */
 
-// loosecannon1@users 1.7.2 patch properties on the JDBC URL
     public static Database getDatabase(String type, String path,
                                        HsqlProperties props) {
 
@@ -259,7 +257,6 @@ public class DatabaseManager {
         return db;
     }
 
-// loosecannon1@users 1.7.2 patch properties on the JDBC URL
     private static synchronized Database getDatabaseObject(String type,
             String path, HsqlProperties props) {
 

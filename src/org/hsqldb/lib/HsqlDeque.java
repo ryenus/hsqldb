@@ -42,7 +42,7 @@ import java.util.NoSuchElementException;
  * but does not shrink when it gets empty.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.0
  */
 public class HsqlDeque extends BaseList implements HsqlList {
@@ -93,7 +93,29 @@ public class HsqlDeque extends BaseList implements HsqlList {
     }
 
     public void add(int i, Object o) throws IndexOutOfBoundsException {
-        throw new java.lang.RuntimeException();
+
+        if (i == elementCount) {
+            add(o);
+
+            return;
+        }
+
+        resetCapacity();
+
+        int index = getInternalIndex(i);
+
+        if (index < endindex && endindex < list.length) {
+            System.arraycopy(list, index, list, index + 1, endindex - index);
+            endindex++;
+        } else {
+            System.arraycopy(list, firstindex, list, firstindex - 1,
+                             index - firstindex);
+            firstindex--;
+        }
+
+        list[index] = o;
+
+        elementCount++;
     }
 
     public Object set(int i, Object o) throws IndexOutOfBoundsException {

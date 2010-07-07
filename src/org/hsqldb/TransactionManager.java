@@ -60,7 +60,8 @@ public interface TransactionManager {
                                      int[] colMap);
 
     public void addInsertAction(Session session, Table table,
-                                PersistentStore store, Row row);
+                                PersistentStore store, Row row,
+                                int[] changedColumns);
 
     /**
      * add session to the end of queue when a transaction starts

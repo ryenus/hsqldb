@@ -36,6 +36,7 @@ import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
@@ -89,6 +90,9 @@ public final class RangeVariable implements Cloneable {
 
     //
     int level;
+
+    //
+    int indexDistinctCount;
 
     //
     int rangePosition;
@@ -226,6 +230,19 @@ public final class RangeVariable implements Cloneable {
     boolean hasIndexCondition() {
         return joinConditions.length == 1
                && joinConditions[0].indexedColumnCount > 0;
+    }
+
+    boolean setDistinctColumnsOnIndex(int[] colMap) {
+
+        int[] indexColMap = joinConditions[0].rangeIndex.getColumns();
+
+        if (ArrayUtil.containsAllAtStart(indexColMap, colMap)) {
+            indexDistinctCount = colMap.length;
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -962,10 +979,13 @@ public final class RangeVariable implements Cloneable {
             }
 
             if (conditions[condIndex].indexCond == null) {
-                it = conditions[condIndex].reversed
-                     ? conditions[condIndex].rangeIndex.lastRow(session, store)
-                     : conditions[condIndex].rangeIndex.firstRow(session,
-                        store);
+                if (conditions[condIndex].reversed) {
+                    it = conditions[condIndex].rangeIndex.lastRow(session,
+                            store);
+                } else {
+                    it = conditions[condIndex].rangeIndex.firstRow(session,
+                            store);
+                }
             } else {
                 getFirstRow();
 
@@ -1059,7 +1079,7 @@ public final class RangeVariable implements Cloneable {
 
             it = conditions[condIndex].rangeIndex.findFirstRow(session, store,
                     currentJoinData, conditions[condIndex].indexedColumnCount,
-                    conditions[condIndex].opType,
+                    rangeVar.indexDistinctCount, conditions[condIndex].opType,
                     conditions[condIndex].reversed, null);
         }
 

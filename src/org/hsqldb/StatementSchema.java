@@ -918,7 +918,7 @@ public class StatementSchema extends Statement {
                         foreignConstraints = new HsqlArrayList();
                     }
 
-                    if (tempConstraints != null) {
+                    if (tempConstraints.size() != 0) {
                         table =
                             ParserDDL.addTableConstraintDefinitions(session,
                                 table, tempConstraints, foreignConstraints,

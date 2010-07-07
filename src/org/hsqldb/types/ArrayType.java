@@ -37,6 +37,7 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.jdbc.JDBCArray;
 import org.hsqldb.store.ValuePool;
 
 /**
@@ -209,6 +210,12 @@ public class ArrayType extends Type {
         }
 
         return arrb;
+    }
+
+    public Object convertSQLToJava(SessionInterface session, Object a) {
+
+        Object[] data = (Object[]) a;
+        return new JDBCArray(data, this.collectionBaseType(), this, session);
     }
 
     public Object convertToDefaultType(SessionInterface sessionInterface,
