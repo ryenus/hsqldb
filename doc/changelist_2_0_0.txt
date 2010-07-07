@@ -1,3 +1,12 @@
+07 July 2010 - SVN 3686
+-- added property sql.longvar_is_lob
+-- added missing CONCAT function
+-- added ARRAY support to Java functions and procedures
+-- added query optimisation for DISTINCT and GROUP BY on indexed columns
+-- speed improvement for some large results
+-- fixed bugs and issues related to persistence of lobs
+-- fixed bug #3023253 - multiple count(*) with duplicate tables in outer join
+-- fixed bug #3022106 - mix of IS NULL and other conditions in outer join
 26 June 2010 - SVN 3674
 -- added property sql.enforce_types and related SQL statement
 -- added ALTER SESSION statement
