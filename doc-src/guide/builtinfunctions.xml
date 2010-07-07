@@ -159,15 +159,16 @@
     <simpara><emphasis role="bold">CONCAT</emphasis></simpara>
 
     <para><literal>CONCAT ( &lt;char value expr 1&gt;, &lt;char value expr
-    2&gt; )</literal></para>
+    2&gt; [, ...] )</literal></para>
 
     <para><literal>CONCAT ( &lt;binary value expr 1&gt;, &lt;binary value expr
-    2&gt; )</literal></para>
+    2&gt; [, ...] )</literal></para>
 
     <para>The arguments are character strings or binary strings. Returns a
-    string formed by concatenation of the arguments. Equivalent to the SQL
-    concatenation expression <literal>&lt;value expr 1&gt; || &lt;value expr
-    2&gt;</literal>. (JDBC)</para>
+    string formed by concatenation of the arguments. Minimum number of
+    arguments is 2. Equivalent to the SQL concatenation expression
+    <literal>&lt;value expr 1&gt; || &lt;value expr 2&gt; [ || ...] </literal>
+    . (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>DIFFERENCE function</primary>
