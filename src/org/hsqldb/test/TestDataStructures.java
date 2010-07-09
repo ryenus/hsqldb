@@ -37,7 +37,7 @@ import java.util.Random;
 import java.util.Vector;
 
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.lib.HsqlLinkedList;
+import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.StopWatch;
 
@@ -77,30 +77,30 @@ public class TestDataStructures extends TestCase {
     /** Runs a test on the hsqldb lists */
     public void testLists() {
 
-        HsqlArrayList  arrayList  = new HsqlArrayList();
-        HsqlLinkedList linkedList = new HsqlLinkedList();
-        Vector         vector     = new Vector();
+        HsqlArrayList arrayList   = new HsqlArrayList();
+        HsqlDeque     deque       = new HsqlDeque();
+        Vector        vector      = new Vector();
         Vector listCommandsCalled = new Vector(NUMBER_OF_ITERATIONS_PER_RUN);
-        Integer        tempInt    = null;
-        int            tempCommandCode;
-        int            tempPosition;
-        boolean        arrayListException  = false;
-        boolean        linkedListException = false;
-        boolean        vectorException     = false;
-        Object         arrayListObject     = null;
-        Object         linkedListObject    = null;
-        Object         vectorObject        = null;
+        Integer       tempInt     = null;
+        int           tempCommandCode;
+        int           tempPosition;
+        boolean       arrayListException = false;
+        boolean       dequeException     = false;
+        boolean       vectorException    = false;
+        Object        arrayListObject    = null;
+        Object        linkedListObject   = null;
+        Object        vectorObject       = null;
 
         for (int i = 0; i < getRandomInt(3, 12); i++) {    // prime the contents with a couple items
             tempInt = getRandomInteger();
 
             arrayList.add(tempInt);
-            linkedList.add(tempInt);
+            deque.add(tempInt);
             vector.addElement(tempInt);
             listCommandsCalled.addElement("Add");
         }
 
-        compareLists(arrayList, linkedList, vector);
+        compareLists(arrayList, deque, vector);
 
         for (int j = 0; j < NUMBER_OF_ITERATIONS_PER_RUN; j++) {
             tempCommandCode = getRandomInt(0, 15);    // 0 and 8 are ignored or used for a special op
@@ -112,7 +112,7 @@ public class TestDataStructures extends TestCase {
 
                     listCommandsCalled.addElement("Add");
                     arrayList.add(tempInt);
-                    linkedList.add(tempInt);
+                    deque.add(tempInt);
                     vector.addElement(tempInt);
                     break;
 
@@ -129,9 +129,9 @@ public class TestDataStructures extends TestCase {
                     }
 
                     try {
-                        linkedList.add(tempPosition, tempInt);
+                        deque.add(tempPosition, tempInt);
                     } catch (Exception ex) {
-                        linkedListException = true;
+                        dequeException = true;
                     }
 
                     try {
@@ -142,7 +142,7 @@ public class TestDataStructures extends TestCase {
                     break;
 
                 case GET :
-                    tempPosition = getRandomInt(0, vector.size() -1);
+                    tempPosition = getRandomInt(0, vector.size() - 1);
 
                     listCommandsCalled.addElement("Get " + tempPosition);
 
@@ -153,9 +153,9 @@ public class TestDataStructures extends TestCase {
                     }
 
                     try {
-                        linkedListObject = linkedList.get(tempPosition);
+                        linkedListObject = deque.get(tempPosition);
                     } catch (Exception ex) {
-                        linkedListException = true;
+                        dequeException = true;
                     }
 
                     try {
@@ -177,9 +177,9 @@ public class TestDataStructures extends TestCase {
                     }
 
                     try {
-                        linkedListObject = linkedList.remove(tempPosition);
+                        linkedListObject = deque.remove(tempPosition);
                     } catch (Exception ex) {
-                        linkedListException = true;
+                        dequeException = true;
                     }
 
                     try {
@@ -193,7 +193,7 @@ public class TestDataStructures extends TestCase {
 
                 case SET :
                     tempInt      = getRandomInteger();
-                    tempPosition = getRandomInt(0, vector.size() -1);
+                    tempPosition = getRandomInt(0, vector.size() - 1);
 
                     listCommandsCalled.addElement("Set " + tempPosition);
 
@@ -204,9 +204,9 @@ public class TestDataStructures extends TestCase {
                     }
 
                     try {
-                        linkedList.set(tempPosition, tempInt);
+                        deque.set(tempPosition, tempInt);
                     } catch (Exception ex) {
-                        linkedListException = true;
+                        dequeException = true;
                     }
 
                     try {
@@ -232,7 +232,7 @@ public class TestDataStructures extends TestCase {
 
                         for (int k = arrayList.size() - 1; k >= 0; k--) {
                             arrayList.remove(k);
-                            linkedList.remove(k);
+                            deque.remove(k);
                         }
 
                         vector.removeAllElements();
@@ -242,17 +242,17 @@ public class TestDataStructures extends TestCase {
                 default :
             }
 
-            if (arrayListException || linkedListException || vectorException) {
+            if (arrayListException || dequeException || vectorException) {
 
                 // if an exception is thrown in vector but not one of the lists or vice versa
-                if (!(arrayListException && linkedListException
+                if (!(arrayListException && dequeException
                         && vectorException)) {
                     if (!(arrayListException && vectorException)) {
                         System.out.println(
-                            "Exception descrepancy with vector and arraylist");
-                    } else if (!(linkedListException && vectorException)) {
+                            "Exception discrepancy with vector and arraylist");
+                    } else if (!(dequeException && vectorException)) {
                         System.out.println(
-                            "Exception descrepancy with vector and linkedlist");
+                            "Exception discrepancy with vector and linkedlist");
                     } else {
                         System.out.println("Error in TestDataStructures");
                     }
@@ -275,7 +275,7 @@ public class TestDataStructures extends TestCase {
                 //System.exit(0);
             }
 
-            compareLists(arrayList, linkedList, vector);
+            compareLists(arrayList, deque, vector);
         }
     }
 
@@ -283,8 +283,8 @@ public class TestDataStructures extends TestCase {
      * Compare contents of lists to the vector.  Print out stuff if they are
      * inconsistent and exit.
      */
-    public void compareLists(HsqlArrayList arrayList,
-                             HsqlLinkedList linkedList, Vector vector) {
+    public void compareLists(HsqlArrayList arrayList, HsqlDeque linkedList,
+                             Vector vector) {
 
         boolean arrayListError  = false;
         boolean linkedListError = false;
@@ -447,7 +447,8 @@ public class TestDataStructures extends TestCase {
             }
         }
 
-        System.out.println(sw.currentElapsedTimeToMessage("time HsqlArrayLsit"));
+        System.out.println(
+            sw.currentElapsedTimeToMessage("time HsqlArrayLsit"));
         sw.zero();
 
         for (int i = 0; i < TEST_RUNS; i++) {
