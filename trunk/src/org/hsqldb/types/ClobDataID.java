@@ -40,10 +40,10 @@ import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 
 /**
- * Implementation of CLOB for client and server.<p>
+ * Locator for CLOB.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class ClobDataID implements ClobData {

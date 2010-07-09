@@ -36,13 +36,14 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.jdbc.JDBCClobClient;
 import org.hsqldb.lib.StringConverter;
 
 /**
- * Type subclass CLOB data.<p>
+ * Type object for CLOB.<p>
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public final class ClobType extends CharacterType {
@@ -178,6 +179,34 @@ public final class ClobType extends CharacterType {
         String s = convertToString(a);
 
         return StringConverter.toQuotedString(s, '\'', true);
+    }
+
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
+
+        if (a instanceof JDBCClobClient) {
+            return ((JDBCClobClient) a).getClob();
+        }
+
+        throw Error.error(ErrorCode.X_42561);
+    }
+
+    public Object convertSQLToJava(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
+
+        if (a instanceof ClobDataID) {
+            ClobDataID clob = (ClobDataID) a;
+
+            return new JDBCClobClient(session, clob);
+        }
+
+        throw Error.error(ErrorCode.X_42561);
     }
 
     public long position(SessionInterface session, Object data,

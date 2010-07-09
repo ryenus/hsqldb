@@ -219,6 +219,10 @@ public class DataFileCache {
                         FLAG_ISSHADOWED);
                 is180 = !BitMap.isSet(flags, FLAG_190);
 
+                if (BitMap.isSet(flags, FLAG_HX) ) {
+                    throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
+                }
+
                 if (!isSaved) {
                     boolean restored = true;
 

@@ -39,6 +39,13 @@ import org.hsqldb.error.Error;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultLob;
 
+/**
+ * Locator for BLOB.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since 1.9.0
+ */
 public class BlobDataID implements BlobData {
 
     long id;

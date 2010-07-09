@@ -275,7 +275,7 @@ public class LobManager {
         lobStore.close();
     }
 
-    LobStore getLobStore() {
+    public LobStore getLobStore() {
 
         if (lobStore == null) {
             open();
@@ -1192,7 +1192,8 @@ public class LobManager {
         return result;
     }
 
-    synchronized public Result adjustUsageCount(Session session, long lobID, int delta) {
+    synchronized public Result adjustUsageCount(Session session, long lobID,
+            int delta) {
 
         ResultMetaData meta     = updateLobUsage.getParametersMetaData();
         Object         params[] = new Object[meta.getColumnCount()];

@@ -70,8 +70,6 @@ import javax.swing.border.EmptyBorder;
 /**
  * Opens a connection to a database
  *
- * New class based on Hypersonic original
- *
  * @author dmarshall@users
  * @version 1.7.2
  * @since 1.7.0

@@ -3413,6 +3413,13 @@ public class JDBCConnection implements Connection {
     }
 
     /**
+     * Returns the sessionProxy for this connection
+     */
+    public SessionInterface getSession() {
+        return sessionProxy;
+    }
+
+    /**
      * is called from within nativeSQL when the start of an JDBC escape sequence is encountered
      */
     private int onStartEscapeSequence(String sql, StringBuffer sb,

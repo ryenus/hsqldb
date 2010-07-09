@@ -56,6 +56,7 @@ import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalMonthData;
 import org.hsqldb.types.IntervalSecondData;
 import org.hsqldb.types.IntervalType;
+import org.hsqldb.types.LobData;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
@@ -159,6 +160,7 @@ public class FunctionCustom extends FunctionSQL {
     private static final int FUNC_DATEDIFF         = 142;
     private static final int FUNC_SECONDS_MIDNIGHT = 143;
     private static final int FUNC_REGEXP_MATCHES   = 144;
+    private static final int FUNC_LOB_ID           = 145;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
@@ -242,6 +244,7 @@ public class FunctionCustom extends FunctionSQL {
                                  FUNC_DATABASE_TIMEZONE);
         customRegularFuncMap.put(Tokens.DATABASE_VERSION,
                                  FUNC_DATABASE_VERSION);
+        customRegularFuncMap.put(Tokens.LOB_ID, FUNC_LOB_ID);
 
         //
         nonDeterministicFuncSet.add(FUNC_DATABASE);
@@ -451,6 +454,10 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DATABASE_TIMEZONE :
             case FUNC_DATABASE_VERSION :
                 parseList = emptyParamList;
+                break;
+
+            case FUNC_LOB_ID :
+                parseList = singleParamList;
                 break;
 
             case FUNC_EXTRACT :
@@ -709,6 +716,15 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DATABASE_VERSION :
                 return HsqlDatabaseProperties.THIS_FULL_VERSION;
 
+            case FUNC_LOB_ID : {
+                LobData lob = (LobData) data[0];
+
+                if (lob == null) {
+                    return null;
+                }
+
+                return ValuePool.getLong(lob.getId());
+            }
             case FUNC_IDENTITY : {
                 Number id = session.getLastIdentity();
 
@@ -1418,6 +1434,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 return;
 
+            case FUNC_LOB_ID :
             case FUNC_IDENTITY :
                 dataType = Type.SQL_BIGINT;
 
@@ -2115,7 +2132,8 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SPACE :
             case FUNC_REVERSE :
             case FUNC_HEXTORAW :
-            case FUNC_RAWTOHEX : {
+            case FUNC_RAWTOHEX :
+            case FUNC_LOB_ID : {
                 return new StringBuffer(name).append('(')                   //
                     .append(nodes[0].getSQL()).append(')').toString();
             }
