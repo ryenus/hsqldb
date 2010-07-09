@@ -1,7 +1,4 @@
-/*
- * For work developed by the HSQL Development Group:
- *
- * Copyright (c) 2001-2010, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,42 +26,6 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- *
- *
- * For work originally developed by the Hypersonic SQL Group:
- *
- * Copyright (c) 1995-2000, The Hypersonic SQL Group.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * Neither the name of the Hypersonic SQL Group nor the names of its
- * contributors may be used to endorse or promote products derived from this
- * software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE HYPERSONIC SQL GROUP,
- * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * This software consists of voluntary contributions made by many individuals
- * on behalf of the Hypersonic SQL Group.
  */
 
 
@@ -92,38 +53,13 @@ import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.scriptio.ScriptWriterEncode;
 import org.hsqldb.scriptio.ScriptWriterText;
 
-// fredt@users 20020215 - patch 1.7.0 by fredt
-// to move operations on the database.properties files to new
-// class HsqlDatabaseProperties
-// fredt@users 20020220 - patch 488200 by xclayl@users - throw exception
-// throw addded to all methods relying on file io
-// fredt@users 20020221 - patch 513005 by sqlbob@users (RMP)
-// fredt@users 20020405 - patch 1.7.0 by fredt - no change in db location
-// because important information about the database is now stored in the
-// *.properties file, all database files should be in the same folder as the
-// *.properties file
-// tony_lai@users 20020820 - export hsqldb.log_size to .properties file
-// tony_lai@users 20020820 - changes to shutdown compact to save memory
-// fredt@users 20020910 - patch 1.7.1 by Nitin Chauhan - code improvements
-// fredt@users 20021208 - ongoing revamp
-// fredt@users 20021212 - do not rewrite the *.backup file if the *.data
-// file has not been updated in the current session.
-// boucherb@users 20030510 - patch 1.7.2 consolidated all periodic database
-// tasks in one timed task queue
-// fredt@users - 20050102 patch 1.8.0 - refactoring and clearer separation of concerns
-/*
-    - if props.modified, use .backup file - .data file is ready
-    - read .script file and set index roots
-
-
-    - if .data file is modified, use .backup with .data file flag for increment backup - .data file is ready
-*/
-
 /**
- *  This class is responsible for managing the database files. An HSQLDB database
- *  consists of a .properties file, a .script file (contains an SQL script),
+ *  This class is responsible for managing some of the database files.
+ *  An HSQLDB database consists of
+ *  a .properties file, a .script file (contains an SQL script),
  *  a .data file (contains data of cached tables) a .backup file
- *  and a .log file.<p>
+ *  a .log file and a .lobs file.<p>
+ *
  *  When using TEXT tables, a data source for each table is also present.<p>
  *
  *  Notes on OpenOffice.org integration.
@@ -133,12 +69,13 @@ import org.hsqldb.scriptio.ScriptWriterText;
  *  the contents of these files into its database file. The script format is
  *  always TEXT in this case.
  *
- * Extensively rewritten and extended in successive versions of HSQLDB.
+ *  Class has the same name as a class in Hypersonic SQL, but has been
+ *  completely rewritten since HSQLDB 1.8.0 and earlier.
  *
- * @author Thomas Mueller (Hypersonic SQL Group)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
- * @since Hypersonic SQL
+ * @author Bob Preston (sqlbob@users dot sourceforge.net) - text table support
+ * @version 2.0.1
+ * @since 1.8.0
  */
 public class Log {
 
@@ -155,10 +92,6 @@ public class Log {
     private int                    scriptFormat;
     private DataFileCache          cache;
 
-    // We are using persist.Logger-instance-specific FrameworkLogger
-    // because it is Database-instance specific.
-    // If add any static level logging, should instantiate a standard,
-    // context-agnostic FrameworkLogger for that purpose.
     Log(Database db) {
 
         database   = db;
@@ -169,7 +102,6 @@ public class Log {
 
     void initParams() {
 
-        // Allows the user to set log size in the properties file.
         maxLogSize     = database.logger.propLogSize * 1024L * 1024;
         scriptFormat   = 0;
         writeDelay     = database.logger.propWriteDelay;
@@ -183,8 +115,6 @@ public class Log {
      * used to determine if this version of the engine is equal to or greater
      * than the earliest version of the engine capable of opening that
      * database.<p>
-     *
-     * @throws  HsqlException
      */
     void open() {
 
@@ -405,6 +335,8 @@ public class Log {
             } catch (Exception e) {
                 database.logger.checkpointDisabled = true;
 
+                database.logger.logSevereEvent("defrag failed - recovered", e);
+
                 return;
             }
         }
@@ -434,6 +366,7 @@ public class Log {
             writeScript(false);
         } catch (HsqlException e) {
             deleteNewScript();
+            database.logger.logSevereEvent("checkpoint failed - recovered", e);
 
             return false;
         }
@@ -454,6 +387,9 @@ public class Log {
                     cache.open(false);
                 }
             } catch (Exception e1) {}
+
+            database.logger.logSevereEvent("checkpoint failed - recovered",
+                                           ee);
 
             return false;
         }
@@ -595,7 +531,7 @@ public class Log {
     }
 
     /**
-     * Responsible for creating the cache instance.
+     * Responsible for creating the data file cache instance.
      */
     DataFileCache getCache() {
 

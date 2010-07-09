@@ -36,8 +36,16 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.jdbc.JDBCBlobClient;
 import org.hsqldb.lib.StringConverter;
 
+/**
+ * Type object for BLOB.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since 1.9.0
+ */
 public final class BlobType extends BinaryType {
 
     public static final long maxBlobPrecision = 1024L * 1024 * 1024 * 1024;
@@ -208,5 +216,33 @@ public final class BlobType extends BinaryType {
         byte[] bytes = ((BlobData) a).getBytes();
 
         return StringConverter.byteArrayToSQLHexString(bytes);
+    }
+
+    public Object convertJavaToSQL(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
+
+        if (a instanceof JDBCBlobClient) {
+            return ((JDBCBlobClient) a).getBlob();
+        }
+
+        throw Error.error(ErrorCode.X_42561);
+    }
+
+    public Object convertSQLToJava(SessionInterface session, Object a) {
+
+        if (a == null) {
+            return null;
+        }
+
+        if (a instanceof BlobDataID) {
+            BlobDataID blob = (BlobDataID) a;
+
+            return new JDBCBlobClient(session, blob);
+        }
+
+        throw Error.error(ErrorCode.X_42561);
     }
 }

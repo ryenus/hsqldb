@@ -49,7 +49,7 @@ import org.hsqldb.types.ClobInputStream;
  * Instances of this class are returnd by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class JDBCClobClient implements Clob {
@@ -330,9 +330,13 @@ public class JDBCClobClient implements Clob {
     SessionInterface session;
     boolean          isClosed;
 
-    JDBCClobClient(SessionInterface session, ClobDataID clob) {
+    public JDBCClobClient(SessionInterface session, ClobDataID clob) {
         this.session = session;
         this.clob    = clob;
+    }
+
+    public ClobDataID getClob() {
+        return clob;
     }
 
     public synchronized boolean isClosed() {

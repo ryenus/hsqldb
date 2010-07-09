@@ -38,6 +38,7 @@ import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 
 // boucherb@users 20051207 - patch 1.8.x initial JDBC 4.0 support work
+// fredt@users - 2.0.0 code changes
 
 /**
  * Defines the constants that are used to identify SQL types for HSQLDB JDBC
@@ -47,7 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
  * has been added to differentiate HSQLDB-specific type specializations.
  *
  * @author  boucherb@users
- * @version 2.0.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 public class Types {
@@ -561,6 +562,8 @@ public class Types {
         javaTypeNumbers.put(DateClassName, Types.SQL_DATE);
         javaTypeNumbers.put(TimeClassName, Types.SQL_TIME);
         javaTypeNumbers.put(TimestampClassName, Types.SQL_TIMESTAMP);
+        javaTypeNumbers.put(BlobClassName, Types.SQL_BLOB);
+        javaTypeNumbers.put(ClobClassName, Types.SQL_CLOB);
         javaTypeNumbers.put("java.util.Date", Types.SQL_DATE);
         javaTypeNumbers.put(DecimalClassName, Types.SQL_DECIMAL);
         javaTypeNumbers.put("boolean", Types.SQL_BOOLEAN);
@@ -653,7 +656,7 @@ public class Types {
             return Type.getDefaultTypeWithSize(typeCode);
         }
 
-        if (name.equals("java.sql.Array") ) {
+        if (name.equals("java.sql.Array")) {
             return Type.getDefaultArrayType(Types.SQL_ALL_TYPES);
         }
 

@@ -1012,7 +1012,7 @@ public class FunctionSQL extends Expression {
                 byte[] bytes = string.getBytes();
 
                 return ((BinaryType) dataType).trim(session,
-                                                    (BlobData) data[3],
+                                                    (BlobData) data[2],
                                                     bytes[0], leading,
                                                     trailing);
             }

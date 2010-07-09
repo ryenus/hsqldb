@@ -48,7 +48,7 @@ import org.hsqldb.types.BlobInputStream;
  * Instances of this class are returnd by calls to ResultSet methods.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 2.0.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class JDBCBlobClient implements Blob {
@@ -316,13 +316,17 @@ public class JDBCBlobClient implements Blob {
     SessionInterface session;
     boolean          isClosed;
 
-    JDBCBlobClient(SessionInterface session, BlobDataID blob) {
+    public JDBCBlobClient(SessionInterface session, BlobDataID blob) {
         this.session = session;
         this.blob    = blob;
     }
 
     public boolean isClosed() {
         return isClosed;
+    }
+
+    public BlobDataID getBlob() {
+        return blob;
     }
 
     private void checkClosed() throws SQLException {
