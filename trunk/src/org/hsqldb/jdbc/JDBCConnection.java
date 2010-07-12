@@ -791,11 +791,11 @@ public class JDBCConnection implements Connection {
             return sql;
         }
 
-        boolean   changed = false;
-        int          state = 0;
-        int          len   = sql.length();
-        int          nest  = 0;
-        StringBuffer sb = null;
+        boolean      changed = false;
+        int          state   = 0;
+        int          len     = sql.length();
+        int          nest    = 0;
+        StringBuffer sb      = null;
         String       msg;
 
         //--
@@ -815,14 +815,14 @@ public class JDBCConnection implements Connection {
         // Better than old way for large inputs and for avoiding GC overhead;
         // toString() reuses internal char[], reducing memory requirment
         // and garbage items 3:2
-
         int tail = 0;
+
         for (int i = 0; i < len; i++) {
             char c = sql.charAt(i);
 
             switch (state) {
 
-                case outside_all :    // Not inside an escape or quotes
+                case outside_all :                            // Not inside an escape or quotes
                     if (c == '\'') {
                         state = outside_escape_inside_single_quotes;
                     } else if (c == '"') {
@@ -832,10 +832,11 @@ public class JDBCConnection implements Connection {
                             sb = new StringBuffer(sql.length());
                         }
                         sb.append(sql.substring(tail, i));
-                        i = onStartEscapeSequence(sql, sb, i);
-                        tail = i;
 
+                        i       = onStartEscapeSequence(sql, sb, i);
+                        tail    = i;
                         changed = true;
+
                         nest++;
 
                         state = inside_escape;
@@ -862,23 +863,25 @@ public class JDBCConnection implements Connection {
                     } else if (c == '"') {
                         state = inside_escape_inside_double_quotes;
                     } else if (c == '}') {
-
                         sb.append(sql.substring(tail, i));
-
                         sb.append(' ');
 
                         i++;
-                        tail = i;
+
+                        tail    = i;
                         changed = true;
+
                         nest--;
 
                         state = (nest == 0) ? outside_all
                                 : inside_escape;
                     } else if (c == '{') {
                         sb.append(sql.substring(tail, i));
-                        i = onStartEscapeSequence(sql, sb, i);
-                        tail = i;
+
+                        i       = onStartEscapeSequence(sql, sb, i);
+                        tail    = i;
                         changed = true;
+
                         nest++;
 
                         state = inside_escape;
@@ -889,7 +892,6 @@ public class JDBCConnection implements Connection {
         if (!changed) {
             return sql;
         }
-
         sb.append(sql.substring(tail, sql.length()));
 
         return sb.toString();
@@ -2827,6 +2829,11 @@ public class JDBCConnection implements Connection {
 
                 t.join(timeout);
 
+                try {
+                    t.setContextClassLoader(null);
+                } catch (Throwable th) {
+                }
+
                 return (timeout > 0)
                        ? (System.currentTimeMillis() - start) < timeout
                        : true;
@@ -3052,7 +3059,6 @@ public class JDBCConnection implements Connection {
         if (typeName == null) {
             throw Util.nullArgument();
         }
-
         typeName = typeName.toUpperCase();
 
         int typeCode = Type.getTypeNr(typeName);
@@ -3068,9 +3074,11 @@ public class JDBCConnection implements Connection {
         }
 
         Object[] newData = new Object[elements.length];
+
         for (int i = 0; i < elements.length; i++) {
             newData[i] = type.convertJavaToSQL(sessionProxy, elements[i]);
         }
+
         return new JDBCArray(newData, type, this);
     }
 
@@ -3404,8 +3412,10 @@ public class JDBCConnection implements Connection {
      * @throws SQLException if a database access error occurs
      */
     public void reset() throws SQLException {
+
         try {
             incarnation++;
+
             this.sessionProxy.resetSession();
         } catch (HsqlException e) {
             throw Util.sqlException(ErrorCode.X_08006, e.getMessage(), e);
@@ -3426,32 +3436,37 @@ public class JDBCConnection implements Connection {
                                       int i) throws SQLException {
 
         sb.append(' ');
+
         i++;
 
         i = StringUtil.skipSpaces(sql, i);
 
         if (sql.regionMatches(true, i, "fn ", 0, 3)
                 || sql.regionMatches(true, i, "oj ", 0, 3)) {
-            i+= 2;
-
+            i += 2;
         } else if (sql.regionMatches(true, i, "ts ", 0, 3)) {
             sb.append(Tokens.T_TIMESTAMP);
-            i+= 2;
 
+            i += 2;
         } else if (sql.regionMatches(true, i, "d ", 0, 2)) {
             sb.append(Tokens.T_DATE);
+
             i++;
         } else if (sql.regionMatches(true, i, "t ", 0, 2)) {
             sb.append(Tokens.T_TIME);
+
             i++;
         } else if (sql.regionMatches(true, i, "call ", 0, 5)) {
             sb.append(Tokens.T_CALL);
+
             i += 4;
         } else if (sql.regionMatches(true, i, "?= call ", 0, 8)) {
             sb.append(Tokens.T_CALL);
+
             i += 7;
         } else if (sql.regionMatches(true, i, "? = call ", 0, 8)) {
             sb.append(Tokens.T_CALL);
+
             i += 8;
         } else if (sql.regionMatches(true, i, "escape ", 0, 7)) {
             i += 6;

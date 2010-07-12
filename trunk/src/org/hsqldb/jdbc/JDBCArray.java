@@ -204,8 +204,8 @@ public class JDBCArray implements Array {
      * this method
      * @since 1.2
      */
-    public Object getArray(java.util.Map<String, Class<?>> map) throws
-        SQLException {
+    public Object getArray(java.util.Map<String,
+            Class<?>> map) throws SQLException {
         return getArray();
     }
 
@@ -306,8 +306,9 @@ public class JDBCArray implements Array {
      * this method
      * @since 1.2
      */
-    public Object getArray(long index, int count, java.util.Map<String, Class<?>>
-        map) throws SQLException {
+    public Object getArray(long index, int count,
+                           java.util.Map<String,
+                               Class<?>> map) throws SQLException {
         return getArray(index, count);
     }
 
@@ -374,8 +375,8 @@ public class JDBCArray implements Array {
      * this method
      * @since 1.2
      */
-    public ResultSet getResultSet(java.util.Map<String, Class<?>> map) throws
-        SQLException {
+    public ResultSet getResultSet(java.util.Map<String,
+            Class<?>> map) throws SQLException {
         return getResultSet();
     }
 
@@ -455,10 +456,9 @@ public class JDBCArray implements Array {
      * @since 1.2
      */
     public ResultSet getResultSet(long index, int count,
-                                  java.util.Map<String, Class<?>> map) throws
-        SQLException {
+                                  java.util.Map<String,
+                                      Class<?>> map) throws SQLException {
         return getResultSet(index, count);
-
     }
 
     /**
@@ -490,7 +490,8 @@ public class JDBCArray implements Array {
      * this method
      * @since 1.6
      */
-    public void free() throws SQLException {}
+    public void free() throws SQLException {
+    }
 
     //-------------
     Type             arrayType;
@@ -500,7 +501,8 @@ public class JDBCArray implements Array {
     SessionInterface sessionProxy;
 
     public JDBCArray(Object[] data, Type type, Type arrayType,
-              SessionInterface session) {
+                     SessionInterface session) {
+
         this(data, type, arrayType, (JDBCConnection) null);
 
         this.sessionProxy = session;
@@ -517,10 +519,10 @@ public class JDBCArray implements Array {
     JDBCArray(Object[] data, Type type, Type arrayType,
               JDBCConnection connection) {
 
-        this.data         = data;
-        this.elementType  = type;
-        this.arrayType    = arrayType;
-        this.connection   = connection;
+        this.data        = data;
+        this.elementType = type;
+        this.arrayType   = arrayType;
+        this.connection  = connection;
 
         if (connection != null) {
             this.sessionProxy = connection.sessionProxy;

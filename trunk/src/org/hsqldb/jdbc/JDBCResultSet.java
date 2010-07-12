@@ -1931,23 +1931,22 @@ public class JDBCResultSet implements ResultSet {
         Type targetType = resultMetaData.columnTypes[columnIndex - 1];
 
         switch (targetType.typeCode) {
-           case Types.SQL_NUMERIC :
-           case Types.SQL_DECIMAL :
-               break;
 
-           case Types.TINYINT :
-           case Types.SQL_SMALLINT :
-           case Types.SQL_INTEGER :
-           case Types.SQL_BIGINT :
-               targetType = Type.SQL_DECIMAL;
-               break;
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                break;
+            case Types.TINYINT :
+            case Types.SQL_SMALLINT :
+            case Types.SQL_INTEGER :
+            case Types.SQL_BIGINT :
+                targetType = Type.SQL_DECIMAL;
 
-           case Types.SQL_DOUBLE:
-           default :
-               targetType = Type.SQL_DECIMAL_DEFAULT;
-               break;
+                break;
+            case Types.SQL_DOUBLE :
+            default :
+                targetType = Type.SQL_DECIMAL_DEFAULT;
 
-
+                break;
         }
 
         return (BigDecimal) getColumnInType(columnIndex, targetType);
@@ -4467,7 +4466,8 @@ public class JDBCResultSet implements ResultSet {
             return null;
         }
 
-        return new JDBCArray(data, type.collectionBaseType(), type, connection);
+        return new JDBCArray(data, type.collectionBaseType(), type,
+                             connection);
     }
 
     /**
@@ -7346,17 +7346,17 @@ public class JDBCResultSet implements ResultSet {
      *   org.hsqldb.Result.ERROR
      */
     public JDBCResultSet(JDBCConnection conn, JDBCStatementBase s, Result r,
-                  ResultMetaData metaData) throws SQLException {
+                         ResultMetaData metaData) throws SQLException {
 
-        this.session     = conn.sessionProxy;
-        this.statement   = s;
-        this.result      = r;
+        this.session    = conn.sessionProxy;
+        this.statement  = s;
+        this.result     = r;
         this.connection = conn;
-        rsProperties     = r.rsProperties;
-        navigator        = r.getNavigator();
-        resultMetaData   = metaData;
-        columnCount      = resultMetaData.getColumnCount();
-        isScrollable     = ResultProperties.isScrollable(rsProperties);
+        rsProperties    = r.rsProperties;
+        navigator       = r.getNavigator();
+        resultMetaData  = metaData;
+        columnCount     = resultMetaData.getColumnCount();
+        isScrollable    = ResultProperties.isScrollable(rsProperties);
 
         if (ResultProperties.isUpdatable(rsProperties)) {
             isUpdatable  = true;
@@ -7375,27 +7375,26 @@ public class JDBCResultSet implements ResultSet {
     }
 
     public JDBCResultSet(JDBCConnection conn, Result r,
-                  ResultMetaData metaData) throws SQLException {
+                         ResultMetaData metaData) throws SQLException {
 
-        this.session     = conn.sessionProxy;
-        this.result      = r;
+        this.session    = conn.sessionProxy;
+        this.result     = r;
         this.connection = conn;
-        rsProperties     = 0;
-        navigator        = r.getNavigator();
-        resultMetaData   = metaData;
-        columnCount      = resultMetaData.getColumnCount();
+        rsProperties    = 0;
+        navigator       = r.getNavigator();
+        resultMetaData  = metaData;
+        columnCount     = resultMetaData.getColumnCount();
     }
 
     public JDBCResultSet(SessionInterface session, Result r,
-                  ResultMetaData metaData) throws SQLException {
+                         ResultMetaData metaData) throws SQLException {
 
-        this.session     = session;
-        this.result      = r;
-        this.connection  = null;
-        rsProperties     = 0;
-        navigator        = r.getNavigator();
-        resultMetaData   = metaData;
-        columnCount      = resultMetaData.getColumnCount();
+        this.session    = session;
+        this.result     = r;
+        this.connection = null;
+        rsProperties    = 0;
+        navigator       = r.getNavigator();
+        resultMetaData  = metaData;
+        columnCount     = resultMetaData.getColumnCount();
     }
-
 }

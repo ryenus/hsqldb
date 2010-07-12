@@ -1436,7 +1436,7 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         checkParameterIndex(parameterIndex);
 
-        Type type = this.parameterMetaData.columnTypes[parameterIndex -1];
+        Type type = this.parameterMetaData.columnTypes[parameterIndex - 1];
 
         if (!type.isArrayType()) {
             throw Util.sqlException(ErrorCode.X_42561);
@@ -1445,36 +1445,36 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (x == null) {
             checkSetParameterIndex(parameterIndex, false);
             setParameter(parameterIndex, null);
+
             return;
         }
 
         Object[] data = null;
 
         if (x instanceof JDBCArray) {
-           data = (Object[]) ((JDBCArray) x).getArrayInternal();
+            data = (Object[]) ((JDBCArray) x).getArrayInternal();
         } else {
             Object object = x.getArray();
 
             if (object instanceof Object[]) {
-                Type baseType  = type.collectionBaseType();
-                Object[] array = (Object[]) object;
-                data           = new Object[array.length];
+                Type     baseType = type.collectionBaseType();
+                Object[] array    = (Object[]) object;
+
+                data = new Object[array.length];
 
                 for (int i = 0; i < data.length; i++) {
                     data[i] = baseType.convertJavaToSQL(session, array[i]);
                 }
-
             } else {
 
                 // if foreign data is not Object[]
                 throw Util.notSupported();
             }
         }
-
-
-
         checkSetParameterIndex(parameterIndex, false);
+
         parameterValues[parameterIndex - 1] = data;
+
         return;
     }
 
@@ -3884,11 +3884,11 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                           String[] generatedNames) throws HsqlException,
                               SQLException {
 
-        isResult   = false;
-        connection = c;
+        isResult              = false;
+        connection            = c;
         connectionIncarnation = connection.incarnation;
-        session    = c.sessionProxy;
-        sql        = c.nativeSQL(sql);
+        session               = c.sessionProxy;
+        sql                   = c.nativeSQL(sql);
 
         int[] keyIndexes = null;
 
@@ -3972,10 +3972,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      */
     JDBCPreparedStatement(JDBCConnection c, Result result) {
 
-        isResult   = true;
-        connection = c;
+        isResult              = true;
+        connection            = c;
         connectionIncarnation = connection.incarnation;
-        session    = c.sessionProxy;
+        session               = c.sessionProxy;
 
         int paramCount = result.metaData.getExtendedColumnCount();
 
@@ -4223,15 +4223,13 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 Util.throwError(Error.error(ErrorCode.X_42563));
 
                 break;
-
             case Types.SQL_ARRAY :
-                if ( o instanceof Array) {
+                if (o instanceof Array) {
                     setArray(i + 1, (Array) o);
 
                     return;
                 }
                 Util.throwError(Error.error(ErrorCode.X_42563));
-
             case Types.SQL_BLOB :
                 setBlobParameter(i + 1, o);
 
@@ -4623,8 +4621,8 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (statementRetType == StatementTypes.RETURN_RESULT
                 && resultIn.isData()) {
-            currentResultSet = new JDBCResultSet(connection,
-                    this, resultIn, resultIn.metaData);
+            currentResultSet = new JDBCResultSet(connection, this, resultIn,
+                    resultIn.metaData);
         }
     }
 

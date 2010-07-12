@@ -108,16 +108,17 @@ public class FunctionCustom extends FunctionSQL {
     private final static int FUNC_TIMESTAMPDIFF            = 79;
     private final static int FUNC_TRUNCATE                 = 80;
     private final static int FUNC_TO_CHAR                  = 81;
-    private final static int FUNC_TIMESTAMP                = 82;
-    private final static int FUNC_CRYPT_KEY                = 83;
-    private final static int FUNC_ISOLATION_LEVEL          = 85;
-    private final static int FUNC_SESSION_ISOLATION_LEVEL  = 86;
-    private final static int FUNC_DATABASE_ISOLATION_LEVEL = 87;
-    private final static int FUNC_TRANSACTION_CONTROL      = 88;
-    private final static int FUNC_TIMEZONE                 = 89;
-    private final static int FUNC_SESSION_TIMEZONE         = 90;
-    private final static int FUNC_DATABASE_TIMEZONE        = 91;
-    private final static int FUNC_DATABASE_VERSION         = 92;
+    private final static int FUNC_TO_DATE                  = 82;
+    private final static int FUNC_TIMESTAMP                = 83;
+    private final static int FUNC_CRYPT_KEY                = 85;
+    private final static int FUNC_ISOLATION_LEVEL          = 86;
+    private final static int FUNC_SESSION_ISOLATION_LEVEL  = 87;
+    private final static int FUNC_DATABASE_ISOLATION_LEVEL = 88;
+    private final static int FUNC_TRANSACTION_CONTROL      = 89;
+    private final static int FUNC_TIMEZONE                 = 90;
+    private final static int FUNC_SESSION_TIMEZONE         = 91;
+    private final static int FUNC_DATABASE_TIMEZONE        = 92;
+    private final static int FUNC_DATABASE_VERSION         = 93;
 
     //
     private static final int FUNC_ACOS             = 101;
@@ -208,6 +209,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNCATE);
         customRegularFuncMap.put(Tokens.TRUNCATE, FUNC_TRUNCATE);
         customRegularFuncMap.put(Tokens.TO_CHAR, FUNC_TO_CHAR);
+        customRegularFuncMap.put(Tokens.TO_DATE, FUNC_TO_DATE);
         customRegularFuncMap.put(Tokens.TIMESTAMP, FUNC_TIMESTAMP);
 
         //
@@ -514,6 +516,10 @@ public class FunctionCustom extends FunctionSQL {
                 break;
 
             case FUNC_TO_CHAR :
+                parseList = doubleParamList;
+                break;
+
+            case FUNC_TO_DATE :
                 parseList = doubleParamList;
                 break;
 
@@ -929,6 +935,19 @@ public class FunctionCustom extends FunctionSQL {
 
                 return HsqlDateTime.toFormattedDate(date, (String) data[1],
                                                     format);
+            }
+            case FUNC_TO_DATE : {
+                if (data[0] == null || data[1] == null) {
+                    return null;
+                }
+
+                SimpleDateFormat format = session.getSimpleDateFormatGMT();
+                Date date = HsqlDateTime.toDate((String) data[0],
+                                                (String) data[1], format);
+                long millis = date.getTime();
+                int  nanos  = (int) (millis % 1000);
+
+                return new TimestampData(millis / 1000, nanos);
             }
             case FUNC_TIMESTAMP : {
                 boolean unary = nodes[1] == null;
@@ -1647,8 +1666,11 @@ public class FunctionCustom extends FunctionSQL {
                     throw Error.error(ErrorCode.X_42567);
                 }
 
-                if (nodes[1].dataType == null
-                        || !nodes[1].dataType.isCharacterType()) {
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                if (!nodes[1].dataType.isCharacterType()) {
                     throw Error.error(ErrorCode.X_42567);
                 }
 
@@ -1661,9 +1683,23 @@ public class FunctionCustom extends FunctionSQL {
                 dataType = CharacterType.getCharacterType(Types.SQL_VARCHAR,
                         40);
 
-                if (nodes[1].opType == OpTypes.VALUE) {
-                    nodes[1].setAsConstantValue(session);
+                return;
+            }
+            case FUNC_TO_DATE : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
+                }
+
+                if (!nodes[0].dataType.isCharacterType()
+                        || !nodes[1].dataType.isCharacterType()) {
+                    throw Error.error(ErrorCode.X_42567);
+                }
+
+                dataType = Type.SQL_TIMESTAMP;
 
                 return;
             }
@@ -2150,6 +2186,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TRUNCATE :
             case FUNC_TIMESTAMP :
             case FUNC_TO_CHAR :
+            case FUNC_TO_DATE :
             case FUNC_REGEXP_MATCHES : {
                 return new StringBuffer(name).append('(')                   //
                     .append(nodes[0].getSQL()).append(Tokens.T_COMMA)       //

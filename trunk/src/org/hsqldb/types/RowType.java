@@ -34,6 +34,7 @@ package org.hsqldb.types;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.SortAndSlice;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -183,14 +184,14 @@ public class RowType extends Type {
             throw Error.error(ErrorCode.X_42562);
         }
 
-        Type[]   otherTypes = ((RowType) otherType).getTypesArray();
+        Type[] otherTypes = ((RowType) otherType).getTypesArray();
 
         if (dataTypes.length != otherTypes.length) {
             throw Error.error(ErrorCode.X_42564);
         }
 
-        Object[] arra       = (Object[]) a;
-        Object[] arrb       = new Object[arra.length];
+        Object[] arra = (Object[]) a;
+        Object[] arrb = new Object[arra.length];
 
         for (int i = 0; i < arra.length; i++) {
             arrb[i] = dataTypes[i].convertToType(session, arra[i],
@@ -347,5 +348,57 @@ public class RowType extends Type {
 
     public Type[] getTypesArray() {
         return dataTypes;
+    }
+
+    public int compare(Session session, Object a, Object b,
+                       SortAndSlice sort) {
+
+        if (a == b) {
+            return 0;
+        }
+
+        // not related to sort
+        if (a == null) {
+            return -1;
+        }
+
+        if (b == null) {
+            return 1;
+        }
+
+        Object[] arra   = (Object[]) a;
+        Object[] arrb   = (Object[]) b;
+        int      length = sort.sortOrder.length;
+
+        for (int i = 0; i < length; i++) {
+            a = arra[sort.sortOrder[i]];
+            b = arrb[sort.sortOrder[i]];
+
+            if (a == b) {
+                continue;
+            }
+
+            if (sort.sortNullsLast[i]) {
+                if (a == null) {
+                    return 1;
+                }
+
+                if (b == null) {
+                    return -1;
+                }
+            }
+
+            int result = dataTypes[i].compare(session, a, b);
+
+            if (result != 0) {
+                if (sort.sortDescending[i]) {
+                    return -result;
+                }
+
+                return result;
+            }
+        }
+
+        return 0;
     }
 }

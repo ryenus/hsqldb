@@ -1761,10 +1761,10 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      */
     JDBCStatement(JDBCConnection c, int props) {
 
-        resultOut    = Result.newExecuteDirectRequest();
-        connection   = c;
+        resultOut             = Result.newExecuteDirectRequest();
+        connection            = c;
         connectionIncarnation = connection.incarnation;
-        rsProperties = props;
+        rsProperties          = props;
     }
 
     /**

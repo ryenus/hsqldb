@@ -239,6 +239,10 @@ class ServerConnection implements Runnable {
         synchronized (server.serverConnSet) {
             server.serverConnSet.remove(this);
         }
+
+        try {
+            runnerThread.setContextClassLoader(null);
+        } catch (Throwable t) {}
     }
 
     /**

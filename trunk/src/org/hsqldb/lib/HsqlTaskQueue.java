@@ -62,6 +62,11 @@ public class HsqlTaskQueue {
     }
 
     protected synchronized void clearThread() {
+
+        try {
+            taskRunnerThread.setContextClassLoader(null);
+        } catch (Throwable t) {}
+
         taskRunnerThread = null;
     }
 
@@ -111,7 +116,7 @@ public class HsqlTaskQueue {
 
     public synchronized void restart() {
 
-        if (taskRunnerThread == null &&!isShutdown) {
+        if (taskRunnerThread == null && !isShutdown) {
             taskRunnerThread = new Thread(taskRunner);
 
             taskRunnerThread.start();

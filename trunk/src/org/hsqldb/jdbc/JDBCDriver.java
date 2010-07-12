@@ -244,8 +244,7 @@ public class JDBCDriver implements Driver {
                               Properties info) throws SQLException {
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
-           DatabaseURL.S_URL_INTERNAL.length() )) {
-
+                              DatabaseURL.S_URL_INTERNAL.length())) {
             JDBCConnection conn = (JDBCConnection) threadConnection.get();
 
             if (conn == null) {
@@ -339,6 +338,11 @@ public class JDBCDriver implements Driver {
             // potential of arbitrary behavior.
             t.stop();
         } catch (Exception e) {
+        } finally {
+            try {
+                t.setContextClassLoader(null);
+            } catch (Throwable th) {
+            }
         }
 
         if (ex[0] != null) {
@@ -368,13 +372,13 @@ public class JDBCDriver implements Driver {
             return false;
         }
 
-        if( url.regionMatches(true, 0, DatabaseURL.S_URL_PREFIX, 0,
-                                 DatabaseURL.S_URL_PREFIX.length()))  {
+        if (url.regionMatches(true, 0, DatabaseURL.S_URL_PREFIX, 0,
+                              DatabaseURL.S_URL_PREFIX.length())) {
             return true;
         }
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
-           DatabaseURL.S_URL_INTERNAL.length() )) {
+                              DatabaseURL.S_URL_INTERNAL.length())) {
             return true;
         }
 

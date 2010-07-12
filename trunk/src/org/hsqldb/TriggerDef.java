@@ -534,6 +534,10 @@ public class TriggerDef implements Runnable, SchemaObject {
                 }
             }
         }
+
+        try {
+            thread.setContextClassLoader(null);
+        } catch (Throwable t) {}
     }
 
     /**

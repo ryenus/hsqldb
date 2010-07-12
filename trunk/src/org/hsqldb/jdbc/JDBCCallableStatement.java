@@ -1028,21 +1028,22 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
         Type targetType = resultMetaData.columnTypes[parameterIndex - 1];
 
         switch (targetType.typeCode) {
-           case Types.SQL_NUMERIC :
-           case Types.SQL_DECIMAL :
-               break;
 
-           case Types.TINYINT :
-           case Types.SQL_SMALLINT :
-           case Types.SQL_INTEGER :
-           case Types.SQL_BIGINT :
-               targetType = Type.SQL_DECIMAL;
-               break;
+            case Types.SQL_NUMERIC :
+            case Types.SQL_DECIMAL :
+                break;
+            case Types.TINYINT :
+            case Types.SQL_SMALLINT :
+            case Types.SQL_INTEGER :
+            case Types.SQL_BIGINT :
+                targetType = Type.SQL_DECIMAL;
 
-           case Types.SQL_DOUBLE:
-           default :
-               targetType = Type.SQL_DECIMAL_DEFAULT;
-               break;
+                break;
+            case Types.SQL_DOUBLE :
+            default :
+                targetType = Type.SQL_DECIMAL_DEFAULT;
+
+                break;
         }
 
         return (BigDecimal) getColumnInType(parameterIndex, targetType);
@@ -1280,7 +1281,8 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
             return null;
         }
 
-        return new JDBCArray(data, type.collectionBaseType(), type, connection);
+        return new JDBCArray(data, type.collectionBaseType(), type,
+                             connection);
     }
 
     /**
