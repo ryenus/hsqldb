@@ -181,8 +181,8 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public synchronized OutputStream setAsciiStream(long pos)
-    throws SQLException {
+    public synchronized OutputStream setAsciiStream(
+            long pos) throws SQLException {
         throw Util.notSupported();
     }
 
@@ -197,8 +197,8 @@ public class JDBCClobClient implements Clob {
      * @throws SQLException if there is an error accessing the
      *   <code>CLOB</code> value
      */
-    public synchronized Writer setCharacterStream(long pos)
-    throws SQLException {
+    public synchronized Writer setCharacterStream(
+            long pos) throws SQLException {
         throw Util.notSupported();
     }
 

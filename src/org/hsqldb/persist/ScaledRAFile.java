@@ -154,7 +154,7 @@ final class ScaledRAFile implements ScaledRAInterface {
         buffer         = new byte[bufferSize];
         ba             = new HsqlByteArrayInputStream(buffer);
         fileDescriptor = file.getFD();
-        fileLength = length();
+        fileLength     = length();
     }
 
     public long length() throws IOException {

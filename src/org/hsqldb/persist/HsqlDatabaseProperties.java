@@ -291,20 +291,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(hsqldb_files_readonly,
                                           FILE_PROPERTY, false));
 
-        // integral defaults for protected props
-        dbMeta.put(hsqldb_lob_file_scale,
-                   HsqlProperties.getMeta(hsqldb_lob_file_scale,
-                                          FILE_PROPERTY, 32, new int[] {
-            1, 2, 4, 8, 16, 32
-        }));
-
-        // this property is normally either 1 or 8 - 8 for new databases
-        dbMeta.put(hsqldb_cache_file_scale,
-                   HsqlProperties.getMeta(hsqldb_cache_file_scale,
-                                          FILE_PROPERTY, 8, new int[] {
-            1, 8, 16, 32, 64, 128
-        }));
-
         // string defaults for user defined props
         dbMeta.put(hsqldb_tx,
                    HsqlProperties.getMeta(hsqldb_tx, SQL_PROPERTY, "LOCKS"));
@@ -372,7 +358,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                    HsqlProperties.getMeta(hsqldb_write_delay_millis,
                                           SQL_PROPERTY, 500, 20, 10000));
 
-        // integral defaults for user-defined set props
+        // integral defaults for user-defined props - sets
         dbMeta.put(hsqldb_applog,
                    HsqlProperties.getMeta(hsqldb_applog, SQL_PROPERTY, 0, 0,
                                           2));
@@ -382,7 +368,20 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             0, 1, 3
         }));
 
-        // integral defaults for user defined range props
+        dbMeta.put(hsqldb_lob_file_scale,
+                   HsqlProperties.getMeta(hsqldb_lob_file_scale,
+                                          SQL_PROPERTY, 32, new int[] {
+            1, 2, 4, 8, 16, 32
+        }));
+
+        // this property is normally either 1 or 8 - 8 for new databases
+        dbMeta.put(hsqldb_cache_file_scale,
+                   HsqlProperties.getMeta(hsqldb_cache_file_scale,
+                                          SQL_PROPERTY, 8, new int[] {
+            1, 8, 16, 32, 64, 128
+        }));
+
+        // integral defaults for user defined props - ranges
         dbMeta.put(hsqldb_log_size,
                    HsqlProperties.getMeta(hsqldb_log_size, SQL_PROPERTY, 50,
                                           0, 1000));

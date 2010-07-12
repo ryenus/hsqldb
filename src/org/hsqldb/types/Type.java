@@ -31,11 +31,14 @@
 
 package org.hsqldb.types;
 
+import java.util.Comparator;
+
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.SortAndSlice;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.IntValueHashMap;
@@ -60,9 +63,6 @@ public abstract class Type implements SchemaObject, Cloneable {
     public final long       precision;
     public final int        scale;
     public UserTypeModifier userTypeModifier;
-
-    //
-    public final static int defaultArrayCardinality = 1024;
 
     //
     Type(int typeGroup, int type, long precision, int scale) {
@@ -237,6 +237,29 @@ public abstract class Type implements SchemaObject, Cloneable {
     }
 
     public abstract int compare(Session session, Object a, Object b);
+
+    public int compare(Session session, Object a, Object b,
+                       SortAndSlice sort) {
+
+        if (a == b) {
+            return 0;
+        }
+
+        if (a == null) {
+            return sort.sortNullsLast[0] ? 1
+                                         : -1;
+        }
+
+        if (b == null) {
+            return sort.sortNullsLast[0] ? -1
+                                         : 1;
+        }
+
+        int result = compare(session, a, b);
+
+        return sort.sortDescending[0] ? -result
+                                      : result;
+    }
 
     public abstract Object convertToTypeLimits(SessionInterface session,
             Object a);
@@ -499,6 +522,31 @@ public abstract class Type implements SchemaObject, Cloneable {
         return typeCode + (int) precision << 8 + scale << 16;
     }
 
+    public static TypedComparator newComparator(Session session) {
+        return new TypedComparator(session);
+    }
+
+    public static class TypedComparator implements Comparator {
+
+        Session      session;
+        Type         type;
+        SortAndSlice sort;
+
+        TypedComparator(Session session) {
+            this.session = session;
+            this.sort    = sort;
+        }
+
+        public int compare(Object a, Object b) {
+            return type.compare(session, a, b, sort);
+        }
+
+        public void setType(Type type, SortAndSlice sort) {
+            this.type = type;
+            this.sort = sort;
+        }
+    }
+
     /** @todo 1.9.0 - review all needs max implementation defined lengths, used for parameters */
 
     // null type
@@ -672,7 +720,7 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public static ArrayType getDefaultArrayType(int type) {
         return new ArrayType(getDefaultType(type),
-                             Type.defaultArrayCardinality);
+                             ArrayType.defaultArrayCardinality);
     }
 
     public static Type getDefaultType(int type) {

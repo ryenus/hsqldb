@@ -55,9 +55,9 @@ public class SessionContext {
 
     //
     public Boolean isAutoCommit;
-    Boolean isReadOnly;
-    Boolean noSQL;
-    int     currentMaxRows;
+    Boolean        isReadOnly;
+    Boolean        noSQL;
+    int            currentMaxRows;
 
     //
     HashMappedList  sessionVariables;
@@ -71,6 +71,7 @@ public class SessionContext {
     public int            depth;
 
     //
+    Number         lastIdentity = ValuePool.INTEGER_0;
     HashMappedList savepoints;
     LongDeque      savepointTimestamps;
 
@@ -118,6 +119,7 @@ public class SessionContext {
         stack.add(rangeIterators);
         stack.add(savepoints);
         stack.add(savepointTimestamps);
+        stack.add(lastIdentity);
         stack.add(isAutoCommit);
         stack.add(isReadOnly);
         stack.add(noSQL);
@@ -138,6 +140,7 @@ public class SessionContext {
         noSQL               = (Boolean) stack.remove(stack.size() - 1);
         isReadOnly          = (Boolean) stack.remove(stack.size() - 1);
         isAutoCommit        = (Boolean) stack.remove(stack.size() - 1);
+        lastIdentity        = (Number) stack.remove(stack.size() - 1);
         savepointTimestamps = (LongDeque) stack.remove(stack.size() - 1);
         savepoints          = (HashMappedList) stack.remove(stack.size() - 1);
         rangeIterators      = (RangeIterator[]) stack.remove(stack.size() - 1);

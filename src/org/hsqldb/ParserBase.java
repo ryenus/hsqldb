@@ -731,6 +731,8 @@ public class ParserBase {
         expressionTypeMap.put(Tokens.STDDEV_SAMP, OpTypes.STDDEV_SAMP);
         expressionTypeMap.put(Tokens.VAR_POP, OpTypes.VAR_POP);
         expressionTypeMap.put(Tokens.VAR_SAMP, OpTypes.VAR_SAMP);
+        expressionTypeMap.put(Tokens.ARRAY_AGG, OpTypes.ARRAY_AGG);
+        expressionTypeMap.put(Tokens.GROUP_CONCAT, OpTypes.GROUP_CONCAT);
     }
 
     HsqlException unexpectedToken(String tokenS) {

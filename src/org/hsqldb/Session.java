@@ -68,6 +68,7 @@ import org.hsqldb.types.ClobDataID;
 import org.hsqldb.types.TimeData;
 import org.hsqldb.types.TimestampData;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Type.TypedComparator;
 
 /**
  * Implementation of SQL sessions.
@@ -113,7 +114,6 @@ public class Session implements SessionInterface {
     int                timeZoneSeconds;
     boolean            isNetwork;
     private int        sessionMaxRows;
-    private Number     lastIdentity = ValuePool.INTEGER_0;
     private final long sessionId;
     int                sessionTxId = -1;
     private boolean    script;
@@ -220,12 +220,12 @@ public class Session implements SessionInterface {
         // keep sessionContext and sessionData
         rowActionList.clear();
 
-        database                  = null;
-        user                      = null;
-        sessionContext.savepoints = null;
-        intConnection             = null;
-        lastIdentity              = null;
-        isClosed                  = true;
+        database                    = null;
+        user                        = null;
+        sessionContext.savepoints   = null;
+        sessionContext.lastIdentity = null;
+        intConnection               = null;
+        isClosed                    = true;
     }
 
     /**
@@ -286,7 +286,7 @@ public class Session implements SessionInterface {
      * @param  i the new value
      */
     void setLastIdentity(Number i) {
-        lastIdentity = i;
+        sessionContext.lastIdentity = i;
     }
 
     /**
@@ -295,7 +295,7 @@ public class Session implements SessionInterface {
      * @return the current value
      */
     public Number getLastIdentity() {
-        return lastIdentity;
+        return sessionContext.lastIdentity;
     }
 
     /**
@@ -619,7 +619,7 @@ public class Session implements SessionInterface {
         sessionData.closeResultCache();
         statementManager.reset();
 
-        lastIdentity = ValuePool.INTEGER_0;
+        sessionContext.lastIdentity = ValuePool.INTEGER_0;
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
 
@@ -1995,6 +1995,7 @@ public class Session implements SessionInterface {
     }
 
     // services
+    TypedComparator  typedComparator;
     Scanner          secondaryScanner;
     SimpleDateFormat simpleDateFormat;
     SimpleDateFormat simpleDateFormatGMT;
@@ -2002,6 +2003,14 @@ public class Session implements SessionInterface {
     long             seed            = -1;
 
     //
+
+    public TypedComparator getComparator() {
+        if (typedComparator == null) {
+            typedComparator = Type.newComparator(this);
+        }
+
+        return typedComparator;
+    }
     public double random(long seed) {
 
         if (this.seed != seed) {

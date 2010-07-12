@@ -144,23 +144,23 @@ public class ExpressionAggregate extends Expression {
         switch (opType) {
 
             case OpTypes.COUNT :
-                sb.append("COUNT ");
+                sb.append(Tokens.T_COUNT).append(' ');
                 break;
 
             case OpTypes.SUM :
-                sb.append("SUM ");
+                sb.append(Tokens.T_SUM).append(' ');
                 break;
 
             case OpTypes.MIN :
-                sb.append("MIN ");
+                sb.append(Tokens.T_MIN).append(' ');
                 break;
 
             case OpTypes.MAX :
-                sb.append("MAX ");
+                sb.append(Tokens.T_MAX).append(' ');
                 break;
 
             case OpTypes.AVG :
-                sb.append("AVG ");
+                sb.append(Tokens.T_AVG).append(' ');
                 break;
 
             case OpTypes.EVERY :

@@ -66,6 +66,10 @@ public final class SortAndSlice {
 
     SortAndSlice() {}
 
+    public HsqlArrayList getExpressionList() {
+        return exprList;
+    }
+
     public boolean hasOrder() {
         return exprList.size() != 0;
     }
@@ -84,6 +88,34 @@ public final class SortAndSlice {
 
     public void addLimitCondition(Expression expression) {
         limitCondition = expression;
+    }
+
+    public void prepareSingleColumn(int colIndex) {
+        sortOrder      = new int[1];
+        sortDescending = new boolean[1];
+        sortNullsLast  = new boolean[1];
+        sortOrder[0] = colIndex;
+    }
+
+    public void prepare(int degree) {
+        columnCount = exprList.size();
+
+        if (columnCount == 0) {
+            return;
+        }
+
+        sortOrder      = new int[columnCount + degree];
+        sortDescending = new boolean[columnCount + degree];
+        sortNullsLast  = new boolean[columnCount + degree];
+
+        ArrayUtil.fillSequence(sortOrder);
+        for (int i = 0; i < columnCount; i++) {
+            ExpressionOrderBy sort = (ExpressionOrderBy) exprList.get(i);
+
+            sortDescending[i] = sort.isDescending();
+            sortNullsLast[i]  = sort.isNullsLast();
+            hasNullsLast      |= sortNullsLast[i];
+        }
     }
 
     public void prepare(QuerySpecification select) {

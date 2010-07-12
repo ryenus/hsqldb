@@ -94,6 +94,8 @@ public interface OpTypes {
         STDDEV_SAMP          = 79,
         VAR_POP              = 80,
         VAR_SAMP             = 81,
+        ARRAY_AGG            = 82,
+        GROUP_CONCAT         = 83,
         CAST                 = 91,    // other operations
         ZONE_MODIFIER        = 92,
         CASEWHEN             = 93,

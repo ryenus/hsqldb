@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,6 +76,28 @@ public class ArraySort {
 
         return found == limit ? -low - 1
                               : found;
+    }
+
+    public static int deDuplicate(Object[] array, int start, int limit,
+                                  Comparator comparator) {
+
+        int baseIndex    = start;
+        int currentIndex = start + 1;
+
+        for (; currentIndex < limit; currentIndex++) {
+            int compare = comparator.compare(array[baseIndex],
+                                             array[currentIndex]);
+
+            if (compare == 0) {
+                continue;
+            }
+
+            baseIndex++;
+
+            array[baseIndex] = array[currentIndex];
+        }
+
+        return baseIndex + 1;
     }
 
     public static void sort(Object[] array, int start, int limit,

@@ -381,7 +381,7 @@ public final class ResultMetaData {
                                  size, scale);
 
         if (isArray) {
-            type = new ArrayType(type, Type.defaultArrayCardinality);
+            type = new ArrayType(type, ArrayType.defaultArrayCardinality);
         }
 
         return type;

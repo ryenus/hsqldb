@@ -34,10 +34,12 @@ package org.hsqldb.types;
 import org.hsqldb.OpTypes;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
+import org.hsqldb.SortAndSlice;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.JDBCArray;
+import org.hsqldb.lib.ArraySort;
 import org.hsqldb.store.ValuePool;
 
 /**
@@ -49,8 +51,9 @@ import org.hsqldb.store.ValuePool;
  */
 public class ArrayType extends Type {
 
-    final Type dataType;
-    final int  maxCardinality;
+    public final static int defaultArrayCardinality = 1024;
+    final Type              dataType;
+    final int               maxCardinality;
 
     public ArrayType(Type dataType, int cardinality) {
 
@@ -61,7 +64,7 @@ public class ArrayType extends Type {
     }
 
     public int displaySize() {
-        return 7 + (dataType.displaySize() + 1) * maxCardinality ;
+        return 7 + (dataType.displaySize() + 1) * maxCardinality;
     }
 
     public int getJDBCTypeCode() {
@@ -215,6 +218,7 @@ public class ArrayType extends Type {
     public Object convertSQLToJava(SessionInterface session, Object a) {
 
         Object[] data = (Object[]) a;
+
         return new JDBCArray(data, this.collectionBaseType(), this, session);
     }
 
@@ -362,5 +366,24 @@ public class ArrayType extends Type {
                          ((Object[]) b).length);
 
         return array;
+    }
+
+    public void sort(Session session, Object a, SortAndSlice sort) {
+
+        Object[]        array      = (Object[]) a;
+        TypedComparator comparator = session.getComparator();
+
+        comparator.setType(dataType, sort);
+        ArraySort.sort(array, 0, array.length, comparator);
+    }
+
+    public int deDuplicate(Session session, Object a, SortAndSlice sort) {
+
+        Object[]        array      = (Object[]) a;
+        TypedComparator comparator = session.getComparator();
+
+        comparator.setType(dataType, sort);
+
+        return ArraySort.deDuplicate(array, 0, array.length, comparator);
     }
 }

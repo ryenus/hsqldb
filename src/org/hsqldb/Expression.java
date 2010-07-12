@@ -89,6 +89,8 @@ public class Expression implements Cloneable {
         aggregateFunctionSet.add(OpTypes.STDDEV_SAMP);
         aggregateFunctionSet.add(OpTypes.VAR_POP);
         aggregateFunctionSet.add(OpTypes.VAR_SAMP);
+        aggregateFunctionSet.add(OpTypes.GROUP_CONCAT);
+        aggregateFunctionSet.add(OpTypes.ARRAY_AGG);
         aggregateFunctionSet.add(OpTypes.USER_AGGREGATE);
     }
 
@@ -122,6 +124,8 @@ public class Expression implements Cloneable {
         subqueryAggregateExpressionSet.add(OpTypes.STDDEV_SAMP);
         subqueryAggregateExpressionSet.add(OpTypes.VAR_POP);
         subqueryAggregateExpressionSet.add(OpTypes.VAR_SAMP);
+        subqueryAggregateExpressionSet.add(OpTypes.GROUP_CONCAT);
+        subqueryAggregateExpressionSet.add(OpTypes.ARRAY_AGG);
         subqueryAggregateExpressionSet.add(OpTypes.USER_AGGREGATE);
 
         //

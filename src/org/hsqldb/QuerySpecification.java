@@ -406,15 +406,18 @@ public class QuerySpecification extends QueryExpression {
 
         if (list != null) {
             for (int i = 0; i < list.size(); i++) {
-                Expression e = (Expression) list.get(i);
-                boolean    resolved;
+                Expression e        = (Expression) list.get(i);
+                boolean    resolved = true;
 
                 if (e.isSelfAggregate()) {
-                    HsqlList colList =
-                        e.getLeftNode().resolveColumnReferences(rangeVariables,
-                            count, null, false);
+                    for (int j = 0; j < e.nodes.length; j++) {
+                        HsqlList colList =
+                            e.nodes[j].resolveColumnReferences(rangeVariables,
+                                                               count, null,
+                                                               false);
 
-                    resolved = colList == null;
+                        resolved &= colList == null;
+                    }
                 } else {
                     resolved = resolveColumnReferences(e, count,
                                                        withSequences);

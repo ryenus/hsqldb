@@ -435,7 +435,7 @@ public class ParserDQL extends ParserBase {
 
             read();
 
-            int maxCardinality = Type.defaultArrayCardinality;
+            int maxCardinality = ArrayType.defaultArrayCardinality;
 
             if (token.tokenType == Tokens.LEFTBRACKET) {
                 read();
@@ -1655,9 +1655,11 @@ public class ParserDQL extends ParserBase {
 
     private Expression readAggregateExpression(int tokenT) {
 
-        int     type     = ParserDQL.getExpressionType(tokenT);
-        boolean distinct = false;
-        boolean all      = false;
+        int          type      = ParserDQL.getExpressionType(tokenT);
+        boolean      distinct  = false;
+        boolean      all       = false;
+        SortAndSlice sort      = null;
+        String       separator = null;
 
         if (token.tokenType == Tokens.DISTINCT) {
             distinct = true;
@@ -1700,6 +1702,29 @@ public class ParserDQL extends ParserBase {
                 }
                 break;
 
+            case OpTypes.ARRAY_AGG :
+            case OpTypes.GROUP_CONCAT : {
+                if (token.tokenType == Tokens.ORDER) {
+                    read();
+                    readThis(Tokens.BY);
+
+                    sort = XreadOrderBy();
+                }
+
+                if (type == OpTypes.GROUP_CONCAT) {
+                    if (token.tokenType == Tokens.SEPARATOR) {
+                        read();
+                        super.checkIsValue(Types.SQL_CHAR);
+
+                        separator = (String) token.tokenValue;
+
+                        read();
+                    }
+                }
+
+                return new ExpressionArrayAggregate(type, distinct, e, sort,
+                                                    separator);
+            }
             default :
                 if (e.getType() == OpTypes.ASTERISK) {
                     throw unexpectedToken();
@@ -2094,6 +2119,8 @@ public class ParserDQL extends ParserBase {
             case Tokens.STDDEV_SAMP :
             case Tokens.VAR_POP :
             case Tokens.VAR_SAMP :
+            case Tokens.GROUP_CONCAT :
+            case Tokens.ARRAY_AGG :
                 return readAggregate();
 
             case Tokens.NEXT :

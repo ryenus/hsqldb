@@ -411,6 +411,34 @@ public class HsqlDateTime {
     /** Indicates end-of-input */
     private static final char e = 0xffff;
 
+    public static Date toDate(String string, String pattern,
+                              SimpleDateFormat format) {
+
+        Date   date;
+        String javaPattern = HsqlDateTime.toJavaDatePattern(pattern);
+        int    matchIndex  = javaPattern.indexOf("*IY");
+
+        if (matchIndex >= 0) {
+            throw Error.error(ErrorCode.X_22511);
+        }
+
+        matchIndex = javaPattern.indexOf("*WW");
+
+        if (matchIndex >= 0) {
+            throw Error.error(ErrorCode.X_22511);
+        }
+
+        try {
+            format.applyPattern(javaPattern);
+
+            date = format.parse(string);
+        } catch (Exception e) {
+            throw Error.error(ErrorCode.X_22511);
+        }
+
+        return date;
+    }
+
     public static String toFormattedDate(Date date, String pattern,
                                          SimpleDateFormat format) {
 
@@ -460,8 +488,8 @@ public class HsqlDateTime {
         if (matchIndex >= 0) {
             Calendar      cal         = format.getCalendar();
             int           matchLength = 3;
-            int dayOfYear = cal.get(Calendar.DAY_OF_YEAR);
-            int weekOfYear = ((dayOfYear - 1) / 7) + 1;
+            int           dayOfYear   = cal.get(Calendar.DAY_OF_YEAR);
+            int           weekOfYear  = ((dayOfYear - 1) / 7) + 1;
             StringBuilder sb          = new StringBuilder(result);
 
             sb.replace(matchIndex, matchIndex + matchLength,
