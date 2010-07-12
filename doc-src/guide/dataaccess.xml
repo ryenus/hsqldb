@@ -1894,20 +1894,24 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
 
       <simpara><literal>&lt;general set function&gt; ::= &lt;set function
       type&gt; &lt;left paren&gt; [ &lt;set quantifier&gt; ] &lt;value
-      expression&gt; &lt;right paren&gt;</literal></simpara>
+      expression&gt; [ &lt;order by clause&gt; ] [ &lt;separator&gt; ]
+      &lt;right paren&gt;</literal></simpara>
 
       <simpara><literal>&lt;set function type&gt; ::= &lt;computational
       operation&gt;</literal></simpara>
 
       <simpara><literal>&lt;computational operation&gt; ::= AVG | MAX | MIN |
       SUM | EVERY | ANY | SOME | COUNT | STDDEV_POP | STDDEV_SAMP | VAR_SAMP |
-      VAR_POP</literal></simpara>
+      VAR_POP | ARRAY_AGG | GROUP_CONCAT</literal></simpara>
 
       <simpara><literal>&lt;set quantifier&gt; ::= DISTINCT |
       ALL</literal></simpara>
 
       <simpara><literal>&lt;filter clause&gt; ::= FILTER &lt;left paren&gt;
       WHERE &lt;search condition&gt; &lt;right paren&gt;</literal></simpara>
+
+      <simpara><literal>&lt;separator&gt; ::= &lt;character string
+      literal&gt;</literal></simpara>
 
       <simpara>Specify a value computed from a collection of rows. An
       aggregate function is used exclusively in a <literal>&lt;query
@@ -1955,6 +1959,48 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       instead of the built-in aggregate functions. Syntax and examples are
       given in the <link endterm="sqlroutines-title"
       xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
+
+      <simpara>ARRAY_AGG is different from all other aggregate functions, as
+      it does not ignore the NULL values. This set function returns an array
+      that contains all the values, for different rows, for the
+      <literal>&lt;value expression&gt;</literal>. For example, if the
+      <literal>&lt;value expression&gt;</literal> is a column reference, the
+      SUM function adds the values for all the row together, while the
+      ARRAY_AGG function adds the value for each row as a separate element of
+      the array. ARRAY_AGG can include an optional &lt;order by clause&gt;. If
+      this is used, the elements of the returned array are sorted according to
+      the <literal>&lt;order by clause&gt;</literal>, which can reference all
+      the available columns of the query, not just the <literal>&lt;value
+      expression&gt;</literal> that is used as the ARRAY_AGG argument. The
+      <literal>&lt;order by clause&gt;</literal> can have multiple elements
+      and each element can include NULLS LAST or DESC qualifiers.</simpara>
+
+      <simpara>GROUP_CONCAT is a specialised and modified form of ARRAY_AGG.
+      This function computes the array in the same way as ARRAY_AGG, then
+      returns a string that is a concatenation of the elements of the array.
+      If <literal>&lt;separator&gt;</literal> has been specified, it is used
+      to separate the elements of the array. Otherwise the comma is used to
+      separate the elements.</simpara>
+
+      <simpara>The example below shows a grouped query with ARRAY_AGG and
+      GROUP_CONCAT. The CUSTOMER table that is included for tests in the
+      DatabaseManager GUI app is the source of the data.</simpara>
+
+      <programlisting>SELECT LASTNAME, ARRAY_AGG(FIRSTNAME ORDER BY FIRSTNAME) FROM Customer  GROUP BY LASTNAME
+
+LASTNAME  C2                                                         
+--------- ---------------------------------------------------------- 
+Steel     ARRAY['John','John','Laura','Robert']                      
+King      ARRAY['George','George','James','Julia','Robert','Robert'] 
+Sommer    ARRAY['Janet','Robert']                                    
+
+SELECT LASTNAME, GROUP_CONCAT(DISTINCT FIRSTNAME ORDER BY FIRSTNAME DESC SEPARATOR ' * ') FROM Customer  GROUP BY LASTNAME
+
+LASTNAME  C2                                                
+--------- ------------------------------------------------- 
+Steel     Robert * Laura * John                   
+King      Robert * Julia * James * George         
+Sommer    Robert * Janet</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>sort specification list</primary>

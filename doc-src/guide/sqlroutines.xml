@@ -1302,7 +1302,8 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       all the values passed for the aggregated column. For use with longer
       arrays, you can optimise the function by defining a larger array in the
       first iteration, and using the TRIM_ARRAY function on the RETURN to cut
-      the array to size :</para>
+      the array to size. This function is similar to the built-in ARRAY_AGG
+      function</para>
 
       <programlisting>CREATE AGGREGATE FUNCTION array_aggregate(IN val VARCHAR(100), IN flag boolean, INOUT buffer VARCHAR(100) ARRAY, INOUT counter INT)
   RETURNS VARCHAR(100) ARRAY
@@ -1341,9 +1342,10 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
 
       <para>In the example below, the function returns a string that contains
       the comma-separated list of all the values passed for the aggregated
-      column:</para>
+      column. This function is similar to the built in GROUP_CONCAT
+      function.</para>
 
-      <programlisting>CREATE AGGREGATE FUNCTION group_concat(IN val VARCHAR(100), IN flag BOOLEAN, INOUT buffer VARCHAR(1000), INOUT counter INT
+      <programlisting>CREATE AGGREGATE FUNCTION group_concatenate(IN val VARCHAR(100), IN flag BOOLEAN, INOUT buffer VARCHAR(1000), INOUT counter INT
  RETURNS VARCHAR(1000)
  CONTAINS SQL
  BEGIN ATOMIC
@@ -1365,7 +1367,7 @@ SPECIFIC P2 LANGUAGE JAVA DETERMINISTIC MODIFIES SQL DATA EXTERNAL NAME 'CLASSPA
       of the output is shown. Each row of the output is a comma-separated list
       of names.</para>
 
-      <programlisting>SELECT group_concat(firstname || ' ' || lastname) FROM customer GROUP BY lastname
+      <programlisting>SELECT group_concatenate(firstname || ' ' || lastname) FROM customer GROUP BY lastname
   
 Laura Steel,John Steel,John Steel,Robert Steel                                   
 Robert King,Robert King,James King,George King,Julia King,George King            

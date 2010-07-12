@@ -1348,11 +1348,11 @@
     expr&gt; )</literal></para>
 
     <para>This function formats a datetime or numeric value to the format
-    specified by the pattern given in the second argument. The pattern can
-    contain pattern elements from the list given below, plus punctuation and
-    space characters. An example, including the result, is given below:</para>
+    given in the second argument. The format string can contain pattern
+    elements from the list given below, plus punctuation and space characters.
+    An example, including the result, is given below:</para>
 
-    <programlisting>TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH')
+    <programlisting>TO_CHAR ( TIMESTAMP'2008-02-01 20:30:40', 'YYYY BC MONTH, DAY HH' )
 
 2008 AD February, Friday 8
 </programlisting>
@@ -1362,11 +1362,40 @@
     character sequences not listed below are included in the Java format
     string and may cause unexpected results or errors. Therefore unsupported
     format strings should not be used. You can include a string literal inside
-    the format string by enclosing it in double quotes. The supported format
-    components are all uppercase as follows:</para>
+    the format string by enclosing it in double quotes. </para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TO_DATE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TO_DATE</emphasis></simpara>
+
+    <para><literal>TO_DATE ( &lt;char value expr&gt;, &lt;char value expr&gt;
+    )</literal></para>
+
+    <para>This function translates a formatted datetime sting to a TIMESTAMP
+    according to the format given in the second argument. The format string
+    can contain pattern elements from the list given below, plus punctuation
+    and space characters. The pattern should contain the necessary fields. The
+    returned timestamp can then be cast into DATE or TIME types if necessary.
+    An example, including the result, is given below:</para>
+
+    <programlisting>TO_DATE ( '22/11/2008 20:30:40', 'DD/MM/YYYY HH:MI:SS' )
+
+TIMESTAMP '2008-11-22 20:30:40.000000'
+</programlisting>
+
+    <para>The format is internally translated to a
+    <classname>java.text.SimpleDateFormat</classname> format string. Any
+    character sequences not listed below are included in the Java format
+    string and may cause unexpected results or errors. Therefore unsupported
+    format strings should not be used. You can include a string literal inside
+    the format string by enclosing it in double quotes.</para>
+
+    <para>The supported format components are all uppercase as follows:</para>
 
     <table colsep="1" frame="all" pgwide="0">
-      <title>TO CHAR Values</title>
+      <title>TO_CHAR and TO_DATE format elements</title>
 
       <tgroup cols="2">
         <colspec colwidth="5cm" />
