@@ -88,12 +88,6 @@ public class HSQLDialect extends Dialect {
         registerColumnType( Types.CHAR, "char($l)" );
         registerColumnType( Types.DATE, "date" );
 
-        if (hsqldbVersion < 20) {
-            registerColumnType(Types.DECIMAL, "decimal");
-        } else {
-            registerColumnType( Types.DECIMAL, "decimal($p,$s)" );
-        }
-
         registerColumnType( Types.DECIMAL, "decimal($p,$s)" );
         registerColumnType( Types.DOUBLE, "double" );
         registerColumnType( Types.FLOAT, "float" );
@@ -108,15 +102,15 @@ public class HSQLDialect extends Dialect {
         registerColumnType( Types.VARBINARY, "varbinary($l)" );
 
         if (hsqldbVersion < 20) {
-            registerColumnType(Types.NUMERIC, "numeric");
+            registerColumnType( Types.NUMERIC, "numeric" );
         } else {
             registerColumnType( Types.NUMERIC, "numeric($p,$s)" );
         }
 
         //HSQL has no Blob/Clob support .... but just put these here for now!
         if (hsqldbVersion < 20) {
-        registerColumnType( Types.BLOB, "longvarbinary" );
-        registerColumnType( Types.CLOB, "longvarchar" );
+            registerColumnType( Types.BLOB, "longvarbinary" );
+            registerColumnType( Types.CLOB, "longvarchar" );
         } else {
             registerColumnType( Types.BLOB, "blob" );
             registerColumnType( Types.CLOB, "clob" );
@@ -215,9 +209,9 @@ public class HSQLDialect extends Dialect {
         return hsqldbVersion < 20 ? "null" : "default";
     }
 
-	public boolean supportsLockTimeouts() {
-		return false;
-	}
+    public boolean supportsLockTimeouts() {
+        return false;
+    }
 
     public String getForUpdateString() {
         return "";
@@ -239,11 +233,11 @@ public class HSQLDialect extends Dialect {
                         hasOffset ? " limit ? ?" : " top ?")
                 .toString();
         } else {
-        return new StringBuffer( sql.length()+20 )
-                        .append( sql )
+            return new StringBuffer(sql.length() + 20)
+                .append(sql)
                 .append(hasOffset ? " offset ? limit ?" : " limit ?")
-                        .toString();
-    }
+                .toString();
+        }
     }
 
     public boolean bindLimitParametersFirst() {
@@ -283,7 +277,7 @@ public class HSQLDialect extends Dialect {
     }
 
     public String getQuerySequencesString() {
-            // this assumes schema support, which is present in 1.8.0 and later...
+        // this assumes schema support, which is present in 1.8.0 and later...
         return "select sequence_name from information_schema.system_sequences";
     }
 
@@ -306,17 +300,17 @@ public class HSQLDialect extends Dialect {
 
             if ( errorCode == -8 ) {
                 constraintName = extractUsingTemplate(
-                                "Integrity constraint violation ", " table:", sqle.getMessage()
+                        "Integrity constraint violation ", " table:", sqle.getMessage()
                 );
             }
             else if ( errorCode == -9 ) {
                 constraintName = extractUsingTemplate(
-                                "Violation of unique index: ", " in statement [", sqle.getMessage()
+                        "Violation of unique index: ", " in statement [", sqle.getMessage()
                 );
             }
             else if ( errorCode == -104 ) {
                 constraintName = extractUsingTemplate(
-                                "Unique constraint violation: ", " in statement [", sqle.getMessage()
+                        "Unique constraint violation: ", " in statement [", sqle.getMessage()
                 );
             }
             else if ( errorCode == -177 ) {
@@ -548,7 +542,7 @@ public class HSQLDialect extends Dialect {
      */
     public LockingStrategy getLockingStrategy(Lockable lockable, LockMode lockMode) {
         if ( lockMode==LockMode.PESSIMISTIC_FORCE_INCREMENT) {
-                return new PessimisticForceIncrementLockingStrategy( lockable, lockMode);
+            return new PessimisticForceIncrementLockingStrategy( lockable, lockMode);
         }
         else if ( lockMode==LockMode.PESSIMISTIC_WRITE) {
             return new PessimisticWriteSelectLockingStrategy( lockable, lockMode);
@@ -557,10 +551,10 @@ public class HSQLDialect extends Dialect {
             return new PessimisticReadSelectLockingStrategy( lockable, lockMode);
         }
         else if ( lockMode==LockMode.OPTIMISTIC) {
-                return new OptimisticLockingStrategy( lockable, lockMode);
+            return new OptimisticLockingStrategy( lockable, lockMode);
         }
         else if ( lockMode==LockMode.OPTIMISTIC_FORCE_INCREMENT) {
-                return new OptimisticForceIncrementLockingStrategy( lockable, lockMode);
+            return new OptimisticForceIncrementLockingStrategy( lockable, lockMode);
         }
 
         if ( hsqldbVersion < 20 ) {
@@ -572,15 +566,15 @@ public class HSQLDialect extends Dialect {
 
     public static class ReadUncommittedLockingStrategy extends SelectLockingStrategy {
         public ReadUncommittedLockingStrategy(Lockable lockable, LockMode lockMode) {
-                super( lockable, lockMode );
+            super( lockable, lockMode );
         }
 
         public void lock(Serializable id, Object version, Object object, int timeout, SessionImplementor session)
-                        throws StaleObjectStateException, JDBCException {
-                if ( getLockMode().greaterThan( LockMode.READ ) ) {
-                        log.warn( "HSQLDB supports only READ_UNCOMMITTED isolation" );
-                }
-                super.lock( id, version, object, timeout, session );
+                throws StaleObjectStateException, JDBCException {
+            if ( getLockMode().greaterThan( LockMode.READ ) ) {
+                log.warn( "HSQLDB supports only READ_UNCOMMITTED isolation" );
+            }
+            super.lock( id, version, object, timeout, session );
         }
     }
 
@@ -638,7 +632,7 @@ public class HSQLDialect extends Dialect {
         return false;
     }
 
-	public boolean supportsTupleDistinctCounts() {
-		return false;
-	}
+    public boolean supportsTupleDistinctCounts() {
+        return false;
+    }
 }
