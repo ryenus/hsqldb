@@ -1412,15 +1412,15 @@ public class Scanner {
             case '?' :
                 if (charAt(currentPosition + 1) == '?') {
                     if (charAt(currentPosition + 2) == '(') {
-                        token.tokenString = Tokens.T_OPENBRACKET;
-                        token.tokenType   = Tokens.OPENBRACKET;
+                        token.tokenString = Tokens.T_LEFTBRACKET;
+                        token.tokenType   = Tokens.LEFTBRACKET;
                         currentPosition   += 3;
                         token.isDelimiter = true;
 
                         return;
                     } else if (charAt(currentPosition + 2) == ')') {
-                        token.tokenString = Tokens.T_CLOSEBRACKET;
-                        token.tokenType   = Tokens.CLOSEBRACKET;
+                        token.tokenString = Tokens.T_RIGHTBRACKET;
+                        token.tokenType   = Tokens.RIGHTBRACKET;
                         currentPosition   += 3;
                         token.isDelimiter = true;
 

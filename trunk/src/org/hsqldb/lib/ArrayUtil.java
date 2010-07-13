@@ -1355,6 +1355,10 @@ public class ArrayUtil {
      */
     public static boolean containsAllAtStart(int[] arra, int[] arrb) {
 
+        if (arrb.length > arra.length) {
+            return false;
+        }
+
         mainLoop:
         for (int i = 0; i < arra.length; i++) {
             if (i == arrb.length) {
@@ -1370,6 +1374,6 @@ public class ArrayUtil {
             return false;
         }
 
-        return true;
+        return false;
     }
 }
