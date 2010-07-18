@@ -43,8 +43,6 @@ import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
 import javax.sql.DataSource;
 
-import org.hsqldb.jdbc.JDBCDriver;
-
 //#ifdef JAVA6
 import java.sql.Wrapper;
 
@@ -183,6 +181,10 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
             props.put("password", password);
         }
 
+        if (loginTimeout != 0) {
+            props.put("loginTimeout", Integer.toString(loginTimeout));
+        }
+
         return JDBCDriver.getConnection(database, props);
     }
 
@@ -216,13 +218,13 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
      * If the JDBC driver does not provide its own <code>QueryObjectGenerator</code>, the <code>QueryObjectGenerator</code>
      * provided with Java SE will be used.
      * <p>
-     * This method is primarly for developers of Wrappers to JDBC implementations.
+     * This method is primarily for developers of Wrappers to JDBC implementations.
      * Application developers should use <code>createQueryObject(Class&LT;T&GT; ifc).
      * <p>
      * @param ifc The Query interface that will be created
      * @param ds The <code>DataSource</code> that will be used when invoking methods that access
      * the data source. The QueryObjectGenerator implementation will use
-     * this <code>DataSource</code> without any unwrapping or modications
+     * this <code>DataSource</code> without any unwrapping or modifications
      * to create connections to the data source.
      *
      * @return An concrete implementation of a Query interface
@@ -276,7 +278,7 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
      */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
-    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
         if (isWrapperFor(iface)) {
             return (T) this;
@@ -334,7 +336,7 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
      * @see #setLoginTimeout
      */
     public int getLoginTimeout() throws SQLException {
-        return 0;
+        return this.loginTimeout;
     }
 
     /**
@@ -370,6 +372,7 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
         ref.add(new StringRefAddr("database", getDatabase()));
         ref.add(new StringRefAddr("user", getUser()));
         ref.add(new StringRefAddr("password", password));
+        ref.add(new StringRefAddr("loginTimeout", Integer.toString(loginTimeout)));
 
         return ref;
     }
@@ -407,7 +410,7 @@ public class JDBCDataSource implements Serializable, Referenceable, DataSource
      * @see #getLoginTimeout
      */
     public void setLoginTimeout(int seconds) throws SQLException {
-        loginTimeout = 0;
+        loginTimeout = seconds;
     }
 
     /**
