@@ -106,7 +106,7 @@ import org.hsqldb.lib.java.JavaSystem;
  * data (as implemented in this class).  In particular, when the product is built
  * under JDK 1.6+ and the Clob instance is constructed as a result of calling
  * JDBCConnection.createClob(), then the resulting Clob instance is initially
- * disconnected (is not bound to the tranaction scope of the vending Connection
+ * disconnected (is not bound to the transaction scope of the vending Connection
  * object), the data is contained directly and all interface methods for
  * updating the CLOB value are supported for local use until the first
  * invocation of free(); otherwise, an HSQLDB Clob's implementation is
@@ -173,7 +173,7 @@ public class JDBCClob implements Clob {
      * required to survive for any non-trivial duration.  It is left up to the
      * client to decide how to handle the trade-off (whether to make an isolated
      * copy of the returned substring or risk that more memory remains allocated
-     * than is absolutely reuired).
+     * than is absolutely required).
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -235,7 +235,7 @@ public class JDBCClob implements Clob {
 
     /**
      * Retrieves the <code>CLOB</code> value designated by this <code>Clob</code>
-     * object as an ascii stream.
+     * object as an ASCII stream.
      *
      * @return a <code>java.io.InputStream</code> object containing the
      *         <code>CLOB</code> data
@@ -364,7 +364,7 @@ public class JDBCClob implements Clob {
      * in the <code>Clob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Clob</code> value is reached
      * while writing the given string, then the length of the <code>Clob</code>
-     * value will be increased to accomodate the extra characters.
+     * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>CLOB</code> value then the
@@ -382,7 +382,7 @@ public class JDBCClob implements Clob {
      * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in the
      * database because JDBCConnection.createClob() constructs disconnected,
-     * initially empty Clob instances. To propogate the Clob value to a database
+     * initially empty Clob instances. To propagate the Clob value to a database
      * in this case, it is required to supply the Clob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
      * supply the Clob instance to an updateXXX method of an updateable
@@ -434,7 +434,7 @@ public class JDBCClob implements Clob {
      * in the <code>Clob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Clob</code> value is reached
      * while writing the given string, then the length of the <code>Clob</code>
-     * value will be increased to accomodate the extra characters.
+     * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>CLOB</code> value then the
@@ -452,7 +452,7 @@ public class JDBCClob implements Clob {
      * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
      * database because JDBCConnection.createClob() constructs disconnected,
-     * initially empty Clob instances. To propogate the Clob value to a database
+     * initially empty Clob instances. To propagate the Clob value to a database
      * in this case, it is required to supply the Clob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
      * supply the Clob instance to an updateXXX method of an updateable
@@ -560,14 +560,14 @@ public class JDBCClob implements Clob {
     }
 
     /**
-     * Retrieves a stream to be used to write Ascii characters to the
+     * Retrieves a stream to be used to write ASCII characters to the
      * <code>CLOB</code> value that this <code>Clob</code> object represents,
      * starting at position <code>pos</code>.  Characters written to the stream
      * will overwrite the existing characters
      * in the <code>Clob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Clob</code> value is reached
      * while writing characters to the stream, then the length of the <code>Clob</code>
-     * value will be increased to accomodate the extra characters.
+     * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater than the length of the <code>CLOB</code> value, then the
@@ -585,7 +585,7 @@ public class JDBCClob implements Clob {
      * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
      * database because JDBCConnection.createClob() constructs disconnected,
-     * initially empty Clob instances. To propogate the Clob value to a database
+     * initially empty Clob instances. To propagate the Clob value to a database
      * in this case, it is required to supply the Clob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
      * supply the Clob instance to an updateXXX method of an updateable
@@ -666,7 +666,7 @@ public class JDBCClob implements Clob {
      * in the <code>Clob</code> object starting at the position
      * <code>pos</code>.  If the end of the <code>Clob</code> value is reached
      * while writing characters to the stream, then the length of the <code>Clob</code>
-     * value will be increased to accomodate the extra characters.
+     * value will be increased to accommodate the extra characters.
      * <p>
      * <b>Note:</b> If the value specified for <code>pos</code>
      * is greater then the length+1 of the <code>CLOB</code> value then the
@@ -684,7 +684,7 @@ public class JDBCClob implements Clob {
      * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
      * database because JDBCConnection.createClob() constructs disconnected,
-     * initially empty Clob instances. To propogate the Clob value to a database
+     * initially empty Clob instances. To propagate the Clob value to a database
      * in this case, it is required to supply the Clob instance to an updating
      * or inserting setXXX method of a Prepared or Callable Statement, or to
      * supply the Clob instance to an updateXXX method of an updateable
@@ -778,7 +778,7 @@ public class JDBCClob implements Clob {
      * result of calling JDBCConnection.createClob(), this operation affects
      * only the client-side value; it has no effect upon a value stored in a
      * database because JDBCConnection.createClob() constructs disconnected,
-     * initially empty Blob instances. To propogate the truncated clob value to
+     * initially empty Blob instances. To propagate the truncated Clob value to
      * a database in this case, it is required to supply the Clob instance to
      * an updating or inserting setXXX method of a Prepared or Callable
      * Statement, or to supply the Blob instance to an updateXXX method of an
@@ -886,7 +886,7 @@ public class JDBCClob implements Clob {
      * As such (in the interest of efficiency) this object maintains a reference
      * to the given String object rather than making a copy and so it is
      * gently suggested (in the interest of effective memory management) that
-     * extenal clients using this constructor either take pause to consider
+     * external clients using this constructor either take pause to consider
      * the implications or at least take care to provide a String object whose
      * internal character buffer is not much larger than required to represent
      * the value.
@@ -906,7 +906,7 @@ public class JDBCClob implements Clob {
         this.createdByConnection = true;
     }
 
-    protected void init(String data) throws SQLException {
+    protected final void init(String data) throws SQLException {
 
         if (data == null) {
             throw Util.nullArgument("data");
