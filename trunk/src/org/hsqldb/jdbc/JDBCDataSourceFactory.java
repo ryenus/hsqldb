@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.jdbc;
 
 import java.util.Hashtable;
@@ -39,7 +37,6 @@ import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
 // boucherb@users 20040411 - doc 1.7.2 - javadoc updates toward 1.7.2 final
-
 /**
  * A JNDI ObjectFactory for creating {@link JDBCDataSource JDBCDataSource}
  * object instances.
@@ -66,10 +63,10 @@ public class JDBCDataSourceFactory implements ObjectFactory {
      * @exception Exception never
      */
     public Object getObjectInstance(Object obj, Name name, Context nameCtx,
-                                    Hashtable environment) throws Exception {
+            Hashtable environment) throws Exception {
 
-        String    dsClass = "org.hsqldb.jdbc.JDBCDataSource";
-        Reference ref     = (Reference) obj;
+        String dsClass = "org.hsqldb.jdbc.JDBCDataSource";
+        Reference ref = (Reference) obj;
 
         if (ref.getClassName().equals(dsClass)) {
             JDBCDataSource ds = new JDBCDataSource();
@@ -77,6 +74,20 @@ public class JDBCDataSourceFactory implements ObjectFactory {
             ds.setDatabase((String) ref.get("database").getContent());
             ds.setUser((String) ref.get("user").getContent());
             ds.setPassword((String) ref.get("password").getContent());
+            String loginTimeoutContent = (String) ref.get(
+                    "loginTimeout").getContent();
+
+            if (loginTimeoutContent != null) {
+                loginTimeoutContent = loginTimeoutContent.trim();
+
+                if (loginTimeoutContent.length() > 0) {
+                    try {
+                        ds.setLoginTimeout(
+                                Integer.parseInt(loginTimeoutContent));
+                    } catch (NumberFormatException nfe) {
+                    }
+                }
+            }
 
             return ds;
         } else {
