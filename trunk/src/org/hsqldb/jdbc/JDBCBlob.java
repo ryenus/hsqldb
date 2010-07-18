@@ -831,8 +831,8 @@ public class JDBCBlob implements Blob {
      * Blob objects, yet it must be public to allow access from other packages.
      * As such (in the interest of efficiency) this object maintains a reference
      * to the given octet sequence rather than making a copy; special care
-     * should be taken by extenal clients never to use this constructor with a
-     * byte array object that may later be modified extenally.
+     * should be taken by external clients never to use this constructor with a
+     * byte array object that may later be modified externally.
      *
      * @param data the octet sequence representing the Blob value
      * @throws SQLException if the argument is null
@@ -849,7 +849,7 @@ public class JDBCBlob implements Blob {
         this.createdByConnection = true;
     }
 
-    protected void init(byte[] data) throws SQLException {
+    protected final void init(byte[] data) throws SQLException {
 
         if (data == null) {
             throw Util.nullArgument();
