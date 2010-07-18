@@ -1016,7 +1016,7 @@ public class JDBCConnection implements Connection {
      * @exception SQLException if a database access error occurs,
      * (JDBC4 Clarification:)
      * this method is called while participating in a distributed transaction,
-     * if this method is called on a closed conection or this
+     * if this method is called on a closed connection or this
      *            <code>Connection</code> object is in auto-commit mode
      * @see #setAutoCommit
      */
@@ -1849,7 +1849,7 @@ public class JDBCConnection implements Connection {
      * @throws SQLException if a database access occurs, this method is called
      * (JDBC4 Clarification:)
      * on a closed connection, or the given parameter
-     * (:JDBC4 Clkarification)
+     * (:JDBC4 Clarification)
      *         is not a <code>ResultSet</code> constant indicating holdability
      * @exception SQLFeatureNotSupportedException if the given holdability is not supported
      * @see #getHoldability
@@ -2049,7 +2049,7 @@ public class JDBCConnection implements Connection {
      *
      * Previous to JDBC 4, <tt>JDBCSavepoint</tt> objects are valid for the life of
      * the originating <tt>Connection</tt> object and hence can be used
-     * interchangably, as long as they have equal savepoint names. <p>
+     * interchangeably, as long as they have equal savepoint names. <p>
      *
      * When built for JDBC 4, <tt>JDBCConnection</tt> objects invalidate
      * <tt>JDBCSavepoint</tt> objects when auto-commit mode is entered as well
@@ -2140,7 +2140,7 @@ public class JDBCConnection implements Connection {
      *
      * Previous to JDBC 4, <tt>JDBCSavepoint</tt> objects are valid for the life of
      * the originating <tt>Connection</tt> object and hence can be used
-     * interchangably, as long as they have equal savepoint names. <p>
+     * interchangeably, as long as they have equal savepoint names. <p>
      *
      * When built for JDBC 4, <tt>JDBCConnection</tt> objects invalidate
      * <tt>JDBCSavepoint</tt> objects when auto-commit mode is entered as well
@@ -2457,11 +2457,11 @@ public class JDBCConnection implements Connection {
      * auto-generated keys (the list of such statements is vendor-specific).
      * <P>
      * <B>Note:</B> This method is optimized for handling
-     * parametric SQL statements that benefit from precompilation. If
-     * the driver supports precompilation,
+     * parametric SQL statements that benefit from pre-compilation. If
+     * the driver supports pre-compilation,
      * the method <code>prepareStatement</code> will send
-     * the statement to the database for precompilation. Some drivers
-     * may not support precompilation. In this case, the statement may
+     * the statement to the database for pre-compilation. Some drivers
+     * may not support pre-compilation. In this case, the statement may
      * not be sent to the database until the <code>PreparedStatement</code>
      * object is executed.  This has no direct effect on users; however, it does
      * affect which methods throw certain SQLExceptions.
@@ -2542,11 +2542,11 @@ public class JDBCConnection implements Connection {
      * multiple times.
      * <P>
      * <B>Note:</B> This method is optimized for handling
-     * parametric SQL statements that benefit from precompilation. If
-     * the driver supports precompilation,
+     * parametric SQL statements that benefit from pre-compilation. If
+     * the driver supports pre-compilation,
      * the method <code>prepareStatement</code> will send
-     * the statement to the database for precompilation. Some drivers
-     * may not support precompilation. In this case, the statement may
+     * the statement to the database for pre-compilation. Some drivers
+     * may not support pre-compilation. In this case, the statement may
      * not be sent to the database until the <code>PreparedStatement</code>
      * object is executed.  This has no direct effect on users; however, it does
      * affect which methods throw certain SQLExceptions.
@@ -2618,11 +2618,11 @@ public class JDBCConnection implements Connection {
      * multiple times.
      * <P>
      * <B>Note:</B> This method is optimized for handling
-     * parametric SQL statements that benefit from precompilation. If
-     * the driver supports precompilation,
+     * parametric SQL statements that benefit from pre-compilation. If
+     * the driver supports pre-compilation,
      * the method <code>prepareStatement</code> will send
-     * the statement to the database for precompilation. Some drivers
-     * may not support precompilation. In this case, the statement may
+     * the statement to the database for pre-compilation. Some drivers
+     * may not support pre-compilation. In this case, the statement may
      * not be sent to the database until the <code>PreparedStatement</code>
      * object is executed.  This has no direct effect on users; however, it does
      * affect which methods throw certain SQLExceptions.
@@ -2885,7 +2885,7 @@ public class JDBCConnection implements Connection {
      *                                                  the connection is performing work for.  This may
      *                                                  not be the same as the user name that was used
      *                                                  in establishing the connection.</li>
-     * <li>ClientHostname       -       The hostname of the computer the application
+     * <li>ClientHostname       -       The host name of the computer the application
      *                                                  using the connection is running on.</li>
      * </ul>
      * <p>
@@ -3120,6 +3120,7 @@ public class JDBCConnection implements Connection {
      * or a proxy for that result. If the receiver is not a
      * wrapper and does not implement the interface, then an <code>SQLException</code> is thrown.
      *
+     * @param <T> by which the return type is inferred from input parameter.
      * @param iface A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws java.sql.SQLException If no object found that implements the interface
@@ -3127,7 +3128,7 @@ public class JDBCConnection implements Connection {
      */
 //#ifdef JAVA6
     @SuppressWarnings("unchecked")
-    public <T>T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
+    public <T> T unwrap(java.lang.Class<T> iface) throws java.sql.SQLException {
 
         checkClosed();
 
@@ -3200,7 +3201,7 @@ public class JDBCConnection implements Connection {
     private SQLWarning rootWarning;
 
     /** Synchronizes concurrent modification of the warning chain */
-    private Object rootWarning_mutex = new Object();
+    private final Object rootWarning_mutex = new Object();
 
     /** ID sequence for unnamed savepoints */
     private int savepointIDSequence;
@@ -3423,7 +3424,10 @@ public class JDBCConnection implements Connection {
     }
 
     /**
-     * Returns the sessionProxy for this connection
+     * provides cross-package access to the proprietary (i.e. non-JDBC)
+     * HSQLDB session interface. <P>
+     *
+     * @return the underlying sessionProxy for this connection
      */
     public SessionInterface getSession() {
         return sessionProxy;
