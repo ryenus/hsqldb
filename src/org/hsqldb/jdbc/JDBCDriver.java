@@ -219,7 +219,8 @@ public class JDBCDriver implements Driver {
      *          applications where it is not easy to configure the environment
      *          to shutdown the database. Examples reported by users include
      *          web application servers, where the closing of the last
-     *          connection conicides with the web app being shut down.</li>
+     *          connection coincides with the web application being shut down.
+     *          </li>
      *
      *      <li><code>default_schema</code> - backwards compatibility feature.
      *          To be used for clients written before HSQLDB schema support.
@@ -241,10 +242,10 @@ public class JDBCDriver implements Driver {
      * @exception SQLException if a database access error occurs
      */
     public Connection connect(String url,
-                              Properties info) throws SQLException {
+            Properties info) throws SQLException {
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
-                              DatabaseURL.S_URL_INTERNAL.length())) {
+                DatabaseURL.S_URL_INTERNAL.length())) {
             JDBCConnection conn = (JDBCConnection) threadConnection.get();
 
             if (conn == null) {
@@ -287,12 +288,44 @@ public class JDBCDriver implements Driver {
             // is not an HSQLDB driver url
             return null;
         }
+
+        long timeout = 0;
+
+        if (info.containsKey("loginTimeout")) {
+            String loginTimeoutProperty = info.getProperty("loginTimeout");
+
+            try {
+                info.remove("loginTimeout");
+            } catch (RuntimeException e) {
+                // Just in case somebody tries to pass a Properties
+                // subclass that implements some kind of read-only
+                // behaviour.
+            }
+
+            if (loginTimeoutProperty != null) {
+                loginTimeoutProperty = loginTimeoutProperty.trim();
+            }
+
+            if (loginTimeoutProperty.length() > 0) {
+                try {
+                    timeout = Integer.parseInt(loginTimeoutProperty);
+                } catch (NumberFormatException nfe) {
+                }
+            }
+        }
+
+        // By now, non-driver property "loginTimeout" property has (hopefully)
+        // been removed.
         props.addProperties(info);
 
-        long timeout = DriverManager.getLoginTimeout();
-
         if (timeout == 0) {
+            timeout = DriverManager.getLoginTimeout();
+        }
 
+        // @todo:  mabe impose some sort of sane restriction
+        //         on network connections regarless of user
+        //         specification?
+        if (timeout == 0) {
             // no timeout restriction
             return new JDBCConnection(props);
         }
@@ -303,7 +336,7 @@ public class JDBCDriver implements Driver {
             return new JDBCConnection(props);
         }
 
-        /** @todo:  Better: ThreadPool? HsqlTimer with callback? */
+        // @todo: Better: ThreadPool? HsqlTimer with callback?
         final JDBCConnection[] conn = new JDBCConnection[1];
         final SQLException[]   ex   = new SQLException[1];
         Thread                 t    = new Thread() {
@@ -365,7 +398,7 @@ public class JDBCDriver implements Driver {
      * @return  true if this driver can connect to the given URL
      */
 
-    // fredt@users - patch 1.7.0 - allow mixedcase url's
+// fredt@users - patch 1.7.0 - allow mixedcase url's
     public boolean acceptsURL(String url) {
 
         if (url == null) {
@@ -373,12 +406,12 @@ public class JDBCDriver implements Driver {
         }
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_PREFIX, 0,
-                              DatabaseURL.S_URL_PREFIX.length())) {
+                DatabaseURL.S_URL_PREFIX.length())) {
             return true;
         }
 
         if (url.regionMatches(true, 0, DatabaseURL.S_URL_INTERNAL, 0,
-                              DatabaseURL.S_URL_INTERNAL.length())) {
+                DatabaseURL.S_URL_INTERNAL.length())) {
             return true;
         }
 
@@ -508,6 +541,8 @@ public class JDBCDriver implements Driver {
         return true;
     }
 
+    // @todo - REVIEW ME:  This does not need to exist.
+    //         See below.
     public static JDBCDriver driverInstance;
 
     static {
@@ -518,6 +553,29 @@ public class JDBCDriver implements Driver {
         } catch (Exception e) {
         }
     }
-
-    public ThreadLocal threadConnection = new ThreadLocal();
+    // @todo REVIEW ME:  This should be static final.
+    //
+    //                   It should also be private and encapsulated using a
+    //                   hand-shake protocol such that only a registering
+    //                   session can perform successful write access.
+    //
+    //                   For example, the session performing the registration 
+    //                   could register itself within a Session.class private
+    //                   static thread local just prioer to making the call here
+    //                   and remove itself just after making the call here,
+    //                   while as part of the encapsulated access here it would
+    //                   be required to make a call back against the session
+    //                   interface field of the connection being registered,
+    //                   which would verify that it is indeed the session that
+    //                   actually performed the write access (e.g. by comparing
+    //                   it against the session instance, if any, held in
+    //                   the Session.class static thread local)
+    //
+//#ifdef JAVA6
+/*
+    public final ThreadLocal<JDBCConnection> threadConnection = new ThreadLocal<JDBCConnection>();
+*/
+//else
+    public final ThreadLocal threadConnection = new ThreadLocal();
+//endif
 }
