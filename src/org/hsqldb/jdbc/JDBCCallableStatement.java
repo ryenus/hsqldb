@@ -50,6 +50,7 @@ import java.util.Map;
 //#ifdef JAVA6
 import java.sql.NClob;
 import java.sql.RowId;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLXML;
 
 //#endif JAVA6
@@ -57,7 +58,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.HsqlException;
 import org.hsqldb.HsqlDateTime;
 import org.hsqldb.SchemaObject;
-import org.hsqldb.SessionInterface;
 import org.hsqldb.error.Error;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.result.ResultConstants;
@@ -138,11 +138,11 @@ import org.hsqldb.types.Types;
  * are now supported, such as the parameterName-based setter methods. <p>
  *
  * More importantly, JDBCCallableStatement objects are now backed by a true
- * compiled parameteric representation. Hence, there are now significant
+ * compiled parametric representation. Hence, there are now significant
  * performance gains to be had by using a CallableStatement object instead of
  * a Statement object, if a short-running CALL statement is to be executed more
  * than a small number of times.  Moreover, the recent work lays the foundation
- * for work in a subsequenct release to support CallableStatement OUT and
+ * for work in a subsequence release to support CallableStatement OUT and
  * IN OUT style parameters, as well as the generation and retrieval of multiple
  * results in response to the execution of a CallableStatement object. <p>
  *
@@ -165,7 +165,7 @@ import org.hsqldb.types.Types;
  * porting issues and often may not be possible at all. <em>Be warned</em>. <p>
  *
  * One kind of HSQLDB stored procedures is Java routines that map directly onto
- * the static methods of compiled Java classes found on the classpath of the
+ * the static methods of compiled Java classes found on the class path of the
  * engine at runtime. <p>
  *
  * Overloaded methods are supported and resolved according to the type of
@@ -194,12 +194,12 @@ import org.hsqldb.types.Types;
  * As a transitional measure, HSQLDB provides the ability to materialize a
  * general result set in response to stored procedure execution.  In this case,
  * the stored procedure's Java method descriptor must specify a return type of
- * java.lang.Object for external use (although at any point in the devlopment
+ * java.lang.Object for external use (although at any point in the development
  * cycle, other, proprietary return types may accepted internally for engine
  * development purposes).
  *
  * When HSQLDB detects that the runtime class of the resulting Object is
- * elligible, an automatic internal unwrapping is performed to correctly
+ * eligible, an automatic internal unwrapping is performed to correctly
  * expose the underlying result set to the client, whether local or remote. <p>
  *
  * Additionally, HSQLDB automatically detects if java.sql.Connection is
@@ -4787,7 +4787,7 @@ public class JDBCCallableStatement extends JDBCPreparedStatement implements Call
      * Internal value converter. Similar to its counterpart in JDBCResultSet <p>
      *
      * All trivially successful getXXX methods eventually go through this
-     * method, converting if neccessary from the source type to the
+     * method, converting if necessary from the source type to the
      * requested type.  <p>
      *
      * Conversion to the JDBC representation, if different, is handled by the
