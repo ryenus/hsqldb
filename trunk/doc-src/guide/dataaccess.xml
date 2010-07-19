@@ -341,6 +341,48 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
 
       <para>Array objects are returned as instances of java.sql.Array.</para>
     </section>
+
+    <section>
+      <title>Cursor Declaration</title>
+
+      <para>The DECLARE CURSOR statement is used within an SQL PROCEDURE body.
+      In the early releases of HyperSQL 2.0, the cursor is used only to return
+      a result set from the procedure. Therefore the cursor must be declared
+      WITH RETURN and can only be READ ONLY.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DECLARE CURSOR</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DECLARE CURSOR</emphasis></simpara>
+
+      <simpara><emphasis>declare cursor statement</emphasis></simpara>
+
+      <para><literal>&lt;declare cursor&gt; ::= DECLARE &lt;cursor
+      name&gt;</literal></para>
+
+      <para><literal>[ { SENSITIVE | INSENSITIVE | ASENSITIVE } ] [ { SCROLL |
+      NO SCROLL } ] </literal></para>
+
+      <para><literal>CURSOR [ { WITH HOLD | WITHOUT HOLD } ] [ { WITH RETURN |
+      WITHOUT RETURN } ]</literal></para>
+
+      <para><literal>FOR &lt;query expression&gt;</literal></para>
+
+      <para><literal>[ FOR { READ ONLY | UPDATE [ OF &lt;column name list&gt;
+      ] } ]</literal></para>
+
+      <para>The query expression is a SELECT statement or similar, and is
+      discussed in the rest of this chapter. In the example below a cursor is
+      declared for a SELECT statement. It is later opened to create the result
+      set. The cursor is specified WITHOUT HOLD, so the result set is not kept
+      after a commit. Use WITH HOLD to keep the result set.</para>
+
+      <programlisting>DECLARE thiscursor SCROLL CURSOR WITHOUT HOLD WITH RETURN FOR SELECT * FROM INFORMATION_SCHEMA.TABLES;
+--
+OPEN thiscursor;
+</programlisting>
+    </section>
   </section>
 
   <section>

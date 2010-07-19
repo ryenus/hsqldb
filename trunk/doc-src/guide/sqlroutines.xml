@@ -51,7 +51,8 @@
   extending the SQL/JRT specification.</para>
 
   <para>HyperSQL also supports user defined aggregate functions written in the
-  SQL language. This feature is an extension to the SQL Standard.</para>
+  SQL language or Java. This feature is an extension to the SQL
+  Standard.</para>
 
   <para>SQL-invoked routines are schema objects. Naming and referencing
   follows conventions common to all schema objects. The same routine name can
@@ -68,7 +69,7 @@
     </listitem>
 
     <listitem>
-      <para>always returns a value</para>
+      <para>always returns a single value or a single table</para>
     </listitem>
 
     <listitem>
@@ -96,7 +97,7 @@
     </listitem>
 
     <listitem>
-      <para>can return one or more values</para>
+      <para>can return zero to multiple values or result sets</para>
     </listitem>
 
     <listitem>
@@ -223,15 +224,26 @@
 
       <para>A compound statement is enclosed in a BEGIN / END block with
       optional labels. It can contain one or more <literal>&lt;SQL variable
-      declaration&gt;</literal> or <literal>&lt;handler
-      declaration&gt;</literal> before at least one SQL statement. The BNF is
-      given below:</para>
+      declaration&gt;</literal>, <literal>&lt;declare cursor&gt;</literal> or
+      <literal>&lt;handler declaration&gt;</literal> before at least one SQL
+      statement. The BNF is given below:</para>
 
       <simpara><literal>&lt;compound statement&gt; ::= [ &lt;beginning
-      label&gt; &lt;colon&gt; ] BEGIN [[NOT] ATOMIC] [{&lt;SQL variable
-      declaration&gt; &lt;semicolon&gt;} ...] [{&lt;handler declaration&gt;
-      &lt;semicolon&gt;}...] {&lt;SQL procedure statement&gt;
-      &lt;semicolon&gt;} ... END [ &lt;ending label&gt; ]</literal></simpara>
+      label&gt; &lt;colon&gt; ] BEGIN [[NOT] ATOMIC]</literal></simpara>
+
+      <simpara><literal>[{&lt;SQL variable declaration&gt; &lt;semicolon&gt;}
+      ...]</literal></simpara>
+
+      <simpara><literal>[{&lt;declare cursor&gt; &lt;semicolon&gt;}
+      ...]</literal></simpara>
+
+      <simpara><literal>[{&lt;handler declaration&gt; &lt;semicolon&gt;}...]
+      </literal></simpara>
+
+      <simpara><literal>{&lt;SQL procedure statement&gt; &lt;semicolon&gt;}
+      ... </literal></simpara>
+
+      <simpara><literal>END [ &lt;ending label&gt; ]</literal></simpara>
 
       <para>An example of a simple compound statement body is given below. It
       performs the common task of inserting related data into two table. The
@@ -272,6 +284,14 @@
 
       <para>The BNF for variable declaration is given below:</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>DECLARE variable</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DECLARE variable</emphasis></simpara>
+
+      <simpara><emphasis>SQL variable declaration</emphasis></simpara>
+
       <simpara><literal>&lt;SQL variable declaration&gt; ::= DECLARE
       &lt;variable name list&gt; &lt;data type&gt; [DEFAULT &lt;default
       value&gt;]</literal></simpara>
@@ -292,6 +312,43 @@
     SET temp_two = 5;
     -- more statements ...
   END</programlisting>
+    </section>
+
+    <section>
+      <title>Cursors</title>
+
+      <para>A <literal>&lt;declare cursor&gt;</literal> statement is used to
+      declare a SELECT statement. The current usage of this statement in early
+      versions of HyperSQL 2.0 is exclusively to return a result set from a
+      procedure. The result set is returned to the JDBC CallableStatement
+      object that calls the procedure. The getResultSet() method of
+      CallableStatement is then used to retrieve the JDBC ResultSet.</para>
+
+      <para>In the <literal>&lt;routine definition&gt;</literal>, the DYNAMIC
+      RESULT SETS clause must be used to specify a value above zero. The
+      DECLARE CURSOR statement is used after any variable declaration in
+      compound statement block. The <literal>&lt;open statement&gt;</literal>
+      is then executed for the cursor at the point where the result set should
+      be populated. </para>
+
+      <para>After the procedure is executed with a JDBC CallableStatement
+      execute() method, all the result sets that were opened are returned to
+      the JDBC CallableStatement.</para>
+
+      <para>Calling getResultSet() will return the first ResultSet. When there
+      are multiple result sets, the getMoreResults() method of the Callable
+      statement is called to move to the next ResultSet, before getResultSet()
+      is called to return the next ResultSet. See the <link
+      endterm="dataaccess-title" ns6:href="#dataaccess-chapt"></link> chapter
+      on the syntax for declaring the cursor.</para>
+
+      <programlisting>  BEGIN ATOMIC
+    DECLARE temp_zero DATE;
+    DECLARE result CURSOR FOR SELECT * FROM INFORMATION_SCHEMA.TABLES WITH RETURN;
+    -- more statements ...
+    OPEN result;
+  END
+</programlisting>
     </section>
 
     <section>
@@ -355,6 +412,14 @@
 
       <para>The BNF for <literal>&lt;handler declaration&gt;</literal> is
       given below:</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DECLARE HANDLER</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DECLARE HANDLER</emphasis></simpara>
+
+      <simpara><emphasis>declare handler statement</emphasis></simpara>
 
       <simpara><literal>&lt;handler declaration&gt; ::= DECLARE {UNDO |
       CONTINUE | EXIT} HANDLER FOR {SQLEXCEPTION | SQLWARNING | NOT FOUND} | {
@@ -763,10 +828,9 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       sense that a procedure may return a different number of result sets or
       none at all in different invocations. The SQL Standard uses a mechanism
       called CURSORS for accessing and modifying rows of a result set one by
-      one. This mechanism is absolutely necessary when the database is
-      accessed from an external application program. The JDBC ResultSet
-      interface allows this method of access from Java programs and is
-      supported by HyperSQL.</para>
+      one. This mechanism is necessary when the database is accessed from an
+      external application program. The JDBC ResultSet interface allows this
+      method of access from Java programs and is supported by HyperSQL.</para>
 
       <para>The SQL Standard uses cursors within the body of a procedure to
       return result sets. It specifies a somewhat complex mechanism to allow
@@ -775,24 +839,21 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       This is considered redundant as all operations on data can be performed
       with non-cursor SQL statements.</para>
 
-      <para>The initial releases of HyperSQL do not support this method of
-      returning result sets. Future versions will support returning single or
-      multiple result sets from SQL/PSM procedures only via the JDBC
+      <para>The initial releases of HyperSQL support this method of returning
+      single or multiple result sets from SQL/PSM procedures only via the JDBC
       CallableStatement interface. Cursors are declared and opened within the
       body of the procedure. No further operation is performed on the cursors
       within the procedure. When the execution of the procedure is complete,
       the cursors become available as Java ResultSet objects via the
       CallableStatement instance that called the SQL/PSM procedure.</para>
 
-      <para>In the current version, a single result can be returned from
-      FUNCTION routines, when the function is defined as RETURNS TABLE ( ..
-      )</para>
+      <para>An SQL/PSM function or an SQL/JRT function can return a single
+      result when the function is defined as RETURNS TABLE ( .. )</para>
 
       <para>To return a table from a SELECT statement, you should use a return
-      statement such as RETURN TABLE( SELECT ...); in a SQL/PSM function. A
-      Java function should return a JDBCResultSet instance. For an example of
-      how to construct a JDBCResultSet for this purpose, see the source code
-      for the org.hsqldb.jdbc.JDBCArray class.</para>
+      statement such as RETURN TABLE( SELECT ...) in an SQL/PSM function. For
+      an SQL/JRT function, the Java method should return a JDBCResultSet
+      instance.</para>
 
       <para>The JDBC CallableStatement class is used with the SQL statement
       <literal>CALL &lt;routine name&gt; ( &lt;argument 1&gt;, ... )</literal>
@@ -935,6 +996,11 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
     fraction is silently truncated and no exception of warning is
     raised.</para>
 
+    <para>When the function is specified as RETURNS TABLE(...) the static Java
+    method should return a JDBCResultSet instance. For an example of how to
+    construct a JDBCResultSet for this purpose, see the source code for the
+    org.hsqldb.jdbc.JDBCArray class.</para>
+
     <section>
       <title>Polymorphism</title>
 
@@ -1010,6 +1076,22 @@ CREATE FUNCTION testquery(INTEGER)
         <listitem>
           <para>The static method can modify the OUT or INOUT param by
           assigning a value to the sole element of the argument array.</para>
+        </listitem>
+
+        <listitem>
+          <para>A procedure can return one or more result sets. These are
+          instantiated as JDBC ResultSet objects by the Java static and
+          returned in array agruments of the method. The signature of the Java
+          method for a procdure that has N declared parameters and returns M
+          result sets has the following pattern. The N arguments are followed
+          by M arguments as ResultSet arrays. The Java method calls the
+          execute() or executeQuery() methods of JDBC Statement or
+          PreparedStatement objects and assigns the ResultSet objects to the
+          first element of each ResultSet[] argument. The Java method should
+          not call the methods of the ResultSet before returning.</para>
+
+          <para><literal>void methodName(&lt;arg1&gt;, ... &lt;argN&gt;,
+          ResultSet[] r1, ..., ResultSet[] rM)</literal></para>
         </listitem>
 
         <listitem>
