@@ -322,7 +322,7 @@ public class JDBCDriver implements Driver {
             timeout = DriverManager.getLoginTimeout();
         }
 
-        // @todo:  mabe impose some sort of sane restriction
+        // @todo:  maybe impose some sort of sane restriction
         //         on network connections regarless of user
         //         specification?
         if (timeout == 0) {
@@ -561,7 +561,7 @@ public class JDBCDriver implements Driver {
     //
     //                   For example, the session performing the registration 
     //                   could register itself within a Session.class private
-    //                   static thread local just prioer to making the call here
+    //                   static thread local just prior to making the call here
     //                   and remove itself just after making the call here,
     //                   while as part of the encapsulated access here it would
     //                   be required to make a call back against the session

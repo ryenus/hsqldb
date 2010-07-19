@@ -739,6 +739,9 @@ public abstract class Type implements SchemaObject, Cloneable {
             case Types.SQL_ALL_TYPES :
                 return SQL_ALL_TYPES;
 
+            case Types.SQL_ARRAY :
+                return SQL_ARRAY_ALL_TYPES;
+
             case Types.SQL_CHAR :
                 return SQL_CHAR_DEFAULT;
 
@@ -880,6 +883,9 @@ public abstract class Type implements SchemaObject, Cloneable {
             case Types.BLOB :
                 return Types.SQL_BLOB;
 
+            case Types.ARRAY :
+                return Types.SQL_ARRAY;
+
             default :
                 return jdbcTypeNumber;
         }
@@ -914,6 +920,9 @@ public abstract class Type implements SchemaObject, Cloneable {
             case Types.SQL_BIT :
             case Types.SQL_BIT_VARYING :
                 return Types.BIT;
+
+            case Types.SQL_ARRAY :
+                return Types.ARRAY;
 
             default :
                 return type;

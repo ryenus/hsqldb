@@ -40,6 +40,7 @@ import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.result.ResultProperties;
+import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -137,6 +138,19 @@ public class ParserRoutine extends ParserDML {
                     read();
 
                     return Expression.EXPR_FALSE;
+            }
+        } else if (dataType.isBitType()) {
+            switch (token.tokenType) {
+
+                case Tokens.TRUE :
+                    read();
+
+                    return new ExpressionValue(BinaryData.singleBitOne, dataType);
+
+                case Tokens.FALSE :
+                    read();
+
+                    return new ExpressionValue(BinaryData.singleBitZero, dataType);
             }
         } else if (dataType.isArrayType()) {
             e = readCollection(OpTypes.ARRAY);

@@ -472,11 +472,6 @@ public class JDBCArray implements Array {
      * Returns a string representation in the form <code>ARRAY[..., ...]</code>
      */
     public String toString() {
-        try {
-            checkClosed();
-        } catch (SQLException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
 
         if (arrayType == null) {
             arrayType = Type.getDefaultArrayType(elementType.typeCode);
@@ -505,9 +500,6 @@ public class JDBCArray implements Array {
     public void free() throws SQLException {
         if (!closed) {
             closed = true;
-            arrayType = null;
-            elementType = null;
-            data = null;
             connection = null;
             sessionProxy = null;
         }

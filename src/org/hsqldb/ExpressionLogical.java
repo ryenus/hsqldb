@@ -1096,7 +1096,7 @@ public class ExpressionLogical extends Expression {
                 Object o2 = nodes[RIGHT].getValue(session);
 
                 if (o1 instanceof Object[]) {
-                    if (!(o2 instanceof Object[])) {
+                    if (o2 != null && !(o2 instanceof Object[])) {
                         throw Error.runtimeError(ErrorCode.U_S0500,
                                                  "ExpressionLogical");
                     }

@@ -679,7 +679,7 @@ public class CharacterType extends Type {
     }
 
     public boolean canConvertFrom(Type otherType) {
-        return !otherType.isObjectType();
+        return !otherType.isObjectType() && !otherType.isArrayType();
     }
 
     public Collation getCollation() {

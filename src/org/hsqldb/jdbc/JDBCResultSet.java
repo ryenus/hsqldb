@@ -4456,11 +4456,11 @@ public class JDBCResultSet implements ResultSet {
 
         Type type = resultMetaData.columnTypes[columnIndex - 1];
 
+        Object[] data = (Object[]) getCurrent()[columnIndex - 1];
+
         if (!type.isArrayType()) {
             throw Util.sqlException(ErrorCode.X_42561);
         }
-
-        Object[] data = (Object[]) getCurrent()[columnIndex - 1];
 
         if (data == null) {
             return null;
