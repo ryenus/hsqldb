@@ -62,37 +62,24 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
     DataFileCacheSession  cache;
     private int           maxMemoryRowCount;
     private int           memoryRowCount;
-    private boolean       useCache;
+    private boolean       useDisk;
     private boolean       isCached;
     private final boolean isTempTable;
     int                   rowIdSequence = 0;
 
     public RowStoreAVLHybrid(Session session,
                              PersistentStoreCollection manager,
-                             TableBase table) {
-
-        this(session, manager, table, true);
-
-        cache = session.sessionData.getResultCache();
-
-        if (cache != null) {
-            isCached = true;
-        }
-    }
-
-    public RowStoreAVLHybrid(Session session,
-                             PersistentStoreCollection manager,
-                             TableBase table, boolean useCache) {
+                             TableBase table, boolean diskBased) {
 
         this.session           = session;
         this.manager           = manager;
         this.table             = table;
         this.maxMemoryRowCount = session.getResultMemoryRowCount();
         this.isTempTable       = table.getTableType() == TableBase.TEMP_TABLE;
-        this.useCache          = useCache;
+        this.useDisk          = diskBased;
 
         if (maxMemoryRowCount == 0) {
-            this.useCache = false;
+            this.useDisk = false;
         }
 
         if (table.getTableType() == TableBase.RESULT_TABLE) {
@@ -101,11 +88,11 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
 
 // test code to force use of cache
 /*
-        if (useCache) {
+        if (diskBased) {
             cache = session.sessionData.getResultCache();
 
             if (cache != null) {
-                isCached = useCache;
+                isCached = diskBased;
 
                 cache.storeCount++;
             }
@@ -244,7 +231,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         } else {
             memoryRowCount++;
 
-            if (useCache && memoryRowCount > maxMemoryRowCount) {
+            if (useDisk && memoryRowCount > maxMemoryRowCount) {
                 changeToDiskTable();
 
                 return getNewCachedObject(session, object);

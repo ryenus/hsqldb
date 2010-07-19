@@ -1050,7 +1050,8 @@ public class Logger {
                     return null;
                 }
 
-                return new RowStoreAVLHybrid(session, collection, table);
+                return new RowStoreAVLHybrid(session, collection, table,
+                                             diskBased);
 
             case TableBase.TEMP_TABLE :
                 diskBased = false;

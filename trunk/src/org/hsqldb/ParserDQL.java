@@ -4904,6 +4904,18 @@ public class ParserDQL extends ParserBase {
         return e;
     }
 
+    SimpleName readSimpleName() {
+
+        checkIsSimpleName();
+
+        SimpleName name = HsqlNameManager.getSimpleName(token.tokenString,
+            isDelimitedIdentifier());
+
+        read();
+
+        return name;
+    }
+
     HsqlName readNewSchemaName() {
 
         checkIsSchemaObjectName();
@@ -5135,15 +5147,17 @@ public class ParserDQL extends ParserBase {
         return column;
     }
 
-    StatementDMQL compileDeclareCursor() {
+    StatementQuery compileDeclareCursor(boolean isRoutine) {
 
         int sensitivity   = ResultConstants.SQL_ASENSITIVE;
         int scrollability = ResultConstants.SQL_NONSCROLLABLE;
         int holdability   = ResultConstants.SQL_NONHOLDABLE;
         int returnability = ResultConstants.SQL_WITHOUT_RETURN;
+        int position      = super.getPosition();
 
         readThis(Tokens.DECLARE);
-        readNewSchemaObjectName(SchemaObject.CURSOR, true);
+
+        SimpleName cursorName = readSimpleName();
 
         switch (token.tokenType) {
 
@@ -5172,6 +5186,11 @@ public class ParserDQL extends ParserBase {
 
                 scrollability = ResultConstants.SQL_SCROLLABLE;
             }
+        }
+
+        if (token.tokenType != Tokens.CURSOR) {
+            rewind(position);
+            return null;
         }
 
         readThis(Tokens.CURSOR);
@@ -5209,7 +5228,9 @@ public class ParserDQL extends ParserBase {
         int props = ResultProperties.getProperties(sensitivity,
             ResultConstants.SQL_UPDATABLE, scrollability, holdability,
             returnability);
-        StatementDMQL cs = compileCursorSpecification(props);
+        StatementQuery cs = compileCursorSpecification(props, isRoutine);
+
+        cs.setCursorName(cursorName);
 
         return cs;
     }
@@ -5217,7 +5238,7 @@ public class ParserDQL extends ParserBase {
     /**
      * Retrieves a SELECT or other query expression Statement from this parse context.
      */
-    StatementDMQL compileCursorSpecification(int props) {
+    StatementQuery compileCursorSpecification(int props, boolean isRoutine) {
 
         OrderedHashSet  colNames        = null;
         QueryExpression queryExpression = XreadQueryExpression();
@@ -5250,8 +5271,11 @@ public class ParserDQL extends ParserBase {
         queryExpression.setReturningResult();
         queryExpression.resolve(session);
 
-        StatementDMQL cs = new StatementQuery(session, queryExpression,
-                                              compileContext);
+        StatementQuery cs = isRoutine
+                            ? new StatementCursor(session, queryExpression,
+                                compileContext)
+                            : new StatementQuery(session, queryExpression,
+                                compileContext);
 
         return cs;
     }

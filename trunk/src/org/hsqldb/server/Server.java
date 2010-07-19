@@ -2172,7 +2172,7 @@ public class Server implements HsqlSocketRequestHandler {
              * in that case the socket.close() elsewhere will not
              * interrupt this accept().
              */
-            while (true) {
+            while (socket != null) {
                 try {
                     handleConnection(socket.accept());
                 } catch (java.io.InterruptedIOException iioe) {}

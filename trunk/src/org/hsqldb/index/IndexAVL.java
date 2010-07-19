@@ -1272,7 +1272,7 @@ public class IndexAVL implements Index {
         temp = x;
         x    = x.getParent(store);
 
-        while (x != null && x.isRight(temp)) {
+        while (x != null && x.isLeft(temp)) {
             temp = x;
             x    = x.getParent(store);
         }

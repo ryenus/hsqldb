@@ -123,4 +123,12 @@ public class JavaObjectData {
     public String toString() {
         return super.toString();
     }
+
+    public boolean equals(Object other) {
+        return other instanceof JavaObjectData;
+    }
+
+    public int hashCode() {
+        return 1;
+    }
 }

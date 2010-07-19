@@ -51,6 +51,8 @@ import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
+import java.sql.ResultSet;
+
 /**
  * Implementation of specific routine
  *
@@ -93,6 +95,7 @@ public class Routine implements SchemaObject {
     boolean          isDeterministic;
     boolean          isNullInputOutput;
     boolean          isNewSavepointLevel = true;
+    int              maxDynamicResults   = 0;
     boolean          isPSM;
     boolean          returnsTable;
     Statement        statement;
@@ -397,6 +400,10 @@ public class Routine implements SchemaObject {
         specificName = name;
     }
 
+    public int getMaxDynamicResults() {
+        return maxDynamicResults;
+    }
+
     public void setName(HsqlName name) {
         this.name = name;
     }
@@ -423,6 +430,10 @@ public class Routine implements SchemaObject {
 
     public void setNewSavepointLevel(boolean value) {
         isNewSavepointLevel = value;
+    }
+
+    public void setMaxDynamicResults(int value) {
+        maxDynamicResults = value;
     }
 
     public void setParameterStyle(int style) {
@@ -654,10 +665,11 @@ public class Routine implements SchemaObject {
 
         int      extraArg = javaMethodWithConnection ? 1
                                                      : 0;
-        Object[] data     = new Object[callArguments.length + extraArg];
+        Object[] data     = new Object[javaMethod.getParameterTypes().length];
         Type[]   types    = getParameterTypes();
+        int      i        = 0;
 
-        for (int i = 0; i < callArguments.length; i++) {
+        for (; i < types.length; i++) {
             Object       value = callArguments[i];
             ColumnSchema param = getParameter(i);
 
@@ -674,6 +686,10 @@ public class Routine implements SchemaObject {
             }
         }
 
+        for (; i  + extraArg < callArguments.length; i++) {
+            data[i + extraArg] = new java.sql.ResultSet[1];
+        }
+
         return data;
     }
 
@@ -683,8 +699,9 @@ public class Routine implements SchemaObject {
         int    extraArg = javaMethodWithConnection ? 1
                                                    : 0;
         Type[] types    = getParameterTypes();
+        int    i        = 0;
 
-        for (int i = 0; i < callArguments.length; i++) {
+        for (; i < types.length; i++) {
             Object       value = data[i + extraArg];
             ColumnSchema param = getParameter(i);
 
@@ -694,6 +711,28 @@ public class Routine implements SchemaObject {
 
             callArguments[i] = types[i].convertJavaToSQL(session, value);
         }
+
+
+        for (; i + extraArg < data.length; i++) {
+            ResultSet rs = ((ResultSet[]) data[i])[0];
+
+            if (rs != null) {
+                if (rs instanceof JDBCResultSet) {
+                    Result head = (Result) callArguments[i - extraArg];
+
+                    Result r = ((JDBCResultSet) rs).result;
+
+                    if (head == null) {
+                        callArguments[i - extraArg] = r;
+                    } else {
+                        head.addChainedResult(r);
+                    }
+                } else {
+                    Error.error(ErrorCode.X_46000);
+                }
+            }
+        }
+
     }
 
     Result invokeJavaMethod(Session session, Object[] data) {
@@ -769,6 +808,7 @@ public class Routine implements SchemaObject {
 
             Method  method = methods[i];
             Class[] params = method.getParameterTypes();
+            int     matchedParamCount;
 
             if (params.length > 0
                     && params[0].equals(java.sql.Connection.class)) {
@@ -776,7 +816,21 @@ public class Routine implements SchemaObject {
                 hasConnection[0] = true;
             }
 
-            if (params.length - offset != routine.parameterTypes.length) {
+            matchedParamCount = params.length - offset;
+
+            if (routine.isProcedure()) {
+                for (int j = offset; j < params.length; j++) {
+                    if (params[j].isArray()
+                            && params[j].getComponentType().equals(
+                                java.sql.ResultSet.class)) {
+                        matchedParamCount = j + offset;
+
+                        break;
+                    }
+                }
+            }
+
+            if (matchedParamCount != routine.parameterTypes.length) {
                 continue;
             }
 
@@ -923,6 +977,7 @@ public class Routine implements SchemaObject {
 
         for (i = 0; i < methods.length; i++) {
             int    offset    = 0;
+            int    endIndex  = Integer.MAX_VALUE;
             Method method    = methods[i];
             int    modifiers = method.getModifiers();
 
@@ -951,6 +1006,28 @@ public class Routine implements SchemaObject {
 
                             break;
                         }
+
+                        if (java.sql.ResultSet.class.isAssignableFrom(param)) {
+                            if (endIndex > j) {
+                                endIndex = j;
+                            }
+                        }
+                    }
+
+                    if (j >= endIndex) {
+                        if (java.sql.ResultSet.class.isAssignableFrom(param)) {
+                            continue;
+                        } else {
+                            method = null;
+
+                            break;
+                        }
+                    }
+                } else {
+                    if (j > endIndex) {
+                        method = null;
+
+                        break;
                     }
                 }
 

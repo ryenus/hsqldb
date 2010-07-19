@@ -186,7 +186,7 @@ class JDBCStatementBase {
                 }
             } else if (current.getType() == ResultConstants.ERROR) {
                 errorResult = current;
-            } else if (current.getType() == ResultConstants.DATA) {
+            } else if (current.getType() == ResultConstants.GENERATED) {
                 generatedResult = current;
             }
         }

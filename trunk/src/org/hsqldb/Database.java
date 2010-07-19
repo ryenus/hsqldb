@@ -475,7 +475,6 @@ public class Database {
 
         setState(DATABASE_CLOSING);
         sessionManager.closeAllSessions();
-        sessionManager.clearAll();
 
         if (filesReadOnly) {
             closemode = CLOSEMODE_IMMEDIATELY;
@@ -504,6 +503,7 @@ public class Database {
             }
         }
 
+        sessionManager.close();
         logger.releaseLock();
         setState(DATABASE_SHUTDOWN);
         clearStructures();

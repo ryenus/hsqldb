@@ -210,4 +210,17 @@ public class BlobDataID implements BlobData {
     public boolean isBinary() {
         return true;
     }
+
+    public boolean equals(Object other) {
+
+        if (other instanceof BlobDataID) {
+            return id == ((BlobDataID) other).id;
+        }
+
+        return false;
+    }
+
+    public int hashCode() {
+        return (int) id;
+    }
 }

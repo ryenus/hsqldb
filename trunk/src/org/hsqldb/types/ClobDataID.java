@@ -224,4 +224,17 @@ public class ClobDataID implements ClobData {
     public boolean isBinary() {
         return false;
     }
+
+    public boolean equals(Object other) {
+
+        if (other instanceof BlobDataID) {
+            return id == ((BlobDataID) other).id;
+        }
+
+        return false;
+    }
+
+    public int hashCode() {
+        return (int) id;
+    }
 }

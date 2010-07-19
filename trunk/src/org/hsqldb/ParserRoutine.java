@@ -179,6 +179,24 @@ public class ParserRoutine extends ParserDML {
         }
     }
 
+    Statement compileOpenCursorStatement(StatementCompound context) {
+
+        readThis(Tokens.OPEN);
+        checkIsSimpleName();
+
+        String tokenString = token.tokenString;
+
+        read();
+
+        for (int i = 0; i < context.cursors.length; i++) {
+            if (context.cursors[i].getCursorName().name.equals(tokenString)) {
+                return context.cursors[i];
+            }
+        }
+
+        throw Error.error(ErrorCode.X_34000);
+    }
+
     Statement compileSelectSingleRowStatement(RangeVariable[] rangeVars) {
 
         OrderedHashSet     variableNames = new OrderedHashSet();
@@ -628,7 +646,15 @@ public class ParserRoutine extends ParserDML {
                     read();
                     readThis(Tokens.RESULT);
                     readThis(Tokens.SETS);
-                    readBigint();
+
+                    int results = readInteger();
+
+                    if (results < 0 || results > 16) {
+                        throw Error.error(ErrorCode.X_42604,
+                                          String.valueOf(results));
+                    }
+
+                    routine.setMaxDynamicResults(results);
 
                     break;
                 }
@@ -688,18 +714,38 @@ public class ParserRoutine extends ParserDML {
     private Object[] readLocalDeclarationList(Routine routine,
             StatementCompound context) {
 
-        HsqlArrayList list = new HsqlArrayList();
+        HsqlArrayList list                = new HsqlArrayList();
+        final int     variableOrCondition = 0;
+        final int     cursor              = 1;
+        final int     handler             = 2;
+        int           objectType          = variableOrCondition;
 
         while (token.tokenType == Tokens.DECLARE) {
-            Object var = readLocalVariableDeclarationOrNull();
+            Object var = null;
 
-            if (var == null) {
-                var = compileLocalHandlerDeclarationOrNull(routine, context);
-            }
+            if (objectType == variableOrCondition) {
+                var = readLocalVariableDeclarationOrNull();
 
-            if (var instanceof ColumnSchema[]) {
-                list.addAll((Object[]) var);
-            } else {
+                if (var == null) {
+                    objectType = cursor;
+                } else {
+                    list.addAll((Object[]) var);
+                }
+            } else if (objectType == cursor) {
+                var = compileDeclareCursor(true);
+
+                if (var == null) {
+                    objectType = handler;
+                } else {
+                    list.add(var);
+
+                    readThis(Tokens.SEMICOLON);
+
+
+                }
+            } else if (objectType == handler) {
+                var = compileLocalHandlerDeclaration(routine, context);
+
                 list.add(var);
             }
         }
@@ -771,8 +817,8 @@ public class ParserRoutine extends ParserDML {
         return variable;
     }
 
-    private StatementHandler compileLocalHandlerDeclarationOrNull(
-            Routine routine, StatementCompound context) {
+    private StatementHandler compileLocalHandlerDeclaration(Routine routine,
+            StatementCompound context) {
 
         int handlerType;
 
@@ -996,6 +1042,20 @@ public class ParserRoutine extends ParserDML {
         switch (token.tokenType) {
 
             // data
+            case Tokens.OPEN : {
+                if (routine.dataImpact == Routine.CONTAINS_SQL) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      routine.getDataImpactString());
+                }
+
+                if (label != null) {
+                    throw unexpectedToken();
+                }
+
+                cs = compileOpenCursorStatement(context);
+
+                break;
+            }
             case Tokens.SELECT : {
                 if (routine.dataImpact == Routine.CONTAINS_SQL) {
                     throw Error.error(ErrorCode.X_42608,
@@ -1391,7 +1451,7 @@ public class ParserRoutine extends ParserDML {
         readThis(Tokens.FOR);
 
         Statement cursorStatement =
-            compileCursorSpecification(ResultProperties.defaultPropsValue);
+            compileCursorSpecification(ResultProperties.defaultPropsValue, false);
 
         readThis(Tokens.DO);
 

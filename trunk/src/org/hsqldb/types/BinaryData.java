@@ -61,6 +61,7 @@ public class BinaryData implements BlobData {
     protected byte[] data;
     private boolean  isBits;
     private long     bitLength;
+    private int      hashCode = 0;
 
     public static BinaryData getBitData(byte[] data, long bitLength) {
 
@@ -278,5 +279,30 @@ public class BinaryData implements BlobData {
 
     public boolean isBinary() {
         return true;
+    }
+
+    public boolean equals(Object other) {
+
+        if (other instanceof BinaryData) {
+            return Type.SQL_VARBINARY.compare(null, this, other) == 0;
+        }
+
+        return false;
+    }
+
+    public int hashCode() {
+
+        if (hashCode == 0) {
+            int code = 0;
+
+            for (int i = 0; i < data.length && i < 32; i++) {
+                code = code * 31 + (0xff & data[i]);
+            }
+
+            code     += data.length;
+            hashCode = code;
+        }
+
+        return hashCode;
     }
 }
