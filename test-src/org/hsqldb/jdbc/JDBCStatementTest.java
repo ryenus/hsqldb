@@ -124,6 +124,7 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
     public void testExecuteUpdate() throws Exception {
         Statement stmt = newStatement();
 
+        stmt.execute("drop table t if exists");
         stmt.execute("create table t(id int)");
 
         int count = stmt.executeUpdate("insert into t values(1)");
