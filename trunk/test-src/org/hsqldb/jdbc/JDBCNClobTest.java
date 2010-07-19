@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,8 +71,6 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of length method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testLength() throws Exception {
-        println("length");
-
         JDBCNClob nclob = new JDBCNClob("Test");
         long expResult  = "Test".length();
         long result     = nclob.length();
@@ -84,8 +82,6 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of getSubString method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testGetSubString() throws Exception {
-        println("getSubString");
-
         JDBCNClob nclob  = new JDBCNClob("Test");
         String    result = nclob.getSubString(2, 2);
 
@@ -96,8 +92,6 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of getCharacterStream method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testGetCharacterStream() throws Exception {
-        println("getCharacterStream");
-
         JDBCNClob nclob     = new JDBCNClob("Test");
         Reader    expResult = new StringReader("Test");
         Reader    result    = nclob.getCharacterStream();
@@ -109,9 +103,7 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of getAsciiStream method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testGetAsciiStream() throws Exception {
-        println("getAsciiStream");
-
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         for (int i = Character.MIN_VALUE; i <= Character.MAX_VALUE; i++) {
             sb.append((char)i);
@@ -130,8 +122,6 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of position method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testPosition() throws Exception {
-        println("position");
-
         JDBCNClob nclob  = new JDBCNClob("Test");
         long      result = nclob.position("est", 1);
 
@@ -142,8 +132,6 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of setString method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testSetString() throws Exception {
-        println("setString");
-
         JDBCNClob clob = (JDBCNClob) newConnection().createNClob();
 
         try {
@@ -162,8 +150,6 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of setAsciiStream method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testSetAsciiStream() throws Exception {
-        println("setAsciiStream");
-
         JDBCNClob clob = (JDBCNClob) newConnection().createNClob();
 
         try {
@@ -193,8 +179,6 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of setCharacterStream method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testSetCharacterStream() throws Exception {
-        println("setCharacterStream");
-
         JDBCNClob clob = (JDBCNClob) newConnection().createNClob();
 
         try {
@@ -223,8 +207,6 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of truncate method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testTruncate() throws Exception {
-        println("truncate");
-
         JDBCNClob nclob = new JDBCNClob("Test");
 
         try {
@@ -239,8 +221,6 @@ public class JDBCNClobTest extends BaseJdbcTestCase {
      * Test of free method, of class org.hsqldb.jdbc.jdbcNClob.
      */
     public void testFree() throws Exception {
-        println("free");
-
         JDBCNClob nclob = new JDBCNClob("Test");
 
         try {

@@ -186,7 +186,7 @@ insert into CHILD values (1,1)
 create table emp(company_id varchar(10),id varchar(20),supervisor_id varchar(20), primary key (company_id,id));
 insert into emp values ('01','1000',null);
 insert into emp values ('01','1001','1000');
-/*c2*/select id,supervisor_id from emp e left join emp s on
+/*c2*/select e.id,e.supervisor_id from emp e left join emp s on
  e.company_id = s.company_id and e.supervisor_id = s.id;
 --
 --bug #676083
@@ -284,11 +284,11 @@ create index idx3 on testb(a_oid)
 drop table a if exists;
 drop table b if exists;
 create table a (a1 varchar(10), a2 integer);
+create table b (b1 varchar(10), b2 integer);
 insert into a values(null,12);
 insert into a values('a',22);
 insert into a values('b','32');
 
-create table b (b1 varchar(10), b2 integer);
 insert into b values(null,14);
 insert into b values('a',14);
 insert into b values('c',15);
@@ -423,3 +423,102 @@ insert into associated values('you', 20)
 */select sub.pk, sub.ass, a.pk
   from Sub sub inner join Super super on sub.pk=super.pk
   full outer join Associated a on super.ass=a.pk order by 3
+---
+CREATE TABLE bremsen_dl_fzg
+ ( bremsen_dl_id integer not null
+ , lfd_nr integer not null
+ , bremse_dl_fzgtyp char(1)
+ , bremse_dl_art char(1)
+ , bremse_dl_verf char(1)
+ , bremse_dl_bauart varchar(4)
+ , bremse_dl_typ char(1)
+ , ort_bedienung varchar(4)
+ , loesigkeit char(1)
+ , beschreibung varchar(30)
+ , bremse_dl_gew_id integer
+ , uhrzeit_ende timestamp not null
+ );
+ALTER TABLE bremsen_dl_fzg add constraint pk_bremsen_dl_fzg primary key
+ ( bremsen_dl_id , lfd_nr );
+ALTER TABLE bremsen_dl_fzg add constraint chk_bremsen_dl_fzg check
+ (
+ ( bremse_dl_fzgtyp is null or bremse_dl_fzgtyp in ( 'W', 'T', 't') )
+ and
+ ( bremse_dl_art is null or bremse_dl_art in ( 'B', 'F') )
+ and
+ ( bremse_dl_verf is null or bremse_dl_verf in ( 'D', 'H', 'M', 'W') )
+ and
+ ( bremse_dl_bauart is null or bremse_dl_bauart in ( 'ALaH', 'ALaT',
+ 'H2Lw', 'H3Lw') )
+ and
+ ( bremse_dl_typ is null or bremse_dl_typ in ( 'D', 'B', 'S', 'H', 'K',
+ 'F') )
+ and
+ ( ort_bedienung is null or ort_bedienung in ( 'BO', 'ST', 'BOST') )
+ and
+ ( loesigkeit is null or loesigkeit in ( 'e', 'm', 'M') )
+ );
+
+CREATE TABLE bremsen_dl_gewichte
+ ( bremse_dl_gew_id integer not null
+ , lfd_nr integer not null
+ , bremse_stellung varchar(2)
+ , gewicht_brutto float
+ , gewicht_bremse float
+ , uhrzeit_ende timestamp not null
+ );
+ALTER TABLE bremsen_dl_gewichte add constraint pk_bremsen_dl_gewichte
+ primary key
+ ( bremse_dl_gew_id , lfd_nr );
+ ALTER TABLE bremsen_dl_gewichte add constraint chk_bremsen_dl_gewichte
+ check
+ (
+ ( bremse_stellung is null or bremse_stellung in ( 'G', 'GE', 'P', 'PE',
+ 'R') )
+ );
+
+CREATE VIEW lok_bremse_lfdnr1_view
+ ( bremsen_dl_id, bremse_dl_gew_id, bremse_dl_art, bremse_dl_verf, bremse_dl_bauart,
+ bremse_dl_typ, ort_bedienung, loesigkeit, beschreibung, gewicht_bremse_g,
+ gewicht_bremse_p, gewicht_bremse_r)
+ as select br.bremsen_dl_id, br.bremse_dl_gew_id, br.bremse_dl_art, br.bremse_dl_verf,
+ br.bremse_dl_bauart, br.bremse_dl_typ, br.ort_bedienung, br.loesigkeit,
+ br.beschreibung, gew_g.gewicht_bremse, gew_p.gewicht_bremse, gew_r.gewicht_bremse
+ from bremsen_dl_fzg br
+ left join bremsen_dl_gewichte gew_g on
+ br.bremse_dl_gew_id = gew_g.bremse_dl_gew_id
+ and gew_g.bremse_stellung = 'G'
+ and gew_g.gewicht_bremse IS NOT NULL
+ left join bremsen_dl_gewichte gew_p on
+ br.bremse_dl_gew_id = gew_p.bremse_dl_gew_id
+ and gew_p.bremse_stellung = 'P'
+ and gew_p.gewicht_bremse IS NOT NULL
+ left join bremsen_dl_gewichte gew_r on
+ br.bremse_dl_gew_id = gew_r.bremse_dl_gew_id
+ and gew_r.bremse_stellung = 'R'
+ and gew_r.gewicht_bremse IS NOT NULL
+ where br.lfd_nr = 1
+ AND br.bremse_dl_bauart IN( 'ALaH','H2Lw');
+
+-- check for use of index in execution plan
+CREATE CACHED TABLE article (
+ id INTEGER IDENTITY,
+ name VARCHAR(50));
+
+CREATE CACHED TABLE salesorder_row (
+ id INTEGER IDENTITY,
+ salesorder_id INTEGER,
+ article_id INTEGER,
+ needed DECIMAL(10,2),
+ CONSTRAINT fk_salesorder_row_article FOREIGN KEY (article_id) REFERENCES
+ article (id) ON DELETE CASCADE);
+
+CREATE INDEX idx_salesorder_row_article ON salesorder_row (article_id);
+CREATE INDEX idx_salesorder_row_salesorder ON salesorder_row
+ (salesorder_id);
+
+EXPLAIN PLAN FOR
+ SELECT article.name, salesorder_row.needed
+ FROM salesorder_row
+ LEFT JOIN article ON salesorder_row.article_id = article.id
+ WHERE (salesorder_row.salesorder_id = 1234)

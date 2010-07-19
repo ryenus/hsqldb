@@ -148,3 +148,29 @@ INSERT INTO T VALUES ('felix');
 /*c1*/SELECT * FROM T WHERE C IN ('felix', 'pink');
 DROP TABLE T;
 
+--
+create table t (c1 int, c2 int, primary key(c2, c1))
+insert into t values (10, 20), (11, 21), (21, 32)
+/*r
+ 11,21
+*/select * from t where (c1, c2) in ((11, 21))
+/*r
+ 11,21
+*/select * from t where (c2, c1) in ((21, 11))
+
+update t set c2 = 31 where (c2, c1) in ((21, 11))
+--
+drop table if exists test_trips;
+drop table if exists test_routes;
+create table test_routes (agencyId varchar(50) not null, id varchar(255)
+ not null, primary key (agencyId, id));
+create table test_trips (agencyId varchar(50) not null, id varchar(255) not
+ null, route_agencyId varchar(50), route_id varchar(255), primary key
+ (agencyId, id));
+alter table test_trips add constraint test_trips_routes foreign key
+ (route_agencyId, route_id) references test_routes;
+insert into test_routes (agencyId, id) values ('a','r1'),('a','r2');
+insert into test_trips (agencyId, id,route_agencyId,route_id) values
+ ('a','1','a','r1'),('a','2','a','r2');
+/*c1*/select * from test_trips where (route_agencyId, route_id) in (('a','r1'));
+/*c2*/select * from test_trips where (route_agencyId, route_id) in (values('a','r1'), ('a','r2'));

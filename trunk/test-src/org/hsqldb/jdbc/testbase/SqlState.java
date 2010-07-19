@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -253,6 +253,7 @@ public abstract class SqlState implements Serializable {
      *         or it contains a character not in [1..9][A..Z]; if
      *         <tt>sqlStateSubclass</tt>
      */
+    @SuppressWarnings("LeakingThisInConstructor")
     public SqlState(
             final String sqlStateClass,
             final String sqlStateSubclass) {
@@ -271,7 +272,7 @@ public abstract class SqlState implements Serializable {
         //
         Subclass = sqlStateSubclass;
         SubclassIsStandardDefined = ClassIsStandardDefined &&
-                SqlState.Routine.canBeStandardDefinedConditionSqlStateSubclass(sqlStateClass);
+                SqlState.Routine.canBeStandardDefinedConditionSqlStateSubclass(sqlStateSubclass);
         SubclassIsImplementationDefined =
                 SqlState.Routine.mustBeImplementationDefinedConditionSqlStateSubclass(sqlStateSubclass);
         IsNoSubclass = SqlState.Routine.isNoSubclass(sqlStateSubclass);
@@ -570,6 +571,44 @@ public abstract class SqlState implements Serializable {
                     new ConnectionException(
                     Constant.SqlStateSubclass.NoSubclass);
         }
+
+        public static final class InvalidCursorState extends Exception {
+            /**
+             *
+             * @param sqlStateSubclass
+             */
+            public InvalidCursorState(final String sqlStateSubclass) {
+                super(Constant.SqlStateClass.InvalidCursorState,
+                        sqlStateSubclass);
+            }
+
+            /**
+             *
+             */
+            public static final InvalidCursorState NoSubclass =
+                    new InvalidCursorState(Constant.SqlStateSubclass.NoSubclass);
+
+            public static final InvalidCursorState IdentifiedCursorIsNotOpen =
+                    new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.IdentifiedCursorIsNotOpen);
+            
+            public static final InvalidCursorState IdentifiedCursorIsAlreadyOpen =
+                    new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.IdentifiedCursorIsAlreadyOpen);
+
+            public static final InvalidCursorState CannotFetch_NEXT_PRIOR_CURRENT_or_RELATIVE_CursorPositionIsUnknown =
+                    new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.CannotFetch_NEXT_PRIOR_CURRENT_or_RELATIVE_CursorPositionIsUnknown);
+
+            public static final InvalidCursorState IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement =
+                    new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement);
+
+            public static final InvalidCursorState AllColumnsMustBeSetBeforInsert =
+                    new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.AllColumnsMustBeSetBeforInsert);
+
+            public static final InvalidCursorState RowHasBeenModifiedOutsideTheCursor =
+                    new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.RowHasBeenModifiedOutsideTheCursor);
+
+            public static final InvalidCursorState CursorDisabledByPreviousError =
+                    new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.CursorDisabledByPreviousError);
+        }
     }
 
     /**
@@ -798,6 +837,16 @@ public abstract class SqlState implements Serializable {
                 String ReadingSQLDataNotPermitted = "004";
             }
 
+            public interface InvalidCursorState {
+                String IdentifiedCursorIsNotOpen = "501";
+                String IdentifiedCursorIsAlreadyOpen = "502";
+                String IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement = "504";
+                String CannotFetch_NEXT_PRIOR_CURRENT_or_RELATIVE_CursorPositionIsUnknown = "513";
+                String CursorDisabledByPreviousError = "514";
+                String AllColumnsMustBeSetBeforInsert = "515";
+                String RowHasBeenModifiedOutsideTheCursor = "521";
+            }
+
             public interface NoData {
 
                 String NoAdditionalResultSetsReturned = "001";
@@ -957,7 +1006,7 @@ public abstract class SqlState implements Serializable {
                         "SqlState subclass must not be null");
             } else if (sqlStateSubclass.length() != 3) {
                 throw new IllegalArgumentException(
-                        "SqlState subclass must be precisely 2 characters");
+                        "SqlState subclass must be precisely 3 characters");
             } else {
                 for (int i = 0; i < 3; i++) {
                     if (!SqlState.Routine.isLegalSqlStateChar(sqlStateSubclass.charAt(i))) {

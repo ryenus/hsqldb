@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,18 @@
  */
 package org.hsqldb.jdbc;
 
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.NClob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +48,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.jdbc.testbase.SqlState;
 
 /**
  *
@@ -92,6 +99,22 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         return getBooleanProperty("test.result.set.updates", true);
     }
 
+    protected boolean isTestARRAY() {
+        return getBooleanProperty("test.types.array", false);
+    }
+
+    protected boolean isTestREF() {
+        return getBooleanProperty("test.types.ref", false);
+    }
+
+    protected boolean isTestROWID() {
+        return getBooleanProperty("test.types.rowid", false);
+    }
+
+    protected boolean isTestSQLXML() {
+        return getBooleanProperty("test.types.rowid", false);
+    }
+
     protected int getResultSetClosedErrorCode() {
         return getIntProperty(
                 "result.set.closed.error.code",
@@ -110,28 +133,31 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                 DEFAULT_RESULT_SET_AFTER_LAST_ERROR_CODE);
     }
     private final String m_select =
-            "select id as           id_column, " + // 1
-            "c_bigint        as bigint_column, " +
-            "c_binary        as binary_column, " +
-            "c_boolean       as boolean_column, " +
-            "c_char          as char_column, " + // 5
-            "c_date          as date_column, " +
-            "c_decimal       as decimal_column, " +
-            "c_double        as double_column, " +
-            "c_float         as float_column, " +
-            "c_integer       as integer_column, " + // 10
-            "c_longvarbinary as longvarbinary_column, " +
-            "c_longvarchar   as longvarchar_column, " +
-            "c_object        as object_column, " +
-            "c_real          as real_column, " +
-            "c_smallint      as smallint_column, " + // 15
-            "c_time          as time_column, " +
-            "c_timestamp     as timestamp_column, " +
-            "c_tinyint       as tinyint_column, " +
-            "c_varbinary     as varbinary_column, " +
-            "c_varchar       as varchar_column, " + // 20
-            "c_varchar_ignorecase as varchar_ignorecase_column " +
-            "from all_types";
+            "select id       as id_column, " // 1
+            + "c_bigint        as bigint_column, "
+            + "c_binary        as binary_column, "
+            + "c_boolean       as boolean_column, "
+            + "c_char          as char_column, " // 5
+            + "c_date          as date_column, "
+            + "c_decimal       as decimal_column, "
+            + "c_double        as double_column, "
+            + "c_float         as float_column, "
+            + "c_integer       as integer_column, " // 10
+            + "c_longvarbinary as longvarbinary_column, "
+            + "c_longvarchar   as longvarchar_column, "
+            + "c_object        as object_column, "
+            + "c_real          as real_column, "
+            + "c_smallint      as smallint_column, " // 15
+            + "c_time          as time_column, "
+            + "c_timestamp     as timestamp_column, "
+            + "c_tinyint       as tinyint_column, "
+            + "c_varbinary     as varbinary_column, "
+            + "c_varchar       as varchar_column, " // 20
+            + "c_varchar_ignorecase as varchar_ignorecase_column,"
+            + "c_blob          as blob_column, "
+            + "c_clob          as clob_column, "
+            + "c_array         as array_column "
+            + "from all_types";
     private final String[] m_names = new String[]{
         "c_bigint",
         "c_binary",
@@ -151,7 +177,10 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         "c_tinyint",
         "c_varbinary",
         "c_varchar",
-        "c_varchar_ignorecase"
+        "c_varchar_ignorecase",
+        "c_blob",
+        "c_clob",
+        "c_array"
     };
     private final String[] m_aliases = new String[]{
         "bigint_column",
@@ -172,7 +201,10 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         "tinyint_column",
         "varbinary_column",
         "varchar_column",
-        "varchar_ignorecase_column"
+        "varchar_ignorecase_column",
+        "blob_column",
+        "clob_column",
+        "array_column"
     };
 
     protected String getSelect() {
@@ -227,6 +259,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      *
      *
      */
+    @SuppressWarnings("CallToThreadDumpStack")
     protected void testGetXXX(String methodName) throws Exception {
         ResultSet rs = newFOROJdbcResultSet();
 
@@ -263,21 +296,21 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                             rs,
                             new Object[]{new Integer(i)});
 
-                    println("****************************************");
-                    println(
-                            "Warn - JDBC 4.0, Table B-6 indicates this " +
-                            "getter conversion is not required:");
-                    println("From SQL: " + columnName + "{");
-                    println("    type=" + typeName);
-                    println("   class=" + columnClass);
-                    println("   value=\"" + objectValue + "\"");
-                    println("}");
-                    println("To Java : " + valueClass + "{");
-                    println("    value=\"" + value + "\"");
-                    println("}");
-                    println("****************************************");
+                    printProgress("****************************************");
+                    printProgress(
+                            "Warn - JDBC 4.0, Table B-6 indicates this "
+                            + "getter conversion is not required:");
+                    printProgress("From SQL: " + columnName + "{");
+                    printProgress("    type=" + typeName);
+                    printProgress("   class=" + columnClass);
+                    printProgress("   value=\"" + objectValue + "\"");
+                    printProgress("}");
+                    printProgress("To Java : " + valueClass + "{");
+                    printProgress("    value=\"" + value + "\"");
+                    printProgress("}");
+                    printProgress("****************************************");
                 } else {
-                    println(
+                    printProgress(
                             "Info - Pass: " + columnName + "(" + typeName + ")");
                 }
             } catch (Exception e) {
@@ -296,11 +329,11 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                             fail(
                                     columnName + "(" + typeName + ") : " + t + ": [" + ex.getErrorCode() + "]");
                         } else {
-                            println(
+                            printProgress(
                                     "Warn - Pass: " + columnName + "(" + typeName + ") : " + ex);
                         }
                     } else {
-                        println(
+                        printProgress(
                                 "Info - Pass: " + columnName + "(" + typeName + ") : " + ex);
                     }
                 } else {
@@ -321,13 +354,12 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of next method, of interface java.sql.ResultSet.
      */
     public void testNext() throws Exception {
-        println("next");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         assertEquals(true, rs.next());
 
-        while (rs.next()){}
+        while (rs.next()) {
+        }
 
         assertEquals(false, rs.next());
 
@@ -349,8 +381,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of close method, of interface java.sql.ResultSet.
      */
     public void testClose() throws Exception {
-        println("close");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         try {
@@ -364,11 +394,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of wasNull method, of interface java.sql.ResultSet.
      */
     public void testWasNull() throws Exception {
-        println("wasNull");
-
         ResultSet rs = newFOROJdbcResultSet();
 
-        rs.next();
         rs.next();
 
         String[] columnAliases = getColumnAliases();
@@ -379,6 +406,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             assertEquals(columnAliases[i] + "(" + o + ")", false, rs.wasNull());
         }
 
+        rs.next();
         rs.next();
         rs.next();
 
@@ -405,8 +433,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getString method, of interface java.sql.ResultSet.
      */
     public void testGetString() throws Exception {
-        println("getString");
-
         testGetXXX("getString");
 
         ResultSet rs = newFOROJdbcResultSet();
@@ -430,8 +456,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getBoolean method, of interface java.sql.ResultSet.
      */
     public void testGetBoolean() throws Exception {
-        println("getBoolean");
-
         testGetXXX("getBoolean");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -440,7 +464,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         rs.close();
 
         try {
-            rs.getBoolean(1);
+            rs.getBoolean("c_boolean");
 
             fail("Allowed getBoolean after close()");
         } catch (SQLException ex) {
@@ -455,10 +479,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getByte method, of interface java.sql.ResultSet.
      */
     public void testGetByte() throws Exception {
-        println("getByte");
-
-        testGetXXX("getByte");
-
         ResultSet rs = this.newFOROJdbcResultSet();
 
         rs.next();
@@ -480,8 +500,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getShort method, of interface java.sql.ResultSet.
      */
     public void testGetShort() throws Exception {
-        println("getShort");
-
         testGetXXX("getShort");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -505,8 +523,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getInt method, of interface java.sql.ResultSet.
      */
     public void testGetInt() throws Exception {
-        println("getInt");
-
         testGetXXX("getInt");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -530,8 +546,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getLong method, of interface java.sql.ResultSet.
      */
     public void testGetLong() throws Exception {
-        println("getLong");
-
         testGetXXX("getLong");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -555,8 +569,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getFloat method, of interface java.sql.ResultSet.
      */
     public void testGetFloat() throws Exception {
-        println("getFloat");
-
         testGetXXX("getFloat");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -565,7 +577,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         rs.close();
 
         try {
-            rs.getFloat(1);
+            rs.getFloat("c_float");
 
             fail("Allowed getFloat after close()");
         } catch (SQLException ex) {
@@ -580,8 +592,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getDouble method, of interface java.sql.ResultSet.
      */
     public void testGetDouble() throws Exception {
-        println("getDouble");
-
         testGetXXX("getDouble");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -590,7 +600,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         rs.close();
 
         try {
-            rs.getDouble(1);
+            rs.getDouble("c_double");
 
             fail("Allowed getDouble after close()");
         } catch (SQLException ex) {
@@ -605,8 +615,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getBigDecimal method, of interface java.sql.ResultSet.
      */
     public void testGetBigDecimal() throws Exception {
-        println("getBigDecimal");
-
         testGetXXX("getBigDecimal");
     }
 
@@ -614,8 +622,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getBigDecimal method, of interface java.sql.ResultSet.
      */
     public void testGetBigDecimal_afterClose() throws Exception {
-        println("getBigDecimal after close");
-
         ResultSet rs = this.newFOROJdbcResultSet();
 
         rs.next();
@@ -637,8 +643,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getBytes method, of interface java.sql.ResultSet.
      */
     public void testGetBytes() throws Exception {
-        println("getBytes");
-
         testGetXXX("getBytes");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -662,8 +666,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getDate method, of interface java.sql.ResultSet.
      */
     public void testGetDate() throws Exception {
-        println("getDate");
-
         testGetXXX("getDate");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -672,7 +674,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         rs.close();
 
         try {
-            rs.getDate(1);
+            rs.getDate("c_date");
 
             fail("Allowed getDate after close()");
         } catch (SQLException ex) {
@@ -687,8 +689,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getTime method, of interface java.sql.ResultSet.
      */
     public void testGetTime() throws Exception {
-        println("getTime");
-
         testGetXXX("getTime");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -712,8 +712,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getTimestamp method, of interface java.sql.ResultSet.
      */
     public void testGetTimestamp() throws Exception {
-        println("getTimestamp");
-
         testGetXXX("getTimestamp");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -737,8 +735,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getAsciiStream method, of interface java.sql.ResultSet.
      */
     public void testGetAsciiStream() throws Exception {
-        println("getAsciiStream");
-
         testGetXXX("getAsciiStream");
     }
 
@@ -746,8 +742,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getAsciiStream method, of interface java.sql.ResultSet.
      */
     public void testGetAsciiStream_afterClose() throws Exception {
-        println("getAsciiStream after close");
-
         ResultSet rs = this.newFOROJdbcResultSet();
 
         rs.next();
@@ -771,11 +765,10 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getAsciiStream method, of interface java.sql.ResultSet.
      */
     public void testGetAsciiStream_afterLast() throws Exception {
-        println("getGetAsciiStream while after last");
-
         ResultSet rs = newFOROJdbcResultSet();
 
-        while (rs.next()){}
+        while (rs.next()) {
+        }
 
         try {
             rs.getAsciiStream(1);
@@ -793,8 +786,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getArray method, of interface java.sql.ResultSet.
      */
     public void testGetAsciiStream_beforeFirst() throws Exception {
-        println("getGetAsciiStream while before first");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         assertEquals(true, rs.isBeforeFirst());
@@ -815,8 +806,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getUnicodeStream method, of interface java.sql.ResultSet.
      */
     public void testGetUnicodeStream() throws Exception {
-        println("getUnicodeStream");
-
         testGetXXX("getUnicodeStream");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -840,8 +829,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getBinaryStream method, of interface java.sql.ResultSet.
      */
     public void testGetBinaryStream() throws Exception {
-        println("getBinaryStream");
-
         testGetXXX("getBinaryStream");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -865,8 +852,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getWarnings method, of interface java.sql.ResultSet.
      */
     public void testGetWarnings() throws Exception {
-        println("getWarnings");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         java.sql.SQLWarning warnings = rs.getWarnings();
@@ -894,8 +879,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of clearWarnings method, of interface java.sql.ResultSet.
      */
     public void testClearWarnings() throws Exception {
-        println("clearWarnings");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         rs.clearWarnings();
@@ -919,8 +902,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getCursorName method, of interface java.sql.ResultSet.
      */
     public void testGetCursorName() throws Exception {
-        println("getCursorName");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         String expResult = null;
@@ -950,8 +931,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getMetaData method, of interface java.sql.ResultSet.
      */
     public void testGetMetaData() throws Exception {
-        println("getMetaData");
-
         ResultSet rs = newFOROJdbcResultSet();
         ResultSetMetaData rsmd = rs.getMetaData();
 
@@ -1005,8 +984,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getObject method, of interface java.sql.ResultSet.
      */
     public void testGetObject() throws Exception {
-        println("getObject");
-
         testGetXXX("getObject");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -1030,8 +1007,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of findColumn method, of interface java.sql.ResultSet.
      */
     public void testFindColumn() throws Exception {
-        println("findColumn");
-
         ResultSet rs = newFOROJdbcResultSet();
         String[] columnAliases = getColumnAliases();
 
@@ -1064,8 +1039,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getCharacterStream method, of interface java.sql.ResultSet.
      */
     public void testGetCharacterStream() throws Exception {
-        println("getCharacterStream");
-
         testGetXXX("getCharacterStream");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -1089,8 +1062,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of isBeforeFirst method, of interface java.sql.ResultSet.
      */
     public void testIsBeforeFirst() throws Exception {
-        println("isBeforeFirst");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         try {
@@ -1148,8 +1119,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of isAfterLast method, of interface java.sql.ResultSet.
      */
     public void testIsAfterLast() throws Exception {
-        println("isAfterLast");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         assertEquals(false, rs.isAfterLast());
@@ -1158,7 +1127,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
         assertEquals(false, rs.isAfterLast());
 
-        while (rs.next()){}
+        while (rs.next()) {
+        }
 
         try {
             rs.getObject(1);
@@ -1212,8 +1182,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of isFirst method, of interface java.sql.ResultSet.
      */
     public void testIsFirst() throws Exception {
-        println("isFirst");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         assertEquals(
@@ -1242,14 +1210,16 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                 true,
                 rs.isFirst());
 
-        while (rs.next()){}
+        while (rs.next()) {
+        }
 
         assertEquals(
                 "isFirst() while after all next()",
                 false,
                 rs.isFirst());
 
-        while (rs.previous()){}
+        while (rs.previous()) {
+        }
 
         assertEquals(
                 "isFirst() while before all previous()",
@@ -1263,7 +1233,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                 true,
                 rs.isFirst());
 
-        while (rs.next()){}
+        while (rs.next()) {
+        }
 
         assertEquals(
                 "isFirst() after all next() after all previous()",
@@ -1296,8 +1267,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of isLast method, of interface java.sql.ResultSet.
      */
     public void testIsLast() throws Exception {
-        println("isLast");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         assertEquals(
@@ -1312,7 +1281,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                 false,
                 rs.isLast());
 
-        while (rs.next()){}
+        while (rs.next()) {
+        }
 
         assertEquals(
                 "isLast() after all next()",
@@ -1326,7 +1296,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                 true,
                 rs.isLast());
 
-        while (rs.previous()){}
+        while (rs.previous()) {
+        }
 
         assertEquals(
                 "isLast() after all previous() after all next()",
@@ -1358,8 +1329,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of beforeFirst method, of interface java.sql.ResultSet.
      */
     public void testBeforeFirst() throws Exception {
-        println("beforeFirst");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         try {
@@ -1370,7 +1339,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
         assertEquals(true, rs.isBeforeFirst());
 
-        while (rs.next()){}
+        while (rs.next()) {
+        }
 
         rs.beforeFirst();
 
@@ -1401,8 +1371,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of afterLast method, of interface java.sql.ResultSet.
      */
     public void testAfterLast() throws Exception {
-        println("afterLast");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         rs.afterLast();
@@ -1463,8 +1431,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of first method, of interface java.sql.ResultSet.
      */
     public void testFirst() throws Exception {
-        println("first");
-
         ResultSet rs = newScrollableROJdbcResultSet();
 
         rs.first();
@@ -1494,8 +1460,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of last method, of interface java.sql.ResultSet.
      */
     public void testLast() throws Exception {
-        println("last");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         rs.last();
@@ -1520,8 +1484,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getRow method, of interface java.sql.ResultSet.
      */
     public void testGetRow() throws Exception {
-        println("getRow");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
         int row = 0;
 
@@ -1567,8 +1529,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of absolute method, of interface java.sql.ResultSet.
      */
     public void testAbsolute() throws Exception {
-        println("absolute");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
         int rows = 0;
 
@@ -1600,8 +1560,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of relative method, of interface java.sql.ResultSet.
      */
     public void testRelative() throws Exception {
-        println("relative");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         while (!rs.isAfterLast()) {
@@ -1625,8 +1583,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of previous method, of interface java.sql.ResultSet.
      */
     public void testPrevious() throws Exception {
-        println("previous");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         rs.afterLast();
@@ -1655,8 +1611,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of setFetchDirection method, of interface java.sql.ResultSet.
      */
     public void testSetFetchDirection() throws Exception {
-        println("setFetchDirection");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         rs.setFetchDirection(ResultSet.FETCH_FORWARD);
@@ -1668,8 +1622,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getFetchDirection method, of interface java.sql.ResultSet.
      */
     public void testGetFetchDirection() throws Exception {
-        println("getFetchDirection");
-
         ResultSet rs = this.newScrollableROJdbcResultSet();
 
         assertEquals(
@@ -1695,8 +1647,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of setFetchSize method, of interface java.sql.ResultSet.
      */
     public void testSetFetchSize() throws Exception {
-        println("setFetchSize");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         rs.setFetchSize(1000);
@@ -1706,8 +1656,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getFetchSize method, of interface java.sql.ResultSet.
      */
     public void testGetFetchSize() throws Exception {
-        println("getFetchSize");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         int expResult = 0;
@@ -1732,8 +1680,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getType method, of interface java.sql.ResultSet.
      */
     public void testGetType_FORWARD_ONLY() throws Exception {
-        println("getType_FORWARD_ONLY");
-
         assertEquals(ResultSet.TYPE_FORWARD_ONLY,
                 newFOROJdbcResultSet().getType());
 
@@ -1758,8 +1704,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getType method, of interface java.sql.ResultSet.
      */
     public void testGetType_SCROLL_INSENSITIVE() throws Exception {
-        println("getType_SCROLL_INSENSITIVE");
-
         assertEquals(
                 ResultSet.TYPE_SCROLL_INSENSITIVE,
                 newJdbcResultSet(ResultSet.TYPE_SCROLL_INSENSITIVE).getType());
@@ -1785,8 +1729,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getType method, of interface java.sql.ResultSet.
      */
     public void testGetType_SCROLL_SENSITIVE() throws Exception {
-        println("getType_SCROLL_SENSITIVE");
-
         assertEquals(
                 ResultSet.TYPE_SCROLL_SENSITIVE,
                 newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE).getType());
@@ -1812,8 +1754,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getConcurrency method, of interface java.sql.ResultSet.
      */
     public void testGetConcurrency() throws Exception {
-        println("getConcurrency");
-
         assertEquals(ResultSet.CONCUR_READ_ONLY,
                 newFOROJdbcResultSet().getConcurrency());
 
@@ -1843,8 +1783,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of rowUpdated method, of interface java.sql.ResultSet.
      */
     public void testRowUpdated() throws Exception {
-        println("rowUpdated");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -1868,8 +1806,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of rowInserted method, of interface java.sql.ResultSet.
      */
     public void testRowInserted() throws Exception {
-        println("rowInserted");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -1882,8 +1818,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of rowDeleted method, of interface java.sql.ResultSet.
      */
     public void testRowDeleted() throws Exception {
-        println("rowDeleted");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -1895,8 +1829,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateNull method, of interface java.sql.ResultSet.
      */
     public void testUpdateNull() throws Exception {
-        println("updateNull");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -1918,8 +1850,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateBoolean method, of interface java.sql.ResultSet.
      */
     public void testUpdateBoolean() throws Exception {
-        println("testUpdateBoolean");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -1939,8 +1869,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateByte method, of interface java.sql.ResultSet.
      */
     public void testUpdateByte() throws Exception {
-        println("testUpdateByte");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -1960,8 +1888,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateShort method, of interface java.sql.ResultSet.
      */
     public void testUpdateShort() throws Exception {
-        println("updateShort");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -1981,8 +1907,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateInt method, of interface java.sql.ResultSet.
      */
     public void testUpdateInt() throws Exception {
-        println("updateInt");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2002,8 +1926,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateLong method, of interface java.sql.ResultSet.
      */
     public void testUpdateLong() throws Exception {
-        println("updateLong");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2023,8 +1945,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateFloat method, of interface java.sql.ResultSet.
      */
     public void testUpdateFloat() throws Exception {
-        println("updateFloat");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2044,8 +1964,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateDouble method, of interface java.sql.ResultSet.
      */
     public void testUpdateDouble() throws Exception {
-        println("updateDouble");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2066,8 +1984,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateBigDecimal method, of interface java.sql.ResultSet.
      */
     public void testUpdateBigDecimal() throws Exception {
-        println("updateBigDecimal");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2087,8 +2003,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateString method, of interface java.sql.ResultSet.
      */
     public void testUpdateString() throws Exception {
-        println("updateString");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2129,8 +2043,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateBytes method, of interface java.sql.ResultSet.
      */
     public void testUpdateBytes() throws Exception {
-        println("updateBytes");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2142,7 +2054,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.updateBytes("binary_column", "updateBytes".getBytes());
             rs.updateBytes("varbinary_column", "updateBytes".getBytes());
-            rs.updateBytes("longbinary_column", "updateBytes".getBytes());
+            rs.updateBytes("longvarbinary_column", "updateBytes".getBytes());
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -2152,8 +2064,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateDate method, of interface java.sql.ResultSet.
      */
     public void testUpdateDate() throws Exception {
-        println("updateDate");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2173,8 +2083,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateTime method, of interface java.sql.ResultSet.
      */
     public void testUpdateTime() throws Exception {
-        println("updateTime");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2194,8 +2102,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateTimestamp method, of interface java.sql.ResultSet.
      */
     public void testUpdateTimestamp() throws Exception {
-        println("updateTimestamp");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2217,8 +2123,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateAsciiStream method, of interface java.sql.ResultSet.
      */
     public void testUpdateAsciiStream() throws Exception {
-        println("updateAsciiStream");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2241,8 +2145,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateBinaryStream method, of interface java.sql.ResultSet.
      */
     public void testUpdateBinaryStream() throws Exception {
-        println("updateBinaryStream");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2265,8 +2167,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateCharacterStream method, of interface java.sql.ResultSet.
      */
     public void testUpdateCharacterStream() throws Exception {
-        println("updateCharacterStream");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2284,12 +2184,14 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         }
     }
 
+    public static final class SerVal implements java.io.Serializable {
+        public int value;
+    }
+
     /**
      * Test of updateObject method, of interface java.sql.ResultSet.
      */
     public void testUpdateObject() throws Exception {
-        println("updateObject");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2299,8 +2201,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.next();
 
-            rs.updateObject("object_column", new java.io.Serializable() {
-            });
+            SerVal value = new SerVal();
+
+            rs.updateObject("object_column", value);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -2309,9 +2212,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
     /**
      * Test of insertRow method, of interface java.sql.ResultSet.
      */
+    @SuppressWarnings("CallToThreadDumpStack")
     public void testInsertRow() throws Exception {
-        println("insertRow");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2362,8 +2264,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateRow method, of interface java.sql.ResultSet.
      */
     public void testUpdateRow() throws Exception {
-        println("updateRow");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2424,8 +2324,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of refreshRow method, of interface java.sql.ResultSet.
      */
     public void testRefreshRow() throws Exception {
-        println("refreshRow");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2437,7 +2335,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             rs.refreshRow();
         } catch (Exception ex) {
-            fail(ex.getMessage());
+           printException(ex);
+           fail(ex.getMessage());
         }
 
         ResultSet rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
@@ -2461,9 +2360,8 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
     /**
      * Test of cancelRowUpdates method, of interface java.sql.ResultSet.
      */
+    @SuppressWarnings("UseOfIndexZeroInJDBCResultSet")
     public void testCancelRowUpdates() throws Exception {
-        println("cancelRowUpdates");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2486,17 +2384,16 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
         ResultSet rs = newUpdateableJdbcResultSet();
 
-        rs.updateNull(0);
+        rs.updateNull(1);
         rs.close();
         try {
             rs.cancelRowUpdates();
 
             fail("Allowed cancelRowUpdates() after close()");
         } catch (SQLException ex) {
-            assertEquals(
-                    "error code",
-                    ex.getErrorCode(),
-                    -ErrorCode.X_24501);
+            assertEquals("sql state",
+                    SqlState.Exception.InvalidCursorState.IdentifiedCursorIsNotOpen.Value,
+                    ex.getSQLState());
         }
     }
 
@@ -2504,8 +2401,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of moveToInsertRow method, of interface java.sql.ResultSet.
      */
     public void testMoveToInsertRow() throws Exception {
-        println("moveToInsertRow");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2538,8 +2433,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of moveToCurrentRow method, of interface java.sql.ResultSet.
      */
     public void testMoveToCurrentRow() throws Exception {
-        println("moveToCurrentRow");
-
         if (!isTestUpdates()) {
             return;
         }
@@ -2575,8 +2468,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getStatement method, of interface java.sql.ResultSet.
      */
     public void testGetStatement() throws Exception {
-        println("getStatement");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         Statement result = rs.getStatement();
@@ -2600,8 +2491,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getRef method, of interface java.sql.ResultSet.
      */
     public void testGetRef() throws Exception {
-        println("getRef");
-
         testGetXXX("getRef");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -2615,7 +2504,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             fail("Allowed getRef after close()");
         } catch (SQLException ex) {
             boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
-                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+                    || ex instanceof java.sql.SQLFeatureNotSupportedException;
             assertTrue("error code", test);
         }
     }
@@ -2624,8 +2513,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getBlob method, of interface java.sql.ResultSet.
      */
     public void testGetBlob() throws Exception {
-        println("getBlob");
-
         testGetXXX("getBlob");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -2634,7 +2521,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         rs.close();
 
         try {
-            rs.getBlob(1);
+            rs.getBlob("c_blob");
 
             fail("Allowed getBlob after close()");
         } catch (SQLException ex) {
@@ -2649,8 +2536,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getClob method, of interface java.sql.ResultSet.
      */
     public void testGetClob() throws Exception {
-        println("getClob");
-
         testGetXXX("getClob");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -2659,7 +2544,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         rs.close();
 
         try {
-            rs.getClob(1);
+            rs.getClob("c_clob");
 
             fail("Allowed getClob after close()");
         } catch (SQLException ex) {
@@ -2674,7 +2559,9 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getArray method, of interface java.sql.ResultSet.
      */
     public void testGetArray() throws Exception {
-        println("getArray");
+        if (!isTestARRAY()) {
+            return;
+        }
 
         testGetXXX("getArray");
     }
@@ -2683,19 +2570,21 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getArray method, of interface java.sql.ResultSet.
      */
     public void testGetArray_afterClose() throws Exception {
-        println("getArray after close");
+        if (!isTestARRAY()) {
+            return;
+        }
 
         ResultSet rs = newFOROJdbcResultSet();
 
         rs.close();
 
         try {
-            rs.getArray(1);
+            rs.getArray("c_array");
 
-            fail("Allowed getArray(int) after close");
+            fail("Allowed getArray(String) after close");
         } catch (SQLException ex) {
             boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
-                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+                    || ex instanceof java.sql.SQLFeatureNotSupportedException;
             assertTrue("error code", test);
         }
     }
@@ -2704,20 +2593,23 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getArray method, of interface java.sql.ResultSet.
      */
     public void testGetArray_beforeFirst() throws Exception {
-        println("getArray while before first");
+        if (!isTestARRAY()) {
+            return;
+        }
 
         ResultSet rs = newFOROJdbcResultSet();
 
         assertEquals("beforeFirst", true, rs.isBeforeFirst());
 
         try {
-            rs.getArray(1);
+            rs.getArray("C_array");
 
-            fail("Allowed getArray(int) while before first");
+            fail("Allowed getArray(String) while before first");
         } catch (SQLException ex) {
-            boolean test = getResultSetBeforeFirstErrorCode() == ex.getErrorCode()
-                || ex instanceof java.sql.SQLFeatureNotSupportedException;
-            assertTrue("error code", test);
+            if (!(ex instanceof java.sql.SQLFeatureNotSupportedException)) {
+                assertEquals("error code", getResultSetBeforeFirstErrorCode(),
+                        ex.getErrorCode());
+            }
         }
     }
 
@@ -2725,20 +2617,24 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getArray method, of interface java.sql.ResultSet.
      */
     public void testGetArray_afterLast() throws Exception {
-        println("getArray while after last");
+        if (!isTestARRAY()) {
+            return;
+        }
 
         ResultSet rs = newFOROJdbcResultSet();
 
-        while (rs.next()){}
+        while (rs.next()) {
+        }
 
         try {
-            rs.getArray(1);
+            rs.getArray("c_array");
 
-            fail("Allowed getArray(int) while after last");
+            fail("Allowed getArray(String) while after last");
         } catch (SQLException ex) {
-            boolean test = getResultSetAfterLastErrorCode() == ex.getErrorCode()
-                || ex instanceof java.sql.SQLFeatureNotSupportedException;
-            assertTrue("error code", test);
+            if (!(ex instanceof java.sql.SQLFeatureNotSupportedException)) {
+                assertEquals("error code", getResultSetAfterLastErrorCode(),
+                        ex.getErrorCode());
+            }
         }
     }
 
@@ -2746,8 +2642,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getURL method, of interface java.sql.ResultSet.
      */
     public void testGetURL() throws Exception {
-        println("getURL");
-
         testGetXXX("getURL");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -2761,7 +2655,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             fail("Allowed getURL after close()");
         } catch (SQLException ex) {
             boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
-                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+                    || ex instanceof java.sql.SQLFeatureNotSupportedException;
             assertTrue("error code", test);
         }
     }
@@ -2770,63 +2664,112 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateRef method, of interface java.sql.ResultSet.
      */
     public void testUpdateRef() throws Exception {
-        println("updateRef");
-
         if (!isTestUpdates()) {
             return;
         }
 
-        // TODO:
-        fail("TODO: The test case is empty.");
+        if (!isTestREF()) {
+            return;
+        }
+
+        fail("REFS are not supported.");
     }
 
     /**
      * Test of updateBlob method, of interface java.sql.ResultSet.
      */
     public void testUpdateBlob() throws Exception {
-        println("updateBlob");
-
         if (!isTestUpdates()) {
             return;
         }
 
-        // TODO:
-        fail("TODO: The test case is empty.");
+        try {
+            ResultSet rs = newUpdateableJdbcResultSet();
+
+            rs.next();
+
+            Blob blob = newConnection().createBlob();
+
+            blob.setBytes(1, new byte[]{(byte)0});
+
+            rs.updateBlob("c_blob", blob.getBinaryStream());
+            rs.updateBlob("c_blob", blob.getBinaryStream(),1);
+            rs.updateBlob("c_blob", blob);
+
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /**
      * Test of updateClob method, of interface java.sql.ResultSet.
      */
     public void testUpdateClob() throws Exception {
-        println("updateClob");
-
         if (!isTestUpdates()) {
             return;
         }
+        try {
+            ResultSet rs = this.newUpdateableJdbcResultSet();
 
-        // TODO:
-        fail("TODO: The test case is empty.");
+            rs.next();
+
+            Clob clob = newConnection().createClob();
+
+            clob.setString(1, "Clob");
+
+            rs.updateClob("clob_column", clob);
+
+            StringReader reader = new StringReader("Clob");
+
+            rs.updateClob("clob_column", reader);
+
+            reader = new StringReader("Clob");
+
+            rs.updateClob("clob_column", reader, "Clob".length());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /**
      * Test of updateArray method, of interface java.sql.ResultSet.
      */
     public void testUpdateArray() throws Exception {
-        println("updateArray");
-
         if (!isTestUpdates()) {
             return;
         }
 
-        // TODO:
-        fail("TODO: The test case is empty.");
+        if (!isTestARRAY()) {
+            return;
+        }
+
+        try {
+            ResultSet rs = newUpdateableJdbcResultSet();
+
+            rs.next();
+
+            Integer[] values = new Integer[]{
+                new Integer(4),
+                new Integer(3), 
+                new Integer(2),
+                new Integer(1)
+            };
+
+            Array array = newConnection().createArrayOf("INTEGER", values);
+
+            rs.updateArray("array_column", array);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /**
      * Test of getRowId method, of interface java.sql.ResultSet.
      */
     public void testGetRowId() throws Exception {
-        println("getRowId");
+        if (!isTestROWID()) {
+            return;
+        }
 
         testGetXXX("getRowId");
 
@@ -2841,7 +2784,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             fail("Allowed getRowId after close()");
         } catch (SQLException ex) {
             boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
-                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+                    || ex instanceof java.sql.SQLFeatureNotSupportedException;
             assertTrue("error code", test);
         }
     }
@@ -2850,22 +2793,33 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateRowId method, of interface java.sql.ResultSet.
      */
     public void testUpdateRowId() throws Exception {
-        println("updateRowId");
-
         if (!isTestUpdates()) {
             return;
         }
 
-        // TODO:
-        fail("TODO: The test case is empty.");
+        if (!isTestROWID()) {
+            return;
+        }
+
+        try {
+            ResultSet rs = newUpdateableJdbcResultSet();
+
+            rs.next();
+
+            JDBCRowId rowId = new JDBCRowId("00000002");
+
+            rs.updateRowId("id_column",  rowId);
+        } catch (Exception e) {
+            if (!(e instanceof SQLFeatureNotSupportedException)) {
+                fail(e.getMessage());
+            }
+        }
     }
 
     /**
      * Test of getHoldability method, of interface java.sql.ResultSet.
      */
     public void testGetHoldability() throws Exception {
-        println("getHoldability");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         int result = rs.getHoldability();
@@ -2890,8 +2844,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of isClosed method, of interface java.sql.ResultSet.
      */
     public void testIsClosed() throws Exception {
-        println("isClosed");
-
         ResultSet rs = newFOROJdbcResultSet();
 
         assertEquals(false, rs.isClosed());
@@ -2905,36 +2857,61 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateNString method, of interface java.sql.ResultSet.
      */
     public void testUpdateNString() throws Exception {
-        println("updateNString");
-
         if (!isTestUpdates()) {
             return;
         }
 
-        // TODO
-        fail("TODO: The test case is empty.");
+        try {
+            ResultSet rs = this.newUpdateableJdbcResultSet();
+
+            rs.next();
+
+            rs.updateNString("char_column", "NString");
+            rs.updateNString("varchar_column", "updateNString");
+            rs.updateNString("longvarchar_column", "updateNString");
+            rs.updateNString("clob_column", "updateNString");
+
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /**
      * Test of updateNClob method, of interface java.sql.ResultSet.
      */
     public void testUpdateNClob() throws Exception {
-        println("updateNClob");
-
         if (!isTestUpdates()) {
             return;
         }
 
-        // TODO
-        fail("TODO: The test case is empty.");
+        try {
+            ResultSet rs = this.newUpdateableJdbcResultSet();
+
+            rs.next();
+
+            NClob nClob = newConnection().createNClob();
+
+            nClob.setString(1, "NClob");
+
+            rs.updateNClob("clob_column", nClob);
+
+            StringReader reader = new StringReader("NClob");
+
+            rs.updateNClob("clob_column", reader);
+
+            reader = new StringReader("NClob");
+
+            rs.updateNClob("clob_column", reader, "NClob".length());
+
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /**
      * Test of getNClob method, of interface java.sql.ResultSet.
      */
     public void testGetNClob() throws Exception {
-        println("getNClob");
-
         testGetXXX("getNClob");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -2958,8 +2935,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getSQLXML method, of interface java.sql.ResultSet.
      */
     public void testGetSQLXML() throws Exception {
-        println("getSQLXML");
-
         testGetXXX("getSQLXML");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -2973,7 +2948,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             fail("Allowed getSQLXML after close()");
         } catch (SQLException ex) {
             boolean test = getResultSetClosedErrorCode() == ex.getErrorCode()
-                || ex instanceof java.sql.SQLFeatureNotSupportedException;
+                    || ex instanceof java.sql.SQLFeatureNotSupportedException;
             assertTrue("error code", test);
         }
     }
@@ -2982,22 +2957,22 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateSQLXML method, of interface java.sql.ResultSet.
      */
     public void testUpdateSQLXML() throws Exception {
-        println("updateSQLXML");
-
         if (!isTestUpdates()) {
             return;
         }
 
+        if (!isTestSQLXML()) {
+            return;
+        }
+
         // TODO.
-        fail("TODO: The test case is empty.");
+        fail("SQLXML is not supported.");
     }
 
     /**
      * Test of getNString method, of interface java.sql.ResultSet.
      */
     public void testGetNString() throws Exception {
-        println("getNString");
-
         testGetXXX("getNString");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -3021,8 +2996,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of getNCharacterStream method, of interface java.sql.ResultSet.
      */
     public void testGetNCharacterStream() throws Exception {
-        println("getNCharacterStream");
-
         testGetXXX("getNCharacterStream");
 
         ResultSet rs = this.newFOROJdbcResultSet();
@@ -3046,22 +3019,28 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of updateNCharacterStream method, of interface java.sql.ResultSet.
      */
     public void testUpdateNCharacterStream() throws Exception {
-        println("updateNCharacterStream");
-
         if (!isTestUpdates()) {
             return;
         }
+        try {
+            ResultSet rs = this.newUpdateableJdbcResultSet();
 
-        // TODO
-        fail("TODO: The test case is empty.");
+            rs.next();
+
+            String value = "NChars";
+
+            rs.updateNCharacterStream("clob_column", new StringReader(value));
+            rs.updateNCharacterStream("clob_column", new StringReader(value),value.length());
+
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     /**
      * Test of unwrap method, of interface java.sql.ResultSet.
      */
     public void testUnwrap() throws Exception {
-        println("unwrap");
-
         Class<?> iface = JDBCResultSet.class;
         ResultSet rs = newFOROJdbcResultSet();
 
@@ -3074,8 +3053,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
      * Test of isWrapperFor method, of interface java.sql.ResultSet.
      */
     public void testIsWrapperFor() throws Exception {
-        println("isWrapperFor");
-
         Class<?> iface = JDBCResultSet.class;
         ResultSet rs = newFOROJdbcResultSet();
 

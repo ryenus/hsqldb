@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,11 @@ import org.hsqldb.lib.StringUtil;
  */
 public abstract class BaseScriptedTestCase extends BaseTestCase {
 
+    // for subclasses
+    protected BaseScriptedTestCase() {
+        super();
+    }
+    
     /**
      *
      * @param name of script resource.
@@ -111,7 +116,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         LineNumberReader reader = new LineNumberReader(
                 getScriptReader(resource));
 
-        println("Opened test script: " + resource);
+        printProgress("Opened test script: " + resource);
 
         int startLine = 1;
 
@@ -154,7 +159,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         }
 
         statement.close();
-        println("Processed lines: " + reader.getLineNumber());
+        printProgress("Processed lines: " + reader.getLineNumber());
     }
 
     /**
@@ -168,14 +173,16 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
 
         if (section == null) {
             //it was not possible to sucessfully parse the section
-            println("The section starting at line " + line + " could not be parsed " + "and was not processed");
+            printProgress("The section starting at line "
+                    + line
+                    + " could not be parsed " + "and was not processed");
         } else if (section instanceof IgnoredSection) {
-            println("Line " + line + ": " + section.getResultString());
+            printProgress("Line " + line + ": " + section.getResultString());
         } else if (section instanceof DisplaySection) {
-            println(section.getResultString());
+            printProgress(section.getResultString());
         } else if (!section.execute(stmt)) {
-            println("section starting at line " + line);
-            println("returned an unexpected result.");
+            printProgress("section starting at line " + line);
+            printProgress("returned an unexpected result.");
             //println(section.toString());
             TestCase.fail(section.toString());
         }
@@ -201,7 +208,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
                     m_sectionFactory = (SectionFactory) Class.forName(
                             factoryClass).newInstance();
                 } catch (Exception ex) {
-                    println(ex.toString());
+                    printException(ex);
 
                     m_sectionFactory = new DefaultSectionFactory();
                 }
@@ -363,7 +370,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
 
             m_lines = lines;
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             int endIndex = 0;
             int k = m_lines.length - 1;
 
@@ -407,7 +414,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
             char type = getType();
             String sectionType = (type == ' ') ? simpleName
                     : type + ": " + simpleName;
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             if (getMessage() != null) {
 			    sb.append('\n');
@@ -783,12 +790,17 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
                 try {
                     stmt.execute(getSql());
                 } catch (SQLException se) {
-                    throw new Exception("Expected a ResultSet containing " + getExpectedRowCount() + " rows, but got an error: " + se.getMessage());
+                    throw new Exception(
+                            "Expected a ResultSet containing "
+                            + getExpectedRowCount()
+                            + " rows, but got an error: "
+                            + se.getMessage());
                 }
 
                 if (stmt.getUpdateCount() != -1) {
                     throw new Exception(
-                            "Expected a ResultSet, but got an update count of " + stmt.getUpdateCount());
+                            "Expected a ResultSet, but got an update count of "
+                            + stmt.getUpdateCount());
                 }
 
                 ResultSet results = stmt.getResultSet();
@@ -800,7 +812,12 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
 
                 if (count != getExpectedRowCount()) {
 
-                    throw new Exception("Expected the ResultSet to contain " + getExpectedRowCount() + " rows, but it contained " + count + " rows.");
+                    throw new Exception(
+                            "Expected the ResultSet to contain "
+                            + getExpectedRowCount()
+                            + " rows, but it contained "
+                            + count
+                            + " rows.");
                 }
             } catch (Exception ex) {
                 m_message = ex.getMessage();
@@ -927,14 +944,14 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
          */
         protected String getResultString() {
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             for (int i = 0; i < m_lines.length; i++) {
                 if (i > 0) {
                     sb.append('\n');
                 }
 
-                sb.append("+ " + m_lines[i]);
+                sb.append("+ ").append(m_lines[i]);
             }
 
             return sb.toString();

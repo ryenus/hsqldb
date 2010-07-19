@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
  */
 package org.hsqldb.jdbc;
 
-import java.util.Hashtable;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -38,11 +37,13 @@ import javax.naming.StringRefAddr;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
 
 /**
  *
  * @author boucherb@users
  */
+@ForSubject(JDBCDataSourceFactory.class)
 public class JDBCDataSourceFactoryTest extends BaseJdbcTestCase {
 
     public JDBCDataSourceFactoryTest(String testName) {
@@ -74,6 +75,7 @@ public class JDBCDataSourceFactoryTest extends BaseJdbcTestCase {
         ref.add(new StringRefAddr("database", getUrl()));
         ref.add(new StringRefAddr("user", getUser()));
         ref.add(new StringRefAddr("password", getPassword()));
+        ref.add(new StringRefAddr("loginTimeout", "30"));
 
         return ref;
     }
@@ -82,12 +84,11 @@ public class JDBCDataSourceFactoryTest extends BaseJdbcTestCase {
      * Test of getObjectInstance method, of class org.hsqldb.jdbc.JDBCDataSourceFactory.
      */
     public void testGetObjectInstance() throws Exception {
-        println("getObjectInstance");
-
         Object obj = newReference();
         Name name = null;
         Context nameCtx = null;
-        Hashtable environment = null;
+        @SuppressWarnings("UseOfObsoleteCollectionType")
+        java.util.Hashtable environment = null;
         JDBCDataSourceFactory factory = new JDBCDataSourceFactory();
         JDBCDataSource ds;
 

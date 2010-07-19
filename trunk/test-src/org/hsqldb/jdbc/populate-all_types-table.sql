@@ -89,47 +89,7 @@ insert into all_types(
     'VARCHAR_IGNORECASE'
 );
 insert into all_types(
-     id,
-     c_bigint,
-     c_binary,
-     c_boolean,
-     c_char,
-     c_date,
-     c_decimal,
-     c_double,
-     c_float,
-     c_integer,
-     c_longvarbinary,
-     c_longvarchar,
-     c_object,
-     c_real,
-     c_smallint,
-     c_time,
-     c_timestamp,
-     c_tinyint,
-     c_varbinary,
-     c_varchar,
-     c_varchar_ignorecase
+     id
 ) values (
-    4,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
+    4
 );

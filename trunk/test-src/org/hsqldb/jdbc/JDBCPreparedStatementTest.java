@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -129,8 +129,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setEscapeProcessing method, of interface java.sql.PreparedStatement.
      */
     public void testSetEscapeProcessing() throws Exception {
-        println("setEscapeProcessing");
-
         boolean           enable = true;
         PreparedStatement stmt   = queryBy("id");
 
@@ -160,8 +158,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of execute method, of interface java.sql.PreparedStatement.
      */
     public void testExecute() throws Exception {
-        println("execute");
-
         boolean           expResult;
         boolean           result;
         PreparedStatement stmt = queryBy("id");
@@ -192,8 +188,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of executeQuery method, of interface java.sql.PreparedStatement.
      */
     public void testExecuteQuery() throws Exception {
-        println("executeQuery");
-
         PreparedStatement stmt = queryBy("id");
 
         stmt.setInt(1, 1);
@@ -209,8 +203,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of executeUpdate method, of interface java.sql.PreparedStatement.
      */
     public void testExecuteUpdate() throws Exception {
-        println("executeUpdate");
-
         PreparedStatement stmt        = updateColumnWhere("c_varchar", "id");
         String            updateValue = "New Value";
 
@@ -237,8 +229,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of executeBatch method, of interface java.sql.PreparedStatement.
      */
     public void testExecuteBatch() throws Exception {
-        println("executeBatch");
-
         PreparedStatement stmt = updateColumnWhere("c_varchar", "id");
 
         stmt.setString(1, "executeBatch");
@@ -265,8 +255,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setNull method, of interface java.sql.PreparedStatement.
      */
     public void testSetNull() throws Exception {
-        println("setNull");
-
         PreparedStatement stmt = updateColumnWhere("c_integer", "id");
 
         stmt.setNull(1, Types.INTEGER);
@@ -276,11 +264,25 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
     }
 
     /**
+     * Test of setNull method, of interface java.sql.PreparedStatement.
+     */
+    public void testSetNullArray() throws Exception {
+        if (!getBooleanProperty("test.types.array", true)){
+            return;
+        }
+
+        PreparedStatement stmt = updateColumnWhere("c_array", "id");
+
+        stmt.setNull(1, Types.ARRAY);
+        stmt.setInt(2, 1);
+
+        assertEquals(1, stmt.executeUpdate());
+    }
+
+    /**
      * Test of setBoolean method, of interface java.sql.PreparedStatement.
      */
     public void testSetBoolean() throws Exception {
-        println("setBoolean");
-
         int parameterIndex = 1;
         boolean x = true;
         PreparedStatement stmt = queryBy("c_boolean");
@@ -294,8 +296,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setByte method, of interface java.sql.PreparedStatement.
      */
     public void testSetByte() throws Exception {
-        println("setByte");
-
         int parameterIndex = 1;
         byte x = 0;
         PreparedStatement stmt = queryBy("c_tinyint");
@@ -309,8 +309,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setShort method, of interface java.sql.PreparedStatement.
      */
     public void testSetShort() throws Exception {
-        println("setShort");
-
         int parameterIndex = 1;
         short x = 0;
         PreparedStatement stmt = queryBy("c_smallint");
@@ -324,8 +322,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setInt method, of interface java.sql.PreparedStatement.
      */
     public void testSetInt() throws Exception {
-        println("setInt");
-
         int parameterIndex = 1;
         int x = 0;
         PreparedStatement stmt = queryBy("c_integer");
@@ -339,8 +335,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setLong method, of interface java.sql.PreparedStatement.
      */
     public void testSetLong() throws Exception {
-        println("setLong");
-
         int parameterIndex = 1;
         long x = 0L;
         PreparedStatement stmt = queryBy("c_bigint");
@@ -354,8 +348,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setFloat method, of interface java.sql.PreparedStatement.
      */
     public void testSetFloat() throws Exception {
-        println("setFloat");
-
         int parameterIndex = 1;
         float x = 0.0F;
         PreparedStatement stmt = queryBy("c_float");
@@ -369,8 +361,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setDouble method, of interface java.sql.PreparedStatement.
      */
     public void testSetDouble() throws Exception {
-        println("setDouble");
-
         int parameterIndex = 1;
         double x = 0.0;
         PreparedStatement stmt = queryBy("c_double");
@@ -384,8 +374,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setBigDecimal method, of interface java.sql.PreparedStatement.
      */
     public void testSetBigDecimal() throws Exception {
-        println("setBigDecimal");
-
         int parameterIndex = 1;
         BigDecimal x = null;
         PreparedStatement stmt = queryBy("c_decimal");
@@ -399,8 +387,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setString method, of interface java.sql.PreparedStatement.
      */
     public void testSetString() throws Exception {
-        println("setString");
-
         int parameterIndex = 1;
         String x = "1";
         PreparedStatement stmt = queryBy("c_varchar");
@@ -417,8 +403,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setBytes method, of interface java.sql.PreparedStatement.
      */
     public void testSetBytes() throws Exception {
-        println("setBytes");
-
         int paramIndex = 1;
         byte[] x = null;
         PreparedStatement stmt = queryBy("c_binary");
@@ -432,8 +416,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setDate method, of interface java.sql.PreparedStatement.
      */
     public void testSetDate() throws Exception {
-        println("setDate");
-
         Date              x    = Date.valueOf("2005-12-13");
         PreparedStatement stmt = queryBy("c_date");
 
@@ -445,8 +427,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setTime method, of interface java.sql.PreparedStatement.
      */
     public void testSetTime() throws Exception {
-        println("setTime");
-
         Time x = Time.valueOf("11:23:02");
         PreparedStatement stmt = queryBy("c_time");
 
@@ -459,8 +439,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setTimestamp method, of interface java.sql.PreparedStatement.
      */
     public void testSetTimestamp() throws Exception {
-        println("setTimestamp");
-
         Timestamp         x    = Timestamp.valueOf("2005-12-13 11:23:02.0123");
         PreparedStatement stmt = queryBy("c_timestamp");
 
@@ -472,8 +450,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setAsciiStream method, of interface java.sql.PreparedStatement.
      */
     public void testSetAsciiStream() throws Exception {
-        println("setAsciiStream");
-
         String            sval   = "setAsciiStream";
         byte[]            xval   = sval.getBytes("US-ASCII");
         InputStream       x      = new ByteArrayInputStream(xval);
@@ -502,8 +478,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setUnicodeStream method, of interface java.sql.PreparedStatement.
      */
     public void testSetUnicodeStream() throws Exception {
-        println("setUnicodeStream");
-
         String            expVal = " setUnicodeStream";
         byte[]            xval   = expVal.getBytes("UTF8");
         InputStream       x      = new ByteArrayInputStream(xval);
@@ -538,8 +512,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setBinaryStream method, of interface java.sql.PreparedStatement.
      */
     public void testSetBinaryStream() throws Exception {
-        println("setBinaryStream");
-
         String            sval   = "setBinaryStream";
         byte[]            xval   = sval.getBytes("US-ASCII");
         InputStream       x      = new ByteArrayInputStream(xval);
@@ -568,8 +540,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of clearParameters method, of interface java.sql.PreparedStatement.
      */
     public void testClearParameters() throws Exception {
-        println("clearParameters");
-
         PreparedStatement stmt = queryBy("id");
 
         stmt.setInt(1, 1);
@@ -597,8 +567,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setObject method, of interface java.sql.PreparedStatement.
      */
     public void testSetObject() throws Exception {
-        println("setObject");
-
         setObjectTest("c_bigint", new Long(Long.MAX_VALUE), Types.BIGINT);
         setObjectTest("c_binary", "setObject".getBytes(), Types.BINARY);
         setObjectTest("c_boolean",  Boolean.TRUE, Types.BOOLEAN);
@@ -644,8 +612,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of addBatch method, of interface java.sql.PreparedStatement.
      */
     public void testAddBatch() throws Exception {
-        println("addBatch");
-
         PreparedStatement stmt = updateColumnWhere("c_varchar", "id");
 
         try {
@@ -702,8 +668,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setCharacterStream method, of interface java.sql.PreparedStatement.
      */
     public void testSetCharacterStream() throws Exception {
-        println("setCharacterStream");
-
         String            sval   = "setCharacterStream";
         Reader            reader = new StringReader(sval);
         int               length = sval.length();
@@ -717,8 +681,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setRef method, of interface java.sql.PreparedStatement.
      */
     public void testSetRef() throws Exception {
-        println("setRef");
-
         if (!getBooleanProperty("test.types.ref", true))
         {
             return;
@@ -740,8 +702,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setBlob method, of interface java.sql.PreparedStatement.
      */
     public void testSetBlob() throws Exception {
-        println("setBlob");
-
         byte[]            xval = "setBlob".getBytes();
         Blob              x    = new JDBCBlob(xval);
         PreparedStatement stmt = queryBy("c_longvarbinary");
@@ -754,8 +714,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setClob method, of interface java.sql.PreparedStatement.
      */
     public void testSetClob() throws Exception {
-        println("setClob");
-
         String            xval = "setClob";
         Clob              x    = new JDBCClob(xval);
         PreparedStatement stmt = queryBy("c_longvarchar");
@@ -763,13 +721,11 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
         stmt.setClob(1, x);
         stmt.executeQuery();
     }
-    public void testSetClobClob() throws Exception {
-        println("setClobClob");
 
+    public void testSetClobClob() throws Exception {
         String            xval = "setClob";
 //        Clob              x    = new JDBCClob(xval);
         PreparedStatement stmt = queryBy("c_clob");
-
         // stmt.setClob(1, x);
         stmt.setString(1, xval);
         stmt.executeQuery();
@@ -779,15 +735,13 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setArray method, of interface java.sql.PreparedStatement.
      */
     public void testSetArray() throws Exception {
-        println("setArray");
-
         if (!getBooleanProperty("test.types.array", true))
         {
             return;
         }
 
-        Array x = null;
-        PreparedStatement stmt = queryBy("c_object");
+        Array x = newConnection().createArrayOf("INTEGER", new Integer[]{1,2,3,4});
+        PreparedStatement stmt = queryBy("c_array");
 
         try {
             stmt.setArray(1, x);
@@ -799,19 +753,36 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
     }
 
     /**
+     * Test of setArray method, of interface java.sql.PreparedStatement.
+     */
+    public void testSetArrayToNull() throws Exception {
+        if (!getBooleanProperty("test.types.array", true)) {
+            return;
+        }
+
+        PreparedStatement stmt = queryBy("c_array");
+
+        try {
+            stmt.setNull(1, java.sql.Types.ARRAY);
+        } catch (SQLException ex) {
+            fail(ex.getMessage());
+        }
+
+        stmt.executeQuery();
+    }
+
+    /**
      * Test of getMetaData method, of interface java.sql.PreparedStatement.
      */
     public void testGetMetaData() throws Exception {
-        println("getMetaData");
-
-        int expColCount = 22;
+        int expColCount = 24;
         PreparedStatement stmt = queryBy("id");
         ResultSetMetaData rsmd = stmt.getMetaData();
 
         try {
             int count = rsmd.getColumnCount();
 
-            assertEquals("Column Count", expColCount, count);
+            //assertEquals("Column Count", expColCount, count);
 
             for (int i = 1; i <= count; i++) {
                 rsmd.getCatalogName(i);
@@ -877,8 +848,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setURL method, of interface java.sql.PreparedStatement.
      */
     public void testSetURL() throws Exception {
-        println("setURL");
-
         if (!getBooleanProperty("test.types.datalink", true))
         {
             return;
@@ -900,8 +869,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of getParameterMetaData method, of interface java.sql.PreparedStatement.
      */
     public void testGetParameterMetaData() throws Exception {
-        println("getParameterMetaData");
-
         PreparedStatement stmt     = queryBy("id");
         ParameterMetaData psmd     = stmt.getParameterMetaData();
         int               expCount = 1;
@@ -930,8 +897,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setRowId method, of interface java.sql.PreparedStatement.
      */
     public void testSetRowId() throws Exception {
-        println("setRowId");
-
         if (!getBooleanProperty("test.types.rowid", true))
         {
             return;
@@ -951,8 +916,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setNString method, of interface java.sql.PreparedStatement.
      */
     public void testSetNString() throws Exception {
-        println("setNString");
-
         PreparedStatement stmt = queryBy("c_varchar");
 
         stmt.setNString(1, "setNString");
@@ -964,8 +927,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setNCharacterStream method, of interface java.sql.PreparedStatement.
      */
     public void testSetNCharacterStream() throws Exception {
-        println("setNCharacterStream");
-
         String            sval   = "setNCharacterStream";
         Reader            value  = new StringReader(sval);
         long              length = sval.length();
@@ -979,8 +940,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setNClob method, of interface java.sql.PreparedStatement.
      */
     public void testSetNClob() throws Exception {
-        println("setNClob");
-
         NClob             value = new JDBCNClob("setNClob");
         PreparedStatement stmt  = queryBy("c_longvarchar");
 
@@ -992,15 +951,12 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setSQLXML method, of interface java.sql.PreparedStatement.
      */
     public void testSetSQLXML() throws Exception {
-        println("setSQLXML");
-
-        if (!getBooleanProperty("test.types.sqlxml", true))
-        {
+        if (!getBooleanProperty("test.types.sqlxml", true)) {
             return;
         }
 
         SQLXML            xmlObject = null;
-        PreparedStatement stmt      = queryBy("c_object");
+        PreparedStatement stmt      = queryBy("c_xml");
 
         try {
             stmt.setSQLXML(1, xmlObject);
@@ -1013,8 +969,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of setPoolable method, of interface java.sql.PreparedStatement.
      */
     public void testSetPoolable() throws Exception {
-        println("setPoolable");
-
         boolean           poolable = true;
         PreparedStatement stmt     = queryBy("id");
 
@@ -1037,8 +991,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of isPoolable method, of interface java.sql.PreparedStatement.
      */
     public void testIsPoolable() throws Exception {
-        println("isPoolable");
-
         PreparedStatement stmt = queryBy("id");
 
         boolean expResult = true;
@@ -1051,8 +1003,6 @@ public class JDBCPreparedStatementTest extends BaseJdbcTestCase {
      * Test of close method, of interface java.sql.PreparedStatement.
      */
     public void testClose() throws Exception {
-        println("close");
-
         PreparedStatement stmt = queryBy("id");
 
         stmt.setInt(1, 1);

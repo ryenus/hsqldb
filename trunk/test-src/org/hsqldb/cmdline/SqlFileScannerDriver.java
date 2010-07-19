@@ -1,3 +1,32 @@
+/* Copyright (c) 2001-2010, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.hsqldb.cmdline;
 
 import java.io.FileReader;
@@ -16,8 +45,11 @@ import java.util.regex.Matcher;
  * either interactively or with SQL scripts.
  */
 public class SqlFileScannerDriver {
+
     static Pattern foreachPattern =
             Pattern.compile("(?i)foreach\\s+(\\S+)\\s*\\(\\s*([^)]+)*\\)\\s*");
+
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     static public void main(String[] sa) throws IOException {
         if (sa.length > 1) {
             System.err.println("SYNTAX:  java SqlFileScannerDriver [filename]");
@@ -27,8 +59,7 @@ public class SqlFileScannerDriver {
         //System.err.println("YYEOF = '" + SqlFileScanner.YYEOF + "'");
         SqlFileScanner y = ((sa.length > 0)
                 ? new SqlFileScanner(new FileReader(sa[0]))
-                : new SqlFileScanner(System.in)
-        );
+                : new SqlFileScanner(System.in));
         if (sa.length < 1) {
             y.setRawPrompt("raw> ");
             y.setSqlPrompt("+sql> ");
@@ -40,7 +71,6 @@ public class SqlFileScannerDriver {
         new SqlFileScannerDriver(y);
         System.exit(0);
     }
-
     private SqlFileScanner y;
 
     public SqlFileScannerDriver(SqlFileScanner y) throws IOException {
@@ -52,7 +82,7 @@ public class SqlFileScannerDriver {
      * Handles each command Token as follows.
      * <UL>
      *   <LI>Execute each non-nested command
-     *   <LI>Parse each non-parsed nested comand
+     *   <LI>Parse each non-parsed nested command
      *   <LI>Execute each nested command (they are all parsed at this point).
      * </UL>
      */
@@ -61,19 +91,26 @@ public class SqlFileScannerDriver {
         while ((token = ts.yylex()) != null) {
             if (!isNestingCommand(token)) {
                 System.out.println(token.toString());
-                if (token.type == Token.SPECIAL_TYPE &&
-                    token.val.trim().equalsIgnoreCase("q")) break;
+                if (token.type == Token.SPECIAL_TYPE
+                        && token.val.trim().equalsIgnoreCase("q")) {
+                    break;
+                }
                 continue;
             }
-            if (token.nestedBlock == null)
+            if (token.nestedBlock == null) {
                 token.nestedBlock = parseBlock(token.val);
+            }
             processBlock(token);
         }
     }
 
     private boolean isNestingCommand(Token token) {
-        if (token.type != Token.PL_TYPE) return false;
-        if (token.val.trim().startsWith("foreach")) return true;
+        if (token.type != Token.PL_TYPE) {
+            return false;
+        }
+        if (token.val.trim().startsWith("foreach")) {
+            return true;
+        }
         return false;
     }
 
@@ -81,7 +118,9 @@ public class SqlFileScannerDriver {
      * Parses a block command like foreach/if.
      */
     private TokenList parseBlock(String command) throws IOException {
-        if (command.trim().startsWith("foreach")) return seekTokenSource("end");
+        if (command.trim().startsWith("foreach")) {
+            return seekTokenSource("end");
+        }
         throw new RuntimeException("Can't parse block for unexpected command: "
                 + command);
     }
@@ -104,7 +143,8 @@ public class SqlFileScannerDriver {
     }
 
     private TokenList seekTokenSource(String endToken) throws IOException {
-        Token token; TokenList newTS = new TokenList();
+        Token token;
+        TokenList newTS = new TokenList();
         while ((token = y.yylex()) != null) {
             System.err.print("LOADING ");
             System.err.println(token.toString());
@@ -113,8 +153,9 @@ public class SqlFileScannerDriver {
                 System.err.println("Terminated block with " + token.val);
                 return newTS;
             }
-            if (isNestingCommand(token)) 
+            if (isNestingCommand(token)) {
                 token.nestedBlock = parseBlock(token.val);
+            }
             newTS.add(token);
         }
         throw new IOException("Unterminated block at line " + token.line);

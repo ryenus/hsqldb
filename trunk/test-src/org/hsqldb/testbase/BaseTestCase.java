@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,8 +32,13 @@ package org.hsqldb.testbase;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.JarURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -44,38 +49,110 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import org.hsqldb.lib.IntValueHashMap;
 import org.hsqldb.lib.OrderedHashSet;
-import org.hsqldb.resources.BundleHandler;
 
 /**
- * Abstract HSQLDB-targeted Junit test case. <p>
+ * Abstract HSQLDB-targeted JUnit 3.8 test case. <p>
  *
  * @author  boucherb@users
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public abstract class BaseTestCase extends junit.framework.TestCase {
 
+    public static final String DEFAULT_PROPERTY_KEY_PREFIX = "hsqldb.test.suite.";
+    public static final String DEFAULT_PROPERTY_KEY_PREFIX_KEY = DEFAULT_PROPERTY_KEY_PREFIX + "properties.prefix";
     public static final String DEFAULT_DRIVER = "org.hsqldb.jdbcDriver";
     public static final String DEFAULT_PASSWORD = "";
     public static final String DEFAULT_URL = "jdbc:hsqldb:mem:testcase";
     public static final String DEFAULT_USER = "SA";
-    protected static final IntValueHashMap fieldValueMap = new IntValueHashMap();
-    protected static final String[][] rsconcurrency = new String[][]{{"concur_read_only", "java.sql.ResultSet.CONCUR_READ_ONLY"}, {"concur_updatable", "java.sql.ResultSet.CONCUR_UPDATABLE"}};
-    protected static final String[][] rsholdability = new String[][]{{"close_cursors_at_commit", "java.sql.ResultSet.CLOSE_CURSORS_AT_COMMIT"}, {"hold_cursors_over_commit", "java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT"}};
-    protected static final String[][] rstype = new String[][]{{"type_forward_only", "java.sql.ResultSet.TYPE_FORWARD_ONLY"}, {"type_scroll_insensitive", "java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE"}, {"type_scroll_sensitive", "java.sql.ResultSet.TYPE_SCROLL_SENSITIVE"}};
     //
-    public static final int testBundleHandle;
-    public static final int testConvertBundleHandle;
+    protected static final IntValueHashMap s_fieldValueMap =
+            new IntValueHashMap();
+    //
+    protected static final String[][] s_rsconcurrency = new String[][]{
+        {
+            "concur_read_only",
+            "java.sql.ResultSet.CONCUR_READ_ONLY"
+        },
+        {
+            "concur_updatable",
+            "java.sql.ResultSet.CONCUR_UPDATABLE"
+        }
+    };
+    //
+    protected static final String[][] s_rsholdability = new String[][]{
+        {
+            "close_cursors_at_commit",
+            "java.sql.ResultSet.CLOSE_CURSORS_AT_COMMIT"
+        },
+        {
+            "hold_cursors_over_commit",
+            "java.sql.ResultSet.HOLD_CURSORS_OVER_COMMIT"
+        }
+    };
+    //
+    protected static final String[][] s_rstype = new String[][]{
+        {
+            "type_forward_only",
+            "java.sql.ResultSet.TYPE_FORWARD_ONLY"
+        },
+        {
+            "type_scroll_insensitive",
+            "java.sql.ResultSet.TYPE_SCROLL_INSENSITIVE"
+        },
+        {
+            "type_scroll_sensitive",
+            "java.sql.ResultSet.TYPE_SCROLL_SENSITIVE"
+        }
+    };
+    //
+    private static final ConnectionFactory.EventListener s_embeddedDatabaseCloser =
+            new ConnectionFactory.EventListener() {
 
-    static {
-        testBundleHandle = BundleHandler.getBundleHandle("test", null);
-        testConvertBundleHandle = BundleHandler.getBundleHandle("test-dbmd-convert", null);
-    }
+                public void closedRegisteredObjects(ConnectionFactory source) {
+                    org.hsqldb.DatabaseManager.closeDatabases(-1);
+                }
+            };
+    private static final String LINE_SEPARATOR =
+            PropertyGetter.getProperty("line.separator", "\n");
+    //
+    private static final String TEST_LABEL_FORMAT_1 =
+            LINE_SEPARATOR
+            + "--------------------------------------------------------------------------------" + LINE_SEPARATOR
+            + "TEST SUBJECT : {0}.{1}" + LINE_SEPARATOR
+            + "TEST FIXTURE : {2}.{3}" + LINE_SEPARATOR
+            + "TEST MESSAGE : {4}" + LINE_SEPARATOR
+            + "--------------------------------------------------------------------------------" + LINE_SEPARATOR;
+    //
+    private static final String TEST_LABEL_FORMAT_2 =
+            LINE_SEPARATOR
+            + "--------------------------------------------------------------------------------" + LINE_SEPARATOR
+            + "TEST SUBJECT : {0}.{1}" + LINE_SEPARATOR
+            + "TEST FIXTURE : {2}.{3}" + LINE_SEPARATOR
+            + "--------------------------------------------------------------------------------" + LINE_SEPARATOR;
+    //
+    private static final String PROGRESS_FORMAT =
+            "{0}[PROGRESS]: {1}" + LINE_SEPARATOR;
+    //
+    private static final String EXCEPTION_FORMAT =
+            "{0}[EXCEPTION]: {1}" + LINE_SEPARATOR
+            + "{2}" + LINE_SEPARATOR;
+    //
+    private static final String WARNING_FORMAT =
+            "{0}[WARNING]: {1}" + LINE_SEPARATOR;
+    //
+    private static final String PRINTLN_FORMAT = "{0}" + LINE_SEPARATOR;
+    //
+    private static final Class[] NO_PARMS = new Class[0];
+    //
+    private ConnectionFactory m_connectionFactory;
+    private ConnectionFactory.EventListener m_embeddedDatabaseCloser;
 
     /**
      * by computing a shallow string representation
@@ -88,7 +165,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             return "null";
         }
         int length = Array.getLength(array);
-        StringBuffer sb = new StringBuffer(2 + 3 * length);
+        StringBuilder sb = new StringBuilder(2 + 3 * length);
         sb.append('[');
         for (int i = 0; i < length; i++) {
             if (i > 0) {
@@ -108,6 +185,11 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * describing the given values.
      */
     protected static String arraysNotEqualMessage(Object expected, Object actual) {
+        // TODO:  implement cf-style message, but with either context info
+        //        (i.e. start/end index of common prefix/suffic) or with
+        //        full content oncluded and possibly something more like a DIFF
+        //        style (multiple differences handled) output.
+        //return (new ComparisonFailure(null, arrayToString(expected), arrayToString(actual))).getMessage();
         return "expected:<" + arrayToString(expected) + "> but was:<" + arrayToString(actual) + ">";
     }
 
@@ -182,7 +264,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             case 'N': {
                 if (actual == null) {
                     fail("expected:<" + arrayToString(expected) + "> but was:<null>");
-                } else if (Object[].class.isAssignableFrom(expected.getClass()) && Object[].class.isAssignableFrom(actual.getClass())) {
+                } else if (Object[].class.isAssignableFrom(expected.getClass())
+                        && Object[].class.isAssignableFrom(actual.getClass())) {
                     if (!Arrays.deepEquals((Object[]) expected, (Object[]) actual)) {
                         fail(arraysNotEqualMessage(expected, actual));
                     }
@@ -365,21 +448,22 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     /**
+     * for file: or jar: resources.
      *
      * @param packageName
      * @throws java.io.IOException
-     * @return fully expe
+     * @return array of paths to the resources in the given package
      */
-    protected static String[] getResoucesInPackage(final String packageName) throws IOException {
+    protected String[] getResoucesInPackage(final String packageName) throws IOException {
         String packagePath = packageName.replace('.', '/');
         if (!packagePath.endsWith("/")) {
             packagePath = packagePath + '/';
         }
-        //Enumeration resources = ClassLoader.getSystemResources(packagePath);
-        Enumeration resources = BaseTestCase.class.getClassLoader().getResources(packagePath);
+
+        Enumeration<URL> resources = getResources(packagePath);
         OrderedHashSet set = new OrderedHashSet();
         while (resources.hasMoreElements()) {
-            URL resource = (URL) resources.nextElement();
+            URL resource = resources.nextElement();
             String protocol = resource.getProtocol();
             if ("file".equals(protocol)) {
                 try {
@@ -417,10 +501,9 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         set.toArray(names);
         return names;
     }
-    private ConnectionFactory m_connectionFactory;
 
     // for subclasses
-    protected BaseTestCase(){
+    protected BaseTestCase() {
         super();
     }
 
@@ -431,6 +514,14 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      */
     public BaseTestCase(String name) {
         super(name);
+    }
+
+    protected URL getResource(String resource) throws Exception {
+        return getClass().getResource(resource);
+    }
+
+    protected Enumeration<URL> getResources(String resource) throws IOException {
+        return getClass().getClassLoader().getResources(resource);
     }
 
     /**
@@ -457,24 +548,31 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             throw new RuntimeException("resource parameter must not be null.");
         }
         resource = resource.trim();
-        URL url = this.getClass().getResource(resource);
+        URL url = getResource(resource);
+        String packageName = this.getClass().getPackage().getName();
         if (url == null) {
-            String fullResource = (resource.startsWith("/")) ? resource : '/' + this.getClass().getPackage().getName().replace('.', '/') + '/' + resource;
-            throw new RuntimeException("No such resource on CLASSPATH: [" + fullResource + "]");
+            String fullResource = (resource.startsWith("/"))
+                    ? resource
+                    : '/' + packageName.replace('.', '/') + '/' + resource;
+            throw new RuntimeException(
+                    "No such resource on CLASSPATH: [" + fullResource + "]");
         }
         ScriptIterator it = new ScriptIterator(url);
         Connection conn = null;
         Statement stmt = null;
+        String sql = null;
         try {
             conn = newConnection();
             stmt = conn.createStatement();
             while (it.hasNext()) {
-                String sql = (String) it.next();
-                //System.out.println("sql:");
-                //System.out.println(sql);
+                sql = (String) it.next();
                 stmt.execute(sql);
             }
             conn.commit();
+        } catch (Exception e) {
+            System.out.println("error executing sql:");
+            System.out.println(sql);
+            throw e;
         } finally {
             if (stmt != null) {
                 try {
@@ -498,19 +596,11 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * @param defaultValue when there is no matching property.
      * @return the matching value.
      */
-    public boolean getBooleanProperty(final String key, final boolean defaultValue) {
-        try {
-            String value = getProperty(key, String.valueOf(defaultValue));
-            if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("on") || value.equals("1")) {
-                return true;
-            } else if (value.equalsIgnoreCase("false") || value.equalsIgnoreCase("off") || value.equals("0")) {
-                return false;
-            } else {
-                return defaultValue;
-            }
-        } catch (SecurityException se) {
-            return defaultValue;
-        }
+    public boolean getBooleanProperty(final String key,
+            final boolean defaultValue) {
+        return PropertyGetter.getBooleanProperty(
+                translatePropertyKey(key),
+                defaultValue);
     }
 
     /**
@@ -529,7 +619,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * @return value with which field is initialized.
      */
     protected int getFieldValue(final String fieldName) throws Exception {
-        int fieldValue = BaseTestCase.fieldValueMap.get(fieldName, Integer.MIN_VALUE);
+        int fieldValue = BaseTestCase.s_fieldValueMap.get(fieldName, Integer.MIN_VALUE);
         if (fieldValue > Integer.MIN_VALUE) {
             return fieldValue;
         }
@@ -538,7 +628,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         final Class clazz = Class.forName(className);
         final String bareFieldName = fieldName.substring(lastIndexofDot + 1);
         fieldValue = clazz.getField(bareFieldName).getInt(null);
-        BaseTestCase.fieldValueMap.put(fieldName, fieldValue);
+        BaseTestCase.s_fieldValueMap.put(fieldName, fieldValue);
         return fieldValue;
     }
 
@@ -550,21 +640,9 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * @return the matching value.
      */
     public int getIntProperty(final String key, final int defaultValue) {
-        String propertyValue = this.getProperty(key, null);
-        int rval = defaultValue;
-
-        if (propertyValue != null) {
-            propertyValue = propertyValue.trim();
-
-            if (propertyValue.length() > 0) {
-                try {
-                    rval = Integer.parseInt(propertyValue);
-                } catch (Exception ex) {
-                }
-            }
-        }
-
-        return rval;
+        return PropertyGetter.getIntProperty(
+                translatePropertyKey(key),
+                defaultValue);
     }
 
     /**
@@ -583,23 +661,9 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * @return the matching value.
      */
     public String getProperty(final String key, final String defaultValue) {
-        String value = null;
         String translatedPropertyKey = translatePropertyKey(key);
-        // Note: some properties may be submitted on the command line and
-        // should override property file resources on the class path.
-        try {
-            value = System.getProperty(translatedPropertyKey, null);
-        } catch (SecurityException se) {
-        }
-        if (value == null) {
-            value = BundleHandler.getString(BaseTestCase.testBundleHandle, translatedPropertyKey);
-        }
-        if (value == null) {
-            value = BundleHandler.getString(BaseTestCase.testConvertBundleHandle, translatedPropertyKey);
-        }
-        if (value == null) {
-            value = defaultValue;
-        }
+
+        String value = PropertyGetter.getProperty(translatedPropertyKey, defaultValue);
         return value;
     }
 
@@ -621,7 +685,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * with the driver, url, user and password
-     * specifed by the corresponding protected
+     * specified by the corresponding protected
      * accessors of this class. <p>
      *
      * @return a new connection.
@@ -637,20 +701,247 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         return connectionFactory().newConnection(driver, url, user, password);
     }
 
-    /**
-     * to standard output.
-     * @param msg to print
-     */
-    protected void print(Object msg) {
-        System.out.print(msg);
+    protected boolean isPrint() {
+        return getBooleanProperty("print.test.print", true);
     }
 
     /**
      * to standard output.
      * @param msg to print
      */
-    protected void println(Object msg) {
-        System.out.println(getClass().getName() + ":" + msg);
+    protected void print(Object msg) {
+        if (isPrint()) {
+            System.out.print(msg);
+        }
+    }
+
+    /**
+     * to standard output.
+     */
+    protected final void println() {
+        print(LINE_SEPARATOR);
+    }
+
+    /**
+     * to standard output.
+     * @param msg to print
+     */
+    protected final void println(final Object msg) {
+        print(MessageFormat.format(PRINTLN_FORMAT, msg));
+    }
+
+    protected boolean isPrintProgress() {
+        return isPrint() && getBooleanProperty("print.test.progress", true);
+    }
+
+    protected final void printProgress(final Object msg) {
+        if (isPrintProgress()) {
+            print(MessageFormat.format(
+                    PROGRESS_FORMAT,
+                    getClass().getName(),
+                    msg));
+        }
+    }
+
+    protected boolean isPrintExceptions() {
+        return isPrint() && getBooleanProperty("print.test.exceptions", true);
+    }
+
+    protected final void printException(Exception ex) {
+        if (isPrintExceptions()) {
+            StringWriter sw = new StringWriter();
+
+            ex.printStackTrace(new PrintWriter(sw));
+
+            print(MessageFormat.format(
+                    EXCEPTION_FORMAT,
+                    getClass().getName(),
+                    ex.getMessage(),
+                    sw.toString()));
+        }
+    }
+
+    protected boolean isPrintWarnings() {
+        return isPrint() && getBooleanProperty("print.test.warnings", true);
+    }
+
+    protected final void printWarning(Exception ex) {
+        if (isPrintWarnings()) {
+            print(MessageFormat.format(
+                    WARNING_FORMAT,
+                    getClass().getName(),
+                    ex.getMessage(),
+                    LINE_SEPARATOR));
+        }
+    }
+
+    protected boolean isPrintTestLabels() {
+        return this.getBooleanProperty("print.test.lables", true);
+    }
+
+//    protected void printTestLabel() {
+//        printTestLabel0(null, null);
+//    }
+//
+//    protected void printTestLabel(final Object msg) {
+//        printTestLabel0(null, msg);
+//    }
+
+    /**
+     * to standard output.
+     * @param msg to print
+     */
+    private void printTestLabel0(Method method, final Object msg) {
+        if (!isPrintTestLabels()) {
+            return;
+        }
+
+        if (method == null) {
+            method = this.getStackTraceMethod(
+                    Thread.currentThread().getStackTrace(),
+                    3);
+        }
+
+        String subjectClassName = getSubjectClassName(method);
+        String subjectMethodName = getSubjectMethodName(method);
+
+        if (subjectClassName == null) {
+            subjectClassName = "<<Unspecified Subject Class>>";
+        }
+        if (subjectMethodName == null) {
+            subjectMethodName = "<<Unspecified Subject Method>>";
+        }
+
+        String callerClassName = getClass().getName();
+        String callerMethodName = method.getName();
+
+        String fullMessage = null;
+
+        if (msg == null) {
+            fullMessage = MessageFormat.format(
+                    TEST_LABEL_FORMAT_2,
+                    subjectClassName,
+                    subjectMethodName,
+                    callerClassName,
+                    callerMethodName);
+        } else {
+            fullMessage = MessageFormat.format(
+                    TEST_LABEL_FORMAT_1,
+                    subjectClassName,
+                    subjectMethodName,
+                    callerClassName,
+                    callerMethodName,
+                    msg);
+        }
+
+        print(fullMessage);
+    }
+
+    private String getSubjectClassName(Method method) {
+        if (method != null && method.isAnnotationPresent(ForSubject.class)) {
+            return method.getAnnotation(ForSubject.class).value().getCanonicalName();
+        }
+
+
+        if (getClass().isAnnotationPresent(ForSubject.class)) {
+            return getClass().getAnnotation(ForSubject.class).value().getCanonicalName();
+        }
+
+        if (getClass().getName().endsWith("Test")) {
+            String name = getClass().getName();
+            return "[?]" + name.substring(0, name.length() - 4);
+        }
+
+        return null;
+    }
+
+    private Method getStackTraceMethod(
+            final StackTraceElement[] stackTrace,
+            final int index) {
+        if (stackTrace == null && stackTrace.length <= index) {
+            return null;
+        }
+
+        Method method = null;
+        String methodName = stackTrace[index].getMethodName();
+
+        try {
+            method = getClass().getMethod(methodName, NO_PARMS);
+        } catch (NoSuchMethodException ex) {
+        } catch (SecurityException ex) {
+        }
+
+        return method;
+    }
+
+    private String getSubjectMethodName(Method method) {
+
+        if (method != null && method.isAnnotationPresent(OfMethod.class)) {
+            return method.getAnnotation(OfMethod.class).value();
+        }
+
+        if (getClass().isAnnotationPresent(OfMethod.class)) {
+            return getClass().getAnnotation(OfMethod.class).value();
+        }
+
+        if (method == null) {
+            return null;
+        }
+
+
+        String methodName = method.getName();
+
+        if (methodName.startsWith("test")) {
+            String name = methodName.substring(4);
+
+            if (name.length() > 1) {
+                char ch1 = name.charAt(0);
+                char ch2 = name.charAt(1);
+
+                if (Character.isLowerCase(ch2)
+                        && Character.isUpperCase(ch1)) {
+                    name = Character.toLowerCase(ch1)
+                            + name.substring(1);
+                }
+            } else {
+                name = methodName.toLowerCase();
+            }
+
+            return "[?]" + name;
+        }
+
+        return null;
+    }
+
+    @Override
+    protected void runTest() throws Throwable {
+        String testCaseName = this.getName();
+        assertNotNull("TestCase name must not be null", testCaseName);
+        Method runMethod = null;
+        try {
+            // use getMethod to get all public inherited
+            // methods. getDeclaredMethods returns all
+            // methods of this class but excludes the
+            // inherited ones.
+            runMethod = getClass().getMethod(testCaseName, NO_PARMS);
+        } catch (NoSuchMethodException e) {
+            fail("Fixture Method \"" + testCaseName + "()\" not found");
+        }
+        if (!Modifier.isPublic(runMethod.getModifiers())) {
+            fail("Fixture Method \"" + testCaseName + "()\" should be public");
+        }
+
+        this.printTestLabel0(runMethod, null);
+
+        try {
+            runMethod.invoke(this);
+        } catch (InvocationTargetException e) {
+            e.fillInStackTrace();
+            throw e.getTargetException();
+        } catch (IllegalAccessException e) {
+            e.fillInStackTrace();
+            throw e;
+        }
     }
 
     /**
@@ -664,23 +955,117 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     }
 
     /**
-     * Performs test teardown.
+     * Determines if teardown attempts to closes any open in-process database instances.
      *
-     * @throws java.lang.Exception probably never
+     * @return true if so, else false.
+     */
+    protected boolean isCloseEmbeddedDatabasesOnTeardown() {
+        return getBooleanProperty("close.embedded.databases.on.teardown", false);
+    }
+
+    protected ConnectionFactory.EventListener getEmbeddedDatabaseCloser() {
+        ConnectionFactory.EventListener closer = null;
+        String closerFQN = getProperty("close.embedded.databases.handler",
+                "default");
+
+        if ("default".equalsIgnoreCase(closerFQN)) {
+            closer = s_embeddedDatabaseCloser;
+        } else {
+            try {
+                Class closerClass = Class.forName(closerFQN);
+                closer = (ConnectionFactory.EventListener) closerClass.newInstance();
+            } catch (ClassNotFoundException cnfe) {
+            } catch (IllegalAccessException iae) {
+            } catch (InstantiationException ie) {
+            }
+        }
+
+        return closer;
+    }
+
+    /**
+     * Unless overridden in subclass, this method is invoked
+     * before the main teardown behavior occurs.
+     */
+    protected void preTearDown() {
+        if (isCloseEmbeddedDatabasesOnTeardown()) {
+            if (null != (m_embeddedDatabaseCloser = getEmbeddedDatabaseCloser())) {
+                connectionFactory().addDatabaseEventListener(m_embeddedDatabaseCloser);
+            }
+        }
+    }
+
+    /**
+     * Performs test teardown. <p>
+     *
+     * By default,
+     *
+     * @throws java.lang.Exception if any, thrown as part of tearing down
+     *         the test fixture.
      */
     @Override
     protected void tearDown() throws Exception {
-        connectionFactory().closeRegisteredObjects();
-        super.tearDown();
+
+        Exception preTearDownException = null;
+        Exception tearDownException = null;
+        Exception postTearDownException = null;
+
+        try {
+            preTearDown();
+        } catch (Exception ex) {
+            preTearDownException = ex;
+        }
+
+        this.connectionFactory().closeRegisteredObjects();
+
+        try {
+            super.tearDown();
+        } catch (Exception ex) {
+            tearDownException = ex;
+        } finally {
+            try {
+                postTearDown();
+            } catch (Exception ex2) {
+                postTearDownException = ex2;
+            }
+        }
+
+        if (tearDownException != null) {
+            throw tearDownException;
+        } else if (postTearDownException != null) {
+            throw postTearDownException;
+        } else if (preTearDownException != null) {
+            throw preTearDownException;
+        }
+    }
+
+    /**
+     * Unless overridden in a subclass, this method is invoked
+     * after the main teardown behavior occurs, even if an exception
+     * is thrown as part of the main teardown activity.
+     */
+    protected void postTearDown() throws Exception {
+        if (m_embeddedDatabaseCloser != null) {
+            connectionFactory().removeDatabaseEventListener(m_embeddedDatabaseCloser);
+        }
     }
 
     /**
      * by prepending the test suite property prefix.
      *
      * @param key to translate.
-     * @return the given key, prepending with the test suite property prefix.
+     * @return the given key, prepended with the test suite property prefix.
      */
     protected String translatePropertyKey(final String key) {
-        return "hsqldb.test.suite." + key;
+        String prefix = DEFAULT_PROPERTY_KEY_PREFIX;
+
+        try {
+            prefix = System.getProperty(
+                    DEFAULT_PROPERTY_KEY_PREFIX_KEY,
+                    DEFAULT_PROPERTY_KEY_PREFIX);
+        } catch (SecurityException se) {
+        }
+
+        return prefix + key;
     }
 }

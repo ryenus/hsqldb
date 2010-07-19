@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,8 +69,6 @@ public class JDBCSavepointTest extends BaseJdbcTestCase {
      * Test of getSavepointId method, of interface java.sql.Savepoint.
      */
     public void testGetSavepointId() throws Exception {
-        println("getSavepointId");
-
         Connection conn = super.newConnection();
         Savepoint sp = null;
         int id;
@@ -91,7 +89,7 @@ public class JDBCSavepointTest extends BaseJdbcTestCase {
             sp = conn.setSavepoint();
             id = sp.getSavepointId();
 
-            println("savepoint id: " + id);
+            printProgress("savepoint id: " + id);
         } catch (SQLException ex) {
             fail(ex.getMessage());
         }
@@ -101,8 +99,6 @@ public class JDBCSavepointTest extends BaseJdbcTestCase {
      * Test of getSavepointName method, of interface java.sql.Savepoint.
      */
     public void testGetSavepointName() throws Exception {
-        println("getSavepointName");
-
         Connection conn = super.newConnection();
         Savepoint sp = null;
         String expResult = "sp1";

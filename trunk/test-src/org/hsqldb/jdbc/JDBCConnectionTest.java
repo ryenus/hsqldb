@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,12 +49,14 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
 
 /**
  * Test of interface java.sql.Connection.
  *
  * @author boucherb@users
  */
+@ForSubject(JDBCConnection.class)
 public class JDBCConnectionTest extends BaseJdbcTestCase {
 
     public JDBCConnectionTest(String testName) {
@@ -93,8 +95,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of createStatement method, of interface java.sql.Connection.
      */
     public void testCreateStatement() throws Exception {
-        println("createStatement");
-
         Connection conn = newConnection();
         Statement stmt = connectionFactory().createStatement(conn);
 
@@ -153,11 +153,9 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of prepareStatement method, of interface java.sql.Connection.
      */
     public void testPrepareStatement() throws Exception {
-        println("prepareStatement");
-
         setUpSampleData();
 
-        StringBuffer      sb   = new StringBuffer();
+        StringBuilder      sb   = new StringBuilder();
         String            sql  = "select * from customer";
         Connection        conn = newConnection();
         PreparedStatement stmt;
@@ -182,7 +180,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         try {
             stmt = conn.prepareStatement(sql);
         } catch (SQLException ex) {
-            sb.append(ex.getMessage() + "    ");
+            sb.append(ex.getMessage()).append("    ");
         }
 
         sql = "create table ? (id int, val varchar)";
@@ -230,8 +228,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of prepareCall method, of interface java.sql.Connection.
      */
     public void testPrepareCall() throws Exception {
-        println("prepareCall");
-
         String            sql  = "CALL PI() + ?";
         Connection        conn = newConnection();
         CallableStatement stmt = conn.prepareCall(sql);
@@ -249,8 +245,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of nativeSQL method, of interface java.sql.Connection.
      */
     public void testNativeSQL() throws Exception {
-        println("nativeSQL");
-
         String     sql       = "{?= call abs(?)}";
         Connection conn      = newConnection();
         String     expResult = "call abs(?)";
@@ -263,8 +257,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of setAutoCommit method, of interface java.sql.Connection.
      */
     public void testSetAutoCommit() throws Exception {
-        println("setAutoCommit");
-
         boolean    autoCommit = false;
         Connection conn       = newConnection();
 
@@ -287,8 +279,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of getAutoCommit method, of interface java.sql.Connection.
      */
     public void testGetAutoCommit() throws Exception {
-        println("getAutoCommit");
-
         Connection conn      = newConnection();
         boolean    expResult = true;
         boolean    result    = conn.getAutoCommit();
@@ -308,8 +298,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of commit method, of interface java.sql.Connection.
      */
     public void testCommit() throws Exception {
-        println("commit");
-
         Connection conn = newConnection();
 
         conn.commit();
@@ -319,8 +307,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of rollback method, of interface java.sql.Connection.
      */
     public void testRollback() throws Exception {
-        println("rollback");
-
         Connection conn = newConnection();
 
         conn.rollback();
@@ -330,8 +316,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of close method, of interface java.sql.Connection.
      */
     public void testClose() throws Exception {
-        println("close");
-
         Connection conn = newConnection();
 
         conn.close();
@@ -341,8 +325,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of isClosed method, of interface java.sql.Connection.
      */
     public void testIsClosed() throws Exception {
-        println("isClosed");
-
         Connection conn      = newConnection();
         boolean    expResult = false;
         boolean    result    = conn.isClosed();
@@ -362,8 +344,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of getMetaData method, of interface java.sql.Connection.
      */
     public void testGetMetaData() throws Exception {
-        println("getMetaData");
-
         Connection conn = newConnection();
 
         try {
@@ -377,8 +357,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of setReadOnly method, of interface java.sql.Connection.
      */
     public void testSetReadOnly() throws Exception {
-        println("setReadOnly");
-
         boolean    expResult = true;
         Connection conn      = newConnection();
 
@@ -430,8 +408,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of isReadOnly method, of interface java.sql.Connection.
      */
     public void testIsReadOnly() throws Exception {
-        println("isReadOnly");
-
         Connection conn      = newConnection();
         boolean    expResult = false;
         boolean    result    = conn.isReadOnly();
@@ -451,8 +427,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of setCatalog method, of interface java.sql.Connection.
      */
     public void testSetCatalog() throws Exception {
-        println("setCatalog");
-
         String     catalog = "PUBLIC";
         Connection conn    = newConnection();
 
@@ -494,8 +468,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of getCatalog method, of interface java.sql.Connection.
      */
     public void testGetCatalog() throws Exception {
-        println("getCatalog");
-
         Connection conn = newConnection();
 
         String expResult = "PUBLIC";
@@ -508,8 +480,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of setTransactionIsolation method, of interface java.sql.Connection.
      */
     public void testSetTransactionIsolation() throws Exception {
-        println("setTransactionIsolation");
-
         int[] levels = new int[] {
             Connection.TRANSACTION_READ_UNCOMMITTED,
             Connection.TRANSACTION_READ_COMMITTED,
@@ -519,7 +489,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
 
         Connection conn = newConnection();
 
-        StringBuffer failures = new StringBuffer();
+        StringBuilder failures = new StringBuilder();
 
         for (int i = 0; i < levels.length; i++) {
             try {
@@ -562,8 +532,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of getTransactionIsolation method, of interface java.sql.Connection.
      */
     public void testGetTransactionIsolation() throws Exception {
-        println("getTransactionIsolation");
-
         Connection conn      = newConnection();
         int        expResult = Connection.TRANSACTION_READ_COMMITTED;
         int        result    = conn.getTransactionIsolation();
@@ -603,7 +571,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
                 {
                     while(warning != null)
                     {
-                        println(warning);
+                        printWarning(warning);
 
                         warning = warning.getNextWarning();
                     }
@@ -616,8 +584,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of getWarnings method, of interface java.sql.Connection.
      */
     public void testGetWarnings() throws Exception {
-        println("getWarnings");
-
         Connection conn      = newConnection();
         SQLWarning expResult = null;
         SQLWarning result    = conn.getWarnings();
@@ -629,8 +595,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of clearWarnings method, of interface java.sql.Connection.
      */
     public void testClearWarnings() throws Exception {
-        println("clearWarnings");
-
         Connection conn = newConnection();
 
         conn.clearWarnings();
@@ -640,8 +604,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of getTypeMap method, of interface java.sql.Connection.
      */
     public void testGetTypeMap() throws Exception {
-        println("getTypeMap");
-
         if(!getBooleanProperty("test.typemap", true)) {
             return;
         }
@@ -656,8 +618,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of setTypeMap method, of interface java.sql.Connection.
      */
     public void testSetTypeMap() throws Exception {
-        println("setTypeMap");
-
         if(!getBooleanProperty("test.typemap", true)) {
             return;
         }
@@ -676,8 +636,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of setHoldability method, of interface java.sql.Connection.
      */
     public void testSetHoldability_HOLD_CURSORS_OVER_COMMIT() throws Exception {
-        println("setHoldability_HOLD_CURSORS_OVER_COMMIT");
-
         int        holdability = ResultSet.HOLD_CURSORS_OVER_COMMIT;
         Connection conn        = newConnection();
 
@@ -695,7 +653,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         {
             while(warning != null)
             {
-                println(warning);
+                printWarning(warning);
 
                 warning = warning.getNextWarning();
             }
@@ -706,8 +664,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of setHoldability method, of interface java.sql.Connection.
      */
     public void testSetHoldability_CLOSE_CURSORS_AT_COMMIT() throws Exception {
-        println("setHoldability_CLOSE_CURSORS_AT_COMMIT");
-
         int        holdability = ResultSet.CLOSE_CURSORS_AT_COMMIT;
         Connection conn        = newConnection();
 
@@ -725,7 +681,7 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
         {
             while(warning != null)
             {
-                println(warning);
+                printWarning(warning);
 
                 warning = warning.getNextWarning();
             }
@@ -736,8 +692,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of getHoldability method, of interface java.sql.Connection.
      */
     public void testGetHoldability() throws Exception {
-        println("getHoldability");
-
         Connection conn = newConnection();
         int expResult   = conn.getMetaData().getResultSetHoldability();
         int result      = conn.getHoldability();
@@ -749,8 +703,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of setSavepoint method, of interface java.sql.Connection.
      */
     public void testSetSavepoint() throws Exception {
-        println("setSavepoint");
-
         Connection conn = newConnection();
 
         conn.setAutoCommit(true);
@@ -790,8 +742,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of releaseSavepoint method, of interface java.sql.Connection.
      */
     public void testReleaseSavepoint() throws Exception {
-        println("releaseSavepoint");
-
         Savepoint  savepoint;
         Connection conn      = newConnection();
 
@@ -850,8 +800,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of createClob method, of interface java.sql.Connection.
      */
     public void testCreateClob() throws Exception {
-        println("createClob");
-
         Connection conn = newConnection();
 
         try {
@@ -865,8 +813,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of createBlob method, of interface java.sql.Connection.
      */
     public void testCreateBlob() throws Exception {
-        println("createBlob");
-
         Connection conn = newConnection();
 
         try {
@@ -880,8 +826,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of createNClob method, of interface java.sql.Connection.
      */
     public void testCreateNClob() throws Exception {
-        println("createNClob");
-
         Connection conn = newConnection();
 
         try {
@@ -895,8 +839,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of createSQLXML method, of interface java.sql.Connection.
      */
     public void testCreateSQLXML() throws Exception {
-        println("createSQLXML");
-
         Connection conn = newConnection();
 
         try {
@@ -910,8 +852,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of isValid method, of interface java.sql.Connection.
      */
     public void testIsValid() throws Exception {
-        println("isValid");
-
         int        timeout = 500;
         Connection conn    = newConnection();
         boolean expResult  = true;
@@ -931,8 +871,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of setClientInfo method, of interface java.sql.Connection.
      */
     public void testSetClientInfo() throws Exception {
-        println("setClientInfo");
-
         String     name  = "a";
         String     value = "b";
         Connection conn  = newConnection();
@@ -951,8 +889,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of getClientInfo method, of interface java.sql.Connection.
      */
     public void testGetClientInfo() throws Exception {
-        println("getClientInfo");
-
         String     name      = "a";
         Connection conn      = newConnection();
         String     expResult = null;
@@ -1001,8 +937,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of unwrap method, of interface java.sql.Connection.
      */
     public void testUnwrap() throws Exception {
-        println("unwrap");
-
         Connection conn = newConnection();
         Class      wcls = getExpectedWrappedClass();
         Object     wobj = getExpectedWrappedObject(conn, wcls);
@@ -1016,8 +950,6 @@ public class JDBCConnectionTest extends BaseJdbcTestCase {
      * Test of isWrapperFor method, of interface java.sql.Connection.
      */
     public void testIsWrapperFor() throws Exception {
-        println("isWrapperFor");
-
         Connection conn = newConnection();
         Class      wcls = getExpectedWrappedClass();
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.hsqldb.jdbc;
 
 import java.io.IOException;
@@ -38,8 +37,6 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.net.URL;
 import java.sql.SQLXML;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -57,10 +54,10 @@ import javax.xml.transform.stream.StreamSource;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
 
 /**
  *
@@ -82,24 +79,20 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
         super.tearDown();
     }
 
-    protected java.net.URL getResource(String path) throws Exception {
-        return getClass().getResource(path);
-    }
-
     protected InputStream getZipEntryInputStream(String zipPath,
             String entryPath) throws Exception {
-        URL         zipUrl    =  getResource(zipPath);
-        String      spec     = "jar:" + zipUrl + "!/" + entryPath;
-        URL         entryUrl = new URL(spec);
-        InputStream is        = entryUrl.openStream();
+        URL zipUrl = getResource(zipPath);
+        String spec = "jar:" + zipUrl + "!/" + entryPath;
+        URL entryUrl = new URL(spec);
+        InputStream is = entryUrl.openStream();
 
         return is;
     }
 
     protected String zipEntryToString(String zip, String entry)
-    throws Exception {
+            throws Exception {
         InputStream is = getZipEntryInputStream(zip, entry);
-        String      s  = StringConverter.inputStreamToString(is, "US-ASCII");
+        String s = StringConverter.inputStreamToString(is, "US-ASCII");
 
         return s;
     }
@@ -118,15 +111,12 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
         return zipEntryToString("resources/xml/MyDoc.xml.zip", "MyDoc.xml");
     }
 
-    protected void assertXmlEquals(Source expectedSource, Source actualSource) throws Exception
-    {
-        Transformer transformer = TransformerFactory.newInstance().newTransformer();
-
+    protected void assertXmlEquals(Source expectedSource, Source actualSource) throws Exception {
         DOMResult expectedResult = new DOMResult();
         DOMResult actualResult = new DOMResult();
 
-        transformer.transform(expectedSource, expectedResult);
-        transformer.transform(actualSource, actualResult);
+        identityTransform(expectedSource, expectedResult);
+        identityTransform(actualSource, actualResult);
 
         Node expectedRoot = expectedResult.getNode();
         Node actualRoot = actualResult.getNode();
@@ -155,16 +145,12 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
 
             assertEquals("Attributes Length", n1AttrsLength, n2AttrsLength);
 
-            for(int i = 0; i < n1AttrsLength; i++) {
+            for (int i = 0; i < n1AttrsLength; i++) {
                 assertNodeEquals(n1Attrs.item(i), n2Attrs.item(i));
             }
-        }
-        else if (n1Attrs == null)
-        {
+        } else if (n1Attrs == null) {
             assertNull("n2Attrs", n2Attrs);
-        }
-        else if (n2Attrs == null)
-        {
+        } else if (n2Attrs == null) {
             assertNull("n1Attrs", n1Attrs);
         }
 
@@ -177,21 +163,15 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
 
             assertEquals("Child Count", n1ChildrenLength, n2ChildrenLength);
 
-            for(int i = 0; i < n1ChildrenLength; i++)
-            {
+            for (int i = 0; i < n1ChildrenLength; i++) {
                 assertNodeEquals(n1Children.item(i), n2Children.item(i));
             }
-        }
-        else if (n1Children == null)
-        {
+        } else if (n1Children == null) {
             assertNull("n2Children", n2Children);
-        }
-        else if (n2Children == null)
-        {
+        } else if (n2Children == null) {
             assertNull("n1Children", n1Children);
         }
     }
-    
     private static Transformer transformer;
     private static TransformerFactory transformerFactory;
 
@@ -223,8 +203,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of free method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testFree() throws Exception {
-        println("free");
-
         SQLXML instance = newMyDoc();
 
         instance.free();
@@ -234,8 +212,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of getBinaryStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetBinaryStream() throws Exception {
-        println("getBinaryStream");
-
         SQLXML instance = newMyDoc();
 
         Source actualSource = new StreamSource(instance.getBinaryStream());
@@ -253,10 +229,8 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of setBinaryStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetBinaryStream() throws Exception {
-        println("setBinaryStream");
-
-        SQLXML       instance = new JDBCSQLXML();
-        OutputStream os       = instance.setBinaryStream();
+        SQLXML instance = new JDBCSQLXML();
+        OutputStream os = instance.setBinaryStream();
         OutputStreamWriter writer = new OutputStreamWriter(os);
 
         String expected = newMyDocString();
@@ -267,12 +241,12 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
         try {
             writer.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            printException(ex);
         }
         try {
             os.close();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            printException(ex);
         }
 
         Source actualSource = new StreamSource(instance.getBinaryStream());
@@ -290,8 +264,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of getCharacterStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetCharacterStream() throws Exception {
-        println("getCharacterStream");
-
         SQLXML instance = newMyDoc();
 
         Source actualSource = new StreamSource(instance.getCharacterStream());
@@ -309,10 +281,8 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of setCharacterStream method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetCharacterStream() throws Exception {
-        println("setCharacterStream");
-
         SQLXML instance = new JDBCSQLXML();
-        Writer writer   = instance.setCharacterStream();
+        Writer writer = instance.setCharacterStream();
         String expected = newMyDocString();
 
         writer.write(expected);
@@ -336,8 +306,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of getString method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetString() throws Exception {
-        println("getString");
-
         SQLXML instance = newMyDoc();
 
         String actual = instance.getString();
@@ -359,8 +327,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of setString method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetString() throws Exception {
-        println("setString");
-
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
         JDBCSQLXML instance = new JDBCSQLXML();
@@ -378,8 +344,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetDOMSource() throws Exception {
-        println("getDOMSource");
-
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
         JDBCSQLXML instance = new JDBCSQLXML(expected);
@@ -397,8 +361,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetSAXSource() throws Exception {
-        println("getSAXSource");
-
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
         JDBCSQLXML instance = new JDBCSQLXML(expected);
@@ -416,8 +378,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetStAXSource() throws Exception {
-        println("getStAXSource");
-
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
         JDBCSQLXML instance = new JDBCSQLXML(expected);
@@ -435,8 +395,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of getSource method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testGetStreamSource() throws Exception {
-        println("getStreamSource");
-
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
         JDBCSQLXML instance = new JDBCSQLXML(expected);
@@ -454,8 +412,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetDOMResult() throws Exception {
-        println("setDOMResult");
-
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
         DOMSource source = (new JDBCSQLXML(expected)).getSource(DOMSource.class);
@@ -476,8 +432,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetSAXResult() throws Exception {
-        println("setSAXResult");
-
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
         DOMSource source = (new JDBCSQLXML(expected)).getSource(DOMSource.class);
@@ -486,7 +440,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
 
         SAXResult result = instance.setResult(SAXResult.class);
 
-        identityTransform(source,result);
+        identityTransform(source, result);
 
         StreamSource streamSource = instance.getSource(StreamSource.class);
 
@@ -497,8 +451,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetStAXResult() throws Exception {
-        println("setStAXResult");
-
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
         DOMSource source = (new JDBCSQLXML(expected)).getSource(DOMSource.class);
@@ -507,7 +459,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
 
         StAXResult result = instance.setResult(StAXResult.class);
 
-        identityTransform(source,result);
+        identityTransform(source, result);
 
         result.getXMLStreamWriter().close();
 
@@ -520,7 +472,6 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
      * Test of setResult method, of class org.hsqldb.jdbc.JDBCSQLXML.
      */
     public void testSetStreamResult() throws Exception {
-        println("setStreamResult");
         String expected = "<kid id='1'><stuff id='2'>Is fun</stuff></kid>";
 
         DOMSource source = (new JDBCSQLXML(expected)).getSource(DOMSource.class);
@@ -529,7 +480,7 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
 
         StreamResult result = instance.setResult(StreamResult.class);
 
-        identityTransform(source,result);
+        identityTransform(source, result);
 
         result.getOutputStream().close();
 
@@ -542,5 +493,4 @@ public class JDBCSQLXMLTest extends BaseJdbcTestCase {
 
         junit.textui.TestRunner.run(suite());
     }
-
 }

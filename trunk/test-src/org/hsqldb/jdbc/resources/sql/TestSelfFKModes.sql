@@ -21,6 +21,7 @@ create cached table testB(id integer, parent integer, ref integer,
 /*u1*/insert into testB values(200,200,1,'xxxx');
 /*u1*/delete from testB where id=100;
 /*r200,200,1,xxxx*/select * from testB
+/*c1*/select * from testB
 -- ON DELETE SET NULL
 drop table testB if exists;
 create cached table testB(id integer, parent integer, ref integer,
@@ -38,6 +39,13 @@ create cached table testB(id integer, parent integer, ref integer,
 */select * from testB order by id
 /*c2*/select * from testB where parent is null
 -- ON DELETE SET DEFAULT
+
+delete from testB;
+/*u4*/insert into testB values(100,100,1,'xxxx'),
+ (101,100,1,'xxxx'),
+ (102,100,1,'xxxx'),
+ (200,200,1,'xxxx')
+
 drop table testB if exists;
 create cached table testB(id integer, parent integer default 20, ref integer,
  data varchar(200), unique (id),foreign key (parent)
@@ -135,3 +143,64 @@ create cached table testE(id integer primary key, idref integer);
 alter table testE alter column idref set default 10;
 alter table testE add foreign key(idref) references testE(id) on delete set default;
 /*e*/alter table testE alter column idref drop default;
+
+--
+drop table testA if exists cascade;
+drop table testB if exists;
+drop table testC if exists;
+create cached table testA(id integer primary key);
+create cached table testB(id integer primary key, foreign key (id) references testA(id) on delete cascade);
+create cached table testC(id integer primary key, foreign key (id) references testB(id) on delete cascade);
+insert into testA values 10
+insert into testB values 10
+insert into testC values 10
+alter table testA add foreign key (id) references testC(id) on delete cascade;
+delete from testA
+drop table testA if exists cascade;
+drop table testB if exists cascade;
+drop table testC if exists cascade;
+--
+create cached table testA(id integer primary key, ref integer, foreign key (ref) references testA(id));
+insert into testA values 10, 10
+insert into testA values 11, 10
+insert into testA values 12, 10
+insert into testA values 13, 12
+delete from testA
+
+CREATE TABLE user(
+ USER_ID VARCHAR(15) NOT NULL
+ ,PASSWD_TX VARCHAR(15) NOT NULL
+ ,CONSTRAINT user_PK PRIMARY KEY (USER_ID)
+ );
+
+CREATE TABLE role(
+ ROLE_NM VARCHAR(25) NOT NULL
+ ,DESC VARCHAR(100) NOT NULL
+ ,CONSTRAINT role_PK PRIMARY KEY (ROLE_NM)
+ );
+
+CREATE TABLE user_roles(
+ USER_ID VARCHAR(15) NOT NULL
+ ,ROLE_NM VARCHAR(25) NOT NULL
+ ,CONSTRAINT user_roles_PK PRIMARY KEY (USER_ID,ROLE_NM)
+ );
+
+ALTER TABLE user_roles ADD CONSTRAINT FK_user_roles_user_0 FOREIGN KEY (USER_ID) REFERENCES user;
+ALTER TABLE user_roles ADD CONSTRAINT FK_user_roles_role_1 FOREIGN KEY (ROLE_NM) REFERENCES role;
+
+INSERT INTO user VALUES('JOE_USER', 'secret');
+INSERT INTO role VALUES('SUPERSTAR', 'The best role');
+INSERT INTO role VALUES('ACTUAL_TALENT', 'What there''s a difference?');
+
+INSERT INTO user_roles VALUES('JOE_USER', 'SUPERSTAR');
+
+UPDATE user SET USER_ID='JOE_USER', PASSWD_TX = 'eat@joes37' WHERE USER_ID = 'JOE_USER'
+
+--
+
+create table department (depid identity primary key,depname varchar(20),parentid int)
+ALTER TABLE department ADD FOREIGN KEY (parentid) REFERENCES department(depid)
+insert into department (depid,depname) values(1,'dep1')
+insert into department values(2,'depchild',1)
+delete from department
+

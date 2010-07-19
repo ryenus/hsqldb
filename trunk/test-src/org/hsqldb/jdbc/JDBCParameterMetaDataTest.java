@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,8 +80,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of getParameterClassName method, of interface java.sql.ParameterMetaData.
      */
     public void testGetParameterClassName() throws Exception {
-        println("getParameterClassName");
-
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
         String            expResult = "java.lang.String";
@@ -96,8 +94,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of getParameterCount method, of interface java.sql.ParameterMetaData.
      */
     public void testGetParameterCount() throws Exception {
-        println("getParameterCount");
-
         ParameterMetaData pmd       = getMetaData();
         int               expResult = 1;
         int               result    = pmd.getParameterCount();
@@ -109,8 +105,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of getParameterMode method, of interface java.sql.ParameterMetaData.
      */
     public void testGetParameterMode() throws Exception {
-        println("getParameterMode");
-
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
         int               expResult = ParameterMetaData.parameterModeIn;
@@ -123,8 +117,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of getParameterType method, of interface java.sql.ParameterMetaData.
      */
     public void testGetParameterType() throws Exception {
-        println("getParameterType");
-
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
         int               expResult = Types.VARCHAR;
@@ -137,8 +129,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of getParameterTypeName method, of interface java.sql.ParameterMetaData.
      */
     public void testGetParameterTypeName() throws Exception {
-        println("getParameterTypeName");
-
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
         String            expResult = "VARCHAR";
@@ -153,8 +143,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of getPrecision method, of interface java.sql.ParameterMetaData.
      */
     public void testGetPrecision() throws Exception {
-        println("getPrecision");
-
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
         int               expResult = 128; // max length of schema object name
@@ -167,8 +155,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of getScale method, of interface java.sql.ParameterMetaData.
      */
     public void testGetScale() throws Exception {
-        println("getScale");
-
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
         int               expResult = 0;
@@ -184,8 +170,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of isNullable method, of interface java.sql.ParameterMetaData.
      */
     public void testIsNullable() throws Exception {
-        println("isNullable");
-
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
         int               expResult = ParameterMetaData.parameterNullableUnknown;
@@ -198,8 +182,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of isSigned method, of interface java.sql.ParameterMetaData.
      */
     public void testIsSigned() throws Exception {
-        println("isSigned");
-
         int               param     = 1;
         ParameterMetaData pmd       = getMetaData();
         boolean           expResult = false;
@@ -212,8 +194,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of unwrap method, of interface java.sql.ParameterMetaData.
      */
     public void testUnwrap() throws Exception {
-        println("unwrap");
-
         ParameterMetaData pmd  = getMetaData();
         Class<?>          wcls = getExpectedWrappedClass();
         Object            wobj = getExpectedWrappedObject(pmd, wcls);
@@ -227,8 +207,6 @@ public class JDBCParameterMetaDataTest extends BaseJdbcTestCase {
      * Test of isWrapperFor method, of interface java.sql.ParameterMetaData.
      */
     public void testIsWrapperFor() throws Exception {
-        println("isWrapperFor");
-
         ParameterMetaData pmd = getMetaData();
         Class<?>          wcls = getExpectedWrappedClass();
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,10 @@
 package org.hsqldb.lib;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.hsqldb.testbase.BaseTestCase;
 
-public class HsqlTimerTest extends TestCase {
+public class HsqlTimerTest extends BaseTestCase {
     /**
      * Computes the system-specific average {@link java.io.FileDescriptor#sync()
      * sync} time.
@@ -145,6 +145,7 @@ public class HsqlTimerTest extends TestCase {
          * Writes a given buffer to disk and syncs the associated file
          * descriptor.
          */
+        @SuppressWarnings("CallToThreadDumpStack")
         void writeAndSync() {
             try {
                 this.fos.write(buf);
@@ -160,6 +161,7 @@ public class HsqlTimerTest extends TestCase {
          * Closes the FileOutputStream, deletes the file
          * and nullifies Object fields.
          */
+        @SuppressWarnings("CallToThreadDumpStack")
         public void release() {
             try {
                 this.fos.close();
@@ -193,6 +195,7 @@ public class HsqlTimerTest extends TestCase {
          *      computed moment of actual average periodicity
          *      experienced so far.
          */
+        @Override
         public String toString()  {
             return this.name
                     + "["
@@ -288,6 +291,10 @@ public class HsqlTimerTest extends TestCase {
      * @param args Currently unused
      */
     public void testHsqlTimer() {
+        if (!getBooleanProperty("test.org.hsqldb.lib.HsqlTimer", true)){
+            println("DISABLED: org.hsqldb.lib.HsqlTimerTest.");
+            return;
+        }
         // number of tasks to queue
         int    taskCount         = 10;
         // period, as a multiple of computed system-specific avg. sync time
@@ -368,6 +375,7 @@ public class HsqlTimerTest extends TestCase {
      *      Thread should sleep while the specified number of WriteAndSync
      *      tasks are running in the background thread
      */
+    @SuppressWarnings("CallToThreadDumpStack")
     public static void testJavaUtilTimer(final int taskCount,
                                          final long period,
                                          final long duration) {
@@ -421,6 +429,7 @@ public class HsqlTimerTest extends TestCase {
      *      Thread should sleep while the specified number of WriteAndSync
      *      tasks are running in the background thread
      */
+    @SuppressWarnings({"CallToThreadDumpStack", "static-access"})
     public static void testHsqlTimer(final int taskCount,
                                      final long period,
                                      final long duration) {

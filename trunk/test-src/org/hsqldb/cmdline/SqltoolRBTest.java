@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,26 +27,21 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.cmdline;
 
-import org.hsqldb.lib.ValidatingResourceBundle;
-import org.hsqldb.lib.RefCapablePropertyResourceBundle;
+import org.hsqldb.testbase.BaseTestCase;
 
-public class SqltoolRBTest extends junit.framework.TestCase {
+public class SqltoolRBTest extends BaseTestCase {
     private static final String[] testParams = {"one", "two", "three", "four"};
 
-    static private final String RAW_CONN_MSG =
-        "JDBC Connection established to a %{1} v. %{2} database\n"
-        + "as \"%{3}\" with %{4} Isolation.";
-    static private final String SUBSTITUTED_CONN_MSG =
-        ("JDBC Connection established to a %{1} v. %{2} database\n"
-        + "as \"%{3}\" with %{4} Isolation.")
-        .replaceAll("\\Q%{1}", testParams[0])
-        .replaceAll("\\Q%{2}", testParams[1])
-        .replaceAll("\\Q%{3}", testParams[2])
-        .replaceAll("\\Q%{4}", testParams[3]);
+    static private final String RAW_CONN_MSG = 
+            "JDBC Connection established to a %{1} v. %{2} database" +
+            System.getProperty("line.separator") +
+            "as \"%{3}\" with %{4} Isolation.";
+    static private final String SUBSTITUTED_CONN_MSG = 
+            "JDBC Connection established to a one v. two database"  +
+            System.getProperty("line.separator") +
+            "as \"three\" with four Isolation.";
 
     /**
      * No positional parameters set...
@@ -62,7 +57,7 @@ public class SqltoolRBTest extends junit.framework.TestCase {
     }
 
     /**
-     * With positional params set to one/two/three
+     * With positional parameters set to one/two/three/four
      */
     public void testWithParams() {
         try {
@@ -84,7 +79,8 @@ public class SqltoolRBTest extends junit.framework.TestCase {
         } else {
             junit.textui.TestRunner runner = new junit.textui.TestRunner();
             junit.framework.TestResult result =
-                runner.run(runner.getTest(SqltoolRBTest.class.getName()));
+                junit.textui.TestRunner.run(runner.getTest(
+                SqltoolRBTest.class.getName()));
 
             System.exit(result.wasSuccessful() ? 0 : 1);
         }

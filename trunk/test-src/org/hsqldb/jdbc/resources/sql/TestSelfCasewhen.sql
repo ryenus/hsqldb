@@ -37,7 +37,7 @@ select case when a.sel=1 then a.name2 else a.name1 end as name,
  count(a.name1) as counter from test a group by case when a.sel=1
  then a.name2 else a.name1 end
  -- nested expressions
-create table single (c char);
+create table single (c char(1));
 insert into single values('X');
 /*r1*/select case c when 'X' then 1 else 2 end from single;
 insert into single values(null);
@@ -81,3 +81,6 @@ insert into single values(3);
 */select ':' || case c when in(0,10,10) then 'WRONG' when in(0,3,34)
  then 'OK' end || ':' from single order by 1
 
+CREATE TABLE BAB (SALES DOUBLE, COST DOUBLE);
+SELECT (SUM(BAB.SALES)-SUM(BAB.COST))/(CASE WHEN (ABS (SUM(BAB.SALES))) = 0
+ THEN NULL ELSE (ABS (SUM(BAB.SALES))) END) AS PROFITMARGIN FROM BAB
