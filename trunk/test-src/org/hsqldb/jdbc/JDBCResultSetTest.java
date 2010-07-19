@@ -2218,9 +2218,25 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             return;
         }
 
+        ResultSet rs;
+
+        try {
+                rs = this.newUpdateableJdbcResultSet();
+                rs.close();
+                rs.moveToInsertRow();
+
+                int columnCount = rs.getMetaData().getColumnCount();
+
+                rs.updateInt(1, 999999);
+
+                fail("Allowed insertRow() after close()");
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+
         try {
 
-            ResultSet rs = this.newUpdateableJdbcResultSet();
+            rs = this.newUpdateableJdbcResultSet();
 
             rs.moveToInsertRow();
 
@@ -2233,30 +2249,21 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             }
 
             rs.insertRow();
+
+            rs.moveToInsertRow();
+
+            columnCount = rs.getMetaData().getColumnCount();
+
+            rs.updateInt(1, 1000000);
+
+            for (int i = 2; i <= columnCount; i++) {
+                rs.updateNull(i);
+            }
+
+            rs.close();
+
         } catch (Exception ex) {
             fail(ex.getMessage());
-        }
-
-        ResultSet rs = this.newUpdateableJdbcResultSet();
-
-        rs.moveToInsertRow();
-
-        int columnCount = rs.getMetaData().getColumnCount();
-
-        rs.updateInt(1, 1000000);
-
-        for (int i = 2; i <= columnCount; i++) {
-            rs.updateNull(i);
-        }
-
-        rs.close();
-
-        try {
-            rs.insertRow();
-
-            fail("Allowed insertRow() after close()");
-        } catch (SQLException ex) {
-            ex.printStackTrace();
         }
     }
 
@@ -2293,16 +2300,6 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
             return;
         }
 
-        try {
-            ResultSet rs = newUpdateableJdbcResultSet();
-
-            rs.next();
-
-            rs.deleteRow();
-        } catch (Exception ex) {
-            fail(ex.getMessage());
-        }
-
         ResultSet rs = newUpdateableJdbcResultSet();
 
         rs.next();
@@ -2318,6 +2315,17 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
                     ex.getErrorCode(),
                     -ErrorCode.X_24501);
         }
+
+        try {
+            rs = newUpdateableJdbcResultSet();
+
+            rs.next();
+
+            rs.deleteRow();
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        }
+
     }
 
     /**
@@ -2329,7 +2337,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
         }
 
         try {
-            ResultSet rs = newJdbcResultSet(ResultSet.TYPE_SCROLL_SENSITIVE);
+            ResultSet rs = newUpdateableJdbcResultSet();
 
             rs.next();
 
@@ -2750,7 +2758,7 @@ public class JDBCResultSetTest extends BaseJdbcTestCase {
 
             Integer[] values = new Integer[]{
                 new Integer(4),
-                new Integer(3), 
+                new Integer(3),
                 new Integer(2),
                 new Integer(1)
             };
