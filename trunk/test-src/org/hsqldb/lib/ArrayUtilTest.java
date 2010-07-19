@@ -37,10 +37,10 @@ public class ArrayUtilTest extends TestCase {
 
     public void testArrayUtil() {
 
-        int[] a = new int[]{
+        int[] a = new int[] {
             23, 11, 37, 7, 1, 5
         };
-        int[] b = new int[]{
+        int[] b = new int[] {
             1, 3, 7, 11, 13, 17, 19, 3, 1
         };
         int[] c = ArrayUtil.toAdjustedColumnArray(a, 7, -1);
@@ -59,10 +59,31 @@ public class ArrayUtilTest extends TestCase {
         boolean y = ArrayUtil.haveEqualSets(b, f, b.length);
 
         System.out.println("test passed: ");
-        System.out.println(x == true && y == true && c.length == a.length - 1 && d.length == b.length);
+        System.out.println(x == true && y == true && c.length == a.length - 1
+                           && d.length == b.length);
+
+        // test reorderMaps
+        int[] arr0 = new int[] {
+            5, 0, 9, 3
+        };
+        int[] arr1 = new int[] {
+            0, 3, 5, 9
+        };
+        int[] arr2 = new int[] {
+            12, 13, 14, 15
+        };
+
+        System.out.println(StringUtil.arrayToString(arr0));
+        System.out.println(StringUtil.arrayToString(arr1));
+        System.out.println(StringUtil.arrayToString(arr2));
+
+        ArrayUtil.reorderMaps(arr0, arr1, arr2);
+        System.out.println(StringUtil.arrayToString(arr1));
+        System.out.println(StringUtil.arrayToString(arr2));
     }
 
     public static Test suite() {
+
         TestSuite suite = new TestSuite(ArrayUtilTest.class);
 
         return suite;

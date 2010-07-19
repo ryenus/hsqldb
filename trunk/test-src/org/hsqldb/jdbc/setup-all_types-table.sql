@@ -74,7 +74,7 @@ insert into all_types(
     X'0123456789ABCDEF',
     'VARCHAR',
     'VARCHAR_IGNORECASE',
-    X'BLOB',
+    X'0123456789ABCDEF',
     'CLOB',
     array[1,2,3,4]
 );
