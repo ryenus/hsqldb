@@ -226,6 +226,7 @@ public class Result {
             case ResultConstants.DATA :
             case ResultConstants.DATAHEAD :
             case ResultConstants.DATAROWS :
+            case ResultConstants.GENERATED :
                 break;
 
             case ResultConstants.LARGE_OBJECT_OP :
@@ -522,7 +523,8 @@ public class Result {
                 break;
             }
             case ResultConstants.DATAHEAD :
-            case ResultConstants.DATA : {
+            case ResultConstants.DATA :
+            case ResultConstants.GENERATED :                      {
                 result.id           = in.readLong();
                 result.updateCount  = in.readInt();
                 result.fetchSize    = in.readInt();
@@ -759,7 +761,7 @@ public class Result {
     public static Result newUpdateCountResult(ResultMetaData meta, int count) {
 
         Result result     = newResult(ResultConstants.UPDATECOUNT);
-        Result dataResult = newDataResult(meta);
+        Result dataResult = newGeneratedDataResult(meta);
 
         result.updateCount = count;
 
@@ -901,6 +903,16 @@ public class Result {
     public static Result newDataResult(ResultMetaData md) {
 
         Result result = newResult(ResultConstants.DATA);
+
+        result.navigator = new RowSetNavigatorClient();
+        result.metaData  = md;
+
+        return result;
+    }
+
+    public static Result newGeneratedDataResult(ResultMetaData md) {
+
+        Result result = newResult(ResultConstants.GENERATED);
 
         result.navigator = new RowSetNavigatorClient();
         result.metaData  = md;
@@ -1242,6 +1254,7 @@ public class Result {
 
             case ResultConstants.DATAHEAD :
             case ResultConstants.DATA :
+            case ResultConstants.GENERATED :
                 rowOut.writeLong(id);
                 rowOut.writeInt(updateCount);
                 rowOut.writeInt(fetchSize);
@@ -1579,6 +1592,7 @@ public class Result {
 
             case ResultConstants.DATA :
             case ResultConstants.DATAHEAD :
+            case ResultConstants.GENERATED :
                 navigator.reset();
 
                 return navigator;

@@ -103,9 +103,24 @@ public class StatementProcedure extends StatementDMQL {
     Result getProcedureResult(Session session) {
 
         Object[] data = ValuePool.emptyObjectArray;
+        int      argLength;
 
-        if (arguments.length > 0) {
-            data = new Object[arguments.length];
+        if (procedure.isPSM()) {
+            argLength = arguments.length;
+
+            if (procedure.getMaxDynamicResults() > 0) {
+                argLength++;
+            }
+        } else {
+            argLength = procedure.javaMethod.getParameterTypes().length;
+
+            if (procedure.javaMethodWithConnection) {
+                argLength--;
+            }
+        }
+
+        if (argLength > 0) {
+            data = new Object[argLength];
         }
 
         for (int i = 0; i < arguments.length; i++) {
@@ -141,12 +156,6 @@ public class StatementProcedure extends StatementDMQL {
             return result;
         }
 
-        if (result.isSimpleValue()) {
-            result = Result.updateZeroResult;
-        }
-
-        boolean returnParams = false;
-
         for (int i = 0; i < procedure.getParameterCount(); i++) {
             ColumnSchema param = procedure.getParameter(i);
             int          mode  = param.getParameterMode();
@@ -157,7 +166,6 @@ public class StatementProcedure extends StatementDMQL {
 
                     session.sessionContext.dynamicArguments[paramIndex] =
                         callArguments[i];
-                    returnParams = true;
                 } else {
                     int varIndex = arguments[i].getColumnIndex();
 
@@ -167,10 +175,14 @@ public class StatementProcedure extends StatementDMQL {
             }
         }
 
-        if (returnParams) {
-            result = Result.newCallResponse(
-                this.getParametersMetaData().getParameterTypes(), this.id,
-                session.sessionContext.dynamicArguments);
+        result = Result.newCallResponse(
+            this.getParametersMetaData().getParameterTypes(), this.id,
+            session.sessionContext.dynamicArguments);
+
+        if (callArguments.length > arguments.length) {
+            Result r = (Result) callArguments[arguments.length];
+
+            result.addChainedResult(r);
         }
 
         return result;
@@ -180,10 +192,7 @@ public class StatementProcedure extends StatementDMQL {
 
         int variableCount = procedure.getVariableCount();
 
-        if (variableCount > 0) {
-            session.sessionContext.routineVariables =
-                new Object[variableCount];
-        }
+        session.sessionContext.routineVariables = new Object[variableCount];
 
         Result result = procedure.statement.execute(session);
 
@@ -197,14 +206,9 @@ public class StatementProcedure extends StatementDMQL {
     Result executeJavaProcedure(Session session) {
 
         Result   result        = Result.updateZeroResult;
-        int      extraArg      = procedure.javaMethodWithConnection ? 1
-                                                                    : 0;
         Object[] callArguments = session.sessionContext.routineArguments;
-        Object[] data          = new Object[callArguments.length + extraArg];
-
-        data = procedure.convertArgsToJava(session, callArguments);
-
-        Object connection = session.getInternalConnection();
+        Object[] data = procedure.convertArgsToJava(session, callArguments);
+        Object   connection    = session.getInternalConnection();
 
         if (procedure.javaMethodWithConnection) {
             data[0] = connection;

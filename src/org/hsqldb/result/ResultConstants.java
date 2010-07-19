@@ -164,6 +164,11 @@ public interface ResultConstants {
     int WARNING = HSQL_API_BASE + 19;
 
     /**
+     * generated data
+     */
+    int GENERATED = HSQL_API_BASE + 20;
+
+    /**
      * Indicates that Result encapsulates a request to establish a connection.
      */
     int CONNECT = HSQL_API_BASE + 31;

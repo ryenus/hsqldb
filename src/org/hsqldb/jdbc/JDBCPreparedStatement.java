@@ -2217,6 +2217,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB supports this feature. <p>
+     *
+     * This is used with CallableStatement objects that return multiple
+     * ResultSet objects.
      * </div>
      * <!-- end release-specific documentation -->
      *
@@ -2240,9 +2243,35 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * @see #execute
      */
 //#ifdef JAVA4
-    public synchronized boolean getMoreResults(
-            int current) throws SQLException {
-        return super.getMoreResults(current);
+    public boolean getMoreResults(int current) throws SQLException {
+
+        checkClosed();
+
+        if (resultIn == null) {
+            return false;
+        }
+
+        if (!resultIn.isData()) {
+            resultIn = null;
+
+            return false;
+        }
+
+        if (currentResultSet != null && current != JDBCStatementBase.KEEP_CURRENT_RESULT) {
+            currentResultSet.close();
+        }
+
+        resultIn = resultIn.getChainedResult();
+
+        if (resultIn != null) {
+            currentResultSet = new JDBCResultSet(connection,
+                                                 this, resultIn,
+                                                 resultIn.metaData);
+
+            return true;
+        }
+
+        return false;
     }
 
 //#endif JAVA4
@@ -4568,6 +4597,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
         if (resultIn.mode == ResultConstants.ERROR) {
             throw Util.sqlException(resultIn);
         }
+
+        if (statementRetType == StatementTypes.RETURN_RESULT
+                && resultIn.isData()) {
+            currentResultSet = new JDBCResultSet(connection, this, resultIn,
+                    resultIn.metaData);
+        }
     }
 
     boolean isAnyParameterSet() {
@@ -4609,20 +4644,17 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                 }
             } else if (current.getType() == ResultConstants.ERROR) {
                 errorResult = current;
-            } else if (current.getType() == ResultConstants.DATA) {
+            } else if (current.getType() == ResultConstants.GENERATED) {
                 generatedResult = current;
+            } else if (current.getType() == ResultConstants.DATA) {
+                resultIn.addChainedResult(current);
             }
+
             current = current.getUnlinkChainedResult();
         }
 
         if (rootWarning != null) {
             connection.setWarnings(rootWarning);
-        }
-
-        if (statementRetType == StatementTypes.RETURN_RESULT
-                && resultIn.isData()) {
-            currentResultSet = new JDBCResultSet(connection, this, resultIn,
-                    resultIn.metaData);
         }
     }
 

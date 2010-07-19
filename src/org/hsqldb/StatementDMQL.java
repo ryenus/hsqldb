@@ -32,6 +32,7 @@
 package org.hsqldb;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
@@ -109,6 +110,11 @@ public abstract class StatementDMQL extends Statement {
     QueryExpression queryExpression;
 
     /**
+     * Name of cursor
+     */
+    SimpleName cursorName;
+
+    /**
      * Parse-order array of Expression objects, all of type PARAMETER ,
      * involved in some way in any INSERT_XXX, UPDATE, DELETE, SELECT or
      * CALL CompiledStatement
@@ -160,6 +166,14 @@ public abstract class StatementDMQL extends Statement {
         if (targetTable != baseTable) {
             baseColumnMap = targetTable.getBaseTableColumnMap();
         }
+    }
+
+    public void setCursorName(SimpleName name) {
+        cursorName = name;
+    }
+
+    public SimpleName getCursorName() {
+        return cursorName;
     }
 
     public Result execute(Session session) {

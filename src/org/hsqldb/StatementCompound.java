@@ -60,9 +60,10 @@ public class StatementCompound extends Statement {
     boolean             isAtomic;
 
     //
-    ColumnSchema[]  variables = ColumnSchema.emptyArray;
-    HashMappedList  scopeVariables;
-    RangeVariable[] rangeVariables = RangeVariable.emptyArray;
+    ColumnSchema[]    variables = ColumnSchema.emptyArray;
+    StatementCursor[] cursors   = StatementCursor.emptyArray;
+    HashMappedList    scopeVariables;
+    RangeVariable[]   rangeVariables = RangeVariable.emptyArray;
 
     //
     public static final StatementCompound[] emptyStatementArray =
@@ -209,24 +210,38 @@ public class StatementCompound extends Statement {
 
         int varCount     = 0;
         int handlerCount = 0;
+        int cursorCount  = 0;
 
         for (int i = 0; i < declarations.length; i++) {
             if (declarations[i] instanceof ColumnSchema) {
                 varCount++;
-            } else {
+            } else if (declarations[i] instanceof StatementHandler) {
                 handlerCount++;
+            } else {
+                cursorCount++;
             }
         }
 
-        variables    = new ColumnSchema[varCount];
-        handlers     = new StatementHandler[handlerCount];
+        if (varCount > 0) {
+            variables = new ColumnSchema[varCount];
+        }
+
+        if (handlerCount > 0) {
+            handlers = new StatementHandler[handlerCount];
+        }
+
+        if (cursorCount > 0) {
+            cursors = new StatementCursor[cursorCount];
+        }
+
         varCount     = 0;
         handlerCount = 0;
+        cursorCount  = 0;
 
         for (int i = 0; i < declarations.length; i++) {
             if (declarations[i] instanceof ColumnSchema) {
                 variables[varCount++] = (ColumnSchema) declarations[i];
-            } else {
+            } else if (declarations[i] instanceof StatementHandler) {
                 StatementHandler handler = (StatementHandler) declarations[i];
 
                 handler.setParent(this);
@@ -236,11 +251,16 @@ public class StatementCompound extends Statement {
                 if (handler.handlerType == StatementHandler.UNDO) {
                     hasUndoHandler = true;
                 }
+            } else {
+                StatementCursor cursor = (StatementCursor) declarations[i];
+
+                cursors[cursorCount++] = cursor;
             }
         }
 
         setVariables();
         setHandlers();
+        setCursors();
     }
 
     public void setLoopStatement(Statement cursorStatement) {
@@ -446,7 +466,6 @@ public class StatementCompound extends Statement {
                 if (result.getType() == ResultConstants.DATA) {
                     break;
                 }
-
             }
 
             if (result.isError()) {
@@ -710,6 +729,25 @@ public class StatementCompound extends Statement {
                 if (!statesSet.add(states[j])) {
                     throw Error.error(ErrorCode.X_42601);
                 }
+            }
+        }
+    }
+
+    private void setCursors() {
+
+        if (cursors.length == 0) {
+            return;
+        }
+
+        HashSet list = new HashSet();
+
+        for (int i = 0; i < cursors.length; i++) {
+            StatementCursor cursor = cursors[i];
+            boolean         added  = list.add(cursor.getCursorName().name);
+
+            if (!added) {
+                throw Error.error(ErrorCode.X_42606,
+                                  cursor.getCursorName().name);
             }
         }
     }

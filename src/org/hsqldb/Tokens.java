@@ -2068,6 +2068,7 @@ public class Tokens {
         commandSet.put(T_SERIALIZABLE, SERIALIZABLE);
         commandSet.put(T_SERVER, SERVER);
         commandSet.put(T_SESSION, SESSION);
+        commandSet.put(T_SETS, SETS);
         commandSet.put(T_SHUTDOWN, SHUTDOWN);
         commandSet.put(T_SIMPLE, SIMPLE);
         commandSet.put(T_SIZE, SIZE);

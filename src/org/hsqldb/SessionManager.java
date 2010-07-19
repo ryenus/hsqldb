@@ -193,10 +193,13 @@ public class SessionManager {
     }
 
     /**
-     * Removes all Sessions registered with this SessionManager.
+     * Closes all sessions and system
      */
-    synchronized void clearAll() {
-        sessionMap.clear();
+    synchronized void close() {
+        closeAllSessions();
+
+        sysSession.close();
+        sysLobSession.close();
     }
 
     /**

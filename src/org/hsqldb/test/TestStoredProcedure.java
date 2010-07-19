@@ -40,6 +40,7 @@ import junit.framework.TestResult;
 
 import java.sql.DriverManager;
 import java.sql.CallableStatement;
+import java.sql.SQLException;
 
 /**
  * Tests for stored procedures.
@@ -146,6 +147,48 @@ public class TestStoredProcedure extends TestBase {
         } finally {
             conn.close();
         }
+    }
+
+    public void testTwo() throws SQLException {
+        Connection conn = newConnection();
+
+        Statement st = conn.createStatement();
+        st.execute("declare varone int default 0;");
+        st.execute("create procedure proc_inout_result (inout intp int) " +
+                   " language java reads sql data external name 'CLASSPATH:org.hsqldb.test.Test01JRT.procWithResultOne'");
+        CallableStatement cs = conn.prepareCall("call proc_inout_result(varone)");
+        cs.execute();
+        ResultSet rs = cs.getResultSet();
+
+        rs.next();
+
+        assertEquals(rs.getString(1), "SYSTEM_LOBS");
+        assertEquals(rs.getString(2), "LOB_IDS");
+
+        rs.close();
+    }
+
+    public static void procWithResultOne(Integer[] intparam,
+                                         ResultSet[] resultparam)
+                                         throws SQLException {
+
+        Connection conn =
+            DriverManager.getConnection("jdbc:default:connection");
+
+        conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery(
+            "select count(*) from information_schema.columns where table_name='LOB_IDS' and table_schema='SYSTEM_LOBS'");
+
+        if (rs.next()) {
+            intparam[0] = rs.getInt(1);
+
+            rs.close();
+        }
+
+        resultparam[0] = st.executeQuery(
+            "select table_schema, table_name from information_schema.tables where table_name='LOB_IDS' and table_schema='SYSTEM_LOBS'");
     }
 
     public static void procTest1(Connection conn)
