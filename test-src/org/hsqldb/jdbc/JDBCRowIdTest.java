@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,8 +77,6 @@ public class JDBCRowIdTest extends BaseJdbcTestCase {
      * Test of equals method, of interface java.sql.RowId.
      */
     public void testEquals() throws Exception {
-        println("equals");
-
         RowId id1         = newRowId("02b7abfe");
         RowId id2         = newRowId(StringConverter.hexStringToByteArray("02b7abfe"));
         boolean expResult = true;
@@ -91,8 +89,6 @@ public class JDBCRowIdTest extends BaseJdbcTestCase {
      * Test of getBytes method, of interface java.sql.RowId.
      */
     public void testGetBytes() throws Exception {
-        println("getBytes");
-
         byte[] expResult = StringConverter.hexStringToByteArray("02b7abfe");
         byte[] result    = newRowId("02b7abfe").getBytes();
 
@@ -103,8 +99,6 @@ public class JDBCRowIdTest extends BaseJdbcTestCase {
      * Test of toString method, of interface java.sql.RowId.
      */
     public void testToString() throws Exception {
-        println("toString");
-
         RowId  rid       = newRowId("02b7abfe");
         String expResult = "02b7abfe";
         String result    = rid.toString();
@@ -116,8 +110,6 @@ public class JDBCRowIdTest extends BaseJdbcTestCase {
      * Test of hashCode method, of interface java.sql.RowId.
      */
     public void testHashCode() throws Exception {
-        println("hashCode");
-
         byte[] bytes  = StringConverter.hexStringToByteArray("02b7abfe");
         RowId  rid    = newRowId("02b7abfe");
         int expResult = Arrays.hashCode(bytes);

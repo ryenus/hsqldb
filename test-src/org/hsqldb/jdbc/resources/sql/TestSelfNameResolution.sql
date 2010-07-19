@@ -13,7 +13,7 @@ select i, c from t0 order by upper(c);
 /*e*/select distinct upper(c) as uc from t0 t order by i;
 /*c3*/select c as ccol, sum(i) as sumi from t0 group by c;
 /*c3*/select c as ccol, sum(i) as sumi from t0 group by c order by sumi;
-/*e*/select c as ccol, sum(i) as sumi from t0 group by ccol;
+select c as ccol, sum(i) as sumi from t0 group by ccol;
 /*c1*/select c as ccol, sum(i) as sumi from t0
  group by c
  having substring(upper(c) from 1 for 1) = 'S'

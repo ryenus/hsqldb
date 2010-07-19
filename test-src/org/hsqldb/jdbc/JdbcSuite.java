@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,8 +66,8 @@ public class JdbcSuite extends TestCase {
      * @return the JDBC test suite
      */
     public static Test suite() {
-        TestSuite suite = new TestSuite("JdbcSuite");
-        suite.addTest(org.hsqldb.jdbc.UtilTest.suite());
+        TestSuite suite = new TestSuite("JdbcSuite");    
+         suite.addTest(org.hsqldb.jdbc.JDBCArrayTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCBlobTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCCallableStatementTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCCallableStatementWhileClosedTest.suite());
@@ -90,7 +90,8 @@ public class JdbcSuite extends TestCase {
         suite.addTest(org.hsqldb.jdbc.JDBCSQLXMLTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCSavepointTest.suite());
         suite.addTest(org.hsqldb.jdbc.JDBCStatementTest.suite());
-		suite.addTest(org.hsqldb.jdbc.ScriptedTest.suite());
+        suite.addTest(org.hsqldb.jdbc.ScriptedTest.suite());
+        suite.addTest(org.hsqldb.jdbc.UtilTest.suite());
         // TODO:
         //suite.addTest(org.hsqldb.jdbc.jdbcConflictingRowTest.suite());
         //suite.addTest(org.hsqldb.jdbc.jdbcDataSetTest.suite());

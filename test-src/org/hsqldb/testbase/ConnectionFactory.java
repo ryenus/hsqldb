@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-
 package org.hsqldb.testbase;
 
 import java.sql.CallableStatement;
@@ -44,30 +42,89 @@ import java.util.List;
  * For creating, tracking and closing the 
  * JDBC objects used by this test suite. <p>
  *
+ * Note that a facility is provided to notify parties interested in the
+ * closeRegisteredObjects event. <p>
+ * 
+ * For example, this facility is used by the org.hsqldb.testbase.BaseTestCase
+ * class to optionally register an action to close all embedded HSQLDB database
+ * instances in response to test fixture tear down. <p>
+ * 
  * @author boucherb@users
+ * @version 2.0.1
+ * @since 1.9.0
  */
-public class ConnectionFactory {
-    
-    private List<Connection> m_connections = new ArrayList<Connection>();
-    private List<Statement> m_statements = new ArrayList<Statement>();
-    private List<ResultSet> m_resultSets = new ArrayList<ResultSet>();
-    
+public final class ConnectionFactory {
+
+    // <editor-fold defaultstate="collapsed" desc="Registered Object Collections">
+    private final class ConnectionRegistration {
+        final Connection m_connection;
+        final boolean m_rollback;
+        
+        ConnectionRegistration(Connection connection, boolean rollback){
+            m_connection = connection;
+            m_rollback = rollback;
+        }
+        
+        Connection getConnection() {
+            return m_connection;
+        }
+        
+        boolean isRollback() {
+            return m_rollback;
+        }
+    }
+    private final List<ConnectionRegistration> m_connectionRegistrations 
+            = new ArrayList<ConnectionRegistration>();
+    private final List<Statement> m_statements = new ArrayList<Statement>();
+    private final List<ResultSet> m_resultSets = new ArrayList<ResultSet>();
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Event Listener Support">    
+    public interface EventListener extends java.util.EventListener {
+
+        void closedRegisteredObjects(ConnectionFactory source);
+    }
+
+    private final List<EventListener> m_listeners = new ArrayList<EventListener>();
+
+    public void addDatabaseEventListener(EventListener l) {
+        if (!m_listeners.contains(l)) {
+            m_listeners.add(l);
+        }
+    }
+
+    public void removeDatabaseEventListener(EventListener l) {
+        m_listeners.remove(l);
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Constructor">
     /**
-     * Creates a new instance of JdbcTestCaseConnectionFactory.
+     * Creates a new instance of ConnectionFactory.
      */
     public ConnectionFactory() {
-        //
     }
-    
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Object Registration">
     /**
      * to be closed at teardown.
      *
      * @param conn to track for close.
      */
     public void registerConnection(Connection conn) {
-        m_connections.add(conn);
+        registerConnection(conn,isRollbackConnectionBeforeClose());
     }
     
+    /**
+     * to be closed at teardown.
+     *
+     * @param conn to track for close.
+     */    
+    public void registerConnection(Connection conn, boolean rollback) {
+        m_connectionRegistrations.add(new ConnectionRegistration(conn,rollback));
+    }    
+
     /**
      * to be closed at teardown.
      *
@@ -76,7 +133,7 @@ public class ConnectionFactory {
     public void registerStatement(Statement stmt) {
         m_statements.add(stmt);
     }
-    
+
     /**
      * to be closed at teardown.
      *
@@ -85,38 +142,70 @@ public class ConnectionFactory {
     public void registerResultSet(ResultSet rs) {
         m_resultSets.add(rs);
     }
-    
+
+    protected boolean isRollbackConnectionBeforeClose() {
+        return PropertyGetter.getBooleanProperty(
+                getClass().getName() + ".rollback.connection.before.close",
+                false);
+    }
+
     /**
      * closes all registered JDBC objects.
      */
+    @SuppressWarnings("CallToThreadDumpStack")
     public void closeRegisteredObjects() {
-        for(ResultSet rs : m_resultSets) {
+        for (ResultSet rs : m_resultSets) {
             if (rs != null) {
                 try {
                     rs.close();
-                } catch(Exception ex){}
+                } catch (Exception ex) {
+                }
             }
         }
-        
-        for(Statement stmt : m_statements) {
+
+        for (Statement stmt : m_statements) {
             if (stmt != null) {
                 try {
                     stmt.close();
-                } catch(Exception ex){}
+                } catch (Exception ex) {
+                }
             }
         }
-        
-        for(Connection conn : m_connections) {
+
+        for (ConnectionRegistration reg : m_connectionRegistrations) {
+            final Connection conn = reg.getConnection();
+            final boolean rollback = reg.isRollback();
+            
             if (conn != null) {
+                if (rollback) {
+                    try {
+                        conn.rollback();
+                    } catch (Exception ex) {
+                    }
+                }
                 try {
                     conn.close();
-                } catch(Exception ex){}
+                } catch (Exception ex) {
+                }
             }
         }
-        
-        org.hsqldb.DatabaseManager.closeDatabases(-1);
+
+        final List<EventListener> list = m_listeners;
+
+        for (int i = 0; i < list.size(); i++) {
+            final ConnectionFactory.EventListener l = list.get(i);
+
+            try {
+                l.closedRegisteredObjects(this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }
-    
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Object Creation">
     /**
      * with the specified driver, url, user and password. <p>
      *
@@ -137,17 +226,17 @@ public class ConnectionFactory {
         // entry.  However, its not guaranteed that
         // every driver tested has a service entry...
         Class.forName(driver);
-        
+
         final Connection conn = DriverManager.getConnection(
-                url, 
-                user, 
+                url,
+                user,
                 password);
-        
+
         registerConnection(conn);
-        
+
         return conn;
     }
-    
+
     /**
      * using the given connection. <p>
      *
@@ -160,12 +249,12 @@ public class ConnectionFactory {
     public Statement createStatement(
             final Connection conn) throws Exception {
         final Statement stmt = conn.createStatement();
-        
+
         registerStatement(stmt);
-        
+
         return stmt;
     }
-    
+
     /**
      * for the given <tt>sql</tt> using the given connection. <p>
      *
@@ -180,12 +269,12 @@ public class ConnectionFactory {
             final String sql,
             final Connection conn) throws Exception {
         final PreparedStatement pstmt = conn.prepareStatement(sql);
-        
+
         registerStatement(pstmt);
-        
+
         return pstmt;
     }
-    
+
     /**
      * for the given <tt>sql</tt> using the given connection. <p>
      *
@@ -196,15 +285,15 @@ public class ConnectionFactory {
      * @return the newly prepared and registered object.
      */
     public CallableStatement prepareCall(
-            final String sql, 
+            final String sql,
             final Connection conn) throws Exception {
         final CallableStatement stmt = conn.prepareCall(sql);
-        
+
         registerStatement(stmt);
-        
+
         return stmt;
     }
-    
+
     /**
      * using the given <tt>sql</tt> and statement object.
      *
@@ -216,15 +305,15 @@ public class ConnectionFactory {
      * @return the query result.
      */
     public ResultSet executeQuery(
-            final String sql, 
+            final String sql,
             final Statement stmt) throws Exception {
         final ResultSet rs = stmt.executeQuery(sql);
-        
+
         registerResultSet(rs);
-        
+
         return rs;
     }
-    
+
     /**
      * using the given statement object.
      *
@@ -237,9 +326,10 @@ public class ConnectionFactory {
     public final ResultSet executeQuery(
             final PreparedStatement stmt) throws Exception {
         final ResultSet rs = stmt.executeQuery();
-        
+
         registerResultSet(rs);
-        
+
         return rs;
     }
+    // </editor-fold>
 }

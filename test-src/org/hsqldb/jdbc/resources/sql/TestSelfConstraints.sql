@@ -47,3 +47,14 @@ ALTER TABLE "Table3" DROP PRIMARY KEY;
 ALTER TABLE "Table3" ADD PRIMARY KEY("dd");
 ALTER TABLE "Table3" ALTER COLUMN "dd" INTEGER IDENTITY;
 
+---
+create table a ( a_id varchar(32) primary key );
+
+create table b ( b_id varchar(32) primary key,
+ a varchar(33) not null);
+
+insert into a values ('TESTA');
+insert into b values ('TESTB','TESTA');
+
+alter table b add constraint b_fk_a foreign key (a) references a (a_id);
+drop table a cascade

@@ -1,4 +1,4 @@
--- $Id: TestSelfColGrant.txt 610 2008-12-22 15:54:18Z unsaved $
+-- $Id: TestSelfColGrant.txt 3459 2010-02-12 19:46:33Z fredt $
 -- Tests column-specific grants
 
 -- These two users are for sanity tests
@@ -62,4 +62,4 @@
 /*u0*/DROP USER privd;
 /*u0*/DROP USER unprivd;
 /*u0*/DROP TABLE multicol;
-/*u0*/SHUTDOWN;
+/*u0*/CHECKPOINT;

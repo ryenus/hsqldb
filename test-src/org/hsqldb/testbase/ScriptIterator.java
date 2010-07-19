@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,7 +94,7 @@ public class ScriptIterator implements Iterator {
      */
     public boolean hasNext() throws RuntimeException {
         String       line;
-        StringBuffer sb;
+        StringBuilder sb;
 
         if (this.reader == null) {
             return false;
@@ -126,7 +126,7 @@ public class ScriptIterator implements Iterator {
                 }
 
                 if (sb == null) {
-                    sb = new StringBuffer();
+                    sb = new StringBuilder();
                 }
 
                 sb.append(line);

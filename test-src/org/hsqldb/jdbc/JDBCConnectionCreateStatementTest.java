@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,18 +36,20 @@ import java.sql.Statement;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
 
 /**
  *
  * @author boucherb@users
  */
+@ForSubject(JDBCConnection.class)
 public class JDBCConnectionCreateStatementTest extends BaseJdbcTestCase {
 
     protected static String computeTestName(
             int typeIndex,
             int concurrencyIndex) {
-        String typeName = rstype[typeIndex][0];
-        String concurName = rsconcurrency[concurrencyIndex][0];
+        String typeName = s_rstype[typeIndex][0];
+        String concurName = s_rsconcurrency[concurrencyIndex][0];
 
         return "testCreateStatement_"
                 + typeName
@@ -59,9 +61,9 @@ public class JDBCConnectionCreateStatementTest extends BaseJdbcTestCase {
             int typeIndex,
             int concurrencyIndex,
             int holdabilityIndex) {
-        String typeName = rstype[typeIndex][0];
-        String concurName = rsconcurrency[concurrencyIndex][0];
-        String holdName = rsholdability[holdabilityIndex][0];
+        String typeName = s_rstype[typeIndex][0];
+        String concurName = s_rsconcurrency[concurrencyIndex][0];
+        String holdName = s_rsholdability[holdabilityIndex][0];
 
         return "testCreateStatement_"
                 + typeName
@@ -102,15 +104,15 @@ public class JDBCConnectionCreateStatementTest extends BaseJdbcTestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite("JDBCConnectionCreateStatementTest");
 
-        for(int i = 0; i < rstype.length; i++) {
-            for (int j = 0; j < rsconcurrency.length; j++) {
+        for(int i = 0; i < s_rstype.length; i++) {
+            for (int j = 0; j < s_rsconcurrency.length; j++) {
                 suite.addTest(new JDBCConnectionCreateStatementTest(i, j));
             }
         }
 
-        for(int i = 0; i < rstype.length; i++) {
-            for (int j = 0; j < rsconcurrency.length; j++) {
-                for (int k = 0; k < rsholdability.length; k++)
+        for(int i = 0; i < s_rstype.length; i++) {
+            for (int j = 0; j < s_rsconcurrency.length; j++) {
+                for (int k = 0; k < s_rsholdability.length; k++)
                 suite.addTest(new JDBCConnectionCreateStatementTest(i, j, k));
             }
         }
@@ -123,21 +125,19 @@ public class JDBCConnectionCreateStatementTest extends BaseJdbcTestCase {
     }
 
     protected int getResultSetType() throws Exception {
-        return getFieldValue(rstype[m_typeIndex][1]);
+        return getFieldValue(s_rstype[m_typeIndex][1]);
     }
 
     protected int getResultSetConcurrency() throws Exception {
-        return getFieldValue(rsconcurrency[m_concurrencyIndex][1]);
+        return getFieldValue(s_rsconcurrency[m_concurrencyIndex][1]);
     }
 
     protected int getResultSetHoldability() throws Exception {
-        return getFieldValue(rsholdability[m_holdabilityIndex][1]);
+        return getFieldValue(s_rsholdability[m_holdabilityIndex][1]);
     }
 
     @Override
     protected void runTest() throws Throwable {
-        println(getName());
-
         int type = getResultSetType();
         int concurrency = getResultSetConcurrency();
         int holdability = m_holdabilitySpecified
@@ -170,7 +170,7 @@ public class JDBCConnectionCreateStatementTest extends BaseJdbcTestCase {
             }
         } else {
             while(warning != null) {
-                println(warning);
+                printWarning(warning);
                 warning = warning.getNextWarning();
             }
         }

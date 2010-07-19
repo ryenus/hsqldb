@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,12 +39,15 @@ import java.sql.SQLException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
+import org.hsqldb.testbase.OfMethod;
 
 /**
  * Test of interface java.sql.Blob.
  *
  * @author boucherb@users
  */
+@ForSubject(JDBCBlob.class)
 public class JDBCBlobTest extends BaseJdbcTestCase {
 
     public JDBCBlobTest(String testName) {
@@ -79,9 +82,8 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
      * Test of length method, of class org.hsqldb.jdbc.jdbcBlob.
      * @throws java.lang.Exception
      */
+    @OfMethod("length()")
     public void testLength() throws Exception {
-        println("length");
-
         Blob blob   = newBlob(new byte[100]);
         long result = blob.length();
 
@@ -92,9 +94,8 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
      * Test of getBytes method, of class org.hsqldb.jdbc.jdbcBlob.
      * @throws java.lang.Exception
      */
+    @OfMethod("getBytes()")
     public void testGetBytes() throws Exception {
-        println("getBytes");
-
         byte[] bytes = "getBytes".getBytes();
         Blob   blob  = newBlob(bytes);
 
@@ -108,9 +109,8 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
      * Test of getBinaryStream method, of class org.hsqldb.jdbc.jdbcBlob.
      * @throws java.lang.Exception
      */
+    @OfMethod("getBinaryStream()")
     public void testGetBinaryStream() throws Exception {
-        println("getBinaryStream");
-
         byte[] bytes = "getBinaryStream".getBytes();
         Blob   blob  = newBlob(bytes);
 
@@ -124,9 +124,8 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
      * Test of position method, of class org.hsqldb.jdbc.jdbcBlob.
      * @throws java.lang.Exception
      */
+    @OfMethod("position(byte[],long)")
     public void testPosition() throws Exception {
-        println("position");
-
         byte[] pattern = new byte[]{(byte) 1, (byte)3};
         byte[] bytes   = new byte[]{(byte) 10, (byte) 1, (byte) 3, (byte) 2};
         Blob   blob    = newBlob(bytes);
@@ -139,9 +138,8 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
      * Test of setBytes method, of class org.hsqldb.jdbc.jdbcBlob.
      * @throws java.lang.Exception
      */
+    @OfMethod("getBinaryStream()")
     public void testSetBytes() throws Exception {
-        println("setBytes");
-
         byte[] bytes  = new byte[1];
         Blob   blob   = createBlob();
         int    result = 0;
@@ -160,8 +158,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetBinaryStream() throws Exception {
-        println("setBinaryStream");
-
         Blob blob = createBlob();
 
         try {
@@ -187,8 +183,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testTruncate() throws Exception {
-        println("truncate");
-
         Blob blob = newBlob(new byte[10]);
 
         try {
@@ -205,8 +199,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testFree() throws Exception {
-        println("free");
-
         Blob blob = newBlob(new byte[10]);
 
         try {
@@ -219,8 +211,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
     // after free contract tests....
 
     public void testGetBinaryStreamAfterFree() throws Exception {
-        println("getBinaryStreamAfterFree");
-
         Blob blob = newBlob(new byte[10]);
 
         blob.free();
@@ -232,8 +222,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
     }
 
     public void testGetBytesAfterFree() throws Exception {
-        println("getBytesAfterFree");
-
         Blob blob = newBlob(new byte[10]);
 
         blob.free();
@@ -245,8 +233,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
     }
 
     public void testLengthAfterFree() throws Exception {
-        println("lengthAfterFree");
-
         Blob blob = newBlob(new byte[10]);
 
         blob.free();
@@ -258,8 +244,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
     }
 
     public void testPositionAfterFree() throws Exception {
-        println("positionAfterFree");
-
         Blob blob = newBlob(new byte[10]);
 
         blob.free();
@@ -271,8 +255,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
     }
 
     public void testSetBinaryStreamAfterFree() throws Exception {
-        println("binaryStreamAfterFree");
-
         Blob blob = newBlob(new byte[10]);
 
         blob.free();
@@ -284,8 +266,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
     }
 
     public void testSetBytesAfterFree() throws Exception {
-        println("free");
-
         Blob blob = newBlob(new byte[10]);
 
         blob.free();
@@ -297,8 +277,6 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
     }
 
     public void testTruncateAfterFree() throws Exception {
-        println("free");
-
         Blob blob = newBlob(new byte[10]);
 
         blob.free();
@@ -307,6 +285,35 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
             blob.truncate(1);
             assertTrue("truncate operation allowed after free", false);
         } catch (Exception e){ }
+    }
+
+    public void testMisc() throws Exception {
+        System.out.println("--------------------------------");
+        System.out.println((new JDBCBlob(new byte[0])).position(new byte[]{1}, 1));
+        System.out.println((new JDBCBlob(new byte[]{1})).position(new byte[0], 1));
+        System.out.println((new JDBCBlob(new byte[]{1})).position((byte[])null, 1));
+
+        System.out.println("--------------------------------");
+        byte[] data1 = new byte[]{0,1,2,1,2,3,2,3,4,2,3,4,5,2,3,4,5,0,1,2,
+                                  1,2,3,2,3,4,2,3,4,5,2,3,4};
+        byte[] pattern = new byte[]{2,3,4,5};
+
+        JDBCBlob blob1 = new JDBCBlob(data1);
+        JDBCBlob blob2 = new JDBCBlob(pattern);
+
+        for (int i = 1; i <= data1.length + 1; i++) {
+            System.out.println(blob1.position(pattern, i));
+        }
+
+        System.out.println("--------------------------------");
+
+        for (int i = 1; i <= data1.length + 1; i++) {
+            System.out.println(blob1.position(blob2, i));
+        }
+
+        System.out.println("--------------------------------");
+
+        Object obj = new JDBCBlob(null);
     }
 
     public static void main(java.lang.String[] argList) {

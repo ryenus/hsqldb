@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,6 +49,7 @@ import java.util.HashMap;
 import junit.framework.TestSuite;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
 
 // TODO:  See if this can be done reflectively.
 
@@ -56,6 +57,7 @@ import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
  *
  * @author boucherb@users
  */
+@ForSubject(JDBCCallableStatement.class)
 public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
 
     public JDBCCallableStatementWhileClosedTest(String testName) {
@@ -168,8 +170,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testRegisterOutParameter() throws Exception {
-        println("registerOutParameter");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -220,8 +220,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testWasNull() throws Exception {
-        println("wasNull");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -237,8 +235,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetString() throws Exception {
-        println("getString");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -261,8 +257,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetBoolean() throws Exception {
-        println("getBoolean");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -285,8 +279,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetByte() throws Exception {
-        println("getByte");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -309,8 +301,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetShort() throws Exception {
-        println("getShort");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -333,8 +323,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetInt() throws Exception {
-        println("getInt");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -357,8 +345,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetLong() throws Exception {
-        println("getLong");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -381,8 +367,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetFloat() throws Exception {
-        println("getFloat");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -405,8 +389,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetDouble() throws Exception {
-        println("getDouble");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -430,8 +412,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      */
     @SuppressWarnings("deprecation")
     public void testGetBigDecimal() throws Exception {
-        println("getBigDecimal");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -459,8 +439,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetBytes() throws Exception {
-        println("getBytes");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -483,8 +461,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetDate() throws Exception {
-        println("getDate");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -521,8 +497,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetTime() throws Exception {
-        println("getTime");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -559,8 +533,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetTimestamp() throws Exception {
-        println("getTimestamp");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -597,8 +569,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetObject() throws Exception {
-        println("getObject");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -635,8 +605,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetRef() throws Exception {
-        println("getRef");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -659,8 +627,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetBlob() throws Exception {
-        println("getBlob");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -683,8 +649,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetClob() throws Exception {
-        println("getClob");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -707,8 +671,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetArray() throws Exception {
-        println("getArray");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -731,8 +693,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetURL() throws Exception {
-        println("getURL");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -755,8 +715,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetURL() throws Exception {
-        println("setURL");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -779,8 +737,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetNull() throws Exception {
-        println("setNull");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -817,8 +773,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetBoolean() throws Exception {
-        println("setBoolean");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -841,8 +795,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetByte() throws Exception {
-        println("setByte");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -865,8 +817,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetShort() throws Exception {
-        println("setShort");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -889,8 +839,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetInt() throws Exception {
-        println("setInt");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -913,8 +861,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetLong() throws Exception {
-        println("setLong");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -937,8 +883,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetFloat() throws Exception {
-        println("setFloat");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -961,8 +905,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetDouble() throws Exception {
-        println("setDouble");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -985,8 +927,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetBigDecimal() throws Exception {
-        println("setBigDecimal");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -1009,8 +949,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetString() throws Exception {
-        println("setString");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -1033,8 +971,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetBytes() throws Exception {
-        println("setBytes");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -1057,8 +993,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetDate() throws Exception {
-        println("setDate");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -1095,8 +1029,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetTime() throws Exception {
-        println("setTime");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -1133,8 +1065,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetTimestamp() throws Exception {
-        println("setTimestamp");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -1171,8 +1101,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetAsciiStream() throws Exception {
-        println("setAsciiStream");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -1195,8 +1123,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetBinaryStream() throws Exception {
-        println("setBinaryStream");
-
         CallableStatement instance = newClosedCall();
 
         try {
@@ -1219,8 +1145,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetObject() throws Exception {
-        println("setObject");
-
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         Object x = new Integer(1);
@@ -1276,8 +1200,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetCharacterStream() throws Exception {
-        println("setCharacterStream");
-
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         Reader reader = new java.io.StringReader("1");
@@ -1333,8 +1255,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetRowId() throws Exception {
-        println("getRowId");
-
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         CallableStatement instance = newClosedCall();
@@ -1359,8 +1279,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetRowId() throws Exception {
-        println("setRowId");
-
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         RowId x = null;
@@ -1386,8 +1304,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetNString() throws Exception {
-        println("setNString");
-
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         String value = "1";
@@ -1413,8 +1329,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetNCharacterStream() throws Exception {
-        println("setNCharacterStream");
-
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         CallableStatement instance = newClosedCall();
@@ -1454,8 +1368,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetNClob() throws Exception {
-        println("setNClob");
-
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         CallableStatement instance = newClosedCall();
@@ -1511,8 +1423,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetClob() throws Exception {
-        println("setClob");
-
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
 
@@ -1561,8 +1471,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetBlob() throws Exception {
-        println("setBlob");
-
         String parameterName = getParameterName();
         int parameterIndex = getParameterIndex();
         InputStream inputStream = null;
@@ -1580,8 +1488,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetNClob() throws Exception {
-        println("getNClob");
-
         int parameterIndex = 0;
         CallableStatement instance = null;
 
@@ -1597,8 +1503,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testSetSQLXML() throws Exception {
-        println("setSQLXML");
-
         String parameterName = "";
         SQLXML xmlObject = null;
         CallableStatement instance = null;
@@ -1614,8 +1518,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetSQLXML() throws Exception {
-        println("getSQLXML");
-
         int parameterIndex = 0;
         CallableStatement instance = null;
 
@@ -1632,8 +1534,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetNString() throws Exception {
-        println("getNString");
-
         int parameterIndex = 0;
         CallableStatement instance = null;
 
@@ -1650,8 +1550,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetNCharacterStream() throws Exception {
-        println("getNCharacterStream");
-
         int parameterIndex = 0;
         CallableStatement instance = null;
 
@@ -1668,8 +1566,6 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testGetCharacterStream() throws Exception {
-        println("getCharacterStream");
-
         int parameterIndex = 0;
         CallableStatement instance = null;
 
@@ -1686,8 +1582,7 @@ public class JDBCCallableStatementWhileClosedTest extends BaseJdbcTestCase {
      * @throws java.lang.Exception
      */
     public void testClose() throws Exception {
-        println("close");
-//in this suite, no test is necessary for this method
+        //in this suite, no test is necessary for this method
         JDBCCallableStatement instance = null;
 
 //        instance.close();

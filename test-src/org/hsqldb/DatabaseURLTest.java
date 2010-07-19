@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ public class DatabaseURLTest extends junit.framework.TestCase {
         } else {
             junit.textui.TestRunner runner = new junit.textui.TestRunner();
             junit.framework.TestResult result =
-                runner.run(runner.getTest(DatabaseURLTest.class.getName()));
+                junit.textui.TestRunner.run(runner.getTest(DatabaseURLTest.class.getName()));
 
             System.exit(result.wasSuccessful() ? 0
                                                : 1);

@@ -35,9 +35,14 @@
 /*e*/insert into bewerb values ('opqrstu',9);
 /*u1*/insert into bewerb values ('vwxyz',10);
 
+--CHECKPOINT DEFRAG
+
 --test identity increment
 INSERT INTO APP2 (VALUE) VALUES(11);
 INSERT INTO APP2 (VALUE) VALUES(12);
+
+/*r3,12*/ SELECT COUNT(ID), MAX(VALUE) FROM APP2
+/*r3,10*/ SELECT COUNT(ID), MIN(VALUE) FROM APP2
 
 --test result of update before previous shutdown
 /*r

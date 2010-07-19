@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,8 +89,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of executeQuery method, of interface java.sql.Statement.
      */
     public void testExecuteQuery() throws Exception {
-        println("executeQuery");
-
         Statement stmt = newStatement();
 
         ResultSet rs = stmt.executeQuery("select * from customer");
@@ -99,7 +97,7 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
 
         stmt.execute("create table t(id int)");
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         try {
             stmt.executeQuery("insert into t values(1)");
@@ -124,8 +122,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of executeUpdate method, of interface java.sql.Statement.
      */
     public void testExecuteUpdate() throws Exception {
-        println("executeUpdate");
-
         Statement stmt = newStatement();
 
         stmt.execute("create table t(id int)");
@@ -146,8 +142,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of close method, of interface java.sql.Statement.
      */
     public void testClose() throws Exception {
-        println("close");
-
         Statement stmt = newStatement();
 
         assertEquals(false, stmt.isClosed());
@@ -167,8 +161,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getMaxFieldSize method, of interface java.sql.Statement.
      */
     public void testGetMaxFieldSize() throws Exception {
-        println("getMaxFieldSize");
-
         Statement stmt = newStatement();
         int       expResult = 0;
         int       result = stmt.getMaxFieldSize();
@@ -180,8 +172,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of setMaxFieldSize method, of interface java.sql.Statement.
      */
     public void testSetMaxFieldSize() throws Exception {
-        println("setMaxFieldSize");
-
         int       max = 0;
         Statement stmt = newStatement();
 
@@ -192,8 +182,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getMaxRows method, of interface java.sql.Statement.
      */
     public void testGetMaxRows() throws Exception {
-        println("getMaxRows");
-
         Statement stmt      = newStatement();
         int       expResult = 0;
         int       result    = stmt.getMaxRows();
@@ -205,8 +193,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of setMaxRows method, of interface java.sql.Statement.
      */
     public void testSetMaxRows() throws Exception {
-        println("setMaxRows");
-
         int        max = 0;
         Statement stmt = newStatement();
 
@@ -217,8 +203,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of setEscapeProcessing method, of interface java.sql.Statement.
      */
     public void testSetEscapeProcessing() throws Exception {
-        println("setEscapeProcessing");
-
         boolean   enable = true;
         Statement stmt   = newStatement();
 
@@ -233,8 +217,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getQueryTimeout method, of interface java.sql.Statement.
      */
     public void testGetQueryTimeout() throws Exception {
-        println("getQueryTimeout");
-
         Statement stmt      = newStatement();
         int       expResult = 0;
         int       result    = stmt.getQueryTimeout();
@@ -246,8 +228,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of setQueryTimeout method, of interface java.sql.Statement.
      */
     public void testSetQueryTimeout() throws Exception {
-        println("setQueryTimeout");
-
         int       seconds = 0;
         Statement stmt    = newStatement();
 
@@ -262,8 +242,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of cancel method, of interface java.sql.Statement.
      */
     public void testCancel() throws Exception {
-        println("cancel");
-
         Statement stmt = newStatement();
 
         stmt.cancel();
@@ -273,8 +251,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getWarnings method, of interface java.sql.Statement.
      */
     public void testGetWarnings() throws Exception {
-        println("getWarnings");
-
         Statement  stmt      = newStatement();
         SQLWarning expResult = null;
         SQLWarning result    = stmt.getWarnings();
@@ -286,8 +262,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of clearWarnings method, of interface java.sql.Statement.
      */
     public void testClearWarnings() throws Exception {
-        println("clearWarnings");
-
         Statement stmt = newStatement();
 
         stmt.clearWarnings();
@@ -297,8 +271,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of setCursorName method, of interface java.sql.Statement.
      */
     public void testSetCursorName() throws Exception {
-        println("setCursorName");
-
         String    name = "";
         Statement stmt = newStatement();
 
@@ -309,8 +281,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of execute method, of interface java.sql.Statement.
      */
     public void testExecute() throws Exception {
-        println("execute");
-
         String    sql       = "select * from customer";
         Statement stmt      = newStatement();
         boolean   expResult = true;
@@ -329,8 +299,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getResultSet method, of interface java.sql.Statement.
      */
     public void testGetResultSet() throws Exception {
-        println("getResultSet");
-
         String    sql  = "select * from customer";
         Statement stmt = newStatement();
 
@@ -345,8 +313,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getUpdateCount method, of interface java.sql.Statement.
      */
     public void testGetUpdateCount() throws Exception {
-        println("getUpdateCount");
-
         String    sql  = "delete from customer where 1=0";
         Statement stmt = newStatement();
 
@@ -362,8 +328,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getMoreResults method, of interface java.sql.Statement.
      */
     public void testGetMoreResults() throws Exception {
-        println("getMoreResults");
-
         String    sql  = "select * from customer";
         Statement stmt = newStatement();
 
@@ -388,8 +352,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of setFetchDirection method, of interface java.sql.Statement.
      */
     public void testSetFetchDirection() throws Exception {
-        println("setFetchDirection");
-
         // every driver should support at least FETCH_FORWARD
 
         int       direction = ResultSet.FETCH_FORWARD;
@@ -405,7 +367,7 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
         try {
             stmt.setFetchDirection(direction);
         } catch (Exception e) {
-            println(e.toString());
+            printException(e);
         }
 
         direction = ResultSet.FETCH_UNKNOWN;
@@ -413,7 +375,7 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
         try {
             stmt.setFetchDirection(direction);
         } catch (Exception e) {
-            println(e.toString());
+            printException(e);
         }
     }
 
@@ -421,8 +383,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getFetchDirection method, of interface java.sql.Statement.
      */
     public void testGetFetchDirection() throws Exception {
-        println("getFetchDirection");
-
         // default direction for every driver should be FETCH_FORWARD
         // TODO:  sets and gets with corresponding check of getWarnings
 
@@ -437,8 +397,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of setFetchSize method, of interface java.sql.Statement.
      */
     public void testSetFetchSize() throws Exception {
-        println("setFetchSize");
-
         int       rows = 1;
         Statement stmt = newStatement();
 
@@ -449,8 +407,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getFetchSize method, of interface java.sql.Statement.
      */
     public void testGetFetchSize() throws Exception {
-        println("getFetchSize");
-
         // Really, there is no default for all drivers...
         // it should be enough to be able to call the method.
         Statement stmt = newStatement();
@@ -464,8 +420,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getResultSetConcurrency method, of interface java.sql.Statement.
      */
     public void testGetResultSetConcurrency() throws Exception {
-        println("getResultSetConcurrency");
-
         Statement stmt      = newStatement();
         int       expResult = ResultSet.CONCUR_READ_ONLY;
         int       result    = stmt.getResultSetConcurrency();
@@ -477,8 +431,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getResultSetType method, of interface java.sql.Statement.
      */
     public void testGetResultSetType() throws Exception {
-        println("getResultSetType");
-
         Statement stmt      = newStatement();
         int       expResult = ResultSet.TYPE_FORWARD_ONLY;
         int       result    = stmt.getResultSetType();
@@ -490,8 +442,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of addBatch method, of interface java.sql.Statement.
      */
     public void testAddBatch() throws Exception {
-        println("addBatch");
-
         String    sql  = "delete from customer where id = 1";
         Statement stmt = newStatement();
 
@@ -502,8 +452,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of clearBatch method, of interface java.sql.Statement.
      */
     public void testClearBatch() throws Exception {
-        println("clearBatch");
-
         Statement stmt = newStatement();
 
         stmt.addBatch("delete from customer where id = 1");
@@ -517,8 +465,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of executeBatch method, of interface java.sql.Statement.
      */
     public void testExecuteBatch() throws Exception {
-        println("executeBatch");
-
         Statement stmt = newStatement();
 
         stmt.addBatch("delete from customer where id = 1");
@@ -536,8 +482,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getConnection method, of interface java.sql.Statement.
      */
     public void testGetConnection() throws Exception {
-        println("getConnection");
-
         Statement  stmt = newStatement();
         Connection conn = stmt.getConnection();
 
@@ -548,8 +492,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getGeneratedKeys method, of interface java.sql.Statement.
      */
     public void testGetGeneratedKeys() throws Exception {
-        println("getGeneratedKeys");
-
         // TODO
         prototypeResult();
     }
@@ -558,8 +500,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of getResultSetHoldability method, of interface java.sql.Statement.
      */
     public void testGetResultSetHoldability() throws Exception {
-        println("getResultSetHoldability");
-
         Statement stmt      = newStatement();
         int       expResult = getExpectedDefaultResultSetHoldability();
         int       result    = stmt.getResultSetHoldability();
@@ -571,8 +511,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of isClosed method, of interface java.sql.Statement.
      */
     public void testIsClosed() throws Exception {
-        println("isClosed");
-
         Statement stmt = newStatement();
 
         assertEquals(false, stmt.isClosed());
@@ -586,8 +524,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of unwrap method, of interface java.sql.Statement.
      */
     public void testUnwrap() throws Exception {
-        println("unwrap");
-
         Statement  stmt = newStatement();
         Class      wcls = getExpectedWrappedClass();
         Object     wobj = getExpectedWrappedObject(stmt, wcls);
@@ -601,8 +537,6 @@ public class JDBCStatementTest extends BaseJdbcTestCase {
      * Test of isWrapperFor method, of interface java.sql.Connection.
      */
     public void testIsWrapperFor() throws Exception {
-        println("isWrapperFor");
-
         Statement  stmt = newStatement();
         Class      wcls = getExpectedWrappedClass();
 

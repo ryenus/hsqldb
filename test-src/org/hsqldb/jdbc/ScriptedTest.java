@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@ package org.hsqldb.jdbc;
 import java.io.IOException;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 import org.hsqldb.testbase.BaseScriptedTestCase;
 
 /**
@@ -40,6 +39,12 @@ import org.hsqldb.testbase.BaseScriptedTestCase;
  * @author boucherb@users
  */
 public class ScriptedTest extends BaseScriptedTestCase {
+
+    private static final ScriptedTest instance = new ScriptedTest();
+
+    private ScriptedTest() {
+        super();
+    }
 
     public ScriptedTest(String script) {
         super(script);
@@ -50,6 +55,14 @@ public class ScriptedTest extends BaseScriptedTestCase {
      * @return
      */
     public static Test suite() {
+        return instance.getSuite();
+    }
+
+    /**
+     * 
+     * @return
+     */
+    protected Test getSuite() {
         TestSuite suite = new TestSuite("ScriptTest");
 
         try {
@@ -72,6 +85,6 @@ public class ScriptedTest extends BaseScriptedTestCase {
      * @throws java.lang.Exception 
      */
     public static void main(String[] args) throws Exception {
-        TestRunner.run(suite());
+        junit.textui.TestRunner.run(suite());
     }
 }

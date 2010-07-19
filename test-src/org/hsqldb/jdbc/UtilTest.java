@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import org.hsqldb.error.ErrorCode;
  */
 public class UtilTest extends BaseJdbcTestCase {
 
-    private static final Object[][] m_exceptions = new Object[][] {
+    private static final Object[][] s_exceptions = new Object[][] {
         {
             SQLTransientConnectionException.class, new int[] {
                 ErrorCode.X_08000,
@@ -142,6 +142,7 @@ public class UtilTest extends BaseJdbcTestCase {
                 ErrorCode.X_42531,
                 ErrorCode.X_42532,
                 ErrorCode.X_42533,
+                ErrorCode.X_42534,
                 ErrorCode.X_42535,
                 ErrorCode.X_42536,
                 ErrorCode.X_42537,
@@ -157,6 +158,8 @@ public class UtilTest extends BaseJdbcTestCase {
                 ErrorCode.X_42548,
                 ErrorCode.X_42549,
                 ErrorCode.X_42551,
+                ErrorCode.X_42555,
+                ErrorCode.X_42556,
                 ErrorCode.X_42561,
                 ErrorCode.X_42562,
                 ErrorCode.X_42563,
@@ -203,11 +206,14 @@ public class UtilTest extends BaseJdbcTestCase {
                 ErrorCode.X_42605,
                 ErrorCode.X_42606,
                 ErrorCode.X_42607,
+                ErrorCode.X_42608,
+                ErrorCode.X_42609,
+                ErrorCode.X_42610
             }
         }, {
             SQLTransactionRollbackException.class, new int[]{
                 ErrorCode.X_40000, ErrorCode.X_40001, ErrorCode.X_40002,
-                ErrorCode.X_40003, ErrorCode.X_40004
+                ErrorCode.X_40003, ErrorCode.X_40004, ErrorCode.X_40501
             }
         },
 
@@ -216,7 +222,7 @@ public class UtilTest extends BaseJdbcTestCase {
             null    // calculated below, in static initializer
         }
     };
-    private static final Map m_classMap = new HashMap();
+    private static final Map s_classMap = new HashMap();
 
     static List<Integer> getErrorCodes()
     {
@@ -241,8 +247,8 @@ public class UtilTest extends BaseJdbcTestCase {
     static {
         List<Integer> list = getErrorCodes();
 
-        for (int j = 0; j < m_exceptions.length - 1; j++) {
-            int[]   codes = (int[]) m_exceptions[j][1];
+        for (int j = 0; j < s_exceptions.length - 1; j++) {
+            int[]   codes = (int[]) s_exceptions[j][1];
 
             for(int k = 0; k < codes.length; k++) {
                 list.remove(new Integer(codes[k]));
@@ -255,10 +261,10 @@ public class UtilTest extends BaseJdbcTestCase {
             nontransientcodes[i] = list.get(i).intValue();
         }
 
-        m_exceptions[m_exceptions.length - 1][1] = nontransientcodes;
+        s_exceptions[s_exceptions.length - 1][1] = nontransientcodes;
 
-        for (int i = 0; i < m_exceptions.length; i++) {
-            m_classMap.put(m_exceptions[i][0], m_exceptions[i][1]);
+        for (int i = 0; i < s_exceptions.length; i++) {
+            s_classMap.put(s_exceptions[i][0], s_exceptions[i][1]);
         }
     }
 
@@ -321,7 +327,7 @@ public class UtilTest extends BaseJdbcTestCase {
         int     errorCode    = Math.abs(se.getErrorCode());
         String  errorMessage = se.getMessage();
         String  sqlState     = se.getSQLState();
-        int[]   codes        = (int[]) m_classMap.get(clazz);
+        int[]   codes        = (int[]) s_classMap.get(clazz);
         boolean found        = false;
 
         for (int i = 0; i < codes.length; i++) {

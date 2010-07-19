@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,11 +39,13 @@ import javax.sql.DataSource;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.hsqldb.jdbc.testbase.BaseJdbcTestCase;
+import org.hsqldb.testbase.ForSubject;
 
 /**
  *
  * @author boucherb@users
  */
+@ForSubject(JDBCDataSourceFactory.class)
 public class JDBCDataSourceTest extends BaseJdbcTestCase {
 
     public JDBCDataSourceTest(String testName) {
@@ -92,8 +94,6 @@ public class JDBCDataSourceTest extends BaseJdbcTestCase {
      * Test of getConnection method, of interface javax.sql.DataSource.
      */
     public void testGetConnection() throws Exception {
-        println("getConnection");
-
         DataSource ds   = newDataSource();
         Connection conn = ds.getConnection();
     }
@@ -169,8 +169,6 @@ public class JDBCDataSourceTest extends BaseJdbcTestCase {
      * Test of unwrap method, of interface javax.sql.DataSource.
      */
     public void testUnwrap() throws Exception {
-        println("unwrap");
-
         DataSource ds   = newDataSource();
         Class      wcls = getExpectedWrappedClass();
         Object     wobj = getExpectedWrappedObject(ds, wcls);
@@ -184,8 +182,6 @@ public class JDBCDataSourceTest extends BaseJdbcTestCase {
      * Test of isWrapperFor method, of interface javax.sql.DataSource.
      */
     public void testIsWrapperFor() throws Exception {
-        println("isWrapperFor");
-
         DataSource ds   = newDataSource();
         Class      wcls = getExpectedWrappedClass();
 
@@ -198,8 +194,6 @@ public class JDBCDataSourceTest extends BaseJdbcTestCase {
      * Test of getLoginTimeout method, of interface javax.sql.DataSource.
      */
     public void testGetLoginTimeout() throws Exception {
-        println("getLoginTimeout");
-
         int result = newDataSource().getLoginTimeout();
     }
 
@@ -207,8 +201,6 @@ public class JDBCDataSourceTest extends BaseJdbcTestCase {
      * Test of getLogWriter method, of interface javax.sql.DataSource.
      */
     public void testGetLogWriter() throws Exception {
-        println("getLogWriter");
-
         PrintWriter result = newDataSource().getLogWriter();
     }
 
@@ -216,8 +208,6 @@ public class JDBCDataSourceTest extends BaseJdbcTestCase {
      * Test of setLoginTimeout method, of interface javax.sql.DataSource.
      */
     public void testSetLoginTimeout() throws Exception {
-        println("setLoginTimeout");
-
         newDataSource().setLoginTimeout(10);
     }
 
@@ -225,8 +215,6 @@ public class JDBCDataSourceTest extends BaseJdbcTestCase {
      * Test of setLogWriter method, of interface javax.sql.DataSource.
      */
     public void testSetLogWriter() throws Exception {
-        println("setLogWriter");
-
         newDataSource().setLogWriter(new PrintWriter(System.out));
     }
 
