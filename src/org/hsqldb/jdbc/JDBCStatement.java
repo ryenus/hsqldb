@@ -42,6 +42,7 @@ import org.hsqldb.HsqlException;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.result.Result;
+import org.hsqldb.result.ResultConstants;
 import org.hsqldb.result.ResultProperties;
 
 /* $Id$ */
@@ -1336,7 +1337,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             throw Util.invalidArgument("columnIndexes");
         }
         fetchResult(sql, StatementTypes.RETURN_COUNT,
-                    Statement.RETURN_GENERATED_KEYS, columnIndexes, null);
+                    ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES, columnIndexes, null);
 
         return resultIn.getUpdateCount();
     }
@@ -1388,7 +1389,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             throw Util.invalidArgument("columnIndexes");
         }
         fetchResult(sql, StatementTypes.RETURN_COUNT,
-                    Statement.RETURN_GENERATED_KEYS, null, columnNames);
+                    ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES, null, columnNames);
 
         return resultIn.getUpdateCount();
     }
@@ -1524,7 +1525,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             throw Util.invalidArgument("columnIndexes");
         }
         fetchResult(sql, StatementTypes.RETURN_ANY,
-                    Statement.RETURN_GENERATED_KEYS, columnIndexes, null);
+                    ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES, columnIndexes, null);
 
         return resultIn.isData();
     }
@@ -1590,7 +1591,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             throw Util.invalidArgument("columnIndexes");
         }
         fetchResult(sql, StatementTypes.RETURN_ANY,
-                    Statement.RETURN_GENERATED_KEYS, null, columnNames);
+                    ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES, null, columnNames);
 
         return resultIn.isData();
     }
