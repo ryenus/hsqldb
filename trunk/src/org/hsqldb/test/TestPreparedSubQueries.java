@@ -35,11 +35,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import junit.framework.TestCase;
 
 /**
  * @author kloska@users
+ * @author fredt@users
  */
 public class TestPreparedSubQueries extends TestCase {
 
@@ -191,6 +193,74 @@ public class TestPreparedSubQueries extends TestCase {
             }
 
             assertTrue(valid);
+
+            s.execute("insert into a(b) values(2)", new String[]{ "A" });
+
+            r = s.getGeneratedKeys();
+
+            while (r.next()) {
+                r.getInt(1);
+
+                valid = true;
+            }
+
+            assertTrue(valid);
+
+            s.execute("drop table a if exists");
+            s.execute("create cached table a (g int generated always as (a + b), a int generated always as identity (start with 5), b int, c timestamp default current_timestamp)");
+            s.execute("insert into a(b) values(1)",
+                      Statement.RETURN_GENERATED_KEYS);
+
+            r = s.getGeneratedKeys();
+
+            while (r.next()) {
+                int v = r.getInt(2);
+
+                valid = true;
+
+                assertEquals(v, 5);
+
+            }
+
+            r.close();
+            assertTrue(valid);
+            s.execute("insert into a(b) values(2)", new int[]{ 1 });
+
+            r = s.getGeneratedKeys();
+
+            while (r.next()) {
+                int v = r.getInt(1);
+
+                valid = true;
+
+                assertEquals(v, 8);
+            }
+
+            assertTrue(valid);
+
+            s.execute("insert into a(b) values(2)", new String[]{ "A", "G", "C" });
+
+            r = s.getGeneratedKeys();
+
+            while (r.next()) {
+                Timestamp tv = r.getTimestamp(3);
+
+                int iv = r.getInt(1);
+
+                valid = true;
+
+                assertEquals(iv, 7);
+
+                long diff = System.currentTimeMillis() -  tv.getTime();
+
+                if (diff > 100 || diff <0) {
+                    fail("timestamp not correct");
+                }
+
+            }
+
+            assertTrue(valid);
+
         } catch (Exception e) {
             assertTrue(false);
         }

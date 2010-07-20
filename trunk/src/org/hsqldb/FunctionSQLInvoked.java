@@ -192,8 +192,6 @@ public class FunctionSQLInvoked extends Expression {
 
             result = routine.invokeJavaMethod(session, data);
 
-            session.releaseInternalConnection();
-
             if (opType == OpTypes.USER_AGGREGATE) {
                 Object[] callResult = new Object[data.length];
 

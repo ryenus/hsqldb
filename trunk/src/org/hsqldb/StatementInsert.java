@@ -34,7 +34,7 @@ package org.hsqldb;
 import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.navigator.RangeIterator;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.navigator.RowSetNavigator;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.PersistentStore;
@@ -210,23 +210,19 @@ public class StatementInsert extends StatementDML {
     }
 
     /**
-     * @todo - fredt - this does not work with different prepare calls
+     * @todo - fredt - low priority - this does not work with different prepare calls
      * with the same SQL statement, but different generated column requests
      * To fix, add comment encapsulating the generated column list to SQL
      * to differentiate between the two invocations
      */
     public void setGeneratedColumnInfo(int generate, ResultMetaData meta) {
 
-        // can support INSERT_SELECT also
+        // also supports INSERT_SELECT
         if (type != StatementTypes.INSERT) {
             return;
         }
 
-        int colIndex = baseTable.getIdentityColumnIndex();
-
-        if (colIndex == -1) {
-            return;
-        }
+        int idColIndex = baseTable.getIdentityColumnIndex();
 
         generatedType          = generate;
         generatedInputMetaData = meta;
@@ -237,33 +233,53 @@ public class StatementInsert extends StatementDML {
                 return;
 
             case ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES :
-                int[] columnIndexes = meta.getGeneratedColumnIndexes();
+                generatedIndexes = meta.getGeneratedColumnIndexes();
 
-                if (columnIndexes.length != 1) {
-                    return;
+                for (int i = 0; i < generatedIndexes.length; i++) {
+                    if (generatedIndexes[i] < 0
+                            || generatedIndexes[i]
+                               >= baseTable.getColumnCount()) {
+                        throw Error.error(ErrorCode.X_42501);
+                    }
                 }
+                break;
 
-                if (columnIndexes[0] != colIndex) {
-                    return;
-                }
-
-            // fall through
             case ResultConstants.RETURN_GENERATED_KEYS :
-                generatedIndexes = new int[]{ colIndex };
+                if (baseTable.hasGeneratedColumn()) {
+                    if (idColIndex > 0) {
+                        int generatedCount =
+                            ArrayUtil.countTrueElements(baseTable.colGenerated)
+                            + 1;
+
+                        generatedIndexes = new int[generatedCount];
+
+                        for (int i = 0, j = 0;
+                                i < baseTable.colGenerated.length; i++) {
+                            if (baseTable.colGenerated[i] || i == idColIndex) {
+                                generatedIndexes[j++] = i;
+                            }
+                        }
+                    } else {
+                        generatedIndexes = ArrayUtil.booleanArrayToIntIndexes(
+                            baseTable.colGenerated);
+                    }
+                } else if (idColIndex >= 0) {
+                    generatedIndexes = new int[]{ idColIndex };
+                } else {
+                    return;
+                }
                 break;
 
             case ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES :
                 String[] columnNames = meta.getGeneratedColumnNames();
 
-                if (columnNames.length != 1) {
-                    return;
-                }
+                generatedIndexes = baseTable.getColumnIndexes(columnNames);
 
-                if (baseTable.findColumn(columnNames[0]) != colIndex) {
-                    return;
+                for (int i = 0; i < generatedIndexes.length; i++) {
+                    if (generatedIndexes[i] < 0) {
+                        throw Error.error(ErrorCode.X_42501, columnNames[0]);
+                    }
                 }
-
-                generatedIndexes = new int[]{ colIndex };
                 break;
         }
 

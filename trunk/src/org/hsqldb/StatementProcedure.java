@@ -216,7 +216,6 @@ public class StatementProcedure extends StatementDMQL {
 
         result = procedure.invokeJavaMethod(session, data);
 
-        session.releaseInternalConnection();
         procedure.convertArgsToSQL(session, callArguments, data);
 
         return result;

@@ -1062,6 +1062,10 @@ public class Table extends TableBase implements SchemaObject {
         columnCount++;
     }
 
+    public boolean hasGeneratedColumn() {
+        return hasGeneratedValues;
+    }
+
     public boolean hasLobColumn() {
         return hasLobColumn;
     }
@@ -1660,6 +1664,17 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         return columnCheckList;
+    }
+
+    int[] getColumnIndexes(String[] list) {
+
+        int[] cols = new int[list.length];
+
+        for (int i = 0; i < cols.length; i++) {
+            cols[i] = getColumnIndex(list[i]);
+        }
+
+        return cols;
     }
 
     int[] getColumnIndexes(OrderedHashSet set) {
