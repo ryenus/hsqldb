@@ -87,7 +87,7 @@ public class HSQLDialect extends Dialect {
         registerColumnType( Types.BIT, "bit" );
         registerColumnType( Types.CHAR, "char($l)" );
         registerColumnType( Types.DATE, "date" );
-
+        registerColumnType( Types.BOOLEAN, "boolean" );
         registerColumnType( Types.DECIMAL, "decimal($p,$s)" );
         registerColumnType( Types.DOUBLE, "double" );
         registerColumnType( Types.FLOAT, "float" );
@@ -381,6 +381,9 @@ public class HSQLDialect extends Dialect {
         return literal;
     }
 
+    public boolean supportsUnionAll() {
+        return true;
+    }
 
     // temporary table support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Hibernate uses this information for temporary tables that it uses for its own operations
@@ -627,9 +630,12 @@ public class HSQLDialect extends Dialect {
         return hsqldbVersion >= 20;
     }
 
-
     public boolean supportsLobValueChangePropogation() {
         return false;
+    }
+
+    public String toBooleanValueString(boolean bool) {
+        return bool ? "true" : "false";
     }
 
     public boolean supportsTupleDistinctCounts() {
