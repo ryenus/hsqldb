@@ -430,10 +430,11 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>This property, when set
-            true, causes an error when an SQL statements contains column
-            references that can be resovled by more than one table name or
-            alias. In effect forces such column references to have a table
-            name or table alias qualifier.</para><para><programlisting>SET DATABASE SQL REFERENCES { TRUE | FALSE }</programlisting></para></entry>
+            true, causes an error when an SQL statement (usually a select
+            statement) contains column references that can be resovled by more
+            than one table name or alias. In effect forces such column
+            references to have a table name or table alias
+            qualifier.</para><para><programlisting>SET DATABASE SQL REFERENCES { TRUE | FALSE }</programlisting></para></entry>
           </row>
 
           <row>
