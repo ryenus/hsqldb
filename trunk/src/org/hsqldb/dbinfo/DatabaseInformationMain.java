@@ -60,8 +60,8 @@ import org.hsqldb.rights.GranteeManager;
 import org.hsqldb.rights.Right;
 import org.hsqldb.rights.User;
 import org.hsqldb.store.ValuePool;
-import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.NumberType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -748,8 +748,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                 if (translateDTI) {
                     if (type.isIntervalType()) {
-                        type = CharacterType.getCharacterType(
-                            Types.SQL_VARCHAR, type.displaySize());
+                        type = ((IntervalType) type).getCharacterType();
                     } else if (type.isDateTimeTypeWithZone()) {
                         type = ((DateTimeType) type)
                             .getDateTimeTypeWithoutZone();
@@ -939,8 +938,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                 if (translateDTI) {
                     if (type.isIntervalType()) {
-                        type = CharacterType.getCharacterType(
-                            Types.SQL_VARCHAR, type.displaySize());
+                        type = ((IntervalType) type).getCharacterType();
                     } else if (type.isDateTimeTypeWithZone()) {
                         type = ((DateTimeType) type)
                             .getDateTimeTypeWithoutZone();
@@ -1697,8 +1695,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
                     if (translateDTI) {
                         if (type.isIntervalType()) {
-                            type = CharacterType.getCharacterType(
-                                Types.SQL_VARCHAR, type.displaySize());
+                            type = ((IntervalType) type).getCharacterType();
                         } else if (type.isDateTimeTypeWithZone()) {
                             type = ((DateTimeType) type)
                                 .getDateTimeTypeWithoutZone();
@@ -2574,8 +2571,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             if (translateDTI) {
                 if (type.isIntervalType()) {
-                    type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
-                                                          type.displaySize());
+                    type = ((IntervalType) type).getCharacterType();
                 } else if (type.isDateTimeTypeWithZone()) {
                     type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
                 }
@@ -2732,8 +2728,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             if (translateDTI) {
                 if (type.isIntervalType()) {
-                    type = CharacterType.getCharacterType(Types.SQL_VARCHAR,
-                                                          type.displaySize());
+                    type = ((IntervalType) type).getCharacterType();
                 } else if (type.isDateTimeTypeWithZone()) {
                     type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
                 }

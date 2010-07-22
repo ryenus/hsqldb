@@ -56,6 +56,7 @@ import org.hsqldb.lib.StringConverter;
 public final class DateTimeType extends DTIType {
 
     public final boolean withTimeZone;
+    private String       nameString;
 
     public DateTimeType(int typeGroup, int type, int scale) {
 
@@ -63,6 +64,7 @@ public final class DateTimeType extends DTIType {
 
         withTimeZone = type == Types.SQL_TIME_WITH_TIME_ZONE
                        || type == Types.SQL_TIMESTAMP_WITH_TIME_ZONE;
+        nameString = getNameStringPrivate();
     }
 
     public int displaySize() {
@@ -148,6 +150,10 @@ public final class DateTimeType extends DTIType {
     }
 
     public String getNameString() {
+        return nameString;
+    }
+
+    private String getNameStringPrivate() {
 
         switch (typeCode) {
 
@@ -1269,28 +1275,26 @@ public final class DateTimeType extends DTIType {
     public DateTimeType getDateTimeTypeWithoutZone() {
 
         if (this.withTimeZone) {
+            DateTimeType type;
+
             switch (typeCode) {
 
                 case Types.SQL_TIME_WITH_TIME_ZONE :
-                    if (scale != DTIType.defaultTimeFractionPrecision) {
-                        return new DateTimeType(Types.SQL_TIME,
-                                                Types.SQL_TIME, scale);
-                    }
-
-                    return SQL_TIME;
+                    type = new DateTimeType(Types.SQL_TIME, Types.SQL_TIME,
+                                            scale);
+                    break;
 
                 case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                    if (scale != DTIType.defaultTimestampFractionPrecision) {
-                        return new DateTimeType(Types.SQL_TIMESTAMP,
-                                                Types.SQL_TIMESTAMP, scale);
-                    }
-
-                    return SQL_TIMESTAMP;
+                    type = new DateTimeType(Types.SQL_TIMESTAMP,
+                                            Types.SQL_TIMESTAMP, scale);
+                    break;
 
                 default :
                     throw Error.runtimeError(ErrorCode.U_S0500,
                                              "DateTimeType");
             }
+
+            type.nameString = nameString;
         }
 
         return this;

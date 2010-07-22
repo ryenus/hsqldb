@@ -52,10 +52,6 @@ import org.hsqldb.lib.StringUtil;
  */
 public class HsqlDatabaseProperties extends HsqlProperties {
 
-    // We are using persist.Logger-instance-specific FrameworkLogger
-    // because it is Database-instance specific.
-    // If add any static level logging, should instantiate a standard,
-    // context-agnostic FrameworkLogger for that purpose.
     private static final String hsqldb_method_class_names =
         "hsqldb.method_class_names";
     private static HashSet accessibleJavaMethodNames;
@@ -88,8 +84,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
      * asterisk.<p>
      *
      * All methods of java.lang.Math are always accessible.
-     *
-     *
      */
     public static boolean supportsJavaMethod(String name) {
 
@@ -227,8 +221,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String jdbc_translate_dti_types =
         "jdbc.translate_dti_types";
     public static final String sql_identity_is_pk = "sql.identity_is_pk";
-
     public static final String sql_longvar_is_lob = "sql.longvar_is_lob";
+
     //
     public static final String textdb_cache_scale = "textdb.cache_scale";
     public static final String textdb_cache_size_scale =
@@ -320,10 +314,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_nio_data_file,
                    HsqlProperties.getMeta(hsqldb_nio_data_file, SQL_PROPERTY,
                                           true));
-
         dbMeta.put(sql_ref_integrity,
                    HsqlProperties.getMeta(sql_ref_integrity, SQL_PROPERTY,
                                           true));
+
         // SQL reserved words not allowed as some identifiers
         dbMeta.put(sql_enforce_names,
                    HsqlProperties.getMeta(sql_enforce_names, SQL_PROPERTY,
@@ -331,6 +325,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_enforce_refs,
                    HsqlProperties.getMeta(sql_enforce_refs, SQL_PROPERTY,
                                           false));
+
         // char padding to size and exception if data is too long
         dbMeta.put(sql_enforce_size,
                    HsqlProperties.getMeta(sql_enforce_size, SQL_PROPERTY,
@@ -338,7 +333,6 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_enforce_strict_size,
                    HsqlProperties.getMeta(sql_enforce_strict_size,
                                           SQL_PROPERTY, true));
-
         dbMeta.put(sql_enforce_types,
                    HsqlProperties.getMeta(sql_enforce_types, SQL_PROPERTY,
                                           false));
@@ -367,10 +361,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           0, new int[] {
             0, 1, 3
         }));
-
         dbMeta.put(hsqldb_lob_file_scale,
-                   HsqlProperties.getMeta(hsqldb_lob_file_scale,
-                                          SQL_PROPERTY, 32, new int[] {
+                   HsqlProperties.getMeta(hsqldb_lob_file_scale, SQL_PROPERTY,
+                                          32, new int[] {
             1, 2, 4, 8, 16, 32
         }));
 

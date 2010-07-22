@@ -39,6 +39,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.DateTimeType;
+import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
@@ -972,8 +973,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
 
         if (this.translateDTIType) {
             if (type.isIntervalType()) {
-                type = new CharacterType(Types.SQL_VARCHAR,
-                        type.displaySize());
+                type = ((IntervalType) type).getCharacterType();
             } else if (type.isDateTimeTypeWithZone()) {
                 type = ((DateTimeType) type).getDateTimeTypeWithoutZone();
             }

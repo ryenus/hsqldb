@@ -2316,7 +2316,7 @@ public class Table extends TableBase implements SchemaObject {
                 continue;
             }
 
-            if (matchCount == indexcols.length) {
+            if (matchCount == set.size()) {
                 return currentindex;
             }
 
@@ -2326,10 +2326,7 @@ public class Table extends TableBase implements SchemaObject {
             }
         }
 
-        if (selected != null) {
-            return selected;
-        }
-
+        // index is not full;
         switch (tableType) {
 
 //            case TableBase.MEMORY_TABLE :

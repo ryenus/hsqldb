@@ -53,11 +53,12 @@ import org.hsqldb.lib.java.JavaSystem;
  */
 public class CharacterType extends Type {
 
+    final static int  defaultCharPrecision = 32 * 1024;
+    static final long maxCharPrecision     = Integer.MAX_VALUE;
     Collation         collation;
     Charset           charset;
     boolean           isEqualIdentical;
-    final static int  defaultCharPrecision = 32 * 1024;
-    static final long maxCharPrecision     = Integer.MAX_VALUE;
+    String            nameString;
 
     public CharacterType(Collation collation, int type, long precision) {
 
@@ -67,6 +68,7 @@ public class CharacterType extends Type {
         this.charset   = Charset.getDefaultInstance();
         isEqualIdentical = this.collation.isEqualAlwaysIdentical()
                            && type != Types.VARCHAR_IGNORECASE;
+        nameString = getNameStringPrivate();
     }
 
     /**
@@ -79,6 +81,7 @@ public class CharacterType extends Type {
         this.collation   = Collation.getDefaultInstance();
         this.charset     = Charset.getDefaultInstance();
         isEqualIdentical = type != Types.VARCHAR_IGNORECASE;
+        nameString = getNameStringPrivate();
     }
 
     public int displaySize() {
@@ -119,6 +122,10 @@ public class CharacterType extends Type {
     }
 
     public String getNameString() {
+        return nameString;
+    }
+
+    private String getNameStringPrivate() {
 
         switch (typeCode) {
 
@@ -983,7 +990,7 @@ public class CharacterType extends Type {
         return endindex;
     }
 
-    public static Type getCharacterType(int type, long precision) {
+    public static CharacterType getCharacterType(int type, long precision) {
 
         switch (type) {
 
@@ -1000,7 +1007,7 @@ public class CharacterType extends Type {
         }
     }
 
-    public static Type getCharacterType(int type, long precision,
+    public static CharacterType getCharacterType(int type, long precision,
                                         Collation collation) {
 
         switch (type) {

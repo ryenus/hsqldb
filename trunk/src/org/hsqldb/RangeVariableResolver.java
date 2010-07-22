@@ -1014,11 +1014,13 @@ public class RangeVariableResolver {
 
                 Index index = rangeVar.rangeTable.getIndexForColumns(session,
                     set, false);
-                int colCount = 0;
+                int indexedColCount = 0;
 
                 for (int j = 0; j < index.getColumnCount(); j++) {
                     if (set.contains(index.getColumns()[j])) {
-                        colCount++;
+                        indexedColCount++;
+                    } else {
+                        break;
                     }
                 }
 
@@ -1039,7 +1041,7 @@ public class RangeVariableResolver {
                 // make two columns as arg
                 Expression[] exprList = new Expression[index.getColumnCount()];
 
-                for (int j = 0; j < colCount; j++) {
+                for (int j = 0; j < indexedColCount; j++) {
                     int leftIndex  = index.getColumns()[j];
                     int rightIndex = set.getIndex(leftIndex);
                     Expression e = new ExpressionLogical(rangeVar, leftIndex,
@@ -1055,10 +1057,16 @@ public class RangeVariableResolver {
                     !inInJoin[i] && isOuter ? rangeVar.whereConditions[0]
                                             : rangeVar.joinConditions[0];
 
-                conditions.addIndexCondition(exprList, index, colCount);
+                conditions.addIndexCondition(exprList, index, indexedColCount);
 
-                if (isOuter) {
-                    conditions.addCondition(in);
+
+                for (int j = 0; j < set.size(); j++) {
+                    int leftIndex  = set.get(j);
+                    int rightIndex = j;
+                    Expression e = new ExpressionLogical(rangeVar, leftIndex,
+                                                         newRangeVar,
+                                                         rightIndex);
+                    conditions.addCondition(e);
                 }
             }
         }
