@@ -632,8 +632,8 @@ public class SqlTool {
             }
 
             if (tmpReader != null) {
-                sqlFiles[fileIndex++] =
-                    new SqlFile(tmpReader, "--sql", System.out, null, false);
+                sqlFiles[fileIndex++] = new SqlFile(
+                        tmpReader, "--sql", System.out, null, false, null);
             }
 
             for (File scriptFile : scriptFiles) {

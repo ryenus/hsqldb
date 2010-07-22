@@ -176,6 +176,7 @@ public class SqlFile {
     // Reader serves the auxiliary purpose of null meaning execute()
     // has finished.
     private String           inputStreamLabel;
+    private File             baseDir;
 
     static String            DEFAULT_FILE_ENCODING =
                              System.getProperty("file.encoding");
@@ -414,7 +415,8 @@ public class SqlFile {
             throws IOException {
         this(new InputStreamReader(new FileInputStream(inputFile),
                 (encoding == null) ? DEFAULT_FILE_ENCODING : encoding),
-                inputFile.toString(), System.out, encoding, interactive);
+                inputFile.toString(), System.out, encoding, interactive,
+                inputFile.getParentFile());
     }
 
     /**
@@ -433,7 +435,7 @@ public class SqlFile {
         this((encoding == null)
                 ? new InputStreamReader(System.in)
                 : new InputStreamReader(System.in, encoding),
-                "<stdin>", System.out, encoding, interactive);
+                "<stdin>", System.out, encoding, interactive, null);
     }
 
     /**
@@ -466,9 +468,9 @@ public class SqlFile {
      * @see #execute()
      */
     public SqlFile(Reader reader, String inputStreamLabel,
-            PrintStream psStd, String encoding, boolean interactive)
-            throws IOException {
-        this(reader, inputStreamLabel);
+            PrintStream psStd, String encoding, boolean interactive,
+            File baseDir) throws IOException {
+        this(reader, inputStreamLabel, baseDir);
         try {
             shared = new SharedFields(psStd);
             setEncoding(encoding);
@@ -501,15 +503,15 @@ public class SqlFile {
                 new InputStreamReader(new FileInputStream(inputFile),
                 (parentSqlFile.shared.encoding == null)
                 ? DEFAULT_FILE_ENCODING : parentSqlFile.shared.encoding),
-                inputFile.toString());
+                inputFile.toString(), inputFile.getParentFile());
     }
 
     /**
      * Constructor for recursion
      */
     private SqlFile(SqlFile parentSqlFile, Reader reader,
-            String inputStreamLabel) {
-        this(reader, inputStreamLabel);
+            String inputStreamLabel, File baseDir) {
+        this(reader, inputStreamLabel, baseDir);
         try {
             recursed = true;
             shared = parentSqlFile.shared;
@@ -531,7 +533,7 @@ public class SqlFile {
     /**
      * Base Constructor which every other Constructor starts with
      */
-    private SqlFile(Reader reader, String inputStreamLabel) {
+    private SqlFile(Reader reader, String inputStreamLabel, File baseDir) {
         logger.privlog(Level.FINER, "<init>ting SqlFile instance",
                 null, 2, FrameworkLogger.class);
         if (reader == null)
@@ -545,6 +547,7 @@ public class SqlFile {
         // execute() to block.
         this.reader = reader;
         this.inputStreamLabel = inputStreamLabel;
+        this.baseDir = baseDir;
     }
 
     public void setConnection(Connection jdbcConn) {
@@ -1254,7 +1257,8 @@ public class SqlFile {
                 if (other == null) {
                     throw new BadSpecial(SqltoolRB.destfile_demand.getString());
                 }
-                String targetFile = dereference(other.trim(), false);
+                String targetFile =
+                        dereferenceAt(dereference(other.trim(), false));
                 // Dereference and trim the target file name
                 // This is the only case where we dereference a : command.
 
@@ -1465,7 +1469,7 @@ public class SqlFile {
                     other = other.substring(0, colonIndex).trim();
                 }
 
-                importDsv(other, skipPrefix);
+                importDsv(dereferenceAt(other), skipPrefix);
 
                 return;
 
@@ -1491,7 +1495,7 @@ public class SqlFile {
                     }
                     File dsvFile = new File((dsvTargetFile == null)
                                             ? (tableName + ".dsv")
-                                            : dsvTargetFile);
+                                            : dereferenceAt(dsvTargetFile));
 
                     pwDsv = new PrintWriter(new OutputStreamWriter(
                             new FileOutputStream(dsvFile),
@@ -1614,7 +1618,7 @@ public class SqlFile {
 
                 try {
                     pwQuery = new PrintWriter(new OutputStreamWriter(
-                            new FileOutputStream(other, true),
+                            new FileOutputStream(dereferenceAt(other), true),
                             (shared.encoding == null)
                             ? DEFAULT_FILE_ENCODING : shared.encoding));
 
@@ -1644,7 +1648,7 @@ public class SqlFile {
                 }
 
                 try {
-                    new SqlFile(this, new File(other)).execute();
+                    new SqlFile(this, new File(dereferenceAt(other))).execute();
                 } catch (ContinueException ce) {
                     throw ce;
                 } catch (BreakException be) {
@@ -1830,7 +1834,7 @@ public class SqlFile {
                             SqltoolRB.special_b_malformat.getString());
                 }
 
-                File otherFile = new File(other);
+                File otherFile = new File(dereferenceAt(other));
 
                 try {
                     if (arg1.charAt(1) == 'd') {
@@ -2423,7 +2427,7 @@ public class SqlFile {
             if (varName.indexOf(':') > -1) {
                 throw new BadSpecial(SqltoolRB.plvar_nocolon.getString());
             }
-            File   dlFile    = new File(tokens[2]);
+            File   dlFile    = new File(dereferenceAt(tokens[2]));
 
             try {
                 if (tokens[0].equals("dump")) {
@@ -4901,18 +4905,21 @@ public class SqlFile {
         PrintWriter rejectReportWriter = null;
         try {
         if (dsvRejectFile != null) try {
-            rejectFile = new File(dsvRejectFile);
+            rejectFile = new File(dereferenceAt(dsvRejectFile));
             rejectWriter = new PrintWriter(
                     new OutputStreamWriter(new FileOutputStream(rejectFile),
                     (shared.encoding == null)
                     ? DEFAULT_FILE_ENCODING : shared.encoding));
             rejectWriter.print(headerLine + dsvRowDelim);
+        } catch (BadSpecial bs) {
+            throw new SqlToolError(SqltoolRB.dsv_rejectfile_setupfail.getString(
+                    dsvRejectFile), bs);
         } catch (IOException ioe) {
             throw new SqlToolError(SqltoolRB.dsv_rejectfile_setupfail.getString(
                     dsvRejectFile), ioe);
         }
         if (dsvRejectReport != null) try {
-            rejectReportFile = new File(dsvRejectReport);
+            rejectReportFile = new File(dereferenceAt(dsvRejectReport));
             rejectReportWriter = new PrintWriter(new OutputStreamWriter(
                     new FileOutputStream(rejectReportFile),
                     (shared.encoding == null)
@@ -4923,6 +4930,10 @@ public class SqlFile {
                     ((rejectFile == null) ? SqltoolRB.none.getString()
                                     : rejectFile.getPath()),
                     ((rejectFile == null) ? null : rejectFile.getPath())));
+        } catch (BadSpecial bs) {
+            throw new SqlToolError(
+                    SqltoolRB.dsv_rejectreport_setupfail.getString(
+                    dsvRejectReport), bs);
         } catch (IOException ioe) {
             throw new SqlToolError(
                     SqltoolRB.dsv_rejectreport_setupfail.getString(
@@ -5520,5 +5531,14 @@ public class SqlFile {
         stdprintln((msg == null)
                   ? SqltoolRB.connected_fallbackmsg.getString()
                   : msg);
+    }
+
+    private String dereferenceAt(String s) throws BadSpecial {
+        if (s.indexOf('@') != 0) return s;
+        if (baseDir == null)
+            throw new BadSpecial(
+                    "Leading @ in file paths has special meaning, and may "
+                    + " only be used if input is a file.");
+        return baseDir.getPath() + s.substring(1);
     }
 }
