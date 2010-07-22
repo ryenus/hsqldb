@@ -341,6 +341,12 @@
         <section><title>New Features</title>
             <itemizedlist>
                 <listitem><simpara>
+                    You can (and if you use nested scripts, you probably
+                    <emphasis>should</emphasis>) prefix relative paths given
+                    inside of SqlTool with <literal>@/</literal>.
+                    This makes them relative to the parent script directory
+                    instead of to the invocation current directory.
+                </simpara></listitem><listitem><simpara>
                     DSV column and row delimiters are now specified
                     separately for input and output.
                     This allows the input delimiters to be regular expressions.
@@ -1256,6 +1262,13 @@
             which many people are used to from DosKey and Bash shell.
             If you don't know how to use regular expressions, and don't want
             to learn how to use them, then just forget command-recall.
+            (Actualy DosKey does work from vanilla Windows MSDOS console
+            windows.  Be aware that it suffers from the same 20-year old
+            quirks as DOS command-line editing.  Very often the command line
+            history will get shifted and you won't be able to find the command
+            you want to recall.  Usually you can work around this by typing
+            a comment... "::" to DOS or "--" to SqlTool then re-trying on the
+            next command line).
             <itemizedlist>
                 <title>Basic command entry (i.e., without regexps)</title>
                 <listitem><simpara>
@@ -2118,9 +2131,52 @@
                 commands you give interactively, if a SQL file gives error
                 handling statements, they will take precedence.
             </simpara><simpara>
-                You can also use \i in SQL files.
-                This results in nested SQL files.
+                You can also use \i in SQL files to pull in (nest) additional
+                SQL files.
+                This is a powerful way to hierarchically maintain and
+                configuration manage a set of scripts for a product, project,
+                or database.
+                For encapsulation, tracking, and collaboration purposes, it's
+                usually best to keep each SQL script focused on one task or
+                goal, for example: creating a table, it's trigger, and loading
+                initial data from a DSV file.
+                Usually a set of such scripts will have to be executed in a
+                precise order so that referenced tables are created before
+                tables with foreign keys to them, etc.
+                I make a <emphasis>super-script</emphasis> for every database
+                project that I manage.
+                Besides this strategy proving and configuration managing
+                an installation procedure known to work, I can recreate large
+                and complex, custom product databases for deployments or tests
+                in seconds.
+                With the addition of some very simple PL coding, I can
+                I can re-create all database structures in a parallel schema by
+                just specifying a schema name when I invoke the super-script.
             </simpara><simpara>
+              As you would probably guess, all of SQL's file commands (for
+              example loading or saving SQL scripts, binary data, DSV data)
+              take either relative or absolute file paths.
+              However, when you nest scripts, you will usually want to begin
+              your paths with the <literal>@/</literal>.
+              The initial <literal>@</literal> character in file paths means
+              <emphasis>the directory containing the current script</emphasis>.
+              This is important because of Java's frustating inability to
+              switch the current directory.
+              By using <literal>@</literal>, you can cross-reference between
+              SQL scripts in one or several co-located directories, and
+              everything will <emphasis>just work</emphasis>, regardless of
+              your current directory when you invoke script(s).
+            </simpara>
+            <tip><simpara>
+              If you use a managed set of nested scripts, you are advised to
+              prefix all relative file paths inside of SqlTool scripts with
+              <literal>@/</literal>.  Without this, relative file paths would
+              be resolved relative to the invocation directory-- making your
+              scripts require a specific invocation directory.
+              The <emphasis>at character</emphasis> will resolve to the
+              directory containing the current script.
+            </simpara></tip>
+            <simpara>
                 You can use the following SQL file,
                 <filename xlink:href="#sample.sql-link">
                   sample/sample.sql</filename>,
