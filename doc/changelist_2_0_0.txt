@@ -1,6 +1,10 @@
+22 July 2010 - SVN 3716
+-- improved default reporting of WITH TIME ZONE and INTERVAL types in metadata and system tables
+-- improved getGeneratedKeys with user defined column sets
+-- fixed bug #3032488 - multi-column in condition without a full index on columns did not work
 19 July 2010 - SVN 3709
 -- added support for procedures returning result sets
--- added function TO_DATE
+-- additional relaxation of BIT used as BOOLEAN
 13 July 2010 - SVN 3693
 -- added aggregate functions ARRAY_AGG and GROUP_CONCAT
 -- added TO_DATE function
