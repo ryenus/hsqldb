@@ -1,10 +1,10 @@
 /*
  * Hibernate, Relational Persistence for Idiomatic Java
  *
- * Copyright (c) 2008, Red Hat Middleware LLC or third-party contributors as
+ * Copyright (c) 2010, Red Hat Inc. or third-party contributors as
  * indicated by the @author tags or express copyright attribution
  * statements applied by the authors.  All third-party contributions are
- * distributed under license by Red Hat Middleware LLC.
+ * distributed under license by Red Hat Inc.
  *
  * This copyrighted material is made available to anyone wishing to use, modify,
  * copy, or redistribute it subject to the terms and conditions of the GNU
@@ -20,7 +20,6 @@
  * Free Software Foundation, Inc.
  * 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301  USA
- *
  */
 package org.hibernate.dialect;
 
@@ -65,7 +64,9 @@ public class HSQLDialect extends Dialect {
 
     private static final Logger log = LoggerFactory.getLogger( HSQLDialect.class );
 
-    /** version is 18 for 1.8 or 20 for 2.0 */
+	/**
+	 * version is 18 for 1.8 or 20 for 2.0
+	 */
     private int hsqldbVersion = 18;
 
 
@@ -74,20 +75,22 @@ public class HSQLDialect extends Dialect {
 
          try {
              Class props = ReflectHelper.classForName( "org.hsqldb.persist.HsqlDatabaseProperties" );
-             String versionString = (String) props.getDeclaredField( "THIS_VERSION" ).get(null);
+			String versionString = (String) props.getDeclaredField( "THIS_VERSION" ).get( null );
 
-             hsqldbVersion = Integer.parseInt(versionString.substring(0, 1)) * 10;
-             hsqldbVersion += Integer.parseInt(versionString.substring(2, 3));
-         } catch ( Throwable e ) {
+			hsqldbVersion = Integer.parseInt( versionString.substring( 0, 1 ) ) * 10;
+			hsqldbVersion += Integer.parseInt( versionString.substring( 2, 3 ) );
+		}
+		catch ( Throwable e ) {
              // must be a very old version
          }
 
         registerColumnType( Types.BIGINT, "bigint" );
         registerColumnType( Types.BINARY, "binary" );
         registerColumnType( Types.BIT, "bit" );
+        registerColumnType( Types.BOOLEAN, "boolean" );
         registerColumnType( Types.CHAR, "char($l)" );
         registerColumnType( Types.DATE, "date" );
-        registerColumnType( Types.BOOLEAN, "boolean" );
+
         registerColumnType( Types.DECIMAL, "decimal($p,$s)" );
         registerColumnType( Types.DOUBLE, "double" );
         registerColumnType( Types.FLOAT, "float" );
@@ -101,17 +104,19 @@ public class HSQLDialect extends Dialect {
         registerColumnType( Types.VARCHAR, "varchar($l)" );
         registerColumnType( Types.VARBINARY, "varbinary($l)" );
 
-        if (hsqldbVersion < 20) {
+		if ( hsqldbVersion < 20 ) {
             registerColumnType( Types.NUMERIC, "numeric" );
-        } else {
+		}
+		else {
             registerColumnType( Types.NUMERIC, "numeric($p,$s)" );
         }
 
         //HSQL has no Blob/Clob support .... but just put these here for now!
-        if (hsqldbVersion < 20) {
+		if ( hsqldbVersion < 20 ) {
             registerColumnType( Types.BLOB, "longvarbinary" );
             registerColumnType( Types.CLOB, "longvarchar" );
-        } else {
+		}
+		else {
             registerColumnType( Types.BLOB, "blob" );
             registerColumnType( Types.CLOB, "clob" );
         }
@@ -131,14 +136,16 @@ public class HSQLDialect extends Dialect {
         registerFunction( "space", new StandardSQLFunction( "space", Hibernate.STRING ) );
         registerFunction( "rawtohex", new StandardSQLFunction( "rawtohex" ) );
         registerFunction( "hextoraw", new StandardSQLFunction( "hextoraw" ) );
-        registerFunction( "str", new SQLFunctionTemplate(Hibernate.STRING, "cast(?1 as varchar(24))") );
+		registerFunction( "str", new SQLFunctionTemplate( Hibernate.STRING, "cast(?1 as varchar(24))" ) );
         registerFunction( "user", new NoArgSQLFunction( "user", Hibernate.STRING ) );
         registerFunction( "database", new NoArgSQLFunction( "database", Hibernate.STRING ) );
 
         registerFunction( "sysdate", new NoArgSQLFunction( "sysdate", Hibernate.DATE, false ) );
         registerFunction( "current_date", new NoArgSQLFunction( "current_date", Hibernate.DATE, false ) );
         registerFunction( "curdate", new NoArgSQLFunction( "curdate", Hibernate.DATE ) );
-        registerFunction( "current_timestamp", new NoArgSQLFunction( "current_timestamp", Hibernate.TIMESTAMP, false ) );
+		registerFunction(
+				"current_timestamp", new NoArgSQLFunction( "current_timestamp", Hibernate.TIMESTAMP, false )
+		);
         registerFunction( "now", new NoArgSQLFunction( "now", Hibernate.TIMESTAMP ) );
         registerFunction( "current_time", new NoArgSQLFunction( "current_time", Hibernate.TIME, false ) );
         registerFunction( "curtime", new NoArgSQLFunction( "curtime", Hibernate.TIME ) );
@@ -226,16 +233,19 @@ public class HSQLDialect extends Dialect {
     }
 
     public String getLimitString(String sql, boolean hasOffset) {
-        if (hsqldbVersion < 20) {
-            return new StringBuffer(sql.length() + 10)
-                .append(sql)
-                .insert(sql.toLowerCase().indexOf("select") + 6,
-                        hasOffset ? " limit ? ?" : " top ?")
+		if ( hsqldbVersion < 20 ) {
+			return new StringBuffer( sql.length() + 10 )
+					.append( sql )
+					.insert(
+							sql.toLowerCase().indexOf( "select" ) + 6,
+							hasOffset ? " limit ? ?" : " top ?"
+					)
                 .toString();
-        } else {
-            return new StringBuffer(sql.length() + 20)
-                .append(sql)
-                .append(hasOffset ? " offset ? limit ?" : " limit ?")
+		}
+		else {
+			return new StringBuffer( sql.length() + 20 )
+					.append( sql )
+					.append( hasOffset ? " offset ? limit ?" : " limit ?" )
                 .toString();
         }
     }
@@ -333,24 +343,24 @@ public class HSQLDialect extends Dialect {
         public String extractConstraintName(SQLException sqle) {
             String constraintName = null;
 
-            int errorCode = JDBCExceptionHelper.extractErrorCode(sqle);
+			int errorCode = JDBCExceptionHelper.extractErrorCode( sqle );
 
-            if (errorCode == -8) {
+			if ( errorCode == -8 ) {
                 constraintName = extractUsingTemplate(
                     "; ", " table: ", sqle.getMessage()
                     );
             }
-            else if (errorCode == -9) {
+			else if ( errorCode == -9 ) {
                 constraintName = extractUsingTemplate(
                     "; ", " table: ", sqle.getMessage()
                     );
             }
-            else if (errorCode == -104) {
+			else if ( errorCode == -104 ) {
                 constraintName = extractUsingTemplate(
                     "; ", " table: ", sqle.getMessage()
                     );
             }
-            else if (errorCode == -177) {
+			else if ( errorCode == -177 ) {
                 constraintName = extractUsingTemplate(
                     "; ", " table: ", sqle.getMessage()
                     );
@@ -361,7 +371,7 @@ public class HSQLDialect extends Dialect {
 
     public String getSelectClauseNullString(int sqlType) {
         String literal;
-        switch(sqlType) {
+		switch ( sqlType ) {
             case Types.VARCHAR:
             case Types.CHAR:
                 literal = "cast(null as varchar(100))";
@@ -409,13 +419,14 @@ public class HSQLDialect extends Dialect {
      * statement (in-case there is a global name beginning with HT_)
      *
      * @param baseTableName The table name from which to base the temp table name.
+	 *
      * @return The generated temp table name.
      */
     public String generateTemporaryTableName(String baseTableName) {
-
-        if (hsqldbVersion < 20 ) {
+		if ( hsqldbVersion < 20 ) {
             return "HT_" + baseTableName;
-        } else {
+		}
+		else {
             return "MODULE.HT_" + baseTableName;
         }
     }
@@ -426,9 +437,10 @@ public class HSQLDialect extends Dialect {
      * @return The command used to create a temporary table.
      */
     public String getCreateTemporaryTableString() {
-        if (hsqldbVersion < 20 ) {
+		if ( hsqldbVersion < 20 ) {
             return "create global temporary table";
-        } else {
+		}
+		else {
             return "declare local temporary table";
         }
     }
@@ -453,7 +465,7 @@ public class HSQLDialect extends Dialect {
     }
 
     /**
-     * Different behaviour for GLOBAL TEMPORARY (1.8) and LOCAL TEMPORARTY (2.0)
+	 * Different behaviour for GLOBAL TEMPORARY (1.8) and LOCAL TEMPORARY (2.0)
      * <p/>
      * Possible return values and their meanings:<ul>
      * <li>{@link Boolean#TRUE} - Unequivocally, perform the temporary table DDL
@@ -469,7 +481,8 @@ public class HSQLDialect extends Dialect {
     public Boolean performTemporaryTableDDLInIsolation() {
         if ( hsqldbVersion < 20 ) {
             return Boolean.TRUE;
-        } else {
+		}
+		else {
             return Boolean.FALSE;
         }
     }
@@ -538,32 +551,36 @@ public class HSQLDialect extends Dialect {
     /**
      * For HSQLDB 2.0, this is a copy of the base class implementation.
      * For HSQLDB 1.8, only READ_UNCOMMITTED is supported.
+	 *
      * @param lockable The persister for the entity to be locked.
      * @param lockMode The type of lock to be acquired.
+	 *
      * @return The appropriate locking strategy.
+	 *
      * @since 3.2
      */
     public LockingStrategy getLockingStrategy(Lockable lockable, LockMode lockMode) {
-        if ( lockMode==LockMode.PESSIMISTIC_FORCE_INCREMENT) {
-            return new PessimisticForceIncrementLockingStrategy( lockable, lockMode);
+		if ( lockMode == LockMode.PESSIMISTIC_FORCE_INCREMENT ) {
+			return new PessimisticForceIncrementLockingStrategy( lockable, lockMode );
         }
-        else if ( lockMode==LockMode.PESSIMISTIC_WRITE) {
-            return new PessimisticWriteSelectLockingStrategy( lockable, lockMode);
+		else if ( lockMode == LockMode.PESSIMISTIC_WRITE ) {
+			return new PessimisticWriteSelectLockingStrategy( lockable, lockMode );
         }
-        else if ( lockMode==LockMode.PESSIMISTIC_READ) {
-            return new PessimisticReadSelectLockingStrategy( lockable, lockMode);
+		else if ( lockMode == LockMode.PESSIMISTIC_READ ) {
+			return new PessimisticReadSelectLockingStrategy( lockable, lockMode );
         }
-        else if ( lockMode==LockMode.OPTIMISTIC) {
-            return new OptimisticLockingStrategy( lockable, lockMode);
+		else if ( lockMode == LockMode.OPTIMISTIC ) {
+			return new OptimisticLockingStrategy( lockable, lockMode );
         }
-        else if ( lockMode==LockMode.OPTIMISTIC_FORCE_INCREMENT) {
-            return new OptimisticForceIncrementLockingStrategy( lockable, lockMode);
+		else if ( lockMode == LockMode.OPTIMISTIC_FORCE_INCREMENT ) {
+			return new OptimisticForceIncrementLockingStrategy( lockable, lockMode );
         }
 
         if ( hsqldbVersion < 20 ) {
             return new ReadUncommittedLockingStrategy( lockable, lockMode );
-        } else {
-            return new SelectLockingStrategy(lockable, lockMode);
+		}
+		else {
+			return new SelectLockingStrategy( lockable, lockMode );
         }
     }
 
@@ -604,6 +621,7 @@ public class HSQLDialect extends Dialect {
      * HSQLDB require casting for "select ? from .." to work.
      *
      * @return True if select clause parameter must be cast()ed
+	 *
      * @since 3.2
      */
     public boolean requiresCastingOfParametersInSelectClause() {
