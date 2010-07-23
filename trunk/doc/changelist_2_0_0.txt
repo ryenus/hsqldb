@@ -1,7 +1,10 @@
+23 July 2010 - SVN 3721
+-- added FILTER clause support to aggregates
+-- added functions ACTION_ID, TRANSACTION_ID, TRANSACTION_SIZE, UNIX_TIMESTAMP
 22 July 2010 - SVN 3716
 -- improved default reporting of WITH TIME ZONE and INTERVAL types in metadata and system tables
 -- improved getGeneratedKeys with user defined column sets
--- fixed bug #3032488 - multi-column in condition without a full index on columns did not work
+-- fixed bug #3032488 - multi-column IN condition without a full index on columns did not work
 19 July 2010 - SVN 3709
 -- added support for procedures returning result sets
 -- additional relaxation of BIT used as BOOLEAN
@@ -34,7 +37,8 @@
 -- some relaxation of DECIMAL dynamic params
 16 June 2010 - SVN 3658
 - fixed bug #3016375 Server remote open with no initial database
-- fixed bugs #3016397, #3016481 - multiple UNION CORRESPONDING and using TABLE T with views
+- fixed bugs #3016397 - multiple UNION CORRESPONDING did not work
+- fixed bugs #3016481 - TABLE T did not work with views
 - minor improvement to MVCC transactions
 13 June 2010 - SVN 3654
 - fixed issue with third parameter of LOCATE function
