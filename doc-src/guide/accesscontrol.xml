@@ -237,8 +237,10 @@
       (HyperSQL-specific)</emphasis></simpara>
 
       <simpara>A user that has this role, can change the authorization for the
-      current session to another user. The DBA authorization has this role and
-      can grant it to other authorizations.</simpara>
+      current session to another user. The other user cannot have the DBA role
+      (otherwise, the original user would gain DBA provileges). The DBA
+      authorization has this role and can grant it to other
+      authorizations.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SA USER</primary>

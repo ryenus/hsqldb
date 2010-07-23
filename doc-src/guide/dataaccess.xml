@@ -302,6 +302,7 @@ PreparedStatement st = c.prepareStatement("SELECT * FROM T WHERE NAME = ?");
 // type of the parameter is VARCHAR(12), which limits length to 12 characters
 st.setString(1, "Eyjafjallajokull"); // string is longer than type, but no exception is raised here
 set.execute(); // executes with no exception and does not find any rows
+
 // but if an UPDATE is attempted, an exception is raised
 st = c.prepareStatement("UPDATE T SET NAME = ? WHERE ID = 10");
 st.setString(1, "Eyjafjallajokull"); // string is longer than type, but no exception is raised here
@@ -320,11 +321,12 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
       createClob() methods can be used to create the new LOBs. For very large
       LOB's the stream methods are preferable as they use less memory.</para>
 
-      <para>For array parameters, you must use a java.sql.Array object that
-      contains the array elements before assigning to JDBC parameters. The
-      Connection.createArrayOf(...) method can be used to create a new object,
-      or you can use an Array returned from connections to other RDBMS
-      servers.</para>
+      <para>For array parameters, you must use a
+      <classname>java.sql.Array</classname> object that contains the array
+      elements before assigning to JDBC parameters. The
+      <code>Connection.createArrayOf(...)</code> method can be used to create
+      a new object, or you can use an Array returned from connections to other
+      RDBMS servers.</para>
     </section>
 
     <section>
@@ -376,7 +378,9 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
       discussed in the rest of this chapter. In the example below a cursor is
       declared for a SELECT statement. It is later opened to create the result
       set. The cursor is specified WITHOUT HOLD, so the result set is not kept
-      after a commit. Use WITH HOLD to keep the result set.</para>
+      after a commit. Use WITH HOLD to keep the result set. Note that you need
+      to declare the cursor WITH RETURN as it is returned by the
+      <classname>CallableStatement</classname>.</para>
 
       <programlisting>DECLARE thiscursor SCROLL CURSOR WITHOUT HOLD WITH RETURN FOR SELECT * FROM INFORMATION_SCHEMA.TABLES;
 --
@@ -1931,20 +1935,19 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
 
       <simpara><literal>&lt;aggregate function&gt; ::= COUNT &lt;left
       paren&gt; &lt;asterisk&gt; &lt;right paren&gt; [ &lt;filter clause&gt; ]
-      | &lt;general set function&gt; [ &lt;filter clause&gt; ]
-      </literal></simpara>
+      | &lt;general set function&gt; [ &lt;filter clause&gt; ] | &lt;array
+      aggregate function&gt; [ &lt;filter clause&gt; ]</literal></simpara>
 
       <simpara><literal>&lt;general set function&gt; ::= &lt;set function
       type&gt; &lt;left paren&gt; [ &lt;set quantifier&gt; ] &lt;value
-      expression&gt; [ &lt;order by clause&gt; ] [ &lt;separator&gt; ]
-      &lt;right paren&gt;</literal></simpara>
+      expression&gt; &lt;right paren&gt;</literal></simpara>
 
       <simpara><literal>&lt;set function type&gt; ::= &lt;computational
       operation&gt;</literal></simpara>
 
       <simpara><literal>&lt;computational operation&gt; ::= AVG | MAX | MIN |
       SUM | EVERY | ANY | SOME | COUNT | STDDEV_POP | STDDEV_SAMP | VAR_SAMP |
-      VAR_POP | ARRAY_AGG | GROUP_CONCAT</literal></simpara>
+      VAR_POP</literal></simpara>
 
       <simpara><literal>&lt;set quantifier&gt; ::= DISTINCT |
       ALL</literal></simpara>
@@ -1952,14 +1955,20 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       <simpara><literal>&lt;filter clause&gt; ::= FILTER &lt;left paren&gt;
       WHERE &lt;search condition&gt; &lt;right paren&gt;</literal></simpara>
 
+      <simpara><literal>&lt;array aggregate function&gt; ::= { ARRAY_AGG |
+      GROUP_CONCAT } &lt;left paren&gt; [ &lt;set quantifier&gt; ] &lt;value
+      expression&gt; [ &lt;order by clause&gt; ] [ &lt;separator&gt; ]
+      &lt;right paren&gt;</literal></simpara>
+
       <simpara><literal>&lt;separator&gt; ::= &lt;character string
       literal&gt;</literal></simpara>
 
-      <simpara>Specify a value computed from a collection of rows. An
-      aggregate function is used exclusively in a <literal>&lt;query
-      specification&gt;</literal> and its use transforms a normal query into
-      an aggregate query returning a single row instead of the group of
-      multiple rows that the original query returns. For example,
+      <simpara>Specify a value computed from a collection of rows.</simpara>
+
+      <simpara>An aggregate function is used exclusively in a
+      <literal>&lt;query specification&gt;</literal> and its use transforms a
+      normal query into an aggregate query returning a single row instead of
+      the multiple rows that the original query returns. For example,
       <literal>SELECT acolumn &lt;table expression&gt;</literal> is a query
       that returns the value of acolumn for all the rows the satisfy the given
       condition. But <literal>SELECT MAX(acolumn) &lt;table
@@ -1971,22 +1980,29 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       NULL</literal>.</simpara>
 
       <simpara>If the <literal>&lt;table expression&gt;</literal> is a grouped
-      table, the aggregate function returns the result of the
-      <literal>COUNT</literal> or <literal>&lt;computational
-      operation&gt;</literal> for each group. In this case the result has the
-      same number of rows as the original query. For example <literal>SELECT
-      SUM(acolumn) &lt;table expression&gt;</literal> when <literal>&lt;table
+      table (has a <code>GROUP BY</code> clause), the aggregate function
+      returns the result of the <literal>COUNT</literal> or
+      <literal>&lt;computational operation&gt;</literal> for each group. In
+      this case the result has the same number of rows as the original grouped
+      query. For example <literal>SELECT SUM(acolumn) &lt;table
+      expression&gt;</literal> when <literal>&lt;table
       expression&gt;</literal> has a <literal>GROUP BY</literal> clause,
       returns the sum of values for <literal>acolumn</literal> in each
       group.</simpara>
 
       <simpara>The AVG and SUM operations can be performed on numeric
       expressions only. AVG returns the average value, while SUM returns the
-      sum of all non-null values. MAX and MIN return the minimum or the
-      maximum value. If all values are NULL, the operations return NULL. The
-      <literal>COUNT(*)</literal> operation returns the count of all values,
-      while <literal>COUNT(&lt;value expression&gt;)</literal> returns the
-      count of non-NULL values.</simpara>
+      sum of all values. If all values are NULL, the operations return
+      NULL.</simpara>
+
+      <simpara>MAX and MIN can be performed on all types of expressions and
+      return the minimum or the maximum value. If all values are NULL, the
+      operations return NULL.</simpara>
+
+      <simpara><literal>COUNT(*)</literal> returns the count of all values,
+      including nulls, while <literal>COUNT(&lt;value
+      expression&gt;)</literal> returns the count of non-NULL
+      values.</simpara>
 
       <simpara>The EVERY, ANY and SOME operations can be performed on boolean
       expressions only. EVERY returns TRUE if all the values are TRUE,
@@ -1997,9 +2013,18 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       STDDEV_POP, STDDEV_SAMP, VAR_SAMP, VAR_POP on numeric values. NULL
       values are ignored in calculations.</simpara>
 
+      <simpara>The <code>&lt;filter clause&gt;</code> allows you to add a
+      search condition. When the search condition evaluates to TRUE for a row,
+      the row is included in aggregation. Otherwise the row is not included.
+      In the example below a single query returns two different filtered
+      counts:</simpara>
+
+      <programlisting>SELECT COUNT(ITEM) FILTER (WHERE GENDER = 'F') AS "FEMALE COUNT", COUNT(ITEM) FILTER (WHERE GENDER = 'M') AS "MALE COUNT" FROM PEOPLE
+</programlisting>
+
       <simpara>User defined aggregate functions can be defined and used
-      instead of the built-in aggregate functions. Syntax and examples are
-      given in the <link endterm="sqlroutines-title"
+      instead of the built-in aggregate functions. The FILTER Syntax and
+      examples are given in the <link endterm="sqlroutines-title"
       xlink:href="#sqlroutines-chapt"></link> chapter.</simpara>
 
       <simpara>ARRAY_AGG is different from all other aggregate functions, as
@@ -2015,14 +2040,16 @@ invoice_date &lt; ALL (SELECT holiday_date FROM holidays)
       the available columns of the query, not just the <literal>&lt;value
       expression&gt;</literal> that is used as the ARRAY_AGG argument. The
       <literal>&lt;order by clause&gt;</literal> can have multiple elements
-      and each element can include NULLS LAST or DESC qualifiers.</simpara>
+      and each element can include NULLS LAST or DESC qualifiers. No
+      <literal>&lt;separator&gt;</literal> is used with this
+      function.</simpara>
 
-      <simpara>GROUP_CONCAT is a specialised and modified form of ARRAY_AGG.
-      This function computes the array in the same way as ARRAY_AGG, then
-      returns a string that is a concatenation of the elements of the array.
-      If <literal>&lt;separator&gt;</literal> has been specified, it is used
-      to separate the elements of the array. Otherwise the comma is used to
-      separate the elements.</simpara>
+      <simpara>GROUP_CONCAT is a specialised function derived from ARRAY_AGG.
+      This function computes the array in the same way as ARRAY_AGG, removes
+      all the NULL elements, then returns a string that is a concatenation of
+      the elements of the array. If <literal>&lt;separator&gt;</literal> has
+      been specified, it is used to separate the elements of the array.
+      Otherwise the comma is used to separate the elements.</simpara>
 
       <simpara>The example below shows a grouped query with ARRAY_AGG and
       GROUP_CONCAT. The CUSTOMER table that is included for tests in the
@@ -2317,9 +2344,9 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       performed on each group, and for each group, a row is formed that
       contains the values of the columns of the <literal>&lt;group by
       clause&gt;</literal> and the values returned from each
-      <literal>&lt;aggregate function&gt;. In the first example below, a
-      simple column reference is used in GROUP BY, while in the second
-      example, an expression is used.</literal><programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+      <literal>&lt;aggregate function&gt;.</literal> In the first example
+      below, a simple column reference is used in GROUP BY, while in the
+      second example, an expression is used.<programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
 SELECT d, e, f FROM atable WHERE a + b = c GROUP BY d, e, f
 SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &gt; 2 AND d + e &gt; 4
 </programlisting></para>
@@ -3007,6 +3034,29 @@ INSERT INTO T (SELECT * FROM Z) /* table Z has the same columns as table T */
 INSERT INTO T (A,B) VALUES ((1,2),(3,NULL), (DEFAULT,6)) /* three rows are inserted into table T */
 INSERT INTO T VALUES 3, ARRAY['hot','cold']
 </programlisting>
+
+      <para>If the table contains an IDENTITY column, the value for this
+      column for the last row inserted by a session can be retrieved using a
+      call to the IDENITY() function. This call returns the last value
+      inserted by the calling session. When the insert statement is executed
+      with a JDBC Statement or PreparedStatement method, the
+      getGeneratedKeys() method of Statement can be used to retrieve not only
+      the IDENTITY column, but also any GENERATED computed column, or any
+      other column. The getGeneratedKeys() returns a ResultSet with one or
+      more columns. This contains one row per inserted row, and can therefore
+      return all the generated columns for a multi-row insert.</para>
+
+      <para>There are three methods of specifying which generated keys should
+      be returned. The first method does not specify the columns of the table.
+      With this method, the returned ResultSet will have a column for each
+      column of the table that is defined as GENERATED ... AS IDENTITY or
+      GENERATED ... AS (&lt;expression&gt;). The two other methods require the
+      user to specify which columns should be returned, either by column
+      indexes, or by column names. With these methods, there is no restriction
+      on which columns of the inserted values to be returned. This is
+      especially useful when some columns have a default clause which is a
+      function, or when there are BEFORE triggers on the table that may
+      provide the inserted value for some of the columns.</para>
     </section>
 
     <section>
