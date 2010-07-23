@@ -51,6 +51,7 @@ public class FunctionSQLInvoked extends Expression {
 
     RoutineSchema routineSchema;
     Routine       routine;
+    Expression    condition;
 
     FunctionSQLInvoked(RoutineSchema routineSchema) {
 
@@ -66,6 +67,16 @@ public class FunctionSQLInvoked extends Expression {
 
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
             int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
+
+        if (condition != null) {
+            HsqlList conditionSet =
+                condition.resolveColumnReferences(rangeVarArray, rangeCount,
+                                                  null, false);
+
+            if (conditionSet != null) {
+                ExpressionColumn.checkColumnsResolved(conditionSet);
+            }
+        }
 
         if (isSelfAggregate()) {
             if (unresolvedSet == null) {
@@ -103,6 +114,10 @@ public class FunctionSQLInvoked extends Expression {
         }
 
         dataType = routine.getReturnType();
+
+        if (condition != null) {
+            condition.resolveTypes(session, null);
+        }
     }
 
     private Object getValueInternal(Session session, Object[] aggregateData) {
@@ -302,6 +317,12 @@ public class FunctionSQLInvoked extends Expression {
 
     public Object updateAggregatingValue(Session session, Object currValue) {
 
+        if (condition != null) {
+            if (!condition.testCondition(session)) {
+                return currValue;
+            }
+        }
+
         Object[] array = (Object[]) currValue;
 
         if (array == null) {
@@ -333,5 +354,13 @@ public class FunctionSQLInvoked extends Expression {
         } else {
             return result.getValueObject();
         }
+    }
+
+    public Expression getCondition() {
+        return condition;
+    }
+
+    public void setCondition(Expression e) {
+        condition = e;
     }
 }

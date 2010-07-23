@@ -1295,6 +1295,8 @@ public final class DateTimeType extends DTIType {
             }
 
             type.nameString = nameString;
+
+            return type;
         }
 
         return this;

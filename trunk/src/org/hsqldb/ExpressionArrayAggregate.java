@@ -56,6 +56,7 @@ public class ExpressionArrayAggregate extends Expression {
     String       separator;
     ArrayType    arrayDataType;
     Type         exprType;
+    Expression   condition;
 
     ExpressionArrayAggregate(int type, boolean distinct, Expression e,
                              SortAndSlice sort, String separator) {
@@ -147,6 +148,16 @@ public class ExpressionArrayAggregate extends Expression {
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
             int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
+        if (condition != null) {
+            HsqlList conditionSet =
+                condition.resolveColumnReferences(rangeVarArray, rangeCount,
+                                                  null, false);
+
+            if (conditionSet != null) {
+                ExpressionColumn.checkColumnsResolved(conditionSet);
+            }
+        }
+
         if (unresolvedSet == null) {
             unresolvedSet = new ArrayListIdentity();
         }
@@ -202,6 +213,10 @@ public class ExpressionArrayAggregate extends Expression {
                 dataType = Type.SQL_VARCHAR_DEFAULT;
                 break;
         }
+
+        if (condition != null) {
+            condition.resolveTypes(session, null);
+        }
     }
 
     public boolean equals(Expression other) {
@@ -220,6 +235,12 @@ public class ExpressionArrayAggregate extends Expression {
     }
 
     public Object updateAggregatingValue(Session session, Object currValue) {
+
+        if (condition != null) {
+            if (!condition.testCondition(session)) {
+                return currValue;
+            }
+        }
 
         Object[] row = new Object[nodes.length];
 
@@ -253,20 +274,18 @@ public class ExpressionArrayAggregate extends Expression {
 
         if (isDistinctAggregate) {
             SortAndSlice exprSort = new SortAndSlice();
-            exprSort.prepareSingleColumn(nodes.length - 1);
 
+            exprSort.prepareSingleColumn(nodes.length - 1);
             arrayDataType.sort(session, array, exprSort);
 
             int size = arrayDataType.deDuplicate(session, array, exprSort);
 
-            array = (Object[])    ArrayUtil.resizeArrayIfDifferent(array, size);
+            array = (Object[]) ArrayUtil.resizeArrayIfDifferent(array, size);
         }
 
         if (sort != null) {
             arrayDataType.sort(session, array, sort);
         }
-
-
 
         switch (opType) {
 
@@ -290,7 +309,9 @@ public class ExpressionArrayAggregate extends Expression {
                     }
 
                     Object[] row = (Object[]) array[i];
-                    String value = exprType.convertToString(row[row.length - 1]);
+                    String value =
+                        exprType.convertToString(row[row.length - 1]);
+
                     sb.append(value);
                 }
 
@@ -298,5 +319,13 @@ public class ExpressionArrayAggregate extends Expression {
         }
 
         return null;
+    }
+
+    public Expression getCondition() {
+        return condition;
+    }
+
+    public void setCondition(Expression e) {
+        condition = e;
     }
 }

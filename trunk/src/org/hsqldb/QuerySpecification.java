@@ -853,6 +853,10 @@ public class QuerySpecification extends QueryExpression {
 
                 case OpTypes.MAX :
                 case OpTypes.MIN : {
+                    if (e.getCondition() != null) {
+                        break;
+                    }
+
                     SortAndSlice slice = new SortAndSlice();
 
                     slice.isGenerated = true;
@@ -866,11 +870,18 @@ public class QuerySpecification extends QueryExpression {
                     break;
                 }
                 case OpTypes.COUNT : {
+                    if (e.getCondition() != null) {
+                        break;
+                    }
+
                     if (rangeVariables.length == 1 && queryCondition == null
                             && e.getLeftNode().getType() == OpTypes.ASTERISK) {
                         isSimpleCount = true;
                     }
+
+                    break;
                 }
+                default :
             }
         }
 
