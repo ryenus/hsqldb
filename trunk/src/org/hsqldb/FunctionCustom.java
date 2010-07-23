@@ -119,6 +119,10 @@ public class FunctionCustom extends FunctionSQL {
     private final static int FUNC_SESSION_TIMEZONE         = 91;
     private final static int FUNC_DATABASE_TIMEZONE        = 92;
     private final static int FUNC_DATABASE_VERSION         = 93;
+    private final static int FUNC_ACTION_ID                = 94;
+    private final static int FUNC_TRANSACTION_ID           = 95;
+    private final static int FUNC_TRANSACTION_SIZE         = 96;
+    private final static int FUNC_UNIX_TIMESTAMP           = 97;
 
     //
     private static final int FUNC_ACOS             = 101;
@@ -247,6 +251,10 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.DATABASE_VERSION,
                                  FUNC_DATABASE_VERSION);
         customRegularFuncMap.put(Tokens.LOB_ID, FUNC_LOB_ID);
+        customRegularFuncMap.put(Tokens.ACTION_ID, FUNC_ACTION_ID);
+        customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
+        customRegularFuncMap.put(Tokens.TRANSACTION_SIZE, FUNC_TRANSACTION_SIZE);
+        customRegularFuncMap.put(Tokens.UNIX_TIMESTAMP, FUNC_UNIX_TIMESTAMP);
 
         //
         nonDeterministicFuncSet.add(FUNC_DATABASE);
@@ -455,7 +463,14 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SESSION_TIMEZONE :
             case FUNC_DATABASE_TIMEZONE :
             case FUNC_DATABASE_VERSION :
+            case FUNC_ACTION_ID :
+            case FUNC_TRANSACTION_ID :
+            case FUNC_TRANSACTION_SIZE :
                 parseList = emptyParamList;
+                break;
+
+            case FUNC_UNIX_TIMESTAMP :
+                parseList = optionalSingleParamList;
                 break;
 
             case FUNC_LOB_ID :
@@ -722,6 +737,15 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DATABASE_VERSION :
                 return HsqlDatabaseProperties.THIS_FULL_VERSION;
 
+            case FUNC_ACTION_ID : {
+                return Long.valueOf(session.actionTimestamp);
+            }
+            case FUNC_TRANSACTION_ID : {
+                return Long.valueOf(session.transactionTimestamp);
+            }
+            case FUNC_TRANSACTION_SIZE : {
+                return Long.valueOf(session.actionIndex);
+            }
             case FUNC_LOB_ID : {
                 LobData lob = (LobData) data[0];
 
@@ -729,7 +753,7 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                return ValuePool.getLong(lob.getId());
+                return Long.valueOf(lob.getId());
             }
             case FUNC_IDENTITY : {
                 Number id = session.getLastIdentity();
@@ -987,6 +1011,20 @@ public class FunctionCustom extends FunctionSQL {
                     long seed = ((Number) data[0]).longValue();
 
                     return new Double(session.random(seed));
+                }
+            }
+            case FUNC_UNIX_TIMESTAMP : {
+                if (nodes[0] == null) {
+                    TimestampData ts = session.getCurrentTimestamp(false);
+
+                    return Long.valueOf(ts.getSeconds());
+                } else {
+                    if (data[0] == null) {
+                        return null;
+                    }
+
+                    return Long.valueOf(
+                        ((TimestampData) data[0]).getSeconds());
                 }
             }
             case FUNC_ACOS : {
@@ -1453,6 +1491,9 @@ public class FunctionCustom extends FunctionSQL {
 
                 return;
 
+            case FUNC_ACTION_ID :
+            case FUNC_TRANSACTION_ID :
+            case FUNC_TRANSACTION_SIZE :
             case FUNC_LOB_ID :
             case FUNC_IDENTITY :
                 dataType = Type.SQL_BIGINT;
@@ -1758,6 +1799,22 @@ public class FunctionCustom extends FunctionSQL {
                 dataType = Type.SQL_DOUBLE;
                 break;
 
+            case FUNC_UNIX_TIMESTAMP : {
+                if (nodes[0] != null) {
+                    if (nodes[0].dataType == null) {
+                        nodes[0].dataType = Type.SQL_TIMESTAMP;
+                    } else if (!nodes[0].dataType.isDateTimeType()
+                               || nodes[0].dataType.typeCode == Types.SQL_TIME
+                               || nodes[0].dataType.typeCode
+                                  == Types.SQL_TIME_WITH_TIME_ZONE) {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
+                }
+
+                dataType = Type.SQL_BIGINT;
+
+                break;
+            }
             case FUNC_RAND : {
                 if (nodes[0] != null) {
                     if (nodes[0].dataType == null) {
@@ -2115,6 +2172,9 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DATABASE_VERSION :
             case FUNC_PI :
             case FUNC_IDENTITY :
+            case FUNC_ACTION_ID :
+            case FUNC_TRANSACTION_ID :
+            case FUNC_TRANSACTION_SIZE :
                 return new StringBuffer(name).append(
                     Tokens.T_OPENBRACKET).append(
                     Tokens.T_CLOSEBRACKET).toString();
@@ -2139,6 +2199,7 @@ public class FunctionCustom extends FunctionSQL {
                     .append(Tokens.T_COMMA).append(nodes[2].getSQL())       //
                     .append(Tokens.T_CLOSEBRACKET).toString();
             }
+            case FUNC_UNIX_TIMESTAMP :
             case FUNC_RAND : {
                 StringBuffer sb = new StringBuffer(name).append('(');
 
