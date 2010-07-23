@@ -1980,6 +1980,45 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>TRANSACTION_SIZE function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRANSACTION_SIZE</emphasis></simpara>
+
+    <para><literal>TRANSACTION_SIZE()</literal></para>
+
+    <para>Returns the row change count for the current transaction. Each row
+    change represents a row INSERT or a row DELETE operation. There will be a
+    pair of row change operations for each row that is updated. </para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRANSACTION_ID function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRANSACTION_ID</emphasis></simpara>
+
+    <para><literal>TRANSACTION_ID()</literal></para>
+
+    <para>Returns the current transaction ID for the session as a BIGINT
+    value. The database maintains a global incremental id which is allocated
+    to new transactions and new actions (statement executions) in different
+    sessions. This value is unique to the current transaction.
+    (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>ACTION_ID function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ACTION_ID</emphasis></simpara>
+
+    <para><literal>ACTION_ID()</literal></para>
+
+    <para>Returns the current action ID for the session as a BIGINT value. The
+    database maintains a global incremental id which is allocated to new
+    transactions and new actions (statement executions) in different sessions.
+    This value is unique to the current action. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>TRANSACTION_CONTROL function</primary>
     </indexterm>
 
@@ -1989,5 +2028,18 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 
     <para>Returns the current transaction model for the database. Returns
     LOCKS, MVLOCKS or MVCC as a string. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>LOB_ID function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">LOB_ID</emphasis></simpara>
+
+    <para><literal>LOB_ID( &lt;column reference&gt; )</literal></para>
+
+    <para>Returns internal ID of a lob as a BIGINT value. Lob ID's are unique
+    and never reused. The &lt;column reference&gt; is the name of the column
+    (or variable, or argument) which is a CLOB or BLOB. Returns null if the
+    value is null. (HyperSQL)</para>
   </section>
 </chapter>

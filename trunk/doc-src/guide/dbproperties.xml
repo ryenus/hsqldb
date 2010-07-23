@@ -488,8 +488,12 @@
           <row>
             <entry nameend="c3" namest="c1"><para>This property, when set
             true, causes an error when an SQL statements contains comparisons
-            that are illegal due to type
-            mismatch.</para><para><programlisting>SET DATABASE SQL TYPES { TRUE | FALSE }</programlisting></para></entry>
+            or assignments that are non-standard due to type mismatch. Most
+            illegal comparisons and assignments will cause an exception
+            regardless of this setting. This setting applies to a small number
+            of comparisons and assignments that are possible, but not standard
+            conformant, and were allowed in previous versions of
+            HSQLDB.</para><para><programlisting>SET DATABASE SQL TYPES { TRUE | FALSE }</programlisting></para></entry>
           </row>
 
           <row>
@@ -585,8 +589,10 @@
           <row>
             <entry nameend="c3" namest="c1"><para>If the property is true, the
             datetime WITH TIME ZONE types and INTERVAL types are represented
-            as JDBC datetime types without time zone and the VARCHAR type
-            respectively.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            in JDBC methods of <classname>ResultSetMetaData</classname> and
+            <classname>DatabaseMetaData</classname> as JDBC datetime types
+            without time zone and the VARCHAR type respectively. The original
+            type names are preserved.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
 
           <row>
