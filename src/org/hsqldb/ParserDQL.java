@@ -1649,8 +1649,23 @@ public class ParserDQL extends ParserBase {
         e = readAggregateExpression(tokenT);
 
         readThis(Tokens.CLOSEBRACKET);
+        readFilterClause(e);
 
         return e;
+    }
+
+    private void readFilterClause(Expression e) {
+
+        if (token.tokenType == Tokens.FILTER) {
+            read();
+            readThis(Tokens.OPENBRACKET);
+            readThis(Tokens.WHERE);
+
+            Expression condition = XreadBooleanValueExpression();
+
+            e.setCondition(condition);
+            readThis(Tokens.CLOSEBRACKET);
+        }
     }
 
     private Expression readAggregateExpression(int tokenT) {
@@ -2149,6 +2164,10 @@ public class ParserDQL extends ParserBase {
         }
 
         e = readColumnOrFunctionExpression();
+
+        if (e.isAggregate()) {
+            readFilterClause(e);
+        }
 
         return e;
     }
@@ -3275,6 +3294,7 @@ public class ParserDQL extends ParserBase {
                 e = readAggregateExpression(tokenT);
 
                 readThis(Tokens.CLOSEBRACKET);
+                readFilterClause(e);
         }
 
         ExpressionLogical r = new ExpressionLogical(exprType, l, e);
@@ -4445,6 +4465,7 @@ public class ParserDQL extends ParserBase {
         }
 
         FunctionSQLInvoked function  = new FunctionSQLInvoked(routineSchema);
+
         Expression[]       arguments = new Expression[list.size()];
 
         list.toArray(arguments);
@@ -5190,6 +5211,7 @@ public class ParserDQL extends ParserBase {
 
         if (token.tokenType != Tokens.CURSOR) {
             rewind(position);
+
             return null;
         }
 

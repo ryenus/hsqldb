@@ -46,7 +46,8 @@ import org.hsqldb.store.ValuePool;
  */
 public class ExpressionAggregate extends Expression {
 
-    boolean isDistinctAggregate;
+    boolean    isDistinctAggregate;
+    Expression condition;
 
     ExpressionAggregate(int type, boolean distinct, Expression e) {
 
@@ -200,6 +201,16 @@ public class ExpressionAggregate extends Expression {
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
             int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
+        if (condition != null) {
+            HsqlList conditionSet =
+                condition.resolveColumnReferences(rangeVarArray, rangeCount,
+                                                  null, false);
+
+            if (conditionSet != null) {
+                ExpressionColumn.checkColumnsResolved(conditionSet);
+            }
+        }
+
         if (unresolvedSet == null) {
             unresolvedSet = new ArrayListIdentity();
         }
@@ -228,6 +239,10 @@ public class ExpressionAggregate extends Expression {
         }
 
         dataType = SetFunction.getType(opType, nodes[LEFT].dataType);
+
+        if (condition != null) {
+            condition.resolveTypes(session, null);
+        }
     }
 
     public boolean equals(Expression other) {
@@ -246,6 +261,12 @@ public class ExpressionAggregate extends Expression {
     }
 
     public Object updateAggregatingValue(Session session, Object currValue) {
+
+        if (condition != null) {
+            if (!condition.testCondition(session)) {
+                return currValue;
+            }
+        }
 
         if (currValue == null) {
             currValue = new SetFunction(opType, nodes[LEFT].dataType,
@@ -276,5 +297,13 @@ public class ExpressionAggregate extends Expression {
         }
 
         return ((SetFunction) currValue).getValue(session);
+    }
+
+    public Expression getCondition() {
+        return condition;
+    }
+
+    public void setCondition(Expression e) {
+        condition = e;
     }
 }

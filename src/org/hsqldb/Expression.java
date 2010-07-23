@@ -1919,4 +1919,12 @@ public class Expression implements Cloneable {
     public Object getAggregatedValue(Session session, Object currValue) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }
+
+    public Expression getCondition() {
+        return null;
+    }
+
+    public void setCondition(Expression e) {
+        throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
+    }
 }
