@@ -16,7 +16,8 @@
        the root element, so we can use them anywhere in this file. -->
 
   <info>
-    <title xml:id="listeners-title">HyperSQL Network Listeners</title>
+    <title xml:id="listeners-title">HyperSQL Network Listeners
+    (Servers)</title>
 
     <subtitle>Server, WebServer, and Servlet</subtitle>
 
@@ -46,7 +47,7 @@
     </keywordset>
 
     <legalnotice>
-      <para>Copyright 2002-2009 Fred Toussi. Permission is granted to
+      <para>Copyright 2002-2010 Fred Toussi. Permission is granted to
       distribute this document without any alteration under the terms of the
       HSQLDB license. Additional permission is granted to the HSQL Development
       Group to distribute this document with or without alterations under the
@@ -58,7 +59,7 @@
     <title>Listeners</title>
 
     <simpara>As described in the <link endterm="running-title"
-    xlink:href="#running-chapt"></link> chapter, network listeners or servers
+    xlink:href="#running-chapt"></link> chapter, network listeners (servers)
     provide connectivity to catalogs from different JVM processes. The
     HyperSQL listeners support both ipv4 and ipv6 network
     addressing.</simpara>
@@ -665,7 +666,7 @@
       </section>
 
       <section>
-        <title>Server-Side, aka Listener-Side</title>
+        <title>Server-Side (Listener-Side)</title>
 
         <simpara>Get yourself a <link xlink:href="#privatekey-sect"> JKS
         keystore containing a private key</link>. Then set properties
@@ -803,7 +804,7 @@
     <info>
       <title>Network Access Control</title>
 
-      <subtitle>Aka Server ACLs</subtitle>
+      <subtitle>(Server ACLs)</subtitle>
     </info>
 
     <indexterm>

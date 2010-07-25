@@ -117,6 +117,9 @@
     <para>Tools can use command line arguments. You can add the command line
     argument --help to get a list of available arguments for these
     tools.</para>
+
+    <para>Double clicking the HSQLDB jar will start the DatabaseManagerSwing
+    application.</para>
   </section>
 
   <section xml:id="running_db-sect">
@@ -287,7 +290,7 @@
   </section>
 
   <section xml:id="running_modes-sect">
-    <title>Listener / Server Modes</title>
+    <title>Server Modes</title>
 
     <para>For most applications, <glossterm>in-process</glossterm> access is
     faster, as the data is not converted and sent over the network. The main
@@ -460,7 +463,7 @@
   Connection c = DriverManager.getConnection("jdbc:hsqldb:https://localhost/xdb", "SA", "");
 </programlisting>
         </example>The security features are discussed in detail in the <link
-      endterm="listeners-title" xlink:href="#listeners-chapt">listeners</link>
+      endterm="listeners-title" xlink:href="#listeners-chapt"></link>
       chapter.</para>
     </section>
 
