@@ -192,29 +192,29 @@
     with "dirty read". Although it is perfectly possible to add an
     implementation of the transaction manager that supports the legacy model,
     we thought this is no longer necessary. The new system allows you to
-    select the transaction isolation model even while the engine is running
-    and choose different isolation levels for different simultaneous
-    sessions.</para>
+    select the transaction isolation model while the engine is running. It
+    also allows you to choose different isolation levels for different
+    simultaneous sessions.</para>
 
     <para>HyperSQL 2.0 supports three concurrency control models,
     two-phase-locking (2PL), which is the default, multiversion concurrency
     control (MVCC) and a hybrid model, which is 2PL plus multiversion rows.
-    Within each model, it supports some of 4 levels of transaction isolation:
-    READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ and SERIALIZABLE. The
-    isolation level is a property of each SQL session, so different sessions
-    can have different isolation levels. The concurrency control model is a
-    strategy that governs all the sessions and is set for the database, as
-    opposed for individual sessions. In the new implementation, all isolation
-    levels avoid the "dirty read" phenomenon and do not read uncommitted
-    changes made to rows by other transactions.</para>
+    Within each model, it supports some of the 4 standard levels of
+    transaction isolation: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ
+    and SERIALIZABLE. The concurrency control model is a strategy that governs
+    all the sessions and is set for the database, as opposed for individual
+    sessions. The isolation level is a property of each SQL session, so
+    different sessions can have different isolation levels. In the new
+    implementation, all isolation levels avoid the "dirty read" phenomenon and
+    do not read uncommitted changes made to rows by other transactions.</para>
 
     <para>HyperSQL is fully multi threaded in all transaction models. Sessions
     continue to work simultaneously and can fully utilise multi-core
     processors.</para>
 
-    <para>To change the concurrency control model, the <literal>SET DATABASE
-    TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC }</literal> can be used by a
-    user with the DBA role.</para>
+    <para>To concurrency control model of a live database can be changed. The
+    <literal>SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
+    }</literal> can be used by a user with the DBA role.</para>
 
     <section>
       <title>Two Phase Locking</title>
@@ -308,9 +308,14 @@
       statements in the transaction can be executed and the transaction
       committed. The commit will remove all the locks.</para>
 
+      <para>HyperSQL detects deadlocks before attempting to execute a
+      statement. When a lock is released after the completion of the
+      statement, the first transaction that is waiting for the lock is allowed
+      to continue.</para>
+
       <para>HyperSQL is fully multi threaded. It therefore allows different
-      transactions to execute concurrently so long as they are not modifying
-      the same table.</para>
+      transactions to execute concurrently so long as they are not waiting to
+      lock the same table for write.</para>
     </section>
 
     <section>
@@ -328,8 +333,8 @@
       transaction has committed. The transaction then continues automatically.
       (Conflict is possible if each transaction is waiting for a different row
       modified by the other transaction, in which case, one of the
-      transactions is terminated). This isolation level is called READ
-      CONSISTENCY.</para>
+      transactions is immediately terminated). This isolation level is called
+      READ CONSISTENCY.</para>
 
       <para>When transactions are running in REPEATABLE READ or SERIALIZABLE
       isolation levels, conflict is more likely to happen. There is no
@@ -400,9 +405,9 @@
       duration of some special operations, such as synchronization with
       another data source.</para>
 
-      <para>All concurrency models are very fast in operation. When operating
-      mainly on the same tables, the MVCC model may be faster with multiple
-      processors.</para>
+      <para>All concurrency models are very fast in operation. When data
+      change operations are mainly on the same tables, the MVCC model may be
+      faster, especially with multi-core processors.</para>
     </section>
 
     <section>
@@ -436,14 +441,16 @@
       <para>It was mentioned that there is no limit on the number of sessions
       that can access the tables and all sessions work simultaneously in multi
       threaded execution. However there are internal resources that are
-      shared. Simultaneous access to these resources reduces the overall
+      shared. Simultaneous access to these resources can reduce the overall
       efficiency of the system. MEMORY and TEXT tables do not share resources
-      and do not block multi threaded access. With CACHED tables, each write
-      operation blocks the file and its cache until the operation is finished.
-      With CACHED tables, SELECT operations do not block each other, but
-      selecting from different tables and different parts of a large table
-      causes the row cache to be updated frequently and will reduce overall
-      performance.</para>
+      and do not block multi threaded access. With CACHED tables, each row
+      change operation blocks the file and its cache momentarily until the
+      operation is finished. This is done separately for each row, therefore a
+      multi-row INSERT, UPDATE, or DELETE statement will allow other sessions
+      to access the file during its execution. With CACHED tables, SELECT
+      operations do not block each other, but selecting from different tables
+      and different parts of a large table causes the row cache to be updated
+      frequently and will reduce overall performance.</para>
 
       <para>The new access pattern is the opposite of the access pattern of
       version 1.8.x. In the old version, even when 20 sessions are actively
@@ -866,8 +873,8 @@
     <example>
       <title>Setting Session Time Zone</title>
 
-      <screen>    SET TIME ZONE LOCAL
-    SET TIME ZONE INTERVAL '+6:00' HOUR TO MINUTE
+      <screen>  SET TIME ZONE LOCAL
+  SET TIME ZONE INTERVAL '+6:00' HOUR TO MINUTE
 </screen>
     </example>
 
