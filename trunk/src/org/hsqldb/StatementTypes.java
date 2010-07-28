@@ -224,31 +224,44 @@ public interface StatementTypes {
     int DECLARE_SESSION_TABLE          = 1068;
 
     // hsqldb schema
-    int ALTER_VIEW              = 1071;
-    int COMMENT                 = 1072;
-    int CREATE_ALIAS            = 1073;
-    int CREATE_INDEX            = 1074;
-    int CREATE_USER             = 1075;
-    int DECLARE_VARIABLE        = 1076;
-    int DROP_COLUMN             = 1077;
-    int DROP_INDEX              = 1078;
-    int DROP_CONSTRAINT         = 1079;
-    int DROP_USER               = 1080;
-    int EXPLAIN_PLAN            = 1081;
-    int RENAME_OBJECT           = 1082;
-    int SET_TABLE_INDEX         = 1083;
-    int SET_TABLE_READONLY      = 1084;
-    int SET_TABLE_SOURCE        = 1085;
-    int SET_TABLE_SOURCE_HEADER = 1086;
-    int SET_TABLE_TYPE          = 1087;
-    int LOG_SCHEMA_STATEMENT    = 1088;
+    int ALTER_VIEW                  = 1071;
+    int COMMENT                     = 1072;
+    int CREATE_ALIAS                = 1073;
+    int CREATE_INDEX                = 1074;
+    int CREATE_USER                 = 1075;
+    int DECLARE_VARIABLE            = 1076;
+    int DROP_COLUMN                 = 1077;
+    int DROP_INDEX                  = 1078;
+    int DROP_CONSTRAINT             = 1079;
+    int DROP_USER                   = 1080;
+    int DROP_DEFAULT                = 1081;
+    int ADD_COLUMN                  = 1082;
+    int ADD_CONSTRAINT              = 1083;
+    int ADD_DEFAULT                 = 1084;
+    int ALTER_COLUMN_TYPE           = 1085;
+    int ALTER_COLUMN_SEQUENCE       = 1086;
+    int ALTER_COLUMN_NULL           = 1087;
+    int ALTER_COLUMN_DEFAULT        = 1088;
+    int ALTER_COLUMN_DROP_DEFAULT   = 1089;
+    int ALTER_COLUMN_DROP_GENERATED = 1090;
+    int ALTER_COLUMN_TYPE_IDENTITY  = 1091;
+
+    //
+    int EXPLAIN_PLAN            = 1191;
+    int RENAME_OBJECT           = 1192;
+    int SET_TABLE_INDEX         = 1193;
+    int SET_TABLE_READONLY      = 1194;
+    int SET_TABLE_SOURCE        = 1195;
+    int SET_TABLE_SOURCE_HEADER = 1196;
+    int SET_TABLE_TYPE          = 1197;
+    int LOG_SCHEMA_STATEMENT    = 1198;
 
     // hsqldb sql implementation
-    int CONDITION = 1101;                         // element of IF
-    int HANDLER   = 1102;
-    int DDL       = 1103;
-    int CHECK     = 1104;
-    int TRUNCATE  = 1105;
+    int CONDITION = 1201;                         // element of IF
+    int HANDLER   = 1202;
+    int DDL       = 1203;
+    int CHECK     = 1204;
+    int TRUNCATE  = 1205;
 
     // hsqldb groups
     int X_SQL_SCHEMA_DEFINITION      = 2001;

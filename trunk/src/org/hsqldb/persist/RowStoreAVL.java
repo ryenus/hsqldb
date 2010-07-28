@@ -292,10 +292,10 @@ public abstract class RowStoreAVL implements PersistentStore {
             oldtype = ((Table) other.getTable()).getColumnTypes()[colindex];
         }
 
-        RowIterator it    = other.rowIterator();
-        Table       table = (Table) this.table;
-
         try {
+            Table       table = (Table) this.table;
+            RowIterator it    = other.rowIterator();
+
             while (it.hasNext()) {
                 Row      row      = it.getNextRow();
                 Object[] olddata  = row.getData();
@@ -308,15 +308,6 @@ public abstract class RowStoreAVL implements PersistentStore {
                                                      oldtype);
                 }
 
-                if (colvalue != null && newtype.isLobType()) {
-                    session.sessionData.adjustLobUsageCount(colvalue, +1);
-                }
-
-                if (oldvalue != null && oldtype != null
-                        && oldtype.isLobType()) {
-                    session.sessionData.adjustLobUsageCount(oldvalue, -1);
-                }
-
                 ArrayUtil.copyAdjustArray(olddata, data, colvalue, colindex,
                                           adjust);
                 table.systemSetIdentityColumn(session, data);
@@ -327,6 +318,36 @@ public abstract class RowStoreAVL implements PersistentStore {
                 Row newrow = (Row) getNewCachedObject(null, data);
 
                 indexRow(null, newrow);
+            }
+
+            if (table.isTemp()) {
+                return;
+            }
+
+            if (oldtype != null && oldtype.isLobType()) {
+                it = other.rowIterator();
+
+                while (it.hasNext()) {
+                    Row row = it.getNextRow();
+                    Object[] olddata = row.getData();
+                    Object oldvalue = olddata[colindex];
+
+                    if (oldvalue != null) {
+                        session.sessionData.adjustLobUsageCount(oldvalue, -1);
+                    }
+                }
+            } else if (newtype != null && newtype.isLobType() ) {
+                it = rowIterator();
+
+                while (it.hasNext()) {
+                    Row row = it.getNextRow();
+                    Object[] data = row.getData();
+                    Object value = data[colindex];
+
+                    if (value != null) {
+                        session.sessionData.adjustLobUsageCount(value, +1);
+                    }
+                }
             }
         } catch (java.lang.OutOfMemoryError e) {
             throw Error.error(ErrorCode.OUT_OF_MEMORY);

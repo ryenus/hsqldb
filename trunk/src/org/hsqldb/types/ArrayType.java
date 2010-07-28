@@ -276,6 +276,27 @@ public class ArrayType extends Type {
         return dataType.canConvertFrom(otherComponent);
     }
 
+    public int canMoveFrom(Type otherType) {
+
+        if (otherType == this) {
+            return 0;
+        }
+
+        if (!otherType.isArrayType()) {
+            return -1;
+        }
+
+        if (maxCardinality >= ((ArrayType) otherType).maxCardinality) {
+            return dataType.canMoveFrom((ArrayType) otherType);
+        } else {
+            if (dataType.canMoveFrom((ArrayType) otherType) == -1) {
+                return -1;
+            }
+
+            return 1;
+        }
+    }
+
     public boolean canBeAssignedFrom(Type otherType) {
 
         if (otherType == null) {

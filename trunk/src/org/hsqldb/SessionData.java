@@ -380,6 +380,10 @@ public class SessionData {
             return;
         }
 
+        if (table.isTemp) {
+            return;
+        }
+
         if (session.isProcessingLog || session.isProcessingScript) {
             return;
         }

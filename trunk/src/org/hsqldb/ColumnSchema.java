@@ -336,9 +336,10 @@ public final class ColumnSchema extends ColumnBase implements SchemaObject {
     public ColumnSchema duplicate() {
 
         ColumnSchema copy = new ColumnSchema(columnName, dataType,
-                                             isNullable(), isPrimaryKey,
+                                             true, isPrimaryKey,
                                              defaultExpression);
 
+        copy.setNullability(this.nullability);
         copy.setGeneratingExpression(generatingExpression);
         copy.setIdentity(sequence);
 

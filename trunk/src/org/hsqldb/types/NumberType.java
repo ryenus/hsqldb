@@ -1216,6 +1216,69 @@ public final class NumberType extends Type {
         return false;
     }
 
+    public int canMoveFrom(Type otherType) {
+
+        if (otherType == this) {
+            return 0;
+        }
+
+        switch (typeCode) {
+
+            case Types.TINYINT :
+                if (otherType.typeCode == Types.SQL_SMALLINT
+                        || otherType.typeCode == Types.SQL_INTEGER) {
+                    return 1;
+                }
+                break;
+
+            case Types.SQL_SMALLINT :
+                if (otherType.typeCode == Types.TINYINT) {
+                    return 0;
+                }
+
+                if (otherType.typeCode == Types.SQL_INTEGER) {
+                    return 1;
+                }
+                break;
+
+            case Types.SQL_INTEGER :
+                if (otherType.typeCode == Types.SQL_SMALLINT
+                        || otherType.typeCode == Types.TINYINT) {
+                    return 0;
+                }
+                break;
+
+            case Types.SQL_BIGINT :
+                break;
+
+            case Types.SQL_DECIMAL :
+            case Types.SQL_NUMERIC :
+                if (otherType.typeCode == Types.SQL_DECIMAL
+                        || otherType.typeCode == Types.SQL_NUMERIC) {
+                    if (scale == otherType.scale) {
+                        if (precision >= otherType.precision) {
+                            return 0;
+                        } else {
+                            return 1;
+                        }
+                    }
+                }
+                break;
+
+            case Types.SQL_REAL :
+            case Types.SQL_FLOAT :
+            case Types.SQL_DOUBLE :
+                if (otherType.typeCode == Types.SQL_REAL
+                        || otherType.typeCode == Types.SQL_FLOAT
+                        || otherType.typeCode == Types.SQL_DOUBLE) {
+                    return 0;
+                }
+            default :
+        }
+
+        return -1;
+    }
+
     public int compareToTypeRange(Object o) {
 
         if (!(o instanceof Number)) {

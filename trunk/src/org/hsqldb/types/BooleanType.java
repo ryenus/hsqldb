@@ -213,10 +213,9 @@ public final class BooleanType extends Type {
                 return a;
 
             default :
-                if (otherType.isLobType() ) {
+                if (otherType.isLobType()) {
                     throw Error.error(ErrorCode.X_42561);
                 }
-
 
                 if (otherType.isCharacterType()) {
                     if ("0".equals(a)) {
@@ -271,6 +270,11 @@ public final class BooleanType extends Type {
                || otherType.isBooleanType() || otherType.isCharacterType()
                || otherType.isIntegralType()
                || (otherType.isBitType() && otherType.precision == 1);
+    }
+
+    public int canMoveFrom(Type otherType) {
+        return otherType.isBooleanType() ? 0
+                                         : -1;
     }
 
     public static BooleanType getBooleanType() {

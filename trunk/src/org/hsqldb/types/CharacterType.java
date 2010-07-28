@@ -81,7 +81,7 @@ public class CharacterType extends Type {
         this.collation   = Collation.getDefaultInstance();
         this.charset     = Charset.getDefaultInstance();
         isEqualIdentical = type != Types.VARCHAR_IGNORECASE;
-        nameString = getNameStringPrivate();
+        nameString       = getNameStringPrivate();
     }
 
     public int displaySize() {
@@ -689,6 +689,28 @@ public class CharacterType extends Type {
         return !otherType.isObjectType() && !otherType.isArrayType();
     }
 
+    public int canMoveFrom(Type otherType) {
+
+        if (otherType == this) {
+            return 0;
+        }
+
+        switch (typeCode) {
+
+            case Types.SQL_VARCHAR :
+            case Types.SQL_CLOB : {
+                return precision >= otherType.precision ? 0
+                                                        : 1;
+            }
+            case Types.SQL_CHAR : {
+                return precision == otherType.precision ? 0
+                                                        : -1;
+            }
+            default :
+                return -1;
+        }
+    }
+
     public Collation getCollation() {
         return collation;
     }
@@ -1008,7 +1030,7 @@ public class CharacterType extends Type {
     }
 
     public static CharacterType getCharacterType(int type, long precision,
-                                        Collation collation) {
+            Collation collation) {
 
         switch (type) {
 
