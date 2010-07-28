@@ -541,8 +541,6 @@ public class JDBCDriver implements Driver {
         return true;
     }
 
-    // @todo - REVIEW ME:  This does not need to exist.
-    //         See below.
     public static JDBCDriver driverInstance;
 
     static {
@@ -553,29 +551,20 @@ public class JDBCDriver implements Driver {
         } catch (Exception e) {
         }
     }
-    // @todo REVIEW ME:  This should be static final.
-    //
-    //                   It should also be private and encapsulated using a
-    //                   hand-shake protocol such that only a registering
-    //                   session can perform successful write access.
-    //
-    //                   For example, the session performing the registration 
-    //                   could register itself within a Session.class private
-    //                   static thread local just prior to making the call here
-    //                   and remove itself just after making the call here,
-    //                   while as part of the encapsulated access here it would
-    //                   be required to make a call back against the session
-    //                   interface field of the connection being registered,
-    //                   which would verify that it is indeed the session that
-    //                   actually performed the write access (e.g. by comparing
-    //                   it against the session instance, if any, held in
-    //                   the Session.class static thread local)
-    //
+
+    /**
+     * As a separate instance of this class is registered with DriverManager
+     * for each class loader, the threadConnection is not declared as static.
+     * The registered instance is kept to allow access to the its
+     * threadConnection.
+     *
+     */
+
 //#ifdef JAVA6
-/*
     public final ThreadLocal<JDBCConnection> threadConnection = new ThreadLocal<JDBCConnection>();
-*/
-//else
+//#else
+/*
     public final ThreadLocal threadConnection = new ThreadLocal();
-//endif
+*/
+//#endif JAVA6
 }

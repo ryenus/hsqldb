@@ -41,6 +41,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.rights.Grantee;
+import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
 
 /**
@@ -562,7 +563,7 @@ public class TableWorks {
         return newindex;
     }
 
-    void addPrimaryKey(Constraint constraint, HsqlName name) {
+    void addPrimaryKey(Constraint constraint) {
 
         checkModifyTable();
 
@@ -570,7 +571,8 @@ public class TableWorks {
             throw Error.error(ErrorCode.X_42532);
         }
 
-        database.schemaManager.checkSchemaObjectNotExists(name);
+        database.schemaManager.checkSchemaObjectNotExists(
+            constraint.getName());
 
         Table tn = table.moveDefinition(session, table.tableType, null,
                                         constraint, null, -1, 0, emptySet,
@@ -629,8 +631,34 @@ public class TableWorks {
         database.schemaManager.recompileDependentObjects(table);
     }
 
+    void addUniqueConstraint(Constraint constraint) {
+
+        checkModifyTable();
+        database.schemaManager.checkSchemaObjectNotExists(
+            constraint.getName());
+
+        if (table.getUniqueConstraintForColumns(constraint.getMainColumns())
+                != null) {
+            throw Error.error(ErrorCode.X_42522);
+        }
+
+        Table tn = table.moveDefinition(session, table.tableType, null,
+                                        constraint, constraint.getMainIndex(),
+                                        -1, 0, emptySet, emptySet);
+
+        moveData(table, tn, -1, 0);
+
+        table = tn;
+
+        database.schemaManager.addSchemaObject(constraint);
+        setNewTableInSchema(table);
+        updateConstraints(table, emptySet);
+        database.schemaManager.recompileDependentObjects(table);
+    }
+
     void addCheckConstraint(Constraint c) {
 
+        checkModifyTable();
         database.schemaManager.checkSchemaObjectNotExists(c.getName());
         c.prepareCheckConstraint(session, table, true);
         table.addConstraint(c);
@@ -780,20 +808,6 @@ public class TableWorks {
         database.schemaManager.recompileDependentObjects(tableSet);
         database.schemaManager.recompileDependentObjects(tn);
         tn.compile(session, null);
-
-        if (column.getDataType().isLobType()) {
-            RowIterator it = table.rowIterator(session);
-
-            while (it.hasNext()) {
-                Row      row  = it.getNextRow();
-                Object[] data = row.getData();
-
-                if (data[colIndex] != null) {
-                    session.sessionData.adjustLobUsageCount(data[colIndex],
-                            -1);
-                }
-            }
-        }
 
         table = tn;
     }
@@ -957,81 +971,69 @@ public class TableWorks {
     }
 
     /**
-     * Allows changing the type or addition of an IDENTITY sequence.
+     * Allows changing the type only.
      *
      * @param oldCol Column
      * @param newCol Column
      */
     void retypeColumn(ColumnSchema oldCol, ColumnSchema newCol) {
 
-        boolean allowed = true;
-        int     oldType = oldCol.getDataType().typeCode;
-        int     newType = newCol.getDataType().typeCode;
+        Type oldType = oldCol.getDataType();
+        Type newType = newCol.getDataType();
 
         checkModifyTable();
 
-        if (!table.isEmpty(session) && oldType != newType) {
-            allowed =
+        if (oldType.equals(newType)
+                && oldCol.getIdentitySequence()
+                   == newCol.getIdentitySequence()) {
+            return;
+        }
+
+        if (!table.isEmpty(session) && oldType.typeCode != newType.typeCode) {
+            boolean allowed =
                 newCol.getDataType().canConvertFrom(oldCol.getDataType());
 
-            switch (oldType) {
+            switch (oldType.typeCode) {
 
                 case Types.OTHER :
                 case Types.JAVA_OBJECT :
                     allowed = false;
                     break;
             }
-        }
 
-        if (!allowed) {
-            throw Error.error(ErrorCode.X_42561);
+            if (!allowed) {
+                throw Error.error(ErrorCode.X_42561);
+            }
         }
 
         int colIndex = table.getColumnIndex(oldCol.getName().name);
 
-        // if there is a multi-column PK, do not change the PK attributes
-        if (newCol.isIdentity() && table.hasIdentityColumn()
-                && table.identityColumn != colIndex) {
-            throw Error.error(ErrorCode.X_42525);
-        }
-
-        if (table.getPrimaryKey().length > 1) {
-            newCol.setPrimaryKey(oldCol.isPrimaryKey());
-
-            if (ArrayUtil.find(table.getPrimaryKey(), colIndex) != -1) {}
-        } else if (table.hasPrimaryKey()) {
-            if (oldCol.isPrimaryKey()) {
-                newCol.setPrimaryKey(true);
-            } else if (newCol.isPrimaryKey()) {
-                throw Error.error(ErrorCode.X_42532);
-            }
-        } else if (newCol.isPrimaryKey()) {
-            throw Error.error(ErrorCode.X_42530);
-        }
-
         // apply and return if only metadata change is required
-        boolean meta = newType == oldType;
+        int checkData = newType.canMoveFrom(oldType);
 
-        meta &= oldCol.isNullable() == newCol.isNullable();
-        meta &= oldCol.getDataType().scale == newCol.getDataType().scale;
-        meta &= (oldCol.isIdentity() == newCol.isIdentity());
-        meta &=
-            (oldCol.getDataType().precision == newCol.getDataType().precision
-             || (oldCol.getDataType().precision
-                 < newCol.getDataType().precision && (oldType
-                     == Types.SQL_VARCHAR || oldType == Types.SQL_VARBINARY)));
+        if (checkData == 0) {
+            if (newCol.isIdentity()) {
+                if (!(oldCol.isIdentity() || !oldCol.isNullable()
+                        || oldCol.isPrimaryKey())) {
+                    checkData = 1;
+                }
+            }
+        }
 
-        if (meta) {
+        if (checkData == 1) {
+            checkConvertColDataType(oldCol, newCol);
 
-            // size of some types may be increased with this command
+            checkData = 0;
+        }
+
+        if (checkData == 0) {
+
+            // size of some types may be increased
             // default expressions can change
+            // identity can be added or removed
             oldCol.setType(newCol);
             oldCol.setDefaultExpression(newCol.getDefaultExpression());
-
-            if (newCol.isIdentity()) {
-                oldCol.setIdentity(newCol.getIdentitySequence());
-            }
-
+            oldCol.setIdentity(newCol.getIdentitySequence());
             table.setColumnTypeVars(colIndex);
             table.resetDefaultsFlag();
 
@@ -1059,6 +1061,10 @@ public class TableWorks {
         while (it.hasNext()) {
             Row    row = it.getNextRow();
             Object o   = row.getData()[colIndex];
+
+            if (!newCol.isNullable() && o == null) {
+                throw Error.error(ErrorCode.X_23502);
+            }
 
             newCol.getDataType().convertToType(session, o,
                                                oldCol.getDataType());
@@ -1137,7 +1143,10 @@ public class TableWorks {
                 colIndex, SchemaObject.ReferentialAction.SET_DEFAULT);
         }
 
-        table.setDefaultExpression(colIndex, def);
+        ColumnSchema column = table.getColumn(colIndex);
+
+        column.setDefaultExpression(def);
+        table.setColumnTypeVars(colIndex);
     }
 
     /**

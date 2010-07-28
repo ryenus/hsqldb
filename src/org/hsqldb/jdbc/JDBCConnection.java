@@ -3261,8 +3261,9 @@ public class JDBCConnection implements Connection {
             if (DatabaseURL.isInProcessDatabaseType(connType)) {
 
                 /**
-                 * @todo fredt - this should be the only static reference to a core class in
-                 *   the jdbc package - we may make it dynamic
+                 * @todo - fredt - this should be the only static reference to
+                 * a core class (apart form references to the Type package)
+                 * from the jdbc package - we might make it dynamic
                  */
                 sessionProxy = DatabaseManager.newSession(connType, database,
                         user, password, props, null, zoneSeconds);
@@ -3317,7 +3318,7 @@ public class JDBCConnection implements Connection {
      * For HSQLDB developers not involved with writing database
      * internals, this change only applies to connections obtained
      * automatically from the database as the first parameter to
-     * stored procedures and SQL functions. This is mainly an issue
+     * Java stored procedures and functions. This is mainly an issue
      * to developers writing custom SQL function and stored procedure
      * libraries for HSQLDB. Presently, it is recommended that SQL function and
      * stored procedure code avoid depending on closing or issuing a

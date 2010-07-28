@@ -399,19 +399,216 @@ public class StatementSchema extends Statement {
                 }
             }
             case StatementTypes.ALTER_DOMAIN :
-            case StatementTypes.ALTER_ROUTINE :
-            case StatementTypes.ALTER_TYPE :
-            case StatementTypes.ALTER_TABLE :
-            case StatementTypes.ALTER_TRANSFORM : {
                 try {
-                    session.parser.reset(sql);
-                    session.parser.read();
-                    session.parser.processAlter();
+                    int  subType = (Integer) arguments[0];
+                    Type domain  = (Type) arguments[1];
+
+                    switch (subType) {
+
+                        case StatementTypes.ADD_CONSTRAINT : {
+                            Constraint c = (Constraint) arguments[2];
+
+                            session.database.schemaManager
+                                .checkSchemaObjectNotExists(c.getName());
+                            domain.userTypeModifier.addConstraint(c);
+                            session.database.schemaManager.addSchemaObject(c);
+
+                            break;
+                        }
+                        case StatementTypes.ADD_DEFAULT : {
+                            Expression e = (Expression) arguments[2];
+
+                            domain.userTypeModifier.setDefaultClause(e);
+
+                            break;
+                        }
+                        case StatementTypes.DROP_CONSTRAINT : {
+                            HsqlName name = (HsqlName) arguments[2];
+
+                            session.database.schemaManager.removeSchemaObject(
+                                name);
+
+                            break;
+                        }
+                        case StatementTypes.DROP_DEFAULT : {
+                            domain.userTypeModifier.removeDefaultClause();
+
+                            break;
+                        }
+                    }
 
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
+            case StatementTypes.ALTER_TABLE :
+                try {
+                    int   subType = (Integer) arguments[0];
+                    Table table   = (Table) arguments[1];
+
+                    switch (subType) {
+
+                        case StatementTypes.ADD_CONSTRAINT : {
+                            Constraint c = (Constraint) arguments[2];
+
+                            switch (c.getConstraintType()) {
+
+                                case SchemaObject.ConstraintTypes
+                                        .PRIMARY_KEY : {
+                                    session.commit(false);
+
+                                    TableWorks tableWorks =
+                                        new TableWorks(session, table);
+
+                                    tableWorks.addPrimaryKey(c);
+
+                                    break;
+                                }
+                                case SchemaObject.ConstraintTypes.UNIQUE : {
+                                    session.commit(false);
+
+                                    TableWorks tableWorks =
+                                        new TableWorks(session, table);
+
+                                    tableWorks.addUniqueConstraint(c);
+
+                                    break;
+                                }
+                                case SchemaObject.ConstraintTypes
+                                        .FOREIGN_KEY : {
+                                    session.commit(false);
+
+                                    TableWorks tableWorks =
+                                        new TableWorks(session, table);
+
+                                    tableWorks.addForeignKey(c);
+
+                                    break;
+                                }
+                                case SchemaObject.ConstraintTypes.CHECK : {
+                                    session.commit(false);
+
+                                    TableWorks tableWorks =
+                                        new TableWorks(session, table);
+
+                                    tableWorks.addCheckConstraint(c);
+
+                                    break;
+                                }
+                            }
+
+                            break;
+                        }
+                        case StatementTypes.ADD_COLUMN : {
+                            ColumnSchema  column = (ColumnSchema) arguments[2];
+                            int           colIndex = (Integer) arguments[3];
+                            HsqlArrayList list = (HsqlArrayList) arguments[4];
+                            TableWorks tableWorks = new TableWorks(session,
+                                                                   table);
+
+                            session.commit(false);
+                            tableWorks.addColumn(column, colIndex, list);
+
+                            break;
+                        }
+                        case StatementTypes.ALTER_COLUMN_TYPE : {
+                            ColumnSchema column = (ColumnSchema) arguments[2];
+                            Type         type   = (Type) arguments[3];
+                            ColumnSchema newCol = column.duplicate();
+
+                            newCol.setType(type);
+
+                            TableWorks tw = new TableWorks(session, table);
+
+                            tw.retypeColumn(column, newCol);
+
+                            break;
+                        }
+                        case StatementTypes.ALTER_COLUMN_TYPE_IDENTITY : {
+                            ColumnSchema column = (ColumnSchema) arguments[2];
+                            Type         type   = (Type) arguments[3];
+                            NumberSequence sequence =
+                                (NumberSequence) arguments[4];
+                            ColumnSchema newCol = column.duplicate();
+
+                            newCol.setType(type);
+                            newCol.setIdentity(sequence);
+
+                            TableWorks tw = new TableWorks(session, table);
+
+                            tw.retypeColumn(column, newCol);
+
+                            break;
+                        }
+                        case StatementTypes.ALTER_COLUMN_SEQUENCE : {
+                            ColumnSchema column = (ColumnSchema) arguments[2];
+                            int          columnIndex = (Integer) arguments[3];
+                            NumberSequence sequence =
+                                (NumberSequence) arguments[4];
+
+                            if (column.isIdentity()) {
+                                column.getIdentitySequence().reset(sequence);
+                            } else {
+                                column.setIdentity(sequence);
+                                table.setColumnTypeVars(columnIndex);
+                            }
+
+                            break;
+                        }
+                        case StatementTypes.ALTER_COLUMN_NULL : {
+                            ColumnSchema column = (ColumnSchema) arguments[2];
+                            boolean      nullable = (Boolean) arguments[3];
+
+                            session.commit(false);
+
+                            TableWorks tw = new TableWorks(session, table);
+
+                            tw.setColNullability(column, nullable);
+
+                            break;
+                        }
+                        case StatementTypes.ALTER_COLUMN_DEFAULT : {
+                            ColumnSchema column = (ColumnSchema) arguments[2];
+                            int          columnIndex = (Integer) arguments[3];
+                            Expression   e = (Expression) arguments[4];
+
+                            session.commit(false);
+
+                            TableWorks tw = new TableWorks(session, table);
+
+                            tw.setColDefaultExpression(columnIndex, e);
+
+                            break;
+                        }
+                        case StatementTypes.ALTER_COLUMN_DROP_DEFAULT : {
+                            ColumnSchema column = (ColumnSchema) arguments[2];
+                            int          columnIndex = (Integer) arguments[3];
+                            TableWorks   tw = new TableWorks(session, table);
+
+                            tw.setColDefaultExpression(columnIndex, null);
+                            table.setColumnTypeVars(columnIndex);
+
+                            break;
+                        }
+                        case StatementTypes.ALTER_COLUMN_DROP_GENERATED : {
+                            ColumnSchema column = (ColumnSchema) arguments[2];
+                            int          columnIndex = (Integer) arguments[3];
+
+                            column.setIdentity(null);
+                            table.setColumnTypeVars(columnIndex);
+
+                            break;
+                        }
+                    }
+
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            case StatementTypes.ALTER_ROUTINE :
+            case StatementTypes.ALTER_TYPE :
+            case StatementTypes.ALTER_TRANSFORM : {
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementSchema");
             }
             case StatementTypes.ALTER_VIEW : {
                 View view = (View) arguments[0];
@@ -1120,8 +1317,7 @@ public class StatementSchema extends Statement {
                 break;
 
             default :
-                throw Error.runtimeError(ErrorCode.U_S0500,
-                                         "CompiledStateemntSchema");
+                throw Error.runtimeError(ErrorCode.U_S0500, "StatementSchema");
         }
 
         return Result.updateZeroResult;

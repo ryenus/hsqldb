@@ -1423,17 +1423,6 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * Sets the SQL default value for a columm.
-     */
-    void setDefaultExpression(int columnIndex, Expression def) {
-
-        ColumnSchema column = getColumn(columnIndex);
-
-        column.setDefaultExpression(def);
-        setColumnTypeVars(columnIndex);
-    }
-
-    /**
      * sets the flag for the presence of any default expression
      */
     void resetDefaultsFlag() {
@@ -1873,8 +1862,6 @@ public class Table extends TableBase implements SchemaObject {
             td = triggerLists[index][j];
 
             if (td.getName().name.equals(trigger.getName().name)) {
-                td.terminate();
-
                 triggerLists[index] = (TriggerDef[]) ArrayUtil.toAdjustedArray(
                     triggerLists[index], null, j, -1);
 
@@ -1884,7 +1871,7 @@ public class Table extends TableBase implements SchemaObject {
     }
 
     /**
-     * Drops all triggers.
+     * Used when dropping all triggers.
      */
     void releaseTriggers() {
 
@@ -1896,6 +1883,8 @@ public class Table extends TableBase implements SchemaObject {
 
             triggerLists[i] = TriggerDef.emptyArray;
         }
+
+        triggerList = TriggerDef.emptyArray;
     }
 
     /**

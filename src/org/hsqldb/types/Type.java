@@ -316,6 +316,19 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public abstract boolean canConvertFrom(Type otherType);
 
+    /**
+     * Can convert without changing the object
+     * @return 0 always, 1 range check required, -1 never
+     */
+    public int canMoveFrom(Type otherType) {
+
+        if (otherType == this) {
+            return 0;
+        }
+
+        return -1;
+    }
+
     public boolean canBeAssignedFrom(Type otherType) {
 
         return otherType == null ? true

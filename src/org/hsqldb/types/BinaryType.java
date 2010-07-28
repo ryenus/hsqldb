@@ -500,6 +500,30 @@ public class BinaryType extends Type {
                || otherType.isBinaryType() || otherType.isCharacterType();
     }
 
+    public int canMoveFrom(Type otherType) {
+
+        if (otherType == this) {
+            return 0;
+        }
+
+        switch (typeCode) {
+
+            case Types.SQL_BIT_VARYING :
+            case Types.SQL_VARBINARY :
+            case Types.SQL_BLOB : {
+                return precision >= otherType.precision ? 0
+                                                        : 1;
+            }
+            case Types.SQL_BIT :
+            case Types.SQL_BINARY : {
+                return precision == otherType.precision ? 0
+                                                        : -1;
+            }
+            default :
+                return -1;
+        }
+    }
+
     public long position(SessionInterface session, BlobData data,
                          BlobData otherData, Type otherType, long offset) {
 
