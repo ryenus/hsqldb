@@ -31,6 +31,8 @@
 
 package org.hsqldb.lib;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.hsqldb.store.BaseHashMap;
 
 /**
@@ -44,6 +46,11 @@ public class LongKeyHashMap extends BaseHashMap {
     Set        keySet;
     Collection values;
 
+    //
+    ReentrantReadWriteLock           lock = new ReentrantReadWriteLock(true);
+    ReentrantReadWriteLock.ReadLock  readLock  = lock.readLock();
+    ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+
     public LongKeyHashMap() {
         this(16);
     }
@@ -56,39 +63,79 @@ public class LongKeyHashMap extends BaseHashMap {
 
     public Object get(long key) {
 
-        int lookup = getLookup(key);
+        try {
+            readLock.lock();
 
-        if (lookup != -1) {
-            return objectValueTable[lookup];
+            int lookup = getLookup(key);
+
+            if (lookup != -1) {
+                return objectValueTable[lookup];
+            }
+
+            return null;
+        } finally {
+            readLock.unlock();
         }
-
-        return null;
     }
 
     public Object put(long key, Object value) {
-        return super.addOrRemove(key, 0, null, value, false);
+
+        try {
+            writeLock.lock();
+
+            return super.addOrRemove(key, 0, null, value, false);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     public boolean containsValue(Object value) {
-        return super.containsValue(value);
+
+        try {
+            readLock.lock();
+
+            return super.containsValue(value);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public Object remove(long key) {
-        return super.addOrRemove(key, 0, null, null, true);
+
+        try {
+            writeLock.lock();
+
+            return super.addOrRemove(key, 0, null, null, true);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     public boolean containsKey(long key) {
-        return super.containsKey(key);
+
+        try {
+            readLock.lock();
+
+            return super.containsKey(key);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     public int getOrderedMatchCount(int[] array) {
 
         int i = 0;
 
-        for (; i < array.length; i++) {
-            if (!super.containsKey(array[i])) {
-                break;
+        try {
+            readLock.lock();
+
+            for (; i < array.length; i++) {
+                if (!super.containsKey(array[i])) {
+                    break;
+                }
             }
+        } finally {
+            readLock.unlock();
         }
 
         return i;

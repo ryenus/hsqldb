@@ -336,7 +336,9 @@ public abstract class RowStoreAVL implements PersistentStore {
                         session.sessionData.adjustLobUsageCount(oldvalue, -1);
                     }
                 }
-            } else if (newtype != null && newtype.isLobType() ) {
+            }
+
+            if (newtype != null && newtype.isLobType() ) {
                 it = rowIterator();
 
                 while (it.hasNext()) {

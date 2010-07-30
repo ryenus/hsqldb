@@ -581,7 +581,7 @@ public class JDBCArray implements Array {
 
         RowSetNavigatorClient navigator = new RowSetNavigatorClient();
 
-        for (int i = (int) position; i < count; i++) {
+        for (int i = (int) position; i < position + count; i++) {
             Object[] rowData = new Object[2];
 
             rowData[0] = Integer.valueOf(i + 1);
