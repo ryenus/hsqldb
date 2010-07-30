@@ -596,6 +596,8 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      */
     public int getScale(int column) throws SQLException {
 
+        checkColumn(column);
+
         Type type = translateType(resultMetaData.columnTypes[--column]);
 
         return type.scale;
