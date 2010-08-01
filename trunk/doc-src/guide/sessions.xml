@@ -479,17 +479,29 @@
     <simpara><literal>&lt;alter session statement&gt; ::= ALTER SESSION
     &lt;numeric literal&gt; { CLOSE | RELEASE }</literal></simpara>
 
-    <simpara>The alter session statment is used by an administrator to close
-    another session or to release the transaction in another session. When a
-    session is released, its current transaction is terminated with a failure.
-    The session remains open. This statement is different from the other
-    statements discussed in this chapter as it is not used for changing the
-    settings of the current session.</simpara>
+    <simpara><literal>&lt;alter current session statement&gt; ::= ALTER
+    SESSION RESET { ALL | RESULT SETS | TABLE DATA }</literal></simpara>
+
+    <simpara>The &lt;alter session statement&gt; is used by an administrator
+    to close another session or to release the transaction in another session.
+    When a session is released, its current transaction is terminated with a
+    failure. The session remains open. This statement is different from the
+    other statements discussed in this chapter as it is not used for changing
+    the settings of the current session.</simpara>
 
     <simpara>The session ID is used as a <literal>&lt;numeric
     literal&gt;</literal> in this statement. The administrator can use the
     <literal>INFORMATION_SCHEMA.SYSTEM_SESSIONS</literal> tables to find the
     session IDs of other sessions.</simpara>
+
+    <simpara>The &lt;alter current session statement&gt; is used to clear and
+    reset different states of the current session. When ALL is specified, the
+    current transaction is rolled back, the session settings such as time
+    zone, current schema etc. are restored to their original state at the time
+    the session was opened and all open result sets are closed and temporary
+    tables cleared. When RESULT SETS is specified, all currently open result
+    sets are closed and the resources are released. When TABLE DATA is
+    specified, the data in all temporary tables is cleared.</simpara>
 
     <indexterm significance="preferred" type="sql">
       <primary>SET AUTOCOMMIT</primary>
