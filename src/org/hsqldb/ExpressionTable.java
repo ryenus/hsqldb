@@ -207,7 +207,7 @@ public class ExpressionTable extends Expression {
 
                 if (ordinality) {
                     data = new Object[] {
-                        array[i], ValuePool.getInt(i)
+                        array[i], ValuePool.getInt(i + 1)
                     };
                 } else {
                     data = new Object[]{ array[i] };

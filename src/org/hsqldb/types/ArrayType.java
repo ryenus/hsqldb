@@ -51,7 +51,8 @@ import org.hsqldb.store.ValuePool;
  */
 public class ArrayType extends Type {
 
-    public final static int defaultArrayCardinality = 1024;
+    public final static int defaultArrayCardinality      = 1024;
+    public final static int defaultLargeArrayCardinality = 1024 * 1024;
     final Type              dataType;
     final int               maxCardinality;
 

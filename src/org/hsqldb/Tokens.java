@@ -551,6 +551,7 @@ public class Tokens {
     static final String        T_RELATIVE             = "RELATIVE";
     static final String        T_REPEATABLE           = "REPEATABLE";
     static final String        T_RESTART              = "RESTART";
+    static final String        T_RESET                = "RESET";
     static final String        T_RETURNED_CARDINALITY = "RETURNED_CARDINALITY";
     static final String        T_RETURNED_LENGTH      = "RETURNED_LENGTH";
     static final String T_RETURNED_OCTET_LENGTH = "RETURNED_OCTET_LENGTH";
@@ -823,6 +824,7 @@ public class Tokens {
     static final String T_DATABASE_TIMEZONE   = "DATABASE_TIMEZONE";
     static final String T_DATABASE_VERSION    = "DATABASE_VERSION";
     static final String T_LOB_ID              = "LOB_ID";
+    static final String T_SEQUENCE_ARRAY      = "SEQUENCE_ARRAY";
 
     //
     //SQL 200n Standard reserved keywords - full set
@@ -1417,14 +1419,15 @@ public class Tokens {
     static final int READONLY     = 591;
     static final int REFERENTIAL  = 592;
     static final int RENAME       = 593;
-    static final int SCRIPT       = 594;
-    static final int SCRIPTFORMAT = 595;
-    static final int SEPARATOR    = 596;
-    static final int SHUTDOWN     = 597;
-    static final int TEMP         = 598;
-    static final int TEXT         = 599;
-    static final int TYPES        = 600;
-    static final int WRITE_DELAY  = 601;
+    static final int RESET        = 594;
+    static final int SCRIPT       = 595;
+    static final int SCRIPTFORMAT = 596;
+    static final int SEPARATOR    = 597;
+    static final int SHUTDOWN     = 598;
+    static final int TEMP         = 599;
+    static final int TEXT         = 600;
+    static final int TYPES        = 601;
+    static final int WRITE_DELAY  = 602;
 
     //
     static final int        ACOS                       = 611;
@@ -1523,6 +1526,7 @@ public class Tokens {
     static final int DATABASE_TIMEZONE        = 717;
     static final int DATABASE_VERSION         = 718;
     static final int LOB_ID                   = 719;
+    static final int SEQUENCE_ARRAY           = 720;
 
     //
     static final int        ASTERISK         = 771;
@@ -2062,6 +2066,7 @@ public class Tokens {
         commandSet.put(T_REFERENTIAL, REFERENTIAL);
         commandSet.put(T_RENAME, RENAME);
         commandSet.put(T_REPEATABLE, REPEATABLE);
+        commandSet.put(T_RESET, RESET);
         commandSet.put(T_RESTART, RESTART);
         commandSet.put(T_RESTRICT, RESTRICT);
         commandSet.put(T_RESULT, RESULT);
@@ -2223,6 +2228,7 @@ public class Tokens {
         commandSet.put(T_DATABASE_TIMEZONE, DATABASE_TIMEZONE);
         commandSet.put(T_DATABASE_VERSION, DATABASE_VERSION);
         commandSet.put(T_LOB_ID, LOB_ID);
+        commandSet.put(T_SEQUENCE_ARRAY, SEQUENCE_ARRAY);
 
         //
         commandSet.put(T_ASTERISK, Tokens.ASTERISK);

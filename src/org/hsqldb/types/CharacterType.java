@@ -1012,17 +1012,29 @@ public class CharacterType extends Type {
         return endindex;
     }
 
-    public static CharacterType getCharacterType(int type, long precision) {
+    private final static int fixedTypesLength = 32;
+    static CharacterType[]   charArray = new CharacterType[fixedTypesLength];
+
+    static {
+        for (int i = 0; i < charArray.length; i++) {
+            charArray[i] = new CharacterType(Types.SQL_CHAR, i);
+        }
+    }
+
+    public static CharacterType getCharacterType(int type, long length) {
 
         switch (type) {
 
-            case Types.SQL_VARCHAR :
             case Types.SQL_CHAR :
+                if (length < fixedTypesLength) {
+                    return charArray[(int) length];
+                }
+            case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE :
-                return new CharacterType(type, (int) precision);
+                return new CharacterType(type, (int) length);
 
             case Types.SQL_CLOB :
-                return new ClobType(precision);
+                return new ClobType(length);
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");

@@ -1547,7 +1547,7 @@ public class ParserCommand extends ParserDDL {
                 Integer  size = readIntegerObject();
                 Object[] args = new Object[]{ size };
 
-                return new StatementCommand(
+                return new StatementSession(
                     StatementTypes.SET_SESSION_RESULT_MEMORY_ROWS, args);
             }
             default :
