@@ -857,8 +857,8 @@ public class StatementCommand extends Statement {
                 try {
                     long sessionID = ((Number) parameters[0]).longValue();
                     int  action    = ((Number) parameters[1]).intValue();
-
-                    Session targetSession   = session.database.sessionManager.getSession(sessionID);
+                    Session targetSession =
+                        session.database.sessionManager.getSession(sessionID);
 
                     if (targetSession == null) {
                         throw Error.error(ErrorCode.X_2E000);
@@ -866,26 +866,37 @@ public class StatementCommand extends Statement {
 
                     switch (action) {
 
+                        case Tokens.ALL :
+                            targetSession.resetSession();
+                            break;
+
+                        case Tokens.TABLE :
+                            targetSession.sessionData.persistentStoreCollection
+                                .clearAllTables();
+                            break;
+
+                        case Tokens.RESULT :
+                            targetSession.sessionData.closeAllNavigators();
+                            break;
+
                         case Tokens.CLOSE :
                             targetSession.abortTransaction = true;
+
                             targetSession.latch.setCount(0);
-                            try {
-                                wait(1000);
-                            } catch (Exception e) {
-
-                            }
-
                             targetSession.close();
                             break;
 
                         case Tokens.RELEASE :
                             targetSession.abortTransaction = true;
+
                             targetSession.latch.setCount(0);
                             break;
                     }
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
+
+                return Result.updateZeroResult;
             }
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "StatemntCommand");

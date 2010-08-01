@@ -4077,7 +4077,8 @@ public class ParserDQL extends ParserBase {
 
         Expression e = this.XreadValueExpression();
 
-        if (e.getType() != OpTypes.FUNCTION) {
+        if (e.getType() != OpTypes.FUNCTION
+                && e.getType() != OpTypes.SQL_FUNCTION) {
             throw this.unexpectedToken(Tokens.T_TABLE);
         }
 
@@ -4465,7 +4466,6 @@ public class ParserDQL extends ParserBase {
         }
 
         FunctionSQLInvoked function  = new FunctionSQLInvoked(routineSchema);
-
         Expression[]       arguments = new Expression[list.size()];
 
         list.toArray(arguments);

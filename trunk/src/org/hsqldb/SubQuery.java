@@ -178,12 +178,18 @@ class SubQuery implements Comparator {
                                      queryExpression, this);
         }
 
-        if (columns != null && queryExpression != null) {
-            queryExpression.getMainSelect().setColumnAliases(columns);
-        }
-
-        table.columnList  = queryExpression.getColumns();
         table.columnCount = queryExpression.getColumnCount();
+        table.columnList  = queryExpression.getColumns();
+
+        if (columns != null) {
+            for (int i = 0; i < table.columnCount; i++) {
+                table.columnList.setKey(i, columns[i].name);
+
+                ColumnSchema col = (ColumnSchema) table.columnList.get(i);
+
+                col.getName().rename(columns[i]);
+            }
+        }
 
         TableUtil.setTableIndexesForSubquery(table, uniqueRows || fullOrder,
                                              uniqueRows);
@@ -236,7 +242,7 @@ class SubQuery implements Comparator {
         columnNames = names;
     }
 
-    public SimpleName[] gtColumnNames() {
+    public SimpleName[] getColumnNames() {
         return columnNames;
     }
 

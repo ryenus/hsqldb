@@ -1328,32 +1328,33 @@ public final class DateTimeType extends DTIType {
                 return SQL_DATE;
 
             case Types.SQL_TIME :
-                if (scale != DTIType.defaultTimeFractionPrecision) {
-                    return new DateTimeType(Types.SQL_TIME, type, scale);
+                if (scale == DTIType.defaultTimeFractionPrecision) {
+                    return SQL_TIME;
                 }
 
-                return SQL_TIME;
+                return new DateTimeType(Types.SQL_TIME, type, scale);
 
             case Types.SQL_TIME_WITH_TIME_ZONE :
-                if (scale != DTIType.defaultTimeFractionPrecision) {
-                    return new DateTimeType(Types.SQL_TIME, type, scale);
+                if (scale == DTIType.defaultTimeFractionPrecision) {
+                    return SQL_TIME_WITH_TIME_ZONE;
                 }
 
-                return SQL_TIME_WITH_TIME_ZONE;
+                return new DateTimeType(Types.SQL_TIME, type, scale);
 
             case Types.SQL_TIMESTAMP :
-                if (scale != DTIType.defaultTimestampFractionPrecision) {
-                    return new DateTimeType(Types.SQL_TIMESTAMP, type, scale);
+                if (scale == DTIType.defaultTimestampFractionPrecision) {
+                    return SQL_TIMESTAMP;
                 }
 
-                return SQL_TIMESTAMP;
+                return new DateTimeType(Types.SQL_TIMESTAMP, type, scale);
 
             case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
-                if (scale != DTIType.defaultTimestampFractionPrecision) {
-                    return new DateTimeType(Types.SQL_TIMESTAMP, type, scale);
+                if (scale == DTIType.defaultTimestampFractionPrecision) {
+                    return SQL_TIMESTAMP_WITH_TIME_ZONE;
                 }
 
-                return SQL_TIMESTAMP_WITH_TIME_ZONE;
+                return new DateTimeType(Types.SQL_TIMESTAMP_WITH_TIME_ZONE,
+                                        type, scale);
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");

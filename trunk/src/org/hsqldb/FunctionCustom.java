@@ -41,12 +41,14 @@ import java.util.regex.Pattern;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.IntKeyIntValueHashMap;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.Crypto;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.store.BitMap;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BinaryType;
 import org.hsqldb.types.CharacterType;
@@ -123,6 +125,7 @@ public class FunctionCustom extends FunctionSQL {
     private final static int FUNC_TRANSACTION_ID           = 95;
     private final static int FUNC_TRANSACTION_SIZE         = 96;
     private final static int FUNC_UNIX_TIMESTAMP           = 97;
+    private final static int FUNC_SEQUENCE_ARRAY           = 99;
 
     //
     private static final int FUNC_ACOS             = 101;
@@ -253,8 +256,10 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.LOB_ID, FUNC_LOB_ID);
         customRegularFuncMap.put(Tokens.ACTION_ID, FUNC_ACTION_ID);
         customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
-        customRegularFuncMap.put(Tokens.TRANSACTION_SIZE, FUNC_TRANSACTION_SIZE);
+        customRegularFuncMap.put(Tokens.TRANSACTION_SIZE,
+                                 FUNC_TRANSACTION_SIZE);
         customRegularFuncMap.put(Tokens.UNIX_TIMESTAMP, FUNC_UNIX_TIMESTAMP);
+        customRegularFuncMap.put(Tokens.SEQUENCE_ARRAY, FUNC_SEQUENCE_ARRAY);
 
         //
         nonDeterministicFuncSet.add(FUNC_DATABASE);
@@ -467,6 +472,10 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_TRANSACTION_ID :
             case FUNC_TRANSACTION_SIZE :
                 parseList = emptyParamList;
+                break;
+
+            case FUNC_SEQUENCE_ARRAY :
+                parseList = tripleParamList;
                 break;
 
             case FUNC_UNIX_TIMESTAMP :
@@ -763,6 +772,52 @@ public class FunctionCustom extends FunctionSQL {
                 } else {
                     return ValuePool.getLong(id.longValue());
                 }
+            }
+            case FUNC_SEQUENCE_ARRAY : {
+                for (int i = 0; i < data.length; i++) {
+                    if (data[i] == null) {
+                        return null;
+                    }
+                }
+
+                HsqlArrayList list    = new HsqlArrayList();
+                Object        current = data[0];
+                Type          type    = nodes[0].getDataType();
+                boolean ascending = type.compare(session, data[1], data[0])
+                                    >= 0;
+
+                while (true) {
+                    int compare = type.compare(session, current, data[1]);
+
+                    if (ascending) {
+                        if (compare > 0) {
+                            break;
+                        }
+                    } else if (compare < 0) {
+                        break;
+                    }
+
+                    list.add(current);
+
+                    Object newValue = type.add(current, data[2],
+                                               nodes[2].getDataType());
+
+                    compare = type.compare(session, current, newValue);
+
+                    if (ascending) {
+                        if (compare >= 0) {
+                            break;
+                        }
+                    } else if (compare <= 0) {
+                        break;
+                    }
+
+                    current = newValue;
+                }
+
+                Object[] array = list.toArray();
+
+                return array;
             }
             case FUNC_TIMESTAMPADD : {
                 if (data[1] == null || data[2] == null) {
@@ -1500,6 +1555,40 @@ public class FunctionCustom extends FunctionSQL {
 
                 return;
 
+            case FUNC_SEQUENCE_ARRAY : {
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = nodes[1].dataType;
+                }
+
+                if (nodes[1].dataType == null) {
+                    nodes[1].dataType = nodes[0].dataType;
+                }
+
+                if (nodes[0].dataType == null) {
+                    nodes[0].dataType = Type.SQL_INTEGER;
+                    nodes[1].dataType = Type.SQL_INTEGER;
+                }
+
+                if (nodes[0].dataType.isNumberType()) {
+                    if (nodes[2].dataType == null) {
+                        nodes[2].dataType = nodes[0].dataType;
+                    }
+                } else if (nodes[0].dataType.isDateTimeType()) {
+                    if (nodes[2].dataType == null) {
+                        throw Error.error(ErrorCode.X_42561);
+                    }
+
+                    if (!nodes[2].dataType.isIntervalType()) {
+                        throw Error.error(ErrorCode.X_42561);
+                    }
+                }
+
+                dataType =
+                    new ArrayType(nodes[0].getDataType(),
+                                  ArrayType.defaultLargeArrayCardinality);
+
+                return;
+            }
             case FUNC_DATEADD : {
                 int part;
 
@@ -2253,6 +2342,7 @@ public class FunctionCustom extends FunctionSQL {
                     .append(nodes[0].getSQL()).append(Tokens.T_COMMA)       //
                     .append(nodes[1].getSQL()).append(')').toString();
             }
+            case FUNC_SEQUENCE_ARRAY :
             case FUNC_REPLACE : {
                 return new StringBuffer(name).append('(')                   //
                     .append(nodes[0].getSQL()).append(Tokens.T_COMMA)       //
