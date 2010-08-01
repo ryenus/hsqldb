@@ -1550,9 +1550,18 @@ CAST ('1992-04-21' AS DATE) = DATE '1992-04-21'
       array to be used in the &lt;in predicate value&gt;. This is intended to
       be used with prepared statements where a variable length array of values
       can be used as the parameter value for each call. The example below
-      shows how this is used.</simpara>
+      shows how this is used in SQL. The JDBC code must create a new
+      java.sql.Array object that contains the values and set the paraemter
+      with this array.</simpara>
 
-      <programlisting>SELECT * from customer where firstname in ( UNNEST(?) )
+      <programlisting>SELECT * FROM customer WHERE firstname IN ( UNNEST(?) )
+
+Connection conn;
+PreparedStatement ps;
+// conn and ps are instantiated here
+Array arr = conn.createArrayOf("INTEGER", new Integer[] {1, 2, 3});
+ps.setArray(1, arr);
+ResultSet rs = ps.executeQuery();
 </programlisting>
 
       <indexterm significance="preferred" type="sql">
@@ -2380,24 +2389,88 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para><literal>&lt;derived table&gt; ::= &lt;table
       subquery&gt;</literal></para>
 
-      <para><literal>When the word LATERAL is used before a &lt;table
-      subquery&gt;, it means the query expression can reference the columns of
-      other table references that go before it. </literal></para>
+      <indexterm significance="preferred" type="sql">
+        <primary>LATERAL</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">LATERAL</emphasis></simpara>
+
+      <para>When the word LATERAL is used before a &lt;table subquery&gt;, it
+      means the query expression can reference the columns of other table
+      references that go before it.</para>
 
       <para><literal>&lt;lateral derived table&gt; ::= LATERAL &lt;table
       subquery&gt;</literal></para>
 
+      <para>ssss</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>UNNEST</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">UNNEST</emphasis></simpara>
+
       <para>UNNEST is similar to LATERAL, but instead of a query expression,
-      and expression that returns an array is used. This expression is
+      an expression that returns an array is used. This expression is
       converted into a table which has one column that contains the elements
       of the array, and, if WITH ORDINALITY is used, a second column that
-      contains the index of each element. The array expression usually
-      contains a reference to a column of the table reference preceding the
-      current table reference.</para>
+      contains the index of each element. The array expression can contain
+      references to any column of the table references preceding the current
+      table reference.</para>
 
       <para><literal>&lt;collection derived table&gt; ::= UNNEST &lt;left
       paren&gt; &lt;array value expression&gt; &lt;right paren&gt; [ WITH
       ORDINALITY ]</literal></para>
+
+      <para>In the first example below, UNNEST is used with the built in
+      function SEQUENCE_ARRAY to build a table containing dates for the last
+      seven days and their ordinal position. In the second example, a select
+      statement returns costs for the last seven days . In the third example,
+      the WITH clause turns the two selects into named subqueries which are
+      used in a SELECT statement that uses a LEFT join.</para>
+
+      <programlisting>SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY, 1 DAY)) WITH ORDINALITY AS T(D, I)  
+
+D          I 
+---------- - 
+2010-07-25 1 
+2010-07-26 2 
+2010-07-27 3 
+2010-07-28 4 
+2010-07-29 5 
+2010-07-30 6 
+2010-07-31 7 
+
+CREATE TABLE expenses (item_date DATE, cost DECIMAL(8,2))
+--
+SELECT item_date, SUM(cost) AS s FROM expenses WHERE item_date &gt;= CURRENT_DATE - 7 DAY GROUP BY item_date
+
+ITEM_DATE  S      
+---------- ------ 
+2010-07-27 100.12 
+2010-07-29 50.45  
+
+WITH costs(i_d, s) AS (SELECT item_date, SUM(cost) AS s FROM expenses WHERE item_date &gt;= CURRENT_DATE - 7 DAY GROUP BY item_date),
+dates(d, i) AS (SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE - 7 DAY, CURRENT_DATE - 1 DAY, 1 DAY)) WITH ORDINALITY)   
+SELECT i, d, s FROM dates LEFT OUTER JOIN costs ON dates.d = costs.i_d
+
+I D          S      
+- ---------- ------ 
+1 2010-07-25 (null) 
+2 2010-07-26 (null) 
+3 2010-07-27 100.12 
+4 2010-07-28 (null) 
+5 2010-07-29 50.45  
+6 2010-07-30 (null) 
+7 2010-07-31 (null) 
+
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">TABLE</emphasis></simpara>
 
       <para>When TABLE is used in this context, it also converts an array
       value expression to a table, but this array must be the result of a
@@ -2408,6 +2481,12 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para><literal>&lt;table function derived table&gt; ::= TABLE &lt;left
       paren&gt; &lt;collection value expression&gt; &lt;right
       paren&gt;</literal></para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>column name list</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">column name list</emphasis></simpara>
 
       <para>The column list that is specified for the table reference must
       contain names that are unique within the list</para>
@@ -2769,6 +2848,9 @@ SELECT x, y, z FROM atable AS t (u, v, w, x, y, z)  WHERE u + v = w</programlist
 
       <para><literal>&lt;with column list&gt; ::= &lt;column name
       list&gt;</literal></para>
+
+      <para>An example of the use of the WITH clause is given above under
+      UNNEST.</para>
 
       <para>A query expression body refers to a table formed by using UNION
       and other set operations. The query expression body is evaluated from

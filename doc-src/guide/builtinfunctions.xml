@@ -1609,6 +1609,55 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     <literal>&lt;array value expr&gt;</literal> minus the number of elements
     specified by the <literal>&lt;num value expr&gt;. </literal>Elements are
     discarded from the end of the array. (Foundation)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SEQUENCE_ARRAY function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SEQUENCE_ARRAY</emphasis></simpara>
+
+    <para><literal>SEQUENCE_ARRAY( &lt;value expr 1&gt;, &lt;value expr 2&gt;,
+    &lt;value expr 3 )</literal></para>
+
+    <para>Returns a new array that contains a sequence of values. The
+    <literal>&lt;value expr 1&gt;</literal> is the lowre bound of the range.
+    The <literal>&lt;value expr 2&gt;</literal> is the upper bound of the
+    range. The <literal>&lt;value expr 3&gt;</literal> is the increment. The
+    elments of the array are within the inclusive range. The first element is
+    <literal>&lt;value expr 1&gt;</literal> and each subsequent element is the
+    sum of the previous element and the increment. The type of the arguments
+    is can be all number types, or a datetime range and an interval for the
+    third argument (HyperSQL)</para>
+
+    <para>In the examples below, a number sequence and a date sequence are
+    shown. The UNNEST table expression is used to form a table from the
+    array.</para>
+
+    <programlisting>SEQUENCE_ARRAY(0, 100, 5)
+
+ARRAY[0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100] 
+
+SELECT * FROM UNNEST(SEQUENCE_ARRAY(10, 12, 1))
+
+C1 
+-- 
+10 
+11 
+12 
+
+SELECT * FROM UNNEST(SEQUENCE_ARRAY(CURRENT_DATE, CURRENT_DATE + 6 DAY, 1 DAY)) WITH ORDINALITY AS T(D, I) 
+
+D          I 
+---------- - 
+2010-08-01 1 
+2010-08-02 2 
+2010-08-03 3 
+2010-08-04 4 
+2010-08-05 5 
+2010-08-06 6 
+2010-08-07 7
+
+</programlisting>
   </section>
 
   <section>
@@ -1989,7 +2038,7 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 
     <para>Returns the row change count for the current transaction. Each row
     change represents a row INSERT or a row DELETE operation. There will be a
-    pair of row change operations for each row that is updated. </para>
+    pair of row change operations for each row that is updated.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TRANSACTION_ID function</primary>
