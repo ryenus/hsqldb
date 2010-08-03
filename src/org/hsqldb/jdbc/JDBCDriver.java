@@ -294,28 +294,18 @@ public class JDBCDriver implements Driver {
         if (info.containsKey("loginTimeout")) {
             String loginTimeoutProperty = info.getProperty("loginTimeout");
 
-            try {
-                info.remove("loginTimeout");
-            } catch (RuntimeException e) {
-                // Just in case somebody tries to pass a Properties
-                // subclass that implements some kind of read-only
-                // behaviour.
-            }
-
             if (loginTimeoutProperty != null) {
                 loginTimeoutProperty = loginTimeoutProperty.trim();
-            }
 
-            if (loginTimeoutProperty.length() > 0) {
-                try {
-                    timeout = Integer.parseInt(loginTimeoutProperty);
-                } catch (NumberFormatException nfe) {
+                if (loginTimeoutProperty.length() > 0) {
+                    try {
+                        timeout = Integer.parseInt(loginTimeoutProperty);
+                    } catch (NumberFormatException nfe) {
+                    }
                 }
             }
         }
 
-        // By now, non-driver property "loginTimeout" property has (hopefully)
-        // been removed.
         props.addProperties(info);
 
         if (timeout == 0) {
