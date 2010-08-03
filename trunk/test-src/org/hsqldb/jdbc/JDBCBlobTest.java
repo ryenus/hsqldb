@@ -288,12 +288,12 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
     }
 
     public void testMisc() throws Exception {
-        System.out.println("--------------------------------");
-        System.out.println((new JDBCBlob(new byte[0])).position(new byte[]{1}, 1));
-        System.out.println((new JDBCBlob(new byte[]{1})).position(new byte[0], 1));
-        System.out.println((new JDBCBlob(new byte[]{1})).position((byte[])null, 1));
+        println("--------------------------------");
+        println((new JDBCBlob(new byte[0])).position(new byte[]{1}, 1));
+        println((new JDBCBlob(new byte[]{1})).position(new byte[0], 1));
+        println((new JDBCBlob(new byte[]{1})).position((byte[])null, 1));
 
-        System.out.println("--------------------------------");
+        println("--------------------------------");
         byte[] data1 = new byte[]{0,1,2,1,2,3,2,3,4,2,3,4,5,2,3,4,5,0,1,2,
                                   1,2,3,2,3,4,2,3,4,5,2,3,4};
         byte[] pattern = new byte[]{2,3,4,5};
@@ -302,18 +302,21 @@ public class JDBCBlobTest extends BaseJdbcTestCase {
         JDBCBlob blob2 = new JDBCBlob(pattern);
 
         for (int i = 1; i <= data1.length + 1; i++) {
-            System.out.println(blob1.position(pattern, i));
+            println(blob1.position(pattern, i));
         }
 
-        System.out.println("--------------------------------");
+        println("--------------------------------");
 
         for (int i = 1; i <= data1.length + 1; i++) {
-            System.out.println(blob1.position(blob2, i));
+           println(blob1.position(blob2, i));
         }
 
-        System.out.println("--------------------------------");
+        println("--------------------------------");
 
-        Object obj = new JDBCBlob(null);
+        try {
+            Object obj = new JDBCBlob(null);
+        } catch (SQLException sQLException) {
+        }
     }
 
     public static void main(java.lang.String[] argList) {

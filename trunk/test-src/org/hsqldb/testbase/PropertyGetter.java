@@ -58,12 +58,13 @@ public class PropertyGetter {
      *
      * @param key to match.
      * @param defaultValue when there is no matching property.
-     * @return the matching value.
+     * @return the matching property value or the default.
      */
     public static String getProperty(final String key, final String defaultValue) {
         String value = null;
         // Note: some properties may be submitted on the command line and
-        // should override property file resources on the class path.
+        // should override property files / resource bundle classes on the
+        // class path.
         try {
             value = System.getProperty(key, null);
         } catch (SecurityException se) {
@@ -116,5 +117,11 @@ public class PropertyGetter {
         }
 
         return rval;
-    }    
+    }
+
+    /**
+     * Construction disabled - pure utility class.
+     */
+    private PropertyGetter() {
+    }
 }

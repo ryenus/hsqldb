@@ -73,19 +73,26 @@ public final class ConnectionFactory {
             return m_rollback;
         }
     }
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
     private final List<ConnectionRegistration> m_connectionRegistrations 
             = new ArrayList<ConnectionRegistration>();
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
     private final List<Statement> m_statements = new ArrayList<Statement>();
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
     private final List<ResultSet> m_resultSets = new ArrayList<ResultSet>();
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Event Listener Support">    
+    /**
+     * for event "closedRegisteredObjects".
+     */
+    @SuppressWarnings("PublicInnerClass")
     public interface EventListener extends java.util.EventListener {
 
         void closedRegisteredObjects(ConnectionFactory source);
     }
 
-    private final List<EventListener> m_listeners = new ArrayList<EventListener>();
+    private final List<EventListener> m_listeners = new ArrayList<EventListener>(2);
 
     public void addDatabaseEventListener(EventListener l) {
         if (!m_listeners.contains(l)) {
@@ -120,6 +127,7 @@ public final class ConnectionFactory {
      * to be closed at teardown.
      *
      * @param conn to track for close.
+     * @param rollback
      */    
     public void registerConnection(Connection conn, boolean rollback) {
         m_connectionRegistrations.add(new ConnectionRegistration(conn,rollback));
@@ -143,7 +151,7 @@ public final class ConnectionFactory {
         m_resultSets.add(rs);
     }
 
-    protected boolean isRollbackConnectionBeforeClose() {
+    public boolean isRollbackConnectionBeforeClose() {
         return PropertyGetter.getBooleanProperty(
                 getClass().getName() + ".rollback.connection.before.close",
                 false);

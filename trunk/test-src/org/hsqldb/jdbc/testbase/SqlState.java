@@ -45,27 +45,27 @@ import org.hsqldb.resources.BundleHandler;
  * 2-character class value followed by a 3-character subclass value, each
  * with an implementation-defined character set that has a one-octet character
  * encoding form and is restricted to *lt;digit&gt;s and &lt;simple Latin upper
- * case letter&gt;s. 5CD2-02-Foundation-2006-01, Subclause 24.1, “SQLSTATE”,
- * Table 33, “SQLSTATE class and subclass values”, specifies the class value for
+ * case letter&gt;s. 5CD2-02-Foundation-2006-01, Subclause 24.1, “SQLSTATE�?,
+ * Table 33, “SQLSTATE class and subclass values�?, specifies the class value for
  * each condition and the subclass value or values for each class value.<p>
  *
  * Table 33 is modified by:<p>
  *
  * <ul>
- * <li>Table 3, “SQLSTATE class and subclass values” in Subclause 20.1,
- *     “SQLSTATE”, of 6WD2-04-PSM-2007-12 (ISO/IEC 9075-4).<p>
+ * <li>Table 3, “SQLSTATE class and subclass values�? in Subclause 20.1,
+ *     “SQLSTATE�?, of 6WD2-04-PSM-2007-12 (ISO/IEC 9075-4).<p>
  * </li>
- * <li>Table 37, “SQLSTATE class and subclass values” in Subclause 26.1,
- *     “SQLSTATE”, of 6WD2-09-MED-2007-12 (ISO/IEC 9075-09).<p>
+ * <li>Table 37, “SQLSTATE class and subclass values�? in Subclause 26.1,
+ *     “SQLSTATE�?, of 6WD2-09-MED-2007-12 (ISO/IEC 9075-09).<p>
  * </li>
- * <li>Table 21, “SQLSTATE class and subclass values” in Subclause 15.1,
- *     “SQLSTATE”, of 6WD2-10-MED-2007-12 (ISO/IEC 9075-10).<p>
+ * <li>Table 21, “SQLSTATE class and subclass values�? in Subclause 15.1,
+ *     “SQLSTATE�?, of 6WD2-10-MED-2007-12 (ISO/IEC 9075-10).<p>
  * </li>
- * <li>Table 2, “SQLSTATE class and subclass values” in Subclause 15.1,
- *     “SQLSTATE”, of 6WD2-13-JRT-2007-12 (ISO/IEC 9075-13).<p>
+ * <li>Table 2, “SQLSTATE class and subclass values�? in Subclause 15.1,
+ *     “SQLSTATE�?, of 6WD2-13-JRT-2007-12 (ISO/IEC 9075-13).<p>
  * </li>
- * <li>Table 14, “SQLSTATE class and subclass values” in Subclause 23.1,
- *     “SQLSTATE”, of 6WD2-14-XML-2007-12 (ISO/IEC 9075-14).
+ * <li>Table 14, “SQLSTATE class and subclass values�? in Subclause 23.1,
+ *     “SQLSTATE�?, of 6WD2-14-XML-2007-12 (ISO/IEC 9075-14).
  * </li>
  * </ul><p>
  *
@@ -108,7 +108,7 @@ import org.hsqldb.resources.BundleHandler;
  * including implementation-defined exception conditions, are raised, then it
  * is implementation-dependent which of the corresponding SQLSTATE values is
  * returned in the SQLSTATE status parameter, provided that the precedence
- * rules in 6WD2-02-Foundation-2007-12, Subclause 4.29.2, “Status parameters”,
+ * rules in 6WD2-02-Foundation-2007-12, Subclause 4.29.2, “Status parameters�?,
  * are obeyed. Any number of applicable conditions values in addition to the
  * one returned in the SQLSTATE status parameter, may be returned in the
  * diagnostics area. <p>
@@ -122,16 +122,16 @@ import org.hsqldb.resources.BundleHandler;
  * The {@link #Category} value has the following meanings:
  *
  * <ul>
- * <li>“S” denotes the {@link #Class} value corresponds to successful
+ * <li>“S�? denotes the {@link #Class} value corresponds to successful
  *     completion and is a completion condition;<p>
  * </li>
- * <li>“W” denotes the {@link #Class} value corresponds to a successful
+ * <li>“W�? denotes the {@link #Class} value corresponds to a successful
  *     completion but with a warning and is a completion condition;<p>
  * </li>
- * <li>“N” denotes the {@link #Class} value corresponds to a no-data situation
+ * <li>“N�? denotes the {@link #Class} value corresponds to a no-data situation
  *     and is a completion condition;</p>
  * </li>
- * <li>“X” denotes the {@link #Class} value corresponds to an exception
+ * <li>“X�? denotes the {@link #Class} value corresponds to an exception
  *     condition.
  * </li>
  * </ul>
@@ -140,36 +140,37 @@ import org.hsqldb.resources.BundleHandler;
  */
 public abstract class SqlState implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     /**
      * Has the following meanings:
      *
      * <ul>
-     * <li>“S” denotes the {@link #Class} value corresponds to successful 
+     * <li>“S�? denotes the {@link #Class} value corresponds to successful 
      *     completion and is a completion condition;<p>
      * </li>
-     * <li>“W” denotes the {@link #Class} value corresponds to a successful
+     * <li>“W�? denotes the {@link #Class} value corresponds to a successful
      *     completion but with a warning and is a completion condition;<p>
      * </li>
-     * <li>“N” denotes the {@link #Class} value corresponds to a no-data 
+     * <li>“N�? denotes the {@link #Class} value corresponds to a no-data 
      *     situation and is a completion condition;</p>
      * </li>
-     * <li>“X” denotes the {@link #Class} value corresponds to an exception
+     * <li>“X�? denotes the {@link #Class} value corresponds to an exception
      *     condition.</li>
      * </ul>
      */
     public transient final char Category;
     /**
-     * As defined in the “Condition” column of 6WD2-02-Foundation-2007-12,
-     * Subclause 24.1, “SQLSTATE”, Table 33, “SQLSTATE class and subclass
-     * values” or modifications thereof.<p>
+     * As defined in the “Condition�? column of 6WD2-02-Foundation-2007-12,
+     * Subclause 24.1, “SQLSTATE�?, Table 33, “SQLSTATE class and subclass
+     * values�? or modifications thereof.<p>
      *
      * May be a localized version.
      */
     public transient final String Condition;
     /**
-     * As defined in the “Class” column of 6WD2-02-Foundation-2007-12,
-     * Subclause 24.1, “SQLSTATE”, Table 33, “SQLSTATE class and subclass
-     * values” or modifications thereof.<p>
+     * As defined in the “Class�? column of 6WD2-02-Foundation-2007-12,
+     * Subclause 24.1, “SQLSTATE�?, Table 33, “SQLSTATE class and subclass
+     * values�? or modifications thereof.<p>
      */
     public transient final String Class;
     /**
@@ -188,17 +189,17 @@ public abstract class SqlState implements Serializable {
      */
     public transient final boolean ClassIsImplemenationDefined;
     /**
-     * As defined in the “Subcondition” column of 5CD2-02-Foundation-2006-01,
-     * Subclause 24.1, “SQLSTATE”, Table 33, “SQLSTATE class and subclass
-     * values” or modifications thereof.<p>
+     * As defined in the “Subcondition�? column of 5CD2-02-Foundation-2006-01,
+     * Subclause 24.1, “SQLSTATE�?, Table 33, “SQLSTATE class and subclass
+     * values�? or modifications thereof.<p>
      *
      * May be a localized version.
      */
     public transient final String Subcondition;
     /**
-     * As defined in the “Subclass” column of 5CD2-02-Foundation-2006-01,
-     * Subclause 24.1, “SQLSTATE”, Table 33, “SQLSTATE class and subclass
-     * values” or modifications thereof.<p>
+     * As defined in the “Subclass�? column of 5CD2-02-Foundation-2006-01,
+     * Subclause 24.1, “SQLSTATE�?, Table 33, “SQLSTATE class and subclass
+     * values�? or modifications thereof.<p>
      */
     public final String Subclass;
     /**
@@ -239,8 +240,9 @@ public abstract class SqlState implements Serializable {
      * {@link #SubclassIsImplementationDefined} is <tt>true</tt>.
      */
     public transient final boolean ValueDenotesImplementationSpecifiedCondition;
-    private static final Map __map = new HashMap();
-    public static final Map Map = Collections.unmodifiableMap(__map);
+    @SuppressWarnings("CollectionWithoutInitialCapacity")
+    private static final Map<String, SqlState> s_map = new HashMap<String, SqlState>();
+    public static final Map<String, SqlState> Map = Collections.unmodifiableMap(s_map);
 
     /**
      * Constructs a new {@link SqlState} from the given
@@ -249,7 +251,8 @@ public abstract class SqlState implements Serializable {
      *
      * @param sqlStateClass of the SQLSTATE
      * @param sqlStateSubclass of the SQLSTATE
-     * @throws if <tt>sqlStateClass</tt> is null, its length is not 2,
+     * @throws IllegalArgumentException
+     *         if <tt>sqlStateClass</tt> is null, its length is not 2,
      *         or it contains a character not in [1..9][A..Z]; if
      *         <tt>sqlStateSubclass</tt>
      */
@@ -271,29 +274,29 @@ public abstract class SqlState implements Serializable {
                 SqlState.Routine.isImplementationDefinedConditionSqlStateClass(sqlStateClass);
         //
         Subclass = sqlStateSubclass;
-        SubclassIsStandardDefined = ClassIsStandardDefined &&
-                SqlState.Routine.canBeStandardDefinedConditionSqlStateSubclass(sqlStateSubclass);
+        SubclassIsStandardDefined = ClassIsStandardDefined
+                && SqlState.Routine.canBeStandardDefinedConditionSqlStateSubclass(sqlStateSubclass);
         SubclassIsImplementationDefined =
                 SqlState.Routine.mustBeImplementationDefinedConditionSqlStateSubclass(sqlStateSubclass);
         IsNoSubclass = SqlState.Routine.isNoSubclass(sqlStateSubclass);
         //
         Value = sqlStateClass + sqlStateSubclass;
-        ValueDenotesStandardSpecifiedCondition = ClassIsStandardDefined &&
-                SubclassIsStandardDefined;
-        ValueDenotesImplementationSpecifiedCondition = ClassIsImplemenationDefined ||
-                (ClassIsStandardDefined && SubclassIsImplementationDefined);
+        ValueDenotesStandardSpecifiedCondition = ClassIsStandardDefined
+                && SubclassIsStandardDefined;
+        ValueDenotesImplementationSpecifiedCondition = ClassIsImplemenationDefined
+                || (ClassIsStandardDefined && SubclassIsImplementationDefined);
         //
         Subcondition = SqlState.Routine.subConditionForSqlState(Value);
         //
         Category = SqlState.Routine.categoryForSqlState(Value);
 
-        SqlState.__map.put(Value, this);
+        SqlState.s_map.put(Value, this);
     }
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof SqlState) &&
-                Value.equals(((SqlState) obj).Value);
+        return (obj instanceof SqlState)
+                && Value.equals(((SqlState) obj).Value);
     }
 
     @Override
@@ -309,12 +312,15 @@ public abstract class SqlState implements Serializable {
     /**
      * Denotes an SQL Successful Completion Condition.
      */
+    @SuppressWarnings("PublicInnerClass")
     public static final class SuccessfulCompletion extends SqlState {
+
+        private static final long serialVersionUID = 1L;
 
         /**
          * Constructs a new instance with the given subclass.
          *
-         * @param subClass of the new instance.
+         * @param sqlStateSubclass of the new instance.
          */
         public SuccessfulCompletion(final String sqlStateSubclass) {
             super(Constant.SqlStateClass.SuccessfulCompletion,
@@ -331,11 +337,14 @@ public abstract class SqlState implements Serializable {
     /**
      *
      */
+    @SuppressWarnings("PublicInnerClass")
     public static final class NoData extends SqlState {
+
+        private static final long serialVersionUID = 1L;
 
         /**
          *
-         * @param subClass
+         * @param sqlStateSubclass
          */
         public NoData(final String sqlStateSubclass) {
             super(Constant.SqlStateClass.NoData,
@@ -356,7 +365,10 @@ public abstract class SqlState implements Serializable {
     /**
      *
      */
+    @SuppressWarnings("PublicInnerClass")
     public static final class Warning extends SqlState {
+
+        private static final long serialVersionUID = 1L;
 
         /**
          *
@@ -458,7 +470,10 @@ public abstract class SqlState implements Serializable {
     /**
      *
      */
+    @SuppressWarnings("PublicInnerClass")
     public static abstract class Exception extends SqlState {
+
+        private static final long serialVersionUID = 1L;
 
         /**
          * 
@@ -471,8 +486,8 @@ public abstract class SqlState implements Serializable {
 
             if (Category != Constant.SqlStateCategory.Exception) {
                 throw new IllegalArgumentException(
-                        "sqlStateClass must denote an exception condition: " +
-                        sqlStateClass);
+                        "sqlStateClass must denote an exception condition: "
+                        + sqlStateClass);
             }
         }
 
@@ -480,6 +495,8 @@ public abstract class SqlState implements Serializable {
          *
          */
         public static final class AmbiguousCursorName extends Exception {
+
+            private static final long serialVersionUID = 1L;
 
             /**
              * 
@@ -503,6 +520,8 @@ public abstract class SqlState implements Serializable {
         public static final class AttemptToAssignToNonUpdatableColumn
                 extends Exception {
 
+            private static final long serialVersionUID = 1L;
+
             /**
              *
              * @param sqlStateSubclass
@@ -522,6 +541,8 @@ public abstract class SqlState implements Serializable {
          */
         public static final class AttemptToAssignToOrderingColumn extends Exception {
 
+            private static final long serialVersionUID = 1L;
+
             /**
              *
              * @param sqlStateSubclass
@@ -534,6 +555,8 @@ public abstract class SqlState implements Serializable {
         }
 
         public static final class CardinalityViolation extends Exception {
+
+            private static final long serialVersionUID = 1L;
 
             /**
              *
@@ -556,6 +579,8 @@ public abstract class SqlState implements Serializable {
          */
         public static final class ConnectionException extends Exception {
 
+            private static final long serialVersionUID = 1L;
+
             /**
              *
              * @param sqlStateSubclass
@@ -573,6 +598,9 @@ public abstract class SqlState implements Serializable {
         }
 
         public static final class InvalidCursorState extends Exception {
+
+            private static final long serialVersionUID = 1L;
+
             /**
              *
              * @param sqlStateSubclass
@@ -581,31 +609,23 @@ public abstract class SqlState implements Serializable {
                 super(Constant.SqlStateClass.InvalidCursorState,
                         sqlStateSubclass);
             }
-
             /**
              *
              */
             public static final InvalidCursorState NoSubclass =
                     new InvalidCursorState(Constant.SqlStateSubclass.NoSubclass);
-
             public static final InvalidCursorState IdentifiedCursorIsNotOpen =
                     new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.IdentifiedCursorIsNotOpen);
-            
             public static final InvalidCursorState IdentifiedCursorIsAlreadyOpen =
                     new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.IdentifiedCursorIsAlreadyOpen);
-
             public static final InvalidCursorState CannotFetch_NEXT_PRIOR_CURRENT_or_RELATIVE_CursorPositionIsUnknown =
                     new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.CannotFetch_NEXT_PRIOR_CURRENT_or_RELATIVE_CursorPositionIsUnknown);
-
             public static final InvalidCursorState IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement =
                     new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement);
-
             public static final InvalidCursorState AllColumnsMustBeSetBeforInsert =
                     new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.AllColumnsMustBeSetBeforInsert);
-
             public static final InvalidCursorState RowHasBeenModifiedOutsideTheCursor =
                     new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.RowHasBeenModifiedOutsideTheCursor);
-
             public static final InvalidCursorState CursorDisabledByPreviousError =
                     new InvalidCursorState(Constant.SqlStateSubclass.InvalidCursorState.CursorDisabledByPreviousError);
         }
@@ -614,6 +634,7 @@ public abstract class SqlState implements Serializable {
     /**
      *
      */
+    @SuppressWarnings("PublicInnerClass")
     public interface Constant {
 
         /**
@@ -692,6 +713,16 @@ public abstract class SqlState implements Serializable {
             String TriggeredDataChangeViolation = "27";
             String Warning = "01";
             String WithCheckOptionViolation = "44";
+
+            public interface ODBC2 {
+
+                String GeneralError = "S1";
+            }
+
+            public interface ODBC3 {
+
+                String Odbc3GeneralError = "HY";
+            }
 
             public interface PSM {
 
@@ -838,6 +869,7 @@ public abstract class SqlState implements Serializable {
             }
 
             public interface InvalidCursorState {
+
                 String IdentifiedCursorIsNotOpen = "501";
                 String IdentifiedCursorIsAlreadyOpen = "502";
                 String IdentifiedCursorNotPositionedOnRowIn_UPDATE_DELETE_SET_or_GET_Statement = "504";
@@ -928,8 +960,8 @@ public abstract class SqlState implements Serializable {
                     break;
                 }
                 default: {
-                    throw new IllegalArgumentException("sqlStateCategory: " +
-                            sqlStateCategory);
+                    throw new IllegalArgumentException("sqlStateCategory: "
+                            + sqlStateCategory);
                 }
             }
         }
@@ -949,10 +981,10 @@ public abstract class SqlState implements Serializable {
                 for (int i = 0; i < 5; i++) {
                     if (!SqlState.Routine.isLegalSqlStateChar(sqlState.charAt(i))) {
                         throw new IllegalArgumentException(
-                                "Illegal character encountered: " +
-                                sqlState.charAt(i) +
-                                " in sqlState: " +
-                                sqlState);
+                                "Illegal character encountered: "
+                                + sqlState.charAt(i)
+                                + " in sqlState: "
+                                + sqlState);
                     }
                 }
             }
@@ -987,10 +1019,10 @@ public abstract class SqlState implements Serializable {
                 for (int i = 0; i < 2; i++) {
                     if (!SqlState.Routine.isLegalSqlStateChar(sqlStateClass.charAt(i))) {
                         throw new IllegalArgumentException(
-                                "Illegal character encountered: " +
-                                sqlStateClass.charAt(i) +
-                                " in sqlStateClass: " +
-                                sqlStateClass);
+                                "Illegal character encountered: "
+                                + sqlStateClass.charAt(i)
+                                + " in sqlStateClass: "
+                                + sqlStateClass);
                     }
                 }
             }
@@ -1011,10 +1043,10 @@ public abstract class SqlState implements Serializable {
                 for (int i = 0; i < 3; i++) {
                     if (!SqlState.Routine.isLegalSqlStateChar(sqlStateSubclass.charAt(i))) {
                         throw new IllegalArgumentException(
-                                "Illegal character encountered: " +
-                                sqlStateSubclass.charAt(i) +
-                                " in sqlStateSubclass: " +
-                                sqlStateSubclass);
+                                "Illegal character encountered: "
+                                + sqlStateSubclass.charAt(i)
+                                + " in sqlStateSubclass: "
+                                + sqlStateSubclass);
                     }
                 }
             }
@@ -1053,8 +1085,8 @@ public abstract class SqlState implements Serializable {
         public static boolean isStandardDefinedConditionSqlState(
                 final String sqlStateClass,
                 final String sqlStateSubclass) {
-            return SqlState.Routine.isStandardDefinedConditionSqlStateClass(sqlStateClass) &&
-                    SqlState.Routine.mustBeImplementationDefinedConditionSqlStateSubclass(sqlStateSubclass);
+            return SqlState.Routine.isStandardDefinedConditionSqlStateClass(sqlStateClass)
+                    && SqlState.Routine.mustBeImplementationDefinedConditionSqlStateSubclass(sqlStateSubclass);
         }
 
         /**
@@ -1066,9 +1098,9 @@ public abstract class SqlState implements Serializable {
         public static boolean isImplementationDefinedConditionSqlState(
                 final String sqlStateClass,
                 final String sqlStateSubclass) {
-            return SqlState.Routine.isImplementationDefinedConditionSqlStateClass(sqlStateClass) ||
-                    (SqlState.Routine.isStandardDefinedConditionSqlStateClass(sqlStateClass) &&
-                    SqlState.Routine.mustBeImplementationDefinedConditionSqlStateSubclass(sqlStateClass));
+            return SqlState.Routine.isImplementationDefinedConditionSqlStateClass(sqlStateClass)
+                    || (SqlState.Routine.isStandardDefinedConditionSqlStateClass(sqlStateClass)
+                    && SqlState.Routine.mustBeImplementationDefinedConditionSqlStateSubclass(sqlStateClass));
         }
 
         /**

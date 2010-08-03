@@ -68,6 +68,7 @@ public class ScriptIterator implements Iterator {
      * Constructs a new ScriptIterator.
      *
      * @param url from which to read SQL statements
+     * @throws IOException
      */
     public ScriptIterator(URL url) throws IOException {
         this(new BufferedReader(new InputStreamReader(url.openStream())));
@@ -92,6 +93,7 @@ public class ScriptIterator implements Iterator {
      * @return true if there is an SQL segment available
      * @throws java.lang.RuntimeException if an internal IOException occurs
      */
+    @SuppressWarnings("StringBufferWithoutInitialCapacity")
     public boolean hasNext() throws RuntimeException {
         String       line;
         StringBuilder sb;
@@ -169,6 +171,8 @@ public class ScriptIterator implements Iterator {
     /**
      * Unsupported.
      *
+     * @return nothing
+     * @throws NoSuchElementException never
      * @throws java.lang.UnsupportedOperationException always
      */
     public int nextInt() throws NoSuchElementException {
@@ -178,6 +182,8 @@ public class ScriptIterator implements Iterator {
     /**
      * Unsupported.
      *
+     * @return nothing
+     * @throws NoSuchElementException never
      * @throws java.lang.UnsupportedOperationException always
      */
     public long nextLong() throws NoSuchElementException {
@@ -196,6 +202,7 @@ public class ScriptIterator implements Iterator {
     /**
      * Unsupported.
      *
+     * @param object ignored
      * @throws java.lang.UnsupportedOperationException always
      */
     public void setValue(Object object) throws UnsupportedOperationException {

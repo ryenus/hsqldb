@@ -149,7 +149,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     //
     private static final String PRINTLN_FORMAT = "{0}" + LINE_SEPARATOR;
     //
-    private static final Class[] NO_PARMS = new Class[0];
+    private static final Class<?>[] NO_PARMS = new Class<?>[0];
     //
     private ConnectionFactory m_connectionFactory;
     private ConnectionFactory.EventListener m_embeddedDatabaseCloser;
@@ -427,9 +427,9 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         if (o == null) {
             return 'X';
         }
-        Class cls = o.getClass();
+        Class<?> cls = o.getClass();
         if (cls.isArray()) {
-            Class comp = cls.getComponentType();
+            Class<?> comp = cls.getComponentType();
             String className = cls.getName();
             int count = 0;
             for (; className.charAt(count) == '['; count++) {
@@ -457,7 +457,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
     protected String[] getResoucesInPackage(final String packageName) throws IOException {
         String packagePath = packageName.replace('.', '/');
         if (!packagePath.endsWith("/")) {
-            packagePath = packagePath + '/';
+            packagePath += '/';
         }
 
         Enumeration<URL> resources = getResources(packagePath);
@@ -481,9 +481,9 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
                 } catch (Exception ex) {
                 }
             } else if ("jar".equals(protocol)) {
-                Enumeration entries = ((JarURLConnection) resource.openConnection()).getJarFile().entries();
+                Enumeration<JarEntry> entries = ((JarURLConnection) resource.openConnection()).getJarFile().entries();
                 while (entries.hasMoreElements()) {
-                    JarEntry entry = (JarEntry) entries.nextElement();
+                    JarEntry entry = entries.nextElement();
                     String entryName = entry.getName();
                     if (entryName.equals(packagePath)) {
                         continue;
@@ -543,6 +543,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * @param resource on class path.
      * @throws java.lang.Exception thrown by any internal operation.
      */
+    @SuppressWarnings({"AssignmentToMethodParameter"})
     protected void executeScript(String resource) throws Exception {
         if (resource == null) {
             throw new RuntimeException("resource parameter must not be null.");
@@ -570,8 +571,8 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             }
             conn.commit();
         } catch (Exception e) {
-            System.out.println("error executing sql:");
-            System.out.println(sql);
+            println("error executing sql:");
+            println(sql);
             throw e;
         } finally {
             if (stmt != null) {
@@ -625,7 +626,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         }
         final int lastIndexofDot = fieldName.lastIndexOf('.');
         final String className = fieldName.substring(0, lastIndexofDot);
-        final Class clazz = Class.forName(className);
+        final Class<?> clazz = Class.forName(className);
         final String bareFieldName = fieldName.substring(lastIndexofDot + 1);
         fieldValue = clazz.getField(bareFieldName).getInt(null);
         BaseTestCase.s_fieldValueMap.put(fieldName, fieldValue);
@@ -709,6 +710,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * to standard output.
      * @param msg to print
      */
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     protected void print(Object msg) {
         if (isPrint()) {
             System.out.print(msg);
@@ -747,16 +749,16 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         return isPrint() && getBooleanProperty("print.test.exceptions", true);
     }
 
-    protected final void printException(Exception ex) {
+    protected final void printException(Throwable t) {
         if (isPrintExceptions()) {
             StringWriter sw = new StringWriter();
 
-            ex.printStackTrace(new PrintWriter(sw));
+            t.printStackTrace(new PrintWriter(sw));
 
             print(MessageFormat.format(
                     EXCEPTION_FORMAT,
                     getClass().getName(),
-                    ex.getMessage(),
+                    t.getMessage(),
                     sw.toString()));
         }
     }
@@ -765,12 +767,12 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         return isPrint() && getBooleanProperty("print.test.warnings", true);
     }
 
-    protected final void printWarning(Exception ex) {
+    protected final void printWarning(Throwable t) {
         if (isPrintWarnings()) {
             print(MessageFormat.format(
                     WARNING_FORMAT,
                     getClass().getName(),
-                    ex.getMessage(),
+                    t.getMessage(),
                     LINE_SEPARATOR));
         }
     }
@@ -789,8 +791,10 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
 
     /**
      * to standard output.
+     * @param method
      * @param msg to print
      */
+    @SuppressWarnings("AssignmentToMethodParameter")
     private void printTestLabel0(Method method, final Object msg) {
         if (!isPrintTestLabels()) {
             return;
@@ -972,7 +976,7 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
             closer = s_embeddedDatabaseCloser;
         } else {
             try {
-                Class closerClass = Class.forName(closerFQN);
+                Class<?> closerClass = Class.forName(closerFQN);
                 closer = (ConnectionFactory.EventListener) closerClass.newInstance();
             } catch (ClassNotFoundException cnfe) {
             } catch (IllegalAccessException iae) {
@@ -983,16 +987,28 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
         return closer;
     }
 
+    protected void activateEmbeddedDatabaseCloser() {
+        if (isCloseEmbeddedDatabasesOnTeardown()) {
+            m_embeddedDatabaseCloser = getEmbeddedDatabaseCloser();
+
+            if (m_embeddedDatabaseCloser != null) {
+                connectionFactory().addDatabaseEventListener(m_embeddedDatabaseCloser);
+            }
+        }
+    }
+
+    protected void deactivateEmbeddedDatabaseCloser() {
+        if (m_embeddedDatabaseCloser != null) {
+            connectionFactory().removeDatabaseEventListener(m_embeddedDatabaseCloser);
+        }
+    }
+
     /**
      * Unless overridden in subclass, this method is invoked
      * before the main teardown behavior occurs.
      */
     protected void preTearDown() {
-        if (isCloseEmbeddedDatabasesOnTeardown()) {
-            if (null != (m_embeddedDatabaseCloser = getEmbeddedDatabaseCloser())) {
-                connectionFactory().addDatabaseEventListener(m_embeddedDatabaseCloser);
-            }
-        }
+        activateEmbeddedDatabaseCloser();
     }
 
     /**
@@ -1043,11 +1059,10 @@ public abstract class BaseTestCase extends junit.framework.TestCase {
      * Unless overridden in a subclass, this method is invoked
      * after the main teardown behavior occurs, even if an exception
      * is thrown as part of the main teardown activity.
+     * @throws Exception
      */
     protected void postTearDown() throws Exception {
-        if (m_embeddedDatabaseCloser != null) {
-            connectionFactory().removeDatabaseEventListener(m_embeddedDatabaseCloser);
-        }
+        deactivateEmbeddedDatabaseCloser();
     }
 
     /**
