@@ -81,7 +81,7 @@ public abstract class BaseScriptedTestCase extends BaseTestCase {
         try {
             executeScript(getName());
         } catch (Throwable t) {
-            t.printStackTrace();
+            this.printException(t);
             throw t;
         }
     }

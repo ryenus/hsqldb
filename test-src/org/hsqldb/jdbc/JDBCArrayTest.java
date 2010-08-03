@@ -44,7 +44,7 @@ import org.hsqldb.testbase.OfMethod;
 
 /**
  *
- * @author boucher@users
+ * @author boucherb@users
  */
 @ForSubject(JDBCArray.class)
 public class JDBCArrayTest extends BaseJdbcTestCase {
@@ -174,6 +174,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of getBaseTypeName method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getBaseTypeName()")
     public void testGetBaseTypeName() throws Exception {
@@ -187,6 +189,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of getBaseType method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getBaseType()")
     public void testGetBaseType() throws Exception {
@@ -199,6 +203,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of getArray method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getArray()")
     public void testGetArray_0args() throws Exception {
@@ -216,6 +222,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of getArray method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getArray(Map<String,Class<?>>)")
     public void testGetArray_Map() throws Exception {
@@ -224,6 +232,7 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
         }
 
         Connection conn = newConnection();
+        @SuppressWarnings("CollectionWithoutInitialCapacity")
         Map<String, Class<?>> map = new HashMap<String, Class<?>>();
 
         for (int i = 0; i < s_colNames.length; i++) {
@@ -239,6 +248,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of getArray method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getArray(long,int)")
     public void testGetArray_long_int() throws Exception {
@@ -257,6 +268,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of getArray method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getArray(long,int,Map<String,Class<?>>)")
     public void testGetArray_long_int_Map() throws Exception {
@@ -264,6 +277,7 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
             return;
         }
         Connection conn = newConnection();
+        @SuppressWarnings("CollectionWithoutInitialCapacity")
         Map<String, Class<?>> map = new HashMap<String, Class<?>>();
 
         for (int i = 0; i < s_colNames.length; i++) {
@@ -279,6 +293,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of getResultSet method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getResultSet()")
     public void testGetResultSet_0args() throws Exception {
@@ -291,13 +307,15 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
             while (rs.next()) {
                 Object element = rs.getObject(2);
 
-                //printlnPlain(element);
+                //println(element);
             }
         }
     }
 
     /**
      * Test of getResultSet method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getResultSet(Map<String, Class<?>>)")
     public void testGetResultSet_Map() throws Exception {
@@ -305,6 +323,7 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
             return;
         }
         Connection conn = newConnection();
+        @SuppressWarnings("CollectionWithoutInitialCapacity")
         Map<String, Class<?>> map = new HashMap<String, Class<?>>();
 
         for (int i = 0; i < s_baseNames.length; i++) {
@@ -321,6 +340,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of getResultSet method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getResultSet(long,int)")
     public void testGetResultSet_long_int() throws Exception {
@@ -340,6 +361,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of getResultSet method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("getResultSet(long,int,HashMap<String, Class<?>>")
     public void testGetResultSet_long_int_Map() throws Exception {
@@ -347,6 +370,7 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
             return;
         }
         Connection conn = newConnection();
+        @SuppressWarnings("CollectionWithoutInitialCapacity")
         Map<String, Class<?>> map = new HashMap<String, Class<?>>();
 
         for (int i = 0; i < s_baseNames.length; i++) {
@@ -363,6 +387,8 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of toString method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("toString()")
     public void testToString() throws Exception {
@@ -377,11 +403,14 @@ public class JDBCArrayTest extends BaseJdbcTestCase {
 
     /**
      * Test of free method, of class JDBCArray.
+     *
+     * @throws Exception
      */
     @OfMethod("free()")
     public void testFree() throws Exception {
         Connection conn = newConnection();
 
+        @SuppressWarnings("CollectionWithoutInitialCapacity")
         Map<String, Class<?>> map = new HashMap<String, Class<?>>();
 
         for (int i = 0; i < s_baseNames.length; i++) {
