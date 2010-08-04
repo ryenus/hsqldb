@@ -4522,6 +4522,40 @@ public class ParserDDL extends ParserRoutine {
         read();
         session.checkAdmin();
 
+        if (token.tokenType == Tokens.RESET) {
+            read();
+
+            int action = token.tokenType;
+
+            switch (token.tokenType) {
+
+                case Tokens.ALL :
+                    read();
+                    break;
+
+                case Tokens.RESULT :
+                    read();
+                    readThis(Tokens.SETS);
+                    break;
+
+                case Tokens.TABLE :
+                    read();
+                    readThis(Tokens.DATA);
+                    break;
+
+                default :
+                    throw unexpectedTokenRequire(Tokens.T_ALL + ','
+                                                 + Tokens.T_RESULT + ','
+                                                 + Tokens.T_TABLE);
+            }
+
+            Object[] args = new Object[] {
+                Long.valueOf(session.getId()), Integer.valueOf(action)
+            };
+
+            return new StatementCommand(StatementTypes.ALTER_SESSION, args);
+        }
+
         long    sessionID     = readBigint();
         Session targetSession = database.sessionManager.getSession(sessionID);
 

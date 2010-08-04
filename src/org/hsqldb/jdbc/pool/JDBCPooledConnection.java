@@ -31,50 +31,67 @@
 
 package org.hsqldb.jdbc.pool;
 
-import javax.sql.ConnectionEventListener;
-import javax.sql.PooledConnection;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
-//#ifdef JAVA6
-import javax.sql.StatementEventListener;
+import javax.sql.ConnectionEvent;
+import javax.sql.ConnectionEventListener;
+import javax.sql.PooledConnection;
 
 //#endif JAVA6
-// boucherb@users 20051207 - patch 1.8.0.x initial JDBC 4.0 support work
+import javax.sql.StatementEventListener;
+
+//#ifdef JAVA6
+import org.hsqldb.jdbc.JDBCConnection;
+import org.hsqldb.jdbc.JDBCConnectionEventListener;
+import org.hsqldb.lib.OrderedHashSet;
 
 /**
- * @author Jakob Jenkov
+ * PooledConnection implementations. Maintains a lifetime connection to the
+ * database. The getConnection() method establishes a lease on the lifetime
+ * connection and returns a special JDBCConnection (userConnection) that is
+ * valid until it is closed. Has two states, reported by isInUse(), indicating
+ * if a lease has been given or not (if a userConnection is in use or not).<p>
+ *
+ * The ConnectionEventLister objects that have been registered with this
+ * PooledConnection are notified when each lease expires, or an unrecoverable
+ * error occurs on the connection to the database.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since JDK 1.2, HSQLDB 2.0
  */
-public class JDBCPooledConnection implements PooledConnection {
+class JDBCPooledConnection
+implements PooledConnection, JDBCConnectionEventListener {
 
-    private LifeTimeConnectionWrapper connectionWrapper = null;
+    synchronized public Connection getConnection() throws SQLException {
 
-    public JDBCPooledConnection(LifeTimeConnectionWrapper connectionWrapper) {
-        this.connectionWrapper = connectionWrapper;
+        if (isInUse) {
+            throw new SQLException("Connection in use");
+        }
+
+        isInUse = true;
+
+        return new JDBCConnection(connection, this);
     }
 
     public void close() throws SQLException {
 
-        connectionWrapper.closePhysically();
+        if (connection != null) {
+            connection.closeFully();
 
-        this.connectionWrapper = null;
-    }
-
-    public Connection getConnection() throws SQLException {
-        return this.connectionWrapper;
+            this.connection = null;
+        }
     }
 
     public void addConnectionEventListener(ConnectionEventListener listener) {
-        this.connectionWrapper.addConnectionEventListener(listener);
+        listeners.add(listener);
     }
 
     public void removeConnectionEventListener(
             ConnectionEventListener listener) {
-        this.connectionWrapper.removeConnectionEventListener(listener);
+        listeners.remove(listener);
     }
-
-/** @todo - implement methods */
 
 //#ifdef JAVA6
     public void addStatementEventListener(StatementEventListener listener) {}
@@ -83,4 +100,75 @@ public class JDBCPooledConnection implements PooledConnection {
             StatementEventListener listener) {}
 
 //#endif JAVA6
+    // ------------------------ internal implementation ------------------------
+    synchronized public void connectionClosed() {
+
+        ConnectionEvent event = new ConnectionEvent(this);
+
+        userConnection = null;
+
+        release();
+
+        for (int i = 0; i < listeners.size(); i++) {
+            ConnectionEventListener connectionEventListener =
+                (ConnectionEventListener) listeners.get(i);
+
+            connectionEventListener.connectionClosed(event);
+        }
+    }
+
+    synchronized public void connectionErrorOccured(SQLException e) {
+
+        ConnectionEvent event = new ConnectionEvent(this, e);
+
+        release();
+
+        for (int i = 0; i < listeners.size(); i++) {
+            ConnectionEventListener connectionEventListener =
+                (ConnectionEventListener) listeners.get(i);
+
+            connectionEventListener.connectionErrorOccurred(event);
+        }
+    }
+
+    /**
+     * Returns true if getConnection() has been called and the userConnection
+     * is still open.
+     */
+    synchronized public boolean isInUse() {
+        return isInUse;
+    }
+
+    /**
+     * Force close the userConnection, no close event is fired.
+     */
+    synchronized public void release() {
+
+        if (userConnection != null) {
+            try {
+                userConnection.close();
+            } catch (SQLException e) {
+
+                // check connection problems
+            }
+        }
+
+        try {
+            connection.reset();
+        } catch (SQLException e) {
+
+            // check connection problems
+        }
+
+        isInUse = false;
+    }
+
+    protected OrderedHashSet listeners = new OrderedHashSet();
+    protected JDBCConnection connection;
+    protected JDBCConnection userConnection;
+    protected boolean        isInUse;
+
+    public JDBCPooledConnection(JDBCConnection connection) {
+        this.connection = connection;
+    }
 }

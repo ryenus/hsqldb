@@ -34,6 +34,7 @@ package org.hsqldb;
 import java.io.InputStream;
 import java.util.Calendar;
 
+import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.result.Result;
@@ -136,4 +137,8 @@ public interface SessionInterface {
     int getStreamBlockSize();
 
     HsqlProperties getClientProperties();
+
+    JDBCConnection getJDBCConnection();
+
+    void setJDBCConnection(JDBCConnection connection);
 }

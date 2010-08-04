@@ -82,7 +82,9 @@ import org.hsqldb.types.Type;
  * All methods on the <code>Array</code> interface must be fully implemented if the
  * JDBC driver supports the data type.
  *
- * @since 1.2
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since 1.2, HSQLDB 2.0
  */
 public class JDBCArray implements Array {
 
@@ -157,7 +159,7 @@ public class JDBCArray implements Array {
      * access the array
      * @exception SQLFeatureNotSupportedException if the JDBC driver does not support
      * this method
-     * @since 1.2
+     * @since Java 1.2
      */
     public Object getArray() throws SQLException {
         checkClosed();
@@ -345,10 +347,6 @@ public class JDBCArray implements Array {
 
         Result result = this.newColumnResult(0, data.length);
 
-        if (connection == null) {
-            return new JDBCResultSet(sessionProxy, result, result.metaData);
-        }
-
         return new JDBCResultSet(connection, result, result.metaData);
     }
 
@@ -419,10 +417,6 @@ public class JDBCArray implements Array {
         checkClosed();
 
         Result result = this.newColumnResult(index - 1, count);
-
-        if (connection == null) {
-            return new JDBCResultSet(sessionProxy, result, result.metaData);
-        }
 
         return new JDBCResultSet(connection, result, result.metaData);
     }
@@ -516,7 +510,7 @@ public class JDBCArray implements Array {
     public JDBCArray(Object[] data, Type type, Type arrayType,
                      SessionInterface session) {
 
-        this(data, type, arrayType, (JDBCConnection) null);
+        this(data, type, arrayType, session.getJDBCConnection());
 
         this.sessionProxy = session;
     }
@@ -536,10 +530,7 @@ public class JDBCArray implements Array {
         this.elementType = type;
         this.arrayType   = arrayType;
         this.connection  = connection;
-
-        if (connection != null) {
-            this.sessionProxy = connection.sessionProxy;
-        }
+        this.sessionProxy = connection.sessionProxy;
     }
 
     Object[] getArrayInternal() {

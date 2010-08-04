@@ -165,6 +165,7 @@ public class StatementCommand extends Statement {
 
             case StatementTypes.ALTER_SESSION :
                 group = StatementTypes.X_HSQLDB_SESSION;
+                this.isTransactionStatement = false;
                 break;
 
             default :

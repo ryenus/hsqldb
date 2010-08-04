@@ -42,6 +42,7 @@ import java.util.TimeZone;
 
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.lib.DataOutputStream;
 import org.hsqldb.navigator.RowSetNavigatorClient;
 import org.hsqldb.persist.HsqlProperties;
@@ -107,6 +108,7 @@ public class ClientConnection implements SessionInterface {
     private Calendar calendar;
 
     //
+    JDBCConnection connection;
     String         host;
     int            port;
     String         path;
@@ -574,6 +576,14 @@ public class ClientConnection implements SessionInterface {
         }
 
         return clientProperties;
+    }
+
+    public JDBCConnection getJDBCConnection() {
+        return connection;
+    }
+
+    public void setJDBCConnection(JDBCConnection connection) {
+        this.connection = connection;
     }
 
     /**
