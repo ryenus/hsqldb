@@ -2221,6 +2221,33 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
     </section>
 
     <section>
+      <title>Subquery</title>
+
+      <para>A subquery is simply a query expression in brackets. A query
+      expression is usualy a complete SELECT statement and is discussed in the
+      rest of this chapter. A scalar subquery returns one row with one column.
+      A row subquery returns one row with one or more columns. A table
+      subquery returns zero or more rows with one or more columns. The
+      distinction between different forms of subquery is syntactic. Different
+      forms are allowed in different contexts. If a scalar subquery or a row
+      subquery return more than one row, an exception is raised. If a scalar
+      or row subquery returns no row, it is usually treated as returning a
+      NULL. Depending on the context, this has different consequences.</para>
+
+      <para><literal>&lt;scalar subquery&gt; ::= &lt;subquery&gt;
+      </literal></para>
+
+      <para><literal>&lt;row subquery&gt; ::= &lt;subquery&gt;
+      </literal></para>
+
+      <para><literal>&lt;table subquery&gt; ::= &lt;subquery&gt;
+      </literal></para>
+
+      <para><literal>&lt;subquery&gt; ::= &lt;left paren&gt; &lt;query
+      expression&gt; &lt;right paren&gt;</literal></para>
+    </section>
+
+    <section>
       <title>Query Specification</title>
 
       <para>A query specification is a SELECT statement. It is the most common
@@ -2380,11 +2407,18 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para><literal>&lt;table or query name&gt; ::= &lt;table name&gt; |
       &lt;transition table name&gt; | &lt;query name&gt;</literal></para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>derived table</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">derived table</emphasis></simpara>
+
       <para>A query expression that is enclosed in parentheses and returns
       from zero to many rows is a <literal>&lt;table subquery&gt;</literal>.
       In a <literal>&lt;derived table&gt;</literal> the query expression is
       self contained and cannot reference the columns of other table
-      references.</para>
+      references. This is the traditional and most common form of use of a
+      <literal>&lt;table subquery&gt;</literal>.</para>
 
       <para><literal>&lt;derived table&gt; ::= &lt;table
       subquery&gt;</literal></para>
@@ -2402,7 +2436,16 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para><literal>&lt;lateral derived table&gt; ::= LATERAL &lt;table
       subquery&gt;</literal></para>
 
-      <para>ssss</para>
+      <para>The use of &lt;lateral derived table&gt; completely transofrms the
+      way a query is written. For example, the two queries below are
+      equivalent, but with different forms. The query with LATERAL is
+      evaluated separately for each row of the first table that satisfies the
+      WHERE condition. </para>
+
+      <programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
+
+SELECT a, b, ( SELECT SUM(g) FROM btable WHERE btable.h = atable.a ) AS s FROM atable WHERE atable.c = 10
+SELECT a, b FROM atable LEFT OUTER JOIN LATERAL ( SELECT SUM(g) AS s FROM btable WHERE btable.h = atable.a ) WHERE atable.c = 10</programlisting>
 
       <indexterm significance="preferred" type="sql">
         <primary>UNNEST</primary>
@@ -2421,6 +2464,11 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       <para><literal>&lt;collection derived table&gt; ::= UNNEST &lt;left
       paren&gt; &lt;array value expression&gt; &lt;right paren&gt; [ WITH
       ORDINALITY ]</literal></para>
+
+      <para>The <literal>&lt;array value expression&gt;</literal> can be the
+      result of a function call. If the arguments of the function call are
+      values from the tables on the left of the UNNEST, then the function is
+      called for each row of table.</para>
 
       <para>In the first example below, UNNEST is used with the built in
       function SEQUENCE_ARRAY to build a table containing dates for the last
