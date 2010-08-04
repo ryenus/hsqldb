@@ -1112,14 +1112,18 @@ public class JDBCConnection implements Connection {
         if (isInternal || isClosed) {
             return;
         }
-        isClosed = true;
 
-        if (sessionProxy != null) {
-            sessionProxy.close();
-        }
-        sessionProxy   = null;
+        isClosed       = true;
         rootWarning    = null;
         connProperties = null;
+
+        if (isPooled) {
+            poolEventListener.connectionClosed();
+            poolEventListener = null;
+        } else if (sessionProxy != null) {
+            sessionProxy.close();
+            sessionProxy = null;
+        }
     }
 
     /**
@@ -3207,8 +3211,9 @@ public class JDBCConnection implements Connection {
     private int savepointIDSequence;
 
     /** reuse count in ConnectionPool */
-    int incarnation;
-
+    int     incarnation;
+    boolean isPooled;
+    JDBCConnectionEventListener poolEventListener;
     /**
      * Constructs a new external <code>Connection</code> to an HSQLDB
      * <code>Database</code>. <p>
@@ -3269,8 +3274,8 @@ public class JDBCConnection implements Connection {
                         user, password, props, null, zoneSeconds);
             } else if (connType == DatabaseURL.S_HSQL
                        || connType == DatabaseURL.S_HSQLS) {
-                sessionProxy = new ClientConnection(host, port, path,
-                        database, isTLS, user, password, zoneSeconds);
+                sessionProxy = new ClientConnection(host, port,
+                        path, database, isTLS, user, password, zoneSeconds);
                 isNetConn = true;
             } else if (connType == DatabaseURL.S_HTTP
                        || connType == DatabaseURL.S_HTTPS) {
@@ -3280,8 +3285,12 @@ public class JDBCConnection implements Connection {
             } else {    // alias: type not yet implemented
                 throw Util.invalidArgument(connType);
             }
+
+            sessionProxy.setJDBCConnection(this);
+
             connProperties   = props;
             clientProperties = sessionProxy.getClientProperties();
+
         } catch (HsqlException e) {
             throw Util.sqlException(e);
         }
@@ -3336,6 +3345,18 @@ public class JDBCConnection implements Connection {
         sessionProxy = c;
     }
 
+    /**
+     * Constructor for use with connection pooling and XA.
+     */
+    public JDBCConnection(JDBCConnection c, JDBCConnectionEventListener eventListener) {
+
+        sessionProxy = c.sessionProxy;
+
+        connProperties    = c.connProperties;
+        clientProperties  = c.clientProperties;
+        isPooled          = true;
+        poolEventListener = eventListener;
+    }
     /**
      *  The default implementation simply attempts to silently {@link
      *  #close() close()} this <code>Connection</code>
@@ -3424,6 +3445,25 @@ public class JDBCConnection implements Connection {
         }
     }
 
+    /**
+     * Completely closes a pooled connection
+     */
+    public void closeFully() {
+        try {
+            close();
+        } catch (Throwable t) {
+            //
+        }
+
+        try {
+            if (sessionProxy != null) {
+                sessionProxy.close();
+                sessionProxy = null;
+            }
+        } catch (Throwable t) {
+            //
+        }
+    }
     /**
      * provides cross-package access to the proprietary (i.e. non-JDBC)
      * HSQLDB session interface. <P>

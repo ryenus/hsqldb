@@ -49,11 +49,12 @@ import javax.naming.spi.ObjectFactory;
 public class JDBCDataSourceFactory implements ObjectFactory {
 
     /**
-     * Creates a JDBCDataSource object using the location or reference
-     * information specified.<p>
+     * Creates a JDBCDataSource object using the javax.naming.Reference
+     * object specified.<p>
      *
-     * The Reference object should support the properties, database, user,
-     * password.
+     * The Reference object's class name should be "org.hsqldb.jdbc.JDBCDataSource"
+     * and it should support the properties, database, user and password. It may
+     * optionally support the logingTimeout property.
      *
      * @param obj The reference information used in creating a
      *      JDBCDatasource object.

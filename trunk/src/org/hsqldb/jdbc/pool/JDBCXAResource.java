@@ -133,10 +133,8 @@ public class JDBCXAResource implements XAResource {
      *        order to do real (non-wrapped) commits, rollbacks, etc.
      *        This is not for the end user.  We need the real thing.
      */
-    public JDBCXAResource(JDBCConnection connection,
-                          JDBCXADataSource xaDataSource) {
-
-        // We're getting a real Connection here and not a wrapper.
+    public JDBCXAResource(JDBCXADataSource xaDataSource,
+                          JDBCConnection connection) {
         this.connection   = connection;
         this.xaDataSource = xaDataSource;
     }
@@ -230,9 +228,7 @@ public class JDBCXAResource implements XAResource {
         }
 
         /** @todo - probably all flags can be ignored */
-        if (flags == XAResource.TMSUCCESS) {
-
-        }
+        if (flags == XAResource.TMSUCCESS) {}
 
         try {
             connection.setAutoCommit(originalAutoCommitMode);    // real/phys.
@@ -449,5 +445,13 @@ public class JDBCXAResource implements XAResource {
         // N.b.  The DataSource does not have this XAResource in its list
         // until right here.  We can't tell DataSource before our start()
         // method, because we don't know our Xid before now.
+    }
+
+    JDBCConnection getConnection() {
+        return this.connection;
+    }
+
+    void setConnection(JDBCConnection userConnection) {
+        connection = userConnection;
     }
 }

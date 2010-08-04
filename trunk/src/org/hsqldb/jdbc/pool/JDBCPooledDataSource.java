@@ -30,63 +30,46 @@
 
 
 package org.hsqldb.jdbc.pool;
-import java.sql.Connection;
+
 import java.sql.SQLException;
-import javax.sql.XAConnection;
-import javax.transaction.xa.XAResource;
+import java.util.Properties;
+import javax.sql.ConnectionPoolDataSource;
+import javax.sql.PooledConnection;
 
+import org.hsqldb.jdbc.JDBCCommonDataSource;
 import org.hsqldb.jdbc.JDBCConnection;
-
-// @(#)$Id$
+import org.hsqldb.jdbc.JDBCDriver;
 
 /**
- * Subclass of JDBCPooledConnection implements the XAConneciton interface.
- * For use by global transaction service managers.<p>
+ * A data source that implements javax.sql.ConnectionPoolDataSource.
+ * Basic implementation.
  *
- * Each instance has an JDBCXAResource inherits the superclass's two
- * JDBCConnection objects, one for internal access, and one for user access.<P>
- *
- * The getConnection() method returns a user connection and links this with
- * the JDBCXAResource. This puts the object in the inUse state.
- * When the user connection is closed, the object is put in the free state.
- *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1
- * @since HSQLDB 2.0
- * @author Fred Toussi (fredt at users.sourceforge.net)
- * @see javax.sql.XAConnection
+ * @since JDK 1.2, HSQLDB 2.0
  */
-public class JDBCXAConnection extends JDBCPooledConnection implements XAConnection {
+class JDBCPooledDataSource extends JDBCCommonDataSource
+implements ConnectionPoolDataSource {
 
-    JDBCXAResource xaResource;
+    public PooledConnection getPooledConnection() throws SQLException {
 
-    public JDBCXAConnection(JDBCXADataSource dataSource, JDBCConnection connection) {
+        JDBCConnection connection =
+            (JDBCConnection) JDBCDriver.getConnection(url, connectionProps);
 
-        super(connection);
-        xaResource = new JDBCXAResource(dataSource, connection);
+        return new JDBCPooledConnection(connection);
     }
 
-    public XAResource getXAResource() throws SQLException {
-        return xaResource;
-    }
+    public PooledConnection getPooledConnection(String user,
+            String password) throws SQLException {
 
-    /**
-     * Returns a connection that can be used by the user application.
-     */
-    public Connection getConnection() throws SQLException {
+        Properties props = new Properties();
 
-        if (isInUse) {
-            throw new SQLException("Connection in use");
-        }
+        props.setProperty("user", user);
+        props.setProperty("password", password);
 
-        isInUse = true;
+        JDBCConnection connection =
+            (JDBCConnection) JDBCDriver.getConnection(url, props);
 
-
-        return new JDBCXAConnectionWrapper(xaResource, connection);
-    }
-
-    public void close() throws SQLException {
-        super.close();
-
-        // deal with xaResource
+        return new JDBCPooledConnection(connection);
     }
 }

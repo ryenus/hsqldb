@@ -1,0 +1,345 @@
+/* Copyright (c) 2001-2010, The HSQL Development Group
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * Neither the name of the HSQL Development Group nor the names of its
+ * contributors may be used to endorse or promote products derived from this
+ * software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL HSQL DEVELOPMENT GROUP, HSQLDB.ORG,
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+package org.hsqldb.jdbc;
+
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import javax.sql.CommonDataSource;
+
+/**
+ * Common base for DataSource implementations.
+ *
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
+ * @since JDK 1.2, HSQLDB 2.0
+ */
+public abstract class JDBCCommonDataSource implements CommonDataSource {
+
+    /**
+     * <p>Retrieves the log writer for this <code>DataSource</code>
+     * object.
+     *
+     * <p>The log writer is a character output stream to which all logging
+     * and tracing messages for this data source will be
+     * printed.  This includes messages printed by the methods of this
+     * object, messages printed by methods of other objects manufactured
+     * by this object, and so on.  Messages printed to a data source
+     * specific log writer are not printed to the log writer associated
+     * with the <code>java.sql.DriverManager</code> class.  When a
+     * <code>DataSource</code> object is
+     * created, the log writer is initially null; in other words, the
+     * default is for logging to be disabled.
+     *
+     * @return the log writer for this data source or null if
+     *        logging is disabled
+     * @exception java.sql.SQLException if a database access error occurs
+     * @see #setLogWriter
+     * @since 1.4
+     */
+    public PrintWriter getLogWriter() throws SQLException {
+        return logWriter;
+    }
+
+    /**
+     * <p>Sets the log writer for this <code>DataSource</code>
+     * object to the given <code>java.io.PrintWriter</code> object.
+     *
+     * <p>The log writer is a character output stream to which all logging
+     * and tracing messages for this data source will be
+     * printed.  This includes messages printed by the methods of this
+     * object, messages printed by methods of other objects manufactured
+     * by this object, and so on.  Messages printed to a data source-
+     * specific log writer are not printed to the log writer associated
+     * with the <code>java.sql.DriverManager</code> class. When a
+     * <code>DataSource</code> object is created the log writer is
+     * initially null; in other words, the default is for logging to be
+     * disabled.
+     *
+     * @param out the new log writer; to disable logging, set to null
+     * @exception SQLException if a database access error occurs
+     * @see #getLogWriter
+     * @since 1.4
+     */
+    public void setLogWriter(java.io.PrintWriter out) throws SQLException {
+        logWriter = out;
+    }
+
+    /**
+     * <p>Sets the maximum time in seconds that this data source will wait
+     * while attempting to connect to a database.  A value of zero
+     * specifies that the timeout is the default system timeout
+     * if there is one; otherwise, it specifies that there is no timeout.
+     * When a <code>DataSource</code> object is created, the login timeout is
+     * initially zero.
+     *
+     * @param seconds the data source login time limit
+     * @exception SQLException if a database access error occurs.
+     * @see #getLoginTimeout
+     * @since 1.4
+     */
+    public void setLoginTimeout(int seconds) throws SQLException {
+        loginTimeout = seconds;
+    }
+
+    /**
+     * Gets the maximum time in seconds that this data source can wait
+     * while attempting to connect to a database.  A value of zero
+     * means that the timeout is the default system timeout
+     * if there is one; otherwise, it means that there is no timeout.
+     * When a <code>DataSource</code> object is created, the login timeout is
+     * initially zero.
+     *
+     * @return the data source login time limit
+     * @exception SQLException if a database access error occurs.
+     * @see #setLoginTimeout
+     * @since 1.4
+     */
+    public int getLoginTimeout() throws SQLException {
+        return loginTimeout;
+    }
+
+    // ------------------------ custom public methods ------------------------
+
+    /**
+     * Retrieves the description of the data source. <p>
+     *
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * Retrieves the name of the data source. <p>
+     *
+     * @return the description
+     */
+    public String getDataSourceName() {
+        return dataSourceName;
+    }
+
+    /**
+     * Retrieves the network protocol of the data source. <p>
+     *
+     * @return the network protocol
+     */
+    public String getNetworkProtocol() {
+        return networkProtocol;
+    }
+
+    /**
+     * Retrieves the jdbc database connection url attribute. <p>
+     *
+     * @return the jdbc database connection url attribute
+     */
+    public String getServerName() {
+        return serverName;
+    }
+
+    /**
+     * Retrieves the jdbc database connection url attribute. <p>
+     *
+     * @return the jdbc database connection url attribute
+     */
+    public String getDatabaseName() {
+        return url;
+    }
+
+    /**
+     * Retrieves the jdbc database connection url attribute. <p>
+     *
+     * @return the jdbc database connection url attribute
+     */
+    public String getDatabase() {
+        return url;
+    }
+
+    /**
+     * Retrieves the jdbc database connection url attribute. <p>
+     *
+     * @return the jdbc database connection url attribute
+     */
+    public String getUrl() {
+        return url;
+    }
+
+    /**
+     * Retrieves the user name for the connection. <p>
+     *
+     * @return the username for the connection
+     */
+    public String getUser() {
+        return user;
+    }
+
+    /**
+     * Retrieves the description of the data source. <p>
+     *
+     * @return the description
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Retrieves the name of the data source. <p>
+     *
+     * @return the description
+     */
+    public void setDataSourceName(String dataSourceName) {
+        this.dataSourceName = dataSourceName;
+    }
+
+    /**
+     * Retrieves the network protocol of the data source. <p>
+     *
+     * @return the network protocol
+     */
+    public void setNetworkProtocol(String networkProtocol) {
+        this.networkProtocol = networkProtocol;
+    }
+
+    /**
+     * Retrieves the jdbc database connection url attribute. <p>
+     *
+     * @return the jdbc database connection url attribute
+     */
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
+
+    /**
+     * Retrieves the jdbc database connection url attribute. <p>
+     *
+     * @return the jdbc database connection url attribute
+     */
+    public void setDatabaseName(String databaseName) {
+        this.url = databaseName;
+    }
+
+    /**
+     * Sets the jdbc database URL. <p>
+     *
+     * @param database the new value of this object's jdbc database connection
+     *      url attribute
+     */
+    public void setDatabase(String database) {
+        this.url = database;
+    }
+
+    /**
+     * Sets the jdbc database URL. <p>
+     *
+     * @param url the new value of this object's jdbc database connection
+     *      url attribute
+     */
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    /**
+     * Sets the password for the user name
+     * @param password the password
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
+     * Sets the user name
+     * @param user the user id
+     */
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    /**
+     * Sets connection properties. If user / password is not null, it
+     * will be added to the properties.
+     *
+     * @param props properties
+     */
+    public void setProperties(Properties props) {
+
+        if (props == null) {
+            connectionProps = null;
+
+            return;
+        }
+
+        connectionProps = (Properties) props.clone();
+
+        if (user != null) {
+            props.setProperty("user", user);
+        }
+
+        if (password != null) {
+            props.setProperty("password", password);
+        }
+
+        if (loginTimeout != 0) {
+            props.put("loginTimeout", Integer.toString(loginTimeout));
+        }
+    }
+
+    // ------------------------ internal implementation ------------------------
+    protected Properties connectionProps;
+
+    /** description of data source - informational */
+    protected String description = null;
+
+    /** name of data source - informational */
+    protected String dataSourceName = null;
+
+    /** name of server - informational */
+    protected String serverName = null;
+
+    /** network protocol - informational */
+    protected String networkProtocol = null;
+
+    /** login timeout */
+    protected int loginTimeout = 0;
+
+    /** log writer */
+    protected transient PrintWriter logWriter;
+
+    /** connection user */
+    protected String user = null;
+
+    /** connection password */
+    protected String password = null;
+
+    /** database URL */
+    protected String url = null;
+}

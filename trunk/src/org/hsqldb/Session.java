@@ -122,6 +122,9 @@ public class Session implements SessionInterface {
     // internal connection
     private JDBCConnection intConnection;
 
+    // external connection
+    private JDBCConnection extConnection;
+
     // schema
     public HsqlName currentSchema;
     public HsqlName loggedSchema;
@@ -138,11 +141,6 @@ public class Session implements SessionInterface {
 
     //
     public StatementManager statementManager;
-
-    /** @todo 1.9.0 fredt - clarify in which circumstances Session has to disconnect */
-    Session getSession() {
-        return this;
-    }
 
     /**
      * Constructs a new Session object.
@@ -830,6 +828,17 @@ public class Session implements SessionInterface {
         JDBCDriver.driverInstance.threadConnection.set(intConnection);
 
         return intConnection;
+    }
+
+    /**
+     * Retreives the external JDBC connection
+     */
+    public JDBCConnection getJDBCConnection() {
+        return extConnection;
+    }
+
+    public void setJDBCConnection(JDBCConnection connection) {
+        extConnection = connection;
     }
 
     void releaseInternalConnection() {
@@ -2003,14 +2012,15 @@ public class Session implements SessionInterface {
     long             seed            = -1;
 
     //
-
     public TypedComparator getComparator() {
+
         if (typedComparator == null) {
             typedComparator = Type.newComparator(this);
         }
 
         return typedComparator;
     }
+
     public double random(long seed) {
 
         if (this.seed != seed) {
