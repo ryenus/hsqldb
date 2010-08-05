@@ -1207,6 +1207,8 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * Supported in version 2.0 <p>
+     * If columns which represent the auto-generated keys were not specified
+     * the IDENTITY column or GENERATED column(s) of the table are returned.
      *
      * If column names or indexes provided by the user in the executeUpdate()
      * method calls are not correct, an empty result is returned.
@@ -1243,7 +1245,10 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with version 2.0, HSQLDB supports this feature.
+     * Starting with version 2.0, HSQLDB supports returning generated columns
+     * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
+     * If the table has an IDENTITY or GENERATED column(s) the values for these
+     * columns are returned in the next call to getGeneratedKeys().
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1303,9 +1308,9 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with version 2.0, HSQLDB supports this feature with single-row and
-     * multi-row inserts. <p>
-     * CHECKME: possibly change method depending to final GENERATED column support.
+     * Starting with version 2.0, HSQLDB supports returning generated columns
+     * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
+     * The columnIndexes may specify any set of columns of the table.
      *
      * </div>
      * <!-- end release-specific documentation -->
@@ -1358,7 +1363,9 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Starting with 2.0, HSQLDB supports this feature.
+     * Starting with version 2.0, HSQLDB supports returning generated columns
+     * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
+     * The columnNames may specify any set of columns of the table.
      *
      * </div>
      * <!-- end release-specific documentation -->

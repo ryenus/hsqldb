@@ -2291,9 +2291,12 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in version 2.0.<p>
+     * Starting with version 2.0, HSQLDB supports this feature with single-row and
+     * multi-row insert, update and merge statements. <p>
+     * The column names or indexes specified by the user may specify any set of
+     * columns of the table.
      *
-     * If column names or indexes provided by the user in the executeUpdate()
+     * If column names or indexes specified by the user in the executeUpdate()
      * method calls are not correct, an empty result is returned.
      *
      * </div>

@@ -46,6 +46,7 @@ import org.hsqldb.navigator.RowSetNavigatorDataChange;
 import org.hsqldb.persist.PersistentStore;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
+import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.types.Type;
 
 /**
@@ -63,6 +64,17 @@ public class StatementDML extends StatementDMQL {
     Expression    updatableTableCheck;
     RangeVariable checkRangeVariable;
     boolean       isTruncate;
+
+    //
+    boolean        isSimpleInsert;
+    int            generatedType;
+    ResultMetaData generatedInputMetaData;
+
+    /** column indexes for generated values */
+    int[] generatedIndexes;
+
+    /** ResultMetaData for generated values */
+    ResultMetaData generatedResultMetaData;
 
     public StatementDML(int type, int group, HsqlName schemaName) {
         super(type, group, schemaName);
@@ -278,6 +290,117 @@ public class StatementDML extends StatementDMQL {
         }
     }
 
+    /**
+     * @todo - fredt - low priority - this does not work with different prepare calls
+     * with the same SQL statement, but different generated column requests
+     * To fix, add comment encapsulating the generated column list to SQL
+     * to differentiate between the two invocations
+     */
+    public void setGeneratedColumnInfo(int generate, ResultMetaData meta) {
+
+        // also supports INSERT_SELECT
+        if (type != StatementTypes.INSERT) {
+            return;
+        }
+
+        int idColIndex = baseTable.getIdentityColumnIndex();
+
+        generatedType          = generate;
+        generatedInputMetaData = meta;
+
+        switch (generate) {
+
+            case ResultConstants.RETURN_NO_GENERATED_KEYS :
+                return;
+
+            case ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES :
+                generatedIndexes = meta.getGeneratedColumnIndexes();
+
+                for (int i = 0; i < generatedIndexes.length; i++) {
+                    if (generatedIndexes[i] < 0
+                            || generatedIndexes[i]
+                               >= baseTable.getColumnCount()) {
+                        throw Error.error(ErrorCode.X_42501);
+                    }
+                }
+                break;
+
+            case ResultConstants.RETURN_GENERATED_KEYS :
+                if (baseTable.hasGeneratedColumn()) {
+                    if (idColIndex > 0) {
+                        int generatedCount =
+                            ArrayUtil.countTrueElements(baseTable.colGenerated)
+                            + 1;
+
+                        generatedIndexes = new int[generatedCount];
+
+                        for (int i = 0, j = 0;
+                                i < baseTable.colGenerated.length; i++) {
+                            if (baseTable.colGenerated[i] || i == idColIndex) {
+                                generatedIndexes[j++] = i;
+                            }
+                        }
+                    } else {
+                        generatedIndexes = ArrayUtil.booleanArrayToIntIndexes(
+                            baseTable.colGenerated);
+                    }
+                } else if (idColIndex >= 0) {
+                    generatedIndexes = new int[]{ idColIndex };
+                } else {
+                    return;
+                }
+                break;
+
+            case ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES :
+                String[] columnNames = meta.getGeneratedColumnNames();
+
+                generatedIndexes = baseTable.getColumnIndexes(columnNames);
+
+                for (int i = 0; i < generatedIndexes.length; i++) {
+                    if (generatedIndexes[i] < 0) {
+                        throw Error.error(ErrorCode.X_42501, columnNames[0]);
+                    }
+                }
+                break;
+        }
+
+        generatedResultMetaData =
+            ResultMetaData.newResultMetaData(generatedIndexes.length);
+
+        for (int i = 0; i < generatedIndexes.length; i++) {
+            ColumnSchema column = baseTable.getColumn(generatedIndexes[i]);
+
+            generatedResultMetaData.columns[i] = column;
+        }
+
+        generatedResultMetaData.prepareData();
+
+        isSimpleInsert = false;
+    }
+
+    Object[] getGeneratedColumns(Object[] data) {
+
+        if (generatedIndexes == null) {
+            return null;
+        }
+
+        Object[] values = new Object[generatedIndexes.length];
+
+        for (int i = 0; i < generatedIndexes.length; i++) {
+            values[i] = data[generatedIndexes[i]];
+        }
+
+        return values;
+    }
+
+    public boolean hasGeneratedColumns() {
+        return generatedIndexes != null;
+    }
+
+    public ResultMetaData generatedResultMetaData() {
+        return generatedResultMetaData;
+    }
+
     void getTriggerTableNames(OrderedHashSet set, boolean write) {
 
         for (int i = 0; i < baseTable.triggerList.length; i++) {
@@ -339,6 +462,15 @@ public class StatementDML extends StatementDMQL {
         Type[]                    colTypes       = baseTable.getColumnTypes();
         RangeIterator it = RangeVariable.getIterator(session,
             targetRangeVariables);
+        Result          resultOut          = null;
+
+        RowSetNavigator generatedNavigator = null;
+
+        if (generatedIndexes != null) {
+            resultOut = Result.newUpdateCountResult(generatedResultMetaData,
+                    0);
+            generatedNavigator = resultOut.getChainedResult().getNavigator();
+        }
 
         while (it.next()) {
             session.sessionData.startRowProcessing();
@@ -377,15 +509,22 @@ public class StatementDML extends StatementDMQL {
 //* debug 190 */
         rowset.beforeFirst();
 
-        count = update(session, baseTable, rowset);
+        count = update(session, baseTable, rowset, generatedNavigator);
 
-        if (count == 1) {
-            return Result.updateOneResult;
-        } else if (count == 0) {
-            return Result.updateZeroResult;
+
+        if (resultOut == null) {
+            if (count == 1) {
+                return Result.updateOneResult;
+            } else if (count == 0) {
+                return Result.updateZeroResult;
+            }
+
+            return new Result(ResultConstants.UPDATECOUNT, count);
+        } else {
+            resultOut.setUpdateCount(count);
+
+            return resultOut;
         }
-
-        return new Result(ResultConstants.UPDATECOUNT, count);
     }
 
     static Object[] getUpdatedData(Session session, Expression[] targets,
@@ -570,7 +709,8 @@ public class StatementDML extends StatementDMQL {
         // run the transaction as a whole, updating and inserting where needed
         // update any matched rows
         if (updateExpressions.length != 0) {
-            count = update(session, baseTable, updateRowSet);
+            count = update(session, baseTable, updateRowSet,
+                           generatedNavigator);
         }
 
         // insert any non-matched rows
@@ -756,7 +896,8 @@ public class StatementDML extends StatementDMQL {
      * @return int
      */
     int update(Session session, Table table,
-               RowSetNavigatorDataChange navigator) {
+               RowSetNavigatorDataChange navigator,
+               RowSetNavigator generatedNavigator) {
 
         int rowCount = navigator.getSize();
 
@@ -835,6 +976,12 @@ public class StatementDML extends StatementDMQL {
 
             Row newRow = currentTable.insertSingleRow(session, store, data,
                 changedColumns);
+
+            if (generatedNavigator != null) {
+                Object[] generatedValues = getGeneratedColumns(data);
+
+                generatedNavigator.add(generatedValues);
+            }
 
 //            newRow.rowAction.updatedAction = row.rowAction;
         }
