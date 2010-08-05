@@ -46,8 +46,8 @@ import java.sql.Savepoint;
  * wrapped JDBCConnection to end-users.
  * Global transaction services and XAResources will not use this wrapper.
  * <P>
- * The new implementation extends JDBCConnection. A new object is created each
- * time based on the session / session proxy of the JDBCXAConnection object in the
+ * The new implementation extends JDBCConnection. A new object is created
+ * based on the session / session proxy of the JDBCXAConnection object in the
  * constructor. (fredt)
  *
  * @version 2.0.1
@@ -69,19 +69,6 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
      * If we want, we can stop various statement categories from running
      * during an XA transaction. May do so in the future - fredt
      */
-
-    /**
-     * Throws a SQLException if within a Global transaction.
-     *
-     * @throws SQLException if within a Global transaction.
-     */
-    private void validateNotWithinTransaction() throws SQLException {
-
-        if (xaResource.withinGlobalTransaction()) {
-            throw new SQLException(
-                "Method prohibited within a global transaction");
-        }
-    }
 
     /**
      * Interceptor method, because this method is prohibited within
@@ -150,14 +137,12 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
     /**
      * Interceptor method, because there may be XA implications to
      * calling the method within a global transaction.
-     * See section 1.2.4 of the JDBC 3.0 spec.
+     * See section 1.2.4 of the JDBC 3.0 spec.<p>
+     *
+     * HSQLDB does not allow changing the isolation level inside a transaction
+     * of any kind.<p>
      */
     public void setTransactionIsolation(int level) throws SQLException {
-
-        /* Goal at this time is to get a working XA DataSource.
-         * After we have multiple transaction levels working, we can
-         * consider how we want to handle attempts to change the level
-         * within a global transaction. */
         validateNotWithinTransaction();
         super.setTransactionIsolation(level);
     }
@@ -177,5 +162,18 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
         xaResource.setConnection(this);
 
         this.xaResource = xaResource;
+    }
+
+    /**
+     * Throws a SQLException if within a Global transaction.
+     *
+     * @throws SQLException if within a Global transaction.
+     */
+    private void validateNotWithinTransaction() throws SQLException {
+
+        if (xaResource.withinGlobalTransaction()) {
+            throw new SQLException(
+                "Method prohibited within a global transaction");
+        }
     }
 }

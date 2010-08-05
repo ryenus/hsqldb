@@ -942,7 +942,7 @@ public class ParserDML extends ParserDQL {
                                      updateColumnMap, baseUpdateColumnMap);
             }
 
-            resolveUpdateExpressions(table, sourceRangeVars, updateColumnMap,
+            resolveUpdateExpressions(table, fullRangeVars, updateColumnMap,
                                      updateExpressions, outerRanges);
         }
 

@@ -31,26 +31,26 @@
 
 package org.hsqldb.jdbc.pool;
 
-import javax.sql.XADataSource;
-
+import java.io.Serializable;
+import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
+import javax.naming.StringRefAddr;
+import javax.sql.CommonDataSource;
+import javax.sql.XAConnection;
+import javax.sql.XADataSource;
+import javax.transaction.xa.Xid;
 
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.jdbc.JDBCCommonDataSource;
+import org.hsqldb.jdbc.JDBCConnection;
+import org.hsqldb.jdbc.Util;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.Iterator;
-
-import javax.transaction.xa.Xid;
-
-import org.hsqldb.jdbc.JDBCConnection;
-import org.hsqldb.jdbc.JDBCCommonDataSource;
-
-import java.sql.DriverManager;
-
-import javax.sql.XAConnection;
-
-import org.hsqldb.jdbc.Util;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.error.Error;
 
 // @(#)$Id$
 
@@ -58,25 +58,88 @@ import org.hsqldb.error.Error;
  * Connection factory for JDBCXAConnections.
  * For use by XA data source factories, not by end users.
  *
+ * @version 2.0.1
  * @since HSQLDB v. 1.9.0
  * @author Blaine Simpson (blaine dot simpson at admc dot com)
  * @see javax.sql.XADataSource
  * @see org.hsqldb.jdbc.pool.JDBCXAConnection
  */
 public class JDBCXADataSource extends JDBCCommonDataSource
-implements XADataSource {
+implements XADataSource, Serializable, Referenceable, CommonDataSource {
 
     /**
-     * @done:  Break off code used here and in JDBCConnectionPoolDataSource
-     *        into an abstract class, and have these classes extend the
-     *        abstract class.  This class should NOT extend
-     *        JDBCConnectionPoolDataSource (notice the masked
-     *        pool-specific methods below).
+     * Get new XAConnection connection, to be managed by a connection manager.
      */
+    public XAConnection getXAConnection() throws SQLException {
+
+        // Comment out before public release:
+/*
+        System.err.print("Executing " + getClass().getName()
+                         + ".getXAConnection()...");
+*/
+        JDBCConnection connection =
+            (JDBCConnection) DriverManager.getConnection(url, user, password);
+        JDBCXAConnection xaConnection = new JDBCXAConnection(this, connection);
+
+        return xaConnection;
+    }
+
+    /**
+     * Gets a new XAConnection after validating the given username
+     * and password.
+     *
+     * @param user String which must match the 'user' configured for this
+     *             JDBCXADataSource.
+     * @param password  String which must match the 'password' configured
+     *                  for this JDBCXADataSource.
+     *
+     * @see #getXAConnection()
+     */
+    public XAConnection getXAConnection(String user,
+                                        String password) throws SQLException {
+
+        if (user == null || password == null) {
+            throw Util.nullArgument();
+        }
+
+        if (user.equals(this.user) && password.equals(this.password)) {
+            return getXAConnection();
+        }
+
+        throw Util.sqlException(Error.error(ErrorCode.X_28000));
+    }
+
+    /**
+     * Retrieves the Reference of this object.
+     *
+     * @return The non-null Reference of this object.
+     * @exception NamingException If a naming exception was encountered
+     *		while retrieving the reference.
+     */
+    public Reference getReference() throws NamingException {
+
+        String    cname = "org.hsqldb.jdbc.JDBCDataSourceFactory";
+        Reference ref   = new Reference(getClass().getName(), cname, null);
+
+        ref.add(new StringRefAddr("database", getDatabase()));
+        ref.add(new StringRefAddr("user", getUser()));
+        ref.add(new StringRefAddr("password", password));
+        ref.add(new StringRefAddr("loginTimeout", Integer.toString(loginTimeout)));
+
+        return ref;
+    }
+
+
+    // ------------------------ internal implementation ------------------------
     private HashMap resources = new HashMap();
 
     public void addResource(Xid xid, JDBCXAResource xaResource) {
         resources.put(xid, xaResource);
+    }
+
+    public JDBCXADataSource() throws SQLException {
+
+        //
     }
 
     public JDBCXAResource removeResource(Xid xid) {
@@ -120,52 +183,5 @@ implements XADataSource {
      */
     JDBCXAResource getResource(Xid xid) {
         return (JDBCXAResource) resources.get(xid);
-    }
-
-    /**
-     * Get new XAConnection connection, to be managed by a connection manager.
-     */
-    public XAConnection getXAConnection() throws SQLException {
-
-        // Comment out before public release:
-/*
-        System.err.print("Executing " + getClass().getName()
-                         + ".getXAConnection()...");
-*/
-
-
-        JDBCConnection connection = (JDBCConnection) DriverManager.getConnection(url, user, password);
-
-        JDBCXAConnection xaConnection = new JDBCXAConnection(this, connection);
-
-        return xaConnection;
-    }
-
-    /**
-     * Gets a new XAConnection after validating the given username
-     * and password.
-     *
-     * @param user String which must match the 'user' configured for this
-     *             JDBCXADataSource.
-     * @param password  String which must match the 'password' configured
-     *                  for this JDBCXADataSource.
-     *
-     * @see #getXAConnection()
-     */
-    public XAConnection getXAConnection(String user,
-                                        String password) throws SQLException {
-
-        if (user == null || password == null) {
-            throw Util.nullArgument();
-        }
-
-        if (user.equals(this.user) && password.equals(this.password)) {
-            return getXAConnection();
-        }
-
-        throw Util.sqlException(Error.error(ErrorCode.X_28000));
-    }
-
-    public JDBCXADataSource() throws SQLException {
     }
 }
