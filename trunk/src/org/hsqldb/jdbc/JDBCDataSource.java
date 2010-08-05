@@ -31,24 +31,20 @@
 
 package org.hsqldb.jdbc;
 
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
+//#ifdef JAVA6
+import java.sql.Wrapper;
+//#endif JAVA6
 import java.util.Properties;
-
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
+import javax.sql.CommonDataSource;
 import javax.sql.DataSource;
 
-//#ifdef JAVA6
-import java.sql.Wrapper;
-
-import javax.sql.CommonDataSource;
-
-//#endif JAVA6
 
 /* $Id$ */
 
@@ -101,10 +97,10 @@ import javax.sql.CommonDataSource;
 @SuppressWarnings("serial")
 
 //#endif JAVA6
-public class JDBCDataSource extends JDBCCommonDataSource implements Serializable, Referenceable, DataSource
-
+public class JDBCDataSource extends JDBCCommonDataSource
+    implements DataSource, Serializable, Referenceable, CommonDataSource
 //#ifdef JAVA6
-, CommonDataSource, Wrapper
+, Wrapper
 
 //#endif JAVA6
 {
@@ -194,6 +190,7 @@ public class JDBCDataSource extends JDBCCommonDataSource implements Serializable
             java.lang.Class<?> iface) throws java.sql.SQLException {
         return (iface != null && iface.isAssignableFrom(this.getClass()));
     }
+//#endif JAVA6
 
     /**
      * Retrieves the Reference of this object.
@@ -214,9 +211,7 @@ public class JDBCDataSource extends JDBCCommonDataSource implements Serializable
 
         return ref;
     }
-//#endif JAVA6
     // ------------------------ custom public methods ------------------------
 
-    public JDBCDataSource() {
-    }
+    public JDBCDataSource() {}
 }

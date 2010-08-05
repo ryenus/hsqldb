@@ -39,22 +39,25 @@ import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
 // boucherb@users 20040411 - doc 1.7.2 - javadoc updates toward 1.7.2 final
+
 /**
  * A JNDI ObjectFactory for creating {@link JDBCDataSource JDBCDataSource}
  * object instances.
  *
  * @author deforest@users
+ * @author Fred Toussi (fredt@users dot sourceforge.net)
+ * @version 2.0.1
  * @version 1.7.2
  */
 public class JDBCDataSourceFactory implements ObjectFactory {
 
     /**
-     * Creates a JDBCDataSource object using the javax.naming.Reference
-     * object specified.<p>
+     * Creates a JDBCDataSource, JDBCPooledDataSource or JDBCXADataSource object
+     * using the javax.naming.Reference object specified.<p>
      *
-     * The Reference object's class name should be "org.hsqldb.jdbc.JDBCDataSource"
-     * and it should support the properties, database, user and password. It may
-     * optionally support the logingTimeout property.
+     * The Reference object's class name should be one of the three supported
+     * data source class names and it should support the properties, database,
+     * user and password. It may optionally support the logingTimeout property.
      *
      * @param obj The reference information used in creating a
      *      JDBCDatasource object.
@@ -63,22 +66,53 @@ public class JDBCDataSourceFactory implements ObjectFactory {
      * @param environment ignored
      * @return A newly created JDBCDataSource object; null if an object
      *      cannot be created.
-     * @exception Exception never
+     * @exception Exception is thrown if database or user is null or invalid
      */
     public Object getObjectInstance(Object obj, Name name, Context nameCtx,
-            Hashtable environment) throws Exception {
+                                    Hashtable environment) throws Exception {
 
-        String dsClass = "org.hsqldb.jdbc.JDBCDataSource";
         Reference ref = (Reference) obj;
 
-        if (ref.getClassName().equals(dsClass)) {
-            JDBCDataSource ds = new JDBCDataSource();
+        if (!(ref instanceof Reference)) {
+            return null;
+        }
 
-            ds.setDatabase((String) ref.get("database").getContent());
-            ds.setUser((String) ref.get("user").getContent());
-            ds.setPassword((String) ref.get("password").getContent());
-            String loginTimeoutContent = (String) ref.get(
-                    "loginTimeout").getContent();
+        String className = ref.getClassName();
+
+        if (className == null) {
+            return null;
+        }
+
+        if (className.equals(bdsClass) || className.equals(pdsClass)
+                || className.equals(xdsClass)) {
+            JDBCCommonDataSource ds =
+                (JDBCCommonDataSource) Class.forName(className).newInstance();
+            Object value = ref.get("database").getContent();
+
+            if (!(value instanceof String)) {
+                throw new Exception(className + ": invalid RefAddr: database");
+            }
+
+            ds.setDatabase((String) value);
+
+            value = ref.get("user").getContent();
+
+            if (!(value instanceof String)) {
+                throw new Exception(className + ": invalid RefAddr: user");
+            }
+
+            ds.setUser((String) value);
+
+            value = ref.get("password").getContent();
+
+            if (!(value instanceof String)) {
+                value = "";
+            }
+
+            ds.setPassword((String) value);
+
+            String loginTimeoutContent =
+                (String) ref.get("loginTimeout").getContent();
 
             if (loginTimeoutContent != null) {
                 loginTimeoutContent = loginTimeoutContent.trim();
@@ -86,9 +120,8 @@ public class JDBCDataSourceFactory implements ObjectFactory {
                 if (loginTimeoutContent.length() > 0) {
                     try {
                         ds.setLoginTimeout(
-                                Integer.parseInt(loginTimeoutContent));
-                    } catch (NumberFormatException nfe) {
-                    }
+                            Integer.parseInt(loginTimeoutContent));
+                    } catch (NumberFormatException nfe) {}
                 }
             }
 
@@ -97,4 +130,12 @@ public class JDBCDataSourceFactory implements ObjectFactory {
             return null;
         }
     }
+
+    private final static String bdsClass = "org.hsqldb.jdbc.JDBCDataSource";
+    private final static String pdsClass =
+        "org.hsqldb.jdbc.pool.JDBCPooledDataSource";
+    private final static String xdsClass =
+        "org.hsqldb.jdbc.pool.JDBCXADataSource";
+
+    public JDBCDataSourceFactory() {}
 }
