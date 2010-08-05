@@ -747,47 +747,17 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[iscope] = scope;
             row[ins]    = nameSpace;
             row[iname]  = metaData[HsqlProperties.indexName];
-            row[ivalue] = props.getProperty((String) row[iname]);
+            row[ivalue] =
+                database.logger.getValueStringForProperty((String) row[iname]);
+
+            if (row[ivalue] == null) {
+                row[ivalue] = props.getPropertyString((String) row[iname]);
+            }
+
             row[iclass] = metaData[HsqlProperties.indexClass];
 
             t.insertSys(store, row);
         }
-
-        row         = t.getEmptyRowData();
-        row[iscope] = scope;
-        row[ins]    = nameSpace;
-        row[iname]  = "SCRIPT FORMAT";
-
-        try {
-            row[ivalue] =
-                ScriptWriterBase
-                    .LIST_SCRIPT_FORMATS[database.logger.getScriptType()];
-        } catch (Exception e) {}
-
-        row[iclass] = "String";
-
-        t.insertSys(store, row);
-
-        // write delay
-        row         = t.getEmptyRowData();
-        row[iscope] = scope;
-        row[ins]    = nameSpace;
-        row[iname]  = "WRITE DELAY";
-        row[ivalue] = "" + database.logger.getWriteDelay();
-        row[iclass] = "Integer";
-
-        t.insertSys(store, row);
-
-        // referential integrity
-        row         = t.getEmptyRowData();
-        row[iscope] = scope;
-        row[ins]    = nameSpace;
-        row[iname]  = "REFERENTIAL INTEGRITY";
-        row[ivalue] = database.isReferentialIntegrity() ? "true"
-                                                        : "false";
-        row[iclass] = "Boolean";
-
-        t.insertSys(store, row);
 
         return t;
     }

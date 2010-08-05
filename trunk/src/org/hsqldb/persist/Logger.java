@@ -64,6 +64,7 @@ import org.hsqldb.lib.SimpleLog;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.lib.tar.DbBackup;
 import org.hsqldb.lib.tar.TarMalformatException;
+import org.hsqldb.scriptio.ScriptWriterBase;
 import org.hsqldb.types.Type;
 
 // boucherb@users 20030510 - patch 1.7.2 - added cooperative file locking
@@ -1099,6 +1100,212 @@ public class Logger {
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "Logger");
+    }
+
+    public String getValueStringForProperty(String name) {
+
+        String value = "";
+
+        if (HsqlDatabaseProperties.hsqldb_tx.equals(name)) {
+            switch (database.txManager.getTransactionControl()) {
+
+                case TransactionManager.MVCC :
+                    value = Tokens.T_MVCC.toLowerCase();
+                    break;
+
+                case TransactionManager.MVLOCKS :
+                    value = Tokens.T_MVLOCKS.toLowerCase();
+                    break;
+
+                case TransactionManager.LOCKS :
+                    value = Tokens.T_LOCKS.toLowerCase();
+                    break;
+            }
+
+            return value;
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_tx_level.equals(name)) {
+            switch (database.getDefaultIsolationLevel()) {
+
+                case SessionInterface.TX_READ_COMMITTED :
+                    value = new StringBuffer(Tokens.T_READ).append(' ').append(
+                        Tokens.T_COMMITTED).toString().toLowerCase();
+                    break;
+
+                case SessionInterface.TX_SERIALIZABLE :
+                    value = Tokens.T_SERIALIZABLE.toLowerCase();
+                    break;
+            }
+
+            return value;
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_applog.equals(name)) {
+            return String.valueOf(appLog.getLevel());
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_lob_file_scale.equals(name)) {
+            return String.valueOf(propLobBlockSize);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_cache_file_scale.equals(name)) {
+            return String.valueOf(propCacheFileScale);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_cache_free_count_scale.equals(
+                name)) {
+            return String.valueOf(this.propMaxFreeBlocks);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_cache_rows.equals(name)) {
+            return String.valueOf(this.propCacheMaxRows);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_cache_size.equals(name)) {
+            String.valueOf(this.propCacheMaxSize);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_default_table_type.equals(name)) {
+            return database.schemaManager.getDefaultTableType()
+                   == TableBase.CACHED_TABLE ? "cached"
+                                             : "memory";
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_defrag_limit.equals(name)) {
+            return String.valueOf(this.propCacheDefragLimit);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_files_readonly.equals(name)) {
+            return database.databaseProperties.getPropertyString(
+                HsqlDatabaseProperties.hsqldb_files_readonly);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_lock_file.equals(name)) {
+            return database.databaseProperties.getPropertyString(
+                HsqlDatabaseProperties.hsqldb_lock_file);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_log_data.equals(name)) {
+            return String.valueOf(this.propLogData);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_log_size.equals(name)) {
+            return String.valueOf(this.propLogSize);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_nio_data_file.equals(name)) {
+            return String.valueOf(this.propNioDataFile);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_max_nio_scale.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_script_format.equals(name)) {
+            return ScriptWriterBase.LIST_SCRIPT_FORMATS[getScriptType()]
+                .toLowerCase();
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_temp_directory.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_result_max_memory_rows.equals(
+                name)) {
+            return String.valueOf(this.propCacheDefragLimit);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_write_delay.equals(name)) {
+            return String.valueOf(this.propWriteDelay != 0);
+        }
+
+        if (HsqlDatabaseProperties.hsqldb_write_delay_millis.equals(name)) {
+            return String.valueOf(this.propWriteDelay);
+        }
+
+        if (HsqlDatabaseProperties.sql_ref_integrity.equals(name)) {
+            return database.isReferentialIntegrity() ? "true"
+                                                     : "false";
+        }
+
+        if (HsqlDatabaseProperties.sql_compare_in_locale.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.sql_enforce_size.equals(name)) {
+            return String.valueOf(database.sqlEnforceSize);
+        }
+
+        if (HsqlDatabaseProperties.sql_enforce_strict_size.equals(name)) {
+            return String.valueOf(database.sqlEnforceSize);
+        }
+
+        if (HsqlDatabaseProperties.sql_enforce_refs.equals(name)) {
+            return String.valueOf(database.sqlEnforceRefs);
+        }
+
+        if (HsqlDatabaseProperties.sql_enforce_names.equals(name)) {
+            return String.valueOf(database.sqlEnforceNames);
+        }
+
+        if (HsqlDatabaseProperties.sql_enforce_types.equals(name)) {
+            return String.valueOf(database.sqlEnforceTypes);
+        }
+
+        if (HsqlDatabaseProperties.jdbc_translate_dti_types.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.sql_identity_is_pk.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.sql_longvar_is_lob.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_cache_scale.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_cache_size_scale.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_all_quoted.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_allow_full_path.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_encoding.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_ignore_first.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_quoted.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_fs.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_vs.equals(name)) {
+            return null;
+        }
+
+        if (HsqlDatabaseProperties.textdb_lvs.equals(name)) {
+            return null;
+        }
+
+        return null;
     }
 
     public String[] getPropertiesSQL() {

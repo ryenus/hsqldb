@@ -2482,7 +2482,11 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 2.0
+     * Starting with version 2.0, HSQLDB supports returning generated columns
+     * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
+     * If the table has an IDENTITY or GENERATED column(s) the values for these
+     * columns are returned in the next call to getGeneratedKeys() after each
+     * execution of the PreparedStatement.
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -2567,7 +2571,9 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 2.0
+     * Starting with version 2.0, HSQLDB supports returning generated columns
+     * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
+     * The columnIndexes may specify any set of columns of the table.
      *
      * </div> <!-- end release-specific documentation -->
      *
@@ -2643,7 +2649,9 @@ public class JDBCConnection implements Connection {
      * <div class="ReleaseSpecificDocumentation">
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
-     * Supported in 2.0
+     * Starting with version 2.0, HSQLDB supports returning generated columns
+     * with single-row and multi-row INSERT, UPDATE and MERGE statements. <p>
+     * The columnNames may specify any set of columns of the table.
      *
      * </div> <!-- end release-specific documentation -->
      *

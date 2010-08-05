@@ -122,16 +122,6 @@ public abstract class StatementDMQL extends Statement {
     ExpressionColumn[] parameters;
 
     /**
-     * int[] contains column indexes for generated values
-     */
-    int[] generatedIndexes;
-
-    /**
-     * ResultMetaData for generated values
-     */
-    ResultMetaData generatedResultMetaData;
-
-    /**
      * ResultMetaData for parameters
      */
     ResultMetaData parameterMetaData;
@@ -249,29 +239,6 @@ public abstract class StatementDMQL extends Statement {
     abstract void collectTableNamesForRead(OrderedHashSet set);
 
     abstract void collectTableNamesForWrite(OrderedHashSet set);
-
-    Object[] getGeneratedColumns(Object[] data) {
-
-        if (generatedIndexes == null) {
-            return null;
-        }
-
-        Object[] values = new Object[generatedIndexes.length];
-
-        for (int i = 0; i < generatedIndexes.length; i++) {
-            values[i] = data[generatedIndexes[i]];
-        }
-
-        return values;
-    }
-
-    public boolean hasGeneratedColumns() {
-        return generatedIndexes != null;
-    }
-
-    public ResultMetaData generatedResultMetaData() {
-        return generatedResultMetaData;
-    }
 
     boolean[] getInsertOrUpdateColumnCheckList() {
 

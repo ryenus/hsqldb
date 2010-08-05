@@ -787,13 +787,13 @@ public class ExpressionLogical extends Expression {
                         nodes[LEFT] = ExpressionOp.getCastExpression(session,
                                 nodes[LEFT], nodes[RIGHT].dataType);
                     }
+                } else if (nodes[LEFT].dataType.isDateTimeType()) {
+                    if (nodes[LEFT].dataType.isDateTimeTypeWithZone()
+                            ^ nodes[RIGHT].dataType.isDateTimeTypeWithZone()) {
+                        nodes[LEFT] = new ExpressionOp(nodes[LEFT]);
+                    }
                 } else {
                     throw Error.error(ErrorCode.X_42562);
-                }
-            } else if (nodes[LEFT].dataType.isDateTimeType()) {
-                if (nodes[LEFT].dataType.isDateTimeTypeWithZone()
-                        ^ nodes[RIGHT].dataType.isDateTimeTypeWithZone()) {
-                    nodes[LEFT] = new ExpressionOp(nodes[LEFT]);
                 }
             }
 

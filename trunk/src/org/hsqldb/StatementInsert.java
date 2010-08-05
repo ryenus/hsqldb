@@ -52,9 +52,6 @@ import org.hsqldb.types.Type;
  */
 public class StatementInsert extends StatementDML {
 
-    int            generatedType;
-    ResultMetaData generatedInputMetaData;
-    boolean        isSimpleInsert;
     int            overrideUserValue = -1;
 
     /**
@@ -207,93 +204,5 @@ public class StatementInsert extends StatementDML {
         }
 
         return newData;
-    }
-
-    /**
-     * @todo - fredt - low priority - this does not work with different prepare calls
-     * with the same SQL statement, but different generated column requests
-     * To fix, add comment encapsulating the generated column list to SQL
-     * to differentiate between the two invocations
-     */
-    public void setGeneratedColumnInfo(int generate, ResultMetaData meta) {
-
-        // also supports INSERT_SELECT
-        if (type != StatementTypes.INSERT) {
-            return;
-        }
-
-        int idColIndex = baseTable.getIdentityColumnIndex();
-
-        generatedType          = generate;
-        generatedInputMetaData = meta;
-
-        switch (generate) {
-
-            case ResultConstants.RETURN_NO_GENERATED_KEYS :
-                return;
-
-            case ResultConstants.RETURN_GENERATED_KEYS_COL_INDEXES :
-                generatedIndexes = meta.getGeneratedColumnIndexes();
-
-                for (int i = 0; i < generatedIndexes.length; i++) {
-                    if (generatedIndexes[i] < 0
-                            || generatedIndexes[i]
-                               >= baseTable.getColumnCount()) {
-                        throw Error.error(ErrorCode.X_42501);
-                    }
-                }
-                break;
-
-            case ResultConstants.RETURN_GENERATED_KEYS :
-                if (baseTable.hasGeneratedColumn()) {
-                    if (idColIndex > 0) {
-                        int generatedCount =
-                            ArrayUtil.countTrueElements(baseTable.colGenerated)
-                            + 1;
-
-                        generatedIndexes = new int[generatedCount];
-
-                        for (int i = 0, j = 0;
-                                i < baseTable.colGenerated.length; i++) {
-                            if (baseTable.colGenerated[i] || i == idColIndex) {
-                                generatedIndexes[j++] = i;
-                            }
-                        }
-                    } else {
-                        generatedIndexes = ArrayUtil.booleanArrayToIntIndexes(
-                            baseTable.colGenerated);
-                    }
-                } else if (idColIndex >= 0) {
-                    generatedIndexes = new int[]{ idColIndex };
-                } else {
-                    return;
-                }
-                break;
-
-            case ResultConstants.RETURN_GENERATED_KEYS_COL_NAMES :
-                String[] columnNames = meta.getGeneratedColumnNames();
-
-                generatedIndexes = baseTable.getColumnIndexes(columnNames);
-
-                for (int i = 0; i < generatedIndexes.length; i++) {
-                    if (generatedIndexes[i] < 0) {
-                        throw Error.error(ErrorCode.X_42501, columnNames[0]);
-                    }
-                }
-                break;
-        }
-
-        generatedResultMetaData =
-            ResultMetaData.newResultMetaData(generatedIndexes.length);
-
-        for (int i = 0; i < generatedIndexes.length; i++) {
-            ColumnSchema column = baseTable.getColumn(generatedIndexes[i]);
-
-            generatedResultMetaData.columns[i] = column;
-        }
-
-        generatedResultMetaData.prepareData();
-
-        isSimpleInsert = false;
     }
 }

@@ -704,6 +704,37 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         return stringProps.getProperty(key);
     }
 
+    /** for all types of property apart from system props */
+    public String getPropertyString(String key) {
+
+        Object[] metaData = (Object[]) dbMeta.get(key);
+
+        if (metaData == null) {
+            throw Error.error(ErrorCode.X_42555, key);
+        }
+
+        String prop = stringProps.getProperty(key);
+        boolean isSystem =
+            ((Integer) metaData[HsqlProperties.indexType]).intValue()
+            == SYSTEM_PROPERTY;
+
+        if (prop == null && isSystem) {
+            prop = System.getProperty(key);
+        }
+
+        if (prop == null) {
+            Object value = metaData[HsqlProperties.indexDefaultValue];
+
+            if (value == null) {
+                return null;
+            }
+
+            return String.valueOf(value);
+        }
+
+        return prop;
+    }
+
     public boolean isPropertyTrue(String key) {
 
         Boolean  value;

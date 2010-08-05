@@ -109,7 +109,7 @@ public class StatementResultUpdate extends StatementDML {
 
                 list.addRow(session, row, data, baseTable.getColumnTypes(),
                             colMap);
-                update(session, baseTable, list);
+                update(session, baseTable, list, null);
 
                 break;
             }

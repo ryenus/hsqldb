@@ -184,10 +184,10 @@ public final class StatementManager {
 
                 session.setSchema(schema.name);
 
-                StatementInsert si = null;
+                StatementDML si = null;
 
                 if (cs.generatedResultMetaData() != null) {
-                    si = (StatementInsert) cs;
+                    si = (StatementDML) cs;
                 }
 
                 cs = session.compileStatement(sql, cs.getResultProperties());
