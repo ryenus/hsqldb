@@ -167,6 +167,13 @@ public class RAShadowFile {
         }
     }
 
+    public void synch() {
+
+        if (dest != null) {
+            dest.synch();
+        }
+    }
+
     private static Storage getStorage(Database database, String pathName,
                                       String openMode) throws IOException {
 
@@ -199,6 +206,7 @@ public class RAShadowFile {
         }
 
         source.close();
+        dest.synch();
         dest.close();
     }
 }

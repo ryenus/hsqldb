@@ -76,7 +76,7 @@ public class LobStoreRAFile implements LobStore {
                     database, name, readonly, ScaledRAFile.DATA_FILE_STORED);
             } else {
                 file = new ScaledRAFileSimple(name, readonly ? "r"
-                                                             : "rwd");
+                                                             : "rws");
             }
         } catch (Throwable t) {
             throw Error.error(ErrorCode.DATA_FILE_ERROR, t);
@@ -129,6 +129,7 @@ public class LobStoreRAFile implements LobStore {
 
         try {
             if (file != null) {
+                file.synch();
                 file.close();
             }
         } catch (Throwable t) {
