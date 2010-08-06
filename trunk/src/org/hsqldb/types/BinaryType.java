@@ -506,18 +506,43 @@ public class BinaryType extends Type {
             return 0;
         }
 
+        if (!otherType.isBinaryType()) {
+            return -1;
+        }
+
         switch (typeCode) {
 
-            case Types.SQL_BIT_VARYING :
-            case Types.SQL_VARBINARY :
+            case Types.SQL_VARBINARY : {
+                if (otherType.typeCode == typeCode) {
+                    return precision >= otherType.precision ? 0
+                                                            : 1;
+                }
+
+                if (otherType.typeCode == Types.SQL_BINARY) {
+                    return precision >= otherType.precision ? 0
+                                                            : -1;
+                }
+
+                return -1;
+            }
             case Types.SQL_BLOB : {
-                return precision >= otherType.precision ? 0
-                                                        : 1;
+                if (otherType.typeCode == typeCode) {
+                    return precision >= otherType.precision ? 0
+                                                            : 1;
+                }
+
+                return -1;
             }
             case Types.SQL_BIT :
             case Types.SQL_BINARY : {
-                return precision == otherType.precision ? 0
-                                                        : -1;
+                return otherType.typeCode == typeCode
+                       && precision == otherType.precision ? 0
+                                                           : -1;
+            }
+            case Types.SQL_BIT_VARYING : {
+                return otherType.typeCode == typeCode
+                       && precision >= otherType.precision ? 0
+                                                           : -1;
             }
             default :
                 return -1;

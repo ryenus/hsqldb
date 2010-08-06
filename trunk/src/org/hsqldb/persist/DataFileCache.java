@@ -886,7 +886,7 @@ public class DataFileCache {
                 shadowFile.copy(seekpos, row.getStorageSize());
             }
 
-            shadowFile.close();
+            shadowFile.synch();
         }
     }
 
@@ -896,7 +896,7 @@ public class DataFileCache {
             long seekpos = (long) row.getPos() * cacheFileScale;
 
             shadowFile.copy(seekpos, row.getStorageSize());
-            shadowFile.close();
+            shadowFile.synch();
         }
     }
 

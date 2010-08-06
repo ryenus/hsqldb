@@ -1008,7 +1008,7 @@ public class TableWorks {
 
         int colIndex = table.getColumnIndex(oldCol.getName().name);
 
-        // apply and return if only metadata change is required
+        // 0 if only metadata change is required ; 1 if only check is required ; -1 if data conversion is required
         int checkData = newType.canMoveFrom(oldType);
 
         if (checkData == 0) {
