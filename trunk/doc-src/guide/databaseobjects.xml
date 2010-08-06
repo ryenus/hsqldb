@@ -413,14 +413,30 @@ INSERT INTO movies (starid, movieid, title) VALUES (IDENTITY(), 10, 'Felix in Ho
         </listitem>
       </itemizedlist>
 
-      <simpara>A VIEW that returns the columns of a single ordinary TABLE may
-      be <glossterm>updatable</glossterm>. Some
-      <glossterm>updatable</glossterm> views are
-      <glossterm>insertable-into</glossterm>. When rows of an updatable view
-      are updated, or new rows are inserted, these changes are reflected in
-      the base table. A VIEW definition may specify that the inserted or
-      updated rows conform to the search condition of the view. This is done
-      with the CHECK OPTION clause.</simpara>
+      <simpara>A VIEW that returns the columns of a single ordinary TABLE is
+      <glossterm>updatable</glossterm> if the query expression of the view is
+      an updatable query expression as discussed in the <link
+      endterm="dataaccess-title" os="" xlink:href="#dataaccess-chapt"></link>
+      chapter. Some <glossterm>updatable</glossterm> views are
+      <glossterm>insertable-into</glossterm> because the query expression is
+      insertable-into. In these views, each column of the query expressions
+      must be a column of the underlying table and those columns of the
+      underlying table that are not in the view must have a default clause, or
+      be an IDENTITY or GENERATED column. When rows of an updatable view are
+      updated, or new rows are inserted, or rows are deleted, these changes
+      are reflected in the base table. A VIEW definition may specify that the
+      inserted or updated rows conform to the search condition of the view.
+      This is done with the CHECK OPTION clause.</simpara>
+
+      <simpara>A view that is not updatable according to the above paragraph
+      can be made updatable or insertable-into by adding INSTEAD OF triggers
+      to the view. These triggers contain statements to use the submitted data
+      to modify the contents of the underlying tables of the view separately.
+      For example, a view that represents a SELECT statements that joins two
+      tables can have an INSTEAD OF DELETE trigger with two DELETE statements,
+      one for each table. Views that have an INSTEAD OF trigger are called
+      TRIGGER INSERTABLE, TRIGGER UPDATABLE, etc. according to the triggers
+      that have been defined.</simpara>
 
       <simpara>Views share a name-space with tables.</simpara>
     </section>
@@ -1827,10 +1843,9 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
 
       <simpara><emphasis>view definition</emphasis></simpara>
 
-      <simpara><literal>&lt;view definition&gt; ::= CREATE [ RECURSIVE ] VIEW
-      &lt;table name&gt; &lt;view specification&gt; AS &lt;query
-      expression&gt; [ WITH [ CASCADED | LOCAL ] CHECK OPTION
-      ]</literal></simpara>
+      <simpara><literal>&lt;view definition&gt; ::= CREATE VIEW &lt;table
+      name&gt; &lt;view specification&gt; AS &lt;query expression&gt; [ WITH [
+      CASCADED | LOCAL ] CHECK OPTION ]</literal></simpara>
 
       <simpara><literal>&lt;view specification&gt; ::= [ &lt;left paren&gt;
       &lt;view column list&gt; &lt;right paren&gt; ]</literal></simpara>
@@ -1858,8 +1873,6 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <literal>&lt;query expression&gt;</literal> of the view references
       another view, then the search condition of the underlying view should
       also be satisfied by the update or insert operation.</simpara>
-
-      <simpara>More on recursive...</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP VIEW</primary>
@@ -2806,171 +2819,560 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
     <section>
       <title>Views in INFORMATION SCHEMA</title>
 
-      <para>The following views are defined by the SQL Standard:</para>
+      <para>The following views are defined by the SQL Standard and supported
+      by HyperSQL. The columns and contents exactly match the Standard
+      requirements.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ADMINISTRABLE_ROLE_AUTHORIZATIONS</primary>
+      </indexterm>
 
       <para>ADMINISTRABLE_ROLE_AUTHORIZATIONS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>APPLICABLE_ROLES</primary>
+      </indexterm>
+
       <para>APPLICABLE_ROLES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ASSERTIONS</primary>
+      </indexterm>
 
       <para>ASSERTIONS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>AUTHORIZATIONS</primary>
+      </indexterm>
+
       <para>AUTHORIZATIONS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CHARACTER_SETS</primary>
+      </indexterm>
 
       <para>CHARACTER_SETS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>CHECK_CONSTRAINTS</primary>
+      </indexterm>
+
       <para>CHECK_CONSTRAINTS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CHECK_CONSTRAINT_ROUTINE_USAGE</primary>
+      </indexterm>
 
       <para>CHECK_CONSTRAINT_ROUTINE_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>COLLATIONS</primary>
+      </indexterm>
+
       <para>COLLATIONS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMNS</primary>
+      </indexterm>
 
       <para>COLUMNS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_COLUMN_USAGE</primary>
+      </indexterm>
+
       <para>COLUMN_COLUMN_USAGE</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_DOMAIN_USAGE</primary>
+      </indexterm>
 
       <para>COLUMN_DOMAIN_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_PRIVILEGES</primary>
+      </indexterm>
+
       <para>COLUMN_PRIVILEGES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>COLUMN_UDT_USAGE</primary>
+      </indexterm>
 
       <para>COLUMN_UDT_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT_COLUMN_USAGE</primary>
+      </indexterm>
+
       <para>CONSTRAINT_COLUMN_USAGE</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>CONSTRAINT_TABLE_USAGE</primary>
+      </indexterm>
 
       <para>CONSTRAINT_TABLE_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>DATA_TYPE_PRIVILEGES</primary>
+      </indexterm>
+
       <para>DATA_TYPE_PRIVILEGES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DOMAINS</primary>
+      </indexterm>
 
       <para>DOMAINS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>DOMAIN_CONSTRAINTS</primary>
+      </indexterm>
+
       <para>DOMAIN_CONSTRAINTS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ENABLED_ROLES</primary>
+      </indexterm>
 
       <para>ENABLED_ROLES</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>INFORMATION_SCHEMA_CATALOG_NAME</primary>
+      </indexterm>
+
       <para>INFORMATION_SCHEMA_CATALOG_NAME</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>KEY_COLUMN_USAGE</primary>
+      </indexterm>
 
       <para>KEY_COLUMN_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>PARAMETERS</primary>
+      </indexterm>
+
       <para>PARAMETERS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>REFERENTIAL_CONSTRAINTS</primary>
+      </indexterm>
 
       <para>REFERENTIAL_CONSTRAINTS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_AUTHORIZATION_DESCRIPTORS</primary>
+      </indexterm>
+
       <para>ROLE_AUTHORIZATION_DESCRIPTORS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_COLUMN_GRANTS</primary>
+      </indexterm>
 
       <para>ROLE_COLUMN_GRANTS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_ROUTINE_GRANTS</primary>
+      </indexterm>
+
       <para>ROLE_ROUTINE_GRANTS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_TABLE_GRANTS</primary>
+      </indexterm>
 
       <para>ROLE_TABLE_GRANTS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_UDT_GRANTS</primary>
+      </indexterm>
+
       <para>ROLE_UDT_GRANTS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROLE_USAGE_GRANTS</primary>
+      </indexterm>
 
       <para>ROLE_USAGE_GRANTS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_COLUMN_USAGE</primary>
+      </indexterm>
+
       <para>ROUTINE_COLUMN_USAGE</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_JAR_USAGE</primary>
+      </indexterm>
 
       <para>ROUTINE_JAR_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_PRIVILEGES</primary>
+      </indexterm>
+
       <para>ROUTINE_PRIVILEGES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_ROUTINE_USAGE</primary>
+      </indexterm>
 
       <para>ROUTINE_ROUTINE_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_SEQUENCE_USAGE</primary>
+      </indexterm>
+
       <para>ROUTINE_SEQUENCE_USAGE</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINE_TABLE_USAGE</primary>
+      </indexterm>
 
       <para>ROUTINE_TABLE_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>ROUTINES</primary>
+      </indexterm>
+
       <para>ROUTINES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SCHEMATA</primary>
+      </indexterm>
 
       <para>SCHEMATA</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>SEQUENCES</primary>
+      </indexterm>
+
       <para>SEQUENCES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_FEATURES</primary>
+      </indexterm>
 
       <para>SQL_FEATURES</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_IMPLEMENTATION_INFO</primary>
+      </indexterm>
+
       <para>SQL_IMPLEMENTATION_INFO</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_PACKAGES</primary>
+      </indexterm>
 
       <para>SQL_PACKAGES</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_PARTS</primary>
+      </indexterm>
+
       <para>SQL_PARTS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_SIZING</primary>
+      </indexterm>
 
       <para>SQL_SIZING</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL_SIZING_PROFILES</primary>
+      </indexterm>
+
       <para>SQL_SIZING_PROFILES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLES</primary>
+      </indexterm>
 
       <para>TABLES</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLE_CONSTRAINTS</primary>
+      </indexterm>
+
       <para>TABLE_CONSTRAINTS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TABLE_PRIVILEGES</primary>
+      </indexterm>
 
       <para>TABLE_PRIVILEGES</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>TRANSLATIONS</primary>
+      </indexterm>
+
       <para>TRANSLATIONS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGERED_UPDATE_COLUMNS</primary>
+      </indexterm>
 
       <para>TRIGGERED_UPDATE_COLUMNS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGERS</primary>
+      </indexterm>
+
       <para>TRIGGERS</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_COLUMN_USAGE</primary>
+      </indexterm>
 
       <para>TRIGGER_COLUMN_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_ROUTINE_USAGE</primary>
+      </indexterm>
+
       <para>TRIGGER_ROUTINE_USAGE</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_SEQUENCE_USAGE</primary>
+      </indexterm>
 
       <para>TRIGGER_SEQUENCE_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>TRIGGER_TABLE_USAGE</primary>
+      </indexterm>
+
       <para>TRIGGER_TABLE_USAGE</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>USAGE_PRIVILEGES</primary>
+      </indexterm>
 
       <para>USAGE_PRIVILEGES</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>USER_DEFINED_TYPES</primary>
+      </indexterm>
+
       <para>USER_DEFINED_TYPES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEWS</primary>
+      </indexterm>
 
       <para>VIEWS</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_COLUMN_USAGE</primary>
+      </indexterm>
+
       <para>VIEW_COLUMN_USAGE</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_ROUTINE_USAGE</primary>
+      </indexterm>
 
       <para>VIEW_ROUTINE_USAGE</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>VIEW_TABLE_USAGE</primary>
+      </indexterm>
+
       <para>VIEW_TABLE_USAGE</para>
 
-      <para>The following views are specific to HyperSQL:</para>
+      <para>The following views are specific to HyperSQL. Most of these views
+      are used directly by JDBC DatabaseMetaData method calls and are
+      indicated as such. Some views contain information that is specific to
+      HyperSQL and is not covered by SQL Standard INFORMATION_SCHEMA
+      views.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_BESTROWIDENTIFIER</primary>
+      </indexterm>
 
       <para>SYSTEM_BESTROWIDENTIFIER</para>
 
+      <para>For DatabaseMetaData.getBestRowIdentifier</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_CACHEINFO</primary>
+      </indexterm>
+
       <para>SYSTEM_CACHEINFO</para>
+
+      <para>Contains the current settings and variables of the data cache used
+      for all CACHED tables, and the data cache of each TEXT table.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_COLUMNS</primary>
+      </indexterm>
 
       <para>SYSTEM_COLUMNS</para>
 
+      <para>For DatabaseMetaData.getColumns</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_COMMENTS</primary>
+      </indexterm>
+
       <para>SYSTEM_COMMENTS</para>
+
+      <para>Contains the user-defined comments added to tables and their
+      columns.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_CONNECTION_PROPERTIES</primary>
+      </indexterm>
+
+      <para>SYSTEM_CONNECTION_PROPERTIES</para>
+
+      <para>For DatabaseMetaData.getClientInfoProperties</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_CROSSREFERENCE</primary>
+      </indexterm>
 
       <para>SYSTEM_CROSSREFERENCE</para>
 
+      <para>For DatabaseMetaData.getCrossReference, getExportedKeys and
+      getImportedKeys</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_INDEXINFO</primary>
+      </indexterm>
+
       <para>SYSTEM_INDEXINFO</para>
+
+      <para>For DatabaseMetaData.getIndexInfo</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_PRIMARYKEYS</primary>
+      </indexterm>
 
       <para>SYSTEM_PRIMARYKEYS</para>
 
+      <para>For DatabaseMetaData.getPrimaryKeys</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_PROCEDURECOLUMNS</primary>
+      </indexterm>
+
       <para>SYSTEM_PROCEDURECOLUMNS</para>
+
+      <para>For DatabaseMetaData.getProcedureColumns</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_PROCEDURES</primary>
+      </indexterm>
 
       <para>SYSTEM_PROCEDURES</para>
 
+      <para>For DatabaseMetaData.getFunctionColumns, getFunctions and
+      getProcedures</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_PROPERTIES</primary>
+      </indexterm>
+
       <para>SYSTEM_PROPERTIES</para>
+
+      <para>Contains the current values of all the database level properties.
+      Settings such as SQL rule enforcement, database transaction model and
+      default transaction level are all reported in this view. The names of
+      the properties are listed in the <link endterm="dbproperties-title"
+      os="" xlink:href="#dbproperties-chapt"></link> chapter together with the
+      corresponding SQL statements used to change the properties.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_SCHEMAS</primary>
+      </indexterm>
 
       <para>SYSTEM_SCHEMAS</para>
 
+      <para>For DatabaseMetaData.getSchemas</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_SEQUENCES</primary>
+      </indexterm>
+
       <para>SYSTEM_SEQUENCES</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_SESSIONINFO</primary>
+      </indexterm>
 
       <para>SYSTEM_SESSIONINFO</para>
 
+      <para>Contains the settings and variables of the current session.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_SESSIONS</primary>
+      </indexterm>
+
       <para>SYSTEM_SESSIONS</para>
+
+      <para>Contains the list of all open sessions in the database (when used
+      by a DBA user), or just the current session.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_TABLES</primary>
+      </indexterm>
 
       <para>SYSTEM_TABLES</para>
 
+      <para>For DatabaseMetaData.getTables</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_TABLETYPES</primary>
+      </indexterm>
+
       <para>SYSTEM_TABLETYPES</para>
+
+      <para>For DatabaseMetaData.getTableTypes</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_TEXTTABLES</primary>
+      </indexterm>
 
       <para>SYSTEM_TEXTTABLES</para>
 
+      <para>Cotains information on the settings of each text table.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_TYPEINFO</primary>
+      </indexterm>
+
       <para>SYSTEM_TYPEINFO</para>
+
+      <para>For DatabaseMetaData.getTypeInfo</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_UDTS</primary>
+      </indexterm>
 
       <para>SYSTEM_UDTS</para>
 
+      <para>For DatabaseMetaData.getUDTs</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_USERS</primary>
+      </indexterm>
+
       <para>SYSTEM_USERS</para>
 
+      <para>Contains the list of all users in the database (when used by a DBA
+      user), or just the current user.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SYSTEM_VERSIONCOLUMNS</primary>
+      </indexterm>
+
       <para>SYSTEM_VERSIONCOLUMNS</para>
+
+      <para>For DatabaseMetaData.getVersionColumns</para>
     </section>
   </section>
 </chapter>
