@@ -329,13 +329,11 @@ public class JDBCXAResource implements XAResource {
         try {
             ((SessionInterface) connection).prepareCommit();
         } catch (HsqlException e) {
-            state = XA_STATE_PREPARED;
+            state = XA_STATE_PREPARED;  // ??? didn't prepare
 
             throw new XAException(e.getMessage());
         }
 
-        // throw new XAException(
-        // "Sorry.  HSQLDB has not implemented 2-phase commits yet");
         state = XA_STATE_PREPARED;
 
         return XA_OK;    // As noted above, should check non-committed work.

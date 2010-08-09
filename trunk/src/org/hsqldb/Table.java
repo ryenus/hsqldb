@@ -131,6 +131,7 @@ public class Table extends TableBase implements SchemaObject {
     boolean[]       colRefFK;                  // foreign key columns
     boolean[]       colMainFK;                 // columns referenced by foreign key
     boolean         hasReferentialAction;      // has set null, set default or cascade
+    boolean         isDropped;                 // has been dropped
     private boolean hasDomainColumns;          // shortcut
     private boolean hasNotNullColumns;         // shortcut
     protected int[] defaultColumnMap;          // holding 0,1,2,3,...
@@ -554,7 +555,9 @@ public class Table extends TableBase implements SchemaObject {
         String[] array = new String[triggerList.length];
 
         for (int i = 0; i < triggerList.length; i++) {
-            array[i] = triggerList[i].getSQL();
+            if (!triggerList[i].isSystem()) {
+                array[i] = triggerList[i].getSQL();
+            }
         }
 
         return array;
@@ -680,6 +683,10 @@ public class Table extends TableBase implements SchemaObject {
 
     public boolean isDataReadOnly() {
         return isReadOnly;
+    }
+
+    public boolean isDropped() {
+        return isDropped;
     }
 
     /**

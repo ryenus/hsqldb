@@ -91,6 +91,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     long             changeTimestamp;
     int              actionTiming;
     int              operationType;
+    boolean          isSystem;
     boolean          forEachRow;
     boolean          nowait;                                   // block or overwrite if queue full
     int              maxRowsQueued;                            // max size of queue of pending triggers
@@ -381,6 +382,10 @@ public class TriggerDef implements Runnable, SchemaObject {
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "TriggerDef");
         }
+    }
+
+    public boolean isSystem() {
+        return isSystem;
     }
 
     public boolean isForEachRow() {

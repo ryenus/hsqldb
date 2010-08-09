@@ -32,6 +32,7 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.ColumnSchema;
+import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
@@ -50,6 +51,7 @@ import org.hsqldb.types.Type;
 
 public abstract class RowStoreAVL implements PersistentStore {
 
+    Database                  database;
     PersistentStoreCollection manager;
     Index[]                   indexList    = Index.emptyArray;
     CachedObject[]            accessorList = CachedObject.emptyArray;
@@ -59,6 +61,9 @@ public abstract class RowStoreAVL implements PersistentStore {
     // for result tables
     // for INFORMATION SCHEMA tables
     long timestamp;
+
+    //
+    PersistentStore[] subStores = PersistentStore.emptyArray;
 
     public TableBase getTable() {
         return table;
@@ -137,6 +142,10 @@ public abstract class RowStoreAVL implements PersistentStore {
             indexList[i].delete(session, this, row);
         }
 
+        for (int i = 0; i < subStores.length; i++) {
+            subStores[i].delete(session, row);
+        }
+
         row.delete(this);
     }
 
@@ -147,6 +156,22 @@ public abstract class RowStoreAVL implements PersistentStore {
         try {
             for (; i < indexList.length; i++) {
                 indexList[i].insert(session, this, row);
+            }
+
+            int j = 0;
+
+            try {
+                for (j = 0; j < subStores.length; j++) {
+                    subStores[j].indexRow(session, row);
+                }
+            } catch (HsqlException e) {
+
+                // unique index violation - rollback insert
+                for (--j; j >= 0; j--) {
+                    subStores[j].delete(session, row);
+                }
+
+                throw e;
             }
         } catch (HsqlException e) {
 
@@ -328,9 +353,9 @@ public abstract class RowStoreAVL implements PersistentStore {
                 it = other.rowIterator();
 
                 while (it.hasNext()) {
-                    Row row = it.getNextRow();
-                    Object[] olddata = row.getData();
-                    Object oldvalue = olddata[colindex];
+                    Row      row      = it.getNextRow();
+                    Object[] olddata  = row.getData();
+                    Object   oldvalue = olddata[colindex];
 
                     if (oldvalue != null) {
                         session.sessionData.adjustLobUsageCount(oldvalue, -1);
@@ -338,13 +363,13 @@ public abstract class RowStoreAVL implements PersistentStore {
                 }
             }
 
-            if (newtype != null && newtype.isLobType() ) {
+            if (newtype != null && newtype.isLobType()) {
                 it = rowIterator();
 
                 while (it.hasNext()) {
-                    Row row = it.getNextRow();
-                    Object[] data = row.getData();
-                    Object value = data[colindex];
+                    Row      row   = it.getNextRow();
+                    Object[] data  = row.getData();
+                    Object   value = data[colindex];
 
                     if (value != null) {
                         session.sessionData.adjustLobUsageCount(value, +1);

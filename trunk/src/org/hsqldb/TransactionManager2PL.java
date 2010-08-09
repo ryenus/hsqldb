@@ -48,7 +48,6 @@ implements TransactionManager {
     public TransactionManager2PL(Database db) {
 
         database       = db;
-        hasPersistence = database.logger.isLogged();
         lobSession     = database.sessionManager.getSysLobSession();
         txModel        = LOCKS;
     }

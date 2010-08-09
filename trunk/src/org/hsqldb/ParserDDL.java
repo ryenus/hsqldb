@@ -2152,6 +2152,10 @@ public class ParserDDL extends ParserRoutine {
 
                 read();
 
+                if (token.tokenType == Tokens.OPENBRACKET) {
+                    throw unexpectedToken();
+                }
+
                 td = new TriggerDef(name, beforeOrAfterType, operationType,
                                     isForEachRow.booleanValue(), table,
                                     transitions, rangeVars, condition,
@@ -2835,13 +2839,24 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSchema compileCreateIndex(boolean unique) {
 
-        Table    table;
-        HsqlName indexHsqlName;
+        Table         table;
+        HsqlName      indexHsqlName;
+        String[]      qualifiers = null;
+        HsqlArrayList list       = new HsqlArrayList();
 
         read();
 
         indexHsqlName = readNewSchemaObjectName(SchemaObject.INDEX, true);
 
+        while (token.tokenType != Tokens.ON) {
+            checkIsIdentifier();
+            list.add(token.tokenString);
+            read();
+        }
+
+        qualifiers = new String[list.size()];
+
+        list.toArray(qualifiers);
         readThis(Tokens.ON);
 
         table = readTableName();
@@ -2861,7 +2876,8 @@ public class ParserDDL extends ParserRoutine {
         int[]    indexColumns = readColumnList(table, true);
         String   sql          = getLastPart();
         Object[] args         = new Object[] {
-            table, indexColumns, indexHsqlName, Boolean.valueOf(unique)
+            table, indexColumns, indexHsqlName, Boolean.valueOf(unique),
+            qualifiers
         };
 
         return new StatementSchema(sql, StatementTypes.CREATE_INDEX, args,

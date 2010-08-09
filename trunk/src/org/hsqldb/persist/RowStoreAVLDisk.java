@@ -62,7 +62,6 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     DataFileCache      cache;
     RowOutputInterface rowOut;
-    Database           database;
 
     public RowStoreAVLDisk(PersistentStoreCollection manager,
                            DataFileCache cache, Table table) {
@@ -170,20 +169,9 @@ public class RowStoreAVLDisk extends RowStoreAVL {
 
     public void indexRow(Session session, Row row) {
 
-        int i = 0;
-
         try {
-            for (; i < indexList.length; i++) {
-                indexList[i].insert(session, this, row);
-            }
+            super.indexRow(session, row);
         } catch (HsqlException e) {
-
-            // unique index violation - rollback insert
-            for (--i; i >= 0; i--) {
-                indexList[i].delete(session, this, row);
-            }
-
-            remove(row.getPos());
             database.txManager.removeTransactionInfo(row);
 
             throw e;
@@ -191,7 +179,9 @@ public class RowStoreAVLDisk extends RowStoreAVL {
     }
 
     public void removeAll() {
+
         elementCount = 0;
+
         ArrayUtil.fillArray(accessorList, null);
     }
 

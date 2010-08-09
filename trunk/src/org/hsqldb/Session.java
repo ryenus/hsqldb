@@ -205,7 +205,7 @@ public class Session implements SessionInterface {
         rollback(false);
 
         try {
-            database.logger.writeToLog(this, Tokens.T_DISCONNECT);
+            database.logger.writeOtherStatement(this, Tokens.T_DISCONNECT);
         } catch (HsqlException e) {}
 
         sessionData.closeAllNavigators();
@@ -250,8 +250,6 @@ public class Session implements SessionInterface {
         if (!isInMidTransaction()) {
             isolationLevel = isolationLevelDefault;
         }
-
-        database.logger.writeToLog(this, getSessionIsolationSQL());
     }
 
     /**
@@ -269,8 +267,6 @@ public class Session implements SessionInterface {
 
         if (isolationLevel != level) {
             isolationLevel = level;
-
-            database.logger.writeToLog(this, getTransactionIsolationSQL());
         }
     }
 
@@ -582,7 +578,7 @@ public class Session implements SessionInterface {
         }
 
         try {
-            database.logger.writeToLog(this, Tokens.T_ROLLBACK);
+            database.logger.writeRollbackStatement(this);
         } catch (HsqlException e) {}
 
         database.txManager.rollback(this);
@@ -649,10 +645,6 @@ public class Session implements SessionInterface {
         sessionContext.savepoints.add(name,
                                       ValuePool.getInt(rowActionList.size()));
         sessionContext.savepointTimestamps.addLast(actionTimestamp);
-
-        try {
-            database.logger.writeToLog(this, getSavepointSQL(name));
-        } catch (HsqlException e) {}
     }
 
     /**
@@ -674,10 +666,6 @@ public class Session implements SessionInterface {
         }
 
         database.txManager.rollbackSavepoint(this, index);
-
-        try {
-            database.logger.writeToLog(this, getSavepointRollbackSQL(name));
-        } catch (HsqlException e) {}
     }
 
     /**
@@ -694,10 +682,6 @@ public class Session implements SessionInterface {
         String name = (String) sessionContext.savepoints.getKey(0);
 
         database.txManager.rollbackSavepoint(this, 0);
-
-        try {
-            database.logger.writeToLog(this, getSavepointRollbackSQL(name));
-        } catch (HsqlException e) {}
     }
 
     /**
@@ -2091,28 +2075,6 @@ public class Session implements SessionInterface {
         }
 
         sessionData.sequenceUpdateSet.clear();
-    }
-
-    //
-    static String getSavepointSQL(String name) {
-
-        StringBuffer sb = new StringBuffer(Tokens.T_SAVEPOINT);
-
-        sb.append(' ').append('"').append(name).append('"');
-
-        return sb.toString();
-    }
-
-    static String getSavepointRollbackSQL(String name) {
-
-        StringBuffer sb = new StringBuffer();
-
-        sb.append(Tokens.T_ROLLBACK).append(' ').append(Tokens.T_TO).append(
-            ' ');
-        sb.append(Tokens.T_SAVEPOINT).append(' ');
-        sb.append('"').append(name).append('"');
-
-        return sb.toString();
     }
 
     String getStartTransactionSQL() {

@@ -218,7 +218,7 @@ public class StatementSession extends Statement {
 
         try {
             if (isLogged) {
-                session.database.logger.writeToLog(session, sql);
+                session.database.logger.writeOtherStatement(session, sql);
             }
         } catch (Throwable e) {
             return Result.newErrorResult(e, sql);

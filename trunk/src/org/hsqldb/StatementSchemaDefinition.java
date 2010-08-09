@@ -208,7 +208,7 @@ public class StatementSchemaDefinition extends StatementSchema {
             try {
                 session.database.schemaManager.dropSchema(session,
                         schemaDefinitionName.name, true);
-                session.database.logger.writeToLog(
+                session.database.logger.writeOtherStatement(
                     session, getDropSchemaStatement(schemaDefinitionName));
             } catch (HsqlException e) {}
         }
