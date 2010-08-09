@@ -56,7 +56,6 @@ class TransactionManagerCommon {
 
     Database   database;
     Session    lobSession;
-    boolean    hasPersistence;
     int        txModel;
     HsqlName[] catalogNameList;
 

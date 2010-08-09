@@ -83,6 +83,7 @@ public interface OpTypes {
         MATCH_UNIQUE_SIMPLE  = 62,
         MATCH_UNIQUE_PARTIAL = 63,
         MATCH_UNIQUE_FULL    = 64,
+        CONTAINS             = 65,
         COUNT                = 71,    // aggregate functions
         SUM                  = 72,
         MIN                  = 73,

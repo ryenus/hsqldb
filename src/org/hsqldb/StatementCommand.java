@@ -164,7 +164,7 @@ public class StatementCommand extends Statement {
                 break;
 
             case StatementTypes.ALTER_SESSION :
-                group = StatementTypes.X_HSQLDB_SESSION;
+                group                       = StatementTypes.X_HSQLDB_SESSION;
                 this.isTransactionStatement = false;
                 break;
 
@@ -192,7 +192,7 @@ public class StatementCommand extends Statement {
 
         try {
             if (isLogged) {
-                session.database.logger.writeToLog(session, sql);
+                session.database.logger.writeOtherStatement(session, sql);
             }
         } catch (Throwable e) {
             return Result.newErrorResult(e, sql);
@@ -246,9 +246,7 @@ public class StatementCommand extends Statement {
                             Error.error(ErrorCode.DATABASE_IS_NON_FILE), null);
                     }
 
-                    session.database.logger.backup(path,
-                                                   session.database.getPath(),
-                                                   script, blocking,
+                    session.database.logger.backup(path, script, blocking,
                                                    compressed);
 
                     return Result.updateZeroResult;

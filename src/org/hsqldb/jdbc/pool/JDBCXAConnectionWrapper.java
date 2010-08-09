@@ -48,7 +48,7 @@ import java.sql.Savepoint;
  * <P>
  * The new implementation extends JDBCConnection. A new object is created
  * based on the session / session proxy of the JDBCXAConnection object in the
- * constructor. (fredt)
+ * constructor. (fredt)<p>
  *
  * @version 2.0.1
  * @since HSQLDB v. 1.9.0
@@ -154,9 +154,6 @@ public class JDBCXAConnectionWrapper extends JDBCConnection {
                                    JDBCConnection databaseConnection)
                                    throws SQLException {
 
-        /* Could pass in the creating XAConnection, which has methods to
-         * get the connection and the xaResource, but this way cuts down
-         * on the inter-dependencies a bit. */
         super(databaseConnection, null);
 
         xaResource.setConnection(this);

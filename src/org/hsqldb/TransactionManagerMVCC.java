@@ -68,7 +68,6 @@ implements TransactionManager {
     public TransactionManagerMVCC(Database db) {
 
         database       = db;
-        hasPersistence = database.logger.isLogged();
         lobSession     = database.sessionManager.getSysLobSession();
         rowActionMap   = new IntKeyHashMapConcurrent(10000);
         txModel        = MVCC;
@@ -520,6 +519,10 @@ implements TransactionManager {
      */
     public void setTransactionInfo(CachedObject object) {
 
+        if (object.isMemory()) {
+            return;
+        }
+
         Row       row    = (Row) object;
         RowAction rowact = (RowAction) rowActionMap.get(row.position);
 
@@ -530,6 +533,11 @@ implements TransactionManager {
      * remove the transaction info
      */
     public void removeTransactionInfo(CachedObject object) {
+
+        if (object.isMemory()) {
+            return;
+        }
+
         rowActionMap.remove(object.getPos());
     }
 

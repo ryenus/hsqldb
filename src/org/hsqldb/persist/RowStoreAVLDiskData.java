@@ -181,15 +181,6 @@ public class RowStoreAVLDiskData extends RowStoreAVLDisk {
         } catch (HsqlException e1) {}
     }
 
-    public void delete(Session session, Row row) {
-
-        for (int j = indexList.length - 1; j >= 0; j--) {
-            indexList[j].delete(session, this, row);
-        }
-
-        row.delete(this);
-    }
-
     public void commitRow(Session session, Row row, int changeAction,
                           int txModel) {
 

@@ -611,7 +611,7 @@ public class Logger {
     }
 
     /**
-     *  Returns the Cache object or null if one doesn't exist.
+     * Returns the Cache object or null if one doesn't exist.
      */
     public DataFileCache getCache() {
 
@@ -623,7 +623,7 @@ public class Logger {
     }
 
     /**
-     *  Returns true if Cache object exists.
+     * Returns true if Cache object exists.
      */
     public boolean hasCache() {
 
@@ -635,37 +635,31 @@ public class Logger {
     }
 
     /**
-     *  Records a Log entry representing a new connection action on the
-     *  specified Session object.
-     *
-     * @param  session the Session object for which to record the log
-     *      entry
-     * @throws  HsqlException if there is a problem recording the Log
-     *      entry
+     * Records a Log entry representing start of a session or a new connection
+     * action on the specified Session object.
      */
-    public synchronized void logStartSession(Session session) {
+    public synchronized void writeStartSession(Session session) {
 
         if (loggingEnabled) {
-            writeToLog(session, session.getUser().getConnectUserSQL());
+            log.writeStatement(session, session.getUser().getConnectUserSQL());
         }
     }
 
     /**
-     *  Records a Log entry for the specified SQL statement, on behalf of
-     *  the specified Session object.
-     *
-     * @param  session the Session object for which to record the Log
-     *      entry
-     * @param  statement the SQL statement to Log
-     * @throws  HsqlException if there is a problem recording the entry
+     * Records a Log entry for the specified SQL statement, on behalf of
+     * the specified Session object.
      */
-    public synchronized void writeToLog(Session session, String statement) {
+    public synchronized void writeOtherStatement(Session session,
+            String statement) {
 
         if (loggingEnabled) {
             log.writeStatement(session, statement);
         }
     }
 
+    /**
+     * Used exclusively by PersistentStore objects
+     */
     public synchronized void writeInsertStatement(Session session,
             Table table, Object[] row) {
 
@@ -674,6 +668,9 @@ public class Logger {
         }
     }
 
+    /**
+     * Used exclusively by PersistentStore objects
+     */
     public synchronized void writeDeleteStatement(Session session, Table t,
             Object[] row) {
 
@@ -682,6 +679,9 @@ public class Logger {
         }
     }
 
+    /**
+     * Used at transaction commit
+     */
     public synchronized void writeSequenceStatement(Session session,
             NumberSequence s) {
 
@@ -690,6 +690,9 @@ public class Logger {
         }
     }
 
+    /**
+     * Used at transaction commit
+     */
     public synchronized void writeCommitStatement(Session session) {
 
         if (loggingEnabled) {
@@ -699,18 +702,21 @@ public class Logger {
     }
 
     /**
-     * Called after commits or after each statement when autocommit is on
+     * Used at transaction commit
      */
-    public synchronized void synchLog() {
+    public synchronized void writeRollbackStatement(Session session) {
 
-        if (loggingEnabled && syncFile) {
-            log.synchLog();
+        if (loggingEnabled) {
+            log.writeStatement(session, "ROLLBACK");
         }
     }
 
-    public synchronized void synchLogForce() {
+    /**
+     * Called after commits or after each statement when autocommit is on
+     */
+    private synchronized void synchLog() {
 
-        if (loggingEnabled) {
+        if (loggingEnabled && syncFile) {
             log.synchLog();
         }
     }
@@ -837,7 +843,7 @@ public class Logger {
             log.setIncrementBackup(val);
 
             if (log.hasCache()) {
-                database.logger.checkpointRequired = true;
+                checkpointRequired = true;
             }
         }
 
@@ -1494,9 +1500,10 @@ public class Logger {
         new SimpleDateFormat("yyyyMMdd'T'HHmmss");
     static private Character runtimeFileDelim = null;
 
-    public synchronized void backup(String destPath, String dbPath,
-                                    boolean script, boolean blocking,
-                                    boolean compressed) {
+    public synchronized void backup(String destPath, boolean script,
+                                    boolean blocking, boolean compressed) {
+
+        String dbPath = database.getPath();
 
         /* If want to add db Id also, will need to pass either Database
          * instead of dbPath, or pass dbPath + Id from CommandStatement.
