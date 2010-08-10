@@ -611,6 +611,7 @@ public class TriggerDef implements Runnable, SchemaObject {
     synchronized void pushPair(Session session, Object[] row1, Object[] row2) {
 
         if (maxRowsQueued == 0) {
+            session.getInternalConnection();
             trigger.fire(triggerType, name.name, table.getName().name, row1,
                          row2);
 
