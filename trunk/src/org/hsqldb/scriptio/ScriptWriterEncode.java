@@ -32,24 +32,43 @@
 package org.hsqldb.scriptio;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
 import org.hsqldb.persist.Crypto;
 
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @since 1.9.0
+ * @version 2.0.1
  * @version 1.9.0
  */
 public class ScriptWriterEncode extends ScriptWriterText {
 
     Crypto                    crypto;
     HsqlByteArrayOutputStream byteOut;
+
+    public ScriptWriterEncode(Database db, OutputStream outputStream,
+                              FileAccess.FileSync descriptor,
+                              boolean includeCached, Crypto crypto) {
+
+        super(db, outputStream, descriptor, includeCached);
+
+        try {
+            fileStreamOut = crypto.getOutputStream(fileStreamOut);
+            fileStreamOut = new GZIPOutputStream(fileStreamOut);
+        } catch (IOException e) {
+            throw Error.error(e, ErrorCode.FILE_IO_ERROR,
+                              ErrorCode.M_Message_Pair, new Object[] {
+                e.getMessage(), outFile
+            });
+        }
+    }
 
     public ScriptWriterEncode(Database db, String file, boolean includeCached,
                               Crypto crypto) {
@@ -94,10 +113,12 @@ public class ScriptWriterEncode extends ScriptWriterText {
             }
 
             int count = crypto.getEncodedSize(rowOut.size());
+
             byteOut.ensureRoom(count + 4);
 
             count = crypto.encode(rowOut.getBuffer(), 0, rowOut.size(),
-                                      byteOut.getBuffer(), 4);
+                                  byteOut.getBuffer(), 4);
+
             byteOut.setPosition(0);
             byteOut.writeInt(count);
             fileStreamOut.write(byteOut.getBuffer(), 0, count + 4);

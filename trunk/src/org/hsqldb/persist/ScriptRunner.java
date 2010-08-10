@@ -49,6 +49,8 @@ import org.hsqldb.scriptio.ScriptReaderBase;
 import org.hsqldb.scriptio.ScriptReaderDecode;
 import org.hsqldb.scriptio.ScriptReaderText;
 
+import java.io.InputStream;
+
 /**
  * Restores the state of a Database instance from an SQL log file. <p>
  *
@@ -61,11 +63,62 @@ import org.hsqldb.scriptio.ScriptReaderText;
  */
 public class ScriptRunner {
 
+    public static void runScript(Database database, InputStream inputStream) {
+
+        Crypto           crypto = database.logger.getCrypto();
+        ScriptReaderBase scr;
+
+        if (crypto == null) {
+            scr = new ScriptReaderText(database, inputStream);
+        } else {
+            try {
+                scr = new ScriptReaderDecode(database, inputStream, crypto,
+                                             true);
+            } catch (Throwable e) {
+                database.logger.logSevereEvent("opening log file", e);
+
+                return;
+            }
+        }
+
+        runScript(database, scr);
+    }
+
     /**
      *  This is used to read the *.log file and manage any necessary
      *  transaction rollback.
      */
     public static void runScript(Database database, String logFilename) {
+
+        Crypto           crypto = database.logger.getCrypto();
+        ScriptReaderBase scr;
+
+        try {
+            if (crypto == null) {
+                scr = new ScriptReaderText(database, logFilename);
+            } else {
+                scr = new ScriptReaderDecode(database, logFilename, crypto,
+                                             true);
+            }
+        } catch (Throwable e) {
+
+            // catch out-of-memory errors and terminate
+            if (e instanceof EOFException) {
+
+                // end of file - normal end
+            } else {
+
+                // stop processing on bad script line
+                database.logger.logSevereEvent("opening log file", e);
+            }
+
+            return;
+        }
+
+        runScript(database, scr);
+    }
+
+    private static void runScript(Database database, ScriptReaderBase scr) {
 
         IntKeyHashMap sessionMap = new IntKeyHashMap();
         Session       current    = null;
@@ -73,23 +126,14 @@ public class ScriptRunner {
 
         database.setReferentialIntegrity(false);
 
-        ScriptReaderBase scr = null;
-        String           statement;
-        int              statementType;
+        String statement;
+        int    statementType;
         Statement dummy = new StatementDML(StatementTypes.UPDATE_CURSOR,
                                            StatementTypes.X_SQL_DATA_CHANGE,
                                            null);
 
         try {
-            StopWatch sw     = new StopWatch();
-            Crypto    crypto = database.logger.getCrypto();
-
-            if (crypto == null) {
-                scr = new ScriptReaderText(database, logFilename);
-            } else {
-                scr = new ScriptReaderDecode(database, logFilename, crypto,
-                                             true);
-            }
+            StopWatch sw = new StopWatch();
 
             while (scr.readLoggedStatement(current)) {
                 int sessionId = scr.getSessionNumber();
@@ -183,21 +227,22 @@ public class ScriptRunner {
                 }
             }
         } catch (Throwable e) {
+            String databaseFile = database.getPath();
 
             // catch out-of-memory errors and terminate
             if (e instanceof EOFException) {
 
                 // end of file - normal end
             } else if (e instanceof OutOfMemoryError) {
-                database.logger.logSevereEvent("out of memory processing "
-                                               + logFilename + " line: "
+                database.logger.logSevereEvent("out of memory processing log"
+                                               + databaseFile + " line: "
                                                + scr.getLineNumber(), e);
 
                 throw Error.error(ErrorCode.OUT_OF_MEMORY);
             } else {
 
                 // stop processing on bad script line
-                database.logger.logSevereEvent(logFilename + " line: "
+                database.logger.logSevereEvent(databaseFile + " log line: "
                                                + scr.getLineNumber(), e);
             }
         } finally {

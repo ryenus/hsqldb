@@ -727,7 +727,7 @@ public class Log {
                     scr = new ScriptReaderText(database, scriptFileName);
                 } else {
                     scr = new ScriptReaderDecode(database, scriptFileName,
-                                                 crypto);
+                                                 crypto, false);
                 }
 
                 Session session =

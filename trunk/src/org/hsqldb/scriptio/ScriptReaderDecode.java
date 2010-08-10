@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,32 +57,30 @@ public class ScriptReaderDecode extends ScriptReaderText {
     Crypto          crypto;
     byte[]          buffer = new byte[256];
 
-    public ScriptReaderDecode(Database db, String fileName,
-                              Crypto crypto) throws IOException {
-
-        super(db);
-
-        InputStream d =
-            database.logger.getFileAccess().openInputStreamElement(fileName);
-        InputStream stream = crypto.getInputStream(d);
-
-        stream       = new GZIPInputStream(stream);
-        dataStreamIn = new BufferedReader(new InputStreamReader(stream));
-        rowIn        = new RowInputTextLog();
+    public ScriptReaderDecode(Database db, String fileName, Crypto crypto,
+                              boolean forLog) throws IOException {
+        this(db, db.logger.getFileAccess().openInputStreamElement(fileName),
+             crypto, forLog);
     }
 
-    public ScriptReaderDecode(Database db, String fileName, Crypto crypto,
+    public ScriptReaderDecode(Database db, InputStream inputStream,
+                              Crypto crypto,
                               boolean forLog) throws IOException {
 
         super(db);
 
         this.crypto = crypto;
+        rowIn       = new RowInputTextLog();
 
-        InputStream d =
-            database.logger.getFileAccess().openInputStreamElement(fileName);
+        if (forLog) {
+            dataInput =
+                new DataInputStream(new BufferedInputStream(inputStream));
+        } else {
+            InputStream stream = crypto.getInputStream(inputStream);
 
-        dataInput = new DataInputStream(new BufferedInputStream(d));
-        rowIn     = new RowInputTextLog();
+            stream       = new GZIPInputStream(stream);
+            dataStreamIn = new BufferedReader(new InputStreamReader(stream));
+        }
     }
 
     public boolean readLoggedStatement(Session session) throws IOException {

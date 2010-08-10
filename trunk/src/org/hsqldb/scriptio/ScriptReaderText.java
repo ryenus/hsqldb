@@ -85,6 +85,16 @@ public class ScriptReaderText extends ScriptReaderBase {
         rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());
     }
 
+    public ScriptReaderText(Database db,
+                            InputStream inputStream) {
+
+        super(db);
+
+        dataStreamIn = new BufferedReader(
+            new InputStreamReader(new BufferedInputStream(inputStream)));
+        rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());
+    }
+
     protected void readDDL(Session session) throws IOException {
 
         for (; readLoggedStatement(session); ) {
@@ -180,10 +190,9 @@ public class ScriptReaderText extends ScriptReaderBase {
         } catch (Throwable t) {
             database.logger.logSevereEvent("readExistingData failed", t);
 
-            throw Error.error(
-                t, ErrorCode.ERROR_IN_SCRIPT_FILE,
-                ErrorCode.M_DatabaseScriptReader_read,
-                new Object[] {
+            throw Error.error(t, ErrorCode.ERROR_IN_SCRIPT_FILE,
+                              ErrorCode.M_DatabaseScriptReader_read,
+                              new Object[] {
                 t.getMessage(), new Integer(lineCount)
             });
         }
