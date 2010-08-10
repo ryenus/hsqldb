@@ -814,6 +814,7 @@ public class Tokens {
     static final String        T_UNIX_TIMESTAMP   = "UNIX_TIMESTAMP";
 
     //
+
     static final String T_ISOLATION_LEVEL         = "ISOLATION_LEVEL";
     static final String T_SESSION_ISOLATION_LEVEL = "SESSION_ISOLATION_LEVEL";
     static final String T_DATABASE_ISOLATION_LEVEL =
@@ -823,6 +824,7 @@ public class Tokens {
     static final String T_SESSION_TIMEZONE    = "SESSION_TIMEZONE";
     static final String T_DATABASE_TIMEZONE   = "DATABASE_TIMEZONE";
     static final String T_DATABASE_VERSION    = "DATABASE_VERSION";
+    static final String T_SESSION_ID          = "SESSION_ID";
     static final String T_LOB_ID              = "LOB_ID";
     static final String T_SEQUENCE_ARRAY      = "SEQUENCE_ARRAY";
 
@@ -1527,6 +1529,7 @@ public class Tokens {
     static final int DATABASE_VERSION         = 718;
     static final int LOB_ID                   = 719;
     static final int SEQUENCE_ARRAY           = 720;
+    static final int SESSION_ID               = 721;
 
     //
     static final int        ASTERISK         = 771;
@@ -2200,6 +2203,7 @@ public class Tokens {
         commandSet.put(T_ROUNDMAGIC, ROUNDMAGIC);
         commandSet.put(T_RTRIM, RTRIM);
         commandSet.put(T_SECONDS_MIDNIGHT, SECONDS_MIDNIGHT);
+        commandSet.put(T_SESSION_ID, SESSION_ID);
         commandSet.put(T_SIGN, SIGN);
         commandSet.put(T_SIN, SIN);
         commandSet.put(T_SOUNDEX, SOUNDEX);
