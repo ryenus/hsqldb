@@ -126,6 +126,7 @@ public class FunctionCustom extends FunctionSQL {
     private final static int FUNC_TRANSACTION_SIZE         = 96;
     private final static int FUNC_UNIX_TIMESTAMP           = 97;
     private final static int FUNC_SEQUENCE_ARRAY           = 99;
+    private final static int FUNC_SESSION_ID               = 100;
 
     //
     private static final int FUNC_ACOS             = 101;
@@ -260,6 +261,7 @@ public class FunctionCustom extends FunctionSQL {
                                  FUNC_TRANSACTION_SIZE);
         customRegularFuncMap.put(Tokens.UNIX_TIMESTAMP, FUNC_UNIX_TIMESTAMP);
         customRegularFuncMap.put(Tokens.SEQUENCE_ARRAY, FUNC_SEQUENCE_ARRAY);
+        customRegularFuncMap.put(Tokens.SESSION_ID, FUNC_SESSION_ID);
 
         //
         nonDeterministicFuncSet.add(FUNC_DATABASE);
@@ -270,10 +272,14 @@ public class FunctionCustom extends FunctionSQL {
         nonDeterministicFuncSet.add(FUNC_ISOLATION_LEVEL);
         nonDeterministicFuncSet.add(FUNC_SESSION_ISOLATION_LEVEL);
         nonDeterministicFuncSet.add(FUNC_DATABASE_ISOLATION_LEVEL);
+        nonDeterministicFuncSet.add(FUNC_ACTION_ID);
         nonDeterministicFuncSet.add(FUNC_TRANSACTION_CONTROL);
+        nonDeterministicFuncSet.add(FUNC_TRANSACTION_ID);
         nonDeterministicFuncSet.add(FUNC_TIMEZONE);
         nonDeterministicFuncSet.add(FUNC_SESSION_TIMEZONE);
         nonDeterministicFuncSet.add(FUNC_DATABASE_TIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_UNIX_TIMESTAMP);
+        nonDeterministicFuncSet.add(FUNC_SESSION_ID);
 
         //
         customRegularFuncMap.put(Tokens.ACOS, FUNC_ACOS);
@@ -468,6 +474,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_SESSION_TIMEZONE :
             case FUNC_DATABASE_TIMEZONE :
             case FUNC_DATABASE_VERSION :
+            case FUNC_SESSION_ID :
             case FUNC_ACTION_ID :
             case FUNC_TRANSACTION_ID :
             case FUNC_TRANSACTION_SIZE :
@@ -746,6 +753,9 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DATABASE_VERSION :
                 return HsqlDatabaseProperties.THIS_FULL_VERSION;
 
+            case FUNC_SESSION_ID : {
+                return Long.valueOf(session.getId());
+            }
             case FUNC_ACTION_ID : {
                 return Long.valueOf(session.actionTimestamp);
             }
@@ -1546,6 +1556,7 @@ public class FunctionCustom extends FunctionSQL {
 
                 return;
 
+            case FUNC_SESSION_ID :
             case FUNC_ACTION_ID :
             case FUNC_TRANSACTION_ID :
             case FUNC_TRANSACTION_SIZE :
@@ -2261,6 +2272,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_DATABASE_VERSION :
             case FUNC_PI :
             case FUNC_IDENTITY :
+            case FUNC_SESSION_ID :
             case FUNC_ACTION_ID :
             case FUNC_TRANSACTION_ID :
             case FUNC_TRANSACTION_SIZE :
