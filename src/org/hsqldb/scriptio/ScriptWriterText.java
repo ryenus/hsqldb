@@ -32,6 +32,7 @@
 package org.hsqldb.scriptio;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.hsqldb.Database;
@@ -42,6 +43,7 @@ import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.FileAccess;
 import org.hsqldb.rowio.RowOutputTextLog;
 
 /**
@@ -62,7 +64,7 @@ import org.hsqldb.rowio.RowOutputTextLog;
  *
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 public class ScriptWriterText extends ScriptWriterBase {
@@ -104,6 +106,12 @@ public class ScriptWriterText extends ScriptWriterBase {
         }
     }
 
+    public ScriptWriterText(Database db, OutputStream outputStream,
+                            FileAccess.FileSync descriptor,
+                            boolean includeCachedData) {
+        super(db, outputStream, descriptor, includeCachedData);
+    }
+
     public ScriptWriterText(Database db, String file,
                             boolean includeCachedData, boolean newFile,
                             boolean isDump) {
@@ -116,7 +124,8 @@ public class ScriptWriterText extends ScriptWriterBase {
 
     protected void writeDataTerm() throws IOException {}
 
-    protected void writeSessionIdAndSchema(Session session) throws IOException {
+    protected void writeSessionIdAndSchema(Session session)
+    throws IOException {
 
         if (session == null) {
             return;
@@ -129,9 +138,10 @@ public class ScriptWriterText extends ScriptWriterBase {
             rowOut.write(BYTES_C_ID_TERM);
 
             currentSession = session;
+
             writeRowOutToFile();
 
-            byteCount   += rowOut.size();
+            byteCount += rowOut.size();
         }
 
         if (schemaToLog != session.loggedSchema) {
@@ -139,9 +149,10 @@ public class ScriptWriterText extends ScriptWriterBase {
             writeSchemaStatement(schemaToLog);
 
             session.loggedSchema = schemaToLog;
+
             writeRowOutToFile();
 
-            byteCount   += rowOut.size();
+            byteCount += rowOut.size();
         }
     }
 
@@ -291,10 +302,6 @@ public class ScriptWriterText extends ScriptWriterBase {
         if (forceSync || writeDelay == 0) {
             sync();
         }
-    }
-
-    protected void finalize() {
-        sync();
     }
 
     void writeRowOutToFile() throws IOException {

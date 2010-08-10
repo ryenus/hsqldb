@@ -84,7 +84,7 @@ import org.hsqldb.result.Result;
  * DatabaseScriptReader and its subclasses read back the data at startup time.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.7.2
  */
 public abstract class ScriptWriterBase implements Runnable {
@@ -117,10 +117,25 @@ public abstract class ScriptWriterBase implements Runnable {
         Tokens.T_TEXT, Tokens.T_BINARY, null, Tokens.T_COMPRESSED
     };
 
+    ScriptWriterBase(Database db, OutputStream outputStream,
+                     FileAccess.FileSync descriptor,
+                     boolean includeCachedData) {
+
+        initBuffers();
+
+        this.database          = db;
+        this.includeCachedData = includeCachedData;
+        currentSession         = database.sessionManager.getSysSession();
+
+        // start with neutral schema - no SET SCHEMA to log
+        schemaToLog = currentSession.loggedSchema =
+            currentSession.currentSchema;
+        fileStreamOut = new BufferedOutputStream(outputStream, 2 << 12);
+        outDescriptor = descriptor;
+    }
+
     ScriptWriterBase(Database db, String file, boolean includeCachedData,
                      boolean isNewFile, boolean isDump) {
-
-        this.isDump = isDump;
 
         initBuffers();
 
@@ -137,6 +152,7 @@ public abstract class ScriptWriterBase implements Runnable {
         }
 
         this.database          = db;
+        this.isDump            = isDump;
         this.includeCachedData = includeCachedData;
         outFile                = file;
         currentSession         = database.sessionManager.getSysSession();
@@ -145,10 +161,6 @@ public abstract class ScriptWriterBase implements Runnable {
         schemaToLog = currentSession.loggedSchema =
             currentSession.currentSchema;
 
-        openFile();
-    }
-
-    public void reopen() {
         openFile();
     }
 
@@ -199,9 +211,9 @@ public abstract class ScriptWriterBase implements Runnable {
                 outDescriptor.sync();
 
                 syncCount++;
-            }
-            catch (IOException e) {
-                Error.printSystemOut("flush() or sync() error: " + e.toString());
+            } catch (IOException e) {
+                Error.printSystemOut("flush() or sync() error: "
+                                     + e.toString());
             }
 
             needsSync = false;

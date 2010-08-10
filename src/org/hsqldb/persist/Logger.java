@@ -84,9 +84,7 @@ import org.hsqldb.types.Type;
 public class Logger {
 
     public SimpleLog appLog;
-    Log              log;
     private Database database;
-    private LockFile lockFile;
     public boolean   checkpointRequired;
     public boolean   checkpointDue;
     public boolean   checkpointDisabled;
@@ -95,6 +93,7 @@ public class Logger {
     private boolean  syncFile = false;
 
     //
+    boolean        propIsFileDatabase;
     boolean        propFilesReadOnly;
     boolean        propDatabaseReadOnly;
     boolean        propIncrementBackup;
@@ -117,6 +116,8 @@ public class Logger {
     int            propLobBlockSize = 32 * 1024;
 
     //
+    Log               log;
+    private LockFile  lockFile;
     private Crypto    crypto;
     public FileAccess fileAccess;
     public boolean    isStoredFileAccess;
@@ -173,11 +174,11 @@ public class Logger {
             fileAccess = FileUtil.getFileAccess(database.isFilesInJar());
         }
 
-        boolean isFile =
+        propIsFileDatabase =
             DatabaseURL.isFileBasedDatabaseType(database.getType());
 
         database.databaseProperties = new HsqlDatabaseProperties(database);
-        isNewDatabase = !isFile
+        isNewDatabase = !propIsFileDatabase
                         || !fileAccess.isStreamElement(database.getPath()
                             + ".script");
 
@@ -226,7 +227,7 @@ public class Logger {
 
         database.setReferentialIntegrity(propRefIntegrity);
 
-        if (!isFile) {
+        if (!isFileDatabase()) {
             return;
         }
 
@@ -473,14 +474,14 @@ public class Logger {
                     break;
             }
         } catch (Throwable e) {
-            logSevereEvent("error closing log", e);
+            database.logger.logSevereEvent("error closing log", e);
 
             log = null;
 
             return false;
         }
 
-        logInfoEvent("Database closed");
+        database.logger.logInfoEvent("Database closed");
 
         log = null;
 
@@ -500,20 +501,6 @@ public class Logger {
         name = "HSQLDB" + name.substring(6).toUpperCase(Locale.ENGLISH);
 
         return name;
-    }
-
-    /**
-     *  Determines if the logging process actually does anything. <p>
-     *
-     *  In-memory Database objects do not need to log anything. This
-     *  method is essentially equivalent to testing whether this logger's
-     *  database is an in-memory mode database.
-     *
-     * @return  true if this object encapsulates a non-null Log instance,
-     *      else false
-     */
-    public boolean hasPersistence() {
-        return log != null;
     }
 
     /*
@@ -613,24 +600,12 @@ public class Logger {
     /**
      * Returns the Cache object or null if one doesn't exist.
      */
-    public DataFileCache getCache() {
+    private DataFileCache getCache() {
 
         if (log == null) {
             return null;
         } else {
             return log.getCache();
-        }
-    }
-
-    /**
-     * Returns true if Cache object exists.
-     */
-    public boolean hasCache() {
-
-        if (log == null) {
-            return false;
-        } else {
-            return log.hasCache();
         }
     }
 
@@ -738,10 +713,10 @@ public class Logger {
     public synchronized void checkpoint(boolean mode) {
 
         if (logsStatements) {
-            logInfoEvent("Checkpoint start");
+            database.logger.logInfoEvent("Checkpoint start");
             log.checkpoint(mode);
             database.sessionManager.resetLoggedSchemas();
-            logInfoEvent("Checkpoint end");
+            database.logger.logInfoEvent("Checkpoint end");
         }
 
         checkpointDue = false;
@@ -780,18 +755,12 @@ public class Logger {
      *
      * @param  i The type
      */
-    public synchronized void setScriptType(int i) {
-
-        if (log != null) {
-
-            //
-        }
-    }
+    public synchronized void setScriptType(int i) {}
 
     /**
      *  Sets the log write delay mode to number of seconds. By default
      *  executed commands written to the log are committed fully at most
-     *  60 second after they are executed. This improves performance for
+     *  1 second after they are executed. This improves performance for
      *  applications that execute a large number
      *  of short running statements in a short period of time, but risks
      *  failing to log some possibly large number of statements in the
@@ -799,7 +768,7 @@ public class Logger {
      *  A value of 0 will severly slow down logging when autocommit is on,
      *  or many short transactions are committed.
      *
-     * @param  delay in seconds
+     * @param  delay in milliseconds
      */
     public synchronized void setWriteDelay(int delay) {
 
@@ -826,11 +795,6 @@ public class Logger {
 
     public int getLobBlockSize() {
         return propLobBlockSize;
-    }
-
-    public int getScriptType() {
-        return log != null ? log.getScriptType()
-                           : 0;
     }
 
     public synchronized void setIncrementBackup(boolean val) {
@@ -943,6 +907,26 @@ public class Logger {
         this.propTextSourceProps   = props;
     }
 
+    public void setNioDataFile(boolean value) {
+        propNioDataFile = value;
+    }
+
+    public FileAccess getFileAccess() {
+        return fileAccess;
+    }
+
+    public boolean isStoredFileAccess() {
+        return isStoredFileAccess;
+    }
+
+    public boolean isFileDatabase() {
+        return propIsFileDatabase;
+    }
+
+    public String getTempDirectoryPath() {
+        return tempDirectoryPath;
+    }
+
     static void checkPower(int n, int limit) {
 
         for (int i = 0; i < limit; i++) {
@@ -1011,23 +995,6 @@ public class Logger {
         } catch (Exception e) {}
 
         lockFile = null;
-    }
-
-    // properties
-    public void setNioDataFile(boolean value) {
-        propNioDataFile = value;
-    }
-
-    public FileAccess getFileAccess() {
-        return fileAccess;
-    }
-
-    public boolean isStoredFileAccess() {
-        return isStoredFileAccess;
-    }
-
-    public String getTempDirectoryPath() {
-        return tempDirectoryPath;
     }
 
     public PersistentStore newStore(Session session,
@@ -1209,7 +1176,7 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_script_format.equals(name)) {
-            return ScriptWriterBase.LIST_SCRIPT_FORMATS[getScriptType()]
+            return ScriptWriterBase.LIST_SCRIPT_FORMATS[0]
                 .toLowerCase();
         }
 
@@ -1401,7 +1368,7 @@ public class Logger {
         list.add(sb.toString());
         sb.setLength(0);
 
-        if (hasPersistence()) {
+        if (isFileDatabase()) {
             if (database.schemaManager.getDefaultTableType()
                     == TableBase.CACHED_TABLE) {
                 list.add("SET DATABASE DEFAULT TABLE TYPE CACHED");
@@ -1553,8 +1520,8 @@ public class Logger {
         log.checkpointClose();
 
         try {
-            logInfoEvent("Initiating backup of instance '" + instanceName
-                         + "'");
+            database.logger.logInfoEvent("Initiating backup of instance '"
+                                         + instanceName + "'");
 
             // By default, DbBackup will throw if archiveFile (or
             // corresponding work file) already exist.  That's just what we
@@ -1563,8 +1530,9 @@ public class Logger {
 
             backup.setAbortUponModify(false);
             backup.write();
-            logInfoEvent("Successfully backed up instance '" + instanceName
-                         + "' to '" + destPath + "'");
+            database.logger.logInfoEvent("Successfully backed up instance '"
+                                         + instanceName + "' to '" + destPath
+                                         + "'");
 
             // RENAME tempPath to destPath
         } catch (IllegalArgumentException iae) {
