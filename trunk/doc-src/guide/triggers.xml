@@ -64,10 +64,9 @@
 
     <simpara>Usage constraints cannot always be expressed by SQL’s integrity
     constraint statements. Triggers can enforce these constraints. For
-    example, it is may be possible to write a check constraint that prevents
-    data from being added, or modified on weekends. But it is not possible to
-    use a check constraint to prevent deletes. A trigger can be used to
-    enforce the time when each operation is allowed.</simpara>
+    example, it is not possible to use a check constraint to prevent inserts
+    or deletes on weekends. A trigger can be used to enforce the time when
+    each operation is allowed.</simpara>
 
     <simpara>A trigger is declared to activate when an UPDATE, INSERT or
     DELETE action is performed on a table. These actions may be direct or
@@ -274,17 +273,19 @@
       <title>Trigger Action in Java</title>
 
       <para>A trigger action can be written as a Java class that implements
-      the org.hsqldb.Trigger interface. This interface has a single method
-      which is called when the trigger is activated, either before or after
-      the event. When the method is called by the engine, it supplies the name
-      of the trigger (as name argument), the name of the table (as table
-      argument), the OLD ROW (as row1 argument) and the NEW ROW (as row2
-      argument). The row1 argument is null for row level INSERT triggers. The
-      row2 argument is null for row level DELETE triggers. For table level
-      triggers, both arguments are null (that is, there is no access to the
-      data). The triggerType argument is one of the constants in the
-      org.hsqldb.Trigger interface which indicate the type of trigger, for
-      example, INSERT_BEFORE_ROW or UPDATE_AFTER_ROW.</para>
+      the <classname>org.hsqldb.Trigger</classname> interface. This interface
+      has a single method which is called when the trigger is activated,
+      either before or after the event. When the method is called by the
+      engine, it supplies the type of trigger as an int value defined by the
+      interface(as type argument), the name of the trigger (as trigName
+      argument), the name of the table (as tabName argument), the OLD ROW (as
+      oldRow argument) and the NEW ROW (as newRow argument). The oldRow
+      argument is null for row level INSERT triggers. The newRow argument is
+      null for row level DELETE triggers. For table level triggers, both
+      arguments are null (that is, there is no access to the data). The
+      triggerType argument is one of the constants in the org.hsqldb.Trigger
+      interface which indicate the type of trigger, for example,
+      INSERT_BEFORE_ROW or UPDATE_AFTER_ROW.</para>
 
       <para>The Java class for the trigger can be reused for several triggers
       on different tables. The method code can distinguish between the
@@ -295,26 +296,31 @@
 </programlisting>
 
       <para>The Java method for a synchronous trigger (see below) can modify
-      the values in row2 in a BEFORE trigger. Such modifications are reflected
-      in the row that is being inserted or updated. Any other modifications
-      are ignored by the engine.</para>
+      the values in newRow2 in a BEFORE trigger. Such modifications are
+      reflected in the row that is being inserted or updated. Any other
+      modifications are ignored by the engine.</para>
 
       <para>A Java trigger that uses an instance of
       <classname>org.hsqldb.Trigger</classname> has two forms, synchronous, or
       asynchronous (immediate or queued). By default, or when QUEUE 0 is
       specified, the action is performed immediately by calling the Java
-      method. This is similar to SQL trigger actions. When QUEUE n is
-      specified with n larger than 0, the engine uses a separate thread to
-      execute the Java method, using a queue with the size n. For certain
-      applications, such as real-time systems this allows asynchronous
-      notifications to be sent by the trigger event, without introducing
-      delays in the engine. With asynchronous triggers, an extra parameter,
-      NOWAIT can be used in trigger definition. This overcomes the queue full
-      condition. In this mode, old calls that are still in the queue are
-      discarded one by one and replaced with new calls.</para>
+      method. This is similar to SQL trigger actions.</para>
 
-      <para>Java triggers can modify the row data. They should not be used to
-      modify the database, e.g. insert new rows, etc.</para>
+      <para>When QUEUE n is specified with n larger than 0, the engine uses a
+      separate thread to execute the Java method, using a queue with the size
+      n. For certain applications, such as real-time systems this allows
+      asynchronous notifications to be sent by the trigger event, without
+      introducing delays in the engine. With asynchronous triggers, an extra
+      parameter, NOWAIT can be used in trigger definition. This overcomes the
+      queue full condition. In this mode, old calls that are still in the
+      queue are discarded one by one and replaced with new calls.</para>
+
+      <para>Java triggers can modify the row data. Generally they should not
+      be used to modify the database, e.g. insert new rows, etc. If the
+      trigger needs to access the database, the same method as in Java
+      Language Routines SQL/JRT can be used with
+      <literal>"jdbc:default:connection"</literal> to get the connection to
+      the database.</para>
 
       <para>For sample trigger classes and test code see,
       <classname>org.hsqldb.sample.TriggerSample</classname>,
