@@ -2003,6 +2003,18 @@ D          I
     (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>SESSION_ID function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SESSION_ID</emphasis></simpara>
+
+    <para><literal>SESSION_ID()</literal></para>
+
+    <para>Returns the id of the session as a BIGINT value. Each session id is
+    unique during the operational lifetime of the database. Id's are restarted
+    after a shutdown and restart. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
       <primary>SESSION_ISOLATION_LEVEL function</primary>
     </indexterm>
 
