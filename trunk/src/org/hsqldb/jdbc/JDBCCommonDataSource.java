@@ -35,7 +35,10 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.Properties;
 
+//#ifdef JAVA6
 import javax.sql.CommonDataSource;
+
+//#endif JAVA6
 
 /**
  * Common base for DataSource implementations.
@@ -44,7 +47,15 @@ import javax.sql.CommonDataSource;
  * @version 2.0.1
  * @since JDK 1.2, HSQLDB 2.0
  */
+//#ifdef JAVA6
 public abstract class JDBCCommonDataSource implements CommonDataSource {
+
+//#else
+/*
+public abstract class JDBCCommonDataSource {
+*/
+
+//#endif JAVA6
 
     /**
      * <p>Retrieves the log writer for this <code>DataSource</code>
