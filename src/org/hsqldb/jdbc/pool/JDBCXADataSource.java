@@ -34,11 +34,16 @@ package org.hsqldb.jdbc.pool;
 import java.io.Serializable;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
+
+//#ifdef JAVA6
 import javax.sql.CommonDataSource;
+
+//#endif JAVA6
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 import javax.transaction.xa.Xid;
@@ -65,7 +70,13 @@ import org.hsqldb.lib.Iterator;
  * @see org.hsqldb.jdbc.pool.JDBCXAConnection
  */
 public class JDBCXADataSource extends JDBCCommonDataSource
-implements XADataSource, Serializable, Referenceable, CommonDataSource {
+implements XADataSource, Serializable, Referenceable
+
+//#ifdef JAVA6
+, CommonDataSource
+
+//#endif JAVA6
+{
 
     /**
      * Get new XAConnection connection, to be managed by a connection manager.
@@ -114,7 +125,7 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
      *
      * @return The non-null Reference of this object.
      * @exception NamingException If a naming exception was encountered
-     *		while retrieving the reference.
+     *          while retrieving the reference.
      */
     public Reference getReference() throws NamingException {
 
@@ -124,11 +135,11 @@ implements XADataSource, Serializable, Referenceable, CommonDataSource {
         ref.add(new StringRefAddr("database", getDatabase()));
         ref.add(new StringRefAddr("user", getUser()));
         ref.add(new StringRefAddr("password", password));
-        ref.add(new StringRefAddr("loginTimeout", Integer.toString(loginTimeout)));
+        ref.add(new StringRefAddr("loginTimeout",
+                                  Integer.toString(loginTimeout)));
 
         return ref;
     }
-
 
     // ------------------------ internal implementation ------------------------
     private HashMap resources = new HashMap();

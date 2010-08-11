@@ -625,12 +625,10 @@ public final class Constraint implements SchemaObject {
 
             case SchemaObject.ConstraintTypes.MAIN :
                 return core.mainCols.length == 1
-                       && core.mainCols[0] == colIndex
-                       && core.mainTable == core.refTable;
+                       && core.mainCols[0] == colIndex;
 
             case SchemaObject.ConstraintTypes.FOREIGN_KEY :
-                return core.refCols.length == 1 && core.refCols[0] == colIndex
-                       && core.mainTable == core.refTable;
+                return core.refCols.length == 1 && core.refCols[0] == colIndex;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Constraint");
@@ -651,14 +649,12 @@ public final class Constraint implements SchemaObject {
                        && ArrayUtil.find(core.mainCols, colIndex) != -1;
 
             case SchemaObject.ConstraintTypes.MAIN :
-                return ArrayUtil.find(core.mainCols, colIndex) != -1
-                       && (core.mainCols.length != 1
-                           || core.mainTable != core.refTable);
+                return core.mainCols.length != 1
+                       && ArrayUtil.find(core.mainCols, colIndex) != -1;
 
             case SchemaObject.ConstraintTypes.FOREIGN_KEY :
-                return ArrayUtil.find(core.refCols, colIndex) != -1
-                       && (core.mainCols.length != 1
-                           || core.mainTable == core.refTable);
+                return core.mainCols.length != 1
+                       && ArrayUtil.find(core.refCols, colIndex) != -1;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "Constraint");
