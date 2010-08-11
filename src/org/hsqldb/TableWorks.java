@@ -357,6 +357,11 @@ public class TableWorks {
 
                     addFK          = true;
                     c.core.refCols = new int[]{ colIndex };
+                    c.core.mainTable =
+                        database.schemaManager.getUserTable(session,
+                            c.getMainTableName());
+                    c.core.refTable = table;
+                    c.core.refName = c.getName();
 
                     boolean isSelf = originalTable == c.core.mainTable;
 
