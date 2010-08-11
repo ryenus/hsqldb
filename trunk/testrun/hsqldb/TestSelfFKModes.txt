@@ -204,3 +204,36 @@ insert into department (depid,depname) values(1,'dep1')
 insert into department values(2,'depchild',1)
 delete from department
 
+create table tfk(c char, id int, v varchar(10), primary key(c, id))
+create table tfk2(c char, id int, v varchar(10),
+ foreign key(id, c) references tfk(id, c))
+insert into tfk values 'f' , 1, 'string 1'
+insert into tfk values 'f' , 4, 'string 4'
+insert into tfk2 values 'f' , 1, 'string 1'
+insert into tfk2 values 'f' , 4, 'string 4'
+insert into tfk2 values 'f' , 1, 'string 1'
+/*e*/insert into tfk2 values 'e' , 4, 'string 4'
+
+CREATE CACHED TABLE article_a (id INT PRIMARY KEY, val VARCHAR(20));
+CREATE CACHED TABLE employee_a(id INT PRIMARY KEY, val VARCHAR(20));
+CREATE CACHED TABLE move_a (
+ id INTEGER IDENTITY PRIMARY KEY,
+ employee_id INTEGER,
+ article_id INTEGER,
+ batch VARCHAR(10),
+ source_address VARCHAR(15),
+ dest_address VARCHAR(15),
+ quantity DECIMAL(10,2),
+ done DATETIME,
+ CONSTRAINT fk_move_article FOREIGN KEY (article_id) REFERENCES article_a (id) ON DELETE CASCADE,
+ CONSTRAINT fk_move_employee FOREIGN KEY (employee_id) REFERENCES employee_a (id) ON DELETE CASCADE
+ );
+
+CREATE INDEX idx_move_employee ON move_a (employee_id);
+CREATE INDEX idx_move_article ON move_a (article_id);
+CREATE INDEX idx_move_batch ON move_a (batch);
+
+INSERT INTO article_a VALUES (10, 'TEN')
+INSERT INTO employee_a VALUES (20, 'TWENTY')
+INSERT INTO move_a VALUES default, 20, 10, 'test', 'test 1', 'test 2', 20.34, current_date
+CREATE INDEX idx_move_done ON move_a (done);

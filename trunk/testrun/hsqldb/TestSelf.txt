@@ -12,6 +12,8 @@
 --   u <count>    Update count <count> expected
 --   e            Exception must occur
 
+--
+set database transaction control locks
 -- Miscelaneous tests by fredt
 -- bug #897591
 /*rgood*/CALL CASEWHEN(CURTIME() BETWEEN CAST('00:00:00'  AS  TIME) AND CAST('23:59:59'  AS TIME), 'good', 'bad')
@@ -1239,5 +1241,10 @@ CREATE VIEW DOC_ADDR AS SELECT D.ID,D.TOTAL,A.CITY FROM INVOICE D, CUSTOMER A
     WHERE D.ADDRESSID=A.ID AND A.ID < 10
 /*c88*/SELECT * FROM DOC_ADDR D, ITEM P WHERE P.DOCUMENTID = D.ID
 
+-- correlated subquery together with group and aggregates
+SELECT max(city), count(firstname) , max(lastname),
+ (SELECT count(*) from item where item.documentid = customer.id)
+ FROM Customer  join invoice on invoice.addressid = customer.id
+ group by customer.id
 
 
