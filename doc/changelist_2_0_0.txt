@@ -1,3 +1,8 @@
+11 Aug 2010 
+-- fixed reported bugs
+-- extended getGeneratedKeys to UPDATE and MERGE operations
+-- added SEQUENCE_ARRAY and SESSION_ID function
+-- extended ALTER SESSION statement
 28 July 2010 - SVN 3725
 -- improved changing type of columns
 -- added support for adding GENERATED ... AS IDENTITY to an existing column
