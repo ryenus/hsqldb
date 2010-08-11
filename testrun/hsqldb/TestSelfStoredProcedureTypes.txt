@@ -1,6 +1,7 @@
 -- PARAMETERS IN
 
 -- Type SMALLINT
+DROP PROCEDURE procedure_test IF EXISTS;
 CREATE PROCEDURE procedure_test(IN val SMALLINT) MODIFIES SQL DATA
   BEGIN ATOMIC
   DECLARE valu INT;
@@ -216,7 +217,7 @@ call procedure_test({d '2010-01-01'});
 /*e*/call procedure_test('');
 /*e*/call procedure_test('ab');
 /*e*/call procedure_test({t '10:00:00'});
-/*e*/call procedure_test({ts '2010-01-01 10:00:00'});
+call procedure_test({ts '2010-01-01 10:00:00'});
 DROP PROCEDURE procedure_test;
 
 -- Type TIME
@@ -247,6 +248,6 @@ call procedure_test({ts '2010-01-01 10:00:00'});
 /*e*/call procedure_test(-5);
 /*e*/call procedure_test('');
 /*e*/call procedure_test('ab');
-/*e*/call procedure_test({d '2010-01-01'});
+call procedure_test({d '2010-01-01'});
 /*e*/call procedure_test({t '10:00:00'});
 DROP PROCEDURE procedure_test;
