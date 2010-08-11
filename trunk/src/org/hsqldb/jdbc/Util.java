@@ -195,7 +195,18 @@ public class Util {
     }
 
     public static SQLException sqlException(Throwable t) {
+
+//#ifdef JAVA6
         return new SQLNonTransientConnectionException(t);
+
+//#else
+/*
+        return new SQLException(t.getMessage(),
+                                Error.getStateString(ErrorCode.GENERAL_ERROR),
+                                ErrorCode.GENERAL_ERROR);
+*/
+
+//#endif JAVA6
     }
 
     public static SQLException sqlException(Result r) {
