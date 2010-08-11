@@ -36,6 +36,8 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArraySort;
 import org.hsqldb.lib.OrderedHashSet;
+import org.hsqldb.navigator.RowSetNavigator;
+import org.hsqldb.navigator.RowSetNavigatorData;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.store.ValuePool;
@@ -231,6 +233,12 @@ public class StatementProcedure extends StatementDMQL {
         o = expression.getValue(session);
 
         if (o instanceof Result) {
+            RowSetNavigator resultNavigator = ((Result) o).getNavigator();
+            RowSetNavigatorData navigator = new RowSetNavigatorData(session,
+                resultNavigator);
+
+            ((Result) o).setNavigator(navigator);
+
             return (Result) o;
         }
 

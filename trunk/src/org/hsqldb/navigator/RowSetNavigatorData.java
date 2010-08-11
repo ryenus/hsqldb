@@ -114,6 +114,17 @@ implements Comparator {
         visibleColumnCount   = queryExpression.getColumnCount();
     }
 
+    public RowSetNavigatorData(Session session, RowSetNavigator navigator) {
+
+        this.session = session;
+
+        setCapacity(navigator.size);
+
+        while (navigator.hasNext()) {
+            add(navigator.getNext());
+        }
+    }
+
     public void sortFull() {
 
         mainIndex = queryExpression.fullIndex;
@@ -616,6 +627,13 @@ implements Comparator {
     void getBlock(int offset) {
 
         // no op for no blocks
+    }
+
+    private void setCapacity(int newSize) {
+
+        if (size > table.length) {
+            table = new Object[newSize][];
+        }
     }
 
     private void ensureCapacity() {
