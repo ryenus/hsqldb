@@ -1,4 +1,4 @@
-11 Aug 2010  - SVN 3746
+11 Aug 2010  - SVN 3750
 -- fixed reported bugs
 -- extended getGeneratedKeys to UPDATE and MERGE operations
 -- extended ALTER SESSION statement
