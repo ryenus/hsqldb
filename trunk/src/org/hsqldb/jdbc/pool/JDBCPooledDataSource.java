@@ -34,6 +34,7 @@ package org.hsqldb.jdbc.pool;
 import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Properties;
+
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
@@ -41,10 +42,13 @@ import javax.naming.StringRefAddr;
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.PooledConnection;
 
+//#ifdef JAVA6
+import javax.sql.CommonDataSource;
+
+//#endif JAVA6
 import org.hsqldb.jdbc.JDBCCommonDataSource;
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCDriver;
-import javax.sql.CommonDataSource;
 
 /**
  * A data source that implements javax.sql.ConnectionPoolDataSource.
@@ -55,7 +59,13 @@ import javax.sql.CommonDataSource;
  * @since JDK 1.2, HSQLDB 2.0
  */
 class JDBCPooledDataSource extends JDBCCommonDataSource
-implements ConnectionPoolDataSource, Serializable, Referenceable, CommonDataSource {
+implements ConnectionPoolDataSource, Serializable, Referenceable
+
+//#ifdef JAVA6
+, CommonDataSource
+
+//#endif JAVA6
+{
 
     public PooledConnection getPooledConnection() throws SQLException {
 

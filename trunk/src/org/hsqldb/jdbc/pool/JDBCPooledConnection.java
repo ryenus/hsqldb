@@ -38,10 +38,10 @@ import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.PooledConnection;
 
-//#endif JAVA6
+//#ifdef JAVA6
 import javax.sql.StatementEventListener;
 
-//#ifdef JAVA6
+//#endif JAVA6
 import org.hsqldb.jdbc.JDBCConnection;
 import org.hsqldb.jdbc.JDBCConnectionEventListener;
 import org.hsqldb.lib.OrderedHashSet;

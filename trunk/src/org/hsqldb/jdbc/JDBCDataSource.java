@@ -42,7 +42,6 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
-import javax.sql.CommonDataSource;
 import javax.sql.DataSource;
 
 
@@ -98,7 +97,7 @@ import javax.sql.DataSource;
 
 //#endif JAVA6
 public class JDBCDataSource extends JDBCCommonDataSource
-    implements DataSource, Serializable, Referenceable, CommonDataSource
+    implements DataSource, Serializable, Referenceable
 //#ifdef JAVA6
 , Wrapper
 
