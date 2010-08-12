@@ -1,3 +1,5 @@
+12 Aug 2010  - SVN 3754
+-- minor enhancements
 11 Aug 2010  - SVN 3750
 -- fixed reported bugs
 -- extended getGeneratedKeys to UPDATE and MERGE operations

@@ -1620,14 +1620,16 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     &lt;value expr 3 )</literal></para>
 
     <para>Returns a new array that contains a sequence of values. The
-    <literal>&lt;value expr 1&gt;</literal> is the lowre bound of the range.
+    <literal>&lt;value expr 1&gt;</literal> is the lower bound of the range.
     The <literal>&lt;value expr 2&gt;</literal> is the upper bound of the
     range. The <literal>&lt;value expr 3&gt;</literal> is the increment. The
     elments of the array are within the inclusive range. The first element is
     <literal>&lt;value expr 1&gt;</literal> and each subsequent element is the
-    sum of the previous element and the increment. The type of the arguments
-    is can be all number types, or a datetime range and an interval for the
-    third argument (HyperSQL)</para>
+    sum of the previous element and the increment. If the increment is zero,
+    only the first element is returned. When the increment is negative, the
+    lower bound should be larger than the upper bound. The type of the
+    arguments can be all number types, or a datetime range and an interval for
+    the third argument (HyperSQL)</para>
 
     <para>In the examples below, a number sequence and a date sequence are
     shown. The UNNEST table expression is used to form a table from the

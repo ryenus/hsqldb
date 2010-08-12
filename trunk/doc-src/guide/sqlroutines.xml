@@ -329,7 +329,7 @@
       DECLARE CURSOR statement is used after any variable declaration in
       compound statement block. The <literal>&lt;open statement&gt;</literal>
       is then executed for the cursor at the point where the result set should
-      be populated. </para>
+      be populated.</para>
 
       <para>After the procedure is executed with a JDBC CallableStatement
       execute() method, all the result sets that were opened are returned to
@@ -860,7 +860,8 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       to call both functions and procedures. The <literal>getXXX()</literal>
       methods can be used to retrieve INOUT or OUT arguments after the call.
       The <literal>getResultSet()</literal> call can be used to access the
-      ResultSet returned from a function that returns a result set.</para>
+      ResultSet returned from a function that returns a result set, or from a
+      procedure that returns one or more result.</para>
     </section>
   </section>
 
@@ -1582,10 +1583,10 @@ Susanne Clancy,Michael Clancy,Sylvia Clancy,Bob Clancy,Susanne Clancy,John Clanc
     <simpara><emphasis>returns clause</emphasis></simpara>
 
     <para>The <literal>&lt;returns clause&gt;</literal> specifies the type of
-    the return value of a function. For all SQL/PSM functions and ordinary
-    SQL/JRT functions, this is simply a type definition which can be a
-    built-in type, a DOMAIN type or a DISTINCT type, or alternatively, a TABLE
-    definition. For example, RETURNS INTEGER.</para>
+    the return value of a function (not a procedure). For all SQL/PSM
+    functions and ordinary SQL/JRT functions, this is simply a type definition
+    which can be a built-in type, a DOMAIN type or a DISTINCT type, or
+    alternatively, a TABLE definition. For example, RETURNS INTEGER.</para>
 
     <para>For a SQL/JRT function, it is possible to define a
     <literal>&lt;returns table type&gt;</literal> for a Java method that
@@ -1606,7 +1607,10 @@ Susanne Clancy,Michael Clancy,Sylvia Clancy,Bob Clancy,Susanne Clancy,John Clanc
 
     <programlisting>RETURN TABLE ( SELECT a, b FROM atable WHERE e = 10 );</programlisting>
 
-    <para>If a JDBC <literal>CallableStatement</literal> is used to CALL the
+    <para>Functions that return a table are designed to be used in SELECT
+    statements using the TABLE keyword to form a joined table.</para>
+
+    <para>When a JDBC <literal>CallableStatement</literal> is used to CALL the
     function, the table returned from the function call is returned and can be
     accessed with the <literal>getResultSet()</literal> method of the
     <literal>CallableStatement</literal>.</para>
@@ -1861,9 +1865,10 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       characteristic</emphasis></simpara>
 
       <para>The <literal>&lt;returned result sets characteristic&gt;</literal>
-      is used only for SQL/PSM procedures. The maximum number of result sets
-      that a procedure may return can be specified with the clause below. The
-      default is zero. Details are discussed in the previous sections.</para>
+      is used with SQL/PSM and SQL/JRT procedures (not with functions). The
+      maximum number of result sets that a procedure may return can be
+      specified with the clause below. The default is zero. Details are
+      discussed in the previous sections.</para>
 
       <simpara><literal>&lt;returned result sets characteristic&gt; ::=
       DYNAMIC RESULT SETS &lt;maximum returned result
