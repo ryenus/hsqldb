@@ -5168,7 +5168,8 @@ public class ParserDQL extends ParserBase {
         return column;
     }
 
-    StatementQuery compileDeclareCursor(boolean isRoutine) {
+    StatementQuery compileDeclareCursor(boolean isRoutine,
+                                        RangeVariable[] outerRanges) {
 
         int sensitivity   = ResultConstants.SQL_ASENSITIVE;
         int scrollability = ResultConstants.SQL_NONSCROLLABLE;
@@ -5250,7 +5251,8 @@ public class ParserDQL extends ParserBase {
         int props = ResultProperties.getProperties(sensitivity,
             ResultConstants.SQL_UPDATABLE, scrollability, holdability,
             returnability);
-        StatementQuery cs = compileCursorSpecification(props, isRoutine);
+        StatementQuery cs = compileCursorSpecification(props, isRoutine,
+            outerRanges);
 
         cs.setCursorName(cursorName);
 
@@ -5260,7 +5262,8 @@ public class ParserDQL extends ParserBase {
     /**
      * Retrieves a SELECT or other query expression Statement from this parse context.
      */
-    StatementQuery compileCursorSpecification(int props, boolean isRoutine) {
+    StatementQuery compileCursorSpecification(int props, boolean isRoutine,
+            RangeVariable[] outerRanges) {
 
         OrderedHashSet  colNames        = null;
         QueryExpression queryExpression = XreadQueryExpression();
@@ -5291,7 +5294,7 @@ public class ParserDQL extends ParserBase {
         }
 
         queryExpression.setReturningResult();
-        queryExpression.resolve(session);
+        queryExpression.resolve(session, outerRanges, null);
 
         StatementQuery cs = isRoutine
                             ? new StatementCursor(session, queryExpression,

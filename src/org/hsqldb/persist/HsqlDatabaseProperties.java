@@ -462,7 +462,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         filterLoadedProperties();
 
         String version = getStringProperty(hsqldb_version);
-        int    check = version.substring(0, 3).compareTo(VERSION_STRING_1_8_0);
+        int    check = version.substring(0, 5).compareTo(VERSION_STRING_1_8_0);
 
         // do not open early version databases
         if (check < 0) {

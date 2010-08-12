@@ -88,15 +88,28 @@ public class TestStoredProcedure extends TestBase {
 
             int value = c.getInt(1);
 
+            c.close();
+            statement.execute(
+                "CREATE FUNCTION func1(IN P1 INT, IN P2 INT) "
+                + "RETURNS TABLE(C1 INT, C2 INT) "
+                + "SPECIFIC F1 LANGUAGE JAVA DETERMINISTIC EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.TestStoredProcedure.funcTest1'");
+
+            c = conn.prepareCall("call func1(1,2)");
+
+            c.execute();
+
+            ResultSet rs = c.getResultSet();
+
+            rs.next();
             assertEquals(value, 2);
         } catch (Exception e) {
-            assertTrue("unexpected error", true);
+            assertTrue("unexpected error", false);
         } finally {
             conn.close();
         }
     }
 
-    public void atestTwo() throws Exception {
+    public void testTwo() throws Exception {
 
         Connection conn = newConnection();
         Statement  statement;
@@ -149,22 +162,48 @@ public class TestStoredProcedure extends TestBase {
         }
     }
 
-    public void testTwo() throws SQLException {
-        Connection conn = newConnection();
+    public void testThree() throws SQLException {
 
-        Statement st = conn.createStatement();
+        Connection conn = newConnection();
+        Statement  st   = conn.createStatement();
+
         st.execute("declare varone int default 0;");
-        st.execute("create procedure proc_inout_result (inout intp int) " +
-                   " language java reads sql data external name 'CLASSPATH:org.hsqldb.test.Test01JRT.procWithResultOne'");
-        CallableStatement cs = conn.prepareCall("call proc_inout_result(varone)");
+        st.execute(
+            "create procedure proc_inout_result (inout intp int) "
+            + " language java reads sql data external name 'CLASSPATH:org.hsqldb.test.Test01JRT.procWithResultOne'");
+
+        CallableStatement cs =
+            conn.prepareCall("call proc_inout_result(varone)");
+
         cs.execute();
+
         ResultSet rs = cs.getResultSet();
 
         rs.next();
-
         assertEquals(rs.getString(1), "SYSTEM_LOBS");
         assertEquals(rs.getString(2), "LOB_IDS");
+        rs.close();
+    }
 
+    public void testFour() throws SQLException {
+
+        Connection conn = newConnection();
+        Statement  st   = conn.createStatement();
+
+        st.execute(
+            "create function func_table (in namep varchar(128)) returns table(cola varchar(128), colb varchar(128)) "
+            + "return table(select schema_name, schema_owner from information_schema.schemata where schema_owner=namep);");
+
+        CallableStatement cs =
+            conn.prepareCall("call func_table('_SYSTEM')");
+
+        cs.execute();
+
+        ResultSet rs = cs.getResultSet();
+
+        rs.next();
+        assertEquals(rs.getString(1), "INFORMATION_SCHEMA");
+        assertEquals(rs.getString(2), "_SYSTEM");
         rs.close();
     }
 
@@ -197,10 +236,10 @@ public class TestStoredProcedure extends TestBase {
         int                cols;
         java.sql.Statement stmt = conn.createStatement();
 
-        stmt.execute("INSERT INTO MYTABLE VALUES    (1,'test1');");
-        stmt.execute("INSERT INTO MYTABLE VALUES(2,'test2');");
+        stmt.execute("insert into mytable values(1,'test1');");
+        stmt.execute("insert into mytable values(2,'test2');");
 
-        java.sql.ResultSet rs = stmt.executeQuery("select * from MYTABLE");
+        java.sql.ResultSet rs = stmt.executeQuery("select * from mytable");
         java.sql.ResultSetMetaData meta = rs.getMetaData();
 
         cols = meta.getColumnCount();
@@ -216,17 +255,33 @@ public class TestStoredProcedure extends TestBase {
             DriverManager.getConnection("jdbc:default:connection");
         java.sql.Statement stmt = conn.createStatement();
 
-        stmt.execute("INSERT INTO MYTABLE VALUES(" + p1 + ",'test1')");
-        stmt.execute("INSERT INTO MYTABLE VALUES(" + p2 + ",'test2')");
+        stmt.execute("insert into mytable values(" + p1 + ",'test1')");
+        stmt.execute("insert into mytable values(" + p2 + ",'test2')");
 
-        java.sql.ResultSet rs = stmt.executeQuery("select * from MYTABLE");
+        java.sql.ResultSet rs = stmt.executeQuery("select * from mytable");
         java.sql.ResultSetMetaData meta = rs.getMetaData();
+        int                        cols = meta.getColumnCount();
 
-        int cols  = meta.getColumnCount();
         p3[0] = Integer.valueOf(cols);
 
         rs.close();
         stmt.close();
+    }
+
+    public static ResultSet funcTest1(int p1,
+                                      int p2) throws java.sql.SQLException {
+
+        Connection conn =
+            DriverManager.getConnection("jdbc:default:connection");
+        java.sql.PreparedStatement stmt = conn.prepareStatement(
+            "select * from mytable where col1 = ? or col1 = ?");
+
+        stmt.setInt(1, p1);
+        stmt.setInt(2, p2);
+
+        java.sql.ResultSet rs = stmt.executeQuery();
+
+        return rs;
     }
 
     public static boolean funcTest2(Connection conn,

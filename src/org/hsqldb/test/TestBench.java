@@ -50,15 +50,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.sql.CallableStatement;
 
 class TestBench {
 
     /* tpc bm b scaling rules */
-    public static int tps       = 1;         /* the tps scaling factor: here it is 1 */
-    public static int nbranches = 1;         /* number of branches in 1 tps db       */
-    public static int ntellers  = 10;        /* number of tellers in  1 tps db       */
-    public static int naccounts = 100000;    /* number of accounts in 1 tps db       */
-    public static int nhistory = 864000;     /* number of history recs in 1 tps db   */
+    public static int tps       = 1;                     /* the tps scaling factor: here it is 1 */
+    public static int nbranches = 1;                     /* number of branches in 1 tps db       */
+    public static int ntellers  = 10;                    /* number of tellers in  1 tps db       */
+    public static int naccounts = 100000;                /* number of accounts in 1 tps db       */
+    public static int nhistory = 864000;                 /* number of history recs in 1 tps db   */
+    public static int       rounds              = 10;    /* number of rounds to run the test     */
     public static final int TELLER              = 0;
     public static final int BRANCH              = 1;
     public static final int ACCOUNT             = 2;
@@ -71,7 +73,8 @@ class TestBench {
     static String           tableExtension      = "";
     static String           createExtension     = "";
     static String           ShutdownCommand     = "";
-    static boolean          verbose             = false;
+    static boolean          useStoredProcedure  = false;
+    static boolean          verbose             = true;
     MemoryWatcherThread     MemoryWatcher;
 
     /* main program,    creates a 1-tps database:  i.e. 1 branch, 10 tellers,...
@@ -100,15 +103,11 @@ class TestBench {
 
                     DriverName = Args[i];
 
-                    if (DriverName.equals(
-                            "com.borland.datastore.jdbc.DataStoreDriver")) {}
-
-                    if (DriverName.equals("com.mckoi.JDBCDriver")) {
-                        ShutdownCommand = "SHUTDOWN";
-                    }
-
                     if (DriverName.equals("org.hsqldb.jdbc.JDBCDriver")
-                            || DriverName.equals("org.hsqldb.jdbcDriver")) {}
+                            || DriverName.equals("org.hsqldb.jdbcDriver")) {
+
+//                        ShutdownCommand = "SHUTDOWN";
+                    }
                 }
             } else if (Args[i].equals("-url")) {
                 if (i + 1 < Args.length) {
@@ -142,6 +141,14 @@ class TestBench {
 
                     tps = Integer.parseInt(Args[i]);
                 }
+            } else if (Args[i].equals("-rounds")) {
+                if (i + 1 < Args.length) {
+                    i++;
+
+                    rounds = Integer.parseInt(Args[i]);
+                }
+            } else if (Args[i].equals("-sp")) {
+                useStoredProcedure = true;
             } else if (Args[i].equals("-v")) {
                 verbose = true;
             }
@@ -216,31 +223,15 @@ class TestBench {
 
             long tempTime = System.currentTimeMillis();
 
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-
-            guardian = connect(url, user, password);
-
-            checkSums(guardian);
-            connectClose(guardian);
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-            oneRound(url, user, password);
-
-            guardian = connect(url, user, password);
-
-            checkSums(guardian);
-            connectClose(guardian);
+            for (int i = 0; i < rounds; i++) {
+                oneRound(url, user, password);
+            }
 
             tempTime = System.currentTimeMillis() - tempTime;
+            guardian = connect(url, user, password);
 
+            checkSums(guardian);
+            connectClose(guardian);
             System.out.println("Total time: " + tempTime / 1000D + " seconds");
         } catch (Exception E) {
             System.out.println(E.getMessage());
@@ -278,8 +269,15 @@ class TestBench {
         start_time = System.currentTimeMillis();
 
         for (int i = 0; i < n_clients; i++) {
-            Client = new ClientThread(n_txn_per_client, url, user, password,
-                                      Connection.TRANSACTION_READ_COMMITTED);
+            if (useStoredProcedure) {
+                Client = new ClientThreadProcedure(
+                    n_txn_per_client, url, user, password,
+                    Connection.TRANSACTION_READ_COMMITTED);
+            } else {
+                Client =
+                    new ClientThread(n_txn_per_client, url, user, password,
+                                     Connection.TRANSACTION_READ_COMMITTED);
+            }
 
             Client.start();
             vClient.addElement(Client);
@@ -365,9 +363,7 @@ class TestBench {
 
 //
 //            Stmt.execute("SET WRITE_DELAY 1000 MILLIS;");
-
 //            Stmt.execute("SET DATABASE DEFAULT TABLE TYPE CACHED");
-
 //
             Query = "SELECT count(*) ";
             Query += "FROM   accounts";
@@ -464,6 +460,27 @@ class TestBench {
 
             Stmt.execute(Query);
             Stmt.clearWarnings();
+
+            Query =
+                "CREATE PROCEDURE UPDATE_PROC(IN paid INT, IN ptid INT, IN pbid INT, IN pdelta INT, OUT pbalance INT) "
+                + "MODIFIES SQL DATA BEGIN ATOMIC "
+                + "DECLARE account CURSOR WITH RETURN FOR SELECT Abalance FROM accounts WHERE  Aid = paid;"
+                + "UPDATE accounts SET Abalance = abalance + pdelta WHERE  aid = paid;"
+                + "OPEN account;"
+                + "SELECT Abalance INTO pbalance FROM  accounts WHERE  Aid = paid;"
+                + "UPDATE tellers SET Tbalance = Tbalance + pdelta WHERE  Tid = ptid;"
+                + "UPDATE branches SET Bbalance = Bbalance + pdelta WHERE  Bid = pbid;"
+                + "INSERT INTO history(Tid, Bid, Aid, delta) VALUES (ptid,pbid,paid,pdelta);"
+                + "END";
+
+            try {
+                if (url.contains("hsqldb")) {
+                    Stmt.execute(Query);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
 /*
             Stmt.execute("SET TABLE ACCOUNTS SOURCE \"ACCOUNTS.TXT\"");
             Stmt.execute("SET TABLE BRANCHES SOURCE \"BBRANCHES.TXT\"");
@@ -565,7 +582,7 @@ class TestBench {
                     Conn.commit();
                 }
 
-                if ((i > 0) && ((i % 10000) == 0)) {
+                if ((i > 0) && ((i % 100000) == 0)) {
                     System.out.println("\t" + i + "\t records inserted");
                 }
             }
@@ -876,6 +893,118 @@ class TestBench {
                 pstmt5.setInt(4, delta);
                 pstmt5.executeUpdate();
                 pstmt5.clearWarnings();
+                Conn.commit();
+
+                return aBalance;
+            } catch (Exception E) {
+                if (verbose) {
+                    System.out.println("Transaction failed: "
+                                       + E.getMessage());
+                    E.printStackTrace();
+                }
+
+                incrementFailedTransactionCount();
+
+                try {
+                    Conn.rollback();
+                } catch (SQLException E1) {}
+            }
+
+            return 0;
+        }    /* end of DoOne         */
+    }    /* end of class ClientThread */
+
+    class ClientThreadProcedure extends Thread {
+
+        int               ntrans = 0;
+        Connection        Conn;
+        CallableStatement pstmt1 = null;
+
+        public ClientThreadProcedure(int number_of_txns, String url,
+                                     String user, String password,
+                                     int transactionMode) {
+
+            System.out.println(number_of_txns);
+
+            ntrans = number_of_txns;
+            Conn   = connect(url, user, password);
+
+            if (Conn == null) {
+                return;
+            }
+
+            try {
+                Conn.setAutoCommit(false);
+                Conn.setTransactionIsolation(transactionMode);
+                prepareStatements();
+            } catch (Exception E) {
+                System.out.println(E.getMessage());
+                E.printStackTrace();
+            }
+        }
+
+        void prepareStatements() throws SQLException {
+
+            String Query;
+
+            Query  = "CALL UPDATE_PROC(?, ?, ?, ?, ?)";
+            pstmt1 = Conn.prepareCall(Query);
+        }
+
+        public void run() {
+
+            int count = ntrans;
+
+            while (count-- > 0) {
+                int account = TestBench.getRandomID(ACCOUNT);
+                int branch  = TestBench.getRandomID(BRANCH);
+                int teller  = TestBench.getRandomID(TELLER);
+                int delta   = TestBench.getRandomInt(-1000, 1000);
+
+                doOne(branch, teller, account, delta);
+                incrementTransactionCount();
+            }
+
+            try {
+                if (pstmt1 != null) {
+                    pstmt1.close();
+                }
+            } catch (Exception E) {
+                System.out.println(E.getMessage());
+                E.printStackTrace();
+            }
+
+            connectClose(Conn);
+
+            Conn = null;
+        }
+
+        /*
+         **  doOne() - Executes a single TPC BM B transaction.
+         */
+        int doOne(int bid, int tid, int aid, int delta) {
+
+            int aBalance = 0;
+
+            if (Conn == null) {
+                incrementFailedTransactionCount();
+
+                return 0;
+            }
+
+            try {
+                pstmt1.setInt(1, aid);
+                pstmt1.setInt(2, tid);
+                pstmt1.setInt(3, bid);
+                pstmt1.setInt(4, delta);
+                pstmt1.execute();
+                ResultSet rs = pstmt1.getResultSet();
+                while (rs.next()) {
+                    aBalance = rs.getInt(1);
+                }
+                rs.close();
+
+                pstmt1.clearWarnings();
                 Conn.commit();
 
                 return aBalance;

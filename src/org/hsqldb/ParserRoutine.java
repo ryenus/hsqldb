@@ -734,6 +734,10 @@ public class ParserRoutine extends ParserDML {
         final int     handler             = 2;
         int           objectType          = variableOrCondition;
 
+        RangeVariable[] rangeVariables = context == null
+                                         ? routine.getParameterRangeVariables()
+                                         : context.getRangeVariables();
+
         while (token.tokenType == Tokens.DECLARE) {
             Object var = null;
 
@@ -746,7 +750,7 @@ public class ParserRoutine extends ParserDML {
                     list.addAll((Object[]) var);
                 }
             } else if (objectType == cursor) {
-                var = compileDeclareCursor(true);
+                var = compileDeclareCursor(true, rangeVariables);
 
                 if (var == null) {
                     objectType = handler;
@@ -1462,10 +1466,14 @@ public class ParserRoutine extends ParserDML {
     private Statement compileFor(Routine routine, StatementCompound context,
                                  HsqlName label) {
 
+        RangeVariable[] rangeVariables = context == null
+                                         ? routine.getParameterRangeVariables()
+                                         : context.getRangeVariables();
+
         readThis(Tokens.FOR);
 
         Statement cursorStatement =
-            compileCursorSpecification(ResultProperties.defaultPropsValue, false);
+            compileCursorSpecification(ResultProperties.defaultPropsValue, false, rangeVariables);
 
         readThis(Tokens.DO);
 
