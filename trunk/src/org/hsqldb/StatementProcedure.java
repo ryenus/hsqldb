@@ -71,7 +71,18 @@ public class StatementProcedure extends StatementDMQL {
         super(StatementTypes.CALL, StatementTypes.X_SQL_DATA,
               session.getCurrentSchemaHsqlName());
 
-        this.expression = expression;
+        if (expression.opType == OpTypes.FUNCTION) {
+            FunctionSQLInvoked f = (FunctionSQLInvoked) expression;
+
+            if (f.routine.returnsTable) {
+                this.procedure = f.routine;
+                this.arguments = f.nodes;
+            } else {
+                this.expression = expression;
+            }
+        } else {
+            this.expression = expression;
+        }
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
@@ -95,6 +106,7 @@ public class StatementProcedure extends StatementDMQL {
 
         setDatabseObjects(session, compileContext);
         checkAccessRights(session);
+        session.getGrantee().checkAccess(procedure);
     }
 
     Result getResult(Session session) {
@@ -177,12 +189,16 @@ public class StatementProcedure extends StatementDMQL {
             }
         }
 
+        Result r = result;
+
         result = Result.newCallResponse(
             this.getParametersMetaData().getParameterTypes(), this.id,
             session.sessionContext.dynamicArguments);
 
-        if (callArguments.length > arguments.length) {
-            Result r = (Result) callArguments[arguments.length];
+        if (procedure.returnsTable()) {
+            result.addChainedResult(r);
+        } else if (callArguments.length > arguments.length) {
+            r = (Result) callArguments[arguments.length];
 
             result.addChainedResult(r);
         }
@@ -198,8 +214,16 @@ public class StatementProcedure extends StatementDMQL {
 
         Result result = procedure.statement.execute(session);
 
-        if (!result.isError()) {
-            result = Result.updateZeroResult;
+        if (result.isError()) {
+            return result;
+        }
+
+        if (procedure.returnsTable()) {
+            RowSetNavigator resultNavigator = result.getNavigator();
+            RowSetNavigatorData navigator = new RowSetNavigatorData(session,
+                resultNavigator);
+
+            result.setNavigator(navigator);
         }
 
         return result;
@@ -231,16 +255,6 @@ public class StatementProcedure extends StatementDMQL {
         session.sessionData.startRowProcessing();
 
         o = expression.getValue(session);
-
-        if (o instanceof Result) {
-            RowSetNavigator resultNavigator = ((Result) o).getNavigator();
-            RowSetNavigatorData navigator = new RowSetNavigatorData(session,
-                resultNavigator);
-
-            ((Result) o).setNavigator(navigator);
-
-            return (Result) o;
-        }
 
         if (resultMetaData == null) {
             getResultMetaData();

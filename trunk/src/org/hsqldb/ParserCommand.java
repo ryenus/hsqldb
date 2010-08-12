@@ -130,7 +130,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.OPENBRACKET :
             case Tokens.SELECT :
             case Tokens.TABLE : {
-                cs = compileCursorSpecification(props, false);
+                cs = compileCursorSpecification(props, false, null);
 
                 break;
             }
@@ -296,7 +296,7 @@ public class ParserCommand extends ParserDDL {
             return cs;
         }
 
-        cs = compileDeclareCursor(false);
+        cs = compileDeclareCursor(false, null);
 
         return cs;
     }

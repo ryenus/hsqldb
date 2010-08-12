@@ -195,10 +195,13 @@ public class QueryExpression {
 
         resolveTypesPartOne(session);
 
-        for (int i = 0; i < unionColumnTypes.length && i < targetTypes.length;
-                i++) {
-            if (unionColumnTypes[i] == null) {
-                unionColumnTypes[i] = targetTypes[i];
+        if (targetTypes != null) {
+            for (int i = 0;
+                    i < unionColumnTypes.length && i < targetTypes.length;
+                    i++) {
+                if (unionColumnTypes[i] == null) {
+                    unionColumnTypes[i] = targetTypes[i];
+                }
             }
         }
 
