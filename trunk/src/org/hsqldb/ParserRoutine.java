@@ -145,12 +145,14 @@ public class ParserRoutine extends ParserDML {
                 case Tokens.TRUE :
                     read();
 
-                    return new ExpressionValue(BinaryData.singleBitOne, dataType);
+                    return new ExpressionValue(BinaryData.singleBitOne,
+                                               dataType);
 
                 case Tokens.FALSE :
                     read();
 
-                    return new ExpressionValue(BinaryData.singleBitZero, dataType);
+                    return new ExpressionValue(BinaryData.singleBitZero,
+                                               dataType);
             }
         } else if (dataType.isArrayType()) {
             e = readCollection(OpTypes.ARRAY);
@@ -733,7 +735,6 @@ public class ParserRoutine extends ParserDML {
         final int     cursor              = 1;
         final int     handler             = 2;
         int           objectType          = variableOrCondition;
-
         RangeVariable[] rangeVariables = context == null
                                          ? routine.getParameterRangeVariables()
                                          : context.getRangeVariables();
@@ -756,10 +757,7 @@ public class ParserRoutine extends ParserDML {
                     objectType = handler;
                 } else {
                     list.add(var);
-
                     readThis(Tokens.SEMICOLON);
-
-
                 }
             } else if (objectType == handler) {
                 var = compileLocalHandlerDeclaration(routine, context);
@@ -1472,13 +1470,22 @@ public class ParserRoutine extends ParserDML {
 
         readThis(Tokens.FOR);
 
-        Statement cursorStatement =
-            compileCursorSpecification(ResultProperties.defaultPropsValue, false, rangeVariables);
+        StatementQuery cursorStatement =
+            compileCursorSpecification(ResultProperties.defaultPropsValue,
+                                       false, rangeVariables);
 
         readThis(Tokens.DO);
 
+        StatementCompound forStatement =
+            new StatementCompound(StatementTypes.FOR, label);
+
+        forStatement.setAtomic(true);
+        forStatement.setRoot(routine);
+        forStatement.setParent(context);
+        forStatement.setLoopStatement(cursorStatement);
+
         Statement[] statements = compileSQLProcedureStatementList(routine,
-            context);
+            forStatement);
 
         readThis(Tokens.END);
         readThis(Tokens.FOR);
@@ -1495,13 +1502,9 @@ public class ParserRoutine extends ParserDML {
             read();
         }
 
-        StatementCompound result = new StatementCompound(StatementTypes.FOR,
-            label);
+        forStatement.setStatements(statements);
 
-        result.setLoopStatement(cursorStatement);
-        result.setStatements(statements);
-
-        return result;
+        return forStatement;
     }
 
     private Statement compileIf(Routine routine, StatementCompound context) {

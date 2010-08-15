@@ -32,11 +32,13 @@
 package org.hsqldb.jdbc;
 
 import java.util.Hashtable;
+import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
+import javax.sql.DataSource;
 
 // boucherb@users 20040411 - doc 1.7.2 - javadoc updates toward 1.7.2 final
 
@@ -50,6 +52,46 @@ import javax.naming.spi.ObjectFactory;
  * @version 1.7.2
  */
 public class JDBCDataSourceFactory implements ObjectFactory {
+
+    public static DataSource createDataSource(Properties props)
+    throws Exception {
+
+        JDBCDataSource ds =
+            (JDBCDataSource) Class.forName(bdsClassName).newInstance();
+        String value = props.getProperty(databaseName);
+
+        if (value == null) {
+            value = props.getProperty(urlName);
+        }
+
+        ds.setDatabase(value);
+
+        value = props.getProperty(userName);
+
+        if (value == null) {
+            value = props.getProperty(userNameName);
+        }
+
+        ds.setUser(value);
+
+        value = props.getProperty(passwordName);
+
+        ds.setPassword(value);
+
+        value = props.getProperty(loginTimeoutName);
+
+        if (value != null) {
+            value = value.trim();
+
+            if (value.length() > 0) {
+                try {
+                    ds.setLoginTimeout(Integer.parseInt(value));
+                } catch (NumberFormatException nfe) {}
+            }
+        }
+
+        return ds;
+    }
 
     /**
      * Creates a JDBCDataSource, JDBCPooledDataSource or JDBCXADataSource object
@@ -71,20 +113,15 @@ public class JDBCDataSourceFactory implements ObjectFactory {
     public Object getObjectInstance(Object obj, Name name, Context nameCtx,
                                     Hashtable environment) throws Exception {
 
-        Reference ref = (Reference) obj;
-
-        if (!(ref instanceof Reference)) {
+        if (!(obj instanceof Reference)) {
             return null;
         }
 
-        String className = ref.getClassName();
+        Reference ref       = (Reference) obj;
+        String    className = ref.getClassName();
 
-        if (className == null) {
-            return null;
-        }
-
-        if (className.equals(bdsClass) || className.equals(pdsClass)
-                || className.equals(xdsClass)) {
+        if (className.equals(bdsClassName) || className.equals(pdsClassName)
+                || className.equals(xdsClassName)) {
             JDBCCommonDataSource ds =
                 (JDBCCommonDataSource) Class.forName(className).newInstance();
             Object value = ref.get("database").getContent();
@@ -131,10 +168,24 @@ public class JDBCDataSourceFactory implements ObjectFactory {
         }
     }
 
-    private final static String bdsClass = "org.hsqldb.jdbc.JDBCDataSource";
-    private final static String pdsClass =
+    /**
+     * supported properties
+     */
+    private final static String urlName          = "url";
+    private final static String databaseName     = "database";
+    private final static String userName         = "user";
+    private final static String userNameName     = "username";
+    private final static String passwordName     = "password";
+    private final static String loginTimeoutName = "loginTimeout";
+
+    /**
+     * class names
+     */
+    private final static String bdsClassName =
+        "org.hsqldb.jdbc.JDBCDataSource";
+    private final static String pdsClassName =
         "org.hsqldb.jdbc.pool.JDBCPooledDataSource";
-    private final static String xdsClass =
+    private final static String xdsClassName =
         "org.hsqldb.jdbc.pool.JDBCXADataSource";
 
     public JDBCDataSourceFactory() {}

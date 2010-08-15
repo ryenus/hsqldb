@@ -40,6 +40,7 @@ import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultConstants;
+import org.hsqldb.types.Type;
 
 /**
  * Implementation of Statement for PSM compound statements.
@@ -54,7 +55,7 @@ public class StatementCompound extends Statement {
     HsqlName            label;
     StatementHandler[]  handlers = StatementHandler.emptyExceptionHandlerArray;
     boolean             hasUndoHandler;
-    Statement           loopCursor;
+    StatementQuery      loopCursor;
     Statement[]         statements;
     StatementExpression condition;
     boolean             isAtomic;
@@ -78,6 +79,7 @@ public class StatementCompound extends Statement {
 
         switch (type) {
 
+            case StatementTypes.FOR :
             case StatementTypes.LOOP :
             case StatementTypes.WHILE :
             case StatementTypes.REPEAT :
@@ -105,6 +107,9 @@ public class StatementCompound extends Statement {
         }
 
         switch (type) {
+            case StatementTypes.FOR :
+                // todo
+                break;
 
             case StatementTypes.LOOP :
                 sb.append(Tokens.T_LOOP).append(' ');
@@ -263,8 +268,23 @@ public class StatementCompound extends Statement {
         setCursors();
     }
 
-    public void setLoopStatement(Statement cursorStatement) {
+    public void setLoopStatement(StatementQuery cursorStatement) {
+
         loopCursor = cursorStatement;
+
+        HsqlName[] colNames =
+            cursorStatement.queryExpression.getResultColumnNames();
+        Type[] colTypes = cursorStatement.queryExpression.getColumnTypes();
+        ColumnSchema[] columns = new ColumnSchema[colNames.length];
+
+        for (int i = 0; i < colNames.length; i++) {
+            columns[i] = new ColumnSchema(colNames[i], colTypes[i], false,
+                                          false, null);
+
+            columns[i].setParameterMode(SchemaObject.ParameterModes.PARAM_IN);
+        }
+
+        setLocalDeclarations(columns);
     }
 
     void setStatements(Statement[] statements) {
@@ -293,6 +313,10 @@ public class StatementCompound extends Statement {
 
                 break;
             }
+            case StatementTypes.FOR :
+                result = executeForLoop(session);
+                break;
+
             case StatementTypes.LOOP :
             case StatementTypes.WHILE :
             case StatementTypes.REPEAT : {
@@ -429,6 +453,77 @@ public class StatementCompound extends Statement {
                 return parent.handleCondition(session, result);
             }
         }
+
+        return result;
+    }
+
+    private Result executeForLoop(Session session) {
+
+        Result queryResult = loopCursor.getResult(session);
+
+        if (queryResult.isError()) {
+            return queryResult;
+        }
+
+        Result result = Result.updateZeroResult;
+
+        while (queryResult.navigator.hasNext()) {
+            queryResult.navigator.next();
+
+            Object[] data = queryResult.navigator.getCurrent();
+
+            session.sessionContext.routineVariables = data;
+
+
+            for (int i = 0; i < statements.length; i++) {
+                result = statements[i].execute(session);
+
+                if (result.isError()) {
+                    break;
+                }
+
+                if (result.getType() == ResultConstants.VALUE) {
+                    break;
+                }
+
+                if (result.getType() == ResultConstants.DATA) {
+                    break;
+                }
+            }
+
+            if (result.isError()) {
+                break;
+            }
+
+            if (result.getType() == ResultConstants.VALUE) {
+                if (result.getErrorCode() == StatementTypes.ITERATE) {
+                    if (result.getMainString() == null) {
+                        continue;
+                    }
+
+                    if (label != null
+                            && label.name.equals(result.getMainString())) {
+                        continue;
+                    }
+
+                    break;
+                }
+
+                if (result.getErrorCode() == StatementTypes.LEAVE) {
+
+                    break;
+                }
+
+                // return
+                break;
+            }
+
+            if (result.getType() == ResultConstants.DATA) {
+                break;
+            }
+        }
+
+        queryResult.navigator.close();
 
         return result;
     }
@@ -677,7 +772,7 @@ public class StatementCompound extends Statement {
 
         HashMappedList list = new HashMappedList();
 
-        if (parent != null) {
+        if (parent != null && parent.scopeVariables != null) {
             for (int i = 0; i < parent.scopeVariables.size(); i++) {
                 list.add(parent.scopeVariables.getKey(i),
                          parent.scopeVariables.get(i));

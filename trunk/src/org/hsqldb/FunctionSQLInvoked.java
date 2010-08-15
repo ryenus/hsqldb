@@ -51,7 +51,7 @@ public class FunctionSQLInvoked extends Expression {
 
     RoutineSchema routineSchema;
     Routine       routine;
-    Expression    condition;
+    Expression    condition = Expression.EXPR_TRUE;    // needed for equals() method
 
     FunctionSQLInvoked(RoutineSchema routineSchema) {
 
@@ -68,14 +68,12 @@ public class FunctionSQLInvoked extends Expression {
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
             int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
-        if (condition != null) {
-            HsqlList conditionSet =
-                condition.resolveColumnReferences(rangeVarArray, rangeCount,
-                                                  null, false);
+        HsqlList conditionSet =
+            condition.resolveColumnReferences(rangeVarArray, rangeCount, null,
+                                              false);
 
-            if (conditionSet != null) {
-                ExpressionColumn.checkColumnsResolved(conditionSet);
-            }
+        if (conditionSet != null) {
+            ExpressionColumn.checkColumnsResolved(conditionSet);
         }
 
         if (isSelfAggregate()) {
@@ -115,9 +113,7 @@ public class FunctionSQLInvoked extends Expression {
 
         dataType = routine.getReturnType();
 
-        if (condition != null) {
-            condition.resolveTypes(session, null);
-        }
+        condition.resolveTypes(session, null);
     }
 
     private Object getValueInternal(Session session, Object[] aggregateData) {
@@ -315,12 +311,26 @@ public class FunctionSQLInvoked extends Expression {
         return routine.isDeterministic();
     }
 
+    public boolean equals(Expression other) {
+
+        if (!(other instanceof FunctionSQLInvoked)) {
+            return false;
+        }
+
+        FunctionSQLInvoked o = (FunctionSQLInvoked) other;
+
+        if (opType == other.opType && routineSchema == o.routineSchema
+                && routine == o.routine && condition.equals(o.condition)) {
+            return super.equals(other);
+        }
+
+        return false;
+    }
+
     public Object updateAggregatingValue(Session session, Object currValue) {
 
-        if (condition != null) {
-            if (!condition.testCondition(session)) {
-                return currValue;
-            }
+        if (!condition.testCondition(session)) {
+            return currValue;
         }
 
         Object[] array = (Object[]) currValue;

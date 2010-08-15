@@ -92,6 +92,7 @@ public class Session implements SessionInterface {
     public boolean        isReadOnlyDefault;
     int isolationLevelDefault            = SessionInterface.TX_READ_COMMITTED;
     int                   isolationLevel = SessionInterface.TX_READ_COMMITTED;
+    boolean               isReadOnlyIsolation;
     int                   actionIndex;
     long                  actionTimestamp;
     long                  transactionTimestamp;
@@ -167,9 +168,14 @@ public class Session implements SessionInterface {
         tempSet                     = new OrderedHashSet();
         isolationLevelDefault       = database.getDefaultIsolationLevel();
         isolationLevel              = isolationLevelDefault;
+        isReadOnlyDefault           = readonly;
+        isReadOnlyIsolation = isolationLevel
+                              == SessionInterface.TX_READ_UNCOMMITTED;
         sessionContext              = new SessionContext(this);
-        sessionContext.isAutoCommit = ValuePool.getBoolean(autocommit);
-        sessionContext.isReadOnly   = ValuePool.getBoolean(readonly);
+        sessionContext.isAutoCommit = autocommit ? Boolean.TRUE
+                                                 : Boolean.FALSE;
+        sessionContext.isReadOnly   = isReadOnlyDefault ? Boolean.TRUE
+                                                        : Boolean.FALSE;
         parser                      = new ParserCommand(this, new Scanner());
 
         setResultMemoryRowCount(database.getResultMaxMemoryRows());
@@ -237,10 +243,6 @@ public class Session implements SessionInterface {
 
     public synchronized void setIsolationDefault(int level) {
 
-        if (level == SessionInterface.TX_READ_UNCOMMITTED) {
-            isReadOnlyDefault = true;
-        }
-
         if (level == isolationLevelDefault) {
             return;
         }
@@ -249,6 +251,8 @@ public class Session implements SessionInterface {
 
         if (!isInMidTransaction()) {
             isolationLevel = isolationLevelDefault;
+            isReadOnlyIsolation = level
+                                  == SessionInterface.TX_READ_UNCOMMITTED;
         }
     }
 
@@ -261,12 +265,10 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_25001);
         }
 
-        if (level == SessionInterface.TX_READ_UNCOMMITTED) {
-            sessionContext.isReadOnly = Boolean.TRUE;
-        }
-
         if (isolationLevel != level) {
             isolationLevel = level;
+            isReadOnlyIsolation = level
+                                  == SessionInterface.TX_READ_UNCOMMITTED;
         }
     }
 
@@ -373,7 +375,7 @@ public class Session implements SessionInterface {
      */
     void checkReadWrite() {
 
-        if (sessionContext.isReadOnly.booleanValue()) {
+        if (sessionContext.isReadOnly.booleanValue() || isReadOnlyIsolation) {
             throw Error.error(ErrorCode.X_25006);
         }
     }
@@ -528,9 +530,10 @@ public class Session implements SessionInterface {
         }
 
         if (!isTransaction) {
-            sessionContext.isReadOnly =
-                ValuePool.getBoolean(isReadOnlyDefault);
-            isolationLevel = isolationLevelDefault;
+            sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
+                                                          : Boolean.FALSE;
+
+            setIsolation(isolationLevelDefault);
 
             return;
         }
@@ -570,9 +573,10 @@ public class Session implements SessionInterface {
         }
 
         if (!isTransaction) {
-            sessionContext.isReadOnly =
-                ValuePool.getBoolean(isReadOnlyDefault);
-            isolationLevel = isolationLevelDefault;
+            sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
+                                                          : Boolean.FALSE;
+
+            setIsolation(isolationLevelDefault);
 
             return;
         }
@@ -593,9 +597,12 @@ public class Session implements SessionInterface {
         sessionData.persistentStoreCollection.clearTransactionTables();
         sessionData.closeAllTransactionNavigators();
 
-        sessionContext.isReadOnly = ValuePool.getBoolean(isReadOnlyDefault);
-        isolationLevel            = isolationLevelDefault;
-        lockStatement             = null;
+        sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
+                                                      : Boolean.FALSE;
+
+        setIsolation(isolationLevelDefault);
+
+        lockStatement = null;
 /* debug 190
         tempActionHistory.add("commit ends " + actionTimestamp);
         tempActionHistory.clear();
@@ -624,6 +631,8 @@ public class Session implements SessionInterface {
 
         sessionMaxRows = 0;
         ignoreCase     = false;
+
+        setIsolation(isolationLevelDefault);
     }
 
     /**
@@ -733,7 +742,8 @@ public class Session implements SessionInterface {
             throw Error.error(ErrorCode.X_25001);
         }
 
-        sessionContext.isReadOnly = ValuePool.getBoolean(readonly);
+        sessionContext.isReadOnly = readonly ? Boolean.TRUE
+                                             : Boolean.FALSE;
     }
 
     public synchronized void setReadOnlyDefault(boolean readonly) {
@@ -745,8 +755,8 @@ public class Session implements SessionInterface {
         isReadOnlyDefault = readonly;
 
         if (!isInMidTransaction()) {
-            sessionContext.isReadOnly =
-                ValuePool.getBoolean(isReadOnlyDefault);
+            sessionContext.isReadOnly = isReadOnlyDefault ? Boolean.TRUE
+                                                          : Boolean.FALSE;
         }
     }
 
@@ -756,7 +766,7 @@ public class Session implements SessionInterface {
      * @return the current value
      */
     public boolean isReadOnly() {
-        return sessionContext.isReadOnly.booleanValue();
+        return sessionContext.isReadOnly.booleanValue() || isReadOnlyIsolation;
     }
 
     public synchronized boolean isReadOnlyDefault() {
@@ -1694,7 +1704,8 @@ public class Session implements SessionInterface {
                 return sessionContext.isAutoCommit;
 
             case SessionInterface.INFO_CONNECTION_READONLY :
-                return sessionContext.isReadOnly;
+                return isReadOnlyDefault ? Boolean.TRUE
+                                         : Boolean.FALSE;
 
             case SessionInterface.INFO_CATALOG :
                 return database.getCatalogName().name;
@@ -1724,7 +1735,7 @@ public class Session implements SessionInterface {
             case SessionInterface.INFO_ISOLATION : {
                 int value = ((Integer) object).intValue();
 
-                this.setIsolation(value);
+                this.setIsolationDefault(value);
 
                 break;
             }

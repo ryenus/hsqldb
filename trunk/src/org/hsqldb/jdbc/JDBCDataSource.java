@@ -112,6 +112,19 @@ public class JDBCDataSource extends JDBCCommonDataSource
      * @exception SQLException if a database access error occurs
      */
     public Connection getConnection() throws SQLException {
+
+        if (url == null) {
+            throw Util.nullArgument("url");
+        }
+
+        if (connectionProps == null) {
+            return getConnection(user, password);
+        }
+
+        if (connectionProps == null) {
+            return JDBCDriver.getConnection(url, new Properties());
+        }
+
         return JDBCDriver.getConnection(url, connectionProps);
     }
 
