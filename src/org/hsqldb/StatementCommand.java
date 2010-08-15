@@ -380,11 +380,21 @@ public class StatementCommand extends Statement {
             }
             case StatementTypes.SET_DATABASE_FILES_NIO : {
                 try {
-                    boolean value = ((Boolean) parameters[0]).booleanValue();
-
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.logger.setNioDataFile(value);
+
+                    Object v = parameters[0];
+
+                    if (v instanceof Boolean) {
+                        boolean value =
+                            ((Boolean) parameters[0]).booleanValue();
+
+                        session.database.logger.setNioDataFile(value);
+                    } else {
+                        int value = ((Integer) parameters[0]).intValue();
+
+                        session.database.logger.setNioMaxSize(value);
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

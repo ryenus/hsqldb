@@ -100,10 +100,10 @@ public final class RangeVariable implements Cloneable {
     //
     int parsePosition;
 
-    // for variable and argument lists
+    // for variable and parameter lists
     HashMappedList variables;
 
-    // variable v.s. argument
+    // variable v.s. parameter
     boolean isVariable;
 
     //
@@ -391,6 +391,10 @@ public final class RangeVariable implements Cloneable {
             return true;
         }
 
+        if (variables != null) {
+            return false;
+        }
+
         if (e.schema == null) {
             if (tableAlias == null) {
                 if (e.tableName.equals(rangeTable.getName().name)) {
@@ -417,6 +421,10 @@ public final class RangeVariable implements Cloneable {
             return true;
         }
 
+        if (variables != null) {
+            return false;
+        }
+
         if (tableAlias == null) {
             if (name.equals(rangeTable.getName().name)) {
                 return true;
@@ -432,6 +440,10 @@ public final class RangeVariable implements Cloneable {
 
         if (name == null) {
             return true;
+        }
+
+        if (variables != null) {
+            return false;
         }
 
         if (tableAlias != null) {

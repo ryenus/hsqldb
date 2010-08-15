@@ -34,13 +34,12 @@ package org.hsqldb;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.ArrayListIdentity;
-import org.hsqldb.lib.HsqlList;
-import org.hsqldb.store.ValuePool;
+import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HsqlArrayList;
-import org.hsqldb.types.Type;
+import org.hsqldb.lib.HsqlList;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.RowType;
-import org.hsqldb.lib.ArrayUtil;
+import org.hsqldb.types.Type;
 
 /**
  * Implementation of array aggregate operations
@@ -53,10 +52,10 @@ public class ExpressionArrayAggregate extends Expression {
 
     boolean      isDistinctAggregate;
     SortAndSlice sort;
-    String       separator;
+    String       separator = ",";
     ArrayType    arrayDataType;
     Type         exprType;
-    Expression   condition;
+    Expression   condition = Expression.EXPR_TRUE;
 
     ExpressionArrayAggregate(int type, boolean distinct, Expression e,
                              SortAndSlice sort, String separator) {
@@ -65,10 +64,9 @@ public class ExpressionArrayAggregate extends Expression {
 
         this.isDistinctAggregate = distinct;
         this.sort                = sort;
-        this.separator           = separator;
 
-        if (this.separator == null) {
-            this.separator = ",";
+        if (separator != null) {
+            this.separator = separator;
         }
 
         if (sort == null) {
@@ -148,14 +146,12 @@ public class ExpressionArrayAggregate extends Expression {
     public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
             int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
 
-        if (condition != null) {
-            HsqlList conditionSet =
-                condition.resolveColumnReferences(rangeVarArray, rangeCount,
-                                                  null, false);
+        HsqlList conditionSet =
+            condition.resolveColumnReferences(rangeVarArray, rangeCount, null,
+                                              false);
 
-            if (conditionSet != null) {
-                ExpressionColumn.checkColumnsResolved(conditionSet);
-            }
+        if (conditionSet != null) {
+            ExpressionColumn.checkColumnsResolved(conditionSet);
         }
 
         if (unresolvedSet == null) {
@@ -214,9 +210,7 @@ public class ExpressionArrayAggregate extends Expression {
                 break;
         }
 
-        if (condition != null) {
-            condition.resolveTypes(session, null);
-        }
+        condition.resolveTypes(session, null);
     }
 
     public boolean equals(Expression other) {
@@ -225,9 +219,12 @@ public class ExpressionArrayAggregate extends Expression {
             return false;
         }
 
+        ExpressionArrayAggregate o = (ExpressionArrayAggregate) other;
+
         if (opType == other.opType && exprSubType == other.exprSubType
-                && isDistinctAggregate
-                   == ((ExpressionArrayAggregate) other).isDistinctAggregate) {
+                && isDistinctAggregate == o.isDistinctAggregate
+                && separator.equals(o.separator)
+                && condition.equals(o.condition)) {
             return super.equals(other);
         }
 
@@ -236,10 +233,8 @@ public class ExpressionArrayAggregate extends Expression {
 
     public Object updateAggregatingValue(Session session, Object currValue) {
 
-        if (condition != null) {
-            if (!condition.testCondition(session)) {
-                return currValue;
-            }
+        if (!condition.testCondition(session)) {
+            return currValue;
         }
 
         Object[] row = new Object[nodes.length];

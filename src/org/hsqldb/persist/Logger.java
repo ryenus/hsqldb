@@ -98,6 +98,7 @@ public class Logger {
     boolean        propDatabaseReadOnly;
     boolean        propIncrementBackup;
     boolean        propNioDataFile;
+    long           propNioMaxSize = 256 * 1024 * 1024L;
     int            propMaxFreeBlocks;
     int            propCacheMaxRows;
     int            propCacheMaxSize;
@@ -176,7 +177,6 @@ public class Logger {
 
         propIsFileDatabase =
             DatabaseURL.isFileBasedDatabaseType(database.getType());
-
         database.databaseProperties = new HsqlDatabaseProperties(database);
         isNewDatabase = !propIsFileDatabase
                         || !fileAccess.isStreamElement(database.getPath()
@@ -388,6 +388,9 @@ public class Logger {
             HsqlDatabaseProperties.hsqldb_inc_backup);
         propNioDataFile = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.hsqldb_nio_data_file);
+        propNioMaxSize =
+            database.databaseProperties.getIntegerProperty(
+                HsqlDatabaseProperties.hsqldb_nio_max_size) * 1024 * 1024L;
         propCacheMaxRows = database.databaseProperties.getIntegerProperty(
             HsqlDatabaseProperties.hsqldb_cache_rows);
         propCacheMaxSize =
@@ -838,7 +841,7 @@ public class Logger {
 
         checkPower(value, 8);
 
-        if (1 < value && value < 8) {
+        if (value < 8 && value != 1) {
             throw Error.error(ErrorCode.X_42556);
         }
 
@@ -853,7 +856,7 @@ public class Logger {
 
         checkPower(value, 8);
 
-        if (1 < value && value < 8) {
+        if (value < 8 && value != 1) {
             throw Error.error(ErrorCode.X_42556);
         }
 
@@ -909,6 +912,17 @@ public class Logger {
 
     public void setNioDataFile(boolean value) {
         propNioDataFile = value;
+    }
+
+    public void setNioMaxSize(int value) {
+
+        checkPower(value, 12);
+
+        if (value < 8) {
+            throw Error.error(ErrorCode.X_42556);
+        }
+
+        propNioMaxSize = value * 1024L * 1024L;
     }
 
     public FileAccess getFileAccess() {
@@ -1171,13 +1185,12 @@ public class Logger {
             return String.valueOf(this.propNioDataFile);
         }
 
-        if (HsqlDatabaseProperties.hsqldb_max_nio_scale.equals(name)) {
-            return null;
+        if (HsqlDatabaseProperties.hsqldb_nio_max_size.equals(name)) {
+            return String.valueOf(this.propNioMaxSize);
         }
 
         if (HsqlDatabaseProperties.hsqldb_script_format.equals(name)) {
-            return ScriptWriterBase.LIST_SCRIPT_FORMATS[0]
-                .toLowerCase();
+            return ScriptWriterBase.LIST_SCRIPT_FORMATS[0].toLowerCase();
         }
 
         if (HsqlDatabaseProperties.hsqldb_temp_directory.equals(name)) {
@@ -1427,6 +1440,11 @@ public class Logger {
             sb.append("SET FILES ").append(Tokens.T_NIO);
             sb.append(' ').append(propNioDataFile ? Tokens.T_TRUE
                                                   : Tokens.T_FALSE);
+            list.add(sb.toString());
+            sb.setLength(0);
+            sb.append("SET FILES ").append(Tokens.T_NIO).append(' ').append(
+                Tokens.T_SIZE);
+            sb.append(' ').append(propNioMaxSize / (1024 * 1024));
             list.add(sb.toString());
             sb.setLength(0);
             sb.append("SET FILES ").append(Tokens.T_LOG).append(' ');

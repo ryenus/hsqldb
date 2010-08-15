@@ -179,10 +179,10 @@ public final class ScaledRAFileHybrid implements ScaledRAInterface {
             store.close();
         }
 
-        if (requiredPosition <= ScaledRAFile.MAX_NIO_LENGTH) {
+        if (requiredPosition <= database.logger.propNioMaxSize) {
             try {
                 store = new ScaledRAFileNIO(database, fileName, isReadOnly,
-                                            (int) requiredPosition);
+                                            requiredPosition);
 
                 store.seek(currentPosition);
 

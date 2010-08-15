@@ -200,7 +200,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_log_data       = "hsqldb.log_data";
     public static final String hsqldb_log_size       = "hsqldb.log_size";
     public static final String hsqldb_nio_data_file  = "hsqldb.nio_data_file";
-    public static final String hsqldb_max_nio_scale  = "hsqldb.max_nio_scale";
+    public static final String hsqldb_nio_max_size  = "hsqldb.max_nio_size";
     public static final String hsqldb_script_format  = "hsqldb.script_format";
     public static final String hsqldb_temp_directory = "hsqldb.temp_directory";
     public static final String hsqldb_result_max_memory_rows =
@@ -396,9 +396,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(hsqldb_result_max_memory_rows,
                    HsqlProperties.getMeta(hsqldb_result_max_memory_rows,
                                           SQL_PROPERTY, 0, 0, 1000000));
-        dbMeta.put(hsqldb_max_nio_scale,
-                   HsqlProperties.getMeta(hsqldb_max_nio_scale, SQL_PROPERTY,
-                                          28, 24, 31));
+        dbMeta.put(hsqldb_nio_max_size,
+                   HsqlProperties.getMeta(hsqldb_nio_max_size, SQL_PROPERTY,
+                                          256, 64, 2048));
     }
 
     private Database database;

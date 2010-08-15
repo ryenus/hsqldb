@@ -53,22 +53,17 @@ import org.hsqldb.error.Error;
  */
 final class ScaledRAFileNIO implements ScaledRAInterface {
 
-    private final Database   database;
-    private final boolean    readOnly;
-    private final long       bufferLength;
-    private RandomAccessFile file;
-    private MappedByteBuffer buffer;
-    private FileChannel      channel;
-    private boolean          bufferModified;
-
-    // We are using persist.Logger-instance-specific FrameworkLogger
-    // because it is Database-instance specific.
-    // If add any static level logging, should instantiate a standard,
-    // context-agnostic FrameworkLogger for that purpose.
+    private final Database      database;
+    private final boolean       readOnly;
+    private final long          bufferLength;
+    private RandomAccessFile    file;
+    private MappedByteBuffer    buffer;
+    private FileChannel         channel;
+    private boolean             bufferModified;
     private final static String JVM_ERROR = "JVM threw unsupported Exception";
 
     ScaledRAFileNIO(Database database, String name, boolean readOnly,
-                    int bufferLength) throws Throwable {
+                    long bufferLength) throws Throwable {
 
         this.database = database;
 
@@ -93,23 +88,21 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
             throw e;
         }
 
-        if (fileLength > ScaledRAFile.MAX_NIO_LENGTH) {
+        if (fileLength > database.logger.propNioMaxSize) {
             file.close();
 
             throw new IOException("length exceeds nio limit");
         }
 
         if (bufferLength < fileLength) {
-            bufferLength = (int) fileLength;
+            bufferLength = fileLength;
         }
 
         bufferLength = newNIOBufferSize(bufferLength);
 
         if (readOnly) {
-            bufferLength = (int) fileLength;
-        }
-
-        if (fileLength < bufferLength) {
+            bufferLength = fileLength;
+        } else if (fileLength < bufferLength) {
             try {
                 file.seek(bufferLength - 1);
                 file.writeByte(0);
@@ -136,35 +129,6 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
 
             Error.printSystemOut("NIO file instance created. mode: "
                                  + readOnly);
-
-            if (!readOnly) {
-                long tempSize = bufferLength - fileLength;
-
-                if (tempSize > 1 << 18) {
-                    tempSize = 1 << 18;
-                }
-
-                byte[] temp = new byte[(int) tempSize];
-
-                try {
-                    long pos = fileLength;
-
-                    for (; pos < bufferLength - tempSize; pos += tempSize) {
-                        buffer.position((int) pos);
-                        buffer.put(temp, 0, temp.length);
-                    }
-
-                    buffer.position((int) pos);
-                    buffer.put(temp, 0, (int) (bufferLength - pos));
-                    buffer.force();
-                } catch (Throwable t) {
-                    database.logger.logWarningEvent(JVM_ERROR + " "
-                                                    + "length: "
-                                                    + bufferLength, t);
-                }
-
-                buffer.position(0);
-            }
         } catch (Throwable e) {
             Error.printSystemOut("NIO constructor failed:  " + bufferLength);
 
@@ -434,12 +398,12 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
         } catch (Throwable t) {}
     }
 
-    static int newNIOBufferSize(int newSize) {
+    static long newNIOBufferSize(long newSize) {
 
-        int bufSize = 0;
+        long bufSize = 0;
 
-        for (int scale = 20; scale < 30; scale++) {
-            bufSize = 1 << scale;
+        for (int scale = 20; scale < 32; scale++) {
+            bufSize = 1L << scale;
 
             if (bufSize >= newSize) {
                 break;

@@ -130,7 +130,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.OPENBRACKET :
             case Tokens.SELECT :
             case Tokens.TABLE : {
-                cs = compileCursorSpecification(props, false, null);
+                cs = compileCursorSpecification(props, false, RangeVariable.emptyArray);
 
                 break;
             }
@@ -928,7 +928,6 @@ public class ParserCommand extends ParserDDL {
                         flag = processTrueOrFalseObject();
                         break;
 
-
                     case Tokens.SIZE :
                         read();
 
@@ -942,7 +941,6 @@ public class ParserCommand extends ParserDDL {
                         type = StatementTypes.SET_DATABASE_SQL_STRICT_TYPES;
                         flag = processTrueOrFalseObject();
                         break;
-
 
                     default :
                         unexpectedToken();
@@ -1059,7 +1057,9 @@ public class ParserCommand extends ParserDDL {
                 if (readIfThis(Tokens.SIZE)) {
                     value = readIntegerObject();
                     type  = StatementTypes.SET_DATABASE_FILES_CACHE_SIZE;
-                } else if (readIfThis(Tokens.ROWS)) {
+                } else {
+                    readThis(Tokens.ROWS);
+
                     value = readIntegerObject();
                     type  = StatementTypes.SET_DATABASE_FILES_CACHE_ROWS;
                 }
@@ -1094,8 +1094,13 @@ public class ParserCommand extends ParserDDL {
             case Tokens.NIO : {
                 read();
 
+                if (readIfThis(Tokens.SIZE)) {
+                    value = readIntegerObject();
+                } else {
+                    flag = processTrueOrFalseObject();
+                }
+
                 type = StatementTypes.SET_DATABASE_FILES_NIO;
-                flag = processTrueOrFalseObject();
 
                 break;
             }
@@ -1113,9 +1118,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.LOG : {
                 read();
 
-                if (token.tokenType == Tokens.SIZE) {
-                    readThis(Tokens.SIZE);
-
+                if (readIfThis(Tokens.SIZE)) {
                     type  = StatementTypes.SET_DATABASE_FILES_LOG_SIZE;
                     value = readIntegerObject();
                 } else {

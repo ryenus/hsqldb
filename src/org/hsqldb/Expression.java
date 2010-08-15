@@ -1475,7 +1475,7 @@ public class Expression implements Cloneable {
         }
     }
 
-    boolean testCondition(Session session) {
+    public boolean testCondition(Session session) {
         return Boolean.TRUE.equals(getValue(session));
     }
 

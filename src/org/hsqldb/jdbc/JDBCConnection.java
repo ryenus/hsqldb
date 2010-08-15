@@ -1359,7 +1359,7 @@ public class JDBCConnection implements Connection {
      * <h3>HSQLDB-Specific Information:</h3> <p>
      *
      * HSQLDB 2.0 supports all isolation levels. <code>Connection.TRANSACTION_READ_UNCOMMITED</code>
-     * is promoted to <code>Connection.TRANSACTION_READ_COMMITED</code>.
+     * is promoted to <code>Connection.TRANSACTION_READ_COMMITED, but the transactions become read only</code>.
      * Calling this method during a transaction always fails.<p>
      *
      * </div> <!-- end release-specific documentation -->
