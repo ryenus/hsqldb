@@ -559,13 +559,37 @@ CALL the_new_id;
       condition&gt;</literal> can be any valid SQL expression of BOOLEAN
       type.</para>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>LOOP in routines</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">LOOP</emphasis></simpara>
+
+      <simpara><emphasis>loop statement</emphasis></simpara>
+
       <simpara><literal>&lt;loop statement&gt; ::= [ &lt;beginning label&gt;
       &lt;colon&gt; ] LOOP &lt;SQL statement list&gt; END LOOP [ &lt;ending
       label&gt; ]</literal></simpara>
 
+      <indexterm significance="preferred" type="sql">
+        <primary>WHILE loop in routines</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">WHILE</emphasis></simpara>
+
+      <simpara><emphasis>while statement</emphasis></simpara>
+
       <simpara><literal>&lt;while statement&gt; ::= [ &lt;beginning label&gt;
       &lt;colon&gt; ] WHILE &lt;search condition&gt; DO &lt;SQL statement
       list&gt; END WHILE [ &lt;ending label&gt; ]</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>REPEAT ... UNTIL loop in routines</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">REPEAT</emphasis></simpara>
+
+      <simpara><emphasis>repeat statement</emphasis></simpara>
 
       <simpara><literal>&lt;repeat statement&gt; ::= [ &lt;beginning label&gt;
       &lt;colon&gt; ]</literal></simpara>
@@ -583,6 +607,69 @@ CALL the_new_id;
   IF my_var = 22 THEN LEAVE loop_label; END IF;
 END WHILE loop_label;
 
+</programlisting>
+    </section>
+
+    <section>
+      <title>Iterated FOR Statement</title>
+
+      <para>The <literal>&lt;for statement&gt;</literal> is similar to other
+      iterated statement, but it is always used with a cursor declaration to
+      iterate over the rows of the result set of the cursor and perform
+      operations using the values of each row.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>FOR loop in routines</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">LOOP</emphasis></simpara>
+
+      <simpara><emphasis>loop statement</emphasis></simpara>
+
+      <para><literal>&lt;for statement&gt; ::= [ &lt;beginning label&gt;
+      &lt;colon&gt; ] FOR &lt;query expression&gt; DO &lt;SQL statement
+      list&gt; END FOR [ &lt;ending label&gt; ]</literal></para>
+
+      <para>The &lt;query expression&gt; is a SELECT statement. When the FOR
+      statement is executed, the query expression is executed first and the
+      result set is formed. Then for each row of the result set, the
+      <literal>&lt;SQL statement list&gt;</literal> is executed. What is
+      special about the FOR statement is that all the columns of the current
+      row can be accessed by name in the statements in the <literal>&lt;SQL
+      statement list&gt;</literal>. The columns are read only and cannot be
+      updated. For example, if the column names for the select statement are
+      ID, FIRSTNAME, LASTNAME, then these can be accessed as a variable name.
+      The column names must be unique and not equivalent to any parameter or
+      variable name in scope.</para>
+
+      <para>The FOR statement is useful for computing values over multiple
+      rows of the result set, or for calling a procedure for some row of the
+      result set. In the example below, the procedure uses a FOR statement to
+      iterate over the rows for a customer with lastname equal to name_p. No
+      action is performed for the first row, but for all the subsequent rows,
+      the row is deleted from the table.</para>
+
+      <para>Note the following: The result set for the SELECT statement is
+      built only once, before processing the statements inside the FOR block
+      begins. For all the rows of the SELECT statement apart from the first
+      row, the row is deleted from the customer table. The WHERE condition
+      uses the automatic variable id, which holds the customer.id value for
+      the current row of the result set, to delete the row. The procedure
+      updates the val_p argument and when it returns, the val_p represents the
+      total count of rows with the given lastname before the duplicates were
+      deleted.</para>
+
+      <programlisting>CREATE PROCEDURE test_proc(INOUT val_p INT, IN lastname_p VARCHAR(20)) 
+MODIFIES SQL DATA
+BEGIN ATOMIC
+  SET val_p = 0;
+  for_label: FOR SELECT * FROM customer WHERE lastname = lastname_p DO
+    IF  val_p &gt; 0 THEN
+      DELETE FROM customer WHERE customer.id = id;
+    END IF;
+    SET val_p = val_p + 1;
+  END FOR for_label;
+END
 </programlisting>
     </section>
 
