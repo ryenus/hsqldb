@@ -501,6 +501,53 @@
           </row>
 
           <row>
+            <entry><property>sql.enforce_tdc_delete</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>enforcing triggered data change violation for
+            deletes</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The ON DELETE and ON UPDATE
+            clauses of constraints cause data changes in rows in different
+            tables or the same table. When there are multiple constraints, a
+            row may be updated by one constraint and deleted by another
+            constraint in the same operation. This is not allowed by default.
+            Changing this property to false allows such violations of the
+            Standard to pass without an
+            exception.</para><para><programlisting>SET DATABASE SQL TDC DELETE { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>sql.enforce_tdc_update</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>enforcing triggered data change violation for
+            updates</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The ON DELETE and ON UPDATE
+            clauses of foreign key constraints cause data changes in rows in
+            different tables or the same table. With multiple constraint, a
+            field may be updated by two constraints and set to different
+            values. This is not allowed by default. Changing this property to
+            false allows such violations of the Standard to pass without an
+            exception.</para><para><programlisting>SET DATABASE SQL TDC UPDATE { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><property>hsqldb.default_table_type</property></entry>
 
             <entry><literal>memory</literal></entry>
@@ -578,21 +625,22 @@
           </row>
 
           <row>
-            <entry><property>hsqldb.translate_dti_types</property></entry>
+            <entry><property>hsqldb.translate_tti_types</property></entry>
 
             <entry><literal>true</literal></entry>
 
-            <entry>usage of type codes for advanced type datetime
+            <entry>usage of type codes for advanced datetime and interval
             types</entry>
           </row>
 
           <row>
             <entry nameend="c3" namest="c1"><para>If the property is true, the
-            datetime WITH TIME ZONE types and INTERVAL types are represented
-            in JDBC methods of <classname>ResultSetMetaData</classname> and
+            TIME / TIMESTAMP WITH TIME ZONE types and INTERVAL types are
+            represented in JDBC methods of
+            <classname>ResultSetMetaData</classname> and
             <classname>DatabaseMetaData</classname> as JDBC datetime types
             without time zone and the VARCHAR type respectively. The original
-            type names are preserved.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            type names are preserved.</para><para><programlisting>SET DATABASE SQL TRANSLATE TTI TYPES { TRUE | FALSE }</programlisting></para></entry>
           </row>
 
           <row>
@@ -699,7 +747,7 @@
             false when database recovery in the event of an unexpected crash
             is not necessary. A database that is used as a temporary cache is
             an example. Regardless of the value of this property, if there is
-            a proper shutdown of the database, all the change data is
+            a proper shutdown of the database, all the changed data is
             stored.</para><para><programlisting>SET DATABASE FILES LOG { TRUE | FALSE }</programlisting></para></entry>
           </row>
 
@@ -914,13 +962,31 @@
             and run in Java 1.4 or higher, setting this property to
             <literal>false</literal> will avoid the use of nio access methods,
             resulting in somewhat reduced speed. If the data file is larger
-            than 256MB when it is first opened, nio access methods are not
-            used. Also, if the file gets larger than the amount of available
+            than hsqldb.nio_max_size (default 256MB) when it is first opened
+            (or when its size is increased), nio access methods are not used.
+            Also, if the file gets larger than the amount of available
             computer memory that needs to be allocated for nio access, non-nio
-            access methods are used.</para><para>If used before defining any
-            CACHED table, it applies immediately, otherwise it comes into
-            effect after a SHUTDOWN and restart or
-            CHECKPOINT.</para><para><programlisting>SET FILES NIO { TRUE | FALSE }</programlisting></para></entry>
+            access methods are used.</para><para><programlisting>SET FILES NIO { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.nio_max_size</property></entry>
+
+            <entry><literal>256</literal></entry>
+
+            <entry>nio buffer size limit</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>The maximum size of .data
+            file in mega bytes that can use the nio access method. When the
+            file gets larger than this limit, non-nio access methods are used.
+            Values 64, 128, 256, 512, 1024, 2048 can be used. The default is
+            256MB.</para><para><programlisting>SET FILES NIO SIZE &lt;numeric value&gt;</programlisting></para></entry>
           </row>
 
           <row>
@@ -1111,11 +1177,9 @@
     user-defined database properties listed in this section can be specified
     as URL properties.</para>
 
-    <simpara>When HSQLDB is used in OpenOffice.org, some property values will
-    have a different default. The properties and values are:</simpara>
-
-    <simpara>hsqldb.default_table_type=cached hsqldb.cache_rows=25000;
-    hsqldb.cache_size=6000; hsqldb.log_size=10; hsqldb.nio_data_file=false;
-    sql.enforce_strict_size=true</simpara>
+    <simpara>When HSQLDB is used with OpenOffice.org as an external database,
+    the property "default_schema=true" must be set on the URL, otherwise the
+    program will not operate correctly as it does with its built-in hsqldb
+    instance.</simpara>
   </section>
 </chapter>
