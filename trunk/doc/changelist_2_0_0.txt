@@ -1,5 +1,7 @@
-12 Aug 2010  - SVN 3754
+18 Aug 2010  - SVN 3760
 -- minor enhancements
+-- additional propertie
+-- added support for FOR loops in routines
 11 Aug 2010  - SVN 3750
 -- fixed reported bugs
 -- extended getGeneratedKeys to UPDATE and MERGE operations
