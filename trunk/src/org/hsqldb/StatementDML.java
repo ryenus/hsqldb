@@ -456,14 +456,15 @@ public class StatementDML extends StatementDMQL {
      */
     Result executeUpdateStatement(Session session) {
 
-        int                       count          = 0;
-        Expression[]              colExpressions = updateExpressions;
-        RowSetNavigatorDataChange rowset = new RowSetNavigatorDataChange();
-        Type[]                    colTypes       = baseTable.getColumnTypes();
+        int          count          = 0;
+        Expression[] colExpressions = updateExpressions;
+        RowSetNavigatorDataChange rowset =
+            new RowSetNavigatorDataChange(session.database.sqlEnforceTDCD,
+                                          session.database.sqlEnforceTDCU);
+        Type[] colTypes = baseTable.getColumnTypes();
         RangeIterator it = RangeVariable.getIterator(session,
             targetRangeVariables);
         Result          resultOut          = null;
-
         RowSetNavigator generatedNavigator = null;
 
         if (generatedIndexes != null) {
@@ -510,7 +511,6 @@ public class StatementDML extends StatementDMQL {
         rowset.beforeFirst();
 
         count = update(session, baseTable, rowset, generatedNavigator);
-
 
         if (resultOut == null) {
             if (count == 1) {
@@ -641,7 +641,8 @@ public class StatementDML extends StatementDMQL {
 
         // rowset for update operation
         RowSetNavigatorDataChange updateRowSet =
-            new RowSetNavigatorDataChange();
+            new RowSetNavigatorDataChange(session.database.sqlEnforceTDCD,
+                                          session.database.sqlEnforceTDCU);
         RangeVariable[] joinRangeIterators = targetRangeVariables;
 
         // populate insert and update lists
@@ -1056,7 +1057,9 @@ public class StatementDML extends StatementDMQL {
         int count = 0;
         RangeIterator it = RangeVariable.getIterator(session,
             targetRangeVariables);
-        RowSetNavigatorDataChange navigator = new RowSetNavigatorDataChange();
+        RowSetNavigatorDataChange navigator =
+            new RowSetNavigatorDataChange(session.database.sqlEnforceTDCD,
+                                          session.database.sqlEnforceTDCU);
 
         while (it.next()) {
             Row currentRow = it.getCurrentRow();
@@ -1372,7 +1375,20 @@ public class StatementDML extends StatementDMQL {
 
                     case SchemaObject.ReferentialAction.CASCADE : {
                         if (delete) {
-                            if (navigator.addRow(refRow)) {
+                            boolean result;
+
+                            try {
+                                result = navigator.addRow(refRow);
+                            } catch (HsqlException e) {
+                                String[] info = getConstraintInfo(c);
+
+                                refiterator.release();
+
+                                throw Error.error(null, ErrorCode.X_27000,
+                                                  ErrorCode.CONSTRAINT, info);
+                            }
+
+                            if (result) {
                                 performReferentialActions(session,
                                                           c.core.refTable,
                                                           navigator, refRow,
@@ -1432,9 +1448,7 @@ public class StatementDML extends StatementDMQL {
                                         == SchemaObject.ReferentialAction
                                             .NO_ACTION ? ErrorCode.X_23504
                                                        : ErrorCode.X_23001;
-                        String[] info = new String[] {
-                            c.core.refName.name, c.core.refTable.getName().name
-                        };
+                        String[] info = getConstraintInfo(c);
 
                         refiterator.release();
 
@@ -1445,9 +1459,18 @@ public class StatementDML extends StatementDMQL {
                         continue;
                 }
 
-                refData = navigator.addRow(session, refRow, refData,
-                                           table.getColumnTypes(),
-                                           c.core.refCols);
+                try {
+                    refData = navigator.addRow(session, refRow, refData,
+                                               table.getColumnTypes(),
+                                               c.core.refCols);
+                } catch (HsqlException e) {
+                    String[] info = getConstraintInfo(c);
+
+                    refiterator.release();
+
+                    throw Error.error(null, ErrorCode.X_27000,
+                                      ErrorCode.CONSTRAINT, info);
+                }
 
                 if (!path.add(c)) {
                     continue;
@@ -1461,5 +1484,12 @@ public class StatementDML extends StatementDMQL {
 
             refiterator.release();
         }
+    }
+
+    static String[] getConstraintInfo(Constraint c) {
+
+        return new String[] {
+            c.core.refName.name, c.core.refTable.getName().name
+        };
     }
 }

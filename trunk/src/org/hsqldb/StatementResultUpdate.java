@@ -90,8 +90,9 @@ public class StatementResultUpdate extends StatementDML {
                     throw Error.error(ErrorCode.X_24521);
                 }
 
-                RowSetNavigatorDataChange list =
-                    new RowSetNavigatorDataChange();
+                RowSetNavigatorDataChange list = new RowSetNavigatorDataChange(
+                    session.database.sqlEnforceTDCD,
+                    session.database.sqlEnforceTDCU);
                 Object[] data =
                     (Object[]) ArrayUtil.duplicateArray(row.getData());
                 boolean[] columnCheck = baseTable.getNewColumnCheckList();
@@ -121,7 +122,9 @@ public class StatementResultUpdate extends StatementDML {
                 }
 
                 RowSetNavigatorDataChange navigator =
-                    new RowSetNavigatorDataChange();
+                    new RowSetNavigatorDataChange(
+                        session.database.sqlEnforceTDCD,
+                        session.database.sqlEnforceTDCU);
 
                 navigator.addRow(row);
                 delete(session, baseTable, navigator);

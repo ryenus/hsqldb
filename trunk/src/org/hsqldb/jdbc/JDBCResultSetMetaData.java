@@ -897,7 +897,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      * getColumnName().
      */
     private boolean useColumnName;
-    private boolean translateDTIType;
+    private boolean translateTTIType;
     private int     columnCount;
 
     /**
@@ -946,8 +946,8 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
         }
 
         if (conn.clientProperties != null) {
-            translateDTIType = conn.clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.jdbc_translate_dti_types);
+            translateTTIType = conn.clientProperties.isPropertyTrue(
+                HsqlDatabaseProperties.jdbc_translate_tti_types);
         }
     }
 
@@ -973,7 +973,7 @@ public class JDBCResultSetMetaData implements ResultSetMetaData {
      */
     private Type translateType(Type type) {
 
-        if (this.translateDTIType) {
+        if (this.translateTTIType) {
             if (type.isIntervalType()) {
                 type = ((IntervalType) type).getCharacterType();
             } else if (type.isDateTimeTypeWithZone()) {

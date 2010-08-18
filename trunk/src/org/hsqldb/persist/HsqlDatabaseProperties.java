@@ -200,7 +200,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String hsqldb_log_data       = "hsqldb.log_data";
     public static final String hsqldb_log_size       = "hsqldb.log_size";
     public static final String hsqldb_nio_data_file  = "hsqldb.nio_data_file";
-    public static final String hsqldb_nio_max_size  = "hsqldb.max_nio_size";
+    public static final String hsqldb_nio_max_size   = "hsqldb.nio_max_size";
     public static final String hsqldb_script_format  = "hsqldb.script_format";
     public static final String hsqldb_temp_directory = "hsqldb.temp_directory";
     public static final String hsqldb_result_max_memory_rows =
@@ -218,8 +218,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_refs  = "sql.enforce_refs";
     public static final String sql_enforce_names = "sql.enforce_names";
     public static final String sql_enforce_types = "sql.enforce_types";
-    public static final String jdbc_translate_dti_types =
-        "jdbc.translate_dti_types";
+    public static final String sql_enforce_tdcd  = "sql.enforce_tdc_delete";
+    public static final String sql_enforce_tdcu  = "sql.enforce_tdc_update";
+    public static final String sql_enforce_any   = "sql.enforce_any";    // unused
+    public static final String jdbc_translate_tti_types =
+        "jdbc.translate_tti_types";
     public static final String sql_identity_is_pk = "sql.identity_is_pk";
     public static final String sql_longvar_is_lob = "sql.longvar_is_lob";
 
@@ -299,8 +302,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, "MEMORY"));
 
         // boolean defaults for user defined props
-        dbMeta.put(jdbc_translate_dti_types,
-                   HsqlProperties.getMeta(jdbc_translate_dti_types,
+        dbMeta.put(jdbc_translate_tti_types,
+                   HsqlProperties.getMeta(jdbc_translate_tti_types,
                                           SQL_PROPERTY, true));
         dbMeta.put(hsqldb_inc_backup,
                    HsqlProperties.getMeta(hsqldb_inc_backup, SQL_PROPERTY,
@@ -336,6 +339,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_enforce_types,
                    HsqlProperties.getMeta(sql_enforce_types, SQL_PROPERTY,
                                           false));
+        dbMeta.put(sql_enforce_tdcd,
+                   HsqlProperties.getMeta(sql_enforce_tdcd, SQL_PROPERTY,
+                                          true));
+        dbMeta.put(sql_enforce_tdcu,
+                   HsqlProperties.getMeta(sql_enforce_tdcu, SQL_PROPERTY,
+                                          true));
+        dbMeta.put(sql_enforce_any,
+                   HsqlProperties.getMeta(sql_enforce_any, SQL_PROPERTY,
+                                          true));
         dbMeta.put(sql_compare_in_locale,
                    HsqlProperties.getMeta(sql_compare_in_locale, SQL_PROPERTY,
                                           false));
@@ -428,7 +440,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             setProperty(hsqldb_nio_data_file, false);
             setProperty(hsqldb_lock_file, true);
             setProperty(hsqldb_default_table_type, "cached");
-            setProperty(jdbc_translate_dti_types, true);
+            setProperty(jdbc_translate_tti_types, true);
         }
 
         // OOo end
@@ -811,8 +823,8 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public String getClientPropertiesAsString() {
 
-        if (isPropertyTrue(jdbc_translate_dti_types)) {
-            StringBuffer sb = new StringBuffer(jdbc_translate_dti_types);
+        if (isPropertyTrue(jdbc_translate_tti_types)) {
+            StringBuffer sb = new StringBuffer(jdbc_translate_tti_types);
 
             sb.append('=').append(true);
         }

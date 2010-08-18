@@ -712,8 +712,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         tables =
             database.schemaManager.databaseObjectIterator(SchemaObject.TABLE);
 
-        boolean translateDTI = database.getProperties().isPropertyTrue(
-            HsqlDatabaseProperties.jdbc_translate_dti_types);
+        boolean translateTTI = database.sqlTranslateTTI;
 
         // Do it.
         while (tables.hasNext()) {
@@ -746,7 +745,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 ColumnSchema column = table.getColumn(i);
                 Type         type   = types[i];
 
-                if (translateDTI) {
+                if (translateTTI) {
                     if (type.isIntervalType()) {
                         type = ((IntervalType) type).getCharacterType();
                     } else if (type.isDateTimeTypeWithZone()) {
@@ -913,8 +912,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         tables = allTables();
         ti     = new DITableInfo();
 
-        boolean translateDTI = database.getProperties().isPropertyTrue(
-            HsqlDatabaseProperties.jdbc_translate_dti_types);
+        boolean translateTTI = database.sqlTranslateTTI;
 
         // Do it.
         while (tables.hasNext()) {
@@ -936,7 +934,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 ColumnSchema column = table.getColumn(i);
                 Type         type   = column.getDataType();
 
-                if (translateDTI) {
+                if (translateTTI) {
                     if (type.isIntervalType()) {
                         type = ((IntervalType) type).getCharacterType();
                     } else if (type.isDateTimeTypeWithZone()) {
@@ -1668,8 +1666,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         Type          type;
 
         // Initialization
-        boolean translateDTI = database.getProperties().isPropertyTrue(
-            HsqlDatabaseProperties.jdbc_translate_dti_types);
+        boolean translateTTI = database.sqlTranslateTTI;
 
         routines = database.schemaManager.databaseObjectIterator(
             SchemaObject.ROUTINE);
@@ -1693,7 +1690,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                     row  = t.getEmptyRowData();
                     type = column.getDataType();
 
-                    if (translateDTI) {
+                    if (translateTTI) {
                         if (type.isIntervalType()) {
                             type = ((IntervalType) type).getCharacterType();
                         } else if (type.isDateTimeTypeWithZone()) {
@@ -2557,8 +2554,7 @@ class DatabaseInformationMain extends DatabaseInformation {
         PersistentStore store = session.sessionData.getRowStore(t);
         Object[]        row;
         Iterator        it = Type.typeNames.keySet().iterator();
-        boolean translateDTI = database.getProperties().isPropertyTrue(
-            HsqlDatabaseProperties.jdbc_translate_dti_types);
+        boolean translateTTI = database.sqlTranslateTTI;
 
         while (it.hasNext()) {
             String typeName = (String) it.next();
@@ -2569,7 +2565,7 @@ class DatabaseInformationMain extends DatabaseInformation {
                 continue;
             }
 
-            if (translateDTI) {
+            if (translateTTI) {
                 if (type.isIntervalType()) {
                     type = ((IntervalType) type).getCharacterType();
                 } else if (type.isDateTimeTypeWithZone()) {
@@ -2701,8 +2697,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        boolean translateDTI = database.getProperties().isPropertyTrue(
-            HsqlDatabaseProperties.jdbc_translate_dti_types);
+        boolean translateTTI = database.sqlTranslateTTI;
         PersistentStore store = session.sessionData.getRowStore(t);
 
         // column number mappings
@@ -2726,7 +2721,7 @@ class DatabaseInformationMain extends DatabaseInformation {
             Object[] data = t.getEmptyRowData();
             Type     type = distinct;
 
-            if (translateDTI) {
+            if (translateTTI) {
                 if (type.isIntervalType()) {
                     type = ((IntervalType) type).getCharacterType();
                 } else if (type.isDateTimeTypeWithZone()) {

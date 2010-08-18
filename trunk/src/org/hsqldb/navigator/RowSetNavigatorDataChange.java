@@ -56,9 +56,19 @@ import org.hsqldb.types.Type;
 public class RowSetNavigatorDataChange extends RowSetNavigator {
 
     OrderedLongKeyHashMap list;
+    boolean               enforceDeleteOrUpdate;
+    boolean               enforceSingeUpdate;
 
     public RowSetNavigatorDataChange() {
         list = new OrderedLongKeyHashMap(8, true);
+    }
+
+    public RowSetNavigatorDataChange(boolean enforceDeleteOrUpdate,
+                                     boolean enforceSingeUpdate) {
+
+        list                       = new OrderedLongKeyHashMap(8, true);
+        this.enforceDeleteOrUpdate = enforceDeleteOrUpdate;
+        this.enforceSingeUpdate    = enforceSingeUpdate;
     }
 
     /**
@@ -157,7 +167,9 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
             return true;
         } else {
             if (list.getSecondValueByIndex(lookup) != null) {
-                throw Error.error(ErrorCode.X_27000);
+                if (enforceDeleteOrUpdate) {
+                    throw Error.error(ErrorCode.X_27000);
+                }
             }
 
             return false;
@@ -183,7 +195,9 @@ public class RowSetNavigatorDataChange extends RowSetNavigator {
                 (Object[]) list.getSecondValueByIndex(lookup);
 
             if (currentData == null) {
-                throw Error.error(ErrorCode.X_27000);
+                if (enforceDeleteOrUpdate) {
+                    throw Error.error(ErrorCode.X_27000);
+                }
             }
 
             for (int i = 0; i < columnMap.length; i++) {
