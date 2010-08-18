@@ -1583,6 +1583,97 @@
     statement.</simpara>
 
     <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE SQL TDC DELETE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE SQL TDC
+    DELETE</emphasis></simpara>
+
+    <simpara><emphasis>set database sql tdc delete
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database sql tdc delete statement&gt; ::= SET
+    DATABASE SQL TDC DELETE { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This command can enable or disable full enforcement of the rules
+    that prevents triggered data change exeptions caused by ON DELETE CASCADE
+    clauses of foreign key constraint. When there are multiple constraints, a
+    row may be updated by one constraint and deleted by another constraint in
+    the same operation. This is not allowed by default. Changing this to false
+    allows such violations of the Standard to pass without an
+    exception.</simpara>
+
+    <simpara>This is equivalent to the connection property
+    <literal>sql.enforce_tdc_delete</literal>.</simpara>
+
+    <simpara>The property is <literal>TRUE</literal> by default and shouldn't
+    be changed unless a legacy application needs it.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE SQL TYPES</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE SQL TDC
+    UPDATE</emphasis></simpara>
+
+    <simpara><emphasis>set database sql tdc update
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database sql tdc update statement&gt; ::= SET
+    DATABASE SQL TDC UPDATE { TRUE | FALSE }</literal></simpara>
+
+    <simpara>This command can enable or disable full enforcement of the rules
+    that prevents triggered data change exeptions caused by multiple ON UPDATE
+    or ON DELETE clauses of foreign key constraint. When there are multiple
+    constraints, a field in a row may be updated by two constraints to
+    different valuesin the same operation. This is not allowed by default.
+    Changing this to false allows such violations of the Standard to pass
+    without an exception.</simpara>
+
+    <simpara>This is equivalent to the connection property
+    <literal>sql.enforce_tdc_update</literal>.</simpara>
+
+    <simpara>The property is <literal>TRUE</literal> by default and shouldn't
+    be changed unless a legacy application needs it.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET DATABASE SQL TRANSLATE TTI TYPES</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET DATABASE SQL TRANSLATE TTI
+    TYPES</emphasis></simpara>
+
+    <simpara><emphasis>set database sql translate tti types
+    statement</emphasis></simpara>
+
+    <simpara><literal>&lt;set database sql translate tti types statement&gt;
+    ::= SET DATABASE SQL TRANSLATE TTI TYPES { TRUE | FALSE
+    }</literal></simpara>
+
+    <simpara>If the property is true, the TIME / TIMESTAMP WITH TIME ZONE
+    types and INTERVAL types are represented in JDBC methods of
+    <classname>ResultSetMetaData</classname> and
+    <classname>DatabaseMetaData</classname> as JDBC datetime types without
+    time zone and the VARCHAR type respectively. The original type names are
+    preserved.</simpara>
+
+    <simpara>This is equivalent to the connection property
+    <literal>jdbc.translate_tti_types</literal>.</simpara>
+
+    <simpara>The property is <literal>TRUE</literal> by default. If set to
+    <literal>FASLE</literal>, the type codes for WITH TIME ZONE types will be
+    SQL type codes as opposed to JDBC type codes.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
       <primary>SET REFERENTIAL INTEGRITY</primary>
     </indexterm>
 
@@ -1813,9 +1904,29 @@
     <simpara><literal>&lt;set files nio statement&gt; ::= SET FILES NIO { TRUE
     | FALSE }</literal></simpara>
 
-    <simpara>Changes the access method of the .data file. The default is TRUE
-    and uses the Java nio classes to access the file. This is equivalent to
-    the connection property <literal>hsqldb.nio_data_file</literal>.</simpara>
+    <simpara>Sets the access method of the .data file. The default is TRUE and
+    uses the Java nio classes to access the file. This is equivalent to the
+    connection property <literal>hsqldb.nio_data_file</literal>.</simpara>
+
+    <simpara>Only a user with the DBA role can execute this
+    statement.</simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SET FILES NIO SIZE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SET FILES NIO SIZE</emphasis></simpara>
+
+    <simpara><emphasis>set files nio size</emphasis></simpara>
+
+    <simpara><literal>&lt;set files nio size statement&gt; ::= SET FILES NIO
+    SIZE &lt;unsigned integer literal&gt;</literal></simpara>
+
+    <simpara>Sets The maximum size of .data file in mega bytes that can use
+    the nio access method. When the file gets larger than this limit, non-nio
+    access methods are used. Values 64, 128, 256, 512, 1024, 2048 can be used.
+    The default is 256MB. This is equivalent to the connection property
+    <literal>hsqldb.nio_max_size</literal>.</simpara>
 
     <simpara>Only a user with the DBA role can execute this
     statement.</simpara>
