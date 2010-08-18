@@ -2049,9 +2049,8 @@ public class Session implements SessionInterface {
             clientProperties = new HsqlProperties();
 
             clientProperties.setProperty(
-                HsqlDatabaseProperties.jdbc_translate_dti_types,
-                database.getProperties().isPropertyTrue(
-                    HsqlDatabaseProperties.jdbc_translate_dti_types));
+                HsqlDatabaseProperties.jdbc_translate_tti_types,
+                database.sqlTranslateTTI);
         }
 
         return clientProperties;

@@ -130,7 +130,8 @@ public class ParserCommand extends ParserDDL {
             case Tokens.OPENBRACKET :
             case Tokens.SELECT :
             case Tokens.TABLE : {
-                cs = compileCursorSpecification(props, false, RangeVariable.emptyArray);
+                cs = compileCursorSpecification(props, false,
+                                                RangeVariable.emptyArray);
 
                 break;
             }
@@ -675,7 +676,7 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.SOURCE :
                         read();
 
-                        return compileTextTableSource(t);
+                        return compileTableSource(t);
 
                     case Tokens.READ : {
                         read();
@@ -909,44 +910,80 @@ public class ParserCommand extends ParserDDL {
             case Tokens.SQL : {
                 read();
 
-                int     type = 0;
-                Boolean flag = null;
+                int     type     = 0;
+                Boolean flag     = null;
+                String  property = null;
 
                 switch (token.tokenType) {
 
                     case Tokens.NAMES :
                         read();
 
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT_NAMES;
-                        flag = processTrueOrFalseObject();
+                        type     = StatementTypes.SET_DATABASE_SQL_STRICT;
+                        property = HsqlDatabaseProperties.sql_enforce_names;
+                        flag     = processTrueOrFalseObject();
                         break;
 
                     case Tokens.REFERENCES :
                         read();
 
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT_REFS;
-                        flag = processTrueOrFalseObject();
+                        type     = StatementTypes.SET_DATABASE_SQL_STRICT;
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_enforce_refs;
                         break;
 
                     case Tokens.SIZE :
                         read();
 
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT_SIZE;
-                        flag = processTrueOrFalseObject();
+                        type     = StatementTypes.SET_DATABASE_SQL_STRICT;
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_enforce_size;
                         break;
 
                     case Tokens.TYPES :
                         read();
 
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT_TYPES;
+                        type     = StatementTypes.SET_DATABASE_SQL_STRICT;
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_enforce_types;
+                        break;
+
+                    case Tokens.TDC :
+                        read();
+
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
+
+                        if (readIfThis(Tokens.DELETE)) {
+                            property = HsqlDatabaseProperties.sql_enforce_tdcd;
+                        } else {
+                            readThis(Tokens.UPDATE);
+
+                            property = HsqlDatabaseProperties.sql_enforce_tdcu;
+                        }
+
                         flag = processTrueOrFalseObject();
                         break;
 
+                    case Tokens.TRANSLATE :
+                        read();
+
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
+
+                        readThis(Tokens.TTI);
+                        readThis(Tokens.TYPES);
+
+                        flag = processTrueOrFalseObject();
+                        property =
+                            HsqlDatabaseProperties.jdbc_translate_tti_types;
+                        break;
+
                     default :
-                        unexpectedToken();
+                        throw unexpectedToken();
                 }
 
-                Object[] args = new Object[]{ flag };
+                Object[] args = new Object[] {
+                    property, flag
+                };
 
                 return new StatementCommand(type, args, null, null);
             }
@@ -1839,7 +1876,7 @@ public class ParserCommand extends ParserDDL {
         return cs;
     }
 
-    private Statement compileTextTableSource(Table t) {
+    private Statement compileTableSource(Table t) {
 
         boolean  isSourceHeader = false;
         boolean  isDesc         = false;

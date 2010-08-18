@@ -335,7 +335,7 @@ public class Tokens {
     public static final String T_TIMEZONE_MINUTE   = "TIMEZONE_MINUTE";
     public static final String T_TO                = "TO";
     static final String        T_TRAILING          = "TRAILING";
-    static final String        T_TRANSLATE         = "TRANSLATE";
+    public static final String T_TRANSLATE         = "TRANSLATE";
     static final String        T_TRANSLATE_REGEX   = "TRANSLATE_REGEX";
     static final String        T_TRANSLATION       = "TRANSLATION";
     static final String        T_TREAT             = "TREAT";
@@ -730,12 +730,14 @@ public class Tokens {
     static final String        T_SQL_TINYINT         = "SQL_TINYINT";
     static final String        T_SQL_VARBINARY       = "SQL_VARBINARY";
     static final String        T_SQL_VARCHAR         = "SQL_VARCHAR";
+    public static final String T_TDC                 = "TDC";
     public static final String T_TEMP                = "TEMP";
     public static final String T_TEXT                = "TEXT";
     static final String        T_TIMESTAMPADD        = "TIMESTAMPADD";
     static final String        T_TIMESTAMPDIFF       = "TIMESTAMPDIFF";
     public static final String T_TINYINT             = "TINYINT";
     static final String        T_TOP                 = "TOP";
+    public static final String T_TTI                 = "TTI";
     public static final String T_TYPES               = "TYPES";
     public static final String T_VARCHAR_IGNORECASE  = "VARCHAR_IGNORECASE";
     public static final String T_UTF16               = "UTF16";
@@ -814,7 +816,6 @@ public class Tokens {
     static final String        T_UNIX_TIMESTAMP   = "UNIX_TIMESTAMP";
 
     //
-
     static final String T_ISOLATION_LEVEL         = "ISOLATION_LEVEL";
     static final String T_SESSION_ISOLATION_LEVEL = "SESSION_ISOLATION_LEVEL";
     static final String T_DATABASE_ISOLATION_LEVEL =
@@ -1426,10 +1427,12 @@ public class Tokens {
     static final int SCRIPTFORMAT = 596;
     static final int SEPARATOR    = 597;
     static final int SHUTDOWN     = 598;
-    static final int TEMP         = 599;
-    static final int TEXT         = 600;
-    static final int TYPES        = 601;
-    static final int WRITE_DELAY  = 602;
+    static final int TDC          = 599;
+    static final int TEMP         = 600;
+    static final int TEXT         = 601;
+    static final int TTI          = 602;
+    static final int TYPES        = 603;
+    static final int WRITE_DELAY  = 604;
 
     //
     static final int        ACOS                       = 611;
@@ -2130,6 +2133,7 @@ public class Tokens {
         commandSet.put(T_STATEMENT, STATEMENT);
         commandSet.put(T_STYLE, STYLE);
         commandSet.put(T_T_FACTOR, T);
+        commandSet.put(T_TDC, TDC);
         commandSet.put(T_TEMP, TEMP);
         commandSet.put(T_TEMPORARY, TEMPORARY);
         commandSet.put(T_TEXT, TEXT);
@@ -2138,6 +2142,7 @@ public class Tokens {
         commandSet.put(T_TIMESTAMPDIFF, TIMESTAMPDIFF);
         commandSet.put(T_TOP, TOP);
         commandSet.put(T_TRANSACTION, TRANSACTION);
+        commandSet.put(T_TTI, TTI);
         commandSet.put(T_TYPE, TYPE);
         commandSet.put(T_UNCOMMITTED, UNCOMMITTED);
         commandSet.put(T_USAGE, USAGE);

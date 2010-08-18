@@ -367,11 +367,22 @@ public class Logger {
         database.sqlEnforceRefs = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_refs);
         database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
-            HsqlDatabaseProperties.sql_enforce_strict_size);
-        database.sqlEnforceSize = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_size);
+
+        if (!database.sqlEnforceSize) {
+            database.sqlEnforceSize =
+                database.databaseProperties.isPropertyTrue(
+                    HsqlDatabaseProperties.sql_enforce_strict_size);
+        }
+
         database.sqlEnforceTypes = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_types);
+        database.sqlEnforceTDCD = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_enforce_tdcd);
+        database.sqlEnforceTDCU = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_enforce_tdcu);
+        database.sqlTranslateTTI = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.jdbc_translate_tti_types);
 
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_compare_in_locale)) {
@@ -1239,10 +1250,11 @@ public class Logger {
             return String.valueOf(database.sqlEnforceTypes);
         }
 
-        if (HsqlDatabaseProperties.jdbc_translate_dti_types.equals(name)) {
-            return null;
+        if (HsqlDatabaseProperties.jdbc_translate_tti_types.equals(name)) {
+            return String.valueOf(database.sqlTranslateTTI);
         }
 
+/*
         if (HsqlDatabaseProperties.sql_identity_is_pk.equals(name)) {
             return null;
         }
@@ -1290,7 +1302,7 @@ public class Logger {
         if (HsqlDatabaseProperties.textdb_lvs.equals(name)) {
             return null;
         }
-
+*/
         return null;
     }
 
@@ -1339,6 +1351,27 @@ public class Logger {
         sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
         sb.append(Tokens.T_TYPES).append(' ');
         sb.append(database.sqlEnforceTypes ? Tokens.T_TRUE
+                                           : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_TDC).append(' ');
+        sb.append(Tokens.T_DELETE).append(' ');
+        sb.append(database.sqlEnforceTDCD ? Tokens.T_TRUE
+                                          : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_TDC).append(' ');
+        sb.append(Tokens.T_UPDATE).append(' ');
+        sb.append(database.sqlEnforceTDCU ? Tokens.T_TRUE
+                                          : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_TRANSLATE).append(' ').append(Tokens.T_TTI);
+        sb.append(' ').append(Tokens.T_TYPES).append(' ');
+        sb.append(database.sqlTranslateTTI ? Tokens.T_TRUE
                                            : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);

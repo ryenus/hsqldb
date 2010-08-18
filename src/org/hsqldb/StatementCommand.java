@@ -109,10 +109,7 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_PROPERTY :
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
-            case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES :
-            case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE :
-            case StatementTypes.SET_DATABASE_SQL_STRICT_REFS :
-            case StatementTypes.SET_DATABASE_SQL_STRICT_TYPES :
+            case StatementTypes.SET_DATABASE_SQL_STRICT :
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL :
             case StatementTypes.SET_DATABASE_DEFAULT_ISOLATION_LEVEL :
             case StatementTypes.SET_DATABASE_GC :
@@ -477,39 +474,35 @@ public class StatementCommand extends Statement {
 
                 return Result.updateZeroResult;
             }
-            case StatementTypes.SET_DATABASE_SQL_STRICT_NAMES : {
-                boolean mode = ((Boolean) parameters[0]).booleanValue();
+            case StatementTypes.SET_DATABASE_SQL_STRICT : {
+                String  property = (String) parameters[0];
+                boolean mode     = ((Boolean) parameters[1]).booleanValue();
 
                 session.checkAdmin();
                 session.checkDDLWrite();
-                session.database.setStrictNames(mode);
 
-                return Result.updateZeroResult;
-            }
-            case StatementTypes.SET_DATABASE_SQL_STRICT_SIZE : {
-                boolean mode = ((Boolean) parameters[0]).booleanValue();
-
-                session.checkAdmin();
-                session.checkDDLWrite();
-                session.database.setStrictColumnSize(mode);
-
-                return Result.updateZeroResult;
-            }
-            case StatementTypes.SET_DATABASE_SQL_STRICT_TYPES : {
-                boolean mode = ((Boolean) parameters[0]).booleanValue();
-
-                session.checkAdmin();
-                session.checkDDLWrite();
-                session.database.setStrictTypes(mode);
-
-                return Result.updateZeroResult;
-            }
-            case StatementTypes.SET_DATABASE_SQL_STRICT_REFS : {
-                boolean mode = ((Boolean) parameters[0]).booleanValue();
-
-                session.checkAdmin();
-                session.checkDDLWrite();
-                session.database.setStrictReferences(mode);
+                if (property == HsqlDatabaseProperties.sql_enforce_names) {
+                    session.database.setStrictNames(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_enforce_size) {
+                    session.database.setStrictColumnSize(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_enforce_types) {
+                    session.database.setStrictTypes(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_enforce_refs) {
+                    session.database.setStrictReferences(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_enforce_tdcd) {
+                    session.database.setStrictTDCD(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_enforce_tdcu) {
+                    session.database.setStrictTDCU(mode);
+                } else if (property
+                           == HsqlDatabaseProperties
+                               .jdbc_translate_tti_types) {
+                    session.database.setTranslateTTI(mode);
+                }
 
                 return Result.updateZeroResult;
             }

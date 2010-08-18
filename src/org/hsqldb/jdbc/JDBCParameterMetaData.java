@@ -336,7 +336,7 @@ public class JDBCParameterMetaData
 
     /** The number of parameters in the described statement */
     int             parameterCount;
-    private boolean translateDTIType;
+    private boolean translateTTIType;
 
     /**
      * Creates a new instance of JDBCParameterMetaData. <p>
@@ -351,8 +351,8 @@ public class JDBCParameterMetaData
         parameterCount = rmd.getColumnCount();
 
         if (conn.clientProperties != null) {
-            translateDTIType = conn.clientProperties.isPropertyTrue(
-                HsqlDatabaseProperties.jdbc_translate_dti_types);
+            translateTTIType = conn.clientProperties.isPropertyTrue(
+                HsqlDatabaseProperties.jdbc_translate_tti_types);
         }
     }
 
@@ -363,7 +363,7 @@ public class JDBCParameterMetaData
      */
     private Type translateType(Type type) {
 
-        if (this.translateDTIType) {
+        if (this.translateTTIType) {
             if (type.isIntervalType()) {
                 type = ((IntervalType) type).getCharacterType();
             } else if (type.isDateTimeTypeWithZone()) {

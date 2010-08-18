@@ -90,6 +90,9 @@ public class Database {
     public boolean                sqlEnforceRefs;
     public boolean                sqlEnforceSize;
     public boolean                sqlEnforceNames;
+    public boolean                sqlEnforceTDCD;
+    public boolean                sqlEnforceTDCU;
+    public boolean                sqlTranslateTTI;
     private boolean               isReferentialIntegrity;
     public HsqlDatabaseProperties databaseProperties;
     private final boolean         shutdownOnNoConnection;
@@ -420,6 +423,18 @@ public class Database {
 
     public void setStrictTypes(boolean mode) {
         sqlEnforceTypes = mode;
+    }
+
+    public void setStrictTDCD(boolean mode) {
+        sqlEnforceTDCD = mode;
+    }
+
+    public void setStrictTDCU(boolean mode) {
+        sqlEnforceTDCU = mode;
+    }
+
+    public void setTranslateTTI(boolean mode) {
+        sqlTranslateTTI = mode;
     }
 
     public int getDefaultIsolationLevel() {
