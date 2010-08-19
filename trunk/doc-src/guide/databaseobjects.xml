@@ -295,11 +295,14 @@
       Standard.</para>
 
       <para>The correct way to use a sequence value is the NEXT VALUE FOR
-      expression. You can query the SEQUENCES table for the next value that
-      will be returned from any of the defined sequences. The SEQUENCE_NAME
-      column contains the name and the NEXT_VALUE column contains the next
-      value to be returned. Note that this is only for getting information and
-      you should not use the sequence value.</para>
+      expression. </para>
+
+      <para>You can query the INFORMATION_SCHEMA.SEQUENCES table for the next
+      value that will be returned from any of the defined sequences. The
+      SEQUENCE_NAME column contains the name and the NEXT_VALUE column
+      contains the next value to be returned. Note that this is only for
+      getting information and you should not use it for accessing the next
+      sequence value.</para>
 
       <simpara><emphasis role="bold">Identity Auto-Increment
       Columns</emphasis></simpara>
@@ -328,6 +331,15 @@
       &lt;childtable&gt; VALUES (...,IDENTITY(),...);</literal>. Both types of
       call to<literal> IDENTITY()</literal> must be made before any additional
       update or insert statements are issued by the session.</para>
+
+      <para>In triggers and routines, the value returned by the
+      <literal>IDENTITY()</literal> function is correct for the given context.
+      For example, if a call to a stored procedure inserts a row into a table,
+      causing a new identity value to be generated, a call to
+      <literal>IDENTITY()</literal> inside the procedure will return the new
+      identity, but a call outside the procedure will return the last identity
+      value that was generated before a call was made to the procedure.
+      </para>
 
       <para>The last inserted IDENTITY value can also be retrieved via JDBC,
       by specifying the Statement or PreparedStatement object to return the
@@ -2450,7 +2462,11 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       options that are used in the definition of the SEQUENCE can be used to
       alter it. The exception is the option for the start value which is
       <literal>RESTART WITH</literal> for the ALTER SEQUENCE
-      statement..</simpara>
+      statement.</simpara>
+
+      <simpara>If RESTART is used by itself (without a value), then the
+      current value of the sequence is reset to the start value. Otherwise,
+      the current value is reset to the given restart value.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP SEQUENCE</primary>
