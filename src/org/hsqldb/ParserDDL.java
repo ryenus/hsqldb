@@ -3685,12 +3685,15 @@ public class ParserDDL extends ParserRoutine {
                     }
 
                     read();
-                    readThis(Tokens.WITH);
 
-                    long value = readBigint();
+                    if (readIfThis(Tokens.WITH)) {
 
-                    sequence.setStartValue(value);
+                        long value = readBigint();
 
+                        sequence.setCurrentValueNoCheck(value);
+                    } else {
+                        sequence.reset();
+                    }
                     break;
                 }
                 case Tokens.SET :
