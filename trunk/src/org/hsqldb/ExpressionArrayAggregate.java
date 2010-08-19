@@ -320,6 +320,10 @@ public class ExpressionArrayAggregate extends Expression {
         return condition;
     }
 
+    public boolean hasCondition() {
+        return condition != null && condition != Expression.EXPR_TRUE;
+    }
+
     public void setCondition(Expression e) {
         condition = e;
     }

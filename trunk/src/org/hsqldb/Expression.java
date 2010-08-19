@@ -1924,6 +1924,10 @@ public class Expression implements Cloneable {
         return null;
     }
 
+    public boolean hasCondition() {
+        return false;
+    }
+
     public void setCondition(Expression e) {
         throw Error.runtimeError(ErrorCode.U_S0500, "Expression");
     }

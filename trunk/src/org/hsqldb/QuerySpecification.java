@@ -853,7 +853,7 @@ public class QuerySpecification extends QueryExpression {
 
                 case OpTypes.MAX :
                 case OpTypes.MIN : {
-                    if (e.getCondition() != null) {
+                    if (e.hasCondition()) {
                         break;
                     }
 
@@ -870,7 +870,7 @@ public class QuerySpecification extends QueryExpression {
                     break;
                 }
                 case OpTypes.COUNT : {
-                    if (e.getCondition() != null) {
+                    if (e.hasCondition()) {
                         break;
                     }
 
