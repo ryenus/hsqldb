@@ -67,10 +67,10 @@ implements TransactionManager {
     //
     public TransactionManagerMVCC(Database db) {
 
-        database       = db;
-        lobSession     = database.sessionManager.getSysLobSession();
-        rowActionMap   = new IntKeyHashMapConcurrent(10000);
-        txModel        = MVCC;
+        database     = db;
+        lobSession   = database.sessionManager.getSysLobSession();
+        rowActionMap = new IntKeyHashMapConcurrent(10000);
+        txModel      = MVCC;
     }
 
     public long getGlobalChangeTimestamp() {
@@ -401,6 +401,7 @@ implements TransactionManager {
                                 int[] changedColumns) {
 
         RowAction action = row.rowAction;
+        boolean   redo   = false;
 
         if (action == null) {
             System.out.println("null insert action " + session + " "
@@ -411,8 +412,61 @@ implements TransactionManager {
             rowActionMap.put(action.getPos(), action);
         }
 
-        store.indexRow(session, row);
-        session.rowActionList.add(action);
+        try {
+            store.indexRow(session, row);
+        } catch (HsqlException e) {
+            if (session.tempSet.isEmpty()) {
+                throw e;
+            }
+
+            redo = true;
+        }
+
+        if (!redo) {
+            session.rowActionList.add(action);
+
+            return;
+        }
+
+        writeLock.lock();
+
+        try {
+            rollbackAction(session);
+
+            // can redo when conflicting action is already committed
+            if (row.rowAction != null && row.rowAction.isDeleted()) {
+                session.tempSet.clear();
+
+                session.redoAction = true;
+
+                redoCount++;
+
+                throw Error.error(ErrorCode.X_40501);
+            }
+
+            boolean canWait = checkDeadlock(session, session.tempSet);
+
+            if (canWait) {
+                Session current = (Session) session.tempSet.get(0);
+
+                session.redoAction = true;
+
+                current.waitingSessions.add(session);
+                session.waitedSessions.add(current);
+                session.latch.countUp();
+            } else {
+                session.redoAction       = false;
+                session.abortTransaction = true;
+            }
+
+            session.tempSet.clear();
+
+            redoCount++;
+
+            throw Error.error(ErrorCode.X_40501);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
 // functional unit - accessibility of rows

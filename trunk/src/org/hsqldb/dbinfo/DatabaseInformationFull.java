@@ -1001,7 +1001,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         sb.append(',');
                     }
 
-                    sb.append(array[i].getId());
+                    sb.append(array[j].getId());
                 }
 
                 row[it_waiting] = sb.toString();
@@ -1018,7 +1018,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                         sb.append(',');
                     }
 
-                    sb.append(array[i].getId());
+                    sb.append(array[j].getId());
                 }
 
                 row[it_waited] = sb.toString();

@@ -782,6 +782,8 @@ public class RowAction extends RowActionBase {
                     } else if (mode == TransactionManager.ACTION_DUP) {
                         if (action.changeColumnMap == null) {
                             actionType = ACTION_INSERT;
+
+                            session.tempSet.add(action.session);
                         } else {
                             actionType = ACTION_DELETE;
                         }
