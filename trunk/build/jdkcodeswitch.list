@@ -6,6 +6,7 @@ org/hsqldb/lib/tar/TarFileOutputStream.java
 org/hsqldb/lib/tar/TarGenerator.java
 org/hsqldb/lib/tar/TarReader.java
 org/hsqldb/jdbc/JDBCCallableStatement.java
+org/hsqldb/jdbc/JDBCCommonDataSource.java
 org/hsqldb/jdbc/JDBCConnection.java
 org/hsqldb/jdbc/JDBCDatabaseMetaData.java
 org/hsqldb/jdbc/JDBCDataSource.java
@@ -17,10 +18,10 @@ org/hsqldb/jdbc/JDBCResultSet.java
 org/hsqldb/jdbc/JDBCResultSetMetaData.java
 org/hsqldb/jdbc/JDBCStatement.java
 org/hsqldb/jdbc/Util.java
-org/hsqldb/jdbc/pool/BaseConnectionWrapper.java
-org/hsqldb/jdbc/pool/JDBCConnectionPoolDataSource.java
+org/hsqldb/jdbc/pool/JDBCPooledDataSource.java
 org/hsqldb/jdbc/pool/JDBCPooledConnection.java
-org/hsqldb/jdbc/pool/ManagedPoolDataSource.java
+org/hsqldb/jdbc/pool/JDBCXAConnectionWrapper.java
+org/hsqldb/jdbc/pool/JDBCXADataSource.java
 org/hsqldb/jdbc/Util.java
 org/hsqldb/lib/java/JavaSystem.java
 org/hsqldb/lib/SimpleLog.java
