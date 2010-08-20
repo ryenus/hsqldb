@@ -118,14 +118,21 @@ public class JDBCDataSource extends JDBCCommonDataSource
         }
 
         if (connectionProps == null) {
+            if (user == null) {
+                user = "";
+            }
+
+            if (password == null) {
+                password = "";
+            }
             return getConnection(user, password);
         }
 
         if (connectionProps == null) {
-            return JDBCDriver.getConnection(url, new Properties());
+            return getConnection(url, new Properties());
         }
 
-        return JDBCDriver.getConnection(url, connectionProps);
+        return getConnection(url, connectionProps);
     }
 
     /**
@@ -146,9 +153,16 @@ public class JDBCDataSource extends JDBCCommonDataSource
         props.setProperty("user", username);
         props.setProperty("password", password);
 
-        return JDBCDriver.getConnection(url, props);
+        return getConnection(url, props);
     }
 
+    private Connection getConnection(String url, Properties props) throws SQLException {
+        if (!url.startsWith("jdbc:hsqldb:")) {
+            url = "jdbc:hsqldb:" + url;
+        }
+
+        return JDBCDriver.getConnection(url, props);
+    }
     //------------------------- JDBC 4.0 -----------------------------------
     // ------------------- java.sql.Wrapper implementation ---------------------
 
