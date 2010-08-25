@@ -242,7 +242,21 @@
 
           <colspec colname="c3" />
 
+          <thead>
+            <row>
+              <entry>Value</entry>
+
+              <entry>Default</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
           <tbody valign="top">
+            <row>
+              <entry nameend="c3" namest="c1"></entry>
+            </row>
+
             <row>
               <entry><property>get_column_name</property></entry>
 
@@ -317,6 +331,10 @@
               application servers, where the closing of the last connection
               coincides with the web app being shut
               down.</para><programlisting>    jdbc:hsqldb:file:enrollments;shutdown=true</programlisting></entry>
+            </row>
+
+            <row>
+              <entry nameend="c3" namest="c1"></entry>
             </row>
           </tbody>
         </tgroup>
@@ -397,7 +415,31 @@
             connection properties is checked and if it is not used correctly,
             an error is returned.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
+        </tbody>
+      </tgroup>
+    </table>
 
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Database SQL Conformance Properties</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm" />
+
+        <colspec colname="c2" colwidth="1.5cm" />
+
+        <colspec colname="c3" />
+
+        <thead>
+          <row>
+            <entry>Value</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
           <row>
             <entry nameend="c3" namest="c1"></entry>
           </row>
@@ -516,8 +558,9 @@
             row may be updated by one constraint and deleted by another
             constraint in the same operation. This is not allowed by default.
             Changing this property to false allows such violations of the
-            Standard to pass without an
-            exception.</para><para><programlisting>SET DATABASE SQL TDC DELETE { TRUE | FALSE }</programlisting></para></entry>
+            Standard to pass without an exception. Used for porting from
+            database engines that no not enforce the
+            constraints.</para><para><programlisting>SET DATABASE SQL TDC DELETE { TRUE | FALSE }</programlisting></para></entry>
           </row>
 
           <row>
@@ -540,9 +583,38 @@
             field may be updated by two constraints and set to different
             values. This is not allowed by default. Changing this property to
             false allows such violations of the Standard to pass without an
-            exception.</para><para><programlisting>SET DATABASE SQL TDC UPDATE { TRUE | FALSE }</programlisting></para></entry>
+            exception. Used for porting from database engines that do not
+            enforce the constraints properly.</para><para><programlisting>SET DATABASE SQL TDC UPDATE { TRUE | FALSE }</programlisting></para></entry>
           </row>
 
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <table frame="all" pgwide="1" tocentry="1">
+      <title>Database Operation Properties</title>
+
+      <tgroup align="left" cols="3">
+        <colspec colname="c1" colwidth="6.5cm" />
+
+        <colspec colname="c2" colwidth="1.5cm" />
+
+        <colspec colname="c3" />
+
+        <thead>
+          <row>
+            <entry>Value</entry>
+
+            <entry>Default</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody valign="top">
           <row>
             <entry nameend="c3" namest="c1"></entry>
           </row>
@@ -625,6 +697,47 @@
           </row>
 
           <row>
+            <entry><property>hsqldb.tx_level</property></entry>
+
+            <entry><literal>read_commited</literal></entry>
+
+            <entry>database default transaction isolation level</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>Indicates the default
+            transaction isolation level for each new session. The values,
+            read_committed and serializable are allowed. Individual sessions
+            can change their isolation level.</para><para><programlisting>SET DATABASE DEFAULT ISOLATION LEVEL { READ COMMITTED | SERIALIZABLE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>hsqldb.tx_deadlock_rollback</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>effect of deadlock on transaction</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>When a deadlock is about to
+            happen, the current transaction is rolled back and an exception is
+            raised. When this property is set false, the transaction is not
+            rolled back. This will cause the other transaction to wait for the
+            current transaction. The property should not be changed unless the
+            application can quickly perform an alternative statement and
+            complete the transaction.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
             <entry><property>hsqldb.translate_tti_types</property></entry>
 
             <entry><literal>true</literal></entry>
@@ -671,6 +784,10 @@
         </thead>
 
         <tbody valign="top">
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
           <row>
             <entry><property>readonly</property></entry>
 
@@ -1003,10 +1120,10 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>If the property is true, the
-            default WRITE DELAY property of the database is used, which is
-            1000 milliseconds. If the property is false, the WRITE DELAY is
-            set to 0 seconds. The SQL command for this property allows more
-            precise control over the property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
+            default WRITE DELAY property of the database is used, which is 500
+            milliseconds. If the property is false, the WRITE DELAY is set to
+            0 seconds. The SQL command for this property allows more precise
+            control over the property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
           </row>
 
           <row>
@@ -1016,16 +1133,16 @@
           <row>
             <entry><property>hsqldb.write_delay_millis</property></entry>
 
-            <entry><literal>1000</literal></entry>
+            <entry><literal>500</literal></entry>
 
             <entry>write delay for writing log file entries</entry>
           </row>
 
           <row>
             <entry nameend="c3" namest="c1"><para>If the property is used, the
-            WRITE DELAY property of the database is set the given value. The
-            SQL command for this property allows the same level of control
-            over the property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
+            WRITE DELAY property of the database is set the given value in
+            milliseconds. The SQL command for this property allows the same
+            level of control over the property.</para><para><programlisting>SET FILES WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds value&gt; MILLIS</programlisting></para></entry>
           </row>
 
           <row>
@@ -1098,6 +1215,10 @@
         </thead>
 
         <tbody valign="top">
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
           <row>
             <entry><property>crypt_lobs</property></entry>
 

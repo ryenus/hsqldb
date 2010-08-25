@@ -546,15 +546,15 @@
     </section>
 
     <section>
-      <title>Embedding a Database Listener</title>
+      <title>Embedding a HyperSQL Server (Listener)</title>
 
       <para>Since you won't be able to access
       <glossterm>in-process</glossterm> database instances from other
-      processes, you will often want to run a Listener in your server
-      applications with embedded databases. You can do this by starting up a
-      Server or WebServer instance programmatically, but you could also use
-      the class <classname>org.hsqldb.util.MainInvoker</classname> to start up
-      your application and a Server or WebServer without any programming.
+      processes, you will often want to run a Listener in your applications
+      that uses embedded databases. You can do this by starting up a Server or
+      WebServer instance programmatically, but you could also use the class
+      <classname>org.hsqldb.util.MainInvoker</classname> to start up your
+      application and a HyperSQL Server or WebServer without any programming.
       <example>
           <title>MainInvoker Example</title>
 
@@ -563,7 +563,10 @@
       Windows). Specify the same <glossterm>in-process</glossterm> JDBC URL to
       your app and in the <filename>server.properties</filename> file. You can
       then connect to the database from outside using a JDBC URL like
-      <literal>jdbc:hsqldb:hsql://hostname</literal>.</para>
+      <literal>jdbc:hsqldb:hsql://hostname</literal>, while connecting from
+      inside the application using something like
+      <literal>jdbc:hsqldb:file:&lt;filepath of database&gt;</literal>
+      .</para>
 
       <simpara>This tactic can be used to run off-the-shelf server
       applications with an embedded HyperSQL Server, without doing any
@@ -682,7 +685,7 @@
       automatic upgrade from previous versions.</para>
 
       <para>If your database has been created with version 1.7.2 or 1.7.3,
-      first upgrade to version 1.8.1 and perform a SHUTDOWN COMPACT with this
+      first upgrade to version 1.8.1 and perform a SHUTDOWN SCRIPT with this
       version. You can then upgrade the database to version 2.0.</para>
 
       <para>To upgrade from older version database files (1.7.1 and older)
@@ -743,7 +746,8 @@
       available to change the data structures and their names. However, if an
       old database cannot be opened due to data inconsistencies, or it uses
       index or column names that are not compatible with 2.0, manual editing
-      of the <literal>*.script</literal> file can be performed.</para>
+      of the <literal>*.script</literal> file can be performed and can be
+      faster.</para>
 
       <itemizedlist>
         <listitem>
@@ -754,6 +758,11 @@
         <listitem>
           <para>Version 2.0 does not accept some table or column names that
           are SQL reserved keywords without double quoting.</para>
+        </listitem>
+
+        <listitem>
+          <para>Version 2.0 does not accept unquoted table or column names
+          which begin with an underscore</para>
         </listitem>
 
         <listitem>
