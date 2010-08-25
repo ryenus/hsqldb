@@ -166,10 +166,12 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            endTransaction(session);
 
             // new actionTimestamp used for commitTimestamp
             session.actionTimestamp = nextChangeTimestamp();
+            session.transactionEndTimestamp = session.actionTimestamp;
+
+            endTransaction(session);
 
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) list[i];
@@ -219,6 +221,7 @@ implements TransactionManager {
         try {
             session.abortTransaction = false;
             session.actionTimestamp  = nextChangeTimestamp();
+            session.transactionEndTimestamp = session.actionTimestamp;
 
             rollbackPartial(session, 0, session.transactionTimestamp);
             endTransaction(session);
@@ -458,7 +461,7 @@ implements TransactionManager {
                 if (session.tempSet.isEmpty()) {
                     lockTablesTPL(session, cs);
 
-                    // we dont set other sessions that would now be waiting for this one too
+                    // we don't set other sessions that would now be waiting for this one too
                 } else {
                     setWaitingSessionTPL(session);
                 }

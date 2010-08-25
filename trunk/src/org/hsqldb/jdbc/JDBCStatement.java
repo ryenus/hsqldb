@@ -1813,8 +1813,7 @@ public class JDBCStatement extends JDBCStatementBase implements Statement {
             throw Util.sqlException(resultIn);
         }
 
-        if (statementRetType == StatementTypes.RETURN_RESULT
-                && resultIn.isData()) {
+        if (resultIn.isData()) {
             currentResultSet = new JDBCResultSet(connection, this, resultIn,
                     resultIn.metaData);
         }

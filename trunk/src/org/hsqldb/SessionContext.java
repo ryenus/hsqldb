@@ -109,6 +109,8 @@ public class SessionContext {
 
     public void push() {
 
+        session.sessionData.persistentStoreCollection.push();
+
         if (stack == null) {
             stack = new HsqlArrayList(true);
         }
@@ -135,6 +137,8 @@ public class SessionContext {
     }
 
     public void pop() {
+
+        session.sessionData.persistentStoreCollection.pop();
 
         currentMaxRows = ((Integer) stack.remove(stack.size() - 1)).intValue();
         noSQL               = (Boolean) stack.remove(stack.size() - 1);

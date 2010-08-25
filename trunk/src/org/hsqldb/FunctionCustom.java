@@ -722,7 +722,7 @@ public class FunctionCustom extends FunctionSQL {
 
             case FUNC_DATABASE_ISOLATION_LEVEL :
                 return Session.getIsolationString(
-                    session.database.getDefaultIsolationLevel());
+                    session.database.defaultIsolationLevel);
 
             case FUNC_TRANSACTION_CONTROL :
                 switch (session.database.txManager.getTransactionControl()) {

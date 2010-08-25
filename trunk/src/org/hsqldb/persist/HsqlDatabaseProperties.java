@@ -182,8 +182,10 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String url_crypt_provider = "crypt_provider";
 
     //
-    public static final String hsqldb_tx             = "hsqldb.tx";
-    public static final String hsqldb_tx_level       = "hsqldb.tx_level";
+    public static final String hsqldb_tx       = "hsqldb.tx";
+    public static final String hsqldb_tx_level = "hsqldb.tx_level";
+    public static final String hsqldb_tx_deadlock_rollback =
+        "hsqldb.tx_deadlock_rollback";
     public static final String hsqldb_applog         = "hsqldb.applog";
     public static final String hsqldb_lob_file_scale = "hsqldb.lob_file_scale";
     public static final String hsqldb_cache_file_scale =
@@ -302,6 +304,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           SQL_PROPERTY, "MEMORY"));
 
         // boolean defaults for user defined props
+        dbMeta.put(hsqldb_tx_deadlock_rollback,
+                   HsqlProperties.getMeta(hsqldb_tx_deadlock_rollback,
+                                          SQL_PROPERTY, true));
         dbMeta.put(jdbc_translate_tti_types,
                    HsqlProperties.getMeta(jdbc_translate_tti_types,
                                           SQL_PROPERTY, true));
@@ -362,7 +367,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           true));
         dbMeta.put(hsqldb_write_delay_millis,
                    HsqlProperties.getMeta(hsqldb_write_delay_millis,
-                                          SQL_PROPERTY, 500, 20, 10000));
+                                          SQL_PROPERTY, 500, 0, 10000));
 
         // integral defaults for user-defined props - sets
         dbMeta.put(hsqldb_applog,

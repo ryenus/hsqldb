@@ -122,6 +122,25 @@ public class LongKeyHashMap extends BaseHashMap {
         }
     }
 
+    public Object[] toArray() {
+
+        try {
+            readLock.lock();
+
+            Object[] array = new Object[size()];
+            int      i     = 0;
+            Iterator it    = LongKeyHashMap.this.new BaseHashIterator(false);
+
+            while (it.hasNext()) {
+                array[i++] = it.next();
+            }
+
+            return array;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
     public int getOrderedMatchCount(int[] array) {
 
         int i = 0;

@@ -134,10 +134,11 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            endTransaction(session);
-
             // new actionTimestamp used for commitTimestamp
             session.actionTimestamp = nextChangeTimestamp();
+            session.transactionEndTimestamp = session.actionTimestamp;
+
+            endTransaction(session);
 
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) list[i];
@@ -160,6 +161,7 @@ implements TransactionManager {
 
         session.abortTransaction = false;
         session.actionTimestamp  = nextChangeTimestamp();
+        session.transactionEndTimestamp = session.actionTimestamp;
 
         rollbackPartial(session, 0, session.transactionTimestamp);
         endTransaction(session);

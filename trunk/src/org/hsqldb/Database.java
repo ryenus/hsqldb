@@ -84,7 +84,7 @@ public class Database {
      */
     private boolean filesReadOnly;
 
-    /** true means filesReadOnly but CACHED and TEXT tables are disallowed */
+    /** true means filesReadOnly */
     private boolean               filesInJar;
     public boolean                sqlEnforceTypes;
     public boolean                sqlEnforceRefs;
@@ -107,6 +107,7 @@ public class Database {
     public SessionManager     sessionManager;
     public TransactionManager txManager;
     public int defaultIsolationLevel = SessionInterface.TX_READ_COMMITTED;
+    public boolean            defaultDeadlockRollback = true;
 
     // schema objects
     public SchemaManager schemaManager;
@@ -435,10 +436,6 @@ public class Database {
 
     public void setTranslateTTI(boolean mode) {
         sqlTranslateTTI = mode;
-    }
-
-    public int getDefaultIsolationLevel() {
-        return defaultIsolationLevel;
     }
 
     /**
