@@ -763,13 +763,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         value = (Boolean) metaData[HsqlProperties.indexDefaultValue];
 
-        String prop = stringProps.getProperty(key);
+        String prop = null;
         boolean isSystem =
             ((Integer) metaData[HsqlProperties.indexType]).intValue()
             == SYSTEM_PROPERTY;
 
-        if (prop == null && isSystem) {
+        if (isSystem) {
             prop = System.getProperty(key);
+        } else {
+            prop = stringProps.getProperty(key);
         }
 
         if (prop != null) {
