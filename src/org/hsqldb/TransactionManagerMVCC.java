@@ -172,7 +172,8 @@ implements TransactionManager {
             }
 
             for (int i = 0; i < session.tempSet.size(); i++) {
-                Session current = (Session) session.tempSet.get(i);
+                Session current =
+                    ((RowActionBase) session.tempSet.get(0)).session;
 
                 current.abortTransaction = true;
             }
@@ -206,10 +207,11 @@ implements TransactionManager {
                 }
             }
 
-            endTransaction(session);
-
             // new actionTimestamp used for commitTimestamp
-            session.actionTimestamp = nextChangeTimestamp();
+            session.actionTimestamp         = nextChangeTimestamp();
+            session.transactionEndTimestamp = session.actionTimestamp;
+
+            endTransaction(session);
 
             for (int i = 0; i < limit; i++) {
                 RowAction action = (RowAction) list[i];
@@ -218,7 +220,8 @@ implements TransactionManager {
             }
 
             for (int i = 0; i < session.tempSet.size(); i++) {
-                Session current = (Session) session.tempSet.get(i);
+                Session current =
+                    ((RowActionBase) session.tempSet.get(0)).session;
 
                 current.abortTransaction = true;
             }
@@ -266,8 +269,9 @@ implements TransactionManager {
         writeLock.lock();
 
         try {
-            session.abortTransaction = false;
-            session.actionTimestamp  = nextChangeTimestamp();
+            session.abortTransaction        = false;
+            session.actionTimestamp         = nextChangeTimestamp();
+            session.transactionEndTimestamp = session.actionTimestamp;
 
             rollbackPartial(session, 0, session.transactionTimestamp);
             endTransaction(session);
@@ -338,6 +342,9 @@ implements TransactionManager {
                                      int[] colMap) {
 
         RowAction action = addDeleteActionToRow(session, table, row, colMap);
+        Session   actionSession = null;
+        boolean   redoAction    = true;
+        boolean   redoWait      = false;
 
         if (action == null) {
             writeLock.lock();
@@ -345,43 +352,48 @@ implements TransactionManager {
             try {
                 rollbackAction(session);
 
-                if (session.isolationLevel == SessionInterface
-                        .TX_REPEATABLE_READ || session
-                        .isolationLevel == SessionInterface.TX_SERIALIZABLE) {
+                if (!session.tempSet.isEmpty()) {
+                    actionSession =
+                        ((RowActionBase) session.tempSet.get(0)).session;
+
                     session.tempSet.clear();
 
-                    session.abortTransaction = true;
+                    if (row.rowAction.isDeleted()) {
 
-                    throw Error.error(ErrorCode.X_40501);
+                        // can redo depending on mode
+                        actionSession = null;
+                    } else {
+                        redoWait = true;
+                    }
                 }
 
-                // can redo when conflicting action is already committed
-                if (row.rowAction != null && row.rowAction.isDeleted()) {
-                    session.tempSet.clear();
+                switch (session.isolationLevel) {
 
-                    session.redoAction = true;
+                    case SessionInterface.TX_REPEATABLE_READ :
+                    case SessionInterface.TX_SERIALIZABLE :
+                        if (actionSession == null) {
+                            redoAction = false;
 
-                    redoCount++;
-
-                    throw Error.error(ErrorCode.X_40501);
+                            break;
+                        }
+                    default :
+                        if (actionSession != null) {
+                            redoAction = checkDeadlock(session, actionSession);
+                        }
                 }
 
-                boolean canWait = checkDeadlock(session, session.tempSet);
-
-                if (canWait) {
-                    Session current = (Session) session.tempSet.get(0);
-
+                if (redoAction) {
                     session.redoAction = true;
 
-                    current.waitingSessions.add(session);
-                    session.waitedSessions.add(current);
-                    session.latch.countUp();
+                    if (redoWait) {
+                        actionSession.waitingSessions.add(session);
+                        session.waitedSessions.add(actionSession);
+                        session.latch.countUp();
+                    }
                 } else {
-                    session.redoAction       = false;
-                    session.abortTransaction = true;
+                    session.abortTransaction = session.deadlockRollback;
+                    session.redoAction = false;
                 }
-
-                session.tempSet.clear();
 
                 redoCount++;
 
@@ -400,8 +412,11 @@ implements TransactionManager {
                                 PersistentStore store, Row row,
                                 int[] changedColumns) {
 
-        RowAction action = row.rowAction;
-        boolean   redo   = false;
+        HsqlException exception     = null;
+        RowAction     action        = row.rowAction;
+        Session       actionSession = null;
+        boolean       redoAction    = false;
+        boolean       redoWait      = true;
 
         if (action == null) {
             System.out.println("null insert action " + session + " "
@@ -419,10 +434,11 @@ implements TransactionManager {
                 throw e;
             }
 
-            redo = true;
+            exception  = e;
+            redoAction = true;
         }
 
-        if (!redo) {
+        if (!redoAction) {
             session.rowActionList.add(action);
 
             return;
@@ -433,33 +449,34 @@ implements TransactionManager {
         try {
             rollbackAction(session);
 
-            // can redo when conflicting action is already committed
-            if (row.rowAction != null && row.rowAction.isDeleted()) {
-                session.tempSet.clear();
-
-                session.redoAction = true;
-
-                redoCount++;
-
-                throw Error.error(ErrorCode.X_40501);
-            }
-
-            boolean canWait = checkDeadlock(session, session.tempSet);
-
-            if (canWait) {
-                Session current = (Session) session.tempSet.get(0);
-
-                session.redoAction = true;
-
-                current.waitingSessions.add(session);
-                session.waitedSessions.add(current);
-                session.latch.countUp();
-            } else {
-                session.redoAction       = false;
-                session.abortTransaction = true;
-            }
+            RowActionBase otherAction = (RowActionBase) session.tempSet.get(0);
+            actionSession = otherAction.session;
 
             session.tempSet.clear();
+
+            if (otherAction.commitTimestamp != 0) {
+                redoWait = false;
+            }
+
+            switch (session.isolationLevel) {
+
+                case SessionInterface.TX_REPEATABLE_READ :
+                case SessionInterface.TX_SERIALIZABLE :
+                default :
+                    redoAction = checkDeadlock(session, actionSession);
+            }
+
+            if (redoAction) {
+                session.redoAction = true;
+
+                if (redoWait) {
+                    actionSession.waitingSessions.add(session);
+                    session.waitedSessions.add(actionSession);
+                    session.latch.countUp();
+                }
+            } else {
+                session.redoAction = false;
+            }
 
             redoCount++;
 
@@ -736,61 +753,26 @@ implements TransactionManager {
                 ReentrantReadWriteLock.WriteLock mapLock =
                     rowActionMap.getWriteLock();
 
+                // deal with multi-instance row
                 mapLock.lock();
 
                 try {
-
-                    /* using rowActionMap as source */
-                    action = (RowAction) rowActionMap.get(row.getPos());
-
-                    if (action == null) {
-                        if (row.rowAction != null) {
-
-                            // test code
-                            action = row.rowAction;
-                        }
-
-                        action = RowAction.addDeleteAction(session, table,
-                                                           row, colMap);
-
-                        if (action != null) {
-                            rowActionMap.put(row.getPos(), action);
-                        }
-                    } else {
-                        if (row.rowAction != action) {
-
-                            // test code
-                            action = row.rowAction;
-                        }
-
-                        row.rowAction = action;
-                        action = RowAction.addDeleteAction(session, table,
-                                                           row, colMap);
-                    }
-/*
-
                     action = row.rowAction;
 
+                    /* using rowActionMap as source */
                     if (action == null) {
                         action = (RowAction) rowActionMap.get(row.getPos());
-                    }
-
-                    if (action == null) {
-                        action = RowAction.addDeleteAction(session, table,
-                                                           row, colMap);
-
-                        if (action != null) {
-                            rowActionMap.put(row.getPos(), action);
-
-                            row.rowAction = action;
-                        }
-                    } else {
-
-                        // possibly from rowActionMap
                         row.rowAction = action;
-                        action = action.addDeleteAction(session, colMap);
                     }
-*/
+
+                    boolean newAction = action == null;
+
+                    action = RowAction.addDeleteAction(session, table, row,
+                                                       colMap);
+
+                    if (newAction && action != null) {
+                        rowActionMap.put(action.getPos(), action);
+                    }
                 } finally {
                     mapLock.unlock();
                 }

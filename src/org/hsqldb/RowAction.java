@@ -137,28 +137,46 @@ public class RowAction extends RowActionBase {
             RowActionBase action = this;
 
             while (true) {
-                if (action.type == ACTION_INSERT) {
-                    if (action.commitTimestamp == 0
-                            && session != action.session) {
-                        throw Error.runtimeError(ErrorCode.U_S0500,
-                                                 "RowAction");
-                    }
-                } else if (action.type == ACTION_DELETE) {
-                    if (session != action.session) {
-                        session.tempSet.add(action.session);
+                if (action.rolledback) {
+                    continue;
+                }
 
-                        return null;
+                switch (action.type) {
+
+                    case ACTION_INSERT : {
+                        if (action.commitTimestamp == 0
+                                && session != action.session) {
+                            throw Error.runtimeError(ErrorCode.U_S0500,
+                                                     "RowAction");
+                        }
+
+                        break;
                     }
-                } else if (action.type == ACTION_REF) {
-                    if (session != action.session
-                            && action.commitTimestamp == 0) {
-                        if (colMap == null
-                                || ArrayUtil.haveCommonElement(
-                                    colMap, action.changeColumnMap)) {
-                            session.tempSet.add(action.session);
+                    case ACTION_DELETE_FINAL :
+                    case ACTION_DELETE : {
+                        if (session != action.session) {
+                            if (action.commitTimestamp == 0) {
+                                session.tempSet.add(action);
+                            }
 
                             return null;
                         }
+
+                        break;
+                    }
+                    case ACTION_REF : {
+                        if (session != action.session
+                                && action.commitTimestamp == 0) {
+                            if (colMap == null
+                                    || ArrayUtil.haveCommonElement(
+                                        colMap, action.changeColumnMap)) {
+                                session.tempSet.add(action);
+
+                                return null;
+                            }
+                        }
+
+                        break;
                     }
                 }
 
@@ -210,7 +228,7 @@ public class RowAction extends RowActionBase {
                     if (action.changeColumnMap == null
                             || ArrayUtil.haveCommonElement(
                                 colMap, action.changeColumnMap)) {
-                        session.tempSet.add(action.session);
+                        session.tempSet.add(action);
 
                         return false;
                     }
@@ -421,7 +439,7 @@ public class RowAction extends RowActionBase {
                 }
 
                 if (action.commitTimestamp == 0) {
-                    set.add(action.session);
+                    set.add(action);
                 } else if (action.commitTimestamp > commitTimestamp) {
                     commitTimestamp = action.commitTimestamp;
                 }
@@ -783,7 +801,7 @@ public class RowAction extends RowActionBase {
                         if (action.changeColumnMap == null) {
                             actionType = ACTION_INSERT;
 
-                            session.tempSet.add(action.session);
+                            session.tempSet.add(action);
                         } else {
                             actionType = ACTION_DELETE;
                         }

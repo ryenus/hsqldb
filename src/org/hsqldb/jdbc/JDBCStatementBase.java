@@ -188,17 +188,13 @@ class JDBCStatementBase {
                 errorResult = current;
             } else if (current.getType() == ResultConstants.GENERATED) {
                 generatedResult = current;
+            } else if (current.getType() == ResultConstants.DATA) {
+                resultIn.addChainedResult(current);
             }
         }
 
         if (rootWarning != null) {
             connection.setWarnings(rootWarning);
-        }
-
-        if (resultIn.isData()) {
-            currentResultSet = new JDBCResultSet(connection,
-                                                 this, resultIn,
-                                                 resultIn.metaData);
         }
     }
 

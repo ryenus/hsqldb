@@ -37,8 +37,10 @@ import org.hsqldb.Table;
 import org.hsqldb.TableBase;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.HsqlDeque;
 import org.hsqldb.lib.Iterator;
 import org.hsqldb.lib.LongKeyHashMap;
+import org.hsqldb.store.ValuePool;
 
 /**
  * Collection of PersistenceStore itmes currently used by a session.
@@ -56,6 +58,7 @@ implements PersistentStoreCollection {
     private final LongKeyHashMap rowStoreMapSession     = new LongKeyHashMap();
     private LongKeyHashMap       rowStoreMapTransaction = new LongKeyHashMap();
     private LongKeyHashMap       rowStoreMapStatement   = new LongKeyHashMap();
+    private HsqlDeque            rowStoreListStatement;
 
     public PersistentStoreCollectionSession(Session session) {
         this.session = session;
@@ -275,5 +278,35 @@ implements PersistentStoreCollection {
 
         newStore.moveData(session, oldStore, colIndex, adjust);
         setStore(oldTable, null);
+    }
+
+    public void push() {
+
+        if (rowStoreListStatement == null) {
+            rowStoreListStatement = new HsqlDeque();
+        }
+
+        if (rowStoreMapStatement.isEmpty()) {
+            rowStoreListStatement.add(ValuePool.emptyObjectArray);
+            return;
+        }
+
+        Object[] array = rowStoreMapStatement.toArray();
+
+        rowStoreListStatement.add(array);
+
+        rowStoreMapStatement.clear();
+    }
+
+    public void pop() {
+
+        Object[] array = (Object[]) rowStoreListStatement.removeLast();
+
+        for (int i = 0; i < array.length; i++) {
+            PersistentStore store = (PersistentStore) array[i];
+
+            rowStoreMapStatement.put(store.getTable().getPersistenceId(),
+                                     store);
+        }
     }
 }

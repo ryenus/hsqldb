@@ -198,6 +198,19 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.PROCEDURE :
                 return compileCreateProcedureOrFunction();
 
+            case Tokens.SERVER :
+                return compileCreateServer();
+
+            case Tokens.FOREIGN :
+                read();
+
+                if (token.tokenType == Tokens.DATA) {
+                    return compileCreateForeignDataWrapper();
+                } else if (token.tokenType == Tokens.TABLE) {
+                    return compileCreateForeignTable();
+                }
+
+                throw unexpectedToken();
             default : {
                 throw unexpectedToken();
             }
@@ -4603,6 +4616,168 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementCommand(StatementTypes.ALTER_SESSION, args);
+    }
+
+    Statement compileImport() {
+
+        Statement cs;
+        String[]  tableNames = null;
+        Boolean   except     = Boolean.FALSE;
+
+        read();
+        readThis(Tokens.FOREIGN);
+        readThis(Tokens.SCHEMA);
+
+        HsqlName foreignSchema = readNewSchemaObjectName(SchemaObject.SCHEMA,
+            false);
+
+        if (token.tokenType == Tokens.LIMIT) {
+            read();
+            readThis(Tokens.TO);
+
+            tableNames = readForeignTableList();
+        } else if (token.tokenType == Tokens.EXCEPT) {
+            tableNames = readForeignTableList();
+            except     = Boolean.TRUE;
+        }
+
+        readThis(Tokens.FROM);
+        readThis(Tokens.SERVER);
+
+        HsqlName foreignServer = readNewSchemaObjectName(SchemaObject.SERVER,
+            false);
+
+        readThis(Tokens.INTO);
+
+        HsqlName localSchema = readNewSchemaObjectName(SchemaObject.SCHEMA,
+            false);
+        Object[] args = new Object[] {
+            foreignServer, foreignSchema, localSchema, tableNames, except
+        };
+
+        cs = new StatementSchema(null, StatementTypes.IMPORT_FOREIGN_SCHEMA,
+                                 args);
+
+        return cs;
+    }
+
+    String[] readForeignTableList() {
+
+        int            i   = 0;
+        OrderedHashSet set = new OrderedHashSet();
+
+        while (true) {
+            checkIsSimpleName();
+
+            if (!set.add(token.tokenString)) {
+                throw unexpectedToken();
+            }
+
+            read();
+
+            i++;
+
+            if (readIfThis(Tokens.COMMA)) {
+                continue;
+            }
+
+            break;
+        }
+
+        String[] list = new String[i];
+
+        set.toArray(list);
+
+        return list;
+    }
+
+    StatementSchema compileCreateServer() {
+
+        readThis(Tokens.SERVER);
+
+        HsqlName foreignServer = readNewSchemaObjectName(SchemaObject.SERVER,
+            false);
+
+        readThis(Tokens.FOREIGN);
+        readThis(Tokens.DATA);
+        readThis(Tokens.WRAPPER);
+
+        HsqlName wrapperName = readNewSchemaObjectName(SchemaObject.WRAPPER,
+            false);
+
+        readUnquotedIdentifier("URL");
+
+        String url = readQuotedString();
+
+        readThis(Tokens.USER);
+
+        String userName = readQuotedString();
+
+        readThis(Tokens.PASSWORD);
+
+        String   password = readQuotedString();
+        Object[] args     = new Object[] {
+            foreignServer, wrapperName, url, userName, password
+        };
+
+        return new StatementSchema(null, StatementTypes.CREATE_SERVER, args);
+    }
+
+    StatementSchema compileCreateForeignDataWrapper() {
+
+        readThis(Tokens.DATA);
+        readThis(Tokens.WRAPPER);
+
+        HsqlName wrapperName = readNewSchemaObjectName(SchemaObject.WRAPPER,
+            false);
+
+        readThis(Tokens.LIBRARY);
+
+        String library = readQuotedString();
+
+        readThis(Tokens.LANGUAGE);
+        readThis(Tokens.JAVA);
+
+        Object[] args = new Object[] {
+            wrapperName, library
+        };
+
+        return new StatementSchema(null,
+                                   StatementTypes.CREATE_FOREIGN_DATA_WRAPPER,
+                                   args);
+    }
+
+    StatementSchema compileCreateForeignTable() {
+
+        readThis(Tokens.TABLE);
+
+        HsqlName localName = readNewSchemaObjectName(SchemaObject.TABLE,
+            false);
+
+        readThis(Tokens.SERVER);
+
+        HsqlName foreignServer = readNewSchemaObjectName(SchemaObject.SERVER,
+            false);
+
+        readThis(Tokens.OPTIONS);
+
+        HsqlName foreignSchema = null;
+
+        if (readIfThis(Tokens.SCHEMA)) {
+            foreignSchema = readNewSchemaObjectName(SchemaObject.SCHEMA,
+                    false);
+        }
+
+        readThis(Tokens.NAME);
+
+        HsqlName foreignName = readNewSchemaObjectName(SchemaObject.SCHEMA,
+            false);
+        Object[] args = new Object[] {
+            foreignServer, foreignSchema, foreignName, localName
+        };
+
+        return new StatementSchema(null, StatementTypes.CREATE_FOREIGN_TABLE,
+                                   args);
     }
 
     void checkSchemaUpdateAuthorisation(Session session, HsqlName schema) {

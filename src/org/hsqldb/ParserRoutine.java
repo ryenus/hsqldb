@@ -1050,6 +1050,11 @@ public class ParserRoutine extends ParserDML {
         if (!routine.isTrigger() && isSimpleName() && !isReservedKey()) {
             label = readNewSchemaObjectName(SchemaObject.LABEL, false);
 
+            // improved error message
+            if (token.tokenType != Tokens.COLON ) {
+                throw unexpectedToken(label.getNameString());
+            }
+
             readThis(Tokens.COLON);
         }
 

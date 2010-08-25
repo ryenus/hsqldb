@@ -96,6 +96,8 @@ public class Session implements SessionInterface {
     int                   actionIndex;
     long                  actionTimestamp;
     long                  transactionTimestamp;
+    long                  transactionEndTimestamp;
+    boolean               deadlockRollback;
     boolean               isPreTransaction;
     boolean               isTransaction;
     boolean               isBatch;
@@ -166,8 +168,9 @@ public class Session implements SessionInterface {
         waitedSessions              = new OrderedHashSet();
         waitingSessions             = new OrderedHashSet();
         tempSet                     = new OrderedHashSet();
-        isolationLevelDefault       = database.getDefaultIsolationLevel();
+        isolationLevelDefault       = database.defaultIsolationLevel;
         isolationLevel              = isolationLevelDefault;
+        deadlockRollback            = database.defaultDeadlockRollback;
         isReadOnlyDefault           = readonly;
         isReadOnlyIsolation = isolationLevel
                               == SessionInterface.TX_READ_UNCOMMITTED;
@@ -633,6 +636,8 @@ public class Session implements SessionInterface {
         ignoreCase     = false;
 
         setIsolation(isolationLevelDefault);
+
+        deadlockRollback = database.defaultDeadlockRollback;
     }
 
     /**

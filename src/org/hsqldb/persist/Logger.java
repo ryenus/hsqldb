@@ -362,6 +362,9 @@ public class Logger {
                 SessionInterface.TX_READ_COMMITTED;
         }
 
+        database.defaultDeadlockRollback =
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.hsqldb_tx_deadlock_rollback);
         database.sqlEnforceNames = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.sql_enforce_names);
         database.sqlEnforceRefs = database.databaseProperties.isPropertyTrue(
@@ -1124,7 +1127,7 @@ public class Logger {
         }
 
         if (HsqlDatabaseProperties.hsqldb_tx_level.equals(name)) {
-            switch (database.getDefaultIsolationLevel()) {
+            switch (database.defaultIsolationLevel) {
 
                 case SessionInterface.TX_READ_COMMITTED :
                     value = new StringBuffer(Tokens.T_READ).append(' ').append(
@@ -1399,7 +1402,7 @@ public class Logger {
         sb.append(Tokens.T_ISOLATION).append(' ').append(Tokens.T_LEVEL);
         sb.append(' ');
 
-        switch (database.getDefaultIsolationLevel()) {
+        switch (database.defaultIsolationLevel) {
 
             case SessionInterface.TX_READ_COMMITTED :
                 sb.append(Tokens.T_READ).append(' ').append(
