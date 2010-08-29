@@ -856,10 +856,10 @@ public final class NumberType extends Type {
             case Types.TINYINT :
             case Types.SQL_SMALLINT :
             case Types.SQL_INTEGER :
-                return convertToInt(a, this.typeCode);
+                return convertToInt(session, a, this.typeCode);
 
             case Types.SQL_BIGINT :
-                return convertToLong(a);
+                return convertToLong(session, a);
 
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
@@ -868,7 +868,27 @@ public final class NumberType extends Type {
 
             case Types.SQL_NUMERIC :
             case Types.SQL_DECIMAL :
-                BigDecimal value = convertToDecimal(a);
+                BigDecimal value = null;
+
+                if (scale == 0 && a instanceof Double) {
+                    double d = ((Number) a).doubleValue();
+
+                    if (session instanceof Session) {
+                        if (!((Session) session).database.sqlConvertTruncate) {
+                            d = java.lang.Math.rint(d);
+                        }
+                    }
+
+                    if (Double.isInfinite(d) || Double.isNaN(d)) {
+                        throw Error.error(ErrorCode.X_22003);
+                    }
+
+                    value = BigDecimal.valueOf(d);
+                }
+
+                if (value == null) {
+                    value = convertToDecimal(a);
+                }
 
                 return convertToTypeLimits(session, value);
 
@@ -938,10 +958,10 @@ public final class NumberType extends Type {
                 case Types.TINYINT :
                 case Types.SQL_SMALLINT :
                 case Types.SQL_INTEGER :
-                    return convertToInt(a, Types.INTEGER);
+                    return convertToInt(session, a, Types.INTEGER);
 
                 case Types.SQL_BIGINT :
-                    return convertToLong(a);
+                    return convertToLong(session, a);
 
                 case Types.SQL_REAL :
                 case Types.SQL_FLOAT :
@@ -974,7 +994,7 @@ public final class NumberType extends Type {
      * Converter from a numeric object to Integer. Input is checked to be
      * within range represented by the given number type.
      */
-    static Integer convertToInt(Object a, int type) {
+    static Integer convertToInt(SessionInterface session, Object a, int type) {
 
         int value;
 
@@ -1002,6 +1022,12 @@ public final class NumberType extends Type {
             value = bd.intValue();
         } else if (a instanceof Double || a instanceof Float) {
             double d = ((Number) a).doubleValue();
+
+            if (session instanceof Session) {
+                if (!((Session) session).database.sqlConvertTruncate) {
+                    d = java.lang.Math.rint(d);
+                }
+            }
 
             if (Double.isInfinite(d) || Double.isNaN(d)
                     || d >= (double) Integer.MAX_VALUE + 1
@@ -1031,7 +1057,7 @@ public final class NumberType extends Type {
      * Converter from a numeric object to Long. Input is checked to be
      * within range represented by Long.
      */
-    static Long convertToLong(Object a) {
+    static Long convertToLong(SessionInterface session, Object a) {
 
         if (a instanceof Integer) {
             return ValuePool.getLong(((Integer) a).intValue());
@@ -1047,6 +1073,12 @@ public final class NumberType extends Type {
             return ValuePool.getLong(bd.longValue());
         } else if (a instanceof Double || a instanceof Float) {
             double d = ((Number) a).doubleValue();
+
+            if (session instanceof Session) {
+                if (!((Session) session).database.sqlConvertTruncate) {
+                    d = java.lang.Math.rint(d);
+                }
+            }
 
             if (Double.isInfinite(d) || Double.isNaN(d)
                     || d >= (double) Long.MAX_VALUE + 1
@@ -1124,10 +1156,10 @@ public final class NumberType extends Type {
             double value = ((Number) a).doubleValue();
 
             if (Double.isInfinite(value) || Double.isNaN(value)) {
-                return null;
+                throw Error.error(ErrorCode.X_22003);
             }
 
-            return new BigDecimal(value);
+            return BigDecimal.valueOf(value);
         } else {
             throw Error.runtimeError(ErrorCode.U_S0500, "NumberType");
         }

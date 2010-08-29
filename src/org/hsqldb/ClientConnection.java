@@ -83,8 +83,8 @@ public class ClientConnection implements SessionInterface {
      * are multiplied by 100 to power p and added up, then negated, to form the
      * integer representation of version string.
      */
-    public static final String NETWORK_COMPATIBILITY_VERSION     = "1.9.0.0";
-    public static final int    NETWORK_COMPATIBILITY_VERSION_INT = -1090000;
+    public static final String NETWORK_COMPATIBILITY_VERSION     = "2.0.0.0";
+    public static final int    NETWORK_COMPATIBILITY_VERSION_INT = -2000000;
 
     //
     static final int             BUFFER_SIZE = 0x1000;

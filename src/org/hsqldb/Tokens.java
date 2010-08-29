@@ -95,7 +95,7 @@ public class Tokens {
     static final String        T_CONDITION        = "CONDIITON";
     public static final String T_CONNECT          = "CONNECT";
     public static final String T_CONSTRAINT       = "CONSTRAINT";
-    static final String        T_CONVERT          = "CONVERT";
+    public static final String T_CONVERT          = "CONVERT";
     static final String        T_CORR             = "CORR";
     static final String        T_CORRESPONDING    = "CORRESPONDING";
     static final String        T_COUNT            = "COUNT";
@@ -343,7 +343,7 @@ public class Tokens {
     static final String        T_TRIM              = "TRIM";
     static final String        T_TRIM_ARRAY        = "TRIM_ARRAY";
     public static final String T_TRUE              = "TRUE";
-    static final String        T_TRUNCATE          = "TRUNCATE";
+    public static final String T_TRUNCATE          = "TRUNCATE";
     static final String        T_UESCAPE           = "UESCAPE";
     static final String        T_UNION             = "UNION";
     public static final String T_UNIQUE            = "UNIQUE";
@@ -769,7 +769,7 @@ public class Tokens {
     static final String        T_BITAND           = "BITAND";
     static final String        T_BITOR            = "BITOR";
     static final String        T_BITXOR           = "BITXOR";
-    static final String        T_CONCAT_WORD      = "CONCAT";
+    public static final String T_CONCAT_WORD      = "CONCAT";
     static final String        T_COS              = "COS";
     static final String        T_COT              = "COT";
     static final String        T_CRYPT_KEY        = "CRYPT_KEY";

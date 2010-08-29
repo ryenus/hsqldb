@@ -93,6 +93,9 @@ public class Database {
     public boolean                sqlEnforceTDCD;
     public boolean                sqlEnforceTDCU;
     public boolean                sqlTranslateTTI;
+    public boolean                sqlConcatNulls;
+    public boolean                sqlUniqueNulls;
+    public boolean                sqlConvertTruncate;
     private boolean               isReferentialIntegrity;
     public HsqlDatabaseProperties databaseProperties;
     private final boolean         shutdownOnNoConnection;
@@ -436,6 +439,18 @@ public class Database {
 
     public void setTranslateTTI(boolean mode) {
         sqlTranslateTTI = mode;
+    }
+
+    public void setConcatNulls(boolean mode) {
+        sqlConcatNulls = mode;
+    }
+
+    public void setUniqueNulls(boolean mode) {
+        sqlUniqueNulls = mode;
+    }
+
+    public void setConvertRound(boolean mode) {
+        sqlConvertTruncate = mode;
     }
 
     /**

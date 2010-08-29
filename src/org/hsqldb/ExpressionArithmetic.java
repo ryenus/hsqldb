@@ -461,8 +461,8 @@ public class ExpressionArithmetic extends Expression {
 
             case OpTypes.SIMPLE_COLUMN : {
                 Object value =
-                    session.sessionContext
-                        .rangeIterators[rangePosition].getCurrent(columnIndex);
+                    session.sessionContext.rangeIterators[rangePosition]
+                        .getCurrent(columnIndex);
 
                 return value;
             }
@@ -489,6 +489,15 @@ public class ExpressionArithmetic extends Expression {
                 return dataType.divide(a, b);
 
             case OpTypes.CONCAT :
+                if (!session.database.sqlConcatNulls
+                        && nodes[LEFT].dataType.isCharacterType()) {
+                    if (a == null && b != null) {
+                        a = "";
+                    } else if (a != null && b == null) {
+                        b = "";
+                    }
+                }
+
                 return dataType.concat(session, a, b);
 
             default :

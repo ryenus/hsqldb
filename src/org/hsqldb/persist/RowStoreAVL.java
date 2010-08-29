@@ -60,7 +60,7 @@ public abstract class RowStoreAVL implements PersistentStore {
 
     // for result tables
     // for INFORMATION SCHEMA tables
-    long timestamp;
+    private long timestamp;
 
     //
     PersistentStore[] subStores = PersistentStore.emptyArray;

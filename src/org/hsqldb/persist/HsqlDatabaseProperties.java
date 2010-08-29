@@ -222,6 +222,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_enforce_types = "sql.enforce_types";
     public static final String sql_enforce_tdcd  = "sql.enforce_tdc_delete";
     public static final String sql_enforce_tdcu  = "sql.enforce_tdc_update";
+    public static final String sql_concat_nulls  = "sql.concat_nulls";
+    public static final String sql_unique_nulls  = "sql.unique_nulls";
+    public static final String sql_convert_trunc = "sql.convert_trunc";
     public static final String sql_enforce_any   = "sql.enforce_any";    // unused
     public static final String jdbc_translate_tti_types =
         "jdbc.translate_tti_types";
@@ -349,6 +352,15 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                           true));
         dbMeta.put(sql_enforce_tdcu,
                    HsqlProperties.getMeta(sql_enforce_tdcu, SQL_PROPERTY,
+                                          true));
+        dbMeta.put(sql_concat_nulls,
+                   HsqlProperties.getMeta(sql_concat_nulls, SQL_PROPERTY,
+                                          true));
+        dbMeta.put(sql_unique_nulls,
+                   HsqlProperties.getMeta(sql_unique_nulls, SQL_PROPERTY,
+                                          true));
+        dbMeta.put(sql_convert_trunc,
+                   HsqlProperties.getMeta(sql_convert_trunc, SQL_PROPERTY,
                                           true));
         dbMeta.put(sql_enforce_any,
                    HsqlProperties.getMeta(sql_enforce_any, SQL_PROPERTY,
