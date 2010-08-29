@@ -244,7 +244,7 @@
 
           <thead>
             <row>
-              <entry>Value</entry>
+              <entry>Name</entry>
 
               <entry>Default</entry>
 
@@ -253,10 +253,6 @@
           </thead>
 
           <tbody valign="top">
-            <row>
-              <entry nameend="c3" namest="c1"></entry>
-            </row>
-
             <row>
               <entry><property>get_column_name</property></entry>
 
@@ -332,10 +328,6 @@
               coincides with the web app being shut
               down.</para><programlisting>    jdbc:hsqldb:file:enrollments;shutdown=true</programlisting></entry>
             </row>
-
-            <row>
-              <entry nameend="c3" namest="c1"></entry>
-            </row>
           </tbody>
         </tgroup>
       </table>
@@ -358,11 +350,11 @@
     <para>The database engine has several properties that are listed in the
     <link endterm="deployment-title" xlink:href="#deployment-chapt"></link>
     chapter. These properties can be changed via SQL commands after a
-    connection is made to the database. It is possible to specify all of these
-    properties in the connection properties on as part of the URL string when
-    the first connection is made to a new file: or mem: database. This allows
-    the properties to be set without using any SQL commands. The corresponding
-    SQL command is given for each property.</para>
+    connection is made to the database. It is possible to specify most of
+    these properties in the connection properties or as part of the URL string
+    when the first connection is made to a new file: or mem: database. This
+    allows the properties to be set without using any SQL commands. The
+    corresponding SQL command is given for each property.</para>
 
     <para>Management of properties has changed since version 1.8. The old SET
     PROPERTY does not change a property and is retained to simplify
@@ -377,11 +369,12 @@
     <para>In the table below, database properties that can be used as part of
     the URL or in connection properties are listed. For each property that can
     also be set with an SQL statement, the statement is also given. These
-    statements are described in the <link endterm="deployment-title"
-    xlink:href="#deployment-chapt"></link> chapter.</para>
+    statements are described more extensively in the <link
+    endterm="deployment-title" xlink:href="#deployment-chapt"></link>
+    chapter.</para>
 
     <table frame="all" pgwide="1" tocentry="1">
-      <title>Database Settings Properties</title>
+      <title>Validity Check Property</title>
 
       <tgroup align="left" cols="3">
         <colspec colname="c1" colwidth="6.5cm" />
@@ -392,7 +385,7 @@
 
         <thead>
           <row>
-            <entry>Value</entry>
+            <entry>Name</entry>
 
             <entry>Default</entry>
 
@@ -420,7 +413,7 @@
     </table>
 
     <table frame="all" pgwide="1" tocentry="1">
-      <title>Database SQL Conformance Properties</title>
+      <title>SQL Conformance Properties</title>
 
       <tgroup align="left" cols="3">
         <colspec colname="c1" colwidth="6.5cm" />
@@ -431,7 +424,7 @@
 
         <thead>
           <row>
-            <entry>Value</entry>
+            <entry>Name</entry>
 
             <entry>Default</entry>
 
@@ -590,12 +583,87 @@
           <row>
             <entry nameend="c3" namest="c1"></entry>
           </row>
+
+          <row>
+            <entry><property>sql.longvar_is_lob</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>translating longvarchar and longvarbinary to lob</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property, when set
+            true, causes type declarations using LONGVARCHAR and LONGVARBINARY
+            to be translated to CLOB and BLOB respectively. By default, they
+            are translated to VARCHAR and
+            VARBINARY.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>sql.concat_nulls</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>behaviour of concatenation involving one null</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property, when set
+            false, causes the concatenation of a null and a not null value to
+            return the not null value. By default, it returns
+            null.</para><para><programlisting>SET DATABASE SQL CONCAT NULLS { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>sql.unique_nulls</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>behaviour of multi-column UNIQUE constraints with null
+            values</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property, when set
+            false, causes multi-column unique constrains to be more
+            restrictive for value sets that contain a mix of null and not null
+            values.</para><para><programlisting>SET DATABASE SQL UNIQUE NULLS { TRUE | FALSE }</programlisting></para></entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>sql.convert_trunc</property></entry>
+
+            <entry><literal>true</literal></entry>
+
+            <entry>behaviour of type conversion from DOUBLE to integral
+            types</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property, when set
+            false, causes type conversions from DOUBLE to any integral type to
+            use rounding. By default truncation is
+            used.</para><para><programlisting>SET DATABASE SQL CONVERT TRUNCATE { TRUE | FALSE }</programlisting></para></entry>
+          </row>
         </tbody>
       </tgroup>
     </table>
 
     <table frame="all" pgwide="1" tocentry="1">
-      <title>Database Operation Properties</title>
+      <title>Database Settings Properties</title>
 
       <tgroup align="left" cols="3">
         <colspec colname="c1" colwidth="6.5cm" />
@@ -606,7 +674,7 @@
 
         <thead>
           <row>
-            <entry>Value</entry>
+            <entry>Name</entry>
 
             <entry>Default</entry>
 
@@ -634,26 +702,6 @@
             cached table by default. The qualified forms such as CREATE MEMORY
             TABLE or CREATE CACHED TABLE are not affected at all by this
             property.</para><para><programlisting>SET DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY }</programlisting></para></entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"></entry>
-          </row>
-
-          <row>
-            <entry><property>sql.longvar_is_lob</property></entry>
-
-            <entry><literal>false</literal></entry>
-
-            <entry>translating longvarchar and longvarbinary to lob</entry>
-          </row>
-
-          <row>
-            <entry nameend="c3" namest="c1"><para>This property, when set
-            true, causes type declarations using LONGVARCHAR and LONGVARBINARY
-            to be translated to CLOB and BLOB respectively. By default, they
-            are translated to VARCHAR and
-            VARBINARY.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
 
           <row>
@@ -775,7 +823,7 @@
 
         <thead>
           <row>
-            <entry>Value</entry>
+            <entry>Name</entry>
 
             <entry>Default</entry>
 
@@ -1206,7 +1254,7 @@
 
         <thead>
           <row>
-            <entry>Value</entry>
+            <entry>Name</entry>
 
             <entry>Default</entry>
 

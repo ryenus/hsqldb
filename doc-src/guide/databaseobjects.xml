@@ -295,7 +295,7 @@
       Standard.</para>
 
       <para>The correct way to use a sequence value is the NEXT VALUE FOR
-      expression. </para>
+      expression.</para>
 
       <para>You can query the INFORMATION_SCHEMA.SEQUENCES table for the next
       value that will be returned from any of the defined sequences. The
@@ -338,8 +338,7 @@
       causing a new identity value to be generated, a call to
       <literal>IDENTITY()</literal> inside the procedure will return the new
       identity, but a call outside the procedure will return the last identity
-      value that was generated before a call was made to the procedure.
-      </para>
+      value that was generated before a call was made to the procedure.</para>
 
       <para>The last inserted IDENTITY value can also be retrieved via JDBC,
       by specifying the Statement or PreparedStatement object to return the
@@ -2835,560 +2834,734 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
     <section>
       <title>Views in INFORMATION SCHEMA</title>
 
-      <para>The following views are defined by the SQL Standard and supported
-      by HyperSQL. The columns and contents exactly match the Standard
-      requirements.</para>
+      <para>HyperSQL suppost a vast range of views in the INFORMATION_SCHEMA.
+      These include views specified by the SQL Standard, plus views that are
+      specific to HyperSQL and are used for JDBC DatabaseMetaData queries or
+      other information that is not covered by the SQL Standard.</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ADMINISTRABLE_ROLE_AUTHORIZATIONS</primary>
-      </indexterm>
+      <section>
+        <title>SQL Standard Views</title>
 
-      <para>ADMINISTRABLE_ROLE_AUTHORIZATIONS</para>
+        <para>The following views are defined by the SQL Standard and
+        supported by HyperSQL. The columns and contents exactly match the
+        Standard requirements.</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>APPLICABLE_ROLES</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>ADMINISTRABLE_ROLE_AUTHORIZATIONS</primary>
+        </indexterm>
 
-      <para>APPLICABLE_ROLES</para>
+        <para>ADMINISTRABLE_ROLE_AUTHORIZATIONS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ASSERTIONS</primary>
-      </indexterm>
+        <para>Information on ROLE authorizations, all granted by the admin
+        role.</para>
 
-      <para>ASSERTIONS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>APPLICABLE_ROLES</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>AUTHORIZATIONS</primary>
-      </indexterm>
+        <para>APPLICABLE_ROLES</para>
 
-      <para>AUTHORIZATIONS</para>
+        <para>Information on ROLE authorizations for the current user</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>CHARACTER_SETS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>ASSERTIONS</primary>
+        </indexterm>
 
-      <para>CHARACTER_SETS</para>
+        <para>ASSERTIONS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>CHECK_CONSTRAINTS</primary>
-      </indexterm>
+        <para>Empty view as ASSERTION objects are not yet supported.</para>
 
-      <para>CHECK_CONSTRAINTS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>AUTHORIZATIONS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>CHECK_CONSTRAINT_ROUTINE_USAGE</primary>
-      </indexterm>
+        <para>AUTHORIZATIONS</para>
 
-      <para>CHECK_CONSTRAINT_ROUTINE_USAGE</para>
+        <para>Top level information on USER and ROLE objects in the
+        database</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>COLLATIONS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>CHARACTER_SETS</primary>
+        </indexterm>
 
-      <para>COLLATIONS</para>
+        <para>CHARACTER_SETS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>COLUMNS</primary>
-      </indexterm>
+        <para>List of supported CHARACTER SET objects</para>
 
-      <para>COLUMNS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>CHECK_CONSTRAINTS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>COLUMN_COLUMN_USAGE</primary>
-      </indexterm>
+        <para>CHECK_CONSTRAINTS</para>
 
-      <para>COLUMN_COLUMN_USAGE</para>
+        <para>Additional information specific to each CHECK constraint,
+        including the search condition</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>COLUMN_DOMAIN_USAGE</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>CHECK_CONSTRAINT_ROUTINE_USAGE</primary>
+        </indexterm>
 
-      <para>COLUMN_DOMAIN_USAGE</para>
+        <para>CHECK_CONSTRAINT_ROUTINE_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>COLUMN_PRIVILEGES</primary>
-      </indexterm>
+        <para>Information on FUNCTION objects referenced in CHECK constraints
+        search conditions</para>
 
-      <para>COLUMN_PRIVILEGES</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>COLLATIONS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>COLUMN_UDT_USAGE</primary>
-      </indexterm>
+        <para>COLLATIONS</para>
 
-      <para>COLUMN_UDT_USAGE</para>
+        <para>Information on collations supported by the database.</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>CONSTRAINT_COLUMN_USAGE</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>COLUMNS</primary>
+        </indexterm>
 
-      <para>CONSTRAINT_COLUMN_USAGE</para>
+        <para>COLUMNS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>CONSTRAINT_TABLE_USAGE</primary>
-      </indexterm>
+        <para>Information on COLUMN objects in TABLE and VIEW
+        definitions</para>
 
-      <para>CONSTRAINT_TABLE_USAGE</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>COLUMN_COLUMN_USAGE</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>DATA_TYPE_PRIVILEGES</primary>
-      </indexterm>
+        <para>COLUMN_COLUMN_USAGE</para>
 
-      <para>DATA_TYPE_PRIVILEGES</para>
+        <para>Information on references to COLUMN objects from other,
+        GENERATED, COLUMN objects</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>DOMAINS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>COLUMN_DOMAIN_USAGE</primary>
+        </indexterm>
 
-      <para>DOMAINS</para>
+        <para>COLUMN_DOMAIN_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>DOMAIN_CONSTRAINTS</primary>
-      </indexterm>
+        <para>Information on DOMAIN objects used in type definition of COLUMN
+        objects</para>
 
-      <para>DOMAIN_CONSTRAINTS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>COLUMN_PRIVILEGES</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ENABLED_ROLES</primary>
-      </indexterm>
+        <para>COLUMN_PRIVILEGES</para>
 
-      <para>ENABLED_ROLES</para>
+        <para>Information on privileges on each COLUMN object, granted to
+        different ROLE and USER authorizations</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>INFORMATION_SCHEMA_CATALOG_NAME</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>COLUMN_UDT_USAGE</primary>
+        </indexterm>
 
-      <para>INFORMATION_SCHEMA_CATALOG_NAME</para>
+        <para>COLUMN_UDT_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>KEY_COLUMN_USAGE</primary>
-      </indexterm>
+        <para>Information on distinct TYPE objects used in type definition of
+        COLUMN objects</para>
 
-      <para>KEY_COLUMN_USAGE</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>CONSTRAINT_COLUMN_USAGE</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>PARAMETERS</primary>
-      </indexterm>
+        <para>CONSTRAINT_COLUMN_USAGE</para>
 
-      <para>PARAMETERS</para>
+        <para>Information on COLUMN objects referenced by CONSTRAINT objects
+        in the database</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>REFERENTIAL_CONSTRAINTS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>CONSTRAINT_TABLE_USAGE</primary>
+        </indexterm>
 
-      <para>REFERENTIAL_CONSTRAINTS</para>
+        <para>CONSTRAINT_TABLE_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROLE_AUTHORIZATION_DESCRIPTORS</primary>
-      </indexterm>
+        <para>Information on TABLE and VIEW objects referenced by CONSTRAINT
+        objects in the database</para>
 
-      <para>ROLE_AUTHORIZATION_DESCRIPTORS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>DATA_TYPE_PRIVILEGES</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROLE_COLUMN_GRANTS</primary>
-      </indexterm>
+        <para>DATA_TYPE_PRIVILEGES</para>
 
-      <para>ROLE_COLUMN_GRANTS</para>
+        <para>Information on top level schema objects of various kinds that
+        reference TYPE objects</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROLE_ROUTINE_GRANTS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>DOMAINS</primary>
+        </indexterm>
 
-      <para>ROLE_ROUTINE_GRANTS</para>
+        <para>DOMAINS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROLE_TABLE_GRANTS</primary>
-      </indexterm>
+        <para>Top level information on DOMAIN objects in the database.</para>
 
-      <para>ROLE_TABLE_GRANTS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>DOMAIN_CONSTRAINTS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROLE_UDT_GRANTS</primary>
-      </indexterm>
+        <para>DOMAIN_CONSTRAINTS</para>
 
-      <para>ROLE_UDT_GRANTS</para>
+        <para>Information on CONSTRAINT definitions used for DOMAIN
+        objects</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROLE_USAGE_GRANTS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>ENABLED_ROLES</primary>
+        </indexterm>
 
-      <para>ROLE_USAGE_GRANTS</para>
+        <para>ENABLED_ROLES</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROUTINE_COLUMN_USAGE</primary>
-      </indexterm>
+        <para>Information on ROLE privileges enabled for the current
+        session</para>
 
-      <para>ROUTINE_COLUMN_USAGE</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>INFORMATION_SCHEMA_CATALOG_NAME</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROUTINE_JAR_USAGE</primary>
-      </indexterm>
+        <para>INFORMATION_SCHEMA_CATALOG_NAME</para>
 
-      <para>ROUTINE_JAR_USAGE</para>
+        <para>Information on the single CATALOG object of the database</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROUTINE_PRIVILEGES</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>KEY_COLUMN_USAGE</primary>
+        </indexterm>
 
-      <para>ROUTINE_PRIVILEGES</para>
+        <para>KEY_COLUMN_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROUTINE_ROUTINE_USAGE</primary>
-      </indexterm>
+        <para>Information on COLUMN objects of tables that are used by PRIMARY
+        KEY, UNIQUE and FOREIGN KEY constraints</para>
 
-      <para>ROUTINE_ROUTINE_USAGE</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>PARAMETERS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROUTINE_SEQUENCE_USAGE</primary>
-      </indexterm>
+        <para>PARAMETERS</para>
 
-      <para>ROUTINE_SEQUENCE_USAGE</para>
+        <para>Information on parameters of each FUNCTION or PROCEDURE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROUTINE_TABLE_USAGE</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>REFERENTIAL_CONSTRAINTS</primary>
+        </indexterm>
 
-      <para>ROUTINE_TABLE_USAGE</para>
+        <para>REFERENTIAL_CONSTRAINTS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>ROUTINES</primary>
-      </indexterm>
+        <para>Additional information on FOREIGN KEY constraints, including
+        triggered action and name of UNIQUE constraint they refer to</para>
 
-      <para>ROUTINES</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROLE_AUTHORIZATION_DESCRIPTORS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SCHEMATA</primary>
-      </indexterm>
+        <para>ROLE_AUTHORIZATION_DESCRIPTORS</para>
 
-      <para>SCHEMATA</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROLE_COLUMN_GRANTS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SEQUENCES</primary>
-      </indexterm>
+        <para>ROLE_COLUMN_GRANTS</para>
 
-      <para>SEQUENCES</para>
+        <para>Information on privileges on COLUMN objects granted to or by the
+        current session roles</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SQL_FEATURES</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROLE_ROUTINE_GRANTS</primary>
+        </indexterm>
 
-      <para>SQL_FEATURES</para>
+        <para>ROLE_ROUTINE_GRANTS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SQL_IMPLEMENTATION_INFO</primary>
-      </indexterm>
+        <para>Information on privileges on FUNCTION and PROCEDURE objects
+        granted to or by the current session roles</para>
 
-      <para>SQL_IMPLEMENTATION_INFO</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROLE_TABLE_GRANTS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SQL_PACKAGES</primary>
-      </indexterm>
+        <para>ROLE_TABLE_GRANTS</para>
 
-      <para>SQL_PACKAGES</para>
+        <para>Information on privileges on TABLE and VIEW objects granted to
+        or by the current session roles</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SQL_PARTS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROLE_UDT_GRANTS</primary>
+        </indexterm>
 
-      <para>SQL_PARTS</para>
+        <para>ROLE_UDT_GRANTS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SQL_SIZING</primary>
-      </indexterm>
+        <para>Information on privileges on TYPE objects granted to or by the
+        current session roles</para>
 
-      <para>SQL_SIZING</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROLE_USAGE_GRANTS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SQL_SIZING_PROFILES</primary>
-      </indexterm>
+        <para>ROLE_USAGE_GRANTS</para>
 
-      <para>SQL_SIZING_PROFILES</para>
+        <para>Information on privileges on USAGE privileges granted to or by
+        the current session roles</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TABLES</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROUTINE_COLUMN_USAGE</primary>
+        </indexterm>
 
-      <para>TABLES</para>
+        <para>ROUTINE_COLUMN_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TABLE_CONSTRAINTS</primary>
-      </indexterm>
+        <para>Information on COLUMN objects of different tables that are
+        referenced in FUNCTION and PROCEDURE definitions</para>
 
-      <para>TABLE_CONSTRAINTS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROUTINE_JAR_USAGE</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TABLE_PRIVILEGES</primary>
-      </indexterm>
+        <para>ROUTINE_JAR_USAGE</para>
 
-      <para>TABLE_PRIVILEGES</para>
+        <para>Information on JAR usage by Java language FUNCTION and PROCEDURE
+        objects.</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TRANSLATIONS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROUTINE_PRIVILEGES</primary>
+        </indexterm>
 
-      <para>TRANSLATIONS</para>
+        <para>ROUTINE_PRIVILEGES</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TRIGGERED_UPDATE_COLUMNS</primary>
-      </indexterm>
+        <para>Information on EXECUTE privileges granted on PROCEDURE and
+        FUNCTION objects</para>
 
-      <para>TRIGGERED_UPDATE_COLUMNS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROUTINE_ROUTINE_USAGE</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TRIGGERS</primary>
-      </indexterm>
+        <para>ROUTINE_ROUTINE_USAGE</para>
 
-      <para>TRIGGERS</para>
+        <para>Information on PROCEDURE and FUNCTION objects that are
+        referenced in FUNCTION and PROCEDURE definitions</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TRIGGER_COLUMN_USAGE</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROUTINE_SEQUENCE_USAGE</primary>
+        </indexterm>
 
-      <para>TRIGGER_COLUMN_USAGE</para>
+        <para>ROUTINE_SEQUENCE_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TRIGGER_ROUTINE_USAGE</primary>
-      </indexterm>
+        <para>Information on SEQUENCE objects that are referenced in FUNCTION
+        and PROCEDURE definitions</para>
 
-      <para>TRIGGER_ROUTINE_USAGE</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROUTINE_TABLE_USAGE</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TRIGGER_SEQUENCE_USAGE</primary>
-      </indexterm>
+        <para>ROUTINE_TABLE_USAGE</para>
 
-      <para>TRIGGER_SEQUENCE_USAGE</para>
+        <para>Information on TABLE and VIEW objects that are referenced in
+        FUNCTION and PROCEDURE definitions</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>TRIGGER_TABLE_USAGE</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>ROUTINES</primary>
+        </indexterm>
 
-      <para>TRIGGER_TABLE_USAGE</para>
+        <para>ROUTINES</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>USAGE_PRIVILEGES</primary>
-      </indexterm>
+        <para>Top level information on all PROCEDURE and FUNCTION objects in
+        the database</para>
 
-      <para>USAGE_PRIVILEGES</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>SCHEMATA</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>USER_DEFINED_TYPES</primary>
-      </indexterm>
+        <para>SCHEMATA</para>
 
-      <para>USER_DEFINED_TYPES</para>
+        <para>Information on all the SCHEMA objects in the databese</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>VIEWS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>SEQUENCES</primary>
+        </indexterm>
 
-      <para>VIEWS</para>
+        <para>SEQUENCES</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>VIEW_COLUMN_USAGE</primary>
-      </indexterm>
+        <para>Information on SEQUENCE objects</para>
 
-      <para>VIEW_COLUMN_USAGE</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>SQL_FEATURES</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>VIEW_ROUTINE_USAGE</primary>
-      </indexterm>
+        <para>SQL_FEATURES</para>
 
-      <para>VIEW_ROUTINE_USAGE</para>
+        <para>List of all SQL:2008 standard features, including information on
+        whether they are supported or not supported by HyperSQL</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>VIEW_TABLE_USAGE</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>SQL_IMPLEMENTATION_INFO</primary>
+        </indexterm>
 
-      <para>VIEW_TABLE_USAGE</para>
+        <para>SQL_IMPLEMENTATION_INFO</para>
 
-      <para>The following views are specific to HyperSQL. Most of these views
-      are used directly by JDBC DatabaseMetaData method calls and are
-      indicated as such. Some views contain information that is specific to
-      HyperSQL and is not covered by SQL Standard INFORMATION_SCHEMA
-      views.</para>
+        <para></para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_BESTROWIDENTIFIER</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>SQL_PACKAGES</primary>
+        </indexterm>
 
-      <para>SYSTEM_BESTROWIDENTIFIER</para>
+        <para>SQL_PACKAGES</para>
 
-      <para>For DatabaseMetaData.getBestRowIdentifier</para>
+        <para>List of the SQL:2008 Standard packages, including information on
+        whether they are supported or not supported by HyperSQL</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_CACHEINFO</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>SQL_PARTS</primary>
+        </indexterm>
 
-      <para>SYSTEM_CACHEINFO</para>
+        <para>SQL_PARTS</para>
 
-      <para>Contains the current settings and variables of the data cache used
-      for all CACHED tables, and the data cache of each TEXT table.</para>
+        <para>List of the SQL:2008 Standard parts, including information on
+        whether they are supported or not supported by HyperSQL</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_COLUMNS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>SQL_SIZING</primary>
+        </indexterm>
 
-      <para>SYSTEM_COLUMNS</para>
+        <para>SQL_SIZING</para>
 
-      <para>For DatabaseMetaData.getColumns</para>
+        <para>List of the SQL:2008 Standard maximum supported sizes for
+        different features as supported by HyperSQL</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_COMMENTS</primary>
-      </indexterm>
+        <indexterm significance="preferred" type="sql">
+          <primary>SQL_SIZING_PROFILES</primary>
+        </indexterm>
 
-      <para>SYSTEM_COMMENTS</para>
+        <para>SQL_SIZING_PROFILES</para>
 
-      <para>Contains the user-defined comments added to tables and their
-      columns.</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TABLES</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_CONNECTION_PROPERTIES</primary>
-      </indexterm>
+        <para>TABLES</para>
 
-      <para>SYSTEM_CONNECTION_PROPERTIES</para>
+        <para>Information on all TABLE and VIEW object, including the
+        INFORMATION_SCHEMA views themselves</para>
 
-      <para>For DatabaseMetaData.getClientInfoProperties</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TABLE_CONSTRAINTS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_CROSSREFERENCE</primary>
-      </indexterm>
+        <para>TABLE_CONSTRAINTS</para>
 
-      <para>SYSTEM_CROSSREFERENCE</para>
+        <para>Information on all table level constraints, including PRIMARY
+        KEY, UNIQUE, FOREIGN KEY and CHECK constraints</para>
 
-      <para>For DatabaseMetaData.getCrossReference, getExportedKeys and
-      getImportedKeys</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TABLE_PRIVILEGES</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_INDEXINFO</primary>
-      </indexterm>
+        <para>TABLE_PRIVILEGES</para>
 
-      <para>SYSTEM_INDEXINFO</para>
+        <para>Information on privileges on TABLE and VIEW objects owned or
+        given to the current user</para>
 
-      <para>For DatabaseMetaData.getIndexInfo</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TRANSLATIONS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_PRIMARYKEYS</primary>
-      </indexterm>
+        <para>TRANSLATIONS</para>
 
-      <para>SYSTEM_PRIMARYKEYS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TRIGGERED_UPDATE_COLUMNS</primary>
+        </indexterm>
 
-      <para>For DatabaseMetaData.getPrimaryKeys</para>
+        <para>TRIGGERED_UPDATE_COLUMNS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_PROCEDURECOLUMNS</primary>
-      </indexterm>
+        <para>Information on columns that have been used in TRIGGER
+        definitions in the ON UPDATE clause</para>
 
-      <para>SYSTEM_PROCEDURECOLUMNS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TRIGGERS</primary>
+        </indexterm>
 
-      <para>For DatabaseMetaData.getProcedureColumns</para>
+        <para>TRIGGERS</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_PROCEDURES</primary>
-      </indexterm>
+        <para>Top level information on the TRIGGER definitions in the
+        databases</para>
 
-      <para>SYSTEM_PROCEDURES</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TRIGGER_COLUMN_USAGE</primary>
+        </indexterm>
 
-      <para>For DatabaseMetaData.getFunctionColumns, getFunctions and
-      getProcedures</para>
+        <para>TRIGGER_COLUMN_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_PROPERTIES</primary>
-      </indexterm>
+        <para>Information on COLUMN objects that have been referenced in the
+        body of TRIGGER definitions</para>
 
-      <para>SYSTEM_PROPERTIES</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TRIGGER_ROUTINE_USAGE</primary>
+        </indexterm>
 
-      <para>Contains the current values of all the database level properties.
-      Settings such as SQL rule enforcement, database transaction model and
-      default transaction level are all reported in this view. The names of
-      the properties are listed in the <link endterm="dbproperties-title"
-      os="" xlink:href="#dbproperties-chapt"></link> chapter together with the
-      corresponding SQL statements used to change the properties.</para>
+        <para>TRIGGER_ROUTINE_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_SCHEMAS</primary>
-      </indexterm>
+        <para>Information on FUNCTION and PROCEDURE objects that have been
+        used in TRIGGER definitions</para>
 
-      <para>SYSTEM_SCHEMAS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TRIGGER_SEQUENCE_USAGE</primary>
+        </indexterm>
 
-      <para>For DatabaseMetaData.getSchemas</para>
+        <para>TRIGGER_SEQUENCE_USAGE</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_SEQUENCES</primary>
-      </indexterm>
+        <para>Information on SEQUENCE objects that been referenced in TRIGGER
+        definitions</para>
 
-      <para>SYSTEM_SEQUENCES</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>TRIGGER_TABLE_USAGE</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_SESSIONINFO</primary>
-      </indexterm>
+        <para>TRIGGER_TABLE_USAGE</para>
 
-      <para>SYSTEM_SESSIONINFO</para>
+        <para>Information on TABLE and VIEW objects that have been referenced
+        in TRIGGER definitions</para>
 
-      <para>Contains the settings and variables of the current session.</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>USAGE_PRIVILEGES</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_SESSIONS</primary>
-      </indexterm>
+        <para>USAGE_PRIVILEGES</para>
 
-      <para>SYSTEM_SESSIONS</para>
+        <para>Information on USAGE privileges granted to or owned by the
+        current user</para>
 
-      <para>Contains the list of all open sessions in the database (when used
-      by a DBA user), or just the current session.</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>USER_DEFINED_TYPES</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_TABLES</primary>
-      </indexterm>
+        <para>USER_DEFINED_TYPES</para>
 
-      <para>SYSTEM_TABLES</para>
+        <para>Top level information on TYPE objects in the database</para>
 
-      <para>For DatabaseMetaData.getTables</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>VIEWS</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_TABLETYPES</primary>
-      </indexterm>
+        <para>VIEWS</para>
 
-      <para>SYSTEM_TABLETYPES</para>
+        <para>Top Level information on VIEW objects in the database</para>
 
-      <para>For DatabaseMetaData.getTableTypes</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>VIEW_COLUMN_USAGE</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_TEXTTABLES</primary>
-      </indexterm>
+        <para>VIEW_COLUMN_USAGE</para>
 
-      <para>SYSTEM_TEXTTABLES</para>
+        <para>Information on COLUMN objects referenced in the query
+        expressions of the VIEW objects</para>
 
-      <para>Cotains information on the settings of each text table.</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>VIEW_ROUTINE_USAGE</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_TYPEINFO</primary>
-      </indexterm>
+        <para>VIEW_ROUTINE_USAGE</para>
 
-      <para>SYSTEM_TYPEINFO</para>
+        <para>Information on FUNCTION and PROCEDURE objects that have been
+        used in the query expressions of the VIEW objects</para>
 
-      <para>For DatabaseMetaData.getTypeInfo</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>VIEW_TABLE_USAGE</primary>
+        </indexterm>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_UDTS</primary>
-      </indexterm>
+        <para>VIEW_TABLE_USAGE</para>
 
-      <para>SYSTEM_UDTS</para>
+        <para>Information on TABLE and VIEW objects that have been referenced
+        in the query expressions of the VIEW objects</para>
+      </section>
 
-      <para>For DatabaseMetaData.getUDTs</para>
+      <section>
+        <title>HyperSQL Custom Views</title>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_USERS</primary>
-      </indexterm>
+        <para>The following views are specific to HyperSQL. Most of these
+        views are used directly by JDBC DatabaseMetaData method calls and are
+        indicated as such. Some views contain information that is specific to
+        HyperSQL and is not covered by the SQL Standard views.</para>
 
-      <para>SYSTEM_USERS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_BESTROWIDENTIFIER</primary>
+        </indexterm>
 
-      <para>Contains the list of all users in the database (when used by a DBA
-      user), or just the current user.</para>
+        <para>SYSTEM_BESTROWIDENTIFIER</para>
 
-      <indexterm significance="preferred" type="sql">
-        <primary>SYSTEM_VERSIONCOLUMNS</primary>
-      </indexterm>
+        <para>For DatabaseMetaData.getBestRowIdentifier</para>
 
-      <para>SYSTEM_VERSIONCOLUMNS</para>
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_CACHEINFO</primary>
+        </indexterm>
 
-      <para>For DatabaseMetaData.getVersionColumns</para>
+        <para>SYSTEM_CACHEINFO</para>
+
+        <para>Contains the current settings and variables of the data cache
+        used for all CACHED tables, and the data cache of each TEXT
+        table.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_COLUMNS</primary>
+        </indexterm>
+
+        <para>SYSTEM_COLUMNS</para>
+
+        <para>For DatabaseMetaData.getColumns</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_COMMENTS</primary>
+        </indexterm>
+
+        <para>SYSTEM_COMMENTS</para>
+
+        <para>Contains the user-defined comments added to tables and their
+        columns.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_CONNECTION_PROPERTIES</primary>
+        </indexterm>
+
+        <para>SYSTEM_CONNECTION_PROPERTIES</para>
+
+        <para>For DatabaseMetaData.getClientInfoProperties</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_CROSSREFERENCE</primary>
+        </indexterm>
+
+        <para>SYSTEM_CROSSREFERENCE</para>
+
+        <para>For DatabaseMetaData.getCrossReference, getExportedKeys and
+        getImportedKeys</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_INDEXINFO</primary>
+        </indexterm>
+
+        <para>SYSTEM_INDEXINFO</para>
+
+        <para>For DatabaseMetaData.getIndexInfo</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_PRIMARYKEYS</primary>
+        </indexterm>
+
+        <para>SYSTEM_PRIMARYKEYS</para>
+
+        <para>For DatabaseMetaData.getPrimaryKeys</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_PROCEDURECOLUMNS</primary>
+        </indexterm>
+
+        <para>SYSTEM_PROCEDURECOLUMNS</para>
+
+        <para>For DatabaseMetaData.getProcedureColumns</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_PROCEDURES</primary>
+        </indexterm>
+
+        <para>SYSTEM_PROCEDURES</para>
+
+        <para>For DatabaseMetaData.getFunctionColumns, getFunctions and
+        getProcedures</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_PROPERTIES</primary>
+        </indexterm>
+
+        <para>SYSTEM_PROPERTIES</para>
+
+        <para>Contains the current values of all the database level
+        properties. Settings such as SQL rule enforcement, database
+        transaction model and default transaction level are all reported in
+        this view. The names of the properties are listed in the <link
+        endterm="dbproperties-title" os=""
+        xlink:href="#dbproperties-chapt"></link> chapter together with the
+        corresponding SQL statements used to change the properties.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_SCHEMAS</primary>
+        </indexterm>
+
+        <para>SYSTEM_SCHEMAS</para>
+
+        <para>For DatabaseMetaData.getSchemas</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_SEQUENCES</primary>
+        </indexterm>
+
+        <para>SYSTEM_SEQUENCES</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_SESSIONINFO</primary>
+        </indexterm>
+
+        <para>SYSTEM_SESSIONINFO</para>
+
+        <para>Information on the settings and properties of the current
+        session.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_SESSIONS</primary>
+        </indexterm>
+
+        <para>SYSTEM_SESSIONS</para>
+
+        <para>Information on all open sessions in the database (when used by a
+        DBA user), or just the current session.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TABLES</primary>
+        </indexterm>
+
+        <para>SYSTEM_TABLES</para>
+
+        <para>For DatabaseMetaData.getTables</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TABLETYPES</primary>
+        </indexterm>
+
+        <para>SYSTEM_TABLETYPES</para>
+
+        <para>For DatabaseMetaData.getTableTypes</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TEXTTABLES</primary>
+        </indexterm>
+
+        <para>SYSTEM_TEXTTABLES</para>
+
+        <para>Cotains information on the settings of each text table.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_TYPEINFO</primary>
+        </indexterm>
+
+        <para>SYSTEM_TYPEINFO</para>
+
+        <para>For DatabaseMetaData.getTypeInfo</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_UDTS</primary>
+        </indexterm>
+
+        <para>SYSTEM_UDTS</para>
+
+        <para>For DatabaseMetaData.getUDTs</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_USERS</primary>
+        </indexterm>
+
+        <para>SYSTEM_USERS</para>
+
+        <para>Contains the list of all users in the database (when used by a
+        DBA user), or just the current user.</para>
+
+        <indexterm significance="preferred" type="sql">
+          <primary>SYSTEM_VERSIONCOLUMNS</primary>
+        </indexterm>
+
+        <para>SYSTEM_VERSIONCOLUMNS</para>
+
+        <para>For DatabaseMetaData.getVersionColumns</para>
+      </section>
     </section>
   </section>
 </chapter>
