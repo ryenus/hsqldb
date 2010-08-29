@@ -1197,836 +1197,983 @@
     effect on the normal operation of HyperSQL. The effects of these
     statements are also discussed in different chapters.</para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SHUTDOWN</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SHUTDOWN</emphasis></simpara>
-
-    <simpara><emphasis>shutdown statement</emphasis></simpara>
-
-    <simpara><literal>&lt;shutdown statement&gt; ::= SHUTDOWN [IMMEDIATELY |
-    COMPACT | SCRIPT]</literal></simpara>
-
-    <simpara>Shutdown the database. If the optional qualifier is not used, a
-    normal SHUTDOWN is performed. A normal SHUTDOWN ensures all data is saved
-    correctly and the database opens without delay on next use.</simpara>
-
-    <variablelist>
-      <varlistentry>
-        <term>SHUTDOWN IMMEDIATELY</term>
-
-        <listitem>
-          <para>Saves the *.log file and closes the database files. This is
-          the quickest form of shutdown. This command should not be used as
-          the routine method of closing the database, because when the
-          database is accessed next time, it may take a long time to
-          start.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>SHUTDOWN COMPACT</term>
-
-        <listitem>
-          <para>This is similar to normal SHUTDOWN, but reduces the *.data
-          file to its minimum size. It takes longer than normal
-          SHUTDOWN.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>SHUTDOWN SCRIPT</term>
-
-        <listitem>
-          <para>This is similar to SHUTDOWN COMPACT, but it does not rewrite
-          the <literal>*.data</literal> and text table files. After SHUTDOWN
-          SCRIPT, only the <literal>*.script</literal> and
-          <literal>*.properties</literal> files remain. At the next startup,
-          these files are processed and the <literal>*.data</literal> and
-          <literal>*.backup</literal> files are created. This command in
-          effect performs part of the job of SHUTDOWN COMPACT, leaving the
-          other part to be performed automatically at the next startup.</para>
+    <section>
+      <title>System Operations</title>
+
+      <para>Thes statements perform a system level action.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SHUTDOWN</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SHUTDOWN</emphasis></simpara>
+
+      <simpara><emphasis>shutdown statement</emphasis></simpara>
+
+      <simpara><literal>&lt;shutdown statement&gt; ::= SHUTDOWN [IMMEDIATELY |
+      COMPACT | SCRIPT]</literal></simpara>
+
+      <simpara>Shutdown the database. If the optional qualifier is not used, a
+      normal SHUTDOWN is performed. A normal SHUTDOWN ensures all data is
+      saved correctly and the database opens without delay on next
+      use.</simpara>
+
+      <variablelist>
+        <varlistentry>
+          <term>SHUTDOWN IMMEDIATELY</term>
+
+          <listitem>
+            <para>Saves the *.log file and closes the database files. This is
+            the quickest form of shutdown. This command should not be used as
+            the routine method of closing the database, because when the
+            database is accessed next time, it may take a long time to
+            start.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>SHUTDOWN COMPACT</term>
+
+          <listitem>
+            <para>This is similar to normal SHUTDOWN, but reduces the *.data
+            file to its minimum size. It takes longer than normal
+            SHUTDOWN.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>SHUTDOWN SCRIPT</term>
+
+          <listitem>
+            <para>This is similar to SHUTDOWN COMPACT, but it does not rewrite
+            the <literal>*.data</literal> and text table files. After SHUTDOWN
+            SCRIPT, only the <literal>*.script</literal> and
+            <literal>*.properties</literal> files remain. At the next startup,
+            these files are processed and the <literal>*.data</literal> and
+            <literal>*.backup</literal> files are created. This command in
+            effect performs part of the job of SHUTDOWN COMPACT, leaving the
+            other part to be performed automatically at the next
+            startup.</para>
+
+            <para>This command produces a full script of the database which
+            can be edited for special purposes prior to the next
+            startup.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>BACKUP DATABASE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">BACKUP DATABASE</emphasis></simpara>
+
+      <simpara><emphasis>backup database statement</emphasis></simpara>
+
+      <simpara><literal>&lt;backup database statement&gt; ::= BACKUP DATABASE
+      TO &lt;file path&gt; {SCRIPT | [NOT] COMPRESSED}
+      BLOCKING</literal></simpara>
+
+      <simpara>Backup the database to specified <literal>&lt;file
+      path&gt;</literal> for archiving purposes.</simpara>
+
+      <simpara>The <literal>&lt;file path&gt;</literal> can be in two forms.
+      If the <literal>&lt;file path&gt;</literal> ends with a forward slash,
+      it specifies a directory. In this case, an automatic name for the
+      archive is generated that includes the date, time and the base name of
+      the database. The database is backed up to this archive file in the
+      specified directory. If the <literal>&lt;file path&gt;</literal> does
+      not end with a forward slash, it specifies a user-defined file name for
+      the backup archive. The archive is in tar, gzip format depending on
+      whether it is compressed or not.</simpara>
 
-          <para>This command produces a full script of the database which can
-          be edited for special purposes prior to the next startup.</para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
+      <simpara>The SCRIPT option is not currently supported. If SCRIPT is
+      specified, the backup will consist of two files, a
+      <literal>*.properties</literal> file and a <literal>*.script</literal>
+      file, which contain all the data and settings of the database. These
+      files are not compressed.</simpara>
+
+      <simpara>If COMPRESSED or NOT COMPRESSED is specified, the backup
+      consists of the current snapshot of database files. During backup, a
+      CHECKPOINT command is silently executed.</simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>BACKUP DATABASE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">BACKUP DATABASE</emphasis></simpara>
-
-    <simpara><emphasis>backup database statement</emphasis></simpara>
-
-    <simpara><literal>&lt;backup database statement&gt; ::= BACKUP DATABASE TO
-    &lt;file path&gt; {SCRIPT | [NOT] COMPRESSED} BLOCKING</literal></simpara>
-
-    <simpara>Backup the database to specified <literal>&lt;file
-    path&gt;</literal> for archiving purposes.</simpara>
-
-    <simpara>The <literal>&lt;file path&gt;</literal> can be in two forms. If
-    the <literal>&lt;file path&gt;</literal> ends with a forward slash, it
-    specifies a directory. In this case, an automatic name for the archive is
-    generated that includes the date, time and the base name of the database.
-    The database is backed up to this archive file in the specified directory.
-    If the <literal>&lt;file path&gt;</literal> does not end with a forward
-    slash, it specifies a user-defined file name for the backup archive. The
-    archive is in tar, gzip format depending on whether it is compressed or
-    not.</simpara>
+      <simpara>The qualifier, BLOCKING, means all database operations are
+      suspended during backup.</simpara>
 
-    <simpara>The SCRIPT option is not currently supported. If SCRIPT is
-    specified, the backup will consist of two files, a
-    <literal>*.properties</literal> file and a <literal>*.script</literal>
-    file, which contain all the data and settings of the database. These files
-    are not compressed.</simpara>
+      <simpara>The HyperSQL jar also contains a program that creates an
+      archive of an offline database. It also contains a program to expand an
+      archive into database files. These programs are documented in this
+      chapter under Backing up Database Catalogs.</simpara>
 
-    <simpara>If COMPRESSED or NOT COMPRESSED is specified, the backup consists
-    of the current snapshot of database files. During backup, a CHECKPOINT
-    command is silently executed.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>The qualifier, BLOCKING, means all database operations are
-    suspended during backup.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>CHECKPOINT</primary>
+      </indexterm>
 
-    <simpara>The HyperSQL jar also contains a program that creates an archive
-    of an offline database. It also contains a program to expand an archive
-    into database files. These programs are documented in this chapter under
-    Backing up Database Catalogs.</simpara>
+      <simpara><emphasis role="bold">CHECKPOINT</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis>checkpoint statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CHECKPOINT</primary>
-    </indexterm>
+      <simpara><literal>&lt;checkpoint statement&gt; ::= CHECKPOINT
+      [DEFRAG]</literal></simpara>
 
-    <simpara><emphasis role="bold">CHECKPOINT</emphasis></simpara>
+      <simpara>Closes the database files, rewrites the script file, deletes
+      the log file and opens the database. If <literal>DEFRAG</literal> is
+      specified, also shrinks the <literal>*.data</literal> file to its
+      minumum size. Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><emphasis>checkpoint statement</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><literal>&lt;checkpoint statement&gt; ::= CHECKPOINT
-    [DEFRAG]</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SCRIPT</primary>
+      </indexterm>
 
-    <simpara>Closes the database files, rewrites the script file, deletes the
-    log file and opens the database. If <literal>DEFRAG</literal> is
-    specified, also shrinks the <literal>*.data</literal> file to its minumum
-    size. Only a user with the DBA role can execute this statement.</simpara>
+      <simpara><emphasis role="bold">SCRIPT</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis>script statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>CRYPT_KEY</primary>
-    </indexterm>
+      <simpara><literal>&lt;script statement&gt; ::= SCRIPT [&lt;file
+      name&gt;]</literal></simpara>
 
-    <simpara><emphasis role="bold">CRYPT_KEY</emphasis></simpara>
+      <simpara>Returns a script containing SQL statements that define the
+      database, its users, and its schema objects. If <literal>&lt;file
+      name&gt;</literal> is not specified, the statements are returned in a
+      ResultSet, with each row containing an SQL statement. No data statements
+      are included in this form. The optional file name is a single-quoted
+      string. If <literal>&lt;file name&gt;</literal> is specified, then the
+      script is written to the named file. In this case, all the data in all
+      tables of the database is included in the script as INSERT
+      statements.</simpara>
 
-    <simpara><emphasis>crypt_key function</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+    </section>
 
-    <simpara><literal>&lt;crypt_key function&gt; ::= CRYPT_KEY ( &lt;cipher
-    spec&gt;, &lt;provider&gt; )</literal></simpara>
+    <section>
+      <title>Database Settings</title>
 
-    <simpara>The statement, <literal>CALL CRYPT_KEY( &lt;cipher spec&gt;,
-    &lt;provider&gt; )</literal> returns a binary string representing a valid
-    key for the giver cipher and provider. The
-    <literal>&lt;provider&gt;</literal> argument is specified as NULL for the
-    default provider.</simpara>
+      <simpara>These statements change the database settings.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SCRIPT</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE COLLATION</primary>
+      </indexterm>
 
-    <simpara><emphasis role="bold">SCRIPT</emphasis></simpara>
+      <simpara><emphasis role="bold">SET DATABASE
+      COLLATION</emphasis></simpara>
 
-    <simpara><emphasis>script statement</emphasis></simpara>
+      <simpara><emphasis>set database collation statement</emphasis></simpara>
 
-    <simpara><literal>&lt;script statement&gt; ::= SCRIPT [&lt;file
-    name&gt;]</literal></simpara>
+      <simpara><literal>&lt;set database collation statement&gt; ::= SET
+      DATABASE COLLATION &lt;collation name&gt;</literal></simpara>
 
-    <simpara>Returns a script containing SQL statements that define the
-    database, its users, and its schema objects. If <literal>&lt;file
-    name&gt;</literal> is not specified, the statements are returned in a
-    ResultSet, with each row containing an SQL statement. No data statements
-    are included in this form. The optional file name is a single-quoted
-    string. If <literal>&lt;file name&gt;</literal> is specified, then the
-    script is written to the named file. In this case, all the data in all
-    tables of the database is included in the script as INSERT
-    statements.</simpara>
+      <simpara>Each database can have its own collation. Sets the collation
+      from the set of collations supported by HyperSQL. Once this command has
+      been issued, the database can be opened in any JVM and will retain its
+      collation. Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES BACKUP INCREMENT</primary>
-    </indexterm>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE DEFAULT RESULT MEMORY ROWS</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE COLLATION</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">SET DATABASE DEFAULT RESULT MEMORY
+      ROWS</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE COLLATION</emphasis></simpara>
+      <simpara><emphasis>set database default result memory rows
+      statement</emphasis><literal> </literal></simpara>
 
-    <simpara><emphasis>set database collation statement</emphasis></simpara>
+      <simpara><literal>&lt;set database default result memory rows&gt; ::=
+      SET DATABASE DEFAULT RESULT MEMORY ROWS &lt;unsigned integer
+      literal&gt;</literal></simpara>
 
-    <simpara><literal>&lt;set database collation statement&gt; ::= SET
-    DATABASE COLLATION &lt;collation name&gt;</literal></simpara>
+      <simpara>Sets the maximum number of rows of each result set and other
+      internal temporary table that is held in memory.</simpara>
 
-    <simpara>Each database can have its own collation. Sets the collation from
-    the set of collations supported by HyperSQL. Once this command has been
-    issued, the database can be opened in any JVM and will retain its
-    collation. Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.result_max_memory_rows</literal>.</simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara>This setting applies to all sessions. Individual sessions can
+      change the value with the <literal>SET SESSION RESULT MEMORY
+      ROWS</literal> command. The default is 0, meaning all result sets are
+      held in memory.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE DEFAULT ISOLATION LEVEL</primary>
-    </indexterm>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE DEFAULT ISOLATION
-    LEVEL</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE DEFAULT TABLE TYPE</primary>
+      </indexterm>
 
-    <simpara><emphasis>set database default isolation level
-    statement</emphasis><literal> </literal></simpara>
+      <simpara><emphasis role="bold">SET DATABASE DEFAULT TABLE
+      TYPE</emphasis></simpara>
 
-    <simpara><literal>&lt;set database default isolation level&gt; ::= SET
-    DATABASE DEFAULT ISOLATION LEVEL { READ COMMITTED | SERIALIZABLE
-    }</literal></simpara>
+      <simpara><emphasis>set database default table type
+      statement</emphasis><literal> </literal></simpara>
 
-    <simpara>Sets the transaction isolation level for new sessions. The
-    default is READ COMMITTED. Each session can also set its isolation
-    level.</simpara>
+      <simpara><literal>&lt;set database default table type&gt; ::= SET
+      DATABASE DEFAULT TABLE TYPE { CACHED | MEMORY }</literal></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara>Sets the type of table created when the next CREATE TABLE
+      statement is executed. The default is MEMORY.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE DEFAULT RESULT MEMORY ROWS</primary>
-    </indexterm>
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.default_table_type</literal>.</simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE DEFAULT RESULT MEMORY
-    ROWS</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><emphasis>set database default result memory rows
-    statement</emphasis><literal> </literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE EVENT LOG LEVEL</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set database default result memory rows&gt; ::= SET
-    DATABASE DEFAULT RESULT MEMORY ROWS &lt;unsigned integer
-    literal&gt;</literal></simpara>
+      <simpara><emphasis role="bold">SET DATABASE EVENT LOG
+      LEVEL</emphasis></simpara>
 
-    <simpara>Sets the maximum number of rows of each result set and other
-    internal temporary table that is held in memory. This is equivalent to the
-    connection property
-    <literal>hsqldb.result_max_memory_rows</literal>.</simpara>
+      <simpara><emphasis>set database event log level
+      statement*</emphasis><literal> </literal></simpara>
 
-    <simpara>This setting applies to all sessions. Individual sessions can
-    change the value with the <literal>SET SESSION RESULT MEMORY
-    ROWS</literal> command. The default is 0, meaning all result sets are held
-    in memory.</simpara>
+      <simpara><literal>&lt;set database event log level&gt; ::= SET DATABASE
+      EVENT LOG LEVEL { 0 | 1 | 2 }</literal></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara>Sets the amount of information logged in the internal,
+      database-specific event log. Level 0 means no log. Level 1 means only
+      important (error) events. Level 2 means more events, including both
+      important and less important (normal) events. For readonly and
+      <glossterm>mem:</glossterm> databases, if the level is set above 0, the
+      log messages are directed to stderr.</simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE DEFAULT TABLE TYPE</primary>
-    </indexterm>
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.applog</literal>.</simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE DEFAULT TABLE
-    TYPE</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><emphasis>set database default table type
-    statement</emphasis><literal> </literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE GC</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set database default table type&gt; ::= SET DATABASE
-    DEFAULT TABLE TYPE { CACHED | MEMORY }</literal></simpara>
+      <simpara><emphasis role="bold">SET DATABASE GC</emphasis></simpara>
 
-    <simpara>Sets the type of table created when the next CREATE TABLE
-    statement is executed. The default is MEMORY. This is equivalent to the
-    connection property
-    <literal>hsqldb.default_table_type</literal>.</simpara>
+      <simpara><emphasis>set database gc statement</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><literal>&lt;set database gc statement&gt; ::= SET DATABASE GC
+      &lt;unsigned integer literal&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE EVENT LOG LEVEL</primary>
-    </indexterm>
+      <simpara>An optional property which forces calls to <literal>System.gc()
+      </literal>after the specified number of row operations. The default
+      value for this property is 0, which means no System.gc() calls. Usual
+      values for this property range from 10000 depending on the system and
+      the memory allocation. This property may be useful in some in-process
+      deployments, especially with older JVM implementations.</simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE EVENT LOG
-    LEVEL</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><emphasis>set database event log level
-    statement*</emphasis><literal> </literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE UNIQUE NAME</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set database event log level&gt; ::= SET DATABASE
-    EVENT LOG LEVEL { 0 | 1 | 2 }</literal></simpara>
+      <simpara><emphasis role="bold">SET DATABASE UNIQUE
+      NAME</emphasis></simpara>
 
-    <simpara>Sets the amount of information logged in the internal,
-    database-specific event log. Level 0 means no log. Level 1 means only
-    important (error) events. Level 2 means more events, including both
-    important and less important (normal) events. For readonly and
-    <glossterm>mem:</glossterm> databases, if the level is set above 0, the
-    log messages are directed to stderr. This is equivalent to the connection
-    property <literal>hsqldb.applog</literal>.</simpara>
+      <simpara><emphasis>set database unique name</emphasis><literal>
+      </literal></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><literal>&lt;set database unique name statement&gt; ::= SET
+      DATABASE UNIQUE NAME &lt;identifier&gt;</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE GC</primary>
-    </indexterm>
+      <simpara>Each HyperSQL catalog (database) has an engine-generated
+      internal name. This name is a 16 character long string, beginning with
+      HSQLDB and based on the time of creation of the database. The name is
+      used for the log events that are sent to external logging frameworks.
+      The new name must be exactly 16 characters long with no
+      spaces.</simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE GC</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><emphasis>set database gc statement</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE TRANSACTION CONTROL</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set database gc statement&gt; ::= SET DATABASE GC
-    &lt;unsigned integer literal&gt;</literal></simpara>
+      <simpara><emphasis role="bold">SET DATABASE TRANSACTION
+      CONTROL</emphasis></simpara>
 
-    <simpara>An optional property which forces calls to <literal>System.gc()
-    </literal>after the specified number of row operations. The default value
-    for this property is 0, which means no System.gc() calls. Usual values for
-    this property range from 10000 depending on the system and the memory
-    allocation. This property may be useful in some in-process deployments,
-    especially with older JVM implementations.</simpara>
+      <simpara><emphasis>set database transaction control
+      statement</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><literal>&lt;set database transaction control statement&gt; ::=
+      SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
+      }</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE SQL SIZE</primary>
-    </indexterm>
+      <simpara>Set the concurrency control system for the database. It can be
+      issued only when all sessions have been committed or rolled back. This
+      command and its modes is discussed in the <link endterm="sessions-title"
+      xlink:href="#sqlroutines-chapt"></link> chapter. This is equivalent to
+      the connection property <literal>hsqldb.tx</literal>.</simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE SQL SIZE</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><emphasis>set database sql size statement</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE DEFAULT ISOLATION LEVEL</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set database sql size statement&gt; ::= SET DATABASE
-    SQL SIZE { TRUE | FALSE }</literal></simpara>
+      <simpara><emphasis role="bold">SET DATABASE DEFAULT ISOLATION
+      LEVEL</emphasis></simpara>
 
-    <simpara>Enable or disable enforcement of column sizes for CHAR and
-    VARCHAR columns. The default is TRUE, meaning table definition must
-    contain <literal>VARCHAR(n)</literal> instead of
-    <literal>VARCHAR</literal>. This is equivalent to the connection property
-    <literal>sql.enforce_size</literal>.</simpara>
+      <simpara><emphasis>set database default isolation level
+      statement</emphasis><literal> </literal></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><literal>&lt;set database default isolation level&gt; ::= SET
+      DATABASE DEFAULT ISOLATION LEVEL { READ COMMITTED | SERIALIZABLE
+      }</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE SQL NAMES</primary>
-    </indexterm>
+      <simpara>Sets the transaction isolation level for new sessions. The
+      default is READ COMMITTED. Each session can also set its isolation
+      level.</simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE SQL NAMES</emphasis></simpara>
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.tx_level</literal>.</simpara>
 
-    <simpara><emphasis>set database sql names statement</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+    </section>
 
-    <simpara><literal>&lt;set database sql names statement&gt; ::= SET
-    DATABASE SQL NAMES { TRUE | FALSE }</literal></simpara>
+    <section>
+      <title>SQL Conformance Settings</title>
 
-    <simpara>Enable or disable full enforcement of the rule that prevents SQL
-    keywords being used for database object names such as columns and tables.
-    The default is FALSE, meaning disable. This is equivalent to the
-    connection property <literal>sql.enforce_names</literal>.</simpara>
+      <simpara>These statements modify the level of conformance to the SQL
+      Standard in different areas. For all these settings, TRUE means better
+      conformance to the Standard. The default value of a few of these
+      settings is FALSE, due to widespread non-conforming statements that are
+      already in use in applications or statements generated by object
+      relational tools. So long as it is practical, it is best to set these
+      non-conforming defaults to TRUE in order to improve the quality of the
+      database application.</simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL SIZE</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE SQL REFERENCES</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">SET DATABASE SQL
+      SIZE</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE SQL
-    REFERENCES</emphasis></simpara>
+      <simpara><emphasis>set database sql size statement</emphasis></simpara>
 
-    <simpara><emphasis>set database sql references
-    statement</emphasis></simpara>
+      <simpara><literal>&lt;set database sql size statement&gt; ::= SET
+      DATABASE SQL SIZE { TRUE | FALSE }</literal></simpara>
 
-    <simpara><literal>&lt;set database sql references statement&gt; ::= SET
-    DATABASE SQL REFERENCES { TRUE | FALSE }</literal></simpara>
+      <simpara>Enable or disable enforcement of column sizes for CHAR and
+      VARCHAR columns. The default is TRUE, meaning table definition must
+      contain <literal>VARCHAR(n)</literal> instead of
+      <literal>VARCHAR</literal>. This is equivalent to the connection
+      property <literal>sql.enforce_size</literal>.</simpara>
 
-    <simpara>This command can enable or disable full enforcement of the rule
-    that prevents ambiguous column references in SQL statements (usually
-    SELECT statements). A column reference is ambiguous when it is not
-    qualified by a table name or table alias and can refer to more than one
-    column in a JOIN list. This is equivalent to the connection property
-    <literal>sql.enforce_refs</literal>.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>The property is <literal>FALSE</literal> by default. It is better
-    to enable this check during development, to improve the quality and
-    correctness of SQL statements.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL NAMES</primary>
+      </indexterm>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis role="bold">SET DATABASE SQL
+      NAMES</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE SQL TYPES</primary>
-    </indexterm>
+      <simpara><emphasis>set database sql names statement</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE SQL TYPES</emphasis></simpara>
+      <simpara><literal>&lt;set database sql names statement&gt; ::= SET
+      DATABASE SQL NAMES { TRUE | FALSE }</literal></simpara>
 
-    <simpara><emphasis>set database sql types statement</emphasis></simpara>
+      <simpara>Enable or disable full enforcement of the rule that prevents
+      SQL keywords being used for database object names such as columns and
+      tables. The default is <literal>FALSE</literal>, meaning disabled.
+      <emphasis>It is better to enable this check, in order to improve the
+      quality and correctness of SQL statements.</emphasis></simpara>
 
-    <simpara><literal>&lt;set database sql types statement&gt; ::= SET
-    DATABASE SQL TYPES { TRUE | FALSE }</literal></simpara>
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_names</literal>.</simpara>
 
-    <simpara>This command can enable or disable full enforcement of the rules
-    that prevents illegal type conversions and parameters or nulls without
-    type in SQL statements (usually SELECT statements). For example an INTEGER
-    column cannot be compared to a character string when enforcement is TRUE.
-    This is equivalent to the connection property
-    <literal>sql.enforce_type</literal>.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>The property is <literal>FALSE</literal> by default. It is better
-    to enable this check during development, to improve the quality and
-    correctness of SQL statements.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL REFERENCES</primary>
+      </indexterm>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis role="bold">SET DATABASE SQL
+      REFERENCES</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE SQL TDC DELETE</primary>
-    </indexterm>
+      <simpara><emphasis>set database sql references
+      statement</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE SQL TDC
-    DELETE</emphasis></simpara>
+      <simpara><literal>&lt;set database sql references statement&gt; ::= SET
+      DATABASE SQL REFERENCES { TRUE | FALSE }</literal></simpara>
 
-    <simpara><emphasis>set database sql tdc delete
-    statement</emphasis></simpara>
+      <simpara>This command can enable or disable full enforcement of the rule
+      that prevents ambiguous column references in SQL statements (usually
+      SELECT statements). A column reference is ambiguous when it is not
+      qualified by a table name or table alias and can refer to more than one
+      column in a JOIN list.</simpara>
 
-    <simpara><literal>&lt;set database sql tdc delete statement&gt; ::= SET
-    DATABASE SQL TDC DELETE { TRUE | FALSE }</literal></simpara>
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_refs</literal>.</simpara>
 
-    <simpara>This command can enable or disable full enforcement of the rules
-    that prevents triggered data change exeptions caused by ON DELETE CASCADE
-    clauses of foreign key constraint. When there are multiple constraints, a
-    row may be updated by one constraint and deleted by another constraint in
-    the same operation. This is not allowed by default. Changing this to false
-    allows such violations of the Standard to pass without an
-    exception.</simpara>
+      <simpara>The property is <literal>FALSE</literal> by default.
+      <emphasis>It is better to enable this check, in order to improve the
+      quality and correctness of SQL statements.</emphasis></simpara>
 
-    <simpara>This is equivalent to the connection property
-    <literal>sql.enforce_tdc_delete</literal>.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>The property is <literal>TRUE</literal> by default and shouldn't
-    be changed unless a legacy application needs it.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL TYPES</primary>
+      </indexterm>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis role="bold">SET DATABASE SQL
+      TYPES</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE SQL TYPES</primary>
-    </indexterm>
+      <simpara><emphasis>set database sql types statement</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE SQL TDC
-    UPDATE</emphasis></simpara>
+      <simpara><literal>&lt;set database sql types statement&gt; ::= SET
+      DATABASE SQL TYPES { TRUE | FALSE }</literal></simpara>
 
-    <simpara><emphasis>set database sql tdc update
-    statement</emphasis></simpara>
+      <simpara>This command can enable or disable full enforcement of the
+      rules that prevents illegal type conversions and parameters or nulls
+      without type in SQL statements (usually SELECT statements). For example
+      an INTEGER column cannot be compared to a character string when
+      enforcement is <literal>TRUE</literal>.</simpara>
 
-    <simpara><literal>&lt;set database sql tdc update statement&gt; ::= SET
-    DATABASE SQL TDC UPDATE { TRUE | FALSE }</literal></simpara>
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_type</literal>.</simpara>
 
-    <simpara>This command can enable or disable full enforcement of the rules
-    that prevents triggered data change exeptions caused by multiple ON UPDATE
-    or ON DELETE clauses of foreign key constraint. When there are multiple
-    constraints, a field in a row may be updated by two constraints to
-    different valuesin the same operation. This is not allowed by default.
-    Changing this to false allows such violations of the Standard to pass
-    without an exception.</simpara>
+      <simpara>The property is <literal>FALSE</literal> by default.
+      <emphasis>It is better to enable this check, in order to improve the
+      quality and correctness of SQL statements.</emphasis></simpara>
 
-    <simpara>This is equivalent to the connection property
-    <literal>sql.enforce_tdc_update</literal>.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>The property is <literal>TRUE</literal> by default and shouldn't
-    be changed unless a legacy application needs it.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL TDC DELETE</primary>
+      </indexterm>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis role="bold">SET DATABASE SQL TDC
+      DELETE</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE SQL TRANSLATE TTI TYPES</primary>
-    </indexterm>
+      <simpara><emphasis>set database sql tdc delete
+      statement</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE SQL TRANSLATE TTI
-    TYPES</emphasis></simpara>
+      <simpara><literal>&lt;set database sql tdc delete statement&gt; ::= SET
+      DATABASE SQL TDC DELETE { TRUE | FALSE }</literal></simpara>
 
-    <simpara><emphasis>set database sql translate tti types
-    statement</emphasis></simpara>
+      <simpara>This command can enable or disable full enforcement of the
+      rules that prevents triggered data change exeptions caused by ON DELETE
+      CASCADE clauses of foreign key constraint. When there are multiple
+      constraints, a row may be updated by one constraint and deleted by
+      another constraint in the same operation. This is not allowed by
+      default. Changing this to false allows such violations of the Standard
+      to pass without an exception.</simpara>
 
-    <simpara><literal>&lt;set database sql translate tti types statement&gt;
-    ::= SET DATABASE SQL TRANSLATE TTI TYPES { TRUE | FALSE
-    }</literal></simpara>
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_tdc_delete</literal>.</simpara>
 
-    <simpara>If the property is true, the TIME / TIMESTAMP WITH TIME ZONE
-    types and INTERVAL types are represented in JDBC methods of
-    <classname>ResultSetMetaData</classname> and
-    <classname>DatabaseMetaData</classname> as JDBC datetime types without
-    time zone and the VARCHAR type respectively. The original type names are
-    preserved.</simpara>
+      <simpara>The property is <literal>TRUE</literal> by default and
+      shouldn't be changed unless a legacy application needs it.</simpara>
 
-    <simpara>This is equivalent to the connection property
-    <literal>jdbc.translate_tti_types</literal>.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>The property is <literal>TRUE</literal> by default. If set to
-    <literal>FASLE</literal>, the type codes for WITH TIME ZONE types will be
-    SQL type codes as opposed to JDBC type codes.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL TYPES</primary>
+      </indexterm>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis role="bold">SET DATABASE SQL TDC
+      UPDATE</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET REFERENTIAL INTEGRITY</primary>
-    </indexterm>
+      <simpara><emphasis>set database sql tdc update
+      statement</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE REFERENTIAL
-    INTEGRITY</emphasis></simpara>
+      <simpara><literal>&lt;set database sql tdc update statement&gt; ::= SET
+      DATABASE SQL TDC UPDATE { TRUE | FALSE }</literal></simpara>
 
-    <simpara><emphasis>set database referential integrity
-    statement</emphasis></simpara>
+      <simpara>This command can enable or disable full enforcement of the
+      rules that prevents triggered data change exeptions caused by multiple
+      ON UPDATE or ON DELETE clauses of foreign key constraint. When there are
+      multiple constraints, a field in a row may be updated by two constraints
+      to different valuesin the same operation. This is not allowed by
+      default. Changing this to <literal>FALSE</literal> allows such
+      violations of the Standard to pass without an exception.</simpara>
 
-    <simpara><literal>&lt;set database referential integrity statement&gt; ::=
-    SET DATABASE REFERENTIAL INTEGRITY { TRUE | FALSE }</literal></simpara>
+      <simpara>This is equivalent to the connection property
+      <literal>sql.enforce_tdc_update</literal>.</simpara>
 
-    <simpara>This command enables or disables the enforcement of referential
-    integrity constraints (foreign key constraints), check constraints apart
-    from NOT NULL and execution of triggers. By default, all constraints are
-    checked.</simpara>
+      <simpara>The property is <literal>TRUE</literal> by default and
+      shouldn't be changed unless a legacy application needs it.</simpara>
 
-    <simpara>The only legitimate use of this statement is before importing
-    large amounts of external data into tables that have existing FOREIGN KEY
-    constraints. After import, the statement must be used again to enable
-    constraint enforcement.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>If you are not sure the data conforms to the constraints, run
-    queries to verify all rows conform to the FOREIGN KEY constraints and take
-    appropriate actions for the rows that do not conform.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL TRANSLATE TTI TYPES</primary>
+      </indexterm>
 
-    <simpara>A query example to return the rows in a foreign key table that
-    have no parent is given below:</simpara>
+      <simpara><emphasis role="bold">SET DATABASE SQL TRANSLATE TTI
+      TYPES</emphasis></simpara>
 
-    <example>
-      <title>Finding foreign key rows with no parents after a bulk
-      import</title>
+      <simpara><emphasis>set database sql translate tti types
+      statement</emphasis></simpara>
 
-      <screen>  SELECT * FROM foreign_key_table LEFT OUTER JOIN primary_key_table 
+      <simpara><literal>&lt;set database sql translate tti types statement&gt;
+      ::= SET DATABASE SQL TRANSLATE TTI TYPES { TRUE | FALSE
+      }</literal></simpara>
+
+      <simpara>If the property is true, the TIME / TIMESTAMP WITH TIME ZONE
+      types and INTERVAL types are represented in JDBC methods of
+      <classname>ResultSetMetaData</classname> and
+      <classname>DatabaseMetaData</classname> as JDBC datetime types without
+      time zone and the VARCHAR type respectively. The original type names are
+      preserved.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>jdbc.translate_tti_types</literal>.</simpara>
+
+      <simpara>The property is <literal>TRUE</literal> by default. If set to
+      <literal>FASLE</literal>, the type codes for WITH TIME ZONE types will
+      be SQL type codes as opposed to JDBC type codes.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL CONCAT NULLS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL CONCAT
+      NULLS</emphasis></simpara>
+
+      <simpara><emphasis>set database sql concat nulls
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql concat nulls statement&gt; ::=
+      SET DATABASE SQL CONCAT NULLS { TRUE | FALSE }</literal></simpara>
+
+      <simpara>When the property is <literal>TRUE</literal>, concatanation of
+      a null value with a not-null value results in a null value. When the
+      property is <literal>FALSE</literal> this type of concatenation result
+      in the not-null value. </simpara>
+
+      <simpara>Setting this property <literal>FALSE</literal> results in
+      concatenation behaviour similar to Oracle or SQL Server.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.concat_nulls</literal>.</simpara>
+
+      <simpara>The property is <literal>TRUE</literal> by default.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL UNIQUE NULLS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL UNIQUE
+      NULLS</emphasis></simpara>
+
+      <simpara><emphasis>set database sql unique nulls
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql unique nulls statement&gt; ::=
+      SET DATABASE SQL UNIQUE NULLS { TRUE | FALSE }</literal></simpara>
+
+      <simpara>When the property is <literal>TRUE</literal>, with multi-column
+      UNIQUE constraints, it is possible to insert multiple rows for which one
+      or more of the values for the constraint columns is NULL. When the
+      property is <literal>FALSE</literal>, if there is any not-null value in
+      the columns, then the set of values is compared to the existing rows and
+      if there is a match, an exception is thrown. The setting
+      <literal>FALSE</literal>, makes the behaviour more restrictive. For
+      example, inserting (1, null) twice is possible by default, but not
+      possible when the property is <literal>FALSE</literal>.</simpara>
+
+      <simpara>Setting this property <literal>FALSE</literal> results in
+      UNIQUE constraint behaviour similar to Oracle.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.unique_nulls</literal>.</simpara>
+
+      <simpara>The property is <literal>TRUE</literal> by default.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE SQL CONVERT TRUNCATE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE SQL CONVERT
+      TRUNCATE</emphasis></simpara>
+
+      <simpara><emphasis>set database sql unique convert
+      truncate</emphasis></simpara>
+
+      <simpara><literal>&lt;set database sql convert truncate statement&gt;
+      ::= SET DATABASE SQL CONVERT TRUNCATE { TRUE | FALSE
+      }</literal></simpara>
+
+      <simpara>When the property is <literal>TRUE</literal>, conversion from a
+      floating point value (a DOUBLE value) to an integral type alwas
+      truncates the fractional part. When the property is
+      <literal>FALSE</literal>, rounding takes place instead of truncation.
+      For example, assigning the value 123456E-2 to an ineger column will
+      result in 1234 by default, but 1235 when the property is
+      <literal>FALSE</literal>.</simpara>
+
+      <simpara>Stnadard SQL considers this behaviour implementation
+      dependent.</simpara>
+
+      <simpara>This is equivalent to the connection property
+      <literal>sql.convert_trunc</literal>.</simpara>
+
+      <simpara>The property is <literal>TRUE</literal> by default.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET REFERENTIAL INTEGRITY</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE REFERENTIAL
+      INTEGRITY</emphasis></simpara>
+
+      <simpara><emphasis>set database referential integrity
+      statement</emphasis></simpara>
+
+      <simpara><literal>&lt;set database referential integrity statement&gt;
+      ::= SET DATABASE REFERENTIAL INTEGRITY { TRUE | FALSE
+      }</literal></simpara>
+
+      <simpara>This command enables or disables the enforcement of referential
+      integrity constraints (foreign key constraints), check constraints apart
+      from NOT NULL and execution of triggers. By default, all constraints are
+      checked.</simpara>
+
+      <simpara>The only legitimate use of this statement is before importing
+      large amounts of external data into tables that have existing FOREIGN
+      KEY constraints. After import, the statement must be used again to
+      enable constraint enforcement.</simpara>
+
+      <simpara>If you are not sure the data conforms to the constraints, run
+      queries to verify all rows conform to the FOREIGN KEY constraints and
+      take appropriate actions for the rows that do not conform.</simpara>
+
+      <simpara>A query example to return the rows in a foreign key table that
+      have no parent is given below:</simpara>
+
+      <example>
+        <title>Finding foreign key rows with no parents after a bulk
+        import</title>
+
+        <screen>  SELECT * FROM foreign_key_table LEFT OUTER JOIN primary_key_table 
     ON foreign_key_table.fk_col = primary_key_table.pk_col WHERE primary_key_table.pk_col IS NULL</screen>
-    </example>
+      </example>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+    </section>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE UNIQUE NAME</primary>
-    </indexterm>
+    <section>
+      <title>Cache, Persistence and Files Settings</title>
 
-    <simpara><emphasis role="bold">SET DATABASE UNIQUE
-    NAME</emphasis></simpara>
+      <simpara>These statements control the memory and other settings for
+      database persistence.</simpara>
 
-    <simpara><emphasis>set database unique name</emphasis><literal>
-    </literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES BACKUP INCREMENT</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set database unique name statement&gt; ::= SET
-    DATABASE UNIQUE NAME &lt;identifier&gt;</literal></simpara>
+      <simpara><emphasis role="bold">SET FILES BACKUP INCREMENT
+      </emphasis></simpara>
 
-    <simpara>Each HyperSQL catalog (database) has an engine-generated internal
-    name. This name is based on the time of creation of the database and is
-    exactly 16 characters. The name is used for the log events that are sent
-    to external logging frameworks.</simpara>
+      <simpara><emphasis>set files backup increment
+      statement</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this statement.. The
-    new name must be exactly 16 characters long.</simpara>
+      <simpara><literal>&lt;set files backup increment statement&gt; ::= SET
+      FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET DATABASE TRANSACTION CONTROL</primary>
-    </indexterm>
+      <simpara>Older versions of HSQLDB perform a backup of the .data file
+      before its contents are modified and the whole .data file is saved in a
+      compressed form when a CHECKPOINT or SHUTDOWN is performed. This takes a
+      long time when the size of the database exceeds 100 MB or so (on an
+      average 2010 computer, you can expect a backup speed of 20MB per second
+      or more).</simpara>
 
-    <simpara><emphasis role="bold">SET DATABASE TRANSACTION
-    CONTROL</emphasis></simpara>
+      <simpara>The alternative is backup in increments, just before some part
+      of the .data file is modified. In this mode, no backup is performed at
+      CHECKPIONT or SHUTDOWN. This mode is preferred for large databases which
+      are opened and closed frequently.</simpara>
 
-    <simpara><emphasis>set database transaction control
-    statement</emphasis></simpara>
+      <simpara>The default mode is <literal>TRUE</literal>. If the old method
+      of backup is preferred, the mode can be set <literal>FALSE</literal>.
+      This is equivalent to the connection property
+      <literal>hsqldb.inc_backup</literal>.</simpara>
 
-    <simpara><literal>&lt;set database transaction control statement&gt; ::=
-    SET DATABASE TRANSACTION CONTROL { LOCKS | MVLOCKS | MVCC
-    }</literal></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>Set the concurrency control system for the database. It can be
-    issued only when all sessions have been committed or rolled back. This
-    command and its modes is discussed in the <link endterm="sessions-title"
-    xlink:href="#sqlroutines-chapt"></link> chapter. This is equivalent to the
-    connection property <literal>hsqldb.tx</literal>.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES CACHE ROWS</primary>
+      </indexterm>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis role="bold">SET FILES CACHE ROWS</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET FILES BACKUP INCREMENT
-    </emphasis></simpara>
+      <simpara><emphasis>set files cache rows statement</emphasis><literal>
+      </literal></simpara>
 
-    <simpara><emphasis>set files backup increment
-    statement</emphasis></simpara>
+      <simpara><literal>&lt;set files cache rows statement&gt; ::= SET FILES
+      CACHE ROWS &lt;unsigned integer literal&gt;</literal></simpara>
 
-    <simpara><literal>&lt;set database backup increment statement&gt; ::= SET
-    FILES BACKUP INCREMENT { TRUE | FALSE }</literal></simpara>
+      <simpara>Sets the maximum number of rows (of CACHED tables) held in the
+      memory cache. The default is 50000 rows.</simpara>
 
-    <simpara>Older versions of HSQLDB perform a backup of the .data file
-    before its contents are modified and the whole .data file is saved in a
-    compressed form when a CHECKPOINT or SHUTDOWN is performed. This takes a
-    long time when the size of the database exceeds 100 MB or so (on an
-    average 2010 computer, you can expect a backup speed of 20MB / s or
-    more).</simpara>
+      <simpara>Only a user with the DBA role can execute this statement. This
+      is equivalent to the connection property
+      <literal>hsqldb.cache_rows</literal>.</simpara>
 
-    <simpara>The alternative is backup in increments, just before some part of
-    the .data file is modified. In this mode, no backup is performed at
-    CHECKPIONT or SHUTDOWN. This mode is preferred for large databases which
-    are opened and closed frequently.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES CACHE SIZE</primary>
+      </indexterm>
 
-    <simpara>The default mode is <literal>TRUE</literal>. If the old method of
-    backup is preferred, the mode can be set <literal>FALSE</literal>. This is
-    equivalent to the connection property
-    <literal>hsqldb.inc_backup</literal>.</simpara>
+      <simpara><emphasis role="bold">SET FILES CACHE SIZE</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis>set files cache size statement</emphasis><literal>
+      </literal></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES CACHE ROWS</primary>
-    </indexterm>
+      <simpara><literal>&lt;set files cache size statement&gt; ::= SET FILES
+      CACHE SIZE &lt;unsigned integer literal&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">SET FILES CACHE ROWS</emphasis></simpara>
+      <simpara>Sets maximum amount of data (of CACHED tables) in kilobytes
+      held in the memory cache. The default is 10000 kilobytes. Note the
+      amound of memory used is larger than this amount, which does not account
+      for Java object size overheads.</simpara>
 
-    <simpara><emphasis>set files cache rows statement</emphasis><literal>
-    </literal></simpara>
+      <simpara>Only a user with the DBA role can execute this statement. This
+      is equivalent to the connection property
+      <literal>hsqldb.cache_size</literal>.</simpara>
 
-    <simpara><literal>&lt;set files cache rows statement&gt; ::= SET FILES
-    CACHE ROWS &lt;unsigned integer literal&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES DEFRAG</primary>
+      </indexterm>
 
-    <simpara>Sets the maximum number of rows (of CACHED tables) held in the
-    memory cache.</simpara>
+      <simpara><emphasis role="bold">SET FILES DEFRAG</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this statement. This is
-    equivalent to the connection property
-    <literal>hsqldb.cache_rows</literal>.</simpara>
+      <simpara><emphasis>set files defrag statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES CACHE SIZE</primary>
-    </indexterm>
+      <simpara><literal>&lt;set files defrag statement&gt; ::= SET FILES
+      DEFRAG &lt;unsigned integer literal&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">SET FILES CACHE SIZE</emphasis></simpara>
+      <simpara>Sets the threshold for performing a DEFRAG during a checkpoint.
+      The <literal>&lt;unsigned integer literal&gt;</literal> is the
+      percentage of abandoned space in the <literal>*.data</literal> file.
+      When a CHECKPOINT is performed either as a result of the
+      <literal>.log</literal> file reaching the limit set by <literal>SET
+      FILES LOG SIZE m</literal>, or by the user issuing a CHECKPOINT command,
+      the amount of space abandoned since the database was opened is checked
+      and if it is larger than specified percentage, a CHECKPOINT DEFRAG is
+      performed instead of a CHECKPOINT.</simpara>
 
-    <simpara><emphasis>set files cache size statement</emphasis><literal>
-    </literal></simpara>
+      <simpara>The default is 0, which indicates no DEFRAG. Useful values are
+      between 10 to 50. This is equivalent to the connection property
+      <literal>hsqldb.defrag_limit</literal>.</simpara>
 
-    <simpara><literal>&lt;set files cache size statement&gt; ::= SET FILES
-    CACHE SIZE &lt;unsigned integer literal&gt;</literal></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>Sets maximum amount of data (of CACHED tables) in kilobytes held
-    in the memory cache.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES LOG</primary>
+      </indexterm>
 
-    <simpara>Only a user with the DBA role can execute this statement. This is
-    equivalent to the connection property
-    <literal>hsqldb.cache_size</literal>.</simpara>
+      <simpara><emphasis role="bold">SET FILES LOG</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES DEFRAG</primary>
-    </indexterm>
+      <simpara><emphasis>set files log statement</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET FILES DEFRAG</emphasis></simpara>
+      <simpara><literal>&lt;set files log statement&gt; ::= SET FILES LOG {
+      TRUE | FALSE }</literal></simpara>
 
-    <simpara><emphasis>set files defrag statement</emphasis></simpara>
+      <simpara>Sets logging of database operations on or off. Turning logging
+      off is for special usage, such as temporary cache usage. This is
+      equivalent to the connection property
+      <literal>hsqldb.log_data</literal>.</simpara>
 
-    <simpara><literal>&lt;set files defrag statement&gt; ::= SET FILES DEFRAG
-    &lt;unsigned integer literal&gt;</literal></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>Sets the threshold for performing a DEFRAG during a checkpoint.
-    The <literal>&lt;unsigned integer literal&gt;</literal> is the percentage
-    of abandoned space in the <literal>*.data</literal> file. When a
-    CHECKPOINT is performed either as a result of the <literal>.log</literal>
-    file reaching the limit set by <literal>SET FILES LOG SIZE m</literal>, or
-    by the user issuing a CHECKPOINT command, the amount of space abandoned
-    since the database was opened is checked and if it is larger than
-    specified percentage, a CHECKPOINT DEFRAG is performed instead of a
-    CHECKPOINT.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES LOG SIZE</primary>
+      </indexterm>
 
-    <simpara>The default is 0, which indicates no DEFRAG. Useful values are
-    between 10 to 50. This is equivalent to the connection property
-    <literal>hsqldb.defrag_limit</literal>.</simpara>
+      <simpara><emphasis role="bold">SET FILES LOG SIZE</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis>set files log size statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES LOG</primary>
-    </indexterm>
+      <simpara><literal>&lt;set files log size statement&gt; ::= SET FILES LOG
+      SIZE &lt;unsigned integer literal&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">SET FILES LOG</emphasis></simpara>
+      <simpara>Sets the maximum size in MB of the <literal>*.log</literal>
+      file to the specified value. The default maximum size is 50 MB. If the
+      value is zero, no limit is used for the size of the file. When the size
+      of the file reaches this value, a CHECKPOINT is performed and the the
+      <literal>*.log</literal> file is cleared to size 0. This is equivalent
+      to the connection property <literal>hsqldb.log_size</literal>.</simpara>
 
-    <simpara><emphasis>set files log statement</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><literal>&lt;set files log statement&gt; ::= SET FILES LOG { TRUE
-    | FALSE }</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES NIO</primary>
+      </indexterm>
 
-    <simpara>Sets logging of database operations on or off. Turning logging
-    off is for special usage, such as temporary cache usage. This is
-    equivalent to the connection property
-    <literal>hsqldb.log_data</literal>.</simpara>
+      <simpara><emphasis role="bold">SET FILES NIO</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis>set files nio</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES LOG SIZE</primary>
-    </indexterm>
+      <simpara><literal>&lt;set files nio statement&gt; ::= SET FILES NIO {
+      TRUE | FALSE }</literal></simpara>
 
-    <simpara><emphasis role="bold">SET FILES LOG SIZE</emphasis></simpara>
+      <simpara>Sets the access method of the .data file. The default is TRUE
+      and uses the Java nio classes to access the file. This is equivalent to
+      the connection property
+      <literal>hsqldb.nio_data_file</literal>.</simpara>
 
-    <simpara><emphasis>set files log size statement</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><literal>&lt;set files log size statement&gt; ::= SET FILES LOG
-    SIZE &lt;unsigned integer literal&gt;</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES NIO SIZE</primary>
+      </indexterm>
 
-    <simpara>Sets the maximum size in MB of the <literal>*.log</literal> file
-    to the specified value. The default maximum size is 50 MB. If the value is
-    zero, no limit is used for the size of the file. When the size of the file
-    reaches this value, a CHECKPOINT is performed and the the
-    <literal>*.log</literal> file is cleared to size 0. This is equivalent to
-    the connection property <literal>hsqldb.log_size</literal>.</simpara>
+      <simpara><emphasis role="bold">SET FILES NIO SIZE</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis>set files nio size</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES NIO</primary>
-    </indexterm>
+      <simpara><literal>&lt;set files nio size statement&gt; ::= SET FILES NIO
+      SIZE &lt;unsigned integer literal&gt;</literal></simpara>
 
-    <simpara><emphasis role="bold">SET FILES NIO</emphasis></simpara>
+      <simpara>Sets The maximum size of .data file in mega bytes that can use
+      the nio access method. When the file gets larger than this limit,
+      non-nio access methods are used. Values 64, 128, 256, 512, 1024, 2048
+      can be used. The default is 256MB. This is equivalent to the connection
+      property <literal>hsqldb.nio_max_size</literal>.</simpara>
 
-    <simpara><emphasis>set files nio</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><literal>&lt;set files nio statement&gt; ::= SET FILES NIO { TRUE
-    | FALSE }</literal></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES WRITE DELAY</primary>
+      </indexterm>
 
-    <simpara>Sets the access method of the .data file. The default is TRUE and
-    uses the Java nio classes to access the file. This is equivalent to the
-    connection property <literal>hsqldb.nio_data_file</literal>.</simpara>
+      <simpara><emphasis role="bold">SET FILES WRITE
+      DELAY</emphasis></simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara><emphasis>set files write delay statement</emphasis></simpara>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES NIO SIZE</primary>
-    </indexterm>
+      <simpara><literal>&lt;set files write delay statement&gt; ::= SET FILES
+      WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds
+      value&gt; MILLIS}</literal></simpara>
 
-    <simpara><emphasis role="bold">SET FILES NIO SIZE</emphasis></simpara>
+      <para>Set the WRITE DELAY property of the database. The WRITE DELAY
+      controls the frequency of file sync for the log file. When WRITE_DELAY
+      is set to FALSE or 0, the sync takes place immediately at each COMMIT.
+      WRITE DELAY TRUE performs the sync once every 10 seconds (which is the
+      default). A numeric value can be specified instead.</para>
 
-    <simpara><emphasis>set files nio size</emphasis></simpara>
+      <para>The purpose of this command is to control the amount of data loss
+      in case of a total system crash. A delay of 1 second means at most the
+      data written to disk during the last second before the crash is lost.
+      All data written prior to this has been synced and should be
+      recoverable.</para>
 
-    <simpara><literal>&lt;set files nio size statement&gt; ::= SET FILES NIO
-    SIZE &lt;unsigned integer literal&gt;</literal></simpara>
+      <para>A write delay of 0 impacts performance in high load situations, as
+      the engine has to wait for the file system to catch up.</para>
 
-    <simpara>Sets The maximum size of .data file in mega bytes that can use
-    the nio access method. When the file gets larger than this limit, non-nio
-    access methods are used. Values 64, 128, 256, 512, 1024, 2048 can be used.
-    The default is 256MB. This is equivalent to the connection property
-    <literal>hsqldb.nio_max_size</literal>.</simpara>
+      <para>To avoid this, you can set write delay down to 10
+      milliseconds.</para>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <para>Each time the SET FILES WRITE DELAY statement is executed with any
+      value, a sync is immediately performed.</para>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES WRITE DELAY</primary>
-    </indexterm>
+      <para>This is equivalent to the connection properties
+      <literal>hsqldb.write_delay</literal> and
+      <literal>hsqldb.write_delay_millis</literal>.</para>
 
-    <simpara><emphasis role="bold">SET FILES WRITE DELAY</emphasis></simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara><emphasis>set files write delay statement</emphasis></simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES SCALE</primary>
+      </indexterm>
 
-    <simpara><literal>&lt;set files write delay statement&gt; ::= SET FILES
-    WRITE DELAY {{ TRUE | FALSE } | &lt;seconds value&gt; | &lt;milliseconds
-    value&gt; MILLIS}</literal></simpara>
+      <simpara><emphasis role="bold">SET FILES SCALE</emphasis></simpara>
 
-    <para>Set the WRITE DELAY property of the database. The WRITE DELAY
-    controls the frequency of file sync for the log file. When WRITE_DELAY is
-    set to FALSE or 0, the sync takes place immediately at each COMMIT. WRITE
-    DELAY TRUE performs the sync once every 10 seconds (which is the default).
-    A numeric value can be specified instead.</para>
+      <simpara><emphasis>set files scale</emphasis></simpara>
 
-    <para>The purpose of this command is to control the amount of data loss in
-    case of a total system crash. A delay of 1 second means at most the data
-    written to disk during the last second before the crash is lost. All data
-    written prior to this has been synced and should be recoverable.</para>
+      <simpara><literal>&lt;set files scale statement&gt; ::= SET FILES SCALE
+      &lt;scale value&gt;</literal></simpara>
 
-    <para>A write delay of 0 impacts performance in high load situations, as
-    the engine has to wait for the file system to catch up.</para>
+      <simpara>Changes the scale factor for the .data file. The default scale
+      is 8 and allows 16GB of data storage capacity. The scale can be
+      increased in order to increase the maximum data storage capacity. The
+      scale values 8, 16, 32, 64 and 128 are allowed. Scale value 128 allows a
+      maximum capacity of 256GB.</simpara>
 
-    <para>To avoid this, you can set write delay down to 10
-    milliseconds.</para>
+      <simpara>This command can be used only when there is no data in CACHED
+      tables. This is equivalent to the connection property
+      <literal>hsqldb.cache_file_scale</literal>.</simpara>
 
-    <para>Each time the SET FILES WRITE DELAY statement is executed with any
-    value, a sync is immediately performed. This is equivalent to the
-    connection property <literal>hsqldb.write_delay</literal> and
-    <literal>hsqldb.write_delay_millis</literal>.</para>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES LOB SCALE</primary>
+      </indexterm>
 
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES SCALE</primary>
-    </indexterm>
+      <simpara><emphasis role="bold">SET FILES LOB SCALE</emphasis></simpara>
 
-    <simpara><emphasis role="bold">SET FILES SCALE</emphasis></simpara>
+      <simpara><emphasis>set files lob scale</emphasis></simpara>
 
-    <simpara><emphasis>set files scale</emphasis></simpara>
+      <simpara><literal>&lt;set files lob scale statement&gt; ::= SET FILES
+      LOB SCALE &lt;scale value&gt;</literal></simpara>
 
-    <simpara><literal>&lt;set files scale statement&gt; ::= SET FILES SCALE
-    &lt;scale value&gt;</literal></simpara>
+      <simpara>Changes the scale factor for the .lobs file. The scale is
+      interpreted in kilobytes. The default scale is 32 and allows 64TB of lob
+      data storage capacity. The scale can be reduced in order to improve
+      storage efficiency. If the lobs are a lot smaller than 32 kilobytes,
+      reducing the scale will reduce wasted space. The scale values 1, 2, 4,
+      8, 16, 32 are allowed. For example if the average size of lobs is 4
+      kilobytes, the default scale of 32 will result in 28KB wasted space for
+      each lob. Reducing the lob scale to 2 will result in average 1KB wasted
+      space for each lob.</simpara>
 
-    <simpara>Changes the scale factor for the .data file. The default scale is
-    8 and allows 16GB of data storage capacity. The scale can be increased in
-    order to increase the maximum data storage capacity. The scale values 8,
-    16, 32, 64 and 128 are allowed. Scale value 128 allows a maximum capacity
-    of 256GB.</simpara>
+      <simpara>This is equivalent to the connection property
+      <literal>hsqldb.lob_file_scale</literal>.</simpara>
 
-    <simpara>This command can be used only when there is no data in CACHED
-    tables. This is equivalent to the connection property
-    <literal>hsqldb.cache_file_scale</literal>.</simpara>
+      <simpara>This command can be used only when there is no lob in the
+      database.</simpara>
 
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SET FILES LOB SCALE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SET FILES LOB SCALE</emphasis></simpara>
-
-    <simpara><emphasis>set files lob scale</emphasis></simpara>
-
-    <simpara><literal>&lt;set files lob scale statement&gt; ::= SET FILES LOB
-    SCALE &lt;scale value&gt;</literal></simpara>
-
-    <simpara>Changes the scale factor for the .lobs file. The scale is
-    interpreted in kilobytes. The default scale is 32 and allows 64TB of lob
-    data storage capacity. The scale can be reduced in order to improve
-    storage efficiency. If the lobs are a lot smaller than 32 kilobytes,
-    reducing the scale will reduce wasted space. The scale values 1, 2, 4, 8,
-    16, 32 are allowed. For example if the average size of lobs is 4
-    kilobytes, the default scale of 32 will result in 28KB wasted space for
-    each lob. Reducing the lob scale to 2 will result in average 1KB wasted
-    space for each lob. This is equivalent to the connection property
-    <literal>hsqldb.lob_file_scale</literal>.</simpara>
-
-    <simpara>This command can be used only when there is no lob in the
-    database.</simpara>
-
-    <simpara>Only a user with the DBA role can execute this
-    statement.</simpara>
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+    </section>
   </section>
 </chapter>
