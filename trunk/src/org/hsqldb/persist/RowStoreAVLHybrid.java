@@ -83,7 +83,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         }
 
         if (table.getTableType() == TableBase.RESULT_TABLE) {
-            timestamp = session.getActionTimestamp();
+            setTimestamp(session.getActionTimestamp());
         }
 
 // test code to force use of cache

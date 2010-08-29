@@ -502,6 +502,15 @@ public class StatementCommand extends Statement {
                            == HsqlDatabaseProperties
                                .jdbc_translate_tti_types) {
                     session.database.setTranslateTTI(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_concat_nulls) {
+                    session.database.setConcatNulls(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_unique_nulls) {
+                    session.database.setUniqueNulls(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_convert_trunc) {
+                    session.database.setConvertRound(mode);
                 }
 
                 return Result.updateZeroResult;

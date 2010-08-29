@@ -631,15 +631,28 @@ public class IndexAVL implements Index {
                                           b[rowColMap[position]]);
     }
 
-    boolean hasNulls(Object[] rowData) {
+    boolean hasNulls(Session session, Object[] rowData) {
+
+        if (colIndex.length == 1) {
+            return rowData[colIndex[0]] == null;
+        }
+
+        boolean normal = session == null ? true
+                                         : session.database.sqlUniqueNulls;
 
         for (int j = 0; j < colIndex.length; j++) {
             if (rowData[colIndex[j]] == null) {
-                return true;
+                if (normal) {
+                    return true;
+                }
+            } else {
+                if (!normal) {
+                    return false;
+                }
             }
         }
 
-        return false;
+        return !normal;
     }
 
     /**
@@ -651,7 +664,7 @@ public class IndexAVL implements Index {
         NodeAVL x;
         boolean isleft       = true;
         int     compare      = -1;
-        boolean compareRowId = !isUnique || hasNulls(row.getData());
+        boolean compareRowId = !isUnique || hasNulls(session, row.getData());
 
         writeLock.lock();
         store.lock();

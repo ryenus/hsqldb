@@ -180,7 +180,7 @@ public class IndexAVLMemory extends IndexAVL {
         boolean        isleft        = true;
         int            compare       = -1;
         final Object[] rowData       = row.getData();
-        boolean        compareRowId  = !isUnique || hasNulls(rowData);
+        boolean        compareRowId  = !isUnique || hasNulls(session, rowData);
         boolean        compareSimple = isSimple;
 
         writeLock.lock();

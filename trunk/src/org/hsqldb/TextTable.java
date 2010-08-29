@@ -330,7 +330,6 @@ public class TextTable extends org.hsqldb.Table {
             return null;
         }
 
-        boolean      isDesc = isDescDataSource();
         StringBuffer sb     = new StringBuffer(128);
 
         sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
@@ -338,10 +337,6 @@ public class TextTable extends org.hsqldb.Table {
         sb.append(' ').append(Tokens.T_SOURCE).append(' ').append('\'');
         sb.append(dataSource);
         sb.append('\'');
-
-        if (isDesc) {
-            sb.append(' ').append(Tokens.T_DESC);
-        }
 
         return sb.toString();
     }

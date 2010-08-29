@@ -386,6 +386,13 @@ public class Logger {
             HsqlDatabaseProperties.sql_enforce_tdcu);
         database.sqlTranslateTTI = database.databaseProperties.isPropertyTrue(
             HsqlDatabaseProperties.jdbc_translate_tti_types);
+        database.sqlConcatNulls = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_concat_nulls);
+        database.sqlUniqueNulls = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_unique_nulls);
+        database.sqlConvertTruncate =
+            database.databaseProperties.isPropertyTrue(
+                HsqlDatabaseProperties.sql_convert_trunc);
 
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_compare_in_locale)) {
@@ -1376,6 +1383,27 @@ public class Logger {
         sb.append(' ').append(Tokens.T_TYPES).append(' ');
         sb.append(database.sqlTranslateTTI ? Tokens.T_TRUE
                                            : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_CONCAT_WORD).append(' ');
+        sb.append(Tokens.T_NULLS).append(' ');
+        sb.append(database.sqlConcatNulls ? Tokens.T_TRUE
+                                          : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_UNIQUE).append(' ');
+        sb.append(Tokens.T_NULLS).append(' ');
+        sb.append(database.sqlUniqueNulls ? Tokens.T_TRUE
+                                          : Tokens.T_FALSE);
+        list.add(sb.toString());
+        sb.setLength(0);
+        sb.append("SET DATABASE ").append(Tokens.T_SQL).append(' ');
+        sb.append(Tokens.T_CONVERT).append(' ');
+        sb.append(Tokens.T_TRUNCATE).append(' ');
+        sb.append(database.sqlConvertTruncate ? Tokens.T_TRUE
+                                              : Tokens.T_FALSE);
         list.add(sb.toString());
         sb.setLength(0);
         sb.append("SET DATABASE ").append(Tokens.T_TRANSACTION);

@@ -977,6 +977,39 @@ public class ParserCommand extends ParserDDL {
                             HsqlDatabaseProperties.jdbc_translate_tti_types;
                         break;
 
+                    case Tokens.CONCAT_WORD :
+                        read();
+
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
+
+                        readThis(Tokens.NULLS);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_concat_nulls;
+                        break;
+
+                    case Tokens.UNIQUE :
+                        read();
+
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
+
+                        readThis(Tokens.NULLS);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_unique_nulls;
+                        break;
+
+                    case Tokens.CONVERT :
+                        read();
+
+                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
+
+                        readThis(Tokens.TRUNCATE);
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_convert_trunc;
+                        break;
+
                     default :
                         throw unexpectedToken();
                 }

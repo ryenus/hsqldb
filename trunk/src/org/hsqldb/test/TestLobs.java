@@ -149,6 +149,8 @@ public class TestLobs extends TestBase {
 
             Statement st = connection.createStatement();
 
+            st.executeUpdate("DROP TABLE blo IF EXISTS");
+
             st.executeUpdate("CREATE TABLE blo (id INTEGER, b blob( 100))");
 
             PreparedStatement ps = connection.prepareStatement(
@@ -689,6 +691,114 @@ public class TestLobs extends TestBase {
             fail("test failure");
         }
     }
+
+    public void testBlobG() {
+
+        try {
+            String ddl1 = "DROP TABLE BLOBTEST IF EXISTS";
+            String ddl2 =
+                "CREATE TABLE BLOBTEST(A INTEGER, B BLOB)";
+
+            statement.execute(ddl1);
+            statement.execute(ddl2);
+        }
+        catch (SQLException e) {}
+
+
+        try {
+            String dml0 = "insert into blobtest values(1, ?)";
+            String            dql0 = "select * from blobtest";
+            PreparedStatement ps   = connection.prepareStatement(dml0);
+            byte[]            data = new byte[] {
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+            };
+
+            connection.setAutoCommit(false);
+
+            Blob blob = connection.createBlob();
+            blob.setBytes(1,data);
+
+            ps.setBlob(1, blob);
+            ps.executeUpdate();
+
+            data[4] = 50;
+            blob    = new JDBCBlob(data);
+
+            ps.setBlob(1, blob);
+            ps.executeUpdate();
+            ps.close();
+
+            connection.commit();
+            ps = connection.prepareStatement(dql0);
+
+            ResultSet rs = ps.executeQuery();
+
+            rs.next();
+
+            Blob blob1 = rs.getBlob(2);
+
+            rs.next();
+
+            Blob   blob2 = rs.getBlob(2);
+            byte[] data1 = blob1.getBytes(1, 10);
+            byte[] data2 = blob2.getBytes(1, 10);
+
+            assertTrue(data1[4] == 5 && data2[4] == 50);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            fail("test failure");
+        }
+
+
+    }
+
+/*
+    public static void main(String[] args) throws SQLException {
+         Connection con = null;
+         PreparedStatement st = null;
+         ResultSet rs = null;
+         try {
+
+             DriverManager.registerDriver(new org.hsqldb.jdbc.JDBCDriver());
+             con = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost:7001",
+ "sa", null);
+//            con = DriverManager.getConnection("jdbc:hsqldb:mem:mymemdb", "sa", null);
+
+//            con.createStatement().execute("drop table aaa");
+             con.createStatement().execute("create table aaa (a integer, b blob)");
+
+             String insert = "insert into aaa values (1, ?)";
+
+             st = con.prepareStatement(insert);
+
+             byte[] b = {0, 1};
+
+             Blob blob = con.createBlob();
+             blob.setBytes(1, b);
+             st.setBlob(1, blob);
+
+//            this does not work too !!!
+//            st.setBytes(1, b);
+
+             System.out.println("execute");
+             st.execute();
+             System.out.println("execute end");
+             con.commit();
+             System.out.println("commit");
+
+             con.createStatement().execute("shutdown script");
+         } catch (SQLException e) {
+             e.printStackTrace();
+         } finally {
+             if (st != null) {
+                 st.close();
+             }
+             if (con != null) {
+                 con.close();
+             }
+         }
+     }
+*/
 
     protected void tearDown() {
 
