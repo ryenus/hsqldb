@@ -187,7 +187,7 @@ public abstract class RowStoreAVL implements PersistentStore {
     }
 
     //
-    public final void indexRows() {
+    public final void indexRows(Session session) {
 
         RowIterator it = rowIterator();
 
@@ -342,7 +342,7 @@ public abstract class RowStoreAVL implements PersistentStore {
                 // get object without RowAction
                 Row newrow = (Row) getNewCachedObject(null, data);
 
-                indexRow(null, newrow);
+                indexRow(session, newrow);
             }
 
             if (table.isTemp()) {

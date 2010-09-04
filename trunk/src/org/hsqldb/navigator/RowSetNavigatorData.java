@@ -125,7 +125,7 @@ implements Comparator {
         }
     }
 
-    public void sortFull() {
+    public void sortFull(Session session) {
 
         mainIndex = queryExpression.fullIndex;
 
@@ -133,7 +133,7 @@ implements Comparator {
         reset();
     }
 
-    public void sortOrder() {
+    public void sortOrder(Session session) {
 
         if (queryExpression.orderIndex != null) {
             mainIndex = queryExpression.orderIndex;
@@ -144,7 +144,7 @@ implements Comparator {
         reset();
     }
 
-    public void sortUnion(SortAndSlice sortAndSlice) {
+    public void sortUnion(Session session, SortAndSlice sortAndSlice) {
 
         if (sortAndSlice.index != null) {
             mainIndex = sortAndSlice.index;
@@ -322,12 +322,12 @@ implements Comparator {
         other.close();
     }
 
-    public void union(RowSetNavigatorData other) {
+    public void union(Session session, RowSetNavigatorData other) {
 
         Object[] currentData;
 
-        removeDuplicates();
-        other.removeDuplicates();
+        removeDuplicates(session);
+        other.removeDuplicates(session);
 
         while (other.hasNext()) {
             currentData = other.getNext();
@@ -347,7 +347,7 @@ implements Comparator {
         reset();
     }
 
-    public void unionAll(RowSetNavigatorData other) {
+    public void unionAll(Session session, RowSetNavigatorData other) {
 
         other.reset();
 
@@ -361,10 +361,10 @@ implements Comparator {
         reset();
     }
 
-    public void intersect(RowSetNavigatorData other) {
+    public void intersect(Session session, RowSetNavigatorData other) {
 
-        removeDuplicates();
-        other.sortFull();
+        removeDuplicates(session);
+        other.sortFull(session);
 
         while (hasNext()) {
             Object[] currentData = getNext();
@@ -379,14 +379,14 @@ implements Comparator {
         reset();
     }
 
-    public void intersectAll(RowSetNavigatorData other) {
+    public void intersectAll(Session session, RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
         Object[]    otherData = null;
 
-        sortFull();
-        other.sortFull();
+        sortFull(session);
+        other.sortFull(session);
 
         it = queryExpression.fullIndex.emptyIterator();
 
@@ -419,10 +419,10 @@ implements Comparator {
         reset();
     }
 
-    public void except(RowSetNavigatorData other) {
+    public void except(Session session, RowSetNavigatorData other) {
 
-        removeDuplicates();
-        other.sortFull();
+        removeDuplicates(session);
+        other.sortFull(session);
 
         while (hasNext()) {
             Object[] currentData = getNext();
@@ -437,14 +437,14 @@ implements Comparator {
         reset();
     }
 
-    public void exceptAll(RowSetNavigatorData other) {
+    public void exceptAll(Session session, RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
         Object[]    otherData = null;
 
-        sortFull();
-        other.sortFull();
+        sortFull(session);
+        other.sortFull(session);
 
         it = queryExpression.fullIndex.emptyIterator();
 
@@ -475,9 +475,9 @@ implements Comparator {
         reset();
     }
 
-    public boolean hasUniqueNotNullRows() {
+    public boolean hasUniqueNotNullRows(Session session) {
 
-        sortFull();
+        sortFull(session);
         reset();
 
         Object[] lastRowData = null;
@@ -501,9 +501,9 @@ implements Comparator {
         return true;
     }
 
-    public void removeDuplicates() {
+    public void removeDuplicates(Session session) {
 
-        sortFull();
+        sortFull(session);
         reset();
 
         int      lastRowPos  = -1;

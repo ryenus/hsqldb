@@ -50,7 +50,6 @@ import java.util.Map;
 //#ifdef JAVA6
 import java.sql.NClob;
 import java.sql.RowId;
-import java.sql.SQLFeatureNotSupportedException;
 import java.sql.SQLXML;
 
 //#endif JAVA6
@@ -83,7 +82,7 @@ import org.hsqldb.types.Types;
 //       being "@p1" => 1, "@p2" => 2, etc.  Problems: return value is "@p0"
 //       and there is no support for registering the return value as an out
 //       parameter.
-// TODO: 1.9.x
+// TODO: 1.9.x :: DONE
 //       engine and client-side mechanisms for adding, retrieving,
 //       navigating (and perhaps controlling holdability of) multiple
 //       results generated from a single execution.

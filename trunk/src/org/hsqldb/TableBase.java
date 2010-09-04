@@ -98,6 +98,7 @@ public class TableBase {
     protected boolean isCached;
     protected boolean isText;
     boolean           isView;
+    protected boolean isWithDataSource;
     public boolean    isSessionBased;
     protected boolean isSchemaBased;
     protected boolean isLogged;

@@ -530,27 +530,27 @@ public class QueryExpression {
         switch (unionType) {
 
             case UNION :
-                navigator.union(rightNavigator);
+                navigator.union(session, rightNavigator);
                 break;
 
             case UNION_ALL :
-                navigator.unionAll(rightNavigator);
+                navigator.unionAll(session, rightNavigator);
                 break;
 
             case INTERSECT :
-                navigator.intersect(rightNavigator);
+                navigator.intersect(session, rightNavigator);
                 break;
 
             case INTERSECT_ALL :
-                navigator.intersectAll(rightNavigator);
+                navigator.intersectAll(session, rightNavigator);
                 break;
 
             case EXCEPT :
-                navigator.except(rightNavigator);
+                navigator.except(session, rightNavigator);
                 break;
 
             case EXCEPT_ALL :
-                navigator.exceptAll(rightNavigator);
+                navigator.exceptAll(session, rightNavigator);
                 break;
 
             default :
@@ -558,7 +558,7 @@ public class QueryExpression {
         }
 
         if (sortAndSlice.hasOrder()) {
-            navigator.sortUnion(sortAndSlice);
+            navigator.sortUnion(session, sortAndSlice);
         }
 
         if (sortAndSlice.hasLimit()) {

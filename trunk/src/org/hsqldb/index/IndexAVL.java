@@ -992,7 +992,7 @@ public class IndexAVL implements Index {
 
     /**
      * Return the first node equal to the rowdata object. The rowdata has the
-     * column mapping privided in rowColMap.
+     * column mapping provided in rowColMap.
      *
      * @param session session object
      * @param store store object
@@ -1751,7 +1751,7 @@ public class IndexAVL implements Index {
                 return null;
             }
 
-            lastrow = nextnode.getRow(store);
+            NodeAVL lastnode = nextnode;
 
             if (single) {
                 nextnode = null;
@@ -1760,6 +1760,8 @@ public class IndexAVL implements Index {
             } else {
                 nextnode = index.next(session, store, nextnode, distinctCount);
             }
+
+            lastrow = lastnode.getRow(store);
 
             return lastrow;
         }

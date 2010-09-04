@@ -1226,11 +1226,11 @@ public class QuerySpecification extends QueryExpression {
         RowSetNavigatorData navigator = (RowSetNavigatorData) r.getNavigator();
 
         if (isDistinctSelect) {
-            navigator.removeDuplicates();
+            navigator.removeDuplicates(session);
         }
 
         if (sortAndSlice.hasOrder()) {
-            navigator.sortOrder();
+            navigator.sortOrder(session);
         }
 
         if (limits != defaultLimits) {

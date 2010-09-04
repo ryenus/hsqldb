@@ -277,7 +277,7 @@ class SubQuery implements Comparator {
             RowSetNavigatorData navigator =
                 ((RowSetNavigatorData) result.getNavigator());
 
-            navigator.removeDuplicates();
+            navigator.removeDuplicates(session);
         }
 
         store = session.sessionData.getSubqueryRowStore(table);
@@ -290,7 +290,7 @@ class SubQuery implements Comparator {
 
         RowSetNavigatorData navigator = new RowSetNavigatorDataTable(session,
             table);
-        boolean result = navigator.hasUniqueNotNullRows();
+        boolean result = navigator.hasUniqueNotNullRows(session);
 
         return result;
     }

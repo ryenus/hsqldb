@@ -1937,6 +1937,26 @@ public final class NumberType extends Type {
         return convertToTypeLimits(null, a);
     }
 
+    public Object round(Object a, int s) {
+
+        if (a == null) {
+            return null;
+        }
+
+        BigDecimal dec = convertToDecimal(a);
+
+        dec = dec.setScale(s, BigDecimal.ROUND_HALF_EVEN);
+
+        if (typeCode == Types.SQL_DECIMAL || typeCode == Types.SQL_NUMERIC) {
+            dec = dec.setScale(scale, BigDecimal.ROUND_DOWN);
+        }
+
+        a = convertToDefaultType(null, dec);
+
+        return convertToTypeLimits(null, a);
+    }
+
+
     public static NumberType getNumberType(int type, long precision,
                                            int scale) {
 

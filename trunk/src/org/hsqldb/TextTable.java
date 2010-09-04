@@ -68,6 +68,7 @@ public class TextTable extends org.hsqldb.Table {
      */
     TextTable(Database db, HsqlNameManager.HsqlName name, int type) {
         super(db, name, type);
+        isWithDataSource = true;
     }
 
     public boolean isConnected() {
@@ -129,7 +130,7 @@ public class TextTable extends org.hsqldb.Table {
                 enforceRowConstraints(session, data);
 
                 for (int i = 0; i < indexList.length; i++) {
-                    indexList[i].insert(null, store, row);
+                    indexList[i].insert(session, store, row);
                 }
             }
         } catch (Throwable t) {
@@ -148,7 +149,7 @@ public class TextTable extends org.hsqldb.Table {
             // At this point table should either have a valid (old) data
             // source and cache or have an empty source and null cache.
             throw Error.error(t, ErrorCode.TEXT_FILE, 0, new Object[] {
-                t.getMessage(), new Integer(linenumber)
+                new Integer(linenumber), t.getMessage()
             });
         }
 
@@ -397,7 +398,7 @@ public class TextTable extends org.hsqldb.Table {
 
         Row row = (Row) store.getNewCachedObject(null, data);
 
-        store.indexRow(null, row);
+        store.indexRow(session, row);
         store.commitPersistence(row);
     }
 }

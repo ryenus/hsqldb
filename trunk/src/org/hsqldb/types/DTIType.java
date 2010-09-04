@@ -123,6 +123,7 @@ public abstract class DTIType extends Type {
     public static final int MONTH_NAME      = Types.SQL_TYPE_NUMBER_LIMIT + 9;
     public static final int SECONDS_MIDNIGHT = Types.SQL_TYPE_NUMBER_LIMIT
         + 10;
+    public static final int ISO_YEAR = Types.SQL_TYPE_NUMBER_LIMIT + 11;
 
     //
     public final int startIntervalType;

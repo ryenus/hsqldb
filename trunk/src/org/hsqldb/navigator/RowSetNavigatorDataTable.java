@@ -147,10 +147,10 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         reset();
     }
 
-    public void sortFull() {
+    public void sortFull(Session session) {
 
         if (reindexTable) {
-            store.indexRows();
+            store.indexRows(session);
         }
 
         mainIndex = fullIndex;
@@ -158,11 +158,11 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         reset();
     }
 
-    public void sortOrder() {
+    public void sortOrder(Session session) {
 
         if (orderIndex != null) {
             if (reindexTable) {
-                store.indexRows();
+                store.indexRows(session);
             }
 
             mainIndex = orderIndex;
@@ -171,7 +171,7 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         }
     }
 
-    public void sortUnion(SortAndSlice sortAndSlice) {
+    public void sortUnion(Session session, SortAndSlice sortAndSlice) {
 
         if (sortAndSlice.index != null) {
             mainIndex = sortAndSlice.index;
@@ -336,11 +336,11 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         other.close();
     }
 
-    public void union(RowSetNavigatorData other) {
+    public void union(Session session, RowSetNavigatorData other) {
 
         Object[] currentData;
 
-        removeDuplicates();
+        removeDuplicates(session);
         reset();
 
         while (other.hasNext()) {
@@ -360,11 +360,11 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         other.close();
     }
 
-    public void intersect(RowSetNavigatorData other) {
+    public void intersect(Session session, RowSetNavigatorData other) {
 
-        removeDuplicates();
+        removeDuplicates(session);
         reset();
-        other.sortFull();
+        other.sortFull(session);
 
         while (hasNext()) {
             Object[] currentData = getNext();
@@ -378,16 +378,16 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         other.close();
     }
 
-    public void intersectAll(RowSetNavigatorData other) {
+    public void intersectAll(Session session, RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
         Row         otherRow  = null;
         Object[]    otherData = null;
 
-        sortFull();
+        sortFull(session);
         reset();
-        other.sortFull();
+        other.sortFull(session);
 
         it = fullIndex.emptyIterator();
 
@@ -421,11 +421,11 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         other.close();
     }
 
-    public void except(RowSetNavigatorData other) {
+    public void except(Session session, RowSetNavigatorData other) {
 
-        removeDuplicates();
+        removeDuplicates(session);
         reset();
-        other.sortFull();
+        other.sortFull(session);
 
         while (hasNext()) {
             Object[] currentData = getNext();
@@ -439,16 +439,16 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         other.close();
     }
 
-    public void exceptAll(RowSetNavigatorData other) {
+    public void exceptAll(Session session, RowSetNavigatorData other) {
 
         Object[]    compareData = null;
         RowIterator it;
         Row         otherRow  = null;
         Object[]    otherData = null;
 
-        sortFull();
+        sortFull(session);
         reset();
-        other.sortFull();
+        other.sortFull(session);
 
         it = fullIndex.emptyIterator();
 
@@ -480,9 +480,9 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         other.close();
     }
 
-    public boolean hasUniqueNotNullRows() {
+    public boolean hasUniqueNotNullRows(Session session) {
 
-        sortFull();
+        sortFull(session);
         reset();
 
         Object[] lastRowData = null;
@@ -506,9 +506,9 @@ public class RowSetNavigatorDataTable extends RowSetNavigatorData {
         return true;
     }
 
-    public void removeDuplicates() {
+    public void removeDuplicates(Session session) {
 
-        sortFull();
+        sortFull(session);
         reset();
 
         Object[] lastRowData = null;

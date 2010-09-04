@@ -232,7 +232,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
             memoryRowCount++;
 
             if (useDisk && memoryRowCount > maxMemoryRowCount) {
-                changeToDiskTable();
+                changeToDiskTable(session);
 
                 return getNewCachedObject(session, object);
             }
@@ -387,7 +387,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
         super.resetAccessorKeys(keys);
     }
 
-    public void changeToDiskTable() {
+    public void changeToDiskTable(Session session) {
 
         cache = session.sessionData.getResultCache();
 
@@ -404,7 +404,7 @@ public class RowStoreAVLHybrid extends RowStoreAVL implements PersistentStore {
                 Row row    = iterator.getNextRow();
                 Row newRow = (Row) getNewCachedObject(session, row.getData());
 
-                indexRow(null, newRow);
+                indexRow(session, newRow);
                 row.destroy();
             }
         }

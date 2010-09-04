@@ -39,6 +39,7 @@ import org.hsqldb.SessionInterface;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.ArrayUtil;
 
 /**
  * Type subclass for various typs of INTERVAL.<p>
@@ -1379,6 +1380,17 @@ public final class IntervalType extends DTIType {
         }
 
         throw Error.runtimeError(ErrorCode.U_S0500, "IntervalType");
+    }
+
+    public static int getIntervalType(String part) {
+
+        int index = ArrayUtil.find(Tokens.SQL_INTERVAL_FIELD_NAMES, part);
+
+        if (index < 0) {
+            throw Error.error(ErrorCode.X_42562);
+        }
+
+        return intervalParts[index];
     }
 
     long getIntervalValueLimit() {
