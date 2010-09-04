@@ -1100,6 +1100,64 @@ public final class DateTimeType extends DTIType {
         throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
     }
 
+    public Object truncate(Object a, int part) {
+
+        if (a == null) {
+            return null;
+        }
+
+        long millis       = getMillis(a);
+
+        millis = HsqlDateTime.getTruncatedPart(millis, part);
+
+        switch (typeCode) {
+
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+            case Types.SQL_TIME : {
+                return new TimeData((int) (millis / 1000), 0,
+                                    ((TimeData) a).getZone());
+            }
+            case Types.SQL_DATE :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+            case Types.SQL_TIMESTAMP : {
+                return new TimestampData(millis / 1000, 0,
+                                         ((TimestampData) a).getZone());
+            }
+            default :
+        }
+
+        throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
+    }
+
+    public Object round(Object a, int part) {
+
+        if (a == null) {
+            return null;
+        }
+
+        long millis       = getMillis(a);
+
+        millis = HsqlDateTime.getRoundedPart(millis, part);
+
+        switch (typeCode) {
+
+            case Types.SQL_TIME_WITH_TIME_ZONE :
+            case Types.SQL_TIME : {
+                return new TimeData((int) (millis / 1000), 0,
+                                    ((TimeData) a).getZone());
+            }
+            case Types.SQL_DATE :
+            case Types.SQL_TIMESTAMP_WITH_TIME_ZONE :
+            case Types.SQL_TIMESTAMP : {
+                return new TimestampData(millis / 1000, 0,
+                                         ((TimestampData) a).getZone());
+            }
+            default :
+        }
+
+        throw Error.runtimeError(ErrorCode.U_S0500, "DateTimeType");
+    }
+
     public boolean equals(Object other) {
 
         if (other instanceof Type) {
@@ -1194,6 +1252,14 @@ public final class DateTimeType extends DTIType {
                                          "DateTimeType - " + part);
         }
 
+        long millis = getMillis(dateTime);
+
+        return HsqlDateTime.getDateTimePart(millis, calendarPart) / divisor
+               + increment;
+    }
+
+    long getMillis(Object dateTime) {
+
         long millis;
 
         if (typeCode == Types.SQL_TIME
@@ -1207,8 +1273,7 @@ public final class DateTimeType extends DTIType {
                     .getSeconds() + ((TimestampData) dateTime).getZone()) * 1000;
         }
 
-        return HsqlDateTime.getDateTimePart(millis, calendarPart) / divisor
-               + increment;
+        return millis;
     }
 
     public BigDecimal getSecondPart(Object dateTime) {

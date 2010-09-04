@@ -108,7 +108,7 @@ public interface PersistentStore {
 
     void rollbackRow(Session session, Row row, int changeAction, int txModel);
     //
-    void indexRows();
+    void indexRows(Session session);
 
     RowIterator rowIterator();
 

@@ -202,7 +202,14 @@ public final class ExpressionLike extends ExpressionLogical {
                        || nodes[ESCAPE].dataType.isBinaryType())) {
             likeObject.isBinary = true;
         } else {
-            throw Error.error(ErrorCode.X_42563);
+            if (!session.database.sqlEnforceTypes
+                    && nodes[LEFT].opType == OpTypes.VALUE) {
+                nodes[LEFT].valueData = nodes[LEFT].getValue(session,
+                        Type.SQL_VARCHAR_DEFAULT);
+                nodes[LEFT].dataType = Type.SQL_VARCHAR_DEFAULT;
+            } else {
+                throw Error.error(ErrorCode.X_42563);
+            }
         }
 
         likeObject.dataType = nodes[LEFT].dataType;
@@ -229,9 +236,8 @@ public final class ExpressionLike extends ExpressionLogical {
                          : null;
         boolean constantEscape = isEscapeFixedConstant
                                  && nodes[ESCAPE] != null;
-        Object escape = constantEscape
-                        ? nodes[ESCAPE].getValue(session)
-                        : null;
+        Object escape = constantEscape ? nodes[ESCAPE].getValue(session)
+                                       : null;
 
         likeObject.setPattern(session, pattern, escape, nodes[ESCAPE] != null);
 
@@ -370,7 +376,6 @@ public final class ExpressionLike extends ExpressionLogical {
         }
 
         sb.append("LIKE ");
-
         sb.append(likeObject.describe(session));
 
         return sb.toString();

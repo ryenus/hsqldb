@@ -513,7 +513,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[ifree_count] = ValuePool.getLong(cache.getFreeBlockCount());
             row[ifree_pos]   = ValuePool.getLong(cache.getFileFreePos());
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -587,7 +587,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[column_name] = column.getName().name;
                 row[remark]      = column.getName().comment;
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
 
             if (table.getTableType() != Table.SYSTEM_TABLE
@@ -605,7 +605,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[column_name] = null;
             row[remark]      = ti.getRemark();
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         it = database.schemaManager.databaseObjectIterator(
@@ -630,7 +630,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[column_name] = null;
             row[remark]      = object.getName().comment;
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -756,7 +756,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
 
             row[iclass] = metaData[HsqlProperties.indexClass];
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -818,58 +818,58 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
         row[0] = "SESSION ID";
         row[1] = String.valueOf(session.getId());
 
-        t.insertSys(store, row);
+        t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
         row[0] = "AUTOCOMMIT";
         row[1] = session.isAutoCommit() ? Tokens.T_TRUE
                                         : Tokens.T_FALSE;
 
-        t.insertSys(store, row);
+        t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
         row[0] = "USER";
         row[1] = session.getUsername();
 
-        t.insertSys(store, row);
+        t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
         row[0] = "SESSION READONLY";
         row[1] = session.isReadOnlyDefault() ? Tokens.T_TRUE
                                              : Tokens.T_FALSE;
 
-        t.insertSys(store, row);
+        t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
         row[0] = "DATABASE READONLY";
         row[1] = database.isReadOnly() ? Tokens.T_TRUE
                                        : Tokens.T_FALSE;
 
-        t.insertSys(store, row);
+        t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
         row[0] = "DATABASE";
         row[1] = database.getURI();
 
-        t.insertSys(store, row);
+        t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
         row[0] = "IDENTITY";
         row[1] = String.valueOf(session.getLastIdentity());
 
-        t.insertSys(store, row);
+        t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
         row[0] = "CURRENT SCHEMA";
         row[1] = String.valueOf(session.getSchemaName(null));
 
-        t.insertSys(store, row);
+        t.insertSys(session, store, row);
 
         row    = t.getEmptyRowData();
         row[0] = "ISOLATION LEVEL";
         row[1] = String.valueOf(session.getIsolation());
 
-        t.insertSys(store, row);
+        t.insertSys(session, store, row);
 
         return t;
     }
@@ -1024,7 +1024,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[it_waited] = sb.toString();
             }
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -1153,7 +1153,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                            : Boolean.FALSE;
             }
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -1275,7 +1275,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[role_name]    = roleName;
                 row[is_grantable] = "YES";
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         } else {
             OrderedHashSet roles = role.getDirectRoles();
@@ -1288,7 +1288,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[role_name]    = roleName;
                 row[is_grantable] = Tokens.T_NO;
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
 
                 role = database.getGranteeManager().getRole(roleName);
 
@@ -1415,7 +1415,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[1]  = grantee.isRole() ? "ROLE"
                                        : "USER";
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -1486,7 +1486,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 data[default_collate_name]   = charset.base.name;
             }
 
-            t.insertSys(store, data);
+            t.insertSys(session, store, data);
         }
 
         return t;
@@ -1652,14 +1652,14 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 }
 
                 row                     = t.getEmptyRowData();
-                row[constraint_catalog] = database.getCatalogName();
+                row[constraint_catalog] = database.getCatalogName().name;
                 row[constraint_schema]  = constraint.getSchemaName().name;
                 row[constraint_name]    = constraint.getName().name;
-                row[specific_catalog]   = database.getCatalogName();
+                row[specific_catalog]   = database.getCatalogName().name;
                 row[specific_schema]    = name.schema.name;
                 row[specific_name]      = name.name;
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 
@@ -1792,7 +1792,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[check_clause] = constraint.getCheckSQL();
                 } catch (Exception e) {}
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 
@@ -1825,7 +1825,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[check_clause] = constraint.getCheckSQL();
                 } catch (Exception e) {}
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 
@@ -1931,7 +1931,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[collation_name]    = collation;
             row[pad_attribute]     = padAttribute;
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -2022,7 +2022,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             + "TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS "
             + "WHERE DOMAIN_NAME IS NOT NULL;", ResultProperties.defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
         sys.close();
 
         return t;
@@ -2072,7 +2072,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             + "TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS "
             + "WHERE UDT_NAME IS NOT NULL;", ResultProperties.defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
         sys.close();
 
         return t;
@@ -2357,7 +2357,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[declared_numeric_scale]     = row[numeric_scale];
                 }
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 
@@ -2510,7 +2510,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                             row[constraint_name]    = constraintName;
 
                             try {
-                                t.insertSys(store, row);
+                                t.insertSys(session, store, row);
                             } catch (HsqlException e) {}
                         }
 
@@ -2568,7 +2568,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                             row[constraint_name]    = constraintName;
 
                             try {
-                                t.insertSys(store, row);
+                                t.insertSys(session, store, row);
                             } catch (HsqlException e) {}
                         }
 
@@ -2656,7 +2656,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             + "from INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE", ResultProperties
                 .defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
         sys.close();
 
         return t;
@@ -2696,7 +2696,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             sys.executeDirectStatement(sql,
                                        ResultProperties.defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
         sys.close();
 
         return t;
@@ -2860,7 +2860,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 data[is_deferrable]      = Tokens.T_NO;
                 data[initially_deferred] = Tokens.T_NO;
 
-                t.insertSys(store, data);
+                t.insertSys(session, store, data);
             }
         }
 
@@ -3034,7 +3034,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[domain_default] = defaultExpression.getSQL();
             }
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -3096,7 +3096,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row     = t.getEmptyRowData();
             row[0]  = grantee.getName().getNameString();
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -3316,7 +3316,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                 ValuePool.getInt(uniqueColMap[j] + 1);
                         }
 
-                        t.insertSys(store, row);
+                        t.insertSys(session, store, row);
                     }
                 }
             }
@@ -3572,7 +3572,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     }
 
                     // end common block
-                    t.insertSys(store, row);
+                    t.insertSys(session, store, row);
                 }
             }
         }
@@ -3677,7 +3677,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[update_rule]  = constraint.getUpdateActionString();
                 row[delete_rule]  = constraint.getDeleteActionString();
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 
@@ -3722,7 +3722,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             + "FROM INFORMATION_SCHEMA.COLUMN_PRIVILEGES "
             + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties.defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
         sys.close();
 
         return t;
@@ -3768,7 +3768,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties
                 .defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
         sys.close();
 
         // Column number mappings
@@ -3828,7 +3828,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties
                 .defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
         sys.close();
 
         return t;
@@ -3868,7 +3868,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties
                 .defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
         sys.close();
 
         return t;
@@ -3911,7 +3911,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             + "JOIN INFORMATION_SCHEMA.APPLICABLE_ROLES ON GRANTEE = ROLE_NAME;", ResultProperties
                 .defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
         sys.close();
 
         return t;
@@ -4005,7 +4005,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[column_name]      = refName.name;
 
                     try {
-                        t.insertSys(store, row);
+                        t.insertSys(session, store, row);
                     } catch (HsqlException e) {}
                 }
             }
@@ -4126,7 +4126,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                                              : "NO";
 
                             try {
-                                t.insertSys(store, row);
+                                t.insertSys(session, store, row);
                             } catch (HsqlException e) {}
                         }
                     }
@@ -4201,7 +4201,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     database.schemaManager.getSQLJSchemaHsqlName();
                 row[jar_name] = "CLASSPATH";
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 
@@ -4286,7 +4286,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[routine_name]     = refName.name;
 
                     try {
-                        t.insertSys(store, row);
+                        t.insertSys(session, store, row);
                     } catch (HsqlException e) {}
                 }
             }
@@ -4368,7 +4368,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[sequence_name]    = refName.name;
 
                     try {
-                        t.insertSys(store, row);
+                        t.insertSys(session, store, row);
                     } catch (HsqlException e) {}
                 }
             }
@@ -4460,7 +4460,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     row[table_name]       = refName.name;
 
                     try {
-                        t.insertSys(store, row);
+                        t.insertSys(session, store, row);
                     } catch (HsqlException e) {}
                 }
             }
@@ -4855,7 +4855,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[result_cast_declared_numeric_precision] = null;
                 row[result_cast_declared_numeric_scale]     = null;
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 
@@ -5000,7 +5000,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[default_character_set_name]   = dcsName;
             row[sql_path]                     = sqlPath;
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -5040,7 +5040,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             sys.executeDirectStatement(sql,
                                        ResultProperties.defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
 
         return t;
     }
@@ -5076,7 +5076,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             "VALUES "
             + ";");
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
 */
         return t;
     }
@@ -5111,7 +5111,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             sys.executeDirectStatement(sql,
                                        ResultProperties.defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
 
         return t;
     }
@@ -5145,7 +5145,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             sys.executeDirectStatement(sql,
                                        ResultProperties.defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
 
         return t;
     }
@@ -5178,7 +5178,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             sys.executeDirectStatement(sql,
                                        ResultProperties.defaultPropsValue);
 
-        t.insertSys(store, rs);
+        t.insertSys(session, store, rs);
 
         return t;
     }
@@ -5215,7 +5215,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                     "VALUES "
                     + ";");
 
-                t.insertSys(store, rs);
+                t.insertSys(session, store, rs);
         */
         return t;
     }
@@ -5437,7 +5437,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[is_deferable]       = Tokens.T_NO;
                 row[initially_deferred] = Tokens.T_NO;
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 
@@ -5552,7 +5552,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[column_name]     = refName.name;
 
                 try {
-                    t.insertSys(store, row);
+                    t.insertSys(session, store, row);
                 } catch (HsqlException e) {}
             }
         }
@@ -5630,7 +5630,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[specific_name]    = refName.name;
 
                 try {
-                    t.insertSys(store, row);
+                    t.insertSys(session, store, row);
                 } catch (HsqlException e) {}
             }
         }
@@ -5707,7 +5707,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[sequence_name]    = refName.name;
 
                 try {
-                    t.insertSys(store, row);
+                    t.insertSys(session, store, row);
                 } catch (HsqlException e) {}
             }
         }
@@ -5786,7 +5786,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[table_name]      = refName.name;
 
                 try {
-                    t.insertSys(store, row);
+                    t.insertSys(session, store, row);
                 } catch (HsqlException e) {}
             }
         }
@@ -5888,7 +5888,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[action_reference_new_row] = trigger.getNewTransitionRowName();
             row[created]                  = null;
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         // Initialization
@@ -5964,7 +5964,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[event_object_table]  = trigger.getTable().getName().name;
                 row[event_object_column] = column.getNameString();
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 
@@ -6049,7 +6049,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                                    : Tokens.T_NO;;
 
                     try {
-                        t.insertSys(store, row);
+                        t.insertSys(session, store, row);
                     } catch (HsqlException e) {}
                 }
             }
@@ -6247,7 +6247,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                                                    : Tokens.T_NO;;
 
                     try {
-                        t.insertSys(store, row);
+                        t.insertSys(session, store, row);
                     } catch (HsqlException e) {}
                 }
             }
@@ -6419,7 +6419,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             // end common block
             row[source_dtd_identifier] = row[user_defined_type_name];
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -6557,7 +6557,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[column_name]   = refName.name;
 
                 try {
-                    t.insertSys(store, row);
+                    t.insertSys(session, store, row);
                 } catch (HsqlException e) {}
             }
         }
@@ -6683,7 +6683,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[specific_name]    = refName.name;
 
                 try {
-                    t.insertSys(store, row);
+                    t.insertSys(session, store, row);
                 } catch (HsqlException e) {}
             }
         }
@@ -6809,7 +6809,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[table_name]    = refName.name;
 
                 try {
-                    t.insertSys(store, row);
+                    t.insertSys(session, store, row);
                 } catch (HsqlException e) {}
             }
         }
@@ -6938,7 +6938,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[is_trigger_deletable]       = null;
             row[is_trigger_insertable_into] = null;
 
-            t.insertSys(store, row);
+            t.insertSys(session, store, row);
         }
 
         return t;
@@ -7076,7 +7076,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 row[grantor]      = grantorName;
                 row[is_grantable] = isGrantable;
 
-                t.insertSys(store, row);
+                t.insertSys(session, store, row);
             }
         }
 

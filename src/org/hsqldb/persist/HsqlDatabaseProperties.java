@@ -253,7 +253,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                                             SYSTEM_PROPERTY, false));
         textMeta.put(textdb_quoted,
                      HsqlProperties.getMeta(textdb_quoted, SQL_PROPERTY,
-                                            false));
+                                            true));
         textMeta.put(textdb_all_quoted,
                      HsqlProperties.getMeta(textdb_all_quoted, SQL_PROPERTY,
                                             false));

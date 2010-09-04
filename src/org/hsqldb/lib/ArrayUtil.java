@@ -1374,6 +1374,6 @@ public class ArrayUtil {
             return false;
         }
 
-        return false;
+        return true;
     }
 }

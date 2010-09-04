@@ -236,8 +236,8 @@ public final class RangeVariable implements Cloneable {
 
         int[] indexColMap = joinConditions[0].rangeIndex.getColumns();
 
-        if (ArrayUtil.containsAllAtStart(indexColMap, colMap)) {
-            indexDistinctCount = colMap.length;
+        if (colMap.length == 1 && colMap[0] == indexColMap[0]) {
+            indexDistinctCount = 1;
 
             return true;
         }

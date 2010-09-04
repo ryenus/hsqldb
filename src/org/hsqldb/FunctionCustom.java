@@ -108,10 +108,11 @@ public class FunctionCustom extends FunctionSQL {
     private final static int FUNC_SYSDATE                  = 77;
     private final static int FUNC_TIMESTAMPADD             = 78;
     private final static int FUNC_TIMESTAMPDIFF            = 79;
-    private final static int FUNC_TRUNCATE                 = 80;
-    private final static int FUNC_TO_CHAR                  = 81;
-    private final static int FUNC_TO_DATE                  = 82;
-    private final static int FUNC_TIMESTAMP                = 83;
+    private final static int FUNC_TRUNC                    = 80;
+    private final static int FUNC_TRUNCATE                 = 81;
+    private final static int FUNC_TO_CHAR                  = 82;
+    private final static int FUNC_TO_DATE                  = 83;
+    private final static int FUNC_TIMESTAMP                = 84;
     private final static int FUNC_CRYPT_KEY                = 85;
     private final static int FUNC_ISOLATION_LEVEL          = 86;
     private final static int FUNC_SESSION_ISOLATION_LEVEL  = 87;
@@ -214,7 +215,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.IDENTITY, FUNC_IDENTITY);
         customRegularFuncMap.put(Tokens.TIMESTAMPADD, FUNC_TIMESTAMPADD);
         customRegularFuncMap.put(Tokens.TIMESTAMPDIFF, FUNC_TIMESTAMPDIFF);
-        customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNCATE);
+        customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNC);
         customRegularFuncMap.put(Tokens.TRUNCATE, FUNC_TRUNCATE);
         customRegularFuncMap.put(Tokens.TO_CHAR, FUNC_TO_CHAR);
         customRegularFuncMap.put(Tokens.TO_DATE, FUNC_TO_DATE);
@@ -304,6 +305,7 @@ public class FunctionCustom extends FunctionSQL {
         customRegularFuncMap.put(Tokens.ROUNDMAGIC, FUNC_ROUNDMAGIC);
         customRegularFuncMap.put(Tokens.ASCII, FUNC_ASCII);
         customRegularFuncMap.put(Tokens.CHAR, FUNC_CHAR);
+        customRegularFuncMap.put(Tokens.CHR, FUNC_CHAR);
         customRegularFuncMap.put(Tokens.CONCAT_WORD, FUNC_CONCAT);
         customRegularFuncMap.put(Tokens.DIFFERENCE, FUNC_DIFFERENCE);
         customRegularFuncMap.put(Tokens.HEXTORAW, FUNC_HEXTORAW);
@@ -539,6 +541,8 @@ public class FunctionCustom extends FunctionSQL {
                 };
                 break;
 
+            case FUNC_ROUND :
+            case FUNC_TRUNC :
             case FUNC_TRUNCATE :
                 parseList = new short[] {
                     Tokens.OPENBRACKET, Tokens.QUESTION, Tokens.X_OPTION, 2,
@@ -593,7 +597,6 @@ public class FunctionCustom extends FunctionSQL {
                 break;
 
             case FUNC_ATAN2 :
-            case FUNC_ROUND :
             case FUNC_BITAND :
             case FUNC_BITOR :
             case FUNC_BITXOR :
@@ -993,6 +996,37 @@ public class FunctionCustom extends FunctionSQL {
                                                  "FunctionCustom");
                 }
             }
+            case FUNC_ROUND :
+            case FUNC_TRUNC : {
+                int interval = Types.SQL_INTERVAL_DAY;
+
+                if (data[0] == null) {
+                    return null;
+                }
+
+                if (dataType.isDateTimeType()) {
+                    DateTimeType type = (DateTimeType) dataType;
+
+                    if (nodes.length > 1 && nodes[1] != null) {
+                        if (data[1] == null) {
+                            return null;
+                        }
+
+                        interval = HsqlDateTime.toExtendedIntervalPart(
+                            (String) data[1]);
+                    }
+
+                    if (interval < 0) {
+                        throw Error.error(ErrorCode.X_42566, (String) data[1]);
+                    }
+
+                    return funcType == FUNC_ROUND
+                           ? type.round(data[0], interval)
+                           : type.truncate(data[0], interval);
+                }
+            }
+
+            // fall through
             case FUNC_TRUNCATE : {
                 int offset = 0;
 
@@ -1010,7 +1044,9 @@ public class FunctionCustom extends FunctionSQL {
                     offset = ((Number) data[1]).intValue();
                 }
 
-                return ((NumberType) dataType).truncate(data[0], offset);
+                return funcType == FUNC_ROUND
+                       ? ((NumberType) dataType).round(data[0], offset)
+                       : ((NumberType) dataType).truncate(data[0], offset);
             }
             case FUNC_TO_CHAR : {
                 if (data[0] == null || data[1] == null) {
@@ -1240,17 +1276,22 @@ public class FunctionCustom extends FunctionSQL {
                 }
 
                 throw Error.error(ErrorCode.X_22511);
-            case FUNC_ROUNDMAGIC :
-            case FUNC_ROUND : {
-                if (data[0] == null || data[1] == null) {
+            case FUNC_ROUNDMAGIC : {
+                int offset = 0;
+
+                if (data[0] == null) {
                     return null;
                 }
 
-                double d = NumberType.toDouble(data[0]);
-                int    e = ((Number) data[1]).intValue();
-                double f = Math.pow(10., e);
+                if (nodes.length > 1) {
+                    if (data[1] == null) {
+                        return null;
+                    }
 
-                return new Double(Math.round(d * f) / f);
+                    offset = ((Number) data[1]).intValue();
+                }
+
+                return ((NumberType) dataType).round(data[0], offset);
             }
             case FUNC_SOUNDEX : {
                 if (data[0] == null) {
@@ -1628,7 +1669,8 @@ public class FunctionCustom extends FunctionSQL {
                         (String) nodes[0].valueData)) {
                     part = Tokens.SQL_TSI_FRAC_SECOND;
                 } else {
-                    throw Error.error(ErrorCode.X_42561);
+                    throw Error.error(ErrorCode.X_42566,
+                                      (String) nodes[0].valueData);
                 }
 
                 nodes[0].valueData = ValuePool.getInt(part);
@@ -1751,6 +1793,44 @@ public class FunctionCustom extends FunctionSQL {
 
                 return;
             }
+            case FUNC_ROUND :
+            case FUNC_TRUNC : {
+                boolean single = nodes.length == 1 || nodes[1] == null;
+
+                if (nodes[0].dataType == null) {
+                    if (single) {
+                        nodes[0].dataType = Type.SQL_DECIMAL;
+                    } else {
+                        if (nodes[1].dataType == null) {
+                            nodes[1].dataType = Type.SQL_INTEGER;
+                        }
+
+                        if (nodes[1].dataType.isNumberType()) {
+                            nodes[0].dataType = Type.SQL_DECIMAL;
+                        } else {
+                            nodes[0].dataType = Type.SQL_TIMESTAMP;
+                        }
+                    }
+                }
+
+                if (nodes[0].dataType.isDateTimeType()) {
+                    if (!single) {
+                        if (!nodes[1].dataType.isCharacterType()) {
+                            throw Error.error(ErrorCode.X_42566);
+                        }
+                    }
+
+                    dataType = nodes[0].dataType;
+
+                    break;
+                } else if (nodes[0].dataType.isNumberType()) {
+                    //
+                } else {
+                    throw Error.error(ErrorCode.X_42561);
+                }
+            }
+
+            // fall through
             case FUNC_TRUNCATE : {
                 Number offset = null;
 
@@ -1928,16 +2008,6 @@ public class FunctionCustom extends FunctionSQL {
 
                 break;
             }
-            case FUNC_ROUND :
-                if (nodes[1].dataType == null) {
-                    nodes[1].dataType = Type.SQL_INTEGER;
-                }
-
-                if (!nodes[1].dataType.isExactNumberType()) {
-                    throw Error.error(ErrorCode.X_42561);
-                }
-
-            // fall through
             case FUNC_ACOS :
             case FUNC_ASIN :
             case FUNC_ATAN :
@@ -2312,6 +2382,21 @@ public class FunctionCustom extends FunctionSQL {
 
                 return sb.toString();
             }
+            case FUNC_ROUND :
+            case FUNC_TRUNC :
+            case FUNC_TRUNCATE : {
+                StringBuffer sb = new StringBuffer(name).append('(');
+
+                sb.append(nodes[0].getSQL());
+
+                if (nodes[0] != null) {
+                    sb.append(',').append(nodes[0].getSQL());
+                }
+
+                sb.append(')');
+
+                return sb.toString();
+            }
             case FUNC_ASCII :
             case FUNC_ACOS :
             case FUNC_ASIN :
@@ -2343,9 +2428,7 @@ public class FunctionCustom extends FunctionSQL {
             case FUNC_REPEAT :
             case FUNC_LEFT :
             case FUNC_RIGHT :
-            case FUNC_ROUND :
             case FUNC_CRYPT_KEY :
-            case FUNC_TRUNCATE :
             case FUNC_TIMESTAMP :
             case FUNC_TO_CHAR :
             case FUNC_TO_DATE :

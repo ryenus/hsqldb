@@ -519,10 +519,9 @@ public class Table extends TableBase implements SchemaObject {
 
         // readonly for TEXT tables only
         if (isText()) {
-            HsqlArrayList list     = new HsqlArrayList();
-            boolean       readonly = isDataReadOnly();
+            HsqlArrayList list = new HsqlArrayList();
 
-            if (readonly) {
+            if (isReadOnly) {
                 list.add(getSQLForReadOnly());
             }
 
@@ -536,7 +535,7 @@ public class Table extends TableBase implements SchemaObject {
             // header
             String header = ((TextTable) this).getDataSourceHeader();
 
-            if (withHeader && header != null && !readonly) {
+            if (withHeader && header != null && !isReadOnly) {
                 list.add(header);
             }
 
@@ -659,6 +658,10 @@ public class Table extends TableBase implements SchemaObject {
      */
     public int getId() {
         return tableName.hashCode();
+    }
+
+    public final boolean isWithDataSource() {
+        return isWithDataSource;
     }
 
     public final boolean isText() {
@@ -2495,13 +2498,13 @@ public class Table extends TableBase implements SchemaObject {
      * Used for system table inserts. No checks. No identity
      * columns.
      */
-    public int insertSys(PersistentStore store, Result ins) {
+    public int insertSys(Session session, PersistentStore store, Result ins) {
 
         RowSetNavigator nav   = ins.getNavigator();
         int             count = 0;
 
         while (nav.hasNext()) {
-            insertSys(store, (Object[]) nav.getNext());
+            insertSys(session, store, (Object[]) nav.getNext());
 
             count++;
         }
@@ -2551,11 +2554,12 @@ public class Table extends TableBase implements SchemaObject {
     /**
      * Used by the system tables only
      */
-    public void insertSys(PersistentStore store, Object[] data) {
+    public void insertSys(Session session, PersistentStore store,
+                          Object[] data) {
 
         Row row = (Row) store.getNewCachedObject(null, data);
 
-        store.indexRow(null, row);
+        store.indexRow(session, row);
     }
 
     /**

@@ -41,6 +41,8 @@ import java.util.TimeZone;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringUtil;
+import org.hsqldb.types.DTIType;
+import org.hsqldb.types.Types;
 
 /**
  * collection of static methods to convert Date and Timestamp strings
@@ -363,7 +365,7 @@ public class HsqlDateTime {
     }
 
     /**
-     * Returns the indicated part of the given <code>java.util.Date</code> object.
+     * Returns the indicated part of the given millisecond date object.
      * @param m the millisecond time value from which to extract the indicated part
      * @param part an integer code corresponding to the desired date part
      * @return the indicated part of the given <code>java.util.Date</code> object
@@ -374,6 +376,112 @@ public class HsqlDateTime {
             tempCalGMT.setTimeInMillis(m);
 
             return tempCalGMT.get(part);
+        }
+    }
+
+    /**
+     * truncates millisecond date object
+     */
+    public static long getTruncatedPart(long m, int part) {
+
+        synchronized (tempCalGMT) {
+            tempCalGMT.setTimeInMillis(m);
+
+            switch (part) {
+
+                case Types.SQL_INTERVAL_YEAR :
+                    tempCalGMT.set(Calendar.MONTH, 0);
+                case Types.SQL_INTERVAL_MONTH :
+                    tempCalGMT.set(Calendar.DAY_OF_MONTH, 1);
+                case Types.SQL_INTERVAL_DAY :
+                    tempCalGMT.set(Calendar.HOUR_OF_DAY, 0);
+                case Types.SQL_INTERVAL_HOUR :
+                    tempCalGMT.set(Calendar.MINUTE, 0);
+                case Types.SQL_INTERVAL_MINUTE :
+                    tempCalGMT.set(Calendar.SECOND, 0);
+                case Types.SQL_INTERVAL_SECOND :
+                    tempCalGMT.set(Calendar.MILLISECOND, 0);
+            }
+
+            return tempCalGMT.getTimeInMillis();
+        }
+    }
+
+    /**
+     * rounded millisecond date object
+     */
+    public static long getRoundedPart(long m, int part) {
+
+        synchronized (tempCalGMT) {
+            tempCalGMT.setTimeInMillis(m);
+
+            switch (part) {
+
+                case Types.SQL_INTERVAL_YEAR :
+                    if (tempCalGMT.get(Calendar.MONTH) > 6) {
+                        tempCalGMT.add(Calendar.YEAR, 1);
+                    }
+
+                    tempCalGMT.set(Calendar.MONTH, 0);
+                    tempCalGMT.set(Calendar.DAY_OF_MONTH, 1);
+                    tempCalGMT.set(Calendar.HOUR_OF_DAY, 0);
+                    tempCalGMT.set(Calendar.MINUTE, 0);
+                    tempCalGMT.set(Calendar.SECOND, 0);
+                    tempCalGMT.set(Calendar.MILLISECOND, 0);
+                    break;
+
+                case Types.SQL_INTERVAL_MONTH :
+                    if (tempCalGMT.get(Calendar.DAY_OF_MONTH) > 15) {
+                        tempCalGMT.add(Calendar.MONTH, 1);
+                    }
+
+                    tempCalGMT.set(Calendar.DAY_OF_MONTH, 1);
+                    tempCalGMT.set(Calendar.HOUR_OF_DAY, 0);
+                    tempCalGMT.set(Calendar.MINUTE, 0);
+                    tempCalGMT.set(Calendar.SECOND, 0);
+                    tempCalGMT.set(Calendar.MILLISECOND, 0);
+                    break;
+
+                case Types.SQL_INTERVAL_DAY :
+                    if (tempCalGMT.get(Calendar.HOUR_OF_DAY) > 11) {
+                        tempCalGMT.add(Calendar.DAY_OF_MONTH, 1);
+                    }
+
+                    tempCalGMT.set(Calendar.HOUR_OF_DAY, 0);
+                    tempCalGMT.set(Calendar.MINUTE, 0);
+                    tempCalGMT.set(Calendar.SECOND, 0);
+                    tempCalGMT.set(Calendar.MILLISECOND, 0);
+                    break;
+
+                case Types.SQL_INTERVAL_HOUR :
+                    if (tempCalGMT.get(Calendar.MINUTE) > 29) {
+                        tempCalGMT.add(Calendar.HOUR_OF_DAY, 1);
+                    }
+
+                    tempCalGMT.set(Calendar.MINUTE, 0);
+                    tempCalGMT.set(Calendar.SECOND, 0);
+                    tempCalGMT.set(Calendar.MILLISECOND, 0);
+                    break;
+
+                case Types.SQL_INTERVAL_MINUTE :
+                    if (tempCalGMT.get(Calendar.SECOND) > 29) {
+                        tempCalGMT.add(Calendar.MINUTE, 1);
+                    }
+
+                    tempCalGMT.set(Calendar.SECOND, 0);
+                    tempCalGMT.set(Calendar.MILLISECOND, 0);
+                    break;
+
+                case Types.SQL_INTERVAL_SECOND :
+                    if (tempCalGMT.get(Calendar.MILLISECOND) > 499) {
+                        tempCalGMT.add(Calendar.SECOND, 1);
+                    }
+
+                    tempCalGMT.set(Calendar.MILLISECOND, 0);
+                    break;
+            }
+
+            return tempCalGMT.getTimeInMillis();
         }
     }
 
@@ -404,6 +512,20 @@ public class HsqlDateTime {
         "mm", "ss",
         "aaa", "aaa", "aaa", "aaa",
         "S"
+    };
+
+    private static final int[] sqlIntervalCodes = {
+        -1, DTIType.ISO_YEAR, Types.SQL_INTERVAL_YEAR,
+        DTIType.ISO_YEAR, Types.SQL_INTERVAL_YEAR,
+        -1, -1, -1, -1,
+        Types.SQL_INTERVAL_MONTH, Types.SQL_INTERVAL_MONTH,
+        DTIType.WEEK_OF_YEAR, DTIType.WEEK_OF_YEAR,
+        -1, -1, Types.SQL_INTERVAL_DAY, Types.SQL_INTERVAL_DAY,
+        Types.SQL_INTERVAL_HOUR, Types.SQL_INTERVAL_HOUR, Types.SQL_INTERVAL_HOUR,
+        Types.SQL_INTERVAL_MINUTE,
+        Types.SQL_INTERVAL_SECOND,
+        -1,-1,-1,-1,
+        -1
     };
 
     //J+
@@ -544,6 +666,30 @@ public class HsqlDateTime {
         String javaPattern = sb.toString();
 
         return javaPattern;
+    }
+
+    public static int toExtendedIntervalPart(String format) {
+
+        int       len = format.length();
+        char      ch;
+        Tokenizer tokenizer = new Tokenizer();
+
+        for (int i = 0; i <= len; i++) {
+            ch = (i == len) ? e
+                            : format.charAt(i);
+
+            if (!tokenizer.next(ch, dateTokens)) {
+                int index = tokenizer.getLastMatch();
+
+                if (index >= 0) {
+                    return sqlIntervalCodes[index];
+                }
+
+                return -1;
+            }
+        }
+
+        return -1;
     }
 
     /**
