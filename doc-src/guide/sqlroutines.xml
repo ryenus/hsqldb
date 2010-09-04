@@ -45,7 +45,7 @@
   HyperSQL 2.0 supports routines conforming to two parts of the SQL Standard.
   Routines written in the SQL language are supported in conformance to SQL/PSM
   (Persistent Stored Modules) specification. Routines written in Java are
-  supported in (loose) conformance to SQL/JRT specification. In addition,
+  supported in broad conformance to SQL/JRT specification. In addition,
   HyperSQL’s previous non-standard support for calling Java routines without
   prior method definition is retained and enhanced in the latest version by
   extending the SQL/JRT specification.</para>
@@ -122,12 +122,382 @@
   Java.</para>
 
   <section>
+    <title>Routine Definition</title>
+
+    <para>SQL-Invoked Routines, whether PSM or JRT, are defined using a SQL
+    statement with the same syntax. The part that is different is the
+    &lt;routine body&gt; which consists of SQL statements in PSM routines or a
+    reference to a Java method in JRT routines.</para>
+
+    <para>Details of Routine definition are discussed in this section. You may
+    start by reading the next two sections which provide several examples
+    before reading this section for the details.</para>
+
+    <para>Routine definition has several mandatory or optional clauses. The
+    complete BNF supported by HyperSQL and the remaining clauses are
+    documented in this section.</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CREATE FUNCTION</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CREATE FUNCTION</emphasis></simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>CREATE PROCEDURE</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CREATE PROCEDURE</emphasis></simpara>
+
+    <simpara><emphasis>routine definition</emphasis></simpara>
+
+    <para>Routine definition is similar for procedures and functions. A
+    function definition has the mandatory <literal>&lt;returns
+    clause&gt;</literal> which is discussed later. The description given so
+    far covers the essential elements of the specification with the BNF given
+    below.</para>
+
+    <simpara><literal>&lt;schema procedure&gt; ::= CREATE PROCEDURE &lt;schema
+    qualified routine name&gt; &lt;SQL parameter declaration list&gt;
+    &lt;routine characteristics&gt; &lt;routine body&gt;</literal></simpara>
+
+    <simpara><literal>&lt;schema function&gt; ::= CREATE FUNCTION &lt;schema
+    qualified routine name&gt; &lt;SQL parameter declaration list&gt;
+    &lt;returns clause&gt; &lt;routine characteristics&gt; &lt;routine
+    body&gt;</literal></simpara>
+
+    <para>Parameter declaration list has been described above. For SQL/JRT
+    routines, the <literal>&lt;SQL parameter name&gt;</literal> is optional
+    while for SQL/PSM routines, it is required. If the <literal>&lt;parameter
+    mode&gt;</literal> of a parameter is OUT or INOUT, it must be specified.
+    The BNF is given below:</para>
+
+    <simpara><literal>&lt;SQL parameter declaration list&gt; ::= &lt;left
+    paren&gt; [ &lt;SQL parameter declaration&gt; [ { &lt;comma&gt; &lt;SQL
+    parameter declaration&gt; }... ] ] &lt;right paren&gt;</literal></simpara>
+
+    <simpara><literal>&lt;SQL parameter declaration&gt; ::= [ &lt;parameter
+    mode&gt; ] [ &lt;SQL parameter name&gt; ] &lt;parameter
+    type&gt;</literal></simpara>
+
+    <simpara><literal>&lt;parameter mode&gt; ::= IN | OUT |
+    INOUT</literal></simpara>
+
+    <simpara><literal>&lt;parameter type&gt; ::= &lt;data
+    type&gt;</literal></simpara>
+
+    <para>Return Value and Table Functions</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>RETURNS</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">RETURNS</emphasis></simpara>
+
+    <simpara><emphasis>returns clause</emphasis></simpara>
+
+    <para>The <literal>&lt;returns clause&gt;</literal> specifies the type of
+    the return value of a function (not a procedure). For all SQL/PSM
+    functions and ordinary SQL/JRT functions, this is simply a type definition
+    which can be a built-in type, a DOMAIN type or a DISTINCT type, or
+    alternatively, a TABLE definition. For example, RETURNS INTEGER.</para>
+
+    <para>For a SQL/JRT function, it is possible to define a
+    <literal>&lt;returns table type&gt;</literal> for a Java method that
+    returns a <classname>java.sql.ResultSet</classname> object. Such SQL/JRT
+    functions are called <glossterm>table functions</glossterm>. Table
+    functions are used differently from normal functions. A table function can
+    be used in an SQL query expression exactly where a normal table or view is
+    allowed. At the time of invocation, the Java method is called and the
+    returned ResultSet is transformed into an SQL table. The column types of
+    the declared TABLE must match those of the ResultSet, otherwise an
+    exception is raised at the time of invocation.</para>
+
+    <para>If a <literal>&lt;returns table type&gt;</literal> is defined for an
+    SQL/PSM function, the following expression is used inside the function to
+    return a table: <literal>RETURN TABLE ( &lt;query expression&gt;
+    );</literal> In the example blow, a table with two columns is
+    returned.</para>
+
+    <programlisting>RETURN TABLE ( SELECT a, b FROM atable WHERE e = 10 );</programlisting>
+
+    <para>Functions that return a table are designed to be used in SELECT
+    statements using the TABLE keyword to form a joined table.</para>
+
+    <para>When a JDBC <literal>CallableStatement</literal> is used to CALL the
+    function, the table returned from the function call is returned and can be
+    accessed with the <literal>getResultSet()</literal> method of the
+    <literal>CallableStatement</literal>.</para>
+
+    <simpara><literal>&lt;returns clause&gt; ::= RETURNS &lt;returns
+    type&gt;</literal></simpara>
+
+    <simpara><literal>&lt;returns type&gt; ::= &lt;returns data type&gt; |
+    &lt;returns table type&gt;</literal></simpara>
+
+    <simpara><literal>&lt;returns table type&gt; ::= TABLE &lt;table function
+    column list&gt;</literal></simpara>
+
+    <simpara><literal>&lt;table function column list&gt; ::= &lt;left
+    paren&gt; &lt;table function column list element&gt; [ { &lt;comma&gt;
+    &lt;table function column list element&gt; } ... ] &lt;right
+    paren&gt;</literal></simpara>
+
+    <simpara><literal>&lt;table function column list element&gt; ::=
+    &lt;column name&gt; &lt;data type&gt;</literal></simpara>
+
+    <simpara><literal>&lt;returns data type&gt; ::= &lt;data
+    type&gt;</literal></simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>routine body</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">routine body</emphasis></simpara>
+
+    <simpara><emphasis>routine body</emphasis></simpara>
+
+    <para>Routine body is either one or more SQL statements or a Java
+    reference. The user that defines the routine by issuing the CREATE
+    FUNCTION or CREATE SCHEMA command must have the relevant access rights to
+    all tables, sequences, routines, etc. that are accessed by the routine. If
+    another user is given EXECUTE privilege on the routine, then there are two
+    possibilities, depending on the <literal>&lt;rights clause&gt;</literal>.
+    This clause refers to the access rights that are checked when a routine is
+    invoked. The default is <literal>SQL SECURITY DEFINER</literal>, which
+    means access rights of the definer are used; therefore no extra checks are
+    performed when the other user invokes the routine. The alternative
+    <literal>SQL SECURITY INVOKER</literal> means access rights on all the
+    database objects referenced by the routine are checked for the invoker.
+    This alternative is not supported by HyperSQL.</para>
+
+    <simpara><literal>&lt;routine body&gt; ::= &lt;SQL routine spec&gt; |
+    &lt;external body reference&gt;</literal></simpara>
+
+    <simpara><literal>&lt;SQL routine spec&gt; ::= [ &lt;rights clause&gt; ]
+    &lt;SQL routine body&gt;</literal></simpara>
+
+    <simpara><literal>&lt;rights clause&gt; ::= SQL SECURITY INVOKER | SQL
+    SECURITY DEFINER</literal></simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>SQL routine body</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">SQL routine body</emphasis></simpara>
+
+    <simpara><emphasis>SQL routine body</emphasis></simpara>
+
+    <para>The routine body of a an SQL routine consists of an
+    statement.</para>
+
+    <simpara><literal>&lt;SQL routine body&gt; ::= &lt;SQL procedure
+    statement&gt;</literal></simpara>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>EXTERNAL NAME</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">EXTERNAL NAME</emphasis></simpara>
+
+    <simpara><emphasis>external body reference</emphasis></simpara>
+
+    <para>External name specifies the qualified name of the Java method
+    associated with this routine. Early releases of HyperSQL 2.0 only supports
+    Java methods within the classpath. The <literal>&lt;external Java
+    reference string&gt;</literal> is a quoted string which starts with
+    CLASSPATH: and is followed by the Java package, class and method names
+    separated with dots. HyperSQL does not currently support the optional
+    <literal>&lt;Java parameter declaration list&gt;</literal>.</para>
+
+    <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL NAME
+    &lt;external Java reference string&gt;</literal></simpara>
+
+    <simpara><literal>&lt;external Java reference string&gt; ::= &lt;jar and
+    class name&gt; &lt;period&gt; &lt;Java method name&gt; [ &lt;Java
+    parameter declaration list&gt; ]</literal></simpara>
+
+    <section>
+      <title>Routine Characteristics</title>
+
+      <para>The <literal>&lt;routine characteristics&gt;</literal> clause
+      covers several sub-clauses</para>
+
+      <simpara><literal>&lt;routine characteristics&gt; ::= [ &lt;routine
+      characteristic&gt;... ]</literal></simpara>
+
+      <simpara><literal>&lt;routine characteristic&gt; ::= &lt;language
+      clause&gt; | &lt;parameter style clause&gt; | SPECIFIC &lt;specific
+      name&gt; | &lt;deterministic characteristic&gt; | &lt;SQL-data access
+      indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
+      characteristic&gt; | &lt;savepoint level
+      indication&gt;</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>LANGUAGE</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">LANGUAGE</emphasis></simpara>
+
+      <simpara><emphasis>language clause</emphasis></simpara>
+
+      <para>The <literal>&lt;language clause&gt;</literal> refers to the
+      language in which the routine body is written. It is either SQL or Java.
+      The default is SQL, so JAVA must be specified for SQL/JRT
+      routines.</para>
+
+      <simpara><literal>&lt;language clause&gt; ::= LANGUAGE &lt;language
+      name&gt;</literal></simpara>
+
+      <simpara><literal>&lt;language name&gt; ::= SQL |
+      JAVA</literal></simpara>
+
+      <para>The parameter style is not allowed for SQL routines. It is
+      optional for Java routines and, in HyperSQL, the only value allowed is
+      JAVA.</para>
+
+      <simpara><literal>&lt;parameter style&gt; ::= JAVA</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SPECIFIC NAME</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SPECIFIC NAME</emphasis></simpara>
+
+      <simpara><emphasis>specific name</emphasis></simpara>
+
+      <para>The <literal>SPECIFIC &lt;specific name&gt;</literal> clause is
+      optional but the engine will creates an automatic name if it is not
+      present. When there are several versions of the same routine, the
+      <literal>&lt;specific name&gt;</literal> is used in schema manipulation
+      statements to drop or alter a specific version. The
+      <literal>&lt;specific name&gt;</literal> is a user-defined name. It
+      applies to both functions and procedures. In the examples below, a
+      specific name is specified for each function.</para>
+
+      <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
+  RETURNS TIMESTAMP
+  NO SQL
+  LANGUAGE JAVA PARAMETER STYLE JAVA
+  SPECIFIC an_hour_before_or_now_with_timestamp
+  EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
+
+CREATE FUNCTION an_hour_before_max (e_type INT)
+  RETURNS TIMESTAMP SPECIFIC an_hour_before_max_with_int
+  RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
+
+</programlisting>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DETERMINISTIC characteristic</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DETERMINISTIC</emphasis></simpara>
+
+      <simpara><emphasis>deterministic characteristic</emphasis></simpara>
+
+      <para>The <literal>&lt;deterministic characteristic&gt;</literal> clause
+      indicates that a routine is deterministic or not. Deterministic means
+      the routine does not reference random values, external variables, or
+      time of invocation. The default is <literal>NOT DETERMINISTIC</literal>.
+      It is essential to declare this characteristics correctly for an SQL/JRT
+      routine, as the engine does not know the contents of the Java code,
+      which could include calls to methods returning random or time sensitive
+      values.</para>
+
+      <simpara><literal>&lt;deterministic characteristic&gt; ::= DETERMINISTIC
+      | NOT DETERMINISTIC</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SQL DATA access characteristic</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SQL DATA access</emphasis></simpara>
+
+      <simpara><emphasis>SQL DATA access characteristic</emphasis></simpara>
+
+      <para>The <literal>&lt;SQL-data access indication&gt;</literal>  clause
+      indicates the extent to which a routine interacts with the database or
+      the data stored in the database tables (SQL data).  NO SQL means no SQL
+      command is issued in the routine body and can be used only for SQL/JRT
+      functions. <literal>CONTAINS SQL</literal> means some SQL commands are
+      used, but they do not read or modify the SQL data. <literal>READS SQL
+      DATA</literal> and <literal>MODIFIES SQL DATA</literal> are self
+      explanatory.</para>
+
+      <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL |
+      CONTAINS SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>NULL INPUT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">NULL INPUT</emphasis></simpara>
+
+      <simpara><emphasis>null call clause</emphasis></simpara>
+
+      <para>Null Arguments</para>
+
+      <para>The <literal>&lt;null-call clause&gt;</literal> is used only for
+      functions. If a function returns NULL when any of the calling arguments
+      is null, then by specifying <literal>RETURNS NULL ON NULL
+      INPUT</literal>, calls to the function are known to be redundant and do
+      not take place when an argument is null. This simplifies the coding of
+      the SQL/JRT Java methods and improves performance at the same
+      time.</para>
+
+      <simpara><literal>&lt;null-call clause&gt; ::= RETURNS NULL ON NULL
+      INPUT | CALLED ON NULL INPUT</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SAVEPOINT LEVEL</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SAVEPOINT LEVEL</emphasis></simpara>
+
+      <simpara><emphasis>transaction impact</emphasis></simpara>
+
+      <para>The <literal>&lt;savepoint level indication&gt;</literal> is used
+      only for procedures and refers to the visibility of existing savepoints
+      within the body of the procedure. If <literal>NEW SAVEPOINT
+      LEVEL</literal> is specified, savepoints that have been declared prior
+      to calling the procedure become invisible within the body of the
+      procedure. HyperSQL’s implementation accepts only <literal>NEW SAVEPOINT
+      LEVEL</literal>, which must be specified.</para>
+
+      <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
+      LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>DYNAMIC RESULT SETS</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">DYNAMIC RESULT SETS</emphasis></simpara>
+
+      <simpara><emphasis>returned result sets
+      characteristic</emphasis></simpara>
+
+      <para>The <literal>&lt;returned result sets characteristic&gt;</literal>
+      is used with SQL/PSM and SQL/JRT procedures (not with functions). The
+      maximum number of result sets that a procedure may return can be
+      specified with the clause below. The default is zero. If you want your
+      procedure to return result sets, you must specify the maximum number of
+      result sets that your procedure may return. Details are discussed in the
+      next sections.</para>
+
+      <simpara><literal>&lt;returned result sets characteristic&gt; ::=
+      DYNAMIC RESULT SETS &lt;maximum returned result
+      sets&gt;</literal></simpara>
+    </section>
+  </section>
+
+  <section>
     <title>SQL Language Routines (PSM)</title>
 
     <para>The PSM (Persistent Stored Module) specification extends the SQL
-    language to allow definition of both SQL Function and SQL procedure bodies
-    with the same structure and the same control statements (such as
-    conditional and loop statements) with minor exceptions.</para>
+    language with structures and control statements such as conditional and
+    loop statements. Both SQL Function and SQL procedure bodies use the same
+    syntax, with minor exceptions.</para>
 
     <para>The routine body is a SQL statement. In its simplest form, the body
     is a single SQL statement. A simple example of a function is given
@@ -165,12 +535,21 @@
     can contain one or more SQL statements, which can include control
     statements, as well as nested compound statements.</para>
 
+    <para>Please note carefully the use of
+    <literal>&lt;semicolon&gt;</literal>, which is required at the end of some
+    statements but not accepted at the end of others.</para>
+
     <section>
       <title>Routine Statements</title>
 
-      <para>The following SQL Statements can be used only in routines.</para>
+      <para>The following SQL Statements can be used only in routines. These
+      statements are covered in this section.</para>
 
       <simpara><literal>&lt;handler declaration&gt;</literal></simpara>
+
+      <simpara><literal>&lt;variable declaration&gt;</literal></simpara>
+
+      <simpara><literal>&lt;declare cursor&gt;</literal></simpara>
 
       <simpara><literal>&lt;assignment statement&gt;</literal></simpara>
 
@@ -201,8 +580,11 @@
       <simpara><literal>&lt;select statement: single
       row&gt;</literal></simpara>
 
+      <simpara><literal>&lt;open statement&gt;</literal></simpara>
+
       <para>The following SQL Statements can be used in procedures but not in
-      functions.</para>
+      functions. These statements are covered in other chapters of this
+      Guide.</para>
 
       <para><literal>&lt;call statement&gt;</literal></para>
 
@@ -324,12 +706,12 @@
       object that calls the procedure. The getResultSet() method of
       CallableStatement is then used to retrieve the JDBC ResultSet.</para>
 
-      <para>In the <literal>&lt;routine definition&gt;</literal>, the DYNAMIC
-      RESULT SETS clause must be used to specify a value above zero. The
-      DECLARE CURSOR statement is used after any variable declaration in
-      compound statement block. The <literal>&lt;open statement&gt;</literal>
-      is then executed for the cursor at the point where the result set should
-      be populated.</para>
+      <para>In the <literal>&lt;routine definition&gt;</literal>, the
+      <literal>DYNAMIC RESULT SETS</literal> clause must be used to specify a
+      value above zero. The <literal>DECLARE CURSOR</literal> statement is
+      used after any variable declaration in compound statement block. The
+      <literal>&lt;open statement&gt;</literal> is then executed for the
+      cursor at the point where the result set should be populated.</para>
 
       <para>After the procedure is executed with a JDBC CallableStatement
       execute() method, all the result sets that were opened are returned to
@@ -517,7 +899,8 @@
       used to assign a value to an OUT or INOUT parameter.</para>
 
       <para>In the example below, the procedure is declared with an OUT
-      parameter.</para>
+      parameter. It assigns the auto-generated IDENTITY value from the INSERT
+      statement to the OUT argument.</para>
 
       <programlisting>CREATE PROCEDURE new_customer(OUT newid INT, IN firstname VARCHAR(50), IN lastname VARCHAR(50), IN address VARCHAR(100))
   MODIFIES SQL DATA
@@ -534,7 +917,10 @@
       <para>In the SQL session, or in the body of another stored procedure, a
       variable must be assigned to the OUT parameter. After the procedure
       call, this variable will hold the new identity value that was generated
-      inside the procedure.</para>
+      inside the procedure. If the procedure is called directly, using the
+      JDBC CallableStatement interface, then the value of the first, OUT
+      argument can be retreived with a call to
+      <literal>getInt(1)</literal>.after calling the execute() method.</para>
 
       <para>In the example below, a session variable,
       <literal>the_new_id</literal> is declared. After the call to
@@ -949,11 +1335,30 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       The <literal>getResultSet()</literal> call can be used to access the
       ResultSet returned from a function that returns a result set, or from a
       procedure that returns one or more result.</para>
+
+      <para>In the example below, the procedure inserts a row into the
+      customer table. It then performs the SELECT statament to return the
+      latest inserted row as a result set. Therefore the definition includes
+      the <code>DYNAMIC RESULT SETS 1</code> clause.</para>
+
+      <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname VARCHAR(50))
+  MODIFIES SQL DATA DYNAMIC RESULT SETS 1
+  BEGIN ATOMIC
+    DECLARE result CURSOR FOR SELECT * FROM CUSTOMERS WHERE ID = IDENTITY();
+    INSERT INTO CUSTOMERS VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
+    OPEN result;    
+  END
+
+</programlisting>
     </section>
   </section>
 
   <section>
     <title>Java Language Routines (SQL/JRT)</title>
+
+    <para>The general features of SQL-Invoked Routines are shared between PSM
+    and JRT routines. These features are covered in the previous section. This
+    section deals with specific aspects of JRT routines.</para>
 
     <para>The body of a Java language routine is a static method of a Java
     class, specified with a fully qualified method name in the routine
@@ -986,7 +1391,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
           <row>
             <entry><para>SMALLINT   </para></entry>
 
-            <entry><para>Short or Short</para></entry>
+            <entry><para>short or Short</para></entry>
           </row>
 
           <row>
@@ -1010,7 +1415,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
           <row>
             <entry><para>FLOAT  or DOUBLE</para></entry>
 
-            <entry><para>Double or Double</para></entry>
+            <entry><para>double or Double</para></entry>
           </row>
 
           <row>
@@ -1114,7 +1519,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
   LANGUAGE JAVA PARAMETER STYLE JAVA
   EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
 
-CREATE FUNCTION testquery(INTEGER) 
+CREATE FUNCTION testquery(i INTEGER) 
   RETURNS TABLE(n VARCHAR(20), i INT) 
   READS SQL DATA
   LANGUAGE JAVA
@@ -1122,7 +1527,11 @@ CREATE FUNCTION testquery(INTEGER)
 
 </programlisting>
 
-      <para>In the Java class:</para>
+      <para>In the Java class the definitions are as follows. Note the
+      definition of the getQueryResult method begins with a
+      java.sql.Connection parameter. This parameter is ignored when choosing
+      the Java method. The parameter is used to pass the current JDBC
+      connection to the Java method.</para>
 
       <programlisting>    public static java.sql.Time nowLessAnHour(java.sql.Time value) {
         ...
@@ -1171,12 +1580,19 @@ CREATE FUNCTION testquery(INTEGER)
           instantiated as JDBC ResultSet objects by the Java static and
           returned in array agruments of the method. The signature of the Java
           method for a procdure that has N declared parameters and returns M
-          result sets has the following pattern. The N arguments are followed
-          by M arguments as ResultSet arrays. The Java method calls the
-          execute() or executeQuery() methods of JDBC Statement or
-          PreparedStatement objects and assigns the ResultSet objects to the
-          first element of each ResultSet[] argument. The Java method should
-          not call the methods of the ResultSet before returning.</para>
+          result sets has the following pattern. The N parameters
+          corresponding to the signature of the declared SQL procedure are
+          defined first, followed by M parameters as ResultSet arrays.</para>
+
+          <para>When the SQL procedure is executed, the Java method is called
+          with single element array arguments passed for OUT and INOUT SQL
+          parameters, and single element arrays of ResultSet for the returned
+          ResultSet objects. The Java method may call the execute() or
+          executeQuery() methods of JDBC Statement or PreparedStatement
+          objects that are declared within the method and assign the ResultSet
+          objects to the first element of each ResultSet[] argument. For the
+          returned ResultSet objects, the Java method should not call the
+          methods of java.sql.ResultSet before returning.</para>
 
           <para><literal>void methodName(&lt;arg1&gt;, ... &lt;argN&gt;,
           ResultSet[] r1, ..., ResultSet[] rM)</literal></para>
@@ -1600,366 +2016,6 @@ Susanne Clancy,Michael Clancy,Sylvia Clancy,Bob Clancy,Susanne Clancy,John Clanc
 
       <programlisting>SELECT geometric_mean(age) FROM  FROM customer
 </programlisting>
-    </section>
-  </section>
-
-  <section>
-    <title>Routine Definition</title>
-
-    <para>As discussed in the previous pages, routine definition has several
-    mandatory or optional clauses. The complete BNF supported by HyperSQL and
-    the remaining clauses are documented in this section.</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE FUNCTION</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">CREATE FUNCTION</emphasis></simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>CREATE PROCEDURE</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">CREATE PROCEDURE</emphasis></simpara>
-
-    <simpara><emphasis>routine definition</emphasis></simpara>
-
-    <para>Routine definition is similar for procedures and functions. A
-    function definition has the mandatory <literal>&lt;returns
-    clause&gt;</literal> which is discussed later. The description given so
-    far covers the essential elements of the specification with the BNF given
-    below.</para>
-
-    <simpara><literal>&lt;schema procedure&gt; ::= CREATE PROCEDURE &lt;schema
-    qualified routine name&gt; &lt;SQL parameter declaration list&gt;
-    &lt;routine characteristics&gt; &lt;routine body&gt;</literal></simpara>
-
-    <simpara><literal>&lt;schema function&gt; ::= CREATE FUNCTION &lt;schema
-    qualified routine name&gt; &lt;SQL parameter declaration list&gt;
-    &lt;returns clause&gt; &lt;routine characteristics&gt; &lt;routine
-    body&gt;</literal></simpara>
-
-    <para>Parameter declaration list has been described above. For SQL/JRT
-    routines, the <literal>&lt;SQL parameter name&gt;</literal> is optional
-    while for SQL/PSM routines, it is required. If the <literal>&lt;parameter
-    mode&gt;</literal> of a parameter is OUT or INOUT, it must be specified.
-    The BNF is given below:</para>
-
-    <simpara><literal>&lt;SQL parameter declaration list&gt; ::= &lt;left
-    paren&gt; [ &lt;SQL parameter declaration&gt; [ { &lt;comma&gt; &lt;SQL
-    parameter declaration&gt; }... ] ] &lt;right paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;SQL parameter declaration&gt; ::= [ &lt;parameter
-    mode&gt; ] [ &lt;SQL parameter name&gt; ] &lt;parameter
-    type&gt;</literal></simpara>
-
-    <simpara><literal>&lt;parameter mode&gt; ::= IN | OUT |
-    INOUT</literal></simpara>
-
-    <simpara><literal>&lt;parameter type&gt; ::= &lt;data
-    type&gt;</literal></simpara>
-
-    <para>Return Value and Table Functions</para>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>RETURNS</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">RETURNS</emphasis></simpara>
-
-    <simpara><emphasis>returns clause</emphasis></simpara>
-
-    <para>The <literal>&lt;returns clause&gt;</literal> specifies the type of
-    the return value of a function (not a procedure). For all SQL/PSM
-    functions and ordinary SQL/JRT functions, this is simply a type definition
-    which can be a built-in type, a DOMAIN type or a DISTINCT type, or
-    alternatively, a TABLE definition. For example, RETURNS INTEGER.</para>
-
-    <para>For a SQL/JRT function, it is possible to define a
-    <literal>&lt;returns table type&gt;</literal> for a Java method that
-    returns a <classname>java.sql.ResultSet</classname> object. Such SQL/JRT
-    functions are called <glossterm>table functions</glossterm>. Table
-    functions are used differently from normal functions. A table function can
-    be used in an SQL query expression exactly where a normal table or view is
-    allowed. At the time of invocation, the Java method is called and the
-    returned ResultSet is transformed into an SQL table. The column types of
-    the declared TABLE must match those of the ResultSet, otherwise an
-    exception is raised at the time of invocation.</para>
-
-    <para>If a <literal>&lt;returns table type&gt;</literal> is defined for an
-    SQL/PSM function, the following expression is used inside the function to
-    return a table: <literal>RETURN TABLE ( &lt;query expression&gt;
-    );</literal> In the example blow, a table with two columns is
-    returned.</para>
-
-    <programlisting>RETURN TABLE ( SELECT a, b FROM atable WHERE e = 10 );</programlisting>
-
-    <para>Functions that return a table are designed to be used in SELECT
-    statements using the TABLE keyword to form a joined table.</para>
-
-    <para>When a JDBC <literal>CallableStatement</literal> is used to CALL the
-    function, the table returned from the function call is returned and can be
-    accessed with the <literal>getResultSet()</literal> method of the
-    <literal>CallableStatement</literal>.</para>
-
-    <simpara><literal>&lt;returns clause&gt; ::= RETURNS &lt;returns
-    type&gt;</literal></simpara>
-
-    <simpara><literal>&lt;returns type&gt; ::= &lt;returns data type&gt; |
-    &lt;returns table type&gt;</literal></simpara>
-
-    <simpara><literal>&lt;returns table type&gt; ::= TABLE &lt;table function
-    column list&gt;</literal></simpara>
-
-    <simpara><literal>&lt;table function column list&gt; ::= &lt;left
-    paren&gt; &lt;table function column list element&gt; [ { &lt;comma&gt;
-    &lt;table function column list element&gt; } ... ] &lt;right
-    paren&gt;</literal></simpara>
-
-    <simpara><literal>&lt;table function column list element&gt; ::=
-    &lt;column name&gt; &lt;data type&gt;</literal></simpara>
-
-    <simpara><literal>&lt;returns data type&gt; ::= &lt;data
-    type&gt;</literal></simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>routine body</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">routine body</emphasis></simpara>
-
-    <simpara><emphasis>routine body</emphasis></simpara>
-
-    <para>Routine body is either one or more SQL statements or a Java
-    reference, as described. The user that defines the routine by issuing the
-    CREATE FUNCTION or CREATE SCHEMA command must have the relevant access
-    rights to all tables, sequences, routines, etc. that are accessed by the
-    routine. If another user is given EXECUTE privilege on the routine, then
-    there are two possibilities, depending on the <literal>&lt;rights
-    clause&gt;</literal>. This clause refers to the access rights that are
-    checked when a routine is invoked. The default is <literal>SQL SECURITY
-    DEFINER</literal>, which means access rights of the definer are used;
-    therefore no extra checks are performed when the other user invokes the
-    routine. The alternative <literal>SQL SECURITY INVOKER</literal> means
-    access rights on all the database objects referenced by the routine are
-    checked for the invoker. This alternative is not supported by
-    HyperSQL.</para>
-
-    <simpara><literal>&lt;routine body&gt; ::= &lt;SQL routine spec&gt; |
-    &lt;external body reference&gt;</literal></simpara>
-
-    <simpara><literal>&lt;SQL routine spec&gt; ::= [ &lt;rights clause&gt; ]
-    &lt;SQL routine body&gt;</literal></simpara>
-
-    <simpara><literal>&lt;rights clause&gt; ::= SQL SECURITY INVOKER | SQL
-    SECURITY DEFINER</literal></simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>SQL routine body</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">SQL routine body</emphasis></simpara>
-
-    <simpara><emphasis>SQL routine body</emphasis></simpara>
-
-    <para>The routine body of a an SQL routine consists of an
-    statement.</para>
-
-    <simpara><literal>&lt;SQL routine body&gt; ::= &lt;SQL procedure
-    statement&gt;</literal></simpara>
-
-    <indexterm significance="preferred" type="sql">
-      <primary>EXTERNAL NAME</primary>
-    </indexterm>
-
-    <simpara><emphasis role="bold">EXTERNAL NAME</emphasis></simpara>
-
-    <simpara><emphasis>external body reference</emphasis></simpara>
-
-    <para>External name specifies the qualified name of the Java method
-    associated with this routine. Early releases of HyperSQL 2.0 only supports
-    Java methods within the classpath. The <literal>&lt;external Java
-    reference string&gt;</literal> is a quoted string which starts with
-    CLASSPATH: and is followed by the Java package, class and method names
-    separated with dots. HyperSQL does not currently support the optional
-    <literal>&lt;Java parameter declaration list&gt;</literal>.</para>
-
-    <simpara><literal>&lt;external body reference&gt; ::= EXTERNAL NAME
-    &lt;external Java reference string&gt;</literal></simpara>
-
-    <simpara><literal>&lt;external Java reference string&gt; ::= &lt;jar and
-    class name&gt; &lt;period&gt; &lt;Java method name&gt; [ &lt;Java
-    parameter declaration list&gt; ]</literal></simpara>
-
-    <section>
-      <title>Routine Characteristics</title>
-
-      <para>The <literal>&lt;routine characteristics&gt;</literal> clause
-      covers several sub-clauses</para>
-
-      <simpara><literal>&lt;routine characteristics&gt; ::= [ &lt;routine
-      characteristic&gt;... ]</literal></simpara>
-
-      <simpara><literal>&lt;routine characteristic&gt; ::= &lt;language
-      clause&gt; | &lt;parameter style clause&gt; | SPECIFIC &lt;specific
-      name&gt; | &lt;deterministic characteristic&gt; | &lt;SQL-data access
-      indication&gt; | &lt;null-call clause&gt; | &lt;returned result sets
-      characteristic&gt; | &lt;savepoint level
-      indication&gt;</literal></simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>LANGUAGE</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">LANGUAGE</emphasis></simpara>
-
-      <simpara><emphasis>language clause</emphasis></simpara>
-
-      <para>The <literal>&lt;language clause&gt;</literal> refers to the
-      language in which the routine body is written. It is either SQL or Java.
-      The default is SQL, so JAVA must be specified for SQL/JRT
-      routines.</para>
-
-      <simpara><literal>&lt;language clause&gt; ::= LANGUAGE &lt;language
-      name&gt;</literal></simpara>
-
-      <simpara><literal>&lt;language name&gt; ::= SQL |
-      JAVA</literal></simpara>
-
-      <para>The parameter style is not allowed for SQL routines. It is
-      optional for Java routines and, in HyperSQL, the only value allowed is
-      JAVA.</para>
-
-      <simpara><literal>&lt;parameter style&gt; ::= JAVA</literal></simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>SPECIFIC NAME</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">SPECIFIC NAME</emphasis></simpara>
-
-      <simpara><emphasis>specific name</emphasis></simpara>
-
-      <para>The <literal>SPECIFIC &lt;specific name&gt;</literal> clause is
-      optional but the engine will creates an automatic name if it is not
-      present. When there are several versions of the same routine, the
-      <literal>&lt;specific name&gt;</literal> is used in schema manipulation
-      statements to drop or alter a specific version. The
-      <literal>&lt;specific name&gt;</literal> is a user-defined name. It
-      applies to both functions and procedures. In the examples below, a
-      specific name is specified for each function.</para>
-
-      <programlisting>CREATE FUNCTION an_hour_before_or_now(t TIMESTAMP)
-  RETURNS TIMESTAMP
-  NO SQL
-  LANGUAGE JAVA PARAMETER STYLE JAVA
-  SPECIFIC an_hour_before_or_now_with_timestamp
-  EXTERNAL NAME 'CLASSPATH:org.npo.lib.nowLessAnHour'
-
-CREATE FUNCTION an_hour_before_max (e_type INT)
-  RETURNS TIMESTAMP SPECIFIC an_hour_before_max_with_int
-  RETURN (SELECT MAX(event_time) FROM atable WHERE event_type = e_type) - 1 HOUR
-
-</programlisting>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>DETERMINISTIC characteristic</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">DETERMINISTIC</emphasis></simpara>
-
-      <simpara><emphasis>deterministic characteristic</emphasis></simpara>
-
-      <para>The <literal>&lt;deterministic characteristic&gt;</literal> clause
-      indicates that a routine is deterministic or not. Deterministic means
-      the routine does not reference random values, external variables, or
-      time of invocation. The default is <literal>NOT DETERMINISTIC</literal>.
-      It is essential to declare this characteristics correctly for an SQL/JRT
-      routine, as the engine does not know the contents of the Java code,
-      which could include calls to methods returning random or time sensitive
-      values.</para>
-
-      <simpara><literal>&lt;deterministic characteristic&gt; ::= DETERMINISTIC
-      | NOT DETERMINISTIC</literal></simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>SQL DATA access characteristic</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">SQL DATA access</emphasis></simpara>
-
-      <simpara><emphasis>SQL DATA access characteristic</emphasis></simpara>
-
-      <para>The <literal>&lt;SQL-data access indication&gt;</literal>  clause
-      indicates the extent to which a routine interacts with the database or
-      the data stored in the database tables (SQL data).  NO SQL means no SQL
-      command is issued in the routine body and can be used only for SQL/JRT
-      functions. <literal>CONTAINS SQL</literal> means some SQL commands are
-      used, but they do not read or modify the SQL data. <literal>READS SQL
-      DATA</literal> and <literal>MODIFIES SQL DATA</literal> are self
-      explanatory.</para>
-
-      <simpara><literal>&lt;SQL-data access indication&gt; ::= NO SQL |
-      CONTAINS SQL | READS SQL DATA | MODIFIES SQL DATA</literal></simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>NULL INPUT</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">NULL INPUT</emphasis></simpara>
-
-      <simpara><emphasis>null call clause</emphasis></simpara>
-
-      <para>Null Arguments</para>
-
-      <para>The <literal>&lt;null-call clause&gt;</literal> is used only for
-      functions. If a function returns NULL when any of the calling arguments
-      is null, then by specifying <literal>RETURNS NULL ON NULL
-      INPUT</literal>, calls to the function are known to be redundant and do
-      not take place when an argument is null. This simplifies the coding of
-      the SQL/JRT Java methods and improves performance at the same
-      time.</para>
-
-      <simpara><literal>&lt;null-call clause&gt; ::= RETURNS NULL ON NULL
-      INPUT | CALLED ON NULL INPUT</literal></simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>SAVEPOINT LEVEL</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">SAVEPOINT LEVEL</emphasis></simpara>
-
-      <simpara><emphasis>transaction impact</emphasis></simpara>
-
-      <para>The <literal>&lt;savepoint level indication&gt;</literal> is used
-      only for procedures and refers to the visibility of existing savepoints
-      within the body of the procedure. If <literal>NEW SAVEPOINT
-      LEVEL</literal> is specified, savepoints that have been declared prior
-      to calling the procedure become invisible within the body of the
-      procedure. HyperSQL’s implementation accepts only <literal>NEW SAVEPOINT
-      LEVEL</literal>, which must be specified.</para>
-
-      <simpara><literal>&lt;savepoint level indication&gt; ::= NEW SAVEPOINT
-      LEVEL | OLD SAVEPOINT LEVEL</literal></simpara>
-
-      <indexterm significance="preferred" type="sql">
-        <primary>DYNAMIC RESULT SETS</primary>
-      </indexterm>
-
-      <simpara><emphasis role="bold">DYNAMIC RESULT SETS</emphasis></simpara>
-
-      <simpara><emphasis>returned result sets
-      characteristic</emphasis></simpara>
-
-      <para>The <literal>&lt;returned result sets characteristic&gt;</literal>
-      is used with SQL/PSM and SQL/JRT procedures (not with functions). The
-      maximum number of result sets that a procedure may return can be
-      specified with the clause below. The default is zero. Details are
-      discussed in the previous sections.</para>
-
-      <simpara><literal>&lt;returned result sets characteristic&gt; ::=
-      DYNAMIC RESULT SETS &lt;maximum returned result
-      sets&gt;</literal></simpara>
     </section>
   </section>
 </chapter>

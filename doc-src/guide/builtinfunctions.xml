@@ -838,7 +838,7 @@
     parameter. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>ROUND function</primary>
+      <primary>ROUND number function</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">ROUND</emphasis></simpara>
@@ -920,8 +920,8 @@
 
     <simpara><emphasis role="bold">TRUNCATE</emphasis></simpara>
 
-    <para><literal>TRUNCATE ( &lt;num value expr&gt;, &lt;int value expr&gt; )
-    </literal></para>
+    <para><literal>TRUNCATE ( &lt;num value expr&gt; [, &lt;int value
+    expr&gt;] ) </literal></para>
 
     <para>Returns a value in the same type as <literal>&lt;num value
     expr&gt;</literal> but may reduce the scale of DECIMAL and NUMERIC values.
@@ -1339,6 +1339,56 @@
     MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND. (HyperSQL}</para>
 
     <indexterm significance="preferred" type="sql">
+      <primary>ROUND datetime function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">ROUND</emphasis></simpara>
+
+    <para><literal>ROUND ( &lt;datetime value expr&gt; [ , &lt;char value
+    expr&gt; ] ) </literal></para>
+
+    <para>The <literal>&lt;num value expr&gt; </literal>is of DATE, TIME or
+    TIMESTAMP type. The <literal>&lt;char value expr&gt;</literal> is a format
+    string for YEAR, MONTH, DAY, HOUR, MINUTE or SECOND as listed in the table
+    for TO_CHAR and TO_DATE format elements (see below). The datetime value is
+    rounded up or down after the specified field and the rest of the fields to
+    the right are set to one for MONTH and DAY, or zero, for the rest of the
+    fields. For example rounding a timestamp value on the DAY field results in
+    midnight the same date or midnight the next day if the time is at or after
+    12 noon. If the second argument is ommitted, the datetime value is rounded
+    to the nearest day. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>TRUNC datetime function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
+
+    <para><literal>TRUNC ( &lt;datetime value expr&gt; [ , &lt;char value
+    expr&gt; ] ) </literal></para>
+
+    <para>Similar to the ROUND function, the <literal>&lt;num value expr&gt;
+    </literal>is of DATE, TIME or TIMESTAMP type. The <literal>&lt;char value
+    expr&gt;</literal> is a format string for YEAR, MONTH, DAY, HOUR, MINUTE
+    or SECOND as listed in the table for TO_CHAR and TO_DATE format elements
+    (see below). The datetime value is truncated after the specified field and
+    the rest of the fields to the right are set to one for MONTH and DAY, or
+    zero, for the rest of the fields. For example applying TRUNC to a
+    timestamp value on the DAY field results in midnight the same date.
+    Examples of ROUND and TRUNC functions are given below. If the second
+    argument is omitted, the datetime value is truncated to midnight the same
+    date. (HyperSQL)</para>
+
+    <programlisting>ROUND ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
+
+'2009-01-01 00:00:00'
+
+TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
+
+'2008-01-01 00:00:00'
+</programlisting>
+
+    <indexterm significance="preferred" type="sql">
       <primary>TO_CHAR function</primary>
     </indexterm>
 
@@ -1362,7 +1412,7 @@
     character sequences not listed below are included in the Java format
     string and may cause unexpected results or errors. Therefore unsupported
     format strings should not be used. You can include a string literal inside
-    the format string by enclosing it in double quotes.</para>
+    the format string by enclosing it in double quotes. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TO_DATE function</primary>
@@ -1391,7 +1441,7 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     character sequences not listed below are included in the Java format
     string and may cause unexpected results or errors. Therefore unsupported
     format strings should not be used. You can include a string literal inside
-    the format string by enclosing it in double quotes.</para>
+    the format string by enclosing it in double quotes. (HyperSQL)</para>
 
     <para>The supported format components are all uppercase as follows:</para>
 
