@@ -330,6 +330,28 @@ st.execute(); // exception is thrown when HyperSQL checks the value for update
     </section>
 
     <section>
+      <title>JDBC Callable Statement</title>
+
+      <para>The JDBC CallableStatement interface is used to call Java or SQL
+      procedures that have been defined in the database. The SQL statement in
+      the form of CALL procedureName ( ... ) with constant value arguments or
+      with parameter markers. Note that you must use a parameter marker for
+      OUT and INOUT arguments of the procedure you are calling. The OUT
+      arguments should not be set before executing the callable
+      statement.</para>
+
+      <para>After executing the statement, you can retrieve the OUT and INOUT
+      parameters with the appropriate getXXX() method.</para>
+
+      <para>Procedures can also return one or more result sets. You should
+      call the getResultSet() and getMoreResults() methods to retrieve the
+      result sets one by one.</para>
+
+      <para>SQL functions can also return a table. You can call such functions
+      the same way as procedures and retrieve the table as a ResultSet.</para>
+    </section>
+
+    <section>
       <title>JDBC Returned Values</title>
 
       <para>The methods of the JDBC ResultSet interface can be used to return
@@ -2343,8 +2365,9 @@ SELECT * FROM atable UNION SELECT * FROM anothertable
       &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived column
       list&gt; &lt;right paren&gt; ] </literal></simpara>
 
-      <simpara><literal>| &lt;parenthesized joined
-      table&gt;</literal></simpara>
+      <simpara><literal>| &lt;parenthesized joined table&gt; [ AS ]
+      &lt;correlation name&gt; [ &lt;left paren&gt; &lt;derived column
+      list&gt; &lt;right paren&gt; ] </literal></simpara>
 
       <simpara><literal>&lt;where clause&gt; ::= WHERE &lt;boolean value
       expression&gt;</literal></simpara>
@@ -2440,7 +2463,7 @@ SELECT d + e, SUM(f) FROM atable WHERE a + b = c GROUP BY d + e HAVING SUM(f) &g
       way a query is written. For example, the two queries below are
       equivalent, but with different forms. The query with LATERAL is
       evaluated separately for each row of the first table that satisfies the
-      WHERE condition. </para>
+      WHERE condition.</para>
 
       <programlisting>CREATE TABLE atable (a INT, b INT, c INT, d INT, e INT, f INT);
 
