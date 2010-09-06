@@ -461,6 +461,18 @@
     <section>
       <title>Application Development and Testing</title>
 
+      <para>First thing to be aware of is the SQL conformance settings of
+      HyperSQL. By default version 2.0 applies stricter conformance rules than
+      version 1.8 and catches long strings or decimal values that do not fit
+      within the specified length or precision settings. However, there are
+      several conformance settings that are turned off by default. This is to
+      enable easier migration from earlier versions, and also greater
+      compatibility with databases such as MySQL that are sometimes very
+      liberal with type conversions. The conformance settings are listed
+      towards the end of this chapter and their connection property
+      equivalents are listed in the Database Properties chapter. Ideally, all
+      the settings should have a true value for best error checking.</para>
+
       <para>For application unit testing you can use an all-in-memory,
       in-process database.</para>
 
@@ -593,8 +605,9 @@
       cached tables are written to the .data file. To persist all the data
       changes up to date, you can use the CHECKPOINT command. If you perform
       SHUTDOWN, the data is also persisted correctly. If you do not use
-      CHECKPOINT or SHUTDOWN, all the changes are lost and the database
-      reverts to its original state when it is opened.</para>
+      CHECKPOINT or SHUTDOWN when you terminate the application, all the
+      changes are lost and the database reverts to its original state when it
+      is opened.</para>
 
       <para>Your server applications can use a database as a temporary disk
       data cache which is not persisted past the lifetime of the application.
@@ -623,13 +636,15 @@
 
       <para>HyperSQL 2.0 uses the same persistence mechanism as version 1.8,
       but with important enhancements. The code has proven reliable, as the
-      last critical issue was fixed 2 years before the release of version 2.0.
-      There are further enhancements in version 2.0</para>
+      last critical issue was fixed 2 years before the release of version
+      2.0.</para>
+
+      <para>There are further enhancements in version 2.0</para>
 
       <itemizedlist>
         <listitem>
-          <para>Locking mechanism has been added to code to support
-          multithreaded access.</para>
+          <para>More extensive locking mechanism has been added to code to
+          support multithreaded access.</para>
         </listitem>
 
         <listitem>
@@ -643,11 +658,11 @@
       </itemizedlist>
 
       <para>Persistence relies on the JVM, the operating system, and the
-      computer hardware. And a database system like HSQLDB can perform
-      millions of read and write operations in an hour. As it is impossible to
-      achieve zero failure rate, regular backups are recommended. HyperSQL 2.0
-      has built-in database backup and restore features, discussed elsewhere
-      in this chapter.</para>
+      computer hardware. A database system like HSQLDB can perform millions of
+      read and write operations in an hour. As system hardware and software
+      can go wrong, it is impossible to achieve zero failure rate. Therefore
+      regular backups are recommended. HyperSQL 2.0 has built-in database
+      backup and restore features, discussed elsewhere in this chapter.</para>
     </section>
   </section>
 
@@ -666,6 +681,10 @@
 
     <para>When this is not possible due to errors, the rest of the procedures
     below should be followed.</para>
+
+    <para>A note about SHUTDOWN modes. SHUTDOWN COMPACT is equivalent to
+    SHUTDOWN SCRIPT plus openning the database and then performing a simple
+    SHUTDOWN.</para>
 
     <para>Once a database is upgraded to 2.0, it can no longer be used with
     previous versions of HyperSQL.</para>
@@ -1118,7 +1137,7 @@
         the <literal>enforce_strict_size</literal> property, is now converted
         to version 2.0 with the engine supplying the missing size parameters.
         For example, a VARCHAR column declaration that has no size, is given a
-        32K size, a LONGVARCHAR column is given a 1MB size. Check these sizes
+        32K size, a LONGVARCHAR column is given a 16MB size. Check these sizes
         are adequate for your use, and change the column definition as
         necessary.</para>
       </listitem>
@@ -1771,7 +1790,7 @@
       <simpara>When the property is <literal>TRUE</literal>, concatanation of
       a null value with a not-null value results in a null value. When the
       property is <literal>FALSE</literal> this type of concatenation result
-      in the not-null value. </simpara>
+      in the not-null value.</simpara>
 
       <simpara>Setting this property <literal>FALSE</literal> results in
       concatenation behaviour similar to Oracle or SQL Server.</simpara>
@@ -2015,7 +2034,7 @@
       <simpara>Sets logging of database operations on or off. Turning logging
       off is for special usage, such as temporary cache usage. This is
       equivalent to the connection property
-      <literal>hsqldb.log_data</literal>.</simpara>
+      <literal>hsqldb.log_data</literal>. The default is TRUE.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -2096,7 +2115,7 @@
       <para>Set the WRITE DELAY property of the database. The WRITE DELAY
       controls the frequency of file sync for the log file. When WRITE_DELAY
       is set to FALSE or 0, the sync takes place immediately at each COMMIT.
-      WRITE DELAY TRUE performs the sync once every 10 seconds (which is the
+      WRITE DELAY TRUE performs the sync once every 0.5 seconds (which is the
       default). A numeric value can be specified instead.</para>
 
       <para>The purpose of this command is to control the amount of data loss
