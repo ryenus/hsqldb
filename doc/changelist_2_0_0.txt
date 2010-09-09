@@ -1,3 +1,7 @@
+9 Sept 2010  - SVN 3778
+-- added support for clustered indexes
+-- added enhancement for column visibility in nested joins
+-- addedd support for datetime ROUND and TRUNC functions
 4 Sept 2010  - SVN 3775
 -- minor enhancements
 -- additional propertie
