@@ -57,6 +57,7 @@ public class Cache extends BaseHashMap {
     private int                          capacity;         // number of Rows
     private long                         bytesCapacity;    // number of bytes
     private final CachedObjectComparator rowComparator;
+    private long                         maxPositionOnCleanup;
 
 //
     private CachedObject[] rowTable;
@@ -125,6 +126,10 @@ public class Cache extends BaseHashMap {
         if (size() >= capacity
                 || storageSize + cacheBytesLength > bytesCapacity) {
             cleanUp();
+
+            if (size() >= capacity) {
+                forceCleanUp();
+            }
         }
 
         if (accessCount > ACCESS_MAX) {
@@ -224,6 +229,12 @@ public class Cache extends BaseHashMap {
             CachedObject row                = (CachedObject) it.next();
             int          currentAccessCount = it.getAccessCount();
 
+            if (row.getPos() > this.maxPositionOnCleanup) {
+                if (row.hasChanged()) {
+                    rowTable[savecount++] = row;
+                }
+            }
+
             if (currentAccessCount <= accessTarget) {
                 synchronized (row) {
                     if (row.isKeepInMemory()) {
@@ -231,8 +242,10 @@ public class Cache extends BaseHashMap {
                     } else {
                         row.setInMemory(false);
 
-                        if (row.hasChanged()) {
-                            rowTable[savecount++] = row;
+                        if (row.getPos() <= this.maxPositionOnCleanup) {
+                            if (row.hasChanged()) {
+                                rowTable[savecount++] = row;
+                            }
                         }
 
                         it.remove();
@@ -253,6 +266,9 @@ public class Cache extends BaseHashMap {
 
         super.setAccessCountFloor(accessTarget);
         saveRows(savecount);
+
+        this.maxPositionOnCleanup = dataFileCache.fileFreePosition
+                                    / dataFileCache.cacheFileScale;
     }
 
     synchronized void forceCleanUp() {
@@ -263,7 +279,7 @@ public class Cache extends BaseHashMap {
             CachedObject row = (CachedObject) it.next();
 
             synchronized (row) {
-                if (!row.isKeepInMemory()) {
+                if (!row.hasChanged() && !row.isKeepInMemory()) {
                     row.setInMemory(false);
                     it.remove();
 
@@ -320,7 +336,6 @@ public class Cache extends BaseHashMap {
         }
 
         saveRows(savecount);
-
         Error.printSystemOut(
             saveAllTimer.elapsedTimeToMessage(
                 "Cache.saveRows() total row save time"));

@@ -746,6 +746,24 @@ public class ParserCommand extends ParserDDL {
                             StatementTypes.SET_TABLE_TYPE, args, null,
                             t.getName());
                     }
+                    case Tokens.CLUSTERED : {
+                        read();
+                        readThis(Tokens.ON);
+
+                        OrderedHashSet set   = new OrderedHashSet();
+
+                        readThis(Tokens.OPENBRACKET);
+                        readSimpleColumnNames(set, t);
+                        readThis(Tokens.CLOSEBRACKET);
+
+                        int[] colIndex = t.getColumnIndexes(set);
+
+                        args[1] = colIndex;
+
+                        return new StatementCommand(
+                            StatementTypes.SET_TABLE_CLUSTERED, args, null,
+                            t.getName());
+                    }
                 }
             }
 /*

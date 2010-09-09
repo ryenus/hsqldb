@@ -1553,7 +1553,7 @@ public class ParserDDL extends ParserRoutine {
         try {
             queryExpression = XreadQueryExpression();
         } catch (HsqlException e) {
-            queryExpression = XreadJoinedTable();
+            queryExpression = XreadJoinedTableAsView();
         }
 
         Token[] tokenisedStatement = getRecordedStatement();

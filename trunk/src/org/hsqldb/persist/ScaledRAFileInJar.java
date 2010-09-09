@@ -51,7 +51,7 @@ import org.hsqldb.lib.HsqlByteArrayInputStream;
  * @version  1.9.0
  * @since  1.8.0
  */
-final class ScaledRAFileInJar implements ScaledRAInterface {
+final class ScaledRAFileInJar implements RandomAccessInterface {
 
     DataInputStream          file;
     final String             fileName;
@@ -258,13 +258,11 @@ final class ScaledRAFileInJar implements ScaledRAInterface {
         }
     }
 
-    public boolean canAccess(int length) {
-        return false;
+    public boolean ensureLength(long newLong) {
+        return true;
     }
 
-    public boolean canSeek(long position) {
-        return false;
-    }
+    public void setLength(long newLength) throws IOException {}
 
     public Database getDatabase() {
         return null;

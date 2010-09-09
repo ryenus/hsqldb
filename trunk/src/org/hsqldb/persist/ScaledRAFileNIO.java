@@ -51,7 +51,7 @@ import org.hsqldb.error.Error;
  * @version  1.9.0
  * @since 1.8.0.5
  */
-final class ScaledRAFileNIO implements ScaledRAInterface {
+final class ScaledRAFileNIO implements RandomAccessInterface {
 
     private final Database      database;
     private final boolean       readOnly;
@@ -378,6 +378,12 @@ final class ScaledRAFileNIO implements ScaledRAInterface {
     public boolean wasNio() {
         return true;
     }
+
+    public boolean ensureLength(long newLength) {
+        return newLength <= bufferLength;
+    }
+
+    public void setLength(long newLength) throws IOException {}
 
     public boolean canAccess(int length) {
         return buffer.position() + length <= bufferLength;

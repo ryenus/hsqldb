@@ -40,7 +40,6 @@ import java.lang.reflect.Constructor;
 
 import org.hsqldb.Database;
 import org.hsqldb.lib.HsqlByteArrayInputStream;
-import org.hsqldb.lib.Storage;
 
 // fredt@users 20030111 - patch 1.7.2 by bohgammer@users - pad file before seek() beyond end
 // some incompatible JVM implementations do not allow seek beyond the existing end of file
@@ -53,13 +52,12 @@ import org.hsqldb.lib.Storage;
  * @version  1.9.0
  * @since  1.7.2
  */
-final class ScaledRAFile implements ScaledRAInterface {
+final class ScaledRAFile implements RandomAccessInterface {
 
-    static final int  DATA_FILE_RAF    = 0;
-    static final int  DATA_FILE_NIO    = 1;
-    static final int  DATA_FILE_JAR    = 2;
-    static final int  DATA_FILE_STORED = 3;
-    static final long MAX_NIO_LENGTH   = (1L << 28);
+    static final int DATA_FILE_RAF    = 0;
+    static final int DATA_FILE_NIO    = 1;
+    static final int DATA_FILE_JAR    = 2;
+    static final int DATA_FILE_STORED = 3;
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.
@@ -86,10 +84,9 @@ final class ScaledRAFile implements ScaledRAInterface {
      * seekPosition is the position in seek() calls or after reading or writing
      * realPosition is the file position
      */
-    static Storage newScaledRAFile(Database database, String name,
-                                   boolean readonly,
-                                   int type)
-                                   throws FileNotFoundException, IOException {
+    static RandomAccessInterface newScaledRAFile(Database database,
+            String name, boolean readonly,
+            int type) throws FileNotFoundException, IOException {
 
         if (type == DATA_FILE_STORED) {
             try {
@@ -102,7 +99,8 @@ final class ScaledRAFile implements ScaledRAInterface {
                     String.class, Boolean.class, Object.class
                 });
 
-                return (Storage) constructor.newInstance(new Object[] {
+                return (RandomAccessInterface) constructor.newInstance(
+                    new Object[] {
                     name, new Boolean(readonly), skey
                 });
             } catch (ClassNotFoundException e) {
@@ -126,7 +124,7 @@ final class ScaledRAFile implements ScaledRAInterface {
             java.io.File fi     = new java.io.File(name);
             long         length = fi.length();
 
-            if (length > MAX_NIO_LENGTH) {
+            if (length > database.logger.propNioMaxSize) {
                 return new ScaledRAFile(database, name, readonly);
             }
 
@@ -168,33 +166,12 @@ final class ScaledRAFile implements ScaledRAInterface {
      */
     public void seek(long position) throws IOException {
 
-        if (!readOnly && fileLength < position) {
-            long tempSize = position - fileLength;
-
-            if (tempSize > 1 << 16) {
-                tempSize = 1 << 16;
+        if (fileLength < position) {
+            if (readOnly) {
+                throw new IOException("read beyond end of file");
             }
 
-            byte[] temp = new byte[(int) tempSize];
-
-            try {
-                long pos = fileLength;
-
-                for (; pos < position - tempSize; pos += tempSize) {
-                    file.seek(pos);
-                    file.write(temp, 0, (int) tempSize);
-                }
-
-                file.seek(pos);
-                file.write(temp, 0, (int) (position - pos));
-
-                realPosition = position;
-                fileLength   = position;
-            } catch (IOException e) {
-                database.logger.logWarningEvent("seek failed", e);
-
-                throw e;
-            }
+            extendLength(position);
         }
 
         seekPosition = position;
@@ -348,6 +325,23 @@ final class ScaledRAFile implements ScaledRAInterface {
     public void read(byte[] b, int offset, int length) throws IOException {
 
         try {
+            if (length > buffer.length
+                    && (seekPosition < bufferOffset
+                        || seekPosition >= bufferOffset + buffer.length)) {
+                if (seekPosition != realPosition) {
+                    file.seek(seekPosition);
+
+                    realPosition = seekPosition;
+                }
+
+                file.readFully(b, offset, length);
+
+                seekPosition += length;
+                realPosition = seekPosition;
+
+                return;
+            }
+
             if (bufferDirty || seekPosition < bufferOffset
                     || seekPosition >= bufferOffset + buffer.length) {
                 readIntoBuffer();
@@ -369,6 +363,8 @@ final class ScaledRAFile implements ScaledRAInterface {
             if (bytesRead < length) {
                 if (seekPosition != realPosition) {
                     file.seek(seekPosition);
+
+                    realPosition = seekPosition;
                 }
 
                 file.readFully(b, offset + bytesRead, length - bytesRead);
@@ -486,12 +482,29 @@ final class ScaledRAFile implements ScaledRAInterface {
         return false;
     }
 
-    public boolean canAccess(int length) {
+    public boolean ensureLength(long newLength) {
+
+        if (newLength <= fileLength) {
+            return true;
+        }
+
+        newLength = getExtendLength(newLength);
+
+        try {
+            extendLength(newLength);
+        } catch (IOException e) {
+            return false;
+        }
+
         return true;
     }
 
-    public boolean canSeek(long position) {
-        return true;
+    public void setLength(long newLength) throws IOException {
+
+        file.setLength(newLength);
+        file.seek(0);
+
+        realPosition = 0;
     }
 
     public Database getDatabase() {
@@ -505,6 +518,49 @@ final class ScaledRAFile implements ScaledRAInterface {
         } catch (IOException e) {}
     }
 
+    private long getExtendLength(long position) {
+
+        if (position < 1024 * 1024) {
+            position = getBinaryNormalisedValue(position, position / 4);
+        } else if (position < 16 * 1024 * 1024) {
+            position = getBinaryNormalisedValue(position, position / 16);
+        } else {
+            position = getBinaryNormalisedValue(position, 4 * 1024 * 1024);
+        }
+
+        return position;
+    }
+
+    private void extendLength(long position) throws IOException {
+
+        long tempSize = position - fileLength;
+
+        if (tempSize > 1 << 16) {
+            tempSize = 1 << 16;
+        }
+
+        byte[] temp = new byte[(int) tempSize];
+
+        try {
+            long pos = fileLength;
+
+            for (; pos < position - tempSize; pos += tempSize) {
+                file.seek(pos);
+                file.write(temp, 0, (int) tempSize);
+            }
+
+            file.seek(pos);
+            file.write(temp, 0, (int) (position - pos));
+
+            realPosition = position;
+            fileLength   = position;
+        } catch (IOException e) {
+            database.logger.logWarningEvent("seek failed", e);
+
+            throw e;
+        }
+    }
+
     private void resetPointer() {
 
         try {
@@ -515,5 +571,23 @@ final class ScaledRAFile implements ScaledRAInterface {
             realPosition = seekPosition;
             fileLength   = length();
         } catch (Throwable e) {}
+    }
+
+    /**
+     * promotes divisor to 2**n form and returns a multipe of this that is larger or equal to value
+     */
+    long getBinaryNormalisedValue(long value, long divisor) {
+
+        long temp = 4 * 1024;
+
+        while (divisor > temp) {
+            temp = temp << 1;
+        }
+
+        divisor = temp;
+
+        long quotient = (value / divisor) + 1;
+
+        return divisor * quotient;
     }
 }

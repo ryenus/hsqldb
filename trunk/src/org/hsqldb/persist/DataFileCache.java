@@ -43,7 +43,6 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.lib.FileArchiver;
-import org.hsqldb.lib.Storage;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.rowio.RowInputBinary180;
 import org.hsqldb.rowio.RowInputBinaryDecode;
@@ -51,6 +50,7 @@ import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputBinary180;
 import org.hsqldb.rowio.RowOutputBinaryEncode;
 import org.hsqldb.rowio.RowOutputInterface;
+import org.hsqldb.persist.RandomAccessInterface;
 import org.hsqldb.store.BitMap;
 
 /**
@@ -77,9 +77,9 @@ public class DataFileCache {
     public static final int FLAG_HX         = 5;
 
     // file format fields
-    static final int LONG_EMPTY_SIZE      = 4;     // empty space size
-    static final int LONG_FREE_POS_POS    = 12;    // where iFreePos is saved
-    static final int LONG_EMPTY_INDEX_POS = 20;    // empty space index
+    static final int LONG_EMPTY_SIZE      = 4;        // empty space size
+    static final int LONG_FREE_POS_POS    = 12;       // where iFreePos is saved
+    static final int LONG_EMPTY_INDEX_POS = 20;       // empty space index
     static final int FLAGS_POS            = 28;
     static final int MIN_INITIAL_FREE_POS = 32;
 
@@ -115,12 +115,12 @@ public class DataFileCache {
     boolean is180;
 
     //
-    protected Storage       dataFile;
-    protected volatile long fileFreePosition;
-    protected int           maxCacheRows;          // number of Rows
-    protected long          maxCacheBytes;         // number of bytes
-    protected int           maxFreeBlocks;
-    protected Cache         cache;
+    protected RandomAccessInterface dataFile;
+    protected volatile long         fileFreePosition;
+    protected int                   maxCacheRows;     // number of Rows
+    protected long                  maxCacheBytes;    // number of bytes
+    protected int                   maxFreeBlocks;
+    protected Cache                 cache;
 
     //
     private RAShadowFile shadowFile;
@@ -219,7 +219,7 @@ public class DataFileCache {
                         FLAG_ISSHADOWED);
                 is180 = !BitMap.isSet(flags, FLAG_190);
 
-                if (BitMap.isSet(flags, FLAG_HX) ) {
+                if (BitMap.isSet(flags, FLAG_HX)) {
                     throw Error.error(ErrorCode.WRONG_DATABASE_FILE_VERSION);
                 }
 
@@ -430,11 +430,6 @@ public class DataFileCache {
                     dataFile.writeInt(flags);
                     database.logger.logInfoEvent(
                         "DataFileCache.close() : flags");
-
-                    //
-                    dataFile.seek(fileFreePosition);
-                    database.logger.logInfoEvent(
-                        "DataFileCache.close() : seek end");
                 }
             }
 
@@ -582,6 +577,12 @@ public class DataFileCache {
 
             if (newFreePosition > maxDataFileSize) {
                 throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+            }
+
+            boolean result = dataFile.ensureLength(newFreePosition);
+
+            if (!result) {
+                // throw with further database access consequences
             }
 
             fileFreePosition = newFreePosition;

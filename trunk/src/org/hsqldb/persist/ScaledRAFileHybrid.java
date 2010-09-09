@@ -48,14 +48,14 @@ import org.hsqldb.Database;
  * @version  1.8.0.5
  * @since 1.7.2
  */
-public final class ScaledRAFileHybrid implements ScaledRAInterface {
+public final class ScaledRAFileHybrid implements RandomAccessInterface {
 
-    final Database    database;
-    final String      fileName;
-    final boolean     isReadOnly;
-    final boolean     wasNio;
-    long              maxLength;
-    ScaledRAInterface store;
+    final Database        database;
+    final String          fileName;
+    final boolean         isReadOnly;
+    final boolean         wasNio;
+    long                  maxLength;
+    RandomAccessInterface store;
 
     public ScaledRAFileHybrid(Database database, String name,
                               boolean readOnly) throws IOException {
@@ -74,7 +74,6 @@ public final class ScaledRAFileHybrid implements ScaledRAInterface {
     }
 
     public void seek(long position) throws IOException {
-        checkSeek(position);
         store.seek(position);
     }
 
@@ -83,43 +82,30 @@ public final class ScaledRAFileHybrid implements ScaledRAInterface {
     }
 
     public int read() throws IOException {
-
-        checkLength(1);
-
         return store.read();
     }
 
     public void read(byte[] b, int offset, int length) throws IOException {
-        checkLength(length);
         store.read(b, offset, length);
     }
 
     public void write(byte[] b, int offset, int length) throws IOException {
-        checkLength(length);
         store.write(b, offset, length);
     }
 
     public int readInt() throws IOException {
-
-        checkLength(4);
-
         return store.readInt();
     }
 
     public void writeInt(int i) throws IOException {
-        checkLength(4);
         store.writeInt(i);
     }
 
     public long readLong() throws IOException {
-
-        checkLength(8);
-
         return store.readLong();
     }
 
     public void writeLong(long i) throws IOException {
-        checkLength(8);
         store.writeLong(i);
     }
 
@@ -135,12 +121,27 @@ public final class ScaledRAFileHybrid implements ScaledRAInterface {
         return wasNio;
     }
 
-    public boolean canAccess(int length) {
-        return true;
+    public boolean ensureLength(long newLength) {
+
+        if (store.ensureLength(newLength)) {
+            return true;
+        }
+
+        if (!store.wasNio()) {
+            return false;
+        }
+
+        try {
+            newStore(newLength);
+        } catch (IOException e) {
+            return false;
+        }
+
+        return store.ensureLength(newLength);
     }
 
-    public boolean canSeek(long position) {
-        return true;
+    public void setLength(long newLength) throws IOException {
+        store.setLength(newLength);
     }
 
     public Database getDatabase() {
@@ -149,24 +150,6 @@ public final class ScaledRAFileHybrid implements ScaledRAInterface {
 
     public void synch() {
         store.synch();
-    }
-
-    private void checkLength(int length) throws IOException {
-
-        if (store.canAccess(length)) {
-            return;
-        }
-
-        newStore(store.getFilePointer() + length);
-    }
-
-    private void checkSeek(long position) throws IOException {
-
-        if (store.canSeek(position)) {
-            return;
-        }
-
-        newStore(position);
     }
 
     void newStore(long requiredPosition) throws IOException {
@@ -187,7 +170,10 @@ public final class ScaledRAFileHybrid implements ScaledRAInterface {
                 store.seek(currentPosition);
 
                 return;
-            } catch (Throwable e) {}
+            } catch (Throwable e) {
+
+                // log event
+            }
         }
 
         store = new ScaledRAFile(database, fileName, isReadOnly);

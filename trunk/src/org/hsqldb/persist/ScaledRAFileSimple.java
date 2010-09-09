@@ -31,7 +31,6 @@
 
 package org.hsqldb.persist;
 
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -46,7 +45,7 @@ import org.hsqldb.Database;
  * @version  1.9.0
  * @since  1.9.0
  */
-final class ScaledRAFileSimple implements ScaledRAInterface {
+final class ScaledRAFileSimple implements RandomAccessInterface {
 
     final RandomAccessFile file;
     final boolean          readOnly;
@@ -115,12 +114,12 @@ final class ScaledRAFileSimple implements ScaledRAInterface {
         return false;
     }
 
-    public boolean canAccess(int length) {
+    public boolean ensureLength(long newLong) {
         return true;
     }
 
-    public boolean canSeek(long position) {
-        return true;
+    public void setLength(long newLength) throws IOException {
+        file.setLength(newLength);
     }
 
     public Database getDatabase() {

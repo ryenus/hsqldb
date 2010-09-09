@@ -1929,8 +1929,16 @@ public class SchemaManager {
                 String[] ddl = t.getSQLForTextSource(withHeader);
 
                 list.addAll(ddl);
-            } else {
-                String ddl = t.getSQLForReadOnly();
+            }
+
+            String ddl = t.getSQLForReadOnly();
+
+            if (ddl != null) {
+                list.add(ddl);
+            }
+
+            if (t.isCached()) {
+                ddl = t.getSQLForClustered();
 
                 if (ddl != null) {
                     list.add(ddl);

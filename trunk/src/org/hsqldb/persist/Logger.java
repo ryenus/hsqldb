@@ -177,6 +177,7 @@ public class Logger {
 
         propIsFileDatabase =
             DatabaseURL.isFileBasedDatabaseType(database.getType());
+
         database.databaseProperties = new HsqlDatabaseProperties(database);
         isNewDatabase = !propIsFileDatabase
                         || !fileAccess.isStreamElement(database.getPath()

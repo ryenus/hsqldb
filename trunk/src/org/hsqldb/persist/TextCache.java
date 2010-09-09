@@ -402,6 +402,25 @@ public class TextCache extends DataFileCache {
     }
 
     /**
+     * Does not extend the end of file yet. Must extend with spaces instead of 0s
+     */
+    int setFilePos(CachedObject r) {
+
+        int  rowSize         = r.getStorageSize();
+        int  i               = (int) (fileFreePosition);
+
+        if (fileFreePosition + rowSize > maxDataFileSize) {
+            throw Error.error(ErrorCode.DATA_FILE_IS_FULL);
+        }
+
+        fileFreePosition += rowSize;
+
+        r.setPos(i);
+
+        return i;
+    }
+
+    /**
      *
      */
     public synchronized void remove(int pos, PersistentStore store) {
@@ -655,6 +674,12 @@ public class TextCache extends DataFileCache {
                         return -1;
 
                     default :
+                        if (wasCR) {
+                            wasCR = false;
+
+                            ((RowInputText) rowIn).skippedLine();
+                        }
+
                         return firstPos;
                 }
             }

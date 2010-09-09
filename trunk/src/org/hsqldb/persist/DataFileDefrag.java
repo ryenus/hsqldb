@@ -44,7 +44,6 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.DoubleIntIndex;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.lib.StopWatch;
-import org.hsqldb.lib.Storage;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.rowio.RowOutputInterface;
 import org.hsqldb.store.BitMap;
@@ -100,7 +99,7 @@ final class DataFileDefrag {
 
         rootsList = new int[allTables.size()][];
 
-        Storage dest = null;
+        RandomAccessInterface dest = null;
 
         try {
             OutputStream fos =
@@ -244,7 +243,7 @@ final class DataFileDefrag {
         Error.printSystemOut("lookup begins: " + stopw.elapsedTime());
 
         // all rows
-        RowIterator it = table.rowIterator(store);
+        RowIterator it = table.rowIteratorClustered(store);
 
         for (; it.hasNext(); count++) {
             CachedObject row = it.getNextRow();

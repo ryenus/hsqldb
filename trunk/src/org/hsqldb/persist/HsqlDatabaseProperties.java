@@ -676,7 +676,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         }
 
         // OOo end
-        return 10000;
+        return 500;
     }
 
 //---------------------
