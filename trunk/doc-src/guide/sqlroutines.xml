@@ -1008,9 +1008,9 @@ END WHILE loop_label;
         <primary>FOR loop in routines</primary>
       </indexterm>
 
-      <simpara><emphasis role="bold">LOOP</emphasis></simpara>
+      <simpara><emphasis role="bold">FOR</emphasis></simpara>
 
-      <simpara><emphasis>loop statement</emphasis></simpara>
+      <simpara><emphasis>for statement</emphasis></simpara>
 
       <para><literal>&lt;for statement&gt; ::= [ &lt;beginning label&gt;
       &lt;colon&gt; ] FOR &lt;query expression&gt; DO &lt;SQL statement
@@ -1296,14 +1296,15 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       <para>The return value of a FUNCTION can be assigned to a variable, or
       used inside an SQL statement.</para>
 
-      <para>According to the Standard, a SQL/PSM procedure may also return
-      result sets to the calling context. These result sets are dynamic in the
-      sense that a procedure may return a different number of result sets or
-      none at all in different invocations. The SQL Standard uses a mechanism
-      called CURSORS for accessing and modifying rows of a result set one by
-      one. This mechanism is necessary when the database is accessed from an
-      external application program. The JDBC ResultSet interface allows this
-      method of access from Java programs and is supported by HyperSQL.</para>
+      <para>According to the Standard, an SQL/PSM or SQL/JRT procedure may
+      also return result sets to the calling context. These result sets are
+      dynamic in the sense that a procedure may return a different number of
+      result sets or none at all in different invocations. The SQL Standard
+      uses a mechanism called CURSORS for accessing and modifying rows of a
+      result set one by one. This mechanism is necessary when the database is
+      accessed from an external application program. The JDBC ResultSet
+      interface allows this method of access from Java programs and is
+      supported by HyperSQL.</para>
 
       <para>The SQL Standard uses cursors within the body of a procedure to
       return result sets. It specifies a somewhat complex mechanism to allow
@@ -1615,6 +1616,23 @@ CREATE FUNCTION testquery(i INTEGER)
   MODIFIES SQL DATA
   LANGUAGE JAVA
   EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.Test01.newCustomerProcedure'
+</programlisting>
+
+      <para>In the next example the same procedure is defined to return a
+      result set. The signature of the java method is also given. The Java
+      method assigns a ResultSet object to the zero element of the result
+      parameter.</para>
+
+      <programlisting>CREATE PROCEDURE new_customer(firstname VARCHAR(50), lastname VARCHAR(50))
+  MODIFIES SQL DATA 
+  LANGUAGE JAVA
+  DYNAMIC RESULT SETS 1
+  EXTERNAL NAME 'CLASSPATH:org.hsqldb.test.Test01.newCustomerProcedure'
+
+    public static void newCustomerProcedure(String firstn, String lastn, String addr,
+                       ResultSet[] result) throws java.sql.SQLException {
+
+
 </programlisting>
     </section>
 
