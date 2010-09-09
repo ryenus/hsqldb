@@ -133,6 +133,7 @@ public class IndexAVL implements Index {
     protected final boolean  isUnique;    // DDL uniqueness
     protected final boolean  isConstraint;
     private final boolean    isForward;
+    private boolean          isClustered;
     private int              depth;
     private static final IndexRowIterator emptyIterator =
         new IndexRowIterator(null, (PersistentStore) null, null, null, 0,
@@ -369,6 +370,14 @@ public class IndexAVL implements Index {
 
     public void setTable(TableBase table) {
         this.table = table;
+    }
+
+    public void setClustered(boolean clustered) {
+        isClustered = clustered;
+    }
+
+    public boolean isClustered() {
+        return isClustered;
     }
 
     /**

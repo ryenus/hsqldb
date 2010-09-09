@@ -365,31 +365,6 @@ public class TextTable extends org.hsqldb.Table {
         return sb.toString();
     }
 
-    void moveData(Session session, Table from, int colindex, int adjust) {
-
-        PersistentStore store = session.sessionData.getRowStore(this);
-
-        store.setCache(from.store.getCache());
-
-        RowIterator it = from.rowIterator(session);
-
-        try {
-            while (it.hasNext()) {
-                Row row = it.getNextRow();
-
-                store.indexRow(session, row);
-            }
-        } catch (Throwable t) {
-            store.release();
-
-            if (t instanceof HsqlException) {
-                throw (HsqlException) t;
-            }
-
-            throw new HsqlException(t, "", 0);
-        }
-    }
-
     /**
      * Adds commitPersistence() call
      */

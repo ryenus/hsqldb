@@ -32,11 +32,9 @@
 package org.hsqldb.persist;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 import org.hsqldb.Database;
 import org.hsqldb.lib.HsqlByteArrayOutputStream;
-import org.hsqldb.lib.Storage;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.store.BitMap;
 
@@ -49,19 +47,19 @@ import org.hsqldb.store.BitMap;
  */
 public class RAShadowFile {
 
-    final Database database;
-    final String   pathName;
-    final Storage  source;
-    Storage        dest;
-    final int      pageSize;
-    final long     maxSize;
-    final BitMap   bitMap;
-    boolean        zeroPageSet;
+    final Database              database;
+    final String                pathName;
+    final RandomAccessInterface source;
+    RandomAccessInterface       dest;
+    final int                   pageSize;
+    final long                  maxSize;
+    final BitMap                bitMap;
+    boolean                     zeroPageSet;
     HsqlByteArrayOutputStream byteArrayOutputStream =
         new HsqlByteArrayOutputStream(new byte[]{});
 
-    RAShadowFile(Database database, Storage source, String pathName,
-                 long maxSize, int pageSize) {
+    RAShadowFile(Database database, RandomAccessInterface source,
+                 String pathName, long maxSize, int pageSize) {
 
         this.database = database;
         this.pathName = pathName;
@@ -174,8 +172,8 @@ public class RAShadowFile {
         }
     }
 
-    private static Storage getStorage(Database database, String pathName,
-                                      String openMode) throws IOException {
+    private static RandomAccessInterface getStorage(Database database,
+            String pathName, String openMode) throws IOException {
 
         if (database.logger.isStoredFileAccess()) {
             return ScaledRAFile.newScaledRAFile(database, pathName,
@@ -192,8 +190,8 @@ public class RAShadowFile {
     public static void restoreFile(Database database, String sourceName,
                                    String destName) throws IOException {
 
-        Storage source = getStorage(database, sourceName, "r");
-        Storage dest   = getStorage(database, destName, "rw");
+        RandomAccessInterface source = getStorage(database, sourceName, "r");
+        RandomAccessInterface dest   = getStorage(database, destName, "rw");
 
         while (source.getFilePointer() != source.length()) {
             int    size     = source.readInt();

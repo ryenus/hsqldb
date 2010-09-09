@@ -413,19 +413,15 @@ public class ExpressionColumn extends Expression {
             }
         }
 
-        if (!rangeVar.resolvesTableName(this)) {
+        int colIndex = rangeVar.findColumn(this);
+
+        if (colIndex == -1) {
             return false;
         }
 
-        int colIndex = rangeVar.findColumn(columnName);
+        setAttributesAsColumn(rangeVar, colIndex);
 
-        if (colIndex != -1) {
-            setAttributesAsColumn(rangeVar, colIndex);
-
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     boolean resolvesDuplicateColumnReference(RangeVariable rangeVar) {
@@ -455,17 +451,13 @@ public class ExpressionColumn extends Expression {
             }
         }
 
-        if (!rangeVar.resolvesTableName(this)) {
+        int colIndex = rangeVar.findColumn(this);
+
+        if (colIndex == -1) {
             return false;
         }
 
-        int colIndex = rangeVar.findColumn(columnName);
-
-        if (colIndex != -1) {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     public void resolveTypes(Session session, Expression parent) {

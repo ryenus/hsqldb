@@ -118,6 +118,10 @@ public interface Index extends SchemaObject {
 
     public void setTable(TableBase table);
 
+    public void setClustered(boolean clustered);
+
+    public boolean isClustered();
+
     /**
      * Returns the node count.
      */

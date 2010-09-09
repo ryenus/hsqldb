@@ -36,7 +36,6 @@ import org.hsqldb.ParserDQL.CompileContext;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
-import org.hsqldb.lib.ArrayUtil;
 import org.hsqldb.lib.HashMap;
 import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HashSet;
@@ -57,7 +56,7 @@ import org.hsqldb.types.Type;
  * @version 2.0.0
  * @since 1.9.0
  */
-public final class RangeVariable implements Cloneable {
+public class RangeVariable implements Cloneable {
 
     static final RangeVariable[] emptyArray = new RangeVariable[]{};
 
@@ -314,6 +313,15 @@ public final class RangeVariable implements Cloneable {
         return set;
     }
 
+    public int findColumn(ExpressionColumn e) {
+
+        if (!resolvesTableName(e)) {
+            return -1;
+        }
+
+        return findColumn(e.columnName);
+    }
+
     /**
      * Retruns index for column
      *
@@ -487,7 +495,8 @@ public final class RangeVariable implements Cloneable {
     /**
      * Add all columns to a list of expressions
      */
-    int addTableColumns(HsqlArrayList expList, int position, HashSet exclude) {
+    int addTableColumns(HsqlArrayList exprList, int position,
+                        HashSet exclude) {
 
         Table table = getTable();
         int   count = table.getColumnCount();
@@ -504,7 +513,7 @@ public final class RangeVariable implements Cloneable {
 
             Expression e = new ExpressionColumn(this, i);
 
-            expList.add(position++, e);
+            exprList.add(position++, e);
         }
 
         return position;

@@ -34,7 +34,7 @@ package org.hsqldb.persist;
 import org.hsqldb.Database;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.lib.Storage;
+import org.hsqldb.persist.RandomAccessInterface;
 
 /**
  * @author Fred Toussi (fredt@users dot sourceforge.net)
@@ -43,9 +43,9 @@ import org.hsqldb.lib.Storage;
  */
 public class LobStoreRAFile implements LobStore {
 
-    final int lobBlockSize;
-    Storage   file;
-    Database  database;
+    final int             lobBlockSize;
+    RandomAccessInterface file;
+    Database              database;
 
     public LobStoreRAFile(Database database, int lobBlockSize) {
 

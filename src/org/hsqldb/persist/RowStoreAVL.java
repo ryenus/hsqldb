@@ -189,11 +189,11 @@ public abstract class RowStoreAVL implements PersistentStore {
     //
     public final void indexRows(Session session) {
 
-        RowIterator it = rowIterator();
-
         for (int i = 1; i < indexList.length; i++) {
             setAccessor(indexList[i], null);
         }
+
+        RowIterator it = rowIterator();
 
         while (it.hasNext()) {
             Row row = it.getNextRow();
@@ -201,7 +201,7 @@ public abstract class RowStoreAVL implements PersistentStore {
             ((RowAVL) row).clearNonPrimaryNodes();
 
             for (int i = 1; i < indexList.length; i++) {
-                indexList[i].insert(null, this, row);
+                indexList[i].insert(session, this, row);
             }
         }
     }
@@ -212,7 +212,17 @@ public abstract class RowStoreAVL implements PersistentStore {
             throw Error.runtimeError(ErrorCode.U_S0500, "RowStoreAVL");
         }
 
-        return indexList[0].firstRow(this);
+        Index index = indexList[0];
+
+        for (int i = 0; i < indexList.length; i++) {
+            if (indexList[i] != null && indexList[i].isClustered()) {
+                index = indexList[i];
+
+                break;
+            }
+        }
+
+        return index.firstRow(this);
     }
 
     public abstract void setAccessor(Index key, CachedObject accessor);

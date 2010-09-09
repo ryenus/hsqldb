@@ -34,6 +34,7 @@ package org.hsqldb;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.index.Index;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.persist.HsqlProperties;
@@ -121,6 +122,10 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_TEXT_SOURCE :
                 group                       = StatementTypes.X_HSQLDB_SETTING;
                 this.isTransactionStatement = true;
+                break;
+
+            case StatementTypes.SET_TABLE_CLUSTERED :
+                group = StatementTypes.X_HSQLDB_SCHEMA_MANIPULATION;
                 break;
 
             case StatementTypes.SET_TABLE_SOURCE_HEADER :
@@ -691,6 +696,35 @@ public class StatementCommand extends Statement {
 
                     session.checkAdmin();
                     session.database.close(mode);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_TABLE_CLUSTERED : {
+                try {
+                    HsqlName name     = (HsqlName) parameters[0];
+                    int[]    colIndex = (int[]) parameters[1];
+                    Table table =
+                        session.database.schemaManager.getTable(session,
+                            name.name, name.schema.name);
+
+                    if (!table.isCached() && !table.isText()) {
+                        throw Error.error(ErrorCode.ACCESS_IS_DENIED);
+                    }
+
+                    Index index = table.getIndexForColumns(session, colIndex);
+
+                    if (index != null) {
+                        Index[] indexes = table.getIndexList();
+
+                        for (int i = 0; i < indexes.length; i++) {
+                            indexes[i].setClustered(false);
+                        }
+
+                        index.setClustered(true);
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

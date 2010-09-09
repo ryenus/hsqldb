@@ -1551,13 +1551,19 @@ public class ParserDQL extends ParserBase {
         SimpleName     alias          = null;
         SimpleName[]   columnNameList = null;
         OrderedHashSet columnList     = null;
+        boolean        joinedTable    = false;
 
         switch (token.tokenType) {
 
             case Tokens.OPENBRACKET : {
-                Expression e = XreadTableSubqueryOrJoinedTable();
+                table = XreadTableSubqueryOrNull();
 
-                table = e.getTable();
+                if (table == null) {
+                    SubQuery sq = XreadJoinedTableAsSubquery();
+
+                    table       = sq.getTable();
+                    joinedTable = true;
+                }
 
                 break;
             }
@@ -1632,8 +1638,15 @@ public class ParserDQL extends ParserBase {
             }
         }
 
-        RangeVariable range = new RangeVariable(table, alias, columnList,
-            columnNameList, compileContext);
+        RangeVariable range;
+
+        if (joinedTable) {
+            range = new RangeVariableJoined(table, alias, columnList,
+                                      columnNameList, compileContext);
+        } else {
+            range = new RangeVariable(table, alias, columnList,
+                                      columnNameList, compileContext);
+        }
 
         return range;
     }
@@ -2030,8 +2043,7 @@ public class ParserDQL extends ParserBase {
                 read();
 
                 int subqueryPosition = getPosition();
-
-                readOpenBrackets();
+                int brackets         = readOpenBrackets();
 
                 switch (token.tokenType) {
 
@@ -2061,10 +2073,17 @@ public class ParserDQL extends ParserBase {
                         }
 
                         if (sq.queryExpression.isSingleColumn()) {
-                            return new Expression(OpTypes.SCALAR_SUBQUERY, sq);
+                            e = new Expression(OpTypes.SCALAR_SUBQUERY, sq);
                         } else {
-                            return new Expression(OpTypes.ROW_SUBQUERY, sq);
+                            e = new Expression(OpTypes.ROW_SUBQUERY, sq);
                         }
+
+                        if (readCloseBrackets(brackets) != brackets) {
+                            throw unexpectedToken();
+                        }
+
+                        return e;
+
                     default :
                         rewind(position);
 
@@ -3666,15 +3685,14 @@ public class ParserDQL extends ParserBase {
         return new Expression(OpTypes.TABLE_SUBQUERY, sq);
     }
 
-    Expression XreadTableSubqueryOrJoinedTable() {
+    Table XreadTableSubqueryOrNull() {
 
         boolean joinedTable = false;
         int     position;
 
-        readThis(Tokens.OPENBRACKET);
-
         position = getPosition();
 
+        readThis(Tokens.OPENBRACKET);
         readOpenBrackets();
 
         switch (token.tokenType) {
@@ -3692,39 +3710,40 @@ public class ParserDQL extends ParserBase {
         rewind(position);
 
         if (joinedTable) {
-            SubQuery sq = XreadJoinedTableAsSubquery();
-
-            readThis(Tokens.CLOSEBRACKET);
-
-            return new Expression(OpTypes.TABLE_SUBQUERY, sq);
+            return null;
         } else {
+            readThis(Tokens.OPENBRACKET);
+
             SubQuery sq = XreadTableSubqueryBody(true);
 
             readThis(Tokens.CLOSEBRACKET);
 
-            return new Expression(OpTypes.TABLE_SUBQUERY, sq);
+            return sq.getTable();
         }
     }
 
     SubQuery XreadJoinedTableAsSubquery() {
 
+        readThis(Tokens.OPENBRACKET);
+
         int position = getPosition();
 
         compileContext.subqueryDepth++;
 
-        QueryExpression queryExpression = XreadJoinedTable();
+        QuerySpecification querySpecification = XreadJoinedTableAsView();
 
-        queryExpression.resolve(session);
+        querySpecification.resolve(session);
 
-        if (((QuerySpecification) queryExpression).rangeVariables.length < 2) {
+        if (querySpecification.rangeVariables.length < 2) {
             throw unexpectedTokenRequire(Tokens.T_JOIN);
         }
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
-                                   queryExpression, OpTypes.TABLE_SUBQUERY);
+                                   querySpecification, OpTypes.TABLE_SUBQUERY);
 
         sq.sql = getLastPart(position);
 
+        readThis(Tokens.CLOSEBRACKET);
         sq.prepareTable(session);
 
         compileContext.subqueryDepth--;
@@ -3732,7 +3751,7 @@ public class ParserDQL extends ParserBase {
         return sq;
     }
 
-    QueryExpression XreadJoinedTable() {
+    QuerySpecification XreadJoinedTableAsView() {
 
         QuerySpecification select = new QuerySpecification(compileContext);
         Expression         e      = new ExpressionColumn(OpTypes.MULTICOLUMN);
@@ -3797,7 +3816,7 @@ public class ParserDQL extends ParserBase {
         try {
             queryExpression = XreadQueryExpression();
         } catch (HsqlException e) {
-            queryExpression = XreadJoinedTable();
+            queryExpression = XreadJoinedTableAsView();
         }
 
         queryExpression.setView(view);
@@ -5371,7 +5390,6 @@ public class ParserDQL extends ParserBase {
 
         //
         private OrderedIntKeyHashMap parameters = new OrderedIntKeyHashMap();
-        private HsqlArrayList        subQueryList   = new HsqlArrayList(true);
         private HsqlArrayList        usedSequences  = new HsqlArrayList(true);
         private HsqlArrayList        usedRoutines   = new HsqlArrayList(true);
         private HsqlArrayList        rangeVariables = new HsqlArrayList(true);
@@ -5396,7 +5414,6 @@ public class ParserDQL extends ParserBase {
             rangeVarIndex = 0;
 
             rangeVariables.clear();
-            subQueryList.clear();
 
             subqueryDepth = 0;
 
@@ -5420,15 +5437,6 @@ public class ParserDQL extends ParserBase {
 
                 if (range.parsePosition > position) {
                     rangeVariables.remove(i);
-                }
-            }
-
-//            rangeVarIndex = rangeVariables.size();
-            for (int i = subQueryList.size() - 1; i >= 0; i--) {
-                SubQuery subQuery = (SubQuery) subQueryList.get(i);
-
-                if (subQuery.parsePosition >= position) {
-                    subQueryList.remove(i);
                 }
             }
 

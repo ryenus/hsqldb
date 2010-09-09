@@ -337,7 +337,7 @@ public abstract class ScriptWriterBase implements Runnable {
 
                         writeTableInit(t);
 
-                        RowIterator it = t.rowIterator(currentSession);
+                        RowIterator it = t.rowIteratorClustered(currentSession);
 
                         while (it.hasNext()) {
                             writeRow(currentSession, t,

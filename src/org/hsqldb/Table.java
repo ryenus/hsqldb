@@ -549,6 +549,30 @@ public class Table extends TableBase implements SchemaObject {
         }
     }
 
+    public String getSQLForClustered() {
+
+        if (!isCached() && !isText()) {
+            return null;
+        }
+
+        Index index = getClusteredIndex();
+
+        if (index == null) {
+            return null;
+        }
+
+        String colList = getColumnListSQL(index.getColumns(),
+                                          index.getColumnCount());
+        StringBuffer sb = new StringBuffer(64);
+
+        sb.append(Tokens.T_SET).append(' ').append(Tokens.T_TABLE).append(' ');
+        sb.append(getName().getSchemaQualifiedStatementName());
+        sb.append(' ').append(Tokens.T_CLUSTERED).append(' ');
+        sb.append(Tokens.T_ON).append(' ').append(colList);
+
+        return sb.toString();
+    }
+
     public String[] getTriggerSQL() {
 
         String[] array = new String[triggerList.length];
@@ -1193,13 +1217,14 @@ public class Table extends TableBase implements SchemaObject {
 
             int[] colarr = ArrayUtil.toAdjustedColumnArray(idx.getColumns(),
                 colIndex, adjust);
+            Index newIdx = tn.createIndexStructure(idx.getName(), colarr,
+                                                   idx.getColumnDesc(), null,
+                                                   idx.isUnique(),
+                                                   idx.isConstraint(),
+                                                   idx.isForward());
 
-            idx = tn.createIndexStructure(idx.getName(), colarr,
-                                          idx.getColumnDesc(), null,
-                                          idx.isUnique(), idx.isConstraint(),
-                                          idx.isForward());
-
-            tn.addIndex(session, idx);
+            newIdx.setClustered(idx.isClustered());
+            tn.addIndex(session, newIdx);
         }
 
         if (index != null) {
@@ -1462,6 +1487,17 @@ public class Table extends TableBase implements SchemaObject {
 
     public boolean isBestRowIdentifiersStrict() {
         return bestRowIdentifierStrict;
+    }
+
+    public Index getClusteredIndex() {
+
+        for (int i = 0; i < indexList.length; i++) {
+            if (indexList[i].isClustered()) {
+                return indexList[i];
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -2698,6 +2734,29 @@ public class Table extends TableBase implements SchemaObject {
         }
 
         session.addDeleteAction(this, row, null);
+    }
+
+    public RowIterator rowIteratorClustered(Session session) {
+
+        PersistentStore store = session.sessionData.getRowStore(this);
+        Index           index = getClusteredIndex();
+
+        if (index == null) {
+            index = getPrimaryIndex();
+        }
+
+        return index.firstRow(session, store);
+    }
+
+    public RowIterator rowIteratorClustered(PersistentStore store) {
+
+        Index index = getClusteredIndex();
+
+        if (index == null) {
+            index = getPrimaryIndex();
+        }
+
+        return index.firstRow(store);
     }
 
     public void clearAllData(Session session) {

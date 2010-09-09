@@ -630,16 +630,6 @@ public class Database {
 
         addRows(r, list);
 
-        // user session start schema names
-        list = getUserManager().getInitialSchemaSQL();
-
-        addRows(r, list);
-
-        // grantee rights
-        list = getGranteeManager().getRightstSQL();
-
-        addRows(r, list);
-
         // index roots
         if (indexRoots) {
             list = schemaManager.getIndexRootsSQL();
@@ -647,8 +637,18 @@ public class Database {
             addRows(r, list);
         }
 
-        // text headers
+        // text headers - readonly - clustered
         list = schemaManager.getTablePropsSQL(!indexRoots);
+
+        addRows(r, list);
+
+        // user session start schema names
+        list = getUserManager().getInitialSchemaSQL();
+
+        addRows(r, list);
+
+        // grantee rights
+        list = getGranteeManager().getRightstSQL();
 
         addRows(r, list);
 
