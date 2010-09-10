@@ -710,6 +710,9 @@ public class StatementCommand extends Statement {
                         session.database.schemaManager.getTable(session,
                             name.name, name.schema.name);
 
+                    StatementSchema.checkSchemaUpdateAuthorisation(session,
+                            table.getSchemaName());
+
                     if (!table.isCached() && !table.isText()) {
                         throw Error.error(ErrorCode.ACCESS_IS_DENIED);
                     }
@@ -739,7 +742,9 @@ public class StatementCommand extends Statement {
                         session.database.schemaManager.getTable(session,
                             name.name, name.schema.name);
 
-                    table.setIndexRoots(session, value);
+                    if (session.isProcessingScript()) {
+                        table.setIndexRoots(session, value);
+                    }
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {
@@ -754,8 +759,8 @@ public class StatementCommand extends Statement {
                             name.name, name.schema.name);
                     boolean mode = ((Boolean) parameters[1]).booleanValue();
 
-                    session.checkAdmin();
-                    session.checkDDLWrite();
+                    StatementSchema.checkSchemaUpdateAuthorisation(session,
+                            table.getSchemaName());
                     table.setDataReadOnly(mode);
                     session.database.schemaManager.setSchemaChangeTimestamp();
 
@@ -771,6 +776,9 @@ public class StatementCommand extends Statement {
                     Table table =
                         session.database.schemaManager.getTable(session,
                             name.name, name.schema.name);
+
+                    StatementSchema.checkSchemaUpdateAuthorisation(session,
+                            table.getSchemaName());
 
                     if (!table.isText()) {
                         Exception e = Error.error(ErrorCode.X_S0522);
@@ -831,13 +839,12 @@ public class StatementCommand extends Statement {
                     int      type = ((Integer) parameters[1]).intValue();
 
                     //
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-
                     Table table =
                         session.database.schemaManager.getUserTable(session,
                             name.name, name.schema.name);
 
+                    StatementSchema.checkSchemaUpdateAuthorisation(session,
+                            table.getSchemaName());
                     session.setScripting(true);
 
                     TableWorks tw = new TableWorks(session, table);
