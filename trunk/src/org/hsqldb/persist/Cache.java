@@ -57,7 +57,6 @@ public class Cache extends BaseHashMap {
     private int                          capacity;         // number of Rows
     private long                         bytesCapacity;    // number of bytes
     private final CachedObjectComparator rowComparator;
-    private long                         maxPositionOnCleanup;
 
 //
     private CachedObject[] rowTable;
@@ -228,26 +227,18 @@ public class Cache extends BaseHashMap {
         for (; it.hasNext(); ) {
             CachedObject row                = (CachedObject) it.next();
             int          currentAccessCount = it.getAccessCount();
+            boolean      oldRow = currentAccessCount <= accessTarget;
 
-            if (row.getPos() > this.maxPositionOnCleanup) {
-                if (row.hasChanged()) {
-                    rowTable[savecount++] = row;
-                }
-            }
-
-            if (currentAccessCount <= accessTarget) {
+            if (oldRow) {
                 synchronized (row) {
                     if (row.isKeepInMemory()) {
                         it.setAccessCount(accessTarget + 1);
                     } else {
-                        row.setInMemory(false);
-
-                        if (row.getPos() <= this.maxPositionOnCleanup) {
-                            if (row.hasChanged()) {
-                                rowTable[savecount++] = row;
-                            }
+                        if (row.hasChanged()) {
+                            rowTable[savecount++] = row;
                         }
 
+                        row.setInMemory(false);
                         it.remove();
 
                         cacheBytesLength -= row.getStorageSize();
@@ -266,9 +257,6 @@ public class Cache extends BaseHashMap {
 
         super.setAccessCountFloor(accessTarget);
         saveRows(savecount);
-
-        this.maxPositionOnCleanup = dataFileCache.fileFreePosition
-                                    / dataFileCache.cacheFileScale;
     }
 
     synchronized void forceCleanUp() {
