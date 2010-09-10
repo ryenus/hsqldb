@@ -1355,14 +1355,50 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
     <section>
       <title>Table Manipulation</title>
 
-      <simpara>Table man</simpara>
+      <simpara>Table manipulation statements change the attributes of tables
+      or modify the objects such as columns and constraints.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET TABLE CLUSTERED</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET TABLE CLUSTERED</emphasis></simpara>
+
+      <simpara><emphasis>set table clustered property
+      (HyperSQL)</emphasis></simpara>
+
+      <simpara><literal>&lt;set table clustered statement&gt; ::= SET TABLE
+      &lt;table name&gt; CLUSTERED ON &lt;left paren&gt; &lt;column name
+      list&gt; &lt;right paren&gt;</literal></simpara>
+
+      <simpara>Set the row clustering property of a table. The &lt;column name
+      list&gt; is a list of column names that must correspond to the columns
+      of an existing PRIMARY KEY, UNIQUE or FOREIGN KEY index, or to the
+      columns of a user defined index. This statement is only valid for CACHED
+      or TEXT tables.</simpara>
+
+      <simpara>Tables rows are stored in the database files as they are
+      created, sometimes at the end of the file, sometimes in the middle of
+      the file. After a CHECKPOINT DEFRAG or SHUTDOWN COMPACT, the rows are
+      reordered according to the primary key of the table, or if there is no
+      primary key, in no particular order.</simpara>
+
+      <simpara>When several consecutive rows of a table are retrieved during
+      query execution it is more efficient to retrieve rows that are stored
+      adjacent to one another. After executing this command, nothing changes
+      until a CHECKPOINT DEFRAG or SHUTDOWN COMPACT or SHUTDOWN SCRIPT is
+      performed. After these operations, the rows are stored in the specified
+      clustered order. The property is stored in the database and applies to
+      all future reordering of rows. Note that if extensive inserts or updates
+      are performed on the tables, the rows will get out of order until the
+      next reordering. </simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET TABLE read-write property</primary>
       </indexterm>
 
       <simpara><emphasis role="bold">SET TABLE
-      writeability</emphasis></simpara>
+      writability</emphasis></simpara>
 
       <simpara><emphasis>set table write property
       (HyperSQL)</emphasis></simpara>
@@ -2562,7 +2598,10 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       [ASC | DESC] specifies if the column is indexed in the ascending or
       descending order, but has no effect on how the index is created (it is
       allowed for compatibility with other database engines). HyperSQL can use
-      all indexes in ascending or descending order as needed.</simpara>
+      all indexes in ascending or descending order as needed. Indexes should
+      not duplicate the columns of PRIMARY KEY, UNIQUE or FOREIGN key
+      constraints as each of these constraints creates an index
+      automatically.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP INDEX</primary>
