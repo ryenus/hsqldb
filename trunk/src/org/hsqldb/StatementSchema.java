@@ -1437,7 +1437,7 @@ public class StatementSchema extends Statement {
                 cascade);
     }
 
-    void checkSchemaUpdateAuthorisation(Session session, HsqlName schema) {
+    static void checkSchemaUpdateAuthorisation(Session session, HsqlName schema) {
 
         if (session.isProcessingLog) {
             return;
