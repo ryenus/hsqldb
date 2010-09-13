@@ -58,6 +58,7 @@ final class ScaledRAFile implements RandomAccessInterface {
     static final int DATA_FILE_NIO    = 1;
     static final int DATA_FILE_JAR    = 2;
     static final int DATA_FILE_STORED = 3;
+    static final int DATA_FILE_SINGLE = 4;
 
     // We are using persist.Logger-instance-specific FrameworkLogger
     // because it is Database-instance specific.

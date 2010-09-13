@@ -127,6 +127,20 @@ public class Logger {
     //
     public boolean isNewDatabase;
 
+    //
+    public boolean isSingleFile;
+
+    //
+    public final static String oldFileExtension        = ".old";
+    public final static String newFileExtension        = ".new";
+    public final static String appLogFileExtension     = ".app.log";
+    public final static String logFileExtension        = ".log";
+    public final static String scriptFileExtension     = ".script";
+    public final static String propertiesFileExtension = ".properties";
+    public final static String dataFileExtension       = ".data";
+    public final static String backupFileExtension     = ".backup";
+    public final static String lobsFileExtension       = ".lobs";
+
     public Logger(Database database) {
         this.database = database;
     }
@@ -177,11 +191,27 @@ public class Logger {
 
         propIsFileDatabase =
             DatabaseURL.isFileBasedDatabaseType(database.getType());
-
         database.databaseProperties = new HsqlDatabaseProperties(database);
-        isNewDatabase = !propIsFileDatabase
-                        || !fileAccess.isStreamElement(database.getPath()
-                            + ".script");
+
+        if (propIsFileDatabase) {
+            boolean exists = fileAccess.isStreamElement(database.getPath()
+                + scriptFileExtension);
+
+            if (!exists) {
+                exists = fileAccess.isStreamElement(database.getPath()
+                                                    + scriptFileExtension
+                                                    + Logger.newFileExtension);
+
+                if (exists) {
+                    database.databaseProperties.setDBModified(
+                        HsqlDatabaseProperties.FILES_MODIFIED_NEW);
+                }
+            }
+
+            isNewDatabase = !exists;
+        } else {
+            isNewDatabase = true;
+        }
 
         if (isNewDatabase) {
             String name = newUniqueName();
@@ -221,7 +251,7 @@ public class Logger {
 
         if (DatabaseURL.isFileBasedDatabaseType(database.getType())
                 && !database.isFilesReadOnly()) {
-            logPath = database.getPath() + ".app.log";
+            logPath = database.getPath() + appLogFileExtension;
         }
 
         this.appLog = new SimpleLog(logPath, propEventLogLevel);

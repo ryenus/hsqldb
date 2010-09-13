@@ -104,7 +104,7 @@ final class DataFileDefrag {
         try {
             OutputStream fos =
                 database.logger.getFileAccess().openOutputStreamElement(
-                    dataFileName + ".new");
+                    dataFileName + Logger.newFileExtension);
 
             fileStreamOut = new BufferedOutputStream(fos, 1 << 12);
 
@@ -139,9 +139,8 @@ final class DataFileDefrag {
                        ? ScaledRAFile.DATA_FILE_STORED
                        : ScaledRAFile.DATA_FILE_RAF;
 
-            dest = ScaledRAFile.newScaledRAFile(database,
-                                                dataFileName + ".new", false,
-                                                type);
+            dest = ScaledRAFile.newScaledRAFile(
+                database, dataFileName + Logger.newFileExtension, false, type);
 
             dest.seek(DataFileCache.LONG_FREE_POS_POS);
             dest.writeLong(fileOffset);
@@ -195,7 +194,7 @@ final class DataFileDefrag {
 
             if (!complete) {
                 database.logger.getFileAccess().removeElement(dataFileName
-                        + ".new");
+                        + Logger.newFileExtension);
             }
         }
 
