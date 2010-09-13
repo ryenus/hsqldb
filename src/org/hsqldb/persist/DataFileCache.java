@@ -50,7 +50,6 @@ import org.hsqldb.rowio.RowInputInterface;
 import org.hsqldb.rowio.RowOutputBinary180;
 import org.hsqldb.rowio.RowOutputBinaryEncode;
 import org.hsqldb.rowio.RowOutputInterface;
-import org.hsqldb.persist.RandomAccessInterface;
 import org.hsqldb.store.BitMap;
 
 /**
@@ -96,7 +95,7 @@ public class DataFileCache {
     protected boolean fileModified;
     protected int     cacheFileScale;
 
-    // post openning constant fields
+    // post opening constant fields
     protected boolean cacheReadonly;
 
     //
@@ -142,8 +141,8 @@ public class DataFileCache {
      */
     protected void initParams(Database database, String baseFileName) {
 
-        this.dataFileName   = baseFileName + ".data";
-        this.backupFileName = baseFileName + ".backup";
+        this.dataFileName   = baseFileName + Logger.dataFileExtension;
+        this.backupFileName = baseFileName + Logger.backupFileExtension;
         this.database       = database;
         fa                  = database.logger.getFileAccess();
         cacheFileScale      = database.logger.getCacheFileScale();
@@ -509,7 +508,7 @@ public class DataFileCache {
             database.schemaManager.setTempIndexRoots(dfd.getIndexRoots());
             database.logger.log.writeScript(false);
             database.getProperties().setDBModified(
-                HsqlDatabaseProperties.FILES_NEW);
+                HsqlDatabaseProperties.FILES_MODIFIED_NEW);
             database.logger.log.closeLog();
             database.logger.log.deleteLog();
             database.logger.log.renameNewScript();
@@ -582,6 +581,7 @@ public class DataFileCache {
             boolean result = dataFile.ensureLength(newFreePosition);
 
             if (!result) {
+
                 // throw with further database access consequences
             }
 
@@ -920,7 +920,8 @@ public class DataFileCache {
             }
 
             if (fa.isStreamElement(dataFileName)) {
-                FileArchiver.archive(dataFileName, backupFileName + ".new",
+                FileArchiver.archive(dataFileName,
+                                     backupFileName + Logger.newFileExtension,
                                      database.logger.getFileAccess(),
                                      FileArchiver.COMPRESSION_ZIP);
             }
@@ -944,9 +945,10 @@ public class DataFileCache {
                 return;
             }
 
-            if (fa.isStreamElement(backupFileName + ".new")) {
+            if (fa.isStreamElement(backupFileName + Logger.newFileExtension)) {
                 deleteBackup();
-                fa.renameElement(backupFileName + ".new", backupFileName);
+                fa.renameElement(backupFileName + Logger.newFileExtension,
+                                 backupFileName);
             }
         } finally {
             writeLock.unlock();
@@ -963,9 +965,10 @@ public class DataFileCache {
         writeLock.lock();
 
         try {
-            if (fa.isStreamElement(dataFileName + ".new")) {
+            if (fa.isStreamElement(dataFileName + Logger.newFileExtension)) {
                 deleteFile();
-                fa.renameElement(dataFileName + ".new", dataFileName);
+                fa.renameElement(dataFileName + Logger.newFileExtension,
+                                 dataFileName);
             }
         } finally {
             writeLock.unlock();
@@ -995,7 +998,7 @@ public class DataFileCache {
                     File[] list = file.getParentFile().listFiles();
 
                     for (int i = 0; i < list.length; i++) {
-                        if (list[i].getName().endsWith(".old")
+                        if (list[i].getName().endsWith(Logger.oldFileExtension)
                                 && list[i].getName().startsWith(
                                     file.getName())) {
                             list[i].delete();
@@ -1022,7 +1025,7 @@ public class DataFileCache {
         String timestamp = StringUtil.toPaddedString(
             Integer.toHexString((int) System.currentTimeMillis()), 8, '0',
             true);
-        String discardName = dataFileName + "." + timestamp + ".old";
+        String discardName = dataFileName + "." + timestamp + Logger.oldFileExtension;
 
         return discardName;
     }

@@ -106,8 +106,8 @@ public class Log {
         scriptFormat   = 0;
         writeDelay     = database.logger.propWriteDelay;
         filesReadOnly  = database.isFilesReadOnly();
-        scriptFileName = fileName + ".script";
-        logFileName    = fileName + ".log";
+        scriptFileName = fileName + Logger.scriptFileExtension;
+        logFileName    = fileName + Logger.logFileExtension;
     }
 
     /**
@@ -124,6 +124,9 @@ public class Log {
 
         switch (state) {
 
+            case HsqlDatabaseProperties.FILES_NEW :
+                break;
+
             case HsqlDatabaseProperties.FILES_MODIFIED :
                 deleteNewAndOldFiles();
                 processScript();
@@ -137,7 +140,7 @@ public class Log {
                 reopenAllTextCaches();
                 break;
 
-            case HsqlDatabaseProperties.FILES_NEW :
+            case HsqlDatabaseProperties.FILES_MODIFIED_NEW :
                 renameNewDataFile();
                 renameNewBackup();
                 renameNewScript();
@@ -196,7 +199,7 @@ public class Log {
         }
 
         // set this one last to save the props
-        properties.setDBModified(HsqlDatabaseProperties.FILES_NEW);
+        properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED_NEW);
         deleteLog();
 
         if (cache != null) {
@@ -234,65 +237,77 @@ public class Log {
      */
     void deleteNewAndOldFiles() {
 
-        fa.removeElement(fileName + ".data" + ".old");
-        fa.removeElement(fileName + ".data" + ".new");
-        fa.removeElement(fileName + ".backup" + ".new");
-        fa.removeElement(scriptFileName + ".new");
+        fa.removeElement(fileName + Logger.dataFileExtension + Logger.oldFileExtension);
+        fa.removeElement(fileName + Logger.dataFileExtension
+                         + Logger.newFileExtension);
+        fa.removeElement(fileName + Logger.backupFileExtension
+                         + Logger.newFileExtension);
+        fa.removeElement(scriptFileName + Logger.newFileExtension);
     }
 
     void deleteBackup() {
-        fa.removeElement(fileName + ".backup");
+        fa.removeElement(fileName + Logger.backupFileExtension);
     }
 
     void deleteData() {
-        fa.removeElement(fileName + ".data");
+        fa.removeElement(fileName + Logger.dataFileExtension);
     }
 
     void backupData() throws IOException {
 
         if (database.logger.propIncrementBackup) {
-            fa.removeElement(fileName + ".backup");
+            fa.removeElement(fileName + Logger.backupFileExtension);
 
             return;
         }
 
-        if (fa.isStreamElement(fileName + ".data")) {
-            FileArchiver.archive(fileName + ".data", fileName + ".backup.new",
-                                 database.logger.getFileAccess(),
-                                 FileArchiver.COMPRESSION_ZIP);
+        if (fa.isStreamElement(fileName + Logger.dataFileExtension)) {
+            FileArchiver.archive(
+                fileName + Logger.dataFileExtension,
+                fileName + Logger.backupFileExtension
+                + Logger.newFileExtension, database.logger.getFileAccess(),
+                                           FileArchiver.COMPRESSION_ZIP);
         }
     }
 
     void renameNewDataFile() {
 
-        if (fa.isStreamElement(fileName + ".data.new")) {
-            fa.renameElement(fileName + ".data.new", fileName + ".data");
+        if (fa.isStreamElement(fileName + Logger.dataFileExtension
+                               + Logger.newFileExtension)) {
+            fa.renameElement(fileName + Logger.dataFileExtension
+                             + Logger.newFileExtension, fileName
+                                 + Logger.dataFileExtension);
         }
     }
 
     void renameNewBackup() {
 
         // required for inc backup
-        fa.removeElement(fileName + ".backup");
+        fa.removeElement(fileName + Logger.backupFileExtension);
 
-        if (fa.isStreamElement(fileName + ".backup.new")) {
-            fa.renameElement(fileName + ".backup.new", fileName + ".backup");
+        if (fa.isStreamElement(fileName + Logger.backupFileExtension
+                               + Logger.newFileExtension)) {
+            fa.renameElement(fileName + Logger.backupFileExtension
+                             + Logger.newFileExtension, fileName
+                                 + Logger.backupFileExtension);
         }
     }
 
     void renameNewScript() {
 
-        if (fa.isStreamElement(scriptFileName + ".new")) {
-            fa.renameElement(scriptFileName + ".new", scriptFileName);
+        if (fa.isStreamElement(scriptFileName + Logger.newFileExtension)) {
+            fa.renameElement(scriptFileName + Logger.newFileExtension,
+                             scriptFileName);
         }
     }
 
     void deleteNewScript() {
-        fa.removeElement(scriptFileName + ".new");
+        fa.removeElement(scriptFileName + Logger.newFileExtension);
     }
 
     void deleteNewBackup() {
-        fa.removeElement(fileName + ".backup.new");
+        fa.removeElement(fileName + Logger.backupFileExtension
+                         + Logger.newFileExtension);
     }
 
     void deleteLog() {
@@ -394,7 +409,7 @@ public class Log {
             return false;
         }
 
-        properties.setDBModified(HsqlDatabaseProperties.FILES_NEW);
+        properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED_NEW);
         closeLog();
         deleteLog();
         renameNewScript();
@@ -701,11 +716,15 @@ public class Log {
         Crypto           crypto = database.logger.getCrypto();
 
         if (crypto == null) {
-            scw = new ScriptWriterText(database, scriptFileName + ".new",
-                                       full, true, false);
+            scw = new ScriptWriterText(database,
+                                       scriptFileName
+                                       + Logger.newFileExtension, full, true,
+                                           false);
         } else {
-            scw = new ScriptWriterEncode(database, scriptFileName + ".new",
-                                         full, crypto);
+            scw = new ScriptWriterEncode(database,
+                                         scriptFileName
+                                         + Logger.newFileExtension, full,
+                                             crypto);
         }
 
         scw.writeAll();
@@ -720,22 +739,20 @@ public class Log {
         ScriptReaderBase scr = null;
 
         try {
-            if (fa.isStreamElement(scriptFileName)) {
-                Crypto crypto = database.logger.getCrypto();
+            Crypto crypto = database.logger.getCrypto();
 
-                if (crypto == null) {
-                    scr = new ScriptReaderText(database, scriptFileName);
-                } else {
-                    scr = new ScriptReaderDecode(database, scriptFileName,
-                                                 crypto, false);
-                }
-
-                Session session =
-                    database.sessionManager.getSysSessionForScript(database);
-
-                scr.readAll(session);
-                scr.close();
+            if (crypto == null) {
+                scr = new ScriptReaderText(database, scriptFileName);
+            } else {
+                scr = new ScriptReaderDecode(database, scriptFileName, crypto,
+                                             false);
             }
+
+            Session session =
+                database.sessionManager.getSysSessionForScript(database);
+
+            scr.readAll(session);
+            scr.close();
         } catch (Throwable e) {
             if (scr != null) {
                 scr.close();

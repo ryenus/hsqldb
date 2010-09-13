@@ -125,10 +125,12 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     // db files modified
     public static final int     FILES_NOT_MODIFIED = 0;
     public static final int     FILES_MODIFIED     = 1;
-    public static final int     FILES_NEW          = 2;
+    public static final int     FILES_MODIFIED_NEW = 2;
+    public static final int     FILES_NEW          = 3;
     private static final String MODIFIED_NO        = "no";
     private static final String MODIFIED_YES       = "yes";
-    private static final String MODIFIED_NEW       = "no-new-files";
+    private static final String MODIFIED_YES_NEW   = "yes-new-files";
+    private static final String MODIFIED_NO_NEW    = "no-new-files";
 
     // allowed property metadata
     private static final HashMap dbMeta   = new HashMap(67);
@@ -446,7 +448,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
         // version of a new database
         setProperty(hsqldb_version, THIS_VERSION);
-        setProperty(hsqldb_modified, "no-new-files");
+        setProperty(hsqldb_modified, MODIFIED_NO_NEW);
 
         // OOo related code
         if (database.logger.isStoredFileAccess()) {
@@ -696,12 +698,25 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 //------------------------
     public void setDBModified(int mode) {
 
-        String value = MODIFIED_NO;
+        String value;
 
-        if (mode == FILES_MODIFIED) {
+        switch (mode) {
+
+            case FILES_NOT_MODIFIED :
+                value = MODIFIED_NO;
+                break;
+
+            case FILES_MODIFIED :
             value = MODIFIED_YES;
-        } else if (mode == FILES_NEW) {
-            value = MODIFIED_NEW;
+                break;
+
+            case FILES_MODIFIED_NEW :
+            value = MODIFIED_YES_NEW;
+                break;
+
+            default :
+                throw Error.runtimeError(ErrorCode.U_S0500,
+                                         "HsqlDatabaseProperties");
         }
 
         stringProps.put(hsqldb_modified, value);
@@ -710,11 +725,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     public int getDBModified() {
 
-        String value = getStringProperty("modified");
+        String value = getStringProperty(hsqldb_modified);
 
         if (MODIFIED_YES.equals(value)) {
             return FILES_MODIFIED;
-        } else if (MODIFIED_NEW.equals(value)) {
+        } else if (MODIFIED_YES_NEW.equals(value)) {
+            return FILES_MODIFIED_NEW;
+        } else if (MODIFIED_NO_NEW.equals(value)) {
             return FILES_NEW;
         }
 
