@@ -117,6 +117,7 @@ import org.hsqldb.persist.HsqlProperties;
  * use some of the more advanced features available under the JDBC 2
  * specification. <p>
  *
+ * </div> <!-- end release-specific documentation -->
  * <hr>
  *
  * <b>JDBC 4.0 notes:</b><p>

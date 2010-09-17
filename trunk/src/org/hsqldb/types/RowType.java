@@ -74,12 +74,12 @@ public class RowType extends Type {
         return "java.sql.ResultSet";
     }
 
-    public Integer getJDBCScale() {
-        return ValuePool.INTEGER_0;
+    public int getJDBCScale() {
+        return 0;
     }
 
     public int getJDBCPrecision() {
-        return ValuePool.INTEGER_0;
+        return 0;
     }
 
     public int getSQLGenericTypeCode() {

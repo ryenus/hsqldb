@@ -80,12 +80,12 @@ public class ArrayType extends Type {
         return "java.sql.Array";
     }
 
-    public Integer getJDBCScale() {
-        return ValuePool.INTEGER_0;
+    public int getJDBCScale() {
+        return 0;
     }
 
     public int getJDBCPrecision() {
-        return ValuePool.INTEGER_0;
+        return 0;
     }
 
     public int getSQLGenericTypeCode() {
