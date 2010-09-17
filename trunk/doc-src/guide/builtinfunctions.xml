@@ -145,6 +145,12 @@
     <para>Returns an INTEGER equal to the ASCII code value of the first
     character of <literal>&lt;char value expr&gt;</literal>. (JDBC)</para>
 
+    <indexterm significance="preferred" type="sql">
+      <primary>CHAR function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">CHAR</emphasis></simpara>
+
     <para><literal>CHAR ( &lt;UNICODE code&gt; ) </literal></para>
 
     <para>The argument is an INTEGER. Returns a character string containing a
@@ -1339,7 +1345,7 @@
     MONTH, DAY, HOUR, MINUTE, SECOND and MILLISECOND. (HyperSQL}</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>ROUND datetime function</primary>
+      <primary>ROUND function datetime</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">ROUND</emphasis></simpara>
@@ -1359,7 +1365,7 @@
     to the nearest day. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
-      <primary>TRUNC datetime function</primary>
+      <primary>TRUNC function datetime</primary>
     </indexterm>
 
     <simpara><emphasis role="bold">TRUNC</emphasis></simpara>
