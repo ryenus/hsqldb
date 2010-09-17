@@ -1642,7 +1642,7 @@ public class ParserDQL extends ParserBase {
 
         if (joinedTable) {
             range = new RangeVariableJoined(table, alias, columnList,
-                                      columnNameList, compileContext);
+                                            columnNameList, compileContext);
         } else {
             range = new RangeVariable(table, alias, columnList,
                                       columnNameList, compileContext);
@@ -4098,10 +4098,10 @@ public class ParserDQL extends ParserBase {
 
         if (e.getType() != OpTypes.FUNCTION
                 && e.getType() != OpTypes.SQL_FUNCTION) {
+            compileContext.subqueryDepth--;
+
             throw this.unexpectedToken(Tokens.T_TABLE);
         }
-
-        compileContext.subqueryDepth--;
 
         readThis(Tokens.CLOSEBRACKET);
 
@@ -4113,6 +4113,8 @@ public class ParserDQL extends ParserBase {
         sq.createTable();
 
         sq.sql = getLastPart(position);
+
+        compileContext.subqueryDepth--;
 
         return e;
     }

@@ -754,20 +754,22 @@ class DatabaseInformationMain extends DatabaseInformation {
                     }
                 }
 
-                row                  = t.getEmptyRowData();
-                row[iscope]          = scope;
-                row[icolumn_name]    = column.getName().name;
-                row[idata_type] = ValuePool.getInt(type.getJDBCTypeCode());
-                row[itype_name]      = type.getNameString();
+                row                 = t.getEmptyRowData();
+                row[iscope]         = scope;
+                row[icolumn_name]   = column.getName().name;
+                row[idata_type]     = ValuePool.getInt(type.getJDBCTypeCode());
+                row[itype_name]     = type.getNameString();
                 row[icolumn_size] = ValuePool.getInt(type.getJDBCPrecision());
-                row[ibuffer_length]  = null;
-                row[idecimal_digits] = type.getJDBCScale();
-                row[ipseudo_column]  = pseudo;
-                row[itable_cat]      = tableCatalog;
-                row[itable_schem]    = tableSchema;
-                row[itable_name]     = tableName;
+                row[ibuffer_length] = null;
+                row[idecimal_digits] = type.acceptsScale()
+                                       ? ValuePool.getInt(type.getJDBCScale())
+                                       : null;
+                row[ipseudo_column] = pseudo;
+                row[itable_cat]     = tableCatalog;
+                row[itable_schem]   = tableSchema;
+                row[itable_name]    = tableName;
                 row[inullable] = ValuePool.getInt(column.getNullability());
-                row[iinKey]          = inKey;
+                row[iinKey]         = inKey;
 
                 t.insertSys(session, store, row);
             }
@@ -2553,8 +2555,8 @@ class DatabaseInformationMain extends DatabaseInformation {
         final int       iinterval_precision = 18;
         PersistentStore store = session.sessionData.getRowStore(t);
         Object[]        row;
-        Iterator        it = Type.typeNames.keySet().iterator();
-        boolean translateTTI = database.sqlTranslateTTI;
+        Iterator        it           = Type.typeNames.keySet().iterator();
+        boolean         translateTTI = database.sqlTranslateTTI;
 
         while (it.hasNext()) {
             String typeName = (String) it.next();
@@ -2697,8 +2699,8 @@ class DatabaseInformationMain extends DatabaseInformation {
             return t;
         }
 
-        boolean translateTTI = database.sqlTranslateTTI;
-        PersistentStore store = session.sessionData.getRowStore(t);
+        boolean         translateTTI = database.sqlTranslateTTI;
+        PersistentStore store        = session.sessionData.getRowStore(t);
 
         // column number mappings
         final int type_catalog = 0;

@@ -707,11 +707,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
                 break;
 
             case FILES_MODIFIED :
-            value = MODIFIED_YES;
+                value = MODIFIED_YES;
                 break;
 
             case FILES_MODIFIED_NEW :
-            value = MODIFIED_YES_NEW;
+                value = MODIFIED_YES_NEW;
                 break;
 
             default :

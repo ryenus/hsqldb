@@ -237,7 +237,8 @@ public class Log {
      */
     void deleteNewAndOldFiles() {
 
-        fa.removeElement(fileName + Logger.dataFileExtension + Logger.oldFileExtension);
+        fa.removeElement(fileName + Logger.dataFileExtension
+                         + Logger.oldFileExtension);
         fa.removeElement(fileName + Logger.dataFileExtension
                          + Logger.newFileExtension);
         fa.removeElement(fileName + Logger.backupFileExtension

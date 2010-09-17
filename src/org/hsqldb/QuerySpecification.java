@@ -2118,7 +2118,7 @@ public class QuerySpecification extends QueryExpression {
 
         OrderedHashSet set = null;
 
-        for (int i = 0; i < indexStartAggregates; i++) {
+        for (int i = 0; i < indexLimitExpressions; i++) {
             set = exprColumns[i].collectAllSubqueries(set);
         }
 
