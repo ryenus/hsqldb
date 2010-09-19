@@ -53,6 +53,10 @@ import javax.sql.DataSource;
  */
 public class JDBCDataSourceFactory implements ObjectFactory {
 
+    /**
+     * Static method to create a JDBCDataSource instance using the
+     * given properties for url, user, password, etc.
+     */
     public static DataSource createDataSource(Properties props)
     throws Exception {
 
