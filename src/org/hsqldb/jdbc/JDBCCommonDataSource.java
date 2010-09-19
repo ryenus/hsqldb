@@ -121,6 +121,8 @@ public abstract class JDBCCommonDataSource {
      */
     public void setLoginTimeout(int seconds) throws SQLException {
         loginTimeout = seconds;
+        connectionProps.setProperty(
+                "loginTimeout", Integer.toString(loginTimeout));
     }
 
     /**
@@ -285,6 +287,7 @@ public abstract class JDBCCommonDataSource {
      */
     public void setPassword(String password) {
         this.password = password;
+        connectionProps.setProperty("password", password);
     }
 
     /**
@@ -293,6 +296,7 @@ public abstract class JDBCCommonDataSource {
      */
     public void setUser(String user) {
         this.user = user;
+        connectionProps.setProperty("user", user);
     }
 
     /**
@@ -300,17 +304,12 @@ public abstract class JDBCCommonDataSource {
      * set with one of the setXXX() methods it will be added to the Properties
      * object.
      *
-     * @param props properties
+     * @param props properties.  If null, then existing properties will be
+     *                           cleared/replaced.
      */
     public void setProperties(Properties props) {
-
-        if (props == null) {
-            connectionProps = null;
-
-            return;
-        }
-
-        connectionProps = (Properties) props.clone();
+        connectionProps = (props == null)
+                        ? new Properties() : (Properties) props.clone();
 
         if (user != null) {
             props.setProperty("user", user);
@@ -326,7 +325,7 @@ public abstract class JDBCCommonDataSource {
     }
 
     // ------------------------ internal implementation ------------------------
-    protected Properties connectionProps;
+    protected Properties connectionProps = new Properties();
 
     /** description of data source - informational */
     protected String description = null;
