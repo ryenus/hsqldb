@@ -52,13 +52,13 @@ import org.hsqldb.jdbc.JDBCDriver;
 
 /**
  * A data source that implements javax.sql.ConnectionPoolDataSource.
- * Basic implementation.
+ * For use by XA data source factories, not by end users.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
  * @version 2.0.1
  * @since JDK 1.2, HSQLDB 2.0
  */
-class JDBCPooledDataSource extends JDBCCommonDataSource
+public class JDBCPooledDataSource extends JDBCCommonDataSource
 implements ConnectionPoolDataSource, Serializable, Referenceable
 
 //#ifdef JAVA6
@@ -92,7 +92,7 @@ implements ConnectionPoolDataSource, Serializable, Referenceable
     /**
      * Retrieves the Reference of this object.
      *
-     * @return The non-null Reference of this object.
+     * @return The non-null javax.naming.Reference of this object.
      * @exception NamingException If a naming exception was encountered
      *          while retrieving the reference.
      */

@@ -616,7 +616,10 @@ public class Session implements SessionInterface {
      * Clear structures and reset variables to original.
      */
     public synchronized void resetSession() {
-
+        if (isClosed) {
+            return;
+        }
+       
         rollback(false);
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.clearAllTables();
