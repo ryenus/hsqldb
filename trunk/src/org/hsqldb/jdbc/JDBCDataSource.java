@@ -44,9 +44,6 @@ import javax.naming.Referenceable;
 import javax.naming.StringRefAddr;
 import javax.sql.DataSource;
 
-
-/* $Id$ */
-
 /**
  * <p>A factory for connections to the physical data source that this
  * <code>DataSource</code> object represents.  An alternative to the
