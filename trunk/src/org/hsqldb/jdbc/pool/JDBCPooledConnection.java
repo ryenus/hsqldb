@@ -72,7 +72,9 @@ implements PooledConnection, JDBCConnectionEventListener {
 
         isInUse = true;
 
-        return new JDBCConnection(connection, this);
+        userConnection = new JDBCConnection(connection, this);
+
+        return userConnection;
     }
 
     public void close() throws SQLException {
