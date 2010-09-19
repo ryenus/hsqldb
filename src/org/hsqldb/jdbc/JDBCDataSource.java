@@ -119,11 +119,11 @@ public class JDBCDataSource extends JDBCCommonDataSource
 
         if (connectionProps == null) {
             if (user == null) {
-                user = "";
+                throw Util.invalidArgument("user");
             }
 
             if (password == null) {
-                password = "";
+                throw Util.invalidArgument("password");
             }
             return getConnection(user, password);
         }
@@ -148,6 +148,14 @@ public class JDBCDataSource extends JDBCCommonDataSource
      */
     public Connection getConnection(String username,
                                     String password) throws SQLException {
+
+        if (user == null) {
+            throw Util.invalidArgument("user");
+        }
+
+        if (password == null) {
+            throw Util.invalidArgument("password");
+        }
 
         Properties props = new Properties();
         props.setProperty("user", username);

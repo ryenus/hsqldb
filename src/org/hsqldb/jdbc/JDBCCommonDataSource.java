@@ -215,7 +215,7 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Retrieves the description of the data source. <p>
+     * Sets the description of the data source. <p>
      *
      * @return the description
      */
@@ -224,7 +224,7 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Retrieves the name of the data source. <p>
+     * Sets the name of the data source. <p>
      *
      * @return the description
      */
@@ -233,7 +233,7 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Retrieves the network protocol of the data source. <p>
+     * Sets the network protocol of the data source. <p>
      *
      * @return the network protocol
      */
@@ -242,7 +242,7 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Retrieves the jdbc database connection url attribute. <p>
+     * Sets the jdbc database connection url attribute. <p>
      *
      * @return the jdbc database connection url attribute
      */
@@ -251,7 +251,7 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Retrieves the jdbc database connection url attribute. <p>
+     * Sets the jdbc database connection url attribute. <p>
      *
      * @return the jdbc database connection url attribute
      */
@@ -296,8 +296,9 @@ public abstract class JDBCCommonDataSource {
     }
 
     /**
-     * Sets connection properties. If user / password is not null, it
-     * will be added to the properties.
+     * Sets connection properties. If user / password / logginTimeout has been
+     * set with one of the setXXX() methods it will be added to the Properties
+     * object.
      *
      * @param props properties
      */
@@ -320,7 +321,7 @@ public abstract class JDBCCommonDataSource {
         }
 
         if (loginTimeout != 0) {
-            props.put("loginTimeout", Integer.toString(loginTimeout));
+            props.setProperty("loginTimeout", Integer.toString(loginTimeout));
         }
     }
 
