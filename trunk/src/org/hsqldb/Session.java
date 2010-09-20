@@ -616,10 +616,11 @@ public class Session implements SessionInterface {
      * Clear structures and reset variables to original.
      */
     public synchronized void resetSession() {
+
         if (isClosed) {
             return;
         }
-       
+
         rollback(false);
         sessionData.closeAllNavigators();
         sessionData.persistentStoreCollection.clearAllTables();
@@ -941,12 +942,18 @@ public class Session implements SessionInterface {
                     }
                 }
 
-                Object[] pvals  = (Object[]) cmd.valueData;
-                Result   result = executeCompiledStatement(cs, pvals);
+                try {
+                    Object[] pvals  = (Object[]) cmd.valueData;
+                    Result   result = executeCompiledStatement(cs, pvals);
 
-                result = performPostExecute(cmd, result);
+                    result = performPostExecute(cmd, result);
 
-                return result;
+                    return result;
+                } catch (Throwable t) {
+                    System.err.println(cs.getSQL());
+                    t.printStackTrace();
+                    return Result.newErrorResult(t);
+                }
             }
             case ResultConstants.BATCHEXECUTE : {
                 isBatch = true;
