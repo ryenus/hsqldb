@@ -351,6 +351,12 @@ class TransactionManagerCommon {
             for (int i = 0; i < waitingCount; i++) {
                 Session current = (Session) session.waitingSessions.get(i);
 
+                if (current.abortTransaction ) {
+                    canUnlock = true;
+
+                    break;
+                }
+
                 if (ArrayUtil
                         .containsAny(readLocks,
                                      current.sessionContext.currentStatement
