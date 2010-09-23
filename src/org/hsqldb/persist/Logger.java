@@ -424,6 +424,14 @@ public class Logger {
         database.sqlConvertTruncate =
             database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_convert_trunc);
+        database.sqlSyntaxMss = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_syntax_mss);
+        database.sqlSyntaxMys = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_syntax_mys);
+        database.sqlSyntaxOra = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_syntax_ora);
+        database.sqlSyntaxPgs = database.databaseProperties.isPropertyTrue(
+            HsqlDatabaseProperties.sql_syntax_pgs);
 
         if (database.databaseProperties.isPropertyTrue(
                 HsqlDatabaseProperties.sql_compare_in_locale)) {
@@ -1079,6 +1087,7 @@ public class Logger {
                 return new RowStoreAVLDisk(collection, cache, (Table) table);
 
             case TableBase.MEMORY_TABLE :
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.SYSTEM_TABLE :
                 return new RowStoreAVLMemory(collection, (Table) table);
 
@@ -1119,6 +1128,7 @@ public class Logger {
 
         switch (table.getTableType()) {
 
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.SYSTEM_TABLE :
             case TableBase.MEMORY_TABLE :
                 return new IndexAVLMemory(name, id, table, columns,

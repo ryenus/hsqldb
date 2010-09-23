@@ -61,6 +61,9 @@ public class SchemaManager {
     int               defaultTableType = TableBase.MEMORY_TABLE;
     long              schemaChangeTimestamp;
 
+    //
+    Table dualTable;
+
     public SchemaManager(Database database) {
 
         this.database         = database;
@@ -522,6 +525,16 @@ public class SchemaManager {
         }
 
         if (schema == null) {
+            if (session.database.sqlSyntaxOra) {
+                if (Tokens.T_DUAL.equals(name)) {
+                    if (dualTable == null) {
+                        createDualTable();
+                    }
+
+                    return dualTable;
+                }
+            }
+
             t = findSessionTable(session, name, null);
         }
 
@@ -1988,7 +2001,7 @@ public class SchemaManager {
         for (int i = 0; i < tableList.size(); i++) {
             Table table = (Table) tableList.get(i);
 
-            if (table.getTableType() == Table.SYSTEM_TABLE) {
+            if (table.getTableType() == Table.INFO_SCHEMA_TABLE) {
                 continue;
             }
 
@@ -2117,5 +2130,19 @@ public class SchemaManager {
 
     public int getDefaultTableType() {
         return defaultTableType;
+    }
+
+    private void createDualTable() {
+
+        dualTable =
+            TableUtil.newLookupTable(database,
+                                     SqlInvariants.DUAL_TABLE_HSQLNAME,
+                                     TableBase.SYSTEM_TABLE,
+                                     SqlInvariants.DUAL_COLUMN_HSQLNAME,
+                                     Type.SQL_VARCHAR);
+
+        dualTable.insertSys(database.sessionManager.getSysSession(),
+                            dualTable.store, new Object[]{"X"});
+        dualTable.setDataReadOnly(true);
     }
 }

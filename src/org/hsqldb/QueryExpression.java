@@ -186,8 +186,9 @@ public class QueryExpression {
 
         if (unresolvedExpressions != null) {
             for (int i = 0; i < unresolvedExpressions.size(); i++) {
-                Expression e    = (Expression) unresolvedExpressions.get(i);
-                HsqlList   list = e.resolveColumnReferences(outerRanges, null);
+                Expression e = (Expression) unresolvedExpressions.get(i);
+                HsqlList list = e.resolveColumnReferences(session,
+                    outerRanges, null);
 
                 ExpressionColumn.checkColumnsResolved(list);
             }

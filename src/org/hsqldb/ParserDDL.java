@@ -2125,8 +2125,8 @@ public class ParserDDL extends ParserRoutine {
 
             readThis(Tokens.CLOSEBRACKET);
 
-            HsqlList unresolved = condition.resolveColumnReferences(rangeVars,
-                null);
+            HsqlList unresolved = condition.resolveColumnReferences(session,
+                rangeVars, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);
             condition.resolveTypes(session, null);
@@ -3687,13 +3687,13 @@ public class ParserDDL extends ParserRoutine {
                     read();
 
                     if (readIfThis(Tokens.WITH)) {
-
                         long value = readBigint();
 
                         sequence.setCurrentValueNoCheck(value);
                     } else {
                         sequence.reset();
                     }
+
                     break;
                 }
                 case Tokens.SET :

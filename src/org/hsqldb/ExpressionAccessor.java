@@ -58,16 +58,18 @@ public class ExpressionAccessor extends Expression {
         return nodes[LEFT].getColumn();
     }
 
-    public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
+    public HsqlList resolveColumnReferences(Session session,
+            RangeVariable[] rangeVarArray, int rangeCount,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] == null) {
                 continue;
             }
 
-            unresolvedSet = nodes[i].resolveColumnReferences(rangeVarArray,
-                    rangeCount, unresolvedSet, acceptsSequences);
+            unresolvedSet = nodes[i].resolveColumnReferences(session,
+                    rangeVarArray, rangeCount, unresolvedSet,
+                    acceptsSequences);
         }
 
         return unresolvedSet;

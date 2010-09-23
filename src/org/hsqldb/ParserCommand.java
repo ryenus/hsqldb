@@ -750,7 +750,7 @@ public class ParserCommand extends ParserDDL {
                         read();
                         readThis(Tokens.ON);
 
-                        OrderedHashSet set   = new OrderedHashSet();
+                        OrderedHashSet set = new OrderedHashSet();
 
                         readThis(Tokens.OPENBRACKET);
                         readSimpleColumnNames(set, t);
@@ -1691,8 +1691,8 @@ public class ParserCommand extends ParserDDL {
         } else {
             e = XreadIntervalValueExpression();
 
-            HsqlList unresolved =
-                e.resolveColumnReferences(RangeVariable.emptyArray, null);
+            HsqlList unresolved = e.resolveColumnReferences(session,
+                RangeVariable.emptyArray, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);
             e.resolveTypes(session, null);

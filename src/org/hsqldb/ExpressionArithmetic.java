@@ -228,8 +228,9 @@ public class ExpressionArithmetic extends Expression {
         return sb.toString();
     }
 
-    public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
+    public HsqlList resolveColumnReferences(Session session,
+            RangeVariable[] rangeVarArray, int rangeCount,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -240,8 +241,9 @@ public class ExpressionArithmetic extends Expression {
                 continue;
             }
 
-            unresolvedSet = nodes[i].resolveColumnReferences(rangeVarArray,
-                    rangeCount, unresolvedSet, acceptsSequences);
+            unresolvedSet = nodes[i].resolveColumnReferences(session,
+                    rangeVarArray, rangeCount, unresolvedSet,
+                    acceptsSequences);
         }
 
         return unresolvedSet;

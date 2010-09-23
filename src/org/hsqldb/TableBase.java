@@ -50,17 +50,18 @@ import org.hsqldb.types.Type;
 public class TableBase {
 
     // types of table
-    public static final int SYSTEM_TABLE     = 1;
-    public static final int SYSTEM_SUBQUERY  = 2;
-    public static final int TEMP_TABLE       = 3;
-    public static final int MEMORY_TABLE     = 4;
-    public static final int CACHED_TABLE     = 5;
-    public static final int TEMP_TEXT_TABLE  = 6;
-    public static final int TEXT_TABLE       = 7;
-    public static final int VIEW_TABLE       = 8;
-    public static final int RESULT_TABLE     = 9;
-    public static final int TRANSITION_TABLE = 10;
-    public static final int FUNCTION_TABLE   = 11;
+    public static final int INFO_SCHEMA_TABLE = 1;
+    public static final int SYSTEM_SUBQUERY   = 2;
+    public static final int TEMP_TABLE        = 3;
+    public static final int MEMORY_TABLE      = 4;
+    public static final int CACHED_TABLE      = 5;
+    public static final int TEMP_TEXT_TABLE   = 6;
+    public static final int TEXT_TABLE        = 7;
+    public static final int VIEW_TABLE        = 8;
+    public static final int RESULT_TABLE      = 9;
+    public static final int TRANSITION_TABLE  = 10;
+    public static final int FUNCTION_TABLE    = 11;
+    public static final int SYSTEM_TABLE      = 12;
 
     //
     public static final int SCOPE_STATEMENT   = 21;

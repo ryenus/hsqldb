@@ -59,17 +59,16 @@ public class TableUtil {
         }
     }
 
-    static Table newLookupTable(Database database) {
+    static Table newLookupTable(Database database, HsqlName tableName,
+                                int tableType, HsqlName colName,
+                                Type colType) {
 
         TableDerived table;
-        HsqlName     name = database.nameManager.getSubqueryTableName();
 
-        table = new TableDerived(database, name, TableBase.SYSTEM_SUBQUERY,
-                                 null, null);
+        table = new TableDerived(database, tableName, tableType);
 
-        ColumnSchema column =
-            new ColumnSchema(HsqlNameManager.getAutoColumnName(0),
-                             Type.SQL_INTEGER, false, true, null);
+        ColumnSchema column = new ColumnSchema(colName, colType, false, true,
+                                               null);
 
         table.addColumn(column);
         table.createPrimaryKeyConstraint(table.getName(), new int[]{ 0 },
@@ -78,8 +77,7 @@ public class TableUtil {
         return table;
     }
 
-    static void setTableIndexesForSubquery(Table table,
-                                           boolean fullIndex,
+    static void setTableIndexesForSubquery(Table table, boolean fullIndex,
                                            boolean uniqueRows) {
 
         int[] cols = null;

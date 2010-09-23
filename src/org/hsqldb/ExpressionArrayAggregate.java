@@ -143,12 +143,12 @@ public class ExpressionArrayAggregate extends Expression {
         return sb.toString();
     }
 
-    public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
+    public HsqlList resolveColumnReferences(Session session,
+            RangeVariable[] rangeVarArray, int rangeCount,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
-        HsqlList conditionSet =
-            condition.resolveColumnReferences(rangeVarArray, rangeCount, null,
-                                              false);
+        HsqlList conditionSet = condition.resolveColumnReferences(session,
+            rangeVarArray, rangeCount, null, false);
 
         if (conditionSet != null) {
             ExpressionColumn.checkColumnsResolved(conditionSet);

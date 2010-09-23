@@ -590,7 +590,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
                 t.insertSys(session, store, row);
             }
 
-            if (table.getTableType() != Table.SYSTEM_TABLE
+            if (table.getTableType() != Table.INFO_SCHEMA_TABLE
                     && table.getName().comment == null) {
                 continue;
             }
@@ -600,7 +600,7 @@ extends org.hsqldb.dbinfo.DatabaseInformationMain {
             row[schema]  = table.getSchemaName().name;
             row[name]    = table.getName().name;
             row[type] = table.isView()
-                        || table.getTableType() == Table.SYSTEM_TABLE ? "VIEW"
+                        || table.getTableType() == Table.INFO_SCHEMA_TABLE ? "VIEW"
                                                                       : "TABLE";
             row[column_name] = null;
             row[remark]      = ti.getRemark();

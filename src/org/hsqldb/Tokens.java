@@ -642,10 +642,12 @@ public class Tokens {
     public static final String T_COMPRESSED           = "COMPRESSED";
     public static final String T_CONTROL              = "CONTROL";
     static final String        T_CURDATE              = "CURDATE";
+    static final String        T_CURRVAL              = "CURRVAL";
     static final String        T_CURTIME              = "CURTIME";
     public static final String T_DATABASE             = "DATABASE";
     public static final String T_DEFRAG               = "DEFRAG";
     public static final String T_DELAY                = "DELAY";
+    static final String        T_DUAL                 = "DUAL";
     static final String        T_EXPLAIN              = "EXPLAIN";
     public static final String T_EVENT                = "EVENT";
     static final String        T_FILE                 = "FILE";
@@ -673,6 +675,7 @@ public class Tokens {
     public static final String T_MEMORY              = "MEMORY";
     public static final String T_MILLIS              = "MILLIS";
     static final String        T_MINUS_EXCEPT        = "MINUS";
+    static final String        T_NEXTVAL             = "NEXTVAL";
     public static final String T_MVCC                = "MVCC";
     public static final String T_MVLOCKS             = "MVLOCKS";
     public static final String T_NIO                 = "NIO";
@@ -689,6 +692,7 @@ public class Tokens {
     static final String        T_REFERENTIAL         = "REFERENTIAL";
     static final String        T_RENAME              = "RENAME";
     static final String        T_RESTRICT            = "RESTRICT";
+    static final String        T_ROWNUM              = "ROWNUM";
     static final String        T_SCRIPT              = "SCRIPT";
     static final String        T_SCRIPTFORMAT        = "SCRIPTFORMAT";
     static final String        T_SEPARATOR           = "SEPARATOR";

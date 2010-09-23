@@ -234,6 +234,7 @@ public abstract class ScriptWriterBase implements Runnable {
                 needsSync = false;
                 isClosed  = true;
 
+                finishStream();
                 fileStreamOut.flush();
                 outDescriptor.sync();
                 fileStreamOut.close();
@@ -254,7 +255,6 @@ public abstract class ScriptWriterBase implements Runnable {
         try {
             writeDDL();
             writeExistingData();
-            finishStream();
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR);
         }
@@ -272,7 +272,8 @@ public abstract class ScriptWriterBase implements Runnable {
             OutputStream fos = fa.openOutputStreamElement(outFile);
 
             outDescriptor = fa.getFileSync(fos);
-            fileStreamOut = new BufferedOutputStream(fos, 2 << 12);
+            fileStreamOut = fos;
+//            fileStreamOut = new BufferedOutputStream(fos, 2 << 12);
         } catch (IOException e) {
             throw Error.error(e, ErrorCode.FILE_IO_ERROR,
                               ErrorCode.M_Message_Pair, new Object[] {

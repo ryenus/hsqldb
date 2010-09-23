@@ -438,7 +438,7 @@ class DatabaseInformationMain extends DatabaseInformation {
      */
     protected final Table createBlankTable(HsqlName name) {
 
-        Table table = new Table(database, name, TableBase.SYSTEM_TABLE);
+        Table table = new Table(database, name, TableBase.INFO_SCHEMA_TABLE);
 
         return table;
     }
@@ -3517,7 +3517,7 @@ class DatabaseInformationMain extends DatabaseInformation {
 
             switch (table.getTableType()) {
 
-                case TableBase.SYSTEM_TABLE :
+                case TableBase.INFO_SCHEMA_TABLE :
                 case TableBase.VIEW_TABLE :
                     row[table_type]         = "VIEW";
                     row[is_insertable_into] = "NO";

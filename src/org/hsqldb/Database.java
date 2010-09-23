@@ -96,6 +96,10 @@ public class Database {
     public boolean                sqlConcatNulls;
     public boolean                sqlUniqueNulls;
     public boolean                sqlConvertTruncate;
+    public boolean                sqlSyntaxMss;
+    public boolean                sqlSyntaxMys;
+    public boolean                sqlSyntaxOra;
+    public boolean                sqlSyntaxPgs;
     private boolean               isReferentialIntegrity;
     public HsqlDatabaseProperties databaseProperties;
     private final boolean         shutdownOnNoConnection;
