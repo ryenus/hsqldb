@@ -152,6 +152,7 @@ public class Table extends TableBase implements SchemaObject {
                 break;
 
             case SYSTEM_TABLE :
+            case INFO_SCHEMA_TABLE :
                 persistenceScope = SCOPE_FULL;
                 isSchemaBased    = true;
                 break;
@@ -1515,7 +1516,7 @@ public class Table extends TableBase implements SchemaObject {
 
 //            case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.SYSTEM_TABLE :
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
                 Index index = createIndexForColumns(session, new int[]{ col });
@@ -2125,7 +2126,7 @@ public class Table extends TableBase implements SchemaObject {
 
                 break;
             }
-            case TableBase.SYSTEM_TABLE : {
+            case TableBase.INFO_SCHEMA_TABLE : {
                 session.sessionData.persistentStoreCollection.registerIndex(
                     (Table) this);
 
@@ -2275,7 +2276,7 @@ public class Table extends TableBase implements SchemaObject {
 
 //            case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.SYSTEM_TABLE :
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
                 return true;
@@ -2300,7 +2301,7 @@ public class Table extends TableBase implements SchemaObject {
 
 //            case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.SYSTEM_TABLE :
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
                 Index index = createIndexForColumns(session, cols);
@@ -2366,7 +2367,7 @@ public class Table extends TableBase implements SchemaObject {
 
 //            case TableBase.MEMORY_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
-            case TableBase.SYSTEM_TABLE :
+            case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :
             case TableBase.TEMP_TABLE : {
                 selected = createIndexForColumns(session, set.toArray());
@@ -2782,7 +2783,7 @@ public class Table extends TableBase implements SchemaObject {
      */
     public PersistentStore getRowStore(Session session) {
 
-        if (tableType == TableBase.SYSTEM_TABLE) {
+        if (tableType == TableBase.INFO_SCHEMA_TABLE) {
             database.dbInfo.getSystemTable(session, this.getName().name);
 
             return session.sessionData.getRowStore(this);

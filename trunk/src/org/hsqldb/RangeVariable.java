@@ -635,12 +635,12 @@ public class RangeVariable implements Cloneable {
             if (subQuery.dataExpression != null) {
                 HsqlList unresolved =
                     subQuery.dataExpression.resolveColumnReferences(
-                        RangeVariable.emptyArray, null);
+                        session, RangeVariable.emptyArray, null);
 
                 if (unresolved != null) {
                     unresolved =
                         subQuery.dataExpression.resolveColumnReferences(
-                            rangeVariables, rangeCount, null, true);
+                            session, rangeVariables, rangeCount, null, true);
                 }
 
                 if (unresolved != null) {
@@ -661,8 +661,8 @@ public class RangeVariable implements Cloneable {
 
                 // todo resove against i ranges
                 HsqlList unresolved =
-                    Expression.resolveColumnSet(rangeVariables, rangeCount,
-                                                list, null);
+                    Expression.resolveColumnSet(session, rangeVariables,
+                                                rangeCount, list, null);
 
                 if (unresolved != null) {
                     throw Error.error(

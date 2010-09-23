@@ -79,12 +79,16 @@ public class SqlInvariants {
     public static final String   PUBLIC_SCHEMA      = "PUBLIC";
     public static final String   CLASSPATH_NAME     = "CLASSPATH";
     public static final String   MODULE             = "MODULE";
+    public static final String   DUAL               = "DUAL";
+    public static final String   DUMMY              = "DUMMY";
     public static final HsqlName INFORMATION_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SCHEMA_HSQLNAME;
     public static final HsqlName LOBS_SCHEMA_HSQLNAME;
     public static final HsqlName SQLJ_SCHEMA_HSQLNAME;
     public static final HsqlName SYSTEM_SUBQUERY_HSQLNAME;
     public static final HsqlName MODULE_HSQLNAME;
+    public static final HsqlName DUAL_TABLE_HSQLNAME;
+    public static final HsqlName DUAL_COLUMN_HSQLNAME;
 
     static {
         INFORMATION_SCHEMA_HSQLNAME =
@@ -102,6 +106,12 @@ public class SqlInvariants {
                 SchemaObject.TABLE);
         MODULE_HSQLNAME =
             HsqlNameManager.newSystemObjectName(MODULE, SchemaObject.SCHEMA);
+
+        DUAL_TABLE_HSQLNAME =
+            HsqlNameManager.newSystemObjectName(DUAL, SchemaObject.SCHEMA);
+
+        DUAL_COLUMN_HSQLNAME =
+            HsqlNameManager.newSystemObjectName(DUMMY, SchemaObject.SCHEMA);
 
         SYSTEM_SUBQUERY_HSQLNAME.setSchemaIfNull(SYSTEM_SCHEMA_HSQLNAME);
     }

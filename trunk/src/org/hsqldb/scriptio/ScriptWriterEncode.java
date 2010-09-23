@@ -52,6 +52,7 @@ public class ScriptWriterEncode extends ScriptWriterText {
 
     Crypto                    crypto;
     HsqlByteArrayOutputStream byteOut;
+    int                       writeCount;
 
     public ScriptWriterEncode(Database db, OutputStream outputStream,
                               FileAccess.FileSync descriptor,
@@ -94,20 +95,21 @@ public class ScriptWriterEncode extends ScriptWriterText {
         byteOut     = new HsqlByteArrayOutputStream();
     }
 
+    /**
+     * Always use before a final flush()
+     */
     protected void finishStream() throws IOException {
 
         if (fileStreamOut instanceof GZIPOutputStream) {
             ((GZIPOutputStream) fileStreamOut).finish();
         }
-
-        fileStreamOut.flush();
     }
 
     void writeRowOutToFile() throws IOException {
 
         synchronized (fileStreamOut) {
             if (byteOut == null) {
-                super.writeRowOutToFile();
+                fileStreamOut.write(rowOut.getBuffer(), 0, rowOut.size());
 
                 return;
             }

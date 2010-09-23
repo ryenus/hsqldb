@@ -81,6 +81,9 @@ public class SessionContext {
     //
     public Statement currentStatement;
 
+    //
+    public int rownum;
+
     /**
      * Reusable set of all FK constraints that have so far been enforced while
      * a cascading insert or delete is in progress.
@@ -126,6 +129,7 @@ public class SessionContext {
         stack.add(isReadOnly);
         stack.add(noSQL);
         stack.add(ValuePool.getInt(currentMaxRows));
+        stack.add(ValuePool.getInt(rownum));
 
         rangeIterators      = new RangeIterator[4];
         savepoints          = new HashMappedList(4);
@@ -140,6 +144,7 @@ public class SessionContext {
 
         session.sessionData.persistentStoreCollection.pop();
 
+        rownum = ((Integer) stack.remove(stack.size() - 1)).intValue();
         currentMaxRows = ((Integer) stack.remove(stack.size() - 1)).intValue();
         noSQL               = (Boolean) stack.remove(stack.size() - 1);
         isReadOnly          = (Boolean) stack.remove(stack.size() - 1);

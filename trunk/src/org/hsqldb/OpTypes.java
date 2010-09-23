@@ -43,6 +43,8 @@ public interface OpTypes {
         DYNAMIC_PARAM        = 8,
         ASTERISK             = 9,
         SEQUENCE             = 10,
+        SEQUENCE_CURRENT     = 11,
+        ROWNUM               = 12,
         ARRAY                = 19,
         MULTISET             = 20,
         SCALAR_SUBQUERY      = 21,    // query based row or table

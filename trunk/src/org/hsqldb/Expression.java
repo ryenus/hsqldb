@@ -906,14 +906,17 @@ public class Expression implements Cloneable {
     /**
      * resolve tables and collect unresolved column expressions
      */
-    public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            HsqlList unresolvedSet) {
-        return resolveColumnReferences(rangeVarArray, rangeVarArray.length,
-                                       unresolvedSet, true);
+    public HsqlList resolveColumnReferences(Session session,
+            RangeVariable[] rangeVarArray, HsqlList unresolvedSet) {
+
+        return resolveColumnReferences(session, rangeVarArray,
+                                       rangeVarArray.length, unresolvedSet,
+                                       true);
     }
 
-    public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
+    public HsqlList resolveColumnReferences(Session session,
+            RangeVariable[] rangeVarArray, int rangeCount,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         if (opType == OpTypes.VALUE) {
             return unresolvedSet;
@@ -933,8 +936,8 @@ public class Expression implements Cloneable {
                         continue;
                     }
 
-                    localSet = nodes[i].resolveColumnReferences(
-                        RangeVariable.emptyArray, localSet);
+                    localSet = nodes[i].resolveColumnReferences(session,
+                            RangeVariable.emptyArray, localSet);
                 }
 
                 if (localSet != null) {
@@ -947,13 +950,13 @@ public class Expression implements Cloneable {
                     for (int i = 0; i < localSet.size(); i++) {
                         Expression e = (Expression) localSet.get(i);
 
-                        unresolvedSet =
-                            e.resolveColumnReferences(rangeVarArray,
-                                                      unresolvedSet);
+                        unresolvedSet = e.resolveColumnReferences(session,
+                                rangeVarArray, unresolvedSet);
                     }
 
-                    unresolvedSet = Expression.resolveColumnSet(rangeVarArray,
-                            rangeVarArray.length, localSet, unresolvedSet);
+                    unresolvedSet = Expression.resolveColumnSet(session,
+                            rangeVarArray, rangeVarArray.length, localSet,
+                            unresolvedSet);
                 }
 
                 return unresolvedSet;
@@ -965,8 +968,9 @@ public class Expression implements Cloneable {
                 continue;
             }
 
-            unresolvedSet = nodes[i].resolveColumnReferences(rangeVarArray,
-                    rangeCount, unresolvedSet, acceptsSequences);
+            unresolvedSet = nodes[i].resolveColumnReferences(session,
+                    rangeVarArray, rangeCount, unresolvedSet,
+                    acceptsSequences);
         }
 
         switch (opType) {
@@ -1541,7 +1545,7 @@ public class Expression implements Cloneable {
 
         boolean        nonDeterministic = false;
         OrderedHashSet set              = new OrderedHashSet();
-        HsqlList       unresolved = resolveColumnReferences(ranges, null);
+        HsqlList unresolved = resolveColumnReferences(session, ranges, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         resolveTypes(session, null);
@@ -1856,7 +1860,8 @@ public class Expression implements Cloneable {
         }
     }
 
-    static HsqlList resolveColumnSet(RangeVariable[] rangeVars,
+    static HsqlList resolveColumnSet(Session session,
+                                     RangeVariable[] rangeVars,
                                      int rangeCount, HsqlList sourceSet,
                                      HsqlList targetSet) {
 
@@ -1867,8 +1872,9 @@ public class Expression implements Cloneable {
         for (int i = 0; i < sourceSet.size(); i++) {
             Expression e = (Expression) sourceSet.get(i);
 
-            targetSet = e.resolveColumnReferences(rangeVars, rangeCount,
-                                                  targetSet, true);
+            targetSet = e.resolveColumnReferences(session, rangeVars,
+                                                  rangeCount, targetSet,
+                                                  false);
         }
 
         return targetSet;

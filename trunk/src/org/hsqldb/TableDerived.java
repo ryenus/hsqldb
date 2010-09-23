@@ -57,7 +57,8 @@ public class TableDerived extends Table {
         super(database, name, type);
 
         switch (type) {
-
+            case TableBase.SYSTEM_TABLE :
+                // for special use, not INFORMATION_SCHEMA views
             case TableBase.FUNCTION_TABLE :
             case TableBase.VIEW_TABLE :
                 break;

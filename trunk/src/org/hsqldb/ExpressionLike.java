@@ -77,13 +77,15 @@ public final class ExpressionLike extends ExpressionLogical {
         this.likeObject = other.likeObject;
     }
 
-    public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
+    public HsqlList resolveColumnReferences(Session session,
+            RangeVariable[] rangeVarArray, int rangeCount,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         for (int i = 0; i < nodes.length; i++) {
             if (nodes[i] != null) {
-                unresolvedSet = nodes[i].resolveColumnReferences(rangeVarArray,
-                        rangeCount, unresolvedSet, acceptsSequences);
+                unresolvedSet = nodes[i].resolveColumnReferences(session,
+                        rangeVarArray, rangeCount, unresolvedSet,
+                        acceptsSequences);
             }
         }
 

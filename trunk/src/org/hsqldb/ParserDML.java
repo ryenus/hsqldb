@@ -193,8 +193,8 @@ public class ParserDML extends ParserDQL {
                 Expression insertExpressions =
                     XreadContextuallyTypedTable(colCount);
                 HsqlList unresolved =
-                    insertExpressions.resolveColumnReferences(outerRanges,
-                        null);
+                    insertExpressions.resolveColumnReferences(session,
+                        outerRanges, null);
 
                 ExpressionColumn.checkColumnsResolved(unresolved);
                 insertExpressions.resolveTypes(session, null);
@@ -417,10 +417,10 @@ public class ParserDML extends ParserDQL {
 
             condition = XreadBooleanValueExpression();
 
-            HsqlList unresolved =
-                condition.resolveColumnReferences(outerRanges, null);
+            HsqlList unresolved = condition.resolveColumnReferences(session,
+                outerRanges, null);
 
-            unresolved = Expression.resolveColumnSet(rangeVariables,
+            unresolved = Expression.resolveColumnSet(session, rangeVariables,
                     rangeVariables.length, unresolved, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);
@@ -543,10 +543,10 @@ public class ParserDML extends ParserDQL {
 
             condition = XreadBooleanValueExpression();
 
-            HsqlList unresolved =
-                condition.resolveColumnReferences(outerRanges, null);
+            HsqlList unresolved = condition.resolveColumnReferences(session,
+                outerRanges, null);
 
-            unresolved = Expression.resolveColumnSet(rangeVariables,
+            unresolved = Expression.resolveColumnSet(session, rangeVariables,
                     rangeVariables.length, unresolved, null);
 
             ExpressionColumn.checkColumnsResolved(unresolved);
@@ -691,12 +691,11 @@ public class ParserDML extends ParserDQL {
                             throw Error.error(ErrorCode.X_42544);
                         }
                     } else {
-                        unresolved = expr.resolveColumnReferences(outerRanges,
-                                null);
-                        unresolved =
-                            Expression.resolveColumnSet(rangeVariables,
-                                                        rangeVariables.length,
-                                                        unresolved, null);
+                        unresolved = expr.resolveColumnReferences(session,
+                                outerRanges, null);
+                        unresolved = Expression.resolveColumnSet(session,
+                                rangeVariables, rangeVariables.length,
+                                unresolved, null);
 
                         ExpressionColumn.checkColumnsResolved(unresolved);
 
@@ -706,9 +705,11 @@ public class ParserDML extends ParserDQL {
                     }
                 }
             } else if (expr.getType() == OpTypes.ROW_SUBQUERY) {
-                unresolved = expr.resolveColumnReferences(outerRanges, null);
-                unresolved = Expression.resolveColumnSet(rangeVariables,
-                        rangeVariables.length, unresolved, null);
+                unresolved = expr.resolveColumnReferences(session,
+                        outerRanges, null);
+                unresolved = Expression.resolveColumnSet(session,
+                        rangeVariables, rangeVariables.length, unresolved,
+                        null);
 
                 ExpressionColumn.checkColumnsResolved(unresolved);
                 expr.resolveTypes(session, null);
@@ -738,10 +739,11 @@ public class ParserDML extends ParserDQL {
                         throw Error.error(ErrorCode.X_42544);
                     }
                 } else {
-                    unresolved = expr.resolveColumnReferences(outerRanges,
+                    unresolved = expr.resolveColumnReferences(session,
+                            outerRanges, null);
+                    unresolved = Expression.resolveColumnSet(session,
+                            rangeVariables, rangeVariables.length, unresolved,
                             null);
-                    unresolved = Expression.resolveColumnSet(rangeVariables,
-                            rangeVariables.length, unresolved, null);
 
                     ExpressionColumn.checkColumnsResolved(unresolved);
                     e.resolveTypes(session, null);
@@ -948,8 +950,8 @@ public class ParserDML extends ParserDQL {
 
         HsqlList unresolved = null;
 
-        unresolved = mergeCondition.resolveColumnReferences(fullRangeVars,
-                null);
+        unresolved = mergeCondition.resolveColumnReferences(session,
+                fullRangeVars, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         mergeCondition.resolveTypes(session, null);
@@ -971,9 +973,8 @@ public class ParserDML extends ParserDQL {
         fullRangeVars = resolver.rangeVariables;
 
         if (insertExpression != null) {
-            unresolved =
-                insertExpression.resolveColumnReferences(sourceRangeVars,
-                    unresolved);
+            unresolved = insertExpression.resolveColumnReferences(session,
+                    sourceRangeVars, unresolved);
 
             ExpressionColumn.checkColumnsResolved(unresolved);
             insertExpression.resolveTypes(session, null);
@@ -1132,8 +1133,8 @@ public class ParserDML extends ParserDQL {
                             routine.getParameter(i).getParameterMode();
 
                         unresolved =
-                            arguments[i].resolveColumnReferences(outerRanges,
-                                unresolved);
+                            arguments[i].resolveColumnReferences(session,
+                                outerRanges, unresolved);
 
                         if (paramMode
                                 != SchemaObject.ParameterModes.PARAM_IN) {
@@ -1168,8 +1169,8 @@ public class ParserDML extends ParserDQL {
         }
 
         Expression expression = this.XreadValueExpression();
-        HsqlList unresolved = expression.resolveColumnReferences(outerRanges,
-            null);
+        HsqlList unresolved = expression.resolveColumnReferences(session,
+            outerRanges, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         expression.resolveTypes(session, null);
@@ -1184,11 +1185,11 @@ public class ParserDML extends ParserDQL {
     void resolveOuterReferencesAndTypes(RangeVariable[] rangeVars,
                                         Expression e) {
 
-        HsqlList unresolved = e.resolveColumnReferences(rangeVars,
+        HsqlList unresolved = e.resolveColumnReferences(session, rangeVars,
             rangeVars.length, null, false);
 
-        unresolved = Expression.resolveColumnSet(rangeVars, rangeVars.length,
-                unresolved, null);
+        unresolved = Expression.resolveColumnSet(session, rangeVars,
+                rangeVars.length, unresolved, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         e.resolveTypes(session, null);

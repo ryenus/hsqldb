@@ -138,13 +138,13 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     // versions
     public static final String VERSION_STRING_1_8_0 = "1.8.0";
-    public static final String THIS_VERSION         = "2.0.1";
-    public static final String THIS_FULL_VERSION    = "2.0.1";
+    public static final String THIS_VERSION         = "2.0.0";
+    public static final String THIS_FULL_VERSION    = "2.0.0";
     public static final String THIS_CACHE_VERSION   = "2.0.0";
     public static final String PRODUCT_NAME         = "HSQL Database Engine";
     public static final int    MAJOR                = 2,
                                MINOR                = 0,
-                               REVISION             = 1;
+                               REVISION             = 0;
 
     /**
      * system properties supported by HSQLDB
@@ -227,7 +227,11 @@ public class HsqlDatabaseProperties extends HsqlProperties {
     public static final String sql_concat_nulls  = "sql.concat_nulls";
     public static final String sql_unique_nulls  = "sql.unique_nulls";
     public static final String sql_convert_trunc = "sql.convert_trunc";
-    public static final String sql_enforce_any   = "sql.enforce_any";    // unused
+    public static final String sql_syntax_ora    = "sql.syntax_ora";
+    public static final String sql_syntax_pgs    = "sql.syntax_pgs";
+    public static final String sql_syntax_mss    = "sql.syntax_mss";
+    public static final String sql_syntax_mys    = "sql.syntax_mys";
+
     public static final String jdbc_translate_tti_types =
         "jdbc.translate_tti_types";
     public static final String sql_identity_is_pk = "sql.identity_is_pk";
@@ -364,9 +368,20 @@ public class HsqlDatabaseProperties extends HsqlProperties {
         dbMeta.put(sql_convert_trunc,
                    HsqlProperties.getMeta(sql_convert_trunc, SQL_PROPERTY,
                                           true));
-        dbMeta.put(sql_enforce_any,
-                   HsqlProperties.getMeta(sql_enforce_any, SQL_PROPERTY,
-                                          true));
+        dbMeta.put(sql_syntax_ora,
+                   HsqlProperties.getMeta(sql_syntax_ora, SQL_PROPERTY,
+                                          false));
+        dbMeta.put(sql_syntax_mss,
+                   HsqlProperties.getMeta(sql_syntax_mss, SQL_PROPERTY,
+                                          false));
+        dbMeta.put(sql_syntax_mys,
+                   HsqlProperties.getMeta(sql_syntax_mys, SQL_PROPERTY,
+                                          false));
+
+        dbMeta.put(sql_syntax_pgs,
+                   HsqlProperties.getMeta(sql_syntax_pgs, SQL_PROPERTY,
+                                          false));
+
         dbMeta.put(sql_compare_in_locale,
                    HsqlProperties.getMeta(sql_compare_in_locale, SQL_PROPERTY,
                                           false));

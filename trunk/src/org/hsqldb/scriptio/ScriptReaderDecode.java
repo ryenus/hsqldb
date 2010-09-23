@@ -78,8 +78,10 @@ public class ScriptReaderDecode extends ScriptReaderText {
         } else {
             InputStream stream = crypto.getInputStream(inputStream);
 
-            stream       = new GZIPInputStream(stream);
-            dataStreamIn = new BufferedReader(new InputStreamReader(stream));
+            stream = new GZIPInputStream(stream);
+            dataStreamIn = new BufferedReader(
+                new InputStreamReader(stream, ScriptWriterText.ISO_8859_1),
+                1024*16);
         }
     }
 

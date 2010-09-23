@@ -69,7 +69,8 @@ import org.hsqldb.rowio.RowOutputTextLog;
  */
 public class ScriptWriterText extends ScriptWriterBase {
 
-    RowOutputTextLog rowOut;
+    RowOutputTextLog           rowOut;
+    public final static String ISO_8859_1 = "ISO-8859-1";
 
     /** @todo - perhaps move this global into a lib utility class */
     public static byte[] BYTES_LINE_SEP;
@@ -90,17 +91,17 @@ public class ScriptWriterText extends ScriptWriterBase {
 
         try {
             BYTES_LINE_SEP     = sLineSep.getBytes();
-            BYTES_COMMIT       = "COMMIT".getBytes("ISO-8859-1");
-            BYTES_INSERT_INTO  = "INSERT INTO ".getBytes("ISO-8859-1");
-            BYTES_VALUES       = " VALUES(".getBytes("ISO-8859-1");
-            BYTES_TERM         = ")".getBytes("ISO-8859-1");
-            BYTES_DELETE_FROM  = "DELETE FROM ".getBytes("ISO-8859-1");
-            BYTES_WHERE        = " WHERE ".getBytes("ISO-8859-1");
-            BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes("ISO-8859-1");
-            BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes("ISO-8859-1");
-            BYTES_C_ID_INIT    = "/*C".getBytes("ISO-8859-1");
-            BYTES_C_ID_TERM    = "*/".getBytes("ISO-8859-1");
-            BYTES_SCHEMA       = "SET SCHEMA ".getBytes("ISO-8859-1");
+            BYTES_COMMIT       = "COMMIT".getBytes(ISO_8859_1);
+            BYTES_INSERT_INTO  = "INSERT INTO ".getBytes(ISO_8859_1);
+            BYTES_VALUES       = " VALUES(".getBytes(ISO_8859_1);
+            BYTES_TERM         = ")".getBytes(ISO_8859_1);
+            BYTES_DELETE_FROM  = "DELETE FROM ".getBytes(ISO_8859_1);
+            BYTES_WHERE        = " WHERE ".getBytes(ISO_8859_1);
+            BYTES_SEQUENCE     = "ALTER SEQUENCE ".getBytes(ISO_8859_1);
+            BYTES_SEQUENCE_MID = " RESTART WITH ".getBytes(ISO_8859_1);
+            BYTES_C_ID_INIT    = "/*C".getBytes(ISO_8859_1);
+            BYTES_C_ID_TERM    = "*/".getBytes(ISO_8859_1);
+            BYTES_SCHEMA       = "SET SCHEMA ".getBytes(ISO_8859_1);
         } catch (UnsupportedEncodingException e) {
             Error.runtimeError(ErrorCode.U_S0500, "ScriptWriterText");
         }

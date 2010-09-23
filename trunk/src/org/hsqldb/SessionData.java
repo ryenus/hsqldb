@@ -92,7 +92,7 @@ public class SessionData {
     // transitional feature
     public PersistentStore getRowStore(TableBase table) {
 
-        if (table.tableType == TableBase.SYSTEM_TABLE) {
+        if (table.tableType == TableBase.INFO_SCHEMA_TABLE) {
             if (session.isAdmin()) {
                 return table.store;
             }

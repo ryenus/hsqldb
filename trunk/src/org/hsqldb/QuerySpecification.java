@@ -239,7 +239,7 @@ public class QuerySpecification extends QueryExpression {
         resolveRangeVariables(session);
         resolveColumnReferencesForAsterisk();
         finaliseColumns();
-        resolveColumnReferences();
+        resolveColumnReferences(session);
 
         unionColumnTypes = new Type[indexLimitVisible];
 
@@ -251,7 +251,7 @@ public class QuerySpecification extends QueryExpression {
      * Replaces any alias column expression in the ORDER BY cluase
      * with the actual select column expression.
      */
-    private void resolveColumnReferences() {
+    private void resolveColumnReferences(Session session) {
 
         if (isDistinctSelect || isGrouped) {
             acceptsSequences = false;
@@ -264,10 +264,10 @@ public class QuerySpecification extends QueryExpression {
                 continue;
             }
 
-            resolveColumnReferencesAndAllocate(e, i + 1, false);
+            resolveColumnReferencesAndAllocate(session, e, i + 1, false);
         }
 
-        resolveColumnReferencesAndAllocate(queryCondition,
+        resolveColumnReferencesAndAllocate(session, queryCondition,
                                            rangeVariables.length, false);
 
         if (resolvedSubqueryExpressions != null) {
@@ -277,24 +277,26 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0; i < indexLimitVisible; i++) {
-            resolveColumnReferencesAndAllocate(exprColumns[i],
+            resolveColumnReferencesAndAllocate(session, exprColumns[i],
                                                rangeVariables.length,
                                                acceptsSequences);
         }
 
         for (int i = indexLimitVisible; i < indexStartHaving; i++) {
-            exprColumns[i] = resolveColumnReferencesInGroupBy(exprColumns[i]);
+            exprColumns[i] = resolveColumnReferencesInGroupBy(session,
+                    exprColumns[i]);
         }
 
         for (int i = indexStartHaving; i < indexStartOrderBy; i++) {
-            resolveColumnReferencesAndAllocate(exprColumns[i],
+            resolveColumnReferencesAndAllocate(session, exprColumns[i],
                                                rangeVariables.length, false);
         }
 
-        resolveColumnRefernecesInOrderBy(sortAndSlice);
+        resolveColumnRefernecesInOrderBy(session, sortAndSlice);
     }
 
-    void resolveColumnRefernecesInOrderBy(SortAndSlice sortAndSlice) {
+    void resolveColumnRefernecesInOrderBy(Session session,
+                                          SortAndSlice sortAndSlice) {
 
         // replace the aliases with expressions
         // replace column names with expressions and resolve the table columns
@@ -317,8 +319,8 @@ public class QuerySpecification extends QueryExpression {
             }
 
             e.replaceAliasInOrderBy(exprColumns, indexLimitVisible);
-            resolveColumnReferencesAndAllocate(e, rangeVariables.length,
-                                               false);
+            resolveColumnReferencesAndAllocate(session, e,
+                                               rangeVariables.length, false);
 
             if (isAggregated || isGrouped) {
                 boolean check = e.getLeftNode().isComposedOf(exprColumns, 0,
@@ -334,8 +336,8 @@ public class QuerySpecification extends QueryExpression {
         sortAndSlice.prepare(this);
     }
 
-    private boolean resolveColumnReferences(Expression e, int rangeCount,
-            boolean withSequences) {
+    private boolean resolveColumnReferences(Session session, Expression e,
+            int rangeCount, boolean withSequences) {
 
         if (e == null) {
             return true;
@@ -345,8 +347,9 @@ public class QuerySpecification extends QueryExpression {
                                                     : unresolvedExpressions
                                                         .size();
 
-        unresolvedExpressions = e.resolveColumnReferences(rangeVariables,
-                rangeCount, unresolvedExpressions, withSequences);
+        unresolvedExpressions = e.resolveColumnReferences(session,
+                rangeVariables, rangeCount, unresolvedExpressions,
+                withSequences);
 
         int newSize = unresolvedExpressions == null ? 0
                                                     : unresolvedExpressions
@@ -394,15 +397,15 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private void resolveColumnReferencesAndAllocate(Expression expression,
-            int count, boolean withSequences) {
+    private void resolveColumnReferencesAndAllocate(Session session,
+            Expression expression, int count, boolean withSequences) {
 
         if (expression == null) {
             return;
         }
 
-        HsqlList list = expression.resolveColumnReferences(rangeVariables,
-            count, null, withSequences);
+        HsqlList list = expression.resolveColumnReferences(session,
+            rangeVariables, count, null, withSequences);
 
         if (list != null) {
             for (int i = 0; i < list.size(); i++) {
@@ -412,14 +415,15 @@ public class QuerySpecification extends QueryExpression {
                 if (e.isSelfAggregate()) {
                     for (int j = 0; j < e.nodes.length; j++) {
                         HsqlList colList =
-                            e.nodes[j].resolveColumnReferences(rangeVariables,
+                            e.nodes[j].resolveColumnReferences(session,
+                                                               rangeVariables,
                                                                count, null,
                                                                false);
 
                         resolved &= colList == null;
                     }
                 } else {
-                    resolved = resolveColumnReferences(e, count,
+                    resolved = resolveColumnReferences(session, e, count,
                                                        withSequences);
                 }
 
@@ -452,15 +456,15 @@ public class QuerySpecification extends QueryExpression {
         }
     }
 
-    private Expression resolveColumnReferencesInGroupBy(
+    private Expression resolveColumnReferencesInGroupBy(Session session,
             Expression expression) {
 
         if (expression == null) {
             return null;
         }
 
-        HsqlList list = expression.resolveColumnReferences(rangeVariables,
-            rangeVariables.length, null, false);
+        HsqlList list = expression.resolveColumnReferences(session,
+            rangeVariables, rangeVariables.length, null, false);
 
         if (list != null) {
 
@@ -476,7 +480,7 @@ public class QuerySpecification extends QueryExpression {
             }
 
             // resolve and allocate to throw exception
-            resolveColumnReferencesAndAllocate(expression,
+            resolveColumnReferencesAndAllocate(session, expression,
                                                rangeVariables.length, false);
         }
 
@@ -1273,6 +1277,8 @@ public class QuerySpecification extends QueryExpression {
             rangeIterators[i] = rangeVariables[i].getIterator(session);
         }
 
+        session.sessionContext.rownum = 1;
+
         for (int currentIndex = 0; ; ) {
             if (currentIndex < fullJoinIndex) {
 
@@ -1334,6 +1340,8 @@ public class QuerySpecification extends QueryExpression {
                     data[i] = it.getCurrentRow();
                 }
             }
+
+            session.sessionContext.rownum++;
 
             Object[] groupData = null;
 

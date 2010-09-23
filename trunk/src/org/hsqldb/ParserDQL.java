@@ -3923,8 +3923,8 @@ public class ParserDQL extends ParserBase {
         compileContext.subqueryDepth++;
 
         Expression e = XreadRowValueExpressionListBody();
-        HsqlList unresolved =
-            e.resolveColumnReferences(RangeVariable.emptyArray, null);
+        HsqlList unresolved = e.resolveColumnReferences(session,
+            RangeVariable.emptyArray, null);
 
         ExpressionColumn.checkColumnsResolved(unresolved);
         e.resolveTypes(session, null);

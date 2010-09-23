@@ -39,7 +39,9 @@ import org.hsqldb.lib.ArrayListIdentity;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.Set;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
+import org.hsqldb.types.Types;
 
 /**
  * Implementation of column, variable, parameter, etc. access operations.
@@ -71,7 +73,7 @@ public class ExpressionColumn extends Expression {
     boolean strictReference;
 
     /**
-     * Creates a OpCodes.COLUMN expression
+     * Creates a OpTypes.COLUMN expression
      */
     ExpressionColumn(String schema, String table, String column,
                      boolean strictReference) {
@@ -103,7 +105,7 @@ public class ExpressionColumn extends Expression {
     }
 
     /**
-     * Creates a temporary OpCodes.COLUMN expression
+     * Creates a temporary OpTypes.COLUMN expression
      */
     ExpressionColumn(Expression e, int colIndex, int rangePosition) {
 
@@ -148,7 +150,7 @@ public class ExpressionColumn extends Expression {
     }
 
     /**
-     * Creates a OpCodes.SEQUENCE expression
+     * Creates a OpTypes.SEQUENCE expression
      */
     ExpressionColumn(NumberSequence sequence) {
 
@@ -296,8 +298,9 @@ public class ExpressionColumn extends Expression {
         return rangeVariable;
     }
 
-    public HsqlList resolveColumnReferences(RangeVariable[] rangeVarArray,
-            int rangeCount, HsqlList unresolvedSet, boolean acceptsSequences) {
+    public HsqlList resolveColumnReferences(Session session,
+            RangeVariable[] rangeVarArray, int rangeCount,
+            HsqlList unresolvedSet, boolean acceptsSequences) {
 
         switch (opType) {
 
@@ -314,9 +317,9 @@ public class ExpressionColumn extends Expression {
             case OpTypes.COALESCE :
                 break;
 
+            case OpTypes.COLUMN :
             case OpTypes.PARAMETER :
-            case OpTypes.VARIABLE :
-            case OpTypes.COLUMN : {
+            case OpTypes.VARIABLE : {
                 boolean resolved       = false;
                 boolean tableQualified = tableName != null;
 
@@ -366,6 +369,47 @@ public class ExpressionColumn extends Expression {
                     return unresolvedSet;
                 }
 
+                if (session.database.sqlSyntaxOra) {
+                    if (acceptsSequences && tableName != null) {
+                        if (Tokens.T_CURRVAL.equals(columnName)) {
+                            NumberSequence seq =
+                                session.database.schemaManager.getSequence(
+                                    tableName, session.getSchemaName(schema),
+                                    false);
+
+                            if (seq != null) {
+                                opType     = OpTypes.SEQUENCE_CURRENT;
+                                dataType   = seq.getDataType();
+                                sequence   = seq;
+                                schema     = null;
+                                tableName  = null;
+                                columnName = null;
+                            }
+                        } else if (Tokens.T_NEXTVAL.equals(columnName)) {
+                            NumberSequence seq =
+                                session.database.schemaManager.getSequence(
+                                    tableName, session.getSchemaName(schema),
+                                    false);
+
+                            if (seq != null) {
+                                opType     = OpTypes.SEQUENCE;
+                                dataType   = seq.getDataType();
+                                sequence   = seq;
+                                schema     = null;
+                                tableName  = null;
+                                columnName = null;
+                            }
+                        }
+                    }
+
+                    if (tableName == null
+                            && Tokens.T_ROWNUM.equals(columnName)) {
+                        opType     = OpTypes.ROWNUM;
+                        dataType   = Type.SQL_INTEGER;
+                        columnName = null;
+                    }
+                }
+
                 if (unresolvedSet == null) {
                     unresolvedSet = new ArrayListIdentity();
                 }
@@ -377,7 +421,7 @@ public class ExpressionColumn extends Expression {
         return unresolvedSet;
     }
 
-    public boolean resolveColumnReference(RangeVariable rangeVar) {
+    private boolean resolveColumnReference(RangeVariable rangeVar) {
 
         if (tableName == null) {
             Expression e = rangeVar.getColumnExpression(columnName);
@@ -535,6 +579,18 @@ public class ExpressionColumn extends Expression {
             }
             case OpTypes.SEQUENCE : {
                 return session.sessionData.getSequenceValue(sequence);
+            }
+            case OpTypes.SEQUENCE_CURRENT : {
+                if (dataType.typeCode == Types.SQL_INTEGER) {
+                    return ValuePool.getInt((int) sequence.peek());
+                } else {
+                    return dataType.convertToType(
+                        session, ValuePool.getLong(sequence.peek()),
+                        Type.SQL_BIGINT);
+                }
+            }
+            case OpTypes.ROWNUM : {
+                return ValuePool.getInt(session.sessionContext.rownum);
             }
             case OpTypes.ASTERISK :
             case OpTypes.MULTICOLUMN :
