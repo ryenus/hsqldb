@@ -37,6 +37,7 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.Reference;
+import javax.naming.RefAddr;
 import javax.naming.spi.ObjectFactory;
 import javax.sql.DataSource;
 
@@ -126,43 +127,53 @@ public class JDBCDataSourceFactory implements ObjectFactory {
 
         if (className.equals(bdsClassName) || className.equals(pdsClassName)
                 || className.equals(xdsClassName)) {
+            RefAddr refAddr;
+            Object value;
             JDBCCommonDataSource ds =
                 (JDBCCommonDataSource) Class.forName(className).newInstance();
-            Object value = ref.get("database").getContent();
 
+            refAddr = ref.get("database");
+            if (refAddr == null) {
+                throw new Exception(className + ": RefAddr not set: database");
+            }
+            value = refAddr.getContent();
             if (!(value instanceof String)) {
                 throw new Exception(className + ": invalid RefAddr: database");
             }
-
             ds.setDatabase((String) value);
 
+            refAddr = ref.get("user");
+            if (refAddr == null) {
+                throw new Exception(className + ": RefAddr not set: user");
+            }
             value = ref.get("user").getContent();
-
             if (!(value instanceof String)) {
                 throw new Exception(className + ": invalid RefAddr: user");
             }
-
             ds.setUser((String) value);
 
-            value = ref.get("password").getContent();
-
-            if (!(value instanceof String)) {
+            refAddr = ref.get("password");
+            if (refAddr == null) {
                 value = "";
+            } else {
+                value = ref.get("password").getContent();
+                if (!(value instanceof String)) {
+                    value = "";
+                }
             }
-
             ds.setPassword((String) value);
 
-            String loginTimeoutContent =
-                (String) ref.get("loginTimeout").getContent();
-
-            if (loginTimeoutContent != null) {
-                loginTimeoutContent = loginTimeoutContent.trim();
-
-                if (loginTimeoutContent.length() > 0) {
-                    try {
-                        ds.setLoginTimeout(
-                            Integer.parseInt(loginTimeoutContent));
-                    } catch (NumberFormatException nfe) {}
+            refAddr = ref.get("loginTimeout");
+            if (refAddr != null) {
+                value = ref.get("password").getContent();
+                if (value instanceof String) {
+                    String loginTimeoutContent = ((String) value).trim();
+                    if (loginTimeoutContent.length() > 0) {
+                        try {
+                            ds.setLoginTimeout(
+                                Integer.parseInt(loginTimeoutContent));
+                        } catch (NumberFormatException nfe) {}
+                    }
                 }
             }
 
