@@ -515,7 +515,7 @@ public class StatementCommand extends Statement {
                     session.database.setUniqueNulls(mode);
                 } else if (property
                            == HsqlDatabaseProperties.sql_convert_trunc) {
-                    session.database.setConvertRound(mode);
+                    session.database.setConvertTrunc(mode);
                 }
 
                 return Result.updateZeroResult;
