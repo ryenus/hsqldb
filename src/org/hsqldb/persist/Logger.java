@@ -230,7 +230,12 @@ public class Logger {
             database.databaseProperties.setURLProperties(
                 database.urlProperties);
         } else {
-            database.databaseProperties.load();
+            boolean props = database.databaseProperties.load();
+
+            if (!props) {
+                database.databaseProperties.setDBModified(
+                    HsqlDatabaseProperties.FILES_MODIFIED);
+            }
 
             if (database.urlProperties.isPropertyTrue(
                     HsqlDatabaseProperties.hsqldb_files_readonly)) {

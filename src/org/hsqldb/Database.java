@@ -86,21 +86,21 @@ public class Database {
 
     /** true means filesReadOnly */
     private boolean               filesInJar;
-    public boolean                sqlEnforceTypes;
-    public boolean                sqlEnforceRefs;
-    public boolean                sqlEnforceSize;
-    public boolean                sqlEnforceNames;
-    public boolean                sqlEnforceTDCD;
-    public boolean                sqlEnforceTDCU;
-    public boolean                sqlTranslateTTI;
-    public boolean                sqlConcatNulls;
-    public boolean                sqlUniqueNulls;
-    public boolean                sqlConvertTruncate;
+    public boolean                sqlEnforceTypes    = true;
+    public boolean                sqlEnforceRefs     = true;
+    public boolean                sqlEnforceSize     = true;
+    public boolean                sqlEnforceNames    = true;
+    public boolean                sqlEnforceTDCD     = true;
+    public boolean                sqlEnforceTDCU     = true;
+    public boolean                sqlTranslateTTI    = true;
+    public boolean                sqlConcatNulls     = true;
+    public boolean                sqlUniqueNulls     = true;
+    public boolean                sqlConvertTruncate = true;
     public boolean                sqlSyntaxMss;
     public boolean                sqlSyntaxMys;
     public boolean                sqlSyntaxOra;
     public boolean                sqlSyntaxPgs;
-    private boolean               isReferentialIntegrity;
+    private boolean               isReferentialIntegrity = true;
     public HsqlDatabaseProperties databaseProperties;
     private final boolean         shutdownOnNoConnection;
     int                           resultMaxMemoryRows;
@@ -453,7 +453,7 @@ public class Database {
         sqlUniqueNulls = mode;
     }
 
-    public void setConvertRound(boolean mode) {
+    public void setConvertTrunc(boolean mode) {
         sqlConvertTruncate = mode;
     }
 
