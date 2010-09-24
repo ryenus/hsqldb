@@ -53,6 +53,7 @@
    <target name='explainjars'
            description="List description of jars that you can build">
      <echo>Ant version: ${ant.version} </echo>
+     <echo>Java version: ${java.version} </echo>
      <echo>jar filename    build command   explanation
 --------------  -------------   -----------------------------------
 hsqldb.jar      ant hsqldb      Default distribution jar
@@ -377,6 +378,7 @@ examples:
       <javac srcdir="${swsrc}" destdir="classes" debug="${build.debug}"
                  optimize="${build.optimize}" >
       <include name="org/hsqldb/jdbc/pool/*.java"/>
+      <include name="org/hsqldb/jdbc/JDBCCommonDataSource.java"/>
       <include name="org/hsqldb/jdbc/JDBCDataSource*.java"/>
       <include name="org/hsqldb/jdbc/JDBCParameterMetaData.java"/>
       <include name="org/hsqldb/jdbc/JDBCSavepoint.java"/>
