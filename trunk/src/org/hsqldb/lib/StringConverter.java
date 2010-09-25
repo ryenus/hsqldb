@@ -633,36 +633,31 @@ public class StringConverter {
     }
 
     /**
-     * Using a Reader and a Writer, returns a String from an InputStream.
+     * Using an output stream, returns a String from an InputStream.
      *
-     * Method based on Hypersonic Code
-     *
-     * @param x InputStream to read from
+     * @param is InputStream to read from
+     * @param encoding character encoding of the string
      * @throws IOException
      * @return a Java string
      */
-    public static String inputStreamToString(InputStream x,
+    public static String inputStreamToString(InputStream is,
             String encoding) throws IOException {
 
-        InputStreamReader in        = new InputStreamReader(x, encoding);
-        StringWriter      writer    = new StringWriter();
-        int               blocksize = 8 * 1024;
-        char[]            buffer    = new char[blocksize];
+        HsqlByteArrayOutputStream baOS = new HsqlByteArrayOutputStream(1024);
 
-        for (;;) {
-            int read = in.read(buffer);
+        while(true) {
+            int c = is.read();
 
-            if (read == -1) {
+            if (c == -1) {
                 break;
             }
 
-            writer.write(buffer, 0, read);
+            baOS.write(c);
         }
 
-        writer.close();
-
-        return writer.toString();
+        return new String(baOS.getBuffer(), 0, baOS.size(), encoding);
     }
+
 
 // fredt@users 20020130 - patch 497872 by Nitin Chauhan - use byte[] of exact size
 

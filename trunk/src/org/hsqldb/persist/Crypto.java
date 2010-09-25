@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,6 +57,7 @@ public class Crypto {
     SecretKeySpec key;
     Cipher        outCipher;
     Cipher        inCipher;
+    Cipher        inStreamCipher;
 
     public Crypto(String keyString, String cipherName, String provider) {
 
@@ -76,6 +77,12 @@ public class Crypto {
                                         provider);
 
             inCipher.init(Cipher.DECRYPT_MODE, key);
+
+            inStreamCipher = provider == null ? Cipher.getInstance(cipherName)
+                                        : Cipher.getInstance(cipherName,
+                                        provider);
+
+            inStreamCipher.init(Cipher.DECRYPT_MODE, key);
 
             return;
         } catch (NoSuchPaddingException e) {
@@ -98,9 +105,9 @@ public class Crypto {
         }
 
         try {
-            inCipher.init(Cipher.DECRYPT_MODE, key);
+            inStreamCipher.init(Cipher.DECRYPT_MODE, key);
 
-            return new CipherInputStream(in, inCipher);
+            return new CipherInputStream(in, inStreamCipher);
         } catch (java.security.InvalidKeyException e) {
             throw Error.error(ErrorCode.X_S0531, e);
         }
