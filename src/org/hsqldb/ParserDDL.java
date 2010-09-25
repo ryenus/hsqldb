@@ -3196,7 +3196,7 @@ public class ParserDDL extends ParserRoutine {
                 break;
 
             case SchemaObject.SCHEMA :
-                checkSchemaUpdateAuthorisation(session, name.schema);
+                checkSchemaUpdateAuthorisation(session, name);
                 break;
 
             default :
