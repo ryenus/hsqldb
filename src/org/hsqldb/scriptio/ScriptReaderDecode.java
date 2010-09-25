@@ -32,15 +32,14 @@
 package org.hsqldb.scriptio;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.Session;
+import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.persist.Crypto;
 import org.hsqldb.rowio.RowInputTextLog;
@@ -48,7 +47,7 @@ import org.hsqldb.rowio.RowInputTextLog;
 /**
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public class ScriptReaderDecode extends ScriptReaderText {
@@ -76,12 +75,11 @@ public class ScriptReaderDecode extends ScriptReaderText {
             dataInput =
                 new DataInputStream(new BufferedInputStream(inputStream));
         } else {
-            InputStream stream = crypto.getInputStream(inputStream);
+            InputStream stream =
+                crypto.getInputStream(new BufferedInputStream(inputStream));
 
-            stream = new GZIPInputStream(stream);
-            dataStreamIn = new BufferedReader(
-                new InputStreamReader(stream, ScriptWriterText.ISO_8859_1),
-                1024*16);
+            stream       = new GZIPInputStream(stream);
+            dataStreamIn = new LineReader(stream, ScriptWriterText.ISO_8859_1);
         }
     }
 

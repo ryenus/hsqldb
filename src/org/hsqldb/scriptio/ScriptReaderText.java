@@ -32,19 +32,17 @@
 package org.hsqldb.scriptio;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import org.hsqldb.Database;
 import org.hsqldb.HsqlException;
-import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Session;
 import org.hsqldb.Statement;
 import org.hsqldb.StatementTypes;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.LineReader;
 import org.hsqldb.lib.StringConverter;
 import org.hsqldb.lib.java.JavaSystem;
 import org.hsqldb.result.Result;
@@ -59,13 +57,13 @@ import org.hsqldb.types.Type;
  * corresponds to ScriptWriterText.
  *
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- *  @version 1.9.0
+ *  @version 2.0.1
  *  @since 1.7.2
  */
 public class ScriptReaderText extends ScriptReaderBase {
 
     // this is used only to enable reading one logged line at a time
-    BufferedReader  dataStreamIn;
+    LineReader      dataStreamIn;
     RowInputTextLog rowIn;
     boolean         isInsert;
 
@@ -77,21 +75,22 @@ public class ScriptReaderText extends ScriptReaderBase {
 
         super(db);
 
-        InputStream d =
+        InputStream inputStream =
             database.logger.getFileAccess().openInputStreamElement(fileName);
 
-        dataStreamIn = new BufferedReader(
-            new InputStreamReader(new BufferedInputStream(d)));
+        inputStream = new BufferedInputStream(inputStream);
+        dataStreamIn = new LineReader(inputStream,
+                                      ScriptWriterText.ISO_8859_1);
         rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());
     }
 
-    public ScriptReaderText(Database db,
-                            InputStream inputStream) {
+    public ScriptReaderText(Database db, InputStream inputStream) {
 
         super(db);
 
-        dataStreamIn = new BufferedReader(
-            new InputStreamReader(new BufferedInputStream(inputStream)));
+//        inputStream = new BufferedInputStream(inputStream);
+        dataStreamIn = new LineReader(inputStream,
+                                      ScriptWriterText.ISO_8859_1);
         rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());
     }
 
@@ -284,6 +283,7 @@ public class ScriptReaderText extends ScriptReaderBase {
             }
         } catch (Exception e) {
             System.out.println(statement);
+
             throw JavaSystem.toIOException(e);
         }
     }
