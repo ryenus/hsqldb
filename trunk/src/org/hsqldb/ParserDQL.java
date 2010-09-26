@@ -5412,8 +5412,12 @@ public class ParserDQL extends ParserBase {
         }
 
         public void reset() {
+            reset(0);
+        }
 
-            rangeVarIndex = 0;
+        public void reset(int n) {
+
+            rangeVarIndex = n;
 
             rangeVariables.clear();
 

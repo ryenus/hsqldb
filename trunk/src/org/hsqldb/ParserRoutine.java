@@ -1051,14 +1051,17 @@ public class ParserRoutine extends ParserDML {
             label = readNewSchemaObjectName(SchemaObject.LABEL, false);
 
             // improved error message
-            if (token.tokenType != Tokens.COLON ) {
+            if (token.tokenType != Tokens.COLON) {
                 throw unexpectedToken(label.getNameString());
             }
 
             readThis(Tokens.COLON);
         }
 
-        compileContext.reset();
+        int rangeOffset = routine.isTrigger() ? TriggerDef.RANGE_COUNT
+                                              : 0;
+
+        compileContext.reset(rangeOffset);
 
         switch (token.tokenType) {
 
