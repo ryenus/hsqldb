@@ -62,13 +62,14 @@ import org.hsqldb.rights.Grantee;
  */
 public class TriggerDef implements Runnable, SchemaObject {
 
-    static final int OLD_ROW   = 0;
-    static final int NEW_ROW   = 1;
-    static final int OLD_TABLE = 2;
-    static final int NEW_TABLE = 3;
-    static final int BEFORE    = 4;
-    static final int AFTER     = 5;
-    static final int INSTEAD   = 6;
+    static final int OLD_ROW     = 0;
+    static final int NEW_ROW     = 1;
+    static final int RANGE_COUNT = 2;
+    static final int OLD_TABLE   = 2;
+    static final int NEW_TABLE   = 3;
+    static final int BEFORE      = 4;
+    static final int AFTER       = 5;
+    static final int INSTEAD     = 6;
 
     //
     static final int NUM_TRIGGER_OPS = 3;                      // {ins,del,upd}

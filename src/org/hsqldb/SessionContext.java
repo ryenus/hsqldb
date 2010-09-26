@@ -77,6 +77,7 @@ public class SessionContext {
 
     // range variable data
     RangeIterator[] rangeIterators;
+    int             rangeOffset;
 
     //
     public Statement currentStatement;
@@ -99,7 +100,7 @@ public class SessionContext {
     SessionContext(Session session) {
 
         this.session             = session;
-        rangeIterators           = new RangeIterator[4];
+        rangeIterators           = new RangeIterator[8];
         savepoints               = new HashMappedList(4);
         savepointTimestamps      = new LongDeque();
         sessionVariables         = new HashMappedList();
@@ -122,6 +123,7 @@ public class SessionContext {
         stack.add(routineArguments);
         stack.add(routineVariables);
         stack.add(rangeIterators);
+        stack.add(ValuePool.getInt(rangeOffset));
         stack.add(savepoints);
         stack.add(savepointTimestamps);
         stack.add(lastIdentity);
@@ -131,7 +133,7 @@ public class SessionContext {
         stack.add(ValuePool.getInt(currentMaxRows));
         stack.add(ValuePool.getInt(rownum));
 
-        rangeIterators      = new RangeIterator[4];
+        rangeIterators      = new RangeIterator[8];
         savepoints          = new HashMappedList(4);
         savepointTimestamps = new LongDeque();
         isAutoCommit        = Boolean.FALSE;
@@ -152,6 +154,7 @@ public class SessionContext {
         lastIdentity        = (Number) stack.remove(stack.size() - 1);
         savepointTimestamps = (LongDeque) stack.remove(stack.size() - 1);
         savepoints          = (HashMappedList) stack.remove(stack.size() - 1);
+        rangeOffset = ((Integer) stack.remove(stack.size() - 1)).intValue();
         rangeIterators      = (RangeIterator[]) stack.remove(stack.size() - 1);
         routineVariables    = (Object[]) stack.remove(stack.size() - 1);
         routineArguments    = (Object[]) stack.remove(stack.size() - 1);
@@ -190,11 +193,11 @@ public class SessionContext {
 
     public RangeIteratorBase getCheckIterator(RangeVariable rangeVariable) {
 
-        RangeIterator it = rangeIterators[1];
+        RangeIterator it = rangeIterators[rangeOffset + 1];
 
         if (it == null) {
-            it                = rangeVariable.getIterator(session);
-            rangeIterators[1] = it;
+            it = rangeVariable.getIterator(session);
+            rangeIterators[rangeOffset + 1] = it;
         }
 
         return (RangeIteratorBase) it;
@@ -207,7 +210,7 @@ public class SessionContext {
         if (position >= rangeIterators.length) {
             rangeIterators =
                 (RangeIterator[]) ArrayUtil.resizeArray(rangeIterators,
-                    position + 1);
+                    position + 4);
         }
 
         rangeIterators[iterator.getRangePosition()] = iterator;

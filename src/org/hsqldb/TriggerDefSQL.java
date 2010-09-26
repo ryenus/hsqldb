@@ -94,6 +94,8 @@ public class TriggerDefSQL extends TriggerDef {
 
         session.sessionContext.push();
 
+        session.sessionContext.rangeOffset = RANGE_COUNT;
+
         if (transitions[OLD_ROW] != null) {
             rangeVars[OLD_ROW].getIterator(session).setCurrent(oldData);
         }
