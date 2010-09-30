@@ -5412,7 +5412,7 @@ public class ParserDQL extends ParserBase {
         }
 
         public void reset() {
-            reset(0);
+            reset(1);
         }
 
         public void reset(int n) {

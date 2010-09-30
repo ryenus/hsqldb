@@ -98,6 +98,12 @@ public class ParserRoutine extends ParserDML {
 
                 default :
                     e = XreadDateTimeValueFunctionOrNull();
+
+                    if (e == null) {
+                        break;
+                    }
+
+                    e = XreadModifier(e);
                     break;
             }
         } else if (dataType.isNumberType()) {
@@ -1058,10 +1064,7 @@ public class ParserRoutine extends ParserDML {
             readThis(Tokens.COLON);
         }
 
-        int rangeOffset = routine.isTrigger() ? TriggerDef.RANGE_COUNT
-                                              : 0;
-
-        compileContext.reset(rangeOffset);
+        compileContext.reset();
 
         switch (token.tokenType) {
 
@@ -1231,34 +1234,22 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.REPEAT : {
-                if (routine.isTrigger()) {
-                    throw unexpectedToken();
-                }
-
                 cs = compileRepeat(routine, context, label);
 
                 break;
             }
             case Tokens.LOOP : {
-                if (routine.isTrigger()) {
-                    throw unexpectedToken();
-                }
-
                 cs = compileLoop(routine, context, label);
 
                 break;
             }
             case Tokens.FOR : {
-                if (routine.isTrigger()) {
-                    throw unexpectedToken();
-                }
-
                 cs = compileFor(routine, context, label);
 
                 break;
             }
             case Tokens.ITERATE : {
-                if (routine.isTrigger() || label != null) {
+                if (label != null) {
                     throw unexpectedToken();
                 }
 
@@ -1267,7 +1258,7 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.LEAVE : {
-                if (routine.isTrigger() || label != null) {
+                if (label != null) {
                     throw unexpectedToken();
                 }
 
@@ -1286,19 +1277,11 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.SIGNAL : {
-                if (routine.isTrigger() || label != null) {
-                    throw unexpectedToken();
-                }
-
                 cs = compileSignal(routine, context, label);
 
                 break;
             }
             case Tokens.RESIGNAL : {
-                if (routine.isTrigger() || label != null) {
-                    throw unexpectedToken();
-                }
-
                 cs = compileResignal(routine, context, label);
 
                 break;

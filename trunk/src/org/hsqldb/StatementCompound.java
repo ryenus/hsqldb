@@ -474,7 +474,6 @@ public class StatementCompound extends Statement {
 
             session.sessionContext.routineVariables = data;
 
-
             for (int i = 0; i < statements.length; i++) {
                 result = statements[i].execute(session);
 
@@ -510,7 +509,6 @@ public class StatementCompound extends Statement {
                 }
 
                 if (result.getErrorCode() == StatementTypes.LEAVE) {
-
                     break;
                 }
 
@@ -792,7 +790,8 @@ public class StatementCompound extends Statement {
             }
         }
 
-        RangeVariable range = new RangeVariable(list, true);
+        RangeVariable range = new RangeVariable(list, null, true,
+            RangeVariable.VARIALBE_RANGE);
 
         rangeVariables     = new RangeVariable[] {
             root.getParameterRangeVariables()[0], range

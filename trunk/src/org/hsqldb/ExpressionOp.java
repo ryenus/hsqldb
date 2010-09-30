@@ -220,6 +220,9 @@ public class ExpressionOp extends Expression {
                     break;
                 }
 
+                sb.append(Tokens.T_TIME).append(' ').append(Tokens.T_ZONE);
+                sb.append(' ');
+
                 sb.append(right);
                 break;
 
@@ -427,14 +430,9 @@ public class ExpressionOp extends Expression {
         Expression expr = this;
 
         while (expr.opType == OpTypes.CASEWHEN) {
-            expr.nodes[LEFT].resolveTypes(session, expr);
-
             if (expr.nodes[LEFT].isUnresolvedParam()) {
                 expr.nodes[LEFT].dataType = Type.SQL_BOOLEAN;
             }
-
-            expr.nodes[RIGHT].nodes[LEFT].resolveTypes(session, nodes[RIGHT]);
-            expr.nodes[RIGHT].nodes[RIGHT].resolveTypes(session, nodes[RIGHT]);
 
             expr = expr.nodes[RIGHT].nodes[RIGHT];
         }

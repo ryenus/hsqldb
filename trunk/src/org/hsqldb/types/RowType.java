@@ -38,7 +38,6 @@ import org.hsqldb.SortAndSlice;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
-import org.hsqldb.store.ValuePool;
 
 /**
  * Class for ROW type objects.<p>

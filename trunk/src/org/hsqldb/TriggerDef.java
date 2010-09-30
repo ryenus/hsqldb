@@ -195,8 +195,8 @@ public class TriggerDef implements Runnable, SchemaObject {
                                                : condition;
         this.updateColumns = updateColumns;
         this.conditionSQL  = conditionSQL;
-        hasTransitionRanges = transitions[OLD_ROW] != null
-                              || transitions[NEW_ROW] != null;
+        hasTransitionRanges = rangeVars[OLD_ROW] != null
+                              || rangeVars[NEW_ROW] != null;
         hasTransitionTables = transitions[OLD_TABLE] != null
                               || transitions[NEW_TABLE] != null;
 
@@ -301,17 +301,19 @@ public class TriggerDef implements Runnable, SchemaObject {
         if (hasTransitionRanges || hasTransitionTables) {
             sb.append(Tokens.T_REFERENCING).append(' ');
 
-            if (transitions[OLD_ROW] != null) {
+            if (rangeVars[OLD_ROW] != null) {
                 sb.append(Tokens.T_OLD).append(' ').append(Tokens.T_ROW);
                 sb.append(' ').append(Tokens.T_AS).append(' ');
-                sb.append(transitions[OLD_ROW].getName().statementName);
+                sb.append(
+                    rangeVars[OLD_ROW].getTableAliasName().getStatementName());
                 sb.append(' ');
             }
 
-            if (transitions[NEW_ROW] != null) {
+            if (rangeVars[NEW_ROW] != null) {
                 sb.append(Tokens.T_NEW).append(' ').append(Tokens.T_ROW);
                 sb.append(' ').append(Tokens.T_AS).append(' ');
-                sb.append(transitions[NEW_ROW].getName().statementName);
+                sb.append(
+                    rangeVars[NEW_ROW].getTableAliasName().getStatementName());
                 sb.append(' ');
             }
 
@@ -414,17 +416,13 @@ public class TriggerDef implements Runnable, SchemaObject {
     }
 
     public String getOldTransitionRowName() {
-
-        return transitions[OLD_ROW] == null ? null
-                                            : transitions[OLD_ROW].getName()
-                                            .name;
+        return rangeVars[OLD_ROW] == null ? null
+                                          : rangeVars[OLD_ROW].getTableAlias();
     }
 
     public String getNewTransitionRowName() {
-
-        return transitions[NEW_ROW] == null ? null
-                                            : transitions[NEW_ROW].getName()
-                                            .name;
+        return rangeVars[NEW_ROW] == null ? null
+                                          : rangeVars[NEW_ROW].getTableAlias();
     }
 
     public String getOldTransitionTableName() {

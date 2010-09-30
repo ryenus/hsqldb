@@ -991,6 +991,7 @@ public final class Constraint implements SchemaObject {
         Scanner   scanner = new Scanner(ddl);
         ParserDQL parser  = new ParserDQL(session, scanner);
 
+        parser.compileContext.reset(0);
         parser.read();
 
         parser.isCheckOrTriggerCondition = true;

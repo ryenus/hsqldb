@@ -48,9 +48,9 @@ public class ColumnBase {
     private String    catalog;
     private boolean   isWriteable;
     private boolean   isSearchable;
-    protected byte     parameterMode;
+    protected byte    parameterMode;
     protected boolean isIdentity;
-    protected byte     nullability;
+    protected byte    nullability;
     protected Type    dataType;
 
     ColumnBase() {}

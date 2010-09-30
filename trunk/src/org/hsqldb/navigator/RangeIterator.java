@@ -41,6 +41,8 @@ import org.hsqldb.Row;
  */
 public interface RangeIterator extends RowIterator {
 
+    RangeIterator[] emptyArray = new RangeIterator[]{};
+
     boolean isBeforeFirst();
 
     boolean next();

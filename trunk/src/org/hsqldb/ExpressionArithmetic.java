@@ -343,14 +343,33 @@ public class ExpressionArithmetic extends Expression {
         }
 
         // datetime subtract - type predetermined
-        if (nodes[LEFT].dataType.isDateTimeType()
-                && nodes[RIGHT].dataType.isDateTimeType()) {
-            if (dataType == null) {
-                throw Error.error(ErrorCode.X_42566);
-            } else if (!dataType.isIntervalType()
-                       || nodes[LEFT].dataType.typeCode
-                          != nodes[RIGHT].dataType.typeCode) {
-                throw Error.error(ErrorCode.X_42562);
+        if (dataType != null && dataType.isIntervalType()) {
+            if (nodes[LEFT].dataType.isDateTimeType()
+                    && nodes[RIGHT].dataType.isDateTimeType()) {
+                if (nodes[LEFT].dataType.typeCode
+                        != nodes[RIGHT].dataType.typeCode) {
+                    throw Error.error(ErrorCode.X_42562);
+                }
+            } else {
+                Type type =
+                    nodes[LEFT].dataType.getCombinedType(nodes[RIGHT].dataType,
+                        opType);
+
+                if (type == null) {}
+
+                if (type.isIntervalType()) {
+                    if (type.typeCode != dataType.typeCode) {
+                        throw Error.error(ErrorCode.X_42562);
+                    }
+                } else if (type.isNumberType()) {
+                    nodes[LEFT]  = new ExpressionOp(nodes[LEFT], dataType);
+                    nodes[RIGHT] = new ExpressionOp(nodes[RIGHT], dataType);
+
+                    nodes[LEFT].resolveTypes(session, this);
+                    nodes[RIGHT].resolveTypes(session, this);
+                } else {
+                    throw Error.error(ErrorCode.X_42562);
+                }
             }
         } else {
             dataType =

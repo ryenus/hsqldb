@@ -61,6 +61,12 @@ public class RangeVariable implements Cloneable {
     static final RangeVariable[] emptyArray = new RangeVariable[]{};
 
     //
+    public final static int TABLE_RANGE      = 1;
+    public final static int TRANSITION_RANGE = 2;
+    public final static int PARAMETER_RANGE  = 3;
+    public final static int VARIALBE_RANGE   = 4;
+
+    //
     final Table            rangeTable;
     final SimpleName       tableAlias;
     private OrderedHashSet columnAliases;
@@ -102,18 +108,19 @@ public class RangeVariable implements Cloneable {
     // for variable and parameter lists
     HashMappedList variables;
 
-    // variable v.s. parameter
-    boolean isVariable;
+    // variable, parameter, table
+    int     rangeType;
 
     //
     boolean isGenerated;
 
-    RangeVariable(HashMappedList variables, boolean isVariable) {
+    RangeVariable(HashMappedList variables, SimpleName rangeName,
+                  boolean isVariable, int rangeType) {
 
         this.variables   = variables;
-        this.isVariable  = isVariable;
+        this.rangeType   = rangeType;
         rangeTable       = null;
-        tableAlias       = null;
+        tableAlias       = rangeName;
         emptyData        = null;
         columnsInGroupBy = null;
         usedColumns      = null;
@@ -126,6 +133,7 @@ public class RangeVariable implements Cloneable {
     RangeVariable(Table table, SimpleName alias, OrderedHashSet columnList,
                   SimpleName[] columnNameList, CompileContext compileContext) {
 
+        rangeType        = TABLE_RANGE;
         rangeTable       = table;
         tableAlias       = alias;
         columnAliases    = columnList;
@@ -146,6 +154,7 @@ public class RangeVariable implements Cloneable {
 
     RangeVariable(Table table, int position) {
 
+        rangeType        = TABLE_RANGE;
         rangeTable       = table;
         tableAlias       = null;
         emptyData        = rangeTable.getEmptyRowData();
@@ -400,6 +409,10 @@ public class RangeVariable implements Cloneable {
         }
 
         if (variables != null) {
+            if (tableAlias != null) {
+                return e.tableName.equals(tableAlias.name);
+            }
+
             return false;
         }
 
@@ -430,6 +443,10 @@ public class RangeVariable implements Cloneable {
         }
 
         if (variables != null) {
+            if (tableAlias != null) {
+                return name.equals(tableAlias.name);
+            }
+
             return false;
         }
 
@@ -634,8 +651,8 @@ public class RangeVariable implements Cloneable {
         if (subQuery != null && !subQuery.isResolved()) {
             if (subQuery.dataExpression != null) {
                 HsqlList unresolved =
-                    subQuery.dataExpression.resolveColumnReferences(
-                        session, RangeVariable.emptyArray, null);
+                    subQuery.dataExpression.resolveColumnReferences(session,
+                        RangeVariable.emptyArray, null);
 
                 if (unresolved != null) {
                     unresolved =
@@ -660,9 +677,8 @@ public class RangeVariable implements Cloneable {
                     subQuery.queryExpression.getUnresolvedExpressions();
 
                 // todo resove against i ranges
-                HsqlList unresolved =
-                    Expression.resolveColumnSet(session, rangeVariables,
-                                                rangeCount, list, null);
+                HsqlList unresolved = Expression.resolveColumnSet(session,
+                    rangeVariables, rangeCount, list, null);
 
                 if (unresolved != null) {
                     throw Error.error(

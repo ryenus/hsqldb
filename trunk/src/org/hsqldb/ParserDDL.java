@@ -34,6 +34,7 @@ package org.hsqldb;
 import java.lang.reflect.Method;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
+import org.hsqldb.HsqlNameManager.SimpleName;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.index.Index;
@@ -1897,8 +1898,8 @@ public class ParserDDL extends ParserRoutine {
         Expression      condition    = null;
         String          oldTableName = null;
         String          newTableName = null;
-        String          oldRowName   = null;
-        String          newRowName   = null;
+        SimpleName      oldRowName   = null;
+        SimpleName      newRowName   = null;
         Table[]         transitions  = new Table[4];
         RangeVariable[] rangeVars    = new RangeVariable[4];
         String          conditionSQL = null;
@@ -1961,11 +1962,12 @@ public class ParserDDL extends ParserRoutine {
                         readIfThis(Tokens.AS);
                         checkIsSimpleName();
 
-                        oldRowName = token.tokenString;
+                        oldRowName = HsqlNameManager.getSimpleName(
+                            token.tokenString, token.isDelimitedIdentifier);
 
                         read();
 
-                        String n = oldRowName;
+                        String n = oldRowName.name;
 
                         if (n.equals(newTableName) || n.equals(oldTableName)
                                 || n.equals(newRowName)) {
@@ -1974,14 +1976,13 @@ public class ParserDDL extends ParserRoutine {
 
                         isForEachRow = Boolean.TRUE;
 
-                        HsqlName hsqlName = database.nameManager.newHsqlName(
-                            table.getSchemaName(), n, isDelimitedIdentifier(),
-                            SchemaObject.TRANSITION);
-                        Table transition = new Table(table, hsqlName);
-                        RangeVariable range = new RangeVariable(transition,
-                            null, null, null, compileContext);
+                        RangeVariable range =
+                            new RangeVariable(table.columnList, oldRowName,
+                                              false,
+                                              RangeVariable.TRANSITION_RANGE);
 
-                        transitions[TriggerDef.OLD_ROW] = transition;
+                        range.rangePosition             = TriggerDef.OLD_ROW;
+                        transitions[TriggerDef.OLD_ROW] = null;
                         rangeVars[TriggerDef.OLD_ROW]   = range;
                     }
                 } else if (token.tokenType == Tokens.NEW) {
@@ -2034,27 +2035,27 @@ public class ParserDDL extends ParserRoutine {
                         readIfThis(Tokens.AS);
                         checkIsSimpleName();
 
-                        newRowName = token.tokenString;
+                        newRowName = HsqlNameManager.getSimpleName(
+                            token.tokenString, token.isDelimitedIdentifier);
 
                         read();
 
-                        isForEachRow = Boolean.TRUE;
-
-                        String n = newRowName;
+                        String n = newRowName.name;
 
                         if (n.equals(oldTableName) || n.equals(newTableName)
                                 || n.equals(oldRowName)) {
                             throw unexpectedToken();
                         }
 
-                        HsqlName hsqlName = database.nameManager.newHsqlName(
-                            table.getSchemaName(), n, isDelimitedIdentifier(),
-                            SchemaObject.TRANSITION);
-                        Table transition = new Table(table, hsqlName);
-                        RangeVariable range = new RangeVariable(transition,
-                            null, null, null, compileContext);
+                        isForEachRow = Boolean.TRUE;
 
-                        transitions[TriggerDef.NEW_ROW] = transition;
+                        RangeVariable range =
+                            new RangeVariable(table.columnList, newRowName,
+                                              false,
+                                              RangeVariable.TRANSITION_RANGE);
+
+                        range.rangePosition             = TriggerDef.NEW_ROW;
+                        transitions[TriggerDef.NEW_ROW] = null;
                         rangeVars[TriggerDef.NEW_ROW]   = range;
                     }
                 } else {
@@ -3364,8 +3365,8 @@ public class ParserDDL extends ParserRoutine {
 
         Object[] args = new Object[] {
             table.getColumn(colindex).getName(),
-            ValuePool.getInt(SchemaObject.CONSTRAINT),
-            Boolean.valueOf(cascade), Boolean.valueOf(false)
+            ValuePool.getInt(SchemaObject.COLUMN), Boolean.valueOf(cascade),
+            Boolean.valueOf(false)
         };
 
         if (!table.isTemp()) {

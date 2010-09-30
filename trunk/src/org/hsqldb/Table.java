@@ -1640,7 +1640,7 @@ public class Table extends TableBase implements SchemaObject {
 
         resetDefaultsFlag();
 
-        defaultRanges = new RangeVariable[]{ new RangeVariable(this, 1) };
+        defaultRanges = new RangeVariable[]{ new RangeVariable(this, 0) };
     }
 
     void setColumnTypeVars(int i) {
