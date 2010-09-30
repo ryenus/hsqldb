@@ -174,17 +174,12 @@ public class ExpressionColumn extends Expression {
 
     void setAttributesAsColumn(RangeVariable range, int i) {
 
-        if (range.variables != null) {
-            columnIndex   = i;
-            column        = range.getColumn(i);
-            dataType      = column.getDataType();
-            rangeVariable = range;
-        } else {
-            columnIndex   = i;
-            column        = range.getColumn(i);
-            dataType      = column.getDataType();
-            rangeVariable = range;
+        columnIndex   = i;
+        column        = range.getColumn(i);
+        dataType      = column.getDataType();
+        rangeVariable = range;
 
+        if (range.rangeType == RangeVariable.TABLE_RANGE) {
             rangeVariable.addColumn(columnIndex);
         }
     }
@@ -434,26 +429,31 @@ public class ExpressionColumn extends Expression {
                 return true;
             }
 
-            if (rangeVar.variables != null) {
-                int colIndex = rangeVar.findColumn(columnName);
+            switch (rangeVar.rangeType) {
 
-                if (colIndex == -1) {
-                    return false;
-                }
+                case RangeVariable.PARAMETER_RANGE :
+                case RangeVariable.VARIALBE_RANGE :
+                    int colIndex = rangeVar.findColumn(columnName);
 
-                ColumnSchema column = rangeVar.getColumn(colIndex);
+                    if (colIndex == -1) {
+                        return false;
+                    }
 
-                if (column.getParameterMode()
-                        == SchemaObject.ParameterModes.PARAM_OUT) {
-                    return false;
-                } else {
-                    opType = rangeVar.isVariable ? OpTypes.VARIABLE
-                                                 : OpTypes.PARAMETER;
+                    ColumnSchema column = rangeVar.getColumn(colIndex);
 
-                    setAttributesAsColumn(rangeVar, colIndex);
+                    if (column.getParameterMode()
+                            == SchemaObject.ParameterModes.PARAM_OUT) {
+                        return false;
+                    } else {
+                        opType =
+                            rangeVar.rangeType == RangeVariable.VARIALBE_RANGE
+                            ? OpTypes.VARIABLE
+                            : OpTypes.PARAMETER;
 
-                    return true;
-                }
+                        setAttributesAsColumn(rangeVar, colIndex);
+
+                        return true;
+                    }
             }
         }
 
@@ -461,6 +461,10 @@ public class ExpressionColumn extends Expression {
 
         if (colIndex == -1) {
             return false;
+        }
+
+        if (rangeVar.rangeType == RangeVariable.TRANSITION_RANGE) {
+            opType = OpTypes.TRANSITION_VARIABLE;
         }
 
         setAttributesAsColumn(rangeVar, colIndex);
@@ -477,21 +481,24 @@ public class ExpressionColumn extends Expression {
                 return false;
             }
 
-            if (rangeVar.variables != null) {
-                int colIndex = rangeVar.findColumn(columnName);
+            switch (rangeVar.rangeType) {
 
-                if (colIndex == -1) {
-                    return false;
-                }
+                case RangeVariable.PARAMETER_RANGE :
+                case RangeVariable.VARIALBE_RANGE :
+                    int colIndex = rangeVar.findColumn(columnName);
 
-                ColumnSchema column = rangeVar.getColumn(colIndex);
+                    if (colIndex == -1) {
+                        return false;
+                    }
 
-                if (column.getParameterMode()
-                        == SchemaObject.ParameterModes.PARAM_OUT) {
-                    return false;
-                } else {
-                    return true;
-                }
+                    ColumnSchema column = rangeVar.getColumn(colIndex);
+
+                    if (column.getParameterMode()
+                            == SchemaObject.ParameterModes.PARAM_OUT) {
+                        return false;
+                    } else {
+                        return true;
+                    }
             }
         }
 
@@ -540,6 +547,10 @@ public class ExpressionColumn extends Expression {
             }
             case OpTypes.PARAMETER : {
                 return session.sessionContext.routineArguments[columnIndex];
+            }
+            case OpTypes.TRANSITION_VARIABLE : {
+                return session.sessionContext
+                    .triggerArguments[rangeVariable.rangePosition][columnIndex];
             }
             case OpTypes.COLUMN : {
                 Object value =

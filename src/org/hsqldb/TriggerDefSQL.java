@@ -94,19 +94,17 @@ public class TriggerDefSQL extends TriggerDef {
 
         session.sessionContext.push();
 
-        session.sessionContext.rangeOffset = RANGE_COUNT;
-
-        if (transitions[OLD_ROW] != null) {
-            rangeVars[OLD_ROW].getIterator(session).setCurrent(oldData);
-        }
-
-        if (transitions[NEW_ROW] != null) {
-            rangeVars[NEW_ROW].getIterator(session).setCurrent(newData);
+        if (rangeVars[OLD_ROW] != null || rangeVars[NEW_ROW] != null) {
+            session.sessionContext.triggerArguments = new Object[][] {
+                oldData, newData
+            };
         }
 
         if (condition.testCondition(session)) {
+            int variableCount = routine.getVariableCount();
+
             session.sessionContext.routineVariables =
-                ValuePool.emptyObjectArray;
+                new Object[variableCount];
             result = routine.statement.execute(session);
         }
 

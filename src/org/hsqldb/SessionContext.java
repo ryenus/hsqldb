@@ -65,9 +65,10 @@ public class SessionContext {
 
     //
     private HsqlArrayList stack;
-    public Object[]       routineArguments = ValuePool.emptyObjectArray;
-    public Object[]       routineVariables = ValuePool.emptyObjectArray;
+    Object[]              routineArguments = ValuePool.emptyObjectArray;
+    Object[]              routineVariables = ValuePool.emptyObjectArray;
     Object[]              dynamicArguments = ValuePool.emptyObjectArray;
+    Object[][]            triggerArguments = null;
     public int            depth;
 
     //
@@ -77,7 +78,6 @@ public class SessionContext {
 
     // range variable data
     RangeIterator[] rangeIterators;
-    int             rangeOffset;
 
     //
     public Statement currentStatement;
@@ -99,16 +99,17 @@ public class SessionContext {
      */
     SessionContext(Session session) {
 
-        this.session             = session;
-        rangeIterators           = new RangeIterator[8];
-        savepoints               = new HashMappedList(4);
-        savepointTimestamps      = new LongDeque();
-        sessionVariables         = new HashMappedList();
-        sessionVariablesRange    = new RangeVariable[1];
-        sessionVariablesRange[0] = new RangeVariable(sessionVariables, true);
-        isAutoCommit             = Boolean.FALSE;
-        isReadOnly               = Boolean.FALSE;
-        noSQL                    = Boolean.FALSE;
+        this.session          = session;
+        rangeIterators        = new RangeIterator[8];
+        savepoints            = new HashMappedList(4);
+        savepointTimestamps   = new LongDeque();
+        sessionVariables      = new HashMappedList();
+        sessionVariablesRange = new RangeVariable[1];
+        sessionVariablesRange[0] = new RangeVariable(sessionVariables, null,
+                true, RangeVariable.VARIALBE_RANGE);
+        isAutoCommit = Boolean.FALSE;
+        isReadOnly   = Boolean.FALSE;
+        noSQL        = Boolean.FALSE;
     }
 
     public void push() {
@@ -121,9 +122,9 @@ public class SessionContext {
 
         stack.add(dynamicArguments);
         stack.add(routineArguments);
+        stack.add(triggerArguments);
         stack.add(routineVariables);
         stack.add(rangeIterators);
-        stack.add(ValuePool.getInt(rangeOffset));
         stack.add(savepoints);
         stack.add(savepointTimestamps);
         stack.add(lastIdentity);
@@ -154,9 +155,9 @@ public class SessionContext {
         lastIdentity        = (Number) stack.remove(stack.size() - 1);
         savepointTimestamps = (LongDeque) stack.remove(stack.size() - 1);
         savepoints          = (HashMappedList) stack.remove(stack.size() - 1);
-        rangeOffset = ((Integer) stack.remove(stack.size() - 1)).intValue();
         rangeIterators      = (RangeIterator[]) stack.remove(stack.size() - 1);
         routineVariables    = (Object[]) stack.remove(stack.size() - 1);
+        triggerArguments    = ((Object[][]) stack.remove(stack.size() - 1));
         routineArguments    = (Object[]) stack.remove(stack.size() - 1);
         dynamicArguments    = (Object[]) stack.remove(stack.size() - 1);
 
@@ -193,11 +194,11 @@ public class SessionContext {
 
     public RangeIteratorBase getCheckIterator(RangeVariable rangeVariable) {
 
-        RangeIterator it = rangeIterators[rangeOffset + 1];
+        RangeIterator it = rangeIterators[0];
 
         if (it == null) {
-            it = rangeVariable.getIterator(session);
-            rangeIterators[rangeOffset + 1] = it;
+            it                = rangeVariable.getIterator(session);
+            rangeIterators[0] = it;
         }
 
         return (RangeIteratorBase) it;

@@ -34,6 +34,7 @@ package org.hsqldb;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.sql.ResultSet;
 
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.HsqlNameManager.SimpleName;
@@ -50,8 +51,6 @@ import org.hsqldb.store.BitMap;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
-
-import java.sql.ResultSet;
 
 /**
  * Implementation of specific routine
@@ -130,7 +129,8 @@ public class Routine implements SchemaObject {
         routineType = type;
         returnType  = Type.SQL_ALL_TYPES;
         ranges = new RangeVariable[]{
-            new RangeVariable(parameterList, false) };
+            new RangeVariable(parameterList, null, false,
+                              RangeVariable.PARAMETER_RANGE) };
     }
 
     public Routine(Table table, RangeVariable[] ranges, int impact,
@@ -686,7 +686,7 @@ public class Routine implements SchemaObject {
             }
         }
 
-        for (; i  + extraArg < callArguments.length; i++) {
+        for (; i + extraArg < callArguments.length; i++) {
             data[i + extraArg] = new java.sql.ResultSet[1];
         }
 
@@ -712,15 +712,13 @@ public class Routine implements SchemaObject {
             callArguments[i] = types[i].convertJavaToSQL(session, value);
         }
 
-
         for (; i + extraArg < data.length; i++) {
             ResultSet rs = ((ResultSet[]) data[i])[0];
 
             if (rs != null) {
                 if (rs instanceof JDBCResultSet) {
                     Result head = (Result) callArguments[i - extraArg];
-
-                    Result r = ((JDBCResultSet) rs).result;
+                    Result r    = ((JDBCResultSet) rs).result;
 
                     if (head == null) {
                         callArguments[i - extraArg] = r;
@@ -732,7 +730,6 @@ public class Routine implements SchemaObject {
                 }
             }
         }
-
     }
 
     Result invokeJavaMethod(Session session, Object[] data) {

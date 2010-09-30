@@ -35,22 +35,13 @@
 
 package org.hsqldb.server;
 
+import java.sql.SQLException;
+
+import org.hsqldb.HsqlException;
+import org.hsqldb.Session;
+import org.hsqldb.jdbc.Util;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
-import org.hsqldb.types.NumberType;
-import org.hsqldb.types.BooleanType;
-import org.hsqldb.types.CharacterType;
-import org.hsqldb.types.DateTimeType;
-import org.hsqldb.Session;
-import org.hsqldb.types.Types;
-import java.sql.SQLException;
-import java.io.Serializable;
-import org.hsqldb.types.JavaObjectData;
-import org.hsqldb.HsqlException;
-import org.hsqldb.types.BinaryData;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
-import org.hsqldb.jdbc.Util;
 
 public class PgType {
     private int oid;

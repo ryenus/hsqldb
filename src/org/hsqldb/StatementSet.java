@@ -316,7 +316,7 @@ public class StatementSet extends StatementDMQL {
         Type[]       colTypes       = table.getColumnTypes();
         int index = targetRangeVariables[TriggerDef.NEW_ROW].rangePosition;
         Object[] oldData =
-            session.sessionContext.rangeIterators[index].getCurrent();
+            session.sessionContext.triggerArguments[index];
         Object[] data = StatementDML.getUpdatedData(session, targets, table,
             colMap, colExpressions, colTypes, oldData);
 

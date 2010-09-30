@@ -51,6 +51,7 @@ import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BinaryType;
+import org.hsqldb.types.BlobData;
 import org.hsqldb.types.CharacterType;
 import org.hsqldb.types.ClobData;
 import org.hsqldb.types.DTIType;
@@ -1431,7 +1432,11 @@ public class FunctionCustom extends FunctionSQL {
                     return null;
                 }
 
-                return nodes[0].dataType.convertToString(data[0]);
+                BlobData binary = (BlobData) data[0];
+                byte[] bytes = binary.getBytes(session, 0,
+                                               (int) binary.length(session));
+
+                return StringConverter.byteArrayToHexString(bytes);
             }
             case FUNC_REPEAT : {
                 for (int i = 0; i < data.length; i++) {
@@ -1824,6 +1829,7 @@ public class FunctionCustom extends FunctionSQL {
 
                     break;
                 } else if (nodes[0].dataType.isNumberType()) {
+
                     //
                 } else {
                     throw Error.error(ErrorCode.X_42561);
