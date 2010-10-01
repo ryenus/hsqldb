@@ -417,7 +417,7 @@
   </section>
 
   <section xml:id="listeners_appstart-sect">
-    <title>Starting a Server from your application</title>
+    <title>Starting a Server from your Application</title>
 
     <para>If you want to start the server from within your application, as
     opposed to the command line or batch files, you should create an instance
@@ -444,7 +444,7 @@
   </section>
 
   <section>
-    <title>Allowing a Connection to Open a Database</title>
+    <title>Allowing a Connection to Open or Create a Database</title>
 
     <para>If the <literal>server.remote_open</literal> property is true, the
     Server works differently from the normal mode. In this mode, it is not
@@ -462,9 +462,14 @@
     specified as <literal>file:C:/files/mydatabase</literal> is opened and the
     database alias <literal>xdb</literal> is assigned to the database. After
     this, the next connection to the specified alias will connect to the same
-    database.</para>
+    database. The database path can also point to a mem: database. If you use
+    database properties on the URL, these properties are used when the new
+    database is created. If no database proprties are used on the URL, you can
+    also specify the path with filepath=&lt;path&gt;. Examples below:</para>
 
     <programlisting>Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;file:C:/files/mydatabase", "SA", "");
+Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;mem:test;sql.enforce_types=true", "SA", "");
+Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb;filepath=file:C:/files/mydatabase", "SA", "");
 </programlisting>
 
     <para>The path can be a file: or mem: database.</para>
