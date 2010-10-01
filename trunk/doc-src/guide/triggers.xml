@@ -249,23 +249,26 @@
       row into a triglog table after each row insert into the testtrig
       table.</para>
 
-      <programlisting>create trigger trig after insert on testtrig 
-   referencing new row as newrow
-   for each row when (newrow.id &gt; 1)
-   insert into triglog values (newrow.id, newrow.data, 'inserted')
+      <programlisting>  CREATE TRIGGER trig AFTER INSERT ON testtrig 
+    REFERENCING NEW ROW AS newrow
+    FOR EACH ROW WHEN (newrow.id &gt; 1)
+    INSERT INTO TRIGLOG VALUES (newrow.id, newrow.data, 'inserted')
 </programlisting>
 
       <para>In the example blow, the trigger code modifies the updated data if
       a condition is true. This type of trigger is useful when the application
-      does not perform the necessary checks and modifications to data.</para>
+      does not perform the necessary checks and modifications to data. The
+      statement block that starts with BEGIN ATOMIC is similar to an SQL/PSM
+      block and can contain all the SQL statements that are allowed in an
+      SQL/PSM block.</para>
 
-      <programlisting>create trigger t before update on customer
-   referencing new as newrow for each row
-   begin atomic
-   if length(newrow.firstname ) &gt; 10 then
-   set newrow.firstname = lower(newrow.firstname);
-   end if;
-   end
+      <programlisting>  CREATE TRIGGER t BEFORE UPDATE ON customer
+    REFERENCING NEW AS newrow FOR EACH ROW
+    BEGIN ATOMIC
+      IF LENGTH(newrow.firstname) &gt; 10 THEN
+        SET newrow.firstname = LOWER(newrow.firstname);
+      END IF;
+    END
 </programlisting>
     </section>
 
@@ -315,12 +318,12 @@
       queue full condition. In this mode, old calls that are still in the
       queue are discarded one by one and replaced with new calls.</para>
 
-      <para>Java triggers can modify the row data. Generally they should not
-      be used to modify the database, e.g. insert new rows, etc. If the
-      trigger needs to access the database, the same method as in Java
-      Language Routines SQL/JRT can be used with
-      <literal>"jdbc:default:connection"</literal> to get the connection to
-      the database.</para>
+      <para>Java row level triggers that are declared with BEFORE trigger
+      action time can modify the row data. Triggers with AFTER trigger action
+      time can modify the database, e.g. insert new rows. If the trigger needs
+      to access the database, the same method as in Java Language Routines
+      SQL/JRT can be used with <literal>"jdbc:default:connection"</literal> to
+      get the connection to the database.</para>
 
       <para>For sample trigger classes and test code see,
       <classname>org.hsqldb.sample.TriggerSample</classname>,
@@ -333,10 +336,10 @@
       trigger is not activated if the c2 column in the updated row is
       null.</para>
 
-      <programlisting>create trigger trigbur before update of c1, c2, c3 on testtrig 
-   referencing new row as newrow
-   for each row when (newrow.c2 is not null)
-   call "org.hsqldb.test.TriggerClass"
+      <programlisting>  CREATE TRIGGER TRIGBUR BEFORE UPDATE OF c1, c2, c3 ON testtrig 
+    referencing NEW ROW AS newrow
+    FOR EACH ROW WHEN (newrow.c2 IS NOT NULL)
+    CALL "org.hsqldb.test.TriggerClass"
 </programlisting>
 
       <para>Java functions can be called from an SQL trigger. So it is
@@ -344,13 +347,13 @@
       communication that are necessary for the trigger, and use SQL code for
       checks and alterations to data.</para>
 
-      <programlisting>create trigger t before update on customer
-   referencing new as newrow for each row
-   begin atomic
-   if length(newrow.firstname ) &gt; 10 then
-   call my_java_function(newrow.firstname, newrow.lastname);
-   end if;
-   end
+      <programlisting>  CREATE TRIGGER t BEFORE UPDATE ON customer
+    REFERENCING NEW AS newrow FOR EACH ROW
+    BEGIN ATOMIC
+      IF LENGTH(newrow.firstname) &gt; 10 THEN
+        CALL my_java_function(newrow.firstname, newrow.lastname);
+      END IF;
+    END
 </programlisting>
     </section>
   </section>
@@ -430,18 +433,18 @@
     <simpara>If a trigger is <literal>FOR EACH ROW</literal>, which is the
     default option, then the trigger is activated for each row of the table
     that is affected by the execution of an SQL statement. Otherwise, it is
-    activated once only per statement execution. In the first case, there is a
-    before and after state for each row. For UPDATE triggers, both before and
-    after states exist, representing the row before the update, and after the
-    update. For DELETE, triggers, there is only a before state. For INSERT
-    triggers, there is only an after state. If a trigger is <literal>FOR EACH
-    STATEMENT</literal>, then a transient table is created containing all the
-    rows for the before state and another transient table is created for the
-    after state.</simpara>
+    activated once only per statement execution. For <literal>FOR EACH
+    ROW</literal> triggers, there is an OLD and NEW state for each row. For
+    UPDATE triggers, both OLD and NEW states exist, representing the row
+    before the update, and after the update. For DELETE, triggers, there is
+    only an OLD state. For INSERT triggers, there is only the NEW state. If a
+    trigger is <literal>FOR EACH STATEMENT</literal>, then a transient table
+    is created containing all the rows for the OLD state and another transient
+    table is created for the NEW state.</simpara>
 
     <simpara>The <literal>[ REFERENCING &lt;transition table or variable&gt;
-    ]</literal> is used to give a name to the before and after data row or
-    table. This name can be referenced in the <literal>&lt;SQL procedure
+    ]</literal> is used to give a name to the OLD and NEW data row or table.
+    This name can be referenced in the <literal>&lt;SQL procedure
     statement&gt;</literal> to access the data.</simpara>
 
     <simpara>The optional <literal>&lt;triggered when clause&gt;</literal> is
@@ -494,13 +497,14 @@
     in such blocks in order to terminate the execution of the SQL statement
     that caused the trigger to execute.</simpara>
 
-    <programlisting>create trigger trig after insert on testtrig 
-   referencing new row as newrow
-   for each row when (newrow.id &gt; 1)
-   begin atomic
-   insert into triglog values (newrow.id, newrow.data, 'inserted');
-   /* more statements can be included */
-   end
+    <programlisting>  CREATE TRIGGER trig AFTER INSERT ON testtrig 
+    BEFORE othertrigger  
+    REFERENCING NEW ROW AS newrow
+    FOR EACH ROW WHEN (newrow.id &gt; 1)
+    BEGIN ATOMIC
+      INSERT INTO triglog VALUES (newrow.id, newrow.data, 'inserted');
+      /* more statements can be included */
+    END
 </programlisting>
 
     <simpara></simpara>

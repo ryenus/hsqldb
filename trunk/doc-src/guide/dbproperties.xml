@@ -50,7 +50,7 @@
   </info>
 
   <section xml:id="dbproperties_connections-sect">
-    <title>Connections</title>
+    <title>Connection URL</title>
 
     <para>The normal method of accessing a HyperSQL catalog is via the JDBC
     Connection interface. An introduction to different methods of providing
@@ -217,6 +217,31 @@
         </tbody>
       </tgroup>
     </table>
+
+    <section>
+      <title>Variables In Connection URL</title>
+
+      <para>Two types of variables are allowed for mem: and file: database
+      URLs.</para>
+
+      <para>If the database part of a file: database begins with ~/ or ~\ the
+      tilde character is replaced with the value of the sytem property
+      "user.home" resulting in the database being created or accessed in this
+      directory, or one of its subdirectories. In the example below, the
+      database files for mydb are located in the user's home directory.</para>
+
+      <programlisting>    jdbc:hsqldb:file:~/mydb;shutdown=true</programlisting>
+
+      <para>If the database URL contains a string in the form of ${propname}
+      then the sequence of characters is replaced with the system property
+      with the given name. For example you can use this in the URL of a
+      database that is used in a web application and define the system
+      property, "propname" in the web application properties. In the example
+      below, the string ${mydbpath} is replaced with the value of the
+      property, mydbpath</para>
+
+      <programlisting>    jdbc:hsqldb:file:${mydbpath};sql.enforce_types=true</programlisting>
+    </section>
 
     <section xml:id="conn_props-sect">
       <title>Connection properties</title>
