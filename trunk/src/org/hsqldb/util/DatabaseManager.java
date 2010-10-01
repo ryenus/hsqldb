@@ -208,6 +208,36 @@ implements ActionListener, WindowListener, KeyListener {
         }
     }
 
+    public static void threadedDBM() {
+
+        System.getProperties().put("sun.java2d.noddraw", "true");
+
+        String  urlid        = null;
+        String  rcFile       = null;
+        boolean autoConnect  = false;
+        boolean urlidConnect = false;
+
+        bMustExit = false;
+
+        DatabaseManager m = new DatabaseManager();
+
+        m.main();
+
+        Connection c = null;
+
+        try {
+            c = ConnectionDialog.createConnection(m.fMain, "Connect");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (c == null) {
+            return;
+        }
+
+        m.connect(c);
+    }
+
     /**
      * Run with --help switch for usage instructions.
      *
@@ -825,10 +855,11 @@ implements ActionListener, WindowListener, KeyListener {
 
             if (r == -1) {
                 ResultSet rs = sStatement.getResultSet();
+
                 try {
                     formatResultSet(rs);
                 } catch (Throwable t) {
-                    g[0]  = "Error displaying the ResultSet";
+                    g[0] = "Error displaying the ResultSet";
 
                     gResult.setHead(g);
 

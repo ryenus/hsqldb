@@ -316,6 +316,13 @@ public class Server implements HsqlSocketRequestHandler {
         }
     }
 
+     /**
+     * Returns thread object for "HSQLDB Server" thread
+     */
+    public Thread getServerThread() {
+        return serverThread;
+    }
+    
     /**
      * Creates a new Server instance handling HSQL protocol connections.
      */
