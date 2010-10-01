@@ -55,12 +55,13 @@ public class LineReader {
     HsqlByteArrayOutputStream baOS     = new HsqlByteArrayOutputStream(1024);
 
     //
-    InputStream stream;
-    Charset     charset     = null;
-    String      charsetName = null;
+    final InputStream stream;
+    final Charset     charset;
+    final String      charsetName;
 
     public LineReader(InputStream stream, String charsetName) {
         this.stream  = stream;
+        this.charsetName = charsetName;
         this.charset = Charset.forName(charsetName);
     }
 
