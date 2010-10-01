@@ -133,6 +133,11 @@ public class DatabaseURL {
         HsqlProperties extraProps = null;
         String         arguments  = null;
         int            pos        = 0;
+        String         type       = null;
+        int            port       = 0;
+        String         database;
+        String         path;
+        boolean        isNetwork = false;
 
         if (hasPrefix) {
             if (urlImage.startsWith(S_URL_PREFIX)) {
@@ -142,11 +147,23 @@ public class DatabaseURL {
             }
         }
 
-        String  type = null;
-        int     port = 0;
-        String  database;
-        String  path;
-        boolean isNetwork = false;
+        int replacePos = url.indexOf("${");
+
+        if (replacePos != -1) {
+            int endPos = url.indexOf("}", replacePos);
+
+            if (endPos != -1) {
+                String varName  = url.substring(replacePos + 2, endPos);
+                String varValue = System.getProperty(varName);
+
+                if (varValue != null) {
+                    url = url.substring(0, replacePos) + varValue
+                          + url.substring(endPos + 1);
+                }
+
+                urlImage = url.toLowerCase(Locale.ENGLISH);
+            }
+        }
 
         props.setProperty("url", url);
 
@@ -211,21 +228,17 @@ public class DatabaseURL {
         if (isNetwork) {
 
             // First capture 3 segments:  host + port + path
-            String pathSeg  = null;
-            String hostSeg  = null;
-            String portSeg  = null;
-            int    slashPos = url.indexOf('/', pos);
+            String pathSeg = null;
+            String hostSeg = null;
+            String portSeg = null;
+            int    endPos  = url.indexOf('/', pos);
 
-            if (slashPos > 0 && slashPos < postUrlPos) {
-                pathSeg = url.substring(slashPos, postUrlPos);
+            if (endPos > 0 && endPos < postUrlPos) {
+                pathSeg = url.substring(endPos, postUrlPos);
 
                 // N.b. pathSeg necessarily begins with /.
-                postUrlPos = slashPos;
-            }
-
-            // Assertion
-            if (postUrlPos <= pos) {
-                return null;
+            } else {
+                endPos = postUrlPos;
             }
 
             // Processing different for ipv6 host address and all others:
@@ -235,7 +248,7 @@ public class DatabaseURL {
                 int endIpv6 = url.indexOf(']', pos + 2);
 
                 // Notice 2 instead of 1 to require non-empty addr segment
-                if (endIpv6 < 0 || endIpv6 >= postUrlPos) {
+                if (endIpv6 < 0 || endIpv6 >= endPos) {
                     return null;
 
                     // Wish could throw something with a useful message for user
@@ -244,23 +257,24 @@ public class DatabaseURL {
 
                 hostSeg = urlImage.substring(pos + 1, endIpv6);
 
-                if (postUrlPos > endIpv6 + 1) {
-                    portSeg = url.substring(endIpv6 + 1, postUrlPos);
+                if (endPos > endIpv6 + 1) {
+                    portSeg = url.substring(endIpv6 + 1, endPos);
                 }
             } else {
 
                 // non-ipv6
                 int colPos = url.indexOf(':', pos + 1);
 
-                // Notice + 1 to require non-empty addr segment
-                hostSeg = urlImage.substring(pos, (colPos > 0) ? colPos
-                                                               : postUrlPos);
-
-                if (colPos > -1 && postUrlPos > colPos + 1) {
+                if (colPos > -1 && colPos < endPos) {
 
                     // portSeg will be non-empty, but could contain just ":"
-                    portSeg = url.substring(colPos, postUrlPos);
+                    portSeg = url.substring(colPos, endPos);
+                } else {
+                    colPos = -1;
                 }
+
+                hostSeg = urlImage.substring(pos, (colPos > 0) ? colPos
+                                                               : endPos);
             }
 
             // At this point, the entire url has been parsed into
@@ -315,6 +329,11 @@ public class DatabaseURL {
 
                 if (filePath != null && database.length() != 0) {
                     database += ";" + filePath;
+                } else {
+                    if (url.indexOf(S_MEM) == postUrlPos + 1
+                            || url.indexOf(S_FILE) == postUrlPos + 1) {
+                        database += url.substring(postUrlPos);
+                    }
                 }
             }
         } else {
@@ -328,6 +347,12 @@ public class DatabaseURL {
                 }
             } else {
                 database = url.substring(pos, postUrlPos);
+
+                if (database.startsWith("~")) {
+                    String userHome = System.getProperty("user.home");
+
+                    database = userHome + database.substring(1);
+                }
             }
 
             if (database.length() == 0) {

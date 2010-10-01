@@ -857,8 +857,6 @@ public class StatementDML extends StatementDMQL {
                 if (baseTable.colDefaults[colIndex] != null) {
                     data[colIndex] =
                         baseTable.colDefaults[colIndex].getValue(session);
-
-                    continue;
                 }
 
                 continue;
