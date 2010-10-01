@@ -683,6 +683,24 @@
             use rounding. By default truncation is
             used.</para><para><programlisting>SET DATABASE SQL CONVERT TRUNCATE { TRUE | FALSE }</programlisting></para></entry>
           </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"></entry>
+          </row>
+
+          <row>
+            <entry><property>sql.syntax_ora</property></entry>
+
+            <entry><literal>false</literal></entry>
+
+            <entry>support for Oracle style syntax</entry>
+          </row>
+
+          <row>
+            <entry nameend="c3" namest="c1"><para>This property, when set
+            true, enables support for DUAL, ROWNUM, NEXTVAL and CURRVAL
+            syntax</para><para><programlisting>SET DATABASE SQL SYNTAX ORA { TRUE | FALSE } [to be supported]</programlisting></para></entry>
+          </row>
         </tbody>
       </tgroup>
     </table>
