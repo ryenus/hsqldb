@@ -56,11 +56,12 @@ public class LineReader {
 
     //
     InputStream stream;
-    Charset     charset = null;
+    Charset     charset     = null;
+    String      charsetName = null;
 
-    public LineReader(InputStream stream, String charset) {
+    public LineReader(InputStream stream, String charsetName) {
         this.stream  = stream;
-        this.charset = Charset.forName(charset);
+        this.charset = Charset.forName(charsetName);
     }
 
     public String readLine() throws IOException {
@@ -111,7 +112,9 @@ public class LineReader {
             break;
         }
 
-        String string = new String(baOS.getBuffer(), 0, baOS.size(), charset);
+        // can use charset with JDK 1.6
+        String string = new String(baOS.getBuffer(), 0, baOS.size(),
+                                   charsetName);
 
         baOS.reset();
 
