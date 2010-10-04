@@ -462,6 +462,10 @@ public class Database {
         sqlConvertTruncate = mode;
     }
 
+    public void setSyntaxOra(boolean mode) {
+        sqlSyntaxOra = mode;
+    }
+
     /**
      *  Called by the garbage collector on this Databases object when garbage
      *  collection determines that there are no more references to it.

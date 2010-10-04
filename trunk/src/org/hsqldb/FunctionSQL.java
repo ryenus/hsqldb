@@ -775,10 +775,6 @@ public class FunctionSQL extends Expression {
                 double exponent = ((Number) data[1]).doubleValue();
                 double val;
 
-                if (exponent < 0) {
-                    throw Error.error(ErrorCode.X_2201F);
-                }
-
                 if (base == 0) {
                     if (exponent < 0) {
                         throw Error.error(ErrorCode.X_2201F);

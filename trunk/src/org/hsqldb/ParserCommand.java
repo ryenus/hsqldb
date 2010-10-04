@@ -928,7 +928,7 @@ public class ParserCommand extends ParserDDL {
             case Tokens.SQL : {
                 read();
 
-                int     type     = 0;
+                int     type     = StatementTypes.SET_DATABASE_SQL_STRICT;
                 Boolean flag     = null;
                 String  property = null;
 
@@ -937,7 +937,6 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.NAMES :
                         read();
 
-                        type     = StatementTypes.SET_DATABASE_SQL_STRICT;
                         property = HsqlDatabaseProperties.sql_enforce_names;
                         flag     = processTrueOrFalseObject();
                         break;
@@ -945,7 +944,6 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.REFERENCES :
                         read();
 
-                        type     = StatementTypes.SET_DATABASE_SQL_STRICT;
                         flag     = processTrueOrFalseObject();
                         property = HsqlDatabaseProperties.sql_enforce_refs;
                         break;
@@ -953,7 +951,6 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.SIZE :
                         read();
 
-                        type     = StatementTypes.SET_DATABASE_SQL_STRICT;
                         flag     = processTrueOrFalseObject();
                         property = HsqlDatabaseProperties.sql_enforce_size;
                         break;
@@ -961,15 +958,12 @@ public class ParserCommand extends ParserDDL {
                     case Tokens.TYPES :
                         read();
 
-                        type     = StatementTypes.SET_DATABASE_SQL_STRICT;
                         flag     = processTrueOrFalseObject();
                         property = HsqlDatabaseProperties.sql_enforce_types;
                         break;
 
                     case Tokens.TDC :
                         read();
-
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
 
                         if (readIfThis(Tokens.DELETE)) {
                             property = HsqlDatabaseProperties.sql_enforce_tdcd;
@@ -984,9 +978,6 @@ public class ParserCommand extends ParserDDL {
 
                     case Tokens.TRANSLATE :
                         read();
-
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
-
                         readThis(Tokens.TTI);
                         readThis(Tokens.TYPES);
 
@@ -997,9 +988,6 @@ public class ParserCommand extends ParserDDL {
 
                     case Tokens.CONCAT_WORD :
                         read();
-
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
-
                         readThis(Tokens.NULLS);
 
                         flag     = processTrueOrFalseObject();
@@ -1008,9 +996,6 @@ public class ParserCommand extends ParserDDL {
 
                     case Tokens.UNIQUE :
                         read();
-
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
-
                         readThis(Tokens.NULLS);
 
                         flag     = processTrueOrFalseObject();
@@ -1019,13 +1004,23 @@ public class ParserCommand extends ParserDDL {
 
                     case Tokens.CONVERT :
                         read();
-
-                        type = StatementTypes.SET_DATABASE_SQL_STRICT;
-
                         readThis(Tokens.TRUNCATE);
 
                         flag     = processTrueOrFalseObject();
                         property = HsqlDatabaseProperties.sql_convert_trunc;
+                        break;
+
+                    case Tokens.SYNTAX :
+                        read();
+
+                        if (token.tokenString.equals(Tokens.T_ORA)) {
+                            read();
+                        } else {
+                            throw unexpectedToken();
+                        }
+
+                        flag     = processTrueOrFalseObject();
+                        property = HsqlDatabaseProperties.sql_syntax_ora;
                         break;
 
                     default :

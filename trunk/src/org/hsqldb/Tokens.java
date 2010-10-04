@@ -629,8 +629,11 @@ public class Tokens {
     static final String        T_AUTHENTICATION       = "AUTHENTICATION";
     static final String        T_AUTOCOMMIT           = "AUTOCOMMIT";
     public static final String T_BACKUP               = "BACKUP";
+    static final String        T_BINARY_DOUBLE        = "BINARY_DOUBLE";
+    static final String        T_BINARY_FLOAT         = "BINARY_FLOAT";
     public static final String T_BIT                  = "BIT";
     static final String        T_BITLENGTH            = "BITLENGTH";
+    static final String        T_BYTE                 = "BYTE";
     public static final String T_CACHE                = "CACHE";
     static final String        T_CACHED               = "CACHED";
     static final String        T_CASEWHEN             = "CASEWHEN";
@@ -671,6 +674,7 @@ public class Tokens {
     public static final String T_LOB                 = "LOB";
     public static final String T_LOCK                = "LOCK";
     public static final String T_LOCKS               = "LOCKS";
+    public static final String T_LONG                = "LONG";
     static final String        T_MAXROWS             = "MAXROWS";
     public static final String T_MEMORY              = "MEMORY";
     public static final String T_MILLIS              = "MILLIS";
@@ -684,10 +688,12 @@ public class Tokens {
     static final String        T_OCTETLENGTH         = "OCTETLENGTH";
     static final String        T_OFF                 = "OFF";
     public static final String T_OTHER               = "OTHER";
+    public static final String T_ORA                 = "ORA";
     public static final String T_PASSWORD            = "PASSWORD";
     static final String        T_PLAN                = "PLAN";
     static final String        T_PROPERTY            = "PROPERTY";
     static final String        T_QUEUE               = "QUEUE";
+    static final String        T_RAW                 = "RAW";
     static final String        T_READONLY            = "READONLY";
     static final String        T_REFERENTIAL         = "REFERENTIAL";
     static final String        T_RENAME              = "RENAME";
@@ -736,6 +742,7 @@ public class Tokens {
     static final String        T_SQL_TINYINT         = "SQL_TINYINT";
     static final String        T_SQL_VARBINARY       = "SQL_VARBINARY";
     static final String        T_SQL_VARCHAR         = "SQL_VARCHAR";
+    static final String        T_SYNTAX              = "SYNTAX";
     public static final String T_TDC                 = "TDC";
     public static final String T_TEMP                = "TEMP";
     public static final String T_TEXT                = "TEXT";
@@ -746,6 +753,7 @@ public class Tokens {
     public static final String T_TTI                 = "TTI";
     public static final String T_TYPES               = "TYPES";
     public static final String T_VARCHAR_IGNORECASE  = "VARCHAR_IGNORECASE";
+    public static final String T_VARCHAR2            = "VARCHAR2";
     public static final String T_UTF16               = "UTF16";
     static final String        T_WRITE_DELAY         = "WRITE_DELAY";
     public static final String T_YES                 = "YES";
@@ -1530,7 +1538,13 @@ public class Tokens {
     static final int        UNIX_TIMESTAMP             = 694;
     static final int        WEEK                       = 695;
     public static final int WEEK_OF_YEAR               = 696;
-
+    static final int        VARCHAR2                   = 697;
+    static final int        LONG                       = 698;
+    static final int        RAW                        = 699;
+    static final int        BYTE                       = 700;
+    static final int        BINARY_FLOAT               = 701;
+    static final int        BINARY_DOUBLE              = 702;
+    static final int        SYNTAX                     = 703;
     //
     static final int ISOLATION_LEVEL          = 711;
     static final int SESSION_ISOLATION_LEVEL  = 712;
@@ -1968,7 +1982,7 @@ public class Tokens {
         reservedKeys.put(Tokens.T_YEAR, YEAR);
     }
 
-    private static final IntValueHashMap commandSet = new IntValueHashMap(251);
+    private static final IntValueHashMap commandSet = new IntValueHashMap(299);
 
     static {
         commandSet.put(T_ACTION, ACTION);
@@ -1982,7 +1996,10 @@ public class Tokens {
         commandSet.put(T_AUTOCOMMIT, AUTOCOMMIT);
         commandSet.put(T_BACKUP, BACKUP);
         commandSet.put(T_BEFORE, BEFORE);
+        commandSet.put(T_BINARY_DOUBLE, BINARY_DOUBLE);
+        commandSet.put(T_BINARY_FLOAT, BINARY_FLOAT);
         commandSet.put(T_BIT, BIT);
+        commandSet.put(T_BYTE, BYTE);
         commandSet.put(T_BLOCKING, BLOCKING);
         commandSet.put(T_CACHE, CACHE);
         commandSet.put(T_CACHED, CACHED);
@@ -2052,6 +2069,7 @@ public class Tokens {
         commandSet.put(T_LOB, LOB);
         commandSet.put(T_LOCK, LOCK);
         commandSet.put(T_LOCKS, LOCKS);
+        commandSet.put(T_LONG, LONG);
         commandSet.put(T_M_FACTOR, M);
         commandSet.put(T_MATCHED, MATCHED);
         commandSet.put(T_MAXROWS, MAXROWS);
@@ -2067,6 +2085,7 @@ public class Tokens {
         commandSet.put(T_NIO, NIO);
         commandSet.put(T_NOW, NOW);
         commandSet.put(T_NULLS, NULLS);
+        commandSet.put(T_NUMBER, NUMBER);
         commandSet.put(T_OFF, OFF);
         commandSet.put(T_OPTION, OPTION);
         commandSet.put(T_ORDINALITY, ORDINALITY);
@@ -2079,6 +2098,7 @@ public class Tokens {
         commandSet.put(T_PRESERVE, PRESERVE);
         commandSet.put(T_PRIVILEGES, PRIVILEGES);
         commandSet.put(T_PROPERTY, PROPERTY);
+        commandSet.put(T_RAW, RAW);
         commandSet.put(T_READ, READ);
         commandSet.put(T_READONLY, READONLY);
         commandSet.put(T_REFERENTIAL, REFERENTIAL);
@@ -2144,6 +2164,7 @@ public class Tokens {
         commandSet.put(T_SQL_TSI_YEAR, SQL_TSI_YEAR);
         commandSet.put(T_STATEMENT, STATEMENT);
         commandSet.put(T_STYLE, STYLE);
+        commandSet.put(T_SYNTAX, SYNTAX);
         commandSet.put(T_T_FACTOR, T);
         commandSet.put(T_TDC, TDC);
         commandSet.put(T_TEMP, TEMP);
@@ -2159,6 +2180,7 @@ public class Tokens {
         commandSet.put(T_UNCOMMITTED, UNCOMMITTED);
         commandSet.put(T_USAGE, USAGE);
         commandSet.put(T_VIEW, VIEW);
+        commandSet.put(T_VARCHAR2, VARCHAR2);
         commandSet.put(T_WORK, WORK);
         commandSet.put(T_WRAPPER, WRAPPER);
         commandSet.put(T_WRITE, WRITE);
