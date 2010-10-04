@@ -50,8 +50,8 @@ import org.hsqldb.store.ValuePool;
  */
 public class SchemaObjectSet {
 
-    HashMap       map;
-    int           type;
+    HashMap map;
+    int     type;
 
     SchemaObjectSet(int type) {
 
@@ -504,7 +504,8 @@ public class SchemaObjectSet {
 
             HsqlName name;
 
-            if (object.getType() == SchemaObject.FUNCTION) {
+            if (object.getType() == SchemaObject.FUNCTION
+                    || object.getType() == SchemaObject.PROCEDURE) {
                 name = ((Routine) object).getSpecificName();
             } else {
                 name = object.getName();
