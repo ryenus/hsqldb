@@ -684,6 +684,27 @@ INSERT INTO movies (starid, movieid, title) VALUES (IDENTITY(), 10, 'Felix in Ho
       becomes a quoted identifier and can be used for database
       objects.</simpara>
 
+      <simpara>Case sensitivity rules for identifiers can be described simply
+      as follows:</simpara>
+
+      <itemizedlist>
+        <listitem>
+          <para>all parts of SQL statements are converted to upper case before
+          processing, <emphasis>except identifiers in double quotes and
+          strings in single quotes</emphasis></para>
+        </listitem>
+
+        <listitem>
+          <para>identifiers, both unquoted and double quoted, are then treated
+          as case-sensitive</para>
+        </listitem>
+
+        <listitem>
+          <para>most database engines follow the same rule, except MySQL, and
+          in some respects, MS SQLServer.</para>
+        </listitem>
+      </itemizedlist>
+
       <indexterm significance="preferred" type="sql">
         <primary>CASCADE or RESTRICT</primary>
       </indexterm>
@@ -1391,7 +1412,7 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       clustered order. The property is stored in the database and applies to
       all future reordering of rows. Note that if extensive inserts or updates
       are performed on the tables, the rows will get out of order until the
-      next reordering. </simpara>
+      next reordering.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>SET TABLE read-write property</primary>
