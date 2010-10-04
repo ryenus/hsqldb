@@ -1195,13 +1195,17 @@ public class ParserRoutine extends ParserDML {
                                     ErrorCode.X_42608,
                                     routine.getDataImpactString());
                             }
+
+                            break;
                         }
                         case Routine.READS_SQL : {
-                            if (routine.dataImpact == Routine.MODIFIES_SQL) {
+                            if (proc.dataImpact == Routine.MODIFIES_SQL) {
                                 throw Error.error(
                                     ErrorCode.X_42608,
                                     routine.getDataImpactString());
                             }
+
+                            break;
                         }
                     }
                 }
