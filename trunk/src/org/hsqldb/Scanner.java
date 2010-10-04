@@ -2093,6 +2093,7 @@ public class Scanner {
     public Object newInterval(String s, IntervalType type) {
 
         intervalPosition = 0;
+        fractionPrecision = 0;
         intervalString   = s;
 
         boolean negate   = scanIntervalSign();
