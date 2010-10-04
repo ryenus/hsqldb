@@ -516,6 +516,9 @@ public class StatementCommand extends Statement {
                 } else if (property
                            == HsqlDatabaseProperties.sql_convert_trunc) {
                     session.database.setConvertTrunc(mode);
+                } else if (property
+                           == HsqlDatabaseProperties.sql_syntax_ora) {
+                    session.database.setSyntaxOra(mode);
                 }
 
                 return Result.updateZeroResult;

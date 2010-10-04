@@ -112,10 +112,11 @@ public class ParserDQL extends ParserBase {
 
     Type readTypeDefinition(boolean allowCollation, boolean includeUserTypes) {
 
-        int     typeNumber  = Integer.MIN_VALUE;
-        boolean hasLength   = false;
-        boolean hasScale    = false;
-        boolean isCharacter = false;
+        int     typeNumber     = Integer.MIN_VALUE;
+        boolean hasLength      = false;
+        boolean hasScale       = false;
+        boolean isCharacter    = false;
+        boolean readByteOrChar = false;
 
         checkIsIdentifier();
 
@@ -140,7 +141,67 @@ public class ParserDQL extends ParserBase {
                 }
             }
 
-            throw Error.error(ErrorCode.X_42509, token.tokenString);
+            if (token.namePrefix != null) {
+                throw Error.error(ErrorCode.X_42509, token.tokenString);
+            }
+
+            if (database.sqlSyntaxOra) {
+                switch (token.tokenType) {
+
+                    case Tokens.BINARY_DOUBLE :
+                    case Tokens.BINARY_FLOAT :
+                        read();
+
+                        return Type.SQL_DOUBLE;
+
+                    case Tokens.LONG :
+                        read();
+
+                        if (token.tokenType == Tokens.RAW) {
+                            read();
+
+                            return Type.getType(Types.SQL_VARBINARY, null,
+                                                BlobType.defaultBlobSize, 0);
+                        } else {
+                            return Type.getType(Types.SQL_VARCHAR, null,
+                                                ClobType.defaultClobSize, 0);
+                        }
+                    case Tokens.NUMBER :
+                        read();
+
+                        if (token.tokenType == Tokens.OPENBRACKET) {
+                            read();
+
+                            int precision = readInteger();
+                            int scale     = 0;
+
+                            if (token.tokenType == Tokens.COMMA) {
+                                read();
+
+                                scale = readInteger();
+                            }
+
+                            readThis(Tokens.CLOSEBRACKET);
+
+                            return Type.getType(Types.SQL_DECIMAL, null,
+                                                precision, scale);
+                        } else {
+                            return Type.SQL_DECIMAL_DEFAULT;
+                        }
+                    case Tokens.RAW :
+                        typeNumber = Types.VARBINARY;
+                        break;
+
+                    case Tokens.VARCHAR2 :
+                        typeNumber     = Types.VARCHAR;
+                        readByteOrChar = true;
+                        break;
+                }
+            }
+
+            if (typeNumber == Integer.MIN_VALUE) {
+                throw Error.error(ErrorCode.X_42509, token.tokenString);
+            }
         }
 
         read();
@@ -396,6 +457,12 @@ public class ParserDQL extends ParserBase {
 
         if (session.ignoreCase && typeNumber == Types.SQL_VARCHAR) {
             typeNumber = Types.VARCHAR_IGNORECASE;
+        }
+
+        if (readByteOrChar) {
+            if (!readIfThis(Tokens.CHAR)) {
+                readIfThis(Tokens.BYTE);
+            }
         }
 
         Collation collation = database.collation;
