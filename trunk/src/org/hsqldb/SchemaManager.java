@@ -517,11 +517,13 @@ public class SchemaManager {
         Table t = null;
 
         if (Tokens.T_MODULE.equals(schema)) {
-            t = findSessionTable(session, name, null);
+            t = findSessionTable(session, name);
 
             if (t == null) {
                 throw Error.error(ErrorCode.X_42501, name);
             }
+
+            return t;
         }
 
         if (schema == null) {
@@ -535,7 +537,7 @@ public class SchemaManager {
                 }
             }
 
-            t = findSessionTable(session, name, null);
+            t = findSessionTable(session, name);
         }
 
         if (t == null) {
@@ -605,8 +607,7 @@ public class SchemaManager {
      *  Returns the specified session context table.
      *  Returns null if the table does not exist in the context.
      */
-    public Table findSessionTable(Session session, String name,
-                                  String schemaName) {
+    public Table findSessionTable(Session session, String name) {
         return session.findSessionTable(name);
     }
 
@@ -1808,6 +1809,12 @@ public class SchemaManager {
         set.rename(name, newName);
     }
 
+    public void replaceReferences(SchemaObject oldObject,
+                                  SchemaObject newObject) {
+        removeReferencingObject(oldObject);
+        addReferences(newObject);
+    }
+
     public String[] getSQLArray() {
 
         OrderedHashSet resolved   = new OrderedHashSet();
@@ -1881,6 +1888,28 @@ public class SchemaManager {
 
             if (newResolved.size() == 0) {
                 break;
+            }
+        }
+
+        Iterator it = unresolved.iterator();
+
+        while (it.hasNext()) {
+            SchemaObject object = (SchemaObject) it.next();
+
+            if (object instanceof Routine) {
+                list.add(((Routine) object).getSQLDeclaration());
+            }
+        }
+
+        it = unresolved.iterator();
+
+        while (it.hasNext()) {
+            SchemaObject object = (SchemaObject) it.next();
+
+            if (object instanceof Routine) {
+                list.add(((Routine) object).getSQLAlter());
+            } else {
+                list.add(object.getSQL());
             }
         }
 
@@ -2142,7 +2171,7 @@ public class SchemaManager {
                                      Type.SQL_VARCHAR);
 
         dualTable.insertSys(database.sessionManager.getSysSession(),
-                            dualTable.store, new Object[]{"X"});
+                            dualTable.store, new Object[]{ "X" });
         dualTable.setDataReadOnly(true);
     }
 }

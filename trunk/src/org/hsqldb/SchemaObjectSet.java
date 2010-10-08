@@ -520,7 +520,19 @@ public class SchemaObjectSet {
             if (object.getType() == SchemaObject.TABLE) {
                 list.addAll(((Table) object).getSQL(resolved, unresolved));
             } else {
-                list.add(object.getSQL());
+                switch (object.getType()) {
+
+                    case SchemaObject.FUNCTION :
+                    case SchemaObject.PROCEDURE :
+                        if (((Routine) object).isRecursive) {
+                            list.add(((Routine) object).getSQLDeclaration());
+                            list.add(((Routine) object).getSQLAlter());
+
+                            break;
+                        }
+                    default :
+                        list.add(object.getSQL());
+                }
             }
         }
     }

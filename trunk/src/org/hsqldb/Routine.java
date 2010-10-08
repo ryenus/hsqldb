@@ -60,7 +60,7 @@ import org.hsqldb.types.Types;
  * @version 2.0.1
  * @since 1.9.0
  */
-public class Routine implements SchemaObject {
+public class Routine implements SchemaObject, Cloneable {
 
     public final static int NO_SQL       = 1;
     public final static int CONTAINS_SQL = 2;
@@ -95,6 +95,7 @@ public class Routine implements SchemaObject {
     boolean          isNullInputOutput;
     boolean          isNewSavepointLevel = true;
     int              maxDynamicResults   = 0;
+    boolean          isRecursive;
     boolean          isPSM;
     boolean          returnsTable;
     Statement        statement;
@@ -192,6 +193,29 @@ public class Routine implements SchemaObject {
     }
 
     public String getSQL() {
+        return getDefinitionSQL(true);
+    }
+
+    public String getSQLAlter() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append(Tokens.T_ALTER).append(' ').append(Tokens.T_SPECIFIC);
+        sb.append(' ').append(Tokens.T_ROUTINE).append(' ');
+        sb.append(specificName.getSchemaQualifiedStatementName());
+        sb.append(' ').append(Tokens.T_SET).append(' ').append(Tokens.T_BODY);
+        sb.append(' ').append(statement.getSQL());
+
+        return sb.toString();
+    }
+
+
+    public String getSQLDeclaration() {
+
+        return getDefinitionSQL(false);
+    }
+
+    private String getDefinitionSQL(boolean withBody) {
 
         StringBuffer sb = new StringBuffer();
 
@@ -298,7 +322,13 @@ public class Routine implements SchemaObject {
             sb.append(Tokens.T_EXTERNAL).append(' ').append(Tokens.T_NAME);
             sb.append(' ').append('\'').append(methodName).append('\'');
         } else {
-            sb.append(statement.getSQL());
+            if (withBody) {
+                sb.append(statement.getSQL());
+            } else {
+                sb.append(Tokens.T_SIGNAL).append(' ');
+                sb.append(Tokens.T_SQLSTATE).append(' ');
+                sb.append('\'').append("45000").append('\'');
+            }
         }
 
         return sb.toString();
@@ -510,33 +540,6 @@ public class Routine implements SchemaObject {
             }
         }
 
-        if (statement != null) {
-            statement.resolve(session);
-
-            if (dataImpact == CONTAINS_SQL) {
-                checkNoSQLData(session.database, statement.getReferences());
-            }
-        }
-
-        if (methodName != null && javaMethod == null) {
-            boolean[] hasConnection = new boolean[1];
-
-            javaMethod = getMethod(methodName, this, hasConnection,
-                                   returnsTable);
-
-            if (javaMethod == null) {
-                throw Error.error(ErrorCode.X_46103);
-            }
-
-            javaMethodWithConnection = hasConnection[0];
-
-            String className = javaMethod.getDeclaringClass().getName();
-
-            if (className.equals("java.lang.Math")) {
-                isLibraryRoutine = true;
-            }
-        }
-
         if (isAggregate) {
             if (parameterTypes.length != 4) {
                 throw Error.error(ErrorCode.X_42610);
@@ -564,6 +567,38 @@ public class Routine implements SchemaObject {
             }
         }
 
+        resolveReferences(session);
+    }
+
+    void resolveReferences(Session session) {
+
+        if (statement != null) {
+            statement.resolve(session);
+
+            if (dataImpact == CONTAINS_SQL) {
+                checkNoSQLData(session.database, statement.getReferences());
+            }
+        }
+
+        if (methodName != null && javaMethod == null) {
+            boolean[] hasConnection = new boolean[1];
+
+            javaMethod = getMethod(methodName, this, hasConnection,
+                                   returnsTable);
+
+            if (javaMethod == null) {
+                throw Error.error(ErrorCode.X_46103);
+            }
+
+            javaMethodWithConnection = hasConnection[0];
+
+            String className = javaMethod.getDeclaringClass().getName();
+
+            if (className.equals("java.lang.Math")) {
+                isLibraryRoutine = true;
+            }
+        }
+
         setReferences();
     }
 
@@ -579,6 +614,11 @@ public class Routine implements SchemaObject {
 
         if (statement != null) {
             set.addAll(statement.getReferences());
+        }
+
+        if (set.contains(getSpecificName())) {
+            set.remove(this.getSpecificName());
+            isRecursive = true;
         }
 
         references = set;
@@ -659,6 +699,15 @@ public class Routine implements SchemaObject {
         }
 
         return statement.getTableNamesForWrite();
+    }
+
+    public void setAsAlteredRoutine(Routine routine) {
+
+        javaMethod = routine.javaMethod;
+        statement  = routine.statement;
+        references = routine.references;
+        isRecursive = routine.isRecursive;
+        variableCount = routine.variableCount;
     }
 
     Object[] convertArgsToJava(Session session, Object[] callArguments) {
@@ -780,6 +829,15 @@ public class Routine implements SchemaObject {
         session.setCurrentSchemaHsqlName(oldSessionSchema);
 
         return result;
+    }
+
+    public Routine duplicate() {
+
+        try {
+            return (Routine) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw Error.runtimeError(ErrorCode.U_S0500, "Type");
+        }
     }
 
     static Method getMethod(String name, Routine routine,
@@ -1153,10 +1211,10 @@ public class Routine implements SchemaObject {
                 } else if (routine.dataImpact == Routine.MODIFIES_SQL) {
                     throw Error.error(ErrorCode.X_42608,
                                       Tokens.T_MODIFIES + " " + Tokens.T_SQL);
-                } else if (name.type == SchemaObject.TABLE) {
-                    throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_READS + " " + Tokens.T_SQL);
                 }
+            } else if (name.type == SchemaObject.TABLE) {
+                throw Error.error(ErrorCode.X_42608,
+                                  Tokens.T_READS + " " + Tokens.T_SQL);
             }
         }
     }

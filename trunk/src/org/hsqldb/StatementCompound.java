@@ -472,7 +472,7 @@ public class StatementCompound extends Statement {
 
             Object[] data = queryResult.navigator.getCurrent();
 
-            session.sessionContext.routineVariables = data;
+            initialiseVariables(session, data);
 
             for (int i = 0; i < statements.length; i++) {
                 result = statements[i].execute(session);
@@ -790,6 +790,8 @@ public class StatementCompound extends Statement {
             }
         }
 
+        scopeVariables = list;
+
         RangeVariable range = new RangeVariable(list, null, true,
             RangeVariable.VARIALBE_RANGE);
 
@@ -872,6 +874,19 @@ public class StatementCompound extends Statement {
         for (int i = 0; i < variables.length; i++) {
             try {
                 vars[offset + i] = variables[i].getDefaultValue(session);
+            } catch (HsqlException e) {}
+        }
+    }
+
+    private void initialiseVariables(Session session, Object[] data) {
+
+        Object[] vars   = session.sessionContext.routineVariables;
+        int      offset = parent == null ? 0
+                                         : parent.scopeVariables.size();
+
+        for (int i = 0; i < data.length; i++) {
+            try {
+                vars[offset + i] = data[i];
             } catch (HsqlException e) {}
         }
     }
