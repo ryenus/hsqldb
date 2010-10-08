@@ -605,7 +605,21 @@ public class StatementSchema extends Statement {
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
                 }
-            case StatementTypes.ALTER_ROUTINE :
+            case StatementTypes.ALTER_ROUTINE : {
+                Routine routine = (Routine) arguments[0];
+
+                try {
+                    routine.resolveReferences(session);
+
+                    Routine oldRoutine = (Routine) schemaManager.getSchemaObject(routine.getSpecificName());
+                    schemaManager.replaceReferences(oldRoutine, routine);
+
+                    oldRoutine.setAsAlteredRoutine(routine);
+                    break;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.ALTER_TYPE :
             case StatementTypes.ALTER_TRANSFORM : {
                 throw Error.runtimeError(ErrorCode.U_S0500, "StatementSchema");
@@ -1437,7 +1451,8 @@ public class StatementSchema extends Statement {
                 cascade);
     }
 
-    static void checkSchemaUpdateAuthorisation(Session session, HsqlName schema) {
+    static void checkSchemaUpdateAuthorisation(Session session,
+            HsqlName schema) {
 
         if (session.isProcessingLog) {
             return;

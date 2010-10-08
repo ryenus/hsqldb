@@ -365,6 +365,27 @@ public class ParserRoutine extends ParserDML {
         return cs;
     }
 
+    StatementSchema compileAlterSpecificRoutine() {
+
+        readThis(Tokens.SPECIFIC);
+        readThis(Tokens.ROUTINE);
+
+        Routine routine =
+            (Routine) readSchemaObjectName(SchemaObject.SPECIFIC_ROUTINE);
+
+        routine = routine.duplicate();
+        readThis(Tokens.SET);
+        readThis(Tokens.BODY);
+        readRoutineBody(routine);
+
+        Object[] args = new Object[]{ routine };
+        String   sql  = getLastPart();
+        StatementSchema cs = new StatementSchema(sql,
+            StatementTypes.ALTER_ROUTINE, args);
+
+        return cs;
+    }
+
     // SQL-invoked routine
     StatementSchema compileCreateProcedureOrFunction() {
 
@@ -455,39 +476,7 @@ public class ParserRoutine extends ParserDML {
         }
 
         readRoutineCharacteristics(routine);
-
-        if (token.tokenType == Tokens.EXTERNAL) {
-            if (routine.getLanguage() != Routine.LANGUAGE_JAVA) {
-                throw unexpectedToken();
-            }
-
-            read();
-            readThis(Tokens.NAME);
-            checkIsValue(Types.SQL_CHAR);
-            routine.setMethodURL((String) token.tokenValue);
-            read();
-
-            if (token.tokenType == Tokens.PARAMETER) {
-                read();
-                readThis(Tokens.STYLE);
-                readThis(Tokens.JAVA);
-            }
-        } else {
-            startRecording();
-
-            Statement statement = compileSQLProcedureStatementOrNull(routine,
-                null);
-
-            if (statement == null) {
-                throw unexpectedToken();
-            }
-
-            Token[] tokenisedStatement = getRecordedStatement();
-            String  sql                = Token.getSQL(tokenisedStatement);
-
-            statement.setSQL(sql);
-            routine.setProcedure(statement);
-        }
+        readRoutineBody(routine);
 
         Object[] args = new Object[]{ routine };
         String   sql  = getLastPart();
@@ -712,6 +701,42 @@ public class ParserRoutine extends ParserDML {
                     end = true;
                     break;
             }
+        }
+    }
+
+    void readRoutineBody(Routine routine) {
+
+        if (token.tokenType == Tokens.EXTERNAL) {
+            if (routine.getLanguage() != Routine.LANGUAGE_JAVA) {
+                throw unexpectedToken();
+            }
+
+            read();
+            readThis(Tokens.NAME);
+            checkIsValue(Types.SQL_CHAR);
+            routine.setMethodURL((String) token.tokenValue);
+            read();
+
+            if (token.tokenType == Tokens.PARAMETER) {
+                read();
+                readThis(Tokens.STYLE);
+                readThis(Tokens.JAVA);
+            }
+        } else {
+            startRecording();
+
+            Statement statement = compileSQLProcedureStatementOrNull(routine,
+                null);
+
+            if (statement == null) {
+                throw unexpectedToken();
+            }
+
+            Token[] tokenisedStatement = getRecordedStatement();
+            String  sql                = Token.getSQL(tokenisedStatement);
+
+            statement.setSQL(sql);
+            routine.setProcedure(statement);
         }
     }
 

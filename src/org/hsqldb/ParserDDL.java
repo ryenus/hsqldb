@@ -264,6 +264,10 @@ public class ParserDDL extends ParserRoutine {
             case Tokens.SESSION : {
                 return compileAlterSession();
             }
+            case Tokens.SPECIFIC : {
+                return compileAlterSpecificRoutine();
+            }
+
             default : {
                 throw unexpectedToken();
             }
@@ -803,6 +807,52 @@ public class ParserDDL extends ParserRoutine {
         }
     }
 
+    StatementSession compileDeclareTableVariableOrNull() {
+
+        int position = super.getPosition();
+
+        try {
+            readThis(Tokens.DECLARE);
+            readThis(Tokens.TABLE);
+        } catch (Exception e) {
+
+            // may be cursor
+            rewind(position);
+
+            return null;
+        }
+
+        if (token.namePrePrefix == null && token.namePrefix == null) {
+
+            // valid name
+        } else {
+            throw unexpectedToken();
+        }
+
+        HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
+
+//        name.schema = SqlInvariants.MODULE_HSQLNAME;
+
+        Table table = TableUtil.newTable(database, TableBase.FUNCTION_TABLE, name);
+        StatementSchema cs          = compileCreateTableBody(table);
+        HsqlArrayList   constraints = (HsqlArrayList) cs.arguments[1];
+
+        for (int i = 0; i < constraints.size(); i++) {
+            Constraint c = (Constraint) constraints.get(i);
+
+            if (c.getConstraintType()
+                    == SchemaObject.ConstraintTypes.FOREIGN_KEY) {
+                throw unexpectedToken(Tokens.T_FOREIGN);
+            }
+        }
+
+        StatementSession ss =
+            new StatementSession(StatementTypes.DECLARE_SESSION_TABLE,
+                                 cs.arguments);
+
+        return ss;
+    }
+
     StatementSession compileDeclareLocalTableOrNull() {
 
         int position = super.getPosition();
@@ -818,10 +868,6 @@ public class ParserDDL extends ParserRoutine {
             rewind(position);
 
             return null;
-        }
-
-        if (token.namePrePrefix != null) {
-            throw unexpectedToken();
         }
 
         if (token.namePrePrefix == null

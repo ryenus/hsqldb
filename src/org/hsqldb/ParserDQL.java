@@ -5155,9 +5155,11 @@ public class ParserDQL extends ParserBase {
         checkIsSchemaObjectName();
         checkValidCatalogName(token.namePrePrefix);
 
+        String schema = session.getSchemaName(token.namePrefix);
+
         SchemaObject object =
             database.schemaManager.getSchemaObject(token.tokenString,
-                token.namePrefix, type);
+                schema, type);
 
         read();
 
