@@ -1,4 +1,4 @@
-/* Copyright (c) 2001-2009, The HSQL Development Group
+/* Copyright (c) 2001-2010, The HSQL Development Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -104,6 +104,21 @@ public final class MD5 {
                 encoding));
     }
 
+    /**
+     * Retrieves a hexidecimal character sequence representing the MD5
+     * digest of the specified character sequence, using the  ISO-8859-1
+     * encoding
+     *
+     * @param string the string to encode.
+     * @return a hexidecimal character sequence representing the MD5
+     *      digest of the specified string
+     * @throws HsqlUnsupportedOperationException if an MD5 digest
+     *      algorithm is not available through the
+     *      java.security.MessageDigest spi
+     */
+    public String digest(String string) throws RuntimeException {
+        return encode(string, "ISO-8859-1");
+    }
     /**
      * Retrieves a byte sequence representing the MD5 digest of the
      * specified character sequence, using the specified encoding to

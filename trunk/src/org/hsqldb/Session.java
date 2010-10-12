@@ -1118,6 +1118,10 @@ public class Session implements SessionInterface {
 
         if (result.mode == ResultConstants.DATA) {
             result = sessionData.getDataResultHead(command, result, isNetwork);
+        } else if (result.mode == ResultConstants.ERROR) {
+            while (sessionContext.depth > 0) {
+                sessionContext.pop();
+            }
         }
 
         if (sqlWarnings != null && sqlWarnings.size() > 0) {
@@ -1896,38 +1900,6 @@ public class Session implements SessionInterface {
         return currentSchema;
     }
 
-// session tables
-    HashMappedList sessionTables;
-
-    public void addSessionTable(Table table) {
-
-        if (sessionTables == null) {
-            sessionTables = new HashMappedList();
-        }
-
-        if (sessionTables.containsKey(table.getName().name)) {
-            throw Error.error(ErrorCode.X_42504);
-        }
-
-        sessionTables.add(table.getName().name, table);
-    }
-
-    public void setSessionTables(Table[] tables) {}
-
-    public Table findSessionTable(String name) {
-
-        if (sessionTables == null) {
-            return null;
-        }
-
-        return (Table) sessionTables.get(name);
-    }
-
-    public void dropSessionTable(String name) {
-        sessionTables.remove(name);
-    }
-
-//
     public int getResultMemoryRowCount() {
         return resultMaxMemoryRows;
     }

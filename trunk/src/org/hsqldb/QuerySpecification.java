@@ -142,7 +142,7 @@ public class QuerySpecification extends QueryExpression {
 
         isMergeable = false;
 
-        resolveReferences(session);
+        resolveReferences(session, RangeVariable.emptyArray);
         resolveTypes(session);
 
         sortAndSlice = SortAndSlice.noSort;
@@ -165,7 +165,8 @@ public class QuerySpecification extends QueryExpression {
     }
 
     // range variable sub queries are resolves fully
-    private void resolveRangeVariables(Session session) {
+    private void resolveRangeVariables(Session session,
+                                       RangeVariable[] outerRanges) {
 
         if (rangeVariables == null
                 || rangeVariables.length < rangeVariableList.size()) {
@@ -175,7 +176,8 @@ public class QuerySpecification extends QueryExpression {
         }
 
         for (int i = 0; i < rangeVariables.length; i++) {
-            rangeVariables[i].resolveRangeTable(session, rangeVariables, i);
+            rangeVariables[i].resolveRangeTable(session, rangeVariables, i,
+                                                outerRanges);
         }
     }
 
@@ -234,9 +236,10 @@ public class QuerySpecification extends QueryExpression {
         this.sortAndSlice = sortAndSlice;
     }
 
-    public void resolveReferences(Session session) {
+    public void resolveReferences(Session session,
+                                  RangeVariable[] outerRanges) {
 
-        resolveRangeVariables(session);
+        resolveRangeVariables(session, outerRanges);
         resolveColumnReferencesForAsterisk();
         finaliseColumns();
         resolveColumnReferences(session);

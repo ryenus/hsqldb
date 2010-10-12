@@ -79,6 +79,10 @@ public class SessionContext {
     // range variable data
     RangeIterator[] rangeIterators;
 
+    // session tables
+    HashMappedList sessionTables;
+    HashMappedList popSessionTables;
+
     //
     public Statement currentStatement;
 
@@ -245,5 +249,43 @@ public class SessionContext {
 
         routineVariables        = vars;
         routineVariables[index] = variable.getDefaultValue(session);
+    }
+
+    public void pushRoutineTables(HashMappedList map) {
+        popSessionTables = sessionTables;
+        sessionTables = map;
+    }
+
+    public void popRoutineTables() {
+        sessionTables = popSessionTables;
+    }
+
+
+    public void addSessionTable(Table table) {
+
+        if (sessionTables == null) {
+            sessionTables = new HashMappedList();
+        }
+
+        if (sessionTables.containsKey(table.getName().name)) {
+            throw Error.error(ErrorCode.X_42504);
+        }
+
+        sessionTables.add(table.getName().name, table);
+    }
+
+    public void setSessionTables(Table[] tables) {}
+
+    public Table findSessionTable(String name) {
+
+        if (sessionTables == null) {
+            return null;
+        }
+
+        return (Table) sessionTables.get(name);
+    }
+
+    public void dropSessionTable(String name) {
+        sessionTables.remove(name);
     }
 }

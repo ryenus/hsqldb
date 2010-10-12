@@ -55,6 +55,7 @@ import org.hsqldb.result.ResultLob;
 import org.hsqldb.result.ResultMetaData;
 import org.hsqldb.result.ResultProperties;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.BlobData;
 import org.hsqldb.types.BlobDataID;
 import org.hsqldb.types.ClobData;
@@ -838,6 +839,11 @@ public class LobManager {
             byteLimitOffset = lobBlockSize;
         } else {
             blockLimit++;
+        }
+
+        if (length == 0) {
+            return ResultLob.newLobGetBytesResponse(lobID, offset,
+                    BinaryData.zeroLengthBytes);
         }
 
         int    dataBytesPosition = 0;

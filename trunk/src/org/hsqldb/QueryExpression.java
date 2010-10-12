@@ -174,7 +174,7 @@ public class QueryExpression {
 
     public void resolve(Session session) {
 
-        resolveReferences(session);
+        resolveReferences(session, RangeVariable.emptyArray);
         ExpressionColumn.checkColumnsResolved(unresolvedExpressions);
         resolveTypes(session);
     }
@@ -182,7 +182,7 @@ public class QueryExpression {
     public void resolve(Session session, RangeVariable[] outerRanges,
                         Type[] targetTypes) {
 
-        resolveReferences(session);
+        resolveReferences(session, outerRanges);
 
         if (unresolvedExpressions != null) {
             for (int i = 0; i < unresolvedExpressions.size(); i++) {
@@ -209,10 +209,11 @@ public class QueryExpression {
         resolveTypesPartTwo(session);
     }
 
-    public void resolveReferences(Session session) {
+    public void resolveReferences(Session session,
+                                  RangeVariable[] outerRanges) {
 
-        leftQueryExpression.resolveReferences(session);
-        rightQueryExpression.resolveReferences(session);
+        leftQueryExpression.resolveReferences(session, outerRanges);
+        rightQueryExpression.resolveReferences(session, outerRanges);
         addUnresolvedExpressions(leftQueryExpression.unresolvedExpressions);
         addUnresolvedExpressions(rightQueryExpression.unresolvedExpressions);
 

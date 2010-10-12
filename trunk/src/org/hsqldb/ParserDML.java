@@ -92,7 +92,7 @@ public class ParserDML extends ParserDQL {
                 Expression insertExpression = new Expression(OpTypes.ROW,
                     new Expression[]{});
 
-                insertExpression = new Expression(OpTypes.TABLE,
+                insertExpression = new Expression(OpTypes.VALUELIST,
                                                   new Expression[]{
                                                       insertExpression });
                 columnCheckList = table.getNewColumnCheckList();

@@ -374,9 +374,16 @@ public class ParserRoutine extends ParserDML {
             (Routine) readSchemaObjectName(SchemaObject.SPECIFIC_ROUTINE);
 
         routine = routine.duplicate();
-        readThis(Tokens.SET);
-        readThis(Tokens.BODY);
-        readRoutineBody(routine);
+
+        if (routine.language == Routine.LANGUAGE_JAVA) {
+            readThis(Tokens.NAME);
+            checkIsValue(Types.SQL_CHAR);
+            routine.setMethodURL((String) token.tokenValue);
+            read();
+        } else {
+            readThis(Tokens.BODY);
+            readRoutineBody(routine);
+        }
 
         Object[] args = new Object[]{ routine };
         String   sql  = getLastPart();
@@ -443,30 +450,10 @@ public class ParserRoutine extends ParserDML {
                 read();
 
                 TableDerived table =
-                    new TableDerived(database, name, TableBase.FUNCTION_TABLE);
+                    new TableDerived(database, SqlInvariants.MODULE_HSQLNAME,
+                                     TableBase.FUNCTION_TABLE);
 
-                readThis(Tokens.OPENBRACKET);
-
-                for (int i = 0; ; i++) {
-                    ColumnSchema newcolumn = readRoutineParameter(routine,
-                        false);
-
-                    if (newcolumn.getName() == null) {
-                        throw super.unexpectedToken();
-                    }
-
-                    table.addColumn(newcolumn);
-
-                    if (token.tokenType == Tokens.COMMA) {
-                        read();
-                    } else {
-                        readThis(Tokens.CLOSEBRACKET);
-
-                        break;
-                    }
-                }
-
-                table.createPrimaryKey();
+                readTableDefinition(routine, table);
                 routine.setReturnTable(table);
             } else {
                 Type type = readTypeDefinition(false, true);
@@ -484,6 +471,32 @@ public class ParserRoutine extends ParserDML {
             StatementTypes.CREATE_ROUTINE, args);
 
         return cs;
+    }
+
+    private void readTableDefinition(Routine routine,
+                                     Table table) throws HsqlException {
+
+        readThis(Tokens.OPENBRACKET);
+
+        for (int i = 0; ; i++) {
+            ColumnSchema newcolumn = readRoutineParameter(routine, false);
+
+            if (newcolumn.getName() == null) {
+                throw super.unexpectedToken();
+            }
+
+            table.addColumn(newcolumn);
+
+            if (token.tokenType == Tokens.COMMA) {
+                read();
+            } else {
+                readThis(Tokens.CLOSEBRACKET);
+
+                break;
+            }
+        }
+
+        table.createPrimaryKey();
     }
 
     private void readRoutineCharacteristics(Routine routine) {
@@ -762,10 +775,11 @@ public class ParserRoutine extends ParserDML {
             StatementCompound context) {
 
         HsqlArrayList list                = new HsqlArrayList();
-        final int     variableOrCondition = 0;
-        final int     cursor              = 1;
-        final int     handler             = 2;
-        int           objectType          = variableOrCondition;
+        final int     table               = 0;
+        final int     variableOrCondition = 1;
+        final int     cursor              = 2;
+        final int     handler             = 3;
+        int           objectType          = table;
         RangeVariable[] rangeVariables = context == null
                                          ? routine.getParameterRangeVariables()
                                          : context.getRangeVariables();
@@ -773,7 +787,16 @@ public class ParserRoutine extends ParserDML {
         while (token.tokenType == Tokens.DECLARE) {
             Object var = null;
 
-            if (objectType == variableOrCondition) {
+            if (objectType == table) {
+                var = readLocalTableVariableDeclarationOrNull(routine);
+
+                if (var == null) {
+                    objectType = variableOrCondition;
+                } else {
+                    list.add(var);
+                    readThis(Tokens.SEMICOLON);
+                }
+            } else if (objectType == variableOrCondition) {
                 var = readLocalVariableDeclarationOrNull();
 
                 if (var == null) {
@@ -802,6 +825,32 @@ public class ParserRoutine extends ParserDML {
         list.toArray(declarations);
 
         return declarations;
+    }
+
+    Table readLocalTableVariableDeclarationOrNull(Routine routine) {
+
+        int position = super.getPosition();
+
+        readThis(Tokens.DECLARE);
+
+        if (token.tokenType == Tokens.TABLE) {
+            read();
+
+            HsqlName name = super.readNewSchemaObjectName(SchemaObject.TABLE,
+                false);
+
+            name.schema = SqlInvariants.MODULE_HSQLNAME;
+
+            Table table = new Table(database, name, TableBase.FUNCTION_TABLE);
+
+            readTableDefinition(routine, table);
+
+            return table;
+        } else {
+            rewind(position);
+
+            return null;
+        }
     }
 
     ColumnSchema[] readLocalVariableDeclarationOrNull() {
@@ -1019,11 +1068,17 @@ public class ParserRoutine extends ParserDML {
         Object[] declarations = readLocalDeclarationList(routine, context);
 
         statement.setLocalDeclarations(declarations);
+        session.sessionContext.pushRoutineTables(statement.scopeTables);
 
-        Statement[] statements = compileSQLProcedureStatementList(routine,
-            statement);
+        try {
+            Statement[] statements = compileSQLProcedureStatementList(routine,
+                statement);
 
-        statement.setStatements(statements);
+            statement.setStatements(statements);
+        } finally {
+            session.sessionContext.popRoutineTables();
+        }
+
         readThis(Tokens.END);
 
         if (isSimpleName() && !isReservedKey()) {
@@ -1081,7 +1136,7 @@ public class ParserRoutine extends ParserDML {
         if (!routine.isTrigger() && isSimpleName() && !isReservedKey()) {
             label = readNewSchemaObjectName(SchemaObject.LABEL, false);
 
-            // improved error message
+            // todo - improved error message
             if (token.tokenType != Tokens.COLON) {
                 throw unexpectedToken(label.getNameString());
             }
@@ -1096,7 +1151,7 @@ public class ParserRoutine extends ParserDML {
             // data
             case Tokens.OPEN : {
                 if (routine.dataImpact == Routine.CONTAINS_SQL) {
-                    throw Error.error(ErrorCode.X_42608,
+                    throw Error.error(ErrorCode.X_42602,
                                       routine.getDataImpactString());
                 }
 
@@ -1109,11 +1164,6 @@ public class ParserRoutine extends ParserDML {
                 break;
             }
             case Tokens.SELECT : {
-                if (routine.dataImpact == Routine.CONTAINS_SQL) {
-                    throw Error.error(ErrorCode.X_42608,
-                                      routine.getDataImpactString());
-                }
-
                 if (label != null) {
                     throw unexpectedToken();
                 }
@@ -1125,11 +1175,6 @@ public class ParserRoutine extends ParserDML {
 
             // data change
             case Tokens.INSERT :
-                if (routine.dataImpact != Routine.MODIFIES_SQL) {
-                    throw Error.error(ErrorCode.X_42608,
-                                      routine.getDataImpactString());
-                }
-
                 if (label != null) {
                     throw unexpectedToken();
                 }
@@ -1138,11 +1183,6 @@ public class ParserRoutine extends ParserDML {
                 break;
 
             case Tokens.UPDATE :
-                if (routine.dataImpact != Routine.MODIFIES_SQL) {
-                    throw Error.error(ErrorCode.X_42608,
-                                      routine.getDataImpactString());
-                }
-
                 if (label != null) {
                     throw unexpectedToken();
                 }
@@ -1152,11 +1192,6 @@ public class ParserRoutine extends ParserDML {
 
             case Tokens.DELETE :
             case Tokens.TRUNCATE :
-                if (routine.dataImpact != Routine.MODIFIES_SQL) {
-                    throw Error.error(ErrorCode.X_42608,
-                                      routine.getDataImpactString());
-                }
-
                 if (label != null) {
                     throw unexpectedToken();
                 }
@@ -1165,11 +1200,6 @@ public class ParserRoutine extends ParserDML {
                 break;
 
             case Tokens.MERGE :
-                if (routine.dataImpact != Routine.MODIFIES_SQL) {
-                    throw Error.error(ErrorCode.X_42608,
-                                      routine.getDataImpactString());
-                }
-
                 if (label != null) {
                     throw unexpectedToken();
                 }
@@ -1217,7 +1247,7 @@ public class ParserRoutine extends ParserDML {
                                     || proc.dataImpact
                                        == Routine.MODIFIES_SQL) {
                                 throw Error.error(
-                                    ErrorCode.X_42608,
+                                    ErrorCode.X_42602,
                                     routine.getDataImpactString());
                             }
 
@@ -1226,7 +1256,7 @@ public class ParserRoutine extends ParserDML {
                         case Routine.READS_SQL : {
                             if (proc.dataImpact == Routine.MODIFIES_SQL) {
                                 throw Error.error(
-                                    ErrorCode.X_42608,
+                                    ErrorCode.X_42602,
                                     routine.getDataImpactString());
                             }
 

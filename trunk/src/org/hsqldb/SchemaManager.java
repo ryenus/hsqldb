@@ -608,7 +608,7 @@ public class SchemaManager {
      *  Returns null if the table does not exist in the context.
      */
     public Table findSessionTable(Session session, String name) {
-        return session.findSessionTable(name);
+        return session.sessionContext.findSessionTable(name);
     }
 
     /**

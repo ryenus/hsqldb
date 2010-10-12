@@ -209,9 +209,7 @@ public class Routine implements SchemaObject, Cloneable {
         return sb.toString();
     }
 
-
     public String getSQLDeclaration() {
-
         return getDefinitionSQL(false);
     }
 
@@ -574,10 +572,7 @@ public class Routine implements SchemaObject, Cloneable {
 
         if (statement != null) {
             statement.resolve(session);
-
-            if (dataImpact == CONTAINS_SQL) {
-                checkNoSQLData(session.database, statement.getReferences());
-            }
+            checkSQLData(session);
         }
 
         if (methodName != null && javaMethod == null) {
@@ -618,10 +613,63 @@ public class Routine implements SchemaObject, Cloneable {
 
         if (set.contains(getSpecificName())) {
             set.remove(this.getSpecificName());
+
             isRecursive = true;
         }
 
         references = set;
+    }
+
+    void checkSQLData(Session session) {
+
+        OrderedHashSet set = statement.getReferences();
+
+        for (int i = 0; i < set.size(); i++) {
+            HsqlName name = (HsqlName) set.get(i);
+
+            if (name.type == SchemaObject.SPECIFIC_ROUTINE) {
+                Routine routine =
+                    (Routine) session.database.schemaManager.getSchemaObject(
+                        name);
+
+                if (routine.dataImpact == Routine.READS_SQL) {
+                    if (dataImpact == Routine.CONTAINS_SQL) {
+                        throw Error.error(ErrorCode.X_42608,
+                                          Tokens.T_READS + ' ' + Tokens.T_SQL);
+                    }
+                } else if (routine.dataImpact == Routine.MODIFIES_SQL) {
+                    if (dataImpact == Routine.CONTAINS_SQL
+                            || dataImpact == Routine.READS_SQL) {
+                        throw Error.error(ErrorCode.X_42608,
+                                          Tokens.T_MODIFIES + ' '
+                                          + Tokens.T_SQL);
+                    }
+                }
+            }
+        }
+
+        if (dataImpact == Routine.CONTAINS_SQL
+                || dataImpact == Routine.READS_SQL) {
+            HsqlName[] names = statement.getTableNamesForWrite();
+
+            for (int i = 0; i < names.length; i++) {
+                if (names[i].schema != SqlInvariants.MODULE_HSQLNAME) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_MODIFIES + ' ' + Tokens.T_SQL);
+                }
+            }
+        }
+
+        if (dataImpact == Routine.CONTAINS_SQL) {
+            HsqlName[] names = statement.getTableNamesForRead();
+
+            for (int i = 0; i < names.length; i++) {
+                if (names[i].schema != SqlInvariants.MODULE_HSQLNAME) {
+                    throw Error.error(ErrorCode.X_42608,
+                                      Tokens.T_READS + ' ' + Tokens.T_SQL);
+                }
+            }
+        }
     }
 
     public boolean isTrigger() {
@@ -703,10 +751,10 @@ public class Routine implements SchemaObject, Cloneable {
 
     public void setAsAlteredRoutine(Routine routine) {
 
-        javaMethod = routine.javaMethod;
-        statement  = routine.statement;
-        references = routine.references;
-        isRecursive = routine.isRecursive;
+        javaMethod    = routine.javaMethod;
+        statement     = routine.statement;
+        references    = routine.references;
+        isRecursive   = routine.isRecursive;
         variableCount = routine.variableCount;
     }
 
@@ -1193,29 +1241,6 @@ public class Routine implements SchemaObject, Cloneable {
         for (int i = 0; i < routines.length; i++) {
             routines[i].setName(routineName);
             session.database.schemaManager.addSchemaObject(routines[i]);
-        }
-    }
-
-    static void checkNoSQLData(Database database, OrderedHashSet set) {
-
-        for (int i = 0; i < set.size(); i++) {
-            HsqlName name = (HsqlName) set.get(i);
-
-            if (name.type == SchemaObject.SPECIFIC_ROUTINE) {
-                Routine routine =
-                    (Routine) database.schemaManager.getSchemaObject(name);
-
-                if (routine.dataImpact == Routine.READS_SQL) {
-                    throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_READS + " " + Tokens.T_SQL);
-                } else if (routine.dataImpact == Routine.MODIFIES_SQL) {
-                    throw Error.error(ErrorCode.X_42608,
-                                      Tokens.T_MODIFIES + " " + Tokens.T_SQL);
-                }
-            } else if (name.type == SchemaObject.TABLE) {
-                throw Error.error(ErrorCode.X_42608,
-                                  Tokens.T_READS + " " + Tokens.T_SQL);
-            }
         }
     }
 }

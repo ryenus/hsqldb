@@ -52,10 +52,11 @@ public interface OpTypes {
         ROW_SUBQUERY         = 22,
         TABLE_SUBQUERY       = 23,
         ROW                  = 25,    // rows
-        TABLE                = 26,
+        VALUELIST            = 26,
         FUNCTION             = 27,
         SQL_FUNCTION         = 28,
         ROUTINE_FUNCTION     = 29,
+        TABLE                = 30,
         NEGATE               = 31,    // arithmetic operations
         ADD                  = 32,
         SUBTRACT             = 33,

@@ -378,6 +378,9 @@ public class BinaryType extends Type {
         switch (otherType.typeCode) {
 
             // non-SQL feature, for compatibility with previous versions
+            // also used by HEXTORAW function
+            case Types.SQL_CLOB :
+                a = Type.SQL_VARCHAR.convertToType(session, a, otherType);
             case Types.SQL_VARCHAR :
             case Types.SQL_CHAR : {
                 b = session.getScanner().convertToBinary((String) a);
