@@ -547,6 +547,8 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
 
       <simpara><literal>&lt;handler declaration&gt;</literal></simpara>
 
+      <simpara><literal>&lt;table variable declaration&gt;</literal></simpara>
+
       <simpara><literal>&lt;variable declaration&gt;</literal></simpara>
 
       <simpara><literal>&lt;declare cursor&gt;</literal></simpara>
@@ -1377,7 +1379,7 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
       <para>Routines can be recursive. Recursive functions are often functions
       that return arrays or tables. To create a recursive routine, the routine
       definition must be created as a dummy. Then the ALTER ROUTINE statement
-      is used to define the routine body. </para>
+      is used to define the routine body.</para>
 
       <para>In the example below, the table contains a tree of rows each with
       a parent. The routine returns an array containing the id list of all the
