@@ -642,7 +642,7 @@ public class StatementSession extends Statement {
                     }
 
                     table.compile(session, null);
-                    session.addSessionTable(table);
+                    session.sessionContext.addSessionTable(table);
 
                     if (table.hasLobColumn) {
                         throw Error.error(ErrorCode.X_07000);
@@ -662,7 +662,8 @@ public class StatementSession extends Statement {
             case StatementTypes.DROP_TABLE : {
                 HsqlName name     = (HsqlName) parameters[0];
                 Boolean  ifExists = (Boolean) parameters[1];
-                Table    table    = session.findSessionTable(name.name);
+                Table table =
+                    session.sessionContext.findSessionTable(name.name);
 
                 if (table == null) {
                     if (ifExists.booleanValue()) {
@@ -672,7 +673,7 @@ public class StatementSession extends Statement {
                     }
                 }
 
-                session.dropSessionTable(name.name);
+                session.sessionContext.dropSessionTable(name.name);
 
                 return Result.updateZeroResult;
             }

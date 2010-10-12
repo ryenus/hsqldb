@@ -251,7 +251,7 @@ public class ExpressionOp extends Expression {
 
                 return sb.toString();
 
-            case OpTypes.TABLE :
+            case OpTypes.VALUELIST :
                 sb.append("VALUELIST ");
 
                 for (int i = 0; i < nodes.length; i++) {

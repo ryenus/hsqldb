@@ -147,6 +147,7 @@ public class RangeVariableJoined extends RangeVariable {
         }
 
         int count = 0;
+
         for (int i = 0; i < rangeArray.length; i++) {
             int colIndex = rangeArray[i].findColumn(e);
 
@@ -288,8 +289,10 @@ public class RangeVariableJoined extends RangeVariable {
 
     public void resolveRangeTable(Session session,
                                   RangeVariable[] rangeVariables,
-                                  int rangeCount) {
-        super.resolveRangeTable(session, rangeVariables, rangeCount);
+                                  int rangeCount,
+                                  RangeVariable[] outerRanges) {
+        super.resolveRangeTable(session, rangeVariables, rangeCount,
+                                RangeVariable.emptyArray);
     }
 
     /**

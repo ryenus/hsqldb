@@ -109,7 +109,7 @@ public class RangeVariable implements Cloneable {
     HashMappedList variables;
 
     // variable, parameter, table
-    int     rangeType;
+    int rangeType;
 
     //
     boolean isGenerated;
@@ -643,7 +643,8 @@ public class RangeVariable implements Cloneable {
 
     public void resolveRangeTable(Session session,
                                   RangeVariable[] rangeVariables,
-                                  int rangeCount) {
+                                  int rangeCount,
+                                  RangeVariable[] outerRanges) {
 
         Table    table    = rangeTable;
         SubQuery subQuery = table.getSubQuery();
@@ -661,6 +662,12 @@ public class RangeVariable implements Cloneable {
                 }
 
                 if (unresolved != null) {
+                    unresolved =
+                        subQuery.dataExpression.resolveColumnReferences(
+                            session, outerRanges, null);
+                }
+
+                if (unresolved != null) {
                     throw Error.error(
                         ErrorCode.X_42501,
                         ((Expression) unresolved.get(0)).getSQL());
@@ -671,7 +678,8 @@ public class RangeVariable implements Cloneable {
             }
 
             if (subQuery.queryExpression != null) {
-                subQuery.queryExpression.resolveReferences(session);
+                subQuery.queryExpression.resolveReferences(session,
+                        outerRanges);
 
                 HsqlList list =
                     subQuery.queryExpression.getUnresolvedExpressions();

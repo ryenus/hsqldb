@@ -583,8 +583,9 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
       <simpara><literal>&lt;open statement&gt;</literal></simpara>
 
       <para>The following SQL Statements can be used in procedures but not in
-      functions. These statements are covered in other chapters of this
-      Guide.</para>
+      generally in functions (they can be used in functions only to change the
+      data in a local table variable) . These statements are covered in other
+      chapters of this Guide.</para>
 
       <para><literal>&lt;call statement&gt;</literal></para>
 
@@ -638,6 +639,23 @@ CREATE FUNCTION an_hour_before_max (e_type INT)
     BEGIN ATOMIC
     INSERT INTO customers VALUES (DEFAULT, firstname, lastname, CURRENT_TIMESTAMP);
     INSERT INTO addresses VALUES (DEFAULT, IDENTITY(), address);
+  END
+
+</programlisting>
+    </section>
+
+    <section>
+      <title>Table Variables</title>
+
+      <para>A <literal>&lt;table variable declaration&gt;</literal> defines
+      the name and columns of a local table, that can be used in the routine
+      body. The table cannot have constraints. Table variable declarations are
+      made before scalar variable declarations.</para>
+
+      <programlisting>  BEGIN ATOMIC
+    DECLARE TABLE temp_table (col_a INT, col_b VARCHAR(20);
+    DECLARE temp_id INTEGER;
+    -- more statements
   END
 
 </programlisting>
@@ -1351,6 +1369,72 @@ CREATE FUNCTION an_hour_before_or_now(t TIME)
   END
 
 </programlisting>
+    </section>
+
+    <section>
+      <title>Recursive Routines</title>
+
+      <para>Routines can be recursive. Recursive functions are often functions
+      that return arrays or tables. To create a recursive routine, the routine
+      definition must be created as a dummy. Then the ALTER ROUTINE statement
+      is used to define the routine body. </para>
+
+      <para>In the example below, the table contains a tree of rows each with
+      a parent. The routine returns an array containing the id list of all the
+      direct and indirect children of the given parent. The routine appends
+      the array variable id_list with the id of each direct child and for each
+      child appends the array with the id array of its children by calling the
+      routine recursively.</para>
+
+      <para>The routine can be used in a SELECT statement as the example
+      shows.</para>
+
+      <programlisting>CREATE TABLE ptree (pid INT, id INT);
+INSERT INTO ptree VALUES (NULL, 1) ,(1,2), (1,3),(2,4),(4,5),(3,6),(3,7);
+
+CREATE FUNCTION child_arr(p_pid INT) RETURNS INT ARRAY
+  SPECIFIC child_arr_one
+  READS SQL DATA
+  SIGNAL SQLSTATE '45000'
+
+ALTER SPECIFIC ROUTINE child_arr_one SET BODY
+  BEGIN ATOMIC
+    DECLARE id_list INT ARRAY DEFAULT ARRAY[];
+    for_loop:
+    FOR SELECT id FROM ptree WHERE pid = p_pid DO
+      SET id_list[CARDINALITY(id_list) + 1] = id;
+      SET id_list = id_list || child_arr(id);
+    END FOR for_loop;
+    RETURN id_list;
+  END
+
+SELECT * FROM TABLE(child_arr(2))
+</programlisting>
+
+      <para>In the next example, a table with two columns is returned instead
+      of an array. In this example, a local table variable is declared and
+      filled with the children and the children's children.</para>
+
+      <programlisting>CREATE FUNCTION child_table(p_pid INT) RETURNS TABLE(r_pid INT, r_id INT)
+  SPECIFIC child_table_one
+  READS SQL DATA
+  SIGNAL SQLSTATE '45000'
+
+ALTER SPECIFIC ROUTINE child_table_one SET BODY
+  BEGIN ATOMIC
+    DECLARE TABLE child_tree (pid INT, id INT);
+    for_loop:
+    FOR SELECT pid, id FROM ptree WHERE pid = p_pid DO
+      INSERT INTO child_tree VALUES pid, id;
+      INSERT INTO child_tree SELECT r_pid, r_id FROM TABLE(child_table(id));
+    END FOR for_loop;
+    RETURN TABLE(SELECT * FROM child_tree);
+  END
+
+SELECT * FROM TABLE(child_table(1))
+</programlisting>
+
+      <para></para>
     </section>
   </section>
 

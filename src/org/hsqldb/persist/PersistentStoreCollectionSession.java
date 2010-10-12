@@ -302,6 +302,8 @@ implements PersistentStoreCollection {
 
         Object[] array = (Object[]) rowStoreListStatement.removeLast();
 
+        clearStatementTables();
+
         for (int i = 0; i < array.length; i++) {
             PersistentStore store = (PersistentStore) array[i];
 

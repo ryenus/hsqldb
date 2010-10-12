@@ -77,13 +77,16 @@ public class StatementSimple extends Statement {
 
         switch (type) {
 
-            /** @todo 1.9.0 - add the exception */
             case StatementTypes.SIGNAL :
-                sb.append(Tokens.T_SIGNAL);
+                sb.append(Tokens.T_SIGNAL).append(' ');
+                sb.append(Tokens.T_SQLSTATE);
+                sb.append(' ').append('\'').append(sqlState).append('\'');
                 break;
 
             case StatementTypes.RESIGNAL :
-                sb.append(Tokens.T_RESIGNAL);
+                sb.append(Tokens.T_RESIGNAL).append(' ');
+                sb.append(Tokens.T_SQLSTATE);
+                sb.append(' ').append('\'').append(sqlState).append('\'');
                 break;
 
             case StatementTypes.ITERATE :

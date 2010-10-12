@@ -3474,7 +3474,7 @@ public class ParserDQL extends ParserBase {
 
         list.toArray(array);
 
-        Expression e = new Expression(OpTypes.TABLE, array);
+        Expression e = new Expression(OpTypes.VALUELIST, array);
 
         for (int i = 0; i < array.length; i++) {
             if (array[i].getType() != OpTypes.ROW) {
@@ -3861,7 +3861,8 @@ public class ParserDQL extends ParserBase {
         if (resolve) {
             queryExpression.resolve(session);
         } else {
-            queryExpression.resolveReferences(session);
+            queryExpression.resolveReferences(session,
+                                              RangeVariable.emptyArray);
         }
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
@@ -3905,7 +3906,7 @@ public class ParserDQL extends ParserBase {
 
         if (degree == 1) {
             if (e.getType() == OpTypes.ROW) {
-                e.opType = OpTypes.TABLE;
+                e.opType = OpTypes.VALUELIST;
 
                 for (int i = 0; i < list.length; i++) {
                     if (list[i].getType() != OpTypes.ROW) {
@@ -3919,7 +3920,7 @@ public class ParserDQL extends ParserBase {
                 return e;
             } else {
                 e = new Expression(OpTypes.ROW, new Expression[]{ e });
-                e = new Expression(OpTypes.TABLE, new Expression[]{ e });
+                e = new Expression(OpTypes.VALUELIST, new Expression[]{ e });
 
                 return e;
             }
@@ -3938,7 +3939,7 @@ public class ParserDQL extends ParserBase {
         }
 
         if (isTable) {
-            e.opType = OpTypes.TABLE;
+            e.opType = OpTypes.VALUELIST;
 
             for (int i = 0; i < list.length; i++) {
                 if (list[i].getType() != OpTypes.ROW) {
@@ -3962,7 +3963,7 @@ public class ParserDQL extends ParserBase {
                 throw Error.error(ErrorCode.X_42564);
             }
 
-            e = new Expression(OpTypes.TABLE, new Expression[]{ e });
+            e = new Expression(OpTypes.VALUELIST, new Expression[]{ e });
         }
 
         return e;
@@ -3998,7 +3999,7 @@ public class ParserDQL extends ParserBase {
         e.prepareTable(session, null, e.nodes[0].nodes.length);
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth, e,
-                                   OpTypes.TABLE);
+                                   OpTypes.VALUELIST);
 
         sq.prepareTable(session);
 
@@ -4039,7 +4040,7 @@ public class ParserDQL extends ParserBase {
             degree = list[0].nodes.length;
         }
 
-        r.opType = OpTypes.TABLE;
+        r.opType = OpTypes.VALUELIST;
 
         for (int i = 0; i < list.length; i++) {
             if (list[i].getType() == OpTypes.ROW) {
@@ -4220,7 +4221,7 @@ public class ParserDQL extends ParserBase {
 
         QueryExpression queryExpression = XreadQueryExpression();
 
-        queryExpression.resolveReferences(session);
+        queryExpression.resolveReferences(session, RangeVariable.emptyArray);
 
         SubQuery sq = new SubQuery(database, compileContext.subqueryDepth,
                                    queryExpression, OpTypes.TABLE_SUBQUERY);
@@ -5156,10 +5157,9 @@ public class ParserDQL extends ParserBase {
         checkValidCatalogName(token.namePrePrefix);
 
         String schema = session.getSchemaName(token.namePrefix);
-
         SchemaObject object =
-            database.schemaManager.getSchemaObject(token.tokenString,
-                schema, type);
+            database.schemaManager.getSchemaObject(token.tokenString, schema,
+                type);
 
         read();
 

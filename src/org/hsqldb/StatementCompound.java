@@ -65,6 +65,8 @@ public class StatementCompound extends Statement {
     StatementCursor[] cursors   = StatementCursor.emptyArray;
     HashMappedList    scopeVariables;
     RangeVariable[]   rangeVariables = RangeVariable.emptyArray;
+    Table[]           tables         = Table.emptyArray;
+    HashMappedList    scopeTables;
 
     //
     public static final StatementCompound[] emptyStatementArray =
@@ -216,12 +218,15 @@ public class StatementCompound extends Statement {
         int varCount     = 0;
         int handlerCount = 0;
         int cursorCount  = 0;
+        int tableCount   = 0;
 
         for (int i = 0; i < declarations.length; i++) {
             if (declarations[i] instanceof ColumnSchema) {
                 varCount++;
             } else if (declarations[i] instanceof StatementHandler) {
                 handlerCount++;
+            } else if (declarations[i] instanceof Table) {
+                tableCount++;
             } else {
                 cursorCount++;
             }
@@ -235,12 +240,17 @@ public class StatementCompound extends Statement {
             handlers = new StatementHandler[handlerCount];
         }
 
+        if (tableCount > 0) {
+            tables = new Table[tableCount];
+        }
+
         if (cursorCount > 0) {
             cursors = new StatementCursor[cursorCount];
         }
 
         varCount     = 0;
         handlerCount = 0;
+        tableCount   = 0;
         cursorCount  = 0;
 
         for (int i = 0; i < declarations.length; i++) {
@@ -256,6 +266,10 @@ public class StatementCompound extends Statement {
                 if (handler.handlerType == StatementHandler.UNDO) {
                     hasUndoHandler = true;
                 }
+            } else if (declarations[i] instanceof Table) {
+                Table table = (Table) declarations[i];
+
+                tables[tableCount++] = table;
             } else {
                 StatementCursor cursor = (StatementCursor) declarations[i];
 
@@ -265,6 +279,7 @@ public class StatementCompound extends Statement {
 
         setVariables();
         setHandlers();
+        setTables();
         setCursors();
     }
 
@@ -758,6 +773,8 @@ public class StatementCompound extends Statement {
     //
     private void setVariables() {
 
+        HashMappedList list = new HashMappedList();
+
         if (variables.length == 0) {
             if (parent == null) {
                 rangeVariables = root.getParameterRangeVariables();
@@ -765,10 +782,10 @@ public class StatementCompound extends Statement {
                 rangeVariables = parent.rangeVariables;
             }
 
+            scopeVariables = list;
+
             return;
         }
-
-        HashMappedList list = new HashMappedList();
 
         if (parent != null && parent.scopeVariables != null) {
             for (int i = 0; i < parent.scopeVariables.size(); i++) {
@@ -827,6 +844,33 @@ public class StatementCompound extends Statement {
                 }
             }
         }
+    }
+
+    private void setTables() {
+
+        if (tables.length == 0) {
+            return;
+        }
+
+        HashMappedList list = new HashMappedList();
+
+        if (parent != null && parent.scopeTables != null) {
+            for (int i = 0; i < parent.scopeTables.size(); i++) {
+                list.add(parent.scopeTables.getKey(i),
+                         parent.scopeTables.get(i));
+            }
+        }
+
+        for (int i = 0; i < tables.length; i++) {
+            String  name  = tables[i].getName().name;
+            boolean added = list.add(name, tables[i]);
+
+            if (!added) {
+                throw Error.error(ErrorCode.X_42606, name);
+            }
+        }
+
+        scopeTables = list;
     }
 
     private void setCursors() {

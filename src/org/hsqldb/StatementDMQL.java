@@ -42,6 +42,7 @@ import org.hsqldb.lib.HashSet;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.result.Result;
 import org.hsqldb.result.ResultMetaData;
+import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.ValuePool;
 
 /**
@@ -384,7 +385,9 @@ public abstract class StatementDMQL extends Statement {
     void checkAccessRights(Session session) {
 
         if (targetTable != null && !targetTable.isTemp()) {
-            if (targetTable.getOwner().isSystem()) {
+            Grantee owner = targetTable.getOwner();
+
+            if (owner != null && owner.isSystem()) {
                 if (!session.getUser().isSystem()) {
                     throw Error.error(ErrorCode.X_42501,
                                       targetTable.getName().name);

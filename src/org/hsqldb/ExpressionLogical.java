@@ -533,7 +533,7 @@ public class ExpressionLogical extends Expression {
 
         // parametric ALL / ANY
         if (isQuantified) {
-            if (nodes[RIGHT].opType == OpTypes.TABLE) {
+            if (nodes[RIGHT].opType == OpTypes.VALUELIST) {
                 if (nodes[RIGHT] instanceof ExpressionTable) {
                     if (nodes[RIGHT].nodes[LEFT].opType
                             == OpTypes.DYNAMIC_PARAM) {
@@ -944,7 +944,7 @@ public class ExpressionLogical extends Expression {
                                          new Expression[]{ nodes[LEFT] });
         }
 
-        if (nodes[RIGHT].opType == OpTypes.TABLE) {
+        if (nodes[RIGHT].opType == OpTypes.VALUELIST) {
             nodes[RIGHT].prepareTable(session, nodes[LEFT], degree);
             nodes[RIGHT].subQuery.prepareTable(session);
 
@@ -957,7 +957,7 @@ public class ExpressionLogical extends Expression {
             throw Error.error(ErrorCode.X_42564);
         }
 
-        if (nodes[RIGHT].opType == OpTypes.TABLE) {}
+        if (nodes[RIGHT].opType == OpTypes.VALUELIST) {}
 
         nodes[LEFT].nodeDataTypes = new Type[nodes[LEFT].nodes.length];
 
@@ -1288,7 +1288,7 @@ public class ExpressionLogical extends Expression {
             return null;
         }
 
-        if (nodes[RIGHT].opType == OpTypes.TABLE) {
+        if (nodes[RIGHT].opType == OpTypes.VALUELIST) {
             final int length = nodes[RIGHT].nodes.length;
 
             for (int i = 0; i < length; i++) {
@@ -1337,7 +1337,7 @@ public class ExpressionLogical extends Expression {
             }
         }
 
-        if (nodes[RIGHT].opType == OpTypes.TABLE) {
+        if (nodes[RIGHT].opType == OpTypes.VALUELIST) {
             final int length   = nodes[RIGHT].nodes.length;
             boolean   hasMatch = false;
 

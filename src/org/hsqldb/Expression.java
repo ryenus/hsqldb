@@ -308,7 +308,7 @@ public class Expression implements Cloneable {
                 return sb.toString();
 
             //
-            case OpTypes.TABLE :
+            case OpTypes.VALUELIST :
                 for (int i = 0; i < nodes.length; i++) {
                     if (i > 0) {
                         sb.append(',');
@@ -397,7 +397,7 @@ public class Expression implements Cloneable {
                 }
                 break;
 
-            case OpTypes.TABLE :
+            case OpTypes.VALUELIST :
                 sb.append("VALUELIST ");
 
                 for (int i = 0; i < nodes.length; i++) {
@@ -928,7 +928,7 @@ public class Expression implements Cloneable {
                 acceptsSequences = false;
                 break;
 
-            case OpTypes.TABLE : {
+            case OpTypes.VALUELIST : {
                 HsqlList localSet = null;
 
                 for (int i = 0; i < nodes.length; i++) {
@@ -1051,7 +1051,7 @@ public class Expression implements Cloneable {
             case OpTypes.VALUE :
                 break;
 
-            case OpTypes.TABLE :
+            case OpTypes.VALUELIST :
 
                 /** @todo - should it fall through */
                 break;
@@ -1537,7 +1537,7 @@ public class Expression implements Cloneable {
 
         s.queryCondition = condition;
 
-        s.resolveReferences(session);
+        s.resolveReferences(session, RangeVariable.emptyArray);
         s.resolveTypes(session);
 
         return s;

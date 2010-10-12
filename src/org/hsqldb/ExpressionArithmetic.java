@@ -172,7 +172,7 @@ public class ExpressionArithmetic extends Expression {
             case OpTypes.ROW :
 
             //
-            case OpTypes.TABLE :
+            case OpTypes.VALUELIST :
                 sb.append("VALUELIST ");
                 sb.append(" TYPE = ").append(dataType.getNameString());
 

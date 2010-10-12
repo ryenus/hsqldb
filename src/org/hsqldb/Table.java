@@ -221,7 +221,7 @@ public class Table extends TableBase implements SchemaObject {
                 break;
 
             case TableBase.FUNCTION_TABLE :
-                persistenceScope = SCOPE_SESSION;
+                persistenceScope = SCOPE_STATEMENT;
                 isSessionBased   = true;
                 break;
 
@@ -1515,6 +1515,7 @@ public class Table extends TableBase implements SchemaObject {
         switch (tableType) {
 
 //            case TableBase.MEMORY_TABLE :
+            case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :
@@ -2275,6 +2276,7 @@ public class Table extends TableBase implements SchemaObject {
         switch (tableType) {
 
 //            case TableBase.MEMORY_TABLE :
+            case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :
@@ -2300,6 +2302,7 @@ public class Table extends TableBase implements SchemaObject {
         switch (tableType) {
 
 //            case TableBase.MEMORY_TABLE :
+            case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :
@@ -2366,6 +2369,7 @@ public class Table extends TableBase implements SchemaObject {
         switch (tableType) {
 
 //            case TableBase.MEMORY_TABLE :
+            case TableBase.FUNCTION_TABLE :
             case TableBase.SYSTEM_SUBQUERY :
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.VIEW_TABLE :

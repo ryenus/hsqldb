@@ -1091,6 +1091,7 @@ public class Logger {
 
                 return new RowStoreAVLDisk(collection, cache, (Table) table);
 
+            case TableBase.FUNCTION_TABLE :
             case TableBase.MEMORY_TABLE :
             case TableBase.INFO_SCHEMA_TABLE :
             case TableBase.SYSTEM_TABLE :

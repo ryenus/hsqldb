@@ -2370,8 +2370,8 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       <simpara><emphasis>alter routine statement</emphasis></simpara>
 
       <simpara><literal>&lt;alter routine statement&gt; ::= ALTER &lt;specific
-      routine designator&gt; &lt;alter routine characteristics&gt; &lt;alter
-      routine behavior&gt;</literal></simpara>
+      routine designator&gt; { &lt;alter routine characteristics&gt; RESTRICT
+      | &lt;alter routine body&gt; }</literal></simpara>
 
       <simpara><literal>&lt;alter routine characteristics&gt; ::= &lt;alter
       routine characteristic&gt;...</literal></simpara>
@@ -2382,11 +2382,14 @@ INSERT INTO t (id, firstname, lastname, fullname) VALUES (2, 'Pink', 'Panther', 
       characteristic&gt; | NAME &lt;external routine
       name&gt;</literal></simpara>
 
-      <simpara><literal>&lt;alter routine behavior&gt; ::=
-      RESTRICT</literal></simpara>
+      <simpara><literal>&lt;alter routine body&gt; ::= BODY &lt;SQL routine
+      body&gt;</literal></simpara>
 
       <simpara>Alter a characteristic of an SQL-invoked routine. Early
-      releases of HyperSQL 2.0 may not support this statement.</simpara>
+      releases of HyperSQL 2.0 do not support altering the characteristics.
+      Altering the routine body changes the implementation without changing
+      the parameters. Defining recursive SQL/PSM is only possible by altering
+      a non-recursive routine body.</simpara>
 
       <indexterm significance="preferred" type="sql">
         <primary>DROP routine</primary>
