@@ -533,7 +533,7 @@ public class ExpressionLogical extends Expression {
 
         // parametric ALL / ANY
         if (isQuantified) {
-            if (nodes[RIGHT].opType == OpTypes.VALUELIST) {
+            if (nodes[RIGHT].opType == OpTypes.TABLE) {
                 if (nodes[RIGHT] instanceof ExpressionTable) {
                     if (nodes[RIGHT].nodes[LEFT].opType
                             == OpTypes.DYNAMIC_PARAM) {

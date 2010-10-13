@@ -246,6 +246,10 @@ public class Session implements SessionInterface {
 
     public synchronized void setIsolationDefault(int level) {
 
+        if (level == SessionInterface.TX_READ_UNCOMMITTED) {
+            level = SessionInterface.TX_READ_COMMITTED;
+        }
+
         if (level == isolationLevelDefault) {
             return;
         }
@@ -266,6 +270,10 @@ public class Session implements SessionInterface {
 
         if (isInMidTransaction()) {
             throw Error.error(ErrorCode.X_25001);
+        }
+
+        if (level == SessionInterface.TX_READ_UNCOMMITTED) {
+            level = SessionInterface.TX_READ_COMMITTED;
         }
 
         if (isolationLevel != level) {
@@ -952,6 +960,7 @@ public class Session implements SessionInterface {
                 } catch (Throwable t) {
                     System.err.println(cs.getSQL());
                     t.printStackTrace();
+
                     return Result.newErrorResult(t);
                 }
             }
