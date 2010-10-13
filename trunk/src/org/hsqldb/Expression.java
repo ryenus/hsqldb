@@ -928,6 +928,7 @@ public class Expression implements Cloneable {
                 acceptsSequences = false;
                 break;
 
+            case OpTypes.TABLE :
             case OpTypes.VALUELIST : {
                 HsqlList localSet = null;
 
@@ -947,15 +948,8 @@ public class Expression implements Cloneable {
                         subQuery.setCorrelated();
                     }
 
-                    for (int i = 0; i < localSet.size(); i++) {
-                        Expression e = (Expression) localSet.get(i);
-
-                        unresolvedSet = e.resolveColumnReferences(session,
-                                rangeVarArray, unresolvedSet);
-                    }
-
                     unresolvedSet = Expression.resolveColumnSet(session,
-                            rangeVarArray, rangeVarArray.length, localSet,
+                            rangeVarArray, rangeCount, localSet,
                             unresolvedSet);
                 }
 

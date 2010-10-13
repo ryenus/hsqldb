@@ -111,15 +111,6 @@ class SubQuery implements Comparator {
         }
     }
 
-    SubQuery(Database database, int level, QueryExpression queryExpression,
-             View view) {
-
-        this.level           = level;
-        this.queryExpression = queryExpression;
-        this.database        = database;
-        this.view            = view;
-    }
-
     SubQuery(Database database, int level, Expression dataExpression,
              int mode) {
 
@@ -135,6 +126,15 @@ class SubQuery implements Comparator {
                 uniqueRows = true;
                 break;
         }
+    }
+
+    SubQuery(Database database, int level, QueryExpression queryExpression,
+             View view) {
+
+        this.level           = level;
+        this.queryExpression = queryExpression;
+        this.database        = database;
+        this.view            = view;
     }
 
     public boolean isResolved() {
