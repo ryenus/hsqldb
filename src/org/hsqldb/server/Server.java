@@ -322,7 +322,7 @@ public class Server implements HsqlSocketRequestHandler {
     public Thread getServerThread() {
         return serverThread;
     }
-    
+
     /**
      * Creates a new Server instance handling HSQL protocol connections.
      */
@@ -1577,6 +1577,7 @@ public class Server implements HsqlSocketRequestHandler {
 
                 break;
             }
+            case ResultConstants.EXECUTE_INVALID :
             case ResultConstants.EXECUTE : {
                 sb.append("SQLCLI:SQLEXECUTE:");
                 sb.append(r.getStatementID());
