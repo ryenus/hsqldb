@@ -1,3 +1,17 @@
+14 Oct 2010 - SVN 3814
+-- added support for recursive SQL functions and local table variables
+-- fixed reported bugs
+04 Oct 2010 - SVN 3808
+-- added support for translation of Oracle types VARCHAR2, NUMBER, RAW, etc. wih SET DATABASE SQL SYNTAX ORA TRUE
+-- added support for more procedural statements in SQL triggers
+-- added support for variables in database URL's
+-- fixed reported bugs
+24 Sept 2010 - SVN 3794
+-- fixed issue with new sql compatibility properties applied to older databases
+23 Sept 2010 - SVN 3792
+-- added support for Oracle syntax elements including DUAL, ROWNUM, NEXTVAL, CURRVAL with sql.syntax_ora=true property
+-- fixed bug with IN predicates in arguments of aggregate functions
+-- fixed bug with table functions used in subqueries
 10 Sept 2010  - SVN 3782
 -- added support for clustered indexes
 -- added enhancement for column visibility in nested joins
