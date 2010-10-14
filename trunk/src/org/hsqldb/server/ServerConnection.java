@@ -353,7 +353,7 @@ class ServerConnection implements Runnable {
 
         Result resultOut = null;
 
-        switch (resultMode) {
+        switch (resultIn.getType()) {
 
             case ResultConstants.CONNECT : {
                 resultOut = setDatabase(resultIn);
@@ -369,10 +369,21 @@ class ServerConnection implements Runnable {
             case ResultConstants.RESETSESSION : {
                 session.resetSession();
 
-                return;
+                resultOut = Result.updateZeroResult;
+
+                break;
             }
-            default :
+            case ResultConstants.EXECUTE_INVALID : {
+                resultOut = Result.newErrorResult(
+                    Error.error(ErrorCode.X_07502));
+
+                break;
+            }
+            default : {
                 resultOut = session.execute(resultIn);
+
+                break;
+            }
         }
 
         resultOut.write(dataOutput, rowOut);

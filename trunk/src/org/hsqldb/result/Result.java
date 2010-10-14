@@ -269,10 +269,10 @@ public class Result {
                                       RowInputBinary in)
                                       throws IOException, HsqlException {
 
-        setSession(session);
-
         Result  currentResult = this;
         boolean hasLob        = false;
+
+        setSession(session);
 
         while (true) {
             int addedResultMode = inputStream.readByte();
@@ -473,12 +473,16 @@ public class Result {
                     session.statementManager.getStatement(session,
                         result.statementID);
 
-                result.statement = statement;
+                if (statement == null) {
 
-                if (statement != null) {
-                    result.metaData = result.statement.getParametersMetaData();
+                    // invalid statement
+                    result.mode = ResultConstants.EXECUTE_INVALID;
+                    result.valueData = ValuePool.emptyObjectArray;
+                    break;
                 }
 
+                result.statement = statement;
+                result.metaData  = result.statement.getParametersMetaData();
                 result.valueData = readSimple(in, result.metaData);
                 break;
 
@@ -524,7 +528,7 @@ public class Result {
             }
             case ResultConstants.DATAHEAD :
             case ResultConstants.DATA :
-            case ResultConstants.GENERATED :                      {
+            case ResultConstants.GENERATED : {
                 result.id           = in.readLong();
                 result.updateCount  = in.readInt();
                 result.fetchSize    = in.readInt();

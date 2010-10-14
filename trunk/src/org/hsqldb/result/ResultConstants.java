@@ -169,6 +169,11 @@ public interface ResultConstants {
     int GENERATED = HSQL_API_BASE + 20;
 
     /**
+     * attempt to execute invalid statement
+     */
+    int EXECUTE_INVALID = HSQL_API_BASE + 21;
+
+    /**
      * Indicates that Result encapsulates a request to establish a connection.
      */
     int CONNECT = HSQL_API_BASE + 31;
