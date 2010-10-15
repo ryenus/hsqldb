@@ -1267,6 +1267,7 @@ public class TableWorks {
                     oldTable, newTable, colIndex, adjust);
             }
         } else {
+
             PersistentStore oldStore =
                 database.persistentStoreCollection.getStore(oldTable);
             PersistentStore newStore =
