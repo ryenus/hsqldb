@@ -455,7 +455,6 @@ public class StatementSchema extends Statement {
 
                                 case SchemaObject.ConstraintTypes
                                         .PRIMARY_KEY : {
-                                    session.commit(false);
 
                                     TableWorks tableWorks =
                                         new TableWorks(session, table);
@@ -465,7 +464,6 @@ public class StatementSchema extends Statement {
                                     break;
                                 }
                                 case SchemaObject.ConstraintTypes.UNIQUE : {
-                                    session.commit(false);
 
                                     TableWorks tableWorks =
                                         new TableWorks(session, table);
@@ -476,7 +474,6 @@ public class StatementSchema extends Statement {
                                 }
                                 case SchemaObject.ConstraintTypes
                                         .FOREIGN_KEY : {
-                                    session.commit(false);
 
                                     TableWorks tableWorks =
                                         new TableWorks(session, table);
@@ -486,7 +483,6 @@ public class StatementSchema extends Statement {
                                     break;
                                 }
                                 case SchemaObject.ConstraintTypes.CHECK : {
-                                    session.commit(false);
 
                                     TableWorks tableWorks =
                                         new TableWorks(session, table);
@@ -506,7 +502,6 @@ public class StatementSchema extends Statement {
                             TableWorks tableWorks = new TableWorks(session,
                                                                    table);
 
-                            session.commit(false);
                             tableWorks.addColumn(column, colIndex, list);
 
                             break;
@@ -559,7 +554,6 @@ public class StatementSchema extends Statement {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             boolean      nullable = (Boolean) arguments[3];
 
-                            session.commit(false);
 
                             TableWorks tw = new TableWorks(session, table);
 
@@ -572,7 +566,6 @@ public class StatementSchema extends Statement {
                             int          columnIndex = (Integer) arguments[3];
                             Expression   e = (Expression) arguments[4];
 
-                            session.commit(false);
 
                             TableWorks tw = new TableWorks(session, table);
 
@@ -687,7 +680,6 @@ public class StatementSchema extends Statement {
 
                     checkSchemaUpdateAuthorisation(session,
                                                    table.getSchemaName());
-                    session.commit(false);
 
                     TableWorks tableWorks = new TableWorks(session, table);
 

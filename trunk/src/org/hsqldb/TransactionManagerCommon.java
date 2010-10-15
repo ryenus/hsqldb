@@ -614,7 +614,7 @@ class TransactionManagerCommon {
             Session s = (Session) it.next();
 
             if (s == session) {
-                it.setValue(null);
+                it.remove();
             }
         }
 
