@@ -380,15 +380,19 @@ implements TransactionManager {
 
                     session.tempSet.clear();
 
-                    redoAction = checkDeadlock(session, actionSession);
+                    if (actionSession != null) {
+                        redoAction = checkDeadlock(session, actionSession);
+                    }
                 }
 
                 if (redoAction) {
                     session.redoAction = true;
 
-                    actionSession.waitingSessions.add(session);
-                    session.waitedSessions.add(actionSession);
-                    session.latch.countUp();
+                    if (actionSession != null) {
+                        actionSession.waitingSessions.add(session);
+                        session.waitedSessions.add(actionSession);
+                        session.latch.countUp();
+                    }
                 } else {
                     session.redoAction       = false;
                     session.abortTransaction = session.deadlockRollback;
@@ -411,11 +415,10 @@ implements TransactionManager {
                                 PersistentStore store, Row row,
                                 int[] changedColumns) {
 
-        HsqlException exception     = null;
-        RowAction     action        = row.rowAction;
-        Session       actionSession = null;
-        boolean       redoAction    = false;
-        boolean       redoWait      = true;
+        RowAction action        = row.rowAction;
+        Session   actionSession = null;
+        boolean   redoAction    = false;
+        boolean   redoWait      = true;
 
         if (action == null) {
             System.out.println("null insert action " + session + " "
@@ -433,7 +436,6 @@ implements TransactionManager {
                 throw e;
             }
 
-            exception  = e;
             redoAction = true;
         }
 
@@ -449,6 +451,7 @@ implements TransactionManager {
             rollbackAction(session);
 
             RowActionBase otherAction = (RowActionBase) session.tempSet.get(0);
+
             actionSession = otherAction.session;
 
             session.tempSet.clear();

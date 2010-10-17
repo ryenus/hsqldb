@@ -138,6 +138,12 @@ public class RowAction extends RowActionBase {
 
             while (true) {
                 if (action.rolledback) {
+                    if (action.next == null) {
+                        break;
+                    }
+
+                    action = action.next;
+
                     continue;
                 }
 
@@ -156,6 +162,10 @@ public class RowAction extends RowActionBase {
                     case ACTION_DELETE : {
                         if (session != action.session) {
                             if (action.commitTimestamp == 0) {
+                                if (!session.tempSet.isEmpty()) {
+                                    session.tempSet.clear();
+                                }
+
                                 session.tempSet.add(action);
                             }
 
@@ -170,6 +180,10 @@ public class RowAction extends RowActionBase {
                             if (colMap == null
                                     || ArrayUtil.haveCommonElement(
                                         colMap, action.changeColumnMap)) {
+                                if (!session.tempSet.isEmpty()) {
+                                    session.tempSet.clear();
+                                }
+
                                 session.tempSet.add(action);
 
                                 return null;
@@ -228,6 +242,10 @@ public class RowAction extends RowActionBase {
                     if (action.changeColumnMap == null
                             || ArrayUtil.haveCommonElement(
                                 colMap, action.changeColumnMap)) {
+                        if (!session.tempSet.isEmpty()) {
+                            session.tempSet.clear();
+                        }
+
                         session.tempSet.add(action);
 
                         return false;
@@ -800,6 +818,10 @@ public class RowAction extends RowActionBase {
                     } else if (mode == TransactionManager.ACTION_DUP) {
                         if (action.changeColumnMap == null) {
                             actionType = ACTION_INSERT;
+
+                            if (!session.tempSet.isEmpty()) {
+                                session.tempSet.clear();
+                            }
 
                             session.tempSet.add(action);
                         } else {
