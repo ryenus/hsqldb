@@ -351,16 +351,23 @@ class TransactionManagerCommon {
             for (int i = 0; i < waitingCount; i++) {
                 Session current = (Session) session.waitingSessions.get(i);
 
-                if (current.abortTransaction ) {
+                if (current.abortTransaction) {
                     canUnlock = true;
 
                     break;
                 }
 
-                if (ArrayUtil
-                        .containsAny(readLocks,
-                                     current.sessionContext.currentStatement
-                                         .getTableNamesForWrite())) {
+                Statement currentStatement =
+                    current.sessionContext.currentStatement;
+
+                if (currentStatement == null) {
+                    canUnlock = true;
+
+                    break;
+                }
+
+                if (ArrayUtil.containsAny(
+                        readLocks, currentStatement.getTableNamesForWrite())) {
                     canUnlock = true;
 
                     break;
