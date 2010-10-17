@@ -62,7 +62,8 @@
     <legalnotice>
       <para>Copyright 2002-2010 The HSQL Development Group. Permission is
       granted to distribute this document without any alteration under the
-      terms of the HSQLDB license.</para>
+      terms of the HSQLDB license. You are not allowed to distribute or
+      display this document on the web in an altered form.</para>
     </legalnotice>
   </info>
 
@@ -78,9 +79,9 @@
     first released in 2010, includes a complete rewrite of most parts of the
     database engine.</para>
 
-    <para>This documentation covers HyperSQL version 2.0. This documentation
-    is regularly improved and undated. The latest, updated version can be
-    found at http://hsqldb.org/doc/2.0/</para>
+    <para>This documentation covers the latest HyperSQL version 2.0. This
+    documentation is regularly improved and undated. The latest, updated
+    version can be found at http://hsqldb.org/doc/2.0/</para>
 
     <para>If you notice any mistakes in this document, or if you have problems
     with the procedures themselves, please use the HSQLDB support facilities
