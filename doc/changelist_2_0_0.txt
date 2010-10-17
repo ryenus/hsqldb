@@ -1,11 +1,11 @@
+16 Oct 2010 - SVN 3818
+-- all reported bugs and issues have been fixed
 14 Oct 2010 - SVN 3814
 -- added support for recursive SQL functions and local table variables
--- fixed reported bugs
 04 Oct 2010 - SVN 3808
 -- added support for translation of Oracle types VARCHAR2, NUMBER, RAW, etc. wih SET DATABASE SQL SYNTAX ORA TRUE
 -- added support for more procedural statements in SQL triggers
 -- added support for variables in database URL's
--- fixed reported bugs
 24 Sept 2010 - SVN 3794
 -- fixed issue with new sql compatibility properties applied to older databases
 23 Sept 2010 - SVN 3792
@@ -17,11 +17,9 @@
 -- added enhancement for column visibility in nested joins
 -- addedd support for datetime ROUND and TRUNC functions
 4 Sept 2010  - SVN 3775
--- minor enhancements
--- additional propertie
+-- additional connection propertie
 -- added support for FOR loops in routines
 11 Aug 2010  - SVN 3750
--- fixed reported bugs
 -- extended getGeneratedKeys to UPDATE and MERGE operations
 -- extended ALTER SESSION statement
 -- added SEQUENCE_ARRAY and SESSION_ID function
@@ -62,7 +60,6 @@
 22 June 2010 - SVN 3667
 -- changed names of three system functions ISDATABASEREADONLY() to IS_DATABASE_READONLY(), etc.
 -- fixed bug with Clob.getInputStream()
--- minor speed improvement
 -- improvement to TO_CHAR function
 -- some relaxation of DECIMAL dynamic params
 16 June 2010 - SVN 3658
