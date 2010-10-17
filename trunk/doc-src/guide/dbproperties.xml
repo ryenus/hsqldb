@@ -698,8 +698,9 @@
 
           <row>
             <entry nameend="c3" namest="c1"><para>This property, when set
-            true, enables support for DUAL, ROWNUM, NEXTVAL and CURRVAL
-            syntax</para><para><programlisting>SET DATABASE SQL SYNTAX ORA { TRUE | FALSE } [to be supported]</programlisting></para></entry>
+            true, enables support for DUAL, ROWNUM, NEXTVAL and CURRVAL syntax
+            and translates some non-standard data types to supported standard
+            types</para><para><programlisting>SET DATABASE SQL SYNTAX ORA { TRUE | FALSE }</programlisting></para></entry>
           </row>
         </tbody>
       </tgroup>
@@ -821,7 +822,9 @@
             rolled back. This will cause the other transaction to wait for the
             current transaction. The property should not be changed unless the
             application can quickly perform an alternative statement and
-            complete the transaction.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
+            complete the transaction. It is provided for compatibility with
+            other database engines which do not roll back the transaction upon
+            deadlock.</para><para><programlisting>this property cannot be set with an SQL statement</programlisting></para></entry>
           </row>
 
           <row>
@@ -1065,7 +1068,7 @@
             units of 32KB. When the average size of individual lobs in the
             database is smaller, a smaller unit can be used to reduce the
             overall size of the .lobs file. Values 1, 2, 4, 8, 16, 32 can be
-            used.</para><para><programlisting>SET FILES LOB SCLAE &lt;numeric value&gt;</programlisting></para></entry>
+            used.</para><para><programlisting>SET FILES LOB SCALE &lt;numeric value&gt;</programlisting></para></entry>
           </row>
 
           <row>
