@@ -198,7 +198,6 @@ public interface StatementTypes {
     int SET_DATABASE_READ_ONLY                 = 1035;
     int SET_DATABASE_READ_ONLY_FILES           = 1036;
     int SET_DATABASE_RESULT_MEMORY_ROWS        = 1037;
-    int SET_DATABASE_SCRIPT_FORMAT             = 1038;
     int SET_DATABASE_SQL_COLLATION             = 1039;
     int SET_SESSION_SQL_IGNORECASE             = 1040;
     int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1041;

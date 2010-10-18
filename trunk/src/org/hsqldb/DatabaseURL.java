@@ -147,9 +147,13 @@ public class DatabaseURL {
             }
         }
 
-        int replacePos = url.indexOf("${");
+        while (true) {
+            int replacePos = url.indexOf("${");
 
-        if (replacePos != -1) {
+            if (replacePos == -1) {
+                break;
+            }
+
             int endPos = url.indexOf("}", replacePos);
 
             if (endPos != -1) {

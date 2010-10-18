@@ -118,7 +118,6 @@ public class StatementCommand extends Statement {
 //
             case StatementTypes.SET_DATABASE_SQL_COLLATION :
             case StatementTypes.SET_DATABASE_FILES_BACKUP_INCREMENT :
-            case StatementTypes.SET_DATABASE_SCRIPT_FORMAT :
             case StatementTypes.SET_DATABASE_TEXT_SOURCE :
                 group                       = StatementTypes.X_HSQLDB_SETTING;
                 this.isTransactionStatement = true;
@@ -442,6 +441,19 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+            case StatementTypes.SET_DATABASE_FILES_SCRIPT_FORMAT : {
+                try {
+                    int value = ((Integer) parameters[0]).intValue();
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.logger.setScriptType(value);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.SET_DATABASE_FILES_WRITE_DELAY : {
                 try {
                     int value = ((Integer) parameters[0]).intValue();
@@ -549,19 +561,6 @@ public class StatementCommand extends Statement {
 
                 //
                 return Result.updateZeroResult;
-            }
-            case StatementTypes.SET_DATABASE_SCRIPT_FORMAT : {
-                try {
-                    int value = ((Integer) parameters[0]).intValue();
-
-                    session.checkAdmin();
-                    session.checkDDLWrite();
-                    session.database.logger.setScriptType(value);
-
-                    return Result.updateZeroResult;
-                } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
-                }
             }
             case StatementTypes.SET_DATABASE_TRANSACTION_CONTROL : {
                 try {

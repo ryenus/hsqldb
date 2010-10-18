@@ -507,6 +507,9 @@ public class DataFileCache {
 
             database.schemaManager.setTempIndexRoots(dfd.getIndexRoots());
             database.logger.log.writeScript(false);
+            database.getProperties().setProperty(
+                HsqlDatabaseProperties.hsqldb_script_format,
+                database.logger.propScriptFormat);
             database.getProperties().setDBModified(
                 HsqlDatabaseProperties.FILES_MODIFIED_NEW);
             database.logger.log.closeLog();
@@ -998,9 +1001,9 @@ public class DataFileCache {
                     File[] list = file.getParentFile().listFiles();
 
                     for (int i = 0; i < list.length; i++) {
-                        if (list[i].getName().endsWith(Logger.oldFileExtension)
-                                && list[i].getName().startsWith(
-                                    file.getName())) {
+                        if (list[i].getName()
+                                .endsWith(Logger.oldFileExtension) && list[i]
+                                .getName().startsWith(file.getName())) {
                             list[i].delete();
                         }
                     }
@@ -1025,7 +1028,8 @@ public class DataFileCache {
         String timestamp = StringUtil.toPaddedString(
             Integer.toHexString((int) System.currentTimeMillis()), 8, '0',
             true);
-        String discardName = dataFileName + "." + timestamp + Logger.oldFileExtension;
+        String discardName = dataFileName + "." + timestamp
+                             + Logger.oldFileExtension;
 
         return discardName;
     }

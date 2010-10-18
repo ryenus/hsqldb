@@ -51,6 +51,8 @@ import org.hsqldb.rowio.RowInputTextLog;
 import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.Type;
 
+import java.util.zip.GZIPInputStream;
+
 /**
  * Handles operations involving reading back a script or log file written
  * out by ScriptWriterText. This implementation
@@ -71,7 +73,8 @@ public class ScriptReaderText extends ScriptReaderBase {
         super(db);
     }
 
-    public ScriptReaderText(Database db, String fileName) throws IOException {
+    public ScriptReaderText(Database db, String fileName,
+                            boolean compressed) throws IOException {
 
         super(db);
 
@@ -79,6 +82,11 @@ public class ScriptReaderText extends ScriptReaderBase {
             database.logger.getFileAccess().openInputStreamElement(fileName);
 
         inputStream = new BufferedInputStream(inputStream);
+
+        if (compressed) {
+            inputStream = new GZIPInputStream(inputStream);
+        }
+
         dataStreamIn = new LineReader(inputStream,
                                       ScriptWriterText.ISO_8859_1);
         rowIn = new RowInputTextLog(db.databaseProperties.isVersion18());

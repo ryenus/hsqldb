@@ -95,7 +95,7 @@ public class ScriptRunner {
 
         try {
             if (crypto == null) {
-                scr = new ScriptReaderText(database, logFilename);
+                scr = new ScriptReaderText(database, logFilename, false);
             } else {
                 scr = new ScriptReaderDecode(database, logFilename, crypto,
                                              true);

@@ -46,6 +46,8 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.rowio.RowOutputTextLog;
 
+import java.util.zip.GZIPOutputStream;
+
 /**
  * Handles all scripting and logging operations. A script consists of two blocks:<p>
  *
@@ -117,6 +119,23 @@ public class ScriptWriterText extends ScriptWriterBase {
                             boolean includeCachedData, boolean newFile,
                             boolean isDump) {
         super(db, file, includeCachedData, newFile, isDump);
+    }
+
+    public ScriptWriterText(Database db, String file,
+                            boolean includeCachedData, boolean compressed) {
+
+        super(db, file, includeCachedData, true, false);
+
+        if (compressed) {
+            try {
+                fileStreamOut = new GZIPOutputStream(fileStreamOut);
+            } catch (IOException e) {
+                throw Error.error(e, ErrorCode.FILE_IO_ERROR,
+                                  ErrorCode.M_Message_Pair, new Object[] {
+                    e.getMessage(), outFile
+                });
+            }
+        }
     }
 
     protected void initBuffers() {

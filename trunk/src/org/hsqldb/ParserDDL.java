@@ -287,15 +287,15 @@ public class ParserDDL extends ParserRoutine {
 */
     Statement compileDrop() {
 
-        int      objectTokenType;
-        int      objectType;
-        int      statementType;
-        boolean  canCascade  = false;
-        boolean  cascade     = false;
-        boolean  useIfExists = false;
-        boolean  ifExists    = false;
-        HsqlName writeName   = null;
-        HsqlName catalogName = database.getCatalogName();
+        int        objectTokenType;
+        int        objectType;
+        int        statementType;
+        boolean    canCascade  = false;
+        boolean    cascade     = false;
+        boolean    useIfExists = false;
+        boolean    ifExists    = false;
+        HsqlName[] writeName   = null;
+        HsqlName   catalogName = database.getCatalogName();
 
         read();
 
@@ -309,7 +309,7 @@ public class ParserDDL extends ParserRoutine {
                 statementType = StatementTypes.DROP_INDEX;
                 objectType    = SchemaObject.INDEX;
                 useIfExists   = true;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
 
                 break;
             }
@@ -339,7 +339,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_ROUTINE;
                 objectType    = SchemaObject.SPECIFIC_ROUTINE;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
                 useIfExists   = true;
 
@@ -350,7 +350,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_ROUTINE;
                 objectType    = SchemaObject.PROCEDURE;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
                 useIfExists   = true;
 
@@ -361,7 +361,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_ROUTINE;
                 objectType    = SchemaObject.FUNCTION;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
                 useIfExists   = true;
 
@@ -372,7 +372,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_SCHEMA;
                 objectType    = SchemaObject.SCHEMA;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
                 useIfExists   = true;
 
@@ -383,7 +383,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_SEQUENCE;
                 objectType    = SchemaObject.SEQUENCE;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
                 useIfExists   = true;
 
@@ -394,7 +394,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_TRIGGER;
                 objectType    = SchemaObject.TRIGGER;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = false;
                 useIfExists   = true;
 
@@ -405,7 +405,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_USER;
                 objectType    = SchemaObject.GRANTEE;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
 
                 break;
@@ -415,7 +415,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_ROLE;
                 objectType    = SchemaObject.GRANTEE;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
 
                 break;
@@ -425,7 +425,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_DOMAIN;
                 objectType    = SchemaObject.DOMAIN;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
                 useIfExists   = true;
                 break;
@@ -435,7 +435,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_TYPE;
                 objectType    = SchemaObject.TYPE;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
                 useIfExists   = true;
                 break;
@@ -446,7 +446,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_CHARACTER_SET;
                 objectType    = SchemaObject.CHARSET;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = false;
                 useIfExists   = true;
                 break;
@@ -456,7 +456,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_VIEW;
                 objectType    = SchemaObject.VIEW;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
                 useIfExists   = true;
                 break;
@@ -466,7 +466,7 @@ public class ParserDDL extends ParserRoutine {
 
                 statementType = StatementTypes.DROP_TABLE;
                 objectType    = SchemaObject.TABLE;
-                writeName     = catalogName;
+                writeName     = new HsqlName[]{ catalogName };
                 canCascade    = true;
                 useIfExists   = true;
                 break;
@@ -523,7 +523,7 @@ public class ParserDDL extends ParserRoutine {
             }
             case Tokens.SCHEMA : {
                 name      = readNewSchemaName();
-                writeName = catalogName;
+                writeName = new HsqlName[]{ catalogName };
 
                 break;
             }
@@ -1084,7 +1084,7 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSchema readTableAsSubqueryDefinition(Table table) {
 
-        HsqlName   readName    = null;
+        HsqlName[]   readName    = null;
         boolean    withData    = true;
         HsqlName[] columnNames = null;
         Statement  statement   = null;
@@ -1149,7 +1149,7 @@ public class ParserDDL extends ParserRoutine {
         if (withData) {
             statement = new StatementQuery(session, queryExpression,
                                            compileContext);
-            readName = statement.getTableNamesForRead()[0];
+            readName = statement.getTableNamesForRead();
         }
 
         Object[] args = new Object[] {
@@ -2168,7 +2168,7 @@ public class ParserDDL extends ParserRoutine {
                 };
 
                 return new StatementSchema(sql, StatementTypes.CREATE_TRIGGER,
-                                           args, null, table.getName());
+                                           args, null, new HsqlName[]{table.getName()});
             } catch (HsqlException e) {
                 rewind(position);
             }
@@ -2197,7 +2197,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.CREATE_TRIGGER, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     Routine compileTriggerRoutine(Table table, RangeVariable[] ranges,
@@ -2881,7 +2881,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.CREATE_INDEX, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     StatementSchema compileCreateSchema() {
@@ -2952,7 +2952,7 @@ public class ParserDDL extends ParserRoutine {
         };
         HsqlArrayList list = new HsqlArrayList();
         StatementSchema cs = new StatementSchema(sql,
-            StatementTypes.CREATE_SCHEMA, args, null, null);
+            StatementTypes.CREATE_SCHEMA, args);
 
         cs.setSchemaHsqlName(schemaName);
         list.add(cs);
@@ -3234,7 +3234,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     Statement compileAlterTableAddForeignKeyConstraint(Table table,
@@ -3261,7 +3261,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   c.core.mainTableName, table.getName());
+                                   new HsqlName[]{c.core.mainTableName},new HsqlName[]{ table.getName()});
     }
 
     Statement compileAlterTableAddCheckConstraint(Table table, HsqlName name) {
@@ -3284,7 +3284,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     Statement compileAlterTableAddColumn(Table table) {
@@ -3325,7 +3325,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     Statement compileAlterTableAddPrimaryKey(Table table, HsqlName name) {
@@ -3349,13 +3349,13 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     Statement compileAlterTableDropColumn(Table table, String colName,
                                           boolean cascade) {
 
-        HsqlName writeName = null;
+        HsqlName[] writeName = null;
         int      colindex  = table.getColumnIndex(colName);
 
         if (table.getColumnCount() == 1) {
@@ -3369,7 +3369,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         if (!table.isTemp()) {
-            writeName = table.getName();
+            writeName = new HsqlName[]{table.getName()};
         }
 
         return new StatementSchema(null, StatementTypes.DROP_COLUMN, args,
@@ -3403,7 +3403,7 @@ public class ParserDDL extends ParserRoutine {
 
                     return new StatementSchema(sql,
                                                StatementTypes.ALTER_TABLE,
-                                               args, null, table.getName());
+                                               args, null, new HsqlName[]{table.getName()});
                 } else if (token.tokenType == Tokens.GENERATED) {
                     read();
 
@@ -3415,7 +3415,7 @@ public class ParserDDL extends ParserRoutine {
 
                     return new StatementSchema(sql,
                                                StatementTypes.ALTER_TABLE,
-                                               args, null, table.getName());
+                                               args, null, new HsqlName[]{table.getName()});
                 } else {
                     throw unexpectedToken();
                 }
@@ -3446,7 +3446,7 @@ public class ParserDDL extends ParserRoutine {
                         return new StatementSchema(sql,
                                                    StatementTypes.ALTER_TABLE,
                                                    args, null,
-                                                   table.getName());
+                                                   new HsqlName[]{table.getName()});
                     }
                     case Tokens.NOT : {
 
@@ -3548,7 +3548,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     private Statement compileAlterColumnDataType(Table table,
@@ -3572,7 +3572,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     private Statement compileAlterColumnSetNullability(Table table,
@@ -3584,7 +3584,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     Statement compileAlterSequence() {
@@ -3665,7 +3665,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     StatementSchema compileAlterColumnSequenceOptions(Table table,
@@ -3795,7 +3795,7 @@ public class ParserDDL extends ParserRoutine {
         };
 
         return new StatementSchema(sql, StatementTypes.ALTER_TABLE, args,
-                                   null, table.getName());
+                                   null, new HsqlName[]{table.getName()});
     }
 
     /**

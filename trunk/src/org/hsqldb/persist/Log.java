@@ -89,7 +89,6 @@ public class Log {
     private boolean                filesReadOnly;
     private long                   maxLogSize;
     private int                    writeDelay;
-    private int                    scriptFormat;
     private DataFileCache          cache;
 
     Log(Database db) {
@@ -103,7 +102,6 @@ public class Log {
     void initParams() {
 
         maxLogSize     = database.logger.propLogSize * 1024L * 1024;
-        scriptFormat   = 0;
         writeDelay     = database.logger.propWriteDelay;
         filesReadOnly  = database.isFilesReadOnly();
         scriptFileName = fileName + Logger.scriptFileExtension;
@@ -199,6 +197,8 @@ public class Log {
         }
 
         // set this one last to save the props
+        properties.setProperty(HsqlDatabaseProperties.hsqldb_script_format,
+                               database.logger.propScriptFormat);
         properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED_NEW);
         deleteLog();
 
@@ -564,10 +564,6 @@ public class Log {
         maxLogSize = megas * 1024L * 1024;
     }
 
-    int getScriptType() {
-        return scriptFormat;
-    }
-
     /**
      * Write delay specifies the frequency of FileDescriptor.sync() calls.
      */
@@ -717,10 +713,12 @@ public class Log {
         Crypto           crypto = database.logger.getCrypto();
 
         if (crypto == null) {
+            boolean compressed = database.logger.propScriptFormat == 3;
+
             scw = new ScriptWriterText(database,
                                        scriptFileName
-                                       + Logger.newFileExtension, full, true,
-                                           false);
+                                       + Logger.newFileExtension, full,
+                                           compressed);
         } else {
             scw = new ScriptWriterEncode(database,
                                          scriptFileName
@@ -743,7 +741,10 @@ public class Log {
             Crypto crypto = database.logger.getCrypto();
 
             if (crypto == null) {
-                scr = new ScriptReaderText(database, scriptFileName);
+                boolean compressed = database.logger.propScriptFormat == 3;
+
+                scr = new ScriptReaderText(database, scriptFileName,
+                                           compressed);
             } else {
                 scr = new ScriptReaderDecode(database, scriptFileName, crypto,
                                              false);
