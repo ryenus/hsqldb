@@ -115,6 +115,7 @@ public class Logger {
     int            propTxMode       = TransactionManager.LOCKS;
     boolean        propRefIntegrity = true;
     int            propLobBlockSize = 32 * 1024;
+    int            propScriptFormat = 0;
 
     //
     Log               log;
@@ -342,6 +343,9 @@ public class Logger {
                     FileUtil.makeDirectories(tempDirectoryPath);
             }
         }
+
+        propScriptFormat = database.databaseProperties.getIntegerProperty(
+            HsqlDatabaseProperties.hsqldb_script_format);
 
         boolean version18 = database.databaseProperties.isVersion18();
 
@@ -819,11 +823,19 @@ public class Logger {
 
     /**
      *  Sets the type of script file, currently 0 for text (default)
-     *  1 for binary and 3 for compressed
+     *  3 for compressed
      *
      * @param  i The type
      */
-    public synchronized void setScriptType(int i) {}
+    public synchronized void setScriptType(int format) {
+
+        if (format == propScriptFormat) {
+            return;
+        }
+
+        propScriptFormat   = format;
+        checkpointRequired = true;
+    }
 
     /**
      *  Sets the log write delay mode to number of seconds. By default

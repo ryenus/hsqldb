@@ -1254,6 +1254,22 @@ public class ParserCommand extends ParserDDL {
 
                 break;
             }
+            case Tokens.SCRIPT : {
+                read();
+                readThis(Tokens.FORMAT);
+
+                if (token.tokenType == Tokens.TEXT) {
+                    read();
+                    value = new Integer(0);
+                } else {
+                    readThis(Tokens.COMPRESSED);
+                    value = new Integer(3);
+                }
+
+                type = StatementTypes.SET_DATABASE_FILES_SCRIPT_FORMAT;
+
+                break;
+            }
             default :
                 throw unexpectedToken();
         }

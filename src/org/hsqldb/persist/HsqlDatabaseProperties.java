@@ -547,6 +547,9 @@ public class HsqlDatabaseProperties extends HsqlProperties {
             HsqlProperties props = new HsqlProperties(dbMeta,
                 database.getPath(), database.logger.getFileAccess(), false);
 
+            if (getIntegerProperty(hsqldb_script_format) == 3) {
+                props.setProperty(hsqldb_script_format, 3);
+            }
             props.setProperty(hsqldb_version, THIS_VERSION);
             props.setProperty(hsqldb_modified, getProperty(hsqldb_modified));
             props.save(fileName + ".properties" + ".new");

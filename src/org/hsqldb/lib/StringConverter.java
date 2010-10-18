@@ -645,7 +645,7 @@ public class StringConverter {
 
         HsqlByteArrayOutputStream baOS = new HsqlByteArrayOutputStream(1024);
 
-        while(true) {
+        while (true) {
             int c = is.read();
 
             if (c == -1) {
@@ -657,7 +657,6 @@ public class StringConverter {
 
         return new String(baOS.getBuffer(), 0, baOS.size(), encoding);
     }
-
 
 // fredt@users 20020130 - patch 497872 by Nitin Chauhan - use byte[] of exact size
 
@@ -725,5 +724,79 @@ public class StringConverter {
         }
 
         return count;
+    }
+
+    /**
+     * Returns a string representation in UUID form from a binary string.
+     *
+     * UUID string is composed of 8-4-4-4-12 hexadecimal characters.
+     *
+     * @param b the byte array
+     * @return UUID string form
+     */
+    public static String toStringUUID(byte[] b) {
+
+        char[] chars = new char[36];
+        int    hexIndex;
+
+        if (b == null) {
+            return null;
+        }
+
+        if (b.length != 16) {
+            throw new NumberFormatException();
+        }
+
+        for (int i = 0, j = 0; i < b.length; ) {
+            hexIndex   = (b[i] & 0xf0) >> 4;
+            chars[j++] = (char) HEXBYTES[hexIndex];
+            hexIndex   = b[i] & 0xf;
+            chars[j++] = (char) HEXBYTES[hexIndex];
+
+            i++;
+
+            if (i >= 4 && i <= 10 && (i % 2) == 0) {
+                chars[j++] = '-';
+            }
+        }
+
+        return new String(chars);
+    }
+
+    /**
+     * Returns a byte[] representation in UUID form from a UUID string.
+     *
+     * @param s the UUID string
+     * @return byte array
+     */
+    public static byte[] toBinaryUUID(String s) {
+
+        byte[] bytes = new byte[16];
+
+        if (s == null) {
+            return null;
+        }
+
+        if (s.length() != 36) {
+            throw new NumberFormatException();
+        }
+
+        for (int i = 0, j = 0; i < bytes.length; ) {
+            char c    = s.charAt(j++);
+            int  high = getNibble(c);
+
+            c        = s.charAt(j++);
+            bytes[i] = (byte) ((high << 4) + getNibble(c));
+
+            i++;
+
+            if (i >= 4 && i <= 10 && (i % 2) == 0) {
+                c = s.charAt(j++);
+
+                if (c != '-') {}
+            }
+        }
+
+        return bytes;
     }
 }

@@ -67,17 +67,12 @@ public class StatementSchema extends Statement {
         isTransactionStatement = true;
     }
 
-    StatementSchema(String sql, int type, HsqlName readName,
-                    HsqlName writeName) {
-        this(sql, type, null, readName, writeName);
-    }
-
     StatementSchema(String sql, int type, Object[] args) {
-        this(sql, type, args, null, null);
+        this(sql, type, args, (HsqlName[]) null, null);
     }
 
-    StatementSchema(String sql, int type, Object[] args, HsqlName readName,
-                    HsqlName writeName) {
+    StatementSchema(String sql, int type, Object[] args, HsqlName[] readName,
+                    HsqlName[] writeName) {
 
         super(type);
 
@@ -88,12 +83,12 @@ public class StatementSchema extends Statement {
             arguments = args;
         }
 
-        if (readName != null && readName != writeName) {
-            readTableNames = new HsqlName[]{ readName };
+        if (readName != null) {
+            readTableNames = readName;
         }
 
         if (writeName != null) {
-            writeTableNames = new HsqlName[]{ writeName };
+            writeTableNames = writeName;
         }
 
         switch (type) {
@@ -455,7 +450,6 @@ public class StatementSchema extends Statement {
 
                                 case SchemaObject.ConstraintTypes
                                         .PRIMARY_KEY : {
-
                                     TableWorks tableWorks =
                                         new TableWorks(session, table);
 
@@ -464,7 +458,6 @@ public class StatementSchema extends Statement {
                                     break;
                                 }
                                 case SchemaObject.ConstraintTypes.UNIQUE : {
-
                                     TableWorks tableWorks =
                                         new TableWorks(session, table);
 
@@ -474,7 +467,6 @@ public class StatementSchema extends Statement {
                                 }
                                 case SchemaObject.ConstraintTypes
                                         .FOREIGN_KEY : {
-
                                     TableWorks tableWorks =
                                         new TableWorks(session, table);
 
@@ -483,7 +475,6 @@ public class StatementSchema extends Statement {
                                     break;
                                 }
                                 case SchemaObject.ConstraintTypes.CHECK : {
-
                                     TableWorks tableWorks =
                                         new TableWorks(session, table);
 
@@ -553,9 +544,7 @@ public class StatementSchema extends Statement {
                         case StatementTypes.ALTER_COLUMN_NULL : {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             boolean      nullable = (Boolean) arguments[3];
-
-
-                            TableWorks tw = new TableWorks(session, table);
+                            TableWorks   tw = new TableWorks(session, table);
 
                             tw.setColNullability(column, nullable);
 
@@ -565,9 +554,7 @@ public class StatementSchema extends Statement {
                             ColumnSchema column = (ColumnSchema) arguments[2];
                             int          columnIndex = (Integer) arguments[3];
                             Expression   e = (Expression) arguments[4];
-
-
-                            TableWorks tw = new TableWorks(session, table);
+                            TableWorks   tw = new TableWorks(session, table);
 
                             tw.setColDefaultExpression(columnIndex, e);
 
@@ -604,10 +591,13 @@ public class StatementSchema extends Statement {
                 try {
                     routine.resolveReferences(session);
 
-                    Routine oldRoutine = (Routine) schemaManager.getSchemaObject(routine.getSpecificName());
-                    schemaManager.replaceReferences(oldRoutine, routine);
+                    Routine oldRoutine =
+                        (Routine) schemaManager.getSchemaObject(
+                            routine.getSpecificName());
 
+                    schemaManager.replaceReferences(oldRoutine, routine);
                     oldRoutine.setAsAlteredRoutine(routine);
+
                     break;
                 } catch (HsqlException e) {
                     return Result.newErrorResult(e, sql);
