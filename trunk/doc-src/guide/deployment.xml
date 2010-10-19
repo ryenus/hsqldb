@@ -1325,7 +1325,7 @@
         </listitem>
 
         <listitem>
-          <para>In MySQL, when older, non-standard, </para>
+          <para>In MySQL, when older, non-standard,</para>
         </listitem>
 
         <listitem>
@@ -2458,6 +2458,26 @@
 
       <simpara>This command can be used only when there is no lob in the
       database.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET FILES SCRIPT FORMAT</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET FILES SCRIPT
+      FORMAT</emphasis></simpara>
+
+      <simpara><emphasis>set files script format</emphasis></simpara>
+
+      <simpara><literal>&lt;set files script format statement&gt; ::= SET
+      FILES SCRIPT FORMAT { TEXT | COMPRESSED }</literal></simpara>
+
+      <simpara>Changes the compression setting for database scripts. The
+      default is text. Using COMPRESSED results in the storage of the .script
+      file in gzip compressed form. Using this command causes a
+      CHECKPOINT.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
