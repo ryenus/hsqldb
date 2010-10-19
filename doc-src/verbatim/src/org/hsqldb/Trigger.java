@@ -115,7 +115,7 @@ public interface Trigger {
      * of the static methods of org.hsqldb.error.Error with a predefined
      * SQL State from org.hsqldb.error.ErrorCode.
      *
-     * @param type int
+     * @param type the type as one of the int values defined in the interface
      * @param trigName the name of the trigger
      * @param tabName the name of the table upon which the triggered action is
      *   occuring
