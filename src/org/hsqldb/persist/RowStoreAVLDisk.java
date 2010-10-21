@@ -214,8 +214,8 @@ public class RowStoreAVLDisk extends RowStoreAVL {
                 break;
 
             case RowAction.ACTION_INSERT :
-                database.logger.writeInsertStatement(session, (Table) table,
-                                                     data);
+                database.logger.writeInsertStatement(session, row,
+                                                     (Table) table);
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :

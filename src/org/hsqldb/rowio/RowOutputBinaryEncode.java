@@ -51,15 +51,16 @@ public class RowOutputBinaryEncode extends RowOutputBinary {
         this.crypto = crypto;
     }
 
-    public void writeData(Object[] data, Type[] types) {
+    public void writeData(Row row, Type[] types) {
 
         if (crypto == null) {
-            super.writeData(data, types);
+            super.writeData(row, types);
         } else {
             int start = count;
 
+            ensureRoom(row.getStorageSize());
             writeInt(0);
-            super.writeData(data, types);
+            super.writeData(row, types);
 
             int origLength = count - start - INT_STORE_SIZE;
             int newLength = crypto.encode(buffer, start + INT_STORE_SIZE,

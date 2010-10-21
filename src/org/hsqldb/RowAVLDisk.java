@@ -354,7 +354,7 @@ public class RowAVLDisk extends RowAVL {
             writeNodes(out);
 
             if (hasDataChanged) {
-                out.writeData(rowData, table.colTypes);
+                out.writeData(this, table.colTypes);
                 out.writeEnd();
 
                 hasDataChanged = false;
@@ -374,7 +374,7 @@ public class RowAVLDisk extends RowAVL {
             rownode = rownode.nNext;
         }
 
-        out.writeData(getData(), table.colTypes);
+        out.writeData(this, table.colTypes);
         out.writeEnd();
     }
 

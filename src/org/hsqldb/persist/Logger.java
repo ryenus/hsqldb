@@ -42,6 +42,7 @@ import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
+import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.SessionInterface;
 import org.hsqldb.SqlInvariants;
@@ -708,10 +709,10 @@ public class Logger {
      * Used exclusively by PersistentStore objects
      */
     public synchronized void writeInsertStatement(Session session,
-            Table table, Object[] row) {
+            Row row, Table table) {
 
         if (loggingEnabled) {
-            log.writeInsertStatement(session, table, row);
+            log.writeInsertStatement(session, row, table);
         }
     }
 

@@ -2008,6 +2008,7 @@ public class Tokens {
         commandSet.put(T_CASCADE, CASCADE);
         commandSet.put(T_CATALOG, CATALOG);
         commandSet.put(T_CHARACTERISTICS, CHARACTERISTICS);
+        commandSet.put(T_CHARACTERS, CHARACTERS);
         commandSet.put(T_CHECKPOINT, CHECKPOINT);
         commandSet.put(T_CRYPT_KEY, CRYPT_KEY);
         commandSet.put(T_CLASS, CLASS);
@@ -2089,6 +2090,7 @@ public class Tokens {
         commandSet.put(T_NOW, NOW);
         commandSet.put(T_NULLS, NULLS);
         commandSet.put(T_NUMBER, NUMBER);
+        commandSet.put(T_OCTETS, OCTETS);
         commandSet.put(T_OFF, OFF);
         commandSet.put(T_OPTION, OPTION);
         commandSet.put(T_ORDINALITY, ORDINALITY);

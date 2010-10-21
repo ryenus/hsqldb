@@ -194,8 +194,6 @@ abstract class RowInputBase extends HsqlByteArrayInputStream {
                 o = readBigint();
                 break;
 
-            //fredt although REAL is now Double, it is read / written in
-            //the old format for compatibility
             case Types.SQL_REAL :
             case Types.SQL_FLOAT :
             case Types.SQL_DOUBLE :

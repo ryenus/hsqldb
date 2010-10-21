@@ -32,7 +32,6 @@
 package org.hsqldb.persist;
 
 import org.hsqldb.Database;
-import org.hsqldb.HsqlException;
 import org.hsqldb.Row;
 import org.hsqldb.RowAVL;
 import org.hsqldb.RowAction;
@@ -132,7 +131,9 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
     }
 
     public void removeAll() {
+
         elementCount = 0;
+
         ArrayUtil.fillArray(accessorList, null);
     }
 
@@ -157,8 +158,8 @@ public class RowStoreAVLMemory extends RowStoreAVL implements PersistentStore {
                 break;
 
             case RowAction.ACTION_INSERT :
-                database.logger.writeInsertStatement(session, (Table) table,
-                                                     data);
+                database.logger.writeInsertStatement(session, row,
+                                                     (Table) table);
                 break;
 
             case RowAction.ACTION_INSERT_DELETE :

@@ -64,7 +64,7 @@ public interface RowOutputInterface extends Cloneable {
 
     void writeLong(long i);
 
-    void writeData(Object[] data, Type[] types);
+    void writeData(Row row, Type[] types);
 
     void writeData(int l, Type[] types, Object[] data, HashMappedList cols,
                    int[] primarykeys);

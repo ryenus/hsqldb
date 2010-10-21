@@ -38,6 +38,7 @@ import org.hsqldb.Database;
 import org.hsqldb.DatabaseURL;
 import org.hsqldb.HsqlException;
 import org.hsqldb.NumberSequence;
+import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
@@ -608,10 +609,10 @@ public class Log {
         }
     }
 
-    void writeInsertStatement(Session session, Table t, Object[] row) {
+    void writeInsertStatement(Session session, Row row, Table t) {
 
         try {
-            dbLogWriter.writeInsertStatement(session, t, row);
+            dbLogWriter.writeInsertStatement(session, row, t);
         } catch (IOException e) {
             throw Error.error(ErrorCode.FILE_IO_ERROR, logFileName);
         }

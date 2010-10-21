@@ -568,7 +568,7 @@ public class FunctionSQL extends Expression {
 
                 long offset = 0;
 
-                if (nodes.length > 3) {
+                if (nodes.length > 3 && nodes[3] != null) {
                     Object value = nodes[3].getValue(session);
 
                     offset = ((Number) value).longValue() - 1;
