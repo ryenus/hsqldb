@@ -37,8 +37,10 @@ import java.io.OutputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.DatabaseManager;
+import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
+import org.hsqldb.Row;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
@@ -273,6 +275,7 @@ public abstract class ScriptWriterBase implements Runnable {
 
             outDescriptor = fa.getFileSync(fos);
             fileStreamOut = fos;
+
 //            fileStreamOut = new BufferedOutputStream(fos, 2 << 12);
         } catch (IOException e) {
             throw Error.error(e, ErrorCode.FILE_IO_ERROR,
@@ -338,11 +341,13 @@ public abstract class ScriptWriterBase implements Runnable {
 
                         writeTableInit(t);
 
-                        RowIterator it = t.rowIteratorClustered(currentSession);
+                        RowIterator it =
+                            t.rowIteratorClustered(currentSession);
 
                         while (it.hasNext()) {
-                            writeRow(currentSession, t,
-                                     it.getNextRow().getData());
+                            Row row = it.getNextRow();
+
+                            writeRow(currentSession, row, t);
                         }
 
                         writeTableTerm(t);
@@ -371,8 +376,8 @@ public abstract class ScriptWriterBase implements Runnable {
         }
     }
 
-    abstract void writeRow(Session session, Table table,
-                           Object[] data) throws IOException;
+    abstract void writeRow(Session session, Row row,
+                           Table table) throws IOException;
 
     protected abstract void writeDataTerm() throws IOException;
 
@@ -382,8 +387,8 @@ public abstract class ScriptWriterBase implements Runnable {
     public abstract void writeLogStatement(Session session,
                                            String s) throws IOException;
 
-    public abstract void writeInsertStatement(Session session, Table table,
-            Object[] data) throws IOException;
+    public abstract void writeInsertStatement(Session session, Row row,
+            Table table) throws IOException;
 
     public abstract void writeDeleteStatement(Session session, Table table,
             Object[] data) throws IOException;

@@ -102,8 +102,8 @@ public class RowOutputBinary extends RowOutputBase {
         }
     }
 
-    public void writeData(Object[] data, Type[] types) {
-        super.writeData(data, types);
+    public void writeData(Row row, Type[] types) {
+        super.writeData(row, types);
     }
 
     public void writeEnd() {

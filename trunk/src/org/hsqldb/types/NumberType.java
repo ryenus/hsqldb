@@ -1943,14 +1943,22 @@ public final class NumberType extends Type {
             return null;
         }
 
+
         BigDecimal dec = convertToDecimal(a);
 
-        dec = dec.setScale(s, BigDecimal.ROUND_HALF_EVEN);
-
-        if (typeCode == Types.SQL_DECIMAL || typeCode == Types.SQL_NUMERIC) {
-            dec = dec.setScale(scale, BigDecimal.ROUND_DOWN);
+        switch (typeCode) {
+            case Types.SQL_DOUBLE : {
+                dec = dec.setScale(s, BigDecimal.ROUND_HALF_EVEN);
+                break;
+            }
+            case Types.SQL_DECIMAL :
+            case Types.SQL_NUMERIC :
+            default : {
+                dec = dec.setScale(s, BigDecimal.ROUND_HALF_UP);
+                dec = dec.setScale(scale, BigDecimal.ROUND_DOWN);
+                break;
+            }
         }
-
         a = convertToDefaultType(null, dec);
 
         return convertToTypeLimits(null, a);

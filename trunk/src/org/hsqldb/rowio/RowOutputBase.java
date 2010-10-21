@@ -34,6 +34,7 @@ package org.hsqldb.rowio;
 import java.math.BigDecimal;
 
 import org.hsqldb.ColumnSchema;
+import org.hsqldb.Row;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HashMappedList;
@@ -154,8 +155,8 @@ implements RowOutputInterface {
     /**
      *  This method is called to write data for a table row.
      */
-    public void writeData(Object[] data, Type[] types) {
-        writeData(types.length, types, data, null, null);
+    public void writeData(Row row, Type[] types) {
+        writeData(types.length, types, row.getData(), null, null);
     }
 
     /**

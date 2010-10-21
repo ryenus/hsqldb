@@ -34,19 +34,19 @@ package org.hsqldb.scriptio;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.zip.GZIPOutputStream;
 
 import org.hsqldb.Database;
 import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.NumberSequence;
+import org.hsqldb.Row;
 import org.hsqldb.Session;
 import org.hsqldb.Table;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.FileAccess;
 import org.hsqldb.rowio.RowOutputTextLog;
-
-import java.util.zip.GZIPOutputStream;
 
 /**
  * Handles all scripting and logging operations. A script consists of two blocks:<p>
@@ -204,8 +204,8 @@ public class ScriptWriterText extends ScriptWriterBase {
         }
     }
 
-    protected void writeRow(Session session, Table table,
-                            Object[] data) throws IOException {
+    protected void writeRow(Session session, Row row,
+                            Table table) throws IOException {
 
         schemaToLog = table.getName().schema;
         busyWriting = true;
@@ -216,7 +216,7 @@ public class ScriptWriterText extends ScriptWriterBase {
         rowOut.write(BYTES_INSERT_INTO);
         rowOut.writeString(table.getName().statementName);
         rowOut.write(BYTES_VALUES);
-        rowOut.writeData(data, table.getColumnTypes());
+        rowOut.writeData(row, table.getColumnTypes());
         rowOut.write(BYTES_TERM);
         rowOut.write(BYTES_LINE_SEP);
         writeRowOutToFile();
@@ -246,12 +246,12 @@ public class ScriptWriterText extends ScriptWriterBase {
         currentSession.loggedSchema = schemaToLog;
     }
 
-    public void writeInsertStatement(Session session, Table table,
-                                     Object[] data) throws IOException {
+    public void writeInsertStatement(Session session, Row row, Table table
+                                     ) throws IOException {
 
         schemaToLog = table.getName().schema;
 
-        writeRow(session, table, data);
+        writeRow(session, row, table);
     }
 
     public void writeDeleteStatement(Session session, Table table,

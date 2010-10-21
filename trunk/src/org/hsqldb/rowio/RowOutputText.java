@@ -355,13 +355,13 @@ public class RowOutputText extends RowOutputBase {
         throw Error.runtimeError(ErrorCode.U_S0500, "RowOutputText");
     }
 
-    public int getSize(Row r) {
+    public int getSize(Row row) {
 
         reset();
 
         try {
             writeSize(0);
-            writeData(r.getData(), r.getTable().getColumnTypes());
+            writeData(row, row.getTable().getColumnTypes());
             writeEnd();
         } catch (Exception e) {
             reset();

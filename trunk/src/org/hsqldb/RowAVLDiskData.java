@@ -153,7 +153,7 @@ public class RowAVLDiskData extends RowAVL {
     public void write(RowOutputInterface out) {
 
         out.writeSize(storageSize);
-        out.writeData(getData(), table.colTypes);
+        out.writeData(this, table.colTypes);
         out.writeEnd();
 
         hasDataChanged = false;
@@ -178,6 +178,7 @@ public class RowAVLDiskData extends RowAVL {
     public void setStorageSize(int size) {
         storageSize = size;
     }
+
     /**
      * Sets the file position for the row and registers the row with
      * the table.
