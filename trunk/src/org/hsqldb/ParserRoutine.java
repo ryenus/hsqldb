@@ -479,6 +479,7 @@ public class ParserRoutine extends ParserDML {
 
         if (token.tokenType == Tokens.NONE) {
             read();
+
             return null;
         } else if (token.tokenType == Tokens.EXTERNAL) {
             routine.setLanguage(Routine.LANGUAGE_JAVA);
@@ -510,6 +511,7 @@ public class ParserRoutine extends ParserDML {
 
         if (token.tokenType == Tokens.NONE) {
             read();
+
             return null;
         }
 
@@ -520,19 +522,13 @@ public class ParserRoutine extends ParserDML {
             database.nameManager.newHsqlName(
                 Tokens.T_AUTHENTICATION, false, SchemaObject.FUNCTION));
 
-        HsqlName hsqlName = database.nameManager.newHsqlName(Tokens.T_DATABASE,
-            false, SchemaObject.PARAMETER);
-        ColumnSchema column = new ColumnSchema(hsqlName, Type.SQL_VARCHAR,
-                                               false, false, null);
+        for (int i = 0; i < 3; i++) {
+            ColumnSchema column = new ColumnSchema(null, Type.SQL_VARCHAR,
+                                                   false, false, null);
 
-        routine.addParameter(column);
+            routine.addParameter(column);
+        }
 
-        hsqlName = database.nameManager.newHsqlName(Tokens.T_USER, false,
-                SchemaObject.PARAMETER);
-        column = new ColumnSchema(hsqlName, Type.SQL_VARCHAR, false, false,
-                                  null);
-
-        routine.addParameter(column);
         routine.setReturnType(Type.SQL_VARCHAR);
         readRoutineBody(routine);
         routine.resolve(session);
