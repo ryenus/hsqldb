@@ -1325,7 +1325,10 @@
         </listitem>
 
         <listitem>
-          <para>In MySQL, when older, non-standard,</para>
+          <para>In MySQL, older, non-standard, forms of database object
+          case-sensitivity make is difficult to port applications. Use the
+          latest form which encloses case-sensitive names in double
+          quotes.</para>
         </listitem>
 
         <listitem>
@@ -1413,20 +1416,29 @@
           support for DUAL, ROWNUM, CURRVAL, NEXTVAL and non-standard data
           types.</para>
         </listitem>
+
+        <listitem>
+          <para>SQL routines are generally portable, but some changes may be
+          required.</para>
+        </listitem>
       </itemizedlist>
     </section>
 
     <section>
       <title>DB2 Compatibility</title>
 
-      <para>DB2 is highly compatible with the SQL Standard (except lack of
-      support for INFORMATION_SCHEMA). Applications can be ported to HyperSQL
-      without difficulty.</para>
+      <para>DB2 is highly compatible with the SQL Standard (except its lack of
+      support for the INFORMATION_SCHEMA). Applications can be ported to
+      HyperSQL without difficulty.</para>
 
       <itemizedlist>
         <listitem>
           <para>Use MVCC with &lt;set database transaction control
           statement&gt; if your application is multi-user.</para>
+        </listitem>
+
+        <listitem>
+          <para>SQL routines are highly portable with minimal change.</para>
         </listitem>
       </itemizedlist>
 
@@ -1486,6 +1498,16 @@
 
       <variablelist>
         <varlistentry>
+          <term>SHUTDOWN</term>
+
+          <listitem>
+            <para>Normal shutdown saves all the database files, then deletes
+            the .log file (and the .backup file in the default mode). The
+            database opens without delay on next used.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
           <term>SHUTDOWN IMMEDIATELY</term>
 
           <listitem>
@@ -1502,8 +1524,8 @@
 
           <listitem>
             <para>This is similar to normal SHUTDOWN, but reduces the *.data
-            file to its minimum size. It takes longer than normal
-            SHUTDOWN.</para>
+            file to its minimum size. It can take much longer than normal
+            SHUTDOWN. This shouldn't be used as routine.</para>
           </listitem>
         </varlistentry>
 
@@ -1515,11 +1537,10 @@
             the <literal>*.data</literal> and text table files. After SHUTDOWN
             SCRIPT, only the <literal>*.script</literal> and
             <literal>*.properties</literal> files remain. At the next startup,
-            these files are processed and the <literal>*.data</literal> and
-            <literal>*.backup</literal> files are created. This command in
-            effect performs part of the job of SHUTDOWN COMPACT, leaving the
-            other part to be performed automatically at the next
-            startup.</para>
+            these files are processed and the <literal>*.data</literal> file
+            is created if there are cached tables. This command in effect
+            performs part of the job of SHUTDOWN COMPACT, leaving the other
+            part to be performed automatically at the next startup.</para>
 
             <para>This command produces a full script of the database which
             can be edited for special purposes prior to the next
@@ -1642,8 +1663,7 @@
       <simpara>Each database can have its own collation. Sets the collation
       from the set of collations supported by HyperSQL. Once this command has
       been issued, the database can be opened in any JVM and will retain its
-      collation. Only a user with the DBA role can execute this
-      statement.</simpara>
+      collation.</simpara>
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
@@ -1706,7 +1726,7 @@
       LEVEL</emphasis></simpara>
 
       <simpara><emphasis>set database event log level
-      statement*</emphasis><literal> </literal></simpara>
+      statement</emphasis></simpara>
 
       <simpara><literal>&lt;set database event log level&gt; ::= SET DATABASE
       EVENT LOG LEVEL { 0 | 1 | 2 }</literal></simpara>
@@ -2040,7 +2060,7 @@
       in the not-null value.</simpara>
 
       <simpara>Setting this property <literal>FALSE</literal> results in
-      concatenation behaviour similar to Oracle or SQL Server.</simpara>
+      concatenation behaviour similar to Oracle or MS SQL Server.</simpara>
 
       <simpara>This is equivalent to the connection property
       <literal>sql.concat_nulls</literal>.</simpara>
