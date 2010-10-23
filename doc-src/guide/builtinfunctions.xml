@@ -852,12 +852,18 @@
     <para><literal>ROUND ( &lt;num value expr&gt;, &lt;int value expr&gt; )
     </literal></para>
 
-    <para>The <literal>&lt;num value expr&gt; </literal>is of the DOUBLE type.
-    The function returns a DOUBLE value which is the value of the argument
-    rounded to <literal>&lt;int value expr&gt;</literal> places right of the
-    decimal point. If <literal>&lt;int value expr&gt;</literal> is negative,
-    the first argument is rounded to <literal>&lt;int value expr&gt;</literal>
-    places to the left of the decimal point. (JDBC)</para>
+    <para>The <literal>&lt;num value expr&gt; </literal>is of the DOUBLE type
+    or DECIMAL type. The function returns a DOUBLE or DECIMAL value which is
+    the value of the argument rounded to <literal>&lt;int value
+    expr&gt;</literal> places right of the decimal point. If <literal>&lt;int
+    value expr&gt;</literal> is negative, the first argument is rounded to
+    <literal>&lt;int value expr&gt;</literal> places to the left of the
+    decimal point. </para>
+
+    <para>This function rounds values ending with .5 or larger away from zero
+    for DECIMAL arguments and results. When the value ends with .5 or larger
+    and the argument and result are DOUBLE, It rounds the value towards the
+    closest even value. (JDBC)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>SIGN function</primary>
@@ -1619,7 +1625,18 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
     <para><literal>TRUNC ( &lt;datetime value expr&gt;, &lt;char value
     expr&gt; ) </literal></para>
 
-    <para>This function is not supported in early version of HyperSQL 2.0.
+    <para>This function is similar to the ROUND datatime function. It
+    truncates the datetime value instead of rounding. (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>UNIX_TIMESTAMP function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">UNIX_TIMESTAMP</emphasis></simpara>
+
+    <para><literal>UNIX_TIMESTAMP () </literal></para>
+
+    <para>This returns the number of seconds since 1970-01-01.
     (HyperSQL)</para>
   </section>
 
