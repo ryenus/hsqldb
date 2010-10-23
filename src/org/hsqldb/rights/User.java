@@ -31,12 +31,12 @@
 
 package org.hsqldb.rights;
 
+import org.hsqldb.HsqlNameManager;
 import org.hsqldb.HsqlNameManager.HsqlName;
 import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
-import org.hsqldb.*;
 
 /**
  * A User Object extends Grantee with password for a
