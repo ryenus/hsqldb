@@ -473,6 +473,73 @@ public class ParserRoutine extends ParserDML {
         return cs;
     }
 
+    Routine readCreatePasswordCheckFunction() {
+
+        Routine routine = new Routine(SchemaObject.FUNCTION);
+
+        if (token.tokenType == Tokens.NONE) {
+            read();
+            return null;
+        } else if (token.tokenType == Tokens.EXTERNAL) {
+            routine.setLanguage(Routine.LANGUAGE_JAVA);
+            routine.setDataImpact(Routine.NO_SQL);
+        } else {
+            routine.setLanguage(Routine.LANGUAGE_SQL);
+            routine.setDataImpact(Routine.CONTAINS_SQL);
+        }
+
+        routine.setName(database.nameManager.newHsqlName(Tokens.T_PASSWORD,
+                false, SchemaObject.FUNCTION));
+
+        HsqlName hsqlName = database.nameManager.newHsqlName(Tokens.T_PASSWORD,
+            false, SchemaObject.PARAMETER);
+        ColumnSchema column = new ColumnSchema(hsqlName, Type.SQL_VARCHAR,
+                                               false, false, null);
+
+        routine.addParameter(column);
+        routine.setReturnType(Type.SQL_BOOLEAN);
+        readRoutineBody(routine);
+        routine.resolve(session);
+
+        return routine;
+    }
+
+    Routine readCreateDatabaseAuthenticationFunction() {
+
+        Routine routine = new Routine(SchemaObject.FUNCTION);
+
+        if (token.tokenType == Tokens.NONE) {
+            read();
+            return null;
+        }
+
+        checkIsThis(Tokens.EXTERNAL);
+        routine.setLanguage(Routine.LANGUAGE_JAVA);
+        routine.setDataImpact(Routine.NO_SQL);
+        routine.setName(
+            database.nameManager.newHsqlName(
+                Tokens.T_AUTHENTICATION, false, SchemaObject.FUNCTION));
+
+        HsqlName hsqlName = database.nameManager.newHsqlName(Tokens.T_DATABASE,
+            false, SchemaObject.PARAMETER);
+        ColumnSchema column = new ColumnSchema(hsqlName, Type.SQL_VARCHAR,
+                                               false, false, null);
+
+        routine.addParameter(column);
+
+        hsqlName = database.nameManager.newHsqlName(Tokens.T_USER, false,
+                SchemaObject.PARAMETER);
+        column = new ColumnSchema(hsqlName, Type.SQL_VARCHAR, false, false,
+                                  null);
+
+        routine.addParameter(column);
+        routine.setReturnType(Type.SQL_VARCHAR);
+        readRoutineBody(routine);
+        routine.resolve(session);
+
+        return routine;
+    }
+
     private void readTableDefinition(Routine routine,
                                      Table table) throws HsqlException {
 

@@ -48,6 +48,7 @@ import org.hsqldb.persist.HsqlDatabaseProperties;
 import org.hsqldb.result.Result;
 import org.hsqldb.rights.Grantee;
 import org.hsqldb.store.BitMap;
+import org.hsqldb.store.ValuePool;
 import org.hsqldb.types.RowType;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -327,6 +328,20 @@ public class Routine implements SchemaObject, Cloneable {
                 sb.append(Tokens.T_SQLSTATE).append(' ');
                 sb.append('\'').append("45000").append('\'');
             }
+        }
+
+        return sb.toString();
+    }
+
+    public String getSQLDefinition() {
+
+        StringBuffer sb = new StringBuffer();
+
+        if (language == LANGUAGE_JAVA) {
+            sb.append(Tokens.T_EXTERNAL).append(' ').append(Tokens.T_NAME);
+            sb.append(' ').append('\'').append(methodName).append('\'');
+        } else {
+            sb.append(statement.getSQL());
         }
 
         return sb.toString();
@@ -829,6 +844,22 @@ public class Routine implements SchemaObject, Cloneable {
         }
     }
 
+    public Result invokeJavaMethodDirect(Object[] data) {
+        Result   result;
+        try {
+            Object returnValue = javaMethod.invoke(null, data);
+            returnValue = returnType.convertJavaToSQL(null,
+                    returnValue);
+            result = Result.newPSMResult(returnValue);
+        } catch (Throwable e) {
+            result = Result.newErrorResult(
+                Error.error(ErrorCode.X_46000, getName().name), null);
+        }
+
+        return result;
+    }
+
+
     Result invokeJavaMethod(Session session, Object[] data) {
 
         Result   result;
@@ -875,6 +906,61 @@ public class Routine implements SchemaObject, Cloneable {
         }
 
         session.setCurrentSchemaHsqlName(oldSessionSchema);
+
+        return result;
+    }
+
+    public Result invoke(Session session, Object[] data,
+                         Object[] aggregateData, boolean push) {
+
+        Result result;
+
+        if (push) {
+            session.sessionContext.push();
+        }
+
+        if (isPSM()) {
+            try {
+                session.sessionContext.routineArguments = data;
+                session.sessionContext.routineVariables =
+                    ValuePool.emptyObjectArray;
+
+                if (variableCount > 0) {
+                    session.sessionContext.routineVariables =
+                        new Object[variableCount];
+                }
+
+                result = statement.execute(session);
+
+                if (aggregateData != null) {
+                    for (int i = 0; i < aggregateData.length; i++) {
+                        aggregateData[i] = data[i + 1];
+                    }
+                }
+            } catch (Throwable e) {
+                result = Result.newErrorResult(e);
+            }
+        } else {
+            if (isAggregate) {
+                data = convertArgsToJava(session, data);
+            }
+
+            result = invokeJavaMethod(session, data);
+
+            if (isAggregate) {
+                Object[] callResult = new Object[data.length];
+
+                convertArgsToSQL(session, callResult, data);
+
+                for (int i = 0; i < aggregateData.length; i++) {
+                    aggregateData[i] = callResult[i + 1];
+                }
+            }
+        }
+
+        if (push) {
+            session.sessionContext.pop();
+        }
 
         return result;
     }

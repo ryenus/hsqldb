@@ -107,6 +107,8 @@ public class StatementCommand extends Statement {
             case StatementTypes.SET_DATABASE_FILES_LOG_SIZE :
             case StatementTypes.SET_DATABASE_FILES_NIO :
             case StatementTypes.SET_DATABASE_FILES_SCRIPT_FORMAT :
+            case StatementTypes.SET_DATABASE_AUTHENTICATION :
+            case StatementTypes.SET_DATABASE_PASSWORD_CHECK :
             case StatementTypes.SET_DATABASE_PROPERTY :
             case StatementTypes.SET_DATABASE_RESULT_MEMORY_ROWS :
             case StatementTypes.SET_DATABASE_SQL_REFERENTIAL_INTEGRITY :
@@ -467,6 +469,34 @@ public class StatementCommand extends Statement {
                     return Result.newErrorResult(e, sql);
                 }
             }
+            case StatementTypes.SET_DATABASE_AUTHENTICATION : {
+                try {
+                    Routine routine = (Routine) parameters[0];
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.userManager.setExtAuthenticationFunction(
+                        routine);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
+            case StatementTypes.SET_DATABASE_PASSWORD_CHECK : {
+                try {
+                    Routine routine = (Routine) parameters[0];
+
+                    session.checkAdmin();
+                    session.checkDDLWrite();
+                    session.database.userManager.setPasswordCheckFunction(
+                        routine);
+
+                    return Result.updateZeroResult;
+                } catch (HsqlException e) {
+                    return Result.newErrorResult(e, sql);
+                }
+            }
             case StatementTypes.SET_DATABASE_SQL_COLLATION : {
                 try {
                     String name = (String) parameters[0];
@@ -528,8 +558,7 @@ public class StatementCommand extends Statement {
                 } else if (property
                            == HsqlDatabaseProperties.sql_convert_trunc) {
                     session.database.setConvertTrunc(mode);
-                } else if (property
-                           == HsqlDatabaseProperties.sql_syntax_ora) {
+                } else if (property == HsqlDatabaseProperties.sql_syntax_ora) {
                     session.database.setSyntaxOra(mode);
                 }
 
@@ -900,7 +929,8 @@ public class StatementCommand extends Statement {
 
                     session.checkDDLWrite();
                     session.setScripting(true);
-                    user.setPassword(password);
+                    session.database.userManager.setPassword(session, user,
+                            password);
 
                     return Result.updateZeroResult;
                 } catch (HsqlException e) {

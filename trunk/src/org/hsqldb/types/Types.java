@@ -592,27 +592,9 @@ public class Types {
     }
 
     /**
-     * Retieves the type number corresponding to the class
-     * of an IN, IN OUT or OUT parameter.  <p>
+     * Retieves the type object corresponding to the class
+     * of an IN, IN OUT or OUT parameter or a return type.  <p>
      *
-     * This method extends getTypeNr to return OTHER for
-     * primitive arrays, classes that directly implement
-     * java.io.Serializable and non-primitive arrays whose
-     * base component implements java.io.Serializable,
-     * allowing, for instance, arguments and return types of
-     * primitive arrays, Serializable objects and arrays,
-     * of Serializable objects.  Direct primitive types
-     * other than those mapping directly to the internal
-     * wrapper form are not yet handled.  That is, HSQLDB
-     * cannot yet properly deal with CALLs involving methods
-     * with primitive byte, short, float or their
-     * corresponding wrappers, due to the way internal
-     * conversion works and lack of detection and narrowing
-     * code in Function to allow this.  In other words,
-     * passing in or retrieving any of the mentioned types
-     * always causes conversion to a wider internal wrapper
-     * which is genrally incompatible under reflective
-     * invocation, resulting in an IllegalArgumentException.
      *
      * @param  c a Class instance
      * @return java.sql.Types int value

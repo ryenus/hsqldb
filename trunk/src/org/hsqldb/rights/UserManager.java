@@ -40,6 +40,9 @@ import org.hsqldb.lib.HashMappedList;
 import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.SchemaObject;
 import org.hsqldb.SqlInvariants;
+import org.hsqldb.Tokens;
+import org.hsqldb.Routine;
+import org.hsqldb.result.Result;
 
 /**
  * Manages the User objects for a Database instance.
@@ -70,6 +73,12 @@ public final class UserManager {
     private GranteeManager granteeManager;
 
     /**
+     * The function for password complexity.
+     */
+    Routine pwCheckFunction;
+    Routine extAuthenticationFunction;
+
+    /**
      * Construction happens once for each Database instance.
      *
      * Creates special users PUBLIC_USER_NAME and SYSTEM_AUTHORIZATION_NAME.
@@ -96,7 +105,7 @@ public final class UserManager {
      *        (This will catch attempts to create Reserved grantee names).
      *  </OL>
      */
-    public User createUser(HsqlName name, String password) {
+    public User createUser(Session session, HsqlName name, String password) {
 
         // This will throw an appropriate exception if grantee already exists,
         // regardless of whether the name is in any User, Role, etc. list.
@@ -111,6 +120,47 @@ public final class UserManager {
         }
 
         return user;
+    }
+
+    public void setPassword(Session session, User user, String password) {
+
+        if (!checkComplexity(session, password)) {
+            throw Error.error(ErrorCode.PASSWORD_COMPLEXITY);
+        }
+
+        // requires: UserManager.createSAUser(), UserManager.createPublicUser()
+        user.setPassword(password);
+    }
+
+    public boolean checkComplexity(Session session, String password) {
+
+        if (session == null || pwCheckFunction == null) {
+            return true;
+        }
+
+        Result result = pwCheckFunction.invoke(session,
+                                               new Object[]{ password }, null,
+                                               false);
+        Boolean check = (Boolean) result.getValueObject();
+
+        if (check == null || !check.booleanValue()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public String[] getExernalAuthentication(Session session, String user) {
+
+        if (session == null || extAuthenticationFunction == null) {
+            return null;
+        }
+
+        Result result = extAuthenticationFunction.invoke(session,
+            new Object[]{ user }, null, false);
+        String[] roles = (String[]) result.getValueObject();
+
+        return roles;
     }
 
     /**
@@ -156,16 +206,17 @@ public final class UserManager {
     public void createFirstUser(String username, String password) {
 
         boolean isQuoted = true;
+
         if (username.equalsIgnoreCase("SA")) {
             username = "SA";
             isQuoted = false;
         }
 
         HsqlName name =
-            granteeManager.database.nameManager.newHsqlName(username, isQuoted,
-                SchemaObject.GRANTEE);
+            granteeManager.database.nameManager.newHsqlName(username,
+                isQuoted, SchemaObject.GRANTEE);
 
-        createUser(name, password);
+        createUser(null, name, password);
         granteeManager.grant(name.name, SqlInvariants.DBA_ADMIN_ROLE_NAME,
                              granteeManager.getDBARole());
     }
@@ -184,9 +235,28 @@ public final class UserManager {
             password = "";
         }
 
-        User user = get(name);
+        if (extAuthenticationFunction == null) {
+            User user = get(name);
 
-        user.checkPassword(password);
+            user.checkPassword(password);
+
+            return user;
+        }
+
+        Result result =
+            extAuthenticationFunction.invokeJavaMethodDirect(new String[] {
+            granteeManager.database.getUniqueName(), name
+        });
+
+        if (result.isError()) {
+            throw Error.error(ErrorCode.X_28501, name);
+        }
+
+        User user = (User) userList.get(name);
+
+        if (user == null) {
+            throw Error.error(ErrorCode.X_28501, name);
+        }
 
         return user;
     }
@@ -303,6 +373,14 @@ public final class UserManager {
         }
     }
 
+    public void setPasswordCheckFunction(Routine function) {
+        pwCheckFunction = function;
+    }
+
+    public void setExtAuthenticationFunction(Routine function) {
+        extAuthenticationFunction = function;
+    }
+
     public String[] getInitialSchemaSQL() {
 
         HsqlArrayList list = new HsqlArrayList(userList.size());
@@ -324,6 +402,39 @@ public final class UserManager {
         }
 
         String[] array = new String[list.size()];
+
+        list.toArray(array);
+
+        return array;
+    }
+
+    public String[] getAuthenticationSQL() {
+
+        HsqlArrayList list = new HsqlArrayList();
+        String[]      array;
+
+        if (pwCheckFunction != null) {
+            StringBuffer sb = new StringBuffer();
+
+            sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
+            sb.append(' ').append(Tokens.T_PASSWORD).append(' ');
+            sb.append(Tokens.T_CHECK).append(' ').append(Tokens.T_FUNCTION);
+            sb.append(' ');
+            sb.append(pwCheckFunction.getSQLDefinition());
+            list.add(sb.toString());
+        }
+
+        if (extAuthenticationFunction != null) {
+            StringBuffer sb = new StringBuffer();
+
+            sb.append(Tokens.T_SET).append(' ').append(Tokens.T_DATABASE);
+            sb.append(' ').append(Tokens.T_AUTHENTICATION).append(' ');
+            sb.append(Tokens.T_FUNCTION).append(' ');
+            sb.append(extAuthenticationFunction.getSQLDefinition());
+            list.add(sb.toString());
+        }
+
+        array = new String[list.size()];
 
         list.toArray(array);
 

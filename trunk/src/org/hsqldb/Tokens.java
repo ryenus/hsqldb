@@ -629,7 +629,7 @@ public class Tokens {
     // other tokens
     static final String        T_ALIAS                = "ALIAS";
     static final String        T_AGGREGATE            = "AGGREGATE";
-    static final String        T_AUTHENTICATION       = "AUTHENTICATION";
+    public static final String T_AUTHENTICATION       = "AUTHENTICATION";
     static final String        T_AUTOCOMMIT           = "AUTOCOMMIT";
     public static final String T_BACKUP               = "BACKUP";
     static final String        T_BINARY_DOUBLE        = "BINARY_DOUBLE";
