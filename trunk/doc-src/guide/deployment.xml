@@ -1270,7 +1270,9 @@
       </listitem>
     </itemizedlist>
 
-    <para></para>
+    <para>In the future, we will extend compatibility with other RDBMS even
+    further by introducing more properties for syntax and behaviour
+    compatibility.</para>
 
     <section>
       <title>PostgreSQL Compatibility</title>
@@ -1299,6 +1301,11 @@
           <para>PostgreSQL uses non-standard expressions like SELECT 'A Test
           String' to return a single row table. The standard form is VALUES('A
           Test String').</para>
+        </listitem>
+
+        <listitem>
+          <para>SQL routines are poratable, but some changes may be
+          required.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -1345,6 +1352,11 @@
           <para>If you use concatenation of possibly NULL values in your
           select statements, you may need to change the setting for &lt;set
           database sql concat nulls statement&gt;</para>
+        </listitem>
+
+        <listitem>
+          <para>SQL routines are portable, but some changes may be
+          required.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -1441,8 +1453,6 @@
           <para>SQL routines are highly portable with minimal change.</para>
         </listitem>
       </itemizedlist>
-
-      <para></para>
     </section>
 
     <section>
@@ -1463,7 +1473,97 @@
           values in your select statements, you may need to change the setting
           for &lt;set database sql concat nulls statement&gt;.</para>
         </listitem>
+
+        <listitem>
+          <para>SQL routines need quite a lot of changes.</para>
+        </listitem>
       </itemizedlist>
+    </section>
+  </section>
+
+  <section>
+    <title>Database Security</title>
+
+    <para>HyperSQL has extensive security features which are implemented at
+    different levels and covered in different chapters of this guide.</para>
+
+    <orderedlist>
+      <listitem>
+        <para>The server can use SSL and IP address access control lists. See
+        the <link endterm="listeners-title"
+        xlink:href="#listeners-chapt"></link> chapter.</para>
+      </listitem>
+
+      <listitem>
+        <para>You can define a system property to stop the database engine
+        accessing the Java static functions that are on the classpath, apart
+        from a limited set that you allow. See Securing Access to Classes in
+        the <link endterm="sqlroutines-title"
+        xlink:href="#sqlroutines-chapt"></link> chapter.</para>
+      </listitem>
+
+      <listitem>
+        <para>You can define a system property to allow access to files on the
+        file system outside the database directory and its children. See the
+        <link endterm="texttables-title"
+        xlink:href="#taxttables-chapt"></link> chapter.</para>
+      </listitem>
+
+      <listitem>
+        <para>The database files can be encrypted. Discussed in this
+        chapter.</para>
+      </listitem>
+
+      <listitem>
+        <para>Within the database, the DBA privileges are required for system
+        and maintenance jobs. Ordinary users can be granted privileges on
+        objects.</para>
+      </listitem>
+
+      <listitem>
+        <para>You can define users and roles and grant them access on
+        different database objects. Each user has a password and is granted a
+        set of privileges. See the <link endterm="accesscontrol-title"
+        xlink:href="#accesscontrol-chapt"></link> chapter.</para>
+      </listitem>
+
+      <listitem>
+        <para>You can define a password complexity check function for new and
+        changed passwords. This is covered below under Authentication
+        Settings.</para>
+      </listitem>
+
+      <listitem>
+        <para>You can use external authentication instead of internally stored
+        password to authenticate users for each database. This is covered
+        below under Authentication Settings.</para>
+      </listitem>
+    </orderedlist>
+
+    <para></para>
+
+    <section>
+      <title>Authentication Control</title>
+
+      <para>Authentication is the mechanism that determines if a user can
+      access the database at all. Once authentication is performed, the
+      authorization mechanism is used to determine which database objects the
+      particular user can access.</para>
+
+      <para>The default authentication mechanism is password authentication.
+      HyperSQL allows you to define a function that checks the quality of the
+      passwords defined in the database. The passwords are stored in the
+      database. Each time a user connects, the user's name and password are
+      checked against the stored list of users and passwords. The connection
+      attempt is rejected if there is no match.</para>
+
+      <para>You can use an external authentication mechanism instead. HyperSQL
+      allows you to define a function that checks the combination of database
+      unique name, user name, and password for each connection attempt. The
+      function can use external resources to authenticate the user. For
+      example, in a closed network system, a directory server may be used. The
+      password may be ignored if the source of the connection can be verified.
+      </para>
     </section>
   </section>
 
@@ -2501,6 +2601,104 @@
 
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
+    </section>
+
+    <section>
+      <title>Authentication Settings</title>
+
+      <para>Two settings are available for authentication control.</para>
+
+      <para>When the default password authentication is used, the passwords
+      can be checked for complexity according to administrative rules</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE PASSWORD CHECK FUNCTION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE PASSWORD CHECK
+      FUNCTION</emphasis></simpara>
+
+      <simpara><emphasis>set database password check
+      function</emphasis></simpara>
+
+      <simpara><literal>&lt;set database password check function statement&gt;
+      ::= SET DATABASE PASSWORD CHECK FUNCTION { &lt;routine body&gt; | NONE
+      }</literal></simpara>
+
+      <simpara>The routine body is the body of a function that has a VARCHAR
+      parameter and returns a BOOLEAN. This function checks the
+      <literal>PASSWORD</literal> submitted as parameter and returns TRUE if
+      it conforms to complexity checks, or FALSE, if it does not. </simpara>
+
+      <simpara>The <literal>&lt;routine body&gt;</literal> can be an SQL block
+      or an external Java function reference. This is covered in the <link
+      endterm="sqlroutines-title" xlink:href="#sqlroutines-chapt"></link>
+      chapter</simpara>
+
+      <simpara>To disable this mechanism, the token <literal>NONE</literal>
+      can be specified instead of the <literal>&lt;routine
+      body&gt;</literal>.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <simpara>In the examples below, an SQL function and a Java function are
+      used.</simpara>
+
+      <programlisting>SET DATABASE PASSWORD CHECK FUNCTION
+  BEGIN ATOMIC
+    IF CHAR_LENGTH(PASSWORD) &gt; 6 THEN
+      RETURN TRUE;
+    ELSE 
+      RETURN FALSE;
+    END IF;
+  END
+
+SET DATABASE PASSWORD CHECK FUNCTION EXTERNAL NAME 'CLASSPATH:org.anorg.access.AccessClass.accessMethod'
+
+// the Java method is defined like this
+public static boolean accessMethod(String param) {
+    return param != null &amp;&amp; param.length &gt; 6;
+}
+</programlisting>
+
+      <simpara>It is possible to replace the default password authentication
+      completely with a function that uses external authentication servers,
+      such as LDAP. This function is called each time a user connects to the
+      database.</simpara>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>SET DATABASE AUTHENTICATION FUNCTION</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">SET DATABASE AUTHENTICATION
+      FUNCTION</emphasis></simpara>
+
+      <simpara><emphasis>set database authentication
+      function</emphasis></simpara>
+
+      <simpara><literal>&lt;set database authentication function statement&gt;
+      ::= SET DATABASE AUTHENTICATION FUNCTION { &lt;external body
+      reference&gt; | NONE }</literal></simpara>
+
+      <simpara>The routine body is an external Java function reference. This
+      function has three String parameters. The first parameter is the unique
+      name of the database, the second parameter the user name, and the third
+      parameter the password.</simpara>
+
+      <simpara>Only a user with the DBA role can execute this
+      statement.</simpara>
+
+      <programlisting>SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME 'CLASSPATH:org.anorg.access.AccessClass.accessExernalMethod'
+
+// the Java method is defined like this
+public static boolean accessExternalMethod(String database, String user, String password) {
+    if (extanalCheck(database, user, password) {
+        return null;
+    }
+    throw new RuntimeExcpetion("failed to authenticate");
+}
+</programlisting>
     </section>
   </section>
 </chapter>
