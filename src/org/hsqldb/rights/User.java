@@ -36,6 +36,7 @@ import org.hsqldb.Tokens;
 import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringConverter;
+import org.hsqldb.*;
 
 /**
  * A User Object extends Grantee with password for a
@@ -86,9 +87,6 @@ public class User extends GranteeObject {
 
     public void setPassword(String password) {
 
-        /** @todo - introduce complexity interface */
-
-        // checkComplexity(password);
         // requires: UserManager.createSAUser(), UserManager.createPublicUser()
         this.password = password;
     }

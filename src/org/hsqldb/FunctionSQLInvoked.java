@@ -171,52 +171,7 @@ public class FunctionSQLInvoked extends Expression {
             }
         }
 
-        if (push) {
-            session.sessionContext.push();
-        }
-
-        if (routine.isPSM()) {
-            try {
-                session.sessionContext.routineArguments = data;
-                session.sessionContext.routineVariables =
-                    ValuePool.emptyObjectArray;
-
-                if (variableCount > 0) {
-                    session.sessionContext.routineVariables =
-                        new Object[variableCount];
-                }
-
-                result = routine.statement.execute(session);
-
-                if (aggregateData != null) {
-                    for (int i = 0; i < aggregateData.length; i++) {
-                        aggregateData[i] = data[i + 1];
-                    }
-                }
-            } catch (Throwable e) {
-                result = Result.newErrorResult(e);
-            }
-        } else {
-            if (opType == OpTypes.USER_AGGREGATE) {
-                data = routine.convertArgsToJava(session, data);
-            }
-
-            result = routine.invokeJavaMethod(session, data);
-
-            if (opType == OpTypes.USER_AGGREGATE) {
-                Object[] callResult = new Object[data.length];
-
-                routine.convertArgsToSQL(session, callResult, data);
-
-                for (int i = 0; i < aggregateData.length; i++) {
-                    aggregateData[i] = callResult[i + 1];
-                }
-            }
-        }
-
-        if (push) {
-            session.sessionContext.pop();
-        }
+        result = routine.invoke(session, data, aggregateData, push);
 
         if (result.isError()) {
             throw result.getException();

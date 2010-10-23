@@ -875,6 +875,17 @@ public class ParserCommand extends ParserDDL {
         checkDatabaseUpdateAuthorisation();
 
         switch (token.tokenType) {
+            case Tokens.AUTHENTICATION : {
+                read();
+                readThis(Tokens.FUNCTION);
+
+                Routine  routine = readCreateDatabaseAuthenticationFunction();
+                Object[] args    = new Object[]{ routine };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_AUTHENTICATION, args, null,
+                    null);
+            }
 
             case Tokens.COLLATION : {
                 read();
@@ -913,6 +924,18 @@ public class ParserCommand extends ParserDDL {
 
                 return new StatementCommand(StatementTypes.SET_DATABASE_GC,
                                             args, null, null);
+            }
+            case Tokens.PASSWORD : {
+                read();
+                readThis(Tokens.CHECK);
+                readThis(Tokens.FUNCTION);
+
+                Routine  routine = readCreatePasswordCheckFunction();
+                Object[] args    = new Object[]{ routine };
+
+                return new StatementCommand(
+                    StatementTypes.SET_DATABASE_PASSWORD_CHECK, args, null,
+                    null);
             }
             case Tokens.REFERENTIAL : {
                 read();
@@ -1260,9 +1283,11 @@ public class ParserCommand extends ParserDDL {
 
                 if (token.tokenType == Tokens.TEXT) {
                     read();
+
                     value = new Integer(0);
                 } else {
                     readThis(Tokens.COMPRESSED);
+
                     value = new Integer(3);
                 }
 

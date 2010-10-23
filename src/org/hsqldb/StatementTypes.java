@@ -193,19 +193,21 @@ public interface StatementTypes {
     int SET_DATABASE_FILES_WRITE_DELAY         = 1026;
     int SET_DATABASE_DEFAULT_INITIAL_SCHEMA    = 1031;
     int SET_DATABASE_DEFAULT_TABLE_TYPE        = 1032;
-    int SET_DATABASE_GC                        = 1033;
-    int SET_DATABASE_PROPERTY                  = 1034;
-    int SET_DATABASE_READ_ONLY                 = 1035;
-    int SET_DATABASE_READ_ONLY_FILES           = 1036;
-    int SET_DATABASE_RESULT_MEMORY_ROWS        = 1037;
-    int SET_DATABASE_SQL_COLLATION             = 1039;
-    int SET_SESSION_SQL_IGNORECASE             = 1040;
-    int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1041;
-    int SET_DATABASE_SQL_STRICT                = 1042;
-    int SET_DATABASE_TEXT_SOURCE               = 1046;
-    int SET_DATABASE_TRANSACTION_CONTROL       = 1047;
-    int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1048;
-    int SET_DATABASE_UNIQUE_NAME               = 1049;
+    int SET_DATABASE_AUTHENTICATION            = 1033;
+    int SET_DATABASE_GC                        = 1034;
+    int SET_DATABASE_PROPERTY                  = 1035;
+    int SET_DATABASE_PASSWORD_CHECK            = 1036;
+    int SET_DATABASE_READ_ONLY                 = 1037;
+    int SET_DATABASE_READ_ONLY_FILES           = 1039;
+    int SET_DATABASE_RESULT_MEMORY_ROWS        = 1040;
+    int SET_DATABASE_SQL_COLLATION             = 1041;
+    int SET_SESSION_SQL_IGNORECASE             = 1042;
+    int SET_DATABASE_SQL_REFERENTIAL_INTEGRITY = 1046;
+    int SET_DATABASE_SQL_STRICT                = 1047;
+    int SET_DATABASE_TEXT_SOURCE               = 1048;
+    int SET_DATABASE_TRANSACTION_CONTROL       = 1049;
+    int SET_DATABASE_DEFAULT_ISOLATION_LEVEL   = 1050;
+    int SET_DATABASE_UNIQUE_NAME               = 1051;
 
     // hsqldb user settings
     int SET_USER_INITIAL_SCHEMA = 1061;

@@ -977,7 +977,8 @@ public class StatementSchema extends Statement {
                 try {
                     session.checkAdmin();
                     session.checkDDLWrite();
-                    session.database.getUserManager().createUser(name,
+
+                    session.database.getUserManager().createUser(session, name,
                             password);
 
                     if (admin) {

@@ -655,6 +655,11 @@ public class Database {
 
         addRows(r, list);
 
+        // password complexity
+        list = getUserManager().getAuthenticationSQL();
+
+        addRows(r, list);
+
         // user session start schema names
         list = getUserManager().getInitialSchemaSQL();
 

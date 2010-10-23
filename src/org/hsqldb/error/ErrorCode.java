@@ -94,6 +94,9 @@ public interface ErrorCode {
     int X_S0522 = 321;                             // invalid statemnet - text table required
     int X_S0531 = 331;                             // encode / decode error:
 
+    // HSQLDB authentication
+    int PASSWORD_COMPLEXITY = 391;                 // S1000 password complexity
+
     // HSQLDB Server
     int SERVER_TRANSFER_CORRUPTED    = 401;        // S1000 Transfer corrupted
     int SERVER_DATABASE_DISCONNECTED = 402;        // S0504 database disconnected
