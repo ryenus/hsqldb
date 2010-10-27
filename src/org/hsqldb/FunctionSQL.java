@@ -1266,11 +1266,11 @@ public class FunctionSQL extends Expression {
             }
             case FUNC_MOD : {
                 if (nodes[0].dataType == null) {
-                    nodes[1].dataType = nodes[0].dataType;
+                    nodes[0].dataType = nodes[1].dataType;
                 }
 
                 if (nodes[1].dataType == null) {
-                    nodes[0].dataType = nodes[1].dataType;
+                    nodes[1].dataType = nodes[0].dataType;
                 }
 
                 if (nodes[0].dataType == null) {
@@ -1292,11 +1292,11 @@ public class FunctionSQL extends Expression {
             }
             case FUNC_POWER : {
                 if (nodes[0].dataType == null) {
-                    nodes[1].dataType = nodes[0].dataType;
+                    nodes[0].dataType = nodes[1].dataType;
                 }
 
                 if (nodes[1].dataType == null) {
-                    nodes[0].dataType = nodes[1].dataType;
+                    nodes[1].dataType = nodes[0].dataType;
                 }
 
                 if (nodes[0].dataType == null) {
@@ -1385,7 +1385,8 @@ public class FunctionSQL extends Expression {
                 if (nodes[0].dataType == null) {
 
                     // in 20.6 parameter not allowed as type cannot be determined as binary or char
-                    throw Error.error(ErrorCode.X_42567);
+                    // throw Error.error(ErrorCode.X_42567);
+                    nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                 }
 
                 if (nodes[1].dataType == null) {
@@ -1502,14 +1503,17 @@ public class FunctionSQL extends Expression {
             case FUNC_OVERLAY_BINARY : {
                 if (nodes[0].dataType == null) {
                     if (nodes[1].dataType == null) {
-                        throw Error.error(ErrorCode.X_42567);
+                        nodes[0].dataType = nodes[1].dataType =
+                            Type.SQL_VARCHAR_DEFAULT;
+
+                        // throw Error.error(ErrorCode.X_42567);
                     }
 
                     if (nodes[1].dataType.typeCode == Types.SQL_CLOB
                             || nodes[1].dataType.isBinaryType()) {
                         nodes[0].dataType = nodes[1].dataType;
                     } else {
-                        nodes[0].dataType = Type.SQL_VARCHAR;
+                        nodes[0].dataType = Type.SQL_VARCHAR_DEFAULT;
                     }
                 }
 
@@ -1518,7 +1522,7 @@ public class FunctionSQL extends Expression {
                             || nodes[0].dataType.isBinaryType()) {
                         nodes[1].dataType = nodes[0].dataType;
                     } else {
-                        nodes[1].dataType = Type.SQL_VARCHAR;
+                        nodes[1].dataType = Type.SQL_VARCHAR_DEFAULT;
                     }
                 }
 

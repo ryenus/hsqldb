@@ -43,6 +43,7 @@ import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.StringUtil;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.Types;
+import org.hsqldb.lib.ArrayUtil;
 
 /**
  * collection of static methods to convert Date and Timestamp strings
@@ -492,6 +493,7 @@ public class HsqlDateTime {
         { 'I', 'Y' }, { 'Y', 'Y' },
         { 'B', 'C' }, { 'B', '.', 'C', '.' }, { 'A', 'D' }, { 'A', '.', 'D', '.' },
         { 'M', 'O', 'N' }, { 'M', 'O', 'N', 'T', 'H' },
+        { 'M', 'M' },
         { 'D', 'A', 'Y' }, { 'D', 'Y' },
         { 'W', 'W' }, { 'I', 'W' }, { 'D', 'D' }, { 'D', 'D', 'D' },
         { 'H', 'H', '2', '4' }, { 'H', 'H', '1', '2' }, { 'H', 'H' },
@@ -506,6 +508,7 @@ public class HsqlDateTime {
         "'*IY'", "yy",
         "G", "G", "G", "G",
         "MMM", "MMMMM",
+        "MM",
         "EEEE", "EE",
         "'*WW'", "w", "dd", "D",
         "HH", "KK", "KK",
@@ -555,7 +558,7 @@ public class HsqlDateTime {
 
             date = format.parse(string);
         } catch (Exception e) {
-            throw Error.error(ErrorCode.X_22511);
+            throw Error.error(ErrorCode.X_22007, e.getMessage());
         }
 
         return date;
@@ -636,32 +639,65 @@ public class HsqlDateTime {
         Tokenizer    tokenizer = new Tokenizer();
 
         for (int i = 0; i <= len; i++) {
+
             ch = (i == len) ? e
                             : format.charAt(i);
 
-            if (!tokenizer.next(ch, dateTokens)) {
-                int index = tokenizer.getLastMatch();
+            if (tokenizer.isInQuotes()) {
+                if (tokenizer.isQuoteChar(ch)) {
+                    ch = '\'';
+                } else if (ch == '\'') {
+                    // double the single quote
+                    sb.append(ch);
+                }
 
-                if (index >= 0) {
-                    sb.setLength(sb.length() - tokenizer.length());
-                    sb.append(javaDateTokens[index]);
+                sb.append(ch);
+
+                continue;
+            }
+
+            if (!tokenizer.next(ch, dateTokens)) {
+                int     index  = tokenizer.getLastMatch();
+                boolean terminal = false;
+                boolean append = false;
+
+                if (tokenizer.isQuoteChar(ch)) {
+                    ch     = '\'';
+                    append = true;
+                    terminal = true;
+                } else if (tokenizer.isLiteral(ch)) {
+                    append = true;
+                    terminal = true;
+                } else if (ch == e) {
+                    terminal = true;
+                    //
+                }
+
+                //
+                if (index >= 0 ) {
+                    if (tokenizer.consumed) {
+                        sb.append(javaDateTokens[index]);
+                    } else {
+                        throw Error.error(ErrorCode.X_22007,
+                                          format.substring(0, i));
+                    }
+                }  else if (!terminal) {
+                        throw Error.error(ErrorCode.X_22007,
+                                          format.substring(0, i));
+                }
+
+
+                if (append) {
+                    sb.append(ch);
                 }
 
                 tokenizer.reset();
-
-                if (tokenizer.isConsumed()) {
-                    continue;
-                }
             }
-
-            if (ch == '\"') {
-                ch = '\'';
-            }
-
-            sb.append(ch);
         }
 
-        sb.setLength(sb.length() - 1);
+        if (tokenizer.isInQuotes()) {
+            throw Error.error(ErrorCode.X_22007);
+        }
 
         String javaPattern = sb.toString();
 
@@ -701,8 +737,31 @@ public class HsqlDateTime {
         private int     offset;
         private long    state;
         private boolean consumed;
+        private boolean isInQuotes;
+
+        //
+        private final char    quoteChar;
+        private final boolean rejectUnmatched;
+        private final char[]  literalChars;
+        private static char[] defaultLiterals = new char[] {
+            ' ',',', '-', '.', '/', ':', ';'
+        };
 
         public Tokenizer() {
+
+            this.rejectUnmatched = true;
+            this.quoteChar       = '\"';
+            this.literalChars    = defaultLiterals;
+
+            reset();
+        }
+
+        public Tokenizer(boolean reject, char quoteChar, char[] literalChars) {
+
+            this.rejectUnmatched = reject;
+            this.quoteChar       = quoteChar;
+            this.literalChars    = literalChars;
+
             reset();
         }
 
@@ -718,7 +777,7 @@ public class HsqlDateTime {
         }
 
         /**
-         * Returns a length of a token to match.
+         * Returns the length of a token to match.
          */
         public int length() {
             return offset;
@@ -732,10 +791,38 @@ public class HsqlDateTime {
         }
 
         /**
-         * Indicates whethe the last character has been consumed by the matcher.
+         * Indicates whether the last character has been consumed by the matcher.
          */
         public boolean isConsumed() {
             return consumed;
+        }
+
+        /**
+         * Indicates if tokenizing a quoted string
+         */
+        public boolean isInQuotes() {
+            return isInQuotes;
+        }
+
+        /**
+         * returns true if character is the quote char and sets state
+         */
+        public boolean isQuoteChar(char ch) {
+
+            if (quoteChar == ch) {
+                isInQuotes = !isInQuotes;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /**
+         * Returns true if ch is in the list of literals
+         */
+        public boolean isLiteral(char ch) {
+            return ArrayUtil.isInSortedArray(ch, literalChars);
         }
 
         /**
@@ -767,19 +854,21 @@ public class HsqlDateTime {
             int index = ++offset;
             int len   = offset + 1;
             int left  = 0;
-
-            consumed = false;
-
+            boolean matched = false;
             for (int i = tokens.length; --i >= 0; ) {
                 if (isZeroBit(i)) {
                     if (tokens[i][index] == ch) {
-                        consumed = true;
 
                         if (tokens[i].length == len) {
                             setBit(i);
 
                             last = i;
+                            consumed = true;
+                            matched = true;
                         } else {
+                            if (!matched) {
+                                consumed = false;
+                            }
                             ++left;
                         }
                     } else {

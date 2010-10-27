@@ -837,7 +837,7 @@ public class ParserDDL extends ParserRoutine {
         name.schema = SqlInvariants.MODULE_HSQLNAME;
 
         Table table = TableUtil.newTable(database, TableBase.TEMP_TABLE, name);
-        StatementSchema cs          = compileCreateTableBody(table);
+        StatementSchema cs          = compileCreateTableBody(table, false);
         HsqlArrayList   constraints = (HsqlArrayList) cs.arguments[1];
 
         for (int i = 0; i < constraints.size(); i++) {
@@ -858,16 +858,33 @@ public class ParserDDL extends ParserRoutine {
 
     StatementSchema compileCreateTable(int type) {
 
+        boolean ifNot = false;
+
+        if (token.tokenType == Tokens.IF) {
+            int position = getPosition();
+
+            read();
+
+            if (token.tokenType == Tokens.NOT) {
+                read();
+                readThis(Tokens.EXISTS);
+
+                ifNot = true;
+            } else {
+                rewind(position);
+            }
+        }
+
         HsqlName name = readNewSchemaObjectName(SchemaObject.TABLE, false);
 
         name.setSchemaIfNull(session.getCurrentSchemaHsqlName());
 
         Table table = TableUtil.newTable(database, type, name);
 
-        return compileCreateTableBody(table);
+        return compileCreateTableBody(table, ifNot);
     }
 
-    StatementSchema compileCreateTableBody(Table table) {
+    StatementSchema compileCreateTableBody(Table table, boolean ifNot) {
 
         HsqlArrayList tempConstraints = new HsqlArrayList();
 
@@ -987,7 +1004,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         Object[] args = new Object[] {
-            table, tempConstraints, null
+            table, tempConstraints, null, Boolean.valueOf(ifNot)
         };
         String   sql  = getLastPart();
 
@@ -1153,7 +1170,7 @@ public class ParserDDL extends ParserRoutine {
         }
 
         Object[] args = new Object[] {
-            table, new HsqlArrayList(), statement
+            table, new HsqlArrayList(), statement, Boolean.FALSE
         };
         String   sql  = getLastPart();
         StatementSchema st = new StatementSchema(sql,

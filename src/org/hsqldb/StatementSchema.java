@@ -977,9 +977,8 @@ public class StatementSchema extends Statement {
                 try {
                     session.checkAdmin();
                     session.checkDDLWrite();
-
-                    session.database.getUserManager().createUser(session, name,
-                            password);
+                    session.database.getUserManager().createUser(session,
+                            name, password);
 
                     if (admin) {
                         session.database.getGranteeManager().grant(name.name,
@@ -1099,12 +1098,17 @@ public class StatementSchema extends Statement {
                 Table         table              = (Table) arguments[0];
                 HsqlArrayList tempConstraints = (HsqlArrayList) arguments[1];
                 StatementDMQL statement = (StatementDMQL) arguments[2];
+                Boolean       ifNotExists        = (Boolean) arguments[3];
                 HsqlArrayList foreignConstraints = null;
 
                 try {
                     setOrCheckObjectName(session, null, table.getName(), true);
                 } catch (HsqlException e) {
-                    return Result.newErrorResult(e, sql);
+                    if (ifNotExists != null && ifNotExists.booleanValue()) {
+                        return Result.updateZeroResult;
+                    } else {
+                        return Result.newErrorResult(e, sql);
+                    }
                 }
 
                 try {

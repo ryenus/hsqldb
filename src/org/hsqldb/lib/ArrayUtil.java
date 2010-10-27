@@ -1284,10 +1284,40 @@ public class ArrayUtil {
     }
 
     /**
+     * Returns true if char agrument is in array.
+     */
+    public static boolean isInSortedArray(char ch, char[] array) {
+
+        if (array.length == 0 || ch < array[0]
+                || ch > array[array.length - 1]) {
+            return false;
+        }
+
+        int low  = 0;
+        int high = array.length;
+        int mid  = 0;
+
+        while (low < high) {
+            mid = (low + high) / 2;
+
+            if (ch < array[mid]) {
+                high = mid;
+            } else if (ch > array[mid]) {
+                low = mid + 1;
+            } else {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * returns true if arra contains all elements of arrb
      *
      * @param arra Object[]
      * @param arrb Object[]
+     * @return boolean
      */
     public static boolean containsAll(Object[] arra, Object[] arrb) {
 
@@ -1310,6 +1340,7 @@ public class ArrayUtil {
      *
      * @param arra Object[]
      * @param arrb Object[]
+     * @return boolean
      */
     public static boolean containsAny(Object[] arra, Object[] arrb) {
 
@@ -1330,6 +1361,7 @@ public class ArrayUtil {
      *
      * @param arra int[]
      * @param arrb int[]
+     * @return boolean
      */
     public static boolean containsAll(int[] arra, int[] arrb) {
 
@@ -1352,6 +1384,7 @@ public class ArrayUtil {
      *
      * @param arra int[]
      * @param arrb int[]
+     * @return boolean
      */
     public static boolean containsAllAtStart(int[] arra, int[] arrb) {
 
@@ -1375,5 +1408,38 @@ public class ArrayUtil {
         }
 
         return true;
+    }
+
+    /**
+     * converts two longs to a byte[]
+     *
+     * @param hi long
+     * @param lo long
+     * @return byte[]
+     */
+    public static byte[] toByteArray(long hi, long lo) {
+
+        byte[] bytes = new byte[16];
+        int    count = 0;
+        int    v;
+
+        while (count < 16) {
+            if (count == 0) {
+                v = (int) hi >>> 32;
+            } else if (count == 4) {
+                v = (int) hi;
+            } else if (count == 8) {
+                v = (int) lo >>> 32;
+            } else {
+                v = (int) lo;
+            }
+
+            bytes[count++] = (byte) (v >>> 24);
+            bytes[count++] = (byte) (v >>> 16);
+            bytes[count++] = (byte) (v >>> 8);
+            bytes[count++] = (byte) v;
+        }
+
+        return bytes;
     }
 }

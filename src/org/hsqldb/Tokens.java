@@ -829,6 +829,7 @@ public class Tokens {
     static final String        T_TRUNC            = "TRUNC";
     static final String        T_TODAY            = "TODAY";
     static final String        T_UCASE            = "UCASE";
+    static final String        T_UUID             = "UUID";
     static final String        T_UNIX_TIMESTAMP   = "UNIX_TIMESTAMP";
 
     //
@@ -1556,8 +1557,9 @@ public class Tokens {
     static final int        TRUNC                      = 722;
     static final int        UCASE                      = 723;
     static final int        UNIX_TIMESTAMP             = 724;
-    static final int        WEEK                       = 725;
-    public static final int WEEK_OF_YEAR               = 726;
+    static final int        UUID                       = 725;
+    static final int        WEEK                       = 726;
+    public static final int WEEK_OF_YEAR               = 727;
 
     //
     static final int        ASTERISK         = 771;
@@ -2262,6 +2264,7 @@ public class Tokens {
         commandSet.put(T_UCASE, UCASE);
         commandSet.put(T_TRANSACTION_ID, TRANSACTION_ID);
         commandSet.put(T_TRANSACTION_SIZE, TRANSACTION_SIZE);
+        commandSet.put(T_UUID, UUID);
         commandSet.put(T_UNIX_TIMESTAMP, UNIX_TIMESTAMP);
         commandSet.put(T_WEEK, WEEK);
         commandSet.put(T_WEEK_OF_YEAR, WEEK_OF_YEAR);

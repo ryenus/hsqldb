@@ -4045,9 +4045,9 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
 
         if (type != statementRetType) {
             if (statementRetType == StatementTypes.RETURN_COUNT) {
-                throw Util.sqlException(ErrorCode.X_07503);
-            } else {
                 throw Util.sqlException(ErrorCode.X_07504);
+            } else {
+                throw Util.sqlException(ErrorCode.X_07503);
             }
         }
     }
