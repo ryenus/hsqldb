@@ -568,6 +568,8 @@ public abstract class Type implements SchemaObject, Cloneable {
     // character types
     public static final CharacterType SQL_CHAR =
         new CharacterType(Types.SQL_CHAR, 1);
+    public static final CharacterType SQL_CHAR_16 =
+        new CharacterType(Types.SQL_CHAR, 16);
     public static final CharacterType SQL_CHAR_DEFAULT =
         new CharacterType(Types.SQL_CHAR, CharacterType.defaultCharPrecision);
     public static final CharacterType SQL_VARCHAR =
@@ -593,6 +595,8 @@ public abstract class Type implements SchemaObject, Cloneable {
     // binary types
     public static final BinaryType SQL_BINARY =
         new BinaryType(Types.SQL_BINARY, 1);
+    public static final BinaryType SQL_BINARY_16 =
+        new BinaryType(Types.SQL_BINARY, 16);
     public static final BinaryType SQL_BINARY_DEFAULT =
         new BinaryType(Types.SQL_BINARY, 32 * 1024);
     public static final BinaryType SQL_VARBINARY =

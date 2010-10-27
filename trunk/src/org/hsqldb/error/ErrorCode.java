@@ -188,7 +188,7 @@ public interface ErrorCode {
     // HSQLDB
     int X_07501 = 1251;                            // statement is closed
     int X_07502 = 1252;                            // statement is invalid
-    int X_07503 = 1253;                            // statement generates a result set
+    int X_07503 = 1253;                            // statement does not generate a row count
     int X_07504 = 1254;                            // statement does not generate a result set
     int X_07505 = 1255;                            // statement is in batch mode
     int X_07506 = 1256;                            // statement is not in batch mode

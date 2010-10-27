@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,224 +101,202 @@ public class FunctionCustom extends FunctionSQL {
     };
 
     //
-    private final static int FUNC_ISAUTOCOMMIT             = 71;
-    private final static int FUNC_ISREADONLYSESSION        = 72;
-    private final static int FUNC_ISREADONLYDATABASE       = 73;
-    private final static int FUNC_ISREADONLYDATABASEFILES  = 74;
-    private final static int FUNC_DATABASE                 = 75;
-    private final static int FUNC_IDENTITY                 = 76;
-    private final static int FUNC_SYSDATE                  = 77;
-    private final static int FUNC_TIMESTAMPADD             = 78;
-    private final static int FUNC_TIMESTAMPDIFF            = 79;
-    private final static int FUNC_TRUNC                    = 80;
-    private final static int FUNC_TRUNCATE                 = 81;
-    private final static int FUNC_TO_CHAR                  = 82;
-    private final static int FUNC_TO_DATE                  = 83;
-    private final static int FUNC_TIMESTAMP                = 84;
-    private final static int FUNC_CRYPT_KEY                = 85;
-    private final static int FUNC_ISOLATION_LEVEL          = 86;
-    private final static int FUNC_SESSION_ISOLATION_LEVEL  = 87;
-    private final static int FUNC_DATABASE_ISOLATION_LEVEL = 88;
-    private final static int FUNC_TRANSACTION_CONTROL      = 89;
-    private final static int FUNC_TIMEZONE                 = 90;
-    private final static int FUNC_SESSION_TIMEZONE         = 91;
-    private final static int FUNC_DATABASE_TIMEZONE        = 92;
-    private final static int FUNC_DATABASE_VERSION         = 93;
-    private final static int FUNC_ACTION_ID                = 94;
-    private final static int FUNC_TRANSACTION_ID           = 95;
-    private final static int FUNC_TRANSACTION_SIZE         = 96;
-    private final static int FUNC_UNIX_TIMESTAMP           = 97;
-    private final static int FUNC_SEQUENCE_ARRAY           = 99;
-    private final static int FUNC_SESSION_ID               = 100;
-
-    //
-    private static final int FUNC_ACOS             = 101;
-    private static final int FUNC_ASIN             = 102;
-    private static final int FUNC_ATAN             = 103;
-    private static final int FUNC_ATAN2            = 104;
-    private static final int FUNC_COS              = 105;
-    private static final int FUNC_COT              = 106;
-    private static final int FUNC_DEGREES          = 107;
-    private static final int FUNC_LOG10            = 110;
-    private static final int FUNC_PI               = 111;
-    private static final int FUNC_RADIANS          = 112;
-    private static final int FUNC_RAND             = 113;
-    private static final int FUNC_ROUND            = 114;
-    private static final int FUNC_SIGN             = 115;
-    private static final int FUNC_SIN              = 116;
-    private static final int FUNC_TAN              = 117;
-    private static final int FUNC_BITAND           = 118;
-    private static final int FUNC_BITOR            = 119;
-    private static final int FUNC_BITXOR           = 120;
-    private static final int FUNC_ROUNDMAGIC       = 121;
-    private static final int FUNC_ASCII            = 122;
-    private static final int FUNC_CHAR             = 123;
-    private static final int FUNC_CONCAT           = 124;
-    private static final int FUNC_DIFFERENCE       = 125;
-    private static final int FUNC_HEXTORAW         = 126;
-    private static final int FUNC_LEFT             = 128;
-    private static final int FUNC_LOCATE           = 130;
-    private static final int FUNC_LTRIM            = 131;
-    private static final int FUNC_RAWTOHEX         = 132;
-    private static final int FUNC_REPEAT           = 133;
-    private static final int FUNC_REPLACE          = 134;
-    private static final int FUNC_REVERSE          = 135;
-    private static final int FUNC_RIGHT            = 136;
-    private static final int FUNC_RTRIM            = 137;
-    private static final int FUNC_SOUNDEX          = 138;
-    private static final int FUNC_SPACE            = 139;
-    private static final int FUNC_SUBSTR           = 140;
-    private static final int FUNC_DATEADD          = 141;
-    private static final int FUNC_DATEDIFF         = 142;
-    private static final int FUNC_SECONDS_MIDNIGHT = 143;
-    private static final int FUNC_REGEXP_MATCHES   = 144;
-    private static final int FUNC_LOB_ID           = 145;
+    private final static int FUNC_ACOS                     = 71;
+    private final static int FUNC_ACTION_ID                = 72;
+    private final static int FUNC_ASCII                    = 73;
+    private final static int FUNC_ASIN                     = 74;
+    private final static int FUNC_ATAN                     = 75;
+    private final static int FUNC_ATAN2                    = 76;
+    private final static int FUNC_BITAND                   = 77;
+    private final static int FUNC_BITOR                    = 78;
+    private final static int FUNC_BITXOR                   = 79;
+    private final static int FUNC_CHAR                     = 80;
+    private final static int FUNC_CONCAT                   = 81;
+    private final static int FUNC_COS                      = 82;
+    private final static int FUNC_COT                      = 83;
+    private final static int FUNC_CRYPT_KEY                = 84;
+    private final static int FUNC_DATABASE                 = 85;
+    private final static int FUNC_DATABASE_ISOLATION_LEVEL = 86;
+    private final static int FUNC_DATABASE_TIMEZONE        = 87;
+    private final static int FUNC_DATABASE_VERSION         = 88;
+    private final static int FUNC_DATEADD                  = 89;
+    private final static int FUNC_DATEDIFF                 = 90;
+    private final static int FUNC_DEGREES                  = 91;
+    private final static int FUNC_DIFFERENCE               = 92;
+    private final static int FUNC_HEXTORAW                 = 93;
+    private final static int FUNC_IDENTITY                 = 94;
+    private final static int FUNC_ISAUTOCOMMIT             = 95;
+    private final static int FUNC_ISOLATION_LEVEL          = 96;
+    private final static int FUNC_ISREADONLYDATABASE       = 97;
+    private final static int FUNC_ISREADONLYDATABASEFILES  = 98;
+    private final static int FUNC_ISREADONLYSESSION        = 99;
+    private final static int FUNC_LEFT                     = 100;
+    private final static int FUNC_LOB_ID                   = 101;
+    private final static int FUNC_LOCATE                   = 102;
+    private final static int FUNC_LOG10                    = 103;
+    private final static int FUNC_LTRIM                    = 104;
+    private final static int FUNC_PI                       = 105;
+    private final static int FUNC_RADIANS                  = 106;
+    private final static int FUNC_RAND                     = 107;
+    private final static int FUNC_RAWTOHEX                 = 108;
+    private final static int FUNC_REGEXP_MATCHES           = 109;
+    private final static int FUNC_REPEAT                   = 110;
+    private final static int FUNC_REPLACE                  = 111;
+    private final static int FUNC_REVERSE                  = 112;
+    private final static int FUNC_RIGHT                    = 113;
+    private final static int FUNC_ROUND                    = 114;
+    private final static int FUNC_ROUNDMAGIC               = 115;
+    private final static int FUNC_RTRIM                    = 116;
+    private final static int FUNC_SECONDS_MIDNIGHT         = 117;
+    private final static int FUNC_SEQUENCE_ARRAY           = 118;
+    private final static int FUNC_SESSION_ID               = 119;
+    private final static int FUNC_SESSION_ISOLATION_LEVEL  = 120;
+    private final static int FUNC_SESSION_TIMEZONE         = 121;
+    private final static int FUNC_SIGN                     = 122;
+    private final static int FUNC_SIN                      = 123;
+    private final static int FUNC_SOUNDEX                  = 124;
+    private final static int FUNC_SPACE                    = 125;
+    private final static int FUNC_SUBSTR                   = 126;
+    private final static int FUNC_SYSDATE                  = 127;
+    private final static int FUNC_TAN                      = 128;
+    private final static int FUNC_TIMESTAMP                = 129;
+    private final static int FUNC_TIMESTAMPADD             = 130;
+    private final static int FUNC_TIMESTAMPDIFF            = 131;
+    private final static int FUNC_TIMEZONE                 = 132;
+    private final static int FUNC_TO_CHAR                  = 133;
+    private final static int FUNC_TO_DATE                  = 134;
+    private final static int FUNC_TRANSACTION_CONTROL      = 135;
+    private final static int FUNC_TRANSACTION_ID           = 136;
+    private final static int FUNC_TRANSACTION_SIZE         = 137;
+    private final static int FUNC_TRUNC                    = 138;
+    private final static int FUNC_TRUNCATE                 = 139;
+    private final static int FUNC_UUID                     = 140;
+    private final static int FUNC_UNIX_TIMESTAMP           = 141;
 
     //
     static final IntKeyIntValueHashMap customRegularFuncMap =
         new IntKeyIntValueHashMap();
 
     static {
-        customRegularFuncMap.put(Tokens.LENGTH, FUNC_CHAR_LENGTH);
-        customRegularFuncMap.put(Tokens.BITLENGTH, FUNC_BIT_LENGTH);
-        customRegularFuncMap.put(Tokens.OCTETLENGTH, FUNC_OCTET_LENGTH);
-        customRegularFuncMap.put(Tokens.LCASE, FUNC_FOLD_LOWER);
-        customRegularFuncMap.put(Tokens.UCASE, FUNC_FOLD_UPPER);
-        customRegularFuncMap.put(Tokens.LOG, FUNC_LN);
+        //J-
 
-        //
-        customRegularFuncMap.put(Tokens.CURDATE, FUNC_CURRENT_DATE);
-        customRegularFuncMap.put(Tokens.CURTIME, FUNC_LOCALTIME);
-        customRegularFuncMap.put(Tokens.SUBSTR, FUNC_SUBSTRING_CHAR);
-
-        //
-        customRegularFuncMap.put(Tokens.CRYPT_KEY, FUNC_CRYPT_KEY);
-
-        //
-        customRegularFuncMap.put(Tokens.YEAR, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.MONTH, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.DAY, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.HOUR, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.MINUTE, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.SECOND, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.DAYNAME, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.MONTHNAME, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.DAYOFMONTH, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.DAYOFWEEK, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.DAYOFYEAR, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.QUARTER, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.WEEK, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.SECONDS_MIDNIGHT, FUNC_EXTRACT);
-        customRegularFuncMap.put(Tokens.LTRIM, FUNC_TRIM_CHAR);
-        customRegularFuncMap.put(Tokens.RTRIM, FUNC_TRIM_CHAR);
-        customRegularFuncMap.put(Tokens.LEFT, FUNC_LEFT);
-
-        //
-        customRegularFuncMap.put(Tokens.IDENTITY, FUNC_IDENTITY);
-        customRegularFuncMap.put(Tokens.TIMESTAMPADD, FUNC_TIMESTAMPADD);
-        customRegularFuncMap.put(Tokens.TIMESTAMPDIFF, FUNC_TIMESTAMPDIFF);
-        customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNC);
-        customRegularFuncMap.put(Tokens.TRUNCATE, FUNC_TRUNCATE);
-        customRegularFuncMap.put(Tokens.TO_CHAR, FUNC_TO_CHAR);
-        customRegularFuncMap.put(Tokens.TO_DATE, FUNC_TO_DATE);
-        customRegularFuncMap.put(Tokens.TIMESTAMP, FUNC_TIMESTAMP);
-
-        //
-        nonDeterministicFuncSet.add(FUNC_IDENTITY);
-        nonDeterministicFuncSet.add(FUNC_TIMESTAMPADD);
-        nonDeterministicFuncSet.add(FUNC_TIMESTAMP);
-
-        //
-        customRegularFuncMap.put(Tokens.LOCATE, FUNC_POSITION_CHAR);
-        customRegularFuncMap.put(Tokens.INSERT, FUNC_OVERLAY_CHAR);
-        customRegularFuncMap.put(Tokens.REVERSE, FUNC_REVERSE);
-
-        //
-        //
-        customRegularFuncMap.put(Tokens.DATABASE, FUNC_DATABASE);
-        customRegularFuncMap.put(Tokens.IS_AUTOCOMMIT, FUNC_ISAUTOCOMMIT);
-        customRegularFuncMap.put(Tokens.IS_READONLY_SESSION,
-                                 FUNC_ISREADONLYSESSION);
-        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE,
-                                 FUNC_ISREADONLYDATABASE);
-        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE_FILES,
-                                 FUNC_ISREADONLYDATABASEFILES);
-        customRegularFuncMap.put(Tokens.ISOLATION_LEVEL, FUNC_ISOLATION_LEVEL);
-        customRegularFuncMap.put(Tokens.SESSION_ISOLATION_LEVEL,
-                                 FUNC_SESSION_ISOLATION_LEVEL);
-        customRegularFuncMap.put(Tokens.DATABASE_ISOLATION_LEVEL,
-                                 FUNC_DATABASE_ISOLATION_LEVEL);
-        customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL,
-                                 FUNC_TRANSACTION_CONTROL);
-        customRegularFuncMap.put(Tokens.TIMEZONE, FUNC_TIMEZONE);
-        customRegularFuncMap.put(Tokens.SESSION_TIMEZONE,
-                                 FUNC_SESSION_TIMEZONE);
-        customRegularFuncMap.put(Tokens.DATABASE_TIMEZONE,
-                                 FUNC_DATABASE_TIMEZONE);
-        customRegularFuncMap.put(Tokens.DATABASE_VERSION,
-                                 FUNC_DATABASE_VERSION);
-        customRegularFuncMap.put(Tokens.LOB_ID, FUNC_LOB_ID);
-        customRegularFuncMap.put(Tokens.ACTION_ID, FUNC_ACTION_ID);
-        customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
-        customRegularFuncMap.put(Tokens.TRANSACTION_SIZE,
-                                 FUNC_TRANSACTION_SIZE);
-        customRegularFuncMap.put(Tokens.UNIX_TIMESTAMP, FUNC_UNIX_TIMESTAMP);
-        customRegularFuncMap.put(Tokens.SEQUENCE_ARRAY, FUNC_SEQUENCE_ARRAY);
-        customRegularFuncMap.put(Tokens.SESSION_ID, FUNC_SESSION_ID);
-
-        //
+        nonDeterministicFuncSet.add(FUNC_ACTION_ID);
+        nonDeterministicFuncSet.add(FUNC_CRYPT_KEY);
         nonDeterministicFuncSet.add(FUNC_DATABASE);
+        nonDeterministicFuncSet.add(FUNC_DATABASE_ISOLATION_LEVEL);
+        nonDeterministicFuncSet.add(FUNC_DATABASE_TIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_IDENTITY);
         nonDeterministicFuncSet.add(FUNC_ISAUTOCOMMIT);
         nonDeterministicFuncSet.add(FUNC_ISREADONLYSESSION);
         nonDeterministicFuncSet.add(FUNC_ISREADONLYDATABASE);
         nonDeterministicFuncSet.add(FUNC_ISREADONLYDATABASEFILES);
         nonDeterministicFuncSet.add(FUNC_ISOLATION_LEVEL);
+        nonDeterministicFuncSet.add(FUNC_SESSION_ID);
         nonDeterministicFuncSet.add(FUNC_SESSION_ISOLATION_LEVEL);
-        nonDeterministicFuncSet.add(FUNC_DATABASE_ISOLATION_LEVEL);
-        nonDeterministicFuncSet.add(FUNC_ACTION_ID);
+        nonDeterministicFuncSet.add(FUNC_SESSION_TIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_TIMESTAMP);
+        nonDeterministicFuncSet.add(FUNC_TIMEZONE);
         nonDeterministicFuncSet.add(FUNC_TRANSACTION_CONTROL);
         nonDeterministicFuncSet.add(FUNC_TRANSACTION_ID);
-        nonDeterministicFuncSet.add(FUNC_TIMEZONE);
-        nonDeterministicFuncSet.add(FUNC_SESSION_TIMEZONE);
-        nonDeterministicFuncSet.add(FUNC_DATABASE_TIMEZONE);
+        nonDeterministicFuncSet.add(FUNC_TRANSACTION_SIZE);
+        nonDeterministicFuncSet.add(FUNC_UUID);
         nonDeterministicFuncSet.add(FUNC_UNIX_TIMESTAMP);
-        nonDeterministicFuncSet.add(FUNC_SESSION_ID);
 
         //
         customRegularFuncMap.put(Tokens.ACOS, FUNC_ACOS);
+        customRegularFuncMap.put(Tokens.ACTION_ID, FUNC_ACTION_ID);
+        customRegularFuncMap.put(Tokens.ASCII, FUNC_ASCII);
         customRegularFuncMap.put(Tokens.ASIN, FUNC_ASIN);
         customRegularFuncMap.put(Tokens.ATAN, FUNC_ATAN);
         customRegularFuncMap.put(Tokens.ATAN2, FUNC_ATAN2);
-        customRegularFuncMap.put(Tokens.COS, FUNC_COS);
-        customRegularFuncMap.put(Tokens.COT, FUNC_COT);
-        customRegularFuncMap.put(Tokens.DEGREES, FUNC_DEGREES);
-        customRegularFuncMap.put(Tokens.LOG10, FUNC_LOG10);
-        customRegularFuncMap.put(Tokens.PI, FUNC_PI);
-        customRegularFuncMap.put(Tokens.RADIANS, FUNC_RADIANS);
-        customRegularFuncMap.put(Tokens.RAND, FUNC_RAND);
-        customRegularFuncMap.put(Tokens.ROUND, FUNC_ROUND);
-        customRegularFuncMap.put(Tokens.REGEXP_MATCHES, FUNC_REGEXP_MATCHES);
-        customRegularFuncMap.put(Tokens.SIGN, FUNC_SIGN);
-        customRegularFuncMap.put(Tokens.SIN, FUNC_SIN);
-        customRegularFuncMap.put(Tokens.TAN, FUNC_TAN);
         customRegularFuncMap.put(Tokens.BITAND, FUNC_BITAND);
+        customRegularFuncMap.put(Tokens.BITLENGTH, FUNC_BIT_LENGTH);
         customRegularFuncMap.put(Tokens.BITOR, FUNC_BITOR);
         customRegularFuncMap.put(Tokens.BITXOR, FUNC_BITXOR);
-        customRegularFuncMap.put(Tokens.ROUNDMAGIC, FUNC_ROUNDMAGIC);
-        customRegularFuncMap.put(Tokens.ASCII, FUNC_ASCII);
         customRegularFuncMap.put(Tokens.CHAR, FUNC_CHAR);
         customRegularFuncMap.put(Tokens.CHR, FUNC_CHAR);
         customRegularFuncMap.put(Tokens.CONCAT_WORD, FUNC_CONCAT);
-        customRegularFuncMap.put(Tokens.DIFFERENCE, FUNC_DIFFERENCE);
-        customRegularFuncMap.put(Tokens.HEXTORAW, FUNC_HEXTORAW);
-        customRegularFuncMap.put(Tokens.RAWTOHEX, FUNC_RAWTOHEX);
-        customRegularFuncMap.put(Tokens.REPEAT, FUNC_REPEAT);
-        customRegularFuncMap.put(Tokens.REPLACE, FUNC_REPLACE);
-        customRegularFuncMap.put(Tokens.RIGHT, FUNC_RIGHT);
-        customRegularFuncMap.put(Tokens.SOUNDEX, FUNC_SOUNDEX);
-        customRegularFuncMap.put(Tokens.SPACE, FUNC_SPACE);
+        customRegularFuncMap.put(Tokens.COS, FUNC_COS);
+        customRegularFuncMap.put(Tokens.COT, FUNC_COT);
+        customRegularFuncMap.put(Tokens.CRYPT_KEY, FUNC_CRYPT_KEY);
+        customRegularFuncMap.put(Tokens.CURDATE, FUNC_CURRENT_DATE);
+        customRegularFuncMap.put(Tokens.CURTIME, FUNC_LOCALTIME);
+        customRegularFuncMap.put(Tokens.DATABASE, FUNC_DATABASE);
+        customRegularFuncMap.put(Tokens.DATABASE_ISOLATION_LEVEL, FUNC_DATABASE_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.DATABASE_TIMEZONE, FUNC_DATABASE_TIMEZONE);
+        customRegularFuncMap.put(Tokens.DATABASE_VERSION, FUNC_DATABASE_VERSION);
         customRegularFuncMap.put(Tokens.DATEADD, FUNC_DATEADD);
         customRegularFuncMap.put(Tokens.DATEDIFF, FUNC_DATEDIFF);
+        customRegularFuncMap.put(Tokens.DAY, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.DAYNAME, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.DAYOFMONTH, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.DAYOFWEEK, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.DAYOFYEAR, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.DEGREES, FUNC_DEGREES);
+        customRegularFuncMap.put(Tokens.DIFFERENCE, FUNC_DIFFERENCE);
+        customRegularFuncMap.put(Tokens.HEXTORAW, FUNC_HEXTORAW);
+        customRegularFuncMap.put(Tokens.HOUR, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.IDENTITY, FUNC_IDENTITY);
+        customRegularFuncMap.put(Tokens.INSERT, FUNC_OVERLAY_CHAR);
+        customRegularFuncMap.put(Tokens.IS_AUTOCOMMIT, FUNC_ISAUTOCOMMIT);
+        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE, FUNC_ISREADONLYDATABASE);
+        customRegularFuncMap.put(Tokens.IS_READONLY_DATABASE_FILES, FUNC_ISREADONLYDATABASEFILES);
+        customRegularFuncMap.put(Tokens.IS_READONLY_SESSION, FUNC_ISREADONLYSESSION);
+        customRegularFuncMap.put(Tokens.ISOLATION_LEVEL, FUNC_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.LCASE, FUNC_FOLD_LOWER);
+        customRegularFuncMap.put(Tokens.LEFT, FUNC_LEFT);
+        customRegularFuncMap.put(Tokens.LENGTH, FUNC_CHAR_LENGTH);
+        customRegularFuncMap.put(Tokens.LOB_ID, FUNC_LOB_ID);
+        customRegularFuncMap.put(Tokens.LOCATE, FUNC_POSITION_CHAR);
+        customRegularFuncMap.put(Tokens.LOG, FUNC_LN);
+        customRegularFuncMap.put(Tokens.LOG10, FUNC_LOG10);
+        customRegularFuncMap.put(Tokens.LTRIM, FUNC_TRIM_CHAR);
+        customRegularFuncMap.put(Tokens.MINUTE, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.MONTH, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.MONTHNAME, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.OCTETLENGTH, FUNC_OCTET_LENGTH);
+        customRegularFuncMap.put(Tokens.PI, FUNC_PI);
+        customRegularFuncMap.put(Tokens.QUARTER, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.RADIANS, FUNC_RADIANS);
+        customRegularFuncMap.put(Tokens.RAND, FUNC_RAND);
+        customRegularFuncMap.put(Tokens.RAWTOHEX, FUNC_RAWTOHEX);
+        customRegularFuncMap.put(Tokens.REGEXP_MATCHES, FUNC_REGEXP_MATCHES);
+        customRegularFuncMap.put(Tokens.REPEAT, FUNC_REPEAT);
+        customRegularFuncMap.put(Tokens.REPLACE, FUNC_REPLACE);
+        customRegularFuncMap.put(Tokens.REVERSE, FUNC_REVERSE);
+        customRegularFuncMap.put(Tokens.RIGHT, FUNC_RIGHT);
+        customRegularFuncMap.put(Tokens.ROUND, FUNC_ROUND);
+        customRegularFuncMap.put(Tokens.ROUNDMAGIC, FUNC_ROUNDMAGIC);
+        customRegularFuncMap.put(Tokens.RTRIM, FUNC_TRIM_CHAR);
+        customRegularFuncMap.put(Tokens.SECOND, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.SECONDS_MIDNIGHT, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.SEQUENCE_ARRAY, FUNC_SEQUENCE_ARRAY);
+        customRegularFuncMap.put(Tokens.SESSION_ID, FUNC_SESSION_ID);
+        customRegularFuncMap.put(Tokens.SESSION_ISOLATION_LEVEL, FUNC_SESSION_ISOLATION_LEVEL);
+        customRegularFuncMap.put(Tokens.SESSION_TIMEZONE, FUNC_SESSION_TIMEZONE);
+        customRegularFuncMap.put(Tokens.SIGN, FUNC_SIGN);
+        customRegularFuncMap.put(Tokens.SIN, FUNC_SIN);
+        customRegularFuncMap.put(Tokens.SOUNDEX, FUNC_SOUNDEX);
+        customRegularFuncMap.put(Tokens.SPACE, FUNC_SPACE);
+        customRegularFuncMap.put(Tokens.SUBSTR, FUNC_SUBSTRING_CHAR);
+        customRegularFuncMap.put(Tokens.TAN, FUNC_TAN);
+        customRegularFuncMap.put(Tokens.TIMESTAMP, FUNC_TIMESTAMP);
+        customRegularFuncMap.put(Tokens.TIMESTAMPADD, FUNC_TIMESTAMPADD);
+        customRegularFuncMap.put(Tokens.TIMESTAMPDIFF, FUNC_TIMESTAMPDIFF);
+        customRegularFuncMap.put(Tokens.TIMEZONE, FUNC_TIMEZONE);
+        customRegularFuncMap.put(Tokens.TO_CHAR, FUNC_TO_CHAR);
+        customRegularFuncMap.put(Tokens.TO_DATE, FUNC_TO_DATE);
+        customRegularFuncMap.put(Tokens.TRANSACTION_CONTROL, FUNC_TRANSACTION_CONTROL);
+        customRegularFuncMap.put(Tokens.TRANSACTION_ID, FUNC_TRANSACTION_ID);
+        customRegularFuncMap.put(Tokens.TRANSACTION_SIZE, FUNC_TRANSACTION_SIZE);
+        customRegularFuncMap.put(Tokens.TRUNC, FUNC_TRUNC);
+        customRegularFuncMap.put(Tokens.TRUNCATE, FUNC_TRUNCATE);
+        customRegularFuncMap.put(Tokens.UCASE, FUNC_FOLD_UPPER);
+        customRegularFuncMap.put(Tokens.UNIX_TIMESTAMP, FUNC_UNIX_TIMESTAMP);
+        customRegularFuncMap.put(Tokens.UUID, FUNC_UUID);
+        customRegularFuncMap.put(Tokens.WEEK, FUNC_EXTRACT);
+        customRegularFuncMap.put(Tokens.YEAR, FUNC_EXTRACT);
+        //J+
     }
 
     static final IntKeyIntValueHashMap customValueFuncMap =
@@ -489,6 +468,7 @@ public class FunctionCustom extends FunctionSQL {
                 break;
 
             case FUNC_UNIX_TIMESTAMP :
+            case FUNC_UUID :
                 parseList = optionalSingleParamList;
                 break;
 
@@ -1113,6 +1093,29 @@ public class FunctionCustom extends FunctionSQL {
                     long seed = ((Number) data[0]).longValue();
 
                     return new Double(session.random(seed));
+                }
+            }
+            case FUNC_UUID : {
+                if (nodes[0] == null) {
+                    UUID uuid = java.util.UUID.randomUUID();
+                    long hi   = uuid.getMostSignificantBits();
+                    long lo   = uuid.getLeastSignificantBits();
+
+                    return new BinaryData(ArrayUtil.toByteArray(hi, lo),
+                                          false);
+                } else {
+                    if (data[0] == null) {
+                        return null;
+                    }
+
+                    if (dataType.isBinaryType()) {
+                        return new BinaryData(
+                            StringConverter.toBinaryUUID((String) data[0]),
+                            false);
+                    } else {
+                        return StringConverter.toStringUUID(
+                            ((BinaryData) data[0]).getBytes());
+                    }
                 }
             }
             case FUNC_UNIX_TIMESTAMP : {
@@ -1985,6 +1988,25 @@ public class FunctionCustom extends FunctionSQL {
                 dataType = Type.SQL_DOUBLE;
                 break;
 
+            case FUNC_UUID : {
+                if (nodes[0] == null) {
+                    dataType = Type.SQL_BINARY_16;
+                } else {
+                    if (nodes[0].dataType == null) {
+                        nodes[0].dataType = Type.SQL_VARCHAR;
+                        dataType          = Type.SQL_BINARY_16;
+                    } else if (nodes[0].dataType.isCharacterType()) {
+                        dataType = Type.SQL_BINARY_16;
+                    } else if (nodes[0].dataType.isBinaryType()
+                               && !nodes[0].dataType.isLobType()) {
+                        dataType = Type.SQL_CHAR_16;
+                    } else {
+                        throw Error.error(ErrorCode.X_42563);
+                    }
+                }
+
+                break;
+            }
             case FUNC_UNIX_TIMESTAMP : {
                 if (nodes[0] != null) {
                     if (nodes[0].dataType == null) {
