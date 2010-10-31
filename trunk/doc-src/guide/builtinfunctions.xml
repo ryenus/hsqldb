@@ -858,7 +858,7 @@
     expr&gt;</literal> places right of the decimal point. If <literal>&lt;int
     value expr&gt;</literal> is negative, the first argument is rounded to
     <literal>&lt;int value expr&gt;</literal> places to the left of the
-    decimal point. </para>
+    decimal point.</para>
 
     <para>This function rounds values ending with .5 or larger away from zero
     for DECIMAL arguments and results. When the value ends with .5 or larger
@@ -1420,11 +1420,11 @@ TRUNC ( TIMESTAMP'2008-08-01 20:30:40', 'YYYY' )
 </programlisting>
 
     <para>The format is internally translated to a
-    <classname>java.text.SimpleDateFormat</classname> format string. Any
-    character sequences not listed below are included in the Java format
-    string and may cause unexpected results or errors. Therefore unsupported
-    format strings should not be used. You can include a string literal inside
-    the format string by enclosing it in double quotes. (HyperSQL)</para>
+    <classname>java.text.SimpleDateFormat</classname> format string. Separator
+    characters (space, comma, period, hyphen, colon, semicolon, forward slash)
+    can be included between the pattern elements. Unsupported format strings
+    should not be used. You can include a string literal inside the format
+    string by enclosing it in double quotes. (HyperSQL)</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>TO_DATE function</primary>
@@ -1449,11 +1449,10 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 </programlisting>
 
     <para>The format is internally translated to a
-    <classname>java.text.SimpleDateFormat</classname> format string. Any
-    character sequences not listed below are included in the Java format
-    string and may cause unexpected results or errors. Therefore unsupported
-    format strings should not be used. You can include a string literal inside
-    the format string by enclosing it in double quotes. (HyperSQL)</para>
+    <classname>java.text.SimpleDateFormat</classname> format string.
+    Unsupported format strings should not be used. You can include a string
+    literal inside the format string by enclosing it in double quotes.
+    (HyperSQL)</para>
 
     <para>The supported format components are all uppercase as follows:</para>
 
@@ -1634,17 +1633,22 @@ TIMESTAMP '2008-11-22 20:30:40.000000'
 
     <simpara><emphasis role="bold">UNIX_TIMESTAMP</emphasis></simpara>
 
-    <para><literal>UNIX_TIMESTAMP () </literal></para>
+    <para><literal>UNIX_TIMESTAMP ( [ &lt;datetime value expression&gt; ] )
+    </literal></para>
 
-    <para>This returns the number of seconds since 1970-01-01.
-    (HyperSQL)</para>
+    <para>This function returns a BIGINT value. With no parameter, it returns
+    the number of seconds since 1970-01-01. With a DATE or TIMESTAMP
+    parameter, it converts the argument into number of seconds since
+    1970-01-01. (HyperSQL)</para>
   </section>
 
   <section>
     <title>Array Functions</title>
 
-    <para>Array functions are specialised functions with ARRAY
-    parameters.</para>
+    <para>Array functions are specialised functions with ARRAY parameters or
+    return values. For the ARRAY_AGG aggregate function, see the <link
+    endterm="dataaccess-title" xlink:href="#dataaccess-chapt"></link>
+    chapter.</para>
 
     <indexterm significance="preferred" type="sql">
       <primary>CARDINALITY function</primary>
@@ -1885,6 +1889,20 @@ D          I
     <literal>&lt;value expr 2&gt;</literal> is a DOUBLE constant, the return
     type is DOUBLE. This function is the same as IFNULL and COALESCE
     (HyperSQL)</para>
+
+    <indexterm significance="preferred" type="sql">
+      <primary>UUID function</primary>
+    </indexterm>
+
+    <simpara><emphasis role="bold">UUID</emphasis></simpara>
+
+    <para><literal>UUID ( [ { &lt;char value expr&gt; | &lt;binary value
+    expr&gt; ] } ) </literal></para>
+
+    <para>With no parameter, this function returns a new UUID value as a 16
+    byte binary value. With a UUID hexadecimal string argument, it returns the
+    16 byte binary value of the UUID. With a 16 byte binary argument, it
+    returns the formatted UUID character representation. (HyperSQL)</para>
   </section>
 
   <section xml:id="builtin_functions_sysfunc-sect">

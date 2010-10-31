@@ -45,8 +45,9 @@
     <title>Overview</title>
 
     <para>This chapter is about access control to database objects such as
-    tables, inside the database engine. Other issues related to security are
-    covered in the <link endterm="deployment-title" xlink:arcrole=""
+    tables, inside the database engine. Other issues related to security
+    include user authentication, password complexity and secure connections
+    are covered in the <link endterm="deployment-title" xlink:arcrole=""
     xlink:href="#deployment-chapt"></link> chapter and the <link
     endterm="listeners-title" xlink:href="#listeners-chapt"></link>
     chapter.</para>
