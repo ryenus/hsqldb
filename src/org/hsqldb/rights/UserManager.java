@@ -32,16 +32,16 @@
 package org.hsqldb.rights;
 
 import org.hsqldb.Database;
-import org.hsqldb.error.Error;
-import org.hsqldb.error.ErrorCode;
 import org.hsqldb.HsqlNameManager.HsqlName;
-import org.hsqldb.Session;
-import org.hsqldb.lib.HashMappedList;
-import org.hsqldb.lib.HsqlArrayList;
+import org.hsqldb.Routine;
 import org.hsqldb.SchemaObject;
+import org.hsqldb.Session;
 import org.hsqldb.SqlInvariants;
 import org.hsqldb.Tokens;
-import org.hsqldb.Routine;
+import org.hsqldb.error.Error;
+import org.hsqldb.error.ErrorCode;
+import org.hsqldb.lib.HashMappedList;
+import org.hsqldb.lib.HsqlArrayList;
 import org.hsqldb.result.Result;
 
 /**

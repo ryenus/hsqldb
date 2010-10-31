@@ -346,8 +346,8 @@ public class ExpressionArithmetic extends Expression {
         if (dataType != null && dataType.isIntervalType()) {
             if (nodes[LEFT].dataType.isDateTimeType()
                     && nodes[RIGHT].dataType.isDateTimeType()) {
-                if (nodes[LEFT].dataType.typeCode
-                        != nodes[RIGHT].dataType.typeCode) {
+                if (nodes[LEFT].dataType.typeComparisonGroup
+                        != nodes[RIGHT].dataType.typeComparisonGroup) {
                     throw Error.error(ErrorCode.X_42562);
                 }
             } else {

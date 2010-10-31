@@ -331,9 +331,12 @@ public abstract class Type implements SchemaObject, Cloneable {
 
     public boolean canBeAssignedFrom(Type otherType) {
 
-        return otherType == null ? true
-                                 : this.typeComparisonGroup
-                                   == otherType.typeComparisonGroup;
+        if (otherType == null) {
+            return true;
+        }
+
+        return otherType.typeCode == Types.SQL_ALL_TYPES
+               || typeComparisonGroup == otherType.typeComparisonGroup;
     }
 
     public int arrayLimitCardinality() {

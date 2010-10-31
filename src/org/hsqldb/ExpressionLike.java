@@ -44,14 +44,14 @@ import org.hsqldb.types.Types;
  *
  * @author Campbell Boucher-Burnett (boucherb@users dot sourceforge.net)
  * @author Fred Toussi (fredt@users dot sourceforge.net)
- * @version 1.9.0
+ * @version 2.0.1
  * @since 1.9.0
  */
 public final class ExpressionLike extends ExpressionLogical {
 
-    private final static int ESCAPE  = 2;
-    private final static int TERNARY = 3;
+    private final static int ESCAPE = 2;
     private Like             likeObject;
+    private boolean          isBinary;
 
     /**
      * Creates a LIKE expression
@@ -203,6 +203,7 @@ public final class ExpressionLike extends ExpressionLogical {
                    && (nodes[ESCAPE] == null
                        || nodes[ESCAPE].dataType.isBinaryType())) {
             likeObject.isBinary = true;
+            isBinary            = true;
         } else {
             if (!session.database.sqlEnforceTypes
                     && nodes[LEFT].opType == OpTypes.VALUE) {
@@ -227,10 +228,9 @@ public final class ExpressionLike extends ExpressionLogical {
             return;
         }
 
+        // always optimise with logical conditions
         if (isRightArgFixedConstant && isEscapeFixedConstant) {
             likeObject.isVariable = false;
-        } else {
-            return;
         }
 
         Object pattern = isRightArgFixedConstant
@@ -248,15 +248,23 @@ public final class ExpressionLike extends ExpressionLogical {
         }
 
         if (likeObject.isEquivalentToUnknownPredicate()) {
-            this.setAsConstantValue(null);
+            this.setAsConstantValue(session);
 
             likeObject = null;
-        } else if (likeObject.isEquivalentToEqualsPredicate()) {
+
+            return;
+        }
+
+        if (likeObject.isEquivalentToEqualsPredicate()) {
             opType = OpTypes.EQUAL;
             nodes[RIGHT] = new ExpressionValue(likeObject.getRangeLow(),
                                                Type.SQL_VARCHAR);
             likeObject = null;
-        } else if (likeObject.isEquivalentToNotNullPredicate()) {
+
+            return;
+        }
+
+        if (likeObject.isEquivalentToNotNullPredicate()) {
             Expression notNull = new ExpressionLogical(OpTypes.IS_NULL,
                 nodes[LEFT]);
 
@@ -264,79 +272,27 @@ public final class ExpressionLike extends ExpressionLogical {
             nodes       = new Expression[UNARY];
             nodes[LEFT] = notNull;
             likeObject  = null;
-        } else {
-            if (nodes[LEFT].opType != OpTypes.COLUMN) {
-                return;
-            }
 
-            if (!nodes[LEFT].dataType.isCharacterType()) {
-                return;
-            }
+            return;
+        }
 
-            boolean between = false;
-            boolean like    = false;
-            boolean larger  = false;
+        if (nodes[LEFT].opType == OpTypes.COLUMN) {
+            ExpressionLike newLike = new ExpressionLike(this);
+            Expression prefix = new ExpressionOp(OpTypes.LIKE_ARG,
+                                                 nodes[RIGHT], nodes[ESCAPE]);
 
-            if (likeObject.isEquivalentToBetweenPredicate()) {
+            prefix.resolveTypes(session, null);
 
-                // X LIKE 'abc%' <=> X >= 'abc' AND X <= 'abc' || max_collation_char
-                larger  = likeObject.hasCollation;
-                between = !larger;
-                like    = larger;
-            } else if (likeObject
-                    .isEquivalentToBetweenPredicateAugmentedWithLike()) {
+            Expression gte = new ExpressionLogical(OpTypes.GREATER_EQUAL,
+                                                   nodes[LEFT], prefix,
+                                                   newLike);
 
-                // X LIKE 'abc%...' <=> X >= 'abc' AND X <= 'abc' || max_collation_char AND X LIKE 'abc%...'
-                larger  = likeObject.hasCollation;
-                between = !larger;
-                like    = true;
-            }
-
-            if (!between && !larger) {
-                return;
-            }
-
-            Expression leftBound =
-                new ExpressionValue(likeObject.getRangeLow(),
-                                    Type.SQL_VARCHAR);
-            Expression rightBound =
-                new ExpressionValue(likeObject.getRangeHigh(session),
-                                    Type.SQL_VARCHAR);
-
-            if (between && !like) {
-                Expression leftOld = nodes[LEFT];
-
-                nodes = new Expression[BINARY];
-                nodes[LEFT] = new ExpressionLogical(OpTypes.GREATER_EQUAL,
-                                                    leftOld, leftBound);
-                nodes[RIGHT] = new ExpressionLogical(OpTypes.SMALLER_EQUAL,
-                                                     leftOld, rightBound);
-                opType     = OpTypes.AND;
-                likeObject = null;
-            } else if (between && like) {
-                Expression gte = new ExpressionLogical(OpTypes.GREATER_EQUAL,
-                                                       nodes[LEFT], leftBound);
-                Expression lte = new ExpressionLogical(OpTypes.SMALLER_EQUAL,
-                                                       nodes[LEFT],
-                                                       rightBound);
-                ExpressionLike newLike = new ExpressionLike(this);
-
-                nodes        = new Expression[BINARY];
-                likeObject   = null;
-                nodes[LEFT]  = new ExpressionLogical(OpTypes.AND, gte, lte);
-                nodes[RIGHT] = newLike;
-                opType       = OpTypes.AND;
-            } else if (larger) {
-                Expression gte = new ExpressionLogical(OpTypes.GREATER_EQUAL,
-                                                       nodes[LEFT], leftBound);
-                ExpressionLike newLike = new ExpressionLike(this);
-
-                nodes        = new Expression[BINARY];
-                likeObject   = null;
-                nodes[LEFT]  = gte;
-                nodes[RIGHT] = newLike;
-                opType       = OpTypes.AND;
-            }
+            gte.exprSubType = OpTypes.LIKE;
+            nodes           = new Expression[BINARY];
+            likeObject      = null;
+            nodes[LEFT]     = gte;
+            nodes[RIGHT]    = newLike;
+            opType          = OpTypes.AND;
         }
     }
 

@@ -203,6 +203,22 @@ public class TestLikePredicateOptimizations extends TestBase {
 
         assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 
+        sql = "select count(*) from test";
+        rs = stmt.executeQuery(sql);
+
+        rs.next();
+
+
+        expectedCount = rs.getInt(1);
+        sql           = "select count(*) from test where name like '%'";
+        pstmt         = conn.prepareStatement(sql);
+        rs            = pstmt.executeQuery();
+
+        rs.next();
+
+        actualCount = rs.getInt(1);
+
+        assertEquals("\"" + sql + "\"", expectedCount, actualCount);
 // --
         String result  = "true";
         String presult = "false";

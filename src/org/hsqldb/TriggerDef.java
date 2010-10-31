@@ -611,8 +611,13 @@ public class TriggerDef implements Runnable, SchemaObject {
 
         if (maxRowsQueued == 0) {
             session.getInternalConnection();
-            trigger.fire(triggerType, name.name, table.getName().name, row1,
-                         row2);
+
+            try {
+                trigger.fire(triggerType, name.name, table.getName().name,
+                             row1, row2);
+            } finally {
+                session.releaseInternalConnection();
+            }
 
             return;
         }

@@ -1007,16 +1007,62 @@ public class CharacterType extends Type {
         return ((String) data).length();
     }
 
-/*
-    public static Object concat(Object a, Object b) {
+    /**
+     * Matches the string against array containing part strings. Null element
+     * in array indicates skip one character. Empty string in array indicates
+     * skip any number of characters.
+     */
+    public Boolean match(Session session, String string, String[] array) {
 
-        if (a == null || b == null) {
+        if (string == null || array == null) {
             return null;
         }
 
-        return a.toString() + b.toString();
+        String  s      = null;
+        int     offset = 0;
+        boolean match  = true;
+
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == null) {
+
+                // single char skip
+                offset++;
+
+                match = true;
+            } else if (array[i].length() == 0) {
+
+                // string skip
+                match = false;
+            }
+
+            if (match) {
+                if (offset + array[i].length() > string.length()) {
+                    return false;
+                }
+
+                s = string.substring(offset, offset + array[i].length());
+
+                if (collation.compare(s, array[i]) != 0) {
+                    return false;
+                }
+
+                offset += array[i].length();
+            } else {
+                int index = string.indexOf(array[i], offset);
+
+                if (index < 0) {
+                    return false;
+                }
+
+                offset = index + array[i].length();
+
+                match = true;
+            }
+        }
+
+        return true;
     }
-*/
+
     public Type getCharacterType(long length) {
         return new CharacterType(this.collation, this.typeCode, length);
     }

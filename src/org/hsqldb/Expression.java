@@ -60,10 +60,11 @@ import org.hsqldb.types.Type;
  */
 public class Expression implements Cloneable {
 
-    public static final int LEFT   = 0;
-    public static final int RIGHT  = 1;
-    public static final int UNARY  = 1;
-    public static final int BINARY = 2;
+    public static final int LEFT    = 0;
+    public static final int RIGHT   = 1;
+    public static final int UNARY   = 1;
+    public static final int BINARY  = 2;
+    public static final int TERNARY = 3;
 
     //
     //

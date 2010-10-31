@@ -167,6 +167,7 @@ public class HsqlDatabaseProperties extends HsqlProperties {
 
     //
     public static final String url_ifexists        = "ifexists";
+    public static final String url_create          = "create";
     public static final String url_default_schema  = "default_schema";
     public static final String url_check_props     = "check_props";
     public static final String url_get_column_name = "get_column_name";

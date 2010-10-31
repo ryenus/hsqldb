@@ -1463,6 +1463,14 @@ public class RangeVariable implements Cloneable {
                                     indexCond[indexedColumnCount - 1]);
                             indexCond[indexedColumnCount - 1] = e;
                             opType                            = e.opType;
+
+                            if (e.exprSubType == OpTypes.LIKE
+                                    && indexedColumnCount == 1) {
+                                indexEndCond[indexedColumnCount - 1] =
+                                    ExpressionLogical.andExpressions(
+                                        indexEndCond[indexedColumnCount - 1],
+                                        e.nodes[2]);
+                            }
                         }
                     } else {
                         addToIndexConditions(e);
@@ -1540,7 +1548,13 @@ public class RangeVariable implements Cloneable {
                 case OpTypes.GREATER_EQUAL :
                     indexCond    = exprList;
                     indexEndCond = new Expression[exprList.length];
-                    opTypeEnd    = OpTypes.MAX;
+
+                    if (exprList[0].exprSubType == OpTypes.LIKE) {
+                        indexEndCond[0] = indexEndCondition =
+                            exprList[0].nodes[2];
+                    }
+
+                    opTypeEnd = OpTypes.MAX;
                     break;
 
                 case OpTypes.SMALLER :

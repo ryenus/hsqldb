@@ -37,6 +37,7 @@ import org.hsqldb.index.Index;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.navigator.RowIterator;
 import org.hsqldb.persist.PersistentStore;
+import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.DTIType;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.NumberType;
@@ -156,6 +157,20 @@ public class ExpressionLogical extends Expression {
                 throw Error.runtimeError(ErrorCode.U_S0500,
                                          "ExpressionLogical");
         }
+    }
+
+    /**
+     * Creates a modified LIKE comparison
+     */
+    ExpressionLogical(int type, Expression left, Expression right,
+                      Expression like) {
+
+        super(type);
+
+        nodes        = new Expression[TERNARY];
+        nodes[LEFT]  = left;
+        nodes[RIGHT] = right;
+        nodes[2]     = like;
     }
 
     /**
@@ -539,9 +554,9 @@ public class ExpressionLogical extends Expression {
                             == OpTypes.DYNAMIC_PARAM) {
                         nodes[LEFT].resolveTypes(session, this);
 
-                        nodes[RIGHT].nodes[LEFT].dataType =
-                            Type.getDefaultArrayType(
-                                nodes[LEFT].dataType.typeCode);
+                        nodes[RIGHT].nodes[LEFT].dataType = new ArrayType(
+                            nodes[LEFT].dataType,
+                            ArrayType.defaultLargeArrayCardinality);
                     }
                 }
             }
@@ -1698,7 +1713,7 @@ public class ExpressionLogical extends Expression {
             case OpTypes.GREATER_EQUAL :
             case OpTypes.SMALLER :
             case OpTypes.SMALLER_EQUAL :
-                if (exprSubType != 0) {
+                if (exprSubType != 0 && exprSubType != OpTypes.LIKE) {
                     return null;
                 }
 

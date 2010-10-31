@@ -63,6 +63,7 @@ public interface OpTypes {
         MULTIPLY             = 34,
         DIVIDE               = 35,
         CONCAT               = 36,    // concatenation
+        LIKE_ARG             = 37,
         EQUAL                = 41,    // logical - comparison
         GREATER_EQUAL        = 42,
         GREATER              = 43,

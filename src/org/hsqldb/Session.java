@@ -841,6 +841,13 @@ public class Session implements SessionInterface {
         return intConnection;
     }
 
+    void releaseInternalConnection() {
+
+        if (sessionContext.depth == 0) {
+            JDBCDriver.driverInstance.threadConnection.set(null);
+        }
+    }
+
     /**
      * Retreives the external JDBC connection
      */
@@ -850,10 +857,6 @@ public class Session implements SessionInterface {
 
     public void setJDBCConnection(JDBCConnection connection) {
         extConnection = connection;
-    }
-
-    void releaseInternalConnection() {
-        JDBCDriver.driverInstance.threadConnection.set(null);
     }
 
 // boucherb@users 20020810 metadata 1.7.2
