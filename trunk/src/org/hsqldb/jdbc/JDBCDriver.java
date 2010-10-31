@@ -292,7 +292,7 @@ public class JDBCDriver implements Driver {
 
         long timeout = 0;
 
-        if (info.containsKey("loginTimeout")) {
+        if (info != null && info.containsKey("loginTimeout")) {
             String loginTimeoutProperty = info.getProperty("loginTimeout");
 
             if (loginTimeoutProperty != null) {

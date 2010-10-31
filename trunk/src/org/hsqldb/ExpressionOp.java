@@ -35,6 +35,7 @@ import org.hsqldb.error.Error;
 import org.hsqldb.error.ErrorCode;
 import org.hsqldb.lib.HsqlList;
 import org.hsqldb.store.ValuePool;
+import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.DateTimeType;
 import org.hsqldb.types.IntervalType;
 import org.hsqldb.types.Type;
@@ -68,6 +69,7 @@ public class ExpressionOp extends Expression {
 
         switch (opType) {
 
+            case OpTypes.LIKE_ARG :
             case OpTypes.ALTERNATIVE :
             case OpTypes.CASEWHEN :
             case OpTypes.LIMIT :
@@ -177,6 +179,9 @@ public class ExpressionOp extends Expression {
 
                 return dataType.convertToSQLString(valueData);
 
+            case OpTypes.LIKE_ARG :
+                sb.append(' ').append(Tokens.T_LIKE).append(' ');
+                sb.append(left).append(' ').append(right).append(' ');
             case OpTypes.CAST :
                 sb.append(' ').append(Tokens.T_CAST).append('(');
                 sb.append(left).append(' ').append(Tokens.T_AS).append(' ');
@@ -222,7 +227,6 @@ public class ExpressionOp extends Expression {
 
                 sb.append(Tokens.T_TIME).append(' ').append(Tokens.T_ZONE);
                 sb.append(' ');
-
                 sb.append(right);
                 break;
 
@@ -246,28 +250,35 @@ public class ExpressionOp extends Expression {
         switch (opType) {
 
             case OpTypes.VALUE :
-                sb.append("VALUE = ").append(valueData);
+                sb.append(Tokens.T_VALUE).append(' ').append(valueData);
                 sb.append(", TYPE = ").append(dataType.getNameString());
 
                 return sb.toString();
 
+            case OpTypes.LIKE_ARG :
+                sb.append(Tokens.T_LIKE).append(' ').append("ARG ");
+                sb.append(dataType.getTypeDefinition());
+                sb.append(' ');
+                break;
+
             case OpTypes.VALUELIST :
-                sb.append("VALUELIST ");
+                sb.append(Tokens.T_VALUE).append(' ').append("LIST ");
 
                 for (int i = 0; i < nodes.length; i++) {
                     sb.append(nodes[i].describe(session, blanks + 1));
                     sb.append(' ');
                 }
-                break;
+
+                return sb.toString();
 
             case OpTypes.CAST :
-                sb.append("CAST ");
+                sb.append(Tokens.T_CAST).append(' ');
                 sb.append(dataType.getTypeDefinition());
                 sb.append(' ');
                 break;
 
             case OpTypes.CASEWHEN :
-                sb.append("CASEWHEN ");
+                sb.append(Tokens.T_CASEWHEN).append(' ');
                 break;
         }
 
@@ -327,6 +338,19 @@ public class ExpressionOp extends Expression {
             case OpTypes.VALUE :
                 break;
 
+            case OpTypes.LIKE_ARG : {
+                dataType = nodes[LEFT].dataType;
+
+                if (nodes[LEFT].opType == OpTypes.VALUE
+                        && (nodes[RIGHT] == null
+                            || nodes[RIGHT].opType == OpTypes.VALUE)) {
+                    setAsConstantValue(session);
+
+                    break;
+                }
+
+                break;
+            }
             case OpTypes.CAST : {
                 Type type = nodes[LEFT].dataType;
 
@@ -479,6 +503,142 @@ public class ExpressionOp extends Expression {
             case OpTypes.VALUE :
                 return valueData;
 
+            case OpTypes.LIKE_ARG : {
+                boolean hasEscape  = nodes[RIGHT] != null;
+                int     escapeChar = Integer.MAX_VALUE;
+
+                if (dataType.isBinaryType()) {
+                    BinaryData left =
+                        (BinaryData) nodes[LEFT].getValue(session);
+
+                    if (left == null) {
+                        return null;
+                    }
+
+                    if (hasEscape) {
+                        BinaryData right =
+                            (BinaryData) nodes[RIGHT].getValue(session);
+
+                        if (right == null) {
+                            return null;
+                        }
+
+                        if (right.length(session) != 1) {
+                            throw Error.error(ErrorCode.X_2200D);
+                        }
+
+                        escapeChar = right.getBytes()[0];
+                    }
+
+                    byte[]  array       = left.getBytes();
+                    boolean wasEscape   = false;
+                    int     escapeCount = 0;
+                    int     i           = 0;
+
+                    for (; i < array.length; i++) {
+                        if (array[i] == escapeChar) {
+                            if (wasEscape) {
+                                throw Error.error(ErrorCode.X_22025);
+                            }
+
+                            wasEscape = true;
+
+                            escapeCount++;
+
+                            continue;
+                        }
+
+                        if (array[i] == '_' || array[i] == '%') {
+                            if (wasEscape) {
+                                wasEscape = false;
+
+                                continue;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    byte[] newArray     = new byte[i - escapeCount];
+                    int    prefixLength = i;
+
+                    i = 0;
+
+                    for (int j = 0; i < prefixLength; i++) {
+                        if (array[i] != escapeChar) {
+                            newArray[j] = array[i];
+
+                            j++;
+                        }
+                    }
+
+                    return new BinaryData(newArray, false);
+                } else {
+                    String left = (String) nodes[LEFT].getValue(session);
+
+                    if (left == null) {
+                        return null;
+                    }
+
+                    if (hasEscape) {
+                        String right = (String) nodes[RIGHT].getValue(session);
+
+                        if (right == null) {
+                            return null;
+                        }
+
+                        if (right.length() != 1) {
+                            throw Error.error(ErrorCode.X_22019);
+                        }
+
+                        escapeChar = right.getBytes()[0];
+                    }
+
+                    char[]  array       = left.toCharArray();
+                    boolean wasEscape   = false;
+                    int     escapeCount = 0;
+                    int     i           = 0;
+
+                    for (; i < array.length; i++) {
+                        if (array[i] == escapeChar) {
+                            if (wasEscape) {
+                                throw Error.error(ErrorCode.X_22025);
+                            }
+
+                            wasEscape = true;
+
+                            escapeCount++;
+
+                            continue;
+                        }
+
+                        if (array[i] == '_' || array[i] == '%') {
+                            if (wasEscape) {
+                                wasEscape = false;
+
+                                continue;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    char[] newArray     = new char[i - escapeCount];
+                    int    prefixLength = i;
+
+                    i = 0;
+
+                    for (int j = 0; i < prefixLength; i++) {
+                        if (array[i] != escapeChar) {
+                            newArray[j] = array[i];
+
+                            j++;
+                        }
+                    }
+
+                    return new String(newArray);
+                }
+            }
             case OpTypes.SIMPLE_COLUMN : {
                 Object value =
                     session.sessionContext.rangeIterators[rangePosition]

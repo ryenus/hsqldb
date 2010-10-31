@@ -342,12 +342,8 @@ class Like {
         }
     }
 
-    boolean hasWildcards() {
-        return iFirstWildCard != -1;
-    }
-
     boolean isEquivalentToUnknownPredicate() {
-        return isNull;
+        return !isVariable && isNull;
     }
 
     boolean isEquivalentToEqualsPredicate() {
@@ -356,7 +352,7 @@ class Like {
 
     boolean isEquivalentToNotNullPredicate() {
 
-        if (isVariable || isNull || !hasWildcards()) {
+        if (isVariable || isNull || iFirstWildCard == -1) {
             return false;
         }
 
@@ -367,18 +363,6 @@ class Like {
         }
 
         return true;
-    }
-
-    boolean isEquivalentToBetweenPredicate() {
-
-        return !isVariable && iFirstWildCard > 0
-               && iFirstWildCard == wildCardType.length - 1
-               && cLike[iFirstWildCard] == '%';
-    }
-
-    boolean isEquivalentToBetweenPredicateAugmentedWithLike() {
-        return !isVariable && iFirstWildCard > 0
-               && cLike[iFirstWildCard] == '%';
     }
 
     Object getRangeLow() {

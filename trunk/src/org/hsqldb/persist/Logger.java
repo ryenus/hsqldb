@@ -220,9 +220,13 @@ public class Logger {
 
             database.setUniqueName(name);
 
-            boolean checkExists = database.isFilesInJar()
-                                  || database.urlProperties.isPropertyTrue(
-                                      HsqlDatabaseProperties.url_ifexists);
+            boolean checkExists =
+                database
+                    .isFilesInJar() || (database.urlProperties
+                        .isPropertyTrue(HsqlDatabaseProperties
+                            .url_ifexists) || !database.urlProperties
+                                .isPropertyTrue(HsqlDatabaseProperties
+                                    .url_create, true));
 
             if (checkExists) {
                 throw Error.error(ErrorCode.DATABASE_NOT_EXISTS,
@@ -708,8 +712,8 @@ public class Logger {
     /**
      * Used exclusively by PersistentStore objects
      */
-    public synchronized void writeInsertStatement(Session session,
-            Row row, Table table) {
+    public synchronized void writeInsertStatement(Session session, Row row,
+            Table table) {
 
         if (loggingEnabled) {
             log.writeInsertStatement(session, row, table);

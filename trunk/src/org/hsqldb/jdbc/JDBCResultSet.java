@@ -770,8 +770,7 @@ public class JDBCResultSet implements ResultSet {
      */
     public Date getDate(int columnIndex) throws SQLException {
 
-        TimestampData t = (TimestampData) getColumnInType(columnIndex,
-            Type.SQL_DATE);
+        Object t = getColumnInType(columnIndex, Type.SQL_DATE);
 
         if (t == null) {
             return null;
@@ -795,7 +794,7 @@ public class JDBCResultSet implements ResultSet {
      */
     public Time getTime(int columnIndex) throws SQLException {
 
-        TimeData t = (TimeData) getColumnInType(columnIndex, Type.SQL_TIME);
+        Object t = getColumnInType(columnIndex, Type.SQL_TIME);
 
         if (t == null) {
             return null;
@@ -819,8 +818,7 @@ public class JDBCResultSet implements ResultSet {
      */
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
 
-        TimestampData t = (TimestampData) getColumnInType(columnIndex,
-            Type.SQL_TIMESTAMP);
+        Object t = getColumnInType(columnIndex, Type.SQL_TIMESTAMP);
 
         if (t == null) {
             return null;
@@ -6947,7 +6945,7 @@ public class JDBCResultSet implements ResultSet {
     private RowSetNavigator navigator;
 
     /** The internal representation. */
-    private ResultMetaData resultMetaData;
+    protected ResultMetaData resultMetaData;
 
     /** How many columns does this ResultSet have? */
     int columnCount;
@@ -7051,7 +7049,7 @@ public class JDBCResultSet implements ResultSet {
      *   available.
      * @return Object[]
      */
-    private Object[] getCurrent() throws SQLException {
+    protected Object[] getCurrent() throws SQLException {
 
         final RowSetNavigator lnavigator = this.navigator;
 
@@ -7094,7 +7092,7 @@ public class JDBCResultSet implements ResultSet {
      * @param columnIndex to check
      * @throws SQLException when this ResultSet has no such column
      */
-    private void checkColumn(int columnIndex) throws SQLException {
+    protected void checkColumn(int columnIndex) throws SQLException {
 
         if (navigator == null) {
             throw Util.sqlException(ErrorCode.X_24501);
@@ -7112,7 +7110,7 @@ public class JDBCResultSet implements ResultSet {
      * @param o the Object to track
      * @return boolean
      */
-    private boolean trackNull(Object o) {
+    protected boolean trackNull(Object o) {
         return (wasNullValue = (o == null));
     }
 
@@ -7134,7 +7132,7 @@ public class JDBCResultSet implements ResultSet {
      * @throws SQLException when there is no rowData, the column index is
      *    invalid, or the conversion cannot be performed
      */
-    private Object getColumnInType(int columnIndex,
+    protected Object getColumnInType(int columnIndex,
                                    Type targetType) throws SQLException {
 
         Object[] rowData = getCurrent();
@@ -7342,13 +7340,11 @@ public class JDBCResultSet implements ResultSet {
      * @param r the internal result form that the new
      *   <code>JDBCResultSet</code> represents
      * @param metaData the connection properties
-     * @throws SQLException when the supplied Result is of type
-     *   org.hsqldb.Result.ERROR
      */
     public JDBCResultSet(JDBCConnection conn, JDBCStatementBase s, Result r,
-                         ResultMetaData metaData) throws SQLException {
+                         ResultMetaData metaData) {
 
-        this.session    = conn.sessionProxy;
+        this.session    = conn == null ? null : conn.sessionProxy;
         this.statement  = s;
         this.result     = r;
         this.connection = conn;
@@ -7375,14 +7371,128 @@ public class JDBCResultSet implements ResultSet {
     }
 
     public JDBCResultSet(JDBCConnection conn, Result r,
-                         ResultMetaData metaData) throws SQLException {
+                         ResultMetaData metaData) {
 
-        this.session    = conn.sessionProxy;
+        this.session    = conn == null ? null : conn.sessionProxy;
         this.result     = r;
         this.connection = conn;
         rsProperties    = 0;
         navigator       = r.getNavigator();
         resultMetaData  = metaData;
         columnCount     = resultMetaData.getColumnCount();
+    }
+
+    /**
+     * Factory method returns a new <code>JDBCResultSet</code> object for
+     * use with user defined functions that retrun a ResultSet object.
+     * See <code>org.hsqldb.jdbc.JDBCArrayBasic</code> for usage example.
+     * <p>
+     *
+     * @param r the internal result form that the new
+     *   <code>JDBCResultSet</code> represents
+     * @param metaData the connection properties
+     */
+    public static JDBCResultSet newJDBCResultSet(Result r,
+                 ResultMetaData metaData) {
+        return new JDBCResultSetBasic(r, metaData);
+    }
+
+    static class JDBCResultSetBasic extends JDBCResultSet {
+        JDBCResultSetBasic(Result r, ResultMetaData metaData) {
+            super(null, r, metaData);
+        }
+
+        protected Object getColumnInType(int columnIndex,
+                                       Type targetType) throws SQLException {
+            Object[] rowData = getCurrent();
+            Type     sourceType;
+            Object   value;
+
+            checkColumn(columnIndex);
+
+            sourceType = resultMetaData.columnTypes[--columnIndex];
+            value      = rowData[columnIndex];
+
+            if (trackNull(value)) {
+                return null;
+            }
+
+            if (sourceType.typeCode != targetType.typeCode) {
+                Util.throwError(Error.error(ErrorCode.X_42561));
+            }
+
+            return value;
+        }
+
+        public Date getDate(int columnIndex) throws SQLException {
+            return (Date) getColumnInType(columnIndex, Type.SQL_DATE);
+        }
+
+        public Time getTime(int columnIndex) throws SQLException {
+            return (Time) getColumnInType(columnIndex, Type.SQL_DATE);
+        }
+
+        public Timestamp getTimestamp(int columnIndex) throws SQLException {
+            return (Timestamp) getColumnInType(columnIndex, Type.SQL_DATE);
+        }
+
+        public java.io.InputStream getBinaryStream(
+                int columnIndex) throws SQLException {
+            throw Util.notSupported();
+        }
+
+        public java.io.Reader getCharacterStream(
+                int columnIndex) throws SQLException {
+            throw Util.notSupported();
+        }
+
+        public Blob getBlob(int columnIndex) throws SQLException {
+
+            checkColumn(columnIndex);
+
+            Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+            Object o          = getColumnInType(columnIndex, sourceType);
+
+            if (o == null) {
+                return null;
+            }
+
+            if (o instanceof Blob) {
+                return (Blob) o;
+            } else if (o instanceof byte[]) {
+                return new JDBCBlob((byte[]) o);
+            }
+
+            throw Util.sqlException(ErrorCode.X_42561);
+        }
+
+        public Clob getClob(int columnIndex) throws SQLException {
+
+            checkColumn(columnIndex);
+
+            Type   sourceType = resultMetaData.columnTypes[columnIndex - 1];
+            Object o          = getColumnInType(columnIndex, sourceType);
+
+            if (o == null) {
+                return null;
+            }
+
+            if (o instanceof Clob) {
+                return (Clob) o;
+            } else if (o instanceof String) {
+                return new JDBCClob((String) o);
+            }
+
+            throw Util.sqlException(ErrorCode.X_42561);
+        }
+
+        public Time getTime(int columnIndex, Calendar cal) throws SQLException {
+            throw Util.notSupported();
+        }
+
+        public Timestamp getTimestamp(int columnIndex,
+                                      Calendar cal) throws SQLException {
+            throw Util.notSupported();
+        }
     }
 }

@@ -4314,6 +4314,10 @@ public class JDBCPreparedStatement extends JDBCStatementBase implements Prepared
                     Util.throwError(e);
                 }
 
+            case Types.SQL_CHAR :
+                if (outType.precision == 1 && o instanceof Character) {
+                    o = new String(new char[] {((Character) o).charValue()});
+                }
             // fall through
             default :
                 try {

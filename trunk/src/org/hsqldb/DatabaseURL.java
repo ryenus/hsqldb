@@ -364,6 +364,26 @@ public class DatabaseURL {
             }
         }
 
+        pos = database.indexOf("&password=");
+
+        if (pos != -1) {
+            String password = database.substring(pos + "&password=".length());
+
+            props.setProperty("password", password);
+
+            database = database.substring(0, pos);
+        }
+
+        pos = database.indexOf("?user=");
+
+        if (pos != -1) {
+            String user = database.substring(pos + "?user=".length());
+
+            props.setProperty("user", user);
+
+            database = database.substring(0, pos);
+        }
+
         props.setProperty("database", database);
 
         return props;

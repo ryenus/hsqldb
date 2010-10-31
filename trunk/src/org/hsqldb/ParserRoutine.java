@@ -40,6 +40,7 @@ import org.hsqldb.lib.LongDeque;
 import org.hsqldb.lib.OrderedHashSet;
 import org.hsqldb.lib.OrderedIntHashSet;
 import org.hsqldb.result.ResultProperties;
+import org.hsqldb.types.ArrayType;
 import org.hsqldb.types.BinaryData;
 import org.hsqldb.types.Type;
 import org.hsqldb.types.Types;
@@ -529,7 +530,9 @@ public class ParserRoutine extends ParserDML {
             routine.addParameter(column);
         }
 
-        routine.setReturnType(Type.SQL_VARCHAR);
+        routine.setReturnType(
+            new ArrayType(
+                Type.SQL_VARCHAR_DEFAULT, ArrayType.defaultArrayCardinality));
         readRoutineBody(routine);
         routine.resolve(session);
 

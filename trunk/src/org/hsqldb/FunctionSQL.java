@@ -257,6 +257,18 @@ public class FunctionSQL extends Expression {
         return function;
     }
 
+    static FunctionSQL newSQLFunction(Session session, int id,
+                                      Expression[] nodes) {
+
+        FunctionSQL function = new FunctionSQL(id);
+
+        function.nodes = nodes;
+
+        function.resolveTypes(session, null);
+
+        return function;
+    }
+
     protected FunctionSQL() {
 
         super(OpTypes.SQL_FUNCTION);

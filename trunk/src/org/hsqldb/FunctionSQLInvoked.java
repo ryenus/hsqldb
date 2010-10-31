@@ -137,7 +137,7 @@ public class FunctionSQLInvoked extends Expression {
                 data = new Object[nodes.length + extraArg];
             }
 
-            if (!routine.isPSM) {
+            if (!routine.isPSM()) {
                 Object connection = session.getInternalConnection();
 
                 if (extraArg > 0) {
@@ -172,6 +172,8 @@ public class FunctionSQLInvoked extends Expression {
         }
 
         result = routine.invoke(session, data, aggregateData, push);
+
+        session.releaseInternalConnection();
 
         if (result.isError()) {
             throw result.getException();
