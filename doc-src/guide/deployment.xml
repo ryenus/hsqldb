@@ -1548,22 +1548,38 @@
       <para>Authentication is the mechanism that determines if a user can
       access the database at all. Once authentication is performed, the
       authorization mechanism is used to determine which database objects the
-      particular user can access.</para>
+      particular user can access. The default authentication mechanism is
+      password authentication. Each user is created with a password, which is
+      stored in the database and checked each time a new database connection
+      is created.</para>
 
-      <para>The default authentication mechanism is password authentication.
-      HyperSQL allows you to define a function that checks the quality of the
-      passwords defined in the database. The passwords are stored in the
-      database. Each time a user connects, the user's name and password are
-      checked against the stored list of users and passwords. The connection
-      attempt is rejected if there is no match.</para>
+      <indexterm significance="preferred" type="sql">
+        <primary>password complexity</primary>
+      </indexterm>
 
-      <para>You can use an external authentication mechanism instead. HyperSQL
-      allows you to define a function that checks the combination of database
-      unique name, user name, and password for each connection attempt. The
-      function can use external resources to authenticate the user. For
-      example, in a closed network system, a directory server may be used. The
-      password may be ignored if the source of the connection can be verified.
-      </para>
+      <simpara><emphasis role="bold">Password Complexity
+      Check</emphasis></simpara>
+
+      <para>HyperSQL allows you to define a function that checks the quality
+      of the passwords defined in the database. The passwords are stored in
+      the database. Each time a user connects, the user's name and password
+      are checked against the stored list of users and passwords. The
+      connection attempt is rejected if there is no match.</para>
+
+      <indexterm significance="preferred" type="sql">
+        <primary>external authentication</primary>
+      </indexterm>
+
+      <simpara><emphasis role="bold">External
+      Authentication</emphasis></simpara>
+
+      <para>You can use an external authentication mechanism instead of the
+      internal authentication mechanism. HyperSQL allows you to define a
+      function that checks the combination of database unique name, user name,
+      and password for each connection attempt. The function can use external
+      resources to authenticate the user. For example, a directory server may
+      be used. The password may be ignored if the source of the connection can
+      be verified.</para>
     </section>
   </section>
 
@@ -2628,7 +2644,7 @@
       <simpara>The routine body is the body of a function that has a VARCHAR
       parameter and returns a BOOLEAN. This function checks the
       <literal>PASSWORD</literal> submitted as parameter and returns TRUE if
-      it conforms to complexity checks, or FALSE, if it does not. </simpara>
+      it conforms to complexity checks, or FALSE, if it does not.</simpara>
 
       <simpara>The <literal>&lt;routine body&gt;</literal> can be an SQL block
       or an external Java function reference. This is covered in the <link
@@ -2686,13 +2702,33 @@ public static boolean accessMethod(String param) {
       name of the database, the second parameter the user name, and the third
       parameter the password.</simpara>
 
+      <simpara>External authentication can be used in two different patterns.
+      In the first pattern, user names must be stored in the database. In the
+      second pattern, user names shouldn't be stored in the database and any
+      names that are stored in the database are ignored.</simpara>
+
+      <simpara>In both patterns, the username and password are checked by the
+      authentication function. If the function throws a runtime exception then
+      authentication fails.</simpara>
+
+      <simpara>In the first pattern, the function always returns null if
+      authentication is successful.</simpara>
+
+      <simpara>In the second pattern, the function returns a list of role
+      names that have been granted to the user. These roles must match the
+      ROLE objects that have been defined in the database.</simpara>
+
+      <simpara>The Java function should return an instance of
+      org.hsqldb.jdbc.JDBCArrayBasic constructed with a String[] argument that
+      contains the role names.</simpara>
+
       <simpara>Only a user with the DBA role can execute this
       statement.</simpara>
 
       <programlisting>SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME 'CLASSPATH:org.anorg.access.AccessClass.accessExernalMethod'
 
 // the Java method is defined like this
-public static boolean accessExternalMethod(String database, String user, String password) {
+public static java.sql.Array accessExternalMethod(String database, String user, String password) {
     if (extanalCheck(database, user, password) {
         return null;
     }
