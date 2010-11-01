@@ -1,3 +1,11 @@
+31 Oct 2010 - SVN 3836 - 2.0.1 RC2
+-- added support for CREATE TABLE ... IF NOT EXISTS ...
+-- added support for ?user=xxxx&password=yyyy connection in URL string
+-- improved query optimisation for LIKE
+-- added support for password complexity check functions
+-- added support for external user authentication
+-- added UUID functions
+-- bug fixes
 19 Oct 2010 - SVN 3824 - 2.0.1 RC1
 -- added support for compressed scripts
 16 Oct 2010 - SVN 3818
