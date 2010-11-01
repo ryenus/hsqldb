@@ -1,0 +1,79 @@
+19 Oct 2010 - SVN 3824 - 2.0.1 RC1
+-- added support for compressed scripts
+16 Oct 2010 - SVN 3818
+-- all reported bugs and issues have been fixed
+14 Oct 2010 - SVN 3814
+-- added support for recursive SQL functions and local table variables
+04 Oct 2010 - SVN 3808
+-- added support for translation of Oracle types VARCHAR2, NUMBER, RAW, etc. wih SET DATABASE SQL SYNTAX ORA TRUE
+-- added support for more procedural statements in SQL triggers
+-- added support for variables in database URL's
+24 Sept 2010 - SVN 3794
+-- fixed issue with new sql compatibility properties applied to older databases
+23 Sept 2010 - SVN 3792
+-- added support for Oracle syntax elements including DUAL, ROWNUM, NEXTVAL, CURRVAL with sql.syntax_ora=true property
+-- fixed bug with IN predicates in arguments of aggregate functions
+-- fixed bug with table functions used in subqueries
+10 Sept 2010  - SVN 3782
+-- added support for clustered indexes
+-- added enhancement for column visibility in nested joins
+-- addedd support for datetime ROUND and TRUNC functions
+4 Sept 2010  - SVN 3775
+-- additional connection propertie
+-- added support for FOR loops in routines
+11 Aug 2010  - SVN 3750
+-- extended getGeneratedKeys to UPDATE and MERGE operations
+-- extended ALTER SESSION statement
+-- added SEQUENCE_ARRAY and SESSION_ID function
+28 July 2010 - SVN 3725
+-- improved changing type of columns
+-- added support for adding GENERATED ... AS IDENTITY to an existing column
+23 July 2010 - SVN 3721
+-- added FILTER clause support to aggregate functions
+-- added functions ACTION_ID, TRANSACTION_ID, TRANSACTION_SIZE, UNIX_TIMESTAMP
+22 July 2010 - SVN 3716
+-- improved default reporting of WITH TIME ZONE and INTERVAL types in metadata and system tables
+-- improved getGeneratedKeys with user defined column sets
+-- fixed bug #3032488 - multi-column IN condition without a full index on columns did not work
+19 July 2010 - SVN 3709
+-- added support for procedures returning result sets
+-- additional relaxation of BIT used as BOOLEAN
+13 July 2010 - SVN 3693
+-- added aggregate functions ARRAY_AGG and GROUP_CONCAT
+-- added TO_DATE function
+09 July 2010 - SVN 3688
+-- added function LOB_ID
+-- added BLOB, CLOB, VARBINARY support to Java functions and procedures
+-- fixed bug with OCTET_LENGTH function
+07 July 2010 - SVN 3686
+-- added property sql.longvar_is_lob
+-- added missing CONCAT function
+-- added ARRAY support to Java functions and procedures
+-- added query optimisation for DISTINCT and GROUP BY on indexed columns
+-- speed improvement for some large results
+-- fixed bug related to persistence of lobs after row updates that change the lob
+-- fixed bug #3023253 - multiple count(*) with duplicate tables in outer join
+-- fixed bug #3022106 - mix of IS NULL and other conditions in outer join
+26 June 2010 - SVN 3674
+-- added property sql.enforce_types and related SQL statement
+-- added ALTER SESSION statement
+-- fixed bug #3021175 with setFetchSize()
+-- relaxtion of type comparison and null types - controlled by sql.enforce_type
+22 June 2010 - SVN 3667
+-- changed names of three system functions ISDATABASEREADONLY() to IS_DATABASE_READONLY(), etc.
+-- fixed bug with Clob.getInputStream()
+-- improvement to TO_CHAR function
+-- some relaxation of DECIMAL dynamic params
+16 June 2010 - SVN 3658
+- fixed bug #3016375 Server remote open with no initial database
+- fixed bugs #3016397 - multiple UNION CORRESPONDING did not work
+- fixed bugs #3016481 - TABLE T did not work with views
+- minor improvement to MVCC transactions
+13 June 2010 - SVN 3654
+- fixed issue with third parameter of LOCATE function
+- added TRUNC and changed return type of TRUNCATE function to reduce decimal scale
+- added synchronized blocks to allow mass creation of mem: databases
+- added support for jdbc:default:connection for Java functions
+07 June 2010 - SVN 3646
+- fixed bug - SET FILES LOB SCALE did not change the store without a shutdown
+- fixed bug #3012585 - multi-column FOREIGN KEY with mismatched order of PK columns did not work correctly
