@@ -1506,7 +1506,7 @@
         <para>You can define a system property to allow access to files on the
         file system outside the database directory and its children. See the
         <link endterm="texttables-title"
-        xlink:href="#taxttables-chapt"></link> chapter.</para>
+        xlink:href="#texttables-chapt"></link> chapter.</para>
       </listitem>
 
       <listitem>
