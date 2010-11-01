@@ -629,7 +629,7 @@ public class Tokens {
     // other tokens
     static final String        T_ALIAS                = "ALIAS";
     static final String        T_AGGREGATE            = "AGGREGATE";
-    static final String        T_AUTHENTICATION       = "AUTHENTICATION";
+    public static final String T_AUTHENTICATION       = "AUTHENTICATION";
     static final String        T_AUTOCOMMIT           = "AUTOCOMMIT";
     public static final String T_BACKUP               = "BACKUP";
     static final String        T_BINARY_DOUBLE        = "BINARY_DOUBLE";
@@ -829,6 +829,7 @@ public class Tokens {
     static final String        T_TRUNC            = "TRUNC";
     static final String        T_TODAY            = "TODAY";
     static final String        T_UCASE            = "UCASE";
+    static final String        T_UUID             = "UUID";
     static final String        T_UNIX_TIMESTAMP   = "UNIX_TIMESTAMP";
 
     //
@@ -1556,8 +1557,9 @@ public class Tokens {
     static final int        TRUNC                      = 722;
     static final int        UCASE                      = 723;
     static final int        UNIX_TIMESTAMP             = 724;
-    static final int        WEEK                       = 725;
-    public static final int WEEK_OF_YEAR               = 726;
+    static final int        UUID                       = 725;
+    static final int        WEEK                       = 726;
+    public static final int WEEK_OF_YEAR               = 727;
 
     //
     static final int        ASTERISK         = 771;
@@ -2008,6 +2010,7 @@ public class Tokens {
         commandSet.put(T_CASCADE, CASCADE);
         commandSet.put(T_CATALOG, CATALOG);
         commandSet.put(T_CHARACTERISTICS, CHARACTERISTICS);
+        commandSet.put(T_CHARACTERS, CHARACTERS);
         commandSet.put(T_CHECKPOINT, CHECKPOINT);
         commandSet.put(T_CRYPT_KEY, CRYPT_KEY);
         commandSet.put(T_CLASS, CLASS);
@@ -2089,6 +2092,7 @@ public class Tokens {
         commandSet.put(T_NOW, NOW);
         commandSet.put(T_NULLS, NULLS);
         commandSet.put(T_NUMBER, NUMBER);
+        commandSet.put(T_OCTETS, OCTETS);
         commandSet.put(T_OFF, OFF);
         commandSet.put(T_OPTION, OPTION);
         commandSet.put(T_ORDINALITY, ORDINALITY);
@@ -2260,6 +2264,7 @@ public class Tokens {
         commandSet.put(T_UCASE, UCASE);
         commandSet.put(T_TRANSACTION_ID, TRANSACTION_ID);
         commandSet.put(T_TRANSACTION_SIZE, TRANSACTION_SIZE);
+        commandSet.put(T_UUID, UUID);
         commandSet.put(T_UNIX_TIMESTAMP, UNIX_TIMESTAMP);
         commandSet.put(T_WEEK, WEEK);
         commandSet.put(T_WEEK_OF_YEAR, WEEK_OF_YEAR);
