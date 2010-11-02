@@ -316,7 +316,7 @@ public class Server implements HsqlSocketRequestHandler {
         }
     }
 
-     /**
+    /**
      * Returns thread object for "HSQLDB Server" thread
      */
     public Thread getServerThread() {
@@ -352,10 +352,10 @@ public class Server implements HsqlSocketRequestHandler {
      *
      * @param running if true, ensure the server is running, else ensure the
      *      server is not running
-     * @throws RuntimeException if the supplied value does not match the
+     * @throws HsqlException if the supplied value does not match the
      *      current running status
      */
-    public void checkRunning(boolean running) throws RuntimeException {
+    public void checkRunning(boolean running) {
 
         int     state;
         boolean error;
@@ -371,7 +371,7 @@ public class Server implements HsqlSocketRequestHandler {
             String msg = "server is " + (running ? "not "
                                                  : "") + "running";
 
-            throw new RuntimeException(msg);
+            throw Error.error(ErrorCode.GENERAL_ERROR, msg);
         }
 
         printWithThread("checkRunning(" + running + ") exited");
@@ -853,7 +853,7 @@ public class Server implements HsqlSocketRequestHandler {
      *
      * @param path the path of the desired properties file, without the
      *      '.properties' file extension
-     * @throws RuntimeException if this server is running
+     * @throws HsqlException if this server is running
      * @return true if the indicated file was read sucessfully, else false
      *
      * @jmx.managed-operation
@@ -869,7 +869,7 @@ public class Server implements HsqlSocketRequestHandler {
     public boolean putPropertiesFromFile(String path) {
 
         if (getState() != ServerConstants.SERVER_STATE_SHUTDOWN) {
-            throw new RuntimeException();
+            throw Error.error(ErrorCode.GENERAL_ERROR, "server properties");
         }
 
         path = FileUtil.getFileUtil().canonicalOrAbsolutePath(path);
@@ -886,7 +886,9 @@ public class Server implements HsqlSocketRequestHandler {
         try {
             setProperties(p);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to set properties: " + e);
+            throw Error.error(e, ErrorCode.GENERAL_ERROR,
+                              ErrorCode.M_Message_Pair,
+                              new String[]{ "Failed to set properties" });
         }
 
         return true;
@@ -899,7 +901,7 @@ public class Server implements HsqlSocketRequestHandler {
      *
      * @param s semicolon-delimited key=value pair string,
      *      e.g. silent=false;port=8080;...
-     * @throws RuntimeException if this server is running
+     * @throws HsqlException if this server is running
      *
      * @jmx.managed-operation
      *   impact="ACTION"
@@ -914,7 +916,7 @@ public class Server implements HsqlSocketRequestHandler {
     public void putPropertiesFromString(String s) {
 
         if (getState() != ServerConstants.SERVER_STATE_SHUTDOWN) {
-            throw new RuntimeException();
+            throw Error.error(ErrorCode.GENERAL_ERROR);
         }
 
         if (StringUtil.isEmpty(s)) {
@@ -929,7 +931,9 @@ public class Server implements HsqlSocketRequestHandler {
         try {
             setProperties(p);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to set properties: " + e);
+            throw Error.error(e, ErrorCode.GENERAL_ERROR,
+                              ErrorCode.M_Message_Pair,
+                              new String[]{ "Failed to set properties" });
         }
     }
 
@@ -943,11 +947,11 @@ public class Server implements HsqlSocketRequestHandler {
      *    be retrieved by InetAddres.getByName(), or a null or empty string
      *    or "0.0.0.0" to signify that the server socket should be constructed
      *    using the signature that does not specify the InetAddress.
-     * @throws RuntimeException if this server is running
+     * @throws HsqlException if this server is running
      *
      * @jmx.managed-attribute
      */
-    public void setAddress(String address) throws RuntimeException {
+    public void setAddress(String address) {
 
         checkRunning(false);
 
@@ -964,7 +968,7 @@ public class Server implements HsqlSocketRequestHandler {
      *
      * @param name external name (url alias) of the i'th HSQLDB database
      *      instance this server is to host.
-     * @throws RuntimeException if this server is running
+     * @throws HsqlException if this server is running
      *
      * @jmx.managed-operation
      *      impact="ACTION"
@@ -982,8 +986,7 @@ public class Server implements HsqlSocketRequestHandler {
      *      position="1"
      *      description="url alias component for the hosted Database"
      */
-    public void setDatabaseName(int index,
-                                String name) throws RuntimeException {
+    public void setDatabaseName(int index, String name) {
 
         checkRunning(false);
         printWithThread("setDatabaseName(" + index + "," + name + ")");
@@ -1015,8 +1018,7 @@ public class Server implements HsqlSocketRequestHandler {
      *      position="1"
      *      description="database uri path of the hosted Database"
      */
-    public void setDatabasePath(int index,
-                                String path) throws RuntimeException {
+    public void setDatabasePath(int index, String path) {
 
         checkRunning(false);
         printWithThread("setDatabasePath(" + index + "," + path + ")");
@@ -1051,7 +1053,7 @@ public class Server implements HsqlSocketRequestHandler {
      *
      * @jmx.managed-attribute
      */
-    public void setPort(int port) throws RuntimeException {
+    public void setPort(int port) {
 
         checkRunning(false);
         printWithThread("setPort(" + port + ")");
@@ -1128,7 +1130,7 @@ public class Server implements HsqlSocketRequestHandler {
      * Sets whether to use secure sockets
      *
      * @param tls true for secure sockets, else false
-     * @throws RuntimeException if this server is running
+     * @throws HsqlException if this server is running
      *
      * @jmx.managed-attribute
      */
@@ -1707,8 +1709,8 @@ public class Server implements HsqlSocketRequestHandler {
 
         if (dbIndex == -1) {
             if (filepath == null) {
-                RuntimeException e =
-                    new RuntimeException("database alias does not exist");
+                HsqlException e = Error.error(ErrorCode.GENERAL_ERROR,
+                                              "database alias does not exist");
 
                 printError("database alias=" + alias + " does not exist");
                 setServerError(e);
@@ -1728,8 +1730,8 @@ public class Server implements HsqlSocketRequestHandler {
     final int openDatabase(String alias, String datapath) {
 
         if (!isRemoteOpen) {
-            RuntimeException e =
-                new RuntimeException("remote open not allowed");
+            HsqlException e = Error.error(ErrorCode.GENERAL_ERROR,
+                                          "remote open not allowed");
 
             printError("Remote database open not allowed");
             setServerError(e);
@@ -1743,8 +1745,9 @@ public class Server implements HsqlSocketRequestHandler {
             i = closeOldestDatabase();
 
             if (i < -1) {
-                RuntimeException e =
-                    new RuntimeException("limit of open databases reached");
+                HsqlException e =
+                    Error.error(ErrorCode.GENERAL_ERROR,
+                                "limit of open databases reached");
 
                 printError("limit of open databases reached");
                 setServerError(e);
@@ -1756,7 +1759,8 @@ public class Server implements HsqlSocketRequestHandler {
         HsqlProperties newprops = DatabaseURL.parseURL(datapath, false, false);
 
         if (newprops == null) {
-            RuntimeException e = new RuntimeException("invalid database path");
+            HsqlException e = Error.error(ErrorCode.GENERAL_ERROR,
+                                          "invalid database path");
 
             printError("invalid database path");
             setServerError(e);

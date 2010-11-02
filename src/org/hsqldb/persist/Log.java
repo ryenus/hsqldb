@@ -411,8 +411,10 @@ public class Log {
             return false;
         }
 
-        properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED_NEW);
         closeLog();
+        properties.setProperty(HsqlDatabaseProperties.hsqldb_script_format,
+                               database.logger.propScriptFormat);
+        properties.setDBModified(HsqlDatabaseProperties.FILES_MODIFIED_NEW);
         deleteLog();
         renameNewScript();
         renameNewBackup();
