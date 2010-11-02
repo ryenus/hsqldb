@@ -243,7 +243,7 @@ public final class UserManager {
         });
 
         if (result.isError()) {
-            throw Error.error(ErrorCode.X_28501, name);
+            throw Error.error(ErrorCode.X_28501, result.getMainString());
         }
 
         String[] roles = (String[]) result.getValueObject();

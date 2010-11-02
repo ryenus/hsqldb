@@ -489,11 +489,9 @@ public class JDBCArrayBasic implements Array {
     Type             elementType;
     Object[]         data;
 
-    JDBCArrayBasic(Object[] data, Type type, Type arrayType) {
-
+    public JDBCArrayBasic(Object[] data, Type type) {
         this.data        = data;
         this.elementType = type;
-        this.arrayType   = arrayType;
     }
 
     Object[] getArrayInternal() {
