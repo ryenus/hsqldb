@@ -483,6 +483,11 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
 
             i++;
 
+            if (i == arg.length) {
+                throw new IllegalArgumentException("No value for argument "
+                                                   + lowerArg);
+            }
+
             if (lowerArg.equals("-driver")) {
                 defDriver   = arg[i];
                 autoConnect = true;
@@ -2096,15 +2101,21 @@ implements ActionListener, WindowListener, KeyListener, MouseListener {
         //
         public String getCommandString() {
 
+            int treeDepth = treePath.getPathCount();
+
             // if we are at TABLE depth, set tablePath and table for use later
-            if (treePath.getPathCount() == DEPTH_TABLE) {
+            if (treeDepth == DEPTH_URL) {
+                return "";
+            }
+
+            if (treeDepth == DEPTH_TABLE) {
                 tablePath = treePath;
                 table = treePath.getPathComponent(DEPTH_TABLE - 1).toString();
             }
 
             // if we are at TABLE depth, set columnPath, column, tablePath and
             // table for use later
-            if (treePath.getPathCount() == DEPTH_COLUMN) {
+            if (treeDepth == DEPTH_COLUMN) {
                 tablePath  = treePath.getParentPath();
                 table = treePath.getPathComponent(DEPTH_TABLE - 1).toString();
                 columnPath = treePath;

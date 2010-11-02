@@ -105,7 +105,7 @@ public final class UserManager {
      *        (This will catch attempts to create Reserved grantee names).
      *  </OL>
      */
-    public User createUser(Session session, HsqlName name, String password) {
+    public User createUser(HsqlName name, String password) {
 
         // This will throw an appropriate exception if grantee already exists,
         // regardless of whether the name is in any User, Role, etc. list.
@@ -148,19 +148,6 @@ public final class UserManager {
         }
 
         return true;
-    }
-
-    public String[] getExernalAuthentication(Session session, String user) {
-
-        if (session == null || extAuthenticationFunction == null) {
-            return null;
-        }
-
-        Result result = extAuthenticationFunction.invoke(session,
-            new Object[]{ user }, null, false);
-        String[] roles = (String[]) result.getValueObject();
-
-        return roles;
     }
 
     /**
@@ -216,7 +203,7 @@ public final class UserManager {
             granteeManager.database.nameManager.newHsqlName(username,
                 isQuoted, SchemaObject.GRANTEE);
 
-        createUser(null, name, password);
+        createUser(name, password);
         granteeManager.grant(name.name, SqlInvariants.DBA_ADMIN_ROLE_NAME,
                              granteeManager.getDBARole());
     }
@@ -243,19 +230,49 @@ public final class UserManager {
             return user;
         }
 
+        /*
+         * Authentication returns String[]. When empty, use the existing
+         * user object only, with existing privileges.
+         * When not empty, create a user if necessary or remove all
+         * existing privileges from an existing user. Then assign the list
+         * of roles to the user.
+         */
         Result result =
             extAuthenticationFunction.invokeJavaMethodDirect(new String[] {
-            granteeManager.database.getUniqueName(), name
+            granteeManager.database.getUniqueName(), name, password
         });
 
         if (result.isError()) {
             throw Error.error(ErrorCode.X_28501, name);
         }
 
-        User user = (User) userList.get(name);
+        String[] roles = (String[]) result.getValueObject();
+        User     user  = (User) userList.get(name);
+
+        if (roles.length == 0) {
+            if (user == null) {
+                throw Error.error(ErrorCode.X_28501, name);
+            }
+
+            return user;
+        }
 
         if (user == null) {
-            throw Error.error(ErrorCode.X_28501, name);
+            HsqlName hsqlName =
+                granteeManager.database.nameManager.newHsqlName(name, true,
+                    SchemaObject.GRANTEE);
+
+            createUser(hsqlName, "");
+        }
+
+        // this clears all existing privileges of the user
+        user.clearPrivileges();
+
+        // assigns the roles to the user
+        for (int i = 0; i < roles.length; i++) {
+            Grantee role = granteeManager.getRole(roles[i]);
+
+            user.grant(role);
         }
 
         return user;
