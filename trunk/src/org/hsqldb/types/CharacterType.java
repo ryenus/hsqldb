@@ -1055,8 +1055,7 @@ public class CharacterType extends Type {
                 }
 
                 offset = index + array[i].length();
-
-                match = true;
+                match  = true;
             }
         }
 
@@ -1116,10 +1115,14 @@ public class CharacterType extends Type {
             case Types.SQL_VARCHAR :
             case Types.SQL_CHAR :
             case Types.VARCHAR_IGNORECASE :
-                return new CharacterType(type, (int) precision);
+                return new CharacterType(collation, type, (int) precision);
 
             case Types.SQL_CLOB :
-                return new ClobType(precision);
+                CharacterType typeObject = new ClobType(precision);
+
+                typeObject.collation = collation;
+
+                return typeObject;
 
             default :
                 throw Error.runtimeError(ErrorCode.U_S0500, "CharacterType");

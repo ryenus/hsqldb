@@ -488,8 +488,6 @@ public class ParserDQL extends ParserBase {
                 collation = Collation.getCollation(token.tokenString);
 
                 read();
-
-                throw unsupportedFeature();
             }
         }
 
