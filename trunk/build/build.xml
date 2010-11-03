@@ -665,7 +665,6 @@ examples:
          <exclude name="org/hsqldb/test/*.class"/>
          <exclude name="org/hsqldb/sample/*.class"/>
          <exclude name="org/hsqldb/cmdline/**"/>
-         <exclude name="org/hsqldb/auth/**"/>
       </jar>
     </target>
 
