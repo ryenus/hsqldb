@@ -965,8 +965,12 @@ public abstract class Type implements SchemaObject, Cloneable {
             case Types.SQL_VARCHAR :
             case Types.VARCHAR_IGNORECASE :
             case Types.SQL_CLOB :
-                return CharacterType.getCharacterType(type, precision);
-
+                if (collation == null) {
+                    return CharacterType.getCharacterType(type, precision);
+                } else {
+                    return CharacterType.getCharacterType(type, precision,
+                                                          collation);
+                }
             case Types.SQL_INTEGER :
                 return SQL_INTEGER;
 
