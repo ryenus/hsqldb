@@ -22,7 +22,7 @@
   -->
 
    <property file='build/build.properties'/>
-   <property name="hsqldb.version" value="2.0.1-rc2"/>
+   <property name="hsqldb.version" value="2.0.1-rc3SNAPSHOT"/>
 
    <tstamp>
        <format property="_tmpstamp" pattern="yyyy/MM/dd-HH:mm:ss"
@@ -306,7 +306,7 @@ examples:
     </target>
 
     <target name="classes" depends="lib,-javajsse"
-            description="compiles JVM-independent non-lib/util/cmdline classes">
+      description="compiles JVM-independent non-lib/util/cmdline/auth classes">
       <available property='_servlet_available' classpath='${servletapi.lib}'
                  classname='javax.servlet.ServletException'/>
       <fail unless='_servlet_available'
@@ -437,8 +437,8 @@ examples:
       </javac>
    </target>
 
-    <target name="util" depends="lib, -cmdline"
-            description="compiles the util and cmdline folders">
+    <target name="util" depends="lib, -cmdline, -auth"
+            description="compiles the util, cmdline, and auth folders">
       <javac srcdir="${swsrc}"
              destdir="classes"
              debug="${build.debug}"
@@ -465,6 +465,17 @@ examples:
              optimize="${build.optimize}"
       >
          <include name="org/hsqldb/cmdline/**"/>
+      </javac>
+    </target>
+
+    <target name="-auth" if="ant.java.iscjava15"
+            description="compiles the auth classes">
+      <javac srcdir="${swsrc}"
+             destdir="classes"
+             debug="${build.debug}"
+             optimize="${build.optimize}"
+      >
+         <include name="org/hsqldb/auth/**"/>
       </javac>
     </target>
 
@@ -563,6 +574,7 @@ examples:
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/**"/>
          <exclude name="org/hsqldb/cmdline/**"/>
+         <exclude name="org/hsqldb/auth/**"/>
          <exclude name="org/hsqldb/test/**"/>
          <exclude name="org/hsqldb/sample/**"/>
       </jar>
@@ -592,6 +604,7 @@ examples:
          <exclude name="org/hsqldb/jmx/**"/>
          <exclude name="org/hsqldb/util/**"/>
          <exclude name="org/hsqldb/cmdline/**"/>
+         <exclude name="org/hsqldb/auth/**"/>
          <exclude name="org/hsqldb/test/**"/>
          <exclude name="org/hsqldb/sample/**"/>
          <exclude name="**/*.properties"/>
@@ -652,6 +665,7 @@ examples:
          <exclude name="org/hsqldb/test/*.class"/>
          <exclude name="org/hsqldb/sample/*.class"/>
          <exclude name="org/hsqldb/cmdline/**"/>
+         <exclude name="org/hsqldb/auth/**"/>
       </jar>
     </target>
 
@@ -861,7 +875,9 @@ examples:
                         src/org/hsqldb/test/TestScriptRunner.java,
                         src/org/hsqldb/cmdline/SqlFile.java,
                         src/org/hsqldb/util/MainInvoker.java,
-                        src/org/hsqldb/cmdline/SqlTool.java"
+                        src/org/hsqldb/cmdline/SqlTool.java,
+                        src/org/hsqldb/auth/AuthBeanMultiplexer.java,
+                        src/org/hsqldb/auth/AuthTriggerBean.java"
            destdir="doc/apidocs"
            stylesheetfile="doc-src/apidocs/javadoc.css"
            docencoding="UTF-8"
