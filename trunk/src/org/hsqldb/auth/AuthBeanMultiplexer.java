@@ -12,11 +12,6 @@ import org.hsqldb.types.Type;
  * This class provides a method which can be used directly as a HyperSQL static
  * trigger method.
  * Manages a set of AuthTriggerBean implementations
- * <P>
- * Note that ANY bean in the collection approving access will result in access
- * being permitted, whereas if any bean denies access, the following beans in
- * the collection will be tried.
- * </P>
  */
 public class AuthBeanMultiplexer {
     /**
@@ -115,21 +110,41 @@ public class AuthBeanMultiplexer {
 
     /**
      * HyperSQL Trigger Method.
+     * <P>
+     * Registered AuthTriggerBeans matching the specified database and password
+     * will be tried in order.
      * <OL>
-     *   <LI>The return value from the first AuthTriggerBean registered for the
-     *       specified dbName which does not throw will be returned.
+     *   <li>If the AuthTriggerBean being tried throws a non-runtime Exception,
+     *       then that RuntimeException is passed through (re-thrown), resulting
+     *       in a SQLException for the authenticating application.
+     *   <li>If the AuthTriggerBean being tried doesn't throw anything, then
+     *       the return value is passed through (returned) and HyperSQL will
+     *       allow access and set roles according to HyperSQL's authentication
+     *       trigger contract.
+     *   <LI>If the AuthTriggerBean being tried throws a RuntimeException, then
+     *       the next AuthTriggerBean in turn will be tried.
+     *       If all matching AuthTriggerBeans throw RuntimeExceptions, then the
+     *       first RuntimeException that was thrown will be passed through
+     *       (re-thrown), resulting in a SQLException for the authenticating
+     *       application.
      *   <LI>If there are no AuthTriggerBeans registered for the specified
-     *       dbName, then this method will throw an IllegalArgumentException.
-     *   <LI>If all AuthTriggerBeans registered for the specified dbName throw,
-     *       then this method will rethrow (pass through) the first
-     *       RuntimeException thrown (if any), or the first Exception thrown.
+     *       dbName, then this method will throw an IllegalArgumentException,
+     *       resulting in a SQLException for the authenticating application.
      * </OL>
      *
-     * @See HyperSQL User Guide, section X.  TODO:  Add section name.
+     * @See HyperSQL User Guide, System Management and Deployment Issues
+     *         chapter, Authentication Settings subsection.
      * @throws IllegalArgumentException if no AuthTriggerBean has been set for
      *         specified dbName.
+     * @throws RuntimeException if all matching AuthTriggerBeans threw
+     *         RuntimeExceptions.  (This indicates that no matching
+     *         AuthTriggerBean functioned properly, not that authentication was
+     *         purposefully denied by any AuthTriggerBean).
+     * @throws Exception (non-runtime).  A matching AuthTriggerBean threw this
+     *         Exception.
+     * @return Null or java.sql.Array to indicate successful authentication
+     *         according to the contract for HyperSQL authentication triggers.
      */
-    // TODO:  Update return type according to Fred's upcoming work
     public static java.sql.Array authenticate(
             String database, String user, String password)
             throws Exception {
@@ -140,23 +155,20 @@ public class AuthBeanMultiplexer {
                     + "' has not been set up with "
                     + AuthBeanMultiplexer.class.getName());
         }
-        Exception firstCaughtException = null;
+        Exception firstRTE = null;
         String[] beanRet;
         for (AuthTriggerBean nextBean : beanList) try {
             beanRet = nextBean.authenticate(database, user, password);
             return (beanRet == null)
                     ? null : new JDBCArrayBasic(beanRet, Type.SQL_VARCHAR);
         } catch (RuntimeException re) {
-            if (firstCaughtException == null
-                    || !(firstCaughtException instanceof RuntimeException)) {
-                firstCaughtException = re;
+            if (firstRTE == null) {
+                firstRTE = re;
             }
             // TODO:  Write an application log entry and proceed
         } catch (Exception e) {
-            if (firstCaughtException == null) {
-                firstCaughtException = e;
-            }
+            throw e;
         }
-        throw firstCaughtException;
+        throw firstRTE;
     }
 }
