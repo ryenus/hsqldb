@@ -118,13 +118,17 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
     }
 
     public void testPrecedences() {
+        /* This should be more granular, using many different test methods,
+         * but I want to spend as little time here as possible.  -- blaine
+         */
         AuthBeanMultiplexer plexer = AuthBeanMultiplexer.getSingleton();
+        Array res = null;
 
         try {
             plexer.authenticate("dbNameKey", "x", "y");
             fail("Use of uninitialized AuthBeanMultiplexer did not throw");
         } catch (RuntimeException re) {
-            // Intentionally empty
+            // Intentionally empty.  Expect this.
         } catch (Exception e) {
             fail("Use of uninitialized AuthBeanMultiplexer threw a "
                     + e.getClass().getName() + " instead of a RTE");
@@ -134,8 +138,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
                 Arrays.asList(new AuthTriggerBean[] {
                         twoRolePermittingAuthTriggerBean,
                         purposefullyBrokenAuthTriggerBean,
-                denyingAuthTriggerBean})));
-        Array res = null;
+                        denyingAuthTriggerBean})));
         try {
             res = plexer.authenticate("dbNameKey", "u", "p");
         } catch (Exception e) {
@@ -145,7 +148,86 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
             fail("2-role success test return success with roles: "
                     + toStrings(res));
         }
+        if (!isWrapperFor(res, twoRoles)) {
+            fail("2-role success test return success with roles: "
+                    + toStrings(res));
+        }
+        try {
+            res = plexer.authenticate("missingDbName", "u", "p");
+            fail("Authenticating against non-configured DB name did not throw");
+        } catch (IllegalArgumentException iae) {
+            // Intentionally empty.  Expect this
+        } catch (Exception e) {
+            fail("Authenticating against non-configured DB name did not throw "
+                    + "IllegalArgumentException, but "
+                    + e.getClass().getName());
+        }
 
+        try {
+            plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
+                    Arrays.asList(new AuthTriggerBean[] {
+                            purposefullyBrokenAuthTriggerBean,
+                            twoRolePermittingAuthTriggerBean,
+                            denyingAuthTriggerBean})));
+            fail("Attempt to set an AuthTriggerBean without first clearing did "
+                    + "not throw");
+        } catch (IllegalStateException ise) {
+            // Purposefully empty.  Expect this.
+        } catch (Exception e) {
+            fail("Attempt to set an AuthTriggerBean without first clearing did "
+                    + "not throw an IllegalStateException, but a "
+                    + e.getClass().getName());
+        }
+
+        plexer.clear();
+        plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
+                Arrays.asList(new AuthTriggerBean[] {
+                        purposefullyBrokenAuthTriggerBean,
+                        purposefullyBrokenAuthTriggerBean,
+                        twoRolePermittingAuthTriggerBean,
+                        denyingAuthTriggerBean})));
+        try {
+            res = plexer.authenticate("dbNameKey", "u", "p");
+        } catch (Exception e) {
+            fail("2-role success AFTER RTE test threw: " + e);
+        }
+        if (!isWrapperFor(res, twoRoles)) {
+            fail("2-role success AFTER RTE test return success with roles: "
+                    + toStrings(res));
+        }
+
+        plexer.clear();
+        plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
+                Arrays.asList(new AuthTriggerBean[] {
+                        purposefullyBrokenAuthTriggerBean,
+                        purposefullyBrokenAuthTriggerBean,
+                        denyingAuthTriggerBean,
+                        twoRolePermittingAuthTriggerBean,
+                })));
+        try {
+            plexer.authenticate("dbNameKey", "u", "p");
+            fail("Denial test did not throw");
+        } catch (RuntimeException e) {
+            fail("Denial test threw: " + e);
+        } catch (Exception e) {
+            // Purposefully empty.  Expected.
+        }
+
+        plexer.clear();
+        plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
+                Arrays.asList(new AuthTriggerBean[] {
+                        purposefullyBrokenAuthTriggerBean,
+                        purposefullyBrokenAuthTriggerBean
+                })));
+        try {
+            plexer.authenticate("dbNameKey", "u", "p");
+            fail("RTE test did not throw");
+        } catch (RuntimeException e) {
+            // Purposefully empty.  Expected.
+        } catch (Exception e) {
+            fail("RTE test did not throw a RTE but a "
+                    + e.getClass().getName());
+        }
     }
 
     /**
