@@ -32,10 +32,13 @@
 package org.hsqldb.auth;
 
 import java.sql.Array;
+import java.sql.Statement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import org.hsqldb.jdbc.JDBCArrayBasic;
 
 public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
@@ -122,6 +125,7 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
          * but I want to spend as little time here as possible.  -- blaine
          */
         AuthBeanMultiplexer plexer = AuthBeanMultiplexer.getSingleton();
+        plexer.clear();  // Clear in case a previous test method has populated
         Array res = null;
 
         try {
@@ -227,6 +231,72 @@ public class AuthBeanMultiplexerTest extends junit.framework.TestCase {
         } catch (Exception e) {
             fail("RTE test did not throw a RTE but a "
                     + e.getClass().getName());
+        }
+    }
+
+    public void testTriggers() throws SQLException {
+        String jdbcUrl = "jdbc:hsqldb:mem:AuthTestDb";
+        Statement st = null;
+        AuthBeanMultiplexer plexer = AuthBeanMultiplexer.getSingleton();
+        plexer.clear();  // Clear in case a previous test method has popd.
+        Connection con = DriverManager.getConnection(jdbcUrl, "SA", "");
+        Connection authedCon = null;
+        try {
+            st = con.createStatement();
+            try {
+                DriverManager.getConnection(jdbcUrl, "zeno", "a password");
+                fail("Security violation!  "
+                        + "Permitted unknown user w/ no auth fn in place.");
+            } catch (SQLException se) {
+                if (se.getErrorCode() != -4001) {
+                    fail("Auth failure generated SQL code " + se.getErrorCode()
+                            + " instead of -4001");
+                }
+            }
+            st.executeUpdate(
+                    "SET DATABASE AUTHENTICATION FUNCTION EXTERNAL NAME "
+                    + "'CLASSPATH:"
+                    + "org.hsqldb.auth.AuthBeanMultiplexer.authenticate'");
+            try {
+                DriverManager.getConnection(jdbcUrl, "zeno", "a password");
+                fail("Security violation!  "
+                        + "Permitted unknown user w/ empty auth fn in place.");
+            } catch (SQLException se) {
+                if (se.getErrorCode() != -4001) {
+                    fail("Auth failure generated SQL code " + se.getErrorCode()
+                            + " instead of -4001");
+                }
+            }
+
+            plexer.setAuthTriggerBeans(Collections.singletonMap("dbNameKey",
+                    Arrays.asList(new AuthTriggerBean[] {
+                            twoRolePermittingAuthTriggerBean,
+                            })));
+            try {
+                authedCon = DriverManager.getConnection(
+                        jdbcUrl, "zeno", "a password");
+            } catch (SQLException se) {
+                fail("Multiplexer with single allow rule threw: " + se);
+            }
+            authedCon.close();
+            authedCon = null;
+        } finally {
+            if (authedCon != null) try {
+                authedCon.close();
+            } catch (SQLException se) {
+                System.err.println("Close of Authed Conn. failed:" + se);
+            } finally {
+                authedCon = null;
+            }
+            if (st != null) try {
+                st.executeUpdate("SHUTDOWN");
+                st.close();
+            } catch (SQLException se) {
+                System.err.println("Close of Statement failed:" + se);
+            } finally {
+                st = null;
+            }
+            con.close();
         }
     }
 

@@ -10,7 +10,7 @@ import org.hsqldb.types.Type;
 
 /**
  * This class provides a method which can be used directly as a HyperSQL static
- * trigger method.
+ * Java function method.
  * Manages a set of AuthTriggerBean implementations
  */
 public class AuthBeanMultiplexer {
@@ -26,7 +26,7 @@ public class AuthBeanMultiplexer {
     private static AuthBeanMultiplexer singleton = new AuthBeanMultiplexer();
 
     /**
-     * @see #setAUthTriggerBeans(List)
+     * @see #setAuthTriggerBeans(List)
      */
     private static Map<String, List<AuthTriggerBean>> beans =
             new HashMap<String, List<AuthTriggerBean>>();
@@ -74,7 +74,7 @@ public class AuthBeanMultiplexer {
      * </P>
      *
      * @see setAuthTriggerBeans(Map)
-     * @see setAuthTriggerBean(String, AUthTriggerBean)
+     * @see setAuthTriggerBean(String, AuthTriggerBean)
      */
     public void setAuthTriggerBeans(String dbName,
             List<AuthTriggerBean> authTriggerBeans) {
@@ -109,7 +109,7 @@ public class AuthBeanMultiplexer {
     }
 
     /**
-     * HyperSQL Trigger Method.
+     * HyperSQL Java Function Method.
      * <P>
      * Registered AuthTriggerBeans matching the specified database and password
      * will be tried in order.
@@ -120,7 +120,7 @@ public class AuthBeanMultiplexer {
      *   <li>If the AuthTriggerBean being tried doesn't throw anything, then
      *       the return value is passed through (returned) and HyperSQL will
      *       allow access and set roles according to HyperSQL's authentication
-     *       trigger contract.
+     *       function contract.
      *   <LI>If the AuthTriggerBean being tried throws a RuntimeException, then
      *       the next AuthTriggerBean in turn will be tried.
      *       If all matching AuthTriggerBeans throw RuntimeExceptions, then the
@@ -143,7 +143,7 @@ public class AuthBeanMultiplexer {
      * @throws Exception (non-runtime).  A matching AuthTriggerBean threw this
      *         Exception.
      * @return Null or java.sql.Array to indicate successful authentication
-     *         according to the contract for HyperSQL authentication triggers.
+     *         according to the contract for HyperSQL authentication functions.
      */
     public static java.sql.Array authenticate(
             String database, String user, String password)
